@@ -1,0 +1,49 @@
+{
+  "name": "textusm.cli",
+  "description": "Generate a User Story Mapping from indented text.",
+  "version": "0.0.2",
+  "author": "Takahiro Sato",
+  "bin": {
+    "textusm": "dist/index.js"
+  },
+  "bugs": {
+    "url": "https://github.com/harehare/textusm/issues"
+  },
+  "dependencies": {
+    "@types/node": "^11.13.8",
+    "@types/puppeteer": "^1.12.3",
+    "commander": "^2.20.0",
+    "puppeteer": "^1.15.0"
+  },
+  "devDependencies": {
+    "typescript": "^3.4.5",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.1"
+  },
+  "homepage": "https://github.com/harehare/textusm",
+  "keywords": [
+    "cli",
+    "user-story-map",
+    "user-story-mapping",
+    "usm",
+    "svg",
+    "png",
+    "pdf"
+  ],
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "optionalDependencies": {
+    "bufferutil": "^4.0.1",
+    "utf-8-validate": "^5.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harehare/textusm.git"
+  },
+  "scripts": {
+    "build": "tsc index.ts --outDir dist"
+  }
+}

@@ -1,0 +1,39 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Compiled binary addons (http://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directory
+node_modules
+
+# Optional npm cache directory
+.npm
+yarn.lock
+
+# Optional REPL history
+.node_repl_history
+
+# elm-package generated files
+elm-stuff/
+# elm-repl generated files
+repl-temp-*
+
+.DS_Store
+dist
+
+ignore
+dist
+out
+tests/VerifyExamples
+package-lock.json
+firebase.json
+
+.vscode/settings.json
+.well-known
+.history
+.firebaserc
+.firebase
+*.vsix

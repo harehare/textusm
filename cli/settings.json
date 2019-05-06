@@ -1,0 +1,34 @@
+{
+    "font": "Open Sans",
+    "position": 0,
+    "text": "",
+    "title": "TestUSM",
+    "storyMap": {
+        "font": "Open Sans",
+        "size": {
+            "width": 140,
+            "height": 65
+        },
+        "backgroundColor": "#111",
+        "color": {
+            "activity": {
+                "color": "#111111",
+                "backgroundColor": "#266B9A"
+            },
+            "task": {
+                "color": "#FFFFFF",
+                "backgroundColor": "#3E9BCD"
+            },
+            "story": {
+                "color": "#000000",
+                "backgroundColor": "#FFFFFF"
+            },
+            "comment": {
+                "color": "#000000",
+                "backgroundColor": "#F1B090"
+            },
+            "line": "#434343",
+            "label": "#8C9FAE"
+        }
+    }
+}
