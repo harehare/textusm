@@ -6140,60 +6140,50 @@ var author$project$Components$Figure$loadText = F2(
 	function (indent, input) {
 		var splited = A2(author$project$Parser$parseLines, indent, input);
 		if (!splited.$) {
-			var _n1 = splited.a;
-			var x = _n1.a;
-			var xs = _n1.b;
-			var tail = elm$core$List$tail(x);
-			var head = elm$core$List$head(x);
-			if (!head.$) {
-				var text = head.a;
-				if (!tail.$) {
-					var children = tail.a;
-					return A2(
-						elm$core$Result$andThen,
-						function (_n4) {
-							var indents = _n4.a;
-							var items = _n4.b;
-							return A2(
-								elm$core$Result$andThen,
-								function (_n5) {
-									var indents2 = _n5.a;
-									var tailItems = _n5.b;
-									var _n6 = author$project$Components$Figure$getTextAndComment(text);
-									var t = _n6.a;
-									var n = _n6.b;
-									return elm$core$Result$Ok(
-										_Utils_Tuple2(
-											A2(
-												elm$core$List$cons,
-												indent,
-												_Utils_ap(indents, indents2)),
-											A2(
-												elm$core$List$cons,
-												{
-													ac: items,
-													T: n,
-													au: author$project$Components$Figure$getItemType(indent),
-													cA: t
-												},
-												tailItems)));
-								},
-								A2(
-									author$project$Components$Figure$loadText,
-									indent,
-									A2(elm$core$String$join, '\n', xs)));
-						},
-						A2(
-							author$project$Components$Figure$loadText,
-							indent + 1,
-							A2(elm$core$String$join, '\n', children)));
-				} else {
-					return elm$core$Result$Ok(
-						_Utils_Tuple2(
-							_List_fromArray(
-								[indent]),
-							_List_Nil));
-				}
+			if (splited.a.a.b) {
+				var _n1 = splited.a;
+				var _n2 = _n1.a;
+				var x = _n2.a;
+				var xs = _n2.b;
+				var xxs = _n1.b;
+				return A2(
+					elm$core$Result$andThen,
+					function (_n3) {
+						var indents = _n3.a;
+						var items = _n3.b;
+						return A2(
+							elm$core$Result$andThen,
+							function (_n4) {
+								var indents2 = _n4.a;
+								var tailItems = _n4.b;
+								var _n5 = author$project$Components$Figure$getTextAndComment(x);
+								var t = _n5.a;
+								var n = _n5.b;
+								return elm$core$Result$Ok(
+									_Utils_Tuple2(
+										A2(
+											elm$core$List$cons,
+											indent,
+											_Utils_ap(indents, indents2)),
+										A2(
+											elm$core$List$cons,
+											{
+												ac: items,
+												T: n,
+												au: author$project$Components$Figure$getItemType(indent),
+												cA: t
+											},
+											tailItems)));
+							},
+							A2(
+								author$project$Components$Figure$loadText,
+								indent,
+								A2(elm$core$String$join, '\n', xxs)));
+					},
+					A2(
+						author$project$Components$Figure$loadText,
+						indent + 1,
+						A2(elm$core$String$join, '\n', xs)));
 			} else {
 				return elm$core$Result$Ok(
 					_Utils_Tuple2(

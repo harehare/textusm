@@ -6,7 +6,7 @@
 		"name": "harehare"
 	},
 	"publisher": "harehare",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.33.0"
 	},
@@ -31,6 +31,9 @@
 		}, {
 			"command": "extension.exportSvg",
 			"title": "TextUSM: Export SVG"
+		}, {
+			"command": "extension.exportPng",
+			"title": "TextUSM: Export PNG"
 		}],
 		"configuration": {
 			"type": "object",

@@ -21,6 +21,13 @@ export function activate(context: vscode.ExtensionContext) {
             }
         })
     );
+    context.subscriptions.push(
+        vscode.commands.registerCommand("extension.exportPng", () => {
+            if (FigurePanel.currentPanel) {
+                FigurePanel.currentPanel.exportPng();
+            }
+        })
+    );
 }
 
 export function deactivate() {}
@@ -66,13 +73,52 @@ class FigurePanel {
             }
         );
 
-        FigurePanel.currentPanel = new FigurePanel(
-            panel,
-            scriptSrc,
-            title,
-            text
-        );
+        const figurePanel = new FigurePanel(panel, scriptSrc, title, text);
+
+        FigurePanel.currentPanel = figurePanel;
         FigurePanel.currentPanel._addTextChangedEvent(editor);
+
+        figurePanel._panel.webview.onDidReceiveMessage(message => {
+            if (message.command === "exportPng") {
+                const dir = vscode.workspace
+                    .getConfiguration()
+                    .get("textusm.exportDir");
+                const filePath = `${dir ? dir.toString() : "."}/${
+                    figurePanel._panel.title
+                }.png`;
+                const base64Data = message.text.replace(
+                    /^data:image\/png;base64,/,
+                    ""
+                );
+
+                fs.writeFileSync(filePath, base64Data, "base64");
+                vscode.window.showInformationMessage(`Exported: ${filePath}`);
+            } else if (message.command === "exportSvg") {
+                const backgroundColor = vscode.workspace
+                    .getConfiguration()
+                    .get("textusm.backgroundColor");
+                const dir = vscode.workspace
+                    .getConfiguration()
+                    .get("textusm.exportDir");
+                const filePath = `${dir ? dir.toString() : "."}/${
+                    figurePanel._panel.title
+                }.svg`;
+                fs.writeFileSync(
+                    filePath,
+                    `<?xml version="1.0"?>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${
+                        message.width
+                    } ${message.height}" width="${message.width}" height="${
+                        message.height
+                    }" style="background-color: ${backgroundColor};">
+                    ${message.text
+                        .split("<div")
+                        .join('<div xmlns="http://www.w3.org/1999/xhtml"')}
+                    </svg>`
+                );
+                vscode.window.showInformationMessage(`Exported: ${filePath}`);
+            }
+        });
     }
 
     private constructor(
@@ -91,28 +137,17 @@ class FigurePanel {
         this._panel.dispose();
     }
 
-    public exportSvg() {
-        this._panel.webview.onDidReceiveMessage(message => {
-            if (message.command === "exportSvg") {
-                console.log(message);
-                const dir = vscode.workspace
-                    .getConfiguration()
-                    .get("textusm.exportDir");
-                const filePath = `${dir ? dir.toString() : "."}/${
-                    this._panel.title
-                }.svg`;
-                fs.writeFileSync(
-                    filePath,
-                    `<?xml version="1.0"?>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" style="background-color: #F5F5F6;">
-                    ${message.text
-                        .split("<div")
-                        .join('<div xmlns="http://www.w3.org/1999/xhtml"')}
-                    </svg>`
-                );
-                vscode.window.showInformationMessage(`Exported: ${filePath}`);
-            }
+    public exportPng() {
+        const backgroundColor = vscode.workspace
+            .getConfiguration()
+            .get("textusm.backgroundColor");
+        this._panel.webview.postMessage({
+            command: "exportPng",
+            backgroundColor
         });
+    }
+
+    public exportSvg() {
         this._panel.webview.postMessage({
             command: "exportSvg"
         });
@@ -120,7 +155,6 @@ class FigurePanel {
 
     private _update(scriptSrc: vscode.Uri, title: string, text: string) {
         this._panel.title = `${title}`;
-        console.log(this.getWebviewContent(scriptSrc, text));
         this._panel.webview.html = this.getWebviewContent(scriptSrc, text);
     }
 
@@ -201,21 +235,68 @@ class FigurePanel {
                 storyBackground ? storyBackground : "#FFFFFF"
             }"
         }});
+        const createSvg = (svgHTML, backgroundColor, width, height) => {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+            svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+            svg.setAttribute('width', width);
+            svg.setAttribute('height', height);
+            svg.setAttribute('style', 'background-color: ' + backgroundColor)
+            svg.innerHTML = svgHTML
+            return svg
+        }
         window.addEventListener('message', event => {
             const message = event.data;
 
             if (message.command === 'textChanged') {
                 app.ports.onTextChanged.send(message.text);
             } else if (message.command === 'exportSvg') {
-                const usm = document.querySelector('#usm-area');
+                const usm = document.querySelector('#usm-area').cloneNode(true);
+                const usmSvg = usm.querySelector('#usm');
                 const zoomControl = usm.querySelector('#zoom-control');
 
-                usm.removeChild(zoomControl);
+                try {
+                    usm.removeChild(zoomControl);
+                } catch {}
 
                 vscode.postMessage({
                     command: 'exportSvg',
-                    text: usm.innerHTML
+                    text: usm.innerHTML,
+                    width: usmSvg.getAttribute('width'),
+                    height: usmSvg.getAttribute('height')
                 })
+            } else if (message.command === 'exportPng') {
+                const usm = document.querySelector('#usm-area').cloneNode(true);
+                const usmSvg = usm.querySelector('#usm');
+                const zoomControl = usm.querySelector('#zoom-control');
+
+                try {
+                    usm.removeChild(zoomControl);
+                } catch {}
+
+                const canvas = document.createElement('canvas')
+                canvas.setAttribute('width', usmSvg.getAttribute('width'));
+                canvas.setAttribute('height', usmSvg.getAttribute('height'));
+                canvas.style.display = 'none'
+
+                const context = canvas.getContext('2d')
+                const img = new Image()
+                img.addEventListener('load', () => {
+                    context.drawImage(img, 0, 0)
+                    const url = canvas.toDataURL('image/png')
+                    setTimeout(() => {
+                        canvas.remove()
+                        vscode.postMessage({
+                            command: 'exportPng',
+                            text: url
+                        })
+                    }, 10)
+                }, false)
+                img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(new XMLSerializer().serializeToString(
+                    createSvg(usmSvg.innerHTML,
+                              message.backgroundColor,
+                              usmSvg.getAttribute('width'),
+                              usmSvg.getAttribute('height')))
+                )
             }
         });
     </script>

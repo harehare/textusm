@@ -1,6 +1,6 @@
 # TextUSM
 
-![](https://img.shields.io/badge/Release-v0.0.1-blue.svg?style=flat-square)
+![](https://img.shields.io/badge/Release-v0.0.3-blue.svg?style=flat-square)
 ![](https://img.shields.io/badge/vscode-^1.33.0-blue.svg?style=flat-square)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
@@ -16,6 +16,7 @@ https://textusm.firebaseapp.com
 
 -   `TextUSM: Open Preview`
 -   `TextUSM: Export SVG`
+-   `TextUSM: Export PNG`
 
 ## Options
 
