@@ -1,0 +1,42 @@
+{
+    "description": "This Chrome extension is generate a user story mapping in Github.",
+    "background": {
+        "persistent": false,
+        "scripts": [
+            "dist/background.js"
+        ]
+    },
+    "icons": {
+        "24": "images/icon_24x24.png",
+        "72": "images/icon_72x72.png",
+        "128": "images/icon_128x128.png",
+        "152": "images/icon_152x152.png",
+        "192": "images/icon_192x192.png",
+        "384": "images/icon_384x384.png",
+        "512": "images/icon_512x512.png"
+    },
+    "browser_action": {
+        "default_popup": "index.html",
+        "default_title": "TextUSM"
+    },
+    "manifest_version": 2,
+    "name": "TextUSM",
+    "version": "0.0.2",
+    "web_accessible_resources": [
+        "images/icon.png"
+    ],
+    "permissions": [
+        "tabs",
+        "contextMenus",
+        "activeTab"
+    ],
+    "content_scripts": [{
+        "run_at": "document_idle",
+        "matches": [
+            "https://github.com/*"
+        ],
+        "js": [
+            "dist/content.js"
+        ]
+    }]
+}

@@ -37,3 +37,5 @@ firebase.json
 .firebaserc
 .firebase
 *.vsix
+*.pem
+elm.js

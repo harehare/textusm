@@ -2,7 +2,7 @@
 
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
-Generate a User Story Mapping from indented text.
+Online tool for Generate a User Story Mapping from indented text.
 
 ![image](./img/textusm.gif)
 
@@ -10,7 +10,8 @@ Generate a User Story Mapping from indented text.
 
 -   [Web](https://textusm.firebaseapp.com)
 -   [Android](https://play.google.com/store/apps/details?id=me.textusm.usm)
--   [VScode Extension](https://marketplace.visualstudio.com/items?itemName=harehare.textusm)
+-   [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=harehare.textusm)
+-   [Chrome Extension](https://chrome.google.com/webstore/detail/godhdokkibfjekpoikkghnjgemibmhka)
 -   [CLI](https://www.npmjs.com/package/textusm.cli)
 
 ## Developing
