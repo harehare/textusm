@@ -16,6 +16,7 @@ const defaultSettings = {
             width: 140,
             height: 65
         },
+        backgroundColor: "#F5F5F6",
         color: {
             activity: {
                 color: "#FFFFFF",
@@ -54,7 +55,7 @@ const { configFile, input, output } = commander
     .option("-i, --input <input>", "Input text file. Required.")
     .option(
         "-o, --output [output]",
-        "Output file. It should be svg, png or pdf."
+        "Output file. It should be svg, png, pdf or html."
     )
     .parse(process.argv);
 
@@ -73,7 +74,7 @@ if (!fs.existsSync(input)) {
     process.exit(1);
 }
 
-if (output && !/\.(?:svg|png|pdf)$/.test(output)) {
+if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
     console.error(`Output file must be svg, png or pdf.`);
     process.exit(1);
 }
@@ -134,13 +135,28 @@ if (output && !/\.(?:svg|png|pdf)$/.test(output)) {
                 landscape: true,
                 printBackground: false
             });
+        } else if (output.endsWith("html")) {
+            const html = await page.evaluate(() => {
+                const doc = document.documentElement;
+                console.log(doc.querySelectorAll("script"));
+                doc.querySelectorAll("script").forEach(e => {
+                    e.remove();
+                });
+                doc.querySelectorAll("link").forEach(e => {
+                    e.remove();
+                });
+                return `<html>${doc.innerHTML}</html>`;
+            });
+            fs.writeFileSync(output, html);
         }
 
         browser.close();
-    } catch (_) {
+    } catch (e) {
+        console.log(e);
         console.error("Internal error.");
         browser.close();
     }
-})().catch(_ => {
+})().catch(e => {
+    console.log(e);
     console.error("Internal error.");
 });

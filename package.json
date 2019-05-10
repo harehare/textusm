@@ -8,7 +8,7 @@
     },
     "dependencies": {
         "lzutf8": "^0.5.5",
-        "monaco-editor": "^0.16.2"
+        "monaco-editor": "^0.17.0"
     },
     "devDependencies": {
         "@babel/core": "^7.3.4",
@@ -56,9 +56,9 @@
     },
     "scripts": {
         "build": "webpack",
-        "deploy": "NODE_ENV=prod webpack --mode production && cp -r .well-known dist/ && firebase deploy --only hosting",
+        "deploy": "NODE_ENV=production webpack --mode production && cp -r .well-known dist/ && firebase deploy --only hosting",
         "dev": "webpack-dev-server --hot --colors --port 3000",
-        "prod": "NODE_ENV=prod webpack --mode production",
+        "prod": "NODE_ENV=production webpack --mode production",
         "start": "npm run dev",
         "test": "elm-test",
         "vscode:build": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.js && mv elm.js extension/vscode/js/",

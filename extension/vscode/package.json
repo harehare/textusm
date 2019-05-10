@@ -6,7 +6,7 @@
 		"name": "harehare"
 	},
 	"publisher": "harehare",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"engines": {
 		"vscode": "^1.33.0"
 	},
@@ -18,23 +18,32 @@
 	"categories": [
 		"Other"
 	],
-	"keywords": ["svg", "user-story-mapping", "user-story-map"],
+	"keywords": [
+		"svg",
+		"user-story-mapping",
+		"user-story-map",
+		"diagram"
+	],
 	"activationEvents": [
 		"onCommand:extension.showPreview",
-		"onCommand:extension.exportSvg"
+		"onCommand:extension.exportSvg",
+		"onCommand:extension.exportPng"
 	],
-	"main": "./out/extension.js",
+	"main": "./dist/extension.js",
 	"contributes": {
 		"commands": [{
-			"command": "extension.showPreview",
-			"title": "TextUSM: Open Preview"
-		}, {
-			"command": "extension.exportSvg",
-			"title": "TextUSM: Export SVG"
-		}, {
-			"command": "extension.exportPng",
-			"title": "TextUSM: Export PNG"
-		}],
+				"command": "extension.showPreview",
+				"title": "TextUSM: Open Preview"
+			},
+			{
+				"command": "extension.exportSvg",
+				"title": "TextUSM: Export SVG"
+			},
+			{
+				"command": "extension.exportPng",
+				"title": "TextUSM: Export PNG"
+			}
+		],
 		"configuration": {
 			"type": "object",
 			"title": "TextUSM",
@@ -88,18 +97,22 @@
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install",
-		"test": "npm run compile && node ./node_modules/vscode/bin/test"
+		"vscode:prepublish": "NODE_ENV=production webpack --mode production",
+		"dev": "webpack --mode development --watch",
+		"prod": "NODE_ENV=production webpack --mode production"
 	},
 	"devDependencies": {
+		"@types/mocha": "^2.2.42",
+		"@types/node": "^10.12.21",
+		"terser-webpack-plugin": "^1.2.3",
+		"ts-loader": "^6.0.0",
+		"tslint": "^5.12.1",
 		"typescript": "^3.3.1",
 		"vscode": "^1.1.28",
-		"tslint": "^5.12.1",
-		"@types/node": "^10.12.21",
-		"@types/mocha": "^2.2.42"
+		"webpack": "^4.31.0",
+		"webpack-cli": "^3.3.2",
+		"webpack-merge": "^4.2.1",
+		"webpack-node-externals": "^1.7.2"
 	},
 	"repository": {
 		"type": "git",

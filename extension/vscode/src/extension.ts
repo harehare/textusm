@@ -16,6 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(
         vscode.commands.registerCommand("extension.exportSvg", () => {
+            FigurePanel.createOrShow(context);
             if (FigurePanel.currentPanel) {
                 FigurePanel.currentPanel.exportSvg();
             }
@@ -23,6 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
     context.subscriptions.push(
         vscode.commands.registerCommand("extension.exportPng", () => {
+            FigurePanel.createOrShow(context);
             if (FigurePanel.currentPanel) {
                 FigurePanel.currentPanel.exportPng();
             }

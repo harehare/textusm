@@ -16,7 +16,7 @@ const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin
 
 
 const MODE =
-    process.env.NODE_ENV === 'prod' ? 'production' : 'development';
+    process.env.NODE_ENV === 'production' ? 'production' : 'development';
 const withDebug = !process.env.NODE_ENV;
 const dist = path.join(__dirname, 'dist')
 
