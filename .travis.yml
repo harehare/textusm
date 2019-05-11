@@ -1,0 +1,5 @@
+language: elm
+elm-test: 0.19.0
+elm-format: 0.8.1
+script:
+    - elm-format --validate . && npm run test

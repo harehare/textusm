@@ -1,5 +1,6 @@
 # TextUSM
 
+[![Build Status](https://travis-ci.com/harehare/textusm.svg?branch=master)](https://travis-ci.com/harehare/textusm)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
 Online tool for Generate a User Story Mapping from indented text.
