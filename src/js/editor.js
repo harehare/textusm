@@ -126,8 +126,21 @@ export const loadEditor = (app, text) => {
       }
     })
 
-    monacoEditor.onDidChangeModelContent(function (e) {
-      app.ports.changeText.send(monacoEditor.getValue())
+    let update = null;
+
+    monacoEditor.onDidChangeModelContent((e) => {
+      if (e.changes.length > 0) {
+        const line = monacoEditor.getModel().getLineContent(e.changes[0].range.startLineNumber)
+        if (!line.startsWith('#')) {
+          if (update) {
+            clearTimeout(update);
+            update = null;
+          }
+          update = setTimeout(() => {
+            app.ports.changeText.send(monacoEditor.getValue())
+          }, 500);
+        }
+      }
     })
   }, 100)
 }

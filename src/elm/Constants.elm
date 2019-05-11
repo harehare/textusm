@@ -8,7 +8,7 @@ commentSize =
 
 itemMargin : Int
 itemMargin =
-    24
+    16
 
 
 smallItemMargin : Int
@@ -18,7 +18,7 @@ smallItemMargin =
 
 leftMargin : Int
 leftMargin =
-    100
+    80
 
 
 inputPrefix : String

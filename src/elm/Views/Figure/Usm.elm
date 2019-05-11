@@ -75,7 +75,7 @@ labelView settings hierarchy width countByHierarchy =
                     , x2 (String.fromInt width)
                     , y2 (String.fromInt (itemMargin // 2 + (settings.size.height + itemMargin) * 2))
                     , stroke settings.color.line
-                    , strokeWidth "3"
+                    , strokeWidth "2"
                     ]
                     []
 
@@ -113,7 +113,7 @@ labelView settings hierarchy width countByHierarchy =
             ++ (if hierarchy > 1 then
                     [ text_
                         [ x textX
-                        , y "225"
+                        , y "200"
                         , fontFamily settings.font
                         , fontWeight "bold"
                         , fill settings.color.label
@@ -123,7 +123,7 @@ labelView settings hierarchy width countByHierarchy =
                         [ text "USER STORIES" ]
                     , text_
                         [ x textX
-                        , y "250"
+                        , y "225"
                         , fontFamily settings.font
                         , fontWeight "bold"
                         , fill settings.color.label
@@ -160,7 +160,7 @@ labelView settings hierarchy width countByHierarchy =
                                     , x2 (String.fromInt width)
                                     , y2 (String.fromInt releaseY)
                                     , stroke settings.color.line
-                                    , strokeWidth "3"
+                                    , strokeWidth "2"
                                     ]
                                     []
                                 , text_
@@ -437,6 +437,7 @@ rectView posX poxY color =
         [ width posX
         , height poxY
         , fill color
+        , stroke "rgba(192,192,192,0.5)"
         ]
         []
 

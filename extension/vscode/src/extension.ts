@@ -161,13 +161,19 @@ class FigurePanel {
     }
 
     private _addTextChangedEvent(editor: vscode.TextEditor | undefined) {
+        let updated: null | NodeJS.Timeout = null;
         vscode.workspace.onDidChangeTextDocument(e => {
             if (editor) {
                 if (e.document.uri === editor.document.uri) {
-                    this._panel.webview.postMessage({
-                        command: "textChanged",
-                        text: e.document.getText()
-                    });
+                    if (updated) {
+                        clearTimeout(updated);
+                    }
+                    updated = setTimeout(() => {
+                        this._panel.webview.postMessage({
+                            command: "textChanged",
+                            text: e.document.getText()
+                        });
+                    }, 1000);
                 }
             }
         });
