@@ -98,7 +98,7 @@ labelView settings hierarchy width countByHierarchy =
           , if hierarchy > 0 then
                 text_
                     [ x textX
-                    , y "115"
+                    , y "105"
                     , fontFamily settings.font
                     , fontWeight "bold"
                     , fill settings.color.label
@@ -194,7 +194,7 @@ itemView settings itemType posX posY text =
                 Tasks ->
                     ( settings.color.task.color, settings.color.task.backgroundColor )
 
-                Stories ->
+                _ ->
                     ( settings.color.story.color, settings.color.story.backgroundColor )
     in
     svg
@@ -369,12 +369,7 @@ storyView : Settings -> List Int -> Int -> Int -> Int -> Item -> Svg Msg
 storyView settings verticalCount parentCount posX posY item =
     let
         itemCount =
-            case List.head verticalCount of
-                Just xs ->
-                    xs
-
-                Nothing ->
-                    1
+            List.head verticalCount |> Maybe.withDefault 1
 
         children =
             case item.children of
@@ -388,17 +383,12 @@ storyView settings verticalCount parentCount posX posY item =
             List.length children
 
         tail =
-            case List.tail verticalCount of
-                Just xs ->
-                    xs
-
-                Nothing ->
-                    []
+            List.tail verticalCount |> Maybe.withDefault []
     in
     Keyed.node "g"
         []
         ([ ( "story-" ++ item.text
-           , itemView settings Stories posX posY item.text
+           , itemView settings (Stories 1) posX posY item.text
            )
          , ( "comment-" ++ item.text
            , case item.comment of

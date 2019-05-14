@@ -7,7 +7,7 @@ document.querySelectorAll('[lang="textusm"]').forEach(e => {
         if (text) {
             Elm.Extension.Chrome.init({
                 node: e,
-                flags: { text }
+                flags: text
             });
         }
     }

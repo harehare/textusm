@@ -1,9 +1,9 @@
 body {
     background-color: #282c32;
     overflow: hidden;
-    font-family: "Open Sans", apple-system, BlinkMacSystemFont,
-        Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium,
-        YuGothic, YuGothicM, メイリオ, Meiryo, sans-serif;
+    font-family: "Open Sans", apple-system, BlinkMacSystemFont, Helvetica Neue,
+        Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,
+        メイリオ, Meiryo, sans-serif;
     margin: 0;
     padding: 0;
 }
@@ -38,12 +38,12 @@ rect {
         border-width: 5px;
         border-style: solid;
         transform: rotate(90deg);
-        border-color: #F5F5F6 transparent transparent transparent;
+        border-color: #f5f5f6 transparent transparent transparent;
     }
 }
 
 .menu-item:hover {
-    color: #266B9A;
+    color: #266b9a;
 }
 
 .menu-button {
@@ -55,7 +55,7 @@ rect {
         .tooltip {
             visibility: visible;
             opacity: 1;
-            color: #F5F5F6;
+            color: #f5f5f6;
         }
     }
 }
@@ -67,10 +67,12 @@ rect {
     height: 10px;
     width: 200px;
     border: 1px solid transparent;
-    box-shadow: 0 0 5px rgba(255, 255, 255, .5);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
     margin: 8px;
     outline: none;
-    font-family: 'Open Sans', apple-system, BlinkMacSystemFont, Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM, メイリオ, Meiryo, sans-serif;
+    font-family: "Open Sans", apple-system, BlinkMacSystemFont, Helvetica Neue,
+        Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,
+        メイリオ, Meiryo, sans-serif;
 }
 
 .input:focus {
@@ -78,7 +80,7 @@ rect {
 }
 
 .error {
-    background-color: #FF0000;
+    background-color: #ff0000;
     width: 35px !important;
     margin-top: 2px !important;
     height: 14px !important;
@@ -86,7 +88,7 @@ rect {
 
 .tab-selected {
     border-bottom: 2px solid #848a90;
-    color: #FFF;
+    color: #fff;
     width: 50vw;
     text-align: center;
     margin: 8px;
@@ -94,7 +96,7 @@ rect {
 }
 
 .tab {
-    color: #F5F5F6;
+    color: #f5f5f6;
     width: 50vw;
     text-align: center;
     margin: 8px;
@@ -102,16 +104,14 @@ rect {
 }
 
 .menu-bar {
-    display:
-        flex;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     width: 56px;
     min-width: 56px;
-    background-color: #282C32;
-    box-shadow:
-        inset 0 -96px 48px -96px #282C32;
+    background-color: #282c32;
+    box-shadow: inset 0 -96px 48px -96px #282c32;
 }
 
 .menu-item {
@@ -124,31 +124,32 @@ rect {
     position: relative;
 }
 
-
 .progress {
     position: relative;
     height: 4px;
     display: block;
     width: 100%;
-    background-color: rgba(62, 155, 205, 0.5);
+    background-color: rgba(62, 155, 205, 0.1);
     border-radius: 2px;
     background-clip: padding-box;
     overflow: hidden;
 
     .indeterminate {
-        background-color: #266B9A;
+        background-color: #266b9a;
     }
 
     .indeterminate:before {
-        content: '';
+        content: "";
         position: absolute;
         background-color: inherit;
         top: 0;
         left: 0;
         bottom: 0;
         will-change: left, right;
-        -webkit-animation: indeterminate 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
-        animation: indeterminate 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+        -webkit-animation: indeterminate 2.1s
+            cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+        animation: indeterminate 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395)
+            infinite;
     }
 }
 
@@ -157,7 +158,7 @@ rect {
     display: none !important;
 }
 
-@media screen and (min-width:480px) {
+@media screen and (min-width: 480px) {
     .tooltip {
         visibility: hidden;
         text-align: center;
@@ -171,7 +172,7 @@ rect {
         margin-left: -60px;
 
         .text {
-            background-color: rgba($color: #F5F5F6, $alpha: 0.8);
+            background-color: rgba($color: #f5f5f6, $alpha: 0.8);
             color: #000;
             padding: 5px 10px;
             border-radius: 2px;
@@ -181,21 +182,18 @@ rect {
     }
 }
 
-@media screen and (max-width:480px) {
-
+@media screen and (max-width: 480px) {
     .tooltip {
         display: none;
     }
 
     .menu-bar {
-        display:
-            flex;
+        display: flex;
         align-items: center;
         width: 100vw;
         height: 57px;
-        background-color: #282C32;
-        box-shadow:
-            inset 0 -96px 48px -96px #282C32;
+        background-color: #282c32;
+        box-shadow: inset 0 -96px 48px -96px #282c32;
         position: fixed;
         bottom: 0;
         flex-direction: row;

@@ -1,5 +1,6 @@
 module Main exposing (init, main, view)
 
+import Api
 import Basics exposing (max)
 import Browser
 import Browser.Dom as Dom
@@ -35,27 +36,26 @@ import Views.SplitWindow as SplitWindow
 import Views.Tab as Tab
 
 
-init : Settings -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init : ( String, Settings ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
+    let
+        ( apiRoot, settings ) =
+            flags
+    in
     changeRouteTo (toRoute url)
-        { figureModel = Figure.init flags.storyMap
-        , text = flags.text
+        { figureModel = Figure.init settings.storyMap
+        , text = settings.text |> Maybe.withDefault ""
         , openMenu = Nothing
-        , title =
-            if String.isEmpty flags.title then
-                Nothing
-
-            else
-                Just flags.title
+        , title = settings.title
         , isEditTitle = False
         , window =
-            { position = flags.position
+            { position = settings.position |> Maybe.withDefault 0
             , moveStart = False
             , moveX = 0
             , fullscreen = False
             }
         , share = Nothing
-        , settings = flags
+        , settings = settings
         , isEditSettings = False
         , notification = Nothing
         , url = url
@@ -63,6 +63,10 @@ init flags url key =
         , mapType = UserStoryMapping
         , tabIndex = 1
         , progress = True
+        , apiConfig =
+            { apiRoot = apiRoot
+            }
+        , isExporting = False
         }
 
 
@@ -82,6 +86,11 @@ view model =
             Nothing ->
                 div [] []
         , if model.progress then
+            ProgressBar.view
+
+          else
+            div [] []
+        , if model.isExporting then
             ProgressBar.view
 
           else
@@ -145,7 +154,7 @@ view model =
         ]
 
 
-main : Program Settings Model Msg
+main : Program ( String, Settings ) Model Msg
 main =
     Browser.application
         { init = init
@@ -174,6 +183,29 @@ main =
 changeRouteTo : Route -> Model -> ( Model, Cmd Msg )
 changeRouteTo route model =
     case route of
+        Route.CallbackTrello (Just token) (Just code) ->
+            let
+                usm =
+                    Figure.update (FigureModel.OnChangeText model.text) model.figureModel
+
+                req =
+                    Api.createRequest token code usm.hierarchy (model.title |> Maybe.withDefault "UnTitled") usm.items
+
+                apiConfig =
+                    { apiRoot = model.apiConfig.apiRoot
+                    }
+            in
+            ( { model
+                | apiConfig = apiConfig
+                , isExporting = True
+              }
+            , Cmd.batch
+                [ Task.perform Init Dom.getViewport
+                , Task.perform identity (Task.succeed (OnNotification "Start export."))
+                , Task.attempt Exported (Api.export apiConfig Api.Trello req)
+                ]
+            )
+
         Route.Share title path ->
             ( { model
                 | window =
@@ -226,13 +258,8 @@ changeRouteTo route model =
                             , moveX = model.window.moveX
                             , fullscreen = True
                             }
-                        , text = String.replace "\\n" "\n" settings.text
-                        , title =
-                            if String.isEmpty settings.title then
-                                Nothing
-
-                            else
-                                Just settings.title
+                        , text = String.replace "\\n" "\n" (settings.text |> Maybe.withDefault "")
+                        , title = settings.title
                       }
                     , Task.perform Init Dom.getViewport
                     )
@@ -291,12 +318,6 @@ update message model =
                     ( { model
                         | figureModel = usm
                         , progress = False
-                        , window =
-                            { position = model.window.position
-                            , moveStart = model.window.moveStart
-                            , moveX = model.window.moveX
-                            , fullscreen = model.window.fullscreen
-                            }
                       }
                     , Cmd.batch
                         [ errorLine err
@@ -308,12 +329,6 @@ update message model =
                     ( { model
                         | figureModel = usm
                         , progress = False
-                        , window =
-                            { position = model.window.position
-                            , moveStart = model.window.moveStart
-                            , moveX = model.window.moveX
-                            , fullscreen = model.window.fullscreen
-                            }
                       }
                     , loadEditor model.text
                     )
@@ -373,12 +388,7 @@ update message model =
         SaveToLocal ->
             let
                 title =
-                    case model.title of
-                        Just xs ->
-                            xs
-
-                        Nothing ->
-                            ""
+                    model.title |> Maybe.withDefault ""
             in
             ( model, Download.string title "text/plain" model.text )
 
@@ -445,15 +455,10 @@ update message model =
 
                     settings =
                         { currentSettings
-                            | text = model.text
+                            | text = Just model.text
                             , title =
-                                case model.title of
-                                    Just xs ->
-                                        xs
-
-                                    Nothing ->
-                                        ""
-                            , position = model.window.position
+                                model.title
+                            , position = Just model.window.position
                         }
                 in
                 ( { model | settings = settings }
@@ -503,7 +508,7 @@ update message model =
             ( model, encodeShareText { title = model.title, text = model.text } )
 
         OnNotification text ->
-            ( { model | notification = Just text }, Utils.delay 3000 OnCloseNotification )
+            ( { model | notification = Just text }, Utils.delay 5000 OnCloseNotification )
 
         OnCloseNotification ->
             ( { model | notification = Nothing }, Cmd.none )
@@ -534,3 +539,16 @@ update message model =
 
         UrlChanged url ->
             changeRouteTo (toRoute url) model
+
+        GetAccessTokenForTrello ->
+            ( model, Api.getAccessToken model.apiConfig Api.Trello )
+
+        Exported (Err e) ->
+            -- TODO:
+            ( { model | isExporting = False }, Task.perform identity (Task.succeed (OnNotification "Error export.")) )
+
+        Exported (Ok result) ->
+            -- TODO:
+            ( { model | isExporting = False }
+            , Task.perform identity (Task.succeed (OnNotification "Finish export."))
+            )

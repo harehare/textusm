@@ -39,8 +39,8 @@ type alias Item =
 
 type ItemType
     = Activities
-    | Stories
     | Tasks
+    | Stories Int
 
 
 type alias UsmSvg =

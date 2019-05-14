@@ -8,11 +8,11 @@ import Models.Model as Model exposing (Settings)
 settingsDecoder : D.Decoder Model.Settings
 settingsDecoder =
     D.map5 Model.Settings
+        (D.maybe (D.field "position" D.int))
         (D.field "font" D.string)
-        (D.field "position" D.int)
-        (D.field "text" D.string)
-        (D.field "title" D.string)
         (D.field "storyMap" figureDecoder)
+        (D.maybe (D.field "text" D.string))
+        (D.maybe (D.field "title" D.string))
 
 
 figureDecoder : D.Decoder Figure.Settings

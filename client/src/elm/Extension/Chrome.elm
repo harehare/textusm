@@ -1,4 +1,4 @@
-port module Extension.Chrome exposing (init, main, view)
+module Extension.Chrome exposing (init, main, view)
 
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
@@ -21,16 +21,11 @@ type alias Model =
     }
 
 
-type alias InitData =
-    { text : String
-    }
-
-
 type Msg
     = UpdateFigure FigureModel.Msg
 
 
-init : InitData -> ( Model, Cmd Msg )
+init : String -> ( Model, Cmd Msg )
 init flags =
     ( { figureModel =
             { items = []
@@ -83,9 +78,9 @@ init flags =
             , comment = Nothing
             , touchDistance = Nothing
             }
-      , text = flags.text
+      , text = flags
       }
-    , Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText flags.text)))
+    , Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText flags)))
     )
 
 
@@ -107,7 +102,7 @@ view model =
         ]
 
 
-main : Program InitData Model Msg
+main : Program String Model Msg
 main =
     Browser.element
         { init = init

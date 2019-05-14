@@ -131,7 +131,7 @@ updateTest =
                                             Children
                                                 [ { text = "test3"
                                                   , comment = Nothing
-                                                  , itemType = Stories
+                                                  , itemType = Stories 1
                                                   , children = Children []
                                                   }
                                                 ]
@@ -156,12 +156,12 @@ updateTest =
                                             Children
                                                 [ { text = "test3"
                                                   , comment = Nothing
-                                                  , itemType = Stories
+                                                  , itemType = Stories 1
                                                   , children = Children []
                                                   }
                                                 , { text = "test4"
                                                   , comment = Nothing
-                                                  , itemType = Stories
+                                                  , itemType = Stories 1
                                                   , children = Children []
                                                   }
                                                 ]

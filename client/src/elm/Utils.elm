@@ -27,12 +27,7 @@ fileLoad file msg =
 
 getTitle : Maybe String -> String
 getTitle title =
-    case title of
-        Just t ->
-            t
-
-        Nothing ->
-            "untitled"
+    title |> Maybe.withDefault "untitled"
 
 
 delay : Float -> Msg -> Cmd Msg

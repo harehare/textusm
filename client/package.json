@@ -18,6 +18,7 @@
         "closure-webpack-plugin": "^2.0.1",
         "copy-webpack-plugin": "^5.0.0",
         "css-loader": "^2.1.0",
+        "dotenv-webpack": "^1.7.0",
         "elm": "^0.19.0",
         "elm-hot-webpack-loader": "^1.0.2",
         "elm-test": "^0.19.0",
@@ -61,7 +62,7 @@
         "prod": "NODE_ENV=production webpack --mode production",
         "start": "npm run dev",
         "test": "elm-test",
-        "vscode:build": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.js && mv elm.js extension/vscode/js/",
-        "chrome:build": "elm make src/elm/Extension/Chrome.elm --optimize --output elm.js && mv elm.js extension/chrome/src/js/"
+        "vscode:build": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.js && mv elm.js ../extension/vscode/js/",
+        "chrome:build": "elm make src/elm/Extension/Chrome.elm --optimize --output elm.js && mv elm.js ../extension/chrome/src/js/"
     }
 }

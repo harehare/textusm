@@ -60,11 +60,8 @@ getItemType indent =
         1 ->
             Tasks
 
-        2 ->
-            Stories
-
         _ ->
-            Stories
+            Stories (indent - 1)
 
 
 getTextAndComment : String -> ( String, Maybe String )
@@ -75,12 +72,7 @@ getTextAndComment line =
                 |> String.trim
                 |> String.split ":"
     in
-    ( case getAt 0 tokens of
-        Just xs ->
-            xs
-
-        Nothing ->
-            ""
+    ( getAt 0 tokens |> Maybe.withDefault ""
     , getAt 1 tokens
     )
 
@@ -137,12 +129,10 @@ load t =
             case result of
                 Ok ( i, loadedItems ) ->
                     Ok
-                        ( case i |> List.maximum of
-                            Just xs ->
-                                xs - 1
-
-                            Nothing ->
-                                0
+                        ( i
+                            |> List.maximum
+                            |> Maybe.map (\x -> x - 1)
+                            |> Maybe.withDefault 0
                         , loadedItems
                         )
 
@@ -176,12 +166,7 @@ countUpToHierarchy hierarchy items =
                                         if List.length results > hierarchy then
                                             List.map
                                                 (\it2 ->
-                                                    case List.maximum it2 of
-                                                        Just xs ->
-                                                            xs
-
-                                                        Nothing ->
-                                                            0
+                                                    List.maximum it2 |> Maybe.withDefault 0
                                                 )
                                                 results
 
@@ -198,12 +183,7 @@ countUpToHierarchy hierarchy items =
                 |> transpose
                 |> List.map
                     (\it ->
-                        case List.maximum it of
-                            Just xs ->
-                                xs
-
-                            Nothing ->
-                                0
+                        List.maximum it |> Maybe.withDefault 0
                     )
            )
 

@@ -13,12 +13,7 @@ view : Maybe String -> Bool -> Bool -> Html Msg
 view t isEditTitle fullscreen =
     let
         title =
-            case t of
-                Just xs ->
-                    xs
-
-                Nothing ->
-                    ""
+            t |> Maybe.withDefault ""
     in
     if fullscreen then
         header [] []

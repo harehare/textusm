@@ -39,3 +39,5 @@ firebase.json
 *.vsix
 *.pem
 elm.js
+
+.env

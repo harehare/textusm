@@ -31,11 +31,6 @@ view width fullscreen isEditSettings openMenu =
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text "File Open" ] ]
                     ]
                 , div
-                    (onClick SaveToLocal :: menuItemStyle)
-                    [ Icon.save 28
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
-                    ]
-                , div
                     (onClick DownloadSvg :: menuItemStyle)
                     [ Icon.download 24
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
@@ -45,17 +40,17 @@ view width fullscreen isEditSettings openMenu =
               else
                 [ div
                     (stopPropagationOn "click" (D.succeed ( OpenMenu OpenFile, True )) :: menuItemStyle)
-                    [ Icon.folderOpen 24
+                    [ Icon.folderOpen 23
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text "File Open" ] ]
                     ]
                 , div
                     (stopPropagationOn "click" (D.succeed ( OpenMenu SaveFile, True )) :: menuItemStyle)
-                    [ Icon.save 28
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
+                    [ Icon.save 26
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save File" ] ]
                     ]
                 , div
                     (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
-                    [ Icon.download 24
+                    [ Icon.export 27 21
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
                     ]
                 ]
@@ -74,14 +69,14 @@ view width fullscreen isEditSettings openMenu =
                             , span [ class "tooltip" ] [ span [ class "text" ] [ text "Settings" ] ]
                             ]
                    , case openMenu of
-                        Just Export ->
-                            menu "85px" [ ( DownloadSvg, "SVG" ), ( DownloadPng, "PNG" ) ]
+                        Just SaveFile ->
+                            menu "35px" [ ( DownloadSvg, "SVG" ), ( DownloadPng, "PNG" ), ( SaveToLocal, "TXT" ) ]
 
                         Just OpenFile ->
                             menu "0" [ ( FileSelect, "LOCAL" ), ( NoOp, "REMOTE (IN DEVELOPMENT)" ) ]
 
-                        Just SaveFile ->
-                            menu "40px" [ ( SaveToLocal, "LOCAL" ), ( NoOp, "REMOTE (IN DEVELOPMENT)" ) ]
+                        Just Export ->
+                            menu "85px" [ ( GetAccessTokenForTrello, "Trello" ), ( NoOp, "Asana (IN DEVELOPMENT)" ) ]
 
                         _ ->
                             div [] []

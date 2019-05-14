@@ -1,10 +1,12 @@
 module Models.Model exposing (Download, MapType(..), Menu(..), Model, Msg(..), Settings, ShareInfo, ShareUrl(..), Window)
 
+import Api
 import Browser
 import Browser.Dom exposing (Viewport)
 import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
 import File exposing (File)
+import Http
 import Models.Figure as Figure
 import Url
 
@@ -41,6 +43,8 @@ type Msg
     | OnCloseNotification
     | TabSelect Int
     | Indent
+    | GetAccessTokenForTrello
+    | Exported (Result Http.Error Api.Response)
 
 
 type MapType
@@ -49,9 +53,9 @@ type MapType
 
 
 type Menu
-    = Export
+    = SaveFile
     | OpenFile
-    | SaveFile
+    | Export
     | UserSettings
 
 
@@ -71,6 +75,8 @@ type alias Model =
     , mapType : MapType
     , tabIndex : Int
     , progress : Bool
+    , apiConfig : Api.Config
+    , isExporting : Bool
     }
 
 
@@ -101,9 +107,9 @@ type ShareUrl
 
 
 type alias Settings =
-    { font : String
-    , position : Int
-    , text : String
-    , title : String
+    { position : Maybe Int
+    , font : String
     , storyMap : Figure.Settings
+    , text : Maybe String
+    , title : Maybe String
     }
