@@ -158,6 +158,29 @@ rect {
     display: none !important;
 }
 
+.notification {
+    position: fixed;
+    bottom: 5%;
+    right: 10px;
+    min-width: 300px;
+    height: 40px;
+    cursor: pointer;
+    background-color: #2d2d30;
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
+        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+    color: #fff;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+}
+
+.close {
+    margin-right: 16px;
+    cursor: pointer;
+}
+
 @media screen and (min-width: 480px) {
     .tooltip {
         visibility: hidden;
@@ -178,6 +201,32 @@ rect {
             border-radius: 2px;
             font-size: 0.5rem;
             display: inline-block;
+        }
+    }
+
+    .close {
+        width: 16px;
+        height: 16px;
+        position: relative;
+        opacity: 0.8;
+        &:hover {
+            opacity: 1;
+        }
+        &:before {
+            transform: rotate(45deg);
+        }
+        &:after {
+            transform: rotate(-45deg);
+        }
+
+        &:before,
+        &:after {
+            position: absolute;
+            left: 15px;
+            content: " ";
+            height: 16px;
+            width: 2px;
+            background-color: #fff;
         }
     }
 }
@@ -216,6 +265,51 @@ rect {
         overflow: hidden;
         position: relative;
         height: calc(100vh - 56px);
+    }
+
+    .notification {
+        position: fixed;
+        bottom: 5%;
+        right: 0;
+        width: 100vw;
+        height: 40px;
+        background-color: #2d2d30;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
+            0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+        color: #fff;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        font-size: 0.8rem;
+    }
+
+    .close {
+        position: absolute;
+        right: 32px;
+        top: 32px;
+        width: 32px;
+        height: 32px;
+        opacity: 0.8;
+        &:hover {
+            opacity: 1;
+        }
+        &:before {
+            transform: rotate(45deg);
+        }
+        &:after {
+            transform: rotate(-45deg);
+        }
+
+        &:before,
+        &:after {
+            position: absolute;
+            left: 15px;
+            content: " ";
+            height: 33px;
+            width: 2px;
+            background-color: #333;
+        }
     }
 }
 

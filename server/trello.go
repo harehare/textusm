@@ -152,13 +152,13 @@ func (t *Trello) Post(path string, data url.Values, target interface{}) error {
 
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		// TODO:
+		return err
 	}
 
 	err = json.Unmarshal(b, target)
 
 	if err != nil {
-		// TODO:
+		return err
 	}
 
 	return nil

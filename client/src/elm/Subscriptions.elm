@@ -3,7 +3,7 @@ port module Subscriptions exposing (applySettings, changeText, decodeShareText, 
 import Browser.Events exposing (onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Json.Decode as D
 import Models.Figure as Figure
-import Models.Model exposing (Download, Model, Msg(..), Settings, ShareInfo)
+import Models.Model exposing (Download, Model, Msg(..), Notification(..), Settings, ShareInfo)
 
 
 port changeText : (String -> msg) -> Sub msg
@@ -68,7 +68,7 @@ subscriptions model =
          , onMouseUp (D.succeed (UpdateFigure Figure.Stop))
          , onEncodeShareText OnEncodeShareText
          , onDecodeShareText OnDecodeShareText
-         , onNotification OnNotification
+         , onNotification (\n -> OnNotification (Info n Nothing))
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp (D.succeed Stop)

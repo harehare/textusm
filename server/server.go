@@ -114,14 +114,15 @@ func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
 	tokenKey := usmData.OauthToken
 
 	if _, ok := tokens[tokenKey]; !ok {
-		w.WriteHeader(http.StatusBadRequest)
+		log.Println("Not authorized.")
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
 	accessToken, err := c.AuthorizeToken(tokens[tokenKey], verificationCode)
 	if err != nil {
 		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 

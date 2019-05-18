@@ -17,7 +17,7 @@ import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy3, lazy4)
 import Json.Decode as D
 import Models.Figure as FigureModel
-import Models.Model exposing (MapType(..), Model, Msg(..), Settings, ShareUrl(..))
+import Models.Model exposing (MapType(..), Model, Msg(..), Notification(..), Settings, ShareUrl(..))
 import Route exposing (Route(..), toRoute)
 import Settings exposing (settingsDecoder)
 import String
@@ -80,8 +80,8 @@ view model =
         ]
         [ lazy3 Header.view model.title model.isEditTitle model.window.fullscreen
         , case model.notification of
-            Just text ->
-                Notification.view text
+            Just notification ->
+                Notification.view notification
 
             Nothing ->
                 div [] []
@@ -201,7 +201,7 @@ changeRouteTo route model =
               }
             , Cmd.batch
                 [ Task.perform Init Dom.getViewport
-                , Task.perform identity (Task.succeed (OnNotification "Start export."))
+                , Task.perform identity (Task.succeed (OnNotification (Info "Start export to Trello." Nothing)))
                 , Task.attempt Exported (Api.export apiConfig Api.Trello req)
                 ]
             )
@@ -507,8 +507,11 @@ update message model =
         OnShareUrl ->
             ( model, encodeShareText { title = model.title, text = model.text } )
 
-        OnNotification text ->
-            ( { model | notification = Just text }, Utils.delay 5000 OnCloseNotification )
+        OnNotification notification ->
+            ( { model | notification = Just notification }, Cmd.none )
+
+        OnAutoCloseNotification notification ->
+            ( { model | notification = Just notification }, Utils.delay 3000 OnCloseNotification )
 
         OnCloseNotification ->
             ( { model | notification = Nothing }, Cmd.none )
@@ -544,11 +547,30 @@ update message model =
             ( model, Api.getAccessToken model.apiConfig Api.Trello )
 
         Exported (Err e) ->
-            -- TODO:
-            ( { model | isExporting = False }, Task.perform identity (Task.succeed (OnNotification "Error export.")) )
+            ( { model | isExporting = False }
+            , Cmd.batch
+                [ Task.perform identity (Task.succeed (OnNotification (Error ("Error export. " ++ Api.errorToString e))))
+                , Nav.pushUrl model.key "/"
+                ]
+            )
 
         Exported (Ok result) ->
-            -- TODO:
+            let
+                messageCmd =
+                    if result.failed > 0 then
+                        Task.perform identity
+                            (Task.succeed (OnNotification (Warning "Finish export, but some errors occurred. Click to open Trello." (Just result.url))))
+
+                    else
+                        Task.perform identity
+                            (Task.succeed (OnNotification (Info "Finish export. Click to open Trello." (Just result.url))))
+            in
             ( { model | isExporting = False }
-            , Task.perform identity (Task.succeed (OnNotification "Finish export."))
+            , Cmd.batch
+                [ messageCmd
+                , Nav.pushUrl model.key "/"
+                ]
             )
+
+        DoOpenUrl url ->
+            ( model, Nav.load url )

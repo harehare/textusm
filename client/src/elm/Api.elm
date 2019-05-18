@@ -1,4 +1,4 @@
-module Api exposing (Config, Request, Response, Service(..), StoryItem, TaskItem, createRequest, export, getAccessToken)
+module Api exposing (errorToString, Config, Request, Response, Service(..), StoryItem, TaskItem, createRequest, export, getAccessToken)
 
 import Browser.Navigation as Nav
 import Http exposing (Error(..))
@@ -214,3 +214,19 @@ jsonResolver decoder =
 
                         Err err ->
                             Err (Http.BadBody (D.errorToString err))
+
+
+errorToString : Http.Error -> String
+errorToString err =
+    case err of
+        BadUrl url ->
+            "Invalid url " ++ url
+
+        Timeout ->
+            "Timeout error. Please try again later."
+
+        NetworkError ->
+            "Network error. Please try again later."
+
+        _ ->
+            "Internal server error. Please try again later."

@@ -1,4 +1,4 @@
-module Models.Model exposing (Download, MapType(..), Menu(..), Model, Msg(..), Settings, ShareInfo, ShareUrl(..), Window)
+module Models.Model exposing (Download, MapType(..), Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window)
 
 import Api
 import Browser
@@ -39,17 +39,29 @@ type Msg
     | UrlChanged Url.Url
     | OnEncodeShareText String
     | OnDecodeShareText String
-    | OnNotification String
+    | OnNotification Notification
+    | OnAutoCloseNotification Notification
     | OnCloseNotification
     | TabSelect Int
     | Indent
     | GetAccessTokenForTrello
     | Exported (Result Http.Error Api.Response)
+    | DoOpenUrl String
 
 
 type MapType
     = UserStoryMapping
     | MindMap
+
+
+type alias OpenUrl =
+    Maybe String
+
+
+type Notification
+    = Info String OpenUrl
+    | Error String
+    | Warning String OpenUrl
 
 
 type Menu
@@ -69,7 +81,7 @@ type alias Model =
     , settings : Settings
     , share : Maybe ShareUrl
     , title : Maybe String
-    , notification : Maybe String
+    , notification : Maybe Notification
     , isEditTitle : Bool
     , isEditSettings : Bool
     , mapType : MapType

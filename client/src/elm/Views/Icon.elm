@@ -1,4 +1,4 @@
-module Views.Icon exposing (add, download, export, file, folderOpen, fullscreen, fullscreenExit, indent, info, remove, save, settings, share)
+module Views.Icon exposing (warning, add, download, error, export, file, folderOpen, fullscreen, fullscreenExit, indent, info, remove, save, settings, share)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (d, fill, height, viewBox, width)
@@ -47,6 +47,16 @@ settings size =
 info : Int -> Svg msg
 info size =
     icon "#3E9BCD" size size "0 0 48 48" [ Svg.path [ d "M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm2 30h-4V22h4v12zm0-16h-4v-4h4v4z" ] [] ]
+
+
+error : Int -> Svg msg
+error size =
+    icon "#E73F34" size size "0 0 48 48" [ Svg.path [ d "M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm2 30h-4V22h4v12zm0-16h-4v-4h4v4z" ] [] ]
+
+
+warning : Int -> Svg msg
+warning size =
+    icon "#FECB30" size size "0 0 48 48" [ Svg.path [ d "M2 42h44L24 4 2 42zm24-6h-4v-4h4v4zm0-8h-4v-8h4v8z" ] [] ]
 
 
 file : Int -> Svg msg
