@@ -103,8 +103,7 @@ func (b *Card) AddLabelToCard(labelId string) error {
 	payload := url.Values{}
 	payload.Set("value", labelId)
 
-	var label Label
-	err := b.client.Post(path, payload, &label)
+	err := b.client.Post(path, payload, nil)
 
 	return err
 }
@@ -114,8 +113,7 @@ func (b *Card) AddCommentToCard(text string) error {
 	payload := url.Values{}
 	payload.Set("text", text)
 
-	var label Label
-	err := b.client.Post(path, payload, &label)
+	err := b.client.Post(path, payload, nil)
 
 	return err
 }
@@ -155,6 +153,10 @@ func (t *Trello) Post(path string, data url.Values, target interface{}) error {
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
+	}
+
+	if target == nil {
+		return nil
 	}
 
 	err = json.Unmarshal(b, target)

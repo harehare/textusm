@@ -107,7 +107,7 @@ func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := Response{Total: 0, Failed: 0, Successful: 0}
+	res := Response{Total: 0, Failed: 0, Successful: 0, Url: ""}
 	bufbody := new(bytes.Buffer)
 	bufbody.ReadFrom(r.Body)
 

@@ -17,6 +17,9 @@ view notification =
 
                 Error text ->
                     ( "", text, Icon.error 22 )
+
+                Warning text u ->
+                    ( u |> Maybe.withDefault "", text, Icon.warning 22 )
     in
     div
         [ class "notification"

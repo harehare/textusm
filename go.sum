@@ -1,0 +1,7 @@
+github.com/harehare/textusm/server v0.0.0-20190519095222-83c9763bf1ab h1:Y8p3Hae/V7v2ALFu50kBloEZlwauaCQYugJNPcWr5B0=
+github.com/harehare/textusm/server v0.0.0-20190519095222-83c9763bf1ab/go.mod h1:1NUL+udNg2LVAKI/Zj1xirOcgYygb0CBvyPh9Oor0S4=
+github.com/kelseyhightower/envconfig v1.3.0 h1:IvRS4f2VcIQy6j4ORGIf9145T/AsUB+oY8LyvN8BXNM=
+github.com/kelseyhightower/envconfig v1.3.0/go.mod h1:cccZRl6mQpaq41TPp5QxidR+Sa3axMbJDNb//FQX6Gg=
+github.com/mrjones/oauth v0.0.0-20180629183705-f4e24b6d100c h1:3wkDRdxK92dF+c1ke2dtj7ZzemFWBHB9plnJOtlwdFA=
+github.com/mrjones/oauth v0.0.0-20180629183705-f4e24b6d100c/go.mod h1:skjdDftzkFALcuGzYSklqYd8gvat6F1gZJ4YPVbkZpM=
+github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
