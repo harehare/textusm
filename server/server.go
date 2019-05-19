@@ -1,4 +1,4 @@
-package textusm
+package main
 
 import (
 	"bytes"
@@ -46,16 +46,16 @@ type Response struct {
 }
 
 var (
-	tokens map[string]*oauth.RequestToken
-	c      *oauth.Consumer
-	env    TrelloEnv
+	tokens         map[string]*oauth.RequestToken
+	trelloConsumer *oauth.Consumer
+	env            TrelloEnv
 )
 
 func Start() {
 	tokens = make(map[string]*oauth.RequestToken)
 	envconfig.Process("TextUSM", &env)
 
-	c = oauth.NewConsumer(
+	trelloConsumer = oauth.NewConsumer(
 		env.ConsumerKey,
 		env.ConsumerSecret,
 		oauth.ServiceProvider{
@@ -64,9 +64,9 @@ func Start() {
 			AccessTokenUrl:    "https://trello.com/1/OAuthGetAccessToken",
 		},
 	)
-	c.AdditionalAuthorizationUrlParams["name"] = "TextUSM"
-	c.AdditionalAuthorizationUrlParams["expiration"] = "1day"
-	c.AdditionalAuthorizationUrlParams["scope"] = "read,write"
+	trelloConsumer.AdditionalAuthorizationUrlParams["name"] = "TextUSM"
+	trelloConsumer.AdditionalAuthorizationUrlParams["expiration"] = "1day"
+	trelloConsumer.AdditionalAuthorizationUrlParams["scope"] = "read,write"
 
 	http.HandleFunc("/auth/trello", redirectUserToTrello)
 	http.HandleFunc("/create/trello", createTrelloBoard)
@@ -77,9 +77,8 @@ func Start() {
 }
 
 func redirectUserToTrello(w http.ResponseWriter, r *http.Request) {
-
 	tokenURL := fmt.Sprintf("%s/callback", env.Host)
-	token, requestURL, err := c.GetRequestTokenAndUrl(tokenURL)
+	token, requestURL, err := trelloConsumer.GetRequestTokenAndUrl(tokenURL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -87,7 +86,18 @@ func redirectUserToTrello(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, requestURL, http.StatusTemporaryRedirect)
 }
 
+func setResult(res *Response, err error) {
+	if err != nil {
+		log.Println(err)
+		res.Failed++
+	} else {
+		res.Successful++
+	}
+	res.Total++
+}
+
 func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
+	envconfig.Process("TextUSM", &env)
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Request-Methods", "POST")
@@ -119,15 +129,14 @@ func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := c.AuthorizeToken(tokens[tokenKey], verificationCode)
+	accessToken, err := trelloConsumer.AuthorizeToken(tokens[tokenKey], verificationCode)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	client := NewTrello(c, accessToken)
-
+	client := NewTrello(trelloConsumer, accessToken)
 	board, err := client.CreateBoard(usmData.Name)
 
 	if err != nil {
@@ -140,15 +149,7 @@ func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
 
 	for i := 0; i < usmData.ReleaseCount; i++ {
 		list, err := board.CreateList(fmt.Sprintf("RELEASE%d", i+1))
-
-		if err != nil {
-			log.Println(err)
-			res.Failed++
-		} else {
-			res.Successful++
-		}
-		res.Total++
-
+		setResult(&res, err)
 		lists[i+1] = list
 	}
 
@@ -162,13 +163,7 @@ func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
 		label, err := board.AddLabel(task.Name, labelColors[labelIndex])
 		labelIndex++
 
-		if err != nil {
-			log.Println(err)
-			res.Failed++
-		} else {
-			res.Successful++
-		}
-		res.Total++
+		setResult(&res, err)
 
 		for _, story := range task.Stories {
 
@@ -177,33 +172,16 @@ func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
 			}
 
 			card, err := lists[story.Release].CreateCard(story.Name)
-			if err != nil {
-				log.Println(err)
-				res.Failed++
-			} else {
-				res.Successful++
-			}
-			res.Total++
+
+			setResult(&res, err)
 
 			err = card.AddLabelToCard(label.ID)
 
-			if err != nil {
-				log.Println(err)
-				res.Failed++
-			} else {
-				res.Successful++
-			}
-			res.Total++
+			setResult(&res, err)
 
 			err = card.AddCommentToCard(story.Comment)
 
-			if err != nil {
-				log.Println(err)
-				res.Failed++
-			} else {
-				res.Successful++
-			}
-			res.Total++
+			setResult(&res, err)
 		}
 	}
 

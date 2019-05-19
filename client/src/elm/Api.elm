@@ -1,4 +1,4 @@
-module Api exposing (errorToString, Config, Request, Response, Service(..), StoryItem, TaskItem, createRequest, export, getAccessToken)
+module Api exposing (Config, Request, Response, Service(..), StoryItem, TaskItem, createRequest, errorToString, export, getAccessToken)
 
 import Browser.Navigation as Nav
 import Http exposing (Error(..))
@@ -135,7 +135,7 @@ createRequest token code release name items =
                                 |> List.map
                                     (\story ->
                                         { name = story.text
-                                        , comment = item.comment
+                                        , comment = story.comment
                                         , release =
                                             case story.itemType of
                                                 Stories n ->

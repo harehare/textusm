@@ -42,47 +42,48 @@ Options:
 ## Example Input file
 
 ```
+# Comment
 TextUSM
     Online tool for making user story mapping
         Press Tab to indent lines
-        Press Shift + Tab to unindent lines
+        Press Shift + Tab to unindent lines: Note
 ```
 
 ## Example JSON configuration file
 
 ```json
 {
+  "font": "Open Sans",
+  "position": 0,
+  "text": "",
+  "title": "TestUSM",
+  "storyMap": {
     "font": "Open Sans",
-    "position": 0,
-    "text": "",
-    "title": "TestUSM",
-    "storyMap": {
-        "font": "Open Sans",
-        "size": {
-            "width": 140,
-            "height": 65
-        },
-        "backgroundColor": "#F5F5F6",
-        "color": {
-            "activity": {
-                "color": "#FFFFFF",
-                "backgroundColor": "#266B9A"
-            },
-            "task": {
-                "color": "#FFFFFF",
-                "backgroundColor": "#3E9BCD"
-            },
-            "story": {
-                "color": "#000000",
-                "backgroundColor": "#FFFFFF"
-            },
-            "comment": {
-                "color": "#000000",
-                "backgroundColor": "#F1B090"
-            },
-            "line": "#434343",
-            "label": "#8C9FAE"
-        }
+    "size": {
+      "width": 140,
+      "height": 65
+    },
+    "backgroundColor": "#F5F5F6",
+    "color": {
+      "activity": {
+        "color": "#FFFFFF",
+        "backgroundColor": "#266B9A"
+      },
+      "task": {
+        "color": "#FFFFFF",
+        "backgroundColor": "#3E9BCD"
+      },
+      "story": {
+        "color": "#000000",
+        "backgroundColor": "#FFFFFF"
+      },
+      "comment": {
+        "color": "#000000",
+        "backgroundColor": "#F1B090"
+      },
+      "line": "#434343",
+      "label": "#8C9FAE"
     }
+  }
 }
 ```

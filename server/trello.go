@@ -1,4 +1,4 @@
-package textusm
+package main
 
 import (
 	"context"
@@ -62,7 +62,7 @@ func (t *Trello) CreateBoard(name string) (*Board, error) {
 	err := t.Post("/boards", payload, &board)
 
 	if err != nil {
-		// TODO:
+		return nil, err
 	}
 	board.client = t
 
@@ -79,6 +79,8 @@ func (b *Board) CreateList(name string) (*List, error) {
 
 	if err == nil {
 		list.client = b.client
+	} else {
+		return nil, err
 	}
 
 	return &list, err
@@ -145,7 +147,7 @@ func (t *Trello) Post(path string, data url.Values, target interface{}) error {
 	resp, err := client.Post(url, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
 
 	if err != nil {
-		// TODO:
+		return err
 	}
 
 	defer resp.Body.Close()
