@@ -26,6 +26,10 @@ textusm -i input.txt -o output.png
 textusm -i input.txt -o output.pdf
 ```
 
+```sh
+textusm -i input.txt -o output.html
+```
+
 ## Options
 
 ```
@@ -35,7 +39,7 @@ Options:
   -V, --version                  output the version number
   -c, --configFile [configFile]  Config file.
   -i, --input <input>            Input text file. Required.
-  -o, --output [output]          Output file. It should be svg, png or pdf.
+  -o, --output [output]          Output file. It should be svg, png, pdf or html.
   -h, --help                     output usage information
 ```
 
@@ -49,14 +53,13 @@ TextUSM
         Press Shift + Tab to unindent lines: Note
 ```
 
+![image](../img/usm.png)
+
 ## Example JSON configuration file
 
 ```json
 {
   "font": "Open Sans",
-  "position": 0,
-  "text": "",
-  "title": "TestUSM",
   "storyMap": {
     "font": "Open Sans",
     "size": {

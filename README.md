@@ -6,6 +6,13 @@ Online tool for Generate a User Story Mapping from indented text.
 
 ![image](./img/textusm.gif)
 
+## Features
+
+- Generate a User Story Mapping from indented text
+- Add List and card to Trello
+- Replace the code block with the generated USM.
+- Open TextUS
+
 ## Example
 
 ```
@@ -20,7 +27,7 @@ TextUSM
 
 ## Download
 
-- [Web](https://textusm.firebaseapp.com)
+- [Web](https://textusm.web.app)
 - [Android](https://play.google.com/store/apps/details?id=me.textusm.usm)
 - [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=harehare.textusm)
 - [Chrome Extension](https://chrome.google.com/webstore/detail/godhdokkibfjekpoikkghnjgemibmhka)

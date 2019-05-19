@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 
@@ -11,19 +12,32 @@ import (
 	"github.com/mrjones/oauth"
 )
 
-type TrelloEnv struct {
-	Host           string `envconfig:"API_HOST"`
-	ConsumerKey    string `envconfig:"API_KEY"`
-	ConsumerSecret string `envconfig:"API_SECRET"`
-	Port           string `envconfig:"PORT"`
+type Env struct {
+	Host                 string `envconfig:"API_HOST"`
+	Port                 string `envconfig:"PORT"`
+	TrelloConsumerKey    string `envconfig:"TRELLO_API_KEY"`
+	TrelloConsumerSecret string `envconfig:"TRELLO_API_SECRET"`
 }
 
 type UsmData struct {
-	OauthVerifier string `json:"oauth_verifier"`
-	OauthToken    string `json:"oauth_token"`
-	Name          string `json:"name"`
-	ReleaseCount  int    `json:"release"`
-	Tasks         []Task `json:"tasks"`
+	OauthToken string    `json:"oauth_token"`
+	Name       string    `json:"name"`
+	Releases   []Release `json:"releases"`
+	Tasks      []Task    `json:"tasks"`
+
+	OauthVerifier string `json:"oauth_verifier,omitempty"`
+
+	Github Github `json:"github,omitempty"`
+}
+
+type Github struct {
+	Owner string `json:"owner"`
+	Repo  string `json:"repo"`
+}
+
+type Release struct {
+	Name   string `json:"name"`
+	Period string `json:"period"`
 }
 
 type Task struct {
@@ -48,7 +62,7 @@ type Response struct {
 var (
 	tokens         map[string]*oauth.RequestToken
 	trelloConsumer *oauth.Consumer
-	env            TrelloEnv
+	env            Env
 )
 
 func Start() {
@@ -56,8 +70,8 @@ func Start() {
 	envconfig.Process("TextUSM", &env)
 
 	trelloConsumer = oauth.NewConsumer(
-		env.ConsumerKey,
-		env.ConsumerSecret,
+		env.TrelloConsumerKey,
+		env.TrelloConsumerSecret,
 		oauth.ServiceProvider{
 			RequestTokenUrl:   "https://trello.com/1/OAuthGetRequestToken",
 			AuthorizeTokenUrl: "https://trello.com/1/OAuthAuthorizeToken",
@@ -70,6 +84,7 @@ func Start() {
 
 	http.HandleFunc("/auth/trello", redirectUserToTrello)
 	http.HandleFunc("/create/trello", createTrelloBoard)
+	http.HandleFunc("/create/github", createGithubIssues)
 	u := fmt.Sprintf(":%s", env.Port)
 
 	fmt.Printf("Listening on '%s'\n", u)
@@ -96,8 +111,20 @@ func setResult(res *Response, err error) {
 	res.Total++
 }
 
-func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
-	envconfig.Process("TextUSM", &env)
+func getUsmData(body io.Reader) (*UsmData, error) {
+	var data UsmData
+	bufbody := new(bytes.Buffer)
+	bufbody.ReadFrom(body)
+	err := json.Unmarshal(bufbody.Bytes(), &data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &data, nil
+}
+
+func createGithubIssues(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 	w.Header().Set("Access-Control-Request-Methods", "POST")
@@ -107,12 +134,7 @@ func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := Response{Total: 0, Failed: 0, Successful: 0, Url: ""}
-	bufbody := new(bytes.Buffer)
-	bufbody.ReadFrom(r.Body)
-
-	var usmData UsmData
-	err := json.Unmarshal(bufbody.Bytes(), &usmData)
+	data, err := getUsmData(r.Body)
 
 	if err != nil {
 		log.Println(err)
@@ -120,24 +142,22 @@ func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	verificationCode := usmData.OauthVerifier
-	tokenKey := usmData.OauthToken
+	exporter := NewGithubExporter(data)
+	Export(data, exporter, w, r)
+}
 
-	if _, ok := tokens[tokenKey]; !ok {
-		log.Println("Not authorized.")
-		w.WriteHeader(http.StatusForbidden)
+func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	w.Header().Set("Access-Control-Request-Methods", "POST")
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(200)
 		return
 	}
 
-	accessToken, err := trelloConsumer.AuthorizeToken(tokens[tokenKey], verificationCode)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
-	client := NewTrello(trelloConsumer, accessToken)
-	board, err := client.CreateBoard(usmData.Name)
+	// TODO: Period
+	data, err := getUsmData(r.Body)
 
 	if err != nil {
 		log.Println(err)
@@ -145,52 +165,6 @@ func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lists := map[int]*List{}
-
-	for i := 0; i < usmData.ReleaseCount; i++ {
-		list, err := board.CreateList(fmt.Sprintf("RELEASE%d", i+1))
-		setResult(&res, err)
-		lists[i+1] = list
-	}
-
-	labelColors := []string{"yellow", "purple", "blue", "red", "green", "orange", "black", "sky", "pink", "lime"}
-	labelIndex := 0
-
-	for _, task := range usmData.Tasks {
-		if labelIndex >= len(labelColors) {
-			labelIndex = 0
-		}
-		label, err := board.AddLabel(task.Name, labelColors[labelIndex])
-		labelIndex++
-
-		setResult(&res, err)
-
-		for _, story := range task.Stories {
-
-			if _, ok := lists[story.Release]; !ok {
-				continue
-			}
-
-			card, err := lists[story.Release].CreateCard(story.Name)
-
-			setResult(&res, err)
-
-			err = card.AddLabelToCard(label.ID)
-
-			setResult(&res, err)
-
-			err = card.AddCommentToCard(story.Comment)
-
-			setResult(&res, err)
-		}
-	}
-
-	res.Url = "https://trello.com/b/" + board.ID
-	b, err := json.Marshal(res)
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	} else {
-		w.Write(b)
-	}
+	exporter := NewTrelloExporter(data, trelloConsumer, tokens)
+	Export(data, exporter, w, r)
 }

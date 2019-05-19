@@ -1,121 +1,123 @@
 {
-	"name": "textusm",
-	"displayName": "TextUSM",
-	"description": "Generate a User Story Mapping from indented text.",
-	"author": {
-		"name": "harehare"
-	},
-	"publisher": "harehare",
-	"version": "0.0.5",
-	"engines": {
-		"vscode": "^1.33.0"
-	},
-	"galleryBanner": {
-		"color": "#282C32",
-		"theme": "dark"
-	},
-	"icon": "images/icon.png",
-	"categories": [
-		"Other"
-	],
-	"keywords": [
-		"svg",
-		"user-story-mapping",
-		"user-story-map",
-		"diagram"
-	],
-	"activationEvents": [
-		"onCommand:extension.showPreview",
-		"onCommand:extension.exportSvg",
-		"onCommand:extension.exportPng"
-	],
-	"main": "./dist/extension.js",
-	"contributes": {
-		"commands": [{
-				"command": "extension.showPreview",
-				"title": "TextUSM: Open Preview"
-			},
-			{
-				"command": "extension.exportSvg",
-				"title": "TextUSM: Export SVG"
-			},
-			{
-				"command": "extension.exportPng",
-				"title": "TextUSM: Export PNG"
-			}
-		],
-		"configuration": {
-			"type": "object",
-			"title": "TextUSM",
-			"properties": {
-				"textusm.fontName": {
-					"type": "string",
-					"default": null,
-					"markdownDescription": "Font family for figure."
-				},
-				"textusm.exportDir": {
-					"type": "string",
-					"default": null,
-					"markdownDescription": "Set the output directory for svg files."
-				},
-				"textusm.backgroundColor": {
-					"type": "string",
-					"default": "transparent",
-					"markdownDescription": "background color for figure."
-				},
-				"textusm.activity.color": {
-					"type": "string",
-					"default": "#FFFFFF",
-					"markdownDescription": "Color for user activity."
-				},
-				"textusm.activity.backgroundColor": {
-					"type": "string",
-					"default": "#266B9A",
-					"markdownDescription": "Background color for user activity."
-				},
-				"textusm.task.color": {
-					"type": "string",
-					"default": "#FFFFFF",
-					"markdownDescription": "Color for user task."
-				},
-				"textusm.task.backgroundColor": {
-					"type": "string",
-					"default": "#3E9BCD",
-					"markdownDescription": "Background color for user task."
-				},
-				"textusm.story.color": {
-					"type": "string",
-					"default": "#000000",
-					"markdownDescription": "Color for user story."
-				},
-				"textusm.story.backgroundColor": {
-					"type": "string",
-					"default": "#FFFFFF",
-					"markdownDescription": "Background color for user story."
-				}
-			}
-		}
-	},
-	"scripts": {
-		"vscode:prepublish": "NODE_ENV=production webpack --mode production",
-		"dev": "webpack --mode development --watch",
-		"prod": "NODE_ENV=production webpack --mode production"
-	},
-	"devDependencies": {
-		"@types/mocha": "^2.2.42",
-		"@types/node": "^10.12.21",
-		"terser-webpack-plugin": "^1.2.3",
-		"ts-loader": "^6.0.0",
-		"tslint": "^5.12.1",
-		"typescript": "^3.3.1",
-		"vscode": "^1.1.28",
-		"webpack": "^4.31.0",
-		"webpack-cli": "^3.3.2",
-		"webpack-merge": "^4.2.1",
-		"webpack-node-externals": "^1.7.2"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/harehare/textusm.git"
-	}
+  "name": "textusm",
+  "displayName": "TextUSM",
+  "description": "Generate a User Story Mapping from indented text.",
+  "author": {
+    "name": "harehare"
+  },
+  "publisher": "harehare",
+  "version": "0.0.6",
+  "engines": {
+    "vscode": "^1.33.0"
+  },
+  "galleryBanner": {
+    "color": "#282C32",
+    "theme": "dark"
+  },
+  "icon": "images/icon.png",
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "svg",
+    "user-story-mapping",
+    "user-story-map",
+    "diagram"
+  ],
+  "activationEvents": [
+    "onCommand:extension.showPreview",
+    "onCommand:extension.exportSvg",
+    "onCommand:extension.exportPng"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.showPreview",
+        "title": "TextUSM: Open Preview"
+      },
+      {
+        "command": "extension.exportSvg",
+        "title": "TextUSM: Export SVG"
+      },
+      {
+        "command": "extension.exportPng",
+        "title": "TextUSM: Export PNG"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "TextUSM",
+      "properties": {
+        "textusm.fontName": {
+          "type": "string",
+          "default": null,
+          "markdownDescription": "Font family for figure."
+        },
+        "textusm.exportDir": {
+          "type": "string",
+          "default": null,
+          "markdownDescription": "Set the output directory for svg files."
+        },
+        "textusm.backgroundColor": {
+          "type": "string",
+          "default": "transparent",
+          "markdownDescription": "background color for figure."
+        },
+        "textusm.activity.color": {
+          "type": "string",
+          "default": "#FFFFFF",
+          "markdownDescription": "Color for user activity."
+        },
+        "textusm.activity.backgroundColor": {
+          "type": "string",
+          "default": "#266B9A",
+          "markdownDescription": "Background color for user activity."
+        },
+        "textusm.task.color": {
+          "type": "string",
+          "default": "#FFFFFF",
+          "markdownDescription": "Color for user task."
+        },
+        "textusm.task.backgroundColor": {
+          "type": "string",
+          "default": "#3E9BCD",
+          "markdownDescription": "Background color for user task."
+        },
+        "textusm.story.color": {
+          "type": "string",
+          "default": "#000000",
+          "markdownDescription": "Color for user story."
+        },
+        "textusm.story.backgroundColor": {
+          "type": "string",
+          "default": "#FFFFFF",
+          "markdownDescription": "Background color for user story."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "NODE_ENV=production webpack --mode production",
+    "dev": "webpack --mode development --watch",
+    "prod": "NODE_ENV=production webpack --mode production"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^10.12.21",
+    "clean-webpack-plugin": "^2.0.2",
+    "terser-webpack-plugin": "^1.2.3",
+    "ts-loader": "^6.0.0",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.1",
+    "vscode": "^1.1.28",
+    "webpack": "^4.31.0",
+    "webpack-cli": "^3.3.2",
+    "webpack-merge": "^4.2.1",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harehare/textusm.git"
+  }
 }
