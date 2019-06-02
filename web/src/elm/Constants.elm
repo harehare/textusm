@@ -18,7 +18,7 @@ smallItemMargin =
 
 leftMargin : Int
 leftMargin =
-    80
+    120
 
 
 inputPrefix : String

@@ -23,6 +23,7 @@ type alias Model =
     , showZoomControl : Bool
     , touchDistance : Maybe Float
     , figureType : FigureType
+    , labels : List String
     }
 
 

@@ -5,14 +5,14 @@ import Constants exposing (..)
 import Html exposing (div)
 import Html.Attributes as Attr
 import List
-import List.Extra exposing (zip)
+import List.Extra exposing (getAt, zip)
 import Models.Figure exposing (Children(..), Comment, Item, ItemType(..), Model, Msg(..), Settings)
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (onClick, onMouseOut, onMouseOver)
 import Svg.Keyed as Keyed
-import Svg.Lazy exposing (lazy2, lazy4)
+import Svg.Lazy exposing (lazy2, lazy4, lazy5)
 import Utils exposing (calcFontSize)
 
 
@@ -28,7 +28,8 @@ view model =
             )
         , fill model.settings.backgroundColor
         ]
-        [ lazy4 labelView
+        [ lazy5 labelView
+            model.labels
             model.settings
             model.hierarchy
             model.svg.width
@@ -61,8 +62,8 @@ mainView settings items countByTasks countByHierarchy =
         )
 
 
-labelView : Settings -> Int -> Int -> List Int -> Svg Msg
-labelView settings hierarchy width countByHierarchy =
+labelView : List String -> Settings -> Int -> Int -> List Int -> Svg Msg
+labelView labels settings hierarchy width countByHierarchy =
     let
         textX =
             "16"
@@ -91,7 +92,7 @@ labelView settings hierarchy width countByHierarchy =
                     , fontWeight "bold"
                     , class "svg-text"
                     ]
-                    [ text "USER ACTIVITIES" ]
+                    [ text (getAt 0 labels |> Maybe.withDefault "USER ACTIVITIES") ]
 
             else
                 text_ [] []
@@ -105,7 +106,7 @@ labelView settings hierarchy width countByHierarchy =
                     , fontSize "14"
                     , class "svg-text"
                     ]
-                    [ text "USER TASKS" ]
+                    [ text (getAt 1 labels |> Maybe.withDefault "USER TASKS") ]
 
             else
                 text_ [] []
@@ -120,7 +121,7 @@ labelView settings hierarchy width countByHierarchy =
                         , fontSize "14"
                         , class "svg-text"
                         ]
-                        [ text "USER STORIES" ]
+                        [ text (getAt 2 labels |> Maybe.withDefault "USER STORIES") ]
                     , text_
                         [ x textX
                         , y "225"
@@ -130,7 +131,7 @@ labelView settings hierarchy width countByHierarchy =
                         , fontSize "14"
                         , class "svg-text"
                         ]
-                        [ text "RELEASE 1" ]
+                        [ text (getAt 3 labels |> Maybe.withDefault "RELEASE 1") ]
                     ]
 
                 else
@@ -172,7 +173,7 @@ labelView settings hierarchy width countByHierarchy =
                                     , fontWeight "bold"
                                     , class "svg-text"
                                     ]
-                                    [ text ("RELEASE " ++ String.fromInt (xx + 1)) ]
+                                    [ text (getAt (xx + 3) labels |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1))) ]
                                 ]
 
                             else

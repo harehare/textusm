@@ -1,7 +1,7 @@
 {
   "name": "textusm.cli",
   "description": "Generate a User Story Mapping from indented text.",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": "Takahiro Sato",
   "bin": {
     "textusm": "dist/index.js"
@@ -44,6 +44,7 @@
     "url": "git+https://github.com/harehare/textusm.git"
   },
   "scripts": {
-    "build": "tsc index.ts --outDir dist"
+    "build": "tsc index.ts --outDir dist",
+    "prepublish": "tsc index.ts --outDir dist"
   }
 }

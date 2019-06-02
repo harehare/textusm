@@ -13,8 +13,10 @@ createRequestTest =
         [ test "No tasks" <|
             \() ->
                 createRequest "token"
-                    "code"
+                    (Just "code")
+                    Nothing
                     1
+                    [ ( "RELEASE1", "" ) ]
                     "board"
                     [ { text = "text1"
                       , comment = Just "comment1"
@@ -28,8 +30,10 @@ createRequestTest =
         , test "1 tasks" <|
             \() ->
                 createRequest "token"
-                    "code"
+                    (Just "code")
+                    Nothing
                     1
+                    [ ( "RELEASE1", "" ) ]
                     "board"
                     [ { text = "text1"
                       , comment = Just "comment1"
@@ -54,8 +58,10 @@ createRequestTest =
         , test "1 tasks, 1 stories" <|
             \() ->
                 createRequest "token"
-                    "code"
+                    (Just "code")
+                    Nothing
                     2
+                    [ ( "RELEASE1", "" ), ( "RELEASE2", "" ) ]
                     "board"
                     [ { text = "text1"
                       , comment = Just "comment1"
@@ -92,8 +98,10 @@ createRequestTest =
         , test "2 tasks, 2 stories" <|
             \() ->
                 createRequest "token"
-                    "code"
+                    (Just "code")
+                    Nothing
                     2
+                    [ ( "RELEASE1", "" ), ( "RELEASE2", "" ) ]
                     "board"
                     [ { text = "text1"
                       , comment = Just "comment1"

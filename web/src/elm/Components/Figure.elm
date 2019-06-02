@@ -48,6 +48,7 @@ init settings =
     , error = Nothing
     , comment = Nothing
     , figureType = UserStoryMap
+    , labels = []
     }
 
 
@@ -495,6 +496,20 @@ updateFigure size width height base text =
         |> Result.andThen
             (\( hierarchy, items ) ->
                 let
+                    labels =
+                        Parser.parseComment text
+                            |> List.filter
+                                (\( k, _ ) ->
+                                    k == "labels"
+                                )
+                            |> List.map Tuple.second
+                            |> List.head
+                            |> Maybe.andThen
+                                (\v ->
+                                    Just (String.split "," v)
+                                )
+                            |> Maybe.withDefault []
+
                     itemCount =
                         Basics.max (List.length items)
                             (items
@@ -563,6 +578,7 @@ updateFigure size width height base text =
                     , showZoomControl = base.showZoomControl
                     , touchDistance = base.touchDistance
                     , figureType = base.figureType
+                    , labels = labels
                     }
             )
 

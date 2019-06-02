@@ -9,23 +9,26 @@ Online tool for Generate a User Story Mapping from indented text.
 ## Features
 
 - Generate a User Story Mapping from indented text
-- Add List and card to Trello
+- Add List and card to Trello, Github
 - Replace the code block with the generated USM.
 - Open TextUS
 
 ## Example
 
 ```
-# Comment
+# labels: USER ACTIVITIES, USER TASKS, USER STORIES, RELEASE1, RELEASE2, RELEASE3
+# release1: 2019-06-01
+# release2: 2019-06-30
+# release2: 2019-07-31
 TextUSM
     Online tool for making user story mapping
         Press Tab to indent lines
-        Press Shift + Tab to unindent lines: Note
+        Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.
 ```
 
 ![image](./img/usm.png)
 
-## Download
+## Installation
 
 - [Web](https://textusm.web.app)
 - [Android](https://play.google.com/store/apps/details?id=me.textusm.usm)

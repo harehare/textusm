@@ -1,4 +1,4 @@
 chrome.tabs.create({
-    url: "https://textusm.firebaseapp.com",
-    active: true
+  url: 'https://textusm.web.app',
+  active: true
 });
