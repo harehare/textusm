@@ -17,13 +17,12 @@ const common = {
   },
   output: {
     path: `${__dirname}/dist`,
-    library: 'usm',
+    library: 'textusm',
     libraryTarget: 'umd'
   },
   resolve: {
     extensions: ['.ts', '.js']
-  },
-  devtool: 'cheap-module-source-map'
+  }
 };
 
 if (process.env.NODE_ENV === 'production') {

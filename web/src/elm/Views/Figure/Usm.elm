@@ -88,7 +88,7 @@ labelView labels settings hierarchy width countByHierarchy =
                     , y "25"
                     , fontFamily settings.font
                     , fill settings.color.label
-                    , fontSize "14"
+                    , fontSize "11"
                     , fontWeight "bold"
                     , class "svg-text"
                     ]
@@ -103,7 +103,7 @@ labelView labels settings hierarchy width countByHierarchy =
                     , fontFamily settings.font
                     , fontWeight "bold"
                     , fill settings.color.label
-                    , fontSize "14"
+                    , fontSize "11"
                     , class "svg-text"
                     ]
                     [ text (getAt 1 labels |> Maybe.withDefault "USER TASKS") ]
@@ -118,7 +118,7 @@ labelView labels settings hierarchy width countByHierarchy =
                         , fontFamily settings.font
                         , fontWeight "bold"
                         , fill settings.color.label
-                        , fontSize "14"
+                        , fontSize "11"
                         , class "svg-text"
                         ]
                         [ text (getAt 2 labels |> Maybe.withDefault "USER STORIES") ]
@@ -128,7 +128,7 @@ labelView labels settings hierarchy width countByHierarchy =
                         , fontFamily settings.font
                         , fontWeight "bold"
                         , fill settings.color.label
-                        , fontSize "14"
+                        , fontSize "11"
                         , class "svg-text"
                         ]
                         [ text (getAt 3 labels |> Maybe.withDefault "RELEASE 1") ]
@@ -169,7 +169,7 @@ labelView labels settings hierarchy width countByHierarchy =
                                     , y (String.fromInt (releaseY + itemMargin + itemMargin // 2))
                                     , fontFamily settings.font
                                     , fill settings.color.label
-                                    , fontSize "14"
+                                    , fontSize "11"
                                     , fontWeight "bold"
                                     , class "svg-text"
                                     ]

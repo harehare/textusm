@@ -1,13 +1,33 @@
 import { Elm } from './js/elm';
 
-interface Settings {
+interface UserStoryMap {
+  labels?: string[];
+  activities: Activity[];
+}
+
+interface Activity {
+  name: string;
+  tasks: Task[];
+}
+
+interface Task {
+  name: string;
+  stories: Story[];
+}
+
+interface Story {
+  name: string;
+  release: number;
+}
+
+interface Config {
   font?: string;
   size?: Size;
-  color?: ColorSettings;
+  color?: ColorConfig;
   backgroundColor?: string;
 }
 
-interface ColorSettings {
+interface ColorConfig {
   activity?: Color;
   task?: Color;
   story?: Color;
@@ -26,7 +46,7 @@ interface Color {
   backgroundColor: string;
 }
 
-const defaultSettings: Settings = {
+const defaultConfig: Config = {
   font: 'Open Sans',
   size: {
     width: 140,
@@ -55,15 +75,46 @@ const defaultSettings: Settings = {
   backgroundColor: '#F5F5F6'
 };
 
-export const render = (id: string, text: string, size?: Size, settings?: Settings) => {
-  const elm = document.getElementById(id);
+function concat<T>(x: T[], y: T[]): T[] {
+  return x.concat(y);
+}
+
+function flatMap<T, U>(f: (x: T) => U[], xs: T[]): U[] {
+  return xs.map(f).reduce(concat, []);
+}
+
+function userStoryMap2Text(userStoryMap: UserStoryMap): string {
+  const labels =
+    userStoryMap.labels && userStoryMap.labels.length > 0 ? `#labels: ${userStoryMap.labels.join(',')}` : '';
+  return `${labels}\n${flatMap(activity => {
+    return [activity.name].concat(
+      flatMap(task => {
+        return ['    ' + task.name].concat(
+          flatMap(story => {
+            return ['    '.repeat(story.release + 1) + story.name];
+          }, task.stories)
+        );
+      }, activity.tasks)
+    );
+  }, userStoryMap.activities).join('\n')}`;
+}
+
+export const render = (
+  idOrElm: string | HTMLElement,
+  definition: string | UserStoryMap,
+  size?: Size,
+  config?: Config
+) => {
+  const elm = typeof idOrElm === 'string' ? document.getElementById(idOrElm) : idOrElm;
 
   if (!elm) {
-    throw new Error(`Element "${id}" is not found.`);
+    throw new Error(typeof idOrElm === 'string' ? `Element "${idOrElm}" is not found.` : `Element is not found.`);
   }
 
-  settings.color = Object.assign(defaultSettings.color, settings.color);
-  settings.size = Object.assign(defaultSettings.size, settings.size);
+  config.color = Object.assign(defaultConfig.color, config.color);
+  config.size = Object.assign(defaultConfig.size, config.size);
+
+  const text = typeof definition === 'string' ? definition : userStoryMap2Text(definition);
 
   Elm.Extension.Lib.init({
     node: elm,
@@ -71,7 +122,7 @@ export const render = (id: string, text: string, size?: Size, settings?: Setting
       text,
       width: size ? size.width : 1024,
       height: size ? size.height : 1024,
-      settings: Object.assign(defaultSettings, settings)
+      settings: Object.assign(defaultConfig, config)
     }
   });
 };

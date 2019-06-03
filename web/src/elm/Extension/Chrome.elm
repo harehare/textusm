@@ -78,6 +78,7 @@ init flags =
             , error = Nothing
             , comment = Nothing
             , touchDistance = Nothing
+            , labels = []
             }
       , text = flags
       }

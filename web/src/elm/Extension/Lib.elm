@@ -60,6 +60,7 @@ init flags =
             , error = Nothing
             , comment = Nothing
             , touchDistance = Nothing
+            , labels = []
             }
       , text = flags.text
       , backgroundColor = flags.settings.backgroundColor

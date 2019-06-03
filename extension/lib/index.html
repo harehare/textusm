@@ -2,24 +2,38 @@
   <head>
     <script src="./dist/index.js"></script>
   </head>
-  <div id="test"></div>
+  <div id="textusm"></div>
   <script>
-    this.usm.render(
-      'test',
-      'test\n    test',
+    this.textusm.render(
+      document.getElementById('textusm'),
+      {
+        activities: [
+          {
+            name: 'TextUSM',
+            tasks: [
+              {
+                name: 'Online tool for making user story mapping',
+                stories: [
+                  {
+                    name: 'Press Tab to indent lines',
+                    release: 1
+                  },
+                  {
+                    name:
+                      'Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.',
+                    release: 1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
       {
         width: 1024,
         height: 1024
       },
-      {
-        color: {
-          activity: {
-            color: '#111111',
-            backgroundColor: '#000000'
-          }
-        },
-        backgroundColor: '#FF0000'
-      }
+      {}
     );
   </script>
 </html>

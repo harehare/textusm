@@ -20,7 +20,7 @@
   "manifest_version": 2,
   "name": "TextUSM - user story mapping",
   "short_name": "TextUSM ",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "web_accessible_resources": ["images/icon.png"],
   "permissions": ["tabs", "contextMenus", "activeTab"],
   "content_scripts": [
