@@ -27,6 +27,7 @@ type alias InitData =
     , width : Int
     , height : Int
     , settings : FigureModel.Settings
+    , showZoomControl : Bool
     }
 
 
@@ -54,7 +55,7 @@ init flags =
             , moveX = 0
             , moveY = 0
             , fullscreen = False
-            , showZoomControl = True
+            , showZoomControl = flags.showZoomControl
             , figureType = FigureModel.UserStoryMap
             , settings = flags.settings
             , error = Nothing
@@ -72,9 +73,7 @@ init flags =
 view : Model -> Html Msg
 view model =
     div
-        [ style "position" "relative"
-        , style "width" "100vw"
-        , style "background-color" model.backgroundColor
+        [ style "background-color" model.backgroundColor
         ]
         [ div
             [ class "main" ]

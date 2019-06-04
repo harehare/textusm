@@ -282,7 +282,6 @@ view model =
     div
         [ Attr.id "usm-area"
         , Attr.style "position" "relative"
-        , Attr.style "height" "calc(100vh - 40px)"
         , Attr.style "margin-left" "8px"
         , if model.moveStart then
             Attr.style "cursor" "move"

@@ -99,18 +99,20 @@ function userStoryMap2Text(userStoryMap: UserStoryMap): string {
   }, userStoryMap.activities).join('\n')}`;
 }
 
-export const render = (
+function render(
   idOrElm: string | HTMLElement,
   definition: string | UserStoryMap,
-  size?: Size,
+  options?: { size?: Size; showZoomControl?: boolean },
   config?: Config
-) => {
+) {
   const elm = typeof idOrElm === 'string' ? document.getElementById(idOrElm) : idOrElm;
 
   if (!elm) {
     throw new Error(typeof idOrElm === 'string' ? `Element "${idOrElm}" is not found.` : `Element is not found.`);
   }
 
+  options = options ? options : {};
+  config = config ? config : {};
   config.color = Object.assign(defaultConfig.color, config.color);
   config.size = Object.assign(defaultConfig.size, config.size);
 
@@ -120,9 +122,12 @@ export const render = (
     node: elm,
     flags: {
       text,
-      width: size ? size.width : 1024,
-      height: size ? size.height : 1024,
-      settings: Object.assign(defaultConfig, config)
+      width: options.size ? options.size.width : 1024,
+      height: options.size ? options.size.height : 1024,
+      settings: Object.assign(defaultConfig, config),
+      showZoomControl: options.showZoomControl !== undefined ? options.showZoomControl : true
     }
   });
-};
+}
+
+export { render };

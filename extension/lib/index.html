@@ -3,37 +3,42 @@
     <script src="./dist/index.js"></script>
   </head>
   <div id="textusm"></div>
+  <div id="textusm2"></div>
   <script>
     this.textusm.render(
-      document.getElementById('textusm'),
-      {
-        activities: [
-          {
-            name: 'TextUSM',
-            tasks: [
-              {
-                name: 'Online tool for making user story mapping',
-                stories: [
-                  {
-                    name: 'Press Tab to indent lines',
-                    release: 1
-                  },
-                  {
-                    name:
-                      'Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.',
-                    release: 1
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        width: 1024,
-        height: 1024
-      },
-      {}
+      'textusm2',
+      `
+# labels: USER ACTIVITIES, USER TASKS, USER STORIES, RELEASE1, RELEASE2, RELEASE3
+# release1: 2019-06-01
+# release2: 2019-06-30
+# release2: 2019-07-31
+TextUSM
+    Online tool for making user story mapping
+        Press Tab to indent lines
+        Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.`
     );
+    this.textusm.render(document.getElementById('textusm10'), {
+      activities: [
+        {
+          name: 'TextUSM',
+          tasks: [
+            {
+              name: 'Online tool for making user story mapping',
+              stories: [
+                {
+                  name: 'Press Tab to indent lines',
+                  release: 1
+                },
+                {
+                  name:
+                    'Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.',
+                  release: 2
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
   </script>
 </html>

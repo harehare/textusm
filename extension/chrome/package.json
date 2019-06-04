@@ -1,6 +1,6 @@
 {
   "name": "textusm.chrome",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Generate a User Story Mapping from indented text.",
   "scripts": {
     "dev": "webpack --mode development --watch",
@@ -32,6 +32,7 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
-    "lzutf8": "^0.5.5"
+    "lzutf8": "^0.5.5",
+    "textusm": "0.0.3"
   }
 }

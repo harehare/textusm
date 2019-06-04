@@ -63,7 +63,6 @@
         "start": "npm run dev",
         "test": "elm-test",
         "vscode:build": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.js && mv elm.js ../extension/vscode/js/",
-        "chrome:build": "elm make src/elm/Extension/Chrome.elm --optimize --output elm.js && mv elm.js ../extension/chrome/src/js/",
         "lib:build": "elm make src/elm/Extension/Lib.elm --optimize --output elm.js && mv elm.js ../extension/lib/src/js/"
     }
 }

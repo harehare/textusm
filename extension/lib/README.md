@@ -31,8 +31,8 @@ TextUSM
         Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.`,
   // user story map size
   {
-    width: 1024,
-    height: 1024
+    size: { width: 1024, height: 1024 },
+    showZoomControl: true
   },
   // user story map configuration
   {}
@@ -72,8 +72,8 @@ textusm.render(
   },
   // user story map size
   {
-    width: 1024,
-    height: 1024
+    size: { width: 1024, height: 1024 },
+    showZoomControl: true
   },
   // user story map configuration
   {}
