@@ -55,6 +55,7 @@ mainView settings items countByTasks countByHierarchy =
         (zip
             countByTasks
             items
+            |> List.filter (\( _, i ) -> i.itemType /= Comments)
             |> List.indexedMap
                 (\i ( count, item ) ->
                     ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByHierarchy) (leftMargin * 2 + count * (settings.size.width + itemMargin)) 10 item )
@@ -293,6 +294,7 @@ activityView settings verticalCount posX posY item =
            )
          ]
             ++ (children
+                    |> List.filter (\i -> i.itemType /= Comments)
                     |> List.indexedMap
                         (\i it ->
                             ( "task-" ++ it.text
@@ -342,6 +344,7 @@ taskView settings verticalCount posX posY item =
            )
          ]
             ++ (children
+                    |> List.filter (\i -> i.itemType /= Comments)
                     |> List.indexedMap
                         (\i it ->
                             ( "story-" ++ it.text

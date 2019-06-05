@@ -52,17 +52,21 @@ init settings =
     }
 
 
-getItemType : Int -> ItemType
-getItemType indent =
-    case indent of
-        0 ->
-            Activities
+getItemType : String -> Int -> ItemType
+getItemType text indent =
+    if text |> String.trim |> String.startsWith "#" then
+        Comments
 
-        1 ->
-            Tasks
+    else
+        case indent of
+            0 ->
+                Activities
 
-        _ ->
-            Stories (indent - 1)
+            1 ->
+                Tasks
+
+            _ ->
+                Stories (indent - 1)
 
 
 getTextAndComment : String -> ( String, Maybe String )
@@ -101,7 +105,7 @@ loadText indent input =
                                         ( indent :: indents ++ indents2
                                         , { text = t
                                           , comment = n
-                                          , itemType = getItemType indent
+                                          , itemType = getItemType t indent
                                           , children = Children items
                                           }
                                             :: tailItems
@@ -146,9 +150,9 @@ countUpToHierarchy hierarchy items =
     let
         countUp : List Item -> List (List Int)
         countUp countItems =
-            -- Do not count task items.
+            -- Do not count activity, task and comment items.
             [ countItems
-                |> List.filter (\x -> x.itemType /= Tasks && x.itemType /= Activities)
+                |> List.filter (\x -> x.itemType /= Tasks && x.itemType /= Activities && x.itemType /= Comments)
                 |> List.length
             ]
                 :: (countItems
@@ -495,6 +499,9 @@ updateFigure size width height base text =
         |> Result.andThen
             (\( hierarchy, items ) ->
                 let
+                    filterdItems =
+                        items |> List.filter (\i -> i.itemType /= Comments)
+
                     labels =
                         Parser.parseComment text
                             |> List.filter
@@ -511,7 +518,7 @@ updateFigure size width height base text =
 
                     itemCount =
                         Basics.max (List.length items)
-                            (items
+                            (filterdItems
                                 |> List.map
                                     (\it ->
                                         case it.children of
@@ -525,7 +532,8 @@ updateFigure size width height base text =
                             )
 
                     countByHierarchy =
-                        countUpToHierarchy (hierarchy - 2) items
+                        filterdItems
+                            |> countUpToHierarchy (hierarchy - 2)
 
                     svgWidth =
                         itemCount * (size.width + itemMargin) + leftMargin * 2
@@ -539,19 +547,19 @@ updateFigure size width height base text =
                             + size.height
 
                     countByTasks =
-                        scanl
-                            (\it v ->
-                                v
-                                    + (case it.children of
-                                        Children [] ->
-                                            0
+                        items
+                            |> scanl
+                                (\it v ->
+                                    v
+                                        + (case it.children of
+                                            Children [] ->
+                                                0
 
-                                        Children children ->
-                                            List.length children
-                                      )
-                            )
-                            0
-                            items
+                                            Children children ->
+                                                List.length (children |> List.filter (\i -> i.itemType /= Comments))
+                                          )
+                                )
+                                0
                 in
                 Ok
                     { hierarchy = hierarchy
