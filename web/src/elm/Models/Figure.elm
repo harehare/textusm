@@ -29,7 +29,8 @@ type alias Model =
 
 type FigureType
     = UserStoryMap
-    | MindMap
+    | OpportunityCanvas
+    | BusinessModelCanvas
 
 
 type Children
@@ -110,8 +111,8 @@ type Msg
     | ShowComment Comment
     | HideComment
     | OnResize Int Int
-    | SelectLine String
     | StartPinch Float
+    | ItemClick Item
 
 
 toString : List Item -> String

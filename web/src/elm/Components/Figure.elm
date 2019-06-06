@@ -18,7 +18,7 @@ import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 import Svg.Lazy exposing (..)
 import Utils
-import Views.Figure.Mmp as Mmp
+import Views.Figure.Bmc as Bmc
 import Views.Figure.Usm as Usm
 import Views.Icon as Icon
 
@@ -364,8 +364,12 @@ svgView model =
             UserStoryMap ->
                 lazy Usm.view model
 
-            MindMap ->
-                lazy Mmp.view model
+            BusinessModelCanvas ->
+                lazy Bmc.view model
+
+            -- TODO:
+            OpportunityCanvas ->
+                lazy Bmc.view model
         ]
 
 

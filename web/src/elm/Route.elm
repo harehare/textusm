@@ -7,7 +7,7 @@ import Url.Parser.Query as Query
 
 type Route
     = Home
-    | MindMap
+    | BusinessModelCanvas
     | Share String String
     | View String
     | CallbackTrello (Maybe String) (Maybe String)
@@ -20,7 +20,7 @@ parser =
         , map Share (s "share" </> string </> string)
         , map View (s "view" </> string)
         , map CallbackTrello (s "callback" <?> Query.string "oauth_token" <?> Query.string "oauth_verifier")
-        , map MindMap (s "mindmap")
+        , map BusinessModelCanvas (s "bmc")
         ]
 
 

@@ -45,7 +45,7 @@ type Msg
     | TabSelect Int
     | Indent
     | GetAccessTokenForTrello
-    | ExportGithub 
+    | ExportGithub
     | Exported (Result Http.Error Api.Response)
     | DoOpenUrl String
 

@@ -185,8 +185,8 @@ labelView labels settings hierarchy width countByHierarchy =
         )
 
 
-itemView : Settings -> ItemType -> Int -> Int -> String -> Svg Msg
-itemView settings itemType posX posY text =
+itemView : Settings -> ItemType -> Int -> Int -> Item -> Svg Msg
+itemView settings itemType posX posY item =
     let
         ( color, backgroundColor ) =
             case itemType of
@@ -204,14 +204,14 @@ itemView settings itemType posX posY text =
         , height (String.fromInt settings.size.height)
         , x (String.fromInt posX)
         , y (String.fromInt posY)
-        , onClick (SelectLine text)
+        , onClick (ItemClick item)
         ]
         [ g []
             [ rectView
                 (String.fromInt settings.size.width)
                 (String.fromInt (settings.size.height - 1))
                 backgroundColor
-            , textView settings "0" "0" color text
+            , textView settings "0" "0" color item.text
             ]
         ]
 
@@ -282,7 +282,7 @@ activityView settings verticalCount posX posY item =
     Keyed.node "g"
         []
         ([ ( "activity-" ++ item.text
-           , itemView settings Activities posX posY item.text
+           , itemView settings Activities posX posY item
            )
          , ( "comment-" ++ item.text
            , case item.comment of
@@ -332,7 +332,7 @@ taskView settings verticalCount posX posY item =
     Keyed.node "g"
         []
         ([ ( "task-" ++ item.text
-           , itemView settings Tasks posX posY item.text
+           , itemView settings Tasks posX posY item
            )
          , ( "comment-" ++ item.text
            , case item.comment of
@@ -392,7 +392,7 @@ storyView settings verticalCount parentCount posX posY item =
     Keyed.node "g"
         []
         ([ ( "story-" ++ item.text
-           , itemView settings (Stories 1) posX posY item.text
+           , itemView settings (Stories 1) posX posY item
            )
          , ( "comment-" ++ item.text
            , case item.comment of

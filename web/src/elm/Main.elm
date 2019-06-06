@@ -279,13 +279,13 @@ changeRouteTo route model =
                 Nothing ->
                     ( model, Task.perform Init Dom.getViewport )
 
-        Route.MindMap ->
+        Route.BusinessModelCanvas ->
             let
                 figureModel =
                     model.figureModel
 
                 newFigureModel =
-                    { figureModel | figureType = FigureModel.MindMap }
+                    { figureModel | figureType = FigureModel.BusinessModelCanvas }
             in
             ( { model | figureModel = newFigureModel }
             , Task.perform Init Dom.getViewport
@@ -305,8 +305,8 @@ update message model =
 
         UpdateFigure subMsg ->
             case subMsg of
-                FigureModel.SelectLine text ->
-                    ( model, selectLine text )
+                FigureModel.ItemClick item ->
+                    ( model, selectLine item.text )
 
                 FigureModel.OnResize _ _ ->
                     ( { model | figureModel = Figure.update subMsg model.figureModel }, loadEditor model.text )
