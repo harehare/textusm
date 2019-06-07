@@ -191,6 +191,15 @@ view model =
 
 canvasView : Settings -> Int -> Int -> String -> String -> Item -> Svg Msg
 canvasView settings svgWidth svgHeight posX posY item =
+    let
+        lines =
+            case item.children of
+                Children [] ->
+                    []
+
+                Children c ->
+                    List.map (\i -> i.text) c
+    in
     svg
         [ width (String.fromInt svgWidth)
         , height (String.fromInt svgHeight)
@@ -200,6 +209,7 @@ canvasView settings svgWidth svgHeight posX posY item =
         [ g []
             [ rectView (String.fromInt svgWidth) (String.fromInt svgHeight) "#555555"
             , titleView settings 10 10 item.text
+            , textView settings itemWidth 25 10 30 lines
             ]
         ]
 
@@ -221,7 +231,7 @@ titleView settings posX posY title =
         [ x (String.fromInt posX)
         , y (String.fromInt (posY + 14))
         , fontFamily settings.font
-        , fill settings.color.label
+        , fill "#8C9FAE"
         , fontSize "16"
         , fontWeight "bold"
         , class "svg-text"
@@ -229,27 +239,28 @@ titleView settings posX posY title =
         [ text title ]
 
 
-textView : Settings -> Int -> Int -> String -> String -> String -> List String -> Svg Msg
-textView settings w h posX posY c lines =
-    foreignObject
-        [ x posX
-        , y posY
-        , width (String.fromInt w)
-        , height (String.fromInt h)
-        , fill c
-        , color c
-        , fontSize (calcFontSize settings.size.width (lines |> List.head |> Maybe.withDefault ""))
-        , fontFamily settings.font
-        , class "svg-text"
-        ]
+textView : Settings -> Int -> Int -> Int -> Int -> List String -> Svg Msg
+textView settings w h posX posY lines =
+    g []
         (lines
-            |> List.map
-                (\line ->
-                    div
-                        [ Attr.style "padding" "8px"
-                        , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-                        , Attr.style "word-wrap" "break-word"
+            |> List.indexedMap
+                (\i line ->
+                    foreignObject
+                        [ x (String.fromInt posX)
+                        , y (String.fromInt ((i + 1) * posY))
+                        , width (String.fromInt w)
+                        , height (String.fromInt h)
+                        , color "#333333"
+                        , fontSize (calcFontSize itemWidth line)
+                        , fontFamily settings.font
+                        , class "svg-text"
                         ]
-                        [ Html.text line ]
+                        [ div
+                            [ Attr.style "padding" "8px"
+                            , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+                            , Attr.style "word-wrap" "break-word"
+                            ]
+                            [ Html.text line ]
+                        ]
                 )
         )

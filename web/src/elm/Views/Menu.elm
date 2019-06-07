@@ -25,7 +25,12 @@ view width fullscreen isEditSettings openMenu =
             [ class "menu-bar"
             ]
             ([ div
-                (stopPropagationOn "click" (D.succeed ( OpenMenu OpenFile, True )) :: menuItemStyle)
+                ([ stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True )), style "margin-left" "4px" ] ++ menuItemStyle)
+                [ Icon.file 23
+                , span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
+                ]
+             , div
+                (onClick FileSelect :: menuItemStyle)
                 [ Icon.folderOpen 23
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text "File Open" ] ]
                 ]
@@ -56,13 +61,13 @@ view width fullscreen isEditSettings openMenu =
                    , if Utils.isPhone width then
                         case openMenu of
                             Just SaveFile ->
-                                menu Nothing (Just (String.fromInt (width // 4) ++ "px")) (Just "50px") [ ( DownloadSvg, "SVG" ), ( DownloadPng, "PNG" ), ( SaveToLocal, "TXT" ) ]
-
-                            Just OpenFile ->
-                                menu Nothing (Just "0") (Just "50px") [ ( FileSelect, "LOCAL" ), ( NoOp, "REMOTE (DEVELOPMENT)" ) ]
+                                menu Nothing (Just (String.fromInt (width // 5 * 2) ++ "px")) (Just "50px") [ ( DownloadSvg, "SVG" ), ( DownloadPng, "PNG" ), ( SaveToLocal, "TXT" ) ]
 
                             Just Export ->
-                                menu Nothing (Just (String.fromInt ((width // 4) * 2) ++ "px")) (Just "50px") [ ( GetAccessTokenForTrello, "Trello" ), ( ExportGithub, "Github" ) ]
+                                menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") [ ( GetAccessTokenForTrello, "Trello" ), ( ExportGithub, "Github" ) ]
+
+                            Just NewFile ->
+                                menu Nothing (Just "10px") (Just "50px") [ ( NewUserStoryMap, "User Story Map" ), ( NewBusinessModelCanvas, "Business Model Canvas" ) ]
 
                             _ ->
                                 div [] []
@@ -70,13 +75,13 @@ view width fullscreen isEditSettings openMenu =
                      else
                         case openMenu of
                             Just SaveFile ->
-                                menu (Just "30px") Nothing Nothing [ ( DownloadSvg, "SVG" ), ( DownloadPng, "PNG" ), ( SaveToLocal, "TXT" ) ]
-
-                            Just OpenFile ->
-                                menu (Just "0") Nothing Nothing [ ( FileSelect, "LOCAL" ), ( NoOp, "REMOTE (IN DEVELOPMENT)" ) ]
+                                menu (Just "70px") Nothing Nothing [ ( DownloadSvg, "SVG" ), ( DownloadPng, "PNG" ), ( SaveToLocal, "TXT" ) ]
 
                             Just Export ->
-                                menu (Just "85px") Nothing Nothing [ ( GetAccessTokenForTrello, "Trello" ), ( ExportGithub, "Github" ) ]
+                                menu (Just "125px") Nothing Nothing [ ( GetAccessTokenForTrello, "Trello" ), ( ExportGithub, "Github" ) ]
+
+                            Just NewFile ->
+                                menu (Just "0") Nothing Nothing [ ( NewUserStoryMap, "User Story Map" ), ( NewBusinessModelCanvas, "Business Model Canvas" ) ]
 
                             _ ->
                                 div [] []

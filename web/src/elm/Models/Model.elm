@@ -48,6 +48,8 @@ type Msg
     | ExportGithub
     | Exported (Result Http.Error Api.Response)
     | DoOpenUrl String
+    | NewUserStoryMap
+    | NewBusinessModelCanvas
 
 
 type alias OpenUrl =
@@ -62,7 +64,7 @@ type Notification
 
 type Menu
     = SaveFile
-    | OpenFile
+    | NewFile
     | Export
     | UserSettings
 

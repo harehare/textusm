@@ -292,7 +292,14 @@ changeRouteTo route model =
             )
 
         _ ->
-            ( model
+            let
+                figureModel =
+                    model.figureModel
+
+                newFigureModel =
+                    { figureModel | figureType = FigureModel.UserStoryMap }
+            in
+            ( { model | figureModel = newFigureModel }
             , Task.perform Init Dom.getViewport
             )
 
@@ -644,4 +651,25 @@ update message model =
                         [ Task.perform identity (Task.succeed (OnNotification (Warning "Invalid settings. Please add github.owner, github.repo and github.token to settings." Nothing)))
                         , Task.perform identity (Task.succeed ToggleSettings)
                         ]
+            )
+
+        NewUserStoryMap ->
+            -- TODO: confirm
+            ( { model | title = Nothing }, Nav.pushUrl model.key "/" )
+
+        NewBusinessModelCanvas ->
+            -- TODO: confirm
+            let
+                text =
+                    if model.text == "" then
+                        "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships"
+
+                    else
+                        model.text
+            in
+            ( { model
+                | title = Nothing
+                , text = text
+              }
+            , Cmd.batch [ Nav.pushUrl model.key "/bmc", Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText text))) ]
             )
