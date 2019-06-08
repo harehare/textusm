@@ -74,7 +74,6 @@ parseLines indent text =
                                 x |> String.trim
                         in
                         not (String.isEmpty str)
-                            && not (String.startsWith "#" str)
                     )
 
         tail =

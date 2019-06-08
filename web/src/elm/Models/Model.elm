@@ -45,9 +45,12 @@ type Msg
     | TabSelect Int
     | Indent
     | GetAccessTokenForTrello
-    | ExportGithub 
+    | ExportGithub
     | Exported (Result Http.Error Api.Response)
     | DoOpenUrl String
+    | NewUserStoryMap
+    | NewBusinessModelCanvas
+    | NewOpportunityCanvas
 
 
 type alias OpenUrl =
@@ -62,7 +65,7 @@ type Notification
 
 type Menu
     = SaveFile
-    | OpenFile
+    | NewFile
     | Export
     | UserSettings
 
@@ -106,6 +109,7 @@ type alias Download =
 type alias ShareInfo =
     { title : Maybe String
     , text : String
+    , figureType : String
     }
 
 

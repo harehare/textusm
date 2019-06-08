@@ -33,7 +33,7 @@ port downloadSvg : Download -> Cmd msg
 port loadEditor : String -> Cmd msg
 
 
-port loadText : String -> Cmd msg
+port loadText : ( String, Bool ) -> Cmd msg
 
 
 port layoutEditor : Int -> Cmd msg
@@ -68,7 +68,7 @@ subscriptions model =
          , onMouseUp (D.succeed (UpdateFigure Figure.Stop))
          , onEncodeShareText OnEncodeShareText
          , onDecodeShareText OnDecodeShareText
-         , onNotification (\n -> OnNotification (Info n Nothing))
+         , onNotification (\n -> OnAutoCloseNotification (Info n Nothing))
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp (D.succeed Stop)

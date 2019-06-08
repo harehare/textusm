@@ -1,6 +1,6 @@
 {
   "name": "textusm",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Generate a User Story Mapping from indented text.",
   "main": "dist/index.js",
   "scripts": {
@@ -10,7 +10,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/harehare/textusm/lib"
+    "url": "https://github.com/harehare/textusm/tree/master/extension/lib"
+  },
+  "bugs": {
+    "url": "https://github.com/harehare/textusm/issues"
   },
   "keywords": [
     "user-story-map",
@@ -18,7 +21,8 @@
     "svg",
     "png",
     "pdf",
-    "user-story-mapping"
+    "user-story-mapping",
+    "business-model-canvas"
   ],
   "author": "harehare",
   "license": "MIT",

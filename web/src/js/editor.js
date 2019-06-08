@@ -68,13 +68,16 @@ export const loadEditor = (app, text) => {
             monacoEditor.layout();
         };
 
-        app.ports.loadText.subscribe(text => {
-            const { column, lineNumber } = monacoEditor.getPosition();
+        app.ports.loadText.subscribe(([text, indent]) => {
+            if (indent) {
+                const { column, lineNumber } = monacoEditor.getPosition();
+                monacoEditor.setPosition({
+                    column: column + 4,
+                    lineNumber
+                });
+            }
+
             monacoEditor.setValue(text);
-            monacoEditor.setPosition({
-                column: column + 4,
-                lineNumber
-            });
             monacoEditor.focus();
         });
 

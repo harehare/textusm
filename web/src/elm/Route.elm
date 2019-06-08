@@ -7,9 +7,11 @@ import Url.Parser.Query as Query
 
 type Route
     = Home
-    | MindMap
-    | Share String String
-    | View String
+    | BusinessModelCanvas
+    | OpportunityCanvas
+    | Share String String String
+    | UsmView String
+    | View String String
     | CallbackTrello (Maybe String) (Maybe String)
 
 
@@ -17,10 +19,12 @@ parser : Parser (Route -> a) a
 parser =
     oneOf
         [ map Home Parser.top
-        , map Share (s "share" </> string </> string)
-        , map View (s "view" </> string)
+        , map Share (s "share" </> string </> string </> string)
+        , map UsmView (s "view" </> string)
+        , map View (s "view" </> string </> string)
         , map CallbackTrello (s "callback" <?> Query.string "oauth_token" <?> Query.string "oauth_verifier")
-        , map MindMap (s "mindmap")
+        , map BusinessModelCanvas (s "bmc")
+        , map OpportunityCanvas (s "opc")
         ]
 
 

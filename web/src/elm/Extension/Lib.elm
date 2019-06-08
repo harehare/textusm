@@ -28,6 +28,7 @@ type alias InitData =
     , height : Int
     , settings : FigureModel.Settings
     , showZoomControl : Bool
+    , figureType : String
     }
 
 
@@ -56,7 +57,15 @@ init flags =
             , moveY = 0
             , fullscreen = False
             , showZoomControl = flags.showZoomControl
-            , figureType = FigureModel.UserStoryMap
+            , figureType =
+                if flags.figureType == "BusinessModelCanvas" then
+                    FigureModel.BusinessModelCanvas
+
+                else if flags.figureType == "OpportunityCanvas" then
+                    FigureModel.OpportunityCanvas
+
+                else
+                    FigureModel.UserStoryMap
             , settings = flags.settings
             , error = Nothing
             , comment = Nothing

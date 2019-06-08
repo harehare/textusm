@@ -8,12 +8,12 @@ Online tool for Generate a User Story Mapping from indented text.
 
 ## Features
 
-- Generate a User Story Mapping from indented text
-- Add List and card to Trello, Github
-- Replace the code block with the generated USM.
-- Open TextUS
+- Generate a User Story Mapping, Business Model Canvas or Opportunity Canvas from indented text
+- Add list and card to Trello or Github
 
 ## Example
+
+### User Story Map
 
 ```
 # labels: USER ACTIVITIES, USER TASKS, USER STORIES, RELEASE1, RELEASE2, RELEASE3
@@ -28,6 +28,58 @@ TextUSM
 
 ![image](./img/usm.png)
 
+### Business Model Canvas
+
+```
+👥 Key Partners
+    Key Partners
+📊 Customer Segments
+    Customer Segments
+🎁 Value Proposition
+    Value Proposition
+✅ Key Activities
+    Key Activities
+🚚 Channels
+    Channels
+💰 Revenue Streams
+    Revenue Streams
+🏷️ Cost Structure
+    Cost Structure
+💪 Key Resources
+    Key Resources
+💙 Customer Relationships
+    Customer Relationships
+```
+
+![image](./img/bmc.png)
+
+### Opportunity Canvas
+
+```
+Problems
+    Problems
+Solution Ideas
+    Solution Ideas
+Users and Customers
+    Users and Customers
+Solutions Today
+    Solutions Today
+Business Challenges
+    Business Challenges
+How will Users use Solution?
+    How will Users use Solution?
+User Metrics
+    User Metrics
+Adoption Strategy
+    Adoption Strategy
+Business Benefits and Metrics
+    Business Benefits and Metrics
+Budget
+    Budget
+```
+
+![image](./img/opc.png)
+
 ## Installation
 
 - [Web](https://textusm.web.app)
@@ -35,6 +87,7 @@ TextUSM
 - [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=harehare.textusm)
 - [Chrome Extension](https://chrome.google.com/webstore/detail/godhdokkibfjekpoikkghnjgemibmhka)
 - [CLI](https://www.npmjs.com/package/textusm.cli)
+- [npm](https://www.npmjs.com/package/textusm)
 
 ## Developing
 
