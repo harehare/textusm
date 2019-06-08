@@ -2,12 +2,12 @@ port module Extension.VSCode exposing (init, main, view)
 
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
-import Components.Figure as Figure
+import Components.Diagram as Diagram
 import Html exposing (Html, div)
 import Html.Attributes exposing (class, style)
 import Html.Lazy exposing (lazy)
 import Json.Decode as D
-import Models.Figure as FigureModel
+import Models.Diagram as DiagramModel
 import Task
 
 
@@ -16,7 +16,7 @@ import Task
 
 
 type alias Model =
-    { figureModel : FigureModel.Model
+    { diagramModel : DiagramModel.Model
     , text : String
     , backgroundColor : String
     }
@@ -36,12 +36,12 @@ type alias InitData =
 
 
 type Msg
-    = UpdateFigure FigureModel.Msg
+    = UpdateDiagram DiagramModel.Msg
 
 
 init : InitData -> ( Model, Cmd Msg )
 init flags =
-    ( { figureModel =
+    ( { diagramModel =
             { items = []
             , hierarchy = 0
             , width = 1024
@@ -60,7 +60,7 @@ init flags =
             , moveY = 0
             , fullscreen = False
             , showZoomControl = True
-            , figureType = FigureModel.UserStoryMap
+            , diagramType = DiagramModel.UserStoryMap
             , settings =
                 { font = flags.fontName
                 , size =
@@ -97,7 +97,7 @@ init flags =
       , text = flags.text
       , backgroundColor = flags.backgroundColor
       }
-    , Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText flags.text)))
+    , Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText flags.text)))
     )
 
 
@@ -110,8 +110,8 @@ view model =
         ]
         [ div
             [ class "main" ]
-            [ lazy Figure.view model.figureModel
-                |> Html.map UpdateFigure
+            [ lazy Diagram.view model.diagramModel
+                |> Html.map UpdateDiagram
             ]
         ]
 
@@ -133,22 +133,22 @@ main =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        UpdateFigure subMsg ->
+        UpdateDiagram subMsg ->
             case subMsg of
-                FigureModel.OnChangeText text ->
+                DiagramModel.OnChangeText text ->
                     let
-                        figureModel =
-                            Figure.update subMsg model.figureModel
+                        diagramModel =
+                            Diagram.update subMsg model.diagramModel
                     in
-                    case figureModel.error of
+                    case diagramModel.error of
                         Just err ->
-                            ( { model | text = text, figureModel = figureModel }, errorLine err )
+                            ( { model | text = text, diagramModel = diagramModel }, errorLine err )
 
                         Nothing ->
-                            ( { model | text = text, figureModel = figureModel }, errorLine "" )
+                            ( { model | text = text, diagramModel = diagramModel }, errorLine "" )
 
                 _ ->
-                    ( { model | figureModel = Figure.update subMsg model.figureModel }, Cmd.none )
+                    ( { model | diagramModel = Diagram.update subMsg model.diagramModel }, Cmd.none )
 
 
 
@@ -164,7 +164,7 @@ port onTextChanged : (String -> msg) -> Sub msg
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ onResize (\width height -> UpdateFigure (FigureModel.OnResize width height))
-        , onMouseUp (D.succeed (UpdateFigure FigureModel.Stop))
-        , onTextChanged (\text -> UpdateFigure (FigureModel.OnChangeText text))
+        [ onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
+        , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
+        , onTextChanged (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
         ]

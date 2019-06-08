@@ -7,14 +7,14 @@ import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
 import File exposing (File)
 import Http
-import Models.Figure as Figure
+import Models.Diagram as Diagram
 import Url
 
 
 type Msg
     = NoOp
     | Init Viewport
-    | UpdateFigure Figure.Msg
+    | UpdateDiagram Diagram.Msg
     | OpenMenu Menu
     | Stop
     | CloseMenu
@@ -73,7 +73,7 @@ type Menu
 type alias Model =
     { key : Nav.Key
     , url : Url.Url
-    , figureModel : Figure.Model
+    , diagramModel : Diagram.Model
     , text : String
     , openMenu : Maybe Menu
     , window : Window
@@ -109,7 +109,7 @@ type alias Download =
 type alias ShareInfo =
     { title : Maybe String
     , text : String
-    , figureType : String
+    , diagramType : String
     }
 
 
@@ -120,7 +120,7 @@ type ShareUrl
 type alias Settings =
     { position : Maybe Int
     , font : String
-    , storyMap : Figure.Settings
+    , storyMap : Diagram.Settings
     , text : Maybe String
     , title : Maybe String
     , github : Maybe GithubSettings

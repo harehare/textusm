@@ -18,7 +18,7 @@ chrome.contextMenus.onClicked.addListener(info => {
       selection => {
         const selected = selection[0];
         chrome.tabs.create({
-          url: `https://textusm.web.app/share/viewusm/${encodeURIComponent(
+          url: `https://textusm.web.app/share/usm/viewusm/${encodeURIComponent(
             LZUTF8.compress(selected, {
               outputEncoding: 'Base64'
             })

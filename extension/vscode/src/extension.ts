@@ -11,22 +11,22 @@ export function activate(context: vscode.ExtensionContext) {
         );
     context.subscriptions.push(
         vscode.commands.registerCommand("extension.showPreview", () => {
-            FigurePanel.createOrShow(context);
+            DiagramPanel.createOrShow(context);
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand("extension.exportSvg", () => {
-            FigurePanel.createOrShow(context);
-            if (FigurePanel.currentPanel) {
-                FigurePanel.currentPanel.exportSvg();
+            DiagramPanel.createOrShow(context);
+            if (DiagramPanel.currentPanel) {
+                DiagramPanel.currentPanel.exportSvg();
             }
         })
     );
     context.subscriptions.push(
         vscode.commands.registerCommand("extension.exportPng", () => {
-            FigurePanel.createOrShow(context);
-            if (FigurePanel.currentPanel) {
-                FigurePanel.currentPanel.exportPng();
+            DiagramPanel.createOrShow(context);
+            if (DiagramPanel.currentPanel) {
+                DiagramPanel.currentPanel.exportPng();
             }
         })
     );
@@ -34,8 +34,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {}
 
-class FigurePanel {
-    public static currentPanel: FigurePanel | undefined;
+class DiagramPanel {
+    public static currentPanel: DiagramPanel | undefined;
     public static readonly viewType = "textUSM";
 
     private readonly _panel: vscode.WebviewPanel;
@@ -51,20 +51,20 @@ class FigurePanel {
             path.join(context.extensionPath, "js", "elm.js")
         ).with({ scheme: "vscode-resource" });
 
-        if (FigurePanel.currentPanel) {
-            FigurePanel.currentPanel._update(scriptSrc, title, text);
-            FigurePanel.currentPanel._panel.webview.postMessage({
+        if (DiagramPanel.currentPanel) {
+            DiagramPanel.currentPanel._update(scriptSrc, title, text);
+            DiagramPanel.currentPanel._panel.webview.postMessage({
                 text
             });
-            FigurePanel.currentPanel._panel.reveal(
+            DiagramPanel.currentPanel._panel.reveal(
                 column ? column + 1 : vscode.ViewColumn.Two
             );
-            FigurePanel.currentPanel._addTextChangedEvent(editor);
+            DiagramPanel.currentPanel._addTextChangedEvent(editor);
             return;
         }
 
         const panel = vscode.window.createWebviewPanel(
-            FigurePanel.viewType,
+            DiagramPanel.viewType,
             "TextUSM",
             column ? column + 1 : vscode.ViewColumn.Two,
             {
@@ -75,10 +75,10 @@ class FigurePanel {
             }
         );
 
-        const figurePanel = new FigurePanel(panel, scriptSrc, title, text);
+        const figurePanel = new DiagramPanel(panel, scriptSrc, title, text);
 
-        FigurePanel.currentPanel = figurePanel;
-        FigurePanel.currentPanel._addTextChangedEvent(editor);
+        DiagramPanel.currentPanel = figurePanel;
+        DiagramPanel.currentPanel._addTextChangedEvent(editor);
 
         figurePanel._panel.webview.onDidReceiveMessage(message => {
             if (message.command === "exportPng") {
@@ -135,7 +135,7 @@ class FigurePanel {
     }
 
     public dispose() {
-        FigurePanel.currentPanel = undefined;
+        DiagramPanel.currentPanel = undefined;
         this._panel.dispose();
     }
 

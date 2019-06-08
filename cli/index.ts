@@ -50,10 +50,11 @@ const readConfigFile = (file: string) => {
 };
 
 const { configFile, input, output } = commander
-  .version('0.0.5')
+  .version('0.0.6')
   .option('-c, --configFile [configFile]', 'Config file.')
   .option('-i, --input <input>', 'Input text file. Required.')
   .option('-o, --output [output]', 'Output file. It should be svg, png, pdf or html.')
+  .option('-t, --type [type]', 'Map type. It should be svg, png, pdf or html.')
   .parse(process.argv);
 
 if (!input) {

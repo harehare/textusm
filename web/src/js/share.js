@@ -1,9 +1,9 @@
 import LZUTF8 from "lzutf8";
 
 export const setUpShare = app => {
-    app.ports.encodeShareText.subscribe(({ figureType, title, text }) => {
+    app.ports.encodeShareText.subscribe(({ diagramType, title, text }) => {
         execCopy(
-            `${location.protocol}//${location.host}/share/${figureType}/${
+            `${location.protocol}//${location.host}/share/${diagramType}/${
                 title ? title : "untitled"
             }/${encodeURIComponent(
                 LZUTF8.compress(text, {

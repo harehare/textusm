@@ -1,10 +1,10 @@
-module Views.Figure.Opc exposing (view)
+module Views.Diagram.Bmc exposing (view)
 
 import Constants exposing (..)
 import Html exposing (div)
 import Html.Attributes as Attr
 import List.Extra exposing (getAt)
-import Models.Figure exposing (Children(..), Color, Comment, Item, ItemType(..), Model, Msg(..), Settings)
+import Models.Diagram exposing (Children(..), Color, Comment, Item, ItemType(..), Model, Msg(..), Settings)
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -43,27 +43,11 @@ view model =
             )
         , fill "#F5F5F6"
         ]
-        [ -- Users and Customers
+        [ -- Key Partners
           canvasView model.settings
             itemWidth
             (itemHeight * 2)
             "0"
-            "0"
-            (drawItems
-                |> getAt 2
-                |> Maybe.withDefault
-                    { text = ""
-                    , comment = Nothing
-                    , itemType = Activities
-                    , children = Children []
-                    }
-            )
-
-        -- Problems
-        , canvasView model.settings
-            itemWidth
-            itemHeight
-            (String.fromInt (itemWidth - 5))
             "0"
             (drawItems
                 |> getAt 0
@@ -75,12 +59,12 @@ view model =
                     }
             )
 
-        -- Solutions Today
+        -- Key Activities
         , canvasView model.settings
             itemWidth
-            (itemHeight + 5)
+            itemHeight
             (String.fromInt (itemWidth - 5))
-            (String.fromInt (itemHeight - 5))
+            "0"
             (drawItems
                 |> getAt 3
                 |> Maybe.withDefault
@@ -91,43 +75,11 @@ view model =
                     }
             )
 
-        -- Solution Ideas
-        , canvasView model.settings
-            itemWidth
-            (itemHeight * 2)
-            (String.fromInt (itemWidth * 2 - 10))
-            "0"
-            (drawItems
-                |> getAt 1
-                |> Maybe.withDefault
-                    { text = ""
-                    , comment = Nothing
-                    , itemType = Activities
-                    , children = Children []
-                    }
-            )
-
-        -- ️How will Users use Solution?
-        , canvasView model.settings
-            itemWidth
-            itemHeight
-            (String.fromInt (itemWidth * 3 - 15))
-            "0"
-            (drawItems
-                |> getAt 5
-                |> Maybe.withDefault
-                    { text = ""
-                    , comment = Nothing
-                    , itemType = Activities
-                    , children = Children []
-                    }
-            )
-
-        -- Adoption Strategy
+        -- Key Resources
         , canvasView model.settings
             itemWidth
             (itemHeight + 5)
-            (String.fromInt (itemWidth * 3 - 15))
+            (String.fromInt (itemWidth - 5))
             (String.fromInt (itemHeight - 5))
             (drawItems
                 |> getAt 7
@@ -139,14 +91,14 @@ view model =
                     }
             )
 
-        -- User Metrics
+        -- Value Propotion
         , canvasView model.settings
             itemWidth
             (itemHeight * 2)
-            (String.fromInt (itemWidth * 4 - 20))
+            (String.fromInt (itemWidth * 2 - 10))
             "0"
             (drawItems
-                |> getAt 6
+                |> getAt 2
                 |> Maybe.withDefault
                     { text = ""
                     , comment = Nothing
@@ -155,12 +107,28 @@ view model =
                     }
             )
 
-        -- Business Challenges
+        -- ️Customer Relationships
         , canvasView model.settings
-            (round (toFloat itemWidth * 2) - 5)
-            (itemHeight + 5)
+            itemWidth
+            itemHeight
+            (String.fromInt (itemWidth * 3 - 15))
             "0"
-            (String.fromInt (itemHeight * 2 - 5))
+            (drawItems
+                |> getAt 8
+                |> Maybe.withDefault
+                    { text = ""
+                    , comment = Nothing
+                    , itemType = Activities
+                    , children = Children []
+                    }
+            )
+
+        -- Channels
+        , canvasView model.settings
+            itemWidth
+            (itemHeight + 5)
+            (String.fromInt (itemWidth * 3 - 15))
+            (String.fromInt (itemHeight - 5))
             (drawItems
                 |> getAt 4
                 |> Maybe.withDefault
@@ -171,14 +139,14 @@ view model =
                     }
             )
 
-        -- Budget
+        -- Customer Segments
         , canvasView model.settings
             itemWidth
-            (itemHeight + 5)
-            (String.fromInt (round (toFloat itemWidth * 2) - 10))
-            (String.fromInt (itemHeight * 2 - 5))
+            (itemHeight * 2)
+            (String.fromInt (itemWidth * 4 - 20))
+            "0"
             (drawItems
-                |> getAt 9
+                |> getAt 1
                 |> Maybe.withDefault
                     { text = ""
                     , comment = Nothing
@@ -187,14 +155,30 @@ view model =
                     }
             )
 
-        -- Business Benefits and Metrics
+        -- Cost Structure
         , canvasView model.settings
-            (round (toFloat itemWidth * 2) - 5)
+            (round (toFloat itemWidth * 2.5) - 5)
             (itemHeight + 5)
-            (String.fromInt (round (toFloat itemWidth * 3) - 15))
+            "0"
             (String.fromInt (itemHeight * 2 - 5))
             (drawItems
-                |> getAt 8
+                |> getAt 6
+                |> Maybe.withDefault
+                    { text = ""
+                    , comment = Nothing
+                    , itemType = Activities
+                    , children = Children []
+                    }
+            )
+
+        -- Revenue Streams
+        , canvasView model.settings
+            (round (toFloat itemWidth * 2.5) - 5)
+            (itemHeight + 5)
+            (String.fromInt (round (toFloat itemWidth * 2.5) - 15))
+            (String.fromInt (itemHeight * 2 - 5))
+            (drawItems
+                |> getAt 5
                 |> Maybe.withDefault
                     { text = ""
                     , comment = Nothing

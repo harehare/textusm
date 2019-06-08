@@ -2,7 +2,7 @@ port module Subscriptions exposing (applySettings, changeText, decodeShareText, 
 
 import Browser.Events exposing (onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Json.Decode as D
-import Models.Figure as Figure
+import Models.Diagram as Diagram
 import Models.Model exposing (Download, Model, Msg(..), Notification(..), Settings, ShareInfo)
 
 
@@ -60,12 +60,12 @@ port encodeShareText : ShareInfo -> Cmd msg
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        ([ changeText (\text -> UpdateFigure (Figure.OnChangeText text))
+        ([ changeText (\text -> UpdateDiagram (Diagram.OnChangeText text))
          , applySettings ApplySettings
          , startDownloadSvg StartDownloadSvg
          , onVisibilityChange OnVisibilityChange
-         , onResize (\width height -> UpdateFigure (Figure.OnResize width height))
-         , onMouseUp (D.succeed (UpdateFigure Figure.Stop))
+         , onResize (\width height -> UpdateDiagram (Diagram.OnResize width height))
+         , onMouseUp (D.succeed (UpdateDiagram Diagram.Stop))
          , onEncodeShareText OnEncodeShareText
          , onDecodeShareText OnDecodeShareText
          , onNotification (\n -> OnAutoCloseNotification (Info n Nothing))

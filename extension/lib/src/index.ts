@@ -59,7 +59,11 @@ const defaultConfig: Config = {
 function render(
   idOrElm: string | HTMLElement,
   definition: string | UserStoryMap | BusinessModelCanvas | OpportunityCanvas,
-  options?: { size?: Size; showZoomControl?: boolean },
+  options?: {
+    diagramType?: 'UserStoryMap' | 'BusinessModelCanvas' | 'OpportunityCanvas';
+    size?: Size;
+    showZoomControl?: boolean;
+  },
   config?: Config
 ) {
   const elm = typeof idOrElm === 'string' ? document.getElementById(idOrElm) : idOrElm;
@@ -79,7 +83,11 @@ function render(
     node: elm,
     flags: {
       text,
-      figureType: typeof definition === 'string' ? 'UserStoryMap' : toTypeString(definition),
+      diagramType: options.diagramType
+        ? options.diagramType
+        : typeof definition === 'string'
+        ? 'UserStoryMap'
+        : toTypeString(definition),
       width: options.size ? options.size.width : 1024,
       height: options.size ? options.size.height : 1024,
       settings: Object.assign(defaultConfig, config),

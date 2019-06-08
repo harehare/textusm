@@ -3,7 +3,7 @@ module TestApi exposing (createRequestTest)
 import Api exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
-import Models.Figure exposing (..)
+import Models.Diagram exposing (..)
 import Test exposing (..)
 
 

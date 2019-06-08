@@ -1,4 +1,4 @@
-module Views.Figure.Usm exposing (view)
+module Views.Diagram.Usm exposing (view)
 
 import Basics exposing (max)
 import Constants exposing (..)
@@ -6,7 +6,7 @@ import Html exposing (div)
 import Html.Attributes as Attr
 import List
 import List.Extra exposing (getAt, zip)
-import Models.Figure exposing (Children(..), Comment, Item, ItemType(..), Model, Msg(..), Settings)
+import Models.Diagram exposing (Children(..), Comment, Item, ItemType(..), Model, Msg(..), Settings)
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)

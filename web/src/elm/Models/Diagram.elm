@@ -1,4 +1,4 @@
-module Models.Figure exposing (Children(..), Color, ColorSettings, Comment, FigureType(..), Item, ItemType(..), Model, Msg(..), Settings, Size, UsmSvg, toString)
+module Models.Diagram exposing (Children(..), Color, ColorSettings, Comment, DiagramType(..), Item, ItemType(..), Model, Msg(..), Settings, Size, UsmSvg, toString)
 
 import Browser.Dom exposing (Viewport)
 
@@ -22,12 +22,12 @@ type alias Model =
     , comment : Maybe Comment
     , showZoomControl : Bool
     , touchDistance : Maybe Float
-    , figureType : FigureType
+    , diagramType : DiagramType
     , labels : List String
     }
 
 
-type FigureType
+type DiagramType
     = UserStoryMap
     | OpportunityCanvas
     | BusinessModelCanvas

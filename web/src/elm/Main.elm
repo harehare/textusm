@@ -6,7 +6,7 @@ import Browser
 import Browser.Dom as Dom
 import Browser.Events exposing (Visibility(..))
 import Browser.Navigation as Nav
-import Components.Figure as Figure
+import Components.Diagram as Diagram
 import Constants
 import File exposing (name)
 import File.Download as Download
@@ -17,7 +17,7 @@ import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy3, lazy4)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
-import Models.Figure as FigureModel
+import Models.Diagram as DiagramModel
 import Models.Model exposing (Model, Msg(..), Notification(..), Settings, ShareUrl(..))
 import Parser
 import Route exposing (Route(..), toRoute)
@@ -45,7 +45,7 @@ init flags url key =
             flags
     in
     changeRouteTo (toRoute url)
-        { figureModel = Figure.init settings.storyMap
+        { diagramModel = Diagram.init settings.storyMap
         , text = settings.text |> Maybe.withDefault ""
         , openMenu = Nothing
         , title = settings.title
@@ -98,18 +98,18 @@ view model =
             div [] []
         , let
             window =
-                if Utils.isPhone model.figureModel.width then
+                if Utils.isPhone model.diagramModel.width then
                     lazy4 Tab.view
-                        model.figureModel.settings.backgroundColor
+                        model.diagramModel.settings.backgroundColor
                         model.tabIndex
 
                 else
                     lazy4 SplitWindow.view
-                        model.figureModel.settings.backgroundColor
+                        model.diagramModel.settings.backgroundColor
                         model.window
 
             indentButton =
-                if Utils.isPhone model.figureModel.width then
+                if Utils.isPhone model.diagramModel.width then
                     div
                         [ style "width"
                             "44px"
@@ -136,8 +136,8 @@ view model =
           in
           div
             [ class "main" ]
-            [ lazy4 Menu.view model.figureModel.width model.window.fullscreen model.isEditSettings model.openMenu
-            , if model.figureModel.width == 0 then
+            [ lazy4 Menu.view model.diagramModel.width model.window.fullscreen model.isEditSettings model.openMenu
+            , if model.diagramModel.width == 0 then
                 div [] []
 
               else
@@ -147,8 +147,8 @@ view model =
                         Logo.view
 
                      else
-                        lazy Figure.view model.figureModel
-                            |> Html.map UpdateFigure
+                        lazy Diagram.view model.diagramModel
+                            |> Html.map UpdateDiagram
                     )
             , indentButton
             ]
@@ -187,7 +187,7 @@ changeRouteTo route model =
         Route.CallbackTrello (Just token) (Just code) ->
             let
                 usm =
-                    Figure.update (FigureModel.OnChangeText model.text) model.figureModel
+                    Diagram.update (DiagramModel.OnChangeText model.text) model.diagramModel
 
                 req =
                     Api.createRequest token
@@ -218,26 +218,26 @@ changeRouteTo route model =
                 ]
             )
 
-        Route.Share figure title path ->
+        Route.Share diagram title path ->
             let
-                figureModel =
-                    model.figureModel
+                diagramModel =
+                    model.diagramModel
 
-                newFigureModel =
-                    { figureModel
-                        | figureType =
-                            case figure of
+                newDiagramModel =
+                    { diagramModel
+                        | diagramType =
+                            case diagram of
                                 "usm" ->
-                                    FigureModel.UserStoryMap
+                                    DiagramModel.UserStoryMap
 
                                 "bmc" ->
-                                    FigureModel.BusinessModelCanvas
+                                    DiagramModel.BusinessModelCanvas
 
                                 "opc" ->
-                                    FigureModel.OpportunityCanvas
+                                    DiagramModel.OpportunityCanvas
 
                                 _ ->
-                                    FigureModel.UserStoryMap
+                                    DiagramModel.UserStoryMap
                     }
             in
             ( { model
@@ -247,7 +247,7 @@ changeRouteTo route model =
                     , moveX = model.window.moveX
                     , fullscreen = True
                     }
-                , figureModel = newFigureModel
+                , diagramModel = newDiagramModel
                 , title =
                     if title == "untitled" then
                         Nothing
@@ -264,7 +264,7 @@ changeRouteTo route model =
         Route.UsmView settingsJson ->
             changeRouteTo (Route.View "usm" settingsJson) model
 
-        Route.View figure settingsJson ->
+        Route.View diagram settingsJson ->
             let
                 maybeSettings =
                     percentDecode settingsJson
@@ -273,39 +273,39 @@ changeRouteTo route model =
                                 D.decodeString settingsDecoder x |> Result.toMaybe
                             )
 
-                figureModel =
-                    model.figureModel
+                diagramModel =
+                    model.diagramModel
 
-                newFigureModel =
-                    { figureModel
-                        | figureType =
-                            case figure of
+                newDiagramModel =
+                    { diagramModel
+                        | diagramType =
+                            case diagram of
                                 "usm" ->
-                                    FigureModel.UserStoryMap
+                                    DiagramModel.UserStoryMap
 
                                 "bmc" ->
-                                    FigureModel.BusinessModelCanvas
+                                    DiagramModel.BusinessModelCanvas
 
                                 "opc" ->
-                                    FigureModel.OpportunityCanvas
+                                    DiagramModel.OpportunityCanvas
 
                                 _ ->
-                                    FigureModel.UserStoryMap
+                                    DiagramModel.UserStoryMap
                     }
 
-                updatedFigureModel =
+                updatedDiagramModel =
                     case maybeSettings of
                         Just settings ->
-                            { newFigureModel | settings = settings.storyMap, showZoomControl = False, fullscreen = True }
+                            { newDiagramModel | settings = settings.storyMap, showZoomControl = False, fullscreen = True }
 
                         Nothing ->
-                            { newFigureModel | showZoomControl = False, fullscreen = True }
+                            { newDiagramModel | showZoomControl = False, fullscreen = True }
             in
             case maybeSettings of
                 Just settings ->
                     ( { model
                         | settings = settings
-                        , figureModel = updatedFigureModel
+                        , diagramModel = updatedDiagramModel
                         , window =
                             { position = model.window.position
                             , moveStart = model.window.moveStart
@@ -323,37 +323,37 @@ changeRouteTo route model =
 
         Route.BusinessModelCanvas ->
             let
-                figureModel =
-                    model.figureModel
+                diagramModel =
+                    model.diagramModel
 
-                newFigureModel =
-                    { figureModel | figureType = FigureModel.BusinessModelCanvas }
+                newDiagramModel =
+                    { diagramModel | diagramType = DiagramModel.BusinessModelCanvas }
             in
-            ( { model | figureModel = newFigureModel }
+            ( { model | diagramModel = newDiagramModel }
             , Task.perform Init Dom.getViewport
             )
 
         Route.OpportunityCanvas ->
             let
-                figureModel =
-                    model.figureModel
+                diagramModel =
+                    model.diagramModel
 
-                newFigureModel =
-                    { figureModel | figureType = FigureModel.OpportunityCanvas }
+                newDiagramModel =
+                    { diagramModel | diagramType = DiagramModel.OpportunityCanvas }
             in
-            ( { model | figureModel = newFigureModel }
+            ( { model | diagramModel = newDiagramModel }
             , Task.perform Init Dom.getViewport
             )
 
         _ ->
             let
-                figureModel =
-                    model.figureModel
+                diagramModel =
+                    model.diagramModel
 
-                newFigureModel =
-                    { figureModel | figureType = FigureModel.UserStoryMap }
+                newDiagramModel =
+                    { diagramModel | diagramType = DiagramModel.UserStoryMap }
             in
-            ( { model | figureModel = newFigureModel }
+            ( { model | diagramModel = newDiagramModel }
             , Task.perform Init Dom.getViewport
             )
 
@@ -364,44 +364,44 @@ update message model =
         NoOp ->
             ( model, Cmd.none )
 
-        UpdateFigure subMsg ->
+        UpdateDiagram subMsg ->
             case subMsg of
-                FigureModel.ItemClick item ->
+                DiagramModel.ItemClick item ->
                     ( model, selectLine item.text )
 
-                FigureModel.OnResize _ _ ->
-                    ( { model | figureModel = Figure.update subMsg model.figureModel }, loadEditor model.text )
+                DiagramModel.OnResize _ _ ->
+                    ( { model | diagramModel = Diagram.update subMsg model.diagramModel }, loadEditor model.text )
 
-                FigureModel.PinchIn _ ->
-                    ( { model | figureModel = Figure.update subMsg model.figureModel }, Task.perform identity (Task.succeed (UpdateFigure FigureModel.ZoomIn)) )
+                DiagramModel.PinchIn _ ->
+                    ( { model | diagramModel = Diagram.update subMsg model.diagramModel }, Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.ZoomIn)) )
 
-                FigureModel.PinchOut _ ->
-                    ( { model | figureModel = Figure.update subMsg model.figureModel }, Task.perform identity (Task.succeed (UpdateFigure FigureModel.ZoomOut)) )
+                DiagramModel.PinchOut _ ->
+                    ( { model | diagramModel = Diagram.update subMsg model.diagramModel }, Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.ZoomOut)) )
 
-                FigureModel.OnChangeText text ->
+                DiagramModel.OnChangeText text ->
                     let
-                        figureModel =
-                            Figure.update subMsg model.figureModel
+                        diagramModel =
+                            Diagram.update subMsg model.diagramModel
                     in
-                    case figureModel.error of
+                    case diagramModel.error of
                         Just err ->
-                            ( { model | text = text, figureModel = figureModel }, errorLine err )
+                            ( { model | text = text, diagramModel = diagramModel }, errorLine err )
 
                         Nothing ->
-                            ( { model | text = text, figureModel = figureModel }, errorLine "" )
+                            ( { model | text = text, diagramModel = diagramModel }, errorLine "" )
 
                 _ ->
-                    ( { model | figureModel = Figure.update subMsg model.figureModel }, Cmd.none )
+                    ( { model | diagramModel = Diagram.update subMsg model.diagramModel }, Cmd.none )
 
         Init window ->
             let
                 usm =
-                    Figure.update (FigureModel.Init model.figureModel.settings window model.text) model.figureModel
+                    Diagram.update (DiagramModel.Init model.diagramModel.settings window model.text) model.diagramModel
             in
             case usm.error of
                 Just err ->
                     ( { model
-                        | figureModel = usm
+                        | diagramModel = usm
                         , progress = False
                       }
                     , Cmd.batch
@@ -412,7 +412,7 @@ update message model =
 
                 Nothing ->
                     ( { model
-                        | figureModel = usm
+                        | diagramModel = usm
                         , progress = False
                       }
                     , loadEditor model.text
@@ -421,15 +421,15 @@ update message model =
         DownloadPng ->
             let
                 width =
-                    Basics.max model.figureModel.svg.width model.figureModel.width
+                    Basics.max model.diagramModel.svg.width model.diagramModel.width
 
                 height =
-                    case model.figureModel.figureType of
-                        FigureModel.BusinessModelCanvas ->
+                    case model.diagramModel.diagramType of
+                        DiagramModel.BusinessModelCanvas ->
                             1000
 
                         _ ->
-                            Basics.max model.figureModel.svg.height model.figureModel.height
+                            Basics.max model.diagramModel.svg.height model.diagramModel.height
             in
             ( model
             , downloadPng
@@ -443,15 +443,15 @@ update message model =
         DownloadSvg ->
             let
                 width =
-                    Basics.max model.figureModel.svg.width model.figureModel.width
+                    Basics.max model.diagramModel.svg.width model.diagramModel.width
 
                 height =
-                    case model.figureModel.figureType of
-                        FigureModel.BusinessModelCanvas ->
+                    case model.diagramModel.diagramType of
+                        DiagramModel.BusinessModelCanvas ->
                             1000
 
                         _ ->
-                            Basics.max model.figureModel.svg.height model.figureModel.height
+                            Basics.max model.diagramModel.svg.height model.diagramModel.height
             in
             ( model
             , downloadSvg
@@ -478,7 +478,7 @@ update message model =
             ( { model | title = Just (File.name file) }, Utils.fileLoad file FileLoaded )
 
         FileLoaded text ->
-            ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText text))), loadText ( text, False ) ] )
+            ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))), loadText ( text, False ) ] )
 
         SaveToLocal ->
             let
@@ -531,13 +531,13 @@ update message model =
 
         ApplySettings settings ->
             let
-                figureModel =
-                    model.figureModel
+                diagramModel =
+                    model.diagramModel
 
-                newFigureModel =
-                    { figureModel | settings = settings.storyMap }
+                newDiagramModel =
+                    { diagramModel | settings = settings.storyMap }
             in
-            ( { model | settings = settings, figureModel = newFigureModel }, Cmd.none )
+            ( { model | settings = settings, diagramModel = newDiagramModel }, Cmd.none )
 
         OnVisibilityChange visible ->
             if model.window.fullscreen then
@@ -602,15 +602,15 @@ update message model =
         OnShareUrl ->
             ( model
             , encodeShareText
-                { figureType =
-                    case model.figureModel.figureType of
-                        FigureModel.UserStoryMap ->
+                { diagramType =
+                    case model.diagramModel.diagramType of
+                        DiagramModel.UserStoryMap ->
                             "usm"
 
-                        FigureModel.OpportunityCanvas ->
+                        DiagramModel.OpportunityCanvas ->
                             "opc"
 
-                        FigureModel.BusinessModelCanvas ->
+                        DiagramModel.BusinessModelCanvas ->
                             "bmc"
                 , title = model.title
                 , text = model.text
@@ -698,7 +698,7 @@ update message model =
                                     , repo = g.repo
                                     }
                                 )
-                                model.figureModel.hierarchy
+                                model.diagramModel.hierarchy
                                 (Parser.parseComment model.text)
                                 (if model.title == Just "" then
                                     "UnTitled"
@@ -706,7 +706,7 @@ update message model =
                                  else
                                     model.title |> Maybe.withDefault "UnTitled"
                                 )
-                                model.figureModel.items
+                                model.diagramModel.items
                         )
                         model.settings.github
 
@@ -747,7 +747,7 @@ update message model =
             ( { model
                 | text = text
               }
-            , Cmd.batch [ loadText ( text, False ), Nav.pushUrl model.key "/bmc", Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText text))) ]
+            , Cmd.batch [ loadText ( text, False ), Nav.pushUrl model.key "/bmc", Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))) ]
             )
 
         NewOpportunityCanvas ->
@@ -772,5 +772,5 @@ Budget
             ( { model
                 | text = text
               }
-            , Cmd.batch [ loadText ( text, False ), Nav.pushUrl model.key "/opc", Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText text))) ]
+            , Cmd.batch [ loadText ( text, False ), Nav.pushUrl model.key "/opc", Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))) ]
             )

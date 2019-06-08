@@ -1,4 +1,4 @@
-module Components.Figure exposing (init, update, view)
+module Components.Diagram exposing (init, update, view)
 
 import Basics exposing (max)
 import Constants exposing (..)
@@ -9,7 +9,7 @@ import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
 import List
 import List.Extra exposing (getAt, scanl, unique)
-import Models.Figure exposing (..)
+import Models.Diagram exposing (..)
 import Parser
 import Result exposing (andThen)
 import String
@@ -18,9 +18,9 @@ import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 import Svg.Lazy exposing (..)
 import Utils
-import Views.Figure.Bmc as Bmc
-import Views.Figure.Opc as Opc
-import Views.Figure.Usm as Usm
+import Views.Diagram.Bmc as Bmc
+import Views.Diagram.Opc as Opc
+import Views.Diagram.Usm as Usm
 import Views.Icon as Icon
 
 
@@ -48,7 +48,7 @@ init settings =
     , settings = settings
     , error = Nothing
     , comment = Nothing
-    , figureType = UserStoryMap
+    , diagramType = UserStoryMap
     , labels = []
     }
 
@@ -361,7 +361,7 @@ svgView model =
           else
             Attr.style "" ""
         ]
-        [ case model.figureType of
+        [ case model.diagramType of
             UserStoryMap ->
                 lazy Usm.view model
 
@@ -497,8 +497,8 @@ touchCoordinates touchEvent =
 -- Update
 
 
-updateFigure : Size -> Int -> Int -> Model -> String -> Result String Model
-updateFigure size width height base text =
+updateDiagram : Size -> Int -> Int -> Model -> String -> Result String Model
+updateDiagram size width height base text =
     load text
         |> Result.andThen
             (\( hierarchy, items ) ->
@@ -588,7 +588,7 @@ updateFigure size width height base text =
                     , comment = Nothing
                     , showZoomControl = base.showZoomControl
                     , touchDistance = base.touchDistance
-                    , figureType = base.figureType
+                    , diagramType = base.diagramType
                     , labels = labels
                     }
             )
@@ -609,7 +609,7 @@ update message model =
                     round window.viewport.height - 50
 
                 result =
-                    updateFigure settings.size width height model text
+                    updateDiagram settings.size width height model text
             in
             case result of
                 Ok usm ->
@@ -653,7 +653,7 @@ update message model =
         OnChangeText text ->
             let
                 result =
-                    updateFigure model.settings.size model.width model.height model text
+                    updateDiagram model.settings.size model.width model.height model text
             in
             case result of
                 Ok usm ->

@@ -2,7 +2,7 @@
 
 ![](https://img.shields.io/badge/Release-v0.0.1-blue.svg?style=flat-square) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
-Generate a User Story Mapping from indented text.
+Generate a User Story Mapping, Business Model Canvas or Opportunity Canvas from indented text.
 
 ## Installation
 

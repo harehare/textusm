@@ -6,6 +6,8 @@
   <div id="textusm2"></div>
   <div id="textusm3"></div>
   <div id="textusm4"></div>
+  <div id="textusm5"></div>
+  <div id="textusm6"></div>
   <script>
     this.textusm.render(
       'textusm',
@@ -122,5 +124,20 @@ TextUSM
         text: ['a']
       }
     });
+    this.textusm.render(
+      document.getElementById('textusm5'),
+      `
+    test
+        estst`,
+      { diagramType: 'BusinessModelCanvas' }
+    );
+
+    this.textusm.render(
+      document.getElementById('textusm6'),
+      `
+    test
+        estst`,
+      { diagramType: 'OpportunityCanvas', size: { width: 2048, height: 1024 } }
+    );
   </script>
 </html>

@@ -7,7 +7,7 @@ import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import List
 import Maybe.Extra exposing (isJust)
-import Models.Figure as FigureModel exposing (Children(..), Item, ItemType(..))
+import Models.Diagram as DiagramModel exposing (Children(..), Item, ItemType(..))
 import Regex
 import Task exposing (Task)
 

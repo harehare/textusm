@@ -1,9 +1,9 @@
-module TestFigure exposing (updateTest)
+module TestDiagram exposing (updateTest)
 
-import Components.Figure exposing (..)
+import Components.Diagram exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
-import Models.Figure exposing (..)
+import Models.Diagram exposing (..)
 import Test exposing (..)
 
 

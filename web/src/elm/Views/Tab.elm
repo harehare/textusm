@@ -41,7 +41,7 @@ view backgroundColor index view1 view2 =
                     class "tab"
                 , onClick (TabSelect 2)
                 ]
-                [ text "Figure" ]
+                [ text "Diagram" ]
             ]
         , div Styles.matchParent
             [ div
