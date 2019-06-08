@@ -19,6 +19,7 @@ import Svg.Events exposing (..)
 import Svg.Lazy exposing (..)
 import Utils
 import Views.Figure.Bmc as Bmc
+import Views.Figure.Opc as Opc
 import Views.Figure.Usm as Usm
 import Views.Icon as Icon
 
@@ -367,9 +368,8 @@ svgView model =
             BusinessModelCanvas ->
                 lazy Bmc.view model
 
-            -- TODO:
             OpportunityCanvas ->
-                lazy Bmc.view model
+                lazy Opc.view model
         ]
 
 

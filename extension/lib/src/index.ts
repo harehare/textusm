@@ -1,24 +1,5 @@
 import { Elm } from './js/elm';
-
-interface UserStoryMap {
-  labels?: string[];
-  activities: Activity[];
-}
-
-interface Activity {
-  name: string;
-  tasks: Task[];
-}
-
-interface Task {
-  name: string;
-  stories: Story[];
-}
-
-interface Story {
-  name: string;
-  release: number;
-}
+import { UserStoryMap, BusinessModelCanvas, OpportunityCanvas, toString, toTypeString } from './model';
 
 interface Config {
   font?: string;
@@ -75,33 +56,9 @@ const defaultConfig: Config = {
   backgroundColor: '#F5F5F6'
 };
 
-function concat<T>(x: T[], y: T[]): T[] {
-  return x.concat(y);
-}
-
-function flatMap<T, U>(f: (x: T) => U[], xs: T[]): U[] {
-  return xs.map(f).reduce(concat, []);
-}
-
-function userStoryMap2Text(userStoryMap: UserStoryMap): string {
-  const labels =
-    userStoryMap.labels && userStoryMap.labels.length > 0 ? `#labels: ${userStoryMap.labels.join(',')}` : '';
-  return `${labels}\n${flatMap(activity => {
-    return [activity.name].concat(
-      flatMap(task => {
-        return ['    ' + task.name].concat(
-          flatMap(story => {
-            return ['    '.repeat(story.release + 1) + story.name];
-          }, task.stories)
-        );
-      }, activity.tasks)
-    );
-  }, userStoryMap.activities).join('\n')}`;
-}
-
 function render(
   idOrElm: string | HTMLElement,
-  definition: string | UserStoryMap,
+  definition: string | UserStoryMap | BusinessModelCanvas | OpportunityCanvas,
   options?: { size?: Size; showZoomControl?: boolean },
   config?: Config
 ) {
@@ -116,12 +73,13 @@ function render(
   config.color = Object.assign(defaultConfig.color, config.color);
   config.size = Object.assign(defaultConfig.size, config.size);
 
-  const text = typeof definition === 'string' ? definition : userStoryMap2Text(definition);
+  const text = typeof definition === 'string' ? definition : toString(definition);
 
   Elm.Extension.Lib.init({
     node: elm,
     flags: {
       text,
+      figureType: typeof definition === 'string' ? 'UserStoryMap' : toTypeString(definition),
       width: options.size ? options.size.width : 1024,
       height: options.size ? options.size.height : 1024,
       settings: Object.assign(defaultConfig, config),

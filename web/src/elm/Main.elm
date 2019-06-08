@@ -218,7 +218,28 @@ changeRouteTo route model =
                 ]
             )
 
-        Route.Share title path ->
+        Route.Share figure title path ->
+            let
+                figureModel =
+                    model.figureModel
+
+                newFigureModel =
+                    { figureModel
+                        | figureType =
+                            case figure of
+                                "usm" ->
+                                    FigureModel.UserStoryMap
+
+                                "bmc" ->
+                                    FigureModel.BusinessModelCanvas
+
+                                "opc" ->
+                                    FigureModel.OpportunityCanvas
+
+                                _ ->
+                                    FigureModel.UserStoryMap
+                    }
+            in
             ( { model
                 | window =
                     { position = model.window.position
@@ -226,6 +247,7 @@ changeRouteTo route model =
                     , moveX = model.window.moveX
                     , fullscreen = True
                     }
+                , figureModel = newFigureModel
                 , title =
                     if title == "untitled" then
                         Nothing
@@ -239,7 +261,10 @@ changeRouteTo route model =
                 ]
             )
 
-        Route.View settingsJson ->
+        Route.UsmView settingsJson ->
+            changeRouteTo (Route.View "usm" settingsJson) model
+
+        Route.View figure settingsJson ->
             let
                 maybeSettings =
                     percentDecode settingsJson
@@ -251,13 +276,30 @@ changeRouteTo route model =
                 figureModel =
                     model.figureModel
 
+                newFigureModel =
+                    { figureModel
+                        | figureType =
+                            case figure of
+                                "usm" ->
+                                    FigureModel.UserStoryMap
+
+                                "bmc" ->
+                                    FigureModel.BusinessModelCanvas
+
+                                "opc" ->
+                                    FigureModel.OpportunityCanvas
+
+                                _ ->
+                                    FigureModel.UserStoryMap
+                    }
+
                 updatedFigureModel =
                     case maybeSettings of
                         Just settings ->
-                            { figureModel | settings = settings.storyMap, showZoomControl = False, fullscreen = True }
+                            { newFigureModel | settings = settings.storyMap, showZoomControl = False, fullscreen = True }
 
                         Nothing ->
-                            { figureModel | showZoomControl = False, fullscreen = True }
+                            { newFigureModel | showZoomControl = False, fullscreen = True }
             in
             case maybeSettings of
                 Just settings ->
@@ -286,6 +328,18 @@ changeRouteTo route model =
 
                 newFigureModel =
                     { figureModel | figureType = FigureModel.BusinessModelCanvas }
+            in
+            ( { model | figureModel = newFigureModel }
+            , Task.perform Init Dom.getViewport
+            )
+
+        Route.OpportunityCanvas ->
+            let
+                figureModel =
+                    model.figureModel
+
+                newFigureModel =
+                    { figureModel | figureType = FigureModel.OpportunityCanvas }
             in
             ( { model | figureModel = newFigureModel }
             , Task.perform Init Dom.getViewport
@@ -370,7 +424,12 @@ update message model =
                     Basics.max model.figureModel.svg.width model.figureModel.width
 
                 height =
-                    Basics.max model.figureModel.svg.height model.figureModel.height
+                    case model.figureModel.figureType of
+                        FigureModel.BusinessModelCanvas ->
+                            1000
+
+                        _ ->
+                            Basics.max model.figureModel.svg.height model.figureModel.height
             in
             ( model
             , downloadPng
@@ -387,7 +446,12 @@ update message model =
                     Basics.max model.figureModel.svg.width model.figureModel.width
 
                 height =
-                    Basics.max model.figureModel.svg.height model.figureModel.height
+                    case model.figureModel.figureType of
+                        FigureModel.BusinessModelCanvas ->
+                            1000
+
+                        _ ->
+                            Basics.max model.figureModel.svg.height model.figureModel.height
             in
             ( model
             , downloadSvg
@@ -414,7 +478,7 @@ update message model =
             ( { model | title = Just (File.name file) }, Utils.fileLoad file FileLoaded )
 
         FileLoaded text ->
-            ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText text))), loadText text ] )
+            ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText text))), loadText ( text, False ) ] )
 
         SaveToLocal ->
             let
@@ -536,7 +600,22 @@ update message model =
             )
 
         OnShareUrl ->
-            ( model, encodeShareText { title = model.title, text = model.text } )
+            ( model
+            , encodeShareText
+                { figureType =
+                    case model.figureModel.figureType of
+                        FigureModel.UserStoryMap ->
+                            "usm"
+
+                        FigureModel.OpportunityCanvas ->
+                            "opc"
+
+                        FigureModel.BusinessModelCanvas ->
+                            "bmc"
+                , title = model.title
+                , text = model.text
+                }
+            )
 
         OnNotification notification ->
             ( { model | notification = Just notification }, Cmd.none )
@@ -561,7 +640,7 @@ update message model =
                 newText =
                     model.text ++ Constants.inputPrefix
             in
-            ( { model | text = newText }, loadText newText )
+            ( { model | text = newText }, loadText ( newText, True ) )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -654,11 +733,9 @@ update message model =
             )
 
         NewUserStoryMap ->
-            -- TODO: confirm
-            ( { model | title = Nothing }, Nav.pushUrl model.key "/" )
+            ( model, Nav.pushUrl model.key "/" )
 
         NewBusinessModelCanvas ->
-            -- TODO: confirm
             let
                 text =
                     if model.text == "" then
@@ -668,8 +745,32 @@ update message model =
                         model.text
             in
             ( { model
-                | title = Nothing
-                , text = text
+                | text = text
               }
-            , Cmd.batch [ Nav.pushUrl model.key "/bmc", Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText text))) ]
+            , Cmd.batch [ loadText ( text, False ), Nav.pushUrl model.key "/bmc", Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText text))) ]
+            )
+
+        NewOpportunityCanvas ->
+            let
+                text =
+                    if model.text == "" then
+                        """Problems
+Solution Ideas
+Users and Customers
+Solutions Today
+Business Challenges
+How will Users use Solution?
+User Metrics
+Adoption Strategy
+Business Benefits and Metrics
+Budget
+"""
+
+                    else
+                        model.text
+            in
+            ( { model
+                | text = text
+              }
+            , Cmd.batch [ loadText ( text, False ), Nav.pushUrl model.key "/opc", Task.perform identity (Task.succeed (UpdateFigure (FigureModel.OnChangeText text))) ]
             )

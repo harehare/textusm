@@ -1,6 +1,6 @@
 {
   "name": "textusm",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Generate a User Story Mapping from indented text.",
   "main": "dist/index.js",
   "scripts": {
@@ -21,7 +21,8 @@
     "svg",
     "png",
     "pdf",
-    "user-story-mapping"
+    "user-story-mapping",
+    "business-model-canvas"
   ],
   "author": "harehare",
   "license": "MIT",

@@ -117,29 +117,29 @@ type Msg
 
 toString : List Item -> String
 toString =
-    itemsToString 0
-
-
-itemsToString : Int -> List Item -> String
-itemsToString hierarcy items =
     let
-        itemToString : Item -> Int -> String
-        itemToString i hi =
-            case i.comment of
-                Just c ->
-                    String.repeat hi "    " ++ i.text ++ ": " ++ c
+        itemsToString : Int -> List Item -> String
+        itemsToString hierarcy items =
+            let
+                itemToString : Item -> Int -> String
+                itemToString i hi =
+                    case i.comment of
+                        Just c ->
+                            String.repeat hi "    " ++ i.text ++ ": " ++ c
 
-                Nothing ->
-                    String.repeat hi "    " ++ i.text
+                        Nothing ->
+                            String.repeat hi "    " ++ i.text
+            in
+            items
+                |> List.map
+                    (\item ->
+                        case item.children of
+                            Children [] ->
+                                itemToString item hierarcy
+
+                            Children c ->
+                                itemToString item hierarcy ++ "\n" ++ itemsToString (hierarcy + 1) c
+                    )
+                |> String.join "\n"
     in
-    items
-        |> List.map
-            (\item ->
-                case item.children of
-                    Children [] ->
-                        itemToString item hierarcy
-
-                    Children c ->
-                        itemToString item hierarcy ++ "\n" ++ itemsToString (hierarcy + 1) c
-            )
-        |> String.join "\n"
+    itemsToString 0

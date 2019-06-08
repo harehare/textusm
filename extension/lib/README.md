@@ -82,6 +82,122 @@ textusm.render(
 
 ![image](./img/usm.png)
 
+### Business Model Canvas
+
+```javascript
+const textusm = require('textusm');
+const elm = document.getElementById('id');
+
+textusm.render(
+  elm || 'id',
+  {
+    keyPartners: {
+      title: '👥 Key Partners',
+      text: ['Key Partners']
+    },
+    customerSegments: {
+      title: '📊 Customer Segments',
+      text: ['Customer Segments']
+    },
+    valueProposition: {
+      title: '🎁 Value Proposition',
+      text: ['Value Proposition']
+    },
+    keyActivities: {
+      title: '✅ Key Activities',
+      text: ['Key Activities']
+    },
+    channels: {
+      title: '🚚 Channels',
+      text: ['Channels']
+    },
+    revenueStreams: {
+      title: '💰 Revenue Streams',
+      text: ['Revenue Streams']
+    },
+    costStructure: {
+      title: '🏷️ Cost Structure',
+      text: ['Cost Structure']
+    },
+    keyResources: {
+      title: '💪 Key Resources',
+      text: ['Key Resources']
+    },
+    customerRelationships: {
+      title: '💙 Customer Relationships',
+      text: ['Customer Relationships']
+    }
+  },
+  {
+    size: { width: 1024, height: 1024 },
+    showZoomControl: true
+  },
+  {}
+);
+```
+
+![image](./img/bmc.png)
+
+### Opportunity Canvas
+
+```javascript
+const textusm = require('textusm');
+const elm = document.getElementById('id');
+
+textusm.render(
+  elm || 'id',
+  {
+    problems: {
+      title: 'Problems',
+      text: ['Problems']
+    },
+    solutionIdeas: {
+      title: 'Solution Ideas',
+      text: ['Solution Ideas']
+    },
+    usersAndCustomers: {
+      title: 'Users and Customers',
+      text: ['Users and Customers']
+    },
+    solutionsToday: {
+      title: 'Solutions Today',
+      text: ['Solutions Today']
+    },
+    businessChallenges: {
+      title: 'Business Challenges',
+      text: ['Business Challenges']
+    },
+    howWillUsersUseSolution: {
+      title: 'How will Users use Solution?',
+      text: ['How will Users use Solution?']
+    },
+    userMetrics: {
+      title: 'User Metrics',
+      text: ['User Metrics']
+    },
+    adoptionStrategy: {
+      title: 'Adoption Strategy',
+      text: ['Adoption Strategy']
+    },
+    businessBenefitsAndMetrics: {
+      title: 'Business Benefits and Metrics',
+      text: ['Business Benefits and Metrics']
+    },
+    budget: {
+      title: 'Budget',
+      text: ['Budget']
+    }
+  },
+  {
+    size: { width: 1024, height: 1024 },
+    showZoomControl: true
+  },
+  {}
+);
+```
+
+![image](./img/opc.png)
+
 ### Configuration
 
 ```javascript

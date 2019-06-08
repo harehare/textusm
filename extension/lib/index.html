@@ -4,11 +4,12 @@
   </head>
   <div id="textusm"></div>
   <div id="textusm2"></div>
+  <div id="textusm3"></div>
+  <div id="textusm4"></div>
   <script>
     this.textusm.render(
-      'textusm2',
-      `
-# labels: USER ACTIVITIES, USER TASKS, USER STORIES, RELEASE1, RELEASE2, RELEASE3
+      'textusm',
+      `# labels: USER ACTIVITIES, USER TASKS, USER STORIES, RELEASE1, RELEASE2, RELEASE3
 # release1: 2019-06-01
 # release2: 2019-06-30
 # release2: 2019-07-31
@@ -17,7 +18,7 @@ TextUSM
         Press Tab to indent lines
         Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.`
     );
-    this.textusm.render(document.getElementById('textusm10'), {
+    this.textusm.render(document.getElementById('textusm2'), {
       activities: [
         {
           name: 'TextUSM',
@@ -39,6 +40,87 @@ TextUSM
           ]
         }
       ]
+    });
+
+    this.textusm.render(document.getElementById('textusm3'), {
+      keyPartners: {
+        title: 'a',
+        text: ['a']
+      },
+      customerSegments: {
+        title: 'a',
+        text: ['a']
+      },
+      valueProposition: {
+        title: 'a',
+        text: ['a']
+      },
+      keyActivities: {
+        title: 'a',
+        text: ['a']
+      },
+      channels: {
+        title: 'a',
+        text: ['a']
+      },
+      revenueStreams: {
+        title: 'a',
+        text: ['a']
+      },
+      costStructure: {
+        title: 'a',
+        text: ['a']
+      },
+      keyResources: {
+        title: 'a',
+        text: ['a']
+      },
+      customerRelationships: {
+        title: 'a',
+        text: ['a']
+      }
+    });
+    this.textusm.render(document.getElementById('textusm4'), {
+      problems: {
+        title: 'a',
+        text: ['a']
+      },
+      solutionIdeas: {
+        title: 'a',
+        text: ['a']
+      },
+      usersAndCustomers: {
+        title: 'a',
+        text: ['a']
+      },
+      solutionsToday: {
+        title: 'a',
+        text: ['a']
+      },
+      businessChallenges: {
+        title: 'a',
+        text: ['a']
+      },
+      howWillUsersUseSolution: {
+        title: 'a',
+        text: ['a']
+      },
+      userMetrics: {
+        title: 'a',
+        text: ['a']
+      },
+      adoptionStrategy: {
+        title: 'a',
+        text: ['a']
+      },
+      businessBenefitsAndMetrics: {
+        title: 'a',
+        text: ['a']
+      },
+      budget: {
+        title: 'a',
+        text: ['a']
+      }
     });
   </script>
 </html>

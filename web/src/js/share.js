@@ -1,39 +1,40 @@
-import LZUTF8 from 'lzutf8';
+import LZUTF8 from "lzutf8";
 
-export const setUpShare = (app) => {
-  app.ports.encodeShareText.subscribe(({
-    title,
-    text
-  }) => {
-    execCopy(`${location.protocol}//${location.host}/share/${title ? title : 'untitled'}/${encodeURIComponent(LZUTF8.compress(
-      text, {
-        outputEncoding: 'Base64'
-      }
-    ))}`)
-    app.ports.onNotification.send('Copy URL to Clipboard')
-  })
-  app.ports.decodeShareText.subscribe(text => {
-    app.ports.onDecodeShareText.send(
-      LZUTF8.decompress(
-        decodeURIComponent(text), {
-          inputEncoding: 'Base64',
-          outputEncoding: 'String'
-        }))
-  })
-}
+export const setUpShare = app => {
+    app.ports.encodeShareText.subscribe(({ figureType, title, text }) => {
+        execCopy(
+            `${location.protocol}//${location.host}/share/${figureType}/${
+                title ? title : "untitled"
+            }/${encodeURIComponent(
+                LZUTF8.compress(text, {
+                    outputEncoding: "Base64"
+                })
+            )}`
+        );
+        app.ports.onNotification.send("Copy URL to Clipboard");
+    });
+    app.ports.decodeShareText.subscribe(text => {
+        app.ports.onDecodeShareText.send(
+            LZUTF8.decompress(decodeURIComponent(text), {
+                inputEncoding: "Base64",
+                outputEncoding: "String"
+            })
+        );
+    });
+};
 
 function execCopy(copy) {
-  const temp = document.createElement('textarea')
+    const temp = document.createElement("textarea");
 
-  temp.value = copy
-  temp.selectionStart = 0
-  temp.selectionEnd = temp.value.length
-  temp.style.display = 'none%'
+    temp.value = copy;
+    temp.selectionStart = 0;
+    temp.selectionEnd = temp.value.length;
+    temp.style.display = "none%";
 
-  document.body.appendChild(temp)
-  temp.focus();
-  const result = document.execCommand('copy');
-  temp.blur();
-  document.body.removeChild(temp);
-  return result;
+    document.body.appendChild(temp);
+    temp.focus();
+    const result = document.execCommand("copy");
+    temp.blur();
+    document.body.removeChild(temp);
+    return result;
 }

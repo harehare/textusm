@@ -14,6 +14,6 @@
     "declaration": true,
     "lib": ["es2015", "dom"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/model.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

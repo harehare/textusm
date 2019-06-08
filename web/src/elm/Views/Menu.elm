@@ -67,7 +67,7 @@ view width fullscreen isEditSettings openMenu =
                                 menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") [ ( GetAccessTokenForTrello, "Trello" ), ( ExportGithub, "Github" ) ]
 
                             Just NewFile ->
-                                menu Nothing (Just "10px") (Just "50px") [ ( NewUserStoryMap, "User Story Map" ), ( NewBusinessModelCanvas, "Business Model Canvas" ) ]
+                                menu Nothing (Just "10px") (Just "50px") [ ( NewUserStoryMap, "User Story Map" ), ( NewBusinessModelCanvas, "Business Model Canvas" ), ( NewOpportunityCanvas, "Opportunity Canvas" ) ]
 
                             _ ->
                                 div [] []
@@ -81,7 +81,7 @@ view width fullscreen isEditSettings openMenu =
                                 menu (Just "125px") Nothing Nothing [ ( GetAccessTokenForTrello, "Trello" ), ( ExportGithub, "Github" ) ]
 
                             Just NewFile ->
-                                menu (Just "0") Nothing Nothing [ ( NewUserStoryMap, "User Story Map" ), ( NewBusinessModelCanvas, "Business Model Canvas" ) ]
+                                menu (Just "0") Nothing Nothing [ ( NewUserStoryMap, "User Story Map" ), ( NewBusinessModelCanvas, "Business Model Canvas" ), ( NewOpportunityCanvas, "Opportunity Canvas" ) ]
 
                             _ ->
                                 div [] []

@@ -50,6 +50,7 @@ type Msg
     | DoOpenUrl String
     | NewUserStoryMap
     | NewBusinessModelCanvas
+    | NewOpportunityCanvas
 
 
 type alias OpenUrl =
@@ -108,6 +109,7 @@ type alias Download =
 type alias ShareInfo =
     { title : Maybe String
     , text : String
+    , figureType : String
     }
 
 
