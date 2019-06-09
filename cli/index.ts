@@ -3,8 +3,8 @@ import * as commander from 'commander';
 import * as fs from 'fs';
 import * as puppeteer from 'puppeteer';
 
-const width = 1024;
-const height = 1024;
+const defaultWidth = 1024;
+const defaultHeight = 1024;
 const defaultSettings = {
   font: 'Open Sans',
   position: 0,
@@ -49,12 +49,17 @@ const readConfigFile = (file: string) => {
   }
 };
 
-const { configFile, input, output } = commander
+const { configFile, input, width, height, output, diagramType } = commander
   .version('0.0.6')
   .option('-c, --configFile [configFile]', 'Config file.')
   .option('-i, --input <input>', 'Input text file. Required.')
+  .option('-w, --width <width>', 'Width of the page. Optional. Default: 1024.')
+  .option('-H, --height <height>', 'Height of the page. Optional. Default: 1024.')
   .option('-o, --output [output]', 'Output file. It should be svg, png, pdf or html.')
-  .option('-t, --type [type]', 'Map type. It should be svg, png, pdf or html.')
+  .option(
+    '-d, --diagramType [diagramType]',
+    'Diagram type. It should be userstorymap, opportunitycanvas or businessmodelcanvas.'
+  )
   .parse(process.argv);
 
 if (!input) {
@@ -64,6 +69,13 @@ if (!input) {
 
 if (!output) {
   console.error('Output file is required.  -o <output>');
+  process.exit(1);
+}
+
+const validDiagramType = ['userstorymap', 'opportunitycanvas', 'businessmodelcanvas'];
+
+if (diagramType && validDiagramType.indexOf(diagramType) === -1) {
+  console.error(`Output file must be userstorymap, opportunitycanvas or businessmodelcanvas.`);
   process.exit(1);
 }
 
@@ -90,10 +102,18 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
   try {
     const page = await browser.newPage();
     page.setViewport({
-      width,
-      height
+      width: width ? parseInt(width) : defaultWidth,
+      height: height ? parseInt(height) : defaultHeight
     });
-    await page.goto(`https://textusm.web.app/view/${encodeURIComponent(JSON.stringify(configJson))}`);
+    const type =
+      diagramType === 'userstorymap'
+        ? 'usm'
+        : diagramType === 'opportunitycanvas'
+        ? 'opc'
+        : diagramType === 'businessmodelcanvas'
+        ? 'bmc'
+        : 'usm';
+    await page.goto(`https://textusm.web.app/view/${type}/${encodeURIComponent(JSON.stringify(configJson))}`);
 
     await page.waitForSelector('#usm', {
       timeout: 10000,

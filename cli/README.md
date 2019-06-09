@@ -30,20 +30,29 @@ textusm -i input.txt -o output.pdf
 textusm -i input.txt -o output.html
 ```
 
+```sh
+textusm -i input.txt -o output.html -d businessmodelcanvas
+```
+
 ## Options
 
 ```
 Usage: textusm [options]
 
 Options:
-  -V, --version                  output the version number
-  -c, --configFile [configFile]  Config file.
-  -i, --input <input>            Input text file. Required.
-  -o, --output [output]          Output file. It should be svg, png, pdf or html.
-  -h, --help                     output usage information
+  -V, --version                    output the version number
+  -c, --configFile [configFile]    Config file.
+  -i, --input <input>              Input text file. Required.
+  -w, --width <width>              Width of the page. Optional. Default: 1024.
+  -H, --height <height>            Height of the page. Optional. Default: 1024.
+  -o, --output [output]            Output file. It should be svg, png, pdf or html.
+  -d, --diagramType [diagramType]  Diagram type. It should be userstorymap, opportunitycanvas or businessmodelcanvas.
+  -h, --help                       output usage information
 ```
 
 ## Example Input file
+
+### User Story Map
 
 ```
 # Comment
@@ -53,7 +62,59 @@ TextUSM
         Press Shift + Tab to unindent lines: Note
 ```
 
-![image](../img/usm.png)
+![image](./img/usm.png)
+
+### Business Model Canvas
+
+```
+👥 Key Partners
+    Key Partners
+📊 Customer Segments
+    Customer Segments
+🎁 Value Proposition
+    Value Proposition
+✅ Key Activities
+    Key Activities
+🚚 Channels
+    Channels
+💰 Revenue Streams
+    Revenue Streams
+🏷️ Cost Structure
+    Cost Structure
+💪 Key Resources
+    Key Resources
+💙 Customer Relationships
+    Customer Relationships
+```
+
+![image](./img/bmc.png)
+
+### Opportunity Canvas
+
+```
+Problems
+    Problems
+Solution Ideas
+    Solution Ideas
+Users and Customers
+    Users and Customers
+Solutions Today
+    Solutions Today
+Business Challenges
+    Business Challenges
+How will Users use Solution?
+    How will Users use Solution?
+User Metrics
+    User Metrics
+Adoption Strategy
+    Adoption Strategy
+Business Benefits and Metrics
+    Business Benefits and Metrics
+Budget
+    Budget
+```
+
+![image](./img/opc.png)
 
 ## Example JSON configuration file
 
