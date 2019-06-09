@@ -32,6 +32,7 @@ type alias InitData =
     , taskColor : String
     , storyBackgroundColor : String
     , storyColor : String
+    , diagramType : String
     }
 
 
@@ -60,7 +61,15 @@ init flags =
             , moveY = 0
             , fullscreen = False
             , showZoomControl = True
-            , diagramType = DiagramModel.UserStoryMap
+            , diagramType =
+                if flags.diagramType == "BusinessModelCanvas" then
+                    DiagramModel.BusinessModelCanvas
+
+                else if flags.diagramType == "OpportunityCanvas" then
+                    DiagramModel.OpportunityCanvas
+
+                else
+                    DiagramModel.UserStoryMap
             , settings =
                 { font = flags.fontName
                 , size =

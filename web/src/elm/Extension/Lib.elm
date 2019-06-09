@@ -29,6 +29,7 @@ type alias InitData =
     , settings : DiagramModel.Settings
     , showZoomControl : Bool
     , diagramType : String
+    , scale : Float
     }
 
 
@@ -46,7 +47,7 @@ init flags =
             , svg =
                 { width = flags.settings.size.width
                 , height = flags.settings.size.height
-                , scale = 1.0
+                , scale = flags.scale
                 }
             , countByHierarchy = []
             , countByTasks = []

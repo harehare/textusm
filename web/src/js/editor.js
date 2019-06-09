@@ -64,6 +64,10 @@ export const loadEditor = (app, text) => {
             }
         );
 
+        monacoEditor._standaloneKeybindingService.addDynamicKeybinding(
+            "-actions.find"
+        );
+
         window.onresize = () => {
             monacoEditor.layout();
         };
