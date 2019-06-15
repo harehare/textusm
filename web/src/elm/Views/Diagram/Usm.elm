@@ -4,13 +4,14 @@ import Basics exposing (max)
 import Constants exposing (..)
 import Html exposing (div)
 import Html.Attributes as Attr
+import Json.Decode as D
 import List
 import List.Extra exposing (getAt, zip)
 import Models.Diagram exposing (Children(..), Comment, Item, ItemType(..), Model, Msg(..), Settings)
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
-import Svg.Events exposing (onClick, onMouseOut, onMouseOver)
+import Svg.Events exposing (onClick, onMouseOut, onMouseOver, stopPropagationOn)
 import Svg.Keyed as Keyed
 import Svg.Lazy exposing (lazy2, lazy4, lazy5)
 import Utils exposing (calcFontSize)
@@ -84,55 +85,19 @@ labelView labels settings hierarchy width countByHierarchy =
             else
                 line [] []
           , if hierarchy > 0 then
-                text_
-                    [ x textX
-                    , y "25"
-                    , fontFamily settings.font
-                    , fill settings.color.label
-                    , fontSize "11"
-                    , fontWeight "bold"
-                    , class "svg-text"
-                    ]
-                    [ text (getAt 0 labels |> Maybe.withDefault "USER ACTIVITIES") ]
+                labelTextView settings textX "10" (getAt 0 labels |> Maybe.withDefault "USER ACTIVITIES")
 
             else
                 text_ [] []
           , if hierarchy > 0 then
-                text_
-                    [ x textX
-                    , y "105"
-                    , fontFamily settings.font
-                    , fontWeight "bold"
-                    , fill settings.color.label
-                    , fontSize "11"
-                    , class "svg-text"
-                    ]
-                    [ text (getAt 1 labels |> Maybe.withDefault "USER TASKS") ]
+                labelTextView settings textX "90" (getAt 1 labels |> Maybe.withDefault "USER TASKS")
 
             else
                 text_ [] []
           ]
             ++ (if hierarchy > 1 then
-                    [ text_
-                        [ x textX
-                        , y "200"
-                        , fontFamily settings.font
-                        , fontWeight "bold"
-                        , fill settings.color.label
-                        , fontSize "11"
-                        , class "svg-text"
-                        ]
-                        [ text (getAt 2 labels |> Maybe.withDefault "USER STORIES") ]
-                    , text_
-                        [ x textX
-                        , y "225"
-                        , fontFamily settings.font
-                        , fontWeight "bold"
-                        , fill settings.color.label
-                        , fontSize "11"
-                        , class "svg-text"
-                        ]
-                        [ text (getAt 3 labels |> Maybe.withDefault "RELEASE 1") ]
+                    [ labelTextView settings textX "185" (getAt 2 labels |> Maybe.withDefault "USER STORIES")
+                    , labelTextView settings textX "215" (getAt 3 labels |> Maybe.withDefault "RELEASE 1")
                     ]
 
                 else
@@ -165,16 +130,7 @@ labelView labels settings hierarchy width countByHierarchy =
                                     , strokeWidth "2"
                                     ]
                                     []
-                                , text_
-                                    [ x textX
-                                    , y (String.fromInt (releaseY + itemMargin + itemMargin // 2))
-                                    , fontFamily settings.font
-                                    , fill settings.color.label
-                                    , fontSize "11"
-                                    , fontWeight "bold"
-                                    , class "svg-text"
-                                    ]
-                                    [ text (getAt (xx + 3) labels |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1))) ]
+                                , labelTextView settings textX (String.fromInt (releaseY + itemMargin)) (getAt (xx + 3) labels |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1)))
                                 ]
 
                             else
@@ -205,8 +161,10 @@ itemView settings itemType posX posY item =
         , x (String.fromInt posX)
         , y (String.fromInt posY)
         , onClick (ItemClick item)
+        , stopPropagationOn "dblclick" (D.map (\d -> ( d, True )) (D.succeed (ItemDblClick item)))
         ]
-        [ g []
+        [ g
+            []
             [ rectView
                 (String.fromInt settings.size.width)
                 (String.fromInt (settings.size.height - 1))
@@ -452,6 +410,27 @@ textView settings posX posY c t =
         [ div
             [ Attr.style "padding" "8px"
             , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+            , Attr.style "word-wrap" "break-word"
+            ]
+            [ Html.text t ]
+        ]
+
+
+labelTextView : Settings -> String -> String -> String -> Svg Msg
+labelTextView settings posX posY t =
+    foreignObject
+        [ x posX
+        , y posY
+        , width "100"
+        , height "30"
+        , color settings.color.label
+        , fontSize "11"
+        , fontWeight "bold"
+        , fontFamily settings.font
+        , class "svg-text"
+        ]
+        [ div
+            [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
             , Attr.style "word-wrap" "break-word"
             ]
             [ Html.text t ]

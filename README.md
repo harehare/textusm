@@ -2,13 +2,14 @@
 
 [![Build Status](https://travis-ci.com/harehare/textusm.svg?branch=master)](https://travis-ci.com/harehare/textusm) [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
-Online tool for Generate a User Story Mapping from indented text.
-
-![image](./img/textusm.gif)
+TextISM is a simple tool. Help you draw user story map using indented text.
 
 ## Features
 
-- Generate a User Story Mapping, Business Model Canvas or Opportunity Canvas from indented text
+- Generate a Diagram from indented text
+  - User Story Map
+  - Business Model Canvas
+  - Opportunity Canvas
 - Add list and card to Trello or Github
 
 ## Example

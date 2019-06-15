@@ -40,7 +40,7 @@ const common = {
         }),
         new MonacoWebpackPlugin({
             languages: ["json"],
-            features: []
+            features: ["find"]
         })
     ],
     resolve: {

@@ -51,22 +51,43 @@ export const loadEditor = (app, text) => {
             return;
         }
 
-        const monacoEditor = monaco.editor.create(
-            document.getElementById("editor"),
-            {
-                value: text,
-                language: "userStoryMapping",
-                theme: "usmTheme",
-                lineNumbers: "on",
-                minimap: {
-                    enabled: false
-                }
+        const monacoEditor = monaco.editor.create(editor, {
+            value: text,
+            language: "userStoryMapping",
+            theme: "usmTheme",
+            lineNumbers: "on",
+            minimap: {
+                enabled: false
             }
-        );
+        });
 
         monacoEditor._standaloneKeybindingService.addDynamicKeybinding(
             "-actions.find"
         );
+
+        monacoEditor.addAction({
+            id: "open",
+            label: "open",
+            keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
+            precondition: null,
+            keybindingContext: null,
+            contextMenuOrder: 1.5,
+            run: () => {
+                app.ports.shortcuts.send("open");
+            }
+        });
+
+        monacoEditor.addAction({
+            id: "save-to-local",
+            label: "save",
+            keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
+            precondition: null,
+            keybindingContext: null,
+            contextMenuOrder: 1.5,
+            run: () => {
+                app.ports.shortcuts.send("save");
+            }
+        });
 
         window.onresize = () => {
             monacoEditor.layout();

@@ -52,7 +52,8 @@ view model =
             (drawItems
                 |> getAt 0
                 |> Maybe.withDefault
-                    { text = ""
+                    { lineNo = 0
+                    , text = ""
                     , comment = Nothing
                     , itemType = Activities
                     , children = Children []
@@ -68,7 +69,8 @@ view model =
             (drawItems
                 |> getAt 3
                 |> Maybe.withDefault
-                    { text = ""
+                    { lineNo = 0
+                    , text = ""
                     , comment = Nothing
                     , itemType = Activities
                     , children = Children []
@@ -84,7 +86,8 @@ view model =
             (drawItems
                 |> getAt 7
                 |> Maybe.withDefault
-                    { text = ""
+                    { lineNo = 0
+                    , text = ""
                     , comment = Nothing
                     , itemType = Activities
                     , children = Children []
@@ -100,7 +103,8 @@ view model =
             (drawItems
                 |> getAt 2
                 |> Maybe.withDefault
-                    { text = ""
+                    { lineNo = 0
+                    , text = ""
                     , comment = Nothing
                     , itemType = Activities
                     , children = Children []
@@ -116,7 +120,8 @@ view model =
             (drawItems
                 |> getAt 8
                 |> Maybe.withDefault
-                    { text = ""
+                    { lineNo = 0
+                    , text = ""
                     , comment = Nothing
                     , itemType = Activities
                     , children = Children []
@@ -132,7 +137,8 @@ view model =
             (drawItems
                 |> getAt 4
                 |> Maybe.withDefault
-                    { text = ""
+                    { lineNo = 0
+                    , text = ""
                     , comment = Nothing
                     , itemType = Activities
                     , children = Children []
@@ -148,7 +154,8 @@ view model =
             (drawItems
                 |> getAt 1
                 |> Maybe.withDefault
-                    { text = ""
+                    { lineNo = 0
+                    , text = ""
                     , comment = Nothing
                     , itemType = Activities
                     , children = Children []
@@ -164,7 +171,8 @@ view model =
             (drawItems
                 |> getAt 6
                 |> Maybe.withDefault
-                    { text = ""
+                    { lineNo = 0
+                    , text = ""
                     , comment = Nothing
                     , itemType = Activities
                     , children = Children []
@@ -180,7 +188,8 @@ view model =
             (drawItems
                 |> getAt 5
                 |> Maybe.withDefault
-                    { text = ""
+                    { lineNo = 0
+                    , text = ""
                     , comment = Nothing
                     , itemType = Activities
                     , children = Children []
@@ -209,7 +218,7 @@ canvasView settings svgWidth svgHeight posX posY item =
         [ g []
             [ rectView (String.fromInt svgWidth) (String.fromInt svgHeight) settings.color.line
             , titleView settings 10 10 item.text
-            , textView settings itemWidth 25 10 30 lines
+            , textView settings (itemWidth - 13) svgHeight 10 35 lines
             ]
         ]
 
@@ -242,25 +251,24 @@ titleView settings posX posY title =
 textView : Settings -> Int -> Int -> Int -> Int -> List String -> Svg Msg
 textView settings w h posX posY lines =
     g []
-        (lines
-            |> List.indexedMap
-                (\i line ->
-                    foreignObject
-                        [ x (String.fromInt posX)
-                        , y (String.fromInt ((i + 1) * posY))
-                        , width (String.fromInt w)
-                        , height (String.fromInt h)
-                        , color settings.color.comment.color
-                        , fontSize (calcFontSize itemWidth line)
-                        , fontFamily settings.font
-                        , class "svg-text"
-                        ]
-                        [ div
-                            [ Attr.style "padding" "8px"
-                            , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+        [ foreignObject
+            [ x (String.fromInt posX)
+            , y (String.fromInt posY)
+            , width (String.fromInt w)
+            , height (String.fromInt h)
+            , color settings.color.comment.color
+            , fontSize "12"
+            , fontFamily settings.font
+            , class "svg-text"
+            ]
+            (lines
+                |> List.indexedMap
+                    (\i line ->
+                        div
+                            [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
                             , Attr.style "word-wrap" "break-word"
                             ]
                             [ Html.text line ]
-                        ]
-                )
-        )
+                    )
+            )
+        ]

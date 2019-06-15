@@ -1,11 +1,15 @@
 body {
-    background-color: #282c32;
+    background-color: #323b46;
     overflow: hidden;
-    font-family: "Open Sans", apple-system, BlinkMacSystemFont, Helvetica Neue,
+    font-family: "Rubik", apple-system, BlinkMacSystemFont, Helvetica Neue,
         Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,
         メイリオ, Meiryo, sans-serif;
     margin: 0;
     padding: 0;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
 }
 
 rect {
@@ -26,39 +30,152 @@ rect {
     user-select: none;
 }
 
-.dialog {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
-    background-color: rgb(16, 17, 20);
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+.button {
+    color: #f5f5f6;
+    cursor: pointer;
+    position: relative;
 
-    .edit-title {
-        font-size: 1.2rem;
-        background-color: rgb(16, 17, 20);
-        outline: 0;
-        border: none;
-        border-bottom: 1px solid #ccc;
-        height: 40px;
-        color: #ffffff;
-        padding: 0 16px;
+    &::after {
+        position: absolute;
+        content: "";
+        top: -10px;
+        left: -10px;
+        width: 70%;
+        height: 100%;
+        padding: 16px;
+        transition: all 0.5s ease;
+        background-color: rgba(0, 0, 0, 0);
     }
 
-    @media screen and (min-width: 480px) {
-        width: 60vw;
-        height: 360px;
+    &:hover {
+        &::after {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    &:active {
+        &::after {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+    }
+}
+
+.settings {
+    background-color: #272c32;
+    height: calc(100vh - 35px);
+    color: #fefefe;
+    overflow-y: scroll;
+    @media screen and (max-width: 480px) {
+        width: 100vw;
+        height: calc(100vh - 40px);
+    }
+
+    .controls {
+        padding: 4px 8px;
+        margin-bottom: 8px;
+    }
+
+    .control {
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        flex-direction: column;
+    }
+
+    .label {
+        font-size: 0.9rem;
+        padding: 4px 8px;
+        font-size: 0.9rem;
+    }
+
+    .input-area {
+        width: 40%;
+        padding: 4px 8px;
+        input {
+            width: 100%;
+            height: 34px;
+            color: #555555;
+            background-color: #fff;
+            background-image: none;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            padding: 0 6px;
+        }
+    }
+}
+
+.diagram-list {
+    background-color: #272c32;
+    width: calc(100vw - 56px);
+    height: calc(100vh - 40px);
+    @media screen and (max-width: 480px) {
+        width: 100vw;
+        height: calc(100vh - 40px);
+    }
+}
+
+.diagram-text {
+    font-size: 0.8rem;
+    width: 19vw;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    border-top: 1px solid #e7e7e7;
+    height: 40px;
+    padding: 8px;
+    background-color: #fefefe;
+    @media screen and (max-width: 480px) {
+        width: 45vw;
+    }
+}
+
+.diagram-item {
+    width: 20%;
+    border: 1px solid rgba(192, 192, 192, 0.5);
+    border-radius: 2px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    transition: box-shadow 0.1s ease-in-out 0.1s;
+    background-size: cover;
+    margin: 16px;
+    height: 190px;
+    cursor: pointer;
+    position: relative;
+
+    &::after {
+        position: absolute;
+        content: "";
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 133px;
+        transition: all 0.5s ease;
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    &:hover {
+        &::after {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+    }
+
+    &:active {
+        &::after {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
     }
 
     @media screen and (max-width: 480px) {
-        width: 90vw;
-        height: 90vh;
+        width: 40vw;
+        height: 150px;
+        align-items: flex-end;
+        justify-content: flex-start;
+        img {
+            width: 39vw;
+            height: 125px;
+        }
     }
 }
 
@@ -80,10 +197,10 @@ rect {
 
 .menu-button {
     padding-top: 16px;
+    cursor: pointer;
 
     &:hover {
         position: relative;
-
         .tooltip {
             visibility: visible;
             opacity: 1;
@@ -102,7 +219,7 @@ rect {
     box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
     margin: 8px;
     outline: none;
-    font-family: "Open Sans", apple-system, BlinkMacSystemFont, Helvetica Neue,
+    font-family: "Rubik", apple-system, BlinkMacSystemFont, Helvetica Neue,
         Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,
         メイリオ, Meiryo, sans-serif;
 }
@@ -142,8 +259,7 @@ rect {
     justify-content: flex-start;
     width: 56px;
     min-width: 56px;
-    background-color: #282c32;
-    box-shadow: inset 0 -96px 48px -96px #282c32;
+    background-color: #323b46;
 }
 
 .menu-item {
@@ -165,6 +281,63 @@ rect {
     box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
         0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
     transition: all 0.2s ease-out;
+}
+
+.help {
+    background-color: #272c32;
+    height: calc(100vh - 35px);
+    color: #fefefe;
+    overflow: auto;
+    @media screen and (max-width: 480px) {
+        width: 100vw;
+        height: calc(100vh - 130px);
+    }
+
+    .text {
+        padding: 16px;
+        line-height: 1.2;
+        font-size: 0.8rem;
+    }
+
+    .comment {
+        color: #008800;
+    }
+
+    .activity {
+        color: #266b9a;
+    }
+
+    .task {
+        color: #3e9bcd;
+    }
+
+    .story {
+        color: #ffffff;
+    }
+
+    .header {
+        font-weight: 600;
+    }
+
+    .rows {
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+        font-size: 0.9rem;
+    }
+
+    .row {
+        display: flex;
+        .item {
+            border: 1px solid #fefefe;
+            width: 85px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+    }
 }
 
 .progress {
@@ -234,6 +407,7 @@ rect {
         align-items: center;
         border-bottom: solid 0.5px #cfcdcd;
     }
+
     .tooltip {
         visibility: hidden;
         text-align: center;
@@ -247,11 +421,11 @@ rect {
         margin-left: -60px;
 
         .text {
-            background-color: rgba($color: #f5f5f6, $alpha: 0.8);
-            color: #000;
+            background-color: #333;
+            color: #f5f5f6;
             padding: 5px 10px;
             border-radius: 2px;
-            font-size: 0.5rem;
+            font-size: 0.8rem;
             display: inline-block;
         }
     }
@@ -287,14 +461,13 @@ rect {
     .tooltip {
         display: none;
     }
-
     .menu-bar {
         display: flex;
         align-items: center;
         width: 100vw;
         height: 57px;
-        background-color: #282c32;
-        box-shadow: inset 0 -96px 48px -96px #282c32;
+        background-color: #323b46;
+        box-shadow: inset 0 -96px 48px -96px #272c32;
         position: fixed;
         bottom: 0;
         flex-direction: row;

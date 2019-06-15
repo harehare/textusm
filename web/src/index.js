@@ -4,11 +4,12 @@ import "./styles.scss";
 import { loadEditor } from "./js/editor.js";
 import { setUpDowonlad } from "./js/download";
 import { setUpShare } from "./js/share";
-import { loadSettings, setUpSettings, saveSettings } from "./js/settings";
+import { setUpDB } from "./js/db";
+import { loadSettings, saveSettings } from "./js/settings";
 import { Elm } from "./elm/Main.elm";
 
 const app = Elm.Main.init({
-    flags: [process.env.API_ROOT, loadSettings(app)]
+    flags: [process.env.API_ROOT, loadSettings()]
 });
 
 app.ports.saveSettings.subscribe(settings => {
@@ -17,13 +18,11 @@ app.ports.saveSettings.subscribe(settings => {
 
 app.ports.loadEditor.subscribe(text => {
     loadEditor(app, text);
-    setTimeout(() => {
-        setUpSettings(app);
-    }, 500);
 });
 
 setUpDowonlad(app);
 setUpShare(app);
+setUpDB(app);
 
 if ("serviceWorker" in navigator && !location.host.startsWith("localhost")) {
     navigator.serviceWorker.register("/sw.js");

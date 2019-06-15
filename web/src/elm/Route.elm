@@ -9,6 +9,10 @@ type Route
     = Home
     | BusinessModelCanvas
     | OpportunityCanvas
+    | UserStoryMap
+    | List
+    | Settings
+    | Help
     | Share String String String
     | UsmView String
     | View String String
@@ -25,6 +29,10 @@ parser =
         , map CallbackTrello (s "callback" <?> Query.string "oauth_token" <?> Query.string "oauth_verifier")
         , map BusinessModelCanvas (s "bmc")
         , map OpportunityCanvas (s "opc")
+        , map UserStoryMap (s "usm")
+        , map List (s "list")
+        , map Settings (s "settings")
+        , map Help (s "help")
         ]
 
 

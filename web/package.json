@@ -1,14 +1,16 @@
 {
     "name": "textusm",
     "description": "Online tool for Generate a User Story Mapping from indented text.",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "author": "harehare",
     "bugs": {
         "url": "https://github.com/harehare/textusm/issues"
     },
     "dependencies": {
+        "dexie": "^2.0.4",
         "lzutf8": "^0.5.5",
-        "monaco-editor": "^0.17.0"
+        "monaco-editor": "^0.17.0",
+        "uuid": "^3.3.2"
     },
     "devDependencies": {
         "@babel/core": "^7.3.4",

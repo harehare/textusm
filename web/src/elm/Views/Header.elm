@@ -5,12 +5,13 @@ import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, 
 import Html.Events exposing (keyCode, on, onBlur, onClick, onInput)
 import Json.Decode as D
 import Models.Model exposing (Msg(..))
+import Route exposing (Route(..))
 import Styles
 import Views.Icon as Icon
 
 
-view : Maybe String -> Bool -> Bool -> Html Msg
-view t isEditTitle fullscreen =
+view : Route -> Maybe String -> Bool -> Bool -> Html Msg
+view route t isEditTitle fullscreen =
     let
         title =
             t |> Maybe.withDefault ""
@@ -26,9 +27,7 @@ view t isEditTitle fullscreen =
                    , style "height"
                         "40px"
                    , style "background-color"
-                        "#282C32"
-                   , style "box-shadow"
-                        "inset 0 -96px 48px -96px #282C32"
+                        "#323B46"
                    ]
             )
             [ div
@@ -38,51 +37,74 @@ view t isEditTitle fullscreen =
                 , style "align-items" "center"
                 ]
                 [ logo
-                , if isEditTitle then
-                    input
-                        [ id "title"
-                        , class "title"
-                        , value title
-                        , onInput EditTitle
-                        , onBlur (EndEditTitle 13 False)
-                        , onKeyDown EndEditTitle
-                        , placeholder "UNTITLED"
-                        , style "font-size" "1.1rem"
-                        ]
-                        []
+                , if route /= Route.List then
+                    if isEditTitle then
+                        input
+                            [ id "title"
+                            , class "title"
+                            , value title
+                            , onInput EditTitle
+                            , onBlur (EndEditTitle 13 False)
+                            , onKeyDown EndEditTitle
+                            , placeholder "UNTITLED"
+                            , style "font-size" "16px"
+                            , style "width" "200px"
+                            , style "font-weight" "400"
+                            ]
+                            []
+
+                    else
+                        div
+                            [ style "color" "#f4f4f4"
+                            , style "max-width" "200px"
+                            , style "text-overflow" "ellipsis"
+                            , style "text-align" "left"
+                            , style "cursor" "pointer"
+                            , style "font-weight" "100"
+                            , style "font-size" "16px"
+                            , style "overflow" "hidden"
+                            , style "margin-bottom" "2px"
+                            , style "font-weight" "400"
+                            , onClick StartEditTitle
+                            ]
+                            [ text
+                                (if String.isEmpty title then
+                                    "UNTITLED"
+
+                                 else
+                                    title
+                                )
+                            ]
 
                   else
-                    div
-                        [ style "color" "#f4f4f4"
-                        , style "max-width" "250px"
-                        , style "text-overflow" "ellipsis"
-                        , style "text-align" "left"
-                        , style "cursor" "pointer"
-                        , style "font-weight" "100"
-                        , style "font-size" "1.1rem"
-                        , onClick StartEditTitle
-                        ]
-                        [ text
-                            (if String.isEmpty title then
-                                "UNTITLED"
-
-                             else
-                                title
-                            )
-                        ]
+                    div [] []
                 ]
             , div
                 (Styles.flexCenter
-                    ++ [ style "color" "#F5F5F6"
-                       , style "cursor" "pointer"
-                       , style "margin-right" "8px"
-                       , onClick OnShareUrl
+                    ++ [ class "button"
+                       , onClick ShowHelp
                        ]
                 )
-                [ Icon.share 18
+                [ Icon.helpOutline 20
                 , div
                     [ style "font-size" "0.9rem"
                     , style "padding" "0 8px"
+                    , style "font-weight" "400"
+                    , style "margin-right" "8px"
+                    ]
+                    [ text "Help" ]
+                ]
+            , div
+                (Styles.flexCenter
+                    ++ [ class "button"
+                       , onClick OnCurrentShareUrl
+                       ]
+                )
+                [ Icon.share "#F5F5F6" 18
+                , div
+                    [ style "font-size" "0.9rem"
+                    , style "padding" "0 8px"
+                    , style "font-weight" "400"
                     ]
                     [ text "Share" ]
                 ]

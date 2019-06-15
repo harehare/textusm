@@ -2,23 +2,24 @@ module Settings exposing (settingsDecoder)
 
 import Json.Decode as D
 import Models.Diagram as Diagram exposing (Color, ColorSettings, Settings, Size)
-import Models.Model as Model exposing (GithubSettings, Settings)
+import Models.Model as Model
 
 
 settingsDecoder : D.Decoder Model.Settings
 settingsDecoder =
-    D.map6 Model.Settings
+    D.map7 Model.Settings
         (D.maybe (D.field "position" D.int))
         (D.field "font" D.string)
+        (D.maybe (D.field "diagramId" D.string))
         (D.field "storyMap" diagramDecoder)
         (D.maybe (D.field "text" D.string))
         (D.maybe (D.field "title" D.string))
         (D.maybe (D.field "github" githubDecoder))
 
 
-githubDecoder : D.Decoder GithubSettings
+githubDecoder : D.Decoder Model.GithubSettings
 githubDecoder =
-    D.map3 GithubSettings
+    D.map3 Model.GithubSettings
         (D.field "owner" D.string)
         (D.field "repo" D.string)
         (D.field "token" D.string)

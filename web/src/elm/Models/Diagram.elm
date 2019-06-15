@@ -1,4 +1,4 @@
-module Models.Diagram exposing (Children(..), Color, ColorSettings, Comment, DiagramType(..), Item, ItemType(..), Model, Msg(..), Settings, Size, UsmSvg, toString)
+module Models.Diagram exposing (Children(..), Color, ColorSettings, Comment, DiagramType(..), Item, ItemType(..), Model, Msg(..), Settings, Size, UsmSvg, diagramTypeToString, toString)
 
 import Browser.Dom exposing (Viewport)
 
@@ -38,7 +38,8 @@ type Children
 
 
 type alias Item =
-    { text : String
+    { lineNo : Int
+    , text : String
     , comment : Maybe String
     , itemType : ItemType
     , children : Children
@@ -113,6 +114,20 @@ type Msg
     | OnResize Int Int
     | StartPinch Float
     | ItemClick Item
+    | ItemDblClick Item
+
+
+diagramTypeToString : DiagramType -> String
+diagramTypeToString diagramType =
+    case diagramType of
+        UserStoryMap ->
+            "usm"
+
+        OpportunityCanvas ->
+            "opc"
+
+        BusinessModelCanvas ->
+            "bmc"
 
 
 toString : List Item -> String

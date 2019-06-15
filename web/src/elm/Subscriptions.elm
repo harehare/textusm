@@ -1,9 +1,9 @@
-port module Subscriptions exposing (applySettings, changeText, decodeShareText, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, layoutEditor, loadEditor, loadText, saveSettings, selectLine, subscriptions)
+port module Subscriptions exposing (applySettings, changeText, decodeShareText, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getDiagram, getDiagrams, layoutEditor, loadEditor, loadText, removeDiagrams, saveDiagram, saveSettings, selectLine, subscriptions)
 
 import Browser.Events exposing (onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Json.Decode as D
-import Models.Diagram as Diagram
-import Models.Model exposing (Download, Model, Msg(..), Notification(..), Settings, ShareInfo)
+import Models.Diagram as DiagramModel
+import Models.Model exposing (Diagram, Download, Model, Msg(..), Notification(..), Settings, ShareInfo)
 
 
 port changeText : (String -> msg) -> Sub msg
@@ -22,6 +22,9 @@ port onEncodeShareText : (String -> msg) -> Sub msg
 
 
 port onNotification : (String -> msg) -> Sub msg
+
+
+port shortcuts : (String -> msg) -> Sub msg
 
 
 port downloadPng : Download -> Cmd msg
@@ -57,17 +60,46 @@ port decodeShareText : String -> Cmd msg
 port encodeShareText : ShareInfo -> Cmd msg
 
 
+
+-- Diagram
+
+
+port saveDiagram : Diagram -> Cmd msg
+
+
+
+-- TODO: remove params
+
+
+port removeDiagrams : Diagram -> Cmd msg
+
+
+port getDiagrams : () -> Cmd msg
+
+
+port getDiagram : String -> Cmd msg
+
+
+port showDiagrams : (List Diagram -> msg) -> Sub msg
+
+
+port removedDiagram : (Bool -> msg) -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        ([ changeText (\text -> UpdateDiagram (Diagram.OnChangeText text))
+        ([ changeText (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
          , applySettings ApplySettings
          , startDownloadSvg StartDownloadSvg
+         , showDiagrams ShowDiagrams
+         , removedDiagram RemovedDiagram
          , onVisibilityChange OnVisibilityChange
-         , onResize (\width height -> UpdateDiagram (Diagram.OnResize width height))
-         , onMouseUp (D.succeed (UpdateDiagram Diagram.Stop))
+         , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
+         , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
          , onEncodeShareText OnEncodeShareText
          , onDecodeShareText OnDecodeShareText
+         , shortcuts Shortcuts
          , onNotification (\n -> OnAutoCloseNotification (Info n Nothing))
          ]
             ++ (if model.window.moveStart then

@@ -1,4 +1,4 @@
-module Models.Model exposing (Download, GithubSettings, Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window)
+module Models.Model exposing (Diagram, Download, GithubSettings, Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window)
 
 import Api
 import Browser
@@ -8,6 +8,7 @@ import Browser.Navigation as Nav
 import File exposing (File)
 import Http
 import Models.Diagram as Diagram
+import Time exposing (Zone)
 import Url
 
 
@@ -25,15 +26,17 @@ type Msg
     | FileSelected File
     | FileLoaded String
     | SaveToLocal
+    | SaveToFileSystem
     | SelectLine String
     | StartEditTitle
     | EndEditTitle Int Bool
     | EditTitle String
-    | OnShareUrl
+    | OnShareUrl ShareInfo
+    | OnCurrentShareUrl
     | OnVisibilityChange Visibility
     | OnStartWindowResize Int
     | OnWindowResize Int
-    | ToggleSettings
+    | EditSettings
     | ApplySettings Settings
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
@@ -51,6 +54,15 @@ type Msg
     | NewUserStoryMap
     | NewBusinessModelCanvas
     | NewOpportunityCanvas
+    | GetDiagrams
+    | ShowDiagrams (List Diagram)
+    | OpenDiagram Diagram
+    | RemoveDiagram Diagram
+    | RemovedDiagram Bool
+    | GetTimeZone Zone
+    | UpdateSettings (String -> Settings) String
+    | Shortcuts String
+    | ShowHelp
 
 
 type alias OpenUrl =
@@ -64,14 +76,14 @@ type Notification
 
 
 type Menu
-    = SaveFile
-    | NewFile
+    = NewFile
     | Export
     | UserSettings
 
 
 type alias Model =
-    { key : Nav.Key
+    { id : Maybe String
+    , key : Nav.Key
     , url : Url.Url
     , diagramModel : Diagram.Model
     , text : String
@@ -82,11 +94,13 @@ type alias Model =
     , title : Maybe String
     , notification : Maybe Notification
     , isEditTitle : Bool
-    , isEditSettings : Bool
     , tabIndex : Int
     , progress : Bool
     , apiConfig : Api.Config
     , isExporting : Bool
+    , diagrams : Maybe (List Diagram)
+    , timezone : Maybe Zone
+    , selectedItem : Maybe Diagram.Item
     }
 
 
@@ -95,6 +109,16 @@ type alias Window =
     , moveStart : Bool
     , moveX : Int
     , fullscreen : Bool
+    }
+
+
+type alias Diagram =
+    { diagramPath : String
+    , id : Maybe String
+    , text : String
+    , thumbnail : Maybe String
+    , title : String
+    , updatedAt : Maybe Int
     }
 
 
@@ -120,6 +144,7 @@ type ShareUrl
 type alias Settings =
     { position : Maybe Int
     , font : String
+    , diagramId : Maybe String
     , storyMap : Diagram.Settings
     , text : Maybe String
     , title : Maybe String

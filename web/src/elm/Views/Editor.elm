@@ -2,34 +2,37 @@ module Views.Editor exposing (view)
 
 import Html exposing (Html, div)
 import Html.Attributes exposing (id, style)
-import Models.Model exposing (Msg)
+import Html.Lazy exposing (lazy)
+import Maybe.Extra exposing (isJust)
+import Models.Diagram as Diagram
+import Models.Model exposing (Msg, Settings)
+import Route exposing (Route(..))
 import Styles
+import Views.Help as Help
+import Views.Settings as Settings
 
 
-view : Bool -> Html Msg
-view isEditSettings =
+view : Settings -> Route -> Html Msg
+view settings route =
     div
-        Styles.matchParent
-        [ div
-            (Styles.matchParent
-                ++ [ id "editor"
-                   , if isEditSettings then
-                        style "display" "none"
+        (style "background-color" "#272c32" :: Styles.matchParent)
+        [ if route == Route.Settings then
+            div
+                Styles.matchParent
+                [ lazy Settings.view settings
+                ]
 
-                     else
-                        style "display" "block"
-                   ]
-            )
-            []
-        , div
-            (Styles.matchParent
-                ++ [ id "settings"
-                   , if isEditSettings then
-                        style "display" "block"
+          else if route == Route.Help then
+            div
+                Styles.matchParent
+                [ Help.view
+                ]
 
-                     else
-                        style "display" "none"
-                   ]
-            )
-            []
+          else
+            div
+                (Styles.matchParent
+                    ++ [ id "editor"
+                       ]
+                )
+                []
         ]

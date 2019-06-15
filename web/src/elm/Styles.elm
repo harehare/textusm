@@ -7,7 +7,7 @@ import Models.Model exposing (Msg)
 
 title : List (Html.Attribute Msg)
 title =
-    [ style "font-family" "'Open Sans', apple-system, BlinkMacSystemFont, Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM, メイリオ, Meiryo, sans-serif"
+    [ style "font-family" "'Rubik', apple-system, BlinkMacSystemFont, Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM, メイリオ, Meiryo, sans-serif"
     , style "font-size" "2.5rem"
     , style "padding" "8px"
     , style "color" "#333333"

@@ -83,18 +83,19 @@ getTextAndComment line =
     )
 
 
-loadText : Int -> String -> Result String ( List Int, List Item )
-loadText indent input =
+loadText : Int -> Int -> String -> Result String ( List Int, List Item )
+loadText lineNo indent input =
     let
         splited =
             Parser.parseLines indent input
     in
     case splited of
         Ok ( x :: xs, xxs ) ->
-            loadText (indent + 1) (String.join "\n" xs)
+            loadText (lineNo + 1) (indent + 1) (String.join "\n" xs)
                 |> Result.andThen
                     (\( indents, items ) ->
-                        loadText indent
+                        loadText (lineNo + List.length (x :: xs))
+                            indent
                             (String.join "\n" xxs)
                             |> Result.andThen
                                 (\( indents2, tailItems ) ->
@@ -104,7 +105,8 @@ loadText indent input =
                                     in
                                     Ok
                                         ( indent :: indents ++ indents2
-                                        , { text = t
+                                        , { lineNo = lineNo
+                                          , text = t
                                           , comment = n
                                           , itemType = getItemType t indent
                                           , children = Children items
@@ -130,7 +132,7 @@ load t =
         _ ->
             let
                 result =
-                    loadText 0 t
+                    loadText 0 0 t
             in
             case result of
                 Ok ( i, loadedItems ) ->
