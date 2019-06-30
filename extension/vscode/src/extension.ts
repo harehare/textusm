@@ -73,7 +73,8 @@ class DiagramPanel {
 
     figurePanel._panel.webview.onDidReceiveMessage(message => {
       if (message.command === 'exportPng') {
-        const dir = vscode.workspace.getConfiguration().get('textusm.exportDir');
+        // TODO:
+        const dir: any = vscode.workspace.getConfiguration().get('textusm.exportDir');
         const filePath = `${dir ? dir.toString() : '.'}/${figurePanel._panel.title}.png`;
         const base64Data = message.text.replace(/^data:image\/png;base64,/, '');
 
@@ -81,7 +82,8 @@ class DiagramPanel {
         vscode.window.showInformationMessage(`Exported: ${filePath}`);
       } else if (message.command === 'exportSvg') {
         const backgroundColor = vscode.workspace.getConfiguration().get('textusm.backgroundColor');
-        const dir = vscode.workspace.getConfiguration().get('textusm.exportDir');
+        // TODO:
+        const dir: any = vscode.workspace.getConfiguration().get('textusm.exportDir');
         const filePath = `${dir ? dir.toString() : '.'}/${figurePanel._panel.title}.svg`;
         fs.writeFileSync(
           filePath,

@@ -1,4 +1,4 @@
-module Views.Icon exposing (add, clear, download, error, export, file, folderOpen, fullscreen, fullscreenExit, helpOutline, indent, info, openInNew, remove, save, settings, share, viewComfy, viewModule, warning)
+module Views.Icon exposing (add, clear, cloudOff, cloudOn, download, error, export, file, folderOpen, fullscreen, fullscreenExit, helpOutline, indent, info, openInNew, remove, save, settings, share, viewComfy, viewModule, warning)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (d, fill, height, viewBox, width)
@@ -54,11 +54,6 @@ settings color size =
     icon color size size "0 0 48 48" [ Svg.path [ d "M38.86 25.95c.08-.64.14-1.29.14-1.95s-.06-1.31-.14-1.95l4.23-3.31c.38-.3.49-.84.24-1.28l-4-6.93c-.25-.43-.77-.61-1.22-.43l-4.98 2.01c-1.03-.79-2.16-1.46-3.38-1.97L29 4.84c-.09-.47-.5-.84-1-.84h-8c-.5 0-.91.37-.99.84l-.75 5.3c-1.22.51-2.35 1.17-3.38 1.97L9.9 10.1c-.45-.17-.97 0-1.22.43l-4 6.93c-.25.43-.14.97.24 1.28l4.22 3.31C9.06 22.69 9 23.34 9 24s.06 1.31.14 1.95l-4.22 3.31c-.38.3-.49.84-.24 1.28l4 6.93c.25.43.77.61 1.22.43l4.98-2.01c1.03.79 2.16 1.46 3.38 1.97l.75 5.3c.08.47.49.84.99.84h8c.5 0 .91-.37.99-.84l.75-5.3c1.22-.51 2.35-1.17 3.38-1.97l4.98 2.01c.45.17.97 0 1.22-.43l4-6.93c.25-.43.14-.97-.24-1.28l-4.22-3.31zM24 31c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" ] [] ]
 
 
-list : Int -> Svg msg
-list size =
-    icon "#F5F5F6" size size "0 0 48 48" [ Svg.path [ d "M6 26h4v-4H6v4zm0 8h4v-4H6v4zm0-16h4v-4H6v4zm8 8h28v-4H14v4zm0 8h28v-4H14v4zm0-20v4h28v-4H14z" ] [] ]
-
-
 viewModule : Int -> Svg msg
 viewModule size =
     icon "#F5F5F6" size size "0 0 48 48" [ Svg.path [ d "M8 22h10V10H8v12zm0 14h10V24H8v12zm12 0h10V24H20v12zm12 0h10V24H32v12zM20 22h10V10H20v12zm12-12v12h10V10H32z" ] [] ]
@@ -107,6 +102,16 @@ export w h =
 helpOutline : Int -> Svg msg
 helpOutline size =
     icon "#F5F5F6" size size "0 0 24 24" [ Svg.path [ d "M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z" ] [] ]
+
+
+cloudOn : Int -> Svg msg
+cloudOn size =
+    icon "rgba(51, 51, 51, 0.7)" size size "0 0 48 48" [ Svg.path [ d "M38.71 20.07C37.35 13.19 31.28 8 24 8c-5.78 0-10.79 3.28-13.3 8.07C4.69 16.72 0 21.81 0 28c0 6.63 5.37 12 12 12h26c5.52 0 10-4.48 10-10 0-5.28-4.11-9.56-9.29-9.93zM38 36H12c-4.42 0-8-3.58-8-8s3.58-8 8-8h1.42c1.31-4.61 5.54-8 10.58-8 6.08 0 11 4.92 11 11v1h3c3.31 0 6 2.69 6 6s-2.69 6-6 6z" ] [] ]
+
+
+cloudOff : Int -> Svg msg
+cloudOff size =
+    icon "rgba(51, 51, 51, 0.7)" size size "0 0 48 48" [ Svg.path [ d "M38.71 20.07C37.35 13.19 31.28 8 24 8c-2.95 0-5.7.87-8.02 2.34l2.92 2.92C20.43 12.47 22.16 12 24 12c6.08 0 11 4.92 11 11v1h3c3.31 0 6 2.69 6 6 0 2.27-1.27 4.22-3.13 5.24l2.9 2.9C46.32 36.33 48 33.37 48 30c0-5.28-4.11-9.56-9.29-9.93zM6 10.55l5.5 5.48C5.12 16.3 0 21.55 0 28c0 6.63 5.37 12 12 12h23.45l4 4L42 41.46 8.55 8 6 10.55zM15.45 20l16 16H12c-4.42 0-8-3.58-8-8s3.58-8 8-8h3.45z" ] [] ]
 
 
 icon : String -> Int -> Int -> String -> List (Svg msg) -> Svg msg

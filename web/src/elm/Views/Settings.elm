@@ -3,11 +3,8 @@ module Views.Settings exposing (view)
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (class, style, value)
 import Html.Events exposing (onInput)
-import Json.Decode as D
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Msg(..), Settings)
-import Utils
-import Views.Icon as Icon
 
 
 view : Settings -> Html Msg
@@ -455,6 +452,55 @@ view settings =
                                             { storyMap | color = newColor }
                                     in
                                     { settings | storyMap = newStoryMap }
+                                )
+                            )
+                        ]
+                        []
+                    ]
+                ]
+            ]
+        , section (Just "GitHub")
+        , div [ class "controls" ]
+            [ div [ class "control" ]
+                [ div [ class "label" ] [ text "Owner" ]
+                , div [ class "input-area" ]
+                    [ input
+                        [ value (Maybe.withDefault { owner = "", repo = "" } settings.github).owner
+                        , onInput
+                            (UpdateSettings
+                                (\x ->
+                                    let
+                                        github =
+                                            settings.github
+                                                |> Maybe.withDefault { owner = "", repo = "" }
+
+                                        newGithub =
+                                            { github | owner = x }
+                                    in
+                                    { settings | github = Just newGithub }
+                                )
+                            )
+                        ]
+                        []
+                    ]
+                ]
+            , div [ class "control" ]
+                [ div [ class "label" ] [ text "Repository" ]
+                , div [ class "input-area" ]
+                    [ input
+                        [ value (Maybe.withDefault { owner = "", repo = "" } settings.github).repo
+                        , onInput
+                            (UpdateSettings
+                                (\x ->
+                                    let
+                                        github =
+                                            settings.github
+                                                |> Maybe.withDefault { owner = "", repo = "" }
+
+                                        newGithub =
+                                            { github | repo = x }
+                                    in
+                                    { settings | github = Just newGithub }
                                 )
                             )
                         ]

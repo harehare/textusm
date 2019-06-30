@@ -10,6 +10,8 @@ import Html.Events.Extra.Wheel as Wheel
 import List
 import List.Extra exposing (getAt, scanl, unique)
 import Models.Diagram exposing (..)
+import Models.DiagramType exposing (DiagramType(..))
+import Models.Item as Item exposing (Item, ItemType(..))
 import Parser
 import Result exposing (andThen)
 import String
@@ -18,9 +20,12 @@ import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 import Svg.Lazy exposing (..)
 import Utils
-import Views.Diagram.Bmc as Bmc
-import Views.Diagram.Opc as Opc
-import Views.Diagram.Usm as Usm
+import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
+import Views.Diagram.FourLs as FourLs
+import Views.Diagram.Kpt as Kpt
+import Views.Diagram.OpportunityCanvas as OpportunityCanvas
+import Views.Diagram.StartStopContinue as StartStopContinue
+import Views.Diagram.UserStoryMap as UserStoryMap
 import Views.Icon as Icon
 
 
@@ -76,7 +81,7 @@ getTextAndComment line =
         tokens =
             line
                 |> String.trim
-                |> String.split ":"
+                |> String.split " :"
     in
     ( getAt 0 tokens |> Maybe.withDefault ""
     , getAt 1 tokens
@@ -109,7 +114,7 @@ loadText lineNo indent input =
                                           , text = t
                                           , comment = n
                                           , itemType = getItemType t indent
-                                          , children = Children items
+                                          , children = Item.fromItems items
                                           }
                                             :: tailItems
                                         )
@@ -161,27 +166,22 @@ countUpToHierarchy hierarchy items =
                 :: (countItems
                         |> List.map
                             (\it ->
-                                case it.children of
-                                    Children [] ->
-                                        []
+                                let
+                                    results =
+                                        countUp (Item.unwrapChildren it.children)
+                                            |> transpose
+                                in
+                                if List.length results > hierarchy then
+                                    List.map
+                                        (\it2 ->
+                                            List.maximum it2 |> Maybe.withDefault 0
+                                        )
+                                        results
 
-                                    Children children ->
-                                        let
-                                            results =
-                                                countUp children
-                                                    |> transpose
-                                        in
-                                        if List.length results > hierarchy then
-                                            List.map
-                                                (\it2 ->
-                                                    List.maximum it2 |> Maybe.withDefault 0
-                                                )
-                                                results
-
-                                        else
-                                            results
-                                                |> List.concat
-                                                |> List.filter (\x -> x /= 0)
+                                else
+                                    results
+                                        |> List.concat
+                                        |> List.filter (\x -> x /= 0)
                             )
                    )
     in
@@ -365,13 +365,22 @@ svgView model =
         ]
         [ case model.diagramType of
             UserStoryMap ->
-                lazy Usm.view model
+                lazy UserStoryMap.view model
 
             BusinessModelCanvas ->
-                lazy Bmc.view model
+                lazy BusinessModelCanvas.view model
 
             OpportunityCanvas ->
-                lazy Opc.view model
+                lazy OpportunityCanvas.view model
+
+            FourLs ->
+                lazy FourLs.view model
+
+            StartStopContinue ->
+                lazy StartStopContinue.view model
+
+            Kpt ->
+                lazy Kpt.view model
         ]
 
 
@@ -527,12 +536,7 @@ updateDiagram size width height base text =
                             (filterdItems
                                 |> List.map
                                     (\it ->
-                                        case it.children of
-                                            Children [] ->
-                                                0
-
-                                            Children children ->
-                                                List.length children
+                                        Item.unwrapChildren it.children |> List.length
                                     )
                                 |> List.sum
                             )
@@ -557,13 +561,7 @@ updateDiagram size width height base text =
                             |> scanl
                                 (\it v ->
                                     v
-                                        + (case it.children of
-                                            Children [] ->
-                                                0
-
-                                            Children children ->
-                                                List.length (children |> List.filter (\i -> i.itemType /= Comments))
-                                          )
+                                        + List.length (Item.unwrapChildren it.children |> List.filter (\i -> i.itemType /= Comments))
                                 )
                                 0
                 in

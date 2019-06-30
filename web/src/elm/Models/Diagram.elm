@@ -1,6 +1,8 @@
-module Models.Diagram exposing (Children(..), Color, ColorSettings, Comment, DiagramType(..), Item, ItemType(..), Model, Msg(..), Settings, Size, UsmSvg, diagramTypeToString, toString)
+module Models.Diagram exposing (Color, ColorSettings, Comment, Model, Msg(..), Settings, Size, UsmSvg)
 
 import Browser.Dom exposing (Viewport)
+import Models.DiagramType exposing (DiagramType)
+import Models.Item exposing (Item, ItemType(..))
 
 
 type alias Model =
@@ -25,32 +27,6 @@ type alias Model =
     , diagramType : DiagramType
     , labels : List String
     }
-
-
-type DiagramType
-    = UserStoryMap
-    | OpportunityCanvas
-    | BusinessModelCanvas
-
-
-type Children
-    = Children (List Item)
-
-
-type alias Item =
-    { lineNo : Int
-    , text : String
-    , comment : Maybe String
-    , itemType : ItemType
-    , children : Children
-    }
-
-
-type ItemType
-    = Activities
-    | Tasks
-    | Stories Int
-    | Comments
 
 
 type alias UsmSvg =
@@ -115,46 +91,3 @@ type Msg
     | StartPinch Float
     | ItemClick Item
     | ItemDblClick Item
-
-
-diagramTypeToString : DiagramType -> String
-diagramTypeToString diagramType =
-    case diagramType of
-        UserStoryMap ->
-            "usm"
-
-        OpportunityCanvas ->
-            "opc"
-
-        BusinessModelCanvas ->
-            "bmc"
-
-
-toString : List Item -> String
-toString =
-    let
-        itemsToString : Int -> List Item -> String
-        itemsToString hierarcy items =
-            let
-                itemToString : Item -> Int -> String
-                itemToString i hi =
-                    case i.comment of
-                        Just c ->
-                            String.repeat hi "    " ++ i.text ++ ": " ++ c
-
-                        Nothing ->
-                            String.repeat hi "    " ++ i.text
-            in
-            items
-                |> List.map
-                    (\item ->
-                        case item.children of
-                            Children [] ->
-                                itemToString item hierarcy
-
-                            Children c ->
-                                itemToString item hierarcy ++ "\n" ++ itemsToString (hierarcy + 1) c
-                    )
-                |> String.join "\n"
-    in
-    itemsToString 0

@@ -1,4 +1,4 @@
-package main
+package trello
 
 import (
 	"context"
@@ -98,10 +98,10 @@ func (b *Board) AddLabel(name, color string) (*Label, error) {
 	return &label, err
 }
 
-func (b *Card) AddLabelToCard(labelId string) error {
+func (b *Card) AddLabelToCard(labelID string) error {
 	path := fmt.Sprintf("/cards/%s/idLabels", b.ID)
 	payload := url.Values{}
-	payload.Set("value", labelId)
+	payload.Set("value", labelID)
 
 	err := b.client.Post(path, payload, nil)
 

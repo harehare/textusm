@@ -1,5 +1,7 @@
 package main
 
+import "os"
+
 func main() {
-	Start()
+	os.Exit(Run())
 }

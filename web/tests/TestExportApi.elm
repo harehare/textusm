@@ -1,9 +1,10 @@
-module TestApi exposing (createRequestTest)
+module TestExportApi exposing (createRequestTest)
 
-import Api exposing (..)
+import Api.Export exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Models.Diagram exposing (..)
+import Models.Item as Item exposing (Children, Item, ItemType(..))
 import Test exposing (..)
 
 
@@ -21,7 +22,8 @@ createRequestTest =
                     [ { text = "text1"
                       , comment = Just "comment1"
                       , itemType = Activities
-                      , children = Children []
+                      , children = Item.fromItems []
+                      , lineNo = 0
                       }
                     ]
                     |> .tasks
@@ -38,12 +40,14 @@ createRequestTest =
                     [ { text = "text1"
                       , comment = Just "comment1"
                       , itemType = Activities
+                      , lineNo = 0
                       , children =
-                            Children
+                            Item.fromItems
                                 [ { text = "text2"
                                   , comment = Just "comment2"
                                   , itemType = Tasks
-                                  , children = Children []
+                                  , children = Item.fromItems []
+                                  , lineNo = 0
                                   }
                                 ]
                       }
@@ -66,17 +70,20 @@ createRequestTest =
                     [ { text = "text1"
                       , comment = Just "comment1"
                       , itemType = Activities
+                      , lineNo = 0
                       , children =
-                            Children
+                            Item.fromItems
                                 [ { text = "text2"
                                   , comment = Just "comment2"
                                   , itemType = Tasks
+                                  , lineNo = 0
                                   , children =
-                                        Children
+                                        Item.fromItems
                                             [ { text = "text3"
                                               , comment = Just "comment3"
                                               , itemType = Stories 1
-                                              , children = Children []
+                                              , children = Item.fromItems []
+                                              , lineNo = 0
                                               }
                                             ]
                                   }
@@ -106,17 +113,20 @@ createRequestTest =
                     [ { text = "text1"
                       , comment = Just "comment1"
                       , itemType = Activities
+                      , lineNo = 0
                       , children =
-                            Children
+                            Item.fromItems
                                 [ { text = "text2"
                                   , comment = Just "comment2"
                                   , itemType = Tasks
+                                  , lineNo = 0
                                   , children =
-                                        Children
+                                        Item.fromItems
                                             [ { text = "text3"
                                               , comment = Just "comment3"
                                               , itemType = Stories 2
-                                              , children = Children []
+                                              , children = Item.fromItems []
+                                              , lineNo = 0
                                               }
                                             ]
                                   }
@@ -125,17 +135,20 @@ createRequestTest =
                     , { text = "1text1"
                       , comment = Just "1comment1"
                       , itemType = Activities
+                      , lineNo = 0
                       , children =
-                            Children
+                            Item.fromItems
                                 [ { text = "1text2"
                                   , comment = Just "1comment2"
                                   , itemType = Tasks
+                                  , lineNo = 0
                                   , children =
-                                        Children
+                                        Item.fromItems
                                             [ { text = "1text3"
                                               , comment = Just "1comment3"
                                               , itemType = Stories 3
-                                              , children = Children []
+                                              , children = Item.fromItems []
+                                              , lineNo = 0
                                               }
                                             ]
                                   }

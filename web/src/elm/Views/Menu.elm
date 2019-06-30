@@ -1,4 +1,4 @@
-module Views.Menu exposing (view)
+module Views.Menu exposing (menu, view)
 
 import Html exposing (Html, div, span, text)
 import Html.Attributes exposing (class, style)
@@ -11,8 +11,8 @@ import Utils
 import Views.Icon as Icon
 
 
-view : Route -> Int -> Bool -> Maybe Menu -> Html Msg
-view route width fullscreen openMenu =
+view : Route -> Int -> Bool -> Maybe Menu -> Bool -> Html Msg
+view route width fullscreen openMenu isOnline =
     let
         menuItemStyle =
             [ class "menu-button"
@@ -25,13 +25,21 @@ view route width fullscreen openMenu =
         div
             [ class "menu-bar"
             ]
-            ([ div
-                ([ stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True )), style "margin-left" "4px" ] ++ menuItemStyle)
-                [ Icon.file 20
-                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Current File" ] ]
-                ]
-             ]
-                ++ (if route == Route.List then
+            ((if route == Route.List then
+                div
+                    (onClick MoveToBack :: menuItemStyle)
+                    [ Icon.file 20
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Current File" ] ]
+                    ]
+
+              else
+                div
+                    (stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True )) :: style "margin-left" "4px" :: menuItemStyle)
+                    [ Icon.file 20
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Current File" ] ]
+                    ]
+             )
+                :: (if route == Route.List then
                         [ div
                             (onClick FileSelect :: menuItemStyle)
                             [ Icon.folderOpen "#F5F5F6" 20
@@ -46,7 +54,7 @@ view route width fullscreen openMenu =
                             , span [ class "tooltip" ] [ span [ class "text" ] [ text "Files" ] ]
                             ]
                         , div
-                            (onClick SaveToLocal :: menuItemStyle)
+                            (onClick Save :: menuItemStyle)
                             [ Icon.save 26
                             , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
                             ]
@@ -67,10 +75,10 @@ view route width fullscreen openMenu =
                    , if Utils.isPhone width then
                         case openMenu of
                             Just Export ->
-                                menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") [ ( DownloadSvg, "SVG" ), ( DownloadPng, "PNG" ), ( SaveToFileSystem, "Text" ), ( GetAccessTokenForTrello, "Trello" ), ( ExportGithub, "Github" ) ]
+                                menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing (exportMenu isOnline)
 
                             Just NewFile ->
-                                menu Nothing (Just "10px") (Just "50px") [ ( NewUserStoryMap, "User Story Map" ), ( NewBusinessModelCanvas, "Business Model Canvas" ), ( NewOpportunityCanvas, "Opportunity Canvas" ) ]
+                                menu Nothing (Just "10px") (Just "50px") Nothing newMenu
 
                             _ ->
                                 div [] []
@@ -78,10 +86,10 @@ view route width fullscreen openMenu =
                      else
                         case openMenu of
                             Just Export ->
-                                menu (Just "125px") Nothing Nothing [ ( DownloadSvg, "SVG" ), ( DownloadPng, "PNG" ), ( SaveToFileSystem, "Text" ), ( GetAccessTokenForTrello, "Trello" ), ( ExportGithub, "Github" ) ]
+                                menu (Just "125px") (Just "56px") Nothing Nothing (exportMenu isOnline)
 
                             Just NewFile ->
-                                menu (Just "0") Nothing Nothing [ ( NewUserStoryMap, "User Story Map" ), ( NewBusinessModelCanvas, "Business Model Canvas" ), ( NewOpportunityCanvas, "Opportunity Canvas" ) ]
+                                menu (Just "0") (Just "56px") Nothing Nothing newMenu
 
                             _ ->
                                 div [] []
@@ -89,11 +97,39 @@ view route width fullscreen openMenu =
             )
 
 
-menu : Maybe String -> Maybe String -> Maybe String -> List ( Msg, String ) -> Html Msg
-menu top left bottom items =
+newMenu : List ( Msg, String )
+newMenu =
+    [ ( NewUserStoryMap, "User Story Map" )
+    , ( NewBusinessModelCanvas, "Business Model Canvas" )
+    , ( NewOpportunityCanvas, "Opportunity Canvas" )
+    , ( NewFourLs, "4Ls Retrospective" )
+    , ( NewStartStopContinue, "Start, Stop, Continue Retrospective" )
+    , ( NewKpt, "KPT Retrospective" )
+    ]
+
+
+exportMenu : Bool -> List ( Msg, String )
+exportMenu isOnline =
+    [ ( DownloadSvg, "SVG" )
+    , ( DownloadPng, "PNG" )
+    , ( SaveToFileSystem, "Text" )
+    ]
+        ++ (if isOnline then
+                [ ( GetAccessTokenForTrello, "Trello" )
+                , ( GetAccessTokenForGitHub, "Github" )
+                ]
+
+            else
+                []
+           )
+
+
+menu : Maybe String -> Maybe String -> Maybe String -> Maybe String -> List ( Msg, String ) -> Html Msg
+menu top left bottom right items =
     div
         [ style "top" (top |> Maybe.withDefault "none")
-        , style "left" (left |> Maybe.withDefault "56px")
+        , style "left" (left |> Maybe.withDefault "none")
+        , style "right" (right |> Maybe.withDefault "none")
         , style "bottom" (bottom |> Maybe.withDefault "none")
         , class "menu"
         ]

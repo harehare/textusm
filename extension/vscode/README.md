@@ -1,8 +1,15 @@
 # TextUSM
 
-![](https://img.shields.io/badge/Release-v0.0.9-blue.svg?style=flat-square) ![](https://img.shields.io/badge/vscode-^1.33.0-blue.svg?style=flat-square) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+![](https://img.shields.io/badge/Release-v0.0.10-blue.svg?style=flat-square) ![](https://img.shields.io/badge/vscode-^1.33.0-blue.svg?style=flat-square) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
-Live Preview a User Story Mapping from indented text.
+TextISM is a simple tool. Help you draw user story map using indented text.
+
+- User Story Map
+- Business Model Canvas
+- Opportunity Canvas
+- 4Ls Retrospective
+- Start, Stop, Continue Retrospective
+- KPT Retrospective
 
 ![image](./extension/vscode/img/textusm.gif)
 
@@ -84,6 +91,47 @@ Budget
 ```
 
 ![image](./img/opc.png)
+
+### 4Ls Retrospective
+
+```
+Liked
+  liked
+Learned
+  learned
+Lacked
+  lacked
+Longed For
+  longedFor
+```
+
+![image](./img/4ls.png)
+
+### Start, Stop, Continue Retrospective
+
+```
+Start
+  Start
+Stop
+  stop
+Continue
+  continue
+```
+
+![image](./img/ssc.png)
+
+### KPT Retrospective
+
+```
+Keep
+  keep
+Problem
+  problem
+Try
+  try
+```
+
+![image](./img/kpt.png)
 
 ## Options
 

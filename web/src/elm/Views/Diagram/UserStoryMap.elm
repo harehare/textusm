@@ -1,13 +1,14 @@
-module Views.Diagram.Usm exposing (view)
+module Views.Diagram.UserStoryMap exposing (view)
 
 import Basics exposing (max)
 import Constants exposing (..)
-import Html exposing (div)
+import Html exposing (div, img)
 import Html.Attributes as Attr
 import Json.Decode as D
 import List
 import List.Extra exposing (getAt, zip)
-import Models.Diagram exposing (Children(..), Comment, Item, ItemType(..), Model, Msg(..), Settings)
+import Models.Diagram exposing (Comment, Model, Msg(..), Settings)
+import Models.Item as Item exposing (Children, Item, ItemType(..))
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -228,15 +229,6 @@ commentContentView settings comment =
 
 activityView : Settings -> List Int -> Int -> Int -> Item -> Svg Msg
 activityView settings verticalCount posX posY item =
-    let
-        children =
-            case item.children of
-                Children [] ->
-                    []
-
-                Children c ->
-                    c
-    in
     Keyed.node "g"
         []
         ([ ( "activity-" ++ item.text
@@ -251,7 +243,7 @@ activityView settings verticalCount posX posY item =
                     text_ [] []
            )
          ]
-            ++ (children
+            ++ (Item.unwrapChildren item.children
                     |> List.filter (\i -> i.itemType /= Comments)
                     |> List.indexedMap
                         (\i it ->
@@ -279,13 +271,7 @@ activityView settings verticalCount posX posY item =
 taskView : Settings -> List Int -> Int -> Int -> Item -> Svg Msg
 taskView settings verticalCount posX posY item =
     let
-        children =
-            case item.children of
-                Children [] ->
-                    []
-
-                Children c ->
-                    c
+        children = Item.unwrapChildren item.children
     in
     Keyed.node "g"
         []
@@ -334,12 +320,7 @@ storyView settings verticalCount parentCount posX posY item =
             List.head verticalCount |> Maybe.withDefault 1
 
         children =
-            case item.children of
-                Children [] ->
-                    []
-
-                Children c ->
-                    c
+            Item.unwrapChildren item.children
 
         childrenLength =
             List.length children
@@ -407,12 +388,24 @@ textView settings posX posY c t =
         , fontFamily settings.font
         , class "svg-text"
         ]
-        [ div
-            [ Attr.style "padding" "8px"
-            , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-            , Attr.style "word-wrap" "break-word"
-            ]
-            [ Html.text t ]
+        [ if
+            (String.startsWith "/" t || String.startsWith "https://" t || String.startsWith "http://" t)
+                && (String.endsWith ".svg" t || String.endsWith ".png" t || String.endsWith ".jpg" t)
+          then
+            img
+                [ Attr.style "object-fit" "cover"
+                , Attr.style "width" (String.fromInt settings.size.width)
+                , Attr.src t
+                ]
+                []
+
+          else
+            div
+                [ Attr.style "padding" "8px"
+                , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+                , Attr.style "word-wrap" "break-word"
+                ]
+                [ Html.text t ]
         ]
 
 

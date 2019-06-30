@@ -43,28 +43,63 @@ export interface OpportunityCanvas {
   budget: CanvasItem;
 }
 
+export interface FourLs {
+  liked: CanvasItem;
+  learned: CanvasItem;
+  lacked: CanvasItem;
+  longedFor: CanvasItem;
+}
+
+export interface StartStopContinue {
+  start: CanvasItem;
+  stop: CanvasItem;
+  continue: CanvasItem;
+}
+
+export interface Kpt {
+  keep: CanvasItem;
+  problem: CanvasItem;
+  try: CanvasItem;
+}
+
 interface CanvasItem {
   title: string;
   text: string[];
 }
 
-export function toString(definition: UserStoryMap | BusinessModelCanvas | OpportunityCanvas): string {
+export function toString(
+  definition: UserStoryMap | BusinessModelCanvas | OpportunityCanvas | FourLs | StartStopContinue | Kpt
+): string {
   return 'activities' in definition
     ? userStoryMap2Text(definition)
     : 'keyPartners' in definition
     ? businessModelCanvas2Text(definition)
     : 'problems' in definition
     ? opportunityCanvas2Text(definition)
+    : 'liked' in definition
+    ? fourLsCanvas2Text(definition)
+    : 'start' in definition
+    ? startStopContinueCanvas2Text(definition)
+    : 'keep' in definition
+    ? kptCanvas2Text(definition)
     : '';
 }
 
-export function toTypeString(definition: UserStoryMap | BusinessModelCanvas | OpportunityCanvas): string {
+export function toTypeString(
+  definition: UserStoryMap | BusinessModelCanvas | OpportunityCanvas | FourLs | StartStopContinue | Kpt
+): string {
   return 'activities' in definition
     ? 'UserStoryMap'
     : 'keyPartners' in definition
     ? 'BusinessModelCanvas'
     : 'problems' in definition
     ? 'OpportunityCanvas'
+    : 'liked' in definition
+    ? '4Ls'
+    : 'start' in definition
+    ? 'StartStopContinue'
+    : 'keep' in definition
+    ? 'Kpt'
     : 'UserStoryMap';
 }
 
@@ -123,6 +158,36 @@ function opportunityCanvas2Text(opportunityCanvas: OpportunityCanvas): string {
   return items
     .map(item => {
       return canvas2Text(opportunityCanvas[item]);
+    })
+    .join('\n');
+}
+
+function fourLsCanvas2Text(fourls: FourLs): string {
+  const items = ['liked', 'learned', 'lacked', 'longedFor'];
+
+  return items
+    .map(item => {
+      return canvas2Text(fourls[item]);
+    })
+    .join('\n');
+}
+
+function startStopContinueCanvas2Text(startStopContinue: StartStopContinue): string {
+  const items = ['start', 'stop', 'continue'];
+
+  return items
+    .map(item => {
+      return canvas2Text(startStopContinue[item]);
+    })
+    .join('\n');
+}
+
+function kptCanvas2Text(kpt: Kpt): string {
+  const items = ['keep', 'problem', 'try'];
+
+  return items
+    .map(item => {
+      return canvas2Text(kpt[item]);
     })
     .join('\n');
 }

@@ -1,5 +1,14 @@
 import { Elm } from './js/elm';
-import { UserStoryMap, BusinessModelCanvas, OpportunityCanvas, toString, toTypeString } from './model';
+import {
+  UserStoryMap,
+  BusinessModelCanvas,
+  OpportunityCanvas,
+  FourLs,
+  StartStopContinue,
+  Kpt,
+  toString,
+  toTypeString
+} from './model';
 
 interface Config {
   font?: string;
@@ -58,9 +67,9 @@ const defaultConfig: Config = {
 
 function render(
   idOrElm: string | HTMLElement,
-  definition: string | UserStoryMap | BusinessModelCanvas | OpportunityCanvas,
+  definition: string | UserStoryMap | BusinessModelCanvas | OpportunityCanvas | FourLs | StartStopContinue | Kpt,
   options?: {
-    diagramType?: 'UserStoryMap' | 'BusinessModelCanvas' | 'OpportunityCanvas';
+    diagramType?: 'UserStoryMap' | 'BusinessModelCanvas' | 'OpportunityCanvas' | '4Ls' | 'StartStopContinue' | 'Kpt';
     size?: Size;
     showZoomControl?: boolean;
     scale?:

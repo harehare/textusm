@@ -10,7 +10,15 @@ TextISM is a simple tool. Help you draw user story map using indented text.
   - User Story Map
   - Business Model Canvas
   - Opportunity Canvas
-- Add list and card to Trello or Github
+  - 4Ls Retrospective
+  - Start, Stop, Continue Retrospective
+  - KPT Retrospective
+- Export a Diagram
+  - SVG
+  - PNG
+  - TXT
+  - Trello
+  - Github
 
 ## Example
 
@@ -80,6 +88,47 @@ Budget
 ```
 
 ![image](./img/opc.png)
+
+### 4Ls Retrospective
+
+```
+Liked
+    Liked
+Learned
+    Learned
+Lacked
+    Lacked
+Longed for
+    Longed for
+```
+
+![image](./img/4ls.png)
+
+### Start, Stop, Continue Retrospective
+
+```
+Start
+    Start
+Stop
+    Stop
+Continue
+    Continue
+```
+
+![image](./img/ssc.png)
+
+### KPT Retrospective
+
+```
+Keep
+    Keep
+Problem
+    Problem
+Try
+    Try
+```
+
+![image](./img/kpt.png)
 
 ## Installation
 

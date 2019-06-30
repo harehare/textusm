@@ -93,17 +93,8 @@ export const loadEditor = (app, text) => {
             monacoEditor.layout();
         };
 
-        app.ports.loadText.subscribe(([text, indent]) => {
-            if (indent) {
-                const { column, lineNumber } = monacoEditor.getPosition();
-                monacoEditor.setPosition({
-                    column: column + 4,
-                    lineNumber
-                });
-            }
-
+        app.ports.loadText.subscribe(text => {
             monacoEditor.setValue(text);
-            monacoEditor.focus();
         });
 
         app.ports.layoutEditor.subscribe(delay => {
@@ -154,25 +145,10 @@ export const loadEditor = (app, text) => {
         });
 
         app.ports.selectLine.subscribe(line => {
-            const res = monacoEditor.getModel().findNextMatch(
-                line,
-                {
-                    lineNumber: 1,
-                    column: 1
-                },
-                false,
-                false,
-                null,
-                false
-            );
-
-            if (res) {
-                monacoEditor.focus();
-                monacoEditor.setPosition({
-                    column: res.range.startColumn,
-                    lineNumber: res.range.startLineNumber
-                });
-            }
+            monacoEditor.setPosition({
+                column: 0,
+                lineNumber: line
+            });
         });
 
         let update = null;

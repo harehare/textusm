@@ -8,6 +8,7 @@ import Html.Attributes exposing (class, style)
 import Html.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
+import Models.DiagramType as DiagramType
 import Task
 
 
@@ -60,13 +61,22 @@ init flags =
             , showZoomControl = flags.showZoomControl
             , diagramType =
                 if flags.diagramType == "BusinessModelCanvas" then
-                    DiagramModel.BusinessModelCanvas
+                    DiagramType.BusinessModelCanvas
 
                 else if flags.diagramType == "OpportunityCanvas" then
-                    DiagramModel.OpportunityCanvas
+                    DiagramType.OpportunityCanvas
+
+                else if flags.diagramType == "4Ls" then
+                    DiagramType.FourLs
+
+                else if flags.diagramType == "StartStopContinue" then
+                    DiagramType.StartStopContinue
+
+                else if flags.diagramType == "Kpt" then
+                    DiagramType.Kpt
 
                 else
-                    DiagramModel.UserStoryMap
+                    DiagramType.UserStoryMap
             , settings = flags.settings
             , error = Nothing
             , comment = Nothing

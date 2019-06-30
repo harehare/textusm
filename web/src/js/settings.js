@@ -37,7 +37,7 @@ const defaultSettings = {
         },
         backgroundColor: "#F5F5F6"
     },
-    position: 0,
+    position: -10,
     text: "",
     title: null,
     diagramId: null,

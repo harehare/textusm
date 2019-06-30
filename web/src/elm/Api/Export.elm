@@ -1,5 +1,6 @@
-module Api exposing (Config, Request, Response, Service(..), StoryItem, TaskItem, createRequest, errorToString, export, getAccessToken)
+module Api.Export exposing (Request, Response, Service(..), StoryItem, TaskItem, createRequest, export, getAccessToken)
 
+import Api.Api as Api
 import Browser.Navigation as Nav
 import Http exposing (Error(..))
 import Json.Decode as D
@@ -7,14 +8,10 @@ import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import List
 import Maybe.Extra exposing (isJust)
-import Models.Diagram as DiagramModel exposing (Children(..), Item, ItemType(..))
+import Models.Item as Item exposing (Children, Item, ItemType(..))
 import Regex
 import Task exposing (Task)
-
-
-type alias Config =
-    { apiRoot : String
-    }
+import Url.Builder exposing (crossOrigin)
 
 
 type alias Request =
@@ -159,7 +156,7 @@ createRelease pairs releaseCount =
                 |> List.map (\x -> x |> Maybe.withDefault ( "0", { name = "", period = Nothing } ))
 
         v =
-            items |> List.map (\( x, y ) -> x)
+            items |> List.map (\( x, _ ) -> x)
     in
     (List.range 1 releaseCount
         |> List.map (\x -> "RELEASE" ++ String.fromInt x)
@@ -173,7 +170,7 @@ createRelease pairs releaseCount =
     )
         ++ (items
                 |> List.map
-                    (\( count, releaseItem ) ->
+                    (\( _, releaseItem ) ->
                         releaseItem
                     )
            )
@@ -191,12 +188,7 @@ createRequest token code github release releaseItems name items =
                 ++ (x
                         |> List.map
                             (\item ->
-                                case item.children of
-                                    Children [] ->
-                                        []
-
-                                    Children c ->
-                                        flatten c
+                                Item.unwrapChildren item.children
                             )
                         |> List.concat
                    )
@@ -205,13 +197,7 @@ createRequest token code github release releaseItems name items =
             List.foldr
                 (\x y ->
                     y
-                        ++ (case x.children of
-                                Children [] ->
-                                    []
-
-                                Children c ->
-                                    c
-                           )
+                        ++ Item.unwrapChildren x.children
                 )
                 []
                 items
@@ -219,8 +205,8 @@ createRequest token code github release releaseItems name items =
                 |> List.map
                     (\item ->
                         let
-                            (Children i) =
-                                item.children
+                            i =
+                                Item.unwrapChildren item.children
                         in
                         { name = item.text
                         , comment = item.comment
@@ -251,77 +237,21 @@ createRequest token code github release releaseItems name items =
     }
 
 
-getAccessToken : Config -> Service -> Cmd msg
-getAccessToken config service =
+getAccessToken : String -> Service -> Cmd msg
+getAccessToken apiRoot service =
     case service of
         Trello ->
-            Nav.load (config.apiRoot ++ "/auth/trello")
+            crossOrigin apiRoot [ "auth", "trello" ] [] |> Nav.load
 
         _ ->
             Cmd.none
 
 
-export : Config -> Service -> Request -> Task Http.Error Response
-export config service req =
+export : String -> Service -> Request -> Task Http.Error Response
+export apiRoot service req =
     case service of
         Trello ->
-            post (config.apiRoot ++ "/create/trello") req
+            Api.post Nothing apiRoot [ "export", "trello" ] (Http.jsonBody (requestEncoder req)) (Api.jsonResolver responseDecoder)
 
         Github ->
-            post (config.apiRoot ++ "/create/github") req
-
-
-post : String -> Request -> Task Http.Error Response
-post path req =
-    Http.task
-        { method = "POST"
-        , headers =
-            [ Http.header "Content-Type" "application/json"
-            ]
-        , url = path
-        , body = Http.jsonBody (requestEncoder req)
-        , resolver = jsonResolver responseDecoder
-        , timeout = Nothing
-        }
-
-
-jsonResolver : D.Decoder a -> Http.Resolver Http.Error a
-jsonResolver decoder =
-    Http.stringResolver <|
-        \response ->
-            case response of
-                Http.BadUrl_ url ->
-                    Err (Http.BadUrl url)
-
-                Http.Timeout_ ->
-                    Err Http.Timeout
-
-                Http.NetworkError_ ->
-                    Err Http.NetworkError
-
-                Http.BadStatus_ metadata body ->
-                    Err (Http.BadStatus metadata.statusCode)
-
-                Http.GoodStatus_ metadata body ->
-                    case D.decodeString decoder body of
-                        Ok value ->
-                            Ok value
-
-                        Err err ->
-                            Err (Http.BadBody (D.errorToString err))
-
-
-errorToString : Http.Error -> String
-errorToString err =
-    case err of
-        BadUrl url ->
-            "Invalid url " ++ url
-
-        Timeout ->
-            "Timeout error. Please try again later."
-
-        NetworkError ->
-            "Network error. Please try again later."
-
-        _ ->
-            "Internal server error. Please try again later."
+            Api.post Nothing apiRoot [ "export", "github" ] (Http.jsonBody (requestEncoder req)) (Api.jsonResolver responseDecoder)

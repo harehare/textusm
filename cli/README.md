@@ -116,6 +116,47 @@ Budget
 
 ![image](./img/opc.png)
 
+### 4Ls Retrospective
+
+```
+Liked
+  liked
+Learned
+  learned
+Lacked
+  lacked
+Longed For
+  longedFor
+```
+
+![image](./img/4ls.png)
+
+### Start, Stop, Continue Retrospective
+
+```
+Start
+  Start
+Stop
+  stop
+Continue
+  continue
+```
+
+![image](./img/ssc.png)
+
+### KPT Retrospective
+
+```
+Keep
+  keep
+Problem
+  problem
+Try
+  try
+```
+
+![image](./img/kpt.png)
+
 ## Example JSON configuration file
 
 ```json

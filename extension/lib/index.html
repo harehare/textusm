@@ -8,17 +8,20 @@
   <div id="textusm4"></div>
   <div id="textusm5"></div>
   <div id="textusm6"></div>
+  <div id="textusm7"></div>
+  <div id="textusm8"></div>
+  <div id="textusm9"></div>
   <script>
     this.textusm.render(
       'textusm',
       `# labels: USER ACTIVITIES, USER TASKS, USER STORIES, RELEASE1, RELEASE2, RELEASE3
-# release1: 2019-06-01
-# release2: 2019-06-30
-# release2: 2019-07-31
-TextUSM
-  Online tool for making user story mapping
-    Pre0s Tab to indent lines
-    Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.`,
+    # release1: 2019-06-01
+    # release2: 2019-06-30
+    # release2: 2019-07-31
+    TextUSM
+      Online tool for making user story mapping
+        Pre0s Tab to indent lines
+        Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.`,
       { scale: 1.9 }
     );
     this.textusm.render(document.getElementById('textusm2'), {
@@ -128,17 +131,47 @@ TextUSM
     this.textusm.render(
       document.getElementById('textusm5'),
       `
-        test
-            estst`,
+            test
+                estst`,
       { diagramType: 'BusinessModelCanvas' }
     );
 
     this.textusm.render(
       document.getElementById('textusm6'),
       `
-        test
-            estst`,
+            test
+                estst`,
       { diagramType: 'OpportunityCanvas', size: { width: 2048, height: 1024 } }
+    );
+
+    this.textusm.render(
+      document.getElementById('textusm7'),
+      {
+        keep: { title: 'test', text: ['test'] },
+        problem: { title: 'test', text: ['test'] },
+        try: { title: 'test', text: ['test'] }
+      },
+      { diagramType: 'Kpt', size: { width: 2048, height: 1024 } }
+    );
+
+    this.textusm.render(
+      document.getElementById('textusm8'),
+      {
+        start: { title: 'test', text: ['test'] },
+        stop: { title: 'test', text: ['test'] },
+        continue: { title: 'test', text: ['test'] }
+      },
+      { diagramType: 'StartStopContinue', size: { width: 2048, height: 1024 } }
+    );
+    this.textusm.render(
+      document.getElementById('textusm9'),
+      {
+        liked: { title: 'test', text: ['test'] },
+        learned: { title: 'test', text: ['test'] },
+        lacked: { title: 'test', text: ['test'] },
+        longedFor: { title: 'test', text: ['test'] }
+      },
+      { diagramType: '4Ls', size: { width: 2048, height: 1024 } }
     );
   </script>
 </html>

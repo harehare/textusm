@@ -3,8 +3,6 @@ module Views.Editor exposing (view)
 import Html exposing (Html, div)
 import Html.Attributes exposing (id, style)
 import Html.Lazy exposing (lazy)
-import Maybe.Extra exposing (isJust)
-import Models.Diagram as Diagram
 import Models.Model exposing (Msg, Settings)
 import Route exposing (Route(..))
 import Styles

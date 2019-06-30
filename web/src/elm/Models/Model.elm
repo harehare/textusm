@@ -1,6 +1,7 @@
-module Models.Model exposing (Diagram, Download, GithubSettings, Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window)
+module Models.Model exposing (Download, GithubSettings, Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window)
 
-import Api
+import Api.Export
+import Api.UrlShorter
 import Browser
 import Browser.Dom exposing (Viewport)
 import Browser.Events exposing (Visibility)
@@ -8,6 +9,8 @@ import Browser.Navigation as Nav
 import File exposing (File)
 import Http
 import Models.Diagram as Diagram
+import Models.DiagramItem exposing (DiagramItem)
+import Models.User exposing (User)
 import Time exposing (Zone)
 import Url
 
@@ -25,14 +28,18 @@ type Msg
     | FileSelect
     | FileSelected File
     | FileLoaded String
-    | SaveToLocal
+    | Save
+    | Saved (Result Http.Error ())
+    | Removed (Result ( DiagramItem, Http.Error ) DiagramItem)
     | SaveToFileSystem
-    | SelectLine String
+    | SaveToRemote DiagramItem
     | StartEditTitle
     | EndEditTitle Int Bool
     | EditTitle String
     | OnShareUrl ShareInfo
     | OnCurrentShareUrl
+    | Login
+    | Logout
     | OnVisibilityChange Visibility
     | OnStartWindowResize Int
     | OnWindowResize Int
@@ -45,24 +52,37 @@ type Msg
     | OnNotification Notification
     | OnAutoCloseNotification Notification
     | OnCloseNotification
+    | OnAuthStateChanged (Maybe User)
     | TabSelect Int
-    | Indent
     | GetAccessTokenForTrello
-    | ExportGithub
-    | Exported (Result Http.Error Api.Response)
+    | GetAccessTokenForGitHub
+    | ExportGitHub String
+    | Exported (Result Http.Error Api.Export.Response)
+    | GetShortUrl (Result Http.Error Api.UrlShorter.Response)
     | DoOpenUrl String
+      -- Diagram type
     | NewUserStoryMap
     | NewBusinessModelCanvas
     | NewOpportunityCanvas
+    | NewFourLs
+    | NewStartStopContinue
+    | NewKpt
     | GetDiagrams
-    | ShowDiagrams (List Diagram)
-    | OpenDiagram Diagram
-    | RemoveDiagram Diagram
-    | RemovedDiagram Bool
-    | GetTimeZone Zone
+    | LoadLocalDiagrams (List DiagramItem)
+    | LoadDiagrams (Result ( List DiagramItem, Http.Error ) (List DiagramItem))
+    | Open DiagramItem
+    | Opened (Result ( DiagramItem, Http.Error ) DiagramItem)
+    | RemoveDiagram DiagramItem
+    | RemoveRemoteDiagram DiagramItem
+    | RemovedDiagram ( DiagramItem, Bool )
+    | GotTimeZone Zone
     | UpdateSettings (String -> Settings) String
     | Shortcuts String
     | ShowHelp
+    | OnChangeNetworkStatus Bool
+    | HistoryBack
+    | MoveTo String
+    | MoveToBack
 
 
 type alias OpenUrl =
@@ -79,6 +99,7 @@ type Menu
     = NewFile
     | Export
     | UserSettings
+    | HeaderMenu
 
 
 type alias Model =
@@ -96,11 +117,11 @@ type alias Model =
     , isEditTitle : Bool
     , tabIndex : Int
     , progress : Bool
-    , apiConfig : Api.Config
-    , isExporting : Bool
-    , diagrams : Maybe (List Diagram)
+    , apiRoot : String
+    , diagrams : Maybe (List DiagramItem)
     , timezone : Maybe Zone
-    , selectedItem : Maybe Diagram.Item
+    , loginUser : Maybe User
+    , isOnline : Bool
     }
 
 
@@ -109,16 +130,6 @@ type alias Window =
     , moveStart : Bool
     , moveX : Int
     , fullscreen : Bool
-    }
-
-
-type alias Diagram =
-    { diagramPath : String
-    , id : Maybe String
-    , text : String
-    , thumbnail : Maybe String
-    , title : String
-    , updatedAt : Maybe Int
     }
 
 
@@ -155,5 +166,4 @@ type alias Settings =
 type alias GithubSettings =
     { owner : String
     , repo : String
-    , token : String
     }

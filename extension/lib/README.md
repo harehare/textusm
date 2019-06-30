@@ -2,7 +2,14 @@
 
 ![](https://img.shields.io/badge/Release-v0.0.1-blue.svg?style=flat-square) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
-Generate a User Story Mapping, Business Model Canvas or Opportunity Canvas from indented text.
+Generate a Diagram from indented text.
+
+- User Story Map
+- Business Model Canvas
+- Opportunity Canvas
+- 4Ls Retrospective
+- Start, Stop, Continue Retrospective
+- KPT Retrospective
 
 ## Installation
 
@@ -197,6 +204,76 @@ textusm.render(
 ```
 
 ![image](./img/opc.png)
+
+### 4Ls Retrospective
+
+```javascript
+const textusm = require('textusm');
+const elm = document.getElementById('id');
+
+textusm.render(
+  elm || 'id',
+  {
+    liked: { title: 'liked', text: ['liked'] },
+    learned: { title: 'learned', text: ['learned'] },
+    lacked: { title: 'lacked', text: ['lacked'] },
+    longedFor: { title: 'longedFor', text: ['longedFor'] }
+  },
+  {
+    size: { width: 1024, height: 1024 },
+    showZoomControl: true
+  },
+  {}
+);
+```
+
+![image](./img/4ls.png)
+
+### Start, Stop, Continue Retrospective
+
+```javascript
+const textusm = require('textusm');
+const elm = document.getElementById('id');
+
+textusm.render(
+  elm || 'id',
+  {
+    start: { title: 'start', text: ['start'] },
+    stop: { title: 'stop', text: ['stop'] },
+    continue: { title: 'continue', text: ['continue'] }
+  },
+  {
+    size: { width: 1024, height: 1024 },
+    showZoomControl: true
+  },
+  {}
+);
+```
+
+![image](./img/ssc.png)
+
+### KPT Retrospective
+
+```javascript
+const textusm = require('textusm');
+const elm = document.getElementById('id');
+
+textusm.render(
+  elm || 'id',
+  {
+    keep: { title: 'keep', text: ['keep'] },
+    problem: { title: 'problem', text: ['problem'] },
+    try: { title: 'try', text: ['try'] }
+  },
+  {
+    size: { width: 1024, height: 1024 },
+    showZoomControl: true
+  },
+  {}
+);
+```
+
+![image](./img/kpt.png)
 
 ### Configuration
 

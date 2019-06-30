@@ -19,10 +19,9 @@ settingsDecoder =
 
 githubDecoder : D.Decoder Model.GithubSettings
 githubDecoder =
-    D.map3 Model.GithubSettings
+    D.map2 Model.GithubSettings
         (D.field "owner" D.string)
         (D.field "repo" D.string)
-        (D.field "token" D.string)
 
 
 diagramDecoder : D.Decoder Diagram.Settings

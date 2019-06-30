@@ -4,6 +4,7 @@ import Components.Diagram exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Models.Diagram exposing (..)
+import Models.Item as Item exposing (..)
 import Test exposing (..)
 
 
@@ -54,7 +55,8 @@ updateTest =
                         [ { text = "test1"
                           , comment = Nothing
                           , itemType = Activities
-                          , children = Children []
+                          , lineNo = 0
+                          , children = Item.fromItems []
                           }
                         ]
         , test "load activity items" <|
@@ -65,12 +67,14 @@ updateTest =
                         [ { text = "test1"
                           , comment = Nothing
                           , itemType = Activities
-                          , children = Children []
+                          , lineNo = 0
+                          , children = Item.fromItems []
                           }
                         , { text = "test2"
                           , comment = Nothing
                           , itemType = Activities
-                          , children = Children []
+                          , lineNo = 1
+                          , children = Item.fromItems []
                           }
                         ]
         , test "load task item" <|
@@ -81,12 +85,14 @@ updateTest =
                         [ { text = "test1"
                           , comment = Nothing
                           , itemType = Activities
+                          , lineNo = 0
                           , children =
-                                Children
+                                Item.fromItems
                                     [ { text = "test2"
                                       , comment = Nothing
                                       , itemType = Tasks
-                                      , children = Children []
+                                      , children = Item.fromItems []
+                                      , lineNo = 1
                                       }
                                     ]
                           }
@@ -99,17 +105,20 @@ updateTest =
                         [ { text = "test1"
                           , comment = Nothing
                           , itemType = Activities
+                          , lineNo = 0
                           , children =
-                                Children
+                                Item.fromItems
                                     [ { text = "test2"
                                       , comment = Nothing
                                       , itemType = Tasks
-                                      , children = Children []
+                                      , lineNo = 1
+                                      , children = Item.fromItems []
                                       }
                                     , { text = "test3"
                                       , comment = Nothing
                                       , itemType = Tasks
-                                      , children = Children []
+                                      , lineNo = 2
+                                      , children = Item.fromItems []
                                       }
                                     ]
                           }
@@ -122,17 +131,20 @@ updateTest =
                         [ { text = "test1"
                           , comment = Nothing
                           , itemType = Activities
+                          , lineNo = 0
                           , children =
-                                Children
+                                Item.fromItems
                                     [ { text = "test2"
                                       , comment = Nothing
                                       , itemType = Tasks
+                                      , lineNo = 1
                                       , children =
-                                            Children
+                                            Item.fromItems
                                                 [ { text = "test3"
                                                   , comment = Nothing
                                                   , itemType = Stories 1
-                                                  , children = Children []
+                                                  , children = Item.fromItems []
+                                                  , lineNo = 2
                                                   }
                                                 ]
                                       }
@@ -147,22 +159,26 @@ updateTest =
                         [ { text = "test1"
                           , comment = Nothing
                           , itemType = Activities
+                          , lineNo = 0
                           , children =
-                                Children
+                                Item.fromItems
                                     [ { text = "test2"
                                       , comment = Nothing
                                       , itemType = Tasks
+                                      , lineNo = 1
                                       , children =
-                                            Children
+                                            Item.fromItems
                                                 [ { text = "test3"
                                                   , comment = Nothing
                                                   , itemType = Stories 1
-                                                  , children = Children []
+                                                  , lineNo = 2
+                                                  , children = Item.fromItems []
                                                   }
                                                 , { text = "test4"
                                                   , comment = Nothing
                                                   , itemType = Stories 1
-                                                  , children = Children []
+                                                  , lineNo = 3
+                                                  , children = Item.fromItems []
                                                   }
                                                 ]
                                       }

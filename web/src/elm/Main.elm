@@ -1,31 +1,35 @@
 module Main exposing (init, main, view)
 
-import Api
+import Api.Diagram as DiagramApi
+import Api.Export
+import Api.UrlShorter as UrlShorterApi
 import Basics exposing (max)
 import Browser
 import Browser.Dom as Dom
 import Browser.Events exposing (Visibility(..))
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
-import Constants
 import File exposing (name)
 import File.Download as Download
 import File.Select as Select
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
-import Html.Events exposing (onClick, preventDefaultOn)
-import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy5)
+import Html.Events exposing (onClick)
+import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy7, lazy8)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Models.Diagram as DiagramModel
-import Models.Model exposing (Model, Msg(..), Notification(..), Settings, ShareUrl(..))
+import Models.DiagramItem exposing (DiagramItem)
+import Models.DiagramType as DiagramType
+import Models.Model exposing (Model, Msg(..), Notification(..), Settings, ShareUrl(..), Window)
+import Models.User as User
 import Parser
 import Route exposing (Route(..), toRoute)
 import Settings exposing (settingsDecoder)
 import String
-import Subscriptions exposing (decodeShareText, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getDiagrams, layoutEditor, loadEditor, loadText, removeDiagrams, saveDiagram, saveSettings, selectLine, subscriptions)
+import Subscriptions exposing (..)
 import Task
-import Time exposing (getZoneName)
+import Time exposing (Zone)
 import Url as Url exposing (percentDecode)
 import Utils
 import Views.DiagramList as DiagramList
@@ -67,18 +71,16 @@ init flags url key =
                 , key = key
                 , tabIndex = 1
                 , progress = True
-                , apiConfig =
-                    { apiRoot = apiRoot
-                    }
-                , isExporting = False
+                , apiRoot = apiRoot
                 , diagrams = Nothing
                 , timezone = Nothing
-                , selectedItem = Nothing
+                , loginUser = Nothing
+                , isOnline = True
                 }
     in
     ( model
     , Cmd.batch
-        [ Task.perform GetTimeZone Time.here
+        [ Task.perform GotTimeZone Time.here
         , cmds
         ]
     )
@@ -92,83 +94,46 @@ view model =
         , style "height" "100vh"
         , onClick CloseMenu
         ]
-        [ lazy4 Header.view (toRoute model.url) model.title model.isEditTitle model.window.fullscreen
-        , case model.notification of
-            Just notification ->
-                Notification.view notification
-
-            Nothing ->
-                div [] []
-        , if model.progress then
-            ProgressBar.view
-
-          else
-            div [] []
-        , if model.isExporting then
-            ProgressBar.view
-
-          else
-            div [] []
-        , let
-            window =
-                if Utils.isPhone model.diagramModel.width then
-                    lazy4 Tab.view
-                        model.diagramModel.settings.backgroundColor
-                        model.tabIndex
-
-                else
-                    lazy4 SplitWindow.view
-                        model.diagramModel.settings.backgroundColor
-                        model.window
-
-            indentButton =
-                if Utils.isPhone model.diagramModel.width then
-                    div
-                        [ style "width"
-                            "44px"
-                        , style
-                            "height"
-                            "44px"
-                        , style "position" "fixed"
-                        , style "right" "0"
-                        , style "bottom" "60px"
-                        , style "background-color" "#282C32"
-                        , style "color" "#FFFFFF"
-                        , style "border-top-left-radius" "4px"
-                        , style "border-bottom-left-radius" "4px"
-                        , style "display" "flex"
-                        , style "align-items" "center"
-                        , style "justify-content" "center"
-                        , onClick Indent
-                        ]
-                        [ Icon.indent 20
-                        ]
-
-                else
-                    div [] []
-          in
-          div
+        [ lazy7 Header.view model.diagramModel.width model.loginUser (toRoute model.url) model.title model.isEditTitle model.window.fullscreen model.openMenu
+        , lazy networkStatus model.isOnline
+        , lazy showNotification model.notification
+        , lazy showProgressbar model.progress
+        , div
             [ class "main" ]
-            [ lazy4 Menu.view (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu
-            , if model.diagramModel.width == 0 then
-                div [] []
-
-              else if isJust model.diagrams then
-                lazy2 DiagramList.view (model.timezone |> Maybe.withDefault Time.utc) (model.diagrams |> Maybe.withDefault [])
-
-              else
-                window
-                    (lazy2 Editor.view model.settings (toRoute model.url))
-                    (if String.isEmpty model.text then
-                        Logo.view
-
-                     else
-                        lazy Diagram.view model.diagramModel
-                            |> Html.map UpdateDiagram
-                    )
-            , indentButton
+            [ lazy5 Menu.view (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu model.isOnline
+            , lazy8 mainView model.settings model.diagramModel model.diagrams model.timezone model.window model.tabIndex model.text model.url
             ]
         ]
+
+
+mainView : Settings -> DiagramModel.Model -> Maybe (List DiagramItem) -> Maybe Zone -> Window -> Int -> String -> Url.Url -> Html Msg
+mainView settings diagramModel diagrams zone window tabIndex text url =
+    let
+        mainWindow =
+            if diagramModel.width > 0 && Utils.isPhone diagramModel.width then
+                lazy4 Tab.view
+                    diagramModel.settings.backgroundColor
+                    tabIndex
+
+            else
+                lazy4 SplitWindow.view
+                    diagramModel.settings.backgroundColor
+                    window
+    in
+    case toRoute url of
+        Route.List ->
+            lazy2 DiagramList.view (zone |> Maybe.withDefault Time.utc) diagrams
+
+        _ ->
+            mainWindow
+                (lazy2 Editor.view settings (toRoute url))
+                (if String.isEmpty text then
+                    Logo.view
+
+                 else
+                    lazy Diagram.view diagramModel
+                        |> Html.map UpdateDiagram
+                )
 
 
 main : Program ( String, Settings ) Model Msg
@@ -178,19 +143,47 @@ main =
         , update = update
         , view =
             \m ->
-                { title =
-                    case m.title of
-                        Just t ->
-                            t ++ " | TextUSM"
-
-                        Nothing ->
-                            "untitled | TextUSM"
+                { title = Maybe.withDefault "untitled" m.title ++ " | TextUSM"
                 , body = [ view m ]
                 }
         , subscriptions = subscriptions
         , onUrlChange = UrlChanged
         , onUrlRequest = LinkClicked
         }
+
+
+showProgressbar : Bool -> Html Msg
+showProgressbar show =
+    if show then
+        ProgressBar.view
+
+    else
+        div [] []
+
+
+showNotification : Maybe Notification -> Html Msg
+showNotification notify =
+    case notify of
+        Just notification ->
+            Notification.view notification
+
+        Nothing ->
+            div [] []
+
+
+networkStatus : Bool -> Html Msg
+networkStatus isOnline =
+    if isOnline then
+        div [] []
+
+    else
+        div
+            [ style "position" "fixed"
+            , style "top" "40px"
+            , style "right" "10px"
+            , style "z-index" "10"
+            ]
+            [ Icon.cloudOff 24 ]
 
 
 
@@ -223,7 +216,7 @@ changeRouteTo route model =
                     Diagram.update (DiagramModel.OnChangeText model.text) model.diagramModel
 
                 req =
-                    Api.createRequest token
+                    Api.Export.createRequest token
                         (Just code)
                         Nothing
                         usm.hierarchy
@@ -235,22 +228,17 @@ changeRouteTo route model =
                             model.title |> Maybe.withDefault "UnTitled"
                         )
                         usm.items
-
-                apiConfig =
-                    { apiRoot = model.apiConfig.apiRoot
-                    }
             in
             ( { updatedModel
-                | apiConfig = apiConfig
-                , isExporting = True
+                | progress = True
               }
             , getCmds
                 [ Task.perform identity (Task.succeed (OnNotification (Info "Start export to Trello." Nothing)))
-                , Task.attempt Exported (Api.export apiConfig Api.Trello req)
+                , Task.attempt Exported (Api.Export.export model.apiRoot Api.Export.Trello req)
                 ]
             )
 
-        Route.Share diagram title path ->
+        Route.Embed diagram title path ->
             let
                 diagramModel =
                     model.diagramModel
@@ -258,18 +246,7 @@ changeRouteTo route model =
                 newDiagramModel =
                     { diagramModel
                         | diagramType =
-                            case diagram of
-                                "usm" ->
-                                    DiagramModel.UserStoryMap
-
-                                "bmc" ->
-                                    DiagramModel.BusinessModelCanvas
-
-                                "opc" ->
-                                    DiagramModel.OpportunityCanvas
-
-                                _ ->
-                                    DiagramModel.UserStoryMap
+                            DiagramType.fromString diagram
                     }
             in
             ( { updatedModel
@@ -287,9 +264,30 @@ changeRouteTo route model =
                     else
                         Just title
               }
-            , Cmd.batch
-                [ decodeShareText path
-                ]
+            , getCmds [ decodeShareText path ]
+            )
+
+        Route.Share diagram title path ->
+            let
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel
+                        | diagramType =
+                            DiagramType.fromString diagram
+                    }
+            in
+            ( { updatedModel
+                | diagramModel = newDiagramModel
+                , title =
+                    if title == "untitled" then
+                        Nothing
+
+                    else
+                        percentDecode title
+              }
+            , getCmds [ decodeShareText path ]
             )
 
         Route.UsmView settingsJson ->
@@ -310,18 +308,7 @@ changeRouteTo route model =
                 newDiagramModel =
                     { diagramModel
                         | diagramType =
-                            case diagram of
-                                "usm" ->
-                                    DiagramModel.UserStoryMap
-
-                                "bmc" ->
-                                    DiagramModel.BusinessModelCanvas
-
-                                "opc" ->
-                                    DiagramModel.OpportunityCanvas
-
-                                _ ->
-                                    DiagramModel.UserStoryMap
+                            DiagramType.fromString diagram
                     }
 
                 updatedDiagramModel =
@@ -346,11 +333,11 @@ changeRouteTo route model =
                         , text = String.replace "\\n" "\n" (settings.text |> Maybe.withDefault "")
                         , title = settings.title
                       }
-                    , Cmd.none
+                    , getCmds []
                     )
 
                 Nothing ->
-                    ( updatedModel, Cmd.none )
+                    ( updatedModel, getCmds [] )
 
         Route.BusinessModelCanvas ->
             let
@@ -358,9 +345,9 @@ changeRouteTo route model =
                     model.diagramModel
 
                 newDiagramModel =
-                    { diagramModel | diagramType = DiagramModel.BusinessModelCanvas }
+                    { diagramModel | diagramType = DiagramType.BusinessModelCanvas }
             in
-            ( { updatedModel | diagramModel = newDiagramModel }
+            ( { updatedModel | diagramModel = newDiagramModel, id = Nothing }
             , getCmds []
             )
 
@@ -370,9 +357,45 @@ changeRouteTo route model =
                     model.diagramModel
 
                 newDiagramModel =
-                    { diagramModel | diagramType = DiagramModel.OpportunityCanvas }
+                    { diagramModel | diagramType = DiagramType.OpportunityCanvas }
             in
-            ( { updatedModel | diagramModel = newDiagramModel }
+            ( { updatedModel | diagramModel = newDiagramModel, id = Nothing }
+            , getCmds []
+            )
+
+        Route.FourLs ->
+            let
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel | diagramType = DiagramType.FourLs }
+            in
+            ( { updatedModel | diagramModel = newDiagramModel, id = Nothing }
+            , getCmds []
+            )
+
+        Route.StartStopContinue ->
+            let
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel | diagramType = DiagramType.StartStopContinue }
+            in
+            ( { updatedModel | diagramModel = newDiagramModel, id = Nothing }
+            , getCmds []
+            )
+
+        Route.Kpt ->
+            let
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel | diagramType = DiagramType.Kpt }
+            in
+            ( { updatedModel | diagramModel = newDiagramModel, id = Nothing }
             , getCmds []
             )
 
@@ -382,9 +405,9 @@ changeRouteTo route model =
                     model.diagramModel
 
                 newDiagramModel =
-                    { diagramModel | diagramType = DiagramModel.UserStoryMap }
+                    { diagramModel | diagramType = DiagramType.UserStoryMap }
             in
-            ( { updatedModel | diagramModel = newDiagramModel }
+            ( { updatedModel | diagramModel = newDiagramModel, id = Nothing }
             , getCmds []
             )
 
@@ -398,10 +421,7 @@ update message model =
         UpdateDiagram subMsg ->
             case subMsg of
                 DiagramModel.ItemClick item ->
-                    ( model, selectLine item.text )
-
-                DiagramModel.ItemDblClick item ->
-                    ( { model | selectedItem = Just item }, Cmd.none )
+                    ( model, selectLine (item.lineNo + 1) )
 
                 DiagramModel.OnResize _ _ ->
                     ( { model | diagramModel = Diagram.update subMsg model.diagramModel }, loadEditor model.text )
@@ -452,7 +472,7 @@ update message model =
                     , loadEditor model.text
                     )
 
-        GetTimeZone zone ->
+        GotTimeZone zone ->
             ( { model | timezone = Just zone }, Cmd.none )
 
         DownloadPng ->
@@ -462,11 +482,11 @@ update message model =
 
                 height =
                     case model.diagramModel.diagramType of
-                        DiagramModel.BusinessModelCanvas ->
-                            1000
+                        DiagramType.UserStoryMap ->
+                            Basics.max model.diagramModel.svg.height model.diagramModel.height
 
                         _ ->
-                            Basics.max model.diagramModel.svg.height model.diagramModel.height
+                            1000
             in
             ( model
             , downloadPng
@@ -484,11 +504,11 @@ update message model =
 
                 height =
                     case model.diagramModel.diagramType of
-                        DiagramModel.BusinessModelCanvas ->
-                            1000
+                        DiagramType.UserStoryMap ->
+                            Basics.max model.diagramModel.svg.height model.diagramModel.height
 
                         _ ->
-                            Basics.max model.diagramModel.svg.height model.diagramModel.height
+                            1000
             in
             ( model
             , downloadSvg
@@ -515,7 +535,7 @@ update message model =
             ( { model | title = Just (File.name file) }, Utils.fileLoad file FileLoaded )
 
         FileLoaded text ->
-            ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))), loadText ( text, False ) ] )
+            ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))), loadText text ] )
 
         SaveToFileSystem ->
             let
@@ -524,37 +544,90 @@ update message model =
             in
             ( model, Download.string title "text/plain" model.text )
 
-        SaveToLocal ->
+        Save ->
             let
                 title =
                     model.title |> Maybe.withDefault ""
+
+                isRemote =
+                    isJust model.loginUser
             in
-            ( { model | notification = Just (Info ("\"" ++ title ++ "\" save to local.") Nothing) }
+            ( { model
+                | notification =
+                    if not isRemote then
+                        Just (Info ("Successfully \"" ++ title ++ "\" saved.") Nothing)
+
+                    else
+                        Nothing
+              }
             , Cmd.batch
                 [ saveDiagram
-                    { id = model.id
-                    , title = title
-                    , text = model.text
-                    , thumbnail = Nothing
-                    , diagramPath = DiagramModel.diagramTypeToString model.diagramModel.diagramType
-                    , updatedAt = Nothing
-                    }
-                , Utils.delay 3000 OnCloseNotification
+                    ( { id = model.id
+                      , title = title
+                      , text = model.text
+                      , thumbnail = Nothing
+                      , diagramPath = DiagramType.toString model.diagramModel.diagramType
+                      , isRemote = isRemote
+                      , updatedAt = Nothing
+                      , isPublic = False
+                      }
+                    , Nothing
+                    )
+                , if not isRemote then
+                    Utils.delay 3000 OnCloseNotification
+
+                  else
+                    Cmd.none
+                ]
+            )
+
+        SaveToRemote diagram ->
+            let
+                save =
+                    DiagramApi.save (Utils.getIdToken model.loginUser) model.apiRoot diagram
+            in
+            ( { model | progress = True }, Task.attempt Saved save )
+
+        Saved (Err _) ->
+            ( { model
+                | progress = False
+              }
+            , Cmd.batch
+                [ Utils.delay 3000
+                    OnCloseNotification
+                , Utils.showWarningMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.") Nothing
+                , saveDiagram
+                    ( { id = model.id
+                      , title = model.title |> Maybe.withDefault ""
+                      , text = model.text
+                      , thumbnail = Nothing
+                      , diagramPath = DiagramType.toString model.diagramModel.diagramType
+                      , isRemote = False
+                      , updatedAt = Nothing
+                      , isPublic = False
+                      }
+                    , Nothing
+                    )
+                ]
+            )
+
+        Saved (Ok _) ->
+            ( { model | progress = False }
+            , Cmd.batch
+                [ Utils.delay 3000 OnCloseNotification
+                , Utils.showInfoMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.") Nothing
                 ]
             )
 
         Shortcuts x ->
             if x == "save" then
-                update SaveToLocal model
+                update Save model
 
             else if x == "open" then
                 update GetDiagrams model
 
             else
                 ( model, Cmd.none )
-
-        SelectLine line ->
-            ( model, selectLine line )
 
         StartEditTitle ->
             ( { model | isEditTitle = True }
@@ -585,12 +658,12 @@ update message model =
 
         EditSettings ->
             ( model
-            , Nav.pushUrl model.key "settings"
+            , Nav.pushUrl model.key (Route.toString Route.Settings)
             )
 
         ShowHelp ->
             ( model
-            , Nav.pushUrl model.key "help"
+            , Nav.pushUrl model.key (Route.toString Route.Help)
             )
 
         ApplySettings settings ->
@@ -664,21 +737,42 @@ update message model =
             )
 
         OnCurrentShareUrl ->
-            ( model
-            , encodeShareText
-                { diagramType =
-                    case model.diagramModel.diagramType of
-                        DiagramModel.UserStoryMap ->
-                            "usm"
+            if isJust model.loginUser then
+                ( { model | progress = True }
+                , encodeShareText
+                    { diagramType =
+                        DiagramType.toString model.diagramModel.diagramType
+                    , title = model.title
+                    , text = model.text
+                    }
+                )
 
-                        DiagramModel.OpportunityCanvas ->
-                            "opc"
+            else
+                update Login model
 
-                        DiagramModel.BusinessModelCanvas ->
-                            "bmc"
-                , title = model.title
-                , text = model.text
-                }
+        GetShortUrl (Err e) ->
+            ( { model | progress = False }
+            , Cmd.batch
+                [ Task.perform identity (Task.succeed (OnNotification (Error ("Error. " ++ Utils.httpErrorToString e))))
+                , Utils.delay 3000 OnCloseNotification
+                ]
+            )
+
+        GetShortUrl (Ok res) ->
+            ( { model | progress = False }
+            , Cmd.batch
+                [ copyClipboard res.shortLink
+                , Task.perform identity
+                    (Task.succeed
+                        (OnNotification
+                            (Info
+                                ("Copy \"" ++ res.shortLink ++ "\" to clipboard.")
+                                (Just res.shortLink)
+                            )
+                        )
+                    )
+                , Utils.delay 3000 OnCloseNotification
+                ]
             )
 
         OnShareUrl shareInfo ->
@@ -696,20 +790,16 @@ update message model =
             ( { model | notification = Nothing }, Cmd.none )
 
         OnEncodeShareText path ->
-            ( { model | share = Just (ShareUrl path) }, Cmd.none )
+            ( { model | share = Just (ShareUrl path) }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Utils.getIdToken model.loginUser) model.apiRoot path) )
+
+        OnChangeNetworkStatus isOnline ->
+            ( { model | isOnline = isOnline }, Cmd.none )
 
         OnDecodeShareText text ->
             ( model, Task.perform identity (Task.succeed (FileLoaded text)) )
 
         TabSelect tab ->
             ( { model | tabIndex = tab }, layoutEditor 100 )
-
-        Indent ->
-            let
-                newText =
-                    model.text ++ Constants.inputPrefix
-            in
-            ( { model | text = newText }, loadText ( newText, True ) )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -727,13 +817,16 @@ update message model =
             changeRouteTo (toRoute url) updatedModel
 
         GetAccessTokenForTrello ->
-            ( model, Api.getAccessToken model.apiConfig Api.Trello )
+            ( model, Api.Export.getAccessToken model.apiRoot Api.Export.Trello )
+
+        GetAccessTokenForGitHub ->
+            ( model, getAccessTokenForGitHub () )
 
         Exported (Err e) ->
-            ( { model | isExporting = False }
+            ( { model | progress = False }
             , Cmd.batch
-                [ Task.perform identity (Task.succeed (OnNotification (Error ("Error export. " ++ Api.errorToString e))))
-                , Nav.pushUrl model.key "/"
+                [ Utils.showErrorMessage ("Error export. " ++ Utils.httpErrorToString e)
+                , Nav.pushUrl model.key (Route.toString Route.Home)
                 ]
             )
 
@@ -741,30 +834,28 @@ update message model =
             let
                 messageCmd =
                     if result.failed > 0 then
-                        Task.perform identity
-                            (Task.succeed (OnNotification (Warning "Finish export, but some errors occurred. Click to open Trello." (Just result.url))))
+                        Utils.showWarningMessage "Finish export, but some errors occurred. Click to open Trello." (Just result.url)
 
                     else
-                        Task.perform identity
-                            (Task.succeed (OnNotification (Info "Finish export. Click to open Trello." (Just result.url))))
+                        Utils.showInfoMessage "Finish export. Click to open Trello." (Just result.url)
             in
-            ( { model | isExporting = False }
+            ( { model | progress = False }
             , Cmd.batch
                 [ messageCmd
-                , Nav.pushUrl model.key "/"
+                , Nav.pushUrl model.key (Route.toString Route.Home)
                 ]
             )
 
         DoOpenUrl url ->
             ( model, Nav.load url )
 
-        ExportGithub ->
+        ExportGitHub token ->
             let
                 req =
                     Maybe.map
                         (\g ->
-                            Api.createRequest
-                                g.token
+                            Api.Export.createRequest
+                                token
                                 Nothing
                                 (Just
                                     { owner = g.owner
@@ -774,57 +865,166 @@ update message model =
                                 model.diagramModel.hierarchy
                                 (Parser.parseComment model.text)
                                 (if model.title == Just "" then
-                                    "UnTitled"
+                                    "untitled"
 
                                  else
-                                    model.title |> Maybe.withDefault "UnTitled"
+                                    model.title |> Maybe.withDefault "untitled"
                                 )
                                 model.diagramModel.items
                         )
                         model.settings.github
-
-                apiConfig =
-                    { apiRoot = model.apiConfig.apiRoot
-                    }
             in
             ( { model
-                | apiConfig = apiConfig
-                , isExporting = isJust req
+                | progress = isJust req
               }
             , case req of
                 Just r ->
                     Cmd.batch
-                        [ Task.perform identity (Task.succeed (OnNotification (Info "Start export to Github." Nothing)))
-                        , Task.attempt Exported (Api.export apiConfig Api.Github r)
+                        [ Utils.showInfoMessage "Start export to Github." Nothing
+                        , Task.attempt Exported (Api.Export.export model.apiRoot Api.Export.Github r)
                         ]
 
                 Nothing ->
                     Cmd.batch
-                        [ Task.perform identity (Task.succeed (OnNotification (Warning "Invalid settings. Please add github.owner, github.repo and github.token to settings." Nothing)))
+                        [ Utils.showWarningMessage "Invalid settings. Please add GitHub Owner and Repository to settings." Nothing
                         , Task.perform identity (Task.succeed EditSettings)
                         ]
             )
 
-        ShowDiagrams diagrams ->
-            ( { model | diagrams = Just diagrams }, Cmd.none )
+        LoadLocalDiagrams localItems ->
+            case model.loginUser of
+                Just _ ->
+                    let
+                        remoteItems =
+                            DiagramApi.items (Maybe.map (\u -> User.getIdToken u) model.loginUser) 1 model.apiRoot
+
+                        items =
+                            remoteItems
+                                |> Task.map
+                                    (\item ->
+                                        List.concat [ localItems, item ]
+                                            |> List.sortWith
+                                                (\a b ->
+                                                    let
+                                                        v1 =
+                                                            a.updatedAt |> Maybe.withDefault 0
+
+                                                        v2 =
+                                                            b.updatedAt |> Maybe.withDefault 0
+                                                    in
+                                                    if v1 - v2 > 0 then
+                                                        LT
+
+                                                    else if v1 - v2 < 0 then
+                                                        GT
+
+                                                    else
+                                                        EQ
+                                                )
+                                    )
+                                |> Task.mapError (Tuple.pair localItems)
+                    in
+                    ( { model | progress = True }, Task.attempt LoadDiagrams items )
+
+                Nothing ->
+                    ( { model | diagrams = Just localItems }, Cmd.none )
+
+        LoadDiagrams (Err ( items, err )) ->
+            ( { model | progress = False, diagrams = Just items }
+            , Cmd.batch
+                [ Utils.delay 3000 OnCloseNotification
+                , Utils.showWarningMessage "Failed to laod files." Nothing
+                ]
+            )
+
+        LoadDiagrams (Ok items) ->
+            ( { model | progress = False, diagrams = Just items }, Cmd.none )
 
         GetDiagrams ->
-            ( model, Nav.pushUrl model.key "/list" )
+            ( model, Nav.pushUrl model.key (Route.toString Route.List) )
 
         RemoveDiagram diagram ->
             ( model, removeDiagrams diagram )
 
-        RemovedDiagram removed ->
+        RemoveRemoteDiagram diagram ->
+            ( model
+            , Task.attempt Removed
+                (DiagramApi.remove (Utils.getIdToken model.loginUser) model.apiRoot (diagram.id |> Maybe.withDefault "")
+                    |> Task.mapError (Tuple.pair diagram)
+                    |> Task.map (\_ -> diagram)
+                )
+            )
+
+        Removed (Err ( diagram, _ )) ->
+            ( model
+            , Cmd.batch
+                [ Utils.delay 3000 OnCloseNotification
+                , Utils.showErrorMessage
+                    ("Failed \"" ++ diagram.title ++ "\" remove")
+                ]
+            )
+
+        Removed (Ok diagram) ->
+            ( model
+            , Cmd.batch
+                [ getDiagrams ()
+                , Utils.delay 3000 OnCloseNotification
+                , Utils.showInfoMessage
+                    ("Successfully \"" ++ diagram.title ++ "\" removed")
+                    Nothing
+                ]
+            )
+
+        RemovedDiagram ( diagram, removed ) ->
             ( model
             , if removed then
-                getDiagrams ()
+                Cmd.batch
+                    [ getDiagrams ()
+                    , Utils.delay 3000 OnCloseNotification
+                    , Utils.showInfoMessage
+                        ("Successfully \"" ++ diagram.title ++ "\" removed")
+                        Nothing
+                    ]
 
               else
                 Cmd.none
             )
 
-        OpenDiagram diagram ->
-            ( { model | id = diagram.id, text = diagram.text, title = Just diagram.title }, Nav.pushUrl model.key diagram.diagramPath )
+        Open diagram ->
+            if diagram.isRemote then
+                ( { model | progress = True }
+                , Task.attempt Opened
+                    (DiagramApi.item (Utils.getIdToken model.loginUser) model.apiRoot (diagram.id |> Maybe.withDefault "")
+                        |> Task.mapError (Tuple.pair diagram)
+                    )
+                )
+
+            else
+                ( { model
+                    | id = diagram.id
+                    , text = diagram.text
+                    , title = Just diagram.title
+                  }
+                , Nav.pushUrl model.key diagram.diagramPath
+                )
+
+        Opened (Err ( diagram, _ )) ->
+            ( { model | progress = False }
+            , Cmd.batch
+                [ Utils.delay 3000 OnCloseNotification
+                , Utils.showWarningMessage ("Failed to load \"" ++ diagram.title ++ "\".") Nothing
+                ]
+            )
+
+        Opened (Ok diagram) ->
+            ( { model
+                | progress = False
+                , id = diagram.id
+                , text = diagram.text
+                , title = Just diagram.title
+              }
+            , Nav.pushUrl model.key diagram.diagramPath
+            )
 
         UpdateSettings getSetting value ->
             let
@@ -839,29 +1039,52 @@ update message model =
             in
             ( { model | settings = settings, diagramModel = newDiagramModel }, Cmd.none )
 
+        Login ->
+            ( model, login () )
+
+        Logout ->
+            ( model, logout () )
+
+        OnAuthStateChanged user ->
+            ( { model | loginUser = user }, Cmd.none )
+
+        HistoryBack ->
+            ( { model | diagrams = Nothing }, Nav.back model.key 1 )
+
+        MoveTo url ->
+            ( { model | diagrams = Nothing }, Nav.pushUrl model.key url )
+
+        MoveToBack ->
+            ( model, Nav.back model.key 1 )
+
         NewUserStoryMap ->
-            ( model, Nav.pushUrl model.key "/" )
+            ( { model
+                | id = Nothing
+                , title = Nothing
+              }
+            , Nav.pushUrl model.key (Route.toString Route.Home)
+            )
 
         NewBusinessModelCanvas ->
             let
                 text =
-                    if model.text == "" then
-                        "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships"
-
-                    else
-                        model.text
+                    "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships"
             in
             ( { model
                 | text = text
+                , id = Nothing
+                , title = Nothing
               }
-            , Cmd.batch [ loadText ( text, False ), Nav.pushUrl model.key "/bmc", Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))) ]
+            , Cmd.batch
+                [ saveToLocal model (Just (Route.toString Route.BusinessModelCanvas))
+                , loadText text
+                ]
             )
 
         NewOpportunityCanvas ->
             let
                 text =
-                    if model.text == "" then
-                        """Problems
+                    """Problems
 Solution Ideas
 Users and Customers
 Solutions Today
@@ -872,12 +1095,78 @@ Adoption Strategy
 Business Benefits and Metrics
 Budget
 """
-
-                    else
-                        model.text
             in
             ( { model
                 | text = text
+                , id = Nothing
+                , title = Nothing
               }
-            , Cmd.batch [ loadText ( text, False ), Nav.pushUrl model.key "/opc", Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))) ]
+            , Cmd.batch
+                [ saveToLocal model (Just (Route.toString Route.OpportunityCanvas))
+                , loadText text
+                ]
             )
+
+        NewFourLs ->
+            let
+                text =
+                    "Liked\nLearned\nLacked\nLonged for"
+            in
+            ( { model
+                | text = text
+                , id = Nothing
+                , title = Nothing
+              }
+            , Cmd.batch
+                [ saveToLocal model (Just (Route.toString Route.FourLs))
+                , loadText text
+                ]
+            )
+
+        NewStartStopContinue ->
+            let
+                text =
+                    "Start\nStop\nContinue"
+            in
+            ( { model
+                | text = text
+                , id = Nothing
+                , title = Nothing
+              }
+            , Cmd.batch
+                [ saveToLocal model (Just (Route.toString Route.StartStopContinue))
+                , loadText text
+                ]
+            )
+
+        NewKpt ->
+            let
+                text =
+                    "K\nP\nT"
+            in
+            ( { model
+                | text = text
+                , id = Nothing
+                , title = Nothing
+              }
+            , Cmd.batch
+                [ saveToLocal model (Just (Route.toString Route.Kpt))
+                , loadText text
+                ]
+            )
+
+
+saveToLocal : Model -> Maybe String -> Cmd Msg
+saveToLocal model url =
+    saveDiagram
+        ( { id = Nothing
+          , title = model.title |> Maybe.withDefault ""
+          , text = model.text
+          , thumbnail = Nothing
+          , diagramPath = DiagramType.toString model.diagramModel.diagramType
+          , isRemote = False
+          , updatedAt = Nothing
+          , isPublic = False
+          }
+        , url
+        )

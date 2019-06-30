@@ -16,6 +16,10 @@ rect {
     cursor: pointer;
 }
 
+input {
+    outline: 0;
+}
+
 .monaco-scrollable-element,
 .monaco-editor,
 .overflow-guard {
@@ -28,6 +32,12 @@ rect {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.cloud {
+    position: absolute;
+    top: 5px;
+    right: 10px;
 }
 
 .button {
@@ -67,7 +77,7 @@ rect {
     overflow-y: scroll;
     @media screen and (max-width: 480px) {
         width: 100vw;
-        height: calc(100vh - 40px);
+        height: calc(100vh - 130px);
     }
 
     .controls {
@@ -191,10 +201,6 @@ rect {
     }
 }
 
-.menu-item:hover {
-    color: #266b9a;
-}
-
 .menu-button {
     padding-top: 16px;
     cursor: pointer;
@@ -264,6 +270,7 @@ rect {
 
 .menu-item {
     cursor: pointer;
+    font-weight: 400;
 }
 
 .main {
@@ -273,14 +280,16 @@ rect {
 }
 
 .menu {
-    min-width: 80px;
+    min-width: 120px;
     position: absolute;
     z-index: 10;
     height: auto;
-    background-color: #f5f5f6;
+    background-color: #373c44;
+    border-radius: 8px;
     box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
         0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
     transition: all 0.2s ease-out;
+    margin: 4px;
 }
 
 .help {
@@ -390,6 +399,14 @@ rect {
     align-items: center;
     justify-content: space-between;
     font-size: 0.8rem;
+
+    @media screen and (max-width: 480px) {
+        min-width: 100vw;
+        width: 100vw;
+        right: 0;
+        bottom: 55px;
+        z-index: 200;
+    }
 }
 
 .close {
@@ -400,12 +417,14 @@ rect {
 @media screen and (min-width: 480px) {
     .menu-item-container {
         font-size: 0.8rem;
-        color: #4a4a4a;
+        color: #fefefe;
         cursor: pointer;
         height: 35px;
         display: flex;
         align-items: center;
-        border-bottom: solid 0.5px #cfcdcd;
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
     }
 
     .tooltip {
@@ -477,12 +496,11 @@ rect {
 
     .menu-item-container {
         font-size: 1.1rem;
-        color: #4a4a4a;
+        color: #fefefe;
         cursor: pointer;
         height: 50px;
         display: flex;
         align-items: center;
-        border-bottom: solid 0.5px #cfcdcd;
     }
 
     .menu-item {
@@ -500,23 +518,6 @@ rect {
         overflow: hidden;
         position: relative;
         height: calc(100vh - 56px);
-    }
-
-    .notification {
-        position: fixed;
-        bottom: 5%;
-        right: 0;
-        width: 100vw;
-        height: 40px;
-        background-color: #2d2d30;
-        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-            0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
-        color: #fff;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        font-size: 0.8rem;
     }
 
     .close {

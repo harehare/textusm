@@ -1,10 +1,9 @@
 module Views.Help exposing (view)
 
 import Html exposing (Html, div, img, span, text)
-import Html.Attributes exposing (alt, class, src, style, value)
+import Html.Attributes exposing (alt, class, src, style)
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Msg(..))
-import Views.Icon as Icon
 
 
 view : Html Msg

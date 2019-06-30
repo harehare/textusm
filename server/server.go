@@ -1,170 +1,122 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
+	"time"
+	"encoding/base64"
 
+	"context"
+
+	firebase "firebase.google.com/go"
+	"github.com/gorilla/mux"
 	"github.com/kelseyhightower/envconfig"
 	"github.com/mrjones/oauth"
+	"github.com/urfave/negroni"
+
+	"github.com/harehare/textusm/controllers"
+	"github.com/harehare/textusm/middleware"
+	negronilogrus "github.com/meatballhat/negroni-logrus"
+	"github.com/rs/cors"
+	"github.com/sirupsen/logrus"
+
+	"google.golang.org/api/option"
 )
 
 type Env struct {
-	Host                 string `envconfig:"API_HOST"`
-	Port                 string `envconfig:"PORT"`
-	TrelloConsumerKey    string `envconfig:"TRELLO_API_KEY"`
-	TrelloConsumerSecret string `envconfig:"TRELLO_API_SECRET"`
-}
-
-type UsmData struct {
-	OauthToken string    `json:"oauth_token"`
-	Name       string    `json:"name"`
-	Releases   []Release `json:"releases"`
-	Tasks      []Task    `json:"tasks"`
-
-	OauthVerifier string `json:"oauth_verifier,omitempty"`
-
-	Github Github `json:"github,omitempty"`
-}
-
-type Github struct {
-	Owner string `json:"owner"`
-	Repo  string `json:"repo"`
-}
-
-type Release struct {
-	Name   string `json:"name"`
-	Period string `json:"period"`
-}
-
-type Task struct {
-	Name    string  `json:"name"`
-	Comment string  `json:"comment"`
-	Stories []Story `json:"stories"`
-}
-
-type Story struct {
-	Name    string `json:"name"`
-	Comment string `json:"comment"`
-	Release int    `json:"release"`
-}
-
-type Response struct {
-	Total      int    `json:"total"`
-	Failed     int    `json:"failed"`
-	Successful int    `json:"successful"`
-	Url        string `json:"url"`
+	Host string `envconfig:"API_HOST"`
+	Port string `envconfig:"PORT"`
+	Credentials string `envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`
 }
 
 var (
 	tokens         map[string]*oauth.RequestToken
 	trelloConsumer *oauth.Consumer
 	env            Env
+	app            *firebase.App
 )
 
-func Start() {
-	tokens = make(map[string]*oauth.RequestToken)
+func Run() int {
 	envconfig.Process("TextUSM", &env)
 
-	trelloConsumer = oauth.NewConsumer(
-		env.TrelloConsumerKey,
-		env.TrelloConsumerSecret,
-		oauth.ServiceProvider{
-			RequestTokenUrl:   "https://trello.com/1/OAuthGetRequestToken",
-			AuthorizeTokenUrl: "https://trello.com/1/OAuthAuthorizeToken",
-			AccessTokenUrl:    "https://trello.com/1/OAuthGetAccessToken",
-		},
-	)
-	trelloConsumer.AdditionalAuthorizationUrlParams["name"] = "TextUSM"
-	trelloConsumer.AdditionalAuthorizationUrlParams["expiration"] = "1day"
-	trelloConsumer.AdditionalAuthorizationUrlParams["scope"] = "read,write"
+	var err error
+	tokens = make(map[string]*oauth.RequestToken)
 
-	http.HandleFunc("/auth/trello", redirectUserToTrello)
-	http.HandleFunc("/create/trello", createTrelloBoard)
-	http.HandleFunc("/create/github", createGithubIssues)
-	u := fmt.Sprintf(":%s", env.Port)
-
-	fmt.Printf("Listening on '%s'\n", u)
-	http.ListenAndServe(u, nil)
-}
-
-func redirectUserToTrello(w http.ResponseWriter, r *http.Request) {
-	tokenURL := fmt.Sprintf("%s/callback", env.Host)
-	token, requestURL, err := trelloConsumer.GetRequestTokenAndUrl(tokenURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	tokens[token.Token] = token
-	http.Redirect(w, r, requestURL, http.StatusTemporaryRedirect)
-}
-
-func setResult(res *Response, err error) {
-	if err != nil {
-		log.Println(err)
-		res.Failed++
-	} else {
-		res.Successful++
-	}
-	res.Total++
-}
-
-func getUsmData(body io.Reader) (*UsmData, error) {
-	var data UsmData
-	bufbody := new(bytes.Buffer)
-	bufbody.ReadFrom(body)
-	err := json.Unmarshal(bufbody.Bytes(), &data)
+	b, err := base64.StdEncoding.DecodeString(env.Credentials)
 
 	if err != nil {
-		return nil, err
+		return 1
 	}
 
-	return &data, nil
-}
-
-func createGithubIssues(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-	w.Header().Set("Access-Control-Request-Methods", "POST")
-
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(200)
-		return
-	}
-
-	data, err := getUsmData(r.Body)
+	opt := option.WithCredentialsJSON(b)
+	app, err = firebase.NewApp(context.Background(), nil, opt)
 
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		log.Fatalf("error initializing app: %v\n", err)
+		return 1
 	}
 
-	exporter := NewGithubExporter(data)
-	Export(data, exporter, w, r)
-}
-
-func createTrelloBoard(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-	w.Header().Set("Access-Control-Request-Methods", "POST")
-
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(200)
-		return
-	}
-
-	// TODO: Period
-	data, err := getUsmData(r.Body)
+	err = InitDB()
 
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		log.Fatalf("error initializing db: %v\n", err)
+		return 1
 	}
 
-	exporter := NewTrelloExporter(data, trelloConsumer, tokens)
-	Export(data, exporter, w, r)
+	r := mux.NewRouter()
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "DELETE"},
+		AllowedHeaders: []string{"Content-Type", "Authorization"},
+	})
+
+	diagramBase := mux.NewRouter()
+	r.PathPrefix("/diagram").Handler(negroni.New(
+		negroni.HandlerFunc(middleware.AuthMiddleware(app)),
+		negroni.Wrap(diagramBase)))
+	diagram := diagramBase.PathPrefix("/diagram").Subrouter()
+	diagram.Methods("GET").Path("/items").HandlerFunc(controllers.Items)
+	diagram.Methods("GET").Path("/items/public").HandlerFunc(controllers.PublicItems)
+	diagram.Methods("GET").Path("/items/{ID}").HandlerFunc(controllers.Item)
+	diagram.Methods("DELETE").Path("/items/{ID}").HandlerFunc(controllers.Remove)
+	diagram.Methods("POST").Path("/save").HandlerFunc(controllers.Save)
+	diagram.Methods("GET").Path("/search").HandlerFunc(controllers.Search)
+
+	exporterBase := mux.NewRouter()
+	r.PathPrefix("/export").Handler(negroni.New(
+		negroni.Wrap(exporterBase)))
+	exporter := exporterBase.PathPrefix("/export").Subrouter()
+	exporter.Methods("POST").Path("/trello").HandlerFunc(controllers.CreateTrelloBoard)
+	exporter.Methods("POST").Path("/github").HandlerFunc(controllers.CreateGithubIssues)
+	exporter.Methods("POST").Path("/auth/trello").HandlerFunc(controllers.RedirectUserToTrello(env.Host))
+
+	apiBase := mux.NewRouter()
+	r.PathPrefix("/api").Handler(negroni.New(
+		negroni.HandlerFunc(middleware.AuthMiddleware(app)),
+		negroni.Wrap(apiBase)))
+	share := apiBase.PathPrefix("/api").Subrouter()
+	share.Methods("POST").Path("/urlshorter").HandlerFunc(controllers.Shorter)
+
+	n := negroni.New()
+	n.Use(negroni.NewRecovery())
+	n.Use(negroni.HandlerFunc(middleware.ApiMiddleware))
+	n.Use(c)
+	n.Use(negronilogrus.NewCustomMiddleware(logrus.InfoLevel, &logrus.JSONFormatter{}, "textusm"))
+	n.UseHandler(r)
+
+	s := &http.Server{
+		Addr:           fmt.Sprintf(":%s", env.Port),
+		Handler:        n,
+		ReadTimeout:    8 * time.Second,
+		WriteTimeout:   8 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+	err = s.ListenAndServe()
+
+	if err != nil {
+		return 1
+	}
+
+	return 0
 }

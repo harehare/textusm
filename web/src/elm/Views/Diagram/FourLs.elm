@@ -1,37 +1,34 @@
-module Views.Diagram.Bmc exposing (view)
+module Views.Diagram.FourLs exposing (view)
 
 import Constants exposing (..)
 import Html exposing (div)
 import Html.Attributes as Attr
 import List.Extra exposing (getAt)
-import Models.Diagram exposing (Children(..), Color, Comment, Item, ItemType(..), Model, Msg(..), Settings)
+import Models.Diagram exposing (Model, Msg(..), Settings)
+import Models.Item as Item exposing (Children, Item, ItemType(..))
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 import Svg.Lazy exposing (..)
-import Utils exposing (calcFontSize)
 
 
 itemWidth =
-    300
+    600
 
 
-itemHeight =
-    300
+baseHeight =
+    600
 
 
 view : Model -> Svg Msg
 view model =
     let
-        posX =
-            model.svg.width // 2
-
-        posY =
-            model.svg.height // 2
-
         drawItems =
             model.items |> List.filter (\item -> item.itemType /= Comments)
+
+        itemHeight =
+            Basics.max baseHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
     in
     g
         [ transform
@@ -43,10 +40,10 @@ view model =
             )
         , fill "#F5F5F6"
         ]
-        [ -- Key Partners
+        [ -- Liked
           canvasView model.settings
             itemWidth
-            (itemHeight * 2)
+            itemHeight
             "0"
             "0"
             (drawItems
@@ -56,100 +53,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Children []
+                    , children = Item.fromItems []
                     }
             )
 
-        -- Key Activities
+        -- Learned
         , canvasView model.settings
             itemWidth
             itemHeight
             (String.fromInt (itemWidth - 5))
-            "0"
-            (drawItems
-                |> getAt 3
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , comment = Nothing
-                    , itemType = Activities
-                    , children = Children []
-                    }
-            )
-
-        -- Key Resources
-        , canvasView model.settings
-            itemWidth
-            (itemHeight + 5)
-            (String.fromInt (itemWidth - 5))
-            (String.fromInt (itemHeight - 5))
-            (drawItems
-                |> getAt 7
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , comment = Nothing
-                    , itemType = Activities
-                    , children = Children []
-                    }
-            )
-
-        -- Value Propotion
-        , canvasView model.settings
-            itemWidth
-            (itemHeight * 2)
-            (String.fromInt (itemWidth * 2 - 10))
-            "0"
-            (drawItems
-                |> getAt 2
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , comment = Nothing
-                    , itemType = Activities
-                    , children = Children []
-                    }
-            )
-
-        -- ️Customer Relationships
-        , canvasView model.settings
-            itemWidth
-            itemHeight
-            (String.fromInt (itemWidth * 3 - 15))
-            "0"
-            (drawItems
-                |> getAt 8
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , comment = Nothing
-                    , itemType = Activities
-                    , children = Children []
-                    }
-            )
-
-        -- Channels
-        , canvasView model.settings
-            itemWidth
-            (itemHeight + 5)
-            (String.fromInt (itemWidth * 3 - 15))
-            (String.fromInt (itemHeight - 5))
-            (drawItems
-                |> getAt 4
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , comment = Nothing
-                    , itemType = Activities
-                    , children = Children []
-                    }
-            )
-
-        -- Customer Segments
-        , canvasView model.settings
-            itemWidth
-            (itemHeight * 2)
-            (String.fromInt (itemWidth * 4 - 20))
             "0"
             (drawItems
                 |> getAt 1
@@ -158,41 +70,41 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Children []
+                    , children = Item.fromItems []
                     }
             )
 
-        -- Cost Structure
+        -- Lacked
         , canvasView model.settings
-            (round (toFloat itemWidth * 2.5) - 5)
+            itemWidth
             (itemHeight + 5)
             "0"
-            (String.fromInt (itemHeight * 2 - 5))
+            (String.fromInt (itemHeight - 5))
             (drawItems
-                |> getAt 6
+                |> getAt 2
                 |> Maybe.withDefault
                     { lineNo = 0
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Children []
+                    , children = Item.fromItems []
                     }
             )
 
-        -- Revenue Streams
+        -- Longed for
         , canvasView model.settings
-            (round (toFloat itemWidth * 2.5) - 5)
+            itemWidth
             (itemHeight + 5)
-            (String.fromInt (round (toFloat itemWidth * 2.5) - 15))
-            (String.fromInt (itemHeight * 2 - 5))
+            (String.fromInt (itemWidth - 5))
+            (String.fromInt (itemHeight - 5))
             (drawItems
-                |> getAt 5
+                |> getAt 3
                 |> Maybe.withDefault
                     { lineNo = 0
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Children []
+                    , children = Item.fromItems []
                     }
             )
         ]
@@ -202,12 +114,7 @@ canvasView : Settings -> Int -> Int -> String -> String -> Item -> Svg Msg
 canvasView settings svgWidth svgHeight posX posY item =
     let
         lines =
-            case item.children of
-                Children [] ->
-                    []
-
-                Children c ->
-                    List.map (\i -> i.text) c
+            List.map (\i -> i.text) (Item.unwrapChildren item.children)
     in
     svg
         [ width (String.fromInt svgWidth)
@@ -257,16 +164,17 @@ textView settings w h posX posY lines =
             , width (String.fromInt w)
             , height (String.fromInt h)
             , color settings.color.comment.color
-            , fontSize "12"
+            , fontSize "14"
             , fontFamily settings.font
             , class "svg-text"
             ]
             (lines
-                |> List.indexedMap
-                    (\i line ->
+                |> List.map
+                    (\line ->
                         div
                             [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
                             , Attr.style "word-wrap" "break-word"
+                            , Attr.style "margin-bottom" "8px"
                             ]
                             [ Html.text line ]
                     )

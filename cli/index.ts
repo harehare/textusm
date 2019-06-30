@@ -3,8 +3,8 @@ import * as commander from 'commander';
 import * as fs from 'fs';
 import * as puppeteer from 'puppeteer';
 
-const defaultWidth = 1024;
-const defaultHeight = 1024;
+const defaultWidth = 1280;
+const defaultHeight = 1280;
 const defaultSettings = {
   font: 'Open Sans',
   position: 0,
@@ -50,7 +50,7 @@ const readConfigFile = (file: string) => {
 };
 
 const { configFile, input, width, height, output, diagramType } = commander
-  .version('0.0.6')
+  .version('0.0.7')
   .option('-c, --configFile [configFile]', 'Config file.')
   .option('-i, --input <input>', 'Input text file. Required.')
   .option('-w, --width <width>', 'Width of the page. Optional. Default: 1024.')
@@ -58,7 +58,7 @@ const { configFile, input, width, height, output, diagramType } = commander
   .option('-o, --output [output]', 'Output file. It should be svg, png, pdf or html.')
   .option(
     '-d, --diagramType [diagramType]',
-    'Diagram type. It should be userstorymap, opportunitycanvas or businessmodelcanvas.'
+    'Diagram type. It should be userstorymap, opportunitycanvas, businessmodelcanvas, 4Ls Retrospective, Start, Stop, Continue Retrospective, or KPT Retrospective.'
   )
   .parse(process.argv);
 
@@ -72,7 +72,15 @@ if (!output) {
   process.exit(1);
 }
 
-const validDiagramType = ['userstorymap', 'opportunitycanvas', 'businessmodelcanvas'];
+const validDiagramType = [
+  'user_story_map',
+  'opportunity_canvas',
+  'business_model_canvas',
+  '4ls',
+  'start_stop_continue',
+  'kpt',
+  ''
+];
 
 if (diagramType && validDiagramType.indexOf(diagramType) === -1) {
   console.error(`Output file must be userstorymap, opportunitycanvas or businessmodelcanvas.`);
@@ -106,14 +114,20 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
       height: height ? parseInt(height) : defaultHeight
     });
     const type =
-      diagramType === 'userstorymap'
+      diagramType === 'user_story_map'
         ? 'usm'
-        : diagramType === 'opportunitycanvas'
+        : diagramType === 'opportunity_canvas'
         ? 'opc'
-        : diagramType === 'businessmodelcanvas'
+        : diagramType === 'business_model_canvas'
         ? 'bmc'
+        : diagramType === '4ls'
+        ? '4ls'
+        : diagramType === 'start_stop_continue'
+        ? 'ssc'
+        : diagramType === 'kpt'
+        ? 'kpt'
         : 'usm';
-    await page.goto(`https://textusm.web.app/view/${type}/${encodeURIComponent(JSON.stringify(configJson))}`);
+    await page.goto(`https://app.textusm.com/view/${type}/${encodeURIComponent(JSON.stringify(configJson))}`);
 
     await page.waitForSelector('#usm', {
       timeout: 10000,

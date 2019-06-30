@@ -20,32 +20,54 @@ db.version(Version).stores({
     diagrams: "++id,title,text,thumbnail,diagramPath,createdAt,updatedAt"
 });
 
-export const setUpDB = app => {
+export const initDB = app => {
     app.ports.saveDiagram.subscribe(
-        async ({ id, title, text, diagramPath }) => {
+        async ([
+            { id, title, text, diagramPath, isPublic, isRemote },
+            nextUrl
+        ]) => {
             const thumbnail = svg2base64("usm");
             const createdAt = new Date().getTime();
-
-            await db.diagrams.put({
-                id: id ? id : uuid(),
+            const diagramItem = {
                 title,
                 text,
                 thumbnail,
                 diagramPath,
                 createdAt,
                 updatedAt: createdAt
-            });
+            };
+
+            if (isRemote) {
+                app.ports.saveToRemote.send({
+                    isRemote: true,
+                    id,
+                    isPublic,
+                    ...diagramItem
+                });
+                await db.diagrams.delete(diagramItem.id);
+            } else {
+                await db.diagrams.put({ id: id ? id : uuid(), ...diagramItem });
+            }
+
+            if (nextUrl) {
+                app.ports.moveTo.send(nextUrl);
+            }
         }
     );
 
-    app.ports.removeDiagrams.subscribe(async ({ id, title }) => {
+    app.ports.removeDiagrams.subscribe(async diagram => {
+        const { id, title, isRemote } = diagram;
         if (
             window.confirm(
                 `Are you sure you want to delete "${title}" diagram?`
             )
         ) {
-            await db.diagrams.delete(id);
-            app.ports.removedDiagram.send(true);
+            if (isRemote) {
+                app.ports.removeRemoteDiagram.send(diagram);
+            } else {
+                await db.diagrams.delete(id);
+                app.ports.removedDiagram.send([diagram, true]);
+            }
         }
     });
 
@@ -54,6 +76,8 @@ export const setUpDB = app => {
             .orderBy("updatedAt")
             .reverse()
             .toArray();
-        app.ports.showDiagrams.send(diagrams);
+        app.ports.loadLocalDiagrams.send(
+            diagrams.map(d => ({ isPublic: false, isRemote: false, ...d }))
+        );
     });
 };
