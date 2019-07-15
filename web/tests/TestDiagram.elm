@@ -56,7 +56,7 @@ updateTest =
                           , comment = Nothing
                           , itemType = Activities
                           , lineNo = 0
-                          , children = Item.fromItems []
+                          , children = Item.empty
                           }
                         ]
         , test "load activity items" <|
@@ -68,13 +68,13 @@ updateTest =
                           , comment = Nothing
                           , itemType = Activities
                           , lineNo = 0
-                          , children = Item.fromItems []
+                          , children = Item.empty
                           }
                         , { text = "test2"
                           , comment = Nothing
                           , itemType = Activities
                           , lineNo = 1
-                          , children = Item.fromItems []
+                          , children = Item.empty
                           }
                         ]
         , test "load task item" <|
@@ -91,7 +91,7 @@ updateTest =
                                     [ { text = "test2"
                                       , comment = Nothing
                                       , itemType = Tasks
-                                      , children = Item.fromItems []
+                                      , children = Item.empty
                                       , lineNo = 1
                                       }
                                     ]
@@ -112,13 +112,13 @@ updateTest =
                                       , comment = Nothing
                                       , itemType = Tasks
                                       , lineNo = 1
-                                      , children = Item.fromItems []
+                                      , children = Item.empty
                                       }
                                     , { text = "test3"
                                       , comment = Nothing
                                       , itemType = Tasks
                                       , lineNo = 2
-                                      , children = Item.fromItems []
+                                      , children = Item.empty
                                       }
                                     ]
                           }
@@ -143,7 +143,7 @@ updateTest =
                                                 [ { text = "test3"
                                                   , comment = Nothing
                                                   , itemType = Stories 1
-                                                  , children = Item.fromItems []
+                                                  , children = Item.empty
                                                   , lineNo = 2
                                                   }
                                                 ]
@@ -172,13 +172,13 @@ updateTest =
                                                   , comment = Nothing
                                                   , itemType = Stories 1
                                                   , lineNo = 2
-                                                  , children = Item.fromItems []
+                                                  , children = Item.empty
                                                   }
                                                 , { text = "test4"
                                                   , comment = Nothing
                                                   , itemType = Stories 1
                                                   , lineNo = 3
-                                                  , children = Item.fromItems []
+                                                  , children = Item.empty
                                                   }
                                                 ]
                                       }

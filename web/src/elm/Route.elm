@@ -41,6 +41,7 @@ type Route
     | List
     | Settings
     | Help
+    | SharingSettings
     | Share DiagramPath Title Path
     | Embed DiagramPath Title Path
     | UsmView SettingsJson
@@ -66,6 +67,7 @@ parser =
         , map List (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
+        , map SharingSettings (s "sharing")
         ]
 
 
@@ -106,6 +108,9 @@ toString route =
 
         Help ->
             absolute [ "help" ] []
+
+        SharingSettings ->
+            absolute [ "sharing" ] []
 
         Share diagramPath title path ->
             absolute [ "share", diagramPath, title, path ] []

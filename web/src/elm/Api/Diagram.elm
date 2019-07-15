@@ -1,9 +1,10 @@
-module Api.Diagram exposing (item, items, publicItems, remove, save, search)
+module Api.Diagram exposing (AddUserRequest, AddUserResponse, UpdateUserRequest, UpdateUserResponse, addUser, deleteUser, item, items, publicItems, remove, save, search, updateRole)
 
 import Api.Api as Api
 import Http exposing (Error(..))
 import Json.Decode as D
-import Models.DiagramItem as DiagramItem
+import Json.Encode as E
+import Models.DiagramItem as DiagramItem exposing (DiagramUser)
 import Models.IdToken as IdToken exposing (IdToken)
 import Task exposing (Task)
 import Url.Builder exposing (int, string)
@@ -13,8 +14,34 @@ type alias Query =
     String
 
 
+type alias UserID =
+    String
+
+
 type alias PageNo =
     Int
+
+
+type alias AddUserRequest =
+    { diagramID : String
+    , mail : String
+    }
+
+
+type alias UpdateUserRequest =
+    { diagramID : String
+    , role : String
+    }
+
+
+type alias AddUserResponse =
+    DiagramUser
+
+
+type alias UpdateUserResponse =
+    { id : String
+    , role : String
+    }
 
 
 items : Maybe IdToken -> PageNo -> String -> Task Http.Error (List DiagramItem.DiagramItem)
@@ -45,3 +72,45 @@ remove idToken apiRoot diagramId =
 save : Maybe IdToken -> String -> DiagramItem.DiagramItem -> Task Http.Error ()
 save idToken apiRoot diagram =
     Api.post idToken apiRoot [ "diagram", "save" ] (Http.jsonBody (DiagramItem.encoder diagram)) Api.emptyResolver
+
+
+addUser : Maybe IdToken -> String -> AddUserRequest -> Task Http.Error AddUserResponse
+addUser idToken apiRoot req =
+    Api.post idToken apiRoot [ "diagram", "add", "user" ] (Http.jsonBody (addUserRequestEncoder req)) (Api.jsonResolver DiagramItem.userDecoder)
+
+
+updateRole : Maybe IdToken -> String -> UserID -> UpdateUserRequest -> Task Http.Error UpdateUserResponse
+updateRole idToken apiRoot userID req =
+    Api.post idToken apiRoot [ "diagram", "update", "role", userID ] (Http.jsonBody (updateUserRequestEncoder req)) (Api.jsonResolver updateUserResponseDecoder)
+
+
+deleteUser : Maybe IdToken -> String -> UserID -> String -> Task Http.Error ()
+deleteUser idToken apiRoot userID diagramID =
+    Api.delete idToken apiRoot [ "diagram", "delete", "user", userID, diagramID ] [] Api.emptyResolver
+
+
+
+-- JSON
+
+
+addUserRequestEncoder : AddUserRequest -> E.Value
+addUserRequestEncoder req =
+    E.object
+        [ ( "diagram_id", E.string req.diagramID )
+        , ( "mail", E.string req.mail )
+        ]
+
+
+updateUserRequestEncoder : UpdateUserRequest -> E.Value
+updateUserRequestEncoder req =
+    E.object
+        [ ( "diagram_id", E.string req.diagramID )
+        , ( "role", E.string req.role )
+        ]
+
+
+updateUserResponseDecoder : D.Decoder UpdateUserResponse
+updateUserResponseDecoder =
+    D.map2 UpdateUserResponse
+        (D.field "id" D.string)
+        (D.field "role" D.string)

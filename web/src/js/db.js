@@ -42,9 +42,13 @@ export const initDB = app => {
                     isRemote: true,
                     id,
                     isPublic,
+                    ownerId: null,
+                    users: null,
                     ...diagramItem
                 });
-                await db.diagrams.delete(diagramItem.id);
+                await db.diagrams.delete(diagramItem.id).catch(e => {
+                    console.error(e);
+                });
             } else {
                 await db.diagrams.put({ id: id ? id : uuid(), ...diagramItem });
             }
@@ -77,7 +81,13 @@ export const initDB = app => {
             .reverse()
             .toArray();
         app.ports.loadLocalDiagrams.send(
-            diagrams.map(d => ({ isPublic: false, isRemote: false, ...d }))
+            diagrams.map(d => ({
+                users: null,
+                ownerId: null,
+                isPublic: false,
+                isRemote: false,
+                ...d
+            }))
         );
     });
 };

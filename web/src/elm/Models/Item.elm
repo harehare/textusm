@@ -1,4 +1,4 @@
-module Models.Item exposing (Children, Item, ItemType(..), fromItems, toString, unwrapChildren)
+module Models.Item exposing (Children, Item, ItemType(..), empty, fromItems, toString, unwrapChildren)
 
 
 type Children
@@ -24,6 +24,11 @@ type ItemType
 fromItems : List Item -> Children
 fromItems items =
     Children items
+
+
+empty : Children
+empty =
+    Children []
 
 
 unwrapChildren : Children -> List Item

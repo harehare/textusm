@@ -1,11 +1,11 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
-	"encoding/base64"
 
 	"context"
 
@@ -25,8 +25,8 @@ import (
 )
 
 type Env struct {
-	Host string `envconfig:"API_HOST"`
-	Port string `envconfig:"PORT"`
+	Host        string `envconfig:"API_HOST"`
+	Port        string `envconfig:"PORT"`
 	Credentials string `envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`
 }
 
@@ -78,10 +78,13 @@ func Run() int {
 	diagram := diagramBase.PathPrefix("/diagram").Subrouter()
 	diagram.Methods("GET").Path("/items").HandlerFunc(controllers.Items)
 	diagram.Methods("GET").Path("/items/public").HandlerFunc(controllers.PublicItems)
-	diagram.Methods("GET").Path("/items/{ID}").HandlerFunc(controllers.Item)
+	diagram.Methods("GET").Path("/items/{ID}").HandlerFunc(controllers.Item(app))
 	diagram.Methods("DELETE").Path("/items/{ID}").HandlerFunc(controllers.Remove)
 	diagram.Methods("POST").Path("/save").HandlerFunc(controllers.Save)
 	diagram.Methods("GET").Path("/search").HandlerFunc(controllers.Search)
+	diagram.Methods("POST").Path("/add/user").HandlerFunc(controllers.AddUserToDiagram(app))
+	diagram.Methods("POST").Path("/update/role/{ID}").HandlerFunc(controllers.UpdateRole)
+	diagram.Methods("DELETE").Path("/delete/user/{ID}/{DiagramID}").HandlerFunc(controllers.DeleteUser)
 
 	exporterBase := mux.NewRouter()
 	r.PathPrefix("/export").Handler(negroni.New(

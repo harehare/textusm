@@ -61,7 +61,7 @@
     },
     "scripts": {
         "build": "webpack",
-        "deploy": "NODE_ENV=production webpack --mode production && cp -r ../.well-known dist/ && firebase deploy --only hosting",
+        "deploy": "NODE_ENV=production webpack --mode production && cp -r ../.well-known dist/ && firebase deploy --only hosting:textusm",
         "dev": "webpack-dev-server --hot --colors --port 3000",
         "prod": "NODE_ENV=production webpack --mode production",
         "start": "npm run dev",

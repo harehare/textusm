@@ -13,14 +13,6 @@ import Svg.Events exposing (..)
 import Svg.Lazy exposing (..)
 
 
-itemWidth =
-    300
-
-
-baseHeight =
-    300
-
-
 view : Model -> Svg Msg
 view model =
     let
@@ -28,7 +20,7 @@ view model =
             model.items |> List.filter (\item -> item.itemType /= Comments)
 
         itemHeight =
-            Basics.max baseHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
+            Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
     in
     g
         [ transform
@@ -42,7 +34,7 @@ view model =
         ]
         [ -- Users and Customers
           canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             (itemHeight * 2)
             "0"
             "0"
@@ -53,15 +45,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Problems
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             itemHeight
-            (String.fromInt (itemWidth - 5))
+            (String.fromInt (Constants.itemWidth - 5))
             "0"
             (drawItems
                 |> getAt 0
@@ -70,15 +62,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Solutions Today
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             (itemHeight + 5)
-            (String.fromInt (itemWidth - 5))
+            (String.fromInt (Constants.itemWidth - 5))
             (String.fromInt (itemHeight - 5))
             (drawItems
                 |> getAt 3
@@ -87,15 +79,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Solution Ideas
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             (itemHeight * 2)
-            (String.fromInt (itemWidth * 2 - 10))
+            (String.fromInt (Constants.itemWidth * 2 - 10))
             "0"
             (drawItems
                 |> getAt 1
@@ -104,15 +96,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- ️How will Users use Solution?
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             itemHeight
-            (String.fromInt (itemWidth * 3 - 15))
+            (String.fromInt (Constants.itemWidth * 3 - 15))
             "0"
             (drawItems
                 |> getAt 5
@@ -121,15 +113,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Adoption Strategy
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             (itemHeight + 5)
-            (String.fromInt (itemWidth * 3 - 15))
+            (String.fromInt (Constants.itemWidth * 3 - 15))
             (String.fromInt (itemHeight - 5))
             (drawItems
                 |> getAt 7
@@ -138,15 +130,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- User Metrics
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             (itemHeight * 2)
-            (String.fromInt (itemWidth * 4 - 20))
+            (String.fromInt (Constants.itemWidth * 4 - 20))
             "0"
             (drawItems
                 |> getAt 6
@@ -155,13 +147,13 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Business Challenges
         , canvasView model.settings
-            (round (toFloat itemWidth * 2) - 5)
+            (round (toFloat Constants.itemWidth * 2) - 5)
             (itemHeight + 5)
             "0"
             (String.fromInt (itemHeight * 2 - 5))
@@ -172,15 +164,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Budget
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             (itemHeight + 5)
-            (String.fromInt (round (toFloat itemWidth * 2) - 10))
+            (String.fromInt (round (toFloat Constants.itemWidth * 2) - 10))
             (String.fromInt (itemHeight * 2 - 5))
             (drawItems
                 |> getAt 9
@@ -189,15 +181,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Business Benefits and Metrics
         , canvasView model.settings
-            (round (toFloat itemWidth * 2) - 5)
+            (round (toFloat Constants.itemWidth * 2) - 5)
             (itemHeight + 5)
-            (String.fromInt (round (toFloat itemWidth * 3) - 15))
+            (String.fromInt (round (toFloat Constants.itemWidth * 3) - 15))
             (String.fromInt (itemHeight * 2 - 5))
             (drawItems
                 |> getAt 8
@@ -206,7 +198,7 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
         ]
@@ -227,7 +219,7 @@ canvasView settings svgWidth svgHeight posX posY item =
         [ g []
             [ rectView (String.fromInt svgWidth) (String.fromInt svgHeight) settings.color.line
             , titleView settings 10 10 item.text
-            , textView settings (itemWidth - 13) svgHeight 10 35 lines
+            , textView settings (Constants.itemWidth - 13) svgHeight 10 35 lines
             ]
         ]
 

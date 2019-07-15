@@ -11,8 +11,8 @@ import Utils
 import Views.Icon as Icon
 
 
-view : Route -> Int -> Bool -> Maybe Menu -> Bool -> Html Msg
-view route width fullscreen openMenu isOnline =
+view : Route -> Int -> Bool -> Maybe Menu -> Bool -> Bool -> Html Msg
+view route width fullscreen openMenu isOnline canWrite =
     let
         menuItemStyle =
             [ class "menu-button"
@@ -53,11 +53,15 @@ view route width fullscreen openMenu isOnline =
                             [ Icon.folderOpen "#F5F5F6" 20
                             , span [ class "tooltip" ] [ span [ class "text" ] [ text "Files" ] ]
                             ]
-                        , div
-                            (onClick Save :: menuItemStyle)
-                            [ Icon.save 26
-                            , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
-                            ]
+                        , if canWrite then
+                            div
+                                (onClick Save :: menuItemStyle)
+                                [ Icon.save 26
+                                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
+                                ]
+
+                          else
+                            div [] []
                         , div
                             (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
                             [ Icon.export 27 21

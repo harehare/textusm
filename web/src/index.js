@@ -39,23 +39,29 @@ auth.authn(async (idToken, profile) => {
         const token = await auth.getAccessToken();
         app.ports.onGetAccessTokenForGitHub.send(token);
     }
-
-    app.ports.onAuthStateChanged.send(idToken ? { idToken, ...profile } : null);
+    app.ports.onAuthStateChanged.send(
+        idToken ? { idToken, id: profile.uid, ...profile } : null
+    );
 });
 
-app.ports.copyClipboard.subscribe(text => {
-    const temp = document.createElement("textarea");
-    temp.value = text;
-    temp.selectionStart = 0;
-    temp.selectionEnd = temp.value.length;
-    temp.style.display = "none";
-
-    document.body.appendChild(temp);
-    temp.focus();
-    document.execCommand("copy");
-    temp.blur();
-    document.body.removeChild(temp);
+app.ports.selectTextById.subscribe(id => {
+    document.getElementById(id).select();
 });
+
+// app.ports.copyClipboard.subscribe(text => {
+//     const temp = document.createElement("textarea");
+//     temp.value = text;
+//     temp.selectionStart = 0;
+//     temp.selectionEnd = temp.value.length;
+//     temp.style.position = "absolute";
+//     temp.style.top = "1000px";
+
+//     document.body.appendChild(temp);
+//     temp.focus();
+//     document.execCommand("copy");
+//     temp.blur();
+//     document.body.removeChild(temp);
+// });
 
 app.ports.getAccessTokenForGitHub.subscribe(() => {
     sessionStorage.setItem(StatusGithubExportkey, "true");

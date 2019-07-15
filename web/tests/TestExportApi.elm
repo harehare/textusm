@@ -22,7 +22,7 @@ createRequestTest =
                     [ { text = "text1"
                       , comment = Just "comment1"
                       , itemType = Activities
-                      , children = Item.fromItems []
+                      , children = Item.empty
                       , lineNo = 0
                       }
                     ]
@@ -46,7 +46,7 @@ createRequestTest =
                                 [ { text = "text2"
                                   , comment = Just "comment2"
                                   , itemType = Tasks
-                                  , children = Item.fromItems []
+                                  , children = Item.empty
                                   , lineNo = 0
                                   }
                                 ]
@@ -82,7 +82,7 @@ createRequestTest =
                                             [ { text = "text3"
                                               , comment = Just "comment3"
                                               , itemType = Stories 1
-                                              , children = Item.fromItems []
+                                              , children = Item.empty
                                               , lineNo = 0
                                               }
                                             ]
@@ -125,7 +125,7 @@ createRequestTest =
                                             [ { text = "text3"
                                               , comment = Just "comment3"
                                               , itemType = Stories 2
-                                              , children = Item.fromItems []
+                                              , children = Item.empty
                                               , lineNo = 0
                                               }
                                             ]
@@ -147,7 +147,7 @@ createRequestTest =
                                             [ { text = "1text3"
                                               , comment = Just "1comment3"
                                               , itemType = Stories 3
-                                              , children = Item.fromItems []
+                                              , children = Item.empty
                                               , lineNo = 0
                                               }
                                             ]

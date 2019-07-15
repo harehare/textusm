@@ -20,6 +20,20 @@ input {
     outline: 0;
 }
 
+select {
+    padding-right: 1em;
+    padding: 8px;
+    cursor: pointer;
+    text-indent: 0.01px;
+    text-overflow: ellipsis;
+    border: none;
+    outline: none;
+    background: transparent;
+    background-image: none;
+    box-shadow: none;
+    appearance: none;
+}
+
 .monaco-scrollable-element,
 .monaco-editor,
 .overflow-guard {
@@ -32,6 +46,18 @@ input {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.title {
+    padding: 8px 8px 16px;
+    font-size: 1.3rem;
+    font-weight: 400;
+}
+
+.label {
+    padding: 0px 8px;
+    font-size: 0.8rem;
+    font-weight: 400;
 }
 
 .cloud {
@@ -50,9 +76,9 @@ input {
         content: "";
         top: -10px;
         left: -10px;
-        width: 70%;
+        width: 90%;
         height: 100%;
-        padding: 16px;
+        padding: 8px;
         transition: all 0.5s ease;
         background-color: rgba(0, 0, 0, 0);
     }
@@ -138,6 +164,63 @@ input {
     @media screen and (max-width: 480px) {
         width: 45vw;
     }
+}
+
+.dialog {
+    position: absolute;
+    background-color: #f7f7f7;
+    max-width: 500px;
+    top: 150px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    box-shadow: 0 4px 8px 3px rgba(60, 64, 67, 0.15);
+    border-radius: 8px;
+    z-index: 101;
+
+    .save-button {
+        width: 100px;
+        font-weight: 600;
+        background-color: #3e9bcd;
+        color: #fff;
+    }
+
+    .disabled-button {
+        width: 100px;
+        font-weight: 600;
+        background-color: #eee;
+        color: #ccc;
+    }
+
+    .cancel-button {
+        width: 100px;
+        font-weight: 600;
+        background-color: #eee;
+        color: #111;
+    }
+
+    @media screen and (max-width: 480px) {
+        position: absolute;
+        background-color: #f7f7f7;
+        max-width: 500px;
+        top: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        box-shadow: 0 4px 8px 3px rgba(60, 64, 67, 0.15);
+        border-radius: 0px;
+        z-index: 100;
+        height: calc(100vh - 100px);
+    }
+}
+
+.dialog-background {
+    position: fixed;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
 .diagram-item {

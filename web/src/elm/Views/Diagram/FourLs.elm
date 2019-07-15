@@ -13,10 +13,6 @@ import Svg.Events exposing (..)
 import Svg.Lazy exposing (..)
 
 
-itemWidth =
-    600
-
-
 baseHeight =
     600
 
@@ -28,7 +24,7 @@ view model =
             model.items |> List.filter (\item -> item.itemType /= Comments)
 
         itemHeight =
-            Basics.max baseHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
+            Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
     in
     g
         [ transform
@@ -42,7 +38,7 @@ view model =
         ]
         [ -- Liked
           canvasView model.settings
-            itemWidth
+            Constants.largeItemWidth
             itemHeight
             "0"
             "0"
@@ -53,15 +49,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Learned
         , canvasView model.settings
-            itemWidth
+            Constants.largeItemWidth
             itemHeight
-            (String.fromInt (itemWidth - 5))
+            (String.fromInt (Constants.largeItemWidth - 5))
             "0"
             (drawItems
                 |> getAt 1
@@ -70,13 +66,13 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Lacked
         , canvasView model.settings
-            itemWidth
+            Constants.largeItemWidth
             (itemHeight + 5)
             "0"
             (String.fromInt (itemHeight - 5))
@@ -87,15 +83,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Longed for
         , canvasView model.settings
-            itemWidth
+            Constants.largeItemWidth
             (itemHeight + 5)
-            (String.fromInt (itemWidth - 5))
+            (String.fromInt (Constants.largeItemWidth - 5))
             (String.fromInt (itemHeight - 5))
             (drawItems
                 |> getAt 3
@@ -104,7 +100,7 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
         ]
@@ -125,7 +121,7 @@ canvasView settings svgWidth svgHeight posX posY item =
         [ g []
             [ rectView (String.fromInt svgWidth) (String.fromInt svgHeight) settings.color.line
             , titleView settings 10 10 item.text
-            , textView settings (itemWidth - 13) svgHeight 10 35 lines
+            , textView settings (Constants.largeItemWidth - 13) svgHeight 10 35 lines
             ]
         ]
 

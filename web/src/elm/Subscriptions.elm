@@ -1,4 +1,4 @@
-port module Subscriptions exposing (applySettings, changeText, copyClipboard, decodeShareText, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getAccessTokenForGitHub, getDiagram, getDiagrams, layoutEditor, loadEditor, loadText, login, logout, removeDiagrams, saveDiagram, saveSettings, selectLine, subscriptions)
+port module Subscriptions exposing (applySettings, changeText, copyClipboard, decodeShareText, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getAccessTokenForGitHub, getDiagram, getDiagrams, layoutEditor, loadEditor, loadText, login, logout, removeDiagrams, saveDiagram, saveSettings, selectLine, selectTextById, subscriptions)
 
 import Browser.Events exposing (onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Json.Decode as D
@@ -90,6 +90,9 @@ port encodeShareText : ShareInfo -> Cmd msg
 
 
 port copyClipboard : String -> Cmd msg
+
+
+port selectTextById : String -> Cmd msg
 
 
 port getAccessTokenForGitHub : () -> Cmd msg

@@ -54,6 +54,7 @@ view width profile route t isEditTitle fullscreen menu =
                             , style "font-size" "16px"
                             , style "width" "150px"
                             , style "font-weight" "400"
+                            , style "padding" "2px"
                             ]
                             []
 
@@ -138,6 +139,7 @@ view width profile route t isEditTitle fullscreen menu =
                                 , email = ""
                                 , photoURL = ""
                                 , idToken = ""
+                                , id = ""
                                 }
                 in
                 div

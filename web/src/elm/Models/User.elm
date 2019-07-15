@@ -8,6 +8,7 @@ type alias User =
     , email : String
     , photoURL : String
     , idToken : String
+    , id : String
     }
 
 

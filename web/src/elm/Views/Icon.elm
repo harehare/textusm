@@ -1,4 +1,4 @@
-module Views.Icon exposing (add, clear, cloudOff, cloudOn, download, error, export, file, folderOpen, fullscreen, fullscreenExit, helpOutline, indent, info, openInNew, remove, save, settings, share, viewComfy, viewModule, warning)
+module Views.Icon exposing (add, clear, cloudOff, cloudOn, download, error, export, file, folderOpen, fullscreen, fullscreenExit, helpOutline, indent, info, link, openInNew, remove, save, search, settings, share, viewComfy, viewModule, warning)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (d, fill, height, viewBox, width)
@@ -17,6 +17,16 @@ remove size =
 viewComfy : Int -> Svg msg
 viewComfy size =
     icon "#8C9FAE" size size "0 0 48 48" [ Svg.path [ d "M6 18h8v-8H6v8zm0 10h8v-8H6v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zM16 18h8v-8h-8v8zm10-8v8h8v-8h-8zm10 18h8v-8h-8v8zM6 38h8v-8H6v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zm0-28v8h8v-8h-8z" ] [] ]
+
+
+link : Int -> Svg msg
+link size =
+    icon "#8C9FAE" size size "0 0 48 48" [ Svg.path [ d "M7.8 24c0-3.42 2.78-6.2 6.2-6.2h8V14h-8C8.48 14 4 18.48 4 24s4.48 10 10 10h8v-3.8h-8c-3.42 0-6.2-2.78-6.2-6.2zm8.2 2h16v-4H16v4zm18-12h-8v3.8h8c3.42 0 6.2 2.78 6.2 6.2s-2.78 6.2-6.2 6.2h-8V34h8c5.52 0 10-4.48 10-10s-4.48-10-10-10z" ] [] ]
+
+
+search : Int -> Svg msg
+search size =
+    icon "#8C9FAE" size size "0 0 48 48" [ Svg.path [ d "M31 28h-1.59l-.55-.55C30.82 25.18 32 22.23 32 19c0-7.18-5.82-13-13-13S6 11.82 6 19s5.82 13 13 13c3.23 0 6.18-1.18 8.45-3.13l.55.55V31l10 9.98L40.98 38 31 28zm-12 0c-4.97 0-9-4.03-9-9s4.03-9 9-9 9 4.03 9 9-4.03 9-9 9z" ] [] ]
 
 
 download : Int -> Svg msg

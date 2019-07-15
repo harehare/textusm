@@ -1,18 +1,20 @@
 module Views.DiagramList exposing (view)
 
-import Html exposing (Html, div, text)
-import Html.Attributes exposing (class, style)
-import Html.Events exposing (stopPropagationOn)
+import Html exposing (Html, div, input, text)
+import Html.Attributes exposing (class, placeholder, style)
+import Html.Events exposing (onInput, stopPropagationOn)
 import Json.Decode as D
+import Maybe.Extra as MaybeEx
 import Models.DiagramItem exposing (DiagramItem)
 import Models.Model exposing (Msg(..))
+import Models.User exposing (User)
 import Time exposing (Zone)
 import Utils
 import Views.Icon as Icon
 
 
-view : Zone -> Maybe (List DiagramItem) -> Html Msg
-view timezone maybeDiagrams =
+view : Maybe User -> Zone -> Maybe String -> Maybe (List DiagramItem) -> Html Msg
+view user timezone maybeQuery maybeDiagrams =
     case maybeDiagrams of
         Just diagrams ->
             div
@@ -30,6 +32,25 @@ view timezone maybeDiagrams =
                         [ style "font-weight" "400"
                         ]
                         [ text "MY DIAGRAMS" ]
+                    , div
+                        [ style "display" "flex"
+                        , style "align-items" "center"
+                        ]
+                        [ div
+                            [ style "position" "absolute"
+                            , style "right" "20px"
+                            , style "top" "18px"
+                            ]
+                            [ Icon.search 24 ]
+                        , input
+                            [ placeholder "Search"
+                            , style "border-radius" "20px"
+                            , style "padding" "8px"
+                            , style "border" "none"
+                            , onInput Search
+                            ]
+                            []
+                        ]
                     ]
                 , if List.isEmpty diagrams then
                     div
@@ -57,7 +78,17 @@ view timezone maybeDiagrams =
                         , style "will-change" "transform"
                         , style "border-top" "1px solid #323B46"
                         ]
-                        (List.map (\d -> diagramView timezone d) diagrams)
+                        (diagrams
+                            |> (case maybeQuery of
+                                    Just query ->
+                                        List.filter (\d -> String.contains query d.title)
+
+                                    Nothing ->
+                                        identity
+                               )
+                            |> List.map
+                                (\d -> diagramView user timezone d)
+                        )
                 ]
 
         Nothing ->
@@ -90,8 +121,14 @@ view timezone maybeDiagrams =
                 ]
 
 
-diagramView : Zone -> DiagramItem -> Html Msg
-diagramView timezone diagram =
+diagramView : Maybe User -> Zone -> DiagramItem -> Html Msg
+diagramView user timezone diagram =
+    let
+        isOwner =
+            user
+                |> Maybe.map (\u -> u.id == (diagram.ownerId |> Maybe.withDefault ""))
+                |> Maybe.withDefault False
+    in
     div
         [ class "diagram-item"
         , style "background-image" ("url(\"" ++ (diagram.thumbnail |> Maybe.withDefault "") ++ "\")")
@@ -117,7 +154,11 @@ diagramView timezone diagram =
 
                   else
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOff 14 ]
-                , div [ style "margin-left" "16px", class "button", stopPropagationOn "click" (D.succeed ( RemoveDiagram diagram, True )) ] [ Icon.clear 20 ]
+                , if MaybeEx.isNothing user || MaybeEx.isNothing diagram.ownerId || isOwner then
+                    div [ style "margin-left" "16px", class "button", stopPropagationOn "click" (D.succeed ( RemoveDiagram diagram, True )) ] [ Icon.clear 18 ]
+
+                  else
+                    div [] []
                 ]
             ]
         ]

@@ -1,5 +1,6 @@
-module Models.Model exposing (Download, GithubSettings, Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window)
+module Models.Model exposing (Download, GithubSettings, Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window, canWrite)
 
+import Api.Diagram as DiagramAPI exposing (AddUserResponse, UpdateUserResponse)
 import Api.Export
 import Api.UrlShorter
 import Browser
@@ -8,8 +9,10 @@ import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
 import File exposing (File)
 import Http
+import List.Extra as ListEx
+import Maybe.Extra as MaybeEx
 import Models.Diagram as Diagram
-import Models.DiagramItem exposing (DiagramItem)
+import Models.DiagramItem exposing (DiagramItem, DiagramUser)
 import Models.User exposing (User)
 import Time exposing (Zone)
 import Url
@@ -29,7 +32,7 @@ type Msg
     | FileSelected File
     | FileLoaded String
     | Save
-    | Saved (Result Http.Error ())
+    | Saved (Result Http.Error DiagramItem)
     | Removed (Result ( DiagramItem, Http.Error ) DiagramItem)
     | SaveToFileSystem
     | SaveToRemote DiagramItem
@@ -83,6 +86,18 @@ type Msg
     | HistoryBack
     | MoveTo String
     | MoveToBack
+    | Search String
+    | SelectAll String
+      -- SharingDialog
+    | CancelSharing
+    | InviteUser
+    | EditInviteMail String
+    | UpdateRole String String
+    | UpdatedRole (Result Http.Error UpdateUserResponse)
+    | AddUser (Result Http.Error AddUserResponse)
+    | DeleteUser String
+    | DeletedUser (Result Http.Error String)
+    | LoadUsers (Result Http.Error DiagramItem)
 
 
 type alias OpenUrl =
@@ -103,11 +118,15 @@ type Menu
 
 
 type alias Model =
-    { id : Maybe String
+    { -- current file
+      id : Maybe String
+    , text : String
+    , currentDiagram : Maybe DiagramItem
+
+    --
     , key : Nav.Key
     , url : Url.Url
     , diagramModel : Diagram.Model
-    , text : String
     , openMenu : Maybe Menu
     , window : Window
     , settings : Settings
@@ -122,6 +141,8 @@ type alias Model =
     , timezone : Maybe Zone
     , loginUser : Maybe User
     , isOnline : Bool
+    , searchQuery : Maybe String
+    , inviteMailAddress : Maybe String
     }
 
 
@@ -167,3 +188,50 @@ type alias GithubSettings =
     { owner : String
     , repo : String
     }
+
+
+canWrite : Model -> Bool
+canWrite model =
+    let
+        isRemote =
+            case model.currentDiagram of
+                Just d ->
+                    d.isRemote
+
+                Nothing ->
+                    False
+
+        loginUser =
+            model.loginUser
+                |> Maybe.withDefault
+                    { displayName = ""
+                    , email = ""
+                    , photoURL = ""
+                    , idToken = ""
+                    , id = ""
+                    }
+
+        ownerId =
+            model.currentDiagram
+                |> Maybe.map (\x -> x.ownerId)
+                |> MaybeEx.join
+                |> Maybe.withDefault ""
+
+        roleUser =
+            model.currentDiagram
+                |> Maybe.map (\x -> x.users)
+                |> MaybeEx.join
+                |> Maybe.map
+                    (\u ->
+                        ListEx.find (\x -> loginUser.id == x.id) u
+                    )
+                |> MaybeEx.join
+                |> Maybe.withDefault
+                    { id = ""
+                    , name = ""
+                    , photoURL = ""
+                    , role = ""
+                    , mail = ""
+                    }
+    in
+    not isRemote || MaybeEx.isNothing model.currentDiagram || loginUser.id == ownerId || roleUser.role == "Editor"

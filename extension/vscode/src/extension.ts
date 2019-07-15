@@ -92,7 +92,8 @@ class DiagramPanel {
             message.width
           }" height="${message.height}" style="background-color: ${backgroundColor};">
                     ${message.text.split('<div').join('<div xmlns="http://www.w3.org/1999/xhtml"')}
-                    </svg>`
+                    </svg>`,
+          { mode: 0o755 }
         );
         vscode.window.showInformationMessage(`Exported: ${filePath}`);
       }
@@ -133,7 +134,7 @@ class DiagramPanel {
     let updated: null | NodeJS.Timeout = null;
     vscode.workspace.onDidChangeTextDocument(e => {
       if (editor) {
-        if (e.document.uri === editor.document.uri) {
+        if (e && e.document && e.document.uri === editor.document.uri) {
           if (updated) {
             clearTimeout(updated);
           }

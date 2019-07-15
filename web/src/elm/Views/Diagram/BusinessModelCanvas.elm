@@ -13,14 +13,6 @@ import Svg.Events exposing (..)
 import Svg.Lazy exposing (..)
 
 
-itemWidth =
-    300
-
-
-baseHeight =
-    300
-
-
 view : Model -> Svg Msg
 view model =
     let
@@ -28,7 +20,7 @@ view model =
             model.items |> List.filter (\item -> item.itemType /= Comments)
 
         itemHeight =
-            Basics.max baseHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
+            Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
     in
     g
         [ transform
@@ -42,7 +34,7 @@ view model =
         ]
         [ -- Key Partners
           canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             (itemHeight * 2)
             "0"
             "0"
@@ -53,15 +45,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Key Activities
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             itemHeight
-            (String.fromInt (itemWidth - 5))
+            (String.fromInt (Constants.itemWidth - 5))
             "0"
             (drawItems
                 |> getAt 3
@@ -70,15 +62,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Key Resources
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             (itemHeight + 5)
-            (String.fromInt (itemWidth - 5))
+            (String.fromInt (Constants.itemWidth - 5))
             (String.fromInt (itemHeight - 5))
             (drawItems
                 |> getAt 7
@@ -87,15 +79,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Value Propotion
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             (itemHeight * 2)
-            (String.fromInt (itemWidth * 2 - 10))
+            (String.fromInt (Constants.itemWidth * 2 - 10))
             "0"
             (drawItems
                 |> getAt 2
@@ -104,15 +96,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- ️Customer Relationships
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             itemHeight
-            (String.fromInt (itemWidth * 3 - 15))
+            (String.fromInt (Constants.itemWidth * 3 - 15))
             "0"
             (drawItems
                 |> getAt 8
@@ -121,15 +113,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Channels
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             (itemHeight + 5)
-            (String.fromInt (itemWidth * 3 - 15))
+            (String.fromInt (Constants.itemWidth * 3 - 15))
             (String.fromInt (itemHeight - 5))
             (drawItems
                 |> getAt 4
@@ -138,15 +130,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Customer Segments
         , canvasView model.settings
-            itemWidth
+            Constants.itemWidth
             (itemHeight * 2)
-            (String.fromInt (itemWidth * 4 - 20))
+            (String.fromInt (Constants.itemWidth * 4 - 20))
             "0"
             (drawItems
                 |> getAt 1
@@ -155,13 +147,13 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Cost Structure
         , canvasView model.settings
-            (round (toFloat itemWidth * 2.5) - 5)
+            (round (toFloat Constants.itemWidth * 2.5) - 5)
             (itemHeight + 5)
             "0"
             (String.fromInt (itemHeight * 2 - 5))
@@ -172,15 +164,15 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
 
         -- Revenue Streams
         , canvasView model.settings
-            (round (toFloat itemWidth * 2.5) - 5)
+            (round (toFloat Constants.itemWidth * 2.5) - 5)
             (itemHeight + 5)
-            (String.fromInt (round (toFloat itemWidth * 2.5) - 15))
+            (String.fromInt (round (toFloat Constants.itemWidth * 2.5) - 15))
             (String.fromInt (itemHeight * 2 - 5))
             (drawItems
                 |> getAt 5
@@ -189,7 +181,7 @@ view model =
                     , text = ""
                     , comment = Nothing
                     , itemType = Activities
-                    , children = Item.fromItems []
+                    , children = Item.empty
                     }
             )
         ]
@@ -210,7 +202,7 @@ canvasView settings svgWidth svgHeight posX posY item =
         [ g []
             [ rectView (String.fromInt svgWidth) (String.fromInt svgHeight) settings.color.line
             , titleView settings 10 10 item.text
-            , textView settings (itemWidth - 13) svgHeight 10 35 lines
+            , textView settings (Constants.itemWidth - 13) svgHeight 10 35 lines
             ]
         ]
 

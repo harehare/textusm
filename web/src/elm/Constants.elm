@@ -1,4 +1,4 @@
-module Constants exposing (commentSize, inputPrefix, itemMargin, leftMargin, smallItemMargin)
+module Constants exposing (commentSize, inputPrefix, itemHeight, itemMargin, itemWidth, largeItemHeight, largeItemWidth, leftMargin, smallItemMargin)
 
 
 commentSize : Int
@@ -24,3 +24,19 @@ leftMargin =
 inputPrefix : String
 inputPrefix =
     "    "
+
+
+itemWidth =
+    300
+
+
+itemHeight =
+    300
+
+
+largeItemWidth =
+    600
+
+
+largeItemHeight =
+    600

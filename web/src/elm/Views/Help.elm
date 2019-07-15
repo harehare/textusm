@@ -46,6 +46,18 @@ view =
                         ++ "User Story Release 2..."
                     )
                 ]
+            , div [ class "story" ]
+                [ text
+                    ((String.fromChar '\u{00A0}' |> String.repeat 16)
+                        ++ "Add Images"
+                    )
+                ]
+            , div [ class "story" ]
+                [ text
+                    ((String.fromChar '\u{00A0}' |> String.repeat 20)
+                        ++ "https://app.textusm.com/images/logo.svg"
+                    )
+                ]
             ]
         , section (Just "Comment Syntax")
         , div [ class "text comment", style "padding" "0 16px 16px" ]
