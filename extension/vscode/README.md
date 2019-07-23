@@ -1,6 +1,6 @@
 # TextUSM
 
-![](https://img.shields.io/badge/Release-v0.0.10-blue.svg?style=flat-square) ![](https://img.shields.io/badge/vscode-^1.33.0-blue.svg?style=flat-square) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+![](https://img.shields.io/badge/Release-v0.0.13-blue.svg?style=flat-square) ![](https://img.shields.io/badge/vscode-^1.33.0-blue.svg?style=flat-square) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
 TextISM is a simple tool. Help you draw user story map using indented text.
 
@@ -11,9 +11,9 @@ TextISM is a simple tool. Help you draw user story map using indented text.
 - Start, Stop, Continue Retrospective
 - KPT Retrospective
 
-![image](./extension/vscode/img/textusm.gif)
+![image](./img/textusm.gif)
 
-https://textusm.web.app
+https://textusm.com
 
 # Features
 

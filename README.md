@@ -4,6 +4,8 @@
 
 TextISM is a simple tool. Help you draw user story map using indented text.
 
+![image](./img/textusm.gif)
+
 ## Features
 
 - Generate a Diagram from indented text

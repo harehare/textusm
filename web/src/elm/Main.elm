@@ -44,7 +44,7 @@ import Views.Notification as Notification
 import Views.ProgressBar as ProgressBar
 import Views.ShareDialog as ShareDialog
 import Views.SplitWindow as SplitWindow
-import Views.Tab as Tab
+import Views.SwitchWindow as SwitchWindow
 
 
 init : ( String, Settings ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -132,7 +132,7 @@ sharingDialogView route user embedUrl shareUrl inviteMailAddress ownerId users =
     case route of
         SharingSettings ->
             case ( user, shareUrl, embedUrl ) of
-                ( Just u, Just (ShareUrl url), Just e) ->
+                ( Just u, Just (ShareUrl url), Just e ) ->
                     ShareDialog.view
                         (inviteMailAddress
                             |> Maybe.withDefault ""
@@ -155,7 +155,7 @@ mainView user canWrite searchQuery settings diagramModel diagrams zone window ta
     let
         mainWindow =
             if diagramModel.width > 0 && Utils.isPhone diagramModel.width then
-                lazy4 Tab.view
+                lazy4 SwitchWindow.view
                     diagramModel.settings.backgroundColor
                     tabIndex
 
@@ -477,6 +477,16 @@ update message model =
                 DiagramModel.PinchOut _ ->
                     ( { model | diagramModel = Diagram.update subMsg model.diagramModel }, Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.ZoomOut)) )
 
+                DiagramModel.ToggleFullscreen ->
+                    let
+                        window =
+                            model.window
+
+                        newWindow =
+                            { window | fullscreen = not window.fullscreen }
+                    in
+                    ( { model | window = newWindow, diagramModel = Diagram.update subMsg model.diagramModel }, Cmd.none )
+
                 DiagramModel.OnChangeText text ->
                     let
                         diagramModel =
@@ -686,7 +696,12 @@ update message model =
                   }
                 , Cmd.batch
                     [ saveDiagram
-                        ( { id = model.id
+                        ( { id =
+                                if isNothing model.currentDiagram && isRemote then
+                                    Nothing
+
+                                else
+                                    model.id
                           , title = title
                           , text = model.text
                           , thumbnail = Nothing
@@ -1031,7 +1046,7 @@ update message model =
         OnDecodeShareText text ->
             ( model, Task.perform identity (Task.succeed (FileLoaded text)) )
 
-        TabSelect tab ->
+        WindowSelect tab ->
             ( { model | tabIndex = tab }, layoutEditor 100 )
 
         LinkClicked urlRequest ->

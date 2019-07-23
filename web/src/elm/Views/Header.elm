@@ -70,6 +70,7 @@ view width profile route t isEditTitle fullscreen menu =
                             , style "overflow" "hidden"
                             , style "margin-bottom" "2px"
                             , style "font-weight" "400"
+                            , style "white-space" "nowrap"
                             , onClick StartEditTitle
                             ]
                             [ text
@@ -113,7 +114,7 @@ view width profile route t isEditTitle fullscreen menu =
                        , onClick OnCurrentShareUrl
                        ]
                 )
-                [ Icon.share "#F5F5F6" 18
+                [ Icon.people 24
                 , if Utils.isPhone width then
                     div
                         [ style "padding" "0 8px"

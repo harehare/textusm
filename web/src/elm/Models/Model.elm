@@ -56,7 +56,7 @@ type Msg
     | OnAutoCloseNotification Notification
     | OnCloseNotification
     | OnAuthStateChanged (Maybe User)
-    | TabSelect Int
+    | WindowSelect Int
     | GetAccessTokenForTrello
     | GetAccessTokenForGitHub
     | ExportGitHub String

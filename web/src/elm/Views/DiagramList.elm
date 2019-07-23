@@ -60,6 +60,7 @@ view user timezone maybeQuery maybeDiagrams =
                         , style "height" "100%"
                         , style "color" "#8C9FAE"
                         , style "font-size" "1.5rem"
+                        , style "padding-bottom" "32px"
                         ]
                         [ div [ style "margin-right" "8px" ] [ Icon.viewComfy 64 ]
                         , div [ style "margin-bottom" "8px" ] [ text "NOTHING" ]
@@ -113,6 +114,7 @@ view user timezone maybeQuery maybeDiagrams =
                     , style "align-items" "center"
                     , style "justify-content" "center"
                     , style "height" "100%"
+                    , style "padding-bottom" "32px"
                     , style "color" "#8C9FAE"
                     , style "font-size" "1.5rem"
                     ]

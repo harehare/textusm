@@ -2,29 +2,55 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 
+const showQuickPick = (context: vscode.ExtensionContext, callback: () => void) => {
+  const options = [
+    { label: 'User Story Map', value: 'UserStoryMap' },
+    { label: 'Business Model Canvas', value: 'BusinessModelCanvas' },
+    { label: 'Opportunity Canvas', value: 'OpportunityCanvas' },
+    { label: '4Ls Retrospective', value: '4Ls' },
+    { label: 'Start, Stop, Continue Retrospective', value: 'StartStopContinue' },
+    { label: 'KPT Retrospective', value: 'Kpt' }
+  ];
+  const quickPick = vscode.window.createQuickPick();
+  quickPick.items = options.map(item => ({ label: item.label }));
+  quickPick.onDidChangeSelection(selection => {
+    if (selection.length > 0) {
+      const label = selection[0].label;
+      const values = options.filter(item => item.label === label);
+
+      if (values.length > 0) {
+        DiagramPanel.createOrShow(context, values[0].value);
+        vscode.workspace.getConfiguration().update('textusm.diagramType', values[0].value);
+        callback();
+      }
+    }
+  });
+  quickPick.onDidHide(() => quickPick.dispose());
+  quickPick.show();
+};
+
 export function activate(context: vscode.ExtensionContext) {
-  vscode.workspace
-    .getConfiguration()
-    .update('textusm.fontName', vscode.workspace.getConfiguration().get('editor.fontFamily'));
   context.subscriptions.push(
     vscode.commands.registerCommand('extension.showPreview', () => {
-      DiagramPanel.createOrShow(context);
+      showQuickPick(context, () => {});
     })
   );
   context.subscriptions.push(
     vscode.commands.registerCommand('extension.exportSvg', () => {
-      DiagramPanel.createOrShow(context);
-      if (DiagramPanel.currentPanel) {
-        DiagramPanel.currentPanel.exportSvg();
-      }
+      showQuickPick(context, () => {
+        if (DiagramPanel.currentPanel) {
+          DiagramPanel.currentPanel.exportSvg();
+        }
+      });
     })
   );
   context.subscriptions.push(
     vscode.commands.registerCommand('extension.exportPng', () => {
-      DiagramPanel.createOrShow(context);
-      if (DiagramPanel.currentPanel) {
-        DiagramPanel.currentPanel.exportPng();
-      }
+      showQuickPick(context, () => {
+        if (DiagramPanel.currentPanel) {
+          DiagramPanel.currentPanel.exportPng();
+        }
+      });
     })
   );
 }
@@ -37,17 +63,19 @@ class DiagramPanel {
 
   private readonly _panel: vscode.WebviewPanel;
 
-  public static createOrShow(context: vscode.ExtensionContext) {
+  public static createOrShow(context: vscode.ExtensionContext, diagramType: string) {
     const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : vscode.ViewColumn.Two;
     const editor = vscode.window.activeTextEditor;
     const text = editor ? editor.document.getText() : '';
-    const title = editor ? editor.document.fileName : '';
+    const title = 'TextUSM';
     const scriptSrc = vscode.Uri.file(path.join(context.extensionPath, 'js', 'elm.js')).with({
       scheme: 'vscode-resource'
     });
 
+    const iconPath = vscode.Uri.file(path.join(context.extensionPath, 'images', 'icon.png'));
+
     if (DiagramPanel.currentPanel) {
-      DiagramPanel.currentPanel._update(scriptSrc, title, text);
+      DiagramPanel.currentPanel._update(iconPath, scriptSrc, title, text, diagramType);
       DiagramPanel.currentPanel._panel.webview.postMessage({
         text
       });
@@ -66,43 +94,58 @@ class DiagramPanel {
       }
     );
 
-    const figurePanel = new DiagramPanel(panel, scriptSrc, title, text);
+    const figurePanel = new DiagramPanel(panel, iconPath, scriptSrc, title, text, diagramType);
 
     DiagramPanel.currentPanel = figurePanel;
     DiagramPanel.currentPanel._addTextChangedEvent(editor);
 
     figurePanel._panel.webview.onDidReceiveMessage(message => {
       if (message.command === 'exportPng') {
-        // TODO:
-        const dir: any = vscode.workspace.getConfiguration().get('textusm.exportDir');
-        const filePath = `${dir ? dir.toString() : '.'}/${figurePanel._panel.title}.png`;
+        const dir: string | undefined = vscode.workspace.getConfiguration().get('textusm.exportDir');
+        const editor = vscode.window.activeTextEditor;
+        const title = editor ? path.basename(editor.document.fileName) : 'untitled';
+        const filePath = `${
+          dir ? (dir.endsWith('/') ? dir.toString() : `${dir.toString()}/`) : `${vscode.workspace.rootPath}/`
+        }${title}.png`;
         const base64Data = message.text.replace(/^data:image\/png;base64,/, '');
 
         fs.writeFileSync(filePath, base64Data, 'base64');
         vscode.window.showInformationMessage(`Exported: ${filePath}`);
       } else if (message.command === 'exportSvg') {
         const backgroundColor = vscode.workspace.getConfiguration().get('textusm.backgroundColor');
-        // TODO:
-        const dir: any = vscode.workspace.getConfiguration().get('textusm.exportDir');
-        const filePath = `${dir ? dir.toString() : '.'}/${figurePanel._panel.title}.svg`;
+        const editor = vscode.window.activeTextEditor;
+        const title = editor ? path.basename(editor.document.fileName) : 'untitled';
+        const dir: string | undefined = vscode.workspace.getConfiguration().get('textusm.exportDir');
+        const filePath = `${
+          dir ? (dir.endsWith('/') ? dir.toString() : `${dir.toString()}/`) : `${vscode.workspace.rootPath}/`
+        }${title}.svg`;
+        const width = (parseInt(message.width) / 3) * 5;
+        const height = (parseInt(message.height) / 3) * 4;
+
         fs.writeFileSync(
           filePath,
           `<?xml version="1.0"?>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${message.width} ${message.height}" width="${
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${
             message.width
           }" height="${message.height}" style="background-color: ${backgroundColor};">
                     ${message.text.split('<div').join('<div xmlns="http://www.w3.org/1999/xhtml"')}
-                    </svg>`,
-          { mode: 0o755 }
+                    </svg>`
         );
         vscode.window.showInformationMessage(`Exported: ${filePath}`);
       }
     });
   }
 
-  private constructor(panel: vscode.WebviewPanel, scriptSrc: vscode.Uri, title: string, text: string) {
+  private constructor(
+    panel: vscode.WebviewPanel,
+    iconPath: vscode.Uri,
+    scriptSrc: vscode.Uri,
+    title: string,
+    text: string,
+    diagramType: string
+  ) {
     this._panel = panel;
-    this._update(scriptSrc, title, text);
+    this._update(iconPath, scriptSrc, title, text, diagramType);
     this._panel.onDidDispose(() => this.dispose());
   }
 
@@ -125,16 +168,17 @@ class DiagramPanel {
     });
   }
 
-  private _update(scriptSrc: vscode.Uri, title: string, text: string) {
+  private _update(iconPath: vscode.Uri, scriptSrc: vscode.Uri, title: string, text: string, diagramType: string) {
+    this._panel.iconPath = iconPath;
     this._panel.title = `${title}`;
-    this._panel.webview.html = this.getWebviewContent(scriptSrc, text);
+    this._panel.webview.html = this.getWebviewContent(scriptSrc, text, diagramType);
   }
 
   private _addTextChangedEvent(editor: vscode.TextEditor | undefined) {
     let updated: null | NodeJS.Timeout = null;
     vscode.workspace.onDidChangeTextDocument(e => {
       if (editor) {
-        if (e && e.document && e.document.uri === editor.document.uri) {
+        if (e && e.document && editor && editor.document && e.document.uri === editor.document.uri) {
           if (updated) {
             clearTimeout(updated);
           }
@@ -149,8 +193,7 @@ class DiagramPanel {
     });
   }
 
-  private getWebviewContent(scriptSrc: vscode.Uri, text: string) {
-    // TODO: settings
+  private getWebviewContent(scriptSrc: vscode.Uri, text: string, diagramType: string) {
     const fontName = vscode.workspace.getConfiguration().get('textusm.fontName');
     const backgroundColor = vscode.workspace.getConfiguration().get('textusm.backgroundColor');
 
@@ -162,8 +205,6 @@ class DiagramPanel {
 
     const storyColor = vscode.workspace.getConfiguration().get('textusm.story.color');
     const storyBackground = vscode.workspace.getConfiguration().get('textusm.story.backgroundColor');
-
-    const diagramType = vscode.workspace.getConfiguration().get('textusm.diagramType');
 
     return `<!DOCTYPE html>
 <html>
@@ -194,12 +235,14 @@ class DiagramPanel {
         }});
         const createSvg = (svgHTML, backgroundColor, width, height) => {
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-            svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+            const svgWidth = parseInt((parseInt(width) / 3) * 5);
+            const svgHeight = parseInt((parseInt(height) / 3) * 4);
+            svg.setAttribute('viewBox', '0 0 ' + svgWidth.toString() + ' ' + svgHeight.toString());
             svg.setAttribute('width', width);
             svg.setAttribute('height', height);
-            svg.setAttribute('style', 'background-color: ' + backgroundColor)
-            svg.innerHTML = svgHTML
-            return svg
+            svg.setAttribute('style', 'background-color: ' + backgroundColor);
+            svg.innerHTML = svgHTML;
+            return svg;
         }
         window.addEventListener('message', event => {
             const message = event.data;
@@ -214,10 +257,10 @@ class DiagramPanel {
                 try {
                     usm.removeChild(zoomControl);
                 } catch {}
-
+                // TODO:
                 vscode.postMessage({
                     command: 'exportSvg',
-                    text: usm.innerHTML,
+                    text: usmSvg.innerHTML,
                     width: usmSvg.getAttribute('width'),
                     height: usmSvg.getAttribute('height')
                 })
@@ -230,30 +273,31 @@ class DiagramPanel {
                     usm.removeChild(zoomControl);
                 } catch {}
 
-                const canvas = document.createElement('canvas')
+                const canvas = document.createElement('canvas');
                 canvas.setAttribute('width', usmSvg.getAttribute('width'));
                 canvas.setAttribute('height', usmSvg.getAttribute('height'));
-                canvas.style.display = 'none'
+                canvas.style.display = 'none';
 
-                const context = canvas.getContext('2d')
-                const img = new Image()
+                const context = canvas.getContext('2d');
+                const img = new Image();
+
                 img.addEventListener('load', () => {
-                    context.drawImage(img, 0, 0)
-                    const url = canvas.toDataURL('image/png')
+                    context.drawImage(img, 0, 0);
+                    const url = canvas.toDataURL('image/png');
                     setTimeout(() => {
-                        canvas.remove()
+                        canvas.remove();
                         vscode.postMessage({
                             command: 'exportPng',
                             text: url
                         })
-                    }, 10)
-                }, false)
+                    }, 10);
+                }, false);
                 img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(new XMLSerializer().serializeToString(
                     createSvg(usmSvg.innerHTML,
                               message.backgroundColor,
                               usmSvg.getAttribute('width'),
                               usmSvg.getAttribute('height')))
-                )
+                );
             }
         });
     </script>

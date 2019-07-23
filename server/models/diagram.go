@@ -18,7 +18,7 @@ type Item struct {
 	ID          uuid.UUID      `json:"id" gorm:"type:uuid;primary_key;"`
 	OwnerID     string         `json:"owner_id" gorm:"index"`
 	Title       string         `json:"title" gorm:"type:text;index;"`
-	Text        string         `json:"text" gorm:"type:text;index;"`
+	Text        string         `json:"text" gorm:"type:text;"`
 	Thumbnail   string         `json:"thumbnail,omitempty" gorm:"type:text"`
 	DiagramPath string         `json:"diagram_path"`
 	IsPublic    bool           `json:"is_public" gorm:"index"`
@@ -32,7 +32,7 @@ type User struct {
 	ID       string `json:"id,omitempty"`
 	Name     string `json:"name,omitempty"`
 	PhotoURL string `json:"photo_url,omitempty"`
-	Mail    string `json:"mail,omitempty"`
+	Mail     string `json:"mail,omitempty"`
 	Role     string `json:"role,omitempty"`
 }
 
