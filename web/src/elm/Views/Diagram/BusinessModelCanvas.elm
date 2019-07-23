@@ -251,7 +251,7 @@ textView settings w h posX posY lines =
                         div
                             [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
                             , Attr.style "word-wrap" "break-word"
-                            , Attr.style "margin-bottom" "8px"
+                            , Attr.style "padding" "0 8px 8px 0"
                             ]
                             [ Html.text line ]
                     )

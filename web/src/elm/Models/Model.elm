@@ -131,6 +131,7 @@ type alias Model =
     , window : Window
     , settings : Settings
     , share : Maybe ShareUrl
+    , embed : Maybe String
     , title : Maybe String
     , notification : Maybe Notification
     , isEditTitle : Bool

@@ -15,13 +15,14 @@ onChange handler =
     on "change" (Json.map handler Events.targetValue)
 
 
-view : String -> Bool -> String -> User -> Maybe (List DiagramUser) -> Html Msg
-view inputMail isOwner url user diagramUsers =
+view : String -> Bool -> String -> String -> User -> Maybe (List DiagramUser) -> Html Msg
+view inputMail isOwner embedUrl url user diagramUsers =
     div [ class "dialog-background" ]
         [ div [ class "dialog", style "padding" "16px" ]
             [ div [ class "title" ]
                 ([ text "Sharing settings"
-                 , link url
+                 , link "share-url" "Link to share" url
+                 , link "embed" "Embed" ("<iframe src=\"" ++ embedUrl ++ "\"  width=\"800\" height=\"600\" frameborder=\"0\" style=\"border:0\" allowfullscreen></iframe>")
                  ]
                     ++ (if isOwner then
                             [ userList user diagramUsers
@@ -57,10 +58,10 @@ view inputMail isOwner url user diagramUsers =
         ]
 
 
-link : String -> Html Msg
-link url =
+link : String -> String -> String -> Html Msg
+link elementId label url =
     div [ style "padding-top" "16px" ]
-        [ div [ class "label" ] [ text "Link to share" ]
+        [ div [ class "label" ] [ text label ]
         , input
             [ class "input"
             , style "color" "#555"
@@ -68,8 +69,8 @@ link url =
             , style "border" "1px solid #8C9FAE"
             , readonly True
             , value url
-            , id "share-url"
-            , onClick <| SelectAll "share-url"
+            , id elementId
+            , onClick <| SelectAll elementId
             ]
             []
         ]

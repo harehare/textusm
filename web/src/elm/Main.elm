@@ -82,6 +82,7 @@ init flags url key =
                 , searchQuery = Nothing
                 , inviteMailAddress = Nothing
                 , currentDiagram = Nothing
+                , embed = Nothing
                 }
     in
     ( model
@@ -104,9 +105,10 @@ view model =
         , lazy networkStatus model.isOnline
         , lazy showNotification model.notification
         , lazy showProgressbar model.progress
-        , lazy6 sharingDialogView
+        , lazy7 sharingDialogView
             (toRoute model.url)
             model.loginUser
+            model.embed
             model.share
             model.inviteMailAddress
             (model.currentDiagram
@@ -125,17 +127,18 @@ view model =
         ]
 
 
-sharingDialogView : Route -> Maybe User -> Maybe ShareUrl -> Maybe String -> Maybe String -> Maybe (List DiagramUser) -> Html Msg
-sharingDialogView route user shareUrl inviteMailAddress ownerId users =
+sharingDialogView : Route -> Maybe User -> Maybe String -> Maybe ShareUrl -> Maybe String -> Maybe String -> Maybe (List DiagramUser) -> Html Msg
+sharingDialogView route user embedUrl shareUrl inviteMailAddress ownerId users =
     case route of
         SharingSettings ->
-            case ( user, shareUrl ) of
-                ( Just u, Just (ShareUrl url) ) ->
+            case ( user, shareUrl, embedUrl ) of
+                ( Just u, Just (ShareUrl url), Just e) ->
                     ShareDialog.view
                         (inviteMailAddress
                             |> Maybe.withDefault ""
                         )
                         (u.id == Maybe.withDefault "" ownerId)
+                        e
                         url
                         u
                         users
@@ -200,7 +203,7 @@ showProgressbar show =
         ProgressBar.view
 
     else
-        div [ style "height" "4px" ] []
+        div [ style "height" "4px", style "background" "transparent" ] []
 
 
 showNotification : Maybe Notification -> Html Msg
@@ -749,7 +752,11 @@ update message model =
             )
 
         Saved (Ok diagram) ->
-            ( { model | currentDiagram = Just diagram, progress = False }
+            let
+                newDiagram =
+                    { diagram | ownerId = Just (model.loginUser |> Maybe.map (\u -> u.id) |> Maybe.withDefault "") }
+            in
+            ( { model | currentDiagram = Just newDiagram, progress = False }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
                 , Utils.showInfoMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.") Nothing
@@ -1009,7 +1016,14 @@ update message model =
             ( { model | notification = Nothing }, Cmd.none )
 
         OnEncodeShareText path ->
-            ( model, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Utils.getIdToken model.loginUser) model.apiRoot path) )
+            let
+                shareUrl =
+                    "https://app.textusm.com/share" ++ path
+
+                embedUrl =
+                    "https://app.textusm.com/embed" ++ path
+            in
+            ( { model | embed = Just embedUrl }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Utils.getIdToken model.loginUser) model.apiRoot shareUrl) )
 
         OnChangeNetworkStatus isOnline ->
             ( { model | isOnline = isOnline }, Cmd.none )
@@ -1152,7 +1166,7 @@ update message model =
             ( { model | progress = False, diagrams = Just items }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
-                , Utils.showWarningMessage "Failed to laod files." Nothing
+                , Utils.showWarningMessage "Failed to load files." Nothing
                 ]
             )
 

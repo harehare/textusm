@@ -3,9 +3,7 @@ import LZUTF8 from "lzutf8";
 export const initShare = app => {
     app.ports.encodeShareText.subscribe(({ diagramType, title, text }) => {
         app.ports.onEncodeShareText.send(
-            `${location.protocol}//${location.host}/share/${diagramType}/${
-                title ? title : "untitled"
-            }/${encodeURIComponent(
+            `/${diagramType}/${title ? title : "untitled"}/${encodeURIComponent(
                 LZUTF8.compress(text, {
                     outputEncoding: "Base64"
                 })
