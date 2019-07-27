@@ -271,7 +271,8 @@ activityView settings verticalCount posX posY item =
 taskView : Settings -> List Int -> Int -> Int -> Item -> Svg Msg
 taskView settings verticalCount posX posY item =
     let
-        children = Item.unwrapChildren item.children
+        children =
+            Item.unwrapChildren item.children
     in
     Keyed.node "g"
         []
@@ -343,6 +344,7 @@ storyView settings verticalCount parentCount posX posY item =
            )
          ]
             ++ (children
+                    |> List.filter (\i -> i.itemType /= Comments)
                     |> List.indexedMap
                         (\i it ->
                             ( "story-" ++ item.text

@@ -30,10 +30,10 @@ view inputMail isOwner embedUrl url user diagramUsers =
                             , div [ style "margin" "8px" ]
                                 [ button
                                     [ if String.isEmpty inputMail then
-                                        class "disabled-button"
+                                        class "button disabled-button"
 
                                       else
-                                        class "save-button"
+                                        class "button save-button"
                                     , style "padding" "8px"
                                     , style "margin-right" "16px"
                                     , if String.isEmpty inputMail then
@@ -43,13 +43,13 @@ view inputMail isOwner embedUrl url user diagramUsers =
                                         onClick InviteUser
                                     ]
                                     [ text "OK" ]
-                                , button [ class "cancel-button", style "padding" "8px", onClick CancelSharing ] [ text "Close" ]
+                                , button [ class "button cancel-button", style "padding" "8px", onClick CancelSharing ] [ text "Close" ]
                                 ]
                             ]
 
                         else
                             [ div [ style "margin" "8px" ]
-                                [ button [ class "save-button", style "padding" "8px", onClick CancelSharing ] [ text "Close" ]
+                                [ button [ class "button save-button", style "padding" "8px", onClick CancelSharing ] [ text "Close" ]
                                 ]
                             ]
                        )

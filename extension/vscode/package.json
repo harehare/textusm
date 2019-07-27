@@ -6,7 +6,7 @@
     "name": "harehare"
   },
   "publisher": "harehare",
-  "version": "0.0.13",
+  "version": "0.0.15",
   "engines": {
     "vscode": "^1.33.0"
   },
@@ -27,22 +27,31 @@
   "activationEvents": [
     "onCommand:extension.showPreview",
     "onCommand:extension.exportSvg",
-    "onCommand:extension.exportPng"
+    "onCommand:extension.exportPng",
+    "onCommand:extension.newDiagram"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "extension.showPreview",
-        "title": "TextUSM: Open Preview"
+        "title": "TextUSM: Open Preview",
+        "when": "editorTextFocus"
       },
       {
         "command": "extension.exportSvg",
-        "title": "TextUSM: Export SVG"
+        "title": "TextUSM: Export SVG",
+        "when": "editorTextFocus"
       },
       {
         "command": "extension.exportPng",
-        "title": "TextUSM: Export PNG"
+        "title": "TextUSM: Export PNG",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "extension.newDiagram",
+        "title": "TextUSM: New Diagram",
+        "when": "editorTextFocus"
       }
     ],
     "configuration": {
@@ -93,18 +102,6 @@
           "type": "string",
           "default": "#FFFFFF",
           "markdownDescription": "Background color for user story."
-        },
-        "textusm.diagramType": {
-          "type": "string",
-          "enum": [
-            "UserStoryMap",
-            "BusinessModelCanvas",
-            "OpportunityCanvas",
-            "4Ls",
-            "StartStopContinue",
-            "Kpt"
-          ],
-          "default": "UserStoryMap"
         }
       }
     }

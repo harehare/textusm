@@ -4,7 +4,9 @@ export const initDowonlad = app => {
             "http://www.w3.org/2000/svg",
             "svg"
         );
-        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+        const svgWidth = parseInt((width / 3) * 5);
+        const svgHeight = parseInt((height / 3) * 5);
+        svg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
         svg.setAttribute("width", width);
         svg.setAttribute("height", height);
         svg.setAttribute("style", "background-color: #F5F5F6;");
@@ -20,8 +22,10 @@ export const initDowonlad = app => {
 
     app.ports.downloadPng.subscribe(({ id, width, height, title }) => {
         const canvas = document.createElement("canvas");
-        canvas.setAttribute("width", width);
-        canvas.setAttribute("height", height);
+        const svgWidth = parseInt((width / 3) * 5);
+        const svgHeight = parseInt((height / 3) * 5);
+        canvas.setAttribute("width", svgWidth);
+        canvas.setAttribute("height", svgHeight);
         canvas.style.display = "none";
 
         const context = canvas.getContext("2d");

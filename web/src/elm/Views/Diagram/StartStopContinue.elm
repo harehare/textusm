@@ -89,7 +89,9 @@ canvasView : Settings -> Int -> Int -> String -> String -> Item -> Svg Msg
 canvasView settings svgWidth svgHeight posX posY item =
     let
         lines =
-            List.map (\i -> i.text) (Item.unwrapChildren item.children)
+            Item.unwrapChildren item.children
+                |> List.filter (\i -> i.itemType /= Comments)
+                |> List.map (\i -> i.text)
     in
     svg
         [ width (String.fromInt svgWidth)

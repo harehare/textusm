@@ -1,16 +1,19 @@
-module Utils exposing (calcFontSize, delay, fileLoad, getIdToken, getTitle, httpErrorToString, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage)
+module Utils exposing (calcFontSize, delay, fileLoad, getCanvasSize, getIdToken, getTitle, httpErrorToString, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage)
 
+import Constants
 import File exposing (File)
 import Http exposing (Error(..))
+import Models.Diagram as DiagramModel
+import Models.DiagramType as DiagramType
+import Models.IdToken as IdToken exposing (IdToken)
 import Models.Model exposing (Msg(..), Notification(..))
 import Models.User as User exposing (User)
-import Models.IdToken as IdToken exposing (IdToken)
 import Process
 import Task
 import Time exposing (Month(..), Zone, millisToPosix, toDay, toMonth, toYear)
 
 
-getIdToken : Maybe User -> Maybe IdToken 
+getIdToken : Maybe User -> Maybe IdToken
 getIdToken user =
     Maybe.map (\u -> User.getIdToken u) user
 
@@ -127,3 +130,49 @@ monthToInt month =
 
         Dec ->
             12
+
+
+getCanvasSize : DiagramModel.Model -> DiagramType.DiagramType -> ( Int, Int )
+getCanvasSize model diagramType =
+    let
+        width =
+            case diagramType of
+                DiagramType.FourLs ->
+                    Constants.itemWidth * 2 + 20
+
+                DiagramType.OpportunityCanvas ->
+                    Constants.itemWidth * 5 + 20
+
+                DiagramType.BusinessModelCanvas ->
+                    Constants.itemWidth * 5 + 20
+
+                DiagramType.Kpt ->
+                    Constants.largeItemWidth * 2 + 20
+
+                DiagramType.StartStopContinue ->
+                    Constants.itemWidth * 3 + 20
+
+                _ ->
+                    (model.settings.size.width + Constants.itemMargin) * (List.maximum model.countByTasks |> Maybe.withDefault 1)
+
+        height =
+            case model.diagramType of
+                DiagramType.FourLs ->
+                    Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20
+
+                DiagramType.OpportunityCanvas ->
+                    Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 3 + 20
+
+                DiagramType.BusinessModelCanvas ->
+                    Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 3 + 20
+
+                DiagramType.Kpt ->
+                    Basics.max Constants.itemHeight (30 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20
+
+                DiagramType.StartStopContinue ->
+                    Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) + 20
+
+                _ ->
+                    (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2)
+    in
+    ( width, height )

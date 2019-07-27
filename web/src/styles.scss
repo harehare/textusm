@@ -178,6 +178,11 @@ select {
     border-radius: 8px;
     z-index: 101;
 
+    .button {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+        border: none;
+    }
+
     .save-button {
         width: 100px;
         font-weight: 600;
@@ -210,7 +215,7 @@ select {
         box-shadow: 0 4px 8px 3px rgba(60, 64, 67, 0.15);
         border-radius: 0px;
         z-index: 100;
-        height: calc(100vh - 85px);
+        height: 100vh;
     }
 }
 
@@ -221,6 +226,10 @@ select {
     height: 100vh;
     z-index: 100;
     background-color: rgba(0, 0, 0, 0.6);
+
+    @media screen and (max-width: 480px) {
+        z-index: 101;
+    }
 }
 
 .diagram-item {

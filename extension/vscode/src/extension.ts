@@ -4,12 +4,12 @@ import * as fs from 'fs';
 
 const showQuickPick = (context: vscode.ExtensionContext, callback: () => void) => {
   const options = [
-    { label: 'User Story Map', value: 'UserStoryMap' },
-    { label: 'Business Model Canvas', value: 'BusinessModelCanvas' },
-    { label: 'Opportunity Canvas', value: 'OpportunityCanvas' },
-    { label: '4Ls Retrospective', value: '4Ls' },
-    { label: 'Start, Stop, Continue Retrospective', value: 'StartStopContinue' },
-    { label: 'KPT Retrospective', value: 'Kpt' }
+    { label: 'User Story Map', value: 'usm' },
+    { label: 'Business Model Canvas', value: 'bmc' },
+    { label: 'Opportunity Canvas', value: 'opc' },
+    { label: '4Ls Retrospective', value: '4ls' },
+    { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
+    { label: 'KPT Retrospective', value: 'kpt' }
   ];
   const quickPick = vscode.window.createQuickPick();
   quickPick.items = options.map(item => ({ label: item.label }));
@@ -20,13 +20,24 @@ const showQuickPick = (context: vscode.ExtensionContext, callback: () => void) =
 
       if (values.length > 0) {
         DiagramPanel.createOrShow(context, values[0].value);
-        vscode.workspace.getConfiguration().update('textusm.diagramType', values[0].value);
         callback();
       }
     }
   });
   quickPick.onDidHide(() => quickPick.dispose());
   quickPick.show();
+};
+
+const setText = (editor: vscode.TextEditor, text: string) => {
+  editor.edit(builder => {
+    const document = editor.document;
+    const lastLine = document.lineAt(document.lineCount - 1);
+
+    const start = new vscode.Position(0, 0);
+    const end = new vscode.Position(document.lineCount - 1, lastLine.text.length);
+
+    builder.replace(new vscode.Range(start, end), text);
+  });
 };
 
 export function activate(context: vscode.ExtensionContext) {
@@ -51,6 +62,62 @@ export function activate(context: vscode.ExtensionContext) {
           DiagramPanel.currentPanel.exportPng();
         }
       });
+    })
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand('extension.newDiagram', () => {
+      const options = [
+        { label: 'User Story Map', value: 'usm' },
+        { label: 'Business Model Canvas', value: 'bmc' },
+        { label: 'Opportunity Canvas', value: 'opc' },
+        { label: '4Ls Retrospective', value: '4ls' },
+        { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
+        { label: 'KPT Retrospective', value: 'kpt' }
+      ];
+      const quickPick = vscode.window.createQuickPick();
+      quickPick.items = options.map(item => ({ label: item.label }));
+      quickPick.onDidChangeSelection(selection => {
+        if (selection.length > 0) {
+          const label = selection[0].label;
+          const values = options.filter(item => item.label === label);
+          const editor = vscode.window.activeTextEditor;
+
+          if (editor && values.length > 0) {
+            switch (values[0].value) {
+              case 'usm':
+                setText(
+                  editor,
+                  '# labels: USER ACTIVITIES, USER TASKS, USER STORY\nUSER ACTIVITY\n    USER TASK\n        USER STORY'
+                );
+                break;
+              case 'bmc':
+                setText(
+                  editor,
+                  '👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships'
+                );
+                break;
+              case 'opc':
+                setText(
+                  editor,
+                  'Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget'
+                );
+                break;
+              case '4ls':
+                setText(editor, 'Liked\nLearned\nLacked\nLonged for');
+                break;
+              case 'ssc':
+                setText(editor, 'Start\nStop\nContinue');
+                break;
+              case 'kpt':
+                setText(editor, 'K\nP\nT');
+                break;
+            }
+          }
+          quickPick.hide();
+        }
+      });
+      quickPick.onDidHide(() => quickPick.dispose());
+      quickPick.show();
     })
   );
 }
@@ -119,8 +186,8 @@ class DiagramPanel {
         const filePath = `${
           dir ? (dir.endsWith('/') ? dir.toString() : `${dir.toString()}/`) : `${vscode.workspace.rootPath}/`
         }${title}.svg`;
-        const width = (parseInt(message.width) / 3) * 5;
-        const height = (parseInt(message.height) / 3) * 4;
+        const width = parseInt(message.width) * 2;
+        const height = parseInt(message.height) * 2;
 
         fs.writeFileSync(
           filePath,
@@ -235,8 +302,8 @@ class DiagramPanel {
         }});
         const createSvg = (svgHTML, backgroundColor, width, height) => {
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-            const svgWidth = parseInt((parseInt(width) / 3) * 5);
-            const svgHeight = parseInt((parseInt(height) / 3) * 4);
+            const svgWidth = parseInt(parseInt(width) * 2);
+            const svgHeight = parseInt(parseInt(height) * 2);
             svg.setAttribute('viewBox', '0 0 ' + svgWidth.toString() + ' ' + svgHeight.toString());
             svg.setAttribute('width', width);
             svg.setAttribute('height', height);
@@ -257,13 +324,16 @@ class DiagramPanel {
                 try {
                     usm.removeChild(zoomControl);
                 } catch {}
-                // TODO:
-                vscode.postMessage({
-                    command: 'exportSvg',
-                    text: usmSvg.innerHTML,
-                    width: usmSvg.getAttribute('width'),
-                    height: usmSvg.getAttribute('height')
-                })
+
+                app.ports.onGetCanvasSize.subscribe(([width, height]) => {
+                  vscode.postMessage({
+                      command: 'exportSvg',
+                      text: usmSvg.innerHTML,
+                      width: width,
+                      height: height
+                  });
+                });
+                app.ports.getCanvasSize.send("${diagramType}");
             } else if (message.command === 'exportPng') {
                 const usm = document.querySelector('#usm-area').cloneNode(true);
                 const usmSvg = usm.querySelector('#usm');
@@ -292,12 +362,15 @@ class DiagramPanel {
                         })
                     }, 10);
                 }, false);
-                img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(new XMLSerializer().serializeToString(
+                app.ports.onGetCanvasSize.subscribe(([width, height]) => {
+                  img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(new XMLSerializer().serializeToString(
                     createSvg(usmSvg.innerHTML,
                               message.backgroundColor,
-                              usmSvg.getAttribute('width'),
-                              usmSvg.getAttribute('height')))
-                );
+                              width,
+                              height))
+                  );
+                });
+                app.ports.getCanvasSize.send("${diagramType}");
             }
         });
     </script>

@@ -69,6 +69,7 @@ type Msg
     | NewOpportunityCanvas
     | NewFourLs
     | NewStartStopContinue
+    | NewCostBenfitAnalysis
     | NewKpt
     | GetDiagrams
     | LoadLocalDiagrams (List DiagramItem)

@@ -106,6 +106,7 @@ newMenu =
     [ ( NewUserStoryMap, "User Story Map" )
     , ( NewBusinessModelCanvas, "Business Model Canvas" )
     , ( NewOpportunityCanvas, "Opportunity Canvas" )
+    , ( NewCostBenfitAnalysis, "Cost-benfit analysis" )
     , ( NewFourLs, "4Ls Retrospective" )
     , ( NewStartStopContinue, "Start, Stop, Continue Retrospective" )
     , ( NewKpt, "KPT Retrospective" )

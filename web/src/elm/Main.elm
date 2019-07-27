@@ -532,45 +532,8 @@ update message model =
 
         DownloadPng ->
             let
-                width =
-                    case model.diagramModel.diagramType of
-                        DiagramType.FourLs ->
-                            Constants.itemWidth * 2 + 20
-
-                        DiagramType.OpportunityCanvas ->
-                            Constants.itemWidth * 5 + 20
-
-                        DiagramType.BusinessModelCanvas ->
-                            Constants.itemWidth * 5 + 20
-
-                        DiagramType.Kpt ->
-                            Constants.largeItemWidth * 2 + 20
-
-                        DiagramType.StartStopContinue ->
-                            Constants.itemWidth * 3 + 20
-
-                        _ ->
-                            Basics.max model.diagramModel.svg.height model.diagramModel.height
-
-                height =
-                    case model.diagramModel.diagramType of
-                        DiagramType.FourLs ->
-                            Basics.max Constants.largeItemHeight (14 * (List.maximum model.diagramModel.countByTasks |> Maybe.withDefault 0)) * 2 + 20
-
-                        DiagramType.OpportunityCanvas ->
-                            Basics.max Constants.itemHeight (14 * (List.maximum model.diagramModel.countByTasks |> Maybe.withDefault 0)) * 3 + 20
-
-                        DiagramType.BusinessModelCanvas ->
-                            Basics.max Constants.itemHeight (14 * (List.maximum model.diagramModel.countByTasks |> Maybe.withDefault 0)) * 3 + 20
-
-                        DiagramType.Kpt ->
-                            Basics.max Constants.itemHeight (30 * (List.maximum model.diagramModel.countByTasks |> Maybe.withDefault 0)) * 2 + 20
-
-                        DiagramType.StartStopContinue ->
-                            Basics.max Constants.largeItemHeight (14 * (List.maximum model.diagramModel.countByTasks |> Maybe.withDefault 0)) + 20
-
-                        _ ->
-                            Basics.max model.diagramModel.svg.height model.diagramModel.height
+                ( width, height ) =
+                    Utils.getCanvasSize model.diagramModel model.diagramModel.diagramType
             in
             ( model
             , downloadPng
@@ -583,45 +546,8 @@ update message model =
 
         DownloadSvg ->
             let
-                width =
-                    case model.diagramModel.diagramType of
-                        DiagramType.FourLs ->
-                            Constants.itemWidth * 2 + 20
-
-                        DiagramType.OpportunityCanvas ->
-                            Constants.itemWidth * 5 + 20
-
-                        DiagramType.BusinessModelCanvas ->
-                            Constants.itemWidth * 5 + 20
-
-                        DiagramType.Kpt ->
-                            Constants.largeItemWidth * 2 + 20
-
-                        DiagramType.StartStopContinue ->
-                            Constants.itemWidth * 3 + 20
-
-                        _ ->
-                            Basics.max model.diagramModel.svg.height model.diagramModel.height
-
-                height =
-                    case model.diagramModel.diagramType of
-                        DiagramType.FourLs ->
-                            Basics.max Constants.largeItemHeight (14 * (List.maximum model.diagramModel.countByTasks |> Maybe.withDefault 0)) * 2 + 20
-
-                        DiagramType.OpportunityCanvas ->
-                            Basics.max Constants.itemHeight (14 * (List.maximum model.diagramModel.countByTasks |> Maybe.withDefault 0)) * 3 + 20
-
-                        DiagramType.BusinessModelCanvas ->
-                            Basics.max Constants.itemHeight (14 * (List.maximum model.diagramModel.countByTasks |> Maybe.withDefault 0)) * 3 + 20
-
-                        DiagramType.Kpt ->
-                            Basics.max Constants.itemHeight (30 * (List.maximum model.diagramModel.countByTasks |> Maybe.withDefault 0)) * 2 + 20
-
-                        DiagramType.StartStopContinue ->
-                            Basics.max Constants.largeItemHeight (14 * (List.maximum model.diagramModel.countByTasks |> Maybe.withDefault 0)) + 20
-
-                        _ ->
-                            Basics.max model.diagramModel.svg.height model.diagramModel.height
+                ( width, height ) =
+                    Utils.getCanvasSize model.diagramModel model.diagramModel.diagramType
             in
             ( model
             , downloadSvg
@@ -685,6 +611,9 @@ update message model =
                 let
                     title =
                         model.title |> Maybe.withDefault ""
+
+                    isLocal =
+                        Maybe.map (\d -> not d.isRemote) model.currentDiagram |> Maybe.withDefault True
                 in
                 ( { model
                     | notification =
@@ -697,7 +626,7 @@ update message model =
                 , Cmd.batch
                     [ saveDiagram
                         ( { id =
-                                if isNothing model.currentDiagram && isRemote then
+                                if (isNothing model.currentDiagram || isLocal) && isRemote then
                                     Nothing
 
                                 else
@@ -1418,6 +1347,23 @@ Budget
 
                 text =
                     "Liked\nLearned\nLacked\nLonged for"
+            in
+            ( { model_
+                | text = text
+              }
+            , Cmd.batch
+                [ saveToLocal model (Just (Route.toString Route.FourLs))
+                , loadText text
+                ]
+            )
+
+        NewCostBenfitAnalysis ->
+            let
+                ( model_, _ ) =
+                    update NewUserStoryMap model
+
+                text =
+                    "HIGH EFFORT/LOW REWARD\nHIGH EFFORT/HIGH REWARD\nLOW EFFORT/LOW REWARD\nLOW EFFORT/HIGH REWARD"
             in
             ( { model_
                 | text = text

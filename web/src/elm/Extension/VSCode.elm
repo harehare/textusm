@@ -10,6 +10,7 @@ import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
 import Task
+import Utils
 
 
 
@@ -39,6 +40,7 @@ type alias InitData =
 
 type Msg
     = UpdateDiagram DiagramModel.Msg
+    | GetCanvasSize String
 
 
 init : InitData -> ( Model, Cmd Msg )
@@ -62,24 +64,7 @@ init flags =
             , moveY = 0
             , fullscreen = False
             , showZoomControl = True
-            , diagramType =
-                if flags.diagramType == "BusinessModelCanvas" then
-                    DiagramType.BusinessModelCanvas
-
-                else if flags.diagramType == "OpportunityCanvas" then
-                    DiagramType.OpportunityCanvas
-
-                else if flags.diagramType == "4Ls" then
-                    DiagramType.FourLs
-
-                else if flags.diagramType == "StartStopContinue" then
-                    DiagramType.StartStopContinue
-
-                else if flags.diagramType == "Kpt" then
-                    DiagramType.Kpt
-
-                else
-                    DiagramType.UserStoryMap
+            , diagramType = DiagramType.fromString flags.diagramType
             , settings =
                 { font = flags.fontName
                 , size =
@@ -169,6 +154,13 @@ update message model =
                 _ ->
                     ( { model | diagramModel = Diagram.update subMsg model.diagramModel }, Cmd.none )
 
+        GetCanvasSize diagramType ->
+            let
+                size =
+                    Utils.getCanvasSize model.diagramModel (DiagramType.fromString diagramType)
+            in
+            ( model, onGetCanvasSize size )
+
 
 
 -- Subscription
@@ -177,7 +169,13 @@ update message model =
 port errorLine : String -> Cmd msg
 
 
+port onGetCanvasSize : ( Int, Int ) -> Cmd msg
+
+
 port onTextChanged : (String -> msg) -> Sub msg
+
+
+port getCanvasSize : (String -> msg) -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
@@ -186,4 +184,5 @@ subscriptions _ =
         [ onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
         , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
         , onTextChanged (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
+        , getCanvasSize GetCanvasSize
         ]

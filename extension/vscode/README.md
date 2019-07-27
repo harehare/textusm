@@ -1,6 +1,6 @@
 # TextUSM
 
-![](https://img.shields.io/badge/Release-v0.0.13-blue.svg?style=flat-square) ![](https://img.shields.io/badge/vscode-^1.33.0-blue.svg?style=flat-square) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+![](https://img.shields.io/badge/Release-v0.0.14-blue.svg?style=flat-square) ![](https://img.shields.io/badge/vscode-^1.33.0-blue.svg?style=flat-square) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
 TextISM is a simple tool. Help you draw user story map using indented text.
 
@@ -19,6 +19,7 @@ https://textusm.com
 
 ## Available Commands
 
+- `TextUSM: New Diagram`
 - `TextUSM: Open Preview`
 - `TextUSM: Export SVG`
 - `TextUSM: Export PNG`
@@ -145,8 +146,7 @@ Try
   "textusm.story.backgroundColor": "#000000",
   "textusm.story.color": "#FFFFFFF",
   "textusm.task.backgroundColor": "#000000",
-  "textusm.task.color": "#000000",
-  "textusm.diagramType": "UserStoryMap"
+  "textusm.task.color": "#000000"
 }
 ```
 

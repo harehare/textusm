@@ -91,7 +91,7 @@ parseLines indent text =
                             splitAt (xs + 1) line
 
                         result =
-                            if indent > 1 && List.length (Tuple.first itemPair) > 1 then
+                            if indent > 1 && List.length (Tuple.first itemPair |> List.filter (\i -> not (i |> String.trim |> String.startsWith "#"))) > 1 then
                                 Err text
 
                             else
