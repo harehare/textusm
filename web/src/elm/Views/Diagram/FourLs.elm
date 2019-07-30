@@ -13,10 +13,6 @@ import Svg.Events exposing (..)
 import Svg.Lazy exposing (..)
 
 
-baseHeight =
-    600
-
-
 view : Model -> Svg Msg
 view model =
     let

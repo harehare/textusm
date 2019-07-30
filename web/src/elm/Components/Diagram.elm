@@ -25,6 +25,7 @@ import Views.Diagram.FourLs as FourLs
 import Views.Diagram.Kpt as Kpt
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
 import Views.Diagram.StartStopContinue as StartStopContinue
+import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
 import Views.Icon as Icon
 
@@ -381,6 +382,9 @@ svgView model =
 
             Kpt ->
                 lazy Kpt.view model
+
+            UserPersona ->
+                lazy UserPersona.view model
         ]
 
 

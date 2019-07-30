@@ -70,6 +70,7 @@ type Msg
     | NewFourLs
     | NewStartStopContinue
     | NewCostBenfitAnalysis
+    | NewUserPersona
     | NewKpt
     | GetDiagrams
     | LoadLocalDiagrams (List DiagramItem)

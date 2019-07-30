@@ -8,6 +8,7 @@ type DiagramType
     | FourLs
     | StartStopContinue
     | Kpt
+    | UserPersona
 
 
 toString : DiagramType -> String
@@ -31,6 +32,9 @@ toString diagramType =
         Kpt ->
             "kpt"
 
+        UserPersona ->
+            "persona"
+
 
 fromString : String -> DiagramType
 fromString s =
@@ -52,6 +56,9 @@ fromString s =
 
         "kpt" ->
             Kpt
+
+        "persona" ->
+            UserPersona
 
         _ ->
             UserStoryMap

@@ -38,6 +38,7 @@ type Route
     | FourLs
     | StartStopContinue
     | Kpt
+    | Persona
     | List
     | Settings
     | Help
@@ -64,6 +65,7 @@ parser =
         , map FourLs (s "4ls")
         , map StartStopContinue (s "ssc")
         , map Kpt (s "kpt")
+        , map Persona (s "persona")
         , map List (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
@@ -99,6 +101,9 @@ toString route =
 
         Kpt ->
             absolute [ "kpt" ] []
+
+        Persona ->
+            absolute [ "persona" ] []
 
         List ->
             absolute [ "list" ] []

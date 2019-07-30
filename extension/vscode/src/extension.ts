@@ -7,6 +7,7 @@ const showQuickPick = (context: vscode.ExtensionContext, callback: () => void) =
     { label: 'User Story Map', value: 'usm' },
     { label: 'Business Model Canvas', value: 'bmc' },
     { label: 'Opportunity Canvas', value: 'opc' },
+    { label: 'User Persona', value: 'persona' },
     { label: '4Ls Retrospective', value: '4ls' },
     { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
     { label: 'KPT Retrospective', value: 'kpt' }
@@ -40,6 +41,15 @@ const setText = (editor: vscode.TextEditor, text: string) => {
   });
 };
 
+const newTextOpen = async (text: string) => {
+  const doc = await vscode.workspace.openTextDocument({
+    language: 'txt',
+    content: text
+  });
+  const editor = await vscode.window.showTextDocument(doc, -1, true);
+  setText(editor, text);
+};
+
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand('extension.showPreview', () => {
@@ -70,6 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
         { label: 'User Story Map', value: 'usm' },
         { label: 'Business Model Canvas', value: 'bmc' },
         { label: 'Opportunity Canvas', value: 'opc' },
+        { label: 'User Persona', value: 'persona' },
         { label: '4Ls Retrospective', value: '4ls' },
         { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
         { label: 'KPT Retrospective', value: 'kpt' }
@@ -85,31 +96,33 @@ export function activate(context: vscode.ExtensionContext) {
           if (editor && values.length > 0) {
             switch (values[0].value) {
               case 'usm':
-                setText(
-                  editor,
+                newTextOpen(
                   '# labels: USER ACTIVITIES, USER TASKS, USER STORY\nUSER ACTIVITY\n    USER TASK\n        USER STORY'
                 );
                 break;
               case 'bmc':
-                setText(
-                  editor,
+                newTextOpen(
                   '👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships'
                 );
                 break;
               case 'opc':
-                setText(
-                  editor,
+                newTextOpen(
                   'Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget'
                 );
                 break;
               case '4ls':
-                setText(editor, 'Liked\nLearned\nLacked\nLonged for');
+                newTextOpen('Liked\nLearned\nLacked\nLonged for');
                 break;
               case 'ssc':
-                setText(editor, 'Start\nStop\nContinue');
+                newTextOpen('Start\nStop\nContinue');
                 break;
               case 'kpt':
-                setText(editor, 'K\nP\nT');
+                newTextOpen('K\nP\nT');
+                break;
+              case 'persona':
+                newTextOpen(
+                  'Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology'
+                );
                 break;
             }
           }

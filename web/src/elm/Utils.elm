@@ -152,6 +152,9 @@ getCanvasSize model diagramType =
                 DiagramType.StartStopContinue ->
                     Constants.itemWidth * 3 + 20
 
+                DiagramType.UserPersona ->
+                    Constants.itemWidth * 5 + 25
+
                 _ ->
                     (model.settings.size.width + Constants.itemMargin) * (List.maximum model.countByTasks |> Maybe.withDefault 1)
 
@@ -171,6 +174,9 @@ getCanvasSize model diagramType =
 
                 DiagramType.StartStopContinue ->
                     Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) + 20
+
+                DiagramType.UserPersona ->
+                    Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20
 
                 _ ->
                     (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2)

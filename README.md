@@ -12,6 +12,8 @@ TextUSM is a simple tool. Help you draw user story map using indented text.
   - User Story Map
   - Business Model Canvas
   - Opportunity Canvas
+  - User Persona
+  - Cost-benfit Analysis
   - 4Ls Retrospective
   - Start, Stop, Continue Retrospective
   - KPT Retrospective
@@ -134,11 +136,10 @@ Try
 
 ## Installation
 
-- [Web](https://textusm.web.app)
+- [Web](https://textusm.com)
 - [Android](https://play.google.com/store/apps/details?id=me.textusm.usm)
 - [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=harehare.textusm)
-- [Chrome Extension](https://chrome.google.com/webstore/detail/godhdokkibfjekpoikkghnjgemibmhka)
-- [CLI](https://www.npmjs.com/package/textusm.cli)
+- [cli](https://www.npmjs.com/package/textusm.cli)
 - [npm](https://www.npmjs.com/package/textusm)
 
 ## Developing

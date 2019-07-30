@@ -444,6 +444,18 @@ changeRouteTo route model =
             , getCmds []
             )
 
+        Route.Persona ->
+            let
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel | diagramType = DiagramType.UserPersona }
+            in
+            ( { updatedModel | diagramModel = newDiagramModel }
+            , getCmds []
+            )
+
         _ ->
             let
                 diagramModel =
@@ -1404,6 +1416,33 @@ Budget
               }
             , Cmd.batch
                 [ saveToLocal model (Just (Route.toString Route.Kpt))
+                , loadText text
+                ]
+            )
+
+        NewUserPersona ->
+            let
+                ( model_, _ ) =
+                    update NewUserStoryMap model
+
+                text =
+                    """Name
+    https://app.textusm.com/images/logo.svg
+Who am i...
+Three reasons to use your product
+Three reasons to buy your product
+My interests
+My personality
+My Skills
+My dreams
+My relationship with technology
+"""
+            in
+            ( { model_
+                | text = text
+              }
+            , Cmd.batch
+                [ saveToLocal model (Just (Route.toString Route.Persona))
                 , loadText text
                 ]
             )
