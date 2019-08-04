@@ -217,7 +217,7 @@ commentContentView settings comment =
             ]
             [ div
                 [ Attr.style "padding" "8px"
-                , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+                , Attr.style "font-family" ("\"" ++ settings.font ++ "\", sans-serif")
                 , Attr.style "color" settings.color.comment.color
                 , Attr.style "backgrond-color" settings.color.comment.backgroundColor
                 , Attr.style "word-wrap" "break-word"

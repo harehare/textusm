@@ -146,6 +146,7 @@ type alias Model =
     , isOnline : Bool
     , searchQuery : Maybe String
     , inviteMailAddress : Maybe String
+    , modified : Bool
     }
 
 

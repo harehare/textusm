@@ -83,6 +83,7 @@ init flags url key =
                 , inviteMailAddress = Nothing
                 , currentDiagram = Nothing
                 , embed = Nothing
+                , modified = False
                 }
     in
     ( model
@@ -203,7 +204,7 @@ showProgressbar show =
         ProgressBar.view
 
     else
-        div [ style "height" "4px", style "background" "transparent" ] []
+        div [ style "height" "4px", style "background" "#273037" ] []
 
 
 showNotification : Maybe Notification -> Html Msg
@@ -239,7 +240,7 @@ changeRouteTo : Route -> Model -> ( Model, Cmd Msg )
 changeRouteTo route model =
     let
         updatedModel =
-            { model | diagrams = Nothing }
+            { model | diagrams = Nothing, modified = False }
 
         getCmds : List (Cmd Msg) -> Cmd Msg
         getCmds cmds =
@@ -506,10 +507,10 @@ update message model =
                     in
                     case diagramModel.error of
                         Just err ->
-                            ( { model | text = text, diagramModel = diagramModel }, errorLine err )
+                            ( { model | text = text, diagramModel = diagramModel, modified = True }, errorLine err )
 
                         Nothing ->
-                            ( { model | text = text, diagramModel = diagramModel }, errorLine "" )
+                            ( { model | text = text, diagramModel = diagramModel, modified = True }, errorLine "" )
 
                 _ ->
                     ( { model | diagramModel = Diagram.update subMsg model.diagramModel }, Cmd.none )
@@ -695,6 +696,7 @@ update message model =
             ( { model
                 | progress = False
                 , currentDiagram = Just item
+                , modified = False
               }
             , Cmd.batch
                 [ Utils.delay 3000
@@ -712,7 +714,7 @@ update message model =
                 newDiagram =
                     { diagram | ownerId = Just (model.loginUser |> Maybe.map (\u -> u.id) |> Maybe.withDefault "") }
             in
-            ( { model | currentDiagram = Just newDiagram, progress = False }
+            ( { model | currentDiagram = Just newDiagram, progress = False, modified = False }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
                 , Utils.showInfoMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.") Nothing
@@ -774,8 +776,14 @@ update message model =
                 diagramModel =
                     model.diagramModel
 
+                storyMapSettings =
+                    settings.storyMap
+
+                newStoryMapSettings =
+                    { storyMapSettings | font = settings.font }
+
                 newDiagramModel =
-                    { diagramModel | settings = settings.storyMap }
+                    { diagramModel | settings = newStoryMapSettings }
             in
             ( { model | settings = settings, diagramModel = newDiagramModel }, Cmd.none )
 
@@ -785,11 +793,17 @@ update message model =
 
             else if visible == Hidden then
                 let
+                    storyMap =
+                        model.settings.storyMap
+
+                    newStoryMap =
+                        { storyMap | font = model.settings.font }
+
                     newSettings =
                         { position = Just model.window.position
                         , font = model.settings.font
                         , diagramId = model.id
-                        , storyMap = model.settings.storyMap
+                        , storyMap = newStoryMap
                         , text = Just model.text
                         , title =
                             model.title
@@ -1450,20 +1464,24 @@ My relationship with technology
 
 saveToLocal : Model -> Maybe String -> Cmd Msg
 saveToLocal model url =
-    saveDiagram
-        ( { id = Nothing
-          , title = model.title |> Maybe.withDefault ""
-          , text = model.text
-          , thumbnail = Nothing
-          , diagramPath = DiagramType.toString model.diagramModel.diagramType
-          , isRemote = False
-          , updatedAt = Nothing
-          , users = Nothing
-          , isPublic = False
-          , ownerId =
-                model.currentDiagram
-                    |> Maybe.map (\x -> x.ownerId)
-                    |> MaybeEx.join
-          }
-        , url
-        )
+    if model.modified then
+        saveDiagram
+            ( { id = Nothing
+              , title = model.title |> Maybe.withDefault "backup"
+              , text = model.text
+              , thumbnail = Nothing
+              , diagramPath = DiagramType.toString model.diagramModel.diagramType
+              , isRemote = False
+              , updatedAt = Nothing
+              , users = Nothing
+              , isPublic = False
+              , ownerId =
+                    model.currentDiagram
+                        |> Maybe.map (\x -> x.ownerId)
+                        |> MaybeEx.join
+              }
+            , url
+            )
+
+    else
+        Cmd.none

@@ -64,7 +64,7 @@ view route width fullscreen openMenu isOnline canWrite =
                             div [] []
                         , div
                             (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
-                            [ Icon.export 27 21
+                            [ Icon.download 22
                             , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
                             ]
                         ]

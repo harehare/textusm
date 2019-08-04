@@ -8,9 +8,9 @@ const loadSettings = () => {
 };
 
 const defaultSettings = {
-    font: "Rubik",
+    font: "Roboto",
     storyMap: {
-        font: "Rubik",
+        font: "Roboto",
         size: {
             width: 140,
             height: 65
@@ -25,17 +25,17 @@ const defaultSettings = {
                 backgroundColor: "#3E9BCD"
             },
             story: {
-                color: "#000000",
+                color: "#333333",
                 backgroundColor: "#FFFFFF"
             },
             comment: {
-                color: "#000000",
+                color: "#333333",
                 backgroundColor: "#F1B090"
             },
             line: "#434343",
             label: "#8C9FAE"
         },
-        backgroundColor: "#F5F5F6"
+        backgroundColor: "#F4F4F5"
     },
     position: -10,
     text: "",

@@ -19,6 +19,9 @@ monaco.languages.setMonarchTokensProvider("userStoryMapping", {
 monaco.editor.defineTheme("usmTheme", {
     base: "vs-dark",
     inherit: true,
+    colors: {
+        "editor.background": "#323D46"
+    },
     rules: [
         {
             token: "comment",

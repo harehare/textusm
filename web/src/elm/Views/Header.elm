@@ -25,15 +25,7 @@ view width profile route t isEditTitle fullscreen menu =
 
     else
         header
-            (Styles.flexCenter
-                ++ [ style "width"
-                        "100vw"
-                   , style "height"
-                        "40px"
-                   , style "background-color"
-                        "#323B46"
-                   ]
-            )
+            [ class "main-header" ]
             [ div
                 [ style "width" "100%"
                 , style "height" "40px"
