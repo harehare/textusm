@@ -41,12 +41,6 @@ view model =
             model.items
             model.countByTasks
             model.countByHierarchy
-        , case model.comment of
-            Just xs ->
-                lazy2 commentContentView model.settings xs
-
-            Nothing ->
-                g [] []
         ]
 
 
@@ -190,60 +184,14 @@ commentView settings posX posY text =
         []
 
 
-commentContentView : Settings -> Comment -> Svg Msg
-commentContentView settings comment =
-    g []
-        [ rect
-            [ x (String.fromInt comment.x)
-            , y (String.fromInt (comment.y + commentSize))
-            , width (String.fromInt settings.size.width)
-            , height (String.fromInt settings.size.height)
-            , fill settings.color.comment.backgroundColor
-            , color settings.color.comment.color
-            , fontSize (calcFontSize settings.size.width comment.text)
-            , fontFamily settings.font
-            , class "svg-text"
-            ]
-            []
-        , foreignObject
-            [ x (String.fromInt comment.x)
-            , y (String.fromInt (comment.y + commentSize))
-            , width (String.fromInt settings.size.width)
-            , height (String.fromInt settings.size.height)
-            , fill settings.color.comment.backgroundColor
-            , color settings.color.comment.color
-            , fontSize (calcFontSize settings.size.width comment.text)
-            , fontFamily settings.font
-            ]
-            [ div
-                [ Attr.style "padding" "8px"
-                , Attr.style "font-family" ("\"" ++ settings.font ++ "\", sans-serif")
-                , Attr.style "color" settings.color.comment.color
-                , Attr.style "backgrond-color" settings.color.comment.backgroundColor
-                , Attr.style "word-wrap" "break-word"
-                ]
-                [ Html.text comment.text ]
-            ]
-        ]
-
-
 activityView : Settings -> List Int -> Int -> Int -> Item -> Svg Msg
 activityView settings verticalCount posX posY item =
     Keyed.node "g"
         []
-        ([ ( "activity-" ++ item.text
-           , itemView settings Activities posX posY item
-           )
-         , ( "comment-" ++ item.text
-           , case item.comment of
-                Just xs ->
-                    commentView settings (posX + settings.size.width - commentSize - 5) posY xs
-
-                Nothing ->
-                    text_ [] []
-           )
-         ]
-            ++ (Item.unwrapChildren item.children
+        (( "activity-" ++ item.text
+         , itemView settings Activities posX posY item
+         )
+            :: (Item.unwrapChildren item.children
                     |> List.filter (\i -> i.itemType /= Comments)
                     |> List.indexedMap
                         (\i it ->
@@ -276,19 +224,10 @@ taskView settings verticalCount posX posY item =
     in
     Keyed.node "g"
         []
-        ([ ( "task-" ++ item.text
-           , itemView settings Tasks posX posY item
-           )
-         , ( "comment-" ++ item.text
-           , case item.comment of
-                Just xs ->
-                    commentView settings (posX + settings.size.width - commentSize - 5) posY xs
-
-                Nothing ->
-                    text_ [] []
-           )
-         ]
-            ++ (children
+        (( "task-" ++ item.text
+         , itemView settings Tasks posX posY item
+         )
+            :: (children
                     |> List.filter (\i -> i.itemType /= Comments)
                     |> List.indexedMap
                         (\i it ->
@@ -331,19 +270,10 @@ storyView settings verticalCount parentCount posX posY item =
     in
     Keyed.node "g"
         []
-        ([ ( "story-" ++ item.text
-           , itemView settings (Stories 1) posX posY item
-           )
-         , ( "comment-" ++ item.text
-           , case item.comment of
-                Just xs ->
-                    commentView settings (posX + settings.size.width - commentSize - 5) posY xs
-
-                Nothing ->
-                    text_ [] []
-           )
-         ]
-            ++ (children
+        (( "story-" ++ item.text
+         , itemView settings (Stories 1) posX posY item
+         )
+            :: (children
                     |> List.filter (\i -> i.itemType /= Comments)
                     |> List.indexedMap
                         (\i it ->

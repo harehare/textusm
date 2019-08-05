@@ -39,7 +39,7 @@ const common = {
             include: ["runtime", "vendors"]
         }),
         new MonacoWebpackPlugin({
-            languages: ["json"],
+            languages: ["json", "markdown"],
             features: ["find"]
         })
     ],

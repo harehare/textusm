@@ -46,14 +46,12 @@ type alias GithubRequest =
 
 type alias TaskItem =
     { name : String
-    , comment : Maybe String
     , stories : List StoryItem
     }
 
 
 type alias StoryItem =
     { name : String
-    , comment : Maybe String
     , release : Int
     }
 
@@ -107,7 +105,6 @@ taskEncoder : TaskItem -> E.Value
 taskEncoder task =
     E.object
         [ ( "name", E.string task.name )
-        , ( "comment", maybe E.string task.comment )
         , ( "stories", E.list storyEncoder task.stories )
         ]
 
@@ -116,7 +113,6 @@ storyEncoder : StoryItem -> E.Value
 storyEncoder story =
     E.object
         [ ( "name", E.string story.name )
-        , ( "comment", maybe E.string story.comment )
         , ( "release", E.int story.release )
         ]
 
@@ -209,13 +205,11 @@ createRequest token code github release releaseItems name items =
                                 Item.unwrapChildren item.children
                         in
                         { name = item.text
-                        , comment = item.comment
                         , stories =
                             flatten i
                                 |> List.map
                                     (\story ->
                                         { name = story.text
-                                        , comment = story.comment
                                         , release =
                                             case story.itemType of
                                                 Stories n ->
@@ -241,7 +235,7 @@ getAccessToken : String -> Service -> Cmd msg
 getAccessToken apiRoot service =
     case service of
         Trello ->
-            crossOrigin apiRoot [ "auth", "trello" ] [] |> Nav.load
+            crossOrigin apiRoot [ "export", "auth", "trello" ] [] |> Nav.load
 
         _ ->
             Cmd.none

@@ -10,6 +10,7 @@ Generate a Diagram from indented text.
 - 4Ls Retrospective
 - Start, Stop, Continue Retrospective
 - KPT Retrospective
+- User Persona
 
 ## Installation
 

@@ -79,7 +79,7 @@ view route width fullscreen openMenu isOnline canWrite =
                    , if Utils.isPhone width then
                         case openMenu of
                             Just Export ->
-                                menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing (exportMenu isOnline)
+                                menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing (exportMenu route isOnline)
 
                             Just NewFile ->
                                 menu Nothing (Just "10px") (Just "50px") Nothing newMenu
@@ -90,7 +90,7 @@ view route width fullscreen openMenu isOnline canWrite =
                      else
                         case openMenu of
                             Just Export ->
-                                menu (Just "125px") (Just "56px") Nothing Nothing (exportMenu isOnline)
+                                menu (Just "125px") (Just "56px") Nothing Nothing (exportMenu route isOnline)
 
                             Just NewFile ->
                                 menu (Just "0") (Just "56px") Nothing Nothing newMenu
@@ -111,16 +111,18 @@ newMenu =
     , ( NewFourLs, "4Ls Retrospective" )
     , ( NewStartStopContinue, "Start, Stop, Continue Retrospective" )
     , ( NewKpt, "KPT Retrospective" )
+    , ( NewMarkdown, "Markdown" )
     ]
 
 
-exportMenu : Bool -> List ( Msg, String )
-exportMenu isOnline =
+exportMenu : Route -> Bool -> List ( Msg, String )
+exportMenu route isOnline =
     [ ( DownloadSvg, "SVG" )
     , ( DownloadPng, "PNG" )
+    , ( DownloadPdf, "PDF" )
     , ( SaveToFileSystem, "Text" )
     ]
-        ++ (if isOnline then
+        ++ (if (route == Route.UserStoryMap || route == Route.Home) && isOnline then
                 [ ( GetAccessTokenForTrello, "Trello" )
                 , ( GetAccessTokenForGitHub, "Github" )
                 ]

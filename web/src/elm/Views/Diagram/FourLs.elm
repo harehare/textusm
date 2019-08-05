@@ -43,7 +43,6 @@ view model =
                 |> Maybe.withDefault
                     { lineNo = 0
                     , text = ""
-                    , comment = Nothing
                     , itemType = Activities
                     , children = Item.empty
                     }
@@ -60,7 +59,6 @@ view model =
                 |> Maybe.withDefault
                     { lineNo = 0
                     , text = ""
-                    , comment = Nothing
                     , itemType = Activities
                     , children = Item.empty
                     }
@@ -77,7 +75,6 @@ view model =
                 |> Maybe.withDefault
                     { lineNo = 0
                     , text = ""
-                    , comment = Nothing
                     , itemType = Activities
                     , children = Item.empty
                     }
@@ -94,7 +91,6 @@ view model =
                 |> Maybe.withDefault
                     { lineNo = 0
                     , text = ""
-                    , comment = Nothing
                     , itemType = Activities
                     , children = Item.empty
                     }

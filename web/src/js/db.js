@@ -5,9 +5,9 @@ const Version = 1;
 const db = new Dexie("textusm");
 const svg2base64 = id => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", `0 0 1280 1024`);
-    svg.setAttribute("width", "250");
-    svg.setAttribute("height", "150");
+    svg.setAttribute("viewBox", `0 0 1280 960`);
+    svg.setAttribute("width", "320");
+    svg.setAttribute("height", "240");
     svg.setAttribute("style", "background-color: #F5F5F6;");
     svg.innerHTML = document.querySelector(`#${id}`).innerHTML;
 
@@ -22,10 +22,7 @@ db.version(Version).stores({
 
 export const initDB = app => {
     app.ports.saveDiagram.subscribe(
-        async ([
-            { id, title, text, diagramPath, isPublic, isRemote },
-            nextUrl
-        ]) => {
+        async ({ id, title, text, diagramPath, isPublic, isRemote }) => {
             const thumbnail = svg2base64("usm");
             const createdAt = new Date().getTime();
             const diagramItem = {
@@ -51,10 +48,6 @@ export const initDB = app => {
                 });
             } else {
                 await db.diagrams.put({ id: id ? id : uuid(), ...diagramItem });
-            }
-
-            if (nextUrl) {
-                app.ports.moveTo.send(nextUrl);
             }
         }
     );

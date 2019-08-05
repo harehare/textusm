@@ -23,13 +23,11 @@ type Release struct {
 
 type Task struct {
 	Name    string  `json:"name"`
-	Comment string  `json:"comment"`
 	Stories []Story `json:"stories"`
 }
 
 type Story struct {
 	Name    string `json:"name"`
-	Comment string `json:"comment"`
 	Release int    `json:"release"`
 }
 

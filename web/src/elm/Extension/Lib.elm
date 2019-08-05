@@ -75,6 +75,9 @@ init flags =
                 else if flags.diagramType == "Kpt" then
                     DiagramType.Kpt
 
+                else if flags.diagramType == "UserPersona" then
+                    DiagramType.UserPersona
+
                 else
                     DiagramType.UserStoryMap
             , settings = flags.settings

@@ -11,6 +11,7 @@
   <div id="textusm7"></div>
   <div id="textusm8"></div>
   <div id="textusm9"></div>
+  <div id="textusm10"></div>
   <script>
     this.textusm.render(
       'textusm',
@@ -166,12 +167,30 @@ TextUSM
     this.textusm.render(
       document.getElementById('textusm9'),
       {
-        liked: { title: 'test', text: ['test'] },
+        liked: { title: 'test', url: ['test'] },
         learned: { title: 'test', text: ['test'] },
         lacked: { title: 'test', text: ['test'] },
         longedFor: { title: 'test', text: ['test'] }
       },
       { diagramType: '4Ls', size: { width: 2048, height: 1024 } }
+    );
+    this.textusm.render(
+      document.getElementById('textusm10'),
+      {
+        url: {
+          title: 'test',
+          url: 'https://app.textusm.com/images/logo.svg'
+        },
+        whoAmI: { title: 'test', text: ['harehare'] },
+        item1: { title: 'test', text: ['test'] },
+        item2: { title: 'test', text: ['test'] },
+        item3: { title: 'test', text: ['test'] },
+        item4: { title: 'test', text: ['test'] },
+        item5: { title: 'test', text: ['test'] },
+        item6: { title: 'test', text: ['test'] },
+        item7: { title: 'test', text: ['test'] }
+      },
+      { diagramType: 'UserPersona', size: { width: 2048, height: 1024 } }
     );
   </script>
 </html>

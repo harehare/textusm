@@ -53,6 +53,10 @@ select {
     height: 40px;
 }
 
+.separator {
+    background-color: var(--main-color);
+}
+
 .monaco-scrollable-element,
 .monaco-editor,
 .overflow-guard {
@@ -682,4 +686,8 @@ select {
     background: none;
     border: none !important;
     box-sizing: border-box;
+}
+
+.md-content {
+    padding: 8px;
 }

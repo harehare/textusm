@@ -27,6 +27,7 @@ type Msg
     | CloseMenu
     | DownloadPng
     | DownloadSvg
+    | DownloadPdf
     | StartDownloadSvg String
     | FileSelect
     | FileSelected File
@@ -72,6 +73,7 @@ type Msg
     | NewCostBenfitAnalysis
     | NewUserPersona
     | NewKpt
+    | NewMarkdown
     | GetDiagrams
     | LoadLocalDiagrams (List DiagramItem)
     | LoadDiagrams (Result ( List DiagramItem, Http.Error ) (List DiagramItem))
@@ -86,7 +88,6 @@ type Msg
     | ShowHelp
     | OnChangeNetworkStatus Bool
     | HistoryBack
-    | MoveTo String
     | MoveToBack
     | Search String
     | SelectAll String
@@ -146,7 +147,6 @@ type alias Model =
     , isOnline : Bool
     , searchQuery : Maybe String
     , inviteMailAddress : Maybe String
-    , modified : Bool
     }
 
 

@@ -22,7 +22,7 @@ import List.Extra as ListEx
 import Maybe.Extra as MaybeEx exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramItem, DiagramUser)
-import Models.DiagramType as DiagramType
+import Models.DiagramType as DiagramType exposing (DiagramType)
 import Models.Model as Model exposing (Model, Msg(..), Notification(..), Settings, ShareUrl(..), Window)
 import Models.User as UserModel exposing (User)
 import Parser
@@ -83,7 +83,6 @@ init flags url key =
                 , inviteMailAddress = Nothing
                 , currentDiagram = Nothing
                 , embed = Nothing
-                , modified = False
                 }
     in
     ( model
@@ -240,11 +239,30 @@ changeRouteTo : Route -> Model -> ( Model, Cmd Msg )
 changeRouteTo route model =
     let
         updatedModel =
-            { model | diagrams = Nothing, modified = False }
+            { model | diagrams = Nothing }
 
         getCmds : List (Cmd Msg) -> Cmd Msg
         getCmds cmds =
             Cmd.batch (Task.perform Init Dom.getViewport :: cmds)
+
+        changeDiagramType : DiagramType -> ( Model, Cmd Msg )
+        changeDiagramType type_ =
+            let
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel | diagramType = type_ }
+            in
+            ( { updatedModel | diagramModel = newDiagramModel }
+            , getCmds
+                [ if type_ == DiagramType.Markdown then
+                    setEditorLanguage "markdown"
+
+                  else
+                    setEditorLanguage "userStoryMap"
+                ]
+            )
     in
     case route of
         Route.List ->
@@ -386,88 +404,28 @@ changeRouteTo route model =
                     ( updatedModel, getCmds [] )
 
         Route.BusinessModelCanvas ->
-            let
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | diagramType = DiagramType.BusinessModelCanvas }
-            in
-            ( { updatedModel | diagramModel = newDiagramModel }
-            , getCmds []
-            )
+            changeDiagramType DiagramType.BusinessModelCanvas
 
         Route.OpportunityCanvas ->
-            let
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | diagramType = DiagramType.OpportunityCanvas }
-            in
-            ( { updatedModel | diagramModel = newDiagramModel }
-            , getCmds []
-            )
+            changeDiagramType DiagramType.OpportunityCanvas
 
         Route.FourLs ->
-            let
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | diagramType = DiagramType.FourLs }
-            in
-            ( { updatedModel | diagramModel = newDiagramModel }
-            , getCmds []
-            )
+            changeDiagramType DiagramType.FourLs
 
         Route.StartStopContinue ->
-            let
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | diagramType = DiagramType.StartStopContinue }
-            in
-            ( { updatedModel | diagramModel = newDiagramModel }
-            , getCmds []
-            )
+            changeDiagramType DiagramType.StartStopContinue
 
         Route.Kpt ->
-            let
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | diagramType = DiagramType.Kpt }
-            in
-            ( { updatedModel | diagramModel = newDiagramModel }
-            , getCmds []
-            )
+            changeDiagramType DiagramType.Kpt
 
         Route.Persona ->
-            let
-                diagramModel =
-                    model.diagramModel
+            changeDiagramType DiagramType.UserPersona
 
-                newDiagramModel =
-                    { diagramModel | diagramType = DiagramType.UserPersona }
-            in
-            ( { updatedModel | diagramModel = newDiagramModel }
-            , getCmds []
-            )
+        Route.Markdown ->
+            changeDiagramType DiagramType.Markdown
 
         _ ->
-            let
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | diagramType = DiagramType.UserStoryMap }
-            in
-            ( { updatedModel | diagramModel = newDiagramModel }
-            , getCmds []
-            )
+            changeDiagramType DiagramType.UserStoryMap
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -507,10 +465,10 @@ update message model =
                     in
                     case diagramModel.error of
                         Just err ->
-                            ( { model | text = text, diagramModel = diagramModel, modified = True }, errorLine err )
+                            ( { model | text = text, diagramModel = diagramModel }, errorLine err )
 
                         Nothing ->
-                            ( { model | text = text, diagramModel = diagramModel, modified = True }, errorLine "" )
+                            ( { model | text = text, diagramModel = diagramModel }, errorLine "" )
 
                 _ ->
                     ( { model | diagramModel = Diagram.update subMsg model.diagramModel }, Cmd.none )
@@ -542,6 +500,20 @@ update message model =
 
         GotTimeZone zone ->
             ( { model | timezone = Just zone }, Cmd.none )
+
+        DownloadPdf ->
+            let
+                ( width, height ) =
+                    Utils.getCanvasSize model.diagramModel model.diagramModel.diagramType
+            in
+            ( model
+            , downloadPdf
+                { width = width
+                , height = height
+                , id = "usm"
+                , title = Utils.getTitle model.title ++ ".pdf"
+                }
+            )
 
         DownloadPng ->
             let
@@ -638,27 +610,25 @@ update message model =
                   }
                 , Cmd.batch
                     [ saveDiagram
-                        ( { id =
-                                if (isNothing model.currentDiagram || isLocal) && isRemote then
-                                    Nothing
+                        { id =
+                            if (isNothing model.currentDiagram || isLocal) && isRemote then
+                                Nothing
 
-                                else
-                                    model.id
-                          , title = title
-                          , text = model.text
-                          , thumbnail = Nothing
-                          , diagramPath = DiagramType.toString model.diagramModel.diagramType
-                          , isRemote = isRemote
-                          , updatedAt = Nothing
-                          , users = Nothing
-                          , isPublic = False
-                          , ownerId =
-                                model.currentDiagram
-                                    |> Maybe.map (\x -> x.ownerId)
-                                    |> MaybeEx.join
-                          }
-                        , Nothing
-                        )
+                            else
+                                model.id
+                        , title = title
+                        , text = model.text
+                        , thumbnail = Nothing
+                        , diagramPath = DiagramType.toString model.diagramModel.diagramType
+                        , isRemote = isRemote
+                        , updatedAt = Nothing
+                        , users = Nothing
+                        , isPublic = False
+                        , ownerId =
+                            model.currentDiagram
+                                |> Maybe.map (\x -> x.ownerId)
+                                |> MaybeEx.join
+                        }
                     , if not isRemote then
                         Utils.delay 3000 OnCloseNotification
 
@@ -696,16 +666,12 @@ update message model =
             ( { model
                 | progress = False
                 , currentDiagram = Just item
-                , modified = False
               }
             , Cmd.batch
                 [ Utils.delay 3000
                     OnCloseNotification
                 , Utils.showWarningMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.") Nothing
-                , saveDiagram
-                    ( item
-                    , Nothing
-                    )
+                , saveDiagram item
                 ]
             )
 
@@ -714,7 +680,7 @@ update message model =
                 newDiagram =
                     { diagram | ownerId = Just (model.loginUser |> Maybe.map (\u -> u.id) |> Maybe.withDefault "") }
             in
-            ( { model | currentDiagram = Just newDiagram, progress = False, modified = False }
+            ( { model | currentDiagram = Just newDiagram, progress = False }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
                 , Utils.showInfoMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.") Nothing
@@ -1259,9 +1225,6 @@ update message model =
         HistoryBack ->
             ( { model | diagrams = Nothing }, Nav.back model.key 1 )
 
-        MoveTo url ->
-            ( { model | diagrams = Nothing }, Nav.pushUrl model.key url )
-
         MoveToBack ->
             ( model, Nav.back model.key 1 )
 
@@ -1327,16 +1290,17 @@ update message model =
                 ( model_, _ ) =
                     update NewUserStoryMap model
 
-                text =
-                    "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships"
+                displayText =
+                    if String.isEmpty model_.text then
+                        "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships"
+
+                    else
+                        model.text
             in
             ( { model_
-                | text = text
+                | text = displayText
               }
-            , Cmd.batch
-                [ saveToLocal model (Just (Route.toString Route.BusinessModelCanvas))
-                , loadText text
-                ]
+            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.BusinessModelCanvas) ]
             )
 
         NewOpportunityCanvas ->
@@ -1344,8 +1308,9 @@ update message model =
                 ( model_, _ ) =
                     update NewUserStoryMap model
 
-                text =
-                    """Problems
+                displayText =
+                    if String.isEmpty model_.text then
+                        """Problems
 Solution Ideas
 Users and Customers
 Solutions Today
@@ -1356,14 +1321,14 @@ Adoption Strategy
 Business Benefits and Metrics
 Budget
 """
+
+                    else
+                        model.text
             in
             ( { model_
-                | text = text
+                | text = displayText
               }
-            , Cmd.batch
-                [ saveToLocal model (Just (Route.toString Route.OpportunityCanvas))
-                , loadText text
-                ]
+            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.OpportunityCanvas) ]
             )
 
         NewFourLs ->
@@ -1371,16 +1336,17 @@ Budget
                 ( model_, _ ) =
                     update NewUserStoryMap model
 
-                text =
-                    "Liked\nLearned\nLacked\nLonged for"
+                displayText =
+                    if String.isEmpty model_.text then
+                        "Liked\nLearned\nLacked\nLonged for"
+
+                    else
+                        model.text
             in
             ( { model_
-                | text = text
+                | text = displayText
               }
-            , Cmd.batch
-                [ saveToLocal model (Just (Route.toString Route.FourLs))
-                , loadText text
-                ]
+            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.FourLs) ]
             )
 
         NewCostBenfitAnalysis ->
@@ -1388,16 +1354,17 @@ Budget
                 ( model_, _ ) =
                     update NewUserStoryMap model
 
-                text =
-                    "HIGH EFFORT/LOW REWARD\nHIGH EFFORT/HIGH REWARD\nLOW EFFORT/LOW REWARD\nLOW EFFORT/HIGH REWARD"
+                displayText =
+                    if String.isEmpty model_.text then
+                        "HIGH EFFORT/LOW REWARD\nHIGH EFFORT/HIGH REWARD\nLOW EFFORT/LOW REWARD\nLOW EFFORT/HIGH REWARD"
+
+                    else
+                        model.text
             in
             ( { model_
-                | text = text
+                | text = displayText
               }
-            , Cmd.batch
-                [ saveToLocal model (Just (Route.toString Route.FourLs))
-                , loadText text
-                ]
+            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.FourLs) ]
             )
 
         NewStartStopContinue ->
@@ -1405,16 +1372,17 @@ Budget
                 ( model_, _ ) =
                     update NewUserStoryMap model
 
-                text =
-                    "Start\nStop\nContinue"
+                displayText =
+                    if String.isEmpty model_.text then
+                        "Start\nStop\nContinue"
+
+                    else
+                        model.text
             in
             ( { model_
-                | text = text
+                | text = displayText
               }
-            , Cmd.batch
-                [ saveToLocal model (Just (Route.toString Route.StartStopContinue))
-                , loadText text
-                ]
+            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.StartStopContinue) ]
             )
 
         NewKpt ->
@@ -1422,16 +1390,17 @@ Budget
                 ( model_, _ ) =
                     update NewUserStoryMap model
 
-                text =
-                    "K\nP\nT"
+                displayText =
+                    if String.isEmpty model_.text then
+                        "K\nP\nT"
+
+                    else
+                        model.text
             in
             ( { model_
-                | text = text
+                | text = displayText
               }
-            , Cmd.batch
-                [ saveToLocal model (Just (Route.toString Route.Kpt))
-                , loadText text
-                ]
+            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.Kpt) ]
             )
 
         NewUserPersona ->
@@ -1439,8 +1408,9 @@ Budget
                 ( model_, _ ) =
                     update NewUserStoryMap model
 
-                text =
-                    """Name
+                displayText =
+                    if String.isEmpty model_.text then
+                        """Name
     https://app.textusm.com/images/logo.svg
 Who am i...
 Three reasons to use your product
@@ -1451,37 +1421,40 @@ My Skills
 My dreams
 My relationship with technology
 """
+
+                    else
+                        model_.text
             in
             ( { model_
-                | text = text
+                | text = displayText
               }
-            , Cmd.batch
-                [ saveToLocal model (Just (Route.toString Route.Persona))
-                , loadText text
-                ]
+            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.Persona) ]
+            )
+
+        NewMarkdown ->
+            let
+                ( model_, _ ) =
+                    update NewUserStoryMap model
+            in
+            ( model_
+            , Nav.pushUrl model.key (Route.toString Route.Markdown)
             )
 
 
-saveToLocal : Model -> Maybe String -> Cmd Msg
-saveToLocal model url =
-    if model.modified then
-        saveDiagram
-            ( { id = Nothing
-              , title = model.title |> Maybe.withDefault "backup"
-              , text = model.text
-              , thumbnail = Nothing
-              , diagramPath = DiagramType.toString model.diagramModel.diagramType
-              , isRemote = False
-              , updatedAt = Nothing
-              , users = Nothing
-              , isPublic = False
-              , ownerId =
-                    model.currentDiagram
-                        |> Maybe.map (\x -> x.ownerId)
-                        |> MaybeEx.join
-              }
-            , url
-            )
-
-    else
-        Cmd.none
+saveToLocal : Model -> Cmd Msg
+saveToLocal model =
+    saveDiagram
+        { id = Nothing
+        , title = model.title |> Maybe.withDefault "backup"
+        , text = model.text
+        , thumbnail = Nothing
+        , diagramPath = DiagramType.toString model.diagramModel.diagramType
+        , isRemote = False
+        , updatedAt = Nothing
+        , users = Nothing
+        , isPublic = False
+        , ownerId =
+            model.currentDiagram
+                |> Maybe.map (\x -> x.ownerId)
+                |> MaybeEx.join
+        }

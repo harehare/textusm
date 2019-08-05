@@ -62,13 +62,30 @@ export interface Kpt {
   try: CanvasItem;
 }
 
+export interface UserPersona {
+  url: UrlItem;
+  whoAmI: CanvasItem;
+  item1: CanvasItem;
+  item2: CanvasItem;
+  item3: CanvasItem;
+  item4: CanvasItem;
+  item5: CanvasItem;
+  item6: CanvasItem;
+  item7: CanvasItem;
+}
+
 interface CanvasItem {
   title: string;
   text: string[];
 }
 
+interface UrlItem {
+  title: string;
+  url: string;
+}
+
 export function toString(
-  definition: UserStoryMap | BusinessModelCanvas | OpportunityCanvas | FourLs | StartStopContinue | Kpt
+  definition: UserStoryMap | BusinessModelCanvas | OpportunityCanvas | FourLs | StartStopContinue | Kpt | UserPersona
 ): string {
   return 'activities' in definition
     ? userStoryMap2Text(definition)
@@ -82,11 +99,13 @@ export function toString(
     ? startStopContinueCanvas2Text(definition)
     : 'keep' in definition
     ? kptCanvas2Text(definition)
+    : 'whoAmI' in definition
+    ? userPersonaCanvas2Text(definition)
     : '';
 }
 
 export function toTypeString(
-  definition: UserStoryMap | BusinessModelCanvas | OpportunityCanvas | FourLs | StartStopContinue | Kpt
+  definition: UserStoryMap | BusinessModelCanvas | OpportunityCanvas | FourLs | StartStopContinue | Kpt | UserPersona
 ): string {
   return 'activities' in definition
     ? 'UserStoryMap'
@@ -100,6 +119,8 @@ export function toTypeString(
     ? 'StartStopContinue'
     : 'keep' in definition
     ? 'Kpt'
+    : 'whoAmI' in definition
+    ? 'UserPersona'
     : 'UserStoryMap';
 }
 
@@ -113,7 +134,7 @@ function flatMap<T, U>(f: (x: T) => U[], xs: T[]): U[] {
 
 function canvas2Text(item: CanvasItem) {
   return `${item.title}
-${item.text
+${(item.text ? item.text : [])
   .map(line => {
     return `    ${line}`;
   })
@@ -190,6 +211,16 @@ function kptCanvas2Text(kpt: Kpt): string {
       return canvas2Text(kpt[item]);
     })
     .join('\n');
+}
+
+function userPersonaCanvas2Text(userPersona: UserPersona): string {
+  const items = ['whoAmI', 'item1', 'item2', 'item3', 'item4', 'item5', 'item6', 'item7'];
+
+  return `${userPersona.url.title}\n    ${userPersona.url.url}\n${items
+    .map(item => {
+      return canvas2Text(userPersona[item]);
+    })
+    .join('\n')}`;
 }
 
 function userStoryMap2Text(userStoryMap: UserStoryMap): string {

@@ -1,4 +1,4 @@
-port module Subscriptions exposing (applySettings, changeText, copyClipboard, decodeShareText, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getAccessTokenForGitHub, getDiagram, getDiagrams, layoutEditor, loadEditor, loadText, login, logout, removeDiagrams, saveDiagram, saveSettings, selectLine, selectTextById, subscriptions)
+port module Subscriptions exposing (applySettings, changeText, copyClipboard, decodeShareText, downloadPdf, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getAccessTokenForGitHub, getDiagram, getDiagrams, layoutEditor, loadEditor, loadText, login, logout, removeDiagrams, saveDiagram, saveSettings, selectLine, selectTextById, setEditorLanguage, subscriptions)
 
 import Browser.Events exposing (onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Json.Decode as D
@@ -44,9 +44,6 @@ port offline : (() -> msg) -> Sub msg
 port online : (() -> msg) -> Sub msg
 
 
-port moveTo : (String -> msg) -> Sub msg
-
-
 port removeRemoteDiagram : (DiagramItem -> msg) -> Sub msg
 
 
@@ -54,6 +51,9 @@ port downloadPng : Download -> Cmd msg
 
 
 port downloadSvg : Download -> Cmd msg
+
+
+port downloadPdf : Download -> Cmd msg
 
 
 port loadEditor : String -> Cmd msg
@@ -75,6 +75,9 @@ port saveSettings : Settings -> Cmd msg
 
 
 port selectLine : Int -> Cmd msg
+
+
+port setEditorLanguage : String -> Cmd msg
 
 
 port errorLine : String -> Cmd msg
@@ -105,7 +108,7 @@ port onGetAccessTokenForGitHub : (String -> msg) -> Sub msg
 -- Diagram
 
 
-port saveDiagram : ( DiagramItem, Maybe String ) -> Cmd msg
+port saveDiagram : DiagramItem -> Cmd msg
 
 
 port removeDiagrams : DiagramItem -> Cmd msg
@@ -149,7 +152,6 @@ subscriptions model =
          , offline (\_ -> OnChangeNetworkStatus False)
          , online (\_ -> OnChangeNetworkStatus True)
          , removeRemoteDiagram RemoveRemoteDiagram
-         , moveTo MoveTo
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp (D.succeed Stop)

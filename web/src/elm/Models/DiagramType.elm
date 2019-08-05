@@ -9,6 +9,7 @@ type DiagramType
     | StartStopContinue
     | Kpt
     | UserPersona
+    | Markdown
 
 
 toString : DiagramType -> String
@@ -35,6 +36,9 @@ toString diagramType =
         UserPersona ->
             "persona"
 
+        Markdown ->
+            "md"
+
 
 fromString : String -> DiagramType
 fromString s =
@@ -59,6 +63,9 @@ fromString s =
 
         "persona" ->
             UserPersona
+
+        "md" ->
+            Markdown
 
         _ ->
             UserStoryMap

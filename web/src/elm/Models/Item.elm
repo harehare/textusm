@@ -1,4 +1,4 @@
-module Models.Item exposing (Children, Item, ItemType(..), empty, fromItems, toString, unwrapChildren)
+module Models.Item exposing (Children, Item, ItemType(..), empty, emptyItem, fromItems, toString, unwrapChildren)
 
 
 type Children
@@ -8,7 +8,6 @@ type Children
 type alias Item =
     { lineNo : Int
     , text : String
-    , comment : Maybe String
     , itemType : ItemType
     , children : Children
     }
@@ -31,6 +30,15 @@ empty =
     Children []
 
 
+emptyItem : Item
+emptyItem =
+    { lineNo = 0
+    , text = ""
+    , itemType = Activities
+    , children = empty
+    }
+
+
 unwrapChildren : Children -> List Item
 unwrapChildren (Children items) =
     items
@@ -44,12 +52,7 @@ toString =
             let
                 itemToString : Item -> Int -> String
                 itemToString i hi =
-                    case i.comment of
-                        Just c ->
-                            String.repeat hi "    " ++ i.text ++ ": " ++ c
-
-                        Nothing ->
-                            String.repeat hi "    " ++ i.text
+                    String.repeat hi "    " ++ i.text
             in
             items
                 |> List.map

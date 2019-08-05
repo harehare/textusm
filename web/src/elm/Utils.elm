@@ -1,4 +1,4 @@
-module Utils exposing (calcFontSize, delay, fileLoad, getCanvasSize, getIdToken, getTitle, httpErrorToString, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage)
+module Utils exposing (calcFontSize, delay, fileLoad, getCanvasSize, getIdToken, getMarkdownHeight, getTitle, httpErrorToString, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage)
 
 import Constants
 import File exposing (File)
@@ -22,9 +22,9 @@ calcFontSize : Int -> String -> String
 calcFontSize width text =
     let
         size =
-            min (String.length text) 13
+            min (String.length text) 15
     in
-    String.fromInt (Basics.min (width // size) 13)
+    String.fromInt (Basics.min (width // size) 15)
 
 
 isPhone : Int -> Bool
@@ -132,6 +132,33 @@ monthToInt month =
             12
 
 
+getMarkdownHeight : List String -> Int
+getMarkdownHeight lines =
+    let
+        getHeight : String -> Int
+        getHeight line =
+            case String.toList line of
+                '#' :: '#' :: '#' :: '#' :: '#' :: _ ->
+                    24
+
+                '#' :: '#' :: '#' :: '#' :: _ ->
+                    32
+
+                '#' :: '#' :: '#' :: _ ->
+                    40
+
+                '#' :: '#' :: _ ->
+                    48
+
+                '#' :: _ ->
+                    56
+
+                _ ->
+                    24
+    in
+    lines |> List.map (\l -> getHeight l) |> List.sum
+
+
 getCanvasSize : DiagramModel.Model -> DiagramType.DiagramType -> ( Int, Int )
 getCanvasSize model diagramType =
     let
@@ -155,6 +182,9 @@ getCanvasSize model diagramType =
                 DiagramType.UserPersona ->
                     Constants.itemWidth * 5 + 25
 
+                DiagramType.Markdown ->
+                    16 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Maybe.withDefault "" <| model.text)
+
                 _ ->
                     (model.settings.size.width + Constants.itemMargin) * (List.maximum model.countByTasks |> Maybe.withDefault 1)
 
@@ -177,6 +207,9 @@ getCanvasSize model diagramType =
 
                 DiagramType.UserPersona ->
                     Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20
+
+                DiagramType.Markdown ->
+                    getMarkdownHeight <| String.lines <| Maybe.withDefault "" <| model.text
 
                 _ ->
                     (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2)

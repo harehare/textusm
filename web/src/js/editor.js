@@ -1,13 +1,12 @@
 import * as monaco from "monaco-editor";
 
 monaco.languages.register({
-    id: "userStoryMapping"
+    id: "userStoryMap"
 });
 
-monaco.languages.setMonarchTokensProvider("userStoryMapping", {
+monaco.languages.setMonarchTokensProvider("userStoryMap", {
     tokenizer: {
         root: [
-            [/:.+/, "note"],
             [/#.+/, "comment"],
             [/^[^ ][^#:]+/, "activity"],
             [/^ {8}[^#:]+/, "story"],
@@ -38,10 +37,6 @@ monaco.editor.defineTheme("usmTheme", {
         {
             token: "story",
             foreground: "#c4c0b9"
-        },
-        {
-            token: "note",
-            foreground: "#F1B090"
         }
     ]
 });
@@ -56,7 +51,9 @@ export const loadEditor = (app, text) => {
 
         const monacoEditor = monaco.editor.create(editor, {
             value: text,
-            language: "userStoryMapping",
+            language: location.pathname.startsWith("/md")
+                ? "markdown"
+                : "userStoryMap",
             theme: "usmTheme",
             lineNumbers: "on",
             minimap: {
@@ -98,6 +95,11 @@ export const loadEditor = (app, text) => {
 
         app.ports.loadText.subscribe(text => {
             monacoEditor.setValue(text);
+        });
+
+        app.ports.setEditorLanguage.subscribe(mode => {
+            const model = monacoEditor.getModel();
+            monaco.editor.setModelLanguage(model, mode);
         });
 
         app.ports.layoutEditor.subscribe(delay => {

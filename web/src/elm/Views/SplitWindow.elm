@@ -1,7 +1,7 @@
 module Views.SplitWindow exposing (view)
 
 import Html exposing (Attribute, Html, div)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (class, style)
 import Html.Events as Events
 import Json.Decode as D
 import Models.Model exposing (Msg(..), Window)
@@ -64,7 +64,7 @@ view canWrite backgroundColor window left right =
             , div
                 [ style "width" "6px"
                 , style "cursor" "col-resize"
-                , style "background-color" "#333"
+                , class "separator"
                 , onStartWindowResize
                 ]
                 []

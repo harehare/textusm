@@ -50,7 +50,7 @@ const readConfigFile = (file: string) => {
 };
 
 const { configFile, input, width, height, output, diagramType } = commander
-  .version('0.0.7')
+  .version('0.0.8')
   .option('-c, --configFile [configFile]', 'Config file.')
   .option('-i, --input <input>', 'Input text file. Required.')
   .option('-w, --width <width>', 'Width of the page. Optional. Default: 1024.')
@@ -58,7 +58,7 @@ const { configFile, input, width, height, output, diagramType } = commander
   .option('-o, --output [output]', 'Output file. It should be svg, png, pdf or html.')
   .option(
     '-d, --diagramType [diagramType]',
-    'Diagram type. It should be userstorymap, opportunitycanvas, businessmodelcanvas, 4Ls Retrospective, Start, Stop, Continue Retrospective, or KPT Retrospective.'
+    'Diagram type. It should be userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt or userpersona.'
   )
   .parse(process.argv);
 
@@ -79,11 +79,14 @@ const validDiagramType = [
   '4ls',
   'start_stop_continue',
   'kpt',
+  'userpersona',
   ''
 ];
 
 if (diagramType && validDiagramType.indexOf(diagramType) === -1) {
-  console.error(`Output file must be userstorymap, opportunitycanvas or businessmodelcanvas.`);
+  console.error(
+    `Output file must be userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt or userpersona.`
+  );
   process.exit(1);
 }
 
@@ -126,6 +129,8 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
         ? 'ssc'
         : diagramType === 'kpt'
         ? 'kpt'
+        : diagramType === 'userpersona'
+        ? 'persona'
         : 'usm';
     await page.goto(`https://app.textusm.com/view/${type}/${encodeURIComponent(JSON.stringify(configJson))}`);
 
@@ -143,7 +148,10 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
         `<?xml version="1.0"?>
                 ${svg
                   .replace('<div></div>', '')
-                  .replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg" ')
+                  .replace(
+                    '<svg',
+                    '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+                  )
                   .split('<div')
                   .join('<div xmlns="http://www.w3.org/1999/xhtml"')}`
       );

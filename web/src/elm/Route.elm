@@ -39,6 +39,7 @@ type Route
     | StartStopContinue
     | Kpt
     | Persona
+    | Markdown
     | List
     | Settings
     | Help
@@ -66,6 +67,7 @@ parser =
         , map StartStopContinue (s "ssc")
         , map Kpt (s "kpt")
         , map Persona (s "persona")
+        , map Markdown (s "md")
         , map List (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
@@ -104,6 +106,9 @@ toString route =
 
         Persona ->
             absolute [ "persona" ] []
+
+        Markdown ->
+            absolute [ "md" ] []
 
         List ->
             absolute [ "list" ] []

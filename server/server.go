@@ -92,7 +92,7 @@ func Run() int {
 	exporter := exporterBase.PathPrefix("/export").Subrouter()
 	exporter.Methods("POST").Path("/trello").HandlerFunc(controllers.CreateTrelloBoard)
 	exporter.Methods("POST").Path("/github").HandlerFunc(controllers.CreateGithubIssues)
-	exporter.Methods("POST").Path("/auth/trello").HandlerFunc(controllers.RedirectUserToTrello(env.Host))
+	exporter.Methods("GET").Path("/auth/trello").HandlerFunc(controllers.RedirectUserToTrello(env.Host))
 
 	apiBase := mux.NewRouter()
 	r.PathPrefix("/api").Handler(negroni.New(

@@ -23,6 +23,7 @@ import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.FourLs as FourLs
 import Views.Diagram.Kpt as Kpt
+import Views.Diagram.Markdown as Markdown
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.UserPersona as UserPersona
@@ -56,6 +57,7 @@ init settings =
     , comment = Nothing
     , diagramType = UserStoryMap
     , labels = []
+    , text = Nothing
     }
 
 
@@ -76,19 +78,6 @@ getItemType text indent =
                 Stories (indent - 1)
 
 
-getTextAndComment : String -> ( String, Maybe String )
-getTextAndComment line =
-    let
-        tokens =
-            line
-                |> String.trim
-                |> String.split " :"
-    in
-    ( getAt 0 tokens |> Maybe.withDefault ""
-    , getAt 1 tokens
-    )
-
-
 loadText : Int -> Int -> String -> Result String ( List Int, List Item )
 loadText lineNo indent input =
     let
@@ -105,16 +94,11 @@ loadText lineNo indent input =
                             (String.join "\n" xxs)
                             |> Result.andThen
                                 (\( indents2, tailItems ) ->
-                                    let
-                                        ( t, n ) =
-                                            getTextAndComment x
-                                    in
                                     Ok
                                         ( indent :: indents ++ indents2
                                         , { lineNo = lineNo
-                                          , text = t
-                                          , comment = n
-                                          , itemType = getItemType t indent
+                                          , text = x
+                                          , itemType = getItemType x indent
                                           , children = Item.fromItems items
                                           }
                                             :: tailItems
@@ -364,7 +348,16 @@ svgView model =
           else
             Attr.style "" ""
         ]
-        [ case model.diagramType of
+        [ if String.isEmpty model.settings.font then
+            g [] []
+
+          else
+            defs []
+                [ Svg.style
+                    []
+                    [ text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ]
+                ]
+        , case model.diagramType of
             UserStoryMap ->
                 lazy UserStoryMap.view model
 
@@ -385,6 +378,9 @@ svgView model =
 
             UserPersona ->
                 lazy UserPersona.view model
+
+            Markdown ->
+                lazy Markdown.view model
         ]
 
 
@@ -594,6 +590,12 @@ updateDiagram size width height base text =
                     , touchDistance = base.touchDistance
                     , diagramType = base.diagramType
                     , labels = labels
+                    , text =
+                        if String.isEmpty text then
+                            Nothing
+
+                        else
+                            Just text
                     }
             )
 

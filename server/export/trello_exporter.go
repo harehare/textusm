@@ -109,12 +109,6 @@ func (e *TrelloExporter) CreateCard(ctx context.Context, data *models.UsmData, t
 		if err != nil {
 			return err
 		}
-
-		err = card.AddCommentToCard(story.Comment)
-
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil

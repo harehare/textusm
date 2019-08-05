@@ -26,6 +26,7 @@ type alias Model =
     , touchDistance : Maybe Float
     , diagramType : DiagramType
     , labels : List String
+    , text : Maybe String
     }
 
 

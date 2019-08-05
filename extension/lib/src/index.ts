@@ -37,7 +37,7 @@ interface Color {
 }
 
 const defaultConfig: Config = {
-  font: 'Open Sans',
+  font: 'Roboto',
   size: {
     width: 140,
     height: 65
@@ -69,7 +69,14 @@ function render(
   idOrElm: string | HTMLElement,
   definition: string | UserStoryMap | BusinessModelCanvas | OpportunityCanvas | FourLs | StartStopContinue | Kpt,
   options?: {
-    diagramType?: 'UserStoryMap' | 'BusinessModelCanvas' | 'OpportunityCanvas' | '4Ls' | 'StartStopContinue' | 'Kpt';
+    diagramType?:
+      | 'UserStoryMap'
+      | 'BusinessModelCanvas'
+      | 'OpportunityCanvas'
+      | '4Ls'
+      | 'StartStopContinue'
+      | 'Kpt'
+      | 'UserPersona';
     size?: Size;
     showZoomControl?: boolean;
     scale?:
