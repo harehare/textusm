@@ -169,21 +169,6 @@ itemView settings itemType posX posY item =
         ]
 
 
-commentView : Settings -> Int -> Int -> String -> Svg Msg
-commentView settings posX posY text =
-    rect
-        [ x (String.fromInt posX)
-        , y (String.fromInt posY)
-        , width (String.fromInt commentSize)
-        , height (String.fromInt commentSize)
-        , fill settings.color.comment.backgroundColor
-        , color settings.color.comment.color
-        , onMouseOver (ShowComment { x = posX, y = posY, text = text })
-        , onMouseOut HideComment
-        ]
-        []
-
-
 activityView : Settings -> List Int -> Int -> Int -> Item -> Svg Msg
 activityView settings verticalCount posX posY item =
     Keyed.node "g"

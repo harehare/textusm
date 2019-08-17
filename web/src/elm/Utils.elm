@@ -186,7 +186,7 @@ getCanvasSize model diagramType =
                     16 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Maybe.withDefault "" <| model.text)
 
                 _ ->
-                    (model.settings.size.width + Constants.itemMargin) * (List.maximum model.countByTasks |> Maybe.withDefault 1)
+                    Constants.leftMargin + Constants.itemMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1)
 
         height =
             case model.diagramType of

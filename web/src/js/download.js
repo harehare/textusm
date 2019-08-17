@@ -9,8 +9,8 @@ export const initDowonlad = app => {
             "http://www.w3.org/2000/svg",
             "svg"
         );
-        const svgWidth = parseInt((width / 3) * 5);
-        const svgHeight = parseInt((height / 3) * 5);
+        const svgWidth = width;
+        const svgHeight = height;
         svg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
         svg.setAttribute("width", width);
         svg.setAttribute("height", height);
@@ -22,8 +22,8 @@ export const initDowonlad = app => {
 
     const createImage = ({ id, width, height, scale = 1, callback }) => {
         const canvas = document.createElement("canvas");
-        const svgWidth = parseInt((width / 3) * 5);
-        const svgHeight = parseInt((height / 3) * 5);
+        const svgWidth = width;
+        const svgHeight = height;
         canvas.setAttribute("width", svgWidth * scale);
         canvas.setAttribute("height", svgHeight * scale);
         canvas.style.display = "none";
@@ -52,7 +52,11 @@ export const initDowonlad = app => {
 
     app.ports.downloadPdf.subscribe(({ id, width, height, title }) => {
         if (location.pathname === "/md") {
-            const doc = new jsPDF("p", "px");
+            const doc = new jsPDF({
+                orientation: "p",
+                unit: "px",
+                compress: true
+            });
             const pageWidth = doc.internal.pageSize.width;
             const pageHeight = doc.internal.pageSize.height;
             const rate = pageWidth / width;
@@ -62,7 +66,7 @@ export const initDowonlad = app => {
                 id,
                 width,
                 height,
-                scale: 1.3,
+                scale: 1.1,
                 callback: url => {
                     const printPage = printedHeight => {
                         if (printedHeight > canvasHeight) {
@@ -94,7 +98,11 @@ export const initDowonlad = app => {
                 height,
                 scale: 2,
                 callback: url => {
-                    const doc = new jsPDF("l", "px");
+                    const doc = new jsPDF({
+                        orientation: "l",
+                        unit: "px",
+                        compress: true
+                    });
                     const pageWidth = doc.internal.pageSize.getWidth();
                     doc.addImage(
                         url,
@@ -115,6 +123,7 @@ export const initDowonlad = app => {
             id,
             width,
             height,
+            scale: 2,
             callback: url => {
                 const a = document.createElement("a");
                 a.setAttribute("download", title);
