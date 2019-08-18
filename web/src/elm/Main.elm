@@ -39,6 +39,7 @@ import Views.Editor as Editor
 import Views.Header as Header
 import Views.Icon as Icon
 import Views.Logo as Logo
+import Views.Empty as Empty
 import Views.Menu as Menu
 import Views.Notification as Notification
 import Views.ProgressBar as ProgressBar
@@ -144,10 +145,10 @@ sharingDialogView route user embedUrl shareUrl inviteMailAddress ownerId users =
                         users
 
                 _ ->
-                    div [] []
+                    Empty.view
 
         _ ->
-            div [] []
+            Empty.view
 
 
 mainView : Maybe User -> Bool -> Maybe String -> Settings -> DiagramModel.Model -> Maybe (List DiagramItem) -> Maybe Zone -> Window -> Int -> String -> Url.Url -> Html Msg
@@ -176,7 +177,7 @@ mainView user canWrite searchQuery settings diagramModel diagrams zone window ta
                     Logo.view
 
                  else
-                    lazy Diagram.view diagramModel
+                    lazy Diagram.view { diagramModel | showMiniMap = Maybe.withDefault True <| settings.miniMap }
                         |> Html.map UpdateDiagram
                 )
 
@@ -213,13 +214,13 @@ showNotification notify =
             Notification.view notification
 
         Nothing ->
-            div [] []
+            Empty.view
 
 
 networkStatus : Bool -> Html Msg
 networkStatus isOnline =
     if isOnline then
-        div [] []
+        Empty.view
 
     else
         div
@@ -773,6 +774,8 @@ update message model =
                         , text = Just model.text
                         , title =
                             model.title
+                        , miniMap =
+                            model.settings.miniMap
                         , github = model.settings.github
                         }
                 in

@@ -1,8 +1,8 @@
 module Views.Settings exposing (view)
 
-import Html exposing (Html, div, input, text)
-import Html.Attributes exposing (class, style, value)
-import Html.Events exposing (onInput)
+import Html exposing (Html, div, input, label, text)
+import Html.Attributes exposing (checked, class, style, type_, value)
+import Html.Events exposing (onClick, onInput)
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Msg(..), Settings)
 
@@ -54,6 +54,27 @@ view settings =
                             )
                         ]
                         []
+                    ]
+                ]
+            , div [ class "control" ]
+                [ div [ class "label" ] [ text "MiniMap" ]
+                , div [ class "input-area" ]
+                    [ label []
+                        [ input
+                            [ value settings.storyMap.backgroundColor
+                            , type_ "checkbox"
+                            , checked (Maybe.withDefault True settings.miniMap)
+                            , onClick
+                                (UpdateSettings
+                                    (\x ->
+                                        { settings | miniMap = Maybe.map not settings.miniMap }
+                                    )
+                                    ""
+                                )
+                            ]
+                            []
+                        , text "Enabled"
+                        ]
                     ]
                 ]
             ]

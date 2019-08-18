@@ -139,6 +139,7 @@ select {
         align-items: flex-start;
         justify-content: flex-start;
         flex-direction: column;
+        margin-bottom: 8px;
     }
 
     .label {
@@ -151,7 +152,6 @@ select {
         width: 40%;
         padding: 4px 8px;
         input {
-            width: 100%;
             height: 34px;
             color: #555555;
             background-color: #fff;
@@ -160,6 +160,12 @@ select {
             border-radius: 4px;
             font-size: 0.9rem;
             padding: 0 6px;
+        }
+
+        label {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
         }
     }
 }
@@ -690,4 +696,18 @@ select {
 
 .md-content {
     padding: 8px;
+}
+
+.minimap {
+    position: absolute;
+    cursor: pointer;
+    left: 1px;
+    bottom: -8px;
+    width: 220px;
+    z-index: 100;
+    border-radius: 2px;
+    background-color: transparent;
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
+        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+    transition: all 0.2s ease-out;
 }

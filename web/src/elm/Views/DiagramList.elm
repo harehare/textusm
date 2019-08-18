@@ -11,6 +11,7 @@ import Models.User exposing (User)
 import Time exposing (Zone)
 import Utils
 import Views.Icon as Icon
+import Views.Empty as Empty
 
 
 view : Maybe User -> Zone -> Maybe String -> Maybe (List DiagramItem) -> Html Msg
@@ -160,7 +161,7 @@ diagramView user timezone diagram =
                     div [ style "margin-left" "16px", class "button", stopPropagationOn "click" (D.succeed ( RemoveDiagram diagram, True )) ] [ Icon.clear 18 ]
 
                   else
-                    div [] []
+                    Empty.view
                 ]
             ]
         ]

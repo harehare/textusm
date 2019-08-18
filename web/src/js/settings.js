@@ -40,6 +40,7 @@ const defaultSettings = {
     position: -10,
     text: "",
     title: null,
+    miniMap: true,
     diagramId: null,
     github: null
 };

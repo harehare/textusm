@@ -12,6 +12,7 @@ import Styles
 import Utils
 import Views.Icon as Icon
 import Views.Menu as Menu
+import Views.Empty as Empty
 
 
 view : Int -> Maybe User -> Route -> Maybe String -> Bool -> Bool -> Maybe Menu -> Html Msg
@@ -75,7 +76,7 @@ view width profile route t isEditTitle fullscreen menu =
                             ]
 
                   else
-                    div [] []
+                    Empty.view
                 ]
             , div
                 (Styles.flexCenter
@@ -165,7 +166,7 @@ view width profile route t isEditTitle fullscreen menu =
                                     ]
 
                             _ ->
-                                div [] []
+                                Empty.view
                         ]
                     ]
 

@@ -183,7 +183,7 @@ getCanvasSize model diagramType =
                     Constants.itemWidth * 5 + 25
 
                 DiagramType.Markdown ->
-                    16 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Maybe.withDefault "" <| model.text)
+                    15 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Maybe.withDefault "" <| model.text)
 
                 _ ->
                     Constants.leftMargin + Constants.itemMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1)

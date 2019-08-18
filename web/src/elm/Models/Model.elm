@@ -184,6 +184,7 @@ type alias Settings =
     , storyMap : Diagram.Settings
     , text : Maybe String
     , title : Maybe String
+    , miniMap : Maybe Bool
     , github : Maybe GithubSettings
     }
 

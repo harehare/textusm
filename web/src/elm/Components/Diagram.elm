@@ -28,7 +28,9 @@ import Views.Diagram.OpportunityCanvas as OpportunityCanvas
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
+import Views.Empty as Empty
 import Views.Icon as Icon
+import Views.MiniMap as MiniMap
 
 
 init : Settings -> Model
@@ -58,6 +60,7 @@ init settings =
     , diagramType = UserStoryMap
     , labels = []
     , text = Nothing
+    , showMiniMap = False
     }
 
 
@@ -274,7 +277,6 @@ view model =
     div
         [ Attr.id "usm-area"
         , Attr.style "position" "relative"
-        , Attr.style "margin-left" "8px"
         , if model.moveStart then
             Attr.style "cursor" "move"
 
@@ -285,9 +287,54 @@ view model =
             lazy2 zoomControl model.fullscreen model.svg.scale
 
           else
-            div [] []
+            Empty.view
         , lazy svgView model
+        , lazy miniMapView model
         ]
+
+
+miniMapView : Model -> Html Msg
+miniMapView model =
+    if model.showMiniMap then
+        let
+            size =
+                Utils.getCanvasSize model model.diagramType
+                    |> Tuple.mapFirst (\x -> String.fromInt x)
+                    |> Tuple.mapSecond (\x -> String.fromInt x)
+
+            newModel =
+                { model | x = 0, y = 0 }
+
+            mainSvg =
+                case model.diagramType of
+                    UserStoryMap ->
+                        lazy UserStoryMap.view newModel
+
+                    BusinessModelCanvas ->
+                        lazy BusinessModelCanvas.view newModel
+
+                    OpportunityCanvas ->
+                        lazy OpportunityCanvas.view newModel
+
+                    FourLs ->
+                        lazy FourLs.view newModel
+
+                    StartStopContinue ->
+                        lazy StartStopContinue.view newModel
+
+                    Kpt ->
+                        lazy Kpt.view newModel
+
+                    UserPersona ->
+                        lazy UserPersona.view newModel
+
+                    Markdown ->
+                        lazy Markdown.view newModel
+        in
+        lazy3 MiniMap.view model size mainSvg
+
+    else
+        Empty.view
 
 
 svgView : Model -> Svg Msg
@@ -322,6 +369,32 @@ svgView model =
                     * model.svg.scale
                     |> round
                     |> String.fromInt
+
+        mainSvg =
+            case model.diagramType of
+                UserStoryMap ->
+                    lazy UserStoryMap.view model
+
+                BusinessModelCanvas ->
+                    lazy BusinessModelCanvas.view model
+
+                OpportunityCanvas ->
+                    lazy OpportunityCanvas.view model
+
+                FourLs ->
+                    lazy FourLs.view model
+
+                StartStopContinue ->
+                    lazy StartStopContinue.view model
+
+                Kpt ->
+                    lazy Kpt.view model
+
+                UserPersona ->
+                    lazy UserPersona.view model
+
+                Markdown ->
+                    lazy Markdown.view model
     in
     svg
         [ Attr.id "usm"
@@ -357,30 +430,7 @@ svgView model =
                     []
                     [ text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ]
                 ]
-        , case model.diagramType of
-            UserStoryMap ->
-                lazy UserStoryMap.view model
-
-            BusinessModelCanvas ->
-                lazy BusinessModelCanvas.view model
-
-            OpportunityCanvas ->
-                lazy OpportunityCanvas.view model
-
-            FourLs ->
-                lazy FourLs.view model
-
-            StartStopContinue ->
-                lazy StartStopContinue.view model
-
-            Kpt ->
-                lazy Kpt.view model
-
-            UserPersona ->
-                lazy UserPersona.view model
-
-            Markdown ->
-                lazy Markdown.view model
+        , mainSvg
         ]
 
 
@@ -590,6 +640,7 @@ updateDiagram size width height base text =
                     , touchDistance = base.touchDistance
                     , diagramType = base.diagramType
                     , labels = labels
+                    , showMiniMap = False
                     , text =
                         if String.isEmpty text then
                             Nothing
@@ -694,6 +745,14 @@ update message model =
                     , moveX = x
                     , moveY = y
                 }
+
+        MoveTo x y ->
+            { model
+                | x = x
+                , y = y
+                , moveX = 0
+                , moveY = 0
+            }
 
         ToggleFullscreen ->
             { model

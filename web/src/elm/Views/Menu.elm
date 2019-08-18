@@ -8,6 +8,7 @@ import List
 import Models.Model exposing (Menu(..), Msg(..))
 import Route exposing (Route(..))
 import Utils
+import Views.Empty as Empty
 import Views.Icon as Icon
 
 
@@ -19,7 +20,7 @@ view route width fullscreen openMenu isOnline canWrite =
             ]
     in
     if fullscreen then
-        div [] []
+        Empty.view
 
     else
         div
@@ -61,7 +62,7 @@ view route width fullscreen openMenu isOnline canWrite =
                                 ]
 
                           else
-                            div [] []
+                            Empty.view
                         , div
                             (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
                             [ Icon.download 22
@@ -85,7 +86,7 @@ view route width fullscreen openMenu isOnline canWrite =
                                 menu Nothing (Just "10px") (Just "50px") Nothing newMenu
 
                             _ ->
-                                div [] []
+                                Empty.view
 
                      else
                         case openMenu of
@@ -96,7 +97,7 @@ view route width fullscreen openMenu isOnline canWrite =
                                 menu (Just "0") (Just "56px") Nothing Nothing newMenu
 
                             _ ->
-                                div [] []
+                                Empty.view
                    ]
             )
 

@@ -27,6 +27,7 @@ type alias Model =
     , diagramType : DiagramType
     , labels : List String
     , text : Maybe String
+    , showMiniMap : Bool
     }
 
 
@@ -85,6 +86,7 @@ type Msg
     | Stop
     | Start Int Int
     | Move Int Int
+    | MoveTo Int Int
     | ToggleFullscreen
     | ShowComment Comment
     | HideComment
