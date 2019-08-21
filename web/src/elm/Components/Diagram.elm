@@ -640,7 +640,7 @@ updateDiagram size width height base text =
                     , touchDistance = base.touchDistance
                     , diagramType = base.diagramType
                     , labels = labels
-                    , showMiniMap = False
+                    , showMiniMap = base.showMiniMap
                     , text =
                         if String.isEmpty text then
                             Nothing

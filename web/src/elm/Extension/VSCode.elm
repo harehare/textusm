@@ -35,6 +35,7 @@ type alias InitData =
     , storyBackgroundColor : String
     , storyColor : String
     , diagramType : String
+    , showMiniMap : Bool
     }
 
 
@@ -97,6 +98,8 @@ init flags =
             , comment = Nothing
             , touchDistance = Nothing
             , labels = []
+            , showMiniMap = flags.showMiniMap
+            , text = Nothing
             }
       , text = flags.text
       , backgroundColor = flags.backgroundColor
@@ -109,7 +112,9 @@ view : Model -> Html Msg
 view model =
     div
         [ style "position" "relative"
-        , style "width" "100vw"
+        , style "width" "100%"
+        , style "height" "100%"
+        , style "overflow" "hidden"
         , style "background-color" model.backgroundColor
         ]
         [ div

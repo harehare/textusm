@@ -286,6 +286,8 @@ class DiagramPanel {
     const storyColor = vscode.workspace.getConfiguration().get('textusm.story.color');
     const storyBackground = vscode.workspace.getConfiguration().get('textusm.story.backgroundColor');
 
+    const enabledMiniMap = vscode.workspace.getConfiguration().get('textusm.minimap.enabled');
+
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -311,12 +313,14 @@ class DiagramPanel {
             taskBackgroundColor: "${taskBackground ? taskBackground : '#3E9BCD'}",
             storyColor: "${storyColor ? storyColor : '#000000'}",
             storyBackgroundColor: "${storyBackground ? storyBackground : '#FFFFFF'}",
-            diagramType: "${diagramType}"
+            diagramType: "${diagramType}",
+            showMiniMap: ${enabledMiniMap}
         }});
+
         const createSvg = (svgHTML, backgroundColor, width, height) => {
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-            const svgWidth = parseInt(parseInt(width) * 2);
-            const svgHeight = parseInt(parseInt(height) * 2);
+            const svgWidth = width * 1.3;
+            const svgHeight = height * 1.3;
             svg.setAttribute('viewBox', '0 0 ' + svgWidth.toString() + ' ' + svgHeight.toString());
             svg.setAttribute('width', width);
             svg.setAttribute('height', height);
@@ -386,6 +390,7 @@ class DiagramPanel {
                 app.ports.getCanvasSize.send("${diagramType}");
             }
         });
+        window.dispatchEvent(new Event('resize'));
     </script>
 </body>
 </html>`;

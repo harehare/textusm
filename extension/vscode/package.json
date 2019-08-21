@@ -6,7 +6,7 @@
     "name": "harehare"
   },
   "publisher": "harehare",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "engines": {
     "vscode": "^1.33.0"
   },
@@ -102,6 +102,11 @@
           "type": "string",
           "default": "#FFFFFF",
           "markdownDescription": "Background color for user story."
+        },
+        "textusm.minimap.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enabled minimap."
         }
       }
     }
