@@ -10,9 +10,9 @@ import Models.User exposing (User)
 import Route exposing (Route(..))
 import Styles
 import Utils
+import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu
-import Views.Empty as Empty
 
 
 view : Int -> Maybe User -> Route -> Maybe String -> Bool -> Bool -> Maybe Menu -> Html Msg
@@ -39,31 +39,26 @@ view width profile route t isEditTitle fullscreen menu =
                         input
                             [ id "title"
                             , class "title"
+                            , style "padding" "2px"
                             , value title
                             , onInput EditTitle
                             , onBlur (EndEditTitle 13 False)
                             , onKeyDown EndEditTitle
                             , placeholder "UNTITLED"
-                            , style "font-size" "16px"
-                            , style "width" "150px"
-                            , style "font-weight" "400"
-                            , style "padding" "2px"
                             ]
                             []
 
                     else
                         div
-                            [ style "color" "#f4f4f4"
-                            , style "max-width" "150px"
+                            [ class "title"
+                            , style "color" "#f4f4f4"
                             , style "text-overflow" "ellipsis"
                             , style "text-align" "left"
                             , style "cursor" "pointer"
-                            , style "font-weight" "100"
-                            , style "font-size" "16px"
                             , style "overflow" "hidden"
-                            , style "margin-bottom" "2px"
-                            , style "font-weight" "400"
                             , style "white-space" "nowrap"
+                            , style "font-weight" "100"
+                            , style "padding" "2px"
                             , onClick StartEditTitle
                             ]
                             [ text

@@ -73,7 +73,7 @@ export const initDB = app => {
             .orderBy("updatedAt")
             .reverse()
             .toArray();
-        app.ports.loadLocalDiagrams.send(
+        app.ports.gotLocalDiagrams.send(
             diagrams.map(d => ({
                 users: null,
                 ownerId: null,

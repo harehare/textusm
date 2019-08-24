@@ -5,7 +5,8 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List
-import Models.Model exposing (Menu(..), Msg(..))
+import Models.DiagramType as DiagramType
+import Models.Model exposing (FileType(..), Menu(..), Msg(..))
 import Route exposing (Route(..))
 import Utils
 import Views.Empty as Empty
@@ -104,23 +105,22 @@ view route width fullscreen openMenu isOnline canWrite =
 
 newMenu : List ( Msg, String )
 newMenu =
-    [ ( NewUserStoryMap, "User Story Map" )
-    , ( NewBusinessModelCanvas, "Business Model Canvas" )
-    , ( NewOpportunityCanvas, "Opportunity Canvas" )
-    , ( NewCostBenfitAnalysis, "Cost-benfit analysis" )
-    , ( NewUserPersona, "User Persona" )
-    , ( NewFourLs, "4Ls Retrospective" )
-    , ( NewStartStopContinue, "Start, Stop, Continue Retrospective" )
-    , ( NewKpt, "KPT Retrospective" )
-    , ( NewMarkdown, "Markdown" )
+    [ ( New DiagramType.UserStoryMap, "User Story Map" )
+    , ( New DiagramType.BusinessModelCanvas, "Business Model Canvas" )
+    , ( New DiagramType.OpportunityCanvas, "Opportunity Canvas" )
+    , ( New DiagramType.UserPersona, "User Persona" )
+    , ( New DiagramType.FourLs, "4Ls Retrospective" )
+    , ( New DiagramType.StartStopContinue, "Start, Stop, Continue Retrospective" )
+    , ( New DiagramType.Kpt, "KPT Retrospective" )
+    , ( New DiagramType.Markdown, "Markdown" )
     ]
 
 
 exportMenu : Route -> Bool -> List ( Msg, String )
 exportMenu route isOnline =
-    [ ( DownloadSvg, "SVG" )
-    , ( DownloadPng, "PNG" )
-    , ( DownloadPdf, "PDF" )
+    [ ( Download Svg, "SVG" )
+    , ( Download Png, "PNG" )
+    , ( Download Pdf, "PDF" )
     , ( SaveToFileSystem, "Text" )
     ]
         ++ (if (route == Route.UserStoryMap || route == Route.Home) && isOnline then

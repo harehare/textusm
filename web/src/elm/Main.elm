@@ -23,7 +23,7 @@ import Maybe.Extra as MaybeEx exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramItem, DiagramUser)
 import Models.DiagramType as DiagramType exposing (DiagramType)
-import Models.Model as Model exposing (Model, Msg(..), Notification(..), Settings, ShareUrl(..), Window)
+import Models.Model as Model exposing (FileType(..), Model, Msg(..), Notification(..), Settings, ShareUrl(..), Window)
 import Models.User as UserModel exposing (User)
 import Parser
 import Route exposing (Route(..), toRoute)
@@ -36,10 +36,10 @@ import Url as Url exposing (percentDecode)
 import Utils
 import Views.DiagramList as DiagramList
 import Views.Editor as Editor
+import Views.Empty as Empty
 import Views.Header as Header
 import Views.Icon as Icon
 import Views.Logo as Logo
-import Views.Empty as Empty
 import Views.Menu as Menu
 import Views.Notification as Notification
 import Views.ProgressBar as ProgressBar
@@ -502,45 +502,28 @@ update message model =
         GotTimeZone zone ->
             ( { model | timezone = Just zone }, Cmd.none )
 
-        DownloadPdf ->
+        Download fileType ->
             let
                 ( width, height ) =
                     Utils.getCanvasSize model.diagramModel model.diagramModel.diagramType
-            in
-            ( model
-            , downloadPdf
-                { width = width
-                , height = height
-                , id = "usm"
-                , title = Utils.getTitle model.title ++ ".pdf"
-                }
-            )
 
-        DownloadPng ->
-            let
-                ( width, height ) =
-                    Utils.getCanvasSize model.diagramModel model.diagramModel.diagramType
-            in
-            ( model
-            , downloadPng
-                { width = width
-                , height = height
-                , id = "usm"
-                , title = Utils.getTitle model.title ++ ".png"
-                }
-            )
+                ( sub, extension ) =
+                    case fileType of
+                        Png ->
+                            ( downloadPng, ".png" )
 
-        DownloadSvg ->
-            let
-                ( width, height ) =
-                    Utils.getCanvasSize model.diagramModel model.diagramModel.diagramType
+                        Pdf ->
+                            ( downloadPdf, ".pdf" )
+
+                        Svg ->
+                            ( downloadSvg, ".svg" )
             in
             ( model
-            , downloadSvg
+            , sub
                 { width = width
                 , height = height
                 , id = "usm"
-                , title = Utils.getTitle model.title ++ ".svg"
+                , title = Utils.getTitle model.title ++ extension
                 }
             )
 
@@ -1063,7 +1046,7 @@ update message model =
                         ]
             )
 
-        LoadLocalDiagrams localItems ->
+        GotLocalDiagrams localItems ->
             case model.loginUser of
                 Just _ ->
                     let
@@ -1096,12 +1079,12 @@ update message model =
                                     )
                                 |> Task.mapError (Tuple.pair localItems)
                     in
-                    ( { model | progress = True }, Task.attempt LoadDiagrams items )
+                    ( { model | progress = True }, Task.attempt GotDiagrams items )
 
                 Nothing ->
                     ( { model | diagrams = Just localItems }, Cmd.none )
 
-        LoadDiagrams (Err ( items, err )) ->
+        GotDiagrams (Err ( items, err )) ->
             ( { model | progress = False, diagrams = Just items }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
@@ -1109,7 +1092,7 @@ update message model =
                 ]
             )
 
-        LoadDiagrams (Ok items) ->
+        GotDiagrams (Ok items) ->
             ( { model | progress = False, diagrams = Just items }, Cmd.none )
 
         GetDiagrams ->
@@ -1279,168 +1262,48 @@ update message model =
             in
             ( model, Cmd.none )
 
-        NewUserStoryMap ->
+        New type_ ->
+            let
+                ( text_, route_ ) =
+                    case type_ of
+                        DiagramType.UserStoryMap ->
+                            ( "", Route.UserStoryMap )
+
+                        DiagramType.BusinessModelCanvas ->
+                            ( "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships", Route.BusinessModelCanvas )
+
+                        DiagramType.OpportunityCanvas ->
+                            ( "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget", Route.OpportunityCanvas )
+
+                        DiagramType.FourLs ->
+                            ( "Liked\nLearned\nLacked\nLonged for", Route.FourLs )
+
+                        DiagramType.StartStopContinue ->
+                            ( "Start\nStop\nContinue", Route.StartStopContinue )
+
+                        DiagramType.Kpt ->
+                            ( "K\nP\nT", Route.Kpt )
+
+                        DiagramType.UserPersona ->
+                            ( "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology", Route.Persona )
+
+                        DiagramType.Markdown ->
+                            ( "", Route.Markdown )
+
+                displayText =
+                    if String.isEmpty model.text then
+                        text_
+
+                    else
+                        model.text
+            in
             ( { model
                 | id = Nothing
                 , title = Nothing
+                , text = displayText
                 , currentDiagram = Nothing
               }
-            , Nav.pushUrl model.key (Route.toString Route.Home)
-            )
-
-        NewBusinessModelCanvas ->
-            let
-                ( model_, _ ) =
-                    update NewUserStoryMap model
-
-                displayText =
-                    if String.isEmpty model_.text then
-                        "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships"
-
-                    else
-                        model.text
-            in
-            ( { model_
-                | text = displayText
-              }
-            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.BusinessModelCanvas) ]
-            )
-
-        NewOpportunityCanvas ->
-            let
-                ( model_, _ ) =
-                    update NewUserStoryMap model
-
-                displayText =
-                    if String.isEmpty model_.text then
-                        """Problems
-Solution Ideas
-Users and Customers
-Solutions Today
-Business Challenges
-How will Users use Solution?
-User Metrics
-Adoption Strategy
-Business Benefits and Metrics
-Budget
-"""
-
-                    else
-                        model.text
-            in
-            ( { model_
-                | text = displayText
-              }
-            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.OpportunityCanvas) ]
-            )
-
-        NewFourLs ->
-            let
-                ( model_, _ ) =
-                    update NewUserStoryMap model
-
-                displayText =
-                    if String.isEmpty model_.text then
-                        "Liked\nLearned\nLacked\nLonged for"
-
-                    else
-                        model.text
-            in
-            ( { model_
-                | text = displayText
-              }
-            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.FourLs) ]
-            )
-
-        NewCostBenfitAnalysis ->
-            let
-                ( model_, _ ) =
-                    update NewUserStoryMap model
-
-                displayText =
-                    if String.isEmpty model_.text then
-                        "HIGH EFFORT/LOW REWARD\nHIGH EFFORT/HIGH REWARD\nLOW EFFORT/LOW REWARD\nLOW EFFORT/HIGH REWARD"
-
-                    else
-                        model.text
-            in
-            ( { model_
-                | text = displayText
-              }
-            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.FourLs) ]
-            )
-
-        NewStartStopContinue ->
-            let
-                ( model_, _ ) =
-                    update NewUserStoryMap model
-
-                displayText =
-                    if String.isEmpty model_.text then
-                        "Start\nStop\nContinue"
-
-                    else
-                        model.text
-            in
-            ( { model_
-                | text = displayText
-              }
-            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.StartStopContinue) ]
-            )
-
-        NewKpt ->
-            let
-                ( model_, _ ) =
-                    update NewUserStoryMap model
-
-                displayText =
-                    if String.isEmpty model_.text then
-                        "K\nP\nT"
-
-                    else
-                        model.text
-            in
-            ( { model_
-                | text = displayText
-              }
-            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.Kpt) ]
-            )
-
-        NewUserPersona ->
-            let
-                ( model_, _ ) =
-                    update NewUserStoryMap model
-
-                displayText =
-                    if String.isEmpty model_.text then
-                        """Name
-    https://app.textusm.com/images/logo.svg
-Who am i...
-Three reasons to use your product
-Three reasons to buy your product
-My interests
-My personality
-My Skills
-My dreams
-My relationship with technology
-"""
-
-                    else
-                        model_.text
-            in
-            ( { model_
-                | text = displayText
-              }
-            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString Route.Persona) ]
-            )
-
-        NewMarkdown ->
-            let
-                ( model_, _ ) =
-                    update NewUserStoryMap model
-            in
-            ( model_
-            , Nav.pushUrl model.key (Route.toString Route.Markdown)
+            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString route_) ]
             )
 
 

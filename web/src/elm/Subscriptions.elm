@@ -4,7 +4,7 @@ import Browser.Events exposing (onMouseMove, onMouseUp, onResize, onVisibilityCh
 import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramItem)
-import Models.Model exposing (Download, Model, Msg(..), Notification(..), Settings, ShareInfo)
+import Models.Model exposing (DownloadInfo, Model, Msg(..), Notification(..), Settings, ShareInfo)
 import Models.User exposing (User)
 
 
@@ -47,13 +47,13 @@ port online : (() -> msg) -> Sub msg
 port removeRemoteDiagram : (DiagramItem -> msg) -> Sub msg
 
 
-port downloadPng : Download -> Cmd msg
+port downloadPng : DownloadInfo -> Cmd msg
 
 
-port downloadSvg : Download -> Cmd msg
+port downloadSvg : DownloadInfo -> Cmd msg
 
 
-port downloadPdf : Download -> Cmd msg
+port downloadPdf : DownloadInfo -> Cmd msg
 
 
 port loadEditor : String -> Cmd msg
@@ -120,7 +120,7 @@ port getDiagrams : () -> Cmd msg
 port getDiagram : String -> Cmd msg
 
 
-port loadLocalDiagrams : (List DiagramItem -> msg) -> Sub msg
+port gotLocalDiagrams : (List DiagramItem -> msg) -> Sub msg
 
 
 port removedDiagram : (( DiagramItem, Bool ) -> msg) -> Sub msg
@@ -135,7 +135,7 @@ subscriptions model =
         ([ changeText (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
          , applySettings ApplySettings
          , startDownloadSvg StartDownloadSvg
-         , loadLocalDiagrams LoadLocalDiagrams
+         , gotLocalDiagrams GotLocalDiagrams
          , removedDiagram RemovedDiagram
          , onVisibilityChange OnVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))

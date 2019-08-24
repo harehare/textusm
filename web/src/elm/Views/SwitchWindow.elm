@@ -42,14 +42,6 @@ view backgroundColor index view1 view2 =
               else
                 Icon.edit 20
             ]
-        , div
-            (Styles.flex
-                ++ [ style "width" "100vw"
-                   , style "height" "40px"
-                   , style "background-color" "#282C32"
-                   ]
-            )
-            []
         , div Styles.matchParent
             [ div
                 ((if index == 1 then

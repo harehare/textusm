@@ -1,4 +1,4 @@
-module Models.Model exposing (Download, GithubSettings, Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window, canWrite)
+module Models.Model exposing (DownloadInfo, FileType(..), GithubSettings, Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window, canWrite)
 
 import Api.Diagram as DiagramAPI exposing (AddUserResponse, UpdateUserResponse)
 import Api.Export
@@ -13,6 +13,7 @@ import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.Diagram as Diagram
 import Models.DiagramItem exposing (DiagramItem, DiagramUser)
+import Models.DiagramType exposing (DiagramType)
 import Models.User exposing (User)
 import Time exposing (Zone)
 import Url
@@ -25,9 +26,7 @@ type Msg
     | OpenMenu Menu
     | Stop
     | CloseMenu
-    | DownloadPng
-    | DownloadSvg
-    | DownloadPdf
+    | Download FileType
     | StartDownloadSvg String
     | FileSelect
     | FileSelected File
@@ -65,18 +64,10 @@ type Msg
     | GetShortUrl (Result Http.Error Api.UrlShorter.Response)
     | DoOpenUrl String
       -- Diagram type
-    | NewUserStoryMap
-    | NewBusinessModelCanvas
-    | NewOpportunityCanvas
-    | NewFourLs
-    | NewStartStopContinue
-    | NewCostBenfitAnalysis
-    | NewUserPersona
-    | NewKpt
-    | NewMarkdown
+    | New DiagramType
     | GetDiagrams
-    | LoadLocalDiagrams (List DiagramItem)
-    | LoadDiagrams (Result ( List DiagramItem, Http.Error ) (List DiagramItem))
+    | GotLocalDiagrams (List DiagramItem)
+    | GotDiagrams (Result ( List DiagramItem, Http.Error ) (List DiagramItem))
     | Open DiagramItem
     | Opened (Result ( DiagramItem, Http.Error ) DiagramItem)
     | RemoveDiagram DiagramItem
@@ -101,6 +92,12 @@ type Msg
     | DeleteUser String
     | DeletedUser (Result Http.Error String)
     | LoadUsers (Result Http.Error DiagramItem)
+
+
+type FileType
+    = Png
+    | Svg
+    | Pdf
 
 
 type alias OpenUrl =
@@ -158,7 +155,7 @@ type alias Window =
     }
 
 
-type alias Download =
+type alias DownloadInfo =
     { width : Int
     , height : Int
     , id : String

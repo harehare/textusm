@@ -592,8 +592,7 @@ updateDiagram size width height base text =
                             )
 
                     countByHierarchy =
-                        filterdItems
-                            |> countUpToHierarchy (hierarchy - 2)
+                        countUpToHierarchy (hierarchy - 2) filterdItems
 
                     svgWidth =
                         itemCount * (size.width + itemMargin) + leftMargin * 2
