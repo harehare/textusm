@@ -16,9 +16,6 @@ import Svg.Lazy exposing (..)
 view : Model -> Svg Msg
 view model =
     let
-        drawItems =
-            model.items |> List.filter (\item -> item.itemType /= Comments)
-
         itemHeight =
             Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
     in
@@ -38,7 +35,7 @@ view model =
             (itemHeight * 2)
             "0"
             "0"
-            (drawItems
+            (model.items
                 |> getAt 2
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -54,7 +51,7 @@ view model =
             itemHeight
             (String.fromInt (Constants.itemWidth - 5))
             "0"
-            (drawItems
+            (model.items
                 |> getAt 0
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -70,7 +67,7 @@ view model =
             (itemHeight + 5)
             (String.fromInt (Constants.itemWidth - 5))
             (String.fromInt (itemHeight - 5))
-            (drawItems
+            (model.items
                 |> getAt 3
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -86,7 +83,7 @@ view model =
             (itemHeight * 2)
             (String.fromInt (Constants.itemWidth * 2 - 10))
             "0"
-            (drawItems
+            (model.items
                 |> getAt 1
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -102,7 +99,7 @@ view model =
             itemHeight
             (String.fromInt (Constants.itemWidth * 3 - 15))
             "0"
-            (drawItems
+            (model.items
                 |> getAt 5
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -118,7 +115,7 @@ view model =
             (itemHeight + 5)
             (String.fromInt (Constants.itemWidth * 3 - 15))
             (String.fromInt (itemHeight - 5))
-            (drawItems
+            (model.items
                 |> getAt 7
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -134,7 +131,7 @@ view model =
             (itemHeight * 2)
             (String.fromInt (Constants.itemWidth * 4 - 20))
             "0"
-            (drawItems
+            (model.items
                 |> getAt 6
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -150,7 +147,7 @@ view model =
             (itemHeight + 5)
             "0"
             (String.fromInt (itemHeight * 2 - 5))
-            (drawItems
+            (model.items
                 |> getAt 4
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -166,7 +163,7 @@ view model =
             (itemHeight + 5)
             (String.fromInt (round (toFloat Constants.itemWidth * 2) - 10))
             (String.fromInt (itemHeight * 2 - 5))
-            (drawItems
+            (model.items
                 |> getAt 9
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -182,7 +179,7 @@ view model =
             (itemHeight + 5)
             (String.fromInt (round (toFloat Constants.itemWidth * 3) - 15))
             (String.fromInt (itemHeight * 2 - 5))
-            (drawItems
+            (model.items
                 |> getAt 8
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -199,7 +196,6 @@ canvasView settings svgWidth svgHeight posX posY item =
     let
         lines =
             Item.unwrapChildren item.children
-                |> List.filter (\i -> i.itemType /= Comments)
                 |> List.map (\i -> i.text)
     in
     svg

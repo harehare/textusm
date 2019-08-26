@@ -105,6 +105,7 @@ loadText lineNo indent input =
                                           , children = Item.fromItems items
                                           }
                                             :: tailItems
+                                            |> List.filter (\item -> item.itemType /= Comments)
                                         )
                                 )
                     )
@@ -148,7 +149,7 @@ countUpToHierarchy hierarchy items =
         countUp countItems =
             -- Do not count activity, task and comment items.
             [ countItems
-                |> List.filter (\x -> x.itemType /= Tasks && x.itemType /= Activities && x.itemType /= Comments)
+                |> List.filter (\x -> x.itemType /= Tasks && x.itemType /= Activities)
                 |> List.length
             ]
                 :: (countItems
@@ -564,9 +565,6 @@ updateDiagram size width height base text =
         |> Result.andThen
             (\( hierarchy, items ) ->
                 let
-                    filterdItems =
-                        items |> List.filter (\i -> i.itemType /= Comments)
-
                     labels =
                         Parser.parseComment text
                             |> List.filter
@@ -583,7 +581,7 @@ updateDiagram size width height base text =
 
                     itemCount =
                         Basics.max (List.length items)
-                            (filterdItems
+                            (items
                                 |> List.map
                                     (\it ->
                                         Item.unwrapChildren it.children |> List.length
@@ -592,7 +590,7 @@ updateDiagram size width height base text =
                             )
 
                     countByHierarchy =
-                        countUpToHierarchy (hierarchy - 2) filterdItems
+                        countUpToHierarchy (hierarchy - 2) items
 
                     svgWidth =
                         itemCount * (size.width + itemMargin) + leftMargin * 2
@@ -606,13 +604,7 @@ updateDiagram size width height base text =
                             + size.height
 
                     countByTasks =
-                        items
-                            |> scanl
-                                (\it v ->
-                                    v
-                                        + List.length (Item.unwrapChildren it.children |> List.filter (\i -> i.itemType /= Comments))
-                                )
-                                0
+                        scanl (\it v -> v + List.length (Item.unwrapChildren it.children)) 0 items
                 in
                 Ok
                     { hierarchy = hierarchy

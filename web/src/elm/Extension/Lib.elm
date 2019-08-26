@@ -29,6 +29,7 @@ type alias InitData =
     , height : Int
     , settings : DiagramModel.Settings
     , showZoomControl : Bool
+    , showMiniMap : Bool
     , diagramType : String
     , scale : Float
     }
@@ -85,6 +86,8 @@ init flags =
             , comment = Nothing
             , touchDistance = Nothing
             , labels = []
+            , showMiniMap = flags.showMiniMap
+            , text = Nothing
             }
       , text = flags.text
       , backgroundColor = flags.settings.backgroundColor

@@ -51,7 +51,6 @@ mainView settings items countByTasks countByHierarchy =
         (zip
             countByTasks
             items
-            |> List.filter (\( _, i ) -> i.itemType /= Comments)
             |> List.indexedMap
                 (\i ( count, item ) ->
                     ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByHierarchy) (leftMargin * 2 + count * (settings.size.width + itemMargin)) 10 item )
@@ -177,7 +176,6 @@ activityView settings verticalCount posX posY item =
          , itemView settings Activities posX posY item
          )
             :: (Item.unwrapChildren item.children
-                    |> List.filter (\i -> i.itemType /= Comments)
                     |> List.indexedMap
                         (\i it ->
                             ( "task-" ++ it.text
@@ -213,7 +211,6 @@ taskView settings verticalCount posX posY item =
          , itemView settings Tasks posX posY item
          )
             :: (children
-                    |> List.filter (\i -> i.itemType /= Comments)
                     |> List.indexedMap
                         (\i it ->
                             ( "story-" ++ it.text
@@ -259,7 +256,6 @@ storyView settings verticalCount parentCount posX posY item =
          , itemView settings (Stories 1) posX posY item
          )
             :: (children
-                    |> List.filter (\i -> i.itemType /= Comments)
                     |> List.indexedMap
                         (\i it ->
                             ( "story-" ++ item.text
@@ -301,7 +297,7 @@ textView settings posX posY c t =
         , height (String.fromInt settings.size.height)
         , fill c
         , color c
-        , fontSize (calcFontSize settings.size.width t)
+        , fontSize (t |> String.replace " " "" |> calcFontSize settings.size.width)
         , fontFamily settings.font
         , class "svg-text"
         ]

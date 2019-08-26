@@ -21,7 +21,7 @@ hasIndent indent text =
 
     else
         String.startsWith lineinputPrefix text
-            && (String.slice (indent * indentSpace + 1) (indent * indentSpace + 2) text /= " ")
+            && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
 
 
 parseComment : String -> List ( String, String )

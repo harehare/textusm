@@ -79,6 +79,7 @@ function render(
       | 'UserPersona';
     size?: Size;
     showZoomControl?: boolean;
+    showMiniMap?: boolean;
     scale?:
       | 0.1
       | 0.2
@@ -129,6 +130,7 @@ function render(
       height: options.size ? options.size.height : 1024,
       settings: Object.assign(defaultConfig, config),
       showZoomControl: options.showZoomControl !== undefined ? options.showZoomControl : true,
+      showMiniMap: options.showMiniMap !== undefined ? options.showMiniMap : false,
       scale: options.scale && 2.0 - options.scale > 0 ? 2.0 - options.scale : 1.0
     }
   });

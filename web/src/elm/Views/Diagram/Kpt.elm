@@ -16,9 +16,6 @@ import Svg.Lazy exposing (..)
 view : Model -> Svg Msg
 view model =
     let
-        drawItems =
-            model.items |> List.filter (\item -> item.itemType /= Comments)
-
         itemHeight =
             Basics.max Constants.itemHeight (30 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
     in
@@ -38,7 +35,7 @@ view model =
             itemHeight
             "0"
             "0"
-            (drawItems
+            (model.items
                 |> getAt 0
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -54,7 +51,7 @@ view model =
             itemHeight
             "0"
             (String.fromInt (itemHeight - 5))
-            (drawItems
+            (model.items
                 |> getAt 1
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -70,7 +67,7 @@ view model =
             (itemHeight * 2 - 5)
             (String.fromInt (Constants.largeItemWidth - 5))
             "0"
-            (drawItems
+            (model.items
                 |> getAt 2
                 |> Maybe.withDefault
                     { lineNo = 0
@@ -87,7 +84,6 @@ canvasView settings svgWidth svgHeight posX posY item =
     let
         lines =
             Item.unwrapChildren item.children
-                |> List.filter (\i -> i.itemType /= Comments)
                 |> List.map (\i -> i.text)
     in
     svg
