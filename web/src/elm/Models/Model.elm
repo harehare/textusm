@@ -92,6 +92,7 @@ type Msg
     | DeleteUser String
     | DeletedUser (Result Http.Error String)
     | LoadUsers (Result Http.Error DiagramItem)
+    | FilterDiagramList (Maybe String)
 
 
 type FileType
@@ -139,6 +140,7 @@ type alias Model =
     , progress : Bool
     , apiRoot : String
     , diagrams : Maybe (List DiagramItem)
+    , filterDiagramList : Maybe String
     , timezone : Maybe Zone
     , loginUser : Maybe User
     , isOnline : Bool

@@ -77,6 +77,7 @@ init flags url key =
                 , progress = True
                 , apiRoot = apiRoot
                 , diagrams = Nothing
+                , filterDiagramList = Nothing
                 , timezone = Nothing
                 , loginUser = Nothing
                 , isOnline = True
@@ -123,7 +124,9 @@ view model =
         , div
             [ class "main" ]
             [ lazy6 Menu.view (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu model.isOnline (Model.canWrite model)
-            , lazy8 (mainView model.loginUser (Model.canWrite model) model.searchQuery) model.settings model.diagramModel model.diagrams model.timezone model.window model.tabIndex model.text model.url
+
+            -- TODO:
+            , lazy8 (mainView model.loginUser (Model.canWrite model) model.searchQuery model.settings) model.diagramModel model.diagrams model.timezone model.window model.tabIndex model.text model.url model.filterDiagramList
             ]
         ]
 
@@ -151,8 +154,8 @@ sharingDialogView route user embedUrl shareUrl inviteMailAddress ownerId users =
             Empty.view
 
 
-mainView : Maybe User -> Bool -> Maybe String -> Settings -> DiagramModel.Model -> Maybe (List DiagramItem) -> Maybe Zone -> Window -> Int -> String -> Url.Url -> Html Msg
-mainView user canWrite searchQuery settings diagramModel diagrams zone window tabIndex text url =
+mainView : Maybe User -> Bool -> Maybe String -> Settings -> DiagramModel.Model -> Maybe (List DiagramItem) -> Maybe Zone -> Window -> Int -> String -> Url.Url -> Maybe String -> Html Msg
+mainView user canWrite searchQuery settings diagramModel diagrams zone window tabIndex text url filterDiagramList =
     let
         mainWindow =
             if diagramModel.width > 0 && Utils.isPhone diagramModel.width then
@@ -168,7 +171,7 @@ mainView user canWrite searchQuery settings diagramModel diagrams zone window ta
     in
     case toRoute url of
         Route.List ->
-            lazy4 DiagramList.view user (zone |> Maybe.withDefault Time.utc) searchQuery diagrams
+            lazy5 DiagramList.view user (zone |> Maybe.withDefault Time.utc) searchQuery diagrams filterDiagramList
 
         _ ->
             mainWindow
@@ -1261,6 +1264,9 @@ update message model =
                             )
             in
             ( model, Cmd.none )
+
+        FilterDiagramList filter ->
+            ( { model | filterDiagramList = filter }, Cmd.none )
 
         New type_ ->
             let
