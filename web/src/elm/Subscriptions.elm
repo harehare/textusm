@@ -1,4 +1,4 @@
-port module Subscriptions exposing (applySettings, changeText, copyClipboard, decodeShareText, downloadPdf, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getAccessTokenForGitHub, getDiagram, getDiagrams, layoutEditor, loadEditor, loadText, login, logout, removeDiagrams, saveDiagram, saveSettings, selectLine, selectTextById, setEditorLanguage, subscriptions)
+port module Subscriptions exposing (applySettings, changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadPdf, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getAccessTokenForGitHub, getDiagram, getDiagrams, layoutEditor, loadEditor, loadText, login, logout, openFullscreen, removeDiagrams, saveDiagram, saveSettings, selectLine, selectTextById, setEditorLanguage, subscriptions)
 
 import Browser.Events exposing (onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Json.Decode as D
@@ -104,6 +104,15 @@ port getAccessTokenForGitHub : () -> Cmd msg
 port onGetAccessTokenForGitHub : (String -> msg) -> Sub msg
 
 
+port downloadCompleted : ((Int, Int) -> msg) -> Sub msg
+
+
+port openFullscreen : () -> Cmd msg
+
+
+port closeFullscreen : () -> Cmd msg
+
+
 
 -- Diagram
 
@@ -152,6 +161,7 @@ subscriptions model =
          , offline (\_ -> OnChangeNetworkStatus False)
          , online (\_ -> OnChangeNetworkStatus True)
          , removeRemoteDiagram RemoveRemoteDiagram
+         , downloadCompleted DownloadCompleted
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp (D.succeed Stop)

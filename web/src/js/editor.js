@@ -19,7 +19,7 @@ monaco.editor.defineTheme("usmTheme", {
     base: "vs-dark",
     inherit: true,
     colors: {
-        "editor.background": "#323D46"
+        "editor.background": "#273037"
     },
     rules: [
         {

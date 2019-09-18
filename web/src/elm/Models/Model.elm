@@ -27,6 +27,7 @@ type Msg
     | Stop
     | CloseMenu
     | Download FileType
+    | DownloadCompleted ( Int, Int )
     | StartDownloadSvg String
     | FileSelect
     | FileSelected File
@@ -162,6 +163,8 @@ type alias DownloadInfo =
     , height : Int
     , id : String
     , title : String
+    , x : Int
+    , y : Int
     }
 
 

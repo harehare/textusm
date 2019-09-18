@@ -44,13 +44,14 @@ export const initDowonlad = app => {
             new XMLSerializer().serializeToString(createSvg(id, width, height))
         )}`;
     };
-    app.ports.downloadSvg.subscribe(({ id, width, height }) => {
+    app.ports.downloadSvg.subscribe(({ id, width, height, x, y }) => {
         app.ports.startDownloadSvg.send(
             new XMLSerializer().serializeToString(createSvg(id, width, height))
         );
+        app.ports.downloadCompleted.send([x, y]);
     });
 
-    app.ports.downloadPdf.subscribe(({ id, width, height, title }) => {
+    app.ports.downloadPdf.subscribe(({ id, width, height, title, x, y }) => {
         if (location.pathname === "/md") {
             const doc = new jsPDF({
                 orientation: "p",
@@ -89,6 +90,7 @@ export const initDowonlad = app => {
 
                     printPage(0);
                     doc.save(title);
+                    app.ports.downloadCompleted.send([x, y]);
                 }
             });
         } else {
@@ -113,12 +115,13 @@ export const initDowonlad = app => {
                         height * (pageWidth / width)
                     );
                     doc.save(title);
+                    app.ports.downloadCompleted.send([x, y]);
                 }
             });
         }
     });
 
-    app.ports.downloadPng.subscribe(({ id, width, height, title }) => {
+    app.ports.downloadPng.subscribe(({ id, width, height, title, x, y }) => {
         createImage({
             id,
             width,
@@ -135,6 +138,7 @@ export const initDowonlad = app => {
                     window.URL.revokeObjectURL(url);
                     a.remove();
                 }, 10);
+                app.ports.downloadCompleted.send([x, y]);
             }
         });
     });

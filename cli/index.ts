@@ -10,6 +10,7 @@ const defaultSettings = {
   position: 0,
   text: '',
   title: 'TestUSM',
+  miniMap: false,
   storyMap: {
     font: 'Open Sans',
     size: {
@@ -43,14 +44,16 @@ const defaultSettings = {
 
 const readConfigFile = (file: string) => {
   try {
-    return JSON.parse(fs.readFileSync(file).toString());
+    const settings = JSON.parse(fs.readFileSync(file).toString());
+    settings.miniMap = false;
+    return settings;
   } catch {
     return defaultSettings;
   }
 };
 
 const { configFile, input, width, height, output, diagramType } = commander
-  .version('0.0.8')
+  .version('0.1.0')
   .option('-c, --configFile [configFile]', 'Config file.')
   .option('-i, --input <input>', 'Input text file. Required.')
   .option('-w, --width <width>', 'Width of the page. Optional. Default: 1024.')
@@ -58,7 +61,7 @@ const { configFile, input, width, height, output, diagramType } = commander
   .option('-o, --output [output]', 'Output file. It should be svg, png, pdf or html.')
   .option(
     '-d, --diagramType [diagramType]',
-    'Diagram type. It should be userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt or userpersona.'
+    'Diagram type. It should be userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona or mind_map.'
   )
   .parse(process.argv);
 
@@ -80,6 +83,7 @@ const validDiagramType = [
   'start_stop_continue',
   'kpt',
   'userpersona',
+  'mind_map',
   ''
 ];
 
@@ -131,6 +135,8 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
         ? 'kpt'
         : diagramType === 'userpersona'
         ? 'persona'
+        : diagramType === 'mind_map'
+        ? 'mmp'
         : 'usm';
     await page.goto(`https://app.textusm.com/view/${type}/${encodeURIComponent(JSON.stringify(configJson))}`);
 

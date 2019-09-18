@@ -100,6 +100,7 @@ init flags =
             , labels = []
             , showMiniMap = flags.showMiniMap
             , text = Nothing
+            , matchParent = False
             }
       , text = flags.text
       , backgroundColor = flags.backgroundColor
@@ -161,8 +162,14 @@ update message model =
 
         GetCanvasSize diagramType ->
             let
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel | diagramType = DiagramType.fromString diagramType }
+
                 size =
-                    Utils.getCanvasSize model.diagramModel (DiagramType.fromString diagramType)
+                    Utils.getCanvasSize newDiagramModel
             in
             ( model, onGetCanvasSize size )
 

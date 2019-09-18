@@ -6,7 +6,7 @@
     "name": "harehare"
   },
   "publisher": "harehare",
-  "version": "0.0.18",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.33.0"
   },
@@ -22,7 +22,8 @@
     "svg",
     "user-story-mapping",
     "user-story-map",
-    "diagram"
+    "diagram",
+    "mindmap"
   ],
   "activationEvents": [
     "onCommand:extension.showPreview",
@@ -61,7 +62,7 @@
         "textusm.fontName": {
           "type": "string",
           "default": null,
-          "markdownDescription": "Font family for figure."
+          "markdownDescription": "Font family for diagram."
         },
         "textusm.exportDir": {
           "type": "string",
@@ -71,7 +72,7 @@
         "textusm.backgroundColor": {
           "type": "string",
           "default": "transparent",
-          "markdownDescription": "background color for figure."
+          "markdownDescription": "background color for diagram."
         },
         "textusm.activity.color": {
           "type": "string",

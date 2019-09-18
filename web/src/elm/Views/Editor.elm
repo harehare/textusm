@@ -13,7 +13,7 @@ import Views.Settings as Settings
 view : Settings -> Route -> Html Msg
 view settings route =
     div
-        (style "background-color" "#272c32" :: Styles.matchParent)
+        (style "background-color" "#273037" :: Styles.matchParent)
         [ if route == Route.Settings then
             div
                 Styles.matchParent

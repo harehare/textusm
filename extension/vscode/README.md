@@ -1,6 +1,6 @@
 # TextUSM
 
-![](https://img.shields.io/badge/Release-v0.0.14-blue.svg?style=flat-square) ![](https://img.shields.io/badge/vscode-^1.33.0-blue.svg?style=flat-square) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+![](https://img.shields.io/badge/Release-v0.1.0-blue.svg?style=flat-square) ![](https://img.shields.io/badge/vscode-^1.33.0-blue.svg?style=flat-square) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
 TextISM is a simple tool. Help you draw user story map using indented text.
 
@@ -10,6 +10,7 @@ TextISM is a simple tool. Help you draw user story map using indented text.
 - 4Ls Retrospective
 - Start, Stop, Continue Retrospective
 - KPT Retrospective
+- Mind Map
 
 ![image](./img/textusm.gif)
 
@@ -133,6 +134,22 @@ Try
 ```
 
 ![image](./img/kpt.png)
+
+### MindMap
+
+```
+TextUSM
+    WORK QUICKLY
+        Draw diagrams without leaving the keyboard.
+    SAVE TIME
+        Instantly visualize your ideas.
+    EXPORT TO IMAGES
+        Images can be exported as png or svg.
+    SHARING
+        Share your diagrams online with your colleagues.
+```
+
+![image](./img/mmp.png)
 
 ## Options
 

@@ -49,6 +49,7 @@ select {
     display: flex;
     align-items: center;
     background-color: var(--main-color);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     width: 100vw;
     height: 40px;
 }
@@ -75,7 +76,7 @@ select {
     padding: 8px 8px 16px;
     font-size: 1.2rem;
     font-weight: 400;
-    width: 100%;
+    width: 90%;
     @media screen and (max-width: 480px) {
         width: 120px;
     }
@@ -722,4 +723,17 @@ select {
 
 .md-content {
     padding: 8px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #fff;
+    border-left: solid 1px #ececec;
+}
+::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 2px #fff;
 }

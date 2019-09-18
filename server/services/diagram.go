@@ -10,7 +10,7 @@ import (
 
 var DB *gorm.DB
 
-const FreePlanMaxDiagrams = 10
+const FreePlanMaxDiagrams = 30
 
 var EncryptKey = []byte(os.Getenv("ENCRYPT_KEY"))
 

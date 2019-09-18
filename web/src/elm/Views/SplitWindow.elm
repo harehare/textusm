@@ -58,7 +58,7 @@ view canWrite backgroundColor window left right =
                 , style
                     "height"
                     "calc(100vh - 40px)"
-                , style "background-color" "#1D1D1D"
+                , style "background-color" "#273037"
                 ]
                 [ left ]
             , div

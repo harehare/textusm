@@ -79,6 +79,9 @@ init flags =
                 else if flags.diagramType == "UserPersona" then
                     DiagramType.UserPersona
 
+                else if flags.diagramType == "MindMap" then
+                    DiagramType.MindMap
+
                 else
                     DiagramType.UserStoryMap
             , settings = flags.settings

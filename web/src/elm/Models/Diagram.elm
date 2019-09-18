@@ -1,4 +1,4 @@
-module Models.Diagram exposing (Color, ColorSettings, Comment, Model, Msg(..), Settings, Size, UsmSvg)
+module Models.Diagram exposing (Color, ColorSettings, Comment, Model, Msg(..), Point, Settings, Size, UsmSvg)
 
 import Browser.Dom exposing (Viewport)
 import Models.DiagramType exposing (DiagramType)
@@ -27,6 +27,7 @@ type alias Model =
     , diagramType : DiagramType
     , labels : List String
     , text : Maybe String
+    , matchParent : Bool
     , showMiniMap : Bool
     }
 
@@ -72,6 +73,12 @@ type alias Color =
 type alias Size =
     { width : Int
     , height : Int
+    }
+
+
+type alias Point =
+    { x : Int
+    , y : Int
     }
 
 

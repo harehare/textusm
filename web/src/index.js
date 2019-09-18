@@ -14,6 +14,29 @@ const app = Elm.Main.init({
     flags: [process.env.API_ROOT, loadSettings()]
 });
 const auth = new Auth();
+const openFullscreen = function() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+    }
+};
+const closeFullscreen = function() {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+    }
+};
 
 app.ports.saveSettings.subscribe(settings => {
     saveSettings(settings);
@@ -48,26 +71,19 @@ app.ports.selectTextById.subscribe(id => {
     document.getElementById(id).select();
 });
 
-// app.ports.copyClipboard.subscribe(text => {
-//     const temp = document.createElement("textarea");
-//     temp.value = text;
-//     temp.selectionStart = 0;
-//     temp.selectionEnd = temp.value.length;
-//     temp.style.position = "absolute";
-//     temp.style.top = "1000px";
-
-//     document.body.appendChild(temp);
-//     temp.focus();
-//     document.execCommand("copy");
-//     temp.blur();
-//     document.body.removeChild(temp);
-// });
-
 app.ports.getAccessTokenForGitHub.subscribe(() => {
     sessionStorage.setItem(StatusGithubExportkey, "true");
     auth.login(auth.provideres.github).catch(err => {
         app.ports.onErrorNotification.send("Failed sign in.");
     });
+});
+
+app.ports.openFullscreen.subscribe(() => {
+    openFullscreen();
+});
+
+app.ports.closeFullscreen.subscribe(() => {
+    closeFullscreen();
 });
 
 const attachApp = (app, list) => {

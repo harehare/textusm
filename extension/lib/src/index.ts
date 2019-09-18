@@ -7,7 +7,8 @@ import {
   StartStopContinue,
   Kpt,
   toString,
-  toTypeString
+  toTypeString,
+  MindMap
 } from './model';
 
 interface Config {
@@ -67,7 +68,15 @@ const defaultConfig: Config = {
 
 function render(
   idOrElm: string | HTMLElement,
-  definition: string | UserStoryMap | BusinessModelCanvas | OpportunityCanvas | FourLs | StartStopContinue | Kpt,
+  definition:
+    | string
+    | UserStoryMap
+    | BusinessModelCanvas
+    | OpportunityCanvas
+    | FourLs
+    | StartStopContinue
+    | Kpt
+    | MindMap,
   options?: {
     diagramType?:
       | 'UserStoryMap'
@@ -76,7 +85,8 @@ function render(
       | '4Ls'
       | 'StartStopContinue'
       | 'Kpt'
-      | 'UserPersona';
+      | 'UserPersona'
+      | 'MindMap';
     size?: Size;
     showZoomControl?: boolean;
     showMiniMap?: boolean;

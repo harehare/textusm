@@ -38,7 +38,7 @@ view route width fullscreen openMenu isOnline canWrite =
                 div
                     (stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True )) :: style "margin-left" "4px" :: menuItemStyle)
                     [ Icon.file 20
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Current File" ] ]
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
                     ]
              )
                 :: (if route == Route.List then
@@ -113,6 +113,7 @@ newMenu =
     , ( New DiagramType.StartStopContinue, "Start, Stop, Continue Retrospective" )
     , ( New DiagramType.Kpt, "KPT Retrospective" )
     , ( New DiagramType.Markdown, "Markdown" )
+    , ( New DiagramType.MindMap, "Mind Map" )
     ]
 
 

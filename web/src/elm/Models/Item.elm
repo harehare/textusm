@@ -1,4 +1,4 @@
-module Models.Item exposing (Children, Item, ItemType(..), empty, emptyItem, fromItems, toString, unwrapChildren)
+module Models.Item exposing (Children, Item, ItemType(..), empty, emptyItem, fromItems, getChildrenCount, getLeafCount, toString, unwrapChildren)
 
 
 type Children
@@ -42,6 +42,34 @@ emptyItem =
 unwrapChildren : Children -> List Item
 unwrapChildren (Children items) =
     items
+
+
+getChildrenCount : Item -> Int
+getChildrenCount item =
+    childrenCount <| unwrapChildren item.children
+
+
+childrenCount : List Item -> Int
+childrenCount ii =
+    if List.isEmpty ii then
+        0
+
+    else
+        List.length ii + (ii |> List.map (\i -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
+
+
+getLeafCount : Item -> Int
+getLeafCount item =
+    leafCount <| unwrapChildren item.children
+
+
+leafCount : List Item -> Int
+leafCount ii =
+    if List.isEmpty ii then
+        1
+
+    else
+        ii |> List.map (\i -> leafCount <| unwrapChildren i.children) |> List.sum
 
 
 toString : List Item -> String

@@ -10,6 +10,7 @@ type DiagramType
     | Kpt
     | UserPersona
     | Markdown
+    | MindMap
 
 
 toString : DiagramType -> String
@@ -39,6 +40,9 @@ toString diagramType =
         Markdown ->
             "md"
 
+        MindMap ->
+            "mmp"
+
 
 fromString : String -> DiagramType
 fromString s =
@@ -66,6 +70,9 @@ fromString s =
 
         "md" ->
             Markdown
+
+        "mmp" ->
+            MindMap
 
         _ ->
             UserStoryMap

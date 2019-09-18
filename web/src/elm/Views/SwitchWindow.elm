@@ -22,7 +22,7 @@ view backgroundColor index view1 view2 =
             [ style "position" "fixed"
             , style "bottom" "72px"
             , style "z-index" "101"
-            , style "background-color" "#3E9BCD"
+            , style "background-color" "#273037"
             , style "display" "flex"
             , style "align-items" "center"
             , style "justify-content" "center"

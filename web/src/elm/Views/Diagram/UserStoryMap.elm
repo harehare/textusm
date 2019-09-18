@@ -15,7 +15,7 @@ import Svg.Attributes exposing (..)
 import Svg.Events exposing (onClick, onMouseOut, onMouseOver, stopPropagationOn)
 import Svg.Keyed as Keyed
 import Svg.Lazy exposing (lazy2, lazy4, lazy5)
-import Utils exposing (calcFontSize)
+import Utils
 
 
 view : Model -> Svg Msg
@@ -278,10 +278,10 @@ storyView settings verticalCount parentCount posX posY item =
 
 
 rectView : String -> String -> String -> Svg Msg
-rectView posX poxY color =
+rectView posX posY color =
     rect
         [ width posX
-        , height poxY
+        , height posY
         , fill color
         , stroke "rgba(192,192,192,0.5)"
         ]
@@ -297,14 +297,11 @@ textView settings posX posY c t =
         , height (String.fromInt settings.size.height)
         , fill c
         , color c
-        , fontSize (t |> String.replace " " "" |> calcFontSize settings.size.width)
+        , fontSize (t |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
         , fontFamily settings.font
         , class "svg-text"
         ]
-        [ if
-            (String.startsWith "/" t || String.startsWith "https://" t || String.startsWith "http://" t)
-                && (String.endsWith ".svg" t || String.endsWith ".png" t || String.endsWith ".jpg" t)
-          then
+        [ if Utils.isImageUrl t then
             img
                 [ Attr.style "object-fit" "cover"
                 , Attr.style "width" (String.fromInt settings.size.width)

@@ -32,7 +32,7 @@ view model ( svgWidth, svgHeight ) mainSvg =
                 1
 
         newHeight =
-            String.fromFloat <| 240 * rate
+            String.fromFloat <| 220 * rate
     in
     div
         [ Attr.style "position" "absolute"

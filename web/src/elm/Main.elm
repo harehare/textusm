@@ -428,6 +428,9 @@ changeRouteTo route model =
         Route.Markdown ->
             changeDiagramType DiagramType.Markdown
 
+        Route.MindMap ->
+            changeDiagramType DiagramType.MindMap
+
         _ ->
             changeDiagramType DiagramType.UserStoryMap
 
@@ -460,7 +463,13 @@ update message model =
                         newWindow =
                             { window | fullscreen = not window.fullscreen }
                     in
-                    ( { model | window = newWindow, diagramModel = Diagram.update subMsg model.diagramModel }, Cmd.none )
+                    ( { model | window = newWindow, diagramModel = Diagram.update subMsg model.diagramModel }
+                    , if newWindow.fullscreen then
+                        openFullscreen ()
+
+                      else
+                        closeFullscreen ()
+                    )
 
                 DiagramModel.OnChangeText text ->
                     let
@@ -505,10 +514,26 @@ update message model =
         GotTimeZone zone ->
             ( { model | timezone = Just zone }, Cmd.none )
 
+        DownloadCompleted ( x, y ) ->
+            let
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel | x = x, y = y, matchParent = False }
+            in
+            ( { model | diagramModel = newDiagramModel }, Cmd.none )
+
         Download fileType ->
             let
                 ( width, height ) =
-                    Utils.getCanvasSize model.diagramModel model.diagramModel.diagramType
+                    Utils.getCanvasSize model.diagramModel
+
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel | x = 0, y = 0, matchParent = True }
 
                 ( sub, extension ) =
                     case fileType of
@@ -521,12 +546,14 @@ update message model =
                         Svg ->
                             ( downloadSvg, ".svg" )
             in
-            ( model
+            ( { model | diagramModel = newDiagramModel }
             , sub
                 { width = width
                 , height = height
                 , id = "usm"
                 , title = Utils.getTitle model.title ++ extension
+                , x = model.diagramModel.x
+                , y = model.diagramModel.y
                 }
             )
 
@@ -1295,6 +1322,9 @@ update message model =
 
                         DiagramType.Markdown ->
                             ( "", Route.Markdown )
+
+                        DiagramType.MindMap ->
+                            ( "", Route.MindMap )
 
                 displayText =
                     if String.isEmpty model.text then

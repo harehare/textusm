@@ -18,6 +18,15 @@ interface Story {
   release: number;
 }
 
+export interface MindMap {
+  node: Node;
+}
+
+interface Node {
+  text: string;
+  children: Node[];
+}
+
 export interface BusinessModelCanvas {
   keyPartners: CanvasItem;
   customerSegments: CanvasItem;
@@ -85,7 +94,15 @@ interface UrlItem {
 }
 
 export function toString(
-  definition: UserStoryMap | BusinessModelCanvas | OpportunityCanvas | FourLs | StartStopContinue | Kpt | UserPersona
+  definition:
+    | UserStoryMap
+    | BusinessModelCanvas
+    | OpportunityCanvas
+    | FourLs
+    | StartStopContinue
+    | Kpt
+    | UserPersona
+    | MindMap
 ): string {
   return 'activities' in definition
     ? userStoryMap2Text(definition)
@@ -101,11 +118,21 @@ export function toString(
     ? kptCanvas2Text(definition)
     : 'whoAmI' in definition
     ? userPersonaCanvas2Text(definition)
+    : 'node' in definition
+    ? mindMap2Text(definition)
     : '';
 }
 
 export function toTypeString(
-  definition: UserStoryMap | BusinessModelCanvas | OpportunityCanvas | FourLs | StartStopContinue | Kpt | UserPersona
+  definition:
+    | UserStoryMap
+    | BusinessModelCanvas
+    | OpportunityCanvas
+    | FourLs
+    | StartStopContinue
+    | Kpt
+    | UserPersona
+    | MindMap
 ): string {
   return 'activities' in definition
     ? 'UserStoryMap'
@@ -121,6 +148,8 @@ export function toTypeString(
     ? 'Kpt'
     : 'whoAmI' in definition
     ? 'UserPersona'
+    : 'node' in definition
+    ? 'MindMap'
     : 'UserStoryMap';
 }
 
@@ -237,4 +266,18 @@ function userStoryMap2Text(userStoryMap: UserStoryMap): string {
       }, activity.tasks)
     );
   }, userStoryMap.activities).join('\n')}`;
+}
+
+function mindMap2Text(mindMap: MindMap): string {
+  const node2Text = (node: Node[], indent: number): string[] => {
+    return flatMap(n => {
+      if (n.children.length === 0) {
+        return [`${'    '.repeat(indent)}${n.text}`];
+      }
+
+      return [`${'    '.repeat(indent)}${n.text}`].concat(node2Text(n.children, indent + 1));
+    }, node);
+  };
+
+  return [mindMap.node.text].concat(node2Text(mindMap.node.children, 1)).join('\n');
 }

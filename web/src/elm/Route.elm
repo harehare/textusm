@@ -40,6 +40,7 @@ type Route
     | Kpt
     | Persona
     | Markdown
+    | MindMap
     | List
     | Settings
     | Help
@@ -68,6 +69,7 @@ parser =
         , map Kpt (s "kpt")
         , map Persona (s "persona")
         , map Markdown (s "md")
+        , map MindMap (s "mmp")
         , map List (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
@@ -109,6 +111,9 @@ toString route =
 
         Markdown ->
             absolute [ "md" ] []
+
+        MindMap ->
+            absolute [ "mmp" ] []
 
         List ->
             absolute [ "list" ] []

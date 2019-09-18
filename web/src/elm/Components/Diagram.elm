@@ -24,6 +24,7 @@ import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.FourLs as FourLs
 import Views.Diagram.Kpt as Kpt
 import Views.Diagram.Markdown as Markdown
+import Views.Diagram.MindMap as MindMap
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.UserPersona as UserPersona
@@ -61,6 +62,7 @@ init settings =
     , labels = []
     , text = Nothing
     , showMiniMap = False
+    , matchParent = False
     }
 
 
@@ -81,18 +83,24 @@ getItemType text indent =
                 Stories (indent - 1)
 
 
-loadText : Int -> Int -> String -> Result String ( List Int, List Item )
-loadText lineNo indent input =
+loadText : DiagramType -> Int -> Int -> String -> Result String ( List Int, List Item )
+loadText diagramType lineNo indent input =
     let
         splited =
-            Parser.parseLines indent input
+            case diagramType of
+                MindMap ->
+                    Parser.parseLinesIgnoreError indent input
+
+                _ ->
+                    Parser.parseLines indent input
     in
     case splited of
         Ok ( x :: xs, xxs ) ->
-            loadText (lineNo + 1) (indent + 1) (String.join "\n" xs)
+            loadText diagramType (lineNo + 1) (indent + 1) (String.join "\n" xs)
                 |> Result.andThen
                     (\( indents, items ) ->
-                        loadText (lineNo + List.length (x :: xs))
+                        loadText diagramType
+                            (lineNo + List.length (x :: xs))
                             indent
                             (String.join "\n" xxs)
                             |> Result.andThen
@@ -117,8 +125,8 @@ loadText lineNo indent input =
             Err err
 
 
-load : String -> Result String ( Int, List Item )
-load t =
+load : DiagramType -> String -> Result String ( Int, List Item )
+load diagramType t =
     case t of
         "" ->
             Ok ( 0, [] )
@@ -126,7 +134,7 @@ load t =
         _ ->
             let
                 result =
-                    loadText 0 0 t
+                    loadText diagramType 0 0 t
             in
             case result of
                 Ok ( i, loadedItems ) ->
@@ -299,12 +307,12 @@ miniMapView model =
     if model.showMiniMap then
         let
             size =
-                Utils.getCanvasSize model model.diagramType
+                Utils.getCanvasSize model
                     |> Tuple.mapFirst (\x -> String.fromInt x)
                     |> Tuple.mapSecond (\x -> String.fromInt x)
 
             newModel =
-                { model | x = 0, y = 0 }
+                { model | x = 0, y = 0, matchParent = True }
 
             mainSvg =
                 case model.diagramType of
@@ -331,6 +339,9 @@ miniMapView model =
 
                     Markdown ->
                         lazy Markdown.view newModel
+
+                    MindMap ->
+                        lazy MindMap.view newModel
         in
         lazy3 MiniMap.view model size mainSvg
 
@@ -396,6 +407,9 @@ svgView model =
 
                 Markdown ->
                     lazy Markdown.view model
+
+                MindMap ->
+                    lazy MindMap.view model
     in
     svg
         [ Attr.id "usm"
@@ -561,7 +575,7 @@ touchCoordinates touchEvent =
 
 updateDiagram : Size -> Int -> Int -> Model -> String -> Result String Model
 updateDiagram size width height base text =
-    load text
+    load base.diagramType text
         |> Result.andThen
             (\( hierarchy, items ) ->
                 let
@@ -590,7 +604,15 @@ updateDiagram size width height base text =
                             )
 
                     countByHierarchy =
-                        countUpToHierarchy (hierarchy - 2) items
+                        case base.diagramType of
+                            UserStoryMap ->
+                                countUpToHierarchy (hierarchy - 2) items
+
+                            MindMap ->
+                                countUpToHierarchy (hierarchy - 2) items
+
+                            _ ->
+                                []
 
                     svgWidth =
                         itemCount * (size.width + itemMargin) + leftMargin * 2
@@ -631,13 +653,14 @@ updateDiagram size width height base text =
                     , touchDistance = base.touchDistance
                     , diagramType = base.diagramType
                     , labels = labels
-                    , showMiniMap = base.showMiniMap
                     , text =
                         if String.isEmpty text then
                             Nothing
 
                         else
                             Just text
+                    , showMiniMap = base.showMiniMap
+                    , matchParent = base.matchParent
                     }
             )
 

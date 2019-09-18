@@ -1,4 +1,4 @@
-module Utils exposing (calcFontSize, delay, fileLoad, getCanvasSize, getIdToken, getMarkdownHeight, getTitle, httpErrorToString, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage)
+module Utils exposing (calcFontSize, delay, fileLoad, getCanvasSize, getIdToken, getMarkdownHeight, getTitle, httpErrorToString, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage)
 
 import Constants
 import File exposing (File)
@@ -6,6 +6,7 @@ import Http exposing (Error(..))
 import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
 import Models.IdToken as IdToken exposing (IdToken)
+import Models.Item as Item
 import Models.Model exposing (Msg(..), Notification(..))
 import Models.User as User exposing (User)
 import Process
@@ -77,6 +78,12 @@ httpErrorToString err =
 
         _ ->
             "Internal server error. Please try again later."
+
+
+isImageUrl : String -> Bool
+isImageUrl url =
+    (String.startsWith "/" url || String.startsWith "https://" url || String.startsWith "http://" url)
+        && (String.endsWith ".svg" url || String.endsWith ".png" url || String.endsWith ".jpg" url)
 
 
 millisToString : Zone -> Int -> String
@@ -159,11 +166,11 @@ getMarkdownHeight lines =
     lines |> List.map (\l -> getHeight l) |> List.sum
 
 
-getCanvasSize : DiagramModel.Model -> DiagramType.DiagramType -> ( Int, Int )
-getCanvasSize model diagramType =
+getCanvasSize : DiagramModel.Model -> ( Int, Int )
+getCanvasSize model =
     let
         width =
-            case diagramType of
+            case model.diagramType of
                 DiagramType.FourLs ->
                     Constants.itemWidth * 2 + 20
 
@@ -184,6 +191,9 @@ getCanvasSize model diagramType =
 
                 DiagramType.Markdown ->
                     15 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Maybe.withDefault "" <| model.text)
+
+                DiagramType.MindMap ->
+                    (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
 
                 _ ->
                     Constants.leftMargin + Constants.itemMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1)
@@ -210,6 +220,14 @@ getCanvasSize model diagramType =
 
                 DiagramType.Markdown ->
                     getMarkdownHeight <| String.lines <| Maybe.withDefault "" <| model.text
+
+                DiagramType.MindMap ->
+                    case List.head model.items of
+                        Just head ->
+                            Item.getLeafCount head * (model.settings.size.height + 15)
+
+                        Nothing ->
+                            0
 
                 _ ->
                     (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2)

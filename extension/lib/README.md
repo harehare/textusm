@@ -11,6 +11,7 @@ Generate a Diagram from indented text.
 - Start, Stop, Continue Retrospective
 - KPT Retrospective
 - User Persona
+- Mind Map
 
 ## Installation
 
@@ -275,6 +276,22 @@ textusm.render(
 ```
 
 ![image](./img/kpt.png)
+
+### MindMap
+
+```
+TextUSM
+    WORK QUICKLY
+        Draw diagrams without leaving the keyboard.
+    SAVE TIME
+        Instantly visualize your ideas.
+    EXPORT TO IMAGES
+        Images can be exported as png or svg.
+    SHARING
+        Share your diagrams online with your colleagues.
+```
+
+![image](./img/mmp.png)
 
 ### Configuration
 

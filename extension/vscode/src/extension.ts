@@ -10,7 +10,8 @@ const showQuickPick = (context: vscode.ExtensionContext, callback: () => void) =
     { label: 'User Persona', value: 'persona' },
     { label: '4Ls Retrospective', value: '4ls' },
     { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
-    { label: 'KPT Retrospective', value: 'kpt' }
+    { label: 'KPT Retrospective', value: 'kpt' },
+    { label: 'Mind Map', value: 'mmp' }
   ];
   const quickPick = vscode.window.createQuickPick();
   quickPick.items = options.map(item => ({ label: item.label }));
@@ -83,7 +84,8 @@ export function activate(context: vscode.ExtensionContext) {
         { label: 'User Persona', value: 'persona' },
         { label: '4Ls Retrospective', value: '4ls' },
         { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
-        { label: 'KPT Retrospective', value: 'kpt' }
+        { label: 'KPT Retrospective', value: 'kpt' },
+        { label: 'Mind Map', value: 'mmp' }
       ];
       const quickPick = vscode.window.createQuickPick();
       quickPick.items = options.map(item => ({ label: item.label }));
@@ -123,6 +125,9 @@ export function activate(context: vscode.ExtensionContext) {
                 newTextOpen(
                   'Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology'
                 );
+                break;
+              case 'mmp':
+                newTextOpen('new');
                 break;
             }
           }
