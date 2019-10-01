@@ -154,15 +154,17 @@ select {
     }
 
     .input-area {
-        width: 40%;
+        width: 90%;
         padding: 4px 8px;
+        input[type="text"] {
+            width: 100%;
+        }
         input {
             height: 34px;
             color: #555555;
             background-color: #fff;
             background-image: none;
             border: 1px solid #ccc;
-            border-radius: 4px;
             font-size: 0.9rem;
             padding: 0 6px;
         }
@@ -719,6 +721,63 @@ select {
     background: none;
     border: none !important;
     box-sizing: border-box;
+}
+
+.dropdown-list {
+    font-size: 0.8rem;
+    position: relative;
+    background-color: transparent;
+    color: #2e2e2e;
+    outline: none;
+    user-select: none;
+    cursor: pointer;
+
+    .list {
+        position: absolute;
+        z-index: 10;
+        top: 33px;
+        left: 0;
+        right: 0;
+        background-color: transparent;
+        padding-left: 0;
+        margin: 0;
+        border-top: 0;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        height: 200px;
+    }
+
+    .item {
+        display: block;
+        padding: 8px;
+        border: 1px solid #eee;
+        background-color: #fff;
+
+        &::after {
+            content: "";
+            width: 0;
+            height: 0;
+            position: absolute;
+            right: 8px;
+            top: calc(50%);
+            margin-top: -4px;
+            border-width: 6px 6px 0 6px;
+            border-style: solid;
+            border-color: #2e2e2e transparent;
+        }
+    }
+
+    .dropdown-item {
+        width: 100%;
+        display: block;
+        padding: 8px;
+        border: 1px solid #eee;
+        background-color: #fff;
+
+        &:hover {
+            background-color: #eee;
+        }
+    }
 }
 
 .md-content {

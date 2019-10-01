@@ -36,11 +36,10 @@ diagramDecoder =
 
 colorSettingsDecoder : D.Decoder ColorSettings
 colorSettingsDecoder =
-    D.map6 ColorSettings
+    D.map5 ColorSettings
         (D.field "activity" colorDecoder)
         (D.field "task" colorDecoder)
         (D.field "story" colorDecoder)
-        (D.field "comment" colorDecoder)
         (D.field "line" D.string)
         (D.field "label" D.string)
 

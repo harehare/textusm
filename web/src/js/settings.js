@@ -28,10 +28,6 @@ const defaultSettings = {
                 color: "#333333",
                 backgroundColor: "#FFFFFF"
             },
-            comment: {
-                color: "#333333",
-                backgroundColor: "#F1B090"
-            },
             line: "#434343",
             label: "#8C9FAE"
         },

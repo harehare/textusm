@@ -1,4 +1,5 @@
 const path = require("path");
+const glob = require("glob");
 const webpack = require("webpack");
 const merge = require("webpack-merge");
 
@@ -14,6 +15,7 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const PreloadWebpackPlugin = require("preload-webpack-plugin");
 const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
 const Dotenv = require("dotenv-webpack");
+const PurgecssPlugin = require("purgecss-webpack-plugin");
 const MODE =
     process.env.NODE_ENV === "production" ? "production" : "development";
 const withDebug = !process.env.NODE_ENV;
@@ -160,7 +162,10 @@ if (MODE === "production") {
             new MiniCssExtractPlugin({
                 filename: "[name]-[hash].css"
             }),
-            new HtmlWebpackInlineSourcePlugin()
+            new HtmlWebpackInlineSourcePlugin(),
+            new PurgecssPlugin({
+                paths: glob.sync(`src/**/*`, { nodir: true })
+            })
         ],
         module: {
             rules: [

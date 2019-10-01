@@ -1,7 +1,6 @@
 module Views.MiniMap exposing (view)
 
-import Constants
-import Html exposing (Html, div, img)
+import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Html.Events.Extra.Mouse as Mouse
 import Models.Diagram exposing (Model, Msg(..))
@@ -9,7 +8,6 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 import Svg.Lazy exposing (..)
-import Views.Empty as Empty
 
 
 view : Model -> ( String, String ) -> Svg Msg -> Html Msg

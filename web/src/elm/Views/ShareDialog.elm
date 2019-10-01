@@ -4,9 +4,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events as Events exposing (on, onClick, onInput)
 import Json.Decode as Json
-import Models.DiagramItem as DiagramItem exposing (DiagramUser)
+import Models.DiagramItem exposing (DiagramUser)
 import Models.Model exposing (Msg(..))
-import Models.User as User exposing (User)
+import Models.User exposing (User)
 import Views.Icon as Icon
 
 

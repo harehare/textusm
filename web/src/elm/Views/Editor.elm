@@ -2,7 +2,7 @@ module Views.Editor exposing (view)
 
 import Html exposing (Html, div)
 import Html.Attributes exposing (id, style)
-import Html.Lazy exposing (lazy)
+import Html.Lazy exposing (lazy2)
 import Models.Model exposing (Msg, Settings)
 import Route exposing (Route(..))
 import Styles
@@ -10,14 +10,14 @@ import Views.Help as Help
 import Views.Settings as Settings
 
 
-view : Settings -> Route -> Html Msg
-view settings route =
+view : Maybe String -> Settings -> Route -> Html Msg
+view dropDownIndex settings route =
     div
         (style "background-color" "#273037" :: Styles.matchParent)
         [ if route == Route.Settings then
             div
                 Styles.matchParent
-                [ lazy Settings.view settings
+                [ lazy2 Settings.view dropDownIndex settings
                 ]
 
           else if route == Route.Help then

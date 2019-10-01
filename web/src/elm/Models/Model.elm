@@ -1,6 +1,6 @@
 module Models.Model exposing (DownloadInfo, FileType(..), GithubSettings, Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window, canWrite)
 
-import Api.Diagram as DiagramAPI exposing (AddUserResponse, UpdateUserResponse)
+import Api.Diagram exposing (AddUserResponse, UpdateUserResponse)
 import Api.Export
 import Api.UrlShorter
 import Browser
@@ -12,7 +12,7 @@ import Http
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.Diagram as Diagram
-import Models.DiagramItem exposing (DiagramItem, DiagramUser)
+import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramType exposing (DiagramType)
 import Models.User exposing (User)
 import Time exposing (Zone)
@@ -94,6 +94,7 @@ type Msg
     | DeletedUser (Result Http.Error String)
     | LoadUsers (Result Http.Error DiagramItem)
     | FilterDiagramList (Maybe String)
+    | ToggleDropDownList String
 
 
 type FileType
@@ -147,6 +148,7 @@ type alias Model =
     , isOnline : Bool
     , searchQuery : Maybe String
     , inviteMailAddress : Maybe String
+    , dropDownIndex : Maybe String
     }
 
 

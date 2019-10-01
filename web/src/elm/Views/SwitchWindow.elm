@@ -1,7 +1,7 @@
 module Views.SwitchWindow exposing (view)
 
-import Html exposing (Html, div, text)
-import Html.Attributes exposing (class, style)
+import Html exposing (Html, div)
+import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Models.Model exposing (Msg(..))
 import Styles

@@ -1,7 +1,7 @@
 module Models.DiagramItem exposing (DiagramId, DiagramItem, DiagramUser, decoder, encoder, userDecoder)
 
 import Json.Decode as D
-import Json.Decode.Pipeline exposing (hardcoded, optional, required)
+import Json.Decode.Pipeline exposing (required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 

@@ -7,14 +7,14 @@ import Html.Attributes as Attr
 import Json.Decode as D
 import List
 import List.Extra exposing (getAt, zip)
-import Models.Diagram exposing (Comment, Model, Msg(..), Settings)
-import Models.Item as Item exposing (Children, Item, ItemType(..))
+import Models.Diagram exposing (Model, Msg(..), Settings)
+import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
-import Svg.Events exposing (onClick, onMouseOut, onMouseOver, stopPropagationOn)
+import Svg.Events exposing (onClick, stopPropagationOn)
 import Svg.Keyed as Keyed
-import Svg.Lazy exposing (lazy2, lazy4, lazy5)
+import Svg.Lazy exposing (lazy4, lazy5)
 import Utils
 
 

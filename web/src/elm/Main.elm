@@ -3,27 +3,24 @@ module Main exposing (init, main, view)
 import Api.Diagram as DiagramApi
 import Api.Export
 import Api.UrlShorter as UrlShorterApi
-import Basics exposing (max)
 import Browser
 import Browser.Dom as Dom
 import Browser.Events exposing (Visibility(..))
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
-import Constants
 import File exposing (name)
 import File.Download as Download
 import File.Select as Select
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy5, lazy6, lazy7, lazy8)
+import Html.Lazy exposing (lazy, lazy3, lazy4, lazy5, lazy6, lazy7)
 import Json.Decode as D
-import List.Extra as ListEx
 import Maybe.Extra as MaybeEx exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
-import Models.DiagramItem exposing (DiagramItem, DiagramUser)
+import Models.DiagramItem exposing (DiagramUser)
 import Models.DiagramType as DiagramType exposing (DiagramType)
-import Models.Model as Model exposing (FileType(..), Model, Msg(..), Notification(..), Settings, ShareUrl(..), Window)
+import Models.Model as Model exposing (FileType(..), Model, Msg(..), Notification(..), Settings, ShareUrl(..))
 import Models.User as UserModel exposing (User)
 import Parser
 import Route exposing (Route(..), toRoute)
@@ -31,7 +28,7 @@ import Settings exposing (settingsDecoder)
 import String
 import Subscriptions exposing (..)
 import Task
-import Time exposing (Zone)
+import Time
 import Url as Url exposing (percentDecode)
 import Utils
 import Views.DiagramList as DiagramList
@@ -85,6 +82,7 @@ init flags url key =
                 , inviteMailAddress = Nothing
                 , currentDiagram = Nothing
                 , embed = Nothing
+                , dropDownIndex = Nothing
                 }
     in
     ( model
@@ -126,7 +124,37 @@ view model =
             [ lazy6 Menu.view (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu model.isOnline (Model.canWrite model)
 
             -- TODO:
-            , lazy8 (mainView model.loginUser (Model.canWrite model) model.searchQuery model.settings) model.diagramModel model.diagrams model.timezone model.window model.tabIndex model.text model.url model.filterDiagramList
+            , let
+                mainWindow =
+                    if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then
+                        lazy4 SwitchWindow.view
+                            model.diagramModel.settings.backgroundColor
+                            model.tabIndex
+
+                    else
+                        lazy5 SplitWindow.view
+                            (Model.canWrite model)
+                            model.diagramModel.settings.backgroundColor
+                            model.window
+              in
+              case toRoute model.url of
+                Route.List ->
+                    lazy5 DiagramList.view model.loginUser (model.timezone |> Maybe.withDefault Time.utc) model.searchQuery model.diagrams model.filterDiagramList
+
+                _ ->
+                    mainWindow
+                        (lazy3 Editor.view model.dropDownIndex model.settings (toRoute model.url))
+                        (if String.isEmpty model.text then
+                            Logo.view
+
+                         else
+                            let
+                                diagramModel =
+                                    model.diagramModel
+                            in
+                            lazy Diagram.view { diagramModel | showMiniMap = Maybe.withDefault True <| model.settings.miniMap }
+                                |> Html.map UpdateDiagram
+                        )
             ]
         ]
 
@@ -152,37 +180,6 @@ sharingDialogView route user embedUrl shareUrl inviteMailAddress ownerId users =
 
         _ ->
             Empty.view
-
-
-mainView : Maybe User -> Bool -> Maybe String -> Settings -> DiagramModel.Model -> Maybe (List DiagramItem) -> Maybe Zone -> Window -> Int -> String -> Url.Url -> Maybe String -> Html Msg
-mainView user canWrite searchQuery settings diagramModel diagrams zone window tabIndex text url filterDiagramList =
-    let
-        mainWindow =
-            if diagramModel.width > 0 && Utils.isPhone diagramModel.width then
-                lazy4 SwitchWindow.view
-                    diagramModel.settings.backgroundColor
-                    tabIndex
-
-            else
-                lazy5 SplitWindow.view
-                    canWrite
-                    diagramModel.settings.backgroundColor
-                    window
-    in
-    case toRoute url of
-        Route.List ->
-            lazy5 DiagramList.view user (zone |> Maybe.withDefault Time.utc) searchQuery diagrams filterDiagramList
-
-        _ ->
-            mainWindow
-                (lazy2 Editor.view settings (toRoute url))
-                (if String.isEmpty text then
-                    Logo.view
-
-                 else
-                    lazy Diagram.view { diagramModel | showMiniMap = Maybe.withDefault True <| settings.miniMap }
-                        |> Html.map UpdateDiagram
-                )
 
 
 main : Program ( String, Settings ) Model Msg
@@ -1227,7 +1224,7 @@ update message model =
                 newDiagramModel =
                     { diagramModel | settings = settings.storyMap }
             in
-            ( { model | settings = settings, diagramModel = newDiagramModel }, Cmd.none )
+            ( { model | dropDownIndex = Nothing, settings = settings, diagramModel = newDiagramModel }, Cmd.none )
 
         Login ->
             ( model, login () )
@@ -1294,6 +1291,17 @@ update message model =
 
         FilterDiagramList filter ->
             ( { model | filterDiagramList = filter }, Cmd.none )
+
+        ToggleDropDownList id ->
+            let
+                activeIndex =
+                    if (model.dropDownIndex |> Maybe.withDefault "") == id then
+                        Nothing
+
+                    else
+                        Just id
+            in
+            ( { model | dropDownIndex = activeIndex }, Cmd.none )
 
         New type_ ->
             let

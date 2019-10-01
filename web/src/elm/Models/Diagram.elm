@@ -58,7 +58,6 @@ type alias ColorSettings =
     { activity : Color
     , task : Color
     , story : Color
-    , comment : Color
     , line : String
     , label : String
     }

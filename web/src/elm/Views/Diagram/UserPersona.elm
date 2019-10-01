@@ -1,11 +1,11 @@
 module Views.Diagram.UserPersona exposing (view)
 
 import Constants exposing (..)
-import Html exposing (div, img)
+import Html exposing (div)
 import Html.Attributes as Attr
 import List.Extra exposing (getAt)
 import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.Item as Item exposing (Children, Item, ItemType(..))
+import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -190,7 +190,7 @@ canvasImageView settings svgWidth svgHeight posX posY item =
         ]
         [ g []
             [ rectView (String.fromInt svgWidth) (String.fromInt svgHeight) settings.color.line
-            , imageView settings (Constants.itemWidth - 5) svgHeight 5 5 (lines |> List.head |> Maybe.withDefault "")
+            , imageView (Constants.itemWidth - 5) svgHeight 5 5 (lines |> List.head |> Maybe.withDefault "")
             , titleView settings 10 10 item.text
             ]
         ]
@@ -250,7 +250,7 @@ textView settings w h posX posY lines =
             , y (String.fromInt posY)
             , width (String.fromInt w)
             , height (String.fromInt h)
-            , color settings.color.comment.color
+            , color settings.color.label
             , fontSize "14"
             , fontFamily settings.font
             , class "svg-text"
@@ -269,7 +269,7 @@ textView settings w h posX posY lines =
         ]
 
 
-imageView settings w h posX posY url =
+imageView w h posX posY url =
     svg
         [ width (String.fromInt w)
         , height (String.fromInt h)

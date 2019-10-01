@@ -5,7 +5,7 @@ import Html exposing (div)
 import Html.Attributes as Attr
 import List.Extra exposing (getAt)
 import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.Item as Item exposing (Children, Item, ItemType(..))
+import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -229,7 +229,7 @@ textView settings w h posX posY lines =
             , y (String.fromInt posY)
             , width (String.fromInt w)
             , height (String.fromInt h)
-            , color settings.color.comment.color
+            , color settings.color.label
             , fontSize "14"
             , fontFamily settings.font
             , class "svg-text"

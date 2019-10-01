@@ -133,7 +133,7 @@ textView settings w h posX posY lines =
             , y (String.fromInt posY)
             , width (String.fromInt w)
             , height (String.fromInt h)
-            , color settings.color.comment.color
+            , color settings.color.label
             , fontSize "14"
             , fontFamily settings.font
             , class "svg-text"

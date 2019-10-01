@@ -5,7 +5,7 @@ import File exposing (File)
 import Http exposing (Error(..))
 import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
-import Models.IdToken as IdToken exposing (IdToken)
+import Models.IdToken exposing (IdToken)
 import Models.Item as Item
 import Models.Model exposing (Msg(..), Notification(..))
 import Models.User as User exposing (User)

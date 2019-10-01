@@ -1,15 +1,14 @@
 module Views.DiagramList exposing (view)
 
-import Dict exposing (Dict)
+import Dict
 import Dict.Extra as DictEx
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (class, placeholder, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Json.Decode as D
-import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.DiagramItem exposing (DiagramItem)
-import Models.DiagramType as DiagramType exposing (DiagramType(..))
+import Models.DiagramType exposing (DiagramType(..))
 import Models.Model exposing (Msg(..))
 import Models.User exposing (User)
 import Time exposing (Zone)

@@ -40,6 +40,10 @@ view width profile route t isEditTitle fullscreen menu =
                             [ id "title"
                             , class "title"
                             , style "padding" "2px"
+                            , style "color" "#f4f4f4"
+                            , style "background-color" "var(--main-color)"
+                            , style "border" "none"
+                            , style "font-weight" "100"
                             , value title
                             , onInput EditTitle
                             , onBlur (EndEditTitle 13 False)
