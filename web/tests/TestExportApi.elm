@@ -20,7 +20,6 @@ createRequestTest =
                     [ ( "RELEASE1", "" ) ]
                     "board"
                     [ { text = "text1"
-                      , comment = Just "comment1"
                       , itemType = Activities
                       , children = Item.empty
                       , lineNo = 0
@@ -38,13 +37,11 @@ createRequestTest =
                     [ ( "RELEASE1", "" ) ]
                     "board"
                     [ { text = "text1"
-                      , comment = Just "comment1"
                       , itemType = Activities
                       , lineNo = 0
                       , children =
                             Item.fromItems
                                 [ { text = "text2"
-                                  , comment = Just "comment2"
                                   , itemType = Tasks
                                   , children = Item.empty
                                   , lineNo = 0
@@ -55,7 +52,6 @@ createRequestTest =
                     |> .tasks
                     |> Expect.equal
                         [ { name = "text2"
-                          , comment = Just "comment2"
                           , stories = []
                           }
                         ]
@@ -68,19 +64,16 @@ createRequestTest =
                     [ ( "RELEASE1", "" ), ( "RELEASE2", "" ) ]
                     "board"
                     [ { text = "text1"
-                      , comment = Just "comment1"
                       , itemType = Activities
                       , lineNo = 0
                       , children =
                             Item.fromItems
                                 [ { text = "text2"
-                                  , comment = Just "comment2"
                                   , itemType = Tasks
                                   , lineNo = 0
                                   , children =
                                         Item.fromItems
                                             [ { text = "text3"
-                                              , comment = Just "comment3"
                                               , itemType = Stories 1
                                               , children = Item.empty
                                               , lineNo = 0
@@ -93,10 +86,8 @@ createRequestTest =
                     |> .tasks
                     |> Expect.equal
                         [ { name = "text2"
-                          , comment = Just "comment2"
                           , stories =
                                 [ { name = "text3"
-                                  , comment = Just "comment3"
                                   , release = 1
                                   }
                                 ]
@@ -111,19 +102,16 @@ createRequestTest =
                     [ ( "RELEASE1", "" ), ( "RELEASE2", "" ) ]
                     "board"
                     [ { text = "text1"
-                      , comment = Just "comment1"
                       , itemType = Activities
                       , lineNo = 0
                       , children =
                             Item.fromItems
                                 [ { text = "text2"
-                                  , comment = Just "comment2"
                                   , itemType = Tasks
                                   , lineNo = 0
                                   , children =
                                         Item.fromItems
                                             [ { text = "text3"
-                                              , comment = Just "comment3"
                                               , itemType = Stories 2
                                               , children = Item.empty
                                               , lineNo = 0
@@ -133,19 +121,16 @@ createRequestTest =
                                 ]
                       }
                     , { text = "1text1"
-                      , comment = Just "1comment1"
                       , itemType = Activities
                       , lineNo = 0
                       , children =
                             Item.fromItems
                                 [ { text = "1text2"
-                                  , comment = Just "1comment2"
                                   , itemType = Tasks
                                   , lineNo = 0
                                   , children =
                                         Item.fromItems
                                             [ { text = "1text3"
-                                              , comment = Just "1comment3"
                                               , itemType = Stories 3
                                               , children = Item.empty
                                               , lineNo = 0
@@ -158,19 +143,15 @@ createRequestTest =
                     |> .tasks
                     |> Expect.equal
                         [ { name = "1text2"
-                          , comment = Just "1comment2"
                           , stories =
                                 [ { name = "1text3"
-                                  , comment = Just "1comment3"
                                   , release = 3
                                   }
                                 ]
                           }
                         , { name = "text2"
-                          , comment = Just "comment2"
                           , stories =
                                 [ { name = "text3"
-                                  , comment = Just "comment3"
                                   , release = 2
                                   }
                                 ]

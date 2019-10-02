@@ -29,10 +29,6 @@ defaultSettings =
             { color = "#000000"
             , backgroundColor = "#FFFFFF"
             }
-        , comment =
-            { color = "#000000"
-            , backgroundColor = "#F1B090"
-            }
         , line = "#434343"
         , label = "#8C9FAE"
         }
@@ -53,7 +49,6 @@ updateTest =
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"
-                          , comment = Nothing
                           , itemType = Activities
                           , lineNo = 0
                           , children = Item.empty
@@ -65,13 +60,11 @@ updateTest =
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"
-                          , comment = Nothing
                           , itemType = Activities
                           , lineNo = 0
                           , children = Item.empty
                           }
                         , { text = "test2"
-                          , comment = Nothing
                           , itemType = Activities
                           , lineNo = 1
                           , children = Item.empty
@@ -83,13 +76,11 @@ updateTest =
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"
-                          , comment = Nothing
                           , itemType = Activities
                           , lineNo = 0
                           , children =
                                 Item.fromItems
-                                    [ { text = "test2"
-                                      , comment = Nothing
+                                    [ { text = "    test2"
                                       , itemType = Tasks
                                       , children = Item.empty
                                       , lineNo = 1
@@ -103,19 +94,16 @@ updateTest =
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"
-                          , comment = Nothing
                           , itemType = Activities
                           , lineNo = 0
                           , children =
                                 Item.fromItems
-                                    [ { text = "test2"
-                                      , comment = Nothing
+                                    [ { text = "    test2"
                                       , itemType = Tasks
                                       , lineNo = 1
                                       , children = Item.empty
                                       }
-                                    , { text = "test3"
-                                      , comment = Nothing
+                                    , { text = "    test3"
                                       , itemType = Tasks
                                       , lineNo = 2
                                       , children = Item.empty
@@ -129,19 +117,16 @@ updateTest =
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"
-                          , comment = Nothing
                           , itemType = Activities
                           , lineNo = 0
                           , children =
                                 Item.fromItems
-                                    [ { text = "test2"
-                                      , comment = Nothing
+                                    [ { text = "    test2"
                                       , itemType = Tasks
                                       , lineNo = 1
                                       , children =
                                             Item.fromItems
-                                                [ { text = "test3"
-                                                  , comment = Nothing
+                                                [ { text = "        test3"
                                                   , itemType = Stories 1
                                                   , children = Item.empty
                                                   , lineNo = 2
@@ -157,25 +142,21 @@ updateTest =
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"
-                          , comment = Nothing
                           , itemType = Activities
                           , lineNo = 0
                           , children =
                                 Item.fromItems
-                                    [ { text = "test2"
-                                      , comment = Nothing
+                                    [ { text = "    test2"
                                       , itemType = Tasks
                                       , lineNo = 1
                                       , children =
                                             Item.fromItems
-                                                [ { text = "test3"
-                                                  , comment = Nothing
+                                                [ { text = "        test3"
                                                   , itemType = Stories 1
                                                   , lineNo = 2
                                                   , children = Item.empty
                                                   }
-                                                , { text = "test4"
-                                                  , comment = Nothing
+                                                , { text = "        test4"
                                                   , itemType = Stories 1
                                                   , lineNo = 3
                                                   , children = Item.empty
