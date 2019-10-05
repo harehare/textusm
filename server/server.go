@@ -71,6 +71,11 @@ func Run() int {
 		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
 
+	r.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "{\"status\": \"OK\"}")
+	})
+
 	diagramBase := mux.NewRouter()
 	r.PathPrefix("/diagram").Handler(negroni.New(
 		negroni.HandlerFunc(middleware.AuthMiddleware(app)),

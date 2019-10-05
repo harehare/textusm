@@ -29,7 +29,6 @@ dist
 out
 tests/VerifyExamples
 package-lock.json
-firebase.json
 
 .vscode/settings.json
 .well-known
