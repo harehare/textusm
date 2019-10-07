@@ -11,11 +11,21 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@master
       - name: Install Dependencies
-        run: cd web && npm install
+        working-directory: web
+        run: npm install
       - name: Build
-        run: cd web && npm run prod
+        working-directory: web
+        env:
+          API_ROOT: ${{ secrets.API_ROOT }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+        run: npm run prod
       - name: Run Tests
-        run: cd web && npm run test
+        working-directory: web
+        run: npm run test
       - name: Archive Production Artifact
         uses: actions/upload-artifact@master
         with:
@@ -32,6 +42,7 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: dist
+          path: web/dist
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:

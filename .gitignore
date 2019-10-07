@@ -33,10 +33,10 @@ package-lock.json
 .vscode/settings.json
 .well-known
 .history
-.firebaserc
 .firebase
 *.vsix
 *.pem
 elm.js
 
 .env
+.envrc

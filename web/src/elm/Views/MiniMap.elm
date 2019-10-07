@@ -33,16 +33,7 @@ view model ( svgWidth, svgHeight ) mainSvg =
             String.fromFloat <| 220 * rate
     in
     div
-        [ Attr.style "position" "absolute"
-        , Attr.style "cursor" "pointer"
-        , Attr.style "left" "1px"
-        , Attr.style "bottom" "-8px"
-        , Attr.style "width" "220px"
-        , Attr.style "z-index" "1000"
-        , Attr.style "border-radius" "2px"
-        , Attr.style "background-color" "transparent"
-        , Attr.style "box-shadow" "0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)"
-        , Attr.style "transition" "all 0.2s ease-out"
+        [ Attr.class "minimap"
         , Mouse.onDown
             (\event ->
                 let

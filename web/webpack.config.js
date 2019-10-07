@@ -14,7 +14,6 @@ const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const PreloadWebpackPlugin = require("preload-webpack-plugin");
 const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
-const Dotenv = require("dotenv-webpack");
 const PurgecssPlugin = require("purgecss-webpack-plugin");
 const MODE =
     process.env.NODE_ENV === "production" ? "production" : "development";
@@ -30,12 +29,19 @@ const common = {
         filename: MODE === "production" ? "[name]-[hash].js" : "index.js"
     },
     plugins: [
-        new Dotenv(),
         new HTMLWebpackPlugin({
             template: "src/index.html",
             inject: "body",
             inlineSource: ".css$"
         }),
+        new webpack.EnvironmentPlugin([
+            "API_ROOT",
+            "FIREBASE_API_KEY",
+            "FIREBASE_AUTH_DOMAIN",
+            "FIREBASE_PROJECT_ID",
+            "FIREBASE_STORAGE_BUCKET",
+            "FIREBASE_APP_ID"
+        ]),
         new PreloadWebpackPlugin({
             rel: "preload",
             include: ["runtime", "vendors"]
