@@ -161,7 +161,10 @@ view width profile route t isEditTitle fullscreen menu =
                                     Nothing
                                     Nothing
                                     (Just "5px")
-                                    [ ( Logout, "SIGN OUT" )
+                                    [ { e = Logout
+                                      , title = "SIGN OUT"
+                                      , icon = Nothing
+                                      }
                                     ]
 
                             _ ->

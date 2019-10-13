@@ -121,7 +121,7 @@ view model =
             )
         , div
             [ class "main" ]
-            [ lazy6 Menu.view (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu model.isOnline (Model.canWrite model)
+            [ lazy7 Menu.view model.diagramModel (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu model.isOnline (Model.canWrite model)
 
             -- TODO:
             , let
@@ -436,6 +436,9 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         NoOp ->
+            ( model, Cmd.none )
+
+        NoOpDiagram _ ->
             ( model, Cmd.none )
 
         UpdateDiagram subMsg ->

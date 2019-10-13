@@ -14,7 +14,6 @@ const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const PreloadWebpackPlugin = require("preload-webpack-plugin");
 const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
-const PurgecssPlugin = require("purgecss-webpack-plugin");
 const MODE =
     process.env.NODE_ENV === "production" ? "production" : "development";
 const withDebug = !process.env.NODE_ENV;
@@ -168,10 +167,7 @@ if (MODE === "production") {
             new MiniCssExtractPlugin({
                 filename: "[name]-[hash].css"
             }),
-            new HtmlWebpackInlineSourcePlugin(),
-            new PurgecssPlugin({
-                paths: glob.sync(`src/**/*`, { nodir: true })
-            })
+            new HtmlWebpackInlineSourcePlugin()
         ],
         module: {
             rules: [

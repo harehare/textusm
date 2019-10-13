@@ -14,12 +14,24 @@ view model =
     g
         [ transform
             ("translate("
-                ++ String.fromInt model.x
+                ++ String.fromInt
+                    (if isInfinite <| toFloat <| model.x then
+                        0
+
+                     else
+                        model.x
+                    )
                 ++ ","
-                ++ String.fromInt model.y
+                ++ String.fromInt
+                    (if isInfinite <| toFloat <| model.y then
+                        0
+
+                     else
+                        model.y
+                    )
                 ++ ")"
             )
-        , fill "#F5F5F6"
+        , fill model.settings.backgroundColor
         ]
         [ foreignObject
             [ x "0"

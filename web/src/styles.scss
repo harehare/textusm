@@ -801,8 +801,13 @@ select {
     }
 }
 
+.thumbnail {
+    width: 50px;
+    background-color: transparent;
+}
+
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 2px;
 }
 ::-webkit-scrollbar-track {
     background: #fff;

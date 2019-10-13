@@ -5,16 +5,26 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List
+import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
+import Models.Item as Item
 import Models.Model exposing (FileType(..), Menu(..), Msg(..))
 import Route exposing (Route(..))
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
+import Views.Thumbnail as Thumbnail
 
 
-view : Route -> Int -> Bool -> Maybe Menu -> Bool -> Bool -> Html Msg
-view route width fullscreen openMenu isOnline canWrite =
+type alias MenuItem =
+    { e : Msg
+    , icon : Maybe (Html DiagramModel.Msg)
+    , title : String
+    }
+
+
+view : DiagramModel.Model -> Route -> Int -> Bool -> Maybe Menu -> Bool -> Bool -> Html Msg
+view model route width fullscreen openMenu isOnline canWrite =
     let
         menuItemStyle =
             [ class "menu-button"
@@ -84,7 +94,7 @@ view route width fullscreen openMenu isOnline canWrite =
                                 menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing exportMenu
 
                             Just NewFile ->
-                                menu Nothing (Just "10px") (Just "50px") Nothing newMenu
+                                menu Nothing (Just "10px") (Just "50px") Nothing (newMenu model)
 
                             _ ->
                                 Empty.view
@@ -95,7 +105,7 @@ view route width fullscreen openMenu isOnline canWrite =
                                 menu (Just "125px") (Just "56px") Nothing Nothing exportMenu
 
                             Just NewFile ->
-                                menu (Just "0") (Just "56px") Nothing Nothing newMenu
+                                menu (Just "0") (Just "56px") Nothing Nothing (newMenu model)
 
                             _ ->
                                 Empty.view
@@ -103,30 +113,80 @@ view route width fullscreen openMenu isOnline canWrite =
             )
 
 
-newMenu : List ( Msg, String )
-newMenu =
-    [ ( New DiagramType.UserStoryMap, "User Story Map" )
-    , ( New DiagramType.BusinessModelCanvas, "Business Model Canvas" )
-    , ( New DiagramType.OpportunityCanvas, "Opportunity Canvas" )
-    , ( New DiagramType.UserPersona, "User Persona" )
-    , ( New DiagramType.FourLs, "4Ls Retrospective" )
-    , ( New DiagramType.StartStopContinue, "Start, Stop, Continue Retrospective" )
-    , ( New DiagramType.Kpt, "KPT Retrospective" )
-    , ( New DiagramType.Markdown, "Markdown" )
-    , ( New DiagramType.MindMap, "Mind Map" )
+getThunbmailSize : DiagramModel.Model -> DiagramType.DiagramType -> ( String, String )
+getThunbmailSize model diagramType =
+    Utils.getCanvasSize { model | diagramType = diagramType }
+        |> Tuple.mapFirst (\x -> String.fromInt x)
+        |> Tuple.mapSecond (\x -> String.fromInt x)
+
+
+newMenu : DiagramModel.Model -> List MenuItem
+newMenu model =
+    let
+        newModel =
+            { model | x = 0, y = 0, matchParent = True }
+    in
+    [ { e = New DiagramType.UserStoryMap
+      , title = "User Story Map"
+      , icon = Just <| Thumbnail.view newModel DiagramType.UserStoryMap (getThunbmailSize model DiagramType.UserStoryMap)
+      }
+    , { e = New DiagramType.BusinessModelCanvas
+      , title = "Business Model Canvas"
+      , icon = Just <| Thumbnail.view newModel DiagramType.BusinessModelCanvas (getThunbmailSize model DiagramType.BusinessModelCanvas)
+      }
+    , { e = New DiagramType.OpportunityCanvas
+      , title = "Opportunity Canvas"
+      , icon = Just <| Thumbnail.view newModel DiagramType.OpportunityCanvas (getThunbmailSize model DiagramType.OpportunityCanvas)
+      }
+    , { e = New DiagramType.UserPersona
+      , title = "User Persona"
+      , icon = Just <| Thumbnail.view newModel DiagramType.UserPersona (getThunbmailSize model DiagramType.UserPersona)
+      }
+    , { e = New DiagramType.FourLs
+      , title = "4Ls Retrospective"
+      , icon = Just <| Thumbnail.view newModel DiagramType.FourLs (getThunbmailSize model DiagramType.FourLs)
+      }
+    , { e = New DiagramType.StartStopContinue
+      , title = "Start, Stop, Continue Retrospective"
+      , icon = Just <| Thumbnail.view newModel DiagramType.StartStopContinue (getThunbmailSize model DiagramType.StartStopContinue)
+      }
+    , { e = New DiagramType.Kpt
+      , title = "KPT Retrospective"
+      , icon = Just <| Thumbnail.view newModel DiagramType.Kpt (getThunbmailSize model DiagramType.Kpt)
+      }
+    , { e = New DiagramType.Markdown
+      , title = "Markdown"
+      , icon = Just <| Thumbnail.view newModel DiagramType.Markdown (getThunbmailSize model DiagramType.Markdown)
+      }
+    , { e = New DiagramType.MindMap
+      , title = "Mind Map"
+      , icon = Just <| Thumbnail.view newModel DiagramType.MindMap (getThunbmailSize model DiagramType.MindMap)
+      }
     ]
 
 
-exportMenu : List ( Msg, String )
+exportMenu : List MenuItem
 exportMenu =
-    [ ( Download Svg, "SVG" )
-    , ( Download Png, "PNG" )
-    , ( Download Pdf, "PDF" )
-    , ( SaveToFileSystem, "Text" )
+    [ { e = Download Svg
+      , title = "SVG"
+      , icon = Nothing
+      }
+    , { e = Download Png
+      , title = "PNG"
+      , icon = Nothing
+      }
+    , { e = Download Pdf
+      , title = "PDF"
+      , icon = Nothing
+      }
+    , { e = SaveToFileSystem
+      , title = "Text"
+      , icon = Nothing
+      }
     ]
 
 
-menu : Maybe String -> Maybe String -> Maybe String -> Maybe String -> List ( Msg, String ) -> Html Msg
+menu : Maybe String -> Maybe String -> Maybe String -> Maybe String -> List MenuItem -> Html Msg
 menu top left bottom right items =
     div
         [ style "top" (top |> Maybe.withDefault "none")
@@ -137,13 +197,14 @@ menu top left bottom right items =
         ]
         (items
             |> List.map
-                (\( m, t ) ->
+                (\item ->
                     div
                         [ class "menu-item-container"
-                        , onClick m
+                        , onClick item.e
                         ]
-                        [ div [ class "menu-item" ]
-                            [ text t
+                        [ item.icon |> Maybe.withDefault (text "") |> Html.map NoOpDiagram
+                        , div [ class "menu-item" ]
+                            [ text item.title
                             ]
                         ]
                 )

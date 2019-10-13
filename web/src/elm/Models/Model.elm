@@ -22,6 +22,7 @@ import Url
 type Msg
     = NoOp
     | Init Viewport
+    | NoOpDiagram Diagram.Msg
     | UpdateDiagram Diagram.Msg
     | OpenMenu Menu
     | Stop

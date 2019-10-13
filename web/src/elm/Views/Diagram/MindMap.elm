@@ -60,9 +60,21 @@ view model =
             g
                 [ transform
                     ("translate("
-                        ++ String.fromInt (model.x + xCenter)
+                        ++ String.fromInt
+                            (if isInfinite <| toFloat <| model.x then
+                                0
+
+                             else
+                                model.x
+                            )
                         ++ ","
-                        ++ String.fromInt (model.y + yCenter)
+                        ++ String.fromInt
+                            (if isInfinite <| toFloat <| model.y then
+                                0
+
+                             else
+                                model.y
+                            )
                         ++ ")"
                     )
                 ]
@@ -75,16 +87,7 @@ view model =
                 ]
 
         Nothing ->
-            g
-                [ transform
-                    ("translate("
-                        ++ String.fromInt model.x
-                        ++ ","
-                        ++ String.fromInt model.y
-                        ++ ")"
-                    )
-                ]
-                []
+            g [] []
 
 
 nodesView : Settings -> Int -> ( Int, Int ) -> Direction -> List Item -> Svg Msg
