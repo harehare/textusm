@@ -5,7 +5,7 @@ import Http exposing (Error(..))
 import Json.Decode as D
 import Json.Encode as E
 import Task exposing (Task)
-import Models.IdToken as IdToken exposing (IdToken)
+import Models.IdToken exposing (IdToken)
 
 
 type alias Request =

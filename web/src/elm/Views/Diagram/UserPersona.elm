@@ -10,7 +10,6 @@ import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
-import Svg.Lazy exposing (..)
 
 
 view : Model -> Svg Msg
@@ -30,7 +29,7 @@ view model =
                         model.x
                     )
                 ++ ","
-                ++ String.fromInt 
+                ++ String.fromInt
                     (if isInfinite <| toFloat <| model.y then
                         0
 
@@ -38,7 +37,7 @@ view model =
                         model.y
                     )
                 ++ ")"
-            ) 
+            )
         , fill model.settings.backgroundColor
         ]
         [ -- Name
@@ -281,6 +280,7 @@ textView settings w h posX posY lines =
         ]
 
 
+imageView : Int -> Int -> Int -> Int -> String -> Svg Msg
 imageView w h posX posY url =
     svg
         [ width (String.fromInt w)

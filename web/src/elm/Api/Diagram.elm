@@ -5,7 +5,7 @@ import Http exposing (Error(..))
 import Json.Decode as D
 import Json.Encode as E
 import Models.DiagramItem as DiagramItem exposing (DiagramUser)
-import Models.IdToken as IdToken exposing (IdToken)
+import Models.IdToken exposing (IdToken)
 import Task exposing (Task)
 import Url.Builder exposing (int, string)
 

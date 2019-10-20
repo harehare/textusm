@@ -8,7 +8,7 @@ import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import List
 import Maybe.Extra exposing (isJust)
-import Models.Item as Item exposing (Children, Item, ItemType(..))
+import Models.Item as Item exposing (Item, ItemType(..))
 import Regex
 import Task exposing (Task)
 import Url.Builder exposing (crossOrigin)

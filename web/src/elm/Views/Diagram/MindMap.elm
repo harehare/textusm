@@ -65,7 +65,7 @@ view model =
                                 0
 
                              else
-                                model.x
+                                model.x + xCenter
                             )
                         ++ ","
                         ++ String.fromInt
@@ -73,7 +73,7 @@ view model =
                                 0
 
                              else
-                                model.y
+                                model.y + yCenter
                             )
                         ++ ")"
                     )

@@ -121,9 +121,8 @@ view model =
             )
         , div
             [ class "main" ]
-            [ lazy7 Menu.view model.diagramModel (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu model.isOnline (Model.canWrite model)
+            [ lazy5 Menu.view (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu (Model.canWrite model)
 
-            -- TODO:
             , let
                 mainWindow =
                     if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then

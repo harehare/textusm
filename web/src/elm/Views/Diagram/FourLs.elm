@@ -10,7 +10,6 @@ import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
-import Svg.Lazy exposing (..)
 
 
 view : Model -> Svg Msg

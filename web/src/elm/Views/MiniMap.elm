@@ -4,10 +4,8 @@ import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Html.Events.Extra.Mouse as Mouse
 import Models.Diagram exposing (Model, Msg(..))
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Svg.Events exposing (..)
-import Svg.Lazy exposing (..)
+import Svg exposing (Svg, svg)
+import Svg.Attributes exposing (width, height, viewBox)
 
 
 view : Model -> ( String, String ) -> Svg Msg -> Html Msg

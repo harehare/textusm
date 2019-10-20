@@ -1,4 +1,4 @@
-module Models.Diagram exposing (Color, ColorSettings, Comment, Model, Msg(..), Point, Settings, Size, UsmSvg)
+module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Settings, Size, UsmSvg)
 
 import Browser.Dom exposing (Viewport)
 import Models.DiagramType exposing (DiagramType)
@@ -21,7 +21,6 @@ type alias Model =
     , fullscreen : Bool
     , settings : Settings
     , error : Maybe String
-    , comment : Maybe Comment
     , showZoomControl : Bool
     , touchDistance : Maybe Float
     , diagramType : DiagramType
@@ -36,13 +35,6 @@ type alias UsmSvg =
     { width : Int
     , height : Int
     , scale : Float
-    }
-
-
-type alias Comment =
-    { x : Int
-    , y : Int
-    , text : String
     }
 
 
@@ -94,8 +86,6 @@ type Msg
     | Move Int Int
     | MoveTo Int Int
     | ToggleFullscreen
-    | ShowComment Comment
-    | HideComment
     | OnResize Int Int
     | StartPinch Float
     | ItemClick Item

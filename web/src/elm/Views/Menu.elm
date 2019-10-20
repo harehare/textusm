@@ -1,30 +1,27 @@
 module Views.Menu exposing (menu, view)
 
-import Html exposing (Html, div, span, text)
-import Html.Attributes exposing (class, style)
+import Html exposing (Html, div, img, span, text)
+import Html.Attributes exposing (alt, class, src, style)
 import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List
-import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
-import Models.Item as Item
 import Models.Model exposing (FileType(..), Menu(..), Msg(..))
 import Route exposing (Route(..))
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
-import Views.Thumbnail as Thumbnail
 
 
 type alias MenuItem =
     { e : Msg
-    , icon : Maybe (Html DiagramModel.Msg)
+    , icon : Maybe (Html Msg)
     , title : String
     }
 
 
-view : DiagramModel.Model -> Route -> Int -> Bool -> Maybe Menu -> Bool -> Bool -> Html Msg
-view model route width fullscreen openMenu isOnline canWrite =
+view : Route -> Int -> Bool -> Maybe Menu -> Bool -> Html Msg
+view route width fullscreen openMenu canWrite =
     let
         menuItemStyle =
             [ class "menu-button"
@@ -94,7 +91,7 @@ view model route width fullscreen openMenu isOnline canWrite =
                                 menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing exportMenu
 
                             Just NewFile ->
-                                menu Nothing (Just "10px") (Just "50px") Nothing (newMenu model)
+                                menu Nothing (Just "10px") (Just "50px") Nothing newMenu
 
                             _ ->
                                 Empty.view
@@ -105,7 +102,7 @@ view model route width fullscreen openMenu isOnline canWrite =
                                 menu (Just "125px") (Just "56px") Nothing Nothing exportMenu
 
                             Just NewFile ->
-                                menu (Just "0") (Just "56px") Nothing Nothing (newMenu model)
+                                menu (Just "0") (Just "56px") Nothing Nothing newMenu
 
                             _ ->
                                 Empty.view
@@ -113,54 +110,43 @@ view model route width fullscreen openMenu isOnline canWrite =
             )
 
 
-getThunbmailSize : DiagramModel.Model -> DiagramType.DiagramType -> ( String, String )
-getThunbmailSize model diagramType =
-    Utils.getCanvasSize { model | diagramType = diagramType }
-        |> Tuple.mapFirst (\x -> String.fromInt x)
-        |> Tuple.mapSecond (\x -> String.fromInt x)
-
-
-newMenu : DiagramModel.Model -> List MenuItem
-newMenu model =
-    let
-        newModel =
-            { model | x = 0, y = 0, matchParent = True }
-    in
+newMenu : List MenuItem
+newMenu =
     [ { e = New DiagramType.UserStoryMap
       , title = "User Story Map"
-      , icon = Just <| Thumbnail.view newModel DiagramType.UserStoryMap (getThunbmailSize model DiagramType.UserStoryMap)
+      , icon = Just <| img [ src "/images/user_story_map.svg", style "width" "56px", alt "logo" ] []
       }
     , { e = New DiagramType.BusinessModelCanvas
       , title = "Business Model Canvas"
-      , icon = Just <| Thumbnail.view newModel DiagramType.BusinessModelCanvas (getThunbmailSize model DiagramType.BusinessModelCanvas)
+      , icon = Just <| img [ src "/images/business_model_canvas.svg", style "width" "56px", alt "logo" ] []
       }
     , { e = New DiagramType.OpportunityCanvas
       , title = "Opportunity Canvas"
-      , icon = Just <| Thumbnail.view newModel DiagramType.OpportunityCanvas (getThunbmailSize model DiagramType.OpportunityCanvas)
+      , icon = Just <| img [ src "/images/opportunity_canvas.svg", style "width" "56px", alt "logo" ] []
       }
     , { e = New DiagramType.UserPersona
       , title = "User Persona"
-      , icon = Just <| Thumbnail.view newModel DiagramType.UserPersona (getThunbmailSize model DiagramType.UserPersona)
+      , icon = Just <| img [ src "/images/user_persona.svg", style "width" "56px", alt "logo" ] []
       }
     , { e = New DiagramType.FourLs
       , title = "4Ls Retrospective"
-      , icon = Just <| Thumbnail.view newModel DiagramType.FourLs (getThunbmailSize model DiagramType.FourLs)
+      , icon = Just <| img [ src "/images/4ls.svg", style "width" "56px", alt "logo" ] []
       }
     , { e = New DiagramType.StartStopContinue
       , title = "Start, Stop, Continue Retrospective"
-      , icon = Just <| Thumbnail.view newModel DiagramType.StartStopContinue (getThunbmailSize model DiagramType.StartStopContinue)
+      , icon = Just <| img [ src "/images/start_stop_continue.svg", style "width" "56px", alt "logo" ] []
       }
     , { e = New DiagramType.Kpt
       , title = "KPT Retrospective"
-      , icon = Just <| Thumbnail.view newModel DiagramType.Kpt (getThunbmailSize model DiagramType.Kpt)
+      , icon = Just <| img [ src "/images/kpt.svg", style "width" "56px", alt "logo" ] []
       }
     , { e = New DiagramType.Markdown
       , title = "Markdown"
-      , icon = Just <| Thumbnail.view newModel DiagramType.Markdown (getThunbmailSize model DiagramType.Markdown)
+      , icon = Just <| img [ src "/images/markdown.svg", style "width" "56px", alt "logo" ] []
       }
     , { e = New DiagramType.MindMap
       , title = "Mind Map"
-      , icon = Just <| Thumbnail.view newModel DiagramType.MindMap (getThunbmailSize model DiagramType.MindMap)
+      , icon = Just <| img [ src "/images/mind_map.svg", style "width" "56px", alt "logo" ] []
       }
     ]
 
@@ -202,7 +188,7 @@ menu top left bottom right items =
                         [ class "menu-item-container"
                         , onClick item.e
                         ]
-                        [ item.icon |> Maybe.withDefault (text "") |> Html.map NoOpDiagram
+                        [ item.icon |> Maybe.withDefault (text "")
                         , div [ class "menu-item" ]
                             [ text item.title
                             ]

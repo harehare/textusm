@@ -57,7 +57,6 @@ init settings =
     , touchDistance = Nothing
     , settings = settings
     , error = Nothing
-    , comment = Nothing
     , diagramType = UserStoryMap
     , labels = []
     , text = Nothing
@@ -415,7 +414,7 @@ svgView model =
         [ Attr.id "usm"
         , width
             (String.fromInt
-                (if Utils.isPhone model.width then
+                (if Utils.isPhone model.width || model.fullscreen then
                     model.width
 
                  else if model.width - 56 > 0 then
@@ -425,7 +424,14 @@ svgView model =
                     0
                 )
             )
-        , height (String.fromInt model.height)
+        , height
+            (String.fromInt <|
+                if model.fullscreen then
+                    model.height + 56
+
+                else
+                    model.height
+            )
         , viewBox ("0 0 " ++ svgWidth ++ " " ++ svgHeight)
         , Attr.style "background-color" model.settings.backgroundColor
         , Wheel.onWheel chooseZoom
@@ -648,7 +654,6 @@ updateDiagram size width height base text =
                     , fullscreen = base.fullscreen
                     , settings = base.settings
                     , error = Nothing
-                    , comment = Nothing
                     , showZoomControl = base.showZoomControl
                     , touchDistance = base.touchDistance
                     , diagramType = base.diagramType
@@ -774,12 +779,6 @@ update message model =
                 , moveY = 0
                 , fullscreen = not model.fullscreen
             }
-
-        ShowComment comment ->
-            { model | comment = Just comment }
-
-        HideComment ->
-            { model | comment = Nothing }
 
         OnResize width height ->
             { model

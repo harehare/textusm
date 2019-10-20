@@ -19,10 +19,6 @@ import Views.Icon as Icon
 
 facet : List DiagramItem -> List ( String, Int )
 facet items =
-    let
-        dictIncrement key dict =
-            Dict.update key (Maybe.map (\x -> x + 1)) dict
-    in
     items
         |> DictEx.groupBy .diagramPath
         |> Dict.map (\k v -> ( k, List.length v ))

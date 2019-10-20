@@ -1,0 +1,126 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1525 620" width="1525" height="620" style="background-color: transparent;">
+    <defs>
+        <style>@import url('https://fonts.googleapis.com/css?family=Roboto&amp;display=swap');</style>
+    </defs>
+    <g transform="translate(0,20)" fill="#F4F4F5">
+        <svg width="300" height="300" x="0" y="0">
+            <g>
+                <rect width="300" height="300" stroke="#434343" stroke-width="10"/>
+                <svg width="295" height="300">
+                    <image x="5" y="5" width="295" height="300"
+                        xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://app.textusm.com/images/logo.svg" crossorigin="" />
+                    </svg>
+                    <text x="10" y="24" font-family="Roboto" fill="#8C9FAE" font-size="16" font-weight="bold" class="svg-text">TextUSM</text>
+                </g>
+            </svg>
+            <svg width="300" height="300" x="295" y="0">
+                <g>
+                    <rect width="300" height="300" stroke="#434343" stroke-width="10"/>
+                    <text x="10" y="24" font-family="Roboto" fill="#8C9FAE" font-size="16" font-weight="bold" class="svg-text">WORK QUICKLY</text>
+                    <g>
+                        <foreignObject x="10" y="35" width="587" height="300" color="#8C9FAE" font-size="14" font-family="Roboto" class="svg-text">
+                            <div
+                                xmlns="http://www.w3.org/1999/xhtml" style="font-family: Roboto, sans-serif; overflow-wrap: break-word; padding: 0px 8px 8px 0px;">    Draw diagrams without leaving the keyboard.
+
+
+
+
+
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+            </svg>
+            <svg width="445" height="300" x="590" y="0">
+                <g>
+                    <rect width="445" height="300" stroke="#434343" stroke-width="10"/>
+                    <text x="10" y="24" font-family="Roboto" fill="#8C9FAE" font-size="16" font-weight="bold" class="svg-text">SAVE TIME</text>
+                    <g>
+                        <foreignObject x="10" y="35" width="587" height="300" color="#8C9FAE" font-size="14" font-family="Roboto" class="svg-text">
+                            <div
+                                xmlns="http://www.w3.org/1999/xhtml" style="font-family: Roboto, sans-serif; overflow-wrap: break-word; padding: 0px 8px 8px 0px;">    Instantly visualize your ideas.
+
+
+
+
+
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+            </svg>
+            <svg width="450" height="300" x="1030" y="0">
+                <g>
+                    <rect width="450" height="300" stroke="#434343" stroke-width="10"/>
+                    <text x="10" y="24" font-family="Roboto" fill="#8C9FAE" font-size="16" font-weight="bold" class="svg-text">EXPORT TO IMAGES</text>
+                    <g>
+                        <foreignObject x="10" y="35" width="587" height="300" color="#8C9FAE" font-size="14" font-family="Roboto" class="svg-text">
+                            <div
+                                xmlns="http://www.w3.org/1999/xhtml" style="font-family: Roboto, sans-serif; overflow-wrap: break-word; padding: 0px 8px 8px 0px;">    Images can be exported as png or svg.
+
+
+
+
+
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+            </svg>
+            <svg width="300" height="300" x="0" y="295">
+                <g>
+                    <rect width="300" height="300" stroke="#434343" stroke-width="10"/>
+                    <text x="10" y="24" font-family="Roboto" fill="#8C9FAE" font-size="16" font-weight="bold" class="svg-text">SHARING</text>
+                    <g>
+                        <foreignObject x="10" y="35" width="587" height="300" color="#8C9FAE" font-size="14" font-family="Roboto" class="svg-text">
+                            <div
+                                xmlns="http://www.w3.org/1999/xhtml" style="font-family: Roboto, sans-serif; overflow-wrap: break-word; padding: 0px 8px 8px 0px;">    Share your diagrams online with your colleagues.
+
+
+
+
+
+                            </div>
+                        </foreignObject>
+                    </g>
+                </g>
+            </svg>
+            <svg width="300" height="300" x="295" y="295">
+                <g>
+                    <rect width="300" height="300" stroke="#434343" stroke-width="10"/>
+                    <text x="10" y="24" font-family="Roboto" fill="#8C9FAE" font-size="16" font-weight="bold" class="svg-text"/>
+                    <g>
+                        <foreignObject x="10" y="35" width="587" height="300" color="#8C9FAE" font-size="14" font-family="Roboto" class="svg-text"/>
+                    </g>
+                </g>
+            </svg>
+            <svg width="300" height="300" x="590" y="295">
+                <g>
+                    <rect width="300" height="300" stroke="#434343" stroke-width="10"/>
+                    <text x="10" y="24" font-family="Roboto" fill="#8C9FAE" font-size="16" font-weight="bold" class="svg-text"/>
+                    <g>
+                        <foreignObject x="10" y="35" width="587" height="300" color="#8C9FAE" font-size="14" font-family="Roboto" class="svg-text"/>
+                    </g>
+                </g>
+            </svg>
+            <svg width="300" height="300" x="885" y="295">
+                <g>
+                    <rect width="300" height="300" stroke="#434343" stroke-width="10"/>
+                    <text x="10" y="24" font-family="Roboto" fill="#8C9FAE" font-size="16" font-weight="bold" class="svg-text"/>
+                    <g>
+                        <foreignObject x="10" y="35" width="587" height="300" color="#8C9FAE" font-size="14" font-family="Roboto" class="svg-text"/>
+                    </g>
+                </g>
+            </svg>
+            <svg width="300" height="300" x="1180" y="295">
+                <g>
+                    <rect width="300" height="300" stroke="#434343" stroke-width="10"/>
+                    <text x="10" y="24" font-family="Roboto" fill="#8C9FAE" font-size="16" font-weight="bold" class="svg-text"/>
+                    <g>
+                        <foreignObject x="10" y="35" width="587" height="300" color="#8C9FAE" font-size="14" font-family="Roboto" class="svg-text"/>
+                    </g>
+                </g>
+            </svg>
+        </g>
+    </svg>
