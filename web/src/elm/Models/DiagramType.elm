@@ -11,6 +11,7 @@ type DiagramType
     | UserPersona
     | Markdown
     | MindMap
+    | EmpathyMap
 
 
 toString : DiagramType -> String
@@ -43,6 +44,9 @@ toString diagramType =
         MindMap ->
             "mmp"
 
+        EmpathyMap ->
+            "emm"
+
 
 fromString : String -> DiagramType
 fromString s =
@@ -73,6 +77,9 @@ fromString s =
 
         "mmp" ->
             MindMap
+
+        "emm" ->
+            EmpathyMap
 
         _ ->
             UserStoryMap

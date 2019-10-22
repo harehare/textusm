@@ -8,7 +8,8 @@ import {
   Kpt,
   toString,
   toTypeString,
-  MindMap
+  MindMap,
+  EmpathyMap
 } from './model';
 
 interface Config {
@@ -25,6 +26,7 @@ interface ColorConfig {
   comment?: Color;
   line?: string;
   label?: string;
+  text?: string;
 }
 
 interface Size {
@@ -61,7 +63,8 @@ const defaultConfig: Config = {
       backgroundColor: '#F1B090'
     },
     line: '#434343',
-    label: '#8C9FAE'
+    label: '#8C9FAE',
+    text: '#111111'
   },
   backgroundColor: '#F5F5F6'
 };
@@ -76,7 +79,8 @@ function render(
     | FourLs
     | StartStopContinue
     | Kpt
-    | MindMap,
+    | MindMap
+    | EmpathyMap,
   options?: {
     diagramType?:
       | 'UserStoryMap'
@@ -86,7 +90,8 @@ function render(
       | 'StartStopContinue'
       | 'Kpt'
       | 'UserPersona'
-      | 'MindMap';
+      | 'MindMap'
+      | 'EmpathyMap';
     size?: Size;
     showZoomControl?: boolean;
     showMiniMap?: boolean;

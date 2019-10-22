@@ -3,7 +3,7 @@ module Views.Diagram.Markdown exposing (view)
 import Constants exposing (..)
 import Html.Attributes as Attr
 import Markdown
-import Models.Diagram exposing (Model, Msg)
+import Models.Diagram as Diagram exposing (Model, Msg)
 import Svg exposing (Svg, foreignObject, g)
 import Svg.Attributes exposing (..)
 import Utils
@@ -42,6 +42,7 @@ view model =
             [ Markdown.toHtml
                 [ Attr.class "md-content"
                 , Attr.style "font-family" ("'" ++ model.settings.font ++ "', sans-serif")
+                , Attr.style "color" <| Diagram.getTextColor model.settings.color
                 ]
                 (model.text |> Maybe.withDefault "")
             ]

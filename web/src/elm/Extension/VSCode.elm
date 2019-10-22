@@ -34,6 +34,9 @@ type alias InitData =
     , taskColor : String
     , storyBackgroundColor : String
     , storyColor : String
+    , lineColor : String
+    , textColor : String
+    , labelColor : String
     , diagramType : String
     , showMiniMap : Bool
     }
@@ -86,16 +89,12 @@ init flags =
                         { color = flags.storyColor
                         , backgroundColor = flags.storyBackgroundColor
                         }
-                    , comment =
-                        { color = "#000000"
-                        , backgroundColor = "#F1B090"
-                        }
-                    , line = "#434343"
-                    , label = "#8C9FAE"
+                    , line = flags.lineColor
+                    , label = flags.labelColor
+                    , text = Just flags.textColor
                     }
                 }
             , error = Nothing
-            , comment = Nothing
             , touchDistance = Nothing
             , labels = []
             , showMiniMap = flags.showMiniMap

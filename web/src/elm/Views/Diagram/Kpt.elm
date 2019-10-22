@@ -4,7 +4,7 @@ import Constants exposing (..)
 import Html exposing (div)
 import Html.Attributes as Attr
 import List.Extra exposing (getAt)
-import Models.Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (..)
@@ -102,6 +102,7 @@ canvasView settings svgWidth svgHeight posX posY item =
         , height (String.fromInt svgHeight)
         , x posX
         , y posY
+        , fill settings.backgroundColor
         ]
         [ g []
             [ rectView (String.fromInt svgWidth) (String.fromInt svgHeight) settings.color.line
@@ -156,6 +157,7 @@ textView settings w h posX posY lines =
                             [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
                             , Attr.style "word-wrap" "break-word"
                             , Attr.style "padding" "0 8px 8px 0"
+                            , Attr.style "color" <| Diagram.getTextColor settings.color
                             ]
                             [ Html.text line ]
                     )

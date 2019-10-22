@@ -151,10 +151,21 @@ TextUSM
 
 ![image](./img/mmp.png)
 
+### Empathy Map
+
+```
+https://app.textusm.com/images/logo.svg
+SAYS
+THINKS
+DOES
+FEELS
+```
+
+![image](./img/emm.png)
+
 ## Installation
 
 - [Web](https://textusm.com)
-- [Android](https://play.google.com/store/apps/details?id=me.textusm.usm)
 - [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=harehare.textusm)
 - [cli](https://www.npmjs.com/package/textusm.cli)
 - [npm](https://www.npmjs.com/package/textusm)

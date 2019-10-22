@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.1.1]
+
+- Fix bugs
+- Add Empathy Map
+
 ## [0.0.18]
 
 - Fix bugs

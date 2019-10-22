@@ -31,6 +31,7 @@ defaultSettings =
             }
         , line = "#434343"
         , label = "#8C9FAE"
+        , text = Just "#111111"
         }
     }
 

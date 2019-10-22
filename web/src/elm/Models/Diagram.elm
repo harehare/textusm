@@ -1,4 +1,4 @@
-module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Settings, Size, UsmSvg)
+module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Settings, Size, UsmSvg, getTextColor)
 
 import Browser.Dom exposing (Viewport)
 import Models.DiagramType exposing (DiagramType)
@@ -52,6 +52,7 @@ type alias ColorSettings =
     , story : Color
     , line : String
     , label : String
+    , text : Maybe String
     }
 
 
@@ -90,3 +91,8 @@ type Msg
     | StartPinch Float
     | ItemClick Item
     | ItemDblClick Item
+
+
+getTextColor : ColorSettings -> String
+getTextColor settings =
+    settings.text |> Maybe.withDefault "#111111"

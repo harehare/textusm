@@ -172,7 +172,10 @@ getCanvasSize model =
         width =
             case model.diagramType of
                 DiagramType.FourLs ->
-                    Constants.itemWidth * 2 + 20
+                    Constants.largeItemWidth * 2 + 20
+
+                DiagramType.EmpathyMap ->
+                    Constants.largeItemWidth * 2 + 20
 
                 DiagramType.OpportunityCanvas ->
                     Constants.itemWidth * 5 + 20
@@ -201,6 +204,9 @@ getCanvasSize model =
         height =
             case model.diagramType of
                 DiagramType.FourLs ->
+                    Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20
+
+                DiagramType.EmpathyMap ->
                     Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20
 
                 DiagramType.OpportunityCanvas ->

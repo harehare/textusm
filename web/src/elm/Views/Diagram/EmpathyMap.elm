@@ -1,22 +1,28 @@
-module Views.Diagram.UserPersona exposing (view)
+module Views.Diagram.EmpathyMap exposing (view)
 
 import Constants exposing (..)
-import Html exposing (div)
+import Html exposing (div, img)
 import Html.Attributes as Attr
-import List.Extra exposing (getAt)
+import List.Extra exposing (getAt, last)
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
+import Utils
+
+
+type Direction
+    = Top
+    | Bottom
 
 
 view : Model -> Svg Msg
 view model =
     let
         itemHeight =
-            Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
+            Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
     in
     g
         [ transform
@@ -40,27 +46,12 @@ view model =
             )
         , fill model.settings.backgroundColor
         ]
-        [ -- Name
-          canvasImageView model.settings
-            Constants.itemWidth
+        [ -- SAYS
+          canvasView model.settings
+            Top
+            Constants.largeItemWidth
             itemHeight
             "0"
-            "0"
-            (model.items
-                |> getAt 0
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , itemType = Activities
-                    , children = Item.empty
-                    }
-            )
-
-        -- Who am i...
-        , canvasView model.settings
-            Constants.itemWidth
-            itemHeight
-            (String.fromInt (Constants.itemWidth - 5))
             "0"
             (model.items
                 |> getAt 1
@@ -72,11 +63,12 @@ view model =
                     }
             )
 
-        -- three reasons to use your product
+        -- THINKS
         , canvasView model.settings
-            (round (Constants.itemWidth * 1.5 - 5))
+            Top
+            Constants.largeItemWidth
             itemHeight
-            (String.fromInt (round (toFloat Constants.itemWidth * 2) - 10))
+            (String.fromInt (Constants.largeItemWidth - 5))
             "0"
             (model.items
                 |> getAt 2
@@ -88,12 +80,13 @@ view model =
                     }
             )
 
-        -- three reasons to buy your product
+        -- DOES
         , canvasView model.settings
-            (round (Constants.itemWidth * 1.5))
-            itemHeight
-            (String.fromInt (round (toFloat Constants.itemWidth * 3.5) - 20))
+            Bottom
+            Constants.largeItemWidth
+            (itemHeight + 5)
             "0"
+            (String.fromInt (itemHeight - 5))
             (model.items
                 |> getAt 3
                 |> Maybe.withDefault
@@ -104,11 +97,12 @@ view model =
                     }
             )
 
-        -- My interests
+        -- FEELS
         , canvasView model.settings
-            Constants.itemWidth
-            itemHeight
-            "0"
+            Bottom
+            Constants.largeItemWidth
+            (itemHeight + 5)
+            (String.fromInt (Constants.largeItemWidth - 5))
             (String.fromInt (itemHeight - 5))
             (model.items
                 |> getAt 4
@@ -120,62 +114,14 @@ view model =
                     }
             )
 
-        -- My personality
-        , canvasView model.settings
+        -- IMAGES
+        , canvasImageView model.settings
             Constants.itemWidth
-            itemHeight
-            (String.fromInt (Constants.itemWidth - 5))
-            (String.fromInt (itemHeight - 5))
+            Constants.itemHeight
+            (String.fromInt (Constants.largeItemWidth - 5 - 150))
+            (String.fromInt (itemHeight - 5 - 150))
             (model.items
-                |> getAt 5
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , itemType = Activities
-                    , children = Item.empty
-                    }
-            )
-
-        -- My skils
-        , canvasView model.settings
-            Constants.itemWidth
-            itemHeight
-            (String.fromInt (Constants.itemWidth * 2 - 10))
-            (String.fromInt (itemHeight - 5))
-            (model.items
-                |> getAt 6
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , itemType = Activities
-                    , children = Item.empty
-                    }
-            )
-
-        -- My dreams
-        , canvasView model.settings
-            Constants.itemWidth
-            itemHeight
-            (String.fromInt (Constants.itemWidth * 3 - 15))
-            (String.fromInt (itemHeight - 5))
-            (model.items
-                |> getAt 7
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , itemType = Activities
-                    , children = Item.empty
-                    }
-            )
-
-        -- My relationship with technology
-        , canvasView model.settings
-            Constants.itemWidth
-            itemHeight
-            (String.fromInt (Constants.itemWidth * 4 - 20))
-            (String.fromInt (itemHeight - 5))
-            (model.items
-                |> getAt 8
+                |> getAt 0
                 |> Maybe.withDefault
                     { lineNo = 0
                     , text = ""
@@ -188,31 +134,58 @@ view model =
 
 canvasImageView : Settings -> Int -> Int -> String -> String -> Item -> Svg Msg
 canvasImageView settings svgWidth svgHeight posX posY item =
-    let
-        lines =
-            Item.unwrapChildren item.children
-                |> List.map (\i -> i.text)
-    in
     svg
-        [ width (String.fromInt svgWidth)
-        , height (String.fromInt svgHeight)
+        [ width <| String.fromInt svgWidth
+        , height <| String.fromInt svgHeight
         , x posX
         , y posY
         ]
-        [ g []
-            [ rectView (String.fromInt svgWidth) (String.fromInt svgHeight) settings.color.line
-            , imageView (Constants.itemWidth - 5) svgHeight 5 5 (lines |> List.head |> Maybe.withDefault "")
-            , titleView settings 10 10 item.text
+        [ foreignObject
+            [ x "0"
+            , y "0"
+            , width <| String.fromInt svgWidth
+            , height <| String.fromInt svgHeight
+            , class "svg-text"
+            , fill settings.backgroundColor
+            ]
+            [ img
+                [ Attr.src item.text
+                , Attr.style "background-color" settings.backgroundColor
+                , Attr.style "object-fit" "cover"
+                , Attr.style "margin" "auto"
+                , Attr.style "width" <| String.fromInt (svgWidth - 15) ++ "px"
+                , Attr.style "height" <| String.fromInt (svgHeight - 15) ++ "px"
+                , Attr.style "border-radius" "50%"
+                , Attr.style "border" <| "6px solid " ++ settings.color.line
+                , Attr.style "alt" ""
+                ]
+                []
             ]
         ]
 
 
-canvasView : Settings -> Int -> Int -> String -> String -> Item -> Svg Msg
-canvasView settings svgWidth svgHeight posX posY item =
+canvasView : Settings -> Direction -> Int -> Int -> String -> String -> Item -> Svg Msg
+canvasView settings direction svgWidth svgHeight posX posY item =
     let
         lines =
             Item.unwrapChildren item.children
                 |> List.map (\i -> i.text)
+
+        titleY =
+            case direction of
+                Top ->
+                    10
+
+                Bottom ->
+                    svgHeight - 30
+
+        textY =
+            case direction of
+                Top ->
+                    35
+
+                Bottom ->
+                    160
     in
     svg
         [ width (String.fromInt svgWidth)
@@ -223,8 +196,8 @@ canvasView settings svgWidth svgHeight posX posY item =
         ]
         [ g []
             [ rectView (String.fromInt svgWidth) (String.fromInt svgHeight) settings.color.line
-            , titleView settings 10 10 item.text
-            , textView settings (Constants.largeItemWidth - 13) svgHeight 10 35 lines
+            , titleView settings (svgWidth // 2) titleY item.text
+            , textView settings (Constants.largeItemWidth - 13) svgHeight 15 textY lines
             ]
         ]
 
@@ -243,11 +216,11 @@ rectView w h color =
 titleView : Settings -> Int -> Int -> String -> Svg Msg
 titleView settings posX posY title =
     text_
-        [ x (String.fromInt posX)
+        [ x (String.fromInt <| posX - 14 * String.length title)
         , y (String.fromInt (posY + 14))
         , fontFamily settings.font
         , fill settings.color.label
-        , fontSize "16"
+        , fontSize "24"
         , fontWeight "bold"
         , class "svg-text"
         ]
@@ -256,6 +229,12 @@ titleView settings posX posY title =
 
 textView : Settings -> Int -> Int -> Int -> Int -> List String -> Svg Msg
 textView settings w h posX posY lines =
+    let
+        maxLine =
+            List.sortBy String.length lines
+                |> last
+                |> Maybe.withDefault ""
+    in
     g []
         [ foreignObject
             [ x (String.fromInt posX)
@@ -263,7 +242,7 @@ textView settings w h posX posY lines =
             , width (String.fromInt w)
             , height (String.fromInt h)
             , color settings.color.label
-            , fontSize "14"
+            , fontSize <| Utils.calcFontSize w maxLine
             , fontFamily settings.font
             , class "svg-text"
             ]
@@ -279,21 +258,4 @@ textView settings w h posX posY lines =
                             [ Html.text line ]
                     )
             )
-        ]
-
-
-imageView : Int -> Int -> Int -> Int -> String -> Svg Msg
-imageView w h posX posY url =
-    svg
-        [ width (String.fromInt w)
-        , height (String.fromInt h)
-        ]
-        [ image
-            [ x (String.fromInt posX)
-            , y (String.fromInt posY)
-            , width (String.fromInt w)
-            , height (String.fromInt h)
-            , xlinkHref url
-            ]
-            []
         ]

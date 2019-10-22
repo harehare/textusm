@@ -11,7 +11,8 @@ const showQuickPick = (context: vscode.ExtensionContext, callback: () => void) =
     { label: '4Ls Retrospective', value: '4ls' },
     { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
     { label: 'KPT Retrospective', value: 'kpt' },
-    { label: 'Mind Map', value: 'mmp' }
+    { label: 'Mind Map', value: 'mmp' },
+    { label: 'Empathy Map', value: 'emm' }
   ];
   const quickPick = vscode.window.createQuickPick();
   quickPick.items = options.map(item => ({ label: item.label }));
@@ -85,7 +86,8 @@ export function activate(context: vscode.ExtensionContext) {
         { label: '4Ls Retrospective', value: '4ls' },
         { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
         { label: 'KPT Retrospective', value: 'kpt' },
-        { label: 'Mind Map', value: 'mmp' }
+        { label: 'Mind Map', value: 'mmp' },
+        { label: 'Empathy Map', value: 'emm' }
       ];
       const quickPick = vscode.window.createQuickPick();
       quickPick.items = options.map(item => ({ label: item.label }));
@@ -128,6 +130,9 @@ export function activate(context: vscode.ExtensionContext) {
                 break;
               case 'mmp':
                 newTextOpen('new');
+                break;
+              case 'emm':
+                newTextOpen('https://app.textusm.com/images/logo.svg\nSAYS\nTHINKS\nDOES\nFEELS');
                 break;
             }
           }
@@ -213,7 +218,11 @@ class DiagramPanel {
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${
             message.width
           }" height="${message.height}" style="background-color: ${backgroundColor};">
-                    ${message.text.split('<div').join('<div xmlns="http://www.w3.org/1999/xhtml"')}
+                    ${message.text
+                      .split('<div')
+                      .join('<div xmlns="http://www.w3.org/1999/xhtml"')
+                      .split('<img')
+                      .join('<img xmlns="http://www.w3.org/1999/xhtml"')}
                     </svg>`
         );
         vscode.window.showInformationMessage(`Exported: ${filePath}`);
@@ -291,6 +300,10 @@ class DiagramPanel {
     const storyColor = vscode.workspace.getConfiguration().get('textusm.story.color');
     const storyBackground = vscode.workspace.getConfiguration().get('textusm.story.backgroundColor');
 
+    const labelColor = vscode.workspace.getConfiguration().get('textusm.label.color');
+    const textColor = vscode.workspace.getConfiguration().get('textusm.text.color');
+    const lineColor = vscode.workspace.getConfiguration().get('textusm.line.color');
+
     const enabledMiniMap = vscode.workspace.getConfiguration().get('textusm.minimap.enabled');
 
     return `<!DOCTYPE html>
@@ -318,6 +331,9 @@ class DiagramPanel {
             taskBackgroundColor: "${taskBackground ? taskBackground : '#3E9BCD'}",
             storyColor: "${storyColor ? storyColor : '#000000'}",
             storyBackgroundColor: "${storyBackground ? storyBackground : '#FFFFFF'}",
+            textColor: "${textColor ? textColor : '#111111'}",
+            labelColor: "${labelColor ? labelColor : '#8C9FAE'}",
+            lineColor: "${lineColor ? lineColor : '#434343'}",
             diagramType: "${diagramType}",
             showMiniMap: ${enabledMiniMap}
         }});

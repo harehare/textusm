@@ -13,6 +13,7 @@
   <div id="textusm9"></div>
   <div id="textusm10"></div>
   <div id="textusm11"></div>
+  <div id="textusm12"></div>
   <script>
     this.textusm.render(
       'textusm',
@@ -207,6 +208,18 @@
         }
       },
       { diagramType: 'MindMap', size: { width: 2048, height: 1024 } }
+    );
+
+    this.textusm.render(
+      document.getElementById('textusm12'),
+      {
+        imageUrl: 'test',
+        says: { title: 'test', text: ['test'] },
+        thinks: { title: 'test', text: ['test'] },
+        does: { title: 'test', text: ['test'] },
+        feels: { title: 'test', text: ['test'] }
+      },
+      { diagramType: 'EmpathyMap', size: { width: 2048, height: 1024 } }
     );
   </script>
 </html>

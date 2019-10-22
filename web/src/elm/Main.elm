@@ -122,7 +122,6 @@ view model =
         , div
             [ class "main" ]
             [ lazy5 Menu.view (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu (Model.canWrite model)
-
             , let
                 mainWindow =
                     if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then
@@ -426,6 +425,9 @@ changeRouteTo route model =
 
         Route.MindMap ->
             changeDiagramType DiagramType.MindMap
+
+        Route.EmpathyMap ->
+            changeDiagramType DiagramType.EmpathyMap
 
         _ ->
             changeDiagramType DiagramType.UserStoryMap
@@ -1335,6 +1337,9 @@ update message model =
 
                         DiagramType.MindMap ->
                             ( "", Route.MindMap )
+
+                        DiagramType.EmpathyMap ->
+                            ( "https://app.textusm.com/images/logo.svg\nSAYS\nTHINKS\nDOES\nFEELS", Route.EmpathyMap )
 
                 displayText =
                     if String.isEmpty model.text then

@@ -82,13 +82,16 @@ init flags =
                 else if flags.diagramType == "MindMap" then
                     DiagramType.MindMap
 
+                else if flags.diagramType == "EmpathyMap" then
+                    DiagramType.EmpathyMap
+
                 else
                     DiagramType.UserStoryMap
             , settings = flags.settings
             , error = Nothing
-            , comment = Nothing
             , touchDistance = Nothing
             , labels = []
+            , matchParent = False
             , showMiniMap = flags.showMiniMap
             , text = Nothing
             }

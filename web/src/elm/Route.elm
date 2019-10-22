@@ -41,6 +41,7 @@ type Route
     | Persona
     | Markdown
     | MindMap
+    | EmpathyMap
     | List
     | Settings
     | Help
@@ -70,6 +71,7 @@ parser =
         , map Persona (s "persona")
         , map Markdown (s "md")
         , map MindMap (s "mmp")
+        , map EmpathyMap (s "emm")
         , map List (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
@@ -114,6 +116,9 @@ toString route =
 
         MindMap ->
             absolute [ "mmp" ] []
+
+        EmpathyMap ->
+            absolute [ "emm" ] []
 
         List ->
             absolute [ "list" ] []

@@ -148,6 +148,10 @@ newMenu =
       , title = "Mind Map"
       , icon = Just <| img [ src "/images/mind_map.svg", style "width" "56px", alt "logo" ] []
       }
+    , { e = New DiagramType.EmpathyMap
+      , title = "Empathy Map"
+      , icon = Just <| img [ src "/images/empathy_map.svg", style "width" "56px", alt "logo" ] []
+      }
     ]
 
 

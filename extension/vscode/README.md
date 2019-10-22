@@ -11,6 +11,7 @@ TextISM is a simple tool. Help you draw user story map using indented text.
 - Start, Stop, Continue Retrospective
 - KPT Retrospective
 - Mind Map
+- Empathy Map
 
 ![image](./img/textusm.gif)
 
@@ -150,6 +151,18 @@ TextUSM
 ```
 
 ![image](./img/mmp.png)
+
+### Empathy Map
+
+```
+https://app.textusm.com/images/logo.svg
+SAYS
+THINKS
+DOES
+FEELS
+```
+
+![image](./img/emm.png)
 
 ## Options
 

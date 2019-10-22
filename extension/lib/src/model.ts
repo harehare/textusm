@@ -83,6 +83,14 @@ export interface UserPersona {
   item7: CanvasItem;
 }
 
+export interface EmpathyMap {
+  imageUrl: string;
+  says: CanvasItem;
+  thinks: CanvasItem;
+  does: CanvasItem;
+  feels: CanvasItem;
+}
+
 interface CanvasItem {
   title: string;
   text: string[];
@@ -103,6 +111,7 @@ export function toString(
     | Kpt
     | UserPersona
     | MindMap
+    | EmpathyMap
 ): string {
   return 'activities' in definition
     ? userStoryMap2Text(definition)
@@ -120,6 +129,8 @@ export function toString(
     ? userPersonaCanvas2Text(definition)
     : 'node' in definition
     ? mindMap2Text(definition)
+    : 'says' in definition
+    ? empathyMapCanvas2Text(definition)
     : '';
 }
 
@@ -133,6 +144,7 @@ export function toTypeString(
     | Kpt
     | UserPersona
     | MindMap
+    | EmpathyMap
 ): string {
   return 'activities' in definition
     ? 'UserStoryMap'
@@ -150,6 +162,8 @@ export function toTypeString(
     ? 'UserPersona'
     : 'node' in definition
     ? 'MindMap'
+    : 'says' in definition
+    ? 'EmpathyMap'
     : 'UserStoryMap';
 }
 
@@ -248,6 +262,16 @@ function userPersonaCanvas2Text(userPersona: UserPersona): string {
   return `${userPersona.url.title}\n    ${userPersona.url.url}\n${items
     .map(item => {
       return canvas2Text(userPersona[item]);
+    })
+    .join('\n')}`;
+}
+
+function empathyMapCanvas2Text(empathyMap: EmpathyMap): string {
+  const items = ['says', 'thinks', 'does', 'feels'];
+
+  return `${empathyMap.imageUrl}\n${items
+    .map(item => {
+      return canvas2Text(empathyMap[item]);
     })
     .join('\n')}`;
 }

@@ -2,9 +2,25 @@ const SettingsKey = "textusm:settings";
 
 const loadSettings = () => {
     const settings = localStorage.getItem(SettingsKey);
-    return settings
-        ? Object.assign(defaultSettings, JSON.parse(settings))
-        : defaultSettings;
+
+    if (settings) {
+        const settingsObject = JSON.parse(settings);
+
+        return {
+            ...defaultSettings,
+            ...settingsObject,
+            storyMap: {
+                ...defaultSettings.storyMap,
+                ...settingsObject.storyMap,
+                color: {
+                    ...defaultSettings.storyMap.color,
+                    ...settingsObject.storyMap.color
+                }
+            }
+        };
+    }
+
+    return defaultSettings;
 };
 
 const defaultSettings = {
@@ -29,7 +45,8 @@ const defaultSettings = {
                 backgroundColor: "#FFFFFF"
             },
             line: "#434343",
-            label: "#8C9FAE"
+            label: "#8C9FAE",
+            text: "#111111"
         },
         backgroundColor: "#F4F4F5"
     },

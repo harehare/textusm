@@ -6,7 +6,7 @@
     "name": "harehare"
   },
   "publisher": "harehare",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "engines": {
     "vscode": "^1.33.0"
   },
@@ -103,6 +103,21 @@
           "type": "string",
           "default": "#FFFFFF",
           "markdownDescription": "Background color for user story."
+        },
+        "textusm.line.color": {
+          "type": "string",
+          "default": "#434343",
+          "markdownDescription": "Line color."
+        },
+        "textusm.label.color": {
+          "type": "string",
+          "default": "#8C9FAE",
+          "markdownDescription": "Label color."
+        },
+        "textusm.text.color": {
+          "type": "string",
+          "default": "#111111",
+          "markdownDescription": "Text color."
         },
         "textusm.minimap.enabled": {
           "type": "boolean",

@@ -293,6 +293,18 @@ TextUSM
 
 ![image](./img/mmp.png)
 
+### Empathy Map
+
+```
+https://app.textusm.com/images/logo.svg
+SAYS
+THINKS
+DOES
+FEELS
+```
+
+![image](./img/emm.png)
+
 ### Configuration
 
 ```javascript
@@ -321,7 +333,8 @@ TextUSM
         backgroundColor: "#F1B090"
       },
       line: "#434343",
-      label: "#8C9FAE"
+      label: "#8C9FAE",
+      text: "#111111"
     }
   }
 }

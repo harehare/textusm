@@ -4,7 +4,7 @@ import Constants exposing (..)
 import Html as Html exposing (div, img)
 import Html.Attributes as Attr
 import List.Extra exposing (getAt, scanl1, splitAt, zip3)
-import Models.Diagram exposing (Model, Msg(..), Point, Settings)
+import Models.Diagram as Diagram exposing (Model, Msg(..), Point, Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import Svg exposing (Svg, foreignObject, g, line, rect, svg)
 import Svg.Attributes exposing (..)

@@ -19,11 +19,12 @@ baseColorItems =
     , { name = "PINK", value = DropDownList.colorValue "#F6CFE6" }
     , { name = "RED", value = DropDownList.colorValue "#EE8A8B" }
     , { name = "PURPLE", value = DropDownList.colorValue "#CD89F7" }
-    , { name = "ACTIVITY", value = DropDownList.colorValue "#266B9A" }
-    , { name = "TASK", value = DropDownList.colorValue "#3E9BCD" }
-    , { name = "LINE", value = DropDownList.colorValue "#434343" }
-    , { name = "LABEL", value = DropDownList.colorValue "#8C9FAE" }
-    , { name = "BACKGROUND", value = DropDownList.colorValue "#F4F4F5" }
+    , { name = "ACTIVITY DEFALUT", value = DropDownList.colorValue "#266B9A" }
+    , { name = "TASK DEFALUT", value = DropDownList.colorValue "#3E9BCD" }
+    , { name = "LINE DEFALUT", value = DropDownList.colorValue "#434343" }
+    , { name = "LABEL DEFALUT", value = DropDownList.colorValue "#8C9FAE" }
+    , { name = "BACKGROUND DEFALUT", value = DropDownList.colorValue "#F4F4F5" }
+    , { name = "TEXT DEFALUT", value = DropDownList.colorValue "#111111" }
     ]
 
 
@@ -1065,7 +1066,8 @@ view dropDownIndex settings =
                 [ div [ class "label" ] [ text "Card Width" ]
                 , div [ class "input-area" ]
                     [ input
-                        [ type_ "text", value (String.fromInt settings.storyMap.size.width)
+                        [ type_ "text"
+                        , value (String.fromInt settings.storyMap.size.width)
                         , onInput
                             (UpdateSettings
                                 (\x ->
@@ -1093,7 +1095,8 @@ view dropDownIndex settings =
                 [ div [ class "label" ] [ text "Card Height" ]
                 , div [ class "input-area" ]
                     [ input
-                        [  type_ "text", value (String.fromInt settings.storyMap.size.height)
+                        [ type_ "text"
+                        , value (String.fromInt settings.storyMap.size.height)
                         , onInput
                             (UpdateSettings
                                 (\x ->
@@ -1118,7 +1121,7 @@ view dropDownIndex settings =
                     ]
                 ]
             ]
-        , section (Just "Story Map Color")
+        , section (Just "Color")
         , div [ class "controls" ]
             [ div [ class "control" ]
                 [ div [ class "label" ] [ text "Background for User Activity" ]
@@ -1380,6 +1383,33 @@ view dropDownIndex settings =
                         )
                         baseColorItems
                         settings.storyMap.color.label
+                    ]
+                ]
+            , div [ class "control" ]
+                [ div [ class "label" ] [ text "Text Color" ]
+                , div [ class "input-area" ]
+                    [ DropDownList.view "text-color"
+                        dropDownIndex
+                        (UpdateSettings
+                            (\x ->
+                                let
+                                    storyMap =
+                                        settings.storyMap
+
+                                    color =
+                                        storyMap.color
+
+                                    newColor =
+                                        { color | text = Just x }
+
+                                    newStoryMap =
+                                        { storyMap | color = newColor }
+                                in
+                                { settings | storyMap = newStoryMap }
+                            )
+                        )
+                        baseColorItems
+                        (settings.storyMap.color.text |> Maybe.withDefault "#111111")
                     ]
                 ]
             ]
