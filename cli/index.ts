@@ -61,7 +61,7 @@ const { configFile, input, width, height, output, diagramType } = commander
   .option('-o, --output [output]', 'Output file. It should be svg, png, pdf or html.')
   .option(
     '-d, --diagramType [diagramType]',
-    'Diagram type. It should be userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona or mind_map.'
+    'Diagram type. It should be one of userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, mind_map, empathy_map.'
   )
   .parse(process.argv);
 
@@ -84,6 +84,7 @@ const validDiagramType = [
   'kpt',
   'userpersona',
   'mind_map',
+  'empathy_map',
   ''
 ];
 
@@ -137,6 +138,8 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
         ? 'persona'
         : diagramType === 'mind_map'
         ? 'mmp'
+        : diagramType === 'empathy_map'
+        ? 'emm'
         : 'usm';
     await page.goto(`https://app.textusm.com/view/${type}/${encodeURIComponent(JSON.stringify(configJson))}`);
 
@@ -159,7 +162,9 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
                     '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
                   )
                   .split('<div')
-                  .join('<div xmlns="http://www.w3.org/1999/xhtml"')}`
+                  .join('<div xmlns="http://www.w3.org/1999/xhtml"')
+                  .split('<img')
+                  .join('<img xmlns="http://www.w3.org/1999/xhtml"')}`
       );
     } else if (output.endsWith('png')) {
       const clip = await page.$eval('#usm', svg => {
