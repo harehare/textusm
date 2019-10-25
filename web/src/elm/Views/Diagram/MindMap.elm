@@ -248,7 +248,7 @@ nodeItemView settings hierarchy ( posX, posY ) item =
             , color colour
             , fontSize (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
             , fontFamily settings.font
-            , class "svg-text"
+            , class ".select-none"
             ]
             [ if Utils.isImageUrl item.text then
                 img

@@ -7,7 +7,7 @@ import Models.Model as Model
 
 settingsDecoder : D.Decoder Model.Settings
 settingsDecoder =
-    D.map8 Model.Settings
+    D.map7 Model.Settings
         (D.maybe (D.field "position" D.int))
         (D.field "font" D.string)
         (D.maybe (D.field "diagramId" D.string))
@@ -15,14 +15,6 @@ settingsDecoder =
         (D.maybe (D.field "text" D.string))
         (D.maybe (D.field "title" D.string))
         (D.maybe (D.field "miniMap" D.bool))
-        (D.maybe (D.field "github" githubDecoder))
-
-
-githubDecoder : D.Decoder Model.GithubSettings
-githubDecoder =
-    D.map2 Model.GithubSettings
-        (D.field "owner" D.string)
-        (D.field "repo" D.string)
 
 
 diagramDecoder : D.Decoder Diagram.Settings

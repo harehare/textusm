@@ -33,3 +33,5 @@ require (
 	google.golang.org/api v0.6.0
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8 // indirect
 )
+
+go 1.13

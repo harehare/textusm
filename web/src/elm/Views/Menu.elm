@@ -7,7 +7,6 @@ import Json.Decode as D
 import List
 import Models.DiagramType as DiagramType
 import Models.Model exposing (FileType(..), Menu(..), Msg(..))
-import Route exposing (Route(..))
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -20,8 +19,8 @@ type alias MenuItem =
     }
 
 
-view : Route -> Int -> Bool -> Maybe Menu -> Bool -> Html Msg
-view route width fullscreen openMenu canWrite =
+view : Int -> Bool -> Maybe Menu -> Bool -> Html Msg
+view width fullscreen openMenu canWrite =
     let
         menuItemStyle =
             [ class "menu-button"
@@ -34,50 +33,36 @@ view route width fullscreen openMenu canWrite =
         div
             [ class "menu-bar"
             ]
-            ((if route == Route.List then
-                div
-                    (onClick MoveToBack :: menuItemStyle)
-                    [ Icon.file 20
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Current File" ] ]
-                    ]
-
-              else
-                div
-                    (stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True )) :: style "margin-left" "4px" :: menuItemStyle)
-                    [ Icon.file 20
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
-                    ]
-             )
-                :: (if route == Route.List then
-                        [ div
-                            (onClick FileSelect :: menuItemStyle)
-                            [ Icon.folderOpen "#F5F5F6" 20
-                            , span [ class "tooltip" ] [ span [ class "text" ] [ text "Open File" ] ]
-                            ]
+            (div
+                (stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True )) :: style "margin-left" "4px" :: menuItemStyle)
+                [ Icon.file 20
+                , span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
+                ]
+                :: [ div
+                        (onClick FileSelect :: menuItemStyle)
+                        [ Icon.folderOpen "#F5F5F6" 20
+                        , span [ class "tooltip" ] [ span [ class "text" ] [ text "Open File" ] ]
                         ]
-
-                    else
-                        [ div
-                            (onClick GetDiagrams :: menuItemStyle)
-                            [ Icon.folderOpen "#F5F5F6" 20
-                            , span [ class "tooltip" ] [ span [ class "text" ] [ text "Files" ] ]
-                            ]
-                        , if canWrite then
-                            div
-                                (onClick Save :: menuItemStyle)
-                                [ Icon.save 26
-                                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
-                                ]
-
-                          else
-                            Empty.view
-                        , div
-                            (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
-                            [ Icon.download 22
-                            , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
-                            ]
+                   , div
+                        (onClick GetDiagrams :: menuItemStyle)
+                        [ Icon.viewComfy "#F5F5F6" 28
+                        , span [ class "tooltip" ] [ span [ class "text" ] [ text "List" ] ]
                         ]
-                   )
+                   , if canWrite then
+                        div
+                            (onClick Save :: menuItemStyle)
+                            [ Icon.save 26
+                            , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
+                            ]
+
+                     else
+                        Empty.view
+                   , div
+                        (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
+                        [ Icon.download 22
+                        , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
+                        ]
+                   ]
                 ++ [ div
                         (onClick EditSettings :: menuItemStyle)
                         [ Icon.settings

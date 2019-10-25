@@ -55,12 +55,7 @@ view model =
             "0"
             (model.items
                 |> getAt 1
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , itemType = Activities
-                    , children = Item.empty
-                    }
+                |> Maybe.withDefault Item.emptyItem
             )
 
         -- THINKS
@@ -72,12 +67,7 @@ view model =
             "0"
             (model.items
                 |> getAt 2
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , itemType = Activities
-                    , children = Item.empty
-                    }
+                |> Maybe.withDefault Item.emptyItem
             )
 
         -- DOES
@@ -89,12 +79,7 @@ view model =
             (String.fromInt (itemHeight - 5))
             (model.items
                 |> getAt 3
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , itemType = Activities
-                    , children = Item.empty
-                    }
+                |> Maybe.withDefault Item.emptyItem
             )
 
         -- FEELS
@@ -106,12 +91,7 @@ view model =
             (String.fromInt (itemHeight - 5))
             (model.items
                 |> getAt 4
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , itemType = Activities
-                    , children = Item.empty
-                    }
+                |> Maybe.withDefault Item.emptyItem
             )
 
         -- IMAGES
@@ -122,12 +102,7 @@ view model =
             (String.fromInt (itemHeight - 5 - 150))
             (model.items
                 |> getAt 0
-                |> Maybe.withDefault
-                    { lineNo = 0
-                    , text = ""
-                    , itemType = Activities
-                    , children = Item.empty
-                    }
+                |> Maybe.withDefault Item.emptyItem
             )
         ]
 
@@ -145,7 +120,7 @@ canvasImageView settings svgWidth svgHeight posX posY item =
             , y "0"
             , width <| String.fromInt svgWidth
             , height <| String.fromInt svgHeight
-            , class "svg-text"
+            , class ".select-none"
             , fill settings.backgroundColor
             ]
             [ img
@@ -222,7 +197,7 @@ titleView settings posX posY title =
         , fill settings.color.label
         , fontSize "24"
         , fontWeight "bold"
-        , class "svg-text"
+        , class ".select-none"
         ]
         [ text title ]
 
@@ -244,7 +219,7 @@ textView settings w h posX posY lines =
             , color settings.color.label
             , fontSize <| Utils.calcFontSize w maxLine
             , fontFamily settings.font
-            , class "svg-text"
+            , class ".select-none"
             ]
             (lines
                 |> List.map

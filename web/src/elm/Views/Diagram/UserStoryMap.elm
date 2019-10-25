@@ -311,7 +311,7 @@ textView settings posX posY c t =
         , color c
         , fontSize (t |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
         , fontFamily settings.font
-        , class "svg-text"
+        , class ".select-none"
         ]
         [ if Utils.isImageUrl t then
             img
@@ -342,7 +342,7 @@ labelTextView settings posX posY t =
         , fontSize "11"
         , fontWeight "bold"
         , fontFamily settings.font
-        , class "svg-text"
+        , class ".select-none"
         ]
         [ div
             [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")

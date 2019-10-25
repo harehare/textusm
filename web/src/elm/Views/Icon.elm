@@ -14,9 +14,9 @@ remove size =
     icon "#848a90" size size "0 0 48 48" [ Svg.path [ d "M38 26H10v-4h28v4z" ] [] ]
 
 
-viewComfy : Int -> Svg msg
-viewComfy size =
-    icon "#8C9FAE" size size "0 0 48 48" [ Svg.path [ d "M6 18h8v-8H6v8zm0 10h8v-8H6v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zM16 18h8v-8h-8v8zm10-8v8h8v-8h-8zm10 18h8v-8h-8v8zM6 38h8v-8H6v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zm0-28v8h8v-8h-8z" ] [] ]
+viewComfy : String -> Int -> Svg msg
+viewComfy color size =
+    icon color size size "0 0 48 48" [ Svg.path [ d "M6 18h8v-8H6v8zm0 10h8v-8H6v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zM16 18h8v-8h-8v8zm10-8v8h8v-8h-8zm10 18h8v-8h-8v8zM6 38h8v-8H6v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zm0-28v8h8v-8h-8z" ] [] ]
 
 
 edit : Int -> Svg msg

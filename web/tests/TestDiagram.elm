@@ -52,7 +52,7 @@ updateTest =
                         [ { text = "test1"
                           , itemType = Activities
                           , lineNo = 0
-                          , children = Item.empty
+                          , children = Item.emptyChildren
                           }
                         ]
         , test "load activity items" <|
@@ -63,12 +63,12 @@ updateTest =
                         [ { text = "test1"
                           , itemType = Activities
                           , lineNo = 0
-                          , children = Item.empty
+                          , children = Item.emptyChildren
                           }
                         , { text = "test2"
                           , itemType = Activities
                           , lineNo = 1
-                          , children = Item.empty
+                          , children = Item.emptyChildren
                           }
                         ]
         , test "load task item" <|
@@ -83,7 +83,7 @@ updateTest =
                                 Item.fromItems
                                     [ { text = "    test2"
                                       , itemType = Tasks
-                                      , children = Item.empty
+                                      , children = Item.emptyChildren
                                       , lineNo = 1
                                       }
                                     ]
@@ -102,12 +102,12 @@ updateTest =
                                     [ { text = "    test2"
                                       , itemType = Tasks
                                       , lineNo = 1
-                                      , children = Item.empty
+                                      , children = Item.emptyChildren
                                       }
                                     , { text = "    test3"
                                       , itemType = Tasks
                                       , lineNo = 2
-                                      , children = Item.empty
+                                      , children = Item.emptyChildren
                                       }
                                     ]
                           }
@@ -129,7 +129,7 @@ updateTest =
                                             Item.fromItems
                                                 [ { text = "        test3"
                                                   , itemType = Stories 1
-                                                  , children = Item.empty
+                                                  , children = Item.emptyChildren
                                                   , lineNo = 2
                                                   }
                                                 ]
@@ -155,12 +155,12 @@ updateTest =
                                                 [ { text = "        test3"
                                                   , itemType = Stories 1
                                                   , lineNo = 2
-                                                  , children = Item.empty
+                                                  , children = Item.emptyChildren
                                                   }
                                                 , { text = "        test4"
                                                   , itemType = Stories 1
                                                   , lineNo = 3
-                                                  , children = Item.empty
+                                                  , children = Item.emptyChildren
                                                   }
                                                 ]
                                       }

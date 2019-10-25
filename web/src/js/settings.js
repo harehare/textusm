@@ -54,8 +54,7 @@ const defaultSettings = {
     text: "",
     title: null,
     miniMap: true,
-    diagramId: null,
-    github: null
+    diagramId: null
 };
 
 const saveSettings = settings => {

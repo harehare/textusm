@@ -22,8 +22,7 @@ TextUSM is a simple tool. Help you draw user story map using indented text.
   - SVG
   - PNG
   - TXT
-  - Trello
-  - Github
+  - PDF
 
 ## Example
 

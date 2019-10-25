@@ -1,7 +1,6 @@
-module Models.Model exposing (DownloadInfo, FileType(..), GithubSettings, Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window, canWrite)
+module Models.Model exposing (DownloadInfo, FileType(..), Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window, canWrite)
 
 import Api.Diagram exposing (AddUserResponse, UpdateUserResponse)
-import Api.Export
 import Api.UrlShorter
 import Browser
 import Browser.Dom exposing (Viewport)
@@ -59,10 +58,6 @@ type Msg
     | OnCloseNotification
     | OnAuthStateChanged (Maybe User)
     | WindowSelect Int
-    | GetAccessTokenForTrello
-    | GetAccessTokenForGitHub
-    | ExportGitHub String
-    | Exported (Result Http.Error Api.Export.Response)
     | GetShortUrl (Result Http.Error Api.UrlShorter.Response)
     | DoOpenUrl String
       -- Diagram type
@@ -190,13 +185,6 @@ type alias Settings =
     , text : Maybe String
     , title : Maybe String
     , miniMap : Maybe Bool
-    , github : Maybe GithubSettings
-    }
-
-
-type alias GithubSettings =
-    { owner : String
-    , repo : String
     }
 
 

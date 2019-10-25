@@ -22,14 +22,6 @@ type alias SettingsJson =
     String
 
 
-type alias OAuthToken =
-    String
-
-
-type alias OAuthVerifier =
-    String
-
-
 type Route
     = Home
     | BusinessModelCanvas
@@ -50,7 +42,6 @@ type Route
     | Embed DiagramPath Title Path
     | UsmView SettingsJson
     | View DiagramPath SettingsJson
-    | CallbackTrello (Maybe OAuthToken) (Maybe OAuthVerifier)
 
 
 parser : Parser (Route -> a) a
@@ -61,7 +52,6 @@ parser =
         , map Embed (s "embed" </> string </> string </> string)
         , map UsmView (s "view" </> string)
         , map View (s "view" </> string </> string)
-        , map CallbackTrello (s "callback" <?> Query.string "oauth_token" <?> Query.string "oauth_verifier")
         , map BusinessModelCanvas (s "bmc")
         , map OpportunityCanvas (s "opc")
         , map UserStoryMap (s "usm")
@@ -143,9 +133,3 @@ toString route =
 
         View diagramPath settingsJson ->
             absolute [ "view", diagramPath, settingsJson ] []
-
-        CallbackTrello oauthToken oauthVerifier ->
-            absolute [ "callback" ]
-                [ Builder.string "oauth_token" (oauthToken |> Maybe.withDefault "")
-                , Builder.string "oauth_verifier" (oauthVerifier |> Maybe.withDefault "")
-                ]

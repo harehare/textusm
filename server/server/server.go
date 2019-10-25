@@ -1,4 +1,4 @@
-package server 
+package server
 
 import (
 	"encoding/base64"
@@ -12,7 +12,6 @@ import (
 	firebase "firebase.google.com/go"
 	"github.com/gorilla/mux"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/mrjones/oauth"
 	"github.com/urfave/negroni"
 
 	"github.com/harehare/textusm/server/controllers"
@@ -31,17 +30,14 @@ type Env struct {
 }
 
 var (
-	tokens         map[string]*oauth.RequestToken
-	trelloConsumer *oauth.Consumer
-	env            Env
-	app            *firebase.App
+	env Env
+	app *firebase.App
 )
 
 func Run() int {
 	envconfig.Process("TextUSM", &env)
 
 	var err error
-	tokens = make(map[string]*oauth.RequestToken)
 
 	b, err := base64.StdEncoding.DecodeString(env.Credentials)
 
@@ -91,14 +87,6 @@ func Run() int {
 	diagram.Methods("POST").Path("/update/role/{ID}").HandlerFunc(controllers.UpdateRole)
 	diagram.Methods("DELETE").Path("/delete/user/{ID}/{DiagramID}").HandlerFunc(controllers.DeleteUser)
 
-	exporterBase := mux.NewRouter()
-	r.PathPrefix("/export").Handler(negroni.New(
-		negroni.Wrap(exporterBase)))
-	exporter := exporterBase.PathPrefix("/export").Subrouter()
-	exporter.Methods("POST").Path("/trello").HandlerFunc(controllers.CreateTrelloBoard)
-	exporter.Methods("POST").Path("/github").HandlerFunc(controllers.CreateGithubIssues)
-	exporter.Methods("GET").Path("/auth/trello").HandlerFunc(controllers.RedirectUserToTrello(env.Host))
-
 	apiBase := mux.NewRouter()
 	r.PathPrefix("/api").Handler(negroni.New(
 		negroni.HandlerFunc(middleware.AuthMiddleware(app)),
@@ -114,11 +102,12 @@ func Run() int {
 	n.UseHandler(r)
 
 	s := &http.Server{
-		Addr:           fmt.Sprintf(":%s", env.Port),
-		Handler:        n,
-		ReadTimeout:    8 * time.Second,
-		WriteTimeout:   8 * time.Second,
-		MaxHeaderBytes: 1 << 20,
+		Addr:              fmt.Sprintf(":%s", env.Port),
+		Handler:           n,
+		ReadTimeout:       8 * time.Second,
+		WriteTimeout:      8 * time.Second,
+		MaxHeaderBytes:    1 << 20,
+		ReadHeaderTimeout: 8 * time.Second,
 	}
 	err = s.ListenAndServe()
 

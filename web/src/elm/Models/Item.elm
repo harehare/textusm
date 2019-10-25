@@ -1,4 +1,4 @@
-module Models.Item exposing (Children, Item, ItemType(..), empty, emptyItem, fromItems, getChildrenCount, getLeafCount, toString, unwrapChildren)
+module Models.Item exposing (Children, Item, ItemType(..), emptyChildren, emptyItem, fromItems, getChildrenCount, getLeafCount, toString, unwrapChildren)
 
 
 type Children
@@ -25,8 +25,8 @@ fromItems items =
     Children items
 
 
-empty : Children
-empty =
+emptyChildren : Children
+emptyChildren =
     Children []
 
 
@@ -35,7 +35,7 @@ emptyItem =
     { lineNo = 0
     , text = ""
     , itemType = Activities
-    , children = empty
+    , children = emptyChildren
     }
 
 

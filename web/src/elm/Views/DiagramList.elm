@@ -154,7 +154,7 @@ view user timezone maybeQuery maybeDiagrams selectedType =
                             , style "font-size" "1.5rem"
                             , style "padding-bottom" "32px"
                             ]
-                            [ div [ style "margin-right" "8px" ] [ Icon.viewComfy 64 ]
+                            [ div [ style "margin-right" "8px" ] [ Icon.viewComfy "#8C9FAE" 64 ]
                             , div [ style "margin-bottom" "8px" ] [ text "NOTHING" ]
                             ]
 

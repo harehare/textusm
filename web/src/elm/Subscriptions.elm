@@ -1,4 +1,4 @@
-port module Subscriptions exposing (applySettings, changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadPdf, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getAccessTokenForGitHub, getDiagram, getDiagrams, layoutEditor, loadEditor, loadText, login, logout, openFullscreen, removeDiagrams, saveDiagram, saveSettings, selectLine, selectTextById, setEditorLanguage, subscriptions)
+port module Subscriptions exposing (applySettings, changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadPdf, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getDiagram, getDiagrams, layoutEditor, loadEditor, loadText, login, logout, openFullscreen, removeDiagrams, saveDiagram, saveSettings, selectLine, selectTextById, setEditorLanguage, subscriptions)
 
 import Browser.Events exposing (onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Json.Decode as D
@@ -98,13 +98,7 @@ port copyClipboard : String -> Cmd msg
 port selectTextById : String -> Cmd msg
 
 
-port getAccessTokenForGitHub : () -> Cmd msg
-
-
-port onGetAccessTokenForGitHub : (String -> msg) -> Sub msg
-
-
-port downloadCompleted : ((Int, Int) -> msg) -> Sub msg
+port downloadCompleted : (( Int, Int ) -> msg) -> Sub msg
 
 
 port openFullscreen : () -> Cmd msg
@@ -156,7 +150,6 @@ subscriptions model =
          , onErrorNotification (\n -> OnAutoCloseNotification (Error n))
          , onWarnNotification (\n -> OnAutoCloseNotification (Warning n Nothing))
          , onAuthStateChanged OnAuthStateChanged
-         , onGetAccessTokenForGitHub ExportGitHub
          , saveToRemote SaveToRemote
          , offline (\_ -> OnChangeNetworkStatus False)
          , online (\_ -> OnChangeNetworkStatus True)

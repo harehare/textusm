@@ -250,7 +250,7 @@ zoomControl isFullscreen scale =
             , Attr.style "color" "#8C9FAE"
             , Attr.style "cursor" "pointer"
             , Attr.style "font-weight" "600"
-            , class "svg-text"
+            , class ".select-none"
             ]
             [ text (String.fromInt s ++ "%")
             ]

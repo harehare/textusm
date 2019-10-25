@@ -11,7 +11,9 @@ view =
     div
         (Styles.flexCenter
             ++ Styles.matchParent
-            ++ [ style "justify-content" "center" ]
+            ++ [ style "justify-content" "center"
+               , style "class" "select-none"
+               ]
         )
         [ div Styles.title [ text "Text" ]
         , div

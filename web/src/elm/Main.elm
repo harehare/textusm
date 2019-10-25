@@ -1,7 +1,6 @@
 module Main exposing (init, main, view)
 
 import Api.Diagram as DiagramApi
-import Api.Export
 import Api.UrlShorter as UrlShorterApi
 import Browser
 import Browser.Dom as Dom
@@ -121,7 +120,7 @@ view model =
             )
         , div
             [ class "main" ]
-            [ lazy5 Menu.view (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu (Model.canWrite model)
+            [ lazy4 Menu.view model.diagramModel.width model.window.fullscreen model.openMenu (Model.canWrite model)
             , let
                 mainWindow =
                     if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then
@@ -272,34 +271,6 @@ changeRouteTo route model =
 
         Route.Help ->
             ( updatedModel, getCmds [] )
-
-        Route.CallbackTrello (Just token) (Just code) ->
-            let
-                usm =
-                    Diagram.update (DiagramModel.OnChangeText model.text) model.diagramModel
-
-                req =
-                    Api.Export.createRequest token
-                        (Just code)
-                        Nothing
-                        usm.hierarchy
-                        (Parser.parseComment model.text)
-                        (if model.title == Just "" then
-                            "UnTitled"
-
-                         else
-                            model.title |> Maybe.withDefault "UnTitled"
-                        )
-                        usm.items
-            in
-            ( { updatedModel
-                | progress = True
-              }
-            , getCmds
-                [ Task.perform identity (Task.succeed (OnNotification (Info "Start export to Trello." Nothing)))
-                , Task.attempt Exported (Api.Export.export model.apiRoot Api.Export.Trello req)
-                ]
-            )
 
         Route.Embed diagram title path ->
             let
@@ -790,7 +761,6 @@ update message model =
                             model.title
                         , miniMap =
                             model.settings.miniMap
-                        , github = model.settings.github
                         }
                 in
                 ( { model | settings = newSettings }
@@ -1002,80 +972,8 @@ update message model =
             in
             changeRouteTo (toRoute url) updatedModel
 
-        GetAccessTokenForTrello ->
-            ( model, Api.Export.getAccessToken model.apiRoot Api.Export.Trello )
-
-        GetAccessTokenForGitHub ->
-            ( model, getAccessTokenForGitHub () )
-
-        Exported (Err e) ->
-            ( { model | progress = False }
-            , Cmd.batch
-                [ Utils.showErrorMessage ("Error export. " ++ Utils.httpErrorToString e)
-                , Nav.pushUrl model.key (Route.toString Route.Home)
-                ]
-            )
-
-        Exported (Ok result) ->
-            let
-                messageCmd =
-                    if result.failed > 0 then
-                        Utils.showWarningMessage "Finish export, but some errors occurred. Click to open Trello." (Just result.url)
-
-                    else
-                        Utils.showInfoMessage "Finish export. Click to open Trello." (Just result.url)
-            in
-            ( { model | progress = False }
-            , Cmd.batch
-                [ messageCmd
-                , Nav.pushUrl model.key (Route.toString Route.Home)
-                ]
-            )
-
         DoOpenUrl url ->
             ( model, Nav.load url )
-
-        ExportGitHub token ->
-            let
-                req =
-                    Maybe.map
-                        (\g ->
-                            Api.Export.createRequest
-                                token
-                                Nothing
-                                (Just
-                                    { owner = g.owner
-                                    , repo = g.repo
-                                    }
-                                )
-                                model.diagramModel.hierarchy
-                                (Parser.parseComment model.text)
-                                (if model.title == Just "" then
-                                    "untitled"
-
-                                 else
-                                    model.title |> Maybe.withDefault "untitled"
-                                )
-                                model.diagramModel.items
-                        )
-                        model.settings.github
-            in
-            ( { model
-                | progress = isJust req
-              }
-            , case req of
-                Just r ->
-                    Cmd.batch
-                        [ Utils.showInfoMessage "Start export to Github." Nothing
-                        , Task.attempt Exported (Api.Export.export model.apiRoot Api.Export.Github r)
-                        ]
-
-                Nothing ->
-                    Cmd.batch
-                        [ Utils.showWarningMessage "Invalid settings. Please add GitHub Owner and Repository to settings." Nothing
-                        , Task.perform identity (Task.succeed EditSettings)
-                        ]
-            )
 
         GotLocalDiagrams localItems ->
             case model.loginUser of

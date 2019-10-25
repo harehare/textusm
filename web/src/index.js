@@ -9,7 +9,6 @@ import { Auth } from "./js/auth";
 import { loadSettings, saveSettings } from "./js/settings";
 import { Elm } from "./elm/Main.elm";
 
-const StatusGithubExportkey = "github/export";
 const app = Elm.Main.init({
     flags: [process.env.API_ROOT, loadSettings()]
 });
@@ -57,11 +56,6 @@ app.ports.logout.subscribe(async () => {
 });
 
 auth.authn(async (idToken, profile) => {
-    if (sessionStorage.getItem(StatusGithubExportkey) === "true") {
-        sessionStorage.removeItem(StatusGithubExportkey);
-        const token = await auth.getAccessToken();
-        app.ports.onGetAccessTokenForGitHub.send(token);
-    }
     app.ports.onAuthStateChanged.send(
         idToken ? { idToken, id: profile.uid, ...profile } : null
     );
@@ -69,13 +63,6 @@ auth.authn(async (idToken, profile) => {
 
 app.ports.selectTextById.subscribe(id => {
     document.getElementById(id).select();
-});
-
-app.ports.getAccessTokenForGitHub.subscribe(() => {
-    sessionStorage.setItem(StatusGithubExportkey, "true");
-    auth.login(auth.provideres.github).catch(err => {
-        app.ports.onErrorNotification.send("Failed sign in.");
-    });
 });
 
 app.ports.openFullscreen.subscribe(() => {
