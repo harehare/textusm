@@ -28,6 +28,13 @@ baseColorItems =
     ]
 
 
+baseSizeItems =
+    List.range 0 100
+    |> List.map (\i ->
+        { name = String.fromInt <| 50 + i * 5, value = DropDownList.stringValue <| String.fromInt <| 50 + i * 5 }
+    )
+
+
 fontFamilyItems =
     [ { name = "ABeeZee", value = DropDownList.stringValue "ABeeZee" }
     , { name = "Abel", value = DropDownList.stringValue "Abel" }
@@ -1065,11 +1072,9 @@ view dropDownIndex settings =
             [ div [ class "control" ]
                 [ div [ class "label" ] [ text "Card Width" ]
                 , div [ class "input-area" ]
-                    [ input
-                        [ type_ "text"
-                        , value (String.fromInt settings.storyMap.size.width)
-                        , onInput
-                            (UpdateSettings
+                    [ DropDownList.view "card-width"
+                        dropDownIndex
+                        (UpdateSettings
                                 (\x ->
                                     let
                                         storyMap =
@@ -1086,19 +1091,17 @@ view dropDownIndex settings =
                                     in
                                     { settings | storyMap = newStoryMap }
                                 )
-                            )
-                        ]
-                        []
+                        )
+                        baseSizeItems
+                        (String.fromInt settings.storyMap.size.width)
                     ]
                 ]
             , div [ class "control" ]
                 [ div [ class "label" ] [ text "Card Height" ]
                 , div [ class "input-area" ]
-                    [ input
-                        [ type_ "text"
-                        , value (String.fromInt settings.storyMap.size.height)
-                        , onInput
-                            (UpdateSettings
+                    [ DropDownList.view "card-height"
+                        dropDownIndex
+                        (UpdateSettings
                                 (\x ->
                                     let
                                         storyMap =
@@ -1115,9 +1118,9 @@ view dropDownIndex settings =
                                     in
                                     { settings | storyMap = newStoryMap }
                                 )
-                            )
-                        ]
-                        []
+                        )
+                        baseSizeItems
+                        (String.fromInt settings.storyMap.size.height)
                     ]
                 ]
             ]

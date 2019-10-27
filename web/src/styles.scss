@@ -203,7 +203,6 @@ select {
 
         .selected {
             background-color: var(--background-color);
-            font-weight: 600;
         }
     }
 }
@@ -778,6 +777,14 @@ select {
             background-color: #eee;
         }
     }
+}
+
+.facet-count {
+    color: #888;
+    padding: 8px;
+    font-family: apple-system, BlinkMacSystemFont, Helvetica Neue,
+        Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,
+        メイリオ, Meiryo, sans-serif;
 }
 
 .md-content {

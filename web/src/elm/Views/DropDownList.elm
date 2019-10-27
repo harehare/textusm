@@ -38,14 +38,14 @@ unwrapValue value =
             val
 
 
-getColor : DropDownValue -> String
+getColor : DropDownValue -> Maybe String
 getColor value =
     case value of
         ColorValue rgb ->
-            rgb
+            Just rgb
 
         _ ->
-            "transparent"
+            Nothing
 
 
 view : String -> Maybe String -> (String -> Msg) -> List DropDownItem -> String -> Html Msg
@@ -83,12 +83,18 @@ itemView item onActive =
             "item"
         , onClick onActive
         ]
-        [ span
-            [ style "padding" "0 12px"
-            , style "margin-right" "5px"
-            , style "background-color" (getColor item.value)
-            ]
-            []
+        [ case getColor item.value of
+            Just rgb ->
+                span
+                    [ style "padding" "0 12px"
+                    , style "margin-right" "5px"
+                    , style "background-color" rgb
+                    , style "border" "1px solid #ccc"
+                    ]
+                    []
+
+            Nothing ->
+                span [] []
         , span [ style "padding" "8px" ] [ text item.name ]
         ]
 
@@ -100,11 +106,17 @@ dropDownItemView item onChange =
             "dropdown-item"
         , onClick (onChange <| unwrapValue item.value)
         ]
-        [ span
-            [ style "padding" "0 12px"
-            , style "margin-right" "5px"
-            , style "background-color" (getColor item.value)
-            ]
-            []
+        [ case getColor item.value of
+            Just rgb ->
+                span
+                    [ style "padding" "0 12px"
+                    , style "margin-right" "5px"
+                    , style "background-color" rgb
+                    , style "border" "1px solid #ccc"
+                    ]
+                    []
+
+            Nothing ->
+                span [] []
         , span [ style "padding" "8px" ] [ text item.name ]
         ]

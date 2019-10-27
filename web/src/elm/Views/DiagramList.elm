@@ -2,7 +2,7 @@ module Views.DiagramList exposing (view)
 
 import Dict
 import Dict.Extra as DictEx
-import Html exposing (Html, div, input, text)
+import Html exposing (Html, div, input, span, text)
 import Html.Attributes exposing (class, placeholder, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Json.Decode as D
@@ -37,7 +37,7 @@ sideMenu selectedPath allCount items =
                     "item"
             , onClick (FilterDiagramList Nothing)
             ]
-            [ text <| "All(" ++ String.fromInt allCount ++ ")" ]
+            [ text "All", span [ class "facet-count" ] [ text <| "(" ++ String.fromInt allCount ++ ")" ] ]
             :: (items
                     |> List.map
                         (\( diagramPath, count ) ->
@@ -50,7 +50,7 @@ sideMenu selectedPath allCount items =
                                         "item"
                                 , onClick (FilterDiagramList <| Just diagramPath)
                                 ]
-                                [ text <| menuName diagramPath ++ "(" ++ String.fromInt count ++ ")" ]
+                                [ text <| menuName diagramPath, span [ class "facet-count" ] [ text <| "(" ++ String.fromInt count ++ ")" ] ]
                         )
                )
         )
