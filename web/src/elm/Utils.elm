@@ -1,4 +1,4 @@
-module Utils exposing (calcFontSize, delay, fileLoad, getCanvasSize, getIdToken, getMarkdownHeight, getTitle, httpErrorToString, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage)
+module Utils exposing (calcDistance, calcFontSize, delay, fileLoad, getCanvasSize, getIdToken, getMarkdownHeight, getTitle, httpErrorToString, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage)
 
 import Constants
 import File exposing (File)
@@ -49,14 +49,14 @@ delay time msg =
         |> Task.perform (\_ -> msg)
 
 
-showWarningMessage : String -> Maybe String -> Cmd Msg
-showWarningMessage msg openURL =
-    Task.perform identity (Task.succeed (OnNotification (Warning msg openURL)))
+showWarningMessage : String -> Cmd Msg
+showWarningMessage msg =
+    Task.perform identity (Task.succeed (OnNotification (Warning msg)))
 
 
-showInfoMessage : String -> Maybe String -> Cmd Msg
-showInfoMessage msg openURL =
-    Task.perform identity (Task.succeed (OnNotification (Info msg openURL)))
+showInfoMessage : String -> Cmd Msg
+showInfoMessage msg =
+    Task.perform identity (Task.succeed (OnNotification (Info msg)))
 
 
 showErrorMessage : String -> Cmd Msg
@@ -239,3 +239,15 @@ getCanvasSize model =
                     (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2)
     in
     ( width, height )
+
+
+calcDistance : ( Float, Float ) -> ( Float, Float ) -> Float
+calcDistance p1 p2 =
+    let
+        ( x1, y1 ) =
+            p1
+
+        ( x2, y2 ) =
+            p2
+    in
+    sqrt (((x2 - x1) ^ 2) + ((y2 - y1) ^ 2))

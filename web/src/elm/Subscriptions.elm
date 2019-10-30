@@ -146,9 +146,9 @@ subscriptions model =
          , onEncodeShareText OnEncodeShareText
          , onDecodeShareText OnDecodeShareText
          , shortcuts Shortcuts
-         , onNotification (\n -> OnAutoCloseNotification (Info n Nothing))
+         , onNotification (\n -> OnAutoCloseNotification (Info n))
          , onErrorNotification (\n -> OnAutoCloseNotification (Error n))
-         , onWarnNotification (\n -> OnAutoCloseNotification (Warning n Nothing))
+         , onWarnNotification (\n -> OnAutoCloseNotification (Warning n))
          , onAuthStateChanged OnAuthStateChanged
          , saveToRemote SaveToRemote
          , offline (\_ -> OnChangeNetworkStatus False)

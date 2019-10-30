@@ -21,6 +21,18 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
+    @media (prefers-color-scheme: dark) {
+        body {
+            background-color: #444;
+            color: #e4e4e4;
+        }
+        a {
+            color: #e39777;
+        }
+        img {
+            filter: grayscale(30%);
+        }
+    }
 }
 
 rect {
@@ -125,6 +137,7 @@ select {
 
 .settings {
     background-color: var(--background-color);
+    width: 100%;
     height: calc(100vh - 35px);
     color: var(--text-color);
     overflow-y: scroll;
@@ -153,6 +166,7 @@ select {
     }
 
     .input-area {
+        max-width: 300px;
         width: 90%;
         padding: 4px 8px;
         input[type="text"] {
@@ -427,9 +441,11 @@ select {
 
 .help {
     background-color: var(--background-color);
+    width: 100%;
     height: calc(100vh - 35px);
     color: var(--text-color);
     overflow: auto;
+    font-size: 1.2rem;
     @media screen and (max-width: 480px) {
         width: 100vw;
         height: calc(100vh - 130px);
@@ -438,7 +454,7 @@ select {
     .text {
         padding: 16px;
         line-height: 1.2;
-        font-size: 0.8rem;
+        font-size: 0.95rem;
     }
 
     .comment {
@@ -545,6 +561,16 @@ select {
 .close {
     margin-right: 16px;
     cursor: pointer;
+}
+
+#zoom-control {
+    position: absolute;
+    align-items: center;
+    right: 35px;
+    top: 5px;
+    display: flex;
+    width: 130px;
+    justify-content: space-between;
 }
 
 @media screen and (min-width: 480px) {

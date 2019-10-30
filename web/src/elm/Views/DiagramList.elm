@@ -116,15 +116,11 @@ view user timezone maybeQuery maybeDiagrams selectedType =
                         [ style "padding" "16px"
                         , style "display" "flex"
                         , style "align-items" "center"
-                        , style "justify-content" "space-between"
+                        , style "justify-content" "flex-end"
                         , style "font-weight" "400"
                         , style "color" "#FEFEFE"
                         ]
                         [ div
-                            [ style "font-weight" "400"
-                            ]
-                            [ text "MY DIAGRAMS" ]
-                        , div
                             [ style "display" "flex"
                             , style "align-items" "center"
                             ]
@@ -191,19 +187,6 @@ view user timezone maybeQuery maybeDiagrams selectedType =
                 , style "width" "100vw"
                 ]
                 [ div
-                    [ style "padding" "16px"
-                    , style "display" "flex"
-                    , style "align-items" "center"
-                    , style "justify-content" "space-between"
-                    , style "font-weight" "400"
-                    , style "color" "#FEFEFE"
-                    ]
-                    [ div
-                        [ style "font-weight" "400"
-                        ]
-                        [ text "MY DIAGRAMS" ]
-                    ]
-                , div
                     [ style "display" "flex"
                     , style "align-items" "center"
                     , style "justify-content" "center"

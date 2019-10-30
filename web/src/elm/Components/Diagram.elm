@@ -229,13 +229,6 @@ zoomControl isFullscreen scale =
     in
     div
         [ id "zoom-control"
-        , Attr.style "position" "absolute"
-        , Attr.style "align-items" "center"
-        , Attr.style "right" "35px"
-        , Attr.style "top" "5px"
-        , Attr.style "display" "flex"
-        , Attr.style "width" "130px"
-        , Attr.style "justify-content" "space-between"
         ]
         [ div
             [ Attr.style "width" "24px"
@@ -462,18 +455,6 @@ svgView model =
         ]
 
 
-calcDistance : ( Float, Float ) -> ( Float, Float ) -> Float
-calcDistance p1 p2 =
-    let
-        ( x1, y1 ) =
-            p1
-
-        ( x2, y2 ) =
-            p2
-    in
-    sqrt (((x2 - x1) ^ 2) + ((y2 - y1) ^ 2))
-
-
 onDragStart : Bool -> Attribute Msg
 onDragStart isPhone =
     if isPhone then
@@ -491,7 +472,7 @@ onDragStart isPhone =
                                 |> Maybe.map .pagePos
                                 |> Maybe.withDefault ( 0, 0 )
                     in
-                    StartPinch (calcDistance p1 p2)
+                    StartPinch (Utils.calcDistance p1 p2)
 
                 else
                     let
@@ -533,7 +514,7 @@ onDragMove distance isPhone =
                         Just x ->
                             let
                                 newDistance =
-                                    calcDistance p1 p2
+                                    Utils.calcDistance p1 p2
                             in
                             if newDistance / x > 1.0 then
                                 PinchIn newDistance
@@ -545,7 +526,7 @@ onDragMove distance isPhone =
                                 NoOp
 
                         Nothing ->
-                            StartPinch (calcDistance p1 p2)
+                            StartPinch (Utils.calcDistance p1 p2)
 
                 else
                     let
@@ -642,37 +623,30 @@ updateDiagram size width height base text =
                         scanl (\it v -> v + List.length (Item.unwrapChildren it.children)) 0 items
                 in
                 Ok
-                    { hierarchy = hierarchy
-                    , items = items
-                    , width = width
-                    , height = height
-                    , svg =
-                        { width = svgWidth
-                        , height = svgHeight
-                        , scale = base.svg.scale
-                        }
-                    , countByHierarchy = countByHierarchy
-                    , countByTasks = countByTasks
-                    , moveStart = base.moveStart
-                    , x = base.x
-                    , y = base.y
-                    , moveX = 0
-                    , moveY = 0
-                    , fullscreen = base.fullscreen
-                    , settings = base.settings
-                    , error = Nothing
-                    , showZoomControl = base.showZoomControl
-                    , touchDistance = base.touchDistance
-                    , diagramType = base.diagramType
-                    , labels = labels
-                    , text =
-                        if String.isEmpty text then
-                            Nothing
+                    { base
+                        | hierarchy = hierarchy
+                        , items = items
+                        , width = width
+                        , height = height
+                        , svg =
+                            { width = svgWidth
+                            , height = svgHeight
+                            , scale = base.svg.scale
+                            }
+                        , countByHierarchy = countByHierarchy
+                        , countByTasks = countByTasks
+                        , x = base.x
+                        , y = base.y
+                        , moveX = 0
+                        , moveY = 0
+                        , error = Nothing
+                        , labels = labels
+                        , text =
+                            if String.isEmpty text then
+                                Nothing
 
-                        else
-                            Just text
-                    , showMiniMap = base.showMiniMap
-                    , matchParent = base.matchParent
+                            else
+                                Just text
                     }
             )
 

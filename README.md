@@ -13,7 +13,6 @@ TextUSM is a simple tool. Help you draw user story map using indented text.
   - Business Model Canvas
   - Opportunity Canvas
   - User Persona
-  - Cost-benfit Analysis
   - 4Ls Retrospective
   - Start, Stop, Continue Retrospective
   - KPT Retrospective

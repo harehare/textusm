@@ -14,6 +14,7 @@ import Models.Diagram as Diagram
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramType exposing (DiagramType)
 import Models.User exposing (User)
+import Route as Route
 import Time exposing (Zone)
 import Url
 
@@ -21,7 +22,6 @@ import Url
 type Msg
     = NoOp
     | Init Viewport
-    | NoOpDiagram Diagram.Msg
     | UpdateDiagram Diagram.Msg
     | OpenMenu Menu
     | Stop
@@ -47,7 +47,6 @@ type Msg
     | OnVisibilityChange Visibility
     | OnStartWindowResize Int
     | OnWindowResize Int
-    | EditSettings
     | ApplySettings Settings
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
@@ -59,7 +58,6 @@ type Msg
     | OnAuthStateChanged (Maybe User)
     | WindowSelect Int
     | GetShortUrl (Result Http.Error Api.UrlShorter.Response)
-    | DoOpenUrl String
       -- Diagram type
     | New DiagramType
     | GetDiagrams
@@ -73,10 +71,7 @@ type Msg
     | GotTimeZone Zone
     | UpdateSettings (String -> Settings) String
     | Shortcuts String
-    | ShowHelp
     | OnChangeNetworkStatus Bool
-    | HistoryBack
-    | MoveToBack
     | Search String
     | SelectAll String
       -- SharingDialog
@@ -91,6 +86,7 @@ type Msg
     | LoadUsers (Result Http.Error DiagramItem)
     | FilterDiagramList (Maybe String)
     | ToggleDropDownList String
+    | NavRoute Route.Route
 
 
 type FileType
@@ -99,14 +95,10 @@ type FileType
     | Pdf
 
 
-type alias OpenUrl =
-    Maybe String
-
-
 type Notification
-    = Info String OpenUrl
+    = Info String
     | Error String
-    | Warning String OpenUrl
+    | Warning String
 
 
 type Menu
@@ -134,7 +126,7 @@ type alias Model =
     , title : Maybe String
     , notification : Maybe Notification
     , isEditTitle : Bool
-    , tabIndex : Int
+    , editorIndex : Int
     , progress : Bool
     , apiRoot : String
     , diagrams : Maybe (List DiagramItem)

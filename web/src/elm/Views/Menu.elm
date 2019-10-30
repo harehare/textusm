@@ -7,6 +7,7 @@ import Json.Decode as D
 import List
 import Models.DiagramType as DiagramType
 import Models.Model exposing (FileType(..), Menu(..), Msg(..))
+import Route as Route
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -46,7 +47,7 @@ view width fullscreen openMenu canWrite =
                    , div
                         (onClick GetDiagrams :: menuItemStyle)
                         [ Icon.viewComfy "#F5F5F6" 28
-                        , span [ class "tooltip" ] [ span [ class "text" ] [ text "List" ] ]
+                        , span [ class "tooltip" ] [ span [ class "text" ] [ text "Diagrams" ] ]
                         ]
                    , if canWrite then
                         div
@@ -64,7 +65,7 @@ view width fullscreen openMenu canWrite =
                         ]
                    ]
                 ++ [ div
-                        (onClick EditSettings :: menuItemStyle)
+                        (onClick (NavRoute Route.Settings) :: menuItemStyle)
                         [ Icon.settings
                             "#F5F5F6"
                             25

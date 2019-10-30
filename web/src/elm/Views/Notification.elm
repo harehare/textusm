@@ -10,24 +10,20 @@ import Views.Icon as Icon
 view : Notification -> Html Msg
 view notification =
     let
-        ( url, t, icon ) =
+        ( t, icon ) =
             case notification of
-                Info text u ->
-                    ( u |> Maybe.withDefault "", text, Icon.info 22 )
+                Info text ->
+                    ( text, Icon.info 22 )
 
                 Error text ->
-                    ( "", text, Icon.error 22 )
+                    ( text, Icon.error 22 )
 
-                Warning text u ->
-                    ( u |> Maybe.withDefault "", text, Icon.warning 22 )
+                Warning text ->
+                    ( text, Icon.warning 22 )
     in
     div
         [ class "notification"
-        , if String.isEmpty url then
-            onClick OnCloseNotification
-
-          else
-            onClick (DoOpenUrl url)
+        , onClick OnCloseNotification
         ]
         [ div
             [ style "display" "flex"

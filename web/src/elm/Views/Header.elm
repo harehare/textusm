@@ -43,7 +43,7 @@ view width profile route t isEditTitle fullscreen menu =
                             , style "color" "#f4f4f4"
                             , style "background-color" "var(--main-color)"
                             , style "border" "none"
-                            , style "font-weight" "100"
+                            , style "font-weight" "400"
                             , value title
                             , onInput EditTitle
                             , onBlur (EndEditTitle 13 False)
@@ -61,7 +61,7 @@ view width profile route t isEditTitle fullscreen menu =
                             , style "cursor" "pointer"
                             , style "overflow" "hidden"
                             , style "white-space" "nowrap"
-                            , style "font-weight" "100"
+                            , style "font-weight" "400"
                             , style "padding" "2px"
                             , onClick StartEditTitle
                             ]
@@ -80,7 +80,7 @@ view width profile route t isEditTitle fullscreen menu =
             , div
                 (Styles.flexCenter
                     ++ [ class "button"
-                       , onClick ShowHelp
+                       , onClick <| NavRoute Help
                        ]
                 )
                 [ Icon.helpOutline 20

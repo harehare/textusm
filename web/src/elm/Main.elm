@@ -10,10 +10,11 @@ import Components.Diagram as Diagram
 import File exposing (name)
 import File.Download as Download
 import File.Select as Select
+import List.Extra exposing(updateIf)
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy3, lazy4, lazy5, lazy6, lazy7)
+import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy5, lazy6, lazy7)
 import Json.Decode as D
 import Maybe.Extra as MaybeEx exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
@@ -35,13 +36,14 @@ import Views.Editor as Editor
 import Views.Empty as Empty
 import Views.Header as Header
 import Views.Icon as Icon
-import Views.Logo as Logo
 import Views.Menu as Menu
 import Views.Notification as Notification
 import Views.ProgressBar as ProgressBar
 import Views.ShareDialog as ShareDialog
 import Views.SplitWindow as SplitWindow
 import Views.SwitchWindow as SwitchWindow
+import Views.Help as Help
+import Views.Settings as Settings
 
 
 init : ( String, Settings ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -69,7 +71,7 @@ init flags url key =
                 , notification = Nothing
                 , url = url
                 , key = key
-                , tabIndex = 1
+                , editorIndex = 1
                 , progress = True
                 , apiRoot = apiRoot
                 , diagrams = Nothing
@@ -126,7 +128,7 @@ view model =
                     if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then
                         lazy4 SwitchWindow.view
                             model.diagramModel.settings.backgroundColor
-                            model.tabIndex
+                            model.editorIndex
 
                     else
                         lazy5 SplitWindow.view
@@ -138,14 +140,16 @@ view model =
                 Route.List ->
                     lazy5 DiagramList.view model.loginUser (model.timezone |> Maybe.withDefault Time.utc) model.searchQuery model.diagrams model.filterDiagramList
 
+                Route.Help ->
+                    Help.view
+
+                Route.Settings ->
+                    lazy2 Settings.view model.dropDownIndex model.settings
+
                 _ ->
                     mainWindow
-                        (lazy3 Editor.view model.dropDownIndex model.settings (toRoute model.url))
-                        (if String.isEmpty model.text then
-                            Logo.view
-
-                         else
-                            let
+                        (lazy2 Editor.view model.dropDownIndex model.settings)
+                        (let
                                 diagramModel =
                                     model.diagramModel
                             in
@@ -265,12 +269,6 @@ changeRouteTo route model =
     case route of
         Route.List ->
             ( updatedModel, getCmds [ getDiagrams () ] )
-
-        Route.Settings ->
-            ( updatedModel, getCmds [] )
-
-        Route.Help ->
-            ( updatedModel, getCmds [] )
 
         Route.Embed diagram title path ->
             let
@@ -401,16 +399,13 @@ changeRouteTo route model =
             changeDiagramType DiagramType.EmpathyMap
 
         _ ->
-            changeDiagramType DiagramType.UserStoryMap
+            ( updatedModel, getCmds [] )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         NoOp ->
-            ( model, Cmd.none )
-
-        NoOpDiagram _ ->
             ( model, Cmd.none )
 
         UpdateDiagram subMsg ->
@@ -589,7 +584,7 @@ update message model =
                 ( { model
                     | notification =
                         if not isRemote then
-                            Just (Info ("Successfully \"" ++ title ++ "\" saved.") Nothing)
+                            Just (Info ("Successfully \"" ++ title ++ "\" saved."))
 
                         else
                             Nothing
@@ -656,7 +651,7 @@ update message model =
             , Cmd.batch
                 [ Utils.delay 3000
                     OnCloseNotification
-                , Utils.showWarningMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.") Nothing
+                , Utils.showWarningMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.")
                 , saveDiagram item
                 ]
             )
@@ -669,7 +664,7 @@ update message model =
             ( { model | currentDiagram = Just newDiagram, progress = False }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
-                , Utils.showInfoMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.") Nothing
+                , Utils.showInfoMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.")
                 ]
             )
 
@@ -713,14 +708,9 @@ update message model =
             , Cmd.none
             )
 
-        EditSettings ->
+        NavRoute route ->
             ( model
-            , Nav.pushUrl model.key (Route.toString Route.Settings)
-            )
-
-        ShowHelp ->
-            ( model
-            , Nav.pushUrl model.key (Route.toString Route.Help)
+            , Nav.pushUrl model.key (Route.toString route)
             )
 
         ApplySettings settings ->
@@ -895,7 +885,7 @@ update message model =
             in
             ( { model | currentDiagram = currentDiagram, progress = False }
             , Cmd.batch
-                [ Utils.delay 3000 OnCloseNotification, Utils.showInfoMessage ("Successfully add \"" ++ res.name ++ "\"") Nothing ]
+                [ Utils.delay 3000 OnCloseNotification, Utils.showInfoMessage ("Successfully add \"" ++ res.name ++ "\"")]
             )
 
         DeleteUser userId ->
@@ -910,7 +900,7 @@ update message model =
             ( { model | progress = False }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
-                , Utils.showInfoMessage "Faild to delete user." Nothing
+                , Utils.showInfoMessage "Faild to delete user."
                 ]
             )
 
@@ -955,7 +945,7 @@ update message model =
             ( model, Task.perform identity (Task.succeed (FileLoaded text)) )
 
         WindowSelect tab ->
-            ( { model | tabIndex = tab }, layoutEditor 100 )
+            ( { model | editorIndex = tab }, layoutEditor 100 )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -971,9 +961,6 @@ update message model =
                     { model | url = url }
             in
             changeRouteTo (toRoute url) updatedModel
-
-        DoOpenUrl url ->
-            ( model, Nav.load url )
 
         GotLocalDiagrams localItems ->
             case model.loginUser of
@@ -1017,7 +1004,7 @@ update message model =
             ( { model | progress = False, diagrams = Just items }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
-                , Utils.showWarningMessage "Failed to load files." Nothing
+                , Utils.showWarningMessage "Failed to load files."
                 ]
             )
 
@@ -1055,7 +1042,6 @@ update message model =
                 , Utils.delay 3000 OnCloseNotification
                 , Utils.showInfoMessage
                     ("Successfully \"" ++ diagram.title ++ "\" removed")
-                    Nothing
                 ]
             )
 
@@ -1067,7 +1053,6 @@ update message model =
                     , Utils.delay 3000 OnCloseNotification
                     , Utils.showInfoMessage
                         ("Successfully \"" ++ diagram.title ++ "\" removed")
-                        Nothing
                     ]
 
               else
@@ -1100,7 +1085,7 @@ update message model =
               }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
-                , Utils.showWarningMessage ("Failed to load \"" ++ diagram.title ++ "\".") Nothing
+                , Utils.showWarningMessage ("Failed to load \"" ++ diagram.title ++ "\".")
                 ]
             )
 
@@ -1137,12 +1122,6 @@ update message model =
         OnAuthStateChanged user ->
             ( { model | loginUser = user }, Cmd.none )
 
-        HistoryBack ->
-            ( { model | diagrams = Nothing }, Nav.back model.key 1 )
-
-        MoveToBack ->
-            ( model, Nav.back model.key 1 )
-
         EditInviteMail mail ->
             ( { model
                 | inviteMailAddress =
@@ -1178,14 +1157,9 @@ update message model =
                         |> MaybeEx.join
                         |> Maybe.map
                             (\list ->
-                                List.map
-                                    (\u ->
-                                        if u.id == res.id then
-                                            { u | role = res.role }
-
-                                        else
-                                            u
-                                    )
+                                updateIf
+                                    (\user -> user.id == res.id)
+                                    (\item -> { item | role = res.role })
                                     list
                             )
             in
@@ -1254,22 +1228,3 @@ update message model =
               }
             , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString route_) ]
             )
-
-
-saveToLocal : Model -> Cmd Msg
-saveToLocal model =
-    saveDiagram
-        { id = Nothing
-        , title = model.title |> Maybe.withDefault "backup"
-        , text = model.text
-        , thumbnail = Nothing
-        , diagramPath = DiagramType.toString model.diagramModel.diagramType
-        , isRemote = False
-        , updatedAt = Nothing
-        , users = Nothing
-        , isPublic = False
-        , ownerId =
-            model.currentDiagram
-                |> Maybe.map (\x -> x.ownerId)
-                |> MaybeEx.join
-        }

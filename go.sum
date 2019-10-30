@@ -52,6 +52,7 @@ github.com/gorilla/mux v1.7.3 h1:gnP5JzjVOuiZD07fKKToCAOjS0yOpj/qPETTXCCS6hw=
 github.com/gorilla/mux v1.7.3/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
 github.com/harehare/textusm/server v0.0.0-20191023132032-1d95a7b16c2a h1:ct5+G7H//oyCj+A2bDkY/BR78H6Umx2WnsNHBhveSWo=
 github.com/harehare/textusm/server v0.0.0-20191025140757-5d8d75433fdd h1:f5n7s5qTUA/gRdHmKENxrv/v8o0kWA2DzfUiaYa8F7M=
+github.com/harehare/textusm/server v0.0.0-20191027130056-c9e04f8e296a h1:CpaaSD7tAvz7ciQDsdd0QOqYHlzxPQofWA4fCkNqBtQ=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru v0.5.1 h1:0hERBMJE1eitiLkihrMvRVBYAkpHzc/J3QdDN+dAcgU=
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
