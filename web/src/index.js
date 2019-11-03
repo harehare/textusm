@@ -82,10 +82,3 @@ attachApp(app, [initDowonlad, initShare, initDB]);
 if ("serviceWorker" in navigator && !location.host.startsWith("localhost")) {
     navigator.serviceWorker.register("/sw.js");
 }
-
-window.addEventListener("online", () => {
-    app.ports.online.send(null);
-});
-window.addEventListener("offline", () => {
-    app.ports.offline.send(null);
-});

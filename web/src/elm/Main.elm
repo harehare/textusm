@@ -14,7 +14,7 @@ import List.Extra exposing(updateIf)
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy5, lazy6, lazy7)
+import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy7)
 import Json.Decode as D
 import Maybe.Extra as MaybeEx exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
@@ -78,7 +78,6 @@ init flags url key =
                 , filterDiagramList = Nothing
                 , timezone = Nothing
                 , loginUser = Nothing
-                , isOnline = True
                 , searchQuery = Nothing
                 , inviteMailAddress = Nothing
                 , currentDiagram = Nothing
@@ -103,7 +102,6 @@ view model =
         , onClick CloseMenu
         ]
         [ lazy7 Header.view model.diagramModel.width model.loginUser (toRoute model.url) model.title model.isEditTitle model.window.fullscreen model.openMenu
-        , lazy networkStatus model.isOnline
         , lazy showNotification model.notification
         , lazy showProgressbar model.progress
         , lazy7 sharingDialogView
@@ -122,7 +120,7 @@ view model =
             )
         , div
             [ class "main" ]
-            [ lazy4 Menu.view model.diagramModel.width model.window.fullscreen model.openMenu (Model.canWrite model)
+            [ lazy4 Menu.view model.diagramModel.width model.window.fullscreen model.openMenu (Model.canWrite model.currentDiagram model.loginUser)
             , let
                 mainWindow =
                     if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then
@@ -132,7 +130,7 @@ view model =
 
                     else
                         lazy5 SplitWindow.view
-                            (Model.canWrite model)
+                            (Model.canWrite model.currentDiagram model.loginUser)
                             model.diagramModel.settings.backgroundColor
                             model.window
               in
@@ -216,22 +214,6 @@ showNotification notify =
 
         Nothing ->
             Empty.view
-
-
-networkStatus : Bool -> Html Msg
-networkStatus isOnline =
-    if isOnline then
-        Empty.view
-
-    else
-        div
-            [ style "position" "fixed"
-            , style "top" "40px"
-            , style "right" "10px"
-            , style "z-index" "10"
-            ]
-            [ Icon.cloudOff 24 ]
-
 
 
 -- Update
@@ -573,7 +555,7 @@ update message model =
                 in
                 ( model_, cmd_ )
 
-            else if Model.canWrite model then
+            else if Model.canWrite model.currentDiagram model.loginUser then
                 let
                     title =
                         model.title |> Maybe.withDefault ""
@@ -937,9 +919,6 @@ update message model =
                     "https://app.textusm.com/embed" ++ path
             in
             ( { model | embed = Just embedUrl }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Utils.getIdToken model.loginUser) model.apiRoot shareUrl) )
-
-        OnChangeNetworkStatus isOnline ->
-            ( { model | isOnline = isOnline }, Cmd.none )
 
         OnDecodeShareText text ->
             ( model, Task.perform identity (Task.succeed (FileLoaded text)) )

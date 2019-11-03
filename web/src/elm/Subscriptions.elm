@@ -38,12 +38,6 @@ port onWarnNotification : (String -> msg) -> Sub msg
 port shortcuts : (String -> msg) -> Sub msg
 
 
-port offline : (() -> msg) -> Sub msg
-
-
-port online : (() -> msg) -> Sub msg
-
-
 port removeRemoteDiagram : (DiagramItem -> msg) -> Sub msg
 
 
@@ -151,8 +145,6 @@ subscriptions model =
          , onWarnNotification (\n -> OnAutoCloseNotification (Warning n))
          , onAuthStateChanged OnAuthStateChanged
          , saveToRemote SaveToRemote
-         , offline (\_ -> OnChangeNetworkStatus False)
-         , online (\_ -> OnChangeNetworkStatus True)
          , removeRemoteDiagram RemoveRemoteDiagram
          , downloadCompleted DownloadCompleted
          ]

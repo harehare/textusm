@@ -28,7 +28,6 @@ ignore
 dist
 out
 tests/VerifyExamples
-package-lock.json
 
 .vscode/settings.json
 .well-known

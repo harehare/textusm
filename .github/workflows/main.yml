@@ -10,8 +10,15 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@master
+      - uses: actions/cache@preview
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-textusm-${{ hashFiles(format('{0}{1}', github.workspace, '/package-lock.json')) }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Install Dependencies
         working-directory: web
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm install
       - name: Build
         working-directory: web

@@ -169,85 +169,48 @@ getMarkdownHeight lines =
 getCanvasSize : DiagramModel.Model -> ( Int, Int )
 getCanvasSize model =
     let
-        width =
+        ( width, height ) =
             case model.diagramType of
                 DiagramType.FourLs ->
-                    Constants.largeItemWidth * 2 + 20
+                    ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20 )
 
                 DiagramType.EmpathyMap ->
-                    Constants.largeItemWidth * 2 + 20
+                    ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20 )
 
                 DiagramType.OpportunityCanvas ->
-                    Constants.itemWidth * 5 + 20
+                    ( Constants.itemWidth * 5 + 20, Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 3 + 20 )
 
                 DiagramType.BusinessModelCanvas ->
-                    Constants.itemWidth * 5 + 20
+                    ( Constants.itemWidth * 5 + 20, Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 3 + 20 )
 
                 DiagramType.Kpt ->
-                    Constants.largeItemWidth * 2 + 20
+                    ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.itemHeight (30 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20 )
 
                 DiagramType.StartStopContinue ->
-                    Constants.itemWidth * 3 + 20
+                    ( Constants.itemWidth * 3 + 20, Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) + 20 )
 
                 DiagramType.UserPersona ->
-                    Constants.itemWidth * 5 + 25
+                    ( Constants.itemWidth * 5 + 25, Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20 )
 
                 DiagramType.Markdown ->
-                    15 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Maybe.withDefault "" <| model.text)
+                    ( 15 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Maybe.withDefault "" <| model.text), getMarkdownHeight <| String.lines <| Maybe.withDefault "" <| model.text )
 
                 DiagramType.MindMap ->
-                    (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
-
-                _ ->
-                    Constants.leftMargin + Constants.itemMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1)
-
-        height =
-            case model.diagramType of
-                DiagramType.FourLs ->
-                    Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20
-
-                DiagramType.EmpathyMap ->
-                    Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20
-
-                DiagramType.OpportunityCanvas ->
-                    Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 3 + 20
-
-                DiagramType.BusinessModelCanvas ->
-                    Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 3 + 20
-
-                DiagramType.Kpt ->
-                    Basics.max Constants.itemHeight (30 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20
-
-                DiagramType.StartStopContinue ->
-                    Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) + 20
-
-                DiagramType.UserPersona ->
-                    Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20
-
-                DiagramType.Markdown ->
-                    getMarkdownHeight <| String.lines <| Maybe.withDefault "" <| model.text
-
-                DiagramType.MindMap ->
-                    case List.head model.items of
+                    ( (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
+                    , case List.head model.items of
                         Just head ->
                             Item.getLeafCount head * (model.settings.size.height + 15)
 
                         Nothing ->
                             0
+                    )
 
                 _ ->
-                    (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2)
+                    ( Constants.leftMargin + Constants.itemMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1), (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2) )
     in
     ( width, height )
 
 
 calcDistance : ( Float, Float ) -> ( Float, Float ) -> Float
-calcDistance p1 p2 =
-    let
-        ( x1, y1 ) =
-            p1
-
-        ( x2, y2 ) =
-            p2
-    in
+calcDistance ( x1, y1 ) ( x2, y2 ) =
     sqrt (((x2 - x1) ^ 2) + ((y2 - y1) ^ 2))

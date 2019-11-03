@@ -71,7 +71,6 @@ type Msg
     | GotTimeZone Zone
     | UpdateSettings (String -> Settings) String
     | Shortcuts String
-    | OnChangeNetworkStatus Bool
     | Search String
     | SelectAll String
       -- SharingDialog
@@ -133,7 +132,6 @@ type alias Model =
     , filterDiagramList : Maybe String
     , timezone : Maybe Zone
     , loginUser : Maybe User
-    , isOnline : Bool
     , searchQuery : Maybe String
     , inviteMailAddress : Maybe String
     , dropDownIndex : Maybe String
@@ -180,11 +178,11 @@ type alias Settings =
     }
 
 
-canWrite : Model -> Bool
-canWrite model =
+canWrite : Maybe DiagramItem -> Maybe User -> Bool
+canWrite currentDiagram currentUser =
     let
         isRemote =
-            case model.currentDiagram of
+            case currentDiagram of
                 Just d ->
                     d.isRemote
 
@@ -192,7 +190,7 @@ canWrite model =
                     False
 
         loginUser =
-            model.loginUser
+            currentUser
                 |> Maybe.withDefault
                     { displayName = ""
                     , email = ""
@@ -202,13 +200,13 @@ canWrite model =
                     }
 
         ownerId =
-            model.currentDiagram
+            currentDiagram
                 |> Maybe.map (\x -> x.ownerId)
                 |> MaybeEx.join
                 |> Maybe.withDefault ""
 
         roleUser =
-            model.currentDiagram
+            currentDiagram
                 |> Maybe.map (\x -> x.users)
                 |> MaybeEx.join
                 |> Maybe.map
@@ -224,4 +222,4 @@ canWrite model =
                     , mail = ""
                     }
     in
-    not isRemote || MaybeEx.isNothing model.currentDiagram || loginUser.id == ownerId || roleUser.role == "Editor"
+    not isRemote || MaybeEx.isNothing currentDiagram || loginUser.id == ownerId || roleUser.role == "Editor"
