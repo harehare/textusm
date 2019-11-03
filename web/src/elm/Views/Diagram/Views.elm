@@ -3,8 +3,8 @@ module Views.Diagram.Views exposing (canvasImageView, canvasView)
 import Constants exposing (..)
 import Html exposing (div)
 import Html.Attributes as Attr
-import List.Extra exposing (getAt, last)
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
+import List.Extra exposing (last)
+import Models.Diagram as Diagram exposing (Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)

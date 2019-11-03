@@ -156,7 +156,7 @@ https://app.textusm.com/images/logo.svg
 SAYS
 THINKS
 DOES
-FEELS
+FEELS
 ```
 
 ![image](./img/emm.png)

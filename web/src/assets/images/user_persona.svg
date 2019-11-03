@@ -9,7 +9,7 @@
                 <rect width="300" height="300" stroke="#434343" stroke-width="10"/>
                 <svg width="295" height="300">
                     <image x="5" y="5" width="295" height="300"
-                        xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://app.textusm.com/images/logo.svg" crossorigin="" />
+                        xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCBtZWV0IiB2aWV3Qm94PSIwIDAgMzIwIDMyMCIgd2lkdGg9IjMyMCIgaGVpZ2h0PSIzMjAiPjxkZWZzPjxwYXRoIGQ9Ik0xNzEuODEgMjEyLjMyTDI5My4xNCAxMDguOTdMMTcxLjgxIDUuNjJMMTcxLjgxIDcxLjE0TDQzLjE0IDcxLjE0TDQzLjE0IDE0Ni45N0wxNzEuODEgMTQ2Ljk3TDE3MS44MSAyMTIuMzJaIiBpZD0iYTNOZlpwekdiQyI+PC9wYXRoPjxwYXRoIGQ9Ik0xNzQuNDcgMzAxLjA2TDUzLjE0IDE5Ny43MUwxNzQuNDcgOTQuMzZMMTc0LjQ3IDE1OS44OEwzMDMuMTQgMTU5Ljg4TDMwMy4xNCAyMzUuNzFMMTc0LjQ3IDIzNS43MUwxNzQuNDcgMzAxLjA2WiIgaWQ9ImFEZ3B4cndtciI+PC9wYXRoPjwvZGVmcz48Zz48Zz48Zz48dXNlIHhsaW5rOmhyZWY9IiNhM05mWnB6R2JDIiBvcGFjaXR5PSIxIiBmaWxsPSIjMjY2YjlhIiBmaWxsLW9wYWNpdHk9IjEiPjwvdXNlPjwvZz48Zz48dXNlIHhsaW5rOmhyZWY9IiNhRGdweHJ3bXIiIG9wYWNpdHk9IjEiIGZpbGw9IiMzZTliY2QiIGZpbGwtb3BhY2l0eT0iMSI+PC91c2U+PC9nPjwvZz48L2c+PC9zdmc+" crossorigin="" />
                     </svg>
                     <text x="10" y="24" font-family="Roboto" fill="#8C9FAE" font-size="16" font-weight="bold" class="svg-text">TextUSM</text>
                 </g>
@@ -22,6 +22,7 @@
                         <foreignObject x="10" y="35" width="587" height="300" color="#8C9FAE" font-size="14" font-family="Roboto" class="svg-text">
                             <div
                                 xmlns="http://www.w3.org/1999/xhtml" style="font-family: Roboto, sans-serif; overflow-wrap: break-word; padding: 0px 8px 8px 0px;">    Draw diagrams without leaving the keyboard.
+
 
 
 
@@ -45,6 +46,7 @@
 
 
 
+
                             </div>
                         </foreignObject>
                     </g>
@@ -63,6 +65,7 @@
 
 
 
+
                             </div>
                         </foreignObject>
                     </g>
@@ -76,6 +79,7 @@
                         <foreignObject x="10" y="35" width="587" height="300" color="#8C9FAE" font-size="14" font-family="Roboto" class="svg-text">
                             <div
                                 xmlns="http://www.w3.org/1999/xhtml" style="font-family: Roboto, sans-serif; overflow-wrap: break-word; padding: 0px 8px 8px 0px;">    Share your diagrams online with your colleagues.
+
 
 
 

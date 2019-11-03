@@ -1,4 +1,4 @@
-module TestDiagram exposing (updateTest)
+module TestDiagram exposing (changeTextTest, moveStartTest, moveStopTest, moveTest, moveToTest, zoomInTest, zoomOutTest)
 
 import Components.Diagram exposing (..)
 import Expect exposing (Expectation)
@@ -39,14 +39,183 @@ defaultSettings =
 defInit : Model
 defInit =
     init defaultSettings
+    |> Tuple.first
 
 
-updateTest : Test
-updateTest =
-    describe "update test"
+noOpTest =
+    describe "no op test"
+        [ test "no op" <|
+            \() ->
+                update NoOp defInit
+                    |> Tuple.first
+                    |> Expect.equal defInit
+        ]
+
+
+zoomInTest =
+    describe "zoom in test"
+        [ test "Zoom in" <|
+            \() ->
+                update ZoomIn defInit
+                    |> Tuple.first
+                    |> .svg
+                    |> .scale
+                    |> List.singleton
+                    |> Expect.equal [ 0.95 ]
+        , test "Zoom in limit" <|
+            \() ->
+                let
+                    newModel =
+                        { defInit
+                            | svg =
+                                { width = defInit.svg.width
+                                , height = defInit.svg.height
+                                , scale = 0.1
+                                }
+                        }
+                in
+                update ZoomIn newModel
+                    |> Tuple.first
+                    |> .svg
+                    |> .scale
+                    |> List.singleton
+                    |> Expect.equal [ 0.1 ]
+        ]
+
+
+zoomOutTest =
+    describe "zoom out test"
+        [ test "Zoom out" <|
+            \() ->
+                update ZoomOut defInit
+                    |> Tuple.first
+                    |> .svg
+                    |> .scale
+                    |> List.singleton
+                    |> Expect.equal [ 1.05 ]
+        , test "Zoom out limit" <|
+            \() ->
+                let
+                    newModel =
+                        { defInit
+                            | svg =
+                                { width = defInit.svg.width
+                                , height = defInit.svg.height
+                                , scale = 2.0
+                                }
+                        }
+                in
+                update ZoomOut newModel
+                    |> Tuple.first
+                    |> .svg
+                    |> .scale
+                    |> List.singleton
+                    |> Expect.equal [ 2.0 ]
+        ]
+
+
+moveStartTest =
+    describe "move start test"
+        [ test "Move start" <|
+            \() ->
+                let
+                    newModel =
+                        update (Start 10 20) defInit
+                        |> Tuple.first
+                in
+                Expect.equal newModel { newModel | moveStart = True, moveX = 10, moveY = 20 }
+        ]
+
+
+moveStopTest =
+    describe "move stop test"
+        [ test "move stop " <|
+            \() ->
+                let
+                    newModel =
+                        update Stop defInit
+                        |> Tuple.first
+                in
+                Expect.equal newModel { newModel | moveStart = False, moveX = 0, moveY = 0, touchDistance = Nothing }
+        ]
+
+
+moveTest =
+    describe "move test"
+        [ test "Did not move" <|
+            \() ->
+                let
+                    newModel =
+                        update (Move 10 20) defInit
+                        |> Tuple.first
+                in
+                Expect.equal defInit newModel
+        , test "Same as previous position" <|
+            \() ->
+                let
+                    newModel =
+                        update (Move 0 0) defInit
+                        |> Tuple.first
+                in
+                Expect.equal defInit newModel
+        , test "Moved" <|
+            \() ->
+                let
+                    newModel =
+                        update (Start 0 0) defInit
+                        |> Tuple.first
+
+                    moveModel =
+                        update (Move 10 20) newModel
+                        |> Tuple.first
+                in
+                Expect.equal moveModel { newModel | x = newModel.x + 10, y = newModel.y + 20, moveX = 10, moveY = 20 }
+        ]
+
+
+moveToTest =
+    describe "move to test"
+        [ test "Move to specified position" <|
+            \() ->
+                let
+                    newModel =
+                        update (MoveTo 10 20) defInit
+                        |> Tuple.first
+                in
+                Expect.equal newModel { defInit | x = 10, y = 20 }
+        ]
+
+
+toggleFullscreenText =
+    describe "Toggle fullscreen"
+        [ test "Fullscreen" <|
+            \() ->
+                let
+                    newModel =
+                        update ToggleFullscreen defInit
+                        |> Tuple.first
+                in
+                Expect.equal newModel { defInit | fullscreen = True }
+        , test "Exit fullscreen" <|
+            \() ->
+                let
+                    newModel =
+                        update ToggleFullscreen defInit
+                            |> Tuple.first
+                            |> update ToggleFullscreen
+                            |> Tuple.first
+                in
+                Expect.equal newModel { defInit | fullscreen = False }
+        ]
+
+
+changeTextTest : Test
+changeTextTest =
+    describe "changeText"
         [ test "load only activity item" <|
             \() ->
                 update (OnChangeText "test1") defInit
+                    |> Tuple.first
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"
@@ -58,6 +227,7 @@ updateTest =
         , test "load activity items" <|
             \() ->
                 update (OnChangeText "test1\ntest2") defInit
+                    |> Tuple.first
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"
@@ -74,6 +244,7 @@ updateTest =
         , test "load task item" <|
             \() ->
                 update (OnChangeText "test1\n    test2") defInit
+                    |> Tuple.first
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"
@@ -92,6 +263,7 @@ updateTest =
         , test "load task items" <|
             \() ->
                 update (OnChangeText "test1\n    test2\n    test3") defInit
+                    |> Tuple.first
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"
@@ -115,6 +287,7 @@ updateTest =
         , test "load story item" <|
             \() ->
                 update (OnChangeText "test1\n    test2\n        test3") defInit
+                    |> Tuple.first
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"
@@ -140,6 +313,7 @@ updateTest =
         , test "load story items" <|
             \() ->
                 update (OnChangeText "test1\n    test2\n        test3\n        test4") defInit
+                    |> Tuple.first
                     |> .items
                     |> Expect.equal
                         [ { text = "test1"

@@ -4,7 +4,7 @@ import Constants exposing (..)
 import Html as Html exposing (div, img)
 import Html.Attributes as Attr
 import List.Extra exposing (getAt, scanl1, splitAt, zip3)
-import Models.Diagram as Diagram exposing (Model, Msg(..), Point, Settings)
+import Models.Diagram exposing (Model, Msg(..), Point, Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import Svg exposing (Svg, foreignObject, g, line, rect, svg)
 import Svg.Attributes exposing (..)
@@ -147,23 +147,23 @@ nodesView settings hierarchy ( x, y ) direction items =
                         itemY =
                             y + (nodeCount * svgHeight - yOffset) + (i * yMargin)
                     in
-                    nodeLineView settings
+                    [ nodeLineView settings
                         direction
                         { x = x, y = y }
                         { x = itemX, y = itemY }
-                        :: [ nodesView
-                                settings
-                                (hierarchy + 1)
-                                ( itemX
-                                , itemY
-                                )
-                                direction
-                                (Item.unwrapChildren item.children)
-                           , nodeItemView settings
-                                hierarchy
-                                ( itemX, itemY )
-                                item
-                           ]
+                    , nodesView
+                        settings
+                        (hierarchy + 1)
+                        ( itemX
+                        , itemY
+                        )
+                        direction
+                        (Item.unwrapChildren item.children)
+                    , nodeItemView settings
+                        hierarchy
+                        ( itemX, itemY )
+                        item
+                    ]
                 )
         )
 
@@ -237,8 +237,8 @@ nodeItemView settings hierarchy ( posX, posY ) item =
             , height svgHeight
             , fill backgroundColor
             , stroke "rgba(192,192,192,0.5)"
-            , rx "10"
-            , ry "10"
+            , rx "5"
+            , ry "5"
             ]
             []
         , foreignObject

@@ -1,9 +1,8 @@
 module Route exposing (Route(..), toRoute, toString)
 
 import Url exposing (Url)
-import Url.Builder as Builder exposing (absolute)
-import Url.Parser as Parser exposing ((</>), (<?>), Parser, map, oneOf, parse, s, string)
-import Url.Parser.Query as Query
+import Url.Builder exposing (absolute)
+import Url.Parser as Parser exposing ((</>), Parser, map, oneOf, parse, s, string)
 
 
 type alias DiagramPath =

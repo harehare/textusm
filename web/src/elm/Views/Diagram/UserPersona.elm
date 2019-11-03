@@ -1,11 +1,9 @@
 module Views.Diagram.UserPersona exposing (view)
 
 import Constants exposing (..)
-import Html exposing (div)
-import Html.Attributes as Attr
 import List.Extra exposing (getAt)
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
-import Models.Item as Item exposing (Item, ItemType(..))
+import Models.Diagram exposing (Model, Msg(..))
+import Models.Item as Item exposing (ItemType(..))
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)

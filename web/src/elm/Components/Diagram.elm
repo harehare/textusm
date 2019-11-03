@@ -19,6 +19,7 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 import Svg.Lazy exposing (..)
+import Task
 import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.EmpathyMap as EmpathyMap
@@ -35,35 +36,37 @@ import Views.Icon as Icon
 import Views.MiniMap as MiniMap
 
 
-init : Settings -> Model
+init : Settings -> ( Model, Cmd Msg )
 init settings =
-    { items = []
-    , hierarchy = 0
-    , width = 0
-    , height = 0
-    , svg =
-        { width = 0
-        , height = 0
-        , scale = 1.0
-        }
-    , countByHierarchy = []
-    , countByTasks = []
-    , moveStart = False
-    , x = 0
-    , y = 20
-    , moveX = 0
-    , moveY = 0
-    , fullscreen = False
-    , showZoomControl = True
-    , touchDistance = Nothing
-    , settings = settings
-    , error = Nothing
-    , diagramType = UserStoryMap
-    , labels = []
-    , text = Nothing
-    , showMiniMap = False
-    , matchParent = False
-    }
+    ( { items = []
+      , hierarchy = 0
+      , width = 0
+      , height = 0
+      , svg =
+            { width = 0
+            , height = 0
+            , scale = 1.0
+            }
+      , countByHierarchy = []
+      , countByTasks = []
+      , moveStart = False
+      , x = 0
+      , y = 20
+      , moveX = 0
+      , moveY = 0
+      , fullscreen = False
+      , showZoomControl = True
+      , touchDistance = Nothing
+      , settings = settings
+      , error = Nothing
+      , diagramType = UserStoryMap
+      , labels = []
+      , text = Nothing
+      , showMiniMap = False
+      , matchParent = False
+      }
+    , Cmd.none
+    )
 
 
 getItemType : String -> Int -> ItemType
@@ -651,11 +654,11 @@ updateDiagram size width height base text =
             )
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         NoOp ->
-            model
+            ( model, Cmd.none )
 
         Init settings window text ->
             let
@@ -670,13 +673,13 @@ update message model =
             in
             case result of
                 Ok usm ->
-                    { usm | settings = settings, error = Nothing }
+                    ( { usm | settings = settings, error = Nothing }, Cmd.none )
 
                 Err err ->
-                    { model | error = Just err }
+                    ( { model | error = Just err }, Cmd.none )
 
         ZoomIn ->
-            if model.svg.scale > 0.1 then
+            ( if model.svg.scale > 0.1 then
                 { model
                     | svg =
                         { width = model.svg.width
@@ -685,11 +688,13 @@ update message model =
                         }
                 }
 
-            else
+              else
                 model
+            , Cmd.none
+            )
 
         ZoomOut ->
-            if model.svg.scale < 2.0 then
+            ( if model.svg.scale < 2.0 then
                 { model
                     | svg =
                         { width = model.svg.width
@@ -698,79 +703,95 @@ update message model =
                         }
                 }
 
-            else
+              else
                 model
+            , Cmd.none
+            )
 
         PinchIn distance ->
-            { model | touchDistance = Just distance }
+            ( { model | touchDistance = Just distance }, Task.perform identity (Task.succeed ZoomIn) )
 
         PinchOut distance ->
-            { model | touchDistance = Just distance }
+            ( { model | touchDistance = Just distance }, Task.perform identity (Task.succeed ZoomOut) )
 
         OnChangeText text ->
             let
                 result =
                     updateDiagram model.settings.size model.width model.height model text
             in
-            case result of
+            ( case result of
                 Ok usm ->
                     { usm | error = Nothing }
 
                 Err err ->
                     { model | error = Just err }
+            , Cmd.none
+            )
 
         Start x y ->
-            { model
+            ( { model
                 | moveStart = True
                 , moveX = x
                 , moveY = y
-            }
+              }
+            , Cmd.none
+            )
 
         Stop ->
-            { model
+            ( { model
                 | moveStart = False
                 , moveX = 0
                 , moveY = 0
                 , touchDistance = Nothing
-            }
+              }
+            , Cmd.none
+            )
 
         Move x y ->
-            if not model.moveStart || (x == model.moveX && y == model.moveY) then
+            ( if not model.moveStart || (x == model.moveX && y == model.moveY) then
                 model
 
-            else
+              else
                 { model
                     | x = model.x + (x - model.moveX)
                     , y = model.y + (y - model.moveY)
                     , moveX = x
                     , moveY = y
                 }
+            , Cmd.none
+            )
 
         MoveTo x y ->
-            { model
+            ( { model
                 | x = x
                 , y = y
                 , moveX = 0
                 , moveY = 0
-            }
+              }
+            , Cmd.none
+            )
 
         ToggleFullscreen ->
-            { model
+            ( { model
                 | moveX = 0
                 , moveY = 0
                 , fullscreen = not model.fullscreen
-            }
+              }
+            , Cmd.none
+            )
 
         OnResize width height ->
-            { model
+            ( { model
                 | width = width
                 , height = height - 56
                 , moveX = 0
                 , moveY = 0
-            }
+              }
+            , Cmd.none
+            )
 
         StartPinch distance ->
-            { model | touchDistance = Just distance }
+            ( { model | touchDistance = Just distance }, Cmd.none )
 
         _ ->
-            model
+            ( model, Cmd.none )

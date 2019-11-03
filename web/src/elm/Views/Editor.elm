@@ -2,14 +2,13 @@ module Views.Editor exposing (view)
 
 import Html exposing (Html, div)
 import Html.Attributes exposing (id, style)
-import Html.Lazy exposing (lazy2)
-import Models.Model exposing (Msg, Settings)
+import Models.Model exposing (Msg)
 import Route exposing (Route(..))
 import Styles
 
 
-view : Maybe String -> Settings -> Html Msg
-view dropDownIndex settings =
+view : Html Msg
+view =
     div
         (style "background-color" "#273037" :: Styles.matchParent)
         [ div

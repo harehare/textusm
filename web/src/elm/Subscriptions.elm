@@ -4,6 +4,7 @@ import Browser.Events exposing (onMouseMove, onMouseUp, onResize, onVisibilityCh
 import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramItem)
+import Models.DiagramList as DiagramListModel
 import Models.Model exposing (DownloadInfo, Model, Msg(..), Notification(..), Settings, ShareInfo)
 import Models.User exposing (User)
 
@@ -36,12 +37,6 @@ port onWarnNotification : (String -> msg) -> Sub msg
 
 
 port shortcuts : (String -> msg) -> Sub msg
-
-
-port offline : (() -> msg) -> Sub msg
-
-
-port online : (() -> msg) -> Sub msg
 
 
 port removeRemoteDiagram : (DiagramItem -> msg) -> Sub msg
@@ -107,10 +102,6 @@ port openFullscreen : () -> Cmd msg
 port closeFullscreen : () -> Cmd msg
 
 
-
--- Diagram
-
-
 port saveDiagram : DiagramItem -> Cmd msg
 
 
@@ -138,8 +129,8 @@ subscriptions model =
         ([ changeText (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
          , applySettings ApplySettings
          , startDownloadSvg StartDownloadSvg
-         , gotLocalDiagrams GotLocalDiagrams
-         , removedDiagram RemovedDiagram
+         , gotLocalDiagrams (\items -> UpdateDiagramList (DiagramListModel.GotLocalDiagrams items))
+         , removedDiagram (\_ -> UpdateDiagramList DiagramListModel.Reload)
          , onVisibilityChange OnVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
          , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
@@ -151,9 +142,7 @@ subscriptions model =
          , onWarnNotification (\n -> OnAutoCloseNotification (Warning n))
          , onAuthStateChanged OnAuthStateChanged
          , saveToRemote SaveToRemote
-         , offline (\_ -> OnChangeNetworkStatus False)
-         , online (\_ -> OnChangeNetworkStatus True)
-         , removeRemoteDiagram RemoveRemoteDiagram
+         , removeRemoteDiagram (\diagram -> UpdateDiagramList <| DiagramListModel.RemoveRemote diagram)
          , downloadCompleted DownloadCompleted
          ]
             ++ (if model.window.moveStart then

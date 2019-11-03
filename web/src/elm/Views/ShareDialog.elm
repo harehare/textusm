@@ -1,7 +1,7 @@
 module Views.ShareDialog exposing (view)
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html exposing (Html, button, div, img, input, option, select, text)
+import Html.Attributes exposing (class, id, placeholder, readonly, selected, src, style, value)
 import Html.Events as Events exposing (on, onClick, onInput)
 import Json.Decode as Json
 import Models.DiagramItem exposing (DiagramUser)
@@ -10,7 +10,7 @@ import Models.User exposing (User)
 import Views.Icon as Icon
 
 
-onChange : (String -> msg) -> Attribute msg
+onChange : (String -> msg) -> Html.Attribute msg
 onChange handler =
     on "change" (Json.map handler Events.targetValue)
 

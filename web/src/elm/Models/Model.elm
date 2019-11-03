@@ -12,10 +12,10 @@ import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.Diagram as Diagram
 import Models.DiagramItem exposing (DiagramItem)
+import Models.DiagramList as DiagramList
 import Models.DiagramType exposing (DiagramType)
 import Models.User exposing (User)
 import Route as Route
-import Time exposing (Zone)
 import Url
 
 
@@ -23,6 +23,7 @@ type Msg
     = NoOp
     | Init Viewport
     | UpdateDiagram Diagram.Msg
+    | UpdateDiagramList DiagramList.Msg
     | OpenMenu Menu
     | Stop
     | CloseMenu
@@ -34,7 +35,6 @@ type Msg
     | FileLoaded String
     | Save
     | Saved (Result Http.Error DiagramItem)
-    | Removed (Result ( DiagramItem, Http.Error ) DiagramItem)
     | SaveToFileSystem
     | SaveToRemote DiagramItem
     | StartEditTitle
@@ -61,18 +61,9 @@ type Msg
       -- Diagram type
     | New DiagramType
     | GetDiagrams
-    | GotLocalDiagrams (List DiagramItem)
-    | GotDiagrams (Result ( List DiagramItem, Http.Error ) (List DiagramItem))
-    | Open DiagramItem
     | Opened (Result ( DiagramItem, Http.Error ) DiagramItem)
-    | RemoveDiagram DiagramItem
-    | RemoveRemoteDiagram DiagramItem
-    | RemovedDiagram ( DiagramItem, Bool )
-    | GotTimeZone Zone
     | UpdateSettings (String -> Settings) String
     | Shortcuts String
-    | OnChangeNetworkStatus Bool
-    | Search String
     | SelectAll String
       -- SharingDialog
     | CancelSharing
@@ -84,7 +75,6 @@ type Msg
     | DeleteUser String
     | DeletedUser (Result Http.Error String)
     | LoadUsers (Result Http.Error DiagramItem)
-    | FilterDiagramList (Maybe String)
     | ToggleDropDownList String
     | NavRoute Route.Route
 
@@ -109,15 +99,13 @@ type Menu
 
 
 type alias Model =
-    { -- current file
-      id : Maybe String
+    { id : Maybe String
     , text : String
     , currentDiagram : Maybe DiagramItem
-
-    --
     , key : Nav.Key
     , url : Url.Url
     , diagramModel : Diagram.Model
+    , diagramListModel : DiagramList.Model
     , openMenu : Maybe Menu
     , window : Window
     , settings : Settings
@@ -129,12 +117,7 @@ type alias Model =
     , editorIndex : Int
     , progress : Bool
     , apiRoot : String
-    , diagrams : Maybe (List DiagramItem)
-    , filterDiagramList : Maybe String
-    , timezone : Maybe Zone
     , loginUser : Maybe User
-    , isOnline : Bool
-    , searchQuery : Maybe String
     , inviteMailAddress : Maybe String
     , dropDownIndex : Maybe String
     }
@@ -180,11 +163,11 @@ type alias Settings =
     }
 
 
-canWrite : Model -> Bool
-canWrite model =
+canWrite : Maybe DiagramItem -> Maybe User -> Bool
+canWrite currentDiagram currentUser =
     let
         isRemote =
-            case model.currentDiagram of
+            case currentDiagram of
                 Just d ->
                     d.isRemote
 
@@ -192,7 +175,7 @@ canWrite model =
                     False
 
         loginUser =
-            model.loginUser
+            currentUser
                 |> Maybe.withDefault
                     { displayName = ""
                     , email = ""
@@ -202,13 +185,13 @@ canWrite model =
                     }
 
         ownerId =
-            model.currentDiagram
+            currentDiagram
                 |> Maybe.map (\x -> x.ownerId)
                 |> MaybeEx.join
                 |> Maybe.withDefault ""
 
         roleUser =
-            model.currentDiagram
+            currentDiagram
                 |> Maybe.map (\x -> x.users)
                 |> MaybeEx.join
                 |> Maybe.map
@@ -224,4 +207,4 @@ canWrite model =
                     , mail = ""
                     }
     in
-    not isRemote || MaybeEx.isNothing model.currentDiagram || loginUser.id == ownerId || roleUser.role == "Editor"
+    not isRemote || MaybeEx.isNothing currentDiagram || loginUser.id == ownerId || roleUser.role == "Editor"

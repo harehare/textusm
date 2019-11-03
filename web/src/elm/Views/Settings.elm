@@ -2,7 +2,7 @@ module Views.Settings exposing (view)
 
 import Html exposing (Html, div, input, label, text)
 import Html.Attributes exposing (checked, class, style, type_, value)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Msg(..), Settings)
 import Views.DropDownList as DropDownList

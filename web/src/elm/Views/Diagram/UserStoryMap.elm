@@ -31,7 +31,7 @@ view model =
                         model.x
                     )
                 ++ ","
-                ++ String.fromInt 
+                ++ String.fromInt
                     (if isInfinite <| toFloat <| model.y then
                         0
 
@@ -296,6 +296,8 @@ rectView posX posY color =
         , height posY
         , fill color
         , stroke "rgba(192,192,192,0.5)"
+        , rx "5"
+        , ry "5"
         ]
         []
 

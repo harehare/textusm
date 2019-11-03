@@ -34,66 +34,64 @@ view width fullscreen openMenu canWrite =
         div
             [ class "menu-bar"
             ]
-            (div
+            [ div
                 (stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True )) :: style "margin-left" "4px" :: menuItemStyle)
                 [ Icon.file 20
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
                 ]
-                :: [ div
-                        (onClick FileSelect :: menuItemStyle)
-                        [ Icon.folderOpen "#F5F5F6" 20
-                        , span [ class "tooltip" ] [ span [ class "text" ] [ text "Open File" ] ]
-                        ]
-                   , div
-                        (onClick GetDiagrams :: menuItemStyle)
-                        [ Icon.viewComfy "#F5F5F6" 28
-                        , span [ class "tooltip" ] [ span [ class "text" ] [ text "Diagrams" ] ]
-                        ]
-                   , if canWrite then
-                        div
-                            (onClick Save :: menuItemStyle)
-                            [ Icon.save 26
-                            , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
-                            ]
+            , div
+                (onClick FileSelect :: menuItemStyle)
+                [ Icon.folderOpen "#F5F5F6" 20
+                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Open File" ] ]
+                ]
+            , div
+                (onClick GetDiagrams :: menuItemStyle)
+                [ Icon.viewComfy "#F5F5F6" 28
+                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Diagrams" ] ]
+                ]
+            , if canWrite then
+                div
+                    (onClick Save :: menuItemStyle)
+                    [ Icon.save 26
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
+                    ]
 
-                     else
+              else
+                Empty.view
+            , div
+                (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
+                [ Icon.download 22
+                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
+                ]
+            , div
+                (onClick (NavRoute Route.Settings) :: menuItemStyle)
+                [ Icon.settings
+                    "#F5F5F6"
+                    25
+                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Settings" ] ]
+                ]
+            , if Utils.isPhone width then
+                case openMenu of
+                    Just Export ->
+                        menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing exportMenu
+
+                    Just NewFile ->
+                        menu Nothing (Just "10px") (Just "50px") Nothing newMenu
+
+                    _ ->
                         Empty.view
-                   , div
-                        (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
-                        [ Icon.download 22
-                        , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
-                        ]
-                   ]
-                ++ [ div
-                        (onClick (NavRoute Route.Settings) :: menuItemStyle)
-                        [ Icon.settings
-                            "#F5F5F6"
-                            25
-                        , span [ class "tooltip" ] [ span [ class "text" ] [ text "Settings" ] ]
-                        ]
-                   , if Utils.isPhone width then
-                        case openMenu of
-                            Just Export ->
-                                menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing exportMenu
 
-                            Just NewFile ->
-                                menu Nothing (Just "10px") (Just "50px") Nothing newMenu
+              else
+                case openMenu of
+                    Just Export ->
+                        menu (Just "125px") (Just "56px") Nothing Nothing exportMenu
 
-                            _ ->
-                                Empty.view
+                    Just NewFile ->
+                        menu (Just "0") (Just "56px") Nothing Nothing newMenu
 
-                     else
-                        case openMenu of
-                            Just Export ->
-                                menu (Just "125px") (Just "56px") Nothing Nothing exportMenu
-
-                            Just NewFile ->
-                                menu (Just "0") (Just "56px") Nothing Nothing newMenu
-
-                            _ ->
-                                Empty.view
-                   ]
-            )
+                    _ ->
+                        Empty.view
+            ]
 
 
 newMenu : List MenuItem

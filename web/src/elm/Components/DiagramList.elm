@@ -1,5 +1,6 @@
-module Views.DiagramList exposing (view)
+module Components.DiagramList exposing (init, update, view)
 
+import Api.Diagram as DiagramApi
 import Dict
 import Dict.Extra as DictEx
 import Html exposing (Html, div, input, span, text)
@@ -8,13 +9,31 @@ import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra as MaybeEx
 import Models.DiagramItem exposing (DiagramItem)
+import Models.DiagramList exposing (..)
 import Models.DiagramType exposing (DiagramType(..))
-import Models.Model exposing (Msg(..))
-import Models.User exposing (User)
+import Models.User as UserModel exposing (User)
+import Subscriptions exposing (getDiagrams, removeDiagrams)
+import Task
 import Time exposing (Zone)
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
+
+
+init : Maybe User -> String -> ( Model, Cmd Msg )
+init user apiRoot =
+    ( { searchQuery = Nothing
+      , timeZone = Time.utc
+      , diagramList = Nothing
+      , selectedType = Nothing
+      , loginUser = user
+      , apiRoot = apiRoot
+      }
+    , Cmd.batch
+        [ Task.perform GotTimeZone Time.here
+        , getDiagrams ()
+        ]
+    )
 
 
 facet : List DiagramItem -> List ( String, Int )
@@ -35,7 +54,7 @@ sideMenu selectedPath allCount items =
 
                 else
                     "item"
-            , onClick (FilterDiagramList Nothing)
+            , onClick (Filter Nothing)
             ]
             [ text "All", span [ class "facet-count" ] [ text <| "(" ++ String.fromInt allCount ++ ")" ] ]
             :: (items
@@ -48,7 +67,7 @@ sideMenu selectedPath allCount items =
 
                                     else
                                         "item"
-                                , onClick (FilterDiagramList <| Just diagramPath)
+                                , onClick (Filter <| Just diagramPath)
                                 ]
                                 [ text <| menuName diagramPath, span [ class "facet-count" ] [ text <| "(" ++ String.fromInt count ++ ")" ] ]
                         )
@@ -90,13 +109,13 @@ menuName path =
             "User Story Map"
 
 
-view : Maybe User -> Zone -> Maybe String -> Maybe (List DiagramItem) -> Maybe String -> Html Msg
-view user timezone maybeQuery maybeDiagrams selectedType =
-    case maybeDiagrams of
+view : Model -> Html Msg
+view model =
+    case model.diagramList of
         Just diagrams ->
             let
                 displayDiagrams =
-                    case selectedType of
+                    case model.selectedType of
                         Just type_ ->
                             List.filter (\d -> d.diagramPath == type_) diagrams
 
@@ -107,7 +126,7 @@ view user timezone maybeQuery maybeDiagrams selectedType =
                 [ class "diagram-list"
                 , style "display" "flex"
                 ]
-                [ sideMenu (Maybe.withDefault "" selectedType)
+                [ sideMenu (Maybe.withDefault "" model.selectedType)
                     (List.length diagrams)
                     (facet diagrams)
                 , div
@@ -135,7 +154,7 @@ view user timezone maybeQuery maybeDiagrams selectedType =
                                 , style "border-radius" "20px"
                                 , style "padding" "8px"
                                 , style "border" "none"
-                                , onInput Search
+                                , onInput SearchInput
                                 ]
                                 []
                             ]
@@ -168,7 +187,7 @@ view user timezone maybeQuery maybeDiagrams selectedType =
                             , style "border-top" "1px solid #323B46"
                             ]
                             (displayDiagrams
-                                |> (case maybeQuery of
+                                |> (case model.searchQuery of
                                         Just query ->
                                             List.filter (\d -> String.contains query d.title)
 
@@ -176,7 +195,7 @@ view user timezone maybeQuery maybeDiagrams selectedType =
                                             identity
                                    )
                                 |> List.map
-                                    (\d -> diagramView user timezone d)
+                                    (\d -> diagramView model.loginUser model.timeZone d)
                             )
                     ]
                 ]
@@ -211,7 +230,7 @@ diagramView user timezone diagram =
     div
         [ class "diagram-item"
         , style "background-image" ("url(\"" ++ (diagram.thumbnail |> Maybe.withDefault "") ++ "\")")
-        , stopPropagationOn "click" (D.succeed ( Open diagram, True ))
+        , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
         ]
         [ div
             [ class "diagram-text"
@@ -234,10 +253,109 @@ diagramView user timezone diagram =
                   else
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOff 14 ]
                 , if MaybeEx.isNothing user || MaybeEx.isNothing diagram.ownerId || isOwner then
-                    div [ style "margin-left" "16px", class "button", stopPropagationOn "click" (D.succeed ( RemoveDiagram diagram, True )) ] [ Icon.clear 18 ]
+                    div [ style "margin-left" "16px", class "button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
 
                   else
                     Empty.view
                 ]
             ]
         ]
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update message model =
+    case message of
+        NoOp ->
+            ( model, Cmd.none )
+
+        GotTimeZone zone ->
+            ( { model | timeZone = zone }, Cmd.none )
+
+        Filter type_ ->
+            ( { model | selectedType = type_ }, Cmd.none )
+
+        SearchInput input ->
+            ( { model
+                | searchQuery =
+                    if String.isEmpty input then
+                        Nothing
+
+                    else
+                        Just input
+              }
+            , Cmd.none
+            )
+
+        GotLocalDiagrams localItems ->
+            case model.loginUser of
+                Just _ ->
+                    let
+                        remoteItems =
+                            DiagramApi.items (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser) 1 model.apiRoot
+
+                        items =
+                            remoteItems
+                                |> Task.map
+                                    (\item ->
+                                        List.concat [ localItems, item ]
+                                            |> List.sortWith
+                                                (\a b ->
+                                                    let
+                                                        v1 =
+                                                            a.updatedAt |> Maybe.withDefault 0
+
+                                                        v2 =
+                                                            b.updatedAt |> Maybe.withDefault 0
+                                                    in
+                                                    if v1 - v2 > 0 then
+                                                        LT
+
+                                                    else if v1 - v2 < 0 then
+                                                        GT
+
+                                                    else
+                                                        EQ
+                                                )
+                                    )
+                                |> Task.mapError (Tuple.pair localItems)
+                    in
+                    ( model, Task.attempt GotDiagrams items )
+
+                Nothing ->
+                    ( { model | diagramList = Just localItems }, Cmd.none )
+
+        GotDiagrams (Err ( items, _ )) ->
+            ( { model | diagramList = Just items }, Cmd.none )
+
+        GotDiagrams (Ok items) ->
+            ( { model | diagramList = Just items }, Cmd.none )
+
+        Remove diagram ->
+            ( model, removeDiagrams diagram )
+
+        RemoveRemote diagram ->
+            ( model
+            , Task.attempt Removed
+                (DiagramApi.remove (Utils.getIdToken model.loginUser) model.apiRoot (diagram.id |> Maybe.withDefault "")
+                    |> Task.mapError (Tuple.pair diagram)
+                    |> Task.map (\_ -> diagram)
+                )
+            )
+
+        Removed (Err ( _, _ )) ->
+            ( model
+            , Cmd.none
+            )
+
+        Removed (Ok _) ->
+            ( model
+            , getDiagrams ()
+            )
+
+        Reload ->
+            ( model
+            , getDiagrams ()
+            )
+
+        _ ->
+            ( model, Cmd.none )
