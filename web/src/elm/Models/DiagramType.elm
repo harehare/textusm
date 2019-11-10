@@ -12,6 +12,7 @@ type DiagramType
     | Markdown
     | MindMap
     | EmpathyMap
+    | CustomerJourneyMap
 
 
 toString : DiagramType -> String
@@ -47,6 +48,9 @@ toString diagramType =
         EmpathyMap ->
             "emm"
 
+        CustomerJourneyMap ->
+            "cjm"
+
 
 fromString : String -> DiagramType
 fromString s =
@@ -80,6 +84,9 @@ fromString s =
 
         "emm" ->
             EmpathyMap
+
+        "cjm" ->
+            CustomerJourneyMap
 
         _ ->
             UserStoryMap

@@ -22,6 +22,7 @@ import Svg.Lazy exposing (..)
 import Task
 import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
+import Views.Diagram.CustomerJourneyMap as CustomerJourneyMap
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
 import Views.Diagram.Kpt as Kpt
@@ -341,6 +342,9 @@ miniMapView model =
 
                     EmpathyMap ->
                         lazy EmpathyMap.view newModel
+
+                    CustomerJourneyMap ->
+                        lazy CustomerJourneyMap.view newModel
         in
         lazy3 MiniMap.view model size mainSvg
 
@@ -412,6 +416,9 @@ svgView model =
 
                 EmpathyMap ->
                     lazy EmpathyMap.view model
+
+                CustomerJourneyMap ->
+                    lazy CustomerJourneyMap.view model
     in
     svg
         [ Attr.id "usm"

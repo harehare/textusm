@@ -136,6 +136,10 @@ newMenu =
       , title = "Empathy Map"
       , icon = Just <| img [ src "/images/empathy_map.svg", style "width" "56px", alt "logo" ] []
       }
+    , { e = New DiagramType.CustomerJourneyMap
+      , title = "Customer Journey Map"
+      , icon = Just <| img [ src "/images/customer_journey_map.svg", style "width" "56px", alt "logo" ] []
+      }
     ]
 
 

@@ -205,6 +205,11 @@ getCanvasSize model =
                             0
                     )
 
+                DiagramType.CustomerJourneyMap ->
+                    ( model.settings.size.width * (List.length model.items + 1)
+                    , model.settings.size.height * ((model.items |> List.head |> Maybe.withDefault Item.emptyItem |> .children |> Item.unwrapChildren |> List.length) + 1) + Constants.itemMargin
+                    )
+
                 _ ->
                     ( Constants.leftMargin + Constants.itemMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1), (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2) )
     in

@@ -383,6 +383,9 @@ changeRouteTo route model =
         Route.UserStoryMap ->
             changeDiagramType DiagramType.UserStoryMap
 
+        Route.CustomerJourneyMap ->
+            changeDiagramType DiagramType.CustomerJourneyMap
+
         _ ->
             ( model, getCmds [] )
 
@@ -1125,6 +1128,9 @@ update message model =
 
                         DiagramType.EmpathyMap ->
                             ( "https://app.textusm.com/images/logo.svg\nSAYS\nTHINKS\nDOES\nFEELS", Route.EmpathyMap )
+
+                        DiagramType.CustomerJourneyMap ->
+                            ( "Discover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n", Route.CustomerJourneyMap )
 
                 displayText =
                     if String.isEmpty model.text then
