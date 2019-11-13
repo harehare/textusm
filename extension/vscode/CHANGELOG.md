@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.1.2]
+
+- Fix bugs
+- Add Customer Journey Map
+
 ## [0.1.1]
 
 - Fix bugs

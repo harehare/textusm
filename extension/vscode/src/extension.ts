@@ -12,7 +12,8 @@ const showQuickPick = (context: vscode.ExtensionContext, callback: () => void) =
     { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
     { label: 'KPT Retrospective', value: 'kpt' },
     { label: 'Mind Map', value: 'mmp' },
-    { label: 'Empathy Map', value: 'emm' }
+    { label: 'Empathy Map', value: 'emm' },
+    { label: 'Customer Journey Map', value: 'cjm' }
   ];
   const quickPick = vscode.window.createQuickPick();
   quickPick.items = options.map(item => ({ label: item.label }));
@@ -87,7 +88,8 @@ export function activate(context: vscode.ExtensionContext) {
         { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
         { label: 'KPT Retrospective', value: 'kpt' },
         { label: 'Mind Map', value: 'mmp' },
-        { label: 'Empathy Map', value: 'emm' }
+        { label: 'Empathy Map', value: 'emm' },
+        { label: 'Customer Journey Map', value: 'cjm' }
       ];
       const quickPick = vscode.window.createQuickPick();
       quickPick.items = options.map(item => ({ label: item.label }));
@@ -133,6 +135,11 @@ export function activate(context: vscode.ExtensionContext) {
                 break;
               case 'emm':
                 newTextOpen('https://app.textusm.com/images/logo.svg\nSAYS\nTHINKS\nDOES\nFEELS');
+                break;
+              case 'cjm':
+                newTextOpen(
+                  'Discover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n'
+                );
                 break;
             }
           }

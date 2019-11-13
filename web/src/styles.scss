@@ -430,13 +430,14 @@ select {
     min-width: 120px;
     position: absolute;
     z-index: 10;
-    height: auto;
+    max-height: calc(100vh - 40px);
     background-color: var(--main-color);
     border-radius: 8px;
     box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
         0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
     transition: all 0.2s ease-out;
     margin: 4px;
+    overflow-y: auto;
 }
 
 .help {
@@ -561,16 +562,6 @@ select {
 .close {
     margin-right: 16px;
     cursor: pointer;
-}
-
-#zoom-control {
-    position: absolute;
-    align-items: center;
-    right: 35px;
-    top: 5px;
-    display: flex;
-    width: 130px;
-    justify-content: space-between;
 }
 
 @media screen and (min-width: 480px) {
@@ -836,7 +827,7 @@ select {
 }
 
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 2px;
 }
 ::-webkit-scrollbar-track {
     background: #fff;

@@ -233,6 +233,13 @@ zoomControl isFullscreen scale =
     in
     div
         [ id "zoom-control"
+        , Attr.style "position" "absolute"
+        , Attr.style "align-items" "center"
+        , Attr.style "right" "35px"
+        , Attr.style "top" "5px"
+        , Attr.style "display" "flex"
+        , Attr.style "width" "130px"
+        , Attr.style "justify-content" "space-between"
         ]
         [ div
             [ Attr.style "width" "24px"

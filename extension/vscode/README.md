@@ -12,6 +12,7 @@ TextISM is a simple tool. Help you draw user story map using indented text.
 - KPT Retrospective
 - Mind Map
 - Empathy Map
+- Customer Journey Map
 
 ![image](./img/textusm.gif)
 
@@ -163,6 +164,48 @@ FEELS
 ```
 
 ![image](./img/emm.png)
+
+### Customer Journey Map
+
+```
+Discover
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Research
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Purchase
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Delivery
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Post-Sales
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+```
+
+![image](./img/cjm.png)
 
 ## Options
 

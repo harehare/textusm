@@ -1,11 +1,11 @@
-name: Build and Deploy
+name: TextUsm build pipeline
 on:
   push:
     branches:
       - master
 jobs:
   build:
-    name: Build
+    name: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -39,7 +39,7 @@ jobs:
           name: dist
           path: web/dist
   deploy:
-    name: Deploy
+    name: deploy
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -57,3 +57,17 @@ jobs:
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           PROJECT_ID: textusm
+  audit:
+    runs-on: ubuntu-latest
+    name: audit
+    needs: deploy
+    steps:
+      - name: Audit live URL
+        uses: jakejarvis/lighthouse-action@master
+        with:
+          url: "https://app.textusm.com"
+      - name: Upload results as an artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: report
+          path: "./report"

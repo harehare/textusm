@@ -136,18 +136,21 @@ update message model =
             case subMsg of
                 DiagramModel.OnChangeText text ->
                     let
-                        diagramModel =
+                        (model_, cmd_) =
                             Diagram.update subMsg model.diagramModel
                     in
-                    case diagramModel.error of
+                    case model_.error of
                         Just err ->
-                            ( { model | text = text, diagramModel = diagramModel }, errorLine err )
+                            ( { model | text = text, diagramModel = model_ }, errorLine err )
 
                         Nothing ->
-                            ( { model | text = text, diagramModel = diagramModel }, errorLine "" )
+                            ( { model | text = text, diagramModel = model_ }, errorLine "" )
 
                 _ ->
-                    ( { model | diagramModel = Diagram.update subMsg model.diagramModel }, Cmd.none )
+                    let
+                        (model_, cmd_ ) = Diagram.update subMsg model.diagramModel
+                    in
+                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
 
 port errorLine : String -> Cmd msg

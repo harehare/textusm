@@ -46,7 +46,7 @@ Options:
   -w, --width <width>              Width of the page. Optional. Default: 1024.
   -H, --height <height>            Height of the page. Optional. Default: 1024.
   -o, --output [output]            Output file. It should be svg, png, pdf or html.
-  -d, --diagramType [diagramType]  Diagram type. It should be userstorymap, opportunitycanvas or businessmodelcanvas.
+  -d, --diagramType [diagramType]  Diagram type. It should be one of userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, mind_map, empathy_map, customer_journey_map.
   -h, --help                       output usage information
 ```
 
@@ -184,6 +184,48 @@ FEELS
 ```
 
 ![image](./img/emm.png)
+
+### Customer Journey Map
+
+```
+Discover
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Research
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Purchase
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Delivery
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Post-Sales
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+```
+
+![image](./img/cjm.png)
 
 ## Example JSON configuration file
 

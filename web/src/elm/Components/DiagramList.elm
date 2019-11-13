@@ -102,6 +102,15 @@ menuName path =
         "md" ->
             "Markdown"
 
+        "mmp" ->
+            "Mind Map"
+
+        "emm" ->
+            "Empathy Map"
+
+        "cjm" ->
+            "Customer Journey Map"
+
         "" ->
             "All"
 
