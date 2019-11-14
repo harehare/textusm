@@ -1,4 +1,4 @@
-name: TextUsm build pipeline
+name: build
 on:
   push:
     branches:

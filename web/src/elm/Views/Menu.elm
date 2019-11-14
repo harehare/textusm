@@ -5,9 +5,10 @@ import Html.Attributes exposing (alt, class, src, style)
 import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List
+import Maybe.Extra exposing (isNothing)
 import Models.DiagramType as DiagramType
 import Models.Model exposing (FileType(..), Menu(..), Msg(..))
-import Route as Route
+import Route exposing (Route(..))
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -20,8 +21,8 @@ type alias MenuItem =
     }
 
 
-view : Int -> Bool -> Maybe Menu -> Bool -> Html Msg
-view width fullscreen openMenu canWrite =
+view : Route -> Int -> Bool -> Maybe Menu -> Bool -> Html Msg
+view route width fullscreen openMenu canWrite =
     let
         menuItemStyle =
             [ class "menu-button"
@@ -36,23 +37,40 @@ view width fullscreen openMenu canWrite =
             ]
             [ div
                 (stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True )) :: style "margin-left" "4px" :: menuItemStyle)
-                [ Icon.file 20
+                [ Icon.file
+                    (case openMenu of
+                        Just NewFile ->
+                            "#F5F5F6"
+
+                        _ ->
+                            "#848A90"
+                    )
+                    20
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
                 ]
             , div
                 (onClick FileSelect :: menuItemStyle)
-                [ Icon.folderOpen "#F5F5F6" 20
+                [ Icon.folderOpen "#848A90" 20
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text "Open File" ] ]
                 ]
             , div
                 (onClick GetDiagrams :: menuItemStyle)
-                [ Icon.viewComfy "#F5F5F6" 28
+                [ Icon.viewComfy
+                    (if isNothing openMenu && route == List then
+                        "#F5F5F6"
+
+                     else
+                        "#848A90"
+                    )
+                    28
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text "Diagrams" ] ]
                 ]
             , if canWrite then
                 div
                     (onClick Save :: menuItemStyle)
-                    [ Icon.save 26
+                    [ Icon.save
+                        "#848A90"
+                        26
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
                     ]
 
@@ -60,13 +78,26 @@ view width fullscreen openMenu canWrite =
                 Empty.view
             , div
                 (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
-                [ Icon.download 22
+                [ Icon.download
+                    (case openMenu of
+                        Just Export ->
+                            "#F5F5F6"
+
+                        _ ->
+                            "#848A90"
+                    )
+                    22
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
                 ]
             , div
                 (onClick (NavRoute Route.Settings) :: menuItemStyle)
                 [ Icon.settings
-                    "#F5F5F6"
+                    (if isNothing openMenu && route == Settings then
+                        "#F5F5F6"
+
+                     else
+                        "#848A90"
+                    )
                     25
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text "Settings" ] ]
                 ]

@@ -1,12 +1,13 @@
 {
   "name": "textusm",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Generate a User Story Map from indented text.",
   "main": "dist/index.js",
   "scripts": {
     "dev": "webpack --mode development --watch",
     "prod": "NODE_ENV=production webpack --mode production",
-    "prepublishOnly": "npm run prod"
+    "prepublishOnly": "npm run prod",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -28,14 +29,34 @@
   "author": "harehare",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^24.0.23",
     "clean-webpack-plugin": "^3.0.0",
+    "jest": "^24.9.0",
     "module": "^1.2.5",
     "terser-webpack-plugin": "^2.2.1",
+    "ts-jest": "^24.1.0",
     "ts-loader": "^6.2.1",
     "tslint": "^5.20.0",
-    "typescript": "^3.6.4",
+    "typescript": "^3.7.2",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10",
     "webpack-merge": "^4.2.2"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.json"
+      }
+    },
+    "testMatch": [
+      "**/tests/**/*.test.ts"
+    ]
   }
 }

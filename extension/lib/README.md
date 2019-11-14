@@ -24,11 +24,11 @@ $ npm i -S textusm
 ### Text
 
 ```javascript
-const textusm = require('textusm');
-const elm = document.getElementById('id');
+const textusm = require("textusm");
+const elm = document.getElementById("id");
 
 textusm.render(
-  elm || 'id',
+  elm || "id",
   `
 # labels: USER ACTIVITIES, USER TASKS, USER STORIES, RELEASE1, RELEASE2, RELEASE3
 # release1: 2019-06-01
@@ -51,26 +51,26 @@ TextUSM
 ### Object
 
 ```javascript
-const textusm = require('textusm');
-const elm = document.getElementById('id');
+const textusm = require("textusm");
+const elm = document.getElementById("id");
 
 textusm.render(
-  elm || 'id',
+  elm || "id",
   {
     activities: [
       {
-        name: 'TextUSM',
+        name: "TextUSM",
         tasks: [
           {
-            name: 'Online tool for making user story mapping',
+            name: "Online tool for making user story mapping",
             stories: [
               {
-                name: 'Press Tab to indent lines',
+                name: "Press Tab to indent lines",
                 release: 1
               },
               {
                 name:
-                  'Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.',
+                  "Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.",
                 release: 1
               }
             ]
@@ -94,47 +94,47 @@ textusm.render(
 ### Business Model Canvas
 
 ```javascript
-const textusm = require('textusm');
-const elm = document.getElementById('id');
+const textusm = require("textusm");
+const elm = document.getElementById("id");
 
 textusm.render(
-  elm || 'id',
+  elm || "id",
   {
     keyPartners: {
-      title: '👥 Key Partners',
-      text: ['Key Partners']
+      title: "👥 Key Partners",
+      text: ["Key Partners"]
     },
     customerSegments: {
-      title: '📊 Customer Segments',
-      text: ['Customer Segments']
+      title: "📊 Customer Segments",
+      text: ["Customer Segments"]
     },
     valueProposition: {
-      title: '🎁 Value Proposition',
-      text: ['Value Proposition']
+      title: "🎁 Value Proposition",
+      text: ["Value Proposition"]
     },
     keyActivities: {
-      title: '✅ Key Activities',
-      text: ['Key Activities']
+      title: "✅ Key Activities",
+      text: ["Key Activities"]
     },
     channels: {
-      title: '🚚 Channels',
-      text: ['Channels']
+      title: "🚚 Channels",
+      text: ["Channels"]
     },
     revenueStreams: {
-      title: '💰 Revenue Streams',
-      text: ['Revenue Streams']
+      title: "💰 Revenue Streams",
+      text: ["Revenue Streams"]
     },
     costStructure: {
-      title: '🏷️ Cost Structure',
-      text: ['Cost Structure']
+      title: "🏷️ Cost Structure",
+      text: ["Cost Structure"]
     },
     keyResources: {
-      title: '💪 Key Resources',
-      text: ['Key Resources']
+      title: "💪 Key Resources",
+      text: ["Key Resources"]
     },
     customerRelationships: {
-      title: '💙 Customer Relationships',
-      text: ['Customer Relationships']
+      title: "💙 Customer Relationships",
+      text: ["Customer Relationships"]
     }
   },
   {
@@ -150,51 +150,51 @@ textusm.render(
 ### Opportunity Canvas
 
 ```javascript
-const textusm = require('textusm');
-const elm = document.getElementById('id');
+const textusm = require("textusm");
+const elm = document.getElementById("id");
 
 textusm.render(
-  elm || 'id',
+  elm || "id",
   {
     problems: {
-      title: 'Problems',
-      text: ['Problems']
+      title: "Problems",
+      text: ["Problems"]
     },
     solutionIdeas: {
-      title: 'Solution Ideas',
-      text: ['Solution Ideas']
+      title: "Solution Ideas",
+      text: ["Solution Ideas"]
     },
     usersAndCustomers: {
-      title: 'Users and Customers',
-      text: ['Users and Customers']
+      title: "Users and Customers",
+      text: ["Users and Customers"]
     },
     solutionsToday: {
-      title: 'Solutions Today',
-      text: ['Solutions Today']
+      title: "Solutions Today",
+      text: ["Solutions Today"]
     },
     businessChallenges: {
-      title: 'Business Challenges',
-      text: ['Business Challenges']
+      title: "Business Challenges",
+      text: ["Business Challenges"]
     },
     howWillUsersUseSolution: {
-      title: 'How will Users use Solution?',
-      text: ['How will Users use Solution?']
+      title: "How will Users use Solution?",
+      text: ["How will Users use Solution?"]
     },
     userMetrics: {
-      title: 'User Metrics',
-      text: ['User Metrics']
+      title: "User Metrics",
+      text: ["User Metrics"]
     },
     adoptionStrategy: {
-      title: 'Adoption Strategy',
-      text: ['Adoption Strategy']
+      title: "Adoption Strategy",
+      text: ["Adoption Strategy"]
     },
     businessBenefitsAndMetrics: {
-      title: 'Business Benefits and Metrics',
-      text: ['Business Benefits and Metrics']
+      title: "Business Benefits and Metrics",
+      text: ["Business Benefits and Metrics"]
     },
     budget: {
-      title: 'Budget',
-      text: ['Budget']
+      title: "Budget",
+      text: ["Budget"]
     }
   },
   {
@@ -210,16 +210,16 @@ textusm.render(
 ### 4Ls Retrospective
 
 ```javascript
-const textusm = require('textusm');
-const elm = document.getElementById('id');
+const textusm = require("textusm");
+const elm = document.getElementById("id");
 
 textusm.render(
-  elm || 'id',
+  elm || "id",
   {
-    liked: { title: 'liked', text: ['liked'] },
-    learned: { title: 'learned', text: ['learned'] },
-    lacked: { title: 'lacked', text: ['lacked'] },
-    longedFor: { title: 'longedFor', text: ['longedFor'] }
+    liked: { title: "liked", text: ["liked"] },
+    learned: { title: "learned", text: ["learned"] },
+    lacked: { title: "lacked", text: ["lacked"] },
+    longedFor: { title: "longedFor", text: ["longedFor"] }
   },
   {
     size: { width: 1024, height: 1024 },
@@ -234,15 +234,15 @@ textusm.render(
 ### Start, Stop, Continue Retrospective
 
 ```javascript
-const textusm = require('textusm');
-const elm = document.getElementById('id');
+const textusm = require("textusm");
+const elm = document.getElementById("id");
 
 textusm.render(
-  elm || 'id',
+  elm || "id",
   {
-    start: { title: 'start', text: ['start'] },
-    stop: { title: 'stop', text: ['stop'] },
-    continue: { title: 'continue', text: ['continue'] }
+    start: { title: "start", text: ["start"] },
+    stop: { title: "stop", text: ["stop"] },
+    continue: { title: "continue", text: ["continue"] }
   },
   {
     size: { width: 1024, height: 1024 },
@@ -257,15 +257,15 @@ textusm.render(
 ### KPT Retrospective
 
 ```javascript
-const textusm = require('textusm');
-const elm = document.getElementById('id');
+const textusm = require("textusm");
+const elm = document.getElementById("id");
 
 textusm.render(
-  elm || 'id',
+  elm || "id",
   {
-    keep: { title: 'keep', text: ['keep'] },
-    problem: { title: 'problem', text: ['problem'] },
-    try: { title: 'try', text: ['try'] }
+    keep: { title: "keep", text: ["keep"] },
+    problem: { title: "problem", text: ["problem"] },
+    try: { title: "try", text: ["try"] }
   },
   {
     size: { width: 1024, height: 1024 },
@@ -304,6 +304,48 @@ FEELS
 ```
 
 ![image](./img/emm.png)
+
+### Customer Journey Map
+
+```
+Discover
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Research
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Purchase
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Delivery
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+Post-Sales
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
+```
+
+![image](./img/cjm.png)
 
 ### Configuration
 

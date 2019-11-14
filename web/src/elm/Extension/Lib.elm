@@ -85,6 +85,9 @@ init flags =
                 else if flags.diagramType == "EmpathyMap" then
                     DiagramType.EmpathyMap
 
+                else if flags.diagramType == "CustomerJourneyMap" then
+                    DiagramType.CustomerJourneyMap
+
                 else
                     DiagramType.UserStoryMap
             , settings = flags.settings
@@ -136,7 +139,7 @@ update message model =
             case subMsg of
                 DiagramModel.OnChangeText text ->
                     let
-                        (model_, cmd_) =
+                        ( model_, cmd_ ) =
                             Diagram.update subMsg model.diagramModel
                     in
                     case model_.error of
@@ -148,7 +151,8 @@ update message model =
 
                 _ ->
                     let
-                        (model_, cmd_ ) = Diagram.update subMsg model.diagramModel
+                        ( model_, cmd_ ) =
+                            Diagram.update subMsg model.diagramModel
                     in
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 

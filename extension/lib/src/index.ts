@@ -1,4 +1,4 @@
-import { Elm } from './js/elm';
+import { Elm } from "./js/elm";
 import {
   UserStoryMap,
   BusinessModelCanvas,
@@ -9,8 +9,9 @@ import {
   toString,
   toTypeString,
   MindMap,
-  EmpathyMap
-} from './model';
+  EmpathyMap,
+  CustomerJourneyMap
+} from "./model";
 
 interface Config {
   font?: string;
@@ -40,33 +41,33 @@ interface Color {
 }
 
 const defaultConfig: Config = {
-  font: 'Roboto',
+  font: "Roboto",
   size: {
     width: 140,
     height: 65
   },
   color: {
     activity: {
-      color: '#FFFFFF',
-      backgroundColor: '#266B9A'
+      color: "#FFFFFF",
+      backgroundColor: "#266B9A"
     },
     task: {
-      color: '#FFFFFF',
-      backgroundColor: '#3E9BCD'
+      color: "#FFFFFF",
+      backgroundColor: "#3E9BCD"
     },
     story: {
-      color: '#000000',
-      backgroundColor: '#FFFFFF'
+      color: "#000000",
+      backgroundColor: "#FFFFFF"
     },
     comment: {
-      color: '#000000',
-      backgroundColor: '#F1B090'
+      color: "#000000",
+      backgroundColor: "#F1B090"
     },
-    line: '#434343',
-    label: '#8C9FAE',
-    text: '#111111'
+    line: "#434343",
+    label: "#8C9FAE",
+    text: "#111111"
   },
-  backgroundColor: '#F5F5F6'
+  backgroundColor: "#F5F5F6"
 };
 
 function render(
@@ -80,18 +81,20 @@ function render(
     | StartStopContinue
     | Kpt
     | MindMap
-    | EmpathyMap,
+    | EmpathyMap
+    | CustomerJourneyMap,
   options?: {
     diagramType?:
-      | 'UserStoryMap'
-      | 'BusinessModelCanvas'
-      | 'OpportunityCanvas'
-      | '4Ls'
-      | 'StartStopContinue'
-      | 'Kpt'
-      | 'UserPersona'
-      | 'MindMap'
-      | 'EmpathyMap';
+      | "UserStoryMap"
+      | "BusinessModelCanvas"
+      | "OpportunityCanvas"
+      | "4Ls"
+      | "StartStopContinue"
+      | "Kpt"
+      | "UserPersona"
+      | "MindMap"
+      | "CustomerJourneyMap"
+      | "EmpathyMap";
     size?: Size;
     showZoomControl?: boolean;
     showMiniMap?: boolean;
@@ -119,10 +122,15 @@ function render(
   },
   config?: Config
 ) {
-  const elm = typeof idOrElm === 'string' ? document.getElementById(idOrElm) : idOrElm;
+  const elm =
+    typeof idOrElm === "string" ? document.getElementById(idOrElm) : idOrElm;
 
   if (!elm) {
-    throw new Error(typeof idOrElm === 'string' ? `Element "${idOrElm}" is not found.` : `Element is not found.`);
+    throw new Error(
+      typeof idOrElm === "string"
+        ? `Element "${idOrElm}" is not found.`
+        : `Element is not found.`
+    );
   }
 
   options = options ? options : {};
@@ -130,7 +138,8 @@ function render(
   config.color = Object.assign(defaultConfig.color, config.color);
   config.size = Object.assign(defaultConfig.size, config.size);
 
-  const text = typeof definition === 'string' ? definition : toString(definition);
+  const text =
+    typeof definition === "string" ? definition : toString(definition);
 
   Elm.Extension.Lib.init({
     node: elm,
@@ -138,15 +147,18 @@ function render(
       text,
       diagramType: options.diagramType
         ? options.diagramType
-        : typeof definition === 'string'
-        ? 'UserStoryMap'
+        : typeof definition === "string"
+        ? "UserStoryMap"
         : toTypeString(definition),
       width: options.size ? options.size.width : 1024,
       height: options.size ? options.size.height : 1024,
       settings: Object.assign(defaultConfig, config),
-      showZoomControl: options.showZoomControl !== undefined ? options.showZoomControl : true,
-      showMiniMap: options.showMiniMap !== undefined ? options.showMiniMap : false,
-      scale: options.scale && 2.0 - options.scale > 0 ? 2.0 - options.scale : 1.0
+      showZoomControl:
+        options.showZoomControl !== undefined ? options.showZoomControl : true,
+      showMiniMap:
+        options.showMiniMap !== undefined ? options.showMiniMap : false,
+      scale:
+        options.scale && 2.0 - options.scale > 0 ? 2.0 - options.scale : 1.0
     }
   });
 }
