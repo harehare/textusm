@@ -54,7 +54,7 @@ view route width fullscreen openMenu canWrite =
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text "Open File" ] ]
                 ]
             , div
-                (onClick GetDiagrams :: menuItemStyle)
+                (onClick GetDiagrams :: class "list-button" :: menuItemStyle)
                 [ Icon.viewComfy
                     (if isNothing openMenu && route == List then
                         "#F5F5F6"
@@ -67,7 +67,7 @@ view route width fullscreen openMenu canWrite =
                 ]
             , if canWrite then
                 div
-                    (onClick Save :: menuItemStyle)
+                    (onClick Save :: class "save-button" :: menuItemStyle)
                     [ Icon.save
                         "#848A90"
                         26
