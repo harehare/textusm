@@ -108,7 +108,7 @@ if (!fs.existsSync(input)) {
 }
 
 if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
-  console.error(`Output file must be svg, png or pdf.`);
+  console.error(`Output file must be svg, png, html or pdf.`);
   process.exit(1);
 }
 

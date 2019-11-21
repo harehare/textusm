@@ -5,7 +5,7 @@ import Html.Attributes as Attr
 import Html.Events.Extra.Mouse as Mouse
 import Models.Diagram exposing (Model, Msg(..))
 import Svg exposing (Svg, svg)
-import Svg.Attributes exposing (width, height, viewBox)
+import Svg.Attributes exposing (height, viewBox, width)
 
 
 view : Model -> ( String, String ) -> Svg Msg -> Html Msg
@@ -32,6 +32,16 @@ view model ( svgWidth, svgHeight ) mainSvg =
     in
     div
         [ Attr.class "minimap"
+        , Attr.style "position" "absolute"
+        , Attr.style "cursor" "pointer"
+        , Attr.style "left" "1px"
+        , Attr.style "bottom" "-8px"
+        , Attr.style "width" "220px"
+        , Attr.style "z-index" "1000"
+        , Attr.style "border-radius" "2px"
+        , Attr.style "background-color" "transparent"
+        , Attr.style "box-shadow" "0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)"
+        , Attr.style "transition" "all 0.2s ease-out"
         , Mouse.onDown
             (\event ->
                 let

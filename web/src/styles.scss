@@ -809,25 +809,13 @@ select {
 }
 
 .minimap {
-    position: absolute;
-    cursor: pointer;
-    left: 1px;
-    bottom: -8px;
-    width: 220px;
-    z-index: 1000;
-    border-radius: 2px;
-    background-color: transparent;
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
-    transition: all 0.2s ease-out;
-
     @media screen and (max-width: 480px) {
         bottom: 55px;
     }
 }
 
 ::-webkit-scrollbar {
-    width: 2px;
+    width: 4px;
 }
 ::-webkit-scrollbar-track {
     background: #fff;

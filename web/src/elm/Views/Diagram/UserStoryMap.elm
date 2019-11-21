@@ -169,14 +169,11 @@ itemView settings itemType posX posY item =
         , onClick (ItemClick item)
         , stopPropagationOn "dblclick" (D.map (\d -> ( d, True )) (D.succeed (ItemDblClick item)))
         ]
-        [ g
-            []
-            [ rectView
-                (String.fromInt settings.size.width)
-                (String.fromInt (settings.size.height - 1))
-                backgroundColor
-            , textView settings "0" "0" color item.text
-            ]
+        [ rectView
+            (String.fromInt settings.size.width)
+            (String.fromInt (settings.size.height - 1))
+            backgroundColor
+        , textView settings "0" "0" color item.text
         ]
 
 

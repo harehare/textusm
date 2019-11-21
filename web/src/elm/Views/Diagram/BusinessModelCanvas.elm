@@ -104,7 +104,7 @@ view model =
 
         -- Cost Structure
         , Views.canvasView model.settings
-            ( round (toFloat Constants.itemWidth * 2.5) - 5, itemHeight + 5 )
+            ( round (toFloat Constants.itemWidth * 2.5) - 10, itemHeight + 5 )
             ( 0, itemHeight * 2 - 5 )
             (model.items
                 |> getAt 6

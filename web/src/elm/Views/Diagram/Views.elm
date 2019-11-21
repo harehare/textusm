@@ -27,11 +27,9 @@ canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
         , y <| String.fromInt posY
         , fill "transparent"
         ]
-        [ g []
-            [ rectView settings ( svgWidth, svgHeight )
-            , titleView settings ( 10, 10 ) item.text
-            , textView settings ( Constants.itemWidth - 13, svgHeight ) ( 10, 35 ) lines
-            ]
+        [ rectView settings ( svgWidth, svgHeight )
+        , titleView settings ( 10, 20 ) item.text
+        , textView settings ( Constants.itemWidth - 13, svgHeight ) ( 10, 35 ) lines
         ]
 
 
@@ -53,7 +51,7 @@ titleView settings ( posX, posY ) title =
         , y <| String.fromInt <| posY + 14
         , fontFamily settings.font
         , fill settings.color.label
-        , fontSize "24"
+        , fontSize "20"
         , fontWeight "bold"
         , class ".select-none"
         ]
@@ -68,30 +66,28 @@ textView settings ( textWidth, textHeight ) ( posX, posY ) lines =
                 |> last
                 |> Maybe.withDefault ""
     in
-    g []
-        [ foreignObject
-            [ x <| String.fromInt posX
-            , y <| String.fromInt posY
-            , width <| String.fromInt textWidth
-            , height <| String.fromInt textHeight
-            , color settings.color.label
-            , fontSize <| Utils.calcFontSize textWidth maxLine
-            , fontFamily settings.font
-            , class ".select-none"
-            ]
-            (lines
-                |> List.map
-                    (\line ->
-                        div
-                            [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-                            , Attr.style "word-wrap" "break-word"
-                            , Attr.style "padding" "0 8px 8px 0"
-                            , Attr.style "color" <| Diagram.getTextColor settings.color
-                            ]
-                            [ Html.text line ]
-                    )
-            )
+    foreignObject
+        [ x <| String.fromInt posX
+        , y <| String.fromInt posY
+        , width <| String.fromInt textWidth
+        , height <| String.fromInt textHeight
+        , color settings.color.label
+        , fontSize <| Utils.calcFontSize textWidth maxLine
+        , fontFamily settings.font
+        , class ".select-none"
         ]
+        (lines
+            |> List.map
+                (\line ->
+                    div
+                        [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+                        , Attr.style "word-wrap" "break-word"
+                        , Attr.style "padding" "0 8px 8px 0"
+                        , Attr.style "color" <| Diagram.getTextColor settings.color
+                        ]
+                        [ Html.text line ]
+                )
+        )
 
 
 canvasImageView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Item -> Svg Msg
@@ -107,11 +103,9 @@ canvasImageView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
         , x <| String.fromInt posX
         , y <| String.fromInt posY
         ]
-        [ g []
-            [ rectView settings ( svgWidth, svgHeight )
-            , imageView ( Constants.itemWidth - 5, svgHeight ) ( 5, 5 ) (lines |> List.head |> Maybe.withDefault "")
-            , titleView settings ( 10, 10 ) item.text
-            ]
+        [ rectView settings ( svgWidth, svgHeight )
+        , imageView ( Constants.itemWidth - 5, svgHeight ) ( 5, 5 ) (lines |> List.head |> Maybe.withDefault "")
+        , titleView settings ( 10, 10 ) item.text
         ]
 
 

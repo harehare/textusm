@@ -308,7 +308,7 @@ view model =
 
 miniMapView : Model -> Html Msg
 miniMapView model =
-    if model.showMiniMap then
+    if model.showMiniMap && not (List.isEmpty model.items) then
         let
             size =
                 Utils.getCanvasSize model
