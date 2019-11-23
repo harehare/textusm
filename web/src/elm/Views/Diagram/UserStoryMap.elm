@@ -2,7 +2,7 @@ module Views.Diagram.UserStoryMap exposing (view)
 
 import Basics exposing (max)
 import Constants exposing (..)
-import Html exposing (div, img)
+import Html exposing (div)
 import Html.Attributes as Attr
 import Json.Decode as D
 import List
@@ -16,6 +16,7 @@ import Svg.Events exposing (onClick, stopPropagationOn)
 import Svg.Keyed as Keyed
 import Svg.Lazy exposing (lazy4, lazy5)
 import Utils
+import Views.Diagram.Views as Views
 
 
 view : Model -> Svg Msg
@@ -147,42 +148,12 @@ labelView labels settings hierarchy width countByHierarchy =
         )
 
 
-itemView : Settings -> ItemType -> Int -> Int -> Item -> Svg Msg
-itemView settings itemType posX posY item =
-    let
-        ( color, backgroundColor ) =
-            case itemType of
-                Activities ->
-                    ( settings.color.activity.color, settings.color.activity.backgroundColor )
-
-                Tasks ->
-                    ( settings.color.task.color, settings.color.task.backgroundColor )
-
-                _ ->
-                    ( settings.color.story.color, settings.color.story.backgroundColor )
-    in
-    svg
-        [ width (String.fromInt settings.size.width)
-        , height (String.fromInt settings.size.height)
-        , x (String.fromInt posX)
-        , y (String.fromInt posY)
-        , onClick (ItemClick item)
-        , stopPropagationOn "dblclick" (D.map (\d -> ( d, True )) (D.succeed (ItemDblClick item)))
-        ]
-        [ rectView
-            (String.fromInt settings.size.width)
-            (String.fromInt (settings.size.height - 1))
-            backgroundColor
-        , textView settings "0" "0" color item.text
-        ]
-
-
 activityView : Settings -> List Int -> Int -> Int -> Item -> Svg Msg
 activityView settings verticalCount posX posY item =
     Keyed.node "g"
         []
         (( "activity-" ++ item.text
-         , itemView settings Activities posX posY item
+         , Views.cardView settings ( posX, posY ) item
          )
             :: (Item.unwrapChildren item.children
                     |> List.indexedMap
@@ -217,7 +188,7 @@ taskView settings verticalCount posX posY item =
     Keyed.node "g"
         []
         (( "task-" ++ item.text
-         , itemView settings Tasks posX posY item
+         , Views.cardView settings ( posX, posY ) item
          )
             :: (children
                     |> List.indexedMap
@@ -262,7 +233,7 @@ storyView settings verticalCount parentCount posX posY item =
     Keyed.node "g"
         []
         (( "story-" ++ item.text
-         , itemView settings (Stories 1) posX posY item
+         , Views.cardView settings ( posX, posY ) item
          )
             :: (children
                     |> List.indexedMap
@@ -284,50 +255,6 @@ storyView settings verticalCount parentCount posX posY item =
                         )
                )
         )
-
-
-rectView : String -> String -> String -> Svg Msg
-rectView posX posY color =
-    rect
-        [ width posX
-        , height posY
-        , fill color
-        , stroke "rgba(192,192,192,0.5)"
-        , rx "5"
-        , ry "5"
-        ]
-        []
-
-
-textView : Settings -> String -> String -> String -> String -> Svg Msg
-textView settings posX posY c t =
-    foreignObject
-        [ x posX
-        , y posY
-        , width (String.fromInt settings.size.width)
-        , height (String.fromInt settings.size.height)
-        , fill c
-        , color c
-        , fontSize (t |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
-        , fontFamily settings.font
-        , class ".select-none"
-        ]
-        [ if Utils.isImageUrl t then
-            img
-                [ Attr.style "object-fit" "cover"
-                , Attr.style "width" (String.fromInt settings.size.width)
-                , Attr.src t
-                ]
-                []
-
-          else
-            div
-                [ Attr.style "padding" "8px"
-                , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-                , Attr.style "word-wrap" "break-word"
-                ]
-                [ Html.text t ]
-        ]
 
 
 labelTextView : Settings -> String -> String -> String -> Svg Msg

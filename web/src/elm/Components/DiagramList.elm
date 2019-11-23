@@ -111,6 +111,9 @@ menuName path =
         "cjm" ->
             "Customer Journey Map"
 
+        "smp" ->
+            "Site Map"
+
         "" ->
             "All"
 

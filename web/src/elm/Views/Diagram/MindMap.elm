@@ -10,6 +10,7 @@ import Svg exposing (Svg, foreignObject, g, line, rect, svg)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (onClick)
 import Utils
+import Views.Diagram.Views as Views
 
 
 type Direction
@@ -200,19 +201,6 @@ nodeLineView settings direction fromBase toBase =
         []
 
 
-getColor : Settings -> Int -> ( String, String )
-getColor settings hierarchy =
-    case hierarchy of
-        1 ->
-            ( settings.color.activity.color, settings.color.activity.backgroundColor )
-
-        2 ->
-            ( settings.color.task.color, settings.color.task.backgroundColor )
-
-        _ ->
-            ( settings.color.story.color, settings.color.story.backgroundColor )
-
-
 nodeItemView : Settings -> Int -> ( Int, Int ) -> Item -> Svg Msg
 nodeItemView settings hierarchy ( posX, posY ) item =
     let
@@ -221,49 +209,5 @@ nodeItemView settings hierarchy ( posX, posY ) item =
 
         svgHeight =
             String.fromInt settings.size.height
-
-        ( colour, backgroundColor ) =
-            getColor settings hierarchy
     in
-    svg
-        [ width svgWidth
-        , height svgHeight
-        , x (String.fromInt posX)
-        , y (String.fromInt posY)
-        , onClick (ItemClick item)
-        ]
-        [ rect
-            [ width svgWidth
-            , height svgHeight
-            , fill backgroundColor
-            , stroke "rgba(192,192,192,0.5)"
-            , rx "5"
-            , ry "5"
-            ]
-            []
-        , foreignObject
-            [ width svgWidth
-            , height svgHeight
-            , fill backgroundColor
-            , color colour
-            , fontSize (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
-            , fontFamily settings.font
-            , class ".select-none"
-            ]
-            [ if Utils.isImageUrl item.text then
-                img
-                    [ Attr.style "object-fit" "cover"
-                    , Attr.style "width" (String.fromInt settings.size.width)
-                    , Attr.src item.text
-                    ]
-                    []
-
-              else
-                div
-                    [ Attr.style "padding" "8px"
-                    , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-                    , Attr.style "word-wrap" "break-word"
-                    ]
-                    [ Html.text item.text ]
-            ]
-        ]
+    Views.cardView settings ( posX, posY ) item

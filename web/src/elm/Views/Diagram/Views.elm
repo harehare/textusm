@@ -1,8 +1,9 @@
-module Views.Diagram.Views exposing (canvasImageView, canvasView)
+module Views.Diagram.Views exposing (canvasImageView, canvasView, cardView)
 
 import Constants exposing (..)
-import Html exposing (div)
+import Html exposing (div, img)
 import Html.Attributes as Attr
+import Json.Decode as D
 import List.Extra exposing (last)
 import Models.Diagram as Diagram exposing (Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
@@ -11,6 +12,78 @@ import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
 import Utils
+
+
+cardView : Settings -> ( Int, Int ) -> Item -> Svg Msg
+cardView settings ( posX, posY ) item =
+    let
+        ( color, backgroundColor ) =
+            case item.itemType of
+                Activities ->
+                    ( settings.color.activity.color, settings.color.activity.backgroundColor )
+
+                Tasks ->
+                    ( settings.color.task.color, settings.color.task.backgroundColor )
+
+                _ ->
+                    ( settings.color.story.color, settings.color.story.backgroundColor )
+    in
+    svg
+        [ width (String.fromInt settings.size.width)
+        , height (String.fromInt settings.size.height)
+        , x (String.fromInt posX)
+        , y (String.fromInt posY)
+        , onClick (ItemClick item)
+        , stopPropagationOn "dblclick" (D.map (\d -> ( d, True )) (D.succeed (ItemDblClick item)))
+        ]
+        [ rectView
+            (String.fromInt settings.size.width)
+            (String.fromInt (settings.size.height - 1))
+            backgroundColor
+        , textView settings "0" "0" color item.text
+        ]
+
+
+rectView : String -> String -> String -> Svg Msg
+rectView svgWidth svgHeight color =
+    rect
+        [ width svgWidth
+        , height svgHeight
+        , fill color
+        , stroke "rgba(192,192,192,0.5)"
+        ]
+        []
+
+
+textView : Settings -> String -> String -> String -> String -> Svg Msg
+textView settings posX posY c t =
+    foreignObject
+        [ x posX
+        , y posY
+        , width (String.fromInt settings.size.width)
+        , height (String.fromInt settings.size.height)
+        , fill c
+        , color c
+        , fontSize (t |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
+        , fontFamily settings.font
+        , class ".select-none"
+        ]
+        [ if Utils.isImageUrl t then
+            img
+                [ Attr.style "object-fit" "cover"
+                , Attr.style "width" (String.fromInt settings.size.width)
+                , Attr.src t
+                ]
+                []
+
+          else
+            div
+                [ Attr.style "padding" "8px"
+                , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+                , Attr.style "word-wrap" "break-word"
+                ]
+                [ Html.text t ]
+        ]
 
 
 canvasView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Item -> Svg Msg
@@ -27,14 +100,14 @@ canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
         , y <| String.fromInt posY
         , fill "transparent"
         ]
-        [ rectView settings ( svgWidth, svgHeight )
+        [ canvasRectView settings ( svgWidth, svgHeight )
         , titleView settings ( 10, 20 ) item.text
-        , textView settings ( Constants.itemWidth - 13, svgHeight ) ( 10, 35 ) lines
+        , canvasTextView settings ( Constants.itemWidth - 13, svgHeight ) ( 10, 35 ) lines
         ]
 
 
-rectView : Settings -> ( Int, Int ) -> Svg Msg
-rectView settings ( rectWidth, rectHeight ) =
+canvasRectView : Settings -> ( Int, Int ) -> Svg Msg
+canvasRectView settings ( rectWidth, rectHeight ) =
     rect
         [ width <| String.fromInt rectWidth
         , height <| String.fromInt rectHeight
@@ -58,8 +131,8 @@ titleView settings ( posX, posY ) title =
         [ text title ]
 
 
-textView : Settings -> ( Int, Int ) -> ( Int, Int ) -> List String -> Svg Msg
-textView settings ( textWidth, textHeight ) ( posX, posY ) lines =
+canvasTextView : Settings -> ( Int, Int ) -> ( Int, Int ) -> List String -> Svg Msg
+canvasTextView settings ( textWidth, textHeight ) ( posX, posY ) lines =
     let
         maxLine =
             List.sortBy String.length lines
@@ -103,7 +176,7 @@ canvasImageView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
         , x <| String.fromInt posX
         , y <| String.fromInt posY
         ]
-        [ rectView settings ( svgWidth, svgHeight )
+        [ canvasRectView settings ( svgWidth, svgHeight )
         , imageView ( Constants.itemWidth - 5, svgHeight ) ( 5, 5 ) (lines |> List.head |> Maybe.withDefault "")
         , titleView settings ( 10, 10 ) item.text
         ]

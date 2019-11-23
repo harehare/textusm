@@ -1,4 +1,8 @@
-module Constants exposing (commentSize, inputPrefix, itemHeight, itemMargin, itemWidth, largeItemHeight, largeItemWidth, leftMargin, smallItemMargin)
+module Constants exposing (commentSize, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, smallItemMargin)
+
+
+itemSpan =
+    40
 
 
 commentSize : Int

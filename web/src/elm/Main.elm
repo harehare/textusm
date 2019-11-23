@@ -386,7 +386,19 @@ changeRouteTo route model =
         Route.CustomerJourneyMap ->
             changeDiagramType DiagramType.CustomerJourneyMap
 
-        _ ->
+        Route.SiteMap ->
+            changeDiagramType DiagramType.SiteMap
+
+        Route.Home ->
+            ( model, getCmds [] )
+
+        Route.Settings ->
+            ( model, getCmds [] )
+
+        Route.Help ->
+            ( model, getCmds [] )
+
+        Route.SharingSettings ->
             ( model, getCmds [] )
 
 
@@ -1131,6 +1143,9 @@ update message model =
 
                         DiagramType.CustomerJourneyMap ->
                             ( "Discover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n", Route.CustomerJourneyMap )
+
+                        DiagramType.SiteMap ->
+                            ( "", Route.SiteMap )
 
                 displayText =
                     if String.isEmpty model.text then

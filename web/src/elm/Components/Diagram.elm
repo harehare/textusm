@@ -29,6 +29,7 @@ import Views.Diagram.Kpt as Kpt
 import Views.Diagram.Markdown as Markdown
 import Views.Diagram.MindMap as MindMap
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
+import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
@@ -93,6 +94,9 @@ loadText diagramType lineNo indent input =
         splited =
             case diagramType of
                 MindMap ->
+                    Parser.parseLinesIgnoreError indent input
+
+                SiteMap ->
                     Parser.parseLinesIgnoreError indent input
 
                 _ ->
@@ -352,6 +356,9 @@ miniMapView model =
 
                     CustomerJourneyMap ->
                         lazy CustomerJourneyMap.view newModel
+
+                    SiteMap ->
+                        lazy SiteMap.view newModel
         in
         lazy3 MiniMap.view model size mainSvg
 
@@ -426,6 +433,9 @@ svgView model =
 
                 CustomerJourneyMap ->
                     lazy CustomerJourneyMap.view model
+
+                SiteMap ->
+                    lazy SiteMap.view model
     in
     svg
         [ Attr.id "usm"

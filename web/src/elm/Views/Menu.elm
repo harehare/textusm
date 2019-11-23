@@ -171,6 +171,10 @@ newMenu =
       , title = "Customer Journey Map"
       , icon = Just <| img [ src "/images/customer_journey_map.svg", style "width" "56px", alt "logo" ] []
       }
+    , { e = New DiagramType.SiteMap
+      , title = "Site Map"
+      , icon = Just <| img [ src "/images/site_map.svg", style "width" "56px", alt "logo" ] []
+      }
     ]
 
 

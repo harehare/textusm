@@ -210,7 +210,52 @@ getCanvasSize model =
                     , model.settings.size.height * ((model.items |> List.head |> Maybe.withDefault Item.emptyItem |> .children |> Item.unwrapChildren |> List.length) + 1) + Constants.itemMargin
                     )
 
-                _ ->
+                DiagramType.SiteMap ->
+                    let
+                        items =
+                            model.items
+                                |> List.head
+                                |> Maybe.withDefault Item.emptyItem
+                                |> .children
+                                |> Item.unwrapChildren
+
+                        hierarchy =
+                            items
+                                |> List.map (\item -> Item.getHierarchyCount item)
+                                |> List.sum
+
+                        svgWidth =
+                            (model.settings.size.width
+                                + Constants.itemSpan
+                            )
+                                * List.length items
+                                + Constants.itemSpan
+                                * hierarchy
+
+                        maxChildrenCount =
+                            items
+                                |> List.map
+                                    (\i ->
+                                        if List.isEmpty (Item.unwrapChildren i.children) then
+                                            0
+
+                                        else
+                                            Item.getChildrenCount i
+                                    )
+                                |> List.maximum
+                                |> Maybe.withDefault 0
+
+                        svgHeight =
+                            (model.settings.size.height
+                                + Constants.itemSpan
+                            )
+                                * (maxChildrenCount
+                                    + 2
+                                  )
+                    in
+                    ( svgWidth + Constants.itemSpan, svgHeight + Constants.itemSpan )
+
+                DiagramType.UserStoryMap ->
                     ( Constants.leftMargin + Constants.itemMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1), (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2) )
     in
     ( width, height )

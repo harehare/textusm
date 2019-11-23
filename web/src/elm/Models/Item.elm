@@ -1,4 +1,4 @@
-module Models.Item exposing (Children, Item, ItemType(..), emptyChildren, emptyItem, fromItems, getChildrenCount, getLeafCount, toString, unwrapChildren)
+module Models.Item exposing (Children, Item, ItemType(..), emptyChildren, emptyItem, fromItems, getChildrenCount, getHierarchyCount, getLeafCount, toString, unwrapChildren)
 
 
 type Children
@@ -56,6 +56,22 @@ childrenCount ii =
 
     else
         List.length ii + (ii |> List.map (\i -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
+
+
+getHierarchyCount : Item -> Int
+getHierarchyCount item =
+    unwrapChildren item.children
+        |> hierarchyCount
+        |> List.length
+
+
+hierarchyCount : List Item -> List Int
+hierarchyCount ii =
+    if List.isEmpty ii then
+        []
+
+    else
+        1 :: List.concatMap (\i -> hierarchyCount <| unwrapChildren i.children) ii
 
 
 getLeafCount : Item -> Int

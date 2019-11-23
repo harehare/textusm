@@ -13,6 +13,7 @@ type DiagramType
     | MindMap
     | EmpathyMap
     | CustomerJourneyMap
+    | SiteMap
 
 
 toString : DiagramType -> String
@@ -51,6 +52,9 @@ toString diagramType =
         CustomerJourneyMap ->
             "cjm"
 
+        SiteMap ->
+            "smp"
+
 
 fromString : String -> DiagramType
 fromString s =
@@ -87,6 +91,9 @@ fromString s =
 
         "cjm" ->
             CustomerJourneyMap
+
+        "smp" ->
+            SiteMap
 
         _ ->
             UserStoryMap

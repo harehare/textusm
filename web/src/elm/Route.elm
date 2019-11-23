@@ -34,6 +34,7 @@ type Route
     | MindMap
     | EmpathyMap
     | CustomerJourneyMap
+    | SiteMap
     | List
     | Settings
     | Help
@@ -61,6 +62,7 @@ parser =
         , map Persona (s "persona")
         , map Markdown (s "md")
         , map MindMap (s "mmp")
+        , map SiteMap (s "smp")
         , map EmpathyMap (s "emm")
         , map CustomerJourneyMap (s "cjm")
         , map List (s "list")
@@ -113,6 +115,9 @@ toString route =
 
         CustomerJourneyMap ->
             absolute [ "cjm" ] []
+
+        SiteMap ->
+            absolute [ "smp" ] []
 
         List ->
             absolute [ "list" ] []
