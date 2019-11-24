@@ -385,7 +385,7 @@ test("User Story Map to string.", () => {
   ).toBe(text);
 });
 
-test("Mind Map to string.", () => {
+test("Site Map, Mind Map to string.", () => {
   const text = `test1
     test2
         test22

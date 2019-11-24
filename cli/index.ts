@@ -67,7 +67,7 @@ const { configFile, input, width, height, output, diagramType } = commander
   )
   .option(
     "-d, --diagramType [diagramType]",
-    "Diagram type. It should be one of userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, mind_map, empathy_map, customer_journey_map."
+    "Diagram type. It should be one of userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, mind_map, empathy_map, customer_journey_map, site_map."
   )
   .parse(process.argv);
 
@@ -92,6 +92,7 @@ const validDiagramType = [
   "mind_map",
   "empathy_map",
   "customer_journey_map",
+  "site_map",
   ""
 ];
 
@@ -149,6 +150,8 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
         ? "emm"
         : diagramType === "customer_journey_map"
         ? "cjm"
+        : diagramType === "site_map"
+        ? "smp"
         : "usm";
     await page.goto(
       `https://app.textusm.com/view/${type}/${encodeURIComponent(

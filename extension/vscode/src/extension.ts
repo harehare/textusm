@@ -1,19 +1,23 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
+import * as vscode from "vscode";
+import * as path from "path";
+import * as fs from "fs";
 
-const showQuickPick = (context: vscode.ExtensionContext, callback: () => void) => {
+const showQuickPick = (
+  context: vscode.ExtensionContext,
+  callback: () => void
+) => {
   const options = [
-    { label: 'User Story Map', value: 'usm' },
-    { label: 'Business Model Canvas', value: 'bmc' },
-    { label: 'Opportunity Canvas', value: 'opc' },
-    { label: 'User Persona', value: 'persona' },
-    { label: '4Ls Retrospective', value: '4ls' },
-    { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
-    { label: 'KPT Retrospective', value: 'kpt' },
-    { label: 'Mind Map', value: 'mmp' },
-    { label: 'Empathy Map', value: 'emm' },
-    { label: 'Customer Journey Map', value: 'cjm' }
+    { label: "User Story Map", value: "usm" },
+    { label: "Business Model Canvas", value: "bmc" },
+    { label: "Opportunity Canvas", value: "opc" },
+    { label: "User Persona", value: "persona" },
+    { label: "4Ls Retrospective", value: "4ls" },
+    { label: "Start, Stop, Continue Retrospective", value: "ssc" },
+    { label: "KPT Retrospective", value: "kpt" },
+    { label: "Mind Map", value: "mmp" },
+    { label: "Empathy Map", value: "emm" },
+    { label: "Customer Journey Map", value: "cjm" },
+    { label: "Site Map", value: "smp" }
   ];
   const quickPick = vscode.window.createQuickPick();
   quickPick.items = options.map(item => ({ label: item.label }));
@@ -38,7 +42,10 @@ const setText = (editor: vscode.TextEditor, text: string) => {
     const lastLine = document.lineAt(document.lineCount - 1);
 
     const start = new vscode.Position(0, 0);
-    const end = new vscode.Position(document.lineCount - 1, lastLine.text.length);
+    const end = new vscode.Position(
+      document.lineCount - 1,
+      lastLine.text.length
+    );
 
     builder.replace(new vscode.Range(start, end), text);
   });
@@ -46,7 +53,7 @@ const setText = (editor: vscode.TextEditor, text: string) => {
 
 const newTextOpen = async (text: string) => {
   const doc = await vscode.workspace.openTextDocument({
-    language: 'txt',
+    language: "txt",
     content: text
   });
   const editor = await vscode.window.showTextDocument(doc, -1, true);
@@ -55,12 +62,12 @@ const newTextOpen = async (text: string) => {
 
 export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    vscode.commands.registerCommand('extension.showPreview', () => {
+    vscode.commands.registerCommand("extension.showPreview", () => {
       showQuickPick(context, () => {});
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand('extension.exportSvg', () => {
+    vscode.commands.registerCommand("extension.exportSvg", () => {
       showQuickPick(context, () => {
         if (DiagramPanel.currentPanel) {
           DiagramPanel.currentPanel.exportSvg();
@@ -69,7 +76,7 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand('extension.exportPng', () => {
+    vscode.commands.registerCommand("extension.exportPng", () => {
       showQuickPick(context, () => {
         if (DiagramPanel.currentPanel) {
           DiagramPanel.currentPanel.exportPng();
@@ -78,18 +85,19 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand('extension.newDiagram', () => {
+    vscode.commands.registerCommand("extension.newDiagram", () => {
       const options = [
-        { label: 'User Story Map', value: 'usm' },
-        { label: 'Business Model Canvas', value: 'bmc' },
-        { label: 'Opportunity Canvas', value: 'opc' },
-        { label: 'User Persona', value: 'persona' },
-        { label: '4Ls Retrospective', value: '4ls' },
-        { label: 'Start, Stop, Continue Retrospective', value: 'ssc' },
-        { label: 'KPT Retrospective', value: 'kpt' },
-        { label: 'Mind Map', value: 'mmp' },
-        { label: 'Empathy Map', value: 'emm' },
-        { label: 'Customer Journey Map', value: 'cjm' }
+        { label: "User Story Map", value: "usm" },
+        { label: "Business Model Canvas", value: "bmc" },
+        { label: "Opportunity Canvas", value: "opc" },
+        { label: "User Persona", value: "persona" },
+        { label: "4Ls Retrospective", value: "4ls" },
+        { label: "Start, Stop, Continue Retrospective", value: "ssc" },
+        { label: "KPT Retrospective", value: "kpt" },
+        { label: "Mind Map", value: "mmp" },
+        { label: "Empathy Map", value: "emm" },
+        { label: "Customer Journey Map", value: "cjm" },
+        { label: "Site Map", value: "smp" }
       ];
       const quickPick = vscode.window.createQuickPick();
       quickPick.items = options.map(item => ({ label: item.label }));
@@ -101,45 +109,50 @@ export function activate(context: vscode.ExtensionContext) {
 
           if (editor && values.length > 0) {
             switch (values[0].value) {
-              case 'usm':
+              case "usm":
                 newTextOpen(
-                  '# labels: USER ACTIVITIES, USER TASKS, USER STORY\nUSER ACTIVITY\n    USER TASK\n        USER STORY'
+                  "# labels: USER ACTIVITIES, USER TASKS, USER STORY\nUSER ACTIVITY\n    USER TASK\n        USER STORY"
                 );
                 break;
-              case 'bmc':
+              case "bmc":
                 newTextOpen(
-                  '👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships'
+                  "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships"
                 );
                 break;
-              case 'opc':
+              case "opc":
                 newTextOpen(
-                  'Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget'
+                  "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget"
                 );
                 break;
-              case '4ls':
-                newTextOpen('Liked\nLearned\nLacked\nLonged for');
+              case "4ls":
+                newTextOpen("Liked\nLearned\nLacked\nLonged for");
                 break;
-              case 'ssc':
-                newTextOpen('Start\nStop\nContinue');
+              case "ssc":
+                newTextOpen("Start\nStop\nContinue");
                 break;
-              case 'kpt':
-                newTextOpen('K\nP\nT');
+              case "kpt":
+                newTextOpen("K\nP\nT");
                 break;
-              case 'persona':
+              case "persona":
                 newTextOpen(
-                  'Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology'
+                  "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology"
                 );
                 break;
-              case 'mmp':
-                newTextOpen('new');
+              case "mmp":
+                newTextOpen("new");
                 break;
-              case 'emm':
-                newTextOpen('https://app.textusm.com/images/logo.svg\nSAYS\nTHINKS\nDOES\nFEELS');
-                break;
-              case 'cjm':
+              case "emm":
                 newTextOpen(
-                  'Discover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n'
+                  "https://app.textusm.com/images/logo.svg\nSAYS\nTHINKS\nDOES\nFEELS"
                 );
+                break;
+              case "cjm":
+                newTextOpen(
+                  "Discover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n"
+                );
+                break;
+              case "smp":
+                newTextOpen("");
                 break;
             }
           }
@@ -156,65 +169,109 @@ export function deactivate() {}
 
 class DiagramPanel {
   public static currentPanel: DiagramPanel | undefined;
-  public static readonly viewType = 'textUSM';
+  public static readonly viewType = "textUSM";
 
   private readonly _panel: vscode.WebviewPanel;
 
-  public static createOrShow(context: vscode.ExtensionContext, diagramType: string) {
-    const column = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.viewColumn : vscode.ViewColumn.Two;
+  public static createOrShow(
+    context: vscode.ExtensionContext,
+    diagramType: string
+  ) {
+    const column = vscode.window.activeTextEditor
+      ? vscode.window.activeTextEditor.viewColumn
+      : vscode.ViewColumn.Two;
     const editor = vscode.window.activeTextEditor;
-    const text = editor ? editor.document.getText() : '';
-    const title = 'TextUSM';
-    const scriptSrc = vscode.Uri.file(path.join(context.extensionPath, 'js', 'elm.js')).with({
-      scheme: 'vscode-resource'
+    const text = editor ? editor.document.getText() : "";
+    const title = "TextUSM";
+    const scriptSrc = vscode.Uri.file(
+      path.join(context.extensionPath, "js", "elm.js")
+    ).with({
+      scheme: "vscode-resource"
     });
 
-    const iconPath = vscode.Uri.file(path.join(context.extensionPath, 'images', 'icon.png'));
+    const iconPath = vscode.Uri.file(
+      path.join(context.extensionPath, "images", "icon.png")
+    );
 
     if (DiagramPanel.currentPanel) {
-      DiagramPanel.currentPanel._update(iconPath, scriptSrc, title, text, diagramType);
+      DiagramPanel.currentPanel._update(
+        iconPath,
+        scriptSrc,
+        title,
+        text,
+        diagramType
+      );
       DiagramPanel.currentPanel._panel.webview.postMessage({
         text
       });
-      DiagramPanel.currentPanel._panel.reveal(column ? column + 1 : vscode.ViewColumn.Two);
+      DiagramPanel.currentPanel._panel.reveal(
+        column ? column + 1 : vscode.ViewColumn.Two
+      );
       DiagramPanel.currentPanel._addTextChangedEvent(editor);
       return;
     }
 
     const panel = vscode.window.createWebviewPanel(
       DiagramPanel.viewType,
-      'TextUSM',
+      "TextUSM",
       column ? column + 1 : vscode.ViewColumn.Two,
       {
         enableScripts: true,
-        localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'js'))]
+        localResourceRoots: [
+          vscode.Uri.file(path.join(context.extensionPath, "js"))
+        ]
       }
     );
 
-    const figurePanel = new DiagramPanel(panel, iconPath, scriptSrc, title, text, diagramType);
+    const figurePanel = new DiagramPanel(
+      panel,
+      iconPath,
+      scriptSrc,
+      title,
+      text,
+      diagramType
+    );
 
     DiagramPanel.currentPanel = figurePanel;
     DiagramPanel.currentPanel._addTextChangedEvent(editor);
 
     figurePanel._panel.webview.onDidReceiveMessage(message => {
-      if (message.command === 'exportPng') {
-        const dir: string | undefined = vscode.workspace.getConfiguration().get('textusm.exportDir');
+      if (message.command === "exportPng") {
+        const dir: string | undefined = vscode.workspace
+          .getConfiguration()
+          .get("textusm.exportDir");
         const editor = vscode.window.activeTextEditor;
-        const title = editor ? path.basename(editor.document.fileName) : 'untitled';
+        const title = editor
+          ? path.basename(editor.document.fileName)
+          : "untitled";
         const filePath = `${
-          dir ? (dir.endsWith('/') ? dir.toString() : `${dir.toString()}/`) : `${vscode.workspace.rootPath}/`
+          dir
+            ? dir.endsWith("/")
+              ? dir.toString()
+              : `${dir.toString()}/`
+            : `${vscode.workspace.rootPath}/`
         }${title}.png`;
-        const base64Data = message.text.replace(/^data:image\/png;base64,/, '');
+        const base64Data = message.text.replace(/^data:image\/png;base64,/, "");
 
-        fs.writeFileSync(filePath, base64Data, 'base64');
+        fs.writeFileSync(filePath, base64Data, "base64");
         vscode.window.showInformationMessage(`Exported: ${filePath}`);
-      } else if (message.command === 'exportSvg') {
-        const backgroundColor = vscode.workspace.getConfiguration().get('textusm.backgroundColor');
+      } else if (message.command === "exportSvg") {
+        const backgroundColor = vscode.workspace
+          .getConfiguration()
+          .get("textusm.backgroundColor");
         const editor = vscode.window.activeTextEditor;
-        const title = editor ? path.basename(editor.document.fileName) : 'untitled';
-        const dir: string | undefined = vscode.workspace.getConfiguration().get('textusm.exportDir');
+        const title = editor
+          ? path.basename(editor.document.fileName)
+          : "untitled";
+        const dir: string | undefined = vscode.workspace
+          .getConfiguration()
+          .get("textusm.exportDir");
         const filePath = `${
-          dir ? (dir.endsWith('/') ? dir.toString() : `${dir.toString()}/`) : `${vscode.workspace.rootPath}/`
+          dir
+            ? dir.endsWith("/")
+              ? dir.toString()
+              : `${dir.toString()}/`
+            : `${vscode.workspace.rootPath}/`
         }${title}.svg`;
         const width = parseInt(message.width) * 2;
         const height = parseInt(message.height) * 2;
@@ -224,11 +281,13 @@ class DiagramPanel {
           `<?xml version="1.0"?>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${
             message.width
-          }" height="${message.height}" style="background-color: ${backgroundColor};">
+          }" height="${
+            message.height
+          }" style="background-color: ${backgroundColor};">
                     ${message.text
-                      .split('<div')
+                      .split("<div")
                       .join('<div xmlns="http://www.w3.org/1999/xhtml"')
-                      .split('<img')
+                      .split("<img")
                       .join('<img xmlns="http://www.w3.org/1999/xhtml"')}
                     </svg>`
         );
@@ -256,36 +315,54 @@ class DiagramPanel {
   }
 
   public exportPng() {
-    const backgroundColor = vscode.workspace.getConfiguration().get('textusm.backgroundColor');
+    const backgroundColor = vscode.workspace
+      .getConfiguration()
+      .get("textusm.backgroundColor");
     this._panel.webview.postMessage({
-      command: 'exportPng',
+      command: "exportPng",
       backgroundColor
     });
   }
 
   public exportSvg() {
     this._panel.webview.postMessage({
-      command: 'exportSvg'
+      command: "exportSvg"
     });
   }
 
-  private _update(iconPath: vscode.Uri, scriptSrc: vscode.Uri, title: string, text: string, diagramType: string) {
+  private _update(
+    iconPath: vscode.Uri,
+    scriptSrc: vscode.Uri,
+    title: string,
+    text: string,
+    diagramType: string
+  ) {
     this._panel.iconPath = iconPath;
     this._panel.title = `${title}`;
-    this._panel.webview.html = this.getWebviewContent(scriptSrc, text, diagramType);
+    this._panel.webview.html = this.getWebviewContent(
+      scriptSrc,
+      text,
+      diagramType
+    );
   }
 
   private _addTextChangedEvent(editor: vscode.TextEditor | undefined) {
     let updated: null | NodeJS.Timeout = null;
     vscode.workspace.onDidChangeTextDocument(e => {
       if (editor) {
-        if (e && e.document && editor && editor.document && e.document.uri === editor.document.uri) {
+        if (
+          e &&
+          e.document &&
+          editor &&
+          editor.document &&
+          e.document.uri === editor.document.uri
+        ) {
           if (updated) {
             clearTimeout(updated);
           }
           updated = setTimeout(() => {
             this._panel.webview.postMessage({
-              command: 'textChanged',
+              command: "textChanged",
               text: e.document.getText()
             });
           }, 1000);
@@ -294,24 +371,52 @@ class DiagramPanel {
     });
   }
 
-  private getWebviewContent(scriptSrc: vscode.Uri, text: string, diagramType: string) {
-    const fontName = vscode.workspace.getConfiguration().get('textusm.fontName');
-    const backgroundColor = vscode.workspace.getConfiguration().get('textusm.backgroundColor');
+  private getWebviewContent(
+    scriptSrc: vscode.Uri,
+    text: string,
+    diagramType: string
+  ) {
+    const fontName = vscode.workspace
+      .getConfiguration()
+      .get("textusm.fontName");
+    const backgroundColor = vscode.workspace
+      .getConfiguration()
+      .get("textusm.backgroundColor");
 
-    const activityColor = vscode.workspace.getConfiguration().get('textusm.activity.color');
-    const activityBackground = vscode.workspace.getConfiguration().get('textusm.activity.backgroundColor');
+    const activityColor = vscode.workspace
+      .getConfiguration()
+      .get("textusm.activity.color");
+    const activityBackground = vscode.workspace
+      .getConfiguration()
+      .get("textusm.activity.backgroundColor");
 
-    const taskColor = vscode.workspace.getConfiguration().get('textusm.task.color');
-    const taskBackground = vscode.workspace.getConfiguration().get('textusm.task.backgroundColor');
+    const taskColor = vscode.workspace
+      .getConfiguration()
+      .get("textusm.task.color");
+    const taskBackground = vscode.workspace
+      .getConfiguration()
+      .get("textusm.task.backgroundColor");
 
-    const storyColor = vscode.workspace.getConfiguration().get('textusm.story.color');
-    const storyBackground = vscode.workspace.getConfiguration().get('textusm.story.backgroundColor');
+    const storyColor = vscode.workspace
+      .getConfiguration()
+      .get("textusm.story.color");
+    const storyBackground = vscode.workspace
+      .getConfiguration()
+      .get("textusm.story.backgroundColor");
 
-    const labelColor = vscode.workspace.getConfiguration().get('textusm.label.color');
-    const textColor = vscode.workspace.getConfiguration().get('textusm.text.color');
-    const lineColor = vscode.workspace.getConfiguration().get('textusm.line.color');
+    const labelColor = vscode.workspace
+      .getConfiguration()
+      .get("textusm.label.color");
+    const textColor = vscode.workspace
+      .getConfiguration()
+      .get("textusm.text.color");
+    const lineColor = vscode.workspace
+      .getConfiguration()
+      .get("textusm.line.color");
 
-    const enabledMiniMap = vscode.workspace.getConfiguration().get('textusm.minimap.enabled');
+    const enabledMiniMap = vscode.workspace
+      .getConfiguration()
+      .get("textusm.minimap.enabled");
 
     return `<!DOCTYPE html>
 <html>
@@ -331,16 +436,24 @@ class DiagramPanel {
         const app = Elm.Extension.VSCode.init({
             node: document.getElementById("svg"),
             flags: {text: \`${text}\`, fontName: "${fontName}",
-            backgroundColor: "${backgroundColor ? backgroundColor : 'transparent'}",
-            activityBackgroundColor: "${activityBackground ? activityBackground : '#266B9A'}",
-            activityColor: "${activityColor ? activityColor : '#FFFFFF'}",
-            taskColor: "${taskColor ? taskColor : '#FFFFFF'}",
-            taskBackgroundColor: "${taskBackground ? taskBackground : '#3E9BCD'}",
-            storyColor: "${storyColor ? storyColor : '#000000'}",
-            storyBackgroundColor: "${storyBackground ? storyBackground : '#FFFFFF'}",
-            textColor: "${textColor ? textColor : '#111111'}",
-            labelColor: "${labelColor ? labelColor : '#8C9FAE'}",
-            lineColor: "${lineColor ? lineColor : '#434343'}",
+            backgroundColor: "${
+              backgroundColor ? backgroundColor : "transparent"
+            }",
+            activityBackgroundColor: "${
+              activityBackground ? activityBackground : "#266B9A"
+            }",
+            activityColor: "${activityColor ? activityColor : "#FFFFFF"}",
+            taskColor: "${taskColor ? taskColor : "#FFFFFF"}",
+            taskBackgroundColor: "${
+              taskBackground ? taskBackground : "#3E9BCD"
+            }",
+            storyColor: "${storyColor ? storyColor : "#000000"}",
+            storyBackgroundColor: "${
+              storyBackground ? storyBackground : "#FFFFFF"
+            }",
+            textColor: "${textColor ? textColor : "#111111"}",
+            labelColor: "${labelColor ? labelColor : "#8C9FAE"}",
+            lineColor: "${lineColor ? lineColor : "#434343"}",
             diagramType: "${diagramType}",
             showMiniMap: ${enabledMiniMap}
         }});

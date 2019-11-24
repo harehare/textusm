@@ -88,6 +88,9 @@ init flags =
                 else if flags.diagramType == "CustomerJourneyMap" then
                     DiagramType.CustomerJourneyMap
 
+                else if flags.diagramType == "SiteMap" then
+                    DiagramType.SiteMap
+
                 else
                     DiagramType.UserStoryMap
             , settings = flags.settings

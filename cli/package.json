@@ -1,7 +1,7 @@
 {
   "name": "textusm.cli",
   "description": "Generate a User Story Mapping from indented text.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "Takahiro Sato",
   "bin": {
     "textusm": "dist/index.js"

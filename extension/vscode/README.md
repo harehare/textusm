@@ -13,6 +13,7 @@ TextISM is a simple tool. Help you draw user story map using indented text.
 - Mind Map
 - Empathy Map
 - Customer Journey Map
+- Site Map
 
 ![image](./img/textusm.gif)
 
@@ -206,6 +207,25 @@ Post-Sales
 ```
 
 ![image](./img/cjm.png)
+
+### Site Map
+
+```
+Home
+    Download
+        TextUSM
+        Help you draw user story map using indented text.
+        WORK QUICKLY
+        SAVE TIME
+    Privacy Policy
+        Test
+    Terms
+        Test
+    Contacts
+        harehare1110@gmail.com
+```
+
+![image](./img/smp.png)
 
 ## Options
 

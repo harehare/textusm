@@ -15,6 +15,7 @@
   <div id="textusm11"></div>
   <div id="textusm12"></div>
   <div id="textusm13"></div>
+  <div id="textusm14"></div>
   <script>
     this.textusm.render(
       "textusm",
@@ -223,59 +224,166 @@
       { diagramType: "EmpathyMap", size: { width: 2048, height: 1024 } }
     );
 
-    const items = [
-      {
-        title: "Task",
-        text: ["Test1", "Test2"]
-      },
-      {
-        title: "Questions",
-        text: ["Test3"]
-      },
-      {
-        title: "Touchpoints",
-        text: []
-      },
-      {
-        title: "Emotions",
-        text: []
-      },
-      {
-        title: "Influences",
-        text: []
-      },
-      {
-        title: "Weaknesses",
-        text: ["Test4"]
-      }
-    ];
     this.textusm.render(
       document.getElementById("textusm13"),
       {
         items: [
           {
             title: "Discover",
-            items
+            items: [
+              {
+                title: "Task",
+                text: ["Test1"]
+              },
+              {
+                title: "Questions",
+                text: ["Test2"]
+              },
+              {
+                title: "Touchpoints",
+                text: ["Test3"]
+              },
+              {
+                title: "Emotions",
+                text: ["Test4"]
+              },
+              {
+                title: "Influences",
+                text: ["Test5"]
+              },
+              {
+                title: "Weaknesses",
+                text: ["Test6"]
+              }
+            ]
           },
           {
             title: "Research",
-            items
+            items: [
+              {
+                title: "Task",
+                text: ["Test1"]
+              },
+              {
+                title: "Questions",
+                text: ["Test2"]
+              },
+              {
+                title: "Touchpoints",
+                text: ["Test3"]
+              },
+              {
+                title: "Emotions",
+                text: ["Test4"]
+              },
+              {
+                title: "Influences",
+                text: ["Test5"]
+              },
+              {
+                title: "Weaknesses",
+                text: ["Test6"]
+              }
+            ]
           },
           {
             title: "Purchase",
-            items
+            items: [
+              {
+                title: "Task",
+                text: ["Test1"]
+              },
+              {
+                title: "Questions",
+                text: ["Test2"]
+              },
+              {
+                title: "Touchpoints",
+                text: ["Test3"]
+              },
+              {
+                title: "Emotions",
+                text: ["Test4"]
+              },
+              {
+                title: "Influences",
+                text: ["Test5"]
+              },
+              {
+                title: "Weaknesses",
+                text: ["Test6"]
+              }
+            ]
           },
           {
             title: "Delivery",
-            items
+            items: [
+              {
+                title: "Task",
+                text: ["Test1"]
+              },
+              {
+                title: "Questions",
+                text: ["Test2"]
+              },
+              {
+                title: "Touchpoints",
+                text: ["Test3"]
+              },
+              {
+                title: "Emotions",
+                text: ["Test4"]
+              },
+              {
+                title: "Influences",
+                text: ["Test5"]
+              },
+              {
+                title: "Weaknesses",
+                text: ["Test6"]
+              }
+            ]
           },
           {
             title: "Post-Sales",
-            items
+            items: [
+              {
+                title: "Task",
+                text: ["Test1"]
+              },
+              {
+                title: "Questions",
+                text: ["Test2"]
+              },
+              {
+                title: "Touchpoints",
+                text: ["Test3"]
+              },
+              {
+                title: "Emotions",
+                text: ["Test4"]
+              },
+              {
+                title: "Influences",
+                text: ["Test5"]
+              },
+              {
+                title: "Weaknesses",
+                text: ["Test6"]
+              }
+            ]
           }
         ]
       },
       { diagramType: "CustomerJourneyMap", size: { width: 2048, height: 1024 } }
+    );
+    this.textusm.render(
+      document.getElementById("textusm14"),
+      `test
+    test
+    test
+        test`,
+      { diagramType: "SiteMap", size: { width: 2048, height: 1024 } }
     );
   </script>
 </html>

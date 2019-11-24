@@ -27,6 +27,13 @@ interface Node {
   children: Node[];
 }
 
+export type SiteMap = MindMap;
+
+interface Node {
+  text: string;
+  children: Node[];
+}
+
 export interface BusinessModelCanvas {
   keyPartners: CanvasItem;
   customerSegments: CanvasItem;
@@ -122,6 +129,7 @@ export function toString(
     | MindMap
     | EmpathyMap
     | CustomerJourneyMap
+    | SiteMap
 ): string {
   return "activities" in definition
     ? userStoryMap2Text(definition)
@@ -138,7 +146,7 @@ export function toString(
     : "whoAmI" in definition
     ? userPersonaCanvas2Text(definition)
     : "node" in definition
-    ? mindMap2Text(definition)
+    ? node2Text(definition)
     : "says" in definition
     ? empathyMapCanvas2Text(definition)
     : "items" in definition
@@ -158,6 +166,7 @@ export function toTypeString(
     | MindMap
     | EmpathyMap
     | CustomerJourneyMap
+    | SiteMap
 ): string {
   return "activities" in definition
     ? "UserStoryMap"
@@ -340,20 +349,18 @@ function userStoryMap2Text(userStoryMap: UserStoryMap): string {
   }, userStoryMap.activities).join("\n")}`;
 }
 
-function mindMap2Text(mindMap: MindMap): string {
-  const node2Text = (node: Node[], indent: number): string[] => {
+function node2Text(map: MindMap | SiteMap): string {
+  const _node2Text = (node: Node[], indent: number): string[] => {
     return flatMap(n => {
       if (n.children.length === 0) {
         return [`${"    ".repeat(indent)}${n.text}`];
       }
 
       return [`${"    ".repeat(indent)}${n.text}`].concat(
-        node2Text(n.children, indent + 1)
+        _node2Text(n.children, indent + 1)
       );
     }, node);
   };
 
-  return [mindMap.node.text]
-    .concat(node2Text(mindMap.node.children, 1))
-    .join("\n");
+  return [map.node.text].concat(_node2Text(map.node.children, 1)).join("\n");
 }

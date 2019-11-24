@@ -12,6 +12,8 @@ Generate a Diagram from indented text.
 - KPT Retrospective
 - User Persona
 - Mind Map
+- CustomerJourneyMap
+- SiteMap
 
 ## Installation
 
@@ -279,73 +281,243 @@ textusm.render(
 
 ### MindMap
 
-```
-TextUSM
-    WORK QUICKLY
-        Draw diagrams without leaving the keyboard.
-    SAVE TIME
-        Instantly visualize your ideas.
-    EXPORT TO IMAGES
-        Images can be exported as png or svg.
-    SHARING
-        Share your diagrams online with your colleagues.
+```javascript
+const textusm = require("textusm");
+const elm = document.getElementById("id");
+
+textusm.render(
+  elm || "id",
+  `TextUSM
+WORK QUICKLY
+    Draw diagrams without leaving the keyboard.
+SAVE TIME
+    Instantly visualize your ideas.
+EXPORT TO IMAGES
+    Images can be exported as png or svg.
+SHARING
+    Share your diagrams online with your colleagues.`,
+  {
+    size: { width: 1024, height: 1024 },
+    diagramType: "MindMap",
+    showZoomControl: true
+  },
+  {}
+);
 ```
 
 ![image](./img/mmp.png)
 
 ### Empathy Map
 
-```
-https://app.textusm.com/images/logo.svg
-SAYS
-THINKS
-DOES
-FEELS
+```javascript
+const textusm = require("textusm");
+const elm = document.getElementById("id");
+
+textusm.render(
+  elm || "id",
+  {
+    imageUrl: "test",
+    says: { title: "test", text: ["test"] },
+    thinks: { title: "test", text: ["test"] },
+    does: { title: "test", text: ["test"] },
+    feels: { title: "test", text: ["test"] }
+  },
+  { diagramType: "EmpathyMap", size: { width: 2048, height: 1024 } }
+);
 ```
 
 ![image](./img/emm.png)
 
 ### Customer Journey Map
 
-```
-Discover
-    Task
-    Questions
-    Touchpoints
-    Emotions
-    Influences
-    Weaknesses
-Research
-    Task
-    Questions
-    Touchpoints
-    Emotions
-    Influences
-    Weaknesses
-Purchase
-    Task
-    Questions
-    Touchpoints
-    Emotions
-    Influences
-    Weaknesses
-Delivery
-    Task
-    Questions
-    Touchpoints
-    Emotions
-    Influences
-    Weaknesses
-Post-Sales
-    Task
-    Questions
-    Touchpoints
-    Emotions
-    Influences
-    Weaknesses
+```javascript
+const textusm = require("textusm");
+const elm = document.getElementById("id");
+
+textusm.render(
+  elm || "id",
+  {
+    items: [
+      {
+        title: "Discover",
+        items: [
+          {
+            title: "Task",
+            text: ["Test1"]
+          },
+          {
+            title: "Questions",
+            text: ["Test2"]
+          },
+          {
+            title: "Touchpoints",
+            text: ["Test3"]
+          },
+          {
+            title: "Emotions",
+            text: ["Test4"]
+          },
+          {
+            title: "Influences",
+            text: ["Test5"]
+          },
+          {
+            title: "Weaknesses",
+            text: ["Test6"]
+          }
+        ]
+      },
+      {
+        title: "Research",
+        items: [
+          {
+            title: "Task",
+            text: ["Test1"]
+          },
+          {
+            title: "Questions",
+            text: ["Test2"]
+          },
+          {
+            title: "Touchpoints",
+            text: ["Test3"]
+          },
+          {
+            title: "Emotions",
+            text: ["Test4"]
+          },
+          {
+            title: "Influences",
+            text: ["Test5"]
+          },
+          {
+            title: "Weaknesses",
+            text: ["Test6"]
+          }
+        ]
+      },
+      {
+        title: "Purchase",
+        items: [
+          {
+            title: "Task",
+            text: ["Test1"]
+          },
+          {
+            title: "Questions",
+            text: ["Test2"]
+          },
+          {
+            title: "Touchpoints",
+            text: ["Test3"]
+          },
+          {
+            title: "Emotions",
+            text: ["Test4"]
+          },
+          {
+            title: "Influences",
+            text: ["Test5"]
+          },
+          {
+            title: "Weaknesses",
+            text: ["Test6"]
+          }
+        ]
+      },
+      {
+        title: "Delivery",
+        items: [
+          {
+            title: "Task",
+            text: ["Test1"]
+          },
+          {
+            title: "Questions",
+            text: ["Test2"]
+          },
+          {
+            title: "Touchpoints",
+            text: ["Test3"]
+          },
+          {
+            title: "Emotions",
+            text: ["Test4"]
+          },
+          {
+            title: "Influences",
+            text: ["Test5"]
+          },
+          {
+            title: "Weaknesses",
+            text: ["Test6"]
+          }
+        ]
+      },
+      {
+        title: "Post-Sales",
+        items: [
+          {
+            title: "Task",
+            text: ["Test1"]
+          },
+          {
+            title: "Questions",
+            text: ["Test2"]
+          },
+          {
+            title: "Touchpoints",
+            text: ["Test3"]
+          },
+          {
+            title: "Emotions",
+            text: ["Test4"]
+          },
+          {
+            title: "Influences",
+            text: ["Test5"]
+          },
+          {
+            title: "Weaknesses",
+            text: ["Test6"]
+          }
+        ]
+      }
+    ]
+  },
+  { diagramType: "CustomerJourneyMap", size: { width: 2048, height: 1024 } }
+);
 ```
 
 ![image](./img/cjm.png)
+
+### Site Map
+
+```javascript
+const textusm = require("textusm");
+const elm = document.getElementById("id");
+
+textusm.render(
+  elm || "id",
+  `TextUSM
+WORK QUICKLY
+    Draw diagrams without leaving the keyboard.
+SAVE TIME
+    Instantly visualize your ideas.
+EXPORT TO IMAGES
+    Images can be exported as png or svg.
+SHARING
+    Share your diagrams online with your colleagues.`,
+  {
+    size: { width: 1024, height: 1024 },
+    diagramType: "SiteMap",
+    showZoomControl: true
+  },
+  {}
+);
+```
+
+![image](./img/smp.png)
 
 ### Configuration
 

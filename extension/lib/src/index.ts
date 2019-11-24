@@ -10,7 +10,8 @@ import {
   toTypeString,
   MindMap,
   EmpathyMap,
-  CustomerJourneyMap
+  CustomerJourneyMap,
+  SiteMap
 } from "./model";
 
 interface Config {
@@ -82,7 +83,8 @@ function render(
     | Kpt
     | MindMap
     | EmpathyMap
-    | CustomerJourneyMap,
+    | CustomerJourneyMap
+    | SiteMap,
   options?: {
     diagramType?:
       | "UserStoryMap"
@@ -94,6 +96,7 @@ function render(
       | "UserPersona"
       | "MindMap"
       | "CustomerJourneyMap"
+      | "SiteMap"
       | "EmpathyMap";
     size?: Size;
     showZoomControl?: boolean;
