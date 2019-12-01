@@ -27,12 +27,17 @@ body {
             color: #e4e4e4;
         }
         a {
-            color: #e39777;
+            color: var(--text-color);
         }
         img {
             filter: grayscale(30%);
         }
     }
+}
+
+a {
+    text-decoration: none;
+    font-weight: 600;
 }
 
 rect {
@@ -61,19 +66,12 @@ select {
     display: flex;
     align-items: center;
     background-color: var(--main-color);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.26);
     width: 100vw;
     height: 40px;
 }
 
 .separator {
     background-color: var(--main-color);
-}
-
-.monaco-scrollable-element,
-.monaco-editor,
-.overflow-guard {
-    width: 100% !important;
 }
 
 .select-none {
@@ -424,6 +422,8 @@ select {
     display: flex;
     overflow: hidden;
     position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 .menu {
@@ -811,6 +811,32 @@ select {
 .minimap {
     @media screen and (max-width: 480px) {
         bottom: 55px;
+    }
+}
+
+.bottom-nav-bar {
+    width: 100%;
+    height: 48px;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    justify-content: space-between;
+
+    .buttons {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .button {
+        width: 48px;
+        height: 48px;
+        border-right: 1px solid var(--border-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }
 

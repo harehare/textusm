@@ -1,8 +1,10 @@
 /// <reference types="cypress"/>
 
+const HOST_NAME = "http://localhost:3000";
+
 context("TextUSM", () => {
   beforeEach(() => {
-    cy.visit("http://localhost:3000");
+    cy.visit(HOST_NAME);
   });
 
   it("user story map should work", () => {
@@ -18,7 +20,7 @@ context("TextUSM", () => {
   });
 
   it("business model canvas should work", () => {
-    cy.route("/bmc")
+    cy.visit(`${HOST_NAME}/bmc`)
       .get(".monaco-editor")
       .click()
       .focused()
@@ -27,7 +29,7 @@ context("TextUSM", () => {
       .get("body")
       .find("rect")
       .its("length")
-      .should("eq", 16);
+      .should("eq", 18);
   });
 
   it("edit title should work", () => {
@@ -45,11 +47,18 @@ context("TextUSM", () => {
   });
 
   it("diagram list should work", () => {
-    cy.get("div.list-button")
+    cy.get(".monaco-editor")
+      .click()
+      .focused()
+      .type("{ctrl}a")
+      .type("test1\n    test2")
+      .get("div.save-button")
+      .click()
+      .get("div.list-button")
       .click()
       .get("div.diagram-list")
       .find("div.diagram-item")
-      .should("to.have.length.gt", 1)
+      .should("to.have.length.gte", 1)
       .get("div.diagram-item")
       .first()
       .click()

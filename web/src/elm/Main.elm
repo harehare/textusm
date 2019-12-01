@@ -31,6 +31,7 @@ import Subscriptions exposing (..)
 import Task
 import Url as Url exposing (percentDecode)
 import Utils
+import Views.BottomNavigationBar as BottomNavigationBar
 import Views.Editor as Editor
 import Views.Empty as Empty
 import Views.Header as Header
@@ -99,7 +100,7 @@ view model =
         ]
         [ lazy7 Header.view model.diagramModel.width model.loginUser (toRoute model.url) model.title model.isEditTitle model.window.fullscreen model.openMenu
         , lazy showNotification model.notification
-        , lazy showProgressbar model.progress
+        , lazy2 showProgressbar model.progress model.window.fullscreen
         , lazy7 sharingDialogView
             (toRoute model.url)
             model.loginUser
@@ -139,6 +140,17 @@ view model =
 
                 Route.Settings ->
                     lazy2 Settings.view model.dropDownIndex model.settings
+
+                Route.Embed diagram title path ->
+                    div [ style "width" "100%", style "height" "100%", style "background-color" model.settings.storyMap.backgroundColor ]
+                        [ let
+                            diagramModel =
+                                model.diagramModel
+                          in
+                          lazy Diagram.view { diagramModel | showMiniMap = False }
+                            |> Html.map UpdateDiagram
+                        , lazy4 BottomNavigationBar.view model.settings diagram title path
+                        ]
 
                 _ ->
                     mainWindow
@@ -193,13 +205,16 @@ main =
         }
 
 
-showProgressbar : Bool -> Html Msg
-showProgressbar show =
+showProgressbar : Bool -> Bool -> Html Msg
+showProgressbar show fullscreen =
     if show then
         ProgressBar.view
 
-    else
+    else if not fullscreen then
         div [ style "height" "4px", style "background" "#273037" ] []
+
+    else
+        Empty.view
 
 
 showNotification : Maybe Notification -> Html Msg
@@ -261,6 +276,8 @@ changeRouteTo route model =
                     { diagramModel
                         | diagramType =
                             DiagramType.fromString diagram
+                        , showMiniMap = False
+                        , showZoomControl = False
                     }
             in
             ( { model
@@ -290,6 +307,7 @@ changeRouteTo route model =
                     { diagramModel
                         | diagramType =
                             DiagramType.fromString diagram
+                        , showMiniMap = False
                     }
             in
             ( { model
@@ -834,7 +852,7 @@ update message model =
                     , fullscreen = model.window.fullscreen
                     }
               }
-            , Cmd.none
+            , layoutEditor 0
             )
 
         OnCurrentShareUrl ->
