@@ -20,7 +20,7 @@ const dist = path.join(__dirname, "dist");
 
 const common = {
     mode: MODE,
-    entry: "./src/index.js",
+    entry: "./src/index.ts",
     output: {
         path: dist,
         publicPath: "/",
@@ -51,7 +51,7 @@ const common = {
     ],
     resolve: {
         modules: [path.join(__dirname, "src"), "node_modules"],
-        extensions: [".js", ".elm", ".scss", ".css"],
+        extensions: [".js", ".ts", ".elm", ".scss", ".css"],
         alias: {
             "monaco-editor": "monaco-editor/esm/vs/editor/editor.api.js"
         }
@@ -64,6 +64,11 @@ const common = {
                 use: {
                     loader: "babel-loader"
                 }
+            },
+            {
+                test: /\.ts$/,
+                exclude: /node_modules/,
+                use: "ts-loader"
             },
             {
                 test: /\.scss$/,

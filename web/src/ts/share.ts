@@ -1,6 +1,8 @@
-import LZUTF8 from "lzutf8";
+import * as LZUTF8 from "lzutf8";
 
+// @ts-ignore
 export const initShare = app => {
+    // @ts-ignore
     app.ports.encodeShareText.subscribe(({ diagramType, title, text }) => {
         app.ports.onEncodeShareText.send(
             `/${diagramType}/${title ? title : "untitled"}/${encodeURIComponent(
@@ -10,7 +12,7 @@ export const initShare = app => {
             )}`
         );
     });
-    app.ports.decodeShareText.subscribe(text => {
+    app.ports.decodeShareText.subscribe((text: string) => {
         app.ports.onDecodeShareText.send(
             LZUTF8.decompress(decodeURIComponent(text), {
                 inputEncoding: "Base64",

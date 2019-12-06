@@ -1,3 +1,5 @@
+import { Settings } from "./model";
+
 const SettingsKey = "textusm:settings";
 
 const loadSettings = () => {
@@ -54,10 +56,15 @@ const defaultSettings = {
     text: "",
     title: null,
     miniMap: true,
+    editor: {
+        fontSize: 14,
+        wordWrap: false,
+        showLineNumber: true
+    },
     diagramId: null
 };
 
-const saveSettings = settings => {
+const saveSettings = (settings: Settings) => {
     localStorage.setItem(SettingsKey, JSON.stringify(settings));
 };
 

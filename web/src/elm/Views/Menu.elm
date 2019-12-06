@@ -1,6 +1,6 @@
 module Views.Menu exposing (menu, view)
 
-import Html exposing (Html, div, img, span, text)
+import Html exposing (nav, Html, div, img, span, text)
 import Html.Attributes exposing (alt, class, src, style)
 import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
@@ -32,7 +32,7 @@ view route width fullscreen openMenu canWrite =
         Empty.view
 
     else
-        div
+        nav
             [ class "menu-bar"
             ]
             [ div

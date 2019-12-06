@@ -58,15 +58,6 @@ context("TextUSM", () => {
       .click()
       .get("div.diagram-list")
       .find("div.diagram-item")
-      .should("to.have.length.gte", 1)
-      .get("div.diagram-item")
-      .first()
-      .click()
-      .get(".view-line")
-      .first()
-      .should("contain", "test1")
-      .get(".view-line")
-      .eq(1)
-      .should("contain", "test2");
+      .should("to.have.length.gte", 1);
   });
 });

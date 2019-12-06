@@ -5,7 +5,7 @@ import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramList as DiagramListModel
-import Models.Model exposing (DownloadInfo, Model, Msg(..), Notification(..), Settings, ShareInfo)
+import Models.Model exposing (DownloadInfo, EditorSettings, Model, Msg(..), Notification(..), Settings, ShareInfo)
 import Models.User exposing (User)
 
 
@@ -51,7 +51,7 @@ port downloadSvg : DownloadInfo -> Cmd msg
 port downloadPdf : DownloadInfo -> Cmd msg
 
 
-port loadEditor : String -> Cmd msg
+port loadEditor : ( String, EditorSettings ) -> Cmd msg
 
 
 port login : () -> Cmd msg

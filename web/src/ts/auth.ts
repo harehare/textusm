@@ -24,7 +24,7 @@ export class Auth {
         return firebase.auth().currentUser || null;
     }
 
-    login(provider) {
+    login(provider: firebase.auth.AuthProvider) {
         return new Promise((resolve, reject) => {
             firebase
                 .auth()
@@ -38,7 +38,12 @@ export class Auth {
         });
     }
 
-    authn(onAuthStateChanged) {
+    authn(
+        onAuthStateChanged: (
+            idToken: string | null,
+            user: firebase.User | null
+        ) => void
+    ) {
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 user.getIdToken(true).then(idToken => {
@@ -47,20 +52,6 @@ export class Auth {
             } else {
                 onAuthStateChanged(null, null);
             }
-        });
-    }
-
-    getAccessToken() {
-        return new Promise((resolve, reject) => {
-            firebase
-                .auth()
-                .getRedirectResult()
-                .then(result => {
-                    resolve(result.credential.accessToken);
-                })
-                .catch(err => {
-                    reject(err);
-                });
         });
     }
 

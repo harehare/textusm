@@ -41,26 +41,53 @@ monaco.editor.defineTheme("usmTheme", {
     ]
 });
 
-export const loadEditor = (app, text) => {
+let monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;
+
+export interface EditorOption {
+    fontSize: number;
+    wordWrap: boolean;
+    showLineNumber: boolean;
+}
+
+// @ts-ignore
+export const loadEditor = (
+    // @ts-ignore
+    app,
+    text: string,
+    { fontSize, wordWrap, showLineNumber }: EditorOption = {
+        fontSize: 14,
+        wordWrap: false,
+        showLineNumber: true
+    }
+) => {
     setTimeout(() => {
         const editor = document.getElementById("editor");
 
-        if (!editor || editor.innerHTML !== "") {
+        if (!editor) {
             return;
         }
 
-        const monacoEditor = monaco.editor.create(editor, {
-            value: text,
+        if (monacoEditor) {
+            monacoEditor.dispose();
+        }
+
+        const value = monacoEditor ? monacoEditor.getValue() : "";
+
+        monacoEditor = monaco.editor.create(editor, {
+            value,
             language: location.pathname.startsWith("/md")
                 ? "markdown"
                 : "userStoryMap",
             theme: "usmTheme",
-            lineNumbers: "on",
+            lineNumbers: showLineNumber ? "on" : "off",
+            wordWrap: wordWrap ? "on" : "off",
             minimap: {
                 enabled: false
-            }
+            },
+            fontSize
         });
 
+        // @ts-ignore
         monacoEditor._standaloneKeybindingService.addDynamicKeybinding(
             "-actions.find"
         );
@@ -69,8 +96,6 @@ export const loadEditor = (app, text) => {
             id: "open",
             label: "open",
             keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
-            precondition: null,
-            keybindingContext: null,
             contextMenuOrder: 1.5,
             run: () => {
                 app.ports.shortcuts.send("open");
@@ -81,8 +106,6 @@ export const loadEditor = (app, text) => {
             id: "save-to-local",
             label: "save",
             keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
-            precondition: null,
-            keybindingContext: null,
             contextMenuOrder: 1.5,
             run: () => {
                 app.ports.shortcuts.send("save");
@@ -90,29 +113,52 @@ export const loadEditor = (app, text) => {
         });
 
         window.onresize = () => {
-            monacoEditor.layout();
+            if (monacoEditor) {
+                monacoEditor.layout();
+            }
         };
 
-        app.ports.loadText.subscribe(text => {
-            monacoEditor.setValue(text);
+        app.ports.loadText.subscribe((text: string) => {
+            if (monacoEditor) {
+                monacoEditor.setValue(text);
+            }
         });
 
-        app.ports.setEditorLanguage.subscribe(mode => {
+        app.ports.setEditorLanguage.subscribe((languageId: string) => {
+            if (!monacoEditor) {
+                return;
+            }
+
             const model = monacoEditor.getModel();
-            monaco.editor.setModelLanguage(model, mode);
+
+            if (model) {
+                monaco.editor.setModelLanguage(model, languageId);
+            }
         });
 
-        app.ports.layoutEditor.subscribe(delay => {
+        app.ports.layoutEditor.subscribe((delay: number) => {
             setTimeout(() => {
+                if (!monacoEditor) return;
                 monacoEditor.layout();
             }, delay);
         });
 
-        app.ports.errorLine.subscribe(err => {
+        app.ports.errorLine.subscribe((err: string) => {
+            if (!monacoEditor) {
+                return;
+            }
+
+            const model = monacoEditor.getModel();
+
+            if (model === null) {
+                return model;
+            }
+
             if (err !== "") {
                 const errLines = err.split("\n");
                 const errLine = errLines.length > 1 ? errLines[1] : err;
-                const res = monacoEditor.getModel().findNextMatch(
+
+                const res = model.findNextMatch(
                     errLine,
                     {
                         lineNumber: 1,
@@ -125,46 +171,45 @@ export const loadEditor = (app, text) => {
                 );
 
                 if (res) {
-                    monaco.editor.setModelMarkers(
-                        monacoEditor.getModel(),
-                        "usm",
-                        [
-                            {
-                                severity: 8,
-                                startColumn: res.range.startColumn,
-                                startLineNumber: res.range.startLineNumber,
-                                endColumn: res.range.endColumn,
-                                endLineNumber: res.range.startLineNumber,
-                                message: "unexpected indent."
-                            }
-                        ]
-                    );
+                    monaco.editor.setModelMarkers(model, "usm", [
+                        {
+                            severity: 8,
+                            startColumn: res.range.startColumn,
+                            startLineNumber: res.range.startLineNumber,
+                            endColumn: res.range.endColumn,
+                            endLineNumber: res.range.startLineNumber,
+                            message: "unexpected indent."
+                        }
+                    ]);
                 }
             } else {
-                monaco.editor.setModelMarkers(
-                    monacoEditor.getModel(),
-                    "usm",
-                    []
-                );
+                monaco.editor.setModelMarkers(model, "usm", []);
             }
         });
 
-        app.ports.selectLine.subscribe(line => {
+        app.ports.selectLine.subscribe((line: number) => {
+            if (!monacoEditor) {
+                return;
+            }
+
             monacoEditor.setPosition({
                 column: 0,
                 lineNumber: line
             });
         });
 
-        let update = null;
+        let update: number | null = null;
 
         monacoEditor.onDidChangeModelContent(e => {
             if (e.changes.length > 0) {
                 if (update) {
-                    clearTimeout(update);
+                    window.clearTimeout(update);
                     update = null;
                 }
-                update = setTimeout(() => {
+                update = window.setTimeout(() => {
+                    if (!monacoEditor) {
+                        return;
+                    }
                     app.ports.changeText.send(monacoEditor.getValue());
                 }, 500);
             }

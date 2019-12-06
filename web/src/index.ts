@@ -1,12 +1,14 @@
 "use strict";
 
 import "./styles.scss";
-import { loadEditor } from "./js/editor.js";
-import { initDowonlad } from "./js/download";
-import { initShare } from "./js/share";
-import { initDB } from "./js/db";
-import { Auth } from "./js/auth";
-import { loadSettings, saveSettings } from "./js/settings";
+import { loadEditor, EditorOption } from "./ts/editor";
+import { initDowonlad } from "./ts/download";
+import { initShare } from "./ts/share";
+import { initDB } from "./ts/db";
+import { Auth } from "./ts/auth";
+import { loadSettings, saveSettings } from "./ts/settings";
+import { Settings } from "./ts/model";
+// @ts-ignore
 import { Elm } from "./elm/Main.elm";
 
 const app = Elm.Main.init({
@@ -17,36 +19,48 @@ const openFullscreen = function() {
     const elem = document.documentElement;
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
+        // @ts-ignore
     } else if (elem.mozRequestFullScreen) {
+        // @ts-ignore
         elem.mozRequestFullScreen();
+        // @ts-ignore
     } else if (elem.webkitRequestFullscreen) {
+        // @ts-ignore
         elem.webkitRequestFullscreen();
+        // @ts-ignore
     } else if (elem.msRequestFullscreen) {
+        // @ts-ignore
         elem.msRequestFullscreen();
     }
 };
 const closeFullscreen = function() {
     if (document.exitFullscreen) {
         document.exitFullscreen();
+        // @ts-ignore
     } else if (document.mozCancelFullScreen) {
+        // @ts-ignore
         document.mozCancelFullScreen();
+        // @ts-ignore
     } else if (document.webkitExitFullscreen) {
+        // @ts-ignore
         document.webkitExitFullscreen();
+        // @ts-ignore
     } else if (document.msExitFullscreen) {
+        // @ts-ignore
         document.msExitFullscreen();
     }
 };
 
-app.ports.saveSettings.subscribe(settings => {
+app.ports.saveSettings.subscribe((settings: Settings) => {
     saveSettings(settings);
 });
 
-app.ports.loadEditor.subscribe(text => {
-    loadEditor(app, text);
+app.ports.loadEditor.subscribe(([text, option]: [string, EditorOption]) => {
+    loadEditor(app, text, option);
 });
 
 app.ports.login.subscribe(() => {
-    auth.login(auth.provideres.google, () => {});
+    auth.login(auth.provideres.google);
 });
 
 app.ports.logout.subscribe(async () => {
@@ -56,13 +70,18 @@ app.ports.logout.subscribe(async () => {
 });
 
 auth.authn(async (idToken, profile) => {
-    app.ports.onAuthStateChanged.send(
-        idToken ? { idToken, id: profile.uid, ...profile } : null
-    );
+    if (profile) {
+        app.ports.onAuthStateChanged.send(
+            idToken ? { idToken, id: profile.uid, ...profile } : null
+        );
+    }
 });
 
-app.ports.selectTextById.subscribe(id => {
-    document.getElementById(id).select();
+app.ports.selectTextById.subscribe((id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+        (element as HTMLInputElement).select();
+    }
 });
 
 app.ports.openFullscreen.subscribe(() => {
@@ -73,7 +92,9 @@ app.ports.closeFullscreen.subscribe(() => {
     closeFullscreen();
 });
 
+// @ts-ignore
 const attachApp = (app, list) => {
+    // @ts-ignore
     list.forEach(l => l(app));
 };
 

@@ -1,0 +1,22 @@
+{
+  "name": "textusm-e2e",
+  "version": "0.1.13",
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "start": "cd web && npm run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@cypress/webpack-preprocessor": "^4.1.1",
+    "cypress": "^3.6.1",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.2",
+    "webpack": "^4.41.2"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.8"
+  }
+}

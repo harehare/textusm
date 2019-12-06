@@ -4,7 +4,7 @@ import Html exposing (Html, div, input, label, text)
 import Html.Attributes exposing (checked, class, style, type_, value)
 import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
-import Models.Model exposing (Msg(..), Settings)
+import Models.Model exposing (Msg(..), Settings, defaultEditorSettings)
 import Views.DropDownList as DropDownList
 
 
@@ -30,9 +30,24 @@ baseColorItems =
 
 baseSizeItems =
     List.range 0 100
-    |> List.map (\i ->
-        { name = String.fromInt <| 50 + i * 5, value = DropDownList.stringValue <| String.fromInt <| 50 + i * 5 }
-    )
+        |> List.map
+            (\i ->
+                { name = String.fromInt <| 50 + i * 5, value = DropDownList.stringValue <| String.fromInt <| 50 + i * 5 }
+            )
+
+
+fontSizeItems =
+    [ { name = "8", value = DropDownList.stringValue "8" }
+    , { name = "9", value = DropDownList.stringValue "9" }
+    , { name = "10", value = DropDownList.stringValue "10" }
+    , { name = "11", value = DropDownList.stringValue "11" }
+    , { name = "12", value = DropDownList.stringValue "12" }
+    , { name = "14", value = DropDownList.stringValue "14" }
+    , { name = "18", value = DropDownList.stringValue "18" }
+    , { name = "24", value = DropDownList.stringValue "24" }
+    , { name = "32", value = DropDownList.stringValue "32" }
+    , { name = "40", value = DropDownList.stringValue "40" }
+    ]
 
 
 fontFamilyItems =
@@ -1067,6 +1082,88 @@ view dropDownIndex settings =
                     ]
                 ]
             ]
+        , section (Just "Editor")
+        , div [ class "controls" ]
+            [ div [ class "control" ]
+                [ div [ class "label" ] [ text "Show Line Number" ]
+                , div [ class "input-area" ]
+                    [ label []
+                        [ input
+                            [ value settings.storyMap.backgroundColor
+                            , type_ "checkbox"
+                            , checked
+                                (settings.editor |> defaultEditorSettings |> .showLineNumber)
+                            , onClick
+                                (UpdateSettings
+                                    (\_ ->
+                                        let
+                                            editorSettings =
+                                                defaultEditorSettings settings.editor
+
+                                            newEditorSettings =
+                                                { editorSettings | showLineNumber = not editorSettings.showLineNumber }
+                                        in
+                                        { settings | editor = Just newEditorSettings }
+                                    )
+                                    ""
+                                )
+                            ]
+                            []
+                        , text "Enabled"
+                        ]
+                    ]
+                ]
+            , div [ class "control" ]
+                [ div [ class "label" ] [ text "Word Wrap" ]
+                , div [ class "input-area" ]
+                    [ label []
+                        [ input
+                            [ value settings.storyMap.backgroundColor
+                            , type_ "checkbox"
+                            , checked
+                                (settings.editor |> defaultEditorSettings |> .wordWrap)
+                            , onClick
+                                (UpdateSettings
+                                    (\_ ->
+                                        let
+                                            editorSettings =
+                                                defaultEditorSettings settings.editor
+
+                                            newEditorSettings =
+                                                { editorSettings | wordWrap = not editorSettings.wordWrap }
+                                        in
+                                        { settings | editor = Just newEditorSettings }
+                                    )
+                                    ""
+                                )
+                            ]
+                            []
+                        , text "Enabled"
+                        ]
+                    ]
+                ]
+            , div [ class "control" ]
+                [ div [ class "label" ] [ text "Font Size" ]
+                , div [ class "input-area" ]
+                    [ DropDownList.view "editor-font-size"
+                        dropDownIndex
+                        (UpdateSettings
+                            (\x ->
+                                let
+                                    editor =
+                                        defaultEditorSettings settings.editor
+
+                                    newEditorSettings =
+                                        { editor | fontSize = String.toInt x |> Maybe.withDefault 14 }
+                                in
+                                { settings | editor = Just newEditorSettings }
+                            )
+                        )
+                        fontSizeItems
+                        (String.fromInt <| (settings.editor |> defaultEditorSettings |> .fontSize))
+                    ]
+                ]
+            ]
         , section (Just "Card Size")
         , div [ class "controls" ]
             [ div [ class "control" ]
@@ -1075,22 +1172,22 @@ view dropDownIndex settings =
                     [ DropDownList.view "card-width"
                         dropDownIndex
                         (UpdateSettings
-                                (\x ->
-                                    let
-                                        storyMap =
-                                            settings.storyMap
+                            (\x ->
+                                let
+                                    storyMap =
+                                        settings.storyMap
 
-                                        size =
-                                            storyMap.size
+                                    size =
+                                        storyMap.size
 
-                                        newSize =
-                                            { size | width = String.toInt x |> Maybe.withDefault 150 }
+                                    newSize =
+                                        { size | width = String.toInt x |> Maybe.withDefault 150 }
 
-                                        newStoryMap =
-                                            { storyMap | size = newSize }
-                                    in
-                                    { settings | storyMap = newStoryMap }
-                                )
+                                    newStoryMap =
+                                        { storyMap | size = newSize }
+                                in
+                                { settings | storyMap = newStoryMap }
+                            )
                         )
                         baseSizeItems
                         (String.fromInt settings.storyMap.size.width)
@@ -1102,22 +1199,22 @@ view dropDownIndex settings =
                     [ DropDownList.view "card-height"
                         dropDownIndex
                         (UpdateSettings
-                                (\x ->
-                                    let
-                                        storyMap =
-                                            settings.storyMap
+                            (\x ->
+                                let
+                                    storyMap =
+                                        settings.storyMap
 
-                                        size =
-                                            storyMap.size
+                                    size =
+                                        storyMap.size
 
-                                        newSize =
-                                            { size | height = String.toInt x |> Maybe.withDefault 45 }
+                                    newSize =
+                                        { size | height = String.toInt x |> Maybe.withDefault 45 }
 
-                                        newStoryMap =
-                                            { storyMap | size = newSize }
-                                    in
-                                    { settings | storyMap = newStoryMap }
-                                )
+                                    newStoryMap =
+                                        { storyMap | size = newSize }
+                                in
+                                { settings | storyMap = newStoryMap }
+                            )
                         )
                         baseSizeItems
                         (String.fromInt settings.storyMap.size.height)

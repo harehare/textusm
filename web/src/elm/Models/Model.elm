@@ -1,4 +1,4 @@
-module Models.Model exposing (DownloadInfo, FileType(..), Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window, canWrite)
+module Models.Model exposing (DownloadInfo, EditorSettings, FileType(..), Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window, canWrite, defaultEditorSettings)
 
 import Api.Diagram exposing (AddUserResponse, UpdateUserResponse)
 import Api.UrlShorter
@@ -160,7 +160,25 @@ type alias Settings =
     , text : Maybe String
     , title : Maybe String
     , miniMap : Maybe Bool
+    , editor : Maybe EditorSettings
     }
+
+
+type alias EditorSettings =
+    { fontSize : Int
+    , wordWrap : Bool
+    , showLineNumber : Bool
+    }
+
+
+defaultEditorSettings : Maybe EditorSettings -> EditorSettings
+defaultEditorSettings settings =
+    Maybe.withDefault
+        { fontSize = 14
+        , wordWrap = False
+        , showLineNumber = True
+        }
+        settings
 
 
 canWrite : Maybe DiagramItem -> Maybe User -> Bool

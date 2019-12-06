@@ -22,7 +22,7 @@ import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramUser)
 import Models.DiagramList as DiagramListModel
 import Models.DiagramType as DiagramType exposing (DiagramType)
-import Models.Model as Model exposing (FileType(..), Model, Msg(..), Notification(..), Settings, ShareUrl(..))
+import Models.Model as Model exposing (FileType(..), Model, Msg(..), Notification(..), Settings, ShareUrl(..), defaultEditorSettings)
 import Models.User exposing (User)
 import Route exposing (Route(..), toRoute)
 import Settings exposing (settingsDecoder)
@@ -436,7 +436,7 @@ update message model =
                         ( model_, cmd_ ) =
                             Diagram.update subMsg model.diagramModel
                     in
-                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, loadEditor model.text ] )
+                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, loadEditor ( model.text, defaultEditorSettings model.settings.editor ) ] )
 
                 DiagramModel.ToggleFullscreen ->
                     let
@@ -539,7 +539,7 @@ update message model =
                       }
                     , Cmd.batch
                         [ errorLine err
-                        , loadEditor model.text
+                        , loadEditor ( model.text, defaultEditorSettings model.settings.editor )
                         , cmd_ |> Cmd.map UpdateDiagram
                         ]
                     )
@@ -549,7 +549,7 @@ update message model =
                         | diagramModel = model_
                         , progress = False
                       }
-                    , loadEditor model.text
+                    , loadEditor ( model.text, defaultEditorSettings model.settings.editor )
                     )
 
         DownloadCompleted ( x, y ) ->
@@ -810,6 +810,7 @@ update message model =
                             model.title
                         , miniMap =
                             model.settings.miniMap
+                        , editor = model.settings.editor
                         }
                 in
                 ( { model | settings = newSettings }
