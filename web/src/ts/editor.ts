@@ -67,11 +67,11 @@ export const loadEditor = (
             return;
         }
 
+        const value = monacoEditor ? monacoEditor.getValue() : text;
+
         if (monacoEditor) {
             monacoEditor.dispose();
         }
-
-        const value = monacoEditor ? monacoEditor.getValue() : "";
 
         monacoEditor = monaco.editor.create(editor, {
             value,

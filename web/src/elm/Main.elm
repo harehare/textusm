@@ -583,6 +583,9 @@ update message model =
 
                         Svg ->
                             ( downloadSvg, ".svg" )
+
+                        HTML ->
+                            ( downloadHtml, ".html" )
             in
             ( { model | diagramModel = newDiagramModel }
             , sub
@@ -592,11 +595,13 @@ update message model =
                 , title = Utils.getTitle model.title ++ extension
                 , x = model.diagramModel.x
                 , y = model.diagramModel.y
+                , text = model.text
+                , diagramType = DiagramType.toString model.diagramModel.diagramType
                 }
             )
 
-        StartDownloadSvg image ->
-            ( model, Cmd.batch [ Download.string (Utils.getTitle model.title ++ ".svg") "image/svg+xml" image, Task.perform identity (Task.succeed CloseMenu) ] )
+        StartDownload info ->
+            ( model, Cmd.batch [ Download.string (Utils.getTitle model.title ++ info.extension) info.mimeType info.content, Task.perform identity (Task.succeed CloseMenu) ] )
 
         OpenMenu menu ->
             ( { model | openMenu = Just menu }, Cmd.none )

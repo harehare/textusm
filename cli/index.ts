@@ -206,7 +206,6 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
     } else if (output.endsWith("html")) {
       const html = await page.evaluate(() => {
         const doc = document.documentElement;
-        console.log(doc.querySelectorAll("script"));
         doc.querySelectorAll("script").forEach(e => {
           e.remove();
         });

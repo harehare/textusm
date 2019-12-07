@@ -196,6 +196,10 @@ exportMenu =
       , title = "Text"
       , icon = Nothing
       }
+    , { e = Download HTML
+      , title = "HTML"
+      , icon = Nothing
+      }
     ]
 
 

@@ -2,7 +2,7 @@ import { Settings } from "./model";
 
 const SettingsKey = "textusm:settings";
 
-const loadSettings = () => {
+const loadSettings = (): Settings => {
     const settings = localStorage.getItem(SettingsKey);
 
     if (settings) {

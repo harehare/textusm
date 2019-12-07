@@ -1,4 +1,4 @@
-module Models.Model exposing (DownloadInfo, EditorSettings, FileType(..), Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window, canWrite, defaultEditorSettings)
+module Models.Model exposing (DownloadFileInfo, DownloadInfo, EditorSettings, FileType(..), Menu(..), Model, Msg(..), Notification(..), Settings, ShareInfo, ShareUrl(..), Window, canWrite, defaultEditorSettings)
 
 import Api.Diagram exposing (AddUserResponse, UpdateUserResponse)
 import Api.UrlShorter
@@ -29,7 +29,7 @@ type Msg
     | CloseMenu
     | Download FileType
     | DownloadCompleted ( Int, Int )
-    | StartDownloadSvg String
+    | StartDownload DownloadFileInfo
     | FileSelect
     | FileSelected File
     | FileLoaded String
@@ -83,6 +83,7 @@ type FileType
     = Png
     | Svg
     | Pdf
+    | HTML
 
 
 type Notification
@@ -131,13 +132,22 @@ type alias Window =
     }
 
 
+type alias DownloadFileInfo =
+    { extension : String
+    , mimeType : String
+    , content : String
+    }
+
+
 type alias DownloadInfo =
     { width : Int
     , height : Int
     , id : String
     , title : String
+    , text : String
     , x : Int
     , y : Int
+    , diagramType : String
     }
 
 

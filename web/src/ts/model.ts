@@ -16,6 +16,17 @@ export interface Diagram {
     isRemote: boolean;
 }
 
+export interface DownloadInfo {
+    width: number;
+    height: number;
+    id: string;
+    title: string;
+    text: string;
+    x: number;
+    y: number;
+    diagramType: string;
+}
+
 export interface Settings {
     font: string;
     position: number;

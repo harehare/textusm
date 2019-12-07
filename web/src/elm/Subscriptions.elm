@@ -1,11 +1,11 @@
-port module Subscriptions exposing (applySettings, changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadPdf, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getDiagram, getDiagrams, layoutEditor, loadEditor, loadText, login, logout, openFullscreen, removeDiagrams, saveDiagram, saveSettings, selectLine, selectTextById, setEditorLanguage, subscriptions)
+port module Subscriptions exposing (applySettings, changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, editSettings, encodeShareText, errorLine, getDiagram, getDiagrams, layoutEditor, loadEditor, loadText, login, logout, openFullscreen, removeDiagrams, saveDiagram, saveSettings, selectLine, selectTextById, setEditorLanguage, subscriptions)
 
 import Browser.Events exposing (onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramList as DiagramListModel
-import Models.Model exposing (DownloadInfo, EditorSettings, Model, Msg(..), Notification(..), Settings, ShareInfo)
+import Models.Model exposing (DownloadFileInfo, DownloadInfo, EditorSettings, Model, Msg(..), Notification(..), Settings, ShareInfo)
 import Models.User exposing (User)
 
 
@@ -15,7 +15,7 @@ port changeText : (String -> msg) -> Sub msg
 port onAuthStateChanged : (Maybe User -> msg) -> Sub msg
 
 
-port startDownloadSvg : (String -> msg) -> Sub msg
+port startDownload : (DownloadFileInfo -> msg) -> Sub msg
 
 
 port applySettings : (Settings -> msg) -> Sub msg
@@ -49,6 +49,9 @@ port downloadSvg : DownloadInfo -> Cmd msg
 
 
 port downloadPdf : DownloadInfo -> Cmd msg
+
+
+port downloadHtml : DownloadInfo -> Cmd msg
 
 
 port loadEditor : ( String, EditorSettings ) -> Cmd msg
@@ -128,7 +131,7 @@ subscriptions model =
     Sub.batch
         ([ changeText (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
          , applySettings ApplySettings
-         , startDownloadSvg StartDownloadSvg
+         , startDownload StartDownload
          , gotLocalDiagrams (\items -> UpdateDiagramList (DiagramListModel.GotLocalDiagrams items))
          , removedDiagram (\_ -> UpdateDiagramList DiagramListModel.Reload)
          , onVisibilityChange OnVisibilityChange
