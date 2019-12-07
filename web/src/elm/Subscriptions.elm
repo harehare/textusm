@@ -12,6 +12,9 @@ import Models.User exposing (User)
 port changeText : (String -> msg) -> Sub msg
 
 
+port progress : (Bool -> msg) -> Sub msg
+
+
 port onAuthStateChanged : (Maybe User -> msg) -> Sub msg
 
 
@@ -147,6 +150,7 @@ subscriptions model =
          , saveToRemote SaveToRemote
          , removeRemoteDiagram (\diagram -> UpdateDiagramList <| DiagramListModel.RemoveRemote diagram)
          , downloadCompleted DownloadCompleted
+         , progress Progress
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp (D.succeed Stop)

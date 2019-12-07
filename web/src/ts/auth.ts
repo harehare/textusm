@@ -39,18 +39,22 @@ export class Auth {
     }
 
     authn(
+        onBeforeAuth: () => void,
+        onAfterAuth: () => void,
         onAuthStateChanged: (
             idToken: string | null,
             user: firebase.User | null
         ) => void
     ) {
         firebase.auth().onAuthStateChanged(user => {
+            onBeforeAuth();
             if (user) {
                 user.getIdToken(true).then(idToken => {
                     onAuthStateChanged(idToken, user);
                 });
             } else {
                 onAuthStateChanged(null, null);
+                onAfterAuth();
             }
         });
     }

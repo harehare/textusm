@@ -38,6 +38,7 @@ type Msg
     | SaveToFileSystem
     | SaveToRemote DiagramItem
     | StartEditTitle
+    | Progress Bool
     | EndEditTitle Int Bool
     | EditTitle String
     | OnShareUrl ShareInfo

@@ -1063,13 +1063,13 @@ update message model =
             ( { model | dropDownIndex = Nothing, settings = settings, diagramModel = newDiagramModel }, Cmd.none )
 
         Login ->
-            ( model, login () )
+            ( { model | progress = True }, login () )
 
         Logout ->
             ( { model | loginUser = Nothing, currentDiagram = Nothing }, logout () )
 
         OnAuthStateChanged user ->
-            ( { model | loginUser = user }, Cmd.none )
+            ( { model | loginUser = user, progress = False }, Cmd.none )
 
         EditInviteMail mail ->
             ( { model
@@ -1130,6 +1130,9 @@ update message model =
                         Just id
             in
             ( { model | dropDownIndex = activeIndex }, Cmd.none )
+
+        Progress visible ->
+            ( { model | progress = visible }, Cmd.none )
 
         New type_ ->
             let

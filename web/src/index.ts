@@ -69,13 +69,21 @@ app.ports.logout.subscribe(async () => {
     });
 });
 
-auth.authn(async (idToken, profile) => {
-    if (profile) {
-        app.ports.onAuthStateChanged.send(
-            idToken ? { idToken, id: profile.uid, ...profile } : null
-        );
+auth.authn(
+    () => {
+        app.ports.progress.send(true);
+    },
+    () => {
+        app.ports.progress.send(false);
+    },
+    async (idToken, profile) => {
+        if (profile) {
+            app.ports.onAuthStateChanged.send(
+                idToken ? { idToken, id: profile.uid, ...profile } : null
+            );
+        }
     }
-});
+);
 
 app.ports.selectTextById.subscribe((id: string) => {
     const element = document.getElementById(id);
