@@ -2,12 +2,12 @@ module Settings exposing (settingsDecoder)
 
 import Json.Decode as D
 import Models.Diagram as Diagram exposing (Color, ColorSettings, Settings, Size)
-import Models.Model as Model
+import Models.Settings as Settings exposing (EditorSettings)
 
 
-settingsDecoder : D.Decoder Model.Settings
+settingsDecoder : D.Decoder Settings.Settings
 settingsDecoder =
-    D.map8 Model.Settings
+    D.map8 Settings.Settings
         (D.maybe (D.field "position" D.int))
         (D.field "font" D.string)
         (D.maybe (D.field "diagramId" D.string))
@@ -27,9 +27,9 @@ diagramDecoder =
         (D.field "backgroundColor" D.string)
 
 
-editorSettingsDecoder : D.Decoder Model.EditorSettings
+editorSettingsDecoder : D.Decoder EditorSettings
 editorSettingsDecoder =
-    D.map3 Model.EditorSettings
+    D.map3 EditorSettings
         (D.field "fontSize" D.int)
         (D.field "wordWrap" D.bool)
         (D.field "showLineNumber" D.bool)

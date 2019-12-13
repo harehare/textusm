@@ -22,7 +22,8 @@ import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramUser)
 import Models.DiagramList as DiagramListModel
 import Models.DiagramType as DiagramType exposing (DiagramType)
-import Models.Model as Model exposing (FileType(..), Model, Msg(..), Notification(..), Settings, ShareUrl(..), defaultEditorSettings)
+import Models.Model as Model exposing (FileType(..), Model, Msg(..), Notification(..), ShareUrl(..))
+import Models.Settings exposing (Settings, defaultEditorSettings)
 import Models.User exposing (User)
 import Route exposing (Route(..), toRoute)
 import Settings exposing (settingsDecoder)
@@ -1175,16 +1176,16 @@ update message model =
                             ( "", Route.SiteMap )
 
                 displayText =
-                    if String.isEmpty model.text then
-                        text_
+                    if String.isEmpty text_ then
+                        model.text
 
                     else
-                        model.text
+                        text_
             in
             ( { model
                 | id = Nothing
                 , title = Nothing
-                , text = displayText
+                , text = text_
                 , currentDiagram = Nothing
               }
             , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString route_) ]

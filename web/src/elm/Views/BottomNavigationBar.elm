@@ -4,7 +4,8 @@ import Html exposing (Html, a, div, img, text)
 import Html.Attributes exposing (alt, class, href, id, src, style, target)
 import Html.Events exposing (onClick)
 import Models.Diagram as DiagramModel
-import Models.Model exposing (Msg(..), Settings)
+import Models.Model exposing (Msg(..))
+import Models.Settings exposing (Settings)
 import Route exposing (Route(..))
 import Styles
 import Views.Icon as Icon

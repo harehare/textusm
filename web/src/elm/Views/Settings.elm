@@ -4,7 +4,9 @@ import Html exposing (Html, div, input, label, text)
 import Html.Attributes exposing (checked, class, style, type_, value)
 import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
-import Models.Model exposing (Msg(..), Settings, defaultEditorSettings)
+import Models.Diagram as Diagram
+import Models.Model exposing (Msg(..))
+import Models.Settings exposing (Settings, settingsOfTextColor, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfWidth, settingsOfWordWrap)
 import Views.DropDownList as DropDownList
 
 
@@ -1046,14 +1048,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    newStoryMap =
-                                        { storyMap | backgroundColor = x }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfBackgroundColor.set x
                             )
                         )
                         baseColorItems
@@ -1095,16 +1090,7 @@ view dropDownIndex settings =
                                 (settings.editor |> defaultEditorSettings |> .showLineNumber)
                             , onClick
                                 (UpdateSettings
-                                    (\_ ->
-                                        let
-                                            editorSettings =
-                                                defaultEditorSettings settings.editor
-
-                                            newEditorSettings =
-                                                { editorSettings | showLineNumber = not editorSettings.showLineNumber }
-                                        in
-                                        { settings | editor = Just newEditorSettings }
-                                    )
+                                    (\_ -> settings |> settingsOfShowLineNumber.set (not (settings.editor |> defaultEditorSettings |> .showLineNumber)))
                                     ""
                                 )
                             ]
@@ -1125,14 +1111,7 @@ view dropDownIndex settings =
                             , onClick
                                 (UpdateSettings
                                     (\_ ->
-                                        let
-                                            editorSettings =
-                                                defaultEditorSettings settings.editor
-
-                                            newEditorSettings =
-                                                { editorSettings | wordWrap = not editorSettings.wordWrap }
-                                        in
-                                        { settings | editor = Just newEditorSettings }
+                                        settings |> settingsOfWordWrap.set (not (settings.editor |> defaultEditorSettings |> .wordWrap))
                                     )
                                     ""
                                 )
@@ -1149,14 +1128,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    editor =
-                                        defaultEditorSettings settings.editor
-
-                                    newEditorSettings =
-                                        { editor | fontSize = String.toInt x |> Maybe.withDefault 14 }
-                                in
-                                { settings | editor = Just newEditorSettings }
+                                settings |> settingsOfFontSize.set (settings.editor |> defaultEditorSettings |> .fontSize)
                             )
                         )
                         fontSizeItems
@@ -1173,20 +1145,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    size =
-                                        storyMap.size
-
-                                    newSize =
-                                        { size | width = String.toInt x |> Maybe.withDefault 150 }
-
-                                    newStoryMap =
-                                        { storyMap | size = newSize }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfWidth.set (String.toInt x |> Maybe.withDefault 150)
                             )
                         )
                         baseSizeItems
@@ -1200,20 +1159,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    size =
-                                        storyMap.size
-
-                                    newSize =
-                                        { size | height = String.toInt x |> Maybe.withDefault 45 }
-
-                                    newStoryMap =
-                                        { storyMap | size = newSize }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfHeight.set (String.toInt x |> Maybe.withDefault 45)
                             )
                         )
                         baseSizeItems
@@ -1230,26 +1176,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    color =
-                                        storyMap.color
-
-                                    activity =
-                                        color.activity
-
-                                    newActivity =
-                                        { activity | backgroundColor = x }
-
-                                    newColor =
-                                        { color | activity = newActivity }
-
-                                    newStoryMap =
-                                        { storyMap | color = newColor }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfActivityBackgroundColor.set x
                             )
                         )
                         baseColorItems
@@ -1263,26 +1190,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    color =
-                                        storyMap.color
-
-                                    activity =
-                                        color.activity
-
-                                    newActivity =
-                                        { activity | color = x }
-
-                                    newColor =
-                                        { color | activity = newActivity }
-
-                                    newStoryMap =
-                                        { storyMap | color = newColor }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfActivityColor.set x
                             )
                         )
                         baseColorItems
@@ -1299,26 +1207,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    color =
-                                        storyMap.color
-
-                                    task =
-                                        color.task
-
-                                    newTask =
-                                        { task | backgroundColor = x }
-
-                                    newColor =
-                                        { color | task = newTask }
-
-                                    newStoryMap =
-                                        { storyMap | color = newColor }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfTaskBackgroundColor.set x
                             )
                         )
                         baseColorItems
@@ -1332,26 +1221,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    color =
-                                        storyMap.color
-
-                                    task =
-                                        color.task
-
-                                    newTask =
-                                        { task | color = x }
-
-                                    newColor =
-                                        { color | task = newTask }
-
-                                    newStoryMap =
-                                        { storyMap | color = newColor }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfTaskColor.set x
                             )
                         )
                         baseColorItems
@@ -1368,26 +1238,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    color =
-                                        storyMap.color
-
-                                    story =
-                                        color.story
-
-                                    newStory =
-                                        { story | backgroundColor = x }
-
-                                    newColor =
-                                        { color | story = newStory }
-
-                                    newStoryMap =
-                                        { storyMap | color = newColor }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfStoryColor.set x
                             )
                         )
                         baseColorItems
@@ -1401,26 +1252,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    color =
-                                        storyMap.color
-
-                                    story =
-                                        color.story
-
-                                    newStory =
-                                        { story | color = x }
-
-                                    newColor =
-                                        { color | story = newStory }
-
-                                    newStoryMap =
-                                        { storyMap | color = newColor }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfStoryBackgroundColor.set x
                             )
                         )
                         baseColorItems
@@ -1438,20 +1270,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    color =
-                                        storyMap.color
-
-                                    newColor =
-                                        { color | line = x }
-
-                                    newStoryMap =
-                                        { storyMap | color = newColor }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfLineColor.set x
                             )
                         )
                         baseColorItems
@@ -1465,20 +1284,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    color =
-                                        storyMap.color
-
-                                    newColor =
-                                        { color | label = x }
-
-                                    newStoryMap =
-                                        { storyMap | color = newColor }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfLabelColor.set x
                             )
                         )
                         baseColorItems
@@ -1492,20 +1298,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                let
-                                    storyMap =
-                                        settings.storyMap
-
-                                    color =
-                                        storyMap.color
-
-                                    newColor =
-                                        { color | text = Just x }
-
-                                    newStoryMap =
-                                        { storyMap | color = newColor }
-                                in
-                                { settings | storyMap = newStoryMap }
+                                settings |> settingsOfTextColor.set x
                             )
                         )
                         baseColorItems

@@ -5,7 +5,8 @@ import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramList as DiagramListModel
-import Models.Model exposing (DownloadFileInfo, DownloadInfo, EditorSettings, Model, Msg(..), Notification(..), Settings, ShareInfo)
+import Models.Model exposing (DownloadFileInfo, DownloadInfo, Model, Msg(..), Notification(..), ShareInfo)
+import Models.Settings exposing (EditorSettings, Settings)
 import Models.User exposing (User)
 
 

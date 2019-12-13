@@ -84,7 +84,8 @@ export const loadEditor = (
             minimap: {
                 enabled: false
             },
-            fontSize
+            fontSize,
+            mouseWheelZoom: true
         });
 
         // @ts-ignore
