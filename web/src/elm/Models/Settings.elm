@@ -117,7 +117,7 @@ settingsOfTaskBackgroundColor =
 
 settingsOfStoryBackgroundColor : Lens Settings String
 settingsOfStoryBackgroundColor =
-    Compose.lensWithLens Diagram.settingsOfTaskBackgroundColor storyMapOfSettings
+    Compose.lensWithLens Diagram.settingsOfStoryBackgroundColor storyMapOfSettings
 
 
 storyMapOfSettings : Lens Settings Diagram.Settings

@@ -6,7 +6,7 @@ import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
 import Models.Diagram as Diagram
 import Models.Model exposing (Msg(..))
-import Models.Settings exposing (Settings, settingsOfTextColor, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfWidth, settingsOfWordWrap)
+import Models.Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap)
 import Views.DropDownList as DropDownList
 
 
@@ -1238,7 +1238,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                settings |> settingsOfStoryColor.set x
+                                settings |> settingsOfStoryBackgroundColor.set x
                             )
                         )
                         baseColorItems
@@ -1252,7 +1252,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                settings |> settingsOfStoryBackgroundColor.set x
+                                settings |> settingsOfStoryColor.set x
                             )
                         )
                         baseColorItems

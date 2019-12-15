@@ -1,4 +1,4 @@
-module Views.Diagram.Views exposing (canvasImageView, canvasView, cardView)
+module Views.Diagram.Views exposing (canvasImageView, canvasView, cardView, textView)
 
 import Constants exposing (..)
 import Html exposing (div, img)

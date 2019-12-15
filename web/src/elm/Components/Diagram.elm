@@ -310,6 +310,46 @@ view model =
         ]
 
 
+diagramView : DiagramType -> Model -> Svg Msg
+diagramView diagramType =
+    case diagramType of
+        UserStoryMap ->
+            UserStoryMap.view
+
+        BusinessModelCanvas ->
+            BusinessModelCanvas.view
+
+        OpportunityCanvas ->
+            OpportunityCanvas.view
+
+        FourLs ->
+            FourLs.view
+
+        StartStopContinue ->
+            StartStopContinue.view
+
+        Kpt ->
+            Kpt.view
+
+        UserPersona ->
+            UserPersona.view
+
+        Markdown ->
+            Markdown.view
+
+        MindMap ->
+            MindMap.view
+
+        EmpathyMap ->
+            EmpathyMap.view
+
+        CustomerJourneyMap ->
+            CustomerJourneyMap.view
+
+        SiteMap ->
+            SiteMap.view
+
+
 miniMapView : Model -> Html Msg
 miniMapView model =
     if model.showMiniMap && not (List.isEmpty model.items) then
@@ -323,42 +363,7 @@ miniMapView model =
                 { model | x = 0, y = 0, matchParent = True }
 
             mainSvg =
-                case model.diagramType of
-                    UserStoryMap ->
-                        lazy UserStoryMap.view newModel
-
-                    BusinessModelCanvas ->
-                        lazy BusinessModelCanvas.view newModel
-
-                    OpportunityCanvas ->
-                        lazy OpportunityCanvas.view newModel
-
-                    FourLs ->
-                        lazy FourLs.view newModel
-
-                    StartStopContinue ->
-                        lazy StartStopContinue.view newModel
-
-                    Kpt ->
-                        lazy Kpt.view newModel
-
-                    UserPersona ->
-                        lazy UserPersona.view newModel
-
-                    Markdown ->
-                        lazy Markdown.view newModel
-
-                    MindMap ->
-                        lazy MindMap.view newModel
-
-                    EmpathyMap ->
-                        lazy EmpathyMap.view newModel
-
-                    CustomerJourneyMap ->
-                        lazy CustomerJourneyMap.view newModel
-
-                    SiteMap ->
-                        lazy SiteMap.view newModel
+                lazy (diagramView model.diagramType) newModel
         in
         lazy3 MiniMap.view model size mainSvg
 
@@ -400,42 +405,7 @@ svgView model =
                     |> String.fromInt
 
         mainSvg =
-            case model.diagramType of
-                UserStoryMap ->
-                    lazy UserStoryMap.view model
-
-                BusinessModelCanvas ->
-                    lazy BusinessModelCanvas.view model
-
-                OpportunityCanvas ->
-                    lazy OpportunityCanvas.view model
-
-                FourLs ->
-                    lazy FourLs.view model
-
-                StartStopContinue ->
-                    lazy StartStopContinue.view model
-
-                Kpt ->
-                    lazy Kpt.view model
-
-                UserPersona ->
-                    lazy UserPersona.view model
-
-                Markdown ->
-                    lazy Markdown.view model
-
-                MindMap ->
-                    lazy MindMap.view model
-
-                EmpathyMap ->
-                    lazy EmpathyMap.view model
-
-                CustomerJourneyMap ->
-                    lazy CustomerJourneyMap.view model
-
-                SiteMap ->
-                    lazy SiteMap.view model
+            lazy (diagramView model.diagramType) model
     in
     svg
         [ Attr.id "usm"
@@ -662,8 +632,6 @@ updateDiagram size width height base text =
                             }
                         , countByHierarchy = countByHierarchy
                         , countByTasks = countByTasks
-                        , x = base.x
-                        , y = base.y
                         , moveX = 0
                         , moveY = 0
                         , error = Nothing
