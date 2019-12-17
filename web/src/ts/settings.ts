@@ -57,7 +57,7 @@ const defaultSettings = {
     title: null,
     miniMap: true,
     editor: {
-        fontSize: 14,
+        fontSize: 12,
         wordWrap: false,
         showLineNumber: true
     },

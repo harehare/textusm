@@ -1047,7 +1047,10 @@ update message model =
                 , title = Just diagram.title
                 , currentDiagram = Just diagram
               }
-            , Nav.pushUrl model.key diagram.diagramPath
+            , Cmd.batch
+                [ Nav.pushUrl model.key diagram.diagramPath
+                , loadText diagram.text
+                ]
             )
 
         UpdateSettings getSetting value ->

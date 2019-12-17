@@ -1,6 +1,6 @@
 module Views.Header exposing (view)
 
-import Html exposing (Attribute, Html, a, div, header, img, input, text)
+import Html exposing (Attribute, Html, a, div, header, img, input, span, text)
 import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
@@ -81,47 +81,21 @@ view width profile route t isEditTitle fullscreen menu =
                 (Styles.flexCenter
                     ++ [ class "button"
                        , onClick <| NavRoute Help
+                       , style "padding" "8px"
                        ]
                 )
                 [ Icon.helpOutline 20
-                , if Utils.isPhone width then
-                    div
-                        [ style "padding" "0 8px"
-                        , style "margin-right" "4px"
-                        ]
-                        []
-
-                  else
-                    div
-                        [ style "font-size" "0.9rem"
-                        , style "padding" "0 8px"
-                        , style "font-weight" "400"
-                        , style "margin-right" "8px"
-                        ]
-                        [ text "HELP" ]
+                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Help" ] ]
                 ]
             , div
                 (Styles.flexCenter
                     ++ [ class "button"
                        , onClick OnCurrentShareUrl
+                       , style "padding" "8px"
                        ]
                 )
                 [ Icon.people 24
-                , if Utils.isPhone width then
-                    div
-                        [ style "padding" "0 8px"
-                        , style "margin-right" "4px"
-                        ]
-                        []
-
-                  else
-                    div
-                        [ style "font-size" "0.9rem"
-                        , style "padding" "0 8px"
-                        , style "font-weight" "400"
-                        , style "margin-right" "4px"
-                        ]
-                        [ text "SHARE" ]
+                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Share" ] ]
                 ]
             , if isJust profile then
                 let

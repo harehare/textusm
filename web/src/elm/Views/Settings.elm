@@ -1128,7 +1128,7 @@ view dropDownIndex settings =
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
-                                settings |> settingsOfFontSize.set (settings.editor |> defaultEditorSettings |> .fontSize)
+                                settings |> settingsOfFontSize.set (Maybe.withDefault 0 <| String.toInt x)
                             )
                         )
                         fontSizeItems

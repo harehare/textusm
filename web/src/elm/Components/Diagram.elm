@@ -226,10 +226,10 @@ zoomControl : Bool -> Float -> Html Msg
 zoomControl isFullscreen scale =
     let
         s =
-            if 1.0 - scale > 0 then
+            if 1.0 - scale >= 0 then
                 round ((1.0 + (1.0 - scale)) * 100.0)
 
-            else if 1.0 - scale < 0 then
+            else if 1.0 - scale <= 0 then
                 round ((1.0 + (1.0 - scale)) * 100.0)
 
             else
@@ -242,7 +242,7 @@ zoomControl isFullscreen scale =
         , Attr.style "right" "35px"
         , Attr.style "top" "5px"
         , Attr.style "display" "flex"
-        , Attr.style "width" "130px"
+        , Attr.style "width" "140px"
         , Attr.style "justify-content" "space-between"
         ]
         [ div
@@ -378,14 +378,14 @@ svgView model =
             if model.fullscreen then
                 Basics.toFloat
                     (Basics.max model.svg.width model.width)
-                    * model.svg.scale
+                    * (model.svg.scale + 0.2)
                     |> round
                     |> String.fromInt
 
             else
                 Basics.toFloat
                     model.width
-                    * model.svg.scale
+                    * (model.svg.scale + 0.2)
                     |> round
                     |> String.fromInt
 
@@ -393,14 +393,14 @@ svgView model =
             if model.fullscreen then
                 Basics.toFloat
                     (Basics.max model.svg.height model.height)
-                    * model.svg.scale
+                    * (model.svg.scale + 0.2)
                     |> round
                     |> String.fromInt
 
             else
                 Basics.toFloat
                     model.height
-                    * model.svg.scale
+                    * (model.svg.scale + 0.2)
                     |> round
                     |> String.fromInt
 
@@ -671,7 +671,7 @@ update message model =
                     ( { model | error = Just err }, Cmd.none )
 
         ZoomIn ->
-            ( if model.svg.scale > 0.1 then
+            ( if model.svg.scale >= 0.1 then
                 { model
                     | svg =
                         { width = model.svg.width
@@ -686,7 +686,7 @@ update message model =
             )
 
         ZoomOut ->
-            ( if model.svg.scale < 2.0 then
+            ( if model.svg.scale <= 2.0 then
                 { model
                     | svg =
                         { width = model.svg.width

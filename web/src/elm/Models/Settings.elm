@@ -42,7 +42,7 @@ editorOfWordWrap =
 
 editorOfShowLineNumber : Lens EditorSettings Bool
 editorOfShowLineNumber =
-    Lens .wordWrap (\b a -> { a | showLineNumber = b })
+    Lens .showLineNumber (\b a -> { a | showLineNumber = b })
 
 
 settingsOfShowLineNumber : Optional Settings Bool

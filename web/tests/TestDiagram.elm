@@ -39,7 +39,7 @@ defaultSettings =
 defInit : Model
 defInit =
     init defaultSettings
-    |> Tuple.first
+        |> Tuple.first
 
 
 noOpTest =
@@ -79,7 +79,7 @@ zoomInTest =
                     |> .svg
                     |> .scale
                     |> List.singleton
-                    |> Expect.equal [ 0.1 ]
+                    |> Expect.equal [ 0.05 ]
         ]
 
 
@@ -110,7 +110,7 @@ zoomOutTest =
                     |> .svg
                     |> .scale
                     |> List.singleton
-                    |> Expect.equal [ 2.0 ]
+                    |> Expect.equal [ 2.05 ]
         ]
 
 
@@ -121,7 +121,7 @@ moveStartTest =
                 let
                     newModel =
                         update (Start 10 20) defInit
-                        |> Tuple.first
+                            |> Tuple.first
                 in
                 Expect.equal newModel { newModel | moveStart = True, moveX = 10, moveY = 20 }
         ]
@@ -134,7 +134,7 @@ moveStopTest =
                 let
                     newModel =
                         update Stop defInit
-                        |> Tuple.first
+                            |> Tuple.first
                 in
                 Expect.equal newModel { newModel | moveStart = False, moveX = 0, moveY = 0, touchDistance = Nothing }
         ]
@@ -147,7 +147,7 @@ moveTest =
                 let
                     newModel =
                         update (Move 10 20) defInit
-                        |> Tuple.first
+                            |> Tuple.first
                 in
                 Expect.equal defInit newModel
         , test "Same as previous position" <|
@@ -155,7 +155,7 @@ moveTest =
                 let
                     newModel =
                         update (Move 0 0) defInit
-                        |> Tuple.first
+                            |> Tuple.first
                 in
                 Expect.equal defInit newModel
         , test "Moved" <|
@@ -163,11 +163,11 @@ moveTest =
                 let
                     newModel =
                         update (Start 0 0) defInit
-                        |> Tuple.first
+                            |> Tuple.first
 
                     moveModel =
                         update (Move 10 20) newModel
-                        |> Tuple.first
+                            |> Tuple.first
                 in
                 Expect.equal moveModel { newModel | x = newModel.x + 10, y = newModel.y + 20, moveX = 10, moveY = 20 }
         ]
@@ -180,7 +180,7 @@ moveToTest =
                 let
                     newModel =
                         update (MoveTo 10 20) defInit
-                        |> Tuple.first
+                            |> Tuple.first
                 in
                 Expect.equal newModel { defInit | x = 10, y = 20 }
         ]
@@ -193,7 +193,7 @@ toggleFullscreenText =
                 let
                     newModel =
                         update ToggleFullscreen defInit
-                        |> Tuple.first
+                            |> Tuple.first
                 in
                 Expect.equal newModel { defInit | fullscreen = True }
         , test "Exit fullscreen" <|
