@@ -1,4 +1,4 @@
-module Views.Diagram.Views exposing (canvasImageView, canvasView, cardView, textView)
+module Views.Diagram.Views exposing (canvasImageView, canvasView, cardView, rectView, textView)
 
 import Constants exposing (..)
 import Html exposing (div, img)
@@ -8,9 +8,9 @@ import List.Extra exposing (last)
 import Models.Diagram as Diagram exposing (Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
-import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
+import Svg exposing (Svg, foreignObject, image, rect, svg, text, text_)
 import Svg.Attributes exposing (..)
-import Svg.Events exposing (..)
+import Svg.Events exposing (onClick, stopPropagationOn)
 import Utils
 
 
@@ -37,42 +37,43 @@ cardView settings ( posX, posY ) item =
         , stopPropagationOn "dblclick" (D.map (\d -> ( d, True )) (D.succeed (ItemDblClick item)))
         ]
         [ rectView
-            (String.fromInt settings.size.width)
-            (String.fromInt (settings.size.height - 1))
+            ( settings.size.width
+            , settings.size.height - 1
+            )
             backgroundColor
-        , textView settings "0" "0" color item.text
+        , textView settings ( 0, 0 ) color item.text
         ]
 
 
-rectView : String -> String -> String -> Svg Msg
-rectView svgWidth svgHeight color =
+rectView : ( Int, Int ) -> String -> Svg Msg
+rectView ( svgWidth, svgHeight ) color =
     rect
-        [ width svgWidth
-        , height svgHeight
+        [ width <| String.fromInt svgWidth
+        , height <| String.fromInt svgHeight
         , fill color
         , stroke "rgba(192,192,192,0.5)"
         ]
         []
 
 
-textView : Settings -> String -> String -> String -> String -> Svg Msg
-textView settings posX posY c t =
+textView : Settings -> ( Int, Int ) -> String -> String -> Svg Msg
+textView settings ( posX, posY ) colour textOrUrl =
     foreignObject
-        [ x posX
-        , y posY
-        , width (String.fromInt settings.size.width)
-        , height (String.fromInt settings.size.height)
-        , fill c
-        , color c
-        , fontSize (t |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
+        [ x <| String.fromInt posX
+        , y <| String.fromInt posY
+        , width <| String.fromInt settings.size.width
+        , height <| String.fromInt settings.size.height
+        , fill colour
+        , color colour
+        , fontSize (textOrUrl |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
         , fontFamily settings.font
         , class ".select-none"
         ]
-        [ if Utils.isImageUrl t then
+        [ if Utils.isImageUrl textOrUrl then
             img
                 [ Attr.style "object-fit" "cover"
                 , Attr.style "width" (String.fromInt settings.size.width)
-                , Attr.src t
+                , Attr.src textOrUrl
                 ]
                 []
 
@@ -82,7 +83,7 @@ textView settings posX posY c t =
                 , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
                 , Attr.style "word-wrap" "break-word"
                 ]
-                [ Html.text t ]
+                [ Html.text textOrUrl ]
         ]
 
 

@@ -2,11 +2,10 @@ module Views.Diagram.SiteMap exposing (view)
 
 import Constants exposing (..)
 import List.Extra exposing (scanl1, zip)
-import Models.Diagram exposing (Model, Msg(..), Point, Settings)
+import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item)
-import Svg exposing (Svg, g, line, svg)
+import Svg exposing (Svg, g, line)
 import Svg.Attributes exposing (..)
-import Utils
 import Views.Diagram.Views as Views
 
 

@@ -14,6 +14,7 @@ type DiagramType
     | EmpathyMap
     | CustomerJourneyMap
     | SiteMap
+    | GanttChart
 
 
 toString : DiagramType -> String
@@ -55,6 +56,9 @@ toString diagramType =
         SiteMap ->
             "smp"
 
+        GanttChart ->
+            "gct"
+
 
 fromString : String -> DiagramType
 fromString s =
@@ -94,6 +98,9 @@ fromString s =
 
         "smp" ->
             SiteMap
+
+        "gct" ->
+            GanttChart
 
         _ ->
             UserStoryMap

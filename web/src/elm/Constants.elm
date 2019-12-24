@@ -1,4 +1,4 @@
-module Constants exposing (commentSize, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, smallItemMargin)
+module Constants exposing (commentSize, ganttItemSize, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, smallItemMargin)
 
 
 itemSpan =
@@ -15,6 +15,11 @@ itemMargin =
     16
 
 
+ganttItemSize : Int
+ganttItemSize =
+    30
+
+
 smallItemMargin : Int
 smallItemMargin =
     itemMargin // 8
@@ -22,7 +27,7 @@ smallItemMargin =
 
 leftMargin : Int
 leftMargin =
-    70
+    140
 
 
 inputPrefix : String

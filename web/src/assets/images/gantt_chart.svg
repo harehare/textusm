@@ -1,0 +1,160 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 186" width="400" height="186" style="background-color: transparent;">
+    <defs>
+        <style>@import url('https://fonts.googleapis.com/css?family=Noto Sans&amp;display=swap');</style>
+    </defs>
+    <g transform="translate(0,0)">
+        <g>
+            <g>
+                <foreignObject x="139" y="14" width="140" height="30" color="#333333" font-size="11" font-weight="bold" font-family="Noto Sans" class=".select-none">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">Week 1
+
+
+                    </div>
+                </foreignObject>
+                <line x1="139" y1="32" x2="139" y2="218" stroke="#434343" stroke-width="0.5"/>
+            </g>
+            <g>
+                <foreignObject x="349" y="14" width="140" height="30" color="#333333" font-size="11" font-weight="bold" font-family="Noto Sans" class=".select-none">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">Week 2
+
+
+                    </div>
+                </foreignObject>
+                <line x1="349" y1="32" x2="349" y2="218" stroke="#434343" stroke-width="0.5"/>
+            </g>
+            <g>
+                <foreignObject x="559" y="14" width="140" height="30" color="#333333" font-size="11" font-weight="bold" font-family="Noto Sans" class=".select-none">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">Week 3
+
+
+                    </div>
+                </foreignObject>
+                <line x1="559" y1="32" x2="559" y2="218" stroke="#434343" stroke-width="0.5"/>
+            </g>
+            <g>
+                <foreignObject x="769" y="14" width="140" height="30" color="#333333" font-size="11" font-weight="bold" font-family="Noto Sans" class=".select-none">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">Week 4
+
+
+                    </div>
+                </foreignObject>
+                <line x1="769" y1="32" x2="769" y2="218" stroke="#434343" stroke-width="0.5"/>
+            </g>
+            <g>
+                <foreignObject x="979" y="14" width="140" height="30" color="#333333" font-size="11" font-weight="bold" font-family="Noto Sans" class=".select-none">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">Week 5
+
+
+                    </div>
+                </foreignObject>
+                <line x1="979" y1="32" x2="979" y2="218" stroke="#434343" stroke-width="0.5"/>
+            </g>
+            <g>
+                <foreignObject x="1189" y="14" width="140" height="30" color="#333333" font-size="11" font-weight="bold" font-family="Noto Sans" class=".select-none">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">Week 6
+
+
+                    </div>
+                </foreignObject>
+                <line x1="1189" y1="32" x2="1189" y2="218" stroke="#434343" stroke-width="0.5"/>
+            </g>
+        </g>
+        <g>
+            <line x1="0" y1="32" x2="1236" y2="32" stroke="#434343" stroke-width="0.5"/>
+            <foreignObject x="10" y="40" width="124" height="60" color="#333333" font-size="11" font-weight="bold" font-family="Noto Sans" class=".select-none">
+                <div
+                    xmlns="http://www.w3.org/1999/xhtml" style="font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">    dev
+
+
+                </div>
+            </foreignObject>
+        </g>
+        <svg width="300" height="30" x="140" y="30">
+            <rect width="150" height="24" x="1" y="6" fill="#CEE5F2" stroke="rgba(192,192,192,0.5)"/>
+            <foreignObject x="150" y="0" width="120" height="60" fill="#333333" color="#333333" font-size="15" font-family="Noto Sans" class=".select-none">
+                <div
+                    xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;"> test
+
+
+                </div>
+            </foreignObject>
+        </svg>
+        <svg width="240" height="30" x="290" y="60">
+            <rect width="120" height="24" x="1" y="6" fill="#CEE5F2" stroke="rgba(192,192,192,0.5)"/>
+            <foreignObject x="120" y="0" width="120" height="60" fill="#333333" color="#333333" font-size="15" font-family="Noto Sans" class=".select-none">
+                <div
+                    xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;"> test
+
+
+                </div>
+            </foreignObject>
+        </svg>
+        <g>
+            <line x1="0" y1="92" x2="1236" y2="92" stroke="#434343" stroke-width="0.5"/>
+            <foreignObject x="10" y="100" width="124" height="60" color="#333333" font-size="11" font-weight="bold" font-family="Noto Sans" class=".select-none">
+                <div
+                    xmlns="http://www.w3.org/1999/xhtml" style="font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">    dev
+
+
+                </div>
+            </foreignObject>
+        </g>
+        <svg width="300" height="30" x="140" y="90">
+            <rect width="150" height="24" x="1" y="6" fill="#CEE5F2" stroke="rgba(192,192,192,0.5)"/>
+            <foreignObject x="150" y="0" width="120" height="60" fill="#333333" color="#333333" font-size="15" font-family="Noto Sans" class=".select-none">
+                <div
+                    xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;"> test
+
+
+                </div>
+            </foreignObject>
+        </svg>
+        <svg width="240" height="30" x="290" y="120">
+            <rect width="120" height="24" x="1" y="6" fill="#CEE5F2" stroke="rgba(192,192,192,0.5)"/>
+            <foreignObject x="120" y="0" width="120" height="60" fill="#333333" color="#333333" font-size="15" font-family="Noto Sans" class=".select-none">
+                <div
+                    xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;"> test
+
+
+                </div>
+            </foreignObject>
+        </svg>
+        <g>
+            <line x1="0" y1="152" x2="1236" y2="152" stroke="#434343" stroke-width="0.5"/>
+            <foreignObject x="10" y="160" width="124" height="60" color="#333333" font-size="11" font-weight="bold" font-family="Noto Sans" class=".select-none">
+                <div
+                    xmlns="http://www.w3.org/1999/xhtml" style="font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">    dev
+
+
+                </div>
+            </foreignObject>
+        </g>
+        <svg width="300" height="30" x="140" y="150">
+            <rect width="150" height="24" x="1" y="6" fill="#CEE5F2" stroke="rgba(192,192,192,0.5)"/>
+            <foreignObject x="150" y="0" width="120" height="60" fill="#333333" color="#333333" font-size="15" font-family="Noto Sans" class=".select-none">
+                <div
+                    xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;"> test
+
+
+                </div>
+            </foreignObject>
+        </svg>
+        <svg width="1500" height="30" x="290" y="180">
+            <rect width="750" height="24" x="1" y="6" fill="#CEE5F2" stroke="rgba(192,192,192,0.5)"/>
+            <foreignObject x="750" y="0" width="120" height="60" fill="#333333" color="#333333" font-size="15" font-family="Noto Sans" class=".select-none">
+                <div
+                    xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;"> test
+
+
+                </div>
+            </foreignObject>
+        </svg>
+    </g>
+</svg>

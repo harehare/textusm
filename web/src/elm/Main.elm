@@ -408,6 +408,9 @@ changeRouteTo route model =
         Route.SiteMap ->
             changeDiagramType DiagramType.SiteMap
 
+        Route.GanttChart ->
+            changeDiagramType DiagramType.GanttChart
+
         Route.Home ->
             ( model, getCmds [] )
 
@@ -1177,6 +1180,9 @@ update message model =
 
                         DiagramType.SiteMap ->
                             ( "", Route.SiteMap )
+
+                        DiagramType.GanttChart ->
+                            ( "2019-12-26,2020-01-31: title\n    subtitle1\n        2019-12-26, 2019-12-31: task1\n        2019-12-31, 2020-01-04: task2\n", Route.GanttChart )
 
                 displayText =
                     if String.isEmpty text_ then

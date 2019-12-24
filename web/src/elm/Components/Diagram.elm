@@ -1,7 +1,6 @@
 module Components.Diagram exposing (init, update, view)
 
 import Basics exposing (max)
-import Constants exposing (..)
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Html.Events.Extra.Mouse as Mouse
@@ -18,13 +17,14 @@ import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
-import Svg.Lazy exposing (..)
+import Svg.Lazy exposing (lazy, lazy2, lazy3)
 import Task
 import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.CustomerJourneyMap as CustomerJourneyMap
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
+import Views.Diagram.GanttChart as GanttChart
 import Views.Diagram.Kpt as Kpt
 import Views.Diagram.Markdown as Markdown
 import Views.Diagram.MindMap as MindMap
@@ -349,6 +349,9 @@ diagramView diagramType =
         SiteMap ->
             SiteMap.view
 
+        GanttChart ->
+            GanttChart.view
+
 
 miniMapView : Model -> Html Msg
 miniMapView model =
@@ -564,8 +567,8 @@ touchCoordinates touchEvent =
 -- Update
 
 
-updateDiagram : Size -> Int -> Int -> Model -> String -> Result String Model
-updateDiagram size width height base text =
+updateDiagram : Int -> Int -> Model -> String -> Result String Model
+updateDiagram width height base text =
     load base.diagramType text
         |> Result.andThen
             (\( hierarchy, items ) ->
@@ -584,16 +587,6 @@ updateDiagram size width height base text =
                                 )
                             |> Maybe.withDefault []
 
-                    itemCount =
-                        Basics.max (List.length items)
-                            (items
-                                |> List.map
-                                    (\it ->
-                                        Item.unwrapChildren it.children |> List.length
-                                    )
-                                |> List.sum
-                            )
-
                     countByHierarchy =
                         case base.diagramType of
                             UserStoryMap ->
@@ -605,33 +598,29 @@ updateDiagram size width height base text =
                             _ ->
                                 []
 
-                    svgWidth =
-                        itemCount * (size.width + itemMargin) + leftMargin * 2
-
-                    svgHeight =
-                        (countByHierarchy
-                            |> List.sum
-                        )
-                            * (size.height + (itemMargin + 2))
-                            + itemMargin
-                            + size.height
-
                     countByTasks =
                         scanl (\it v -> v + List.length (Item.unwrapChildren it.children)) 0 items
+
+                    newModel =
+                        { base
+                            | items = items
+                            , hierarchy = hierarchy
+                            , countByTasks = countByTasks
+                            , countByHierarchy = countByHierarchy
+                        }
+
+                    ( svgWidth, svgHeight ) =
+                        Utils.getCanvasSize newModel
                 in
                 Ok
-                    { base
-                        | hierarchy = hierarchy
-                        , items = items
-                        , width = width
+                    { newModel
+                        | width = width
                         , height = height
                         , svg =
                             { width = svgWidth
                             , height = svgHeight
                             , scale = base.svg.scale
                             }
-                        , countByHierarchy = countByHierarchy
-                        , countByTasks = countByTasks
                         , moveX = 0
                         , moveY = 0
                         , error = Nothing
@@ -661,7 +650,7 @@ update message model =
                     round window.viewport.height - 50
 
                 result =
-                    updateDiagram settings.size width height model text
+                    updateDiagram width height model text
             in
             case result of
                 Ok usm ->
@@ -709,7 +698,7 @@ update message model =
         OnChangeText text ->
             let
                 result =
-                    updateDiagram model.settings.size model.width model.height model text
+                    updateDiagram model.width model.height model text
             in
             ( case result of
                 Ok usm ->

@@ -85,7 +85,7 @@ view width profile route t isEditTitle fullscreen menu =
                        ]
                 )
                 [ Icon.helpOutline 20
-                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Help" ] ]
+                , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Help" ] ]
                 ]
             , div
                 (Styles.flexCenter
@@ -95,7 +95,7 @@ view width profile route t isEditTitle fullscreen menu =
                        ]
                 )
                 [ Icon.people 24
-                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Share" ] ]
+                , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Share" ] ]
                 ]
             , if isJust profile then
                 let

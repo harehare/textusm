@@ -1,6 +1,6 @@
 module Views.Menu exposing (menu, view)
 
-import Html exposing (nav, Html, div, img, span, text)
+import Html exposing (Html, div, img, nav, span, text)
 import Html.Attributes exposing (alt, class, src, style)
 import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
@@ -174,6 +174,10 @@ newMenu =
     , { e = New DiagramType.SiteMap
       , title = "Site Map"
       , icon = Just <| img [ src "/images/site_map.svg", style "width" "56px", alt "logo" ] []
+      }
+    , { e = New DiagramType.GanttChart
+      , title = "Gantt Chart"
+      , icon = Just <| img [ src "/images/gantt_chart.svg", style "width" "56px", alt "logo" ] []
       }
     ]
 

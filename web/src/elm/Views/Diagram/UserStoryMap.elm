@@ -4,7 +4,6 @@ import Basics exposing (max)
 import Constants exposing (..)
 import Html exposing (div)
 import Html.Attributes as Attr
-import Json.Decode as D
 import List
 import List.Extra exposing (getAt, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings)
@@ -12,10 +11,8 @@ import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
-import Svg.Events exposing (onClick, stopPropagationOn)
 import Svg.Keyed as Keyed
 import Svg.Lazy exposing (lazy4, lazy5)
-import Utils
 import Views.Diagram.Views as Views
 
 
@@ -66,7 +63,7 @@ mainView settings items countByTasks countByHierarchy =
             items
             |> List.indexedMap
                 (\i ( count, item ) ->
-                    ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByHierarchy) (leftMargin * 2 + count * (settings.size.width + itemMargin)) 10 item )
+                    ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByHierarchy) (Constants.leftMargin + count * (settings.size.width + itemMargin)) 10 item )
                 )
         )
 

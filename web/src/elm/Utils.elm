@@ -1,8 +1,9 @@
-module Utils exposing (calcDistance, calcFontSize, delay, fileLoad, getCanvasSize, getIdToken, getMarkdownHeight, getTitle, httpErrorToString, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage)
+module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasSize, getIdToken, getMarkdownHeight, getTitle, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix)
 
 import Constants
 import File exposing (File)
 import Http exposing (Error(..))
+import List.Extra exposing (getAt, last, scanl1)
 import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
 import Models.IdToken exposing (IdToken)
@@ -11,7 +12,8 @@ import Models.Model exposing (Msg(..), Notification(..))
 import Models.User as User exposing (User)
 import Process
 import Task
-import Time exposing (Month(..), Zone, millisToPosix, toDay, toMonth, toYear)
+import Time exposing (Month(..), Posix, Zone, millisToPosix, toDay, toMonth, toYear, utc)
+import Time.Extra exposing (Interval(..), Parts, diff, partsToPosix)
 
 
 getIdToken : Maybe User -> Maybe IdToken
@@ -99,6 +101,107 @@ millisToString timezone millis =
         ++ String.fromInt (toDay timezone posix)
 
 
+intToMonth : Int -> Month
+intToMonth month =
+    case month of
+        1 ->
+            Jan
+
+        2 ->
+            Feb
+
+        3 ->
+            Mar
+
+        4 ->
+            Apr
+
+        5 ->
+            May
+
+        6 ->
+            Jun
+
+        7 ->
+            Jul
+
+        8 ->
+            Aug
+
+        9 ->
+            Sep
+
+        10 ->
+            Oct
+
+        11 ->
+            Nov
+
+        12 ->
+            Dec
+
+        _ ->
+            Jan
+
+
+stringToPosix : String -> Maybe Posix
+stringToPosix str =
+    let
+        tokens =
+            String.split "-" str
+
+        year =
+            getAt 0 tokens
+                |> Maybe.andThen
+                    (\v ->
+                        if String.length v == 4 then
+                            String.toInt v
+
+                        else
+                            Nothing
+                    )
+
+        month =
+            getAt 1 tokens
+                |> Maybe.andThen
+                    (\v ->
+                        if String.length v == 2 then
+                            String.toInt v
+                                |> Maybe.andThen
+                                    (\vv ->
+                                        Just <| intToMonth vv
+                                    )
+
+                        else
+                            Nothing
+                    )
+
+        day =
+            getAt 2 tokens
+                |> Maybe.andThen
+                    (\v ->
+                        if String.length v == 2 then
+                            String.toInt v
+
+                        else
+                            Nothing
+                    )
+    in
+    year
+        |> Maybe.andThen
+            (\yearValue ->
+                month
+                    |> Maybe.andThen
+                        (\monthValue ->
+                            day
+                                |> Maybe.andThen
+                                    (\dayValue ->
+                                        Just <| partsToPosix utc (Parts yearValue monthValue dayValue 0 0 0 0)
+                                    )
+                        )
+            )
+
+
 monthToInt : Month -> Int
 monthToInt month =
     case month of
@@ -164,6 +267,59 @@ getMarkdownHeight lines =
                     24
     in
     lines |> List.map (\l -> getHeight l) |> List.sum
+
+
+extractDateValues : String -> Maybe ( ( Posix, Posix ), String )
+extractDateValues s =
+    let
+        tokens =
+            String.split ":" s
+
+        rangeValues =
+            getAt 0 tokens
+                |> Maybe.andThen
+                    (\range ->
+                        Just <| String.split "," (String.trim range)
+                    )
+
+        text =
+            getAt 1 tokens
+
+        fromDate =
+            Maybe.andThen
+                (\v ->
+                    getAt 0 v
+                        |> Maybe.andThen
+                            (\vv ->
+                                stringToPosix (String.trim vv)
+                            )
+                )
+                rangeValues
+
+        toDate =
+            Maybe.andThen
+                (\v ->
+                    getAt 1 v
+                        |> Maybe.andThen
+                            (\vv ->
+                                stringToPosix (String.trim vv)
+                            )
+                )
+                rangeValues
+    in
+    fromDate
+        |> Maybe.andThen
+            (\from ->
+                toDate
+                    |> Maybe.andThen
+                        (\to ->
+                            text
+                                |> Maybe.andThen
+                                    (\t ->
+                                        Just ( ( from, to ), t )
+                                    )
+                        )
+            )
 
 
 getCanvasSize : DiagramModel.Model -> ( Int, Int )
@@ -256,7 +412,46 @@ getCanvasSize model =
                     ( svgWidth + Constants.itemSpan, svgHeight + Constants.itemSpan )
 
                 DiagramType.UserStoryMap ->
-                    ( Constants.leftMargin * 3 + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1), (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2) )
+                    ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1), (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2) )
+
+                DiagramType.GanttChart ->
+                    let
+                        rootItem =
+                            List.head model.items
+                                |> Maybe.withDefault Item.emptyItem
+
+                        children =
+                            rootItem
+                                |> .children
+                                |> Item.unwrapChildren
+
+                        nodeCounts =
+                            0
+                                :: (children
+                                        |> List.map
+                                            (\i ->
+                                                if List.isEmpty (Item.unwrapChildren i.children) then
+                                                    0
+
+                                                else
+                                                    Item.getChildrenCount i - 1
+                                            )
+                                        |> scanl1 (+)
+                                   )
+
+                        svgHeight =
+                            (last nodeCounts |> Maybe.withDefault 0) * Constants.ganttItemSize + List.length children * 2
+                    in
+                    case extractDateValues rootItem.text of
+                        Just ( ( from, to ), _ ) ->
+                            let
+                                interval =
+                                    diff Day utc from to
+                            in
+                            ( Constants.ganttItemSize + interval * Constants.ganttItemSize, svgHeight )
+
+                        Nothing ->
+                            ( 0, 0 )
     in
     ( width, height )
 
