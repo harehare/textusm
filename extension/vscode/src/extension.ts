@@ -17,10 +17,12 @@ const showQuickPick = (
     { label: "Mind Map", value: "mmp" },
     { label: "Empathy Map", value: "emm" },
     { label: "Customer Journey Map", value: "cjm" },
-    { label: "Site Map", value: "smp" }
+    { label: "Site Map", value: "smp" },
+    { label: "Gantt Chart", value: "gct" }
   ];
   const quickPick = vscode.window.createQuickPick();
   quickPick.items = options.map(item => ({ label: item.label }));
+  // @ts-ignore
   quickPick.onDidChangeSelection(selection => {
     if (selection.length > 0) {
       const label = selection[0].label;
@@ -97,7 +99,8 @@ export function activate(context: vscode.ExtensionContext) {
         { label: "Mind Map", value: "mmp" },
         { label: "Empathy Map", value: "emm" },
         { label: "Customer Journey Map", value: "cjm" },
-        { label: "Site Map", value: "smp" }
+        { label: "Site Map", value: "smp" },
+        { label: "Gantt Chart", value: "gct" }
       ];
       const quickPick = vscode.window.createQuickPick();
       quickPick.items = options.map(item => ({ label: item.label }));
@@ -153,6 +156,11 @@ export function activate(context: vscode.ExtensionContext) {
                 break;
               case "smp":
                 newTextOpen("");
+                break;
+              case "gct":
+                newTextOpen(
+                  "2019-12-26,2020-01-31: title\n    subtitle1\n        2019-12-26, 2019-12-31: task1\n        2019-12-31, 2020-01-04: task2\n"
+                );
                 break;
             }
           }
