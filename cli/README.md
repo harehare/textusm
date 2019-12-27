@@ -46,7 +46,8 @@ Options:
   -w, --width <width>              Width of the page. Optional. Default: 1024.
   -H, --height <height>            Height of the page. Optional. Default: 1024.
   -o, --output [output]            Output file. It should be svg, png, pdf or html.
-  -d, --diagramType [diagramType]  Diagram type. It should be one of userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, mind_map, empathy_map, customer_journey_map.
+  -d, --diagramType [diagramType]  Diagram type. It should be one of userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt,
+                                   userpersona, mind_map, empathy_map, customer_journey_map, site_map, gantt_chart.
   -h, --help                       output usage information
 ```
 
@@ -245,6 +246,19 @@ Home
 ```
 
 ![image](./img/smp.png)
+
+### Gantt Chart
+
+```
+2019-12-26,2020-01-31: title
+    subtitle1
+        2019-12-26, 2019-12-31: task1
+        2019-12-31, 2020-01-04: task2
+```
+
+![image](./img/gct.png)
+
+## Installation
 
 ## Example JSON configuration file
 

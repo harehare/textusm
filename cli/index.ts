@@ -6,6 +6,12 @@ import * as puppeteer from "puppeteer";
 const defaultWidth = 1280;
 const defaultHeight = 1280;
 const defaultSettings = {
+  diagramId: null,
+  editor: {
+    fontSize: 12,
+    showLineNumber: true,
+    wordWrap: false
+  },
   font: "Open Sans",
   position: 0,
   text: "",
@@ -38,7 +44,8 @@ const defaultSettings = {
       backgroundColor: "F5F6F6",
       line: "#434343",
       label: "#8C9FAE"
-    }
+    },
+    title: null
   }
 };
 
@@ -67,7 +74,7 @@ const { configFile, input, width, height, output, diagramType } = commander
   )
   .option(
     "-d, --diagramType [diagramType]",
-    "Diagram type. It should be one of userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, mind_map, empathy_map, customer_journey_map, site_map."
+    "Diagram type. It should be one of userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, mind_map, empathy_map, customer_journey_map, site_map, gantt_chart."
   )
   .parse(process.argv);
 
@@ -93,12 +100,13 @@ const validDiagramType = [
   "empathy_map",
   "customer_journey_map",
   "site_map",
+  "gantt_chart",
   ""
 ];
 
 if (diagramType && validDiagramType.indexOf(diagramType) === -1) {
   console.error(
-    `Output file must be userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, empathy_map, customer_journey_map.`
+    `Output file must be userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, empathy_map, customer_journey_map, gantt_chart.`
   );
   process.exit(1);
 }
@@ -152,6 +160,8 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
         ? "cjm"
         : diagramType === "site_map"
         ? "smp"
+        : diagramType === "gantt_chart"
+        ? "gct"
         : "usm";
     await page.goto(
       `https://app.textusm.com/view/${type}/${encodeURIComponent(
