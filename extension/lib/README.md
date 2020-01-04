@@ -14,6 +14,7 @@ Generate a Diagram from indented text.
 - Mind Map
 - CustomerJourneyMap
 - SiteMap
+- Gantt Chart
 
 ## Installation
 
@@ -518,6 +519,36 @@ SHARING
 ```
 
 ![image](./img/smp.png)
+
+### Gantt Chart
+
+```javascript
+const textusm = require("textusm");
+const elm = document.getElementById("id");
+
+textusm.render(
+  elm || "id",
+  {
+    from: "2019-12-26",
+    to: "2020-01-31",
+    title: "Test",
+    chartitems: [
+      {
+        title: "subtitle1",
+        schedules: [{ from: "2019-12-26", to: "2019-12-31", title: "task1" }]
+      }
+    ]
+  },
+  {
+    size: { width: 1024, height: 1024 },
+    diagramType: "GanttChart",
+    showZoomControl: true
+  },
+  {}
+);
+```
+
+![image](./img/gct.png)
 
 ### Configuration
 

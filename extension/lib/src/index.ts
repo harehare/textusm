@@ -11,7 +11,8 @@ import {
   MindMap,
   EmpathyMap,
   CustomerJourneyMap,
-  SiteMap
+  SiteMap,
+  GanttChart
 } from "./model";
 
 interface Config {
@@ -84,7 +85,8 @@ function render(
     | MindMap
     | EmpathyMap
     | CustomerJourneyMap
-    | SiteMap,
+    | SiteMap
+    | GanttChart,
   options?: {
     diagramType?:
       | "UserStoryMap"
@@ -97,7 +99,8 @@ function render(
       | "MindMap"
       | "CustomerJourneyMap"
       | "SiteMap"
-      | "EmpathyMap";
+      | "EmpathyMap"
+      | "GanttChart";
     size?: Size;
     showZoomControl?: boolean;
     showMiniMap?: boolean;

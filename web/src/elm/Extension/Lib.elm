@@ -91,6 +91,9 @@ init flags =
                 else if flags.diagramType == "SiteMap" then
                     DiagramType.SiteMap
 
+                else if flags.diagramType == "GanttChart" then
+                    DiagramType.GanttChart
+
                 else
                     DiagramType.UserStoryMap
             , settings = flags.settings

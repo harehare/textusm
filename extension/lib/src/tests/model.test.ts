@@ -835,3 +835,21 @@ test("Customer Journey Map type to string.", () => {
     })
   ).toBe("CustomerJourneyMap");
 });
+
+test("Gantt Chart type to string.", () => {
+  expect(
+    toString({
+      from: "2019-12-26",
+      to: "2020-01-31",
+      title: "Test",
+      chartitems: [
+        {
+          title: "subtitle1",
+          schedules: [{ from: "2019-12-26", to: "2019-12-31", title: "task1" }]
+        }
+      ]
+    })
+  ).toBe(
+    `2019-12-26,2020-01-31: Test\n    subtitle1\n        2019-12-26,2019-12-31: task1`
+  );
+});

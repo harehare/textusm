@@ -108,6 +108,24 @@ interface UrlItem {
   url: string;
 }
 
+export interface GanttChart {
+  from: string;
+  to: string;
+  title: string;
+  chartitems: GanttChartItem[];
+}
+
+interface GanttChartItem {
+  title: string;
+  schedules: Schedule[];
+}
+
+interface Schedule {
+  from: string;
+  to: string;
+  title: string;
+}
+
 export interface CustomerJourneyMap {
   items: CustomerJourneyItem[];
 }
@@ -130,6 +148,7 @@ export function toString(
     | EmpathyMap
     | CustomerJourneyMap
     | SiteMap
+    | GanttChart
 ): string {
   return "activities" in definition
     ? userStoryMap2Text(definition)
@@ -151,6 +170,8 @@ export function toString(
     ? empathyMapCanvas2Text(definition)
     : "items" in definition
     ? customerJourneyMap2Text(definition)
+    : "from" in definition
+    ? ganttchart2Text(definition)
     : "";
 }
 
@@ -167,6 +188,7 @@ export function toTypeString(
     | EmpathyMap
     | CustomerJourneyMap
     | SiteMap
+    | GanttChart
 ): string {
   return "activities" in definition
     ? "UserStoryMap"
@@ -188,6 +210,8 @@ export function toTypeString(
     ? "EmpathyMap"
     : "items" in definition
     ? "CustomerJourneyMap"
+    : "from" in definition
+    ? "GanttChart"
     : "UserStoryMap";
 }
 
@@ -329,6 +353,20 @@ function customerJourneyMap2Text(
           .join("\n")}`
     )
     .join("\n");
+}
+
+function ganttchart2Text(ganttChart: GanttChart): string {
+  return `${ganttChart.from},${ganttChart.to}: ${
+    ganttChart.title
+  }\n${ganttChart.chartitems
+    .map(item => {
+      return `    ${item.title}\n${item.schedules
+        .map(schedule => {
+          return `        ${schedule.from},${schedule.to}: ${schedule.title}`;
+        })
+        .join("\n")}`;
+    })
+    .join("\n")}`;
 }
 
 function userStoryMap2Text(userStoryMap: UserStoryMap): string {
