@@ -1,7 +1,7 @@
 module Views.Diagram.UserStoryMap exposing (view)
 
 import Basics exposing (max)
-import Constants exposing (..)
+import Constants
 import Html exposing (div)
 import Html.Attributes as Attr
 import List
@@ -9,8 +9,8 @@ import List.Extra exposing (getAt, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
+import Svg exposing (Svg, foreignObject, g, line, text_)
+import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
 import Svg.Keyed as Keyed
 import Svg.Lazy exposing (lazy4, lazy5)
 import Views.Diagram.Views as Views
@@ -63,7 +63,7 @@ mainView settings items countByTasks countByHierarchy =
             items
             |> List.indexedMap
                 (\i ( count, item ) ->
-                    ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByHierarchy) (Constants.leftMargin + count * (settings.size.width + itemMargin)) 10 item )
+                    ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByHierarchy) (Constants.leftMargin + count * (settings.size.width + Constants.itemMargin)) 10 item )
                 )
         )
 
@@ -78,9 +78,9 @@ labelView labels settings hierarchy width countByHierarchy =
         (([ if hierarchy > 0 then
                 line
                     [ x1 textX
-                    , y1 (String.fromInt (itemMargin // 2 + (settings.size.height + itemMargin) * 2))
+                    , y1 (String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2))
                     , x2 (String.fromInt width)
-                    , y2 (String.fromInt (itemMargin // 2 + (settings.size.height + itemMargin) * 2))
+                    , y2 (String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2))
                     , stroke settings.color.line
                     , strokeWidth "2"
                     ]
@@ -114,16 +114,16 @@ labelView labels settings hierarchy width countByHierarchy =
                             if List.length countByHierarchy - 2 > xx then
                                 let
                                     releaseY =
-                                        itemMargin
+                                        Constants.itemMargin
                                             // 2
-                                            + itemMargin
-                                            + ((settings.size.height + itemMargin)
+                                            + Constants.itemMargin
+                                            + ((settings.size.height + Constants.itemMargin)
                                                 * (countByHierarchy
                                                     |> List.take (xx + 2)
                                                     |> List.sum
                                                   )
                                               )
-                                            + ((xx - 1) * itemMargin)
+                                            + ((xx - 1) * Constants.itemMargin)
                                 in
                                 [ line
                                     [ x1 textX
@@ -134,7 +134,7 @@ labelView labels settings hierarchy width countByHierarchy =
                                     , strokeWidth "2"
                                     ]
                                     []
-                                , labelTextView settings textX (String.fromInt (releaseY + itemMargin)) (getAt (xx + 3) labels |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1)))
+                                , labelTextView settings textX (String.fromInt (releaseY + Constants.itemMargin)) (getAt (xx + 3) labels |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1)))
                                 ]
 
                             else
@@ -162,13 +162,13 @@ activityView settings verticalCount posX posY item =
                                 (posX
                                     + (i * settings.size.width)
                                     + (if i > 0 then
-                                        i * itemMargin
+                                        i * Constants.itemMargin
 
                                        else
                                         0
                                       )
                                 )
-                                (posY + itemMargin + settings.size.height)
+                                (posY + Constants.itemMargin + settings.size.height)
                                 it
                             )
                         )
@@ -197,9 +197,9 @@ taskView settings verticalCount posX posY item =
                                 posX
                                 (posY
                                     + ((i + 1) * settings.size.height)
-                                    + (itemMargin * 2)
+                                    + (Constants.itemMargin * 2)
                                     + (if i > 0 then
-                                        itemMargin * i
+                                        Constants.itemMargin * i
 
                                        else
                                         0
@@ -243,9 +243,9 @@ storyView settings verticalCount parentCount posX posY item =
                                 posX
                                 (posY
                                     + (Basics.max 1 (itemCount - parentCount + i + 1)
-                                        * (itemMargin + settings.size.height)
+                                        * (Constants.itemMargin + settings.size.height)
                                       )
-                                    + itemMargin
+                                    + Constants.itemMargin
                                 )
                                 it
                             )

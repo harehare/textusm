@@ -1,13 +1,12 @@
 module Views.Diagram.UserPersona exposing (view)
 
-import Constants exposing (..)
+import Constants
 import List.Extra exposing (getAt)
 import Models.Diagram exposing (Model, Msg(..))
 import Models.Item as Item exposing (ItemType(..))
 import String
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Svg.Events exposing (..)
+import Svg exposing (Svg, g)
+import Svg.Attributes exposing (fill, transform)
 import Views.Diagram.Views as Views
 
 
@@ -59,7 +58,7 @@ view model =
 
         -- three reasons to use your product
         , Views.canvasView model.settings
-            ( round (Constants.itemWidth * 1.5 - 5), itemHeight )
+            ( round (toFloat Constants.itemWidth * 1.5 - 5), itemHeight )
             ( round (toFloat Constants.itemWidth * 2) - 10, 0 )
             (model.items
                 |> getAt 2
@@ -68,7 +67,7 @@ view model =
 
         -- three reasons to buy your product
         , Views.canvasView model.settings
-            ( round (Constants.itemWidth * 1.5), itemHeight )
+            ( round (toFloat Constants.itemWidth * 1.5), itemHeight )
             ( round (toFloat Constants.itemWidth * 3.5) - 20, 0 )
             (model.items
                 |> getAt 3

@@ -4,7 +4,6 @@ import Html exposing (Html, div, input, label, text)
 import Html.Attributes exposing (checked, class, style, type_, value)
 import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
-import Models.Diagram as Diagram
 import Models.Model exposing (Msg(..))
 import Models.Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap)
 import Views.DropDownList as DropDownList

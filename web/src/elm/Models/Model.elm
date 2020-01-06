@@ -14,7 +14,7 @@ import Models.Diagram as Diagram
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramList as DiagramList
 import Models.DiagramType exposing (DiagramType)
-import Models.Settings exposing (EditorSettings, Settings)
+import Models.Settings exposing (Settings)
 import Models.User exposing (User)
 import Route as Route
 import Url

@@ -145,7 +145,7 @@ update message model =
             case subMsg of
                 DiagramModel.OnChangeText text ->
                     let
-                        ( model_, cmd_ ) =
+                        ( model_, _ ) =
                             Diagram.update subMsg model.diagramModel
                     in
                     case model_.error of

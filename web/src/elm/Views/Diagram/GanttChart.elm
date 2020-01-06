@@ -7,7 +7,7 @@ import List.Extra exposing (last, scanl1, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item)
 import Svg exposing (Svg, foreignObject, g, line, rect, svg)
-import Svg.Attributes exposing (..)
+import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
 import Time exposing (Posix, utc)
 import Time.Extra exposing (Interval(..), diff)
 import Utils

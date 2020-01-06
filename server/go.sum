@@ -123,6 +123,8 @@ github.com/oxequa/interact v0.0.0-20171114182912-f8fb5795b5d7 h1:VhMyYEArWL80Oqm
 github.com/oxequa/interact v0.0.0-20171114182912-f8fb5795b5d7/go.mod h1:lYzYp3DJ1SPLrp8ZX8ODprgEoxmNelVN+TKaWvum0cg=
 github.com/oxequa/realize v2.0.2+incompatible h1:R+Rg8R+gyuWP8oqvFpaJMzdcFF0vy15zjEAGAiuc8pQ=
 github.com/oxequa/realize v2.0.2+incompatible/go.mod h1:Bqw5jC78Eh70s7/rryEaVPwps/kYdPxBWTZDE+6x0/8=
+github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029 h1:d6HcSW4ZoNlUWrPyZtBwIu8yv4WAWIU3R/jorwVkFtQ=
+github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029/go.mod h1:94RTq2fypdZCze25ZEZSjtbAQRT3cL/8EuRUqAZC/+w=
 github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=

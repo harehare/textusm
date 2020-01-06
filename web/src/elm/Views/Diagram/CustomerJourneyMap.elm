@@ -1,17 +1,14 @@
 module Views.Diagram.CustomerJourneyMap exposing (view)
 
-import Constants exposing (..)
 import Html as Html exposing (div, img)
 import Html.Attributes as Attr
-import List.Extra exposing (getAt)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Svg.Events exposing (..)
+import Svg exposing (Svg, foreignObject, g, rect, svg, text)
+import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, height, stroke, transform, width, x, y)
+import Svg.Events exposing (onClick)
 import Utils
-import Views.Diagram.Views as Views
 
 
 view : Model -> Svg Msg

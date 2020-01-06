@@ -1,15 +1,14 @@
 module Views.Diagram.EmpathyMap exposing (view)
 
-import Constants exposing (..)
+import Constants
 import Html exposing (div, img)
 import Html.Attributes as Attr
 import List.Extra exposing (getAt, last)
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Svg.Events exposing (..)
+import Svg exposing (Svg, foreignObject, g, rect, svg, text, text_)
+import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, y)
 import Utils
 
 

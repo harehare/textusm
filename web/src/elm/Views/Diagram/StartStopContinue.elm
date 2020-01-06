@@ -1,13 +1,12 @@
 module Views.Diagram.StartStopContinue exposing (view)
 
-import Constants exposing (..)
+import Constants
 import List.Extra exposing (getAt)
 import Models.Diagram exposing (Model, Msg(..))
 import Models.Item as Item exposing (Children(..), ItemType(..))
 import String
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Svg.Events exposing (..)
+import Svg exposing (Svg, g)
+import Svg.Attributes exposing (fill, transform)
 import Views.Diagram.Views as Views
 
 

@@ -114,6 +114,9 @@ menuName path =
         "smp" ->
             "Site Map"
 
+        "gct" ->
+            "Gantt Chart"
+
         "" ->
             "All"
 

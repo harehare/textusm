@@ -14,7 +14,7 @@ import File.Select as Select
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy7)
+import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy6, lazy7)
 import Json.Decode as D
 import List.Extra exposing (updateIf)
 import Maybe.Extra as MaybeEx exposing (isJust, isNothing)
@@ -99,7 +99,7 @@ view model =
         , style "height" "100vh"
         , onClick CloseMenu
         ]
-        [ lazy7 Header.view model.diagramModel.width model.loginUser (toRoute model.url) model.title model.isEditTitle model.window.fullscreen model.openMenu
+        [ lazy6 Header.view model.loginUser (toRoute model.url) model.title model.isEditTitle model.window.fullscreen model.openMenu
         , lazy showNotification model.notification
         , lazy2 showProgressbar model.progress model.window.fullscreen
         , lazy7 sharingDialogView

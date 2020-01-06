@@ -16,6 +16,8 @@ import (
 
 	"github.com/harehare/textusm/server/controllers"
 	"github.com/harehare/textusm/server/middleware"
+	"github.com/phyber/negroni-gzip/gzip"
+
 	negronilogrus "github.com/meatballhat/negroni-logrus"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
@@ -99,6 +101,7 @@ func Run() int {
 	n.Use(negroni.HandlerFunc(middleware.ApiMiddleware))
 	n.Use(c)
 	n.Use(negronilogrus.NewCustomMiddleware(logrus.InfoLevel, &logrus.JSONFormatter{}, "textusm"))
+	n.Use(gzip.Gzip(gzip.DefaultCompression))
 	n.UseHandler(r)
 
 	s := &http.Server{

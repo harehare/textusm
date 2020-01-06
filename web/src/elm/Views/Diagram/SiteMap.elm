@@ -1,11 +1,11 @@
 module Views.Diagram.SiteMap exposing (view)
 
-import Constants exposing (..)
+import Constants
 import List.Extra exposing (scanl1, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item)
 import Svg exposing (Svg, g, line)
-import Svg.Attributes exposing (..)
+import Svg.Attributes exposing (stroke, strokeWidth, transform, x1, x2, y1, y2)
 import Views.Diagram.Views as Views
 
 
@@ -29,7 +29,7 @@ view model =
                                 0
 
                              else
-                                model.x + itemSpan
+                                model.x + Constants.itemSpan
                             )
                         ++ ","
                         ++ String.fromInt
@@ -37,12 +37,12 @@ view model =
                                 0
 
                              else
-                                model.y + itemSpan
+                                model.y + Constants.itemSpan
                             )
                         ++ ")"
                     )
                 ]
-                [ siteView model.settings ( 0, itemSpan + model.settings.size.height ) items
+                [ siteView model.settings ( 0, Constants.itemSpan + model.settings.size.height ) items
                 , Views.cardView model.settings ( 0, 0 ) root
                 ]
 
@@ -67,14 +67,14 @@ siteView settings ( posX, posY ) items =
                             Item.unwrapChildren item.children
 
                         cardWidth =
-                            settings.size.width + itemSpan
+                            settings.size.width + Constants.itemSpan
 
                         x =
                             posX
                                 + i
-                                * (cardWidth + itemSpan)
+                                * (cardWidth + Constants.itemSpan)
                                 + hierarchyCount
-                                * itemSpan
+                                * Constants.itemSpan
                     in
                     [ Views.cardView settings
                         ( x
@@ -84,7 +84,7 @@ siteView settings ( posX, posY ) items =
                     , siteLineView settings ( 0, 0 ) ( x, posY )
                     , siteTreeView settings
                         ( x
-                        , posY + settings.size.height + itemSpan
+                        , posY + settings.size.height + Constants.itemSpan
                         )
                         children
                     ]
@@ -119,12 +119,12 @@ siteTreeView settings ( posX, posY ) items =
                             Item.unwrapChildren item.children
 
                         x =
-                            posX + itemSpan
+                            posX + Constants.itemSpan
 
                         y =
-                            posY + i * (settings.size.height + itemSpan) + childrenCount * (settings.size.height + itemSpan)
+                            posY + i * (settings.size.height + Constants.itemSpan) + childrenCount * (settings.size.height + Constants.itemSpan)
                     in
-                    [ siteTreeLineView settings ( posX, posY - itemSpan ) ( posX, y )
+                    [ siteTreeLineView settings ( posX, posY - Constants.itemSpan ) ( posX, y )
                     , Views.cardView settings
                         ( x
                         , y
@@ -132,7 +132,7 @@ siteTreeView settings ( posX, posY ) items =
                         item
                     , siteTreeView settings
                         ( x
-                        , y + (settings.size.height + itemSpan)
+                        , y + (settings.size.height + Constants.itemSpan)
                         )
                         children
                     ]
@@ -162,16 +162,16 @@ siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
         g []
             [ line
                 [ x1 <| String.fromInt <| xx1 + centerX
-                , y1 <| String.fromInt <| yy1 + settings.size.height + itemSpan // 2
+                , y1 <| String.fromInt <| yy1 + settings.size.height + Constants.itemSpan // 2
                 , x2 <| String.fromInt <| xx2 + centerX
-                , y2 <| String.fromInt <| yy1 + settings.size.height + itemSpan // 2
+                , y2 <| String.fromInt <| yy1 + settings.size.height + Constants.itemSpan // 2
                 , stroke settings.color.line
                 , strokeWidth "1"
                 ]
                 []
             , line
                 [ x1 <| String.fromInt <| xx2 + centerX
-                , y1 <| String.fromInt <| yy1 + settings.size.height + itemSpan // 2
+                , y1 <| String.fromInt <| yy1 + settings.size.height + Constants.itemSpan // 2
                 , x2 <| String.fromInt <| xx2 + centerX
                 , y2 <| String.fromInt <| yy2
                 , stroke settings.color.line
@@ -185,7 +185,7 @@ siteTreeLineView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Svg Msg
 siteTreeLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
     let
         itemPadding =
-            itemSpan // 2
+            Constants.itemSpan // 2
     in
     g []
         [ line

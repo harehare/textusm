@@ -9,14 +9,13 @@ import Models.Model exposing (Menu(..), Msg(..))
 import Models.User exposing (User)
 import Route exposing (Route(..))
 import Styles
-import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu
 
 
-view : Int -> Maybe User -> Route -> Maybe String -> Bool -> Bool -> Maybe Menu -> Html Msg
-view width profile route t isEditTitle fullscreen menu =
+view : Maybe User -> Route -> Maybe String -> Bool -> Bool -> Maybe Menu -> Html Msg
+view profile route t isEditTitle fullscreen menu =
     let
         title =
             t |> Maybe.withDefault ""

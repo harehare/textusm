@@ -372,6 +372,12 @@ select {
             color: var(--text-color);
         }
     }
+
+    @media screen and (max-width: 480px) {
+        .bottom-tooltip {
+            display: none;
+        }
+    }
 }
 
 .menu-button {

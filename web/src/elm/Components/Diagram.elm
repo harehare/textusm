@@ -14,9 +14,9 @@ import Models.Item as Item exposing (Item, ItemType(..))
 import Parser
 import Result exposing (andThen)
 import String
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Svg.Events exposing (..)
+import Svg exposing (Svg, defs, g, svg, text)
+import Svg.Attributes exposing (class, height, id, viewBox, width)
+import Svg.Events exposing (onClick)
 import Svg.Lazy exposing (lazy, lazy2, lazy3)
 import Task
 import Utils
@@ -455,7 +455,7 @@ svgView model =
         ]
 
 
-onDragStart : Bool -> Attribute Msg
+onDragStart : Bool -> Svg.Attribute Msg
 onDragStart isPhone =
     if isPhone then
         Touch.onStart
@@ -493,7 +493,7 @@ onDragStart isPhone =
             )
 
 
-onDragMove : Maybe Float -> Bool -> Attribute Msg
+onDragMove : Maybe Float -> Bool -> Svg.Attribute Msg
 onDragMove distance isPhone =
     if isPhone then
         Touch.onMove

@@ -1,14 +1,10 @@
 module Views.Diagram.MindMap exposing (view)
 
-import Constants exposing (..)
-import Html as Html exposing (div, img)
-import Html.Attributes as Attr
 import List.Extra exposing (getAt, scanl1, splitAt, zip3)
 import Models.Diagram exposing (Model, Msg(..), Point, Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
-import Svg exposing (Svg, foreignObject, g, line, rect, svg)
-import Svg.Attributes exposing (..)
-import Svg.Events exposing (onClick)
+import Svg exposing (Svg, g, line)
+import Svg.Attributes exposing (stroke, strokeWidth, transform, x1, x2, y1, y2)
 import Utils
 import Views.Diagram.Views as Views
 
@@ -18,10 +14,12 @@ type Direction
     | Right
 
 
+xMargin : Int
 xMargin =
     100
 
 
+yMargin : Int
 yMargin =
     10
 
@@ -82,7 +80,6 @@ view model =
                 [ nodesView model.settings 2 ( 0, 0 ) Left left
                 , nodesView model.settings 2 ( 0, 0 ) Right right
                 , nodeItemView model.settings
-                    1
                     ( 0, 0 )
                     root
                 ]
@@ -161,7 +158,6 @@ nodesView settings hierarchy ( x, y ) direction items =
                         direction
                         (Item.unwrapChildren item.children)
                     , nodeItemView settings
-                        hierarchy
                         ( itemX, itemY )
                         item
                     ]
@@ -201,13 +197,6 @@ nodeLineView settings direction fromBase toBase =
         []
 
 
-nodeItemView : Settings -> Int -> ( Int, Int ) -> Item -> Svg Msg
-nodeItemView settings hierarchy ( posX, posY ) item =
-    let
-        svgWidth =
-            String.fromInt settings.size.width
-
-        svgHeight =
-            String.fromInt settings.size.height
-    in
+nodeItemView : Settings -> ( Int, Int ) -> Item -> Svg Msg
+nodeItemView settings ( posX, posY ) item =
     Views.cardView settings ( posX, posY ) item

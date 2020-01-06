@@ -1,6 +1,7 @@
 module Constants exposing (commentSize, ganttItemSize, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, smallItemMargin)
 
 
+itemSpan : Int
 itemSpan =
     40
 
@@ -35,17 +36,21 @@ inputPrefix =
     "    "
 
 
+itemWidth : Int
 itemWidth =
     300
 
 
+itemHeight : Int
 itemHeight =
     300
 
 
+largeItemWidth : Int
 largeItemWidth =
     600
 
 
+largeItemHeight : Int
 largeItemHeight =
     600
