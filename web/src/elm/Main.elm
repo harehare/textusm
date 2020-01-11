@@ -28,7 +28,7 @@ import Models.User exposing (User)
 import Route exposing (Route(..), toRoute)
 import Settings exposing (settingsDecoder)
 import String
-import Subscriptions exposing (..)
+import Subscriptions
 import Task
 import Url as Url exposing (percentDecode)
 import Utils
@@ -200,7 +200,7 @@ main =
                 { title = Maybe.withDefault "untitled" m.title ++ " | TextUSM"
                 , body = [ view m ]
                 }
-        , subscriptions = subscriptions
+        , subscriptions = Subscriptions.subscriptions
         , onUrlChange = UrlChanged
         , onUrlRequest = LinkClicked
         }
@@ -251,10 +251,10 @@ changeRouteTo route model =
             ( { model | diagramModel = newDiagramModel }
             , getCmds
                 [ if type_ == DiagramType.Markdown then
-                    setEditorLanguage "markdown"
+                    Subscriptions.setEditorLanguage "markdown"
 
                   else
-                    setEditorLanguage "userStoryMap"
+                    Subscriptions.setEditorLanguage "userStoryMap"
                 ]
             )
     in
@@ -265,7 +265,7 @@ changeRouteTo route model =
                     DiagramList.init model.loginUser model.apiRoot
             in
             ( { model | progress = True, diagramListModel = model_ }
-            , getCmds [ getDiagrams (), cmd_ |> Cmd.map UpdateDiagramList ]
+            , getCmds [ Subscriptions.getDiagrams (), cmd_ |> Cmd.map UpdateDiagramList ]
             )
 
         Route.Embed diagram title path ->
@@ -296,7 +296,7 @@ changeRouteTo route model =
                     else
                         Just title
               }
-            , getCmds [ decodeShareText path ]
+            , getCmds [ Subscriptions.decodeShareText path ]
             )
 
         Route.Share diagram title path ->
@@ -320,7 +320,7 @@ changeRouteTo route model =
                     else
                         percentDecode title
               }
-            , getCmds [ decodeShareText path ]
+            , getCmds [ Subscriptions.decodeShareText path ]
             )
 
         Route.UsmView settingsJson ->
@@ -433,14 +433,14 @@ update message model =
         UpdateDiagram subMsg ->
             case subMsg of
                 DiagramModel.ItemClick item ->
-                    ( model, selectLine (item.lineNo + 1) )
+                    ( model, Subscriptions.selectLine (item.lineNo + 1) )
 
                 DiagramModel.OnResize _ _ ->
                     let
                         ( model_, cmd_ ) =
                             Diagram.update subMsg model.diagramModel
                     in
-                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, loadEditor ( model.text, defaultEditorSettings model.settings.editor ) ] )
+                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor ) ] )
 
                 DiagramModel.ToggleFullscreen ->
                     let
@@ -457,10 +457,10 @@ update message model =
                     , Cmd.batch
                         [ cmd_ |> Cmd.map UpdateDiagram
                         , if newWindow.fullscreen then
-                            openFullscreen ()
+                            Subscriptions.openFullscreen ()
 
                           else
-                            closeFullscreen ()
+                            Subscriptions.closeFullscreen ()
                         ]
                     )
 
@@ -471,10 +471,10 @@ update message model =
                     in
                     case model_.error of
                         Just err ->
-                            ( { model | text = text, diagramModel = model_ }, errorLine err )
+                            ( { model | text = text, diagramModel = model_ }, Subscriptions.errorLine err )
 
                         Nothing ->
-                            ( { model | text = text, diagramModel = model_ }, errorLine "" )
+                            ( { model | text = text, diagramModel = model_ }, Subscriptions.errorLine "" )
 
                 _ ->
                     let
@@ -542,8 +542,8 @@ update message model =
                         , progress = False
                       }
                     , Cmd.batch
-                        [ errorLine err
-                        , loadEditor ( model.text, defaultEditorSettings model.settings.editor )
+                        [ Subscriptions.errorLine err
+                        , Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor )
                         , cmd_ |> Cmd.map UpdateDiagram
                         ]
                     )
@@ -553,7 +553,7 @@ update message model =
                         | diagramModel = model_
                         , progress = False
                       }
-                    , loadEditor ( model.text, defaultEditorSettings model.settings.editor )
+                    , Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor )
                     )
 
         DownloadCompleted ( x, y ) ->
@@ -580,16 +580,16 @@ update message model =
                 ( sub, extension ) =
                     case fileType of
                         Png ->
-                            ( downloadPng, ".png" )
+                            ( Subscriptions.downloadPng, ".png" )
 
                         Pdf ->
-                            ( downloadPdf, ".pdf" )
+                            ( Subscriptions.downloadPdf, ".pdf" )
 
                         Svg ->
-                            ( downloadSvg, ".svg" )
+                            ( Subscriptions.downloadSvg, ".svg" )
 
                         HTML ->
-                            ( downloadHtml, ".html" )
+                            ( Subscriptions.downloadHtml, ".html" )
             in
             ( { model | diagramModel = newDiagramModel }
             , sub
@@ -620,7 +620,7 @@ update message model =
             ( { model | title = Just (File.name file) }, Utils.fileLoad file FileLoaded )
 
         FileLoaded text ->
-            ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))), loadText text ] )
+            ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))), Subscriptions.loadText text ] )
 
         SaveToFileSystem ->
             let
@@ -658,7 +658,7 @@ update message model =
                             Nothing
                   }
                 , Cmd.batch
-                    [ saveDiagram
+                    [ Subscriptions.saveDiagram
                         { id =
                             if (isNothing model.currentDiagram || isLocal) && isRemote then
                                 Nothing
@@ -720,7 +720,7 @@ update message model =
                 [ Utils.delay 3000
                     OnCloseNotification
                 , Utils.showWarningMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.")
-                , saveDiagram item
+                , Subscriptions.saveDiagram item
                 ]
             )
 
@@ -737,7 +737,7 @@ update message model =
             )
 
         SelectAll id ->
-            ( model, selectTextById id )
+            ( model, Subscriptions.selectTextById id )
 
         Shortcuts x ->
             if x == "save" then
@@ -823,7 +823,7 @@ update message model =
                         }
                 in
                 ( { model | settings = newSettings }
-                , saveSettings newSettings
+                , Subscriptions.saveSettings newSettings
                 )
 
             else
@@ -862,7 +862,7 @@ update message model =
                     , fullscreen = model.window.fullscreen
                     }
               }
-            , layoutEditor 0
+            , Subscriptions.layoutEditor 0
             )
 
         OnCurrentShareUrl ->
@@ -873,7 +873,7 @@ update message model =
                 in
                 ( { model | progress = True }
                 , Cmd.batch
-                    [ encodeShareText
+                    [ Subscriptions.encodeShareText
                         { diagramType =
                             DiagramType.toString model.diagramModel.diagramType
                         , title = model.title
@@ -915,7 +915,7 @@ update message model =
 
         OnShareUrl shareInfo ->
             ( model
-            , encodeShareText shareInfo
+            , Subscriptions.encodeShareText shareInfo
             )
 
         CancelSharing ->
@@ -1011,7 +1011,7 @@ update message model =
             ( model, Task.perform identity (Task.succeed (FileLoaded text)) )
 
         WindowSelect tab ->
-            ( { model | editorIndex = tab }, layoutEditor 100 )
+            ( { model | editorIndex = tab }, Subscriptions.layoutEditor 100 )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -1052,7 +1052,7 @@ update message model =
               }
             , Cmd.batch
                 [ Nav.pushUrl model.key diagram.diagramPath
-                , loadText diagram.text
+                , Subscriptions.loadText diagram.text
                 ]
             )
 
@@ -1070,10 +1070,10 @@ update message model =
             ( { model | dropDownIndex = Nothing, settings = settings, diagramModel = newDiagramModel }, Cmd.none )
 
         Login ->
-            ( { model | progress = True }, login () )
+            ( { model | progress = True }, Subscriptions.login () )
 
         Logout ->
-            ( { model | loginUser = Nothing, currentDiagram = Nothing }, logout () )
+            ( { model | loginUser = Nothing, currentDiagram = Nothing }, Subscriptions.logout () )
 
         OnAuthStateChanged user ->
             ( { model | loginUser = user, progress = False }, Cmd.none )
@@ -1197,5 +1197,5 @@ update message model =
                 , text = text_
                 , currentDiagram = Nothing
               }
-            , Cmd.batch [ loadText displayText, Nav.pushUrl model.key (Route.toString route_) ]
+            , Cmd.batch [ Subscriptions.loadText displayText, Nav.pushUrl model.key (Route.toString route_) ]
             )

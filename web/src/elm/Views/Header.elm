@@ -77,22 +77,22 @@ view profile route t isEditTitle fullscreen menu =
                     Empty.view
                 ]
             , div
-                (Styles.flexCenter
-                    ++ [ class "button"
-                       , onClick <| NavRoute Help
-                       , style "padding" "8px"
-                       ]
-                )
+                [ class "button"
+                , onClick <| NavRoute Help
+                , style "padding" "8px"
+                , style "display" "flex"
+                , style "align-items" "center"
+                ]
                 [ Icon.helpOutline 20
                 , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Help" ] ]
                 ]
             , div
-                (Styles.flexCenter
-                    ++ [ class "button"
-                       , onClick OnCurrentShareUrl
-                       , style "padding" "8px"
-                       ]
-                )
+                [ class "button"
+                , onClick OnCurrentShareUrl
+                , style "padding" "8px"
+                , style "display" "flex"
+                , style "align-items" "center"
+                ]
                 [ Icon.people 24
                 , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Share" ] ]
                 ]
@@ -109,11 +109,11 @@ view profile route t isEditTitle fullscreen menu =
                                 }
                 in
                 div
-                    (Styles.flexCenter
-                        ++ [ class "button"
-                           , stopPropagationOn "click" (D.succeed ( OpenMenu HeaderMenu, True ))
-                           ]
-                    )
+                    [ class "button"
+                    , stopPropagationOn "click" (D.succeed ( OpenMenu HeaderMenu, True ))
+                    , style "display" "flex"
+                    , style "align-items" "center"
+                    ]
                     [ div
                         [ style "font-size" "0.9rem"
                         , style "padding" "0 8px"
@@ -147,11 +147,11 @@ view profile route t isEditTitle fullscreen menu =
 
               else
                 div
-                    (Styles.flexCenter
-                        ++ [ class "button"
-                           , onClick Login
-                           ]
-                    )
+                    [ class "button"
+                    , onClick Login
+                    , style "display" "flex"
+                    , style "align-items" "center"
+                    ]
                     [ div
                         [ style "font-size" "0.9rem"
                         , style "padding" "0 8px"

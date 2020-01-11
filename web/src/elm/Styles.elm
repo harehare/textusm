@@ -1,4 +1,4 @@
-module Styles exposing (flex, flexCenter, matchParent, title)
+module Styles exposing (matchParent, title)
 
 import Html
 import Html.Attributes exposing (style)
@@ -12,19 +12,6 @@ title =
     , style "padding" "8px"
     , style "color" "#333333"
     ]
-
-
-flex : List (Html.Attribute Msg)
-flex =
-    [ style "display" "flex"
-    ]
-
-
-flexCenter : List (Html.Attribute Msg)
-flexCenter =
-    flex
-        ++ [ style "align-items" "center"
-           ]
 
 
 matchParent : List (Html.Attribute Msg)

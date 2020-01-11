@@ -94,14 +94,14 @@ labelView labels settings hierarchy width countByHierarchy =
             else
                 text_ [] []
           , if hierarchy > 0 then
-                labelTextView settings textX "90" (getAt 1 labels |> Maybe.withDefault "USER TASKS")
+                labelTextView settings textX (String.fromInt <| settings.size.height + 25) (getAt 1 labels |> Maybe.withDefault "USER TASKS")
 
             else
                 text_ [] []
           ]
             ++ (if hierarchy > 1 then
-                    [ labelTextView settings textX "185" (getAt 2 labels |> Maybe.withDefault "USER STORIES")
-                    , labelTextView settings textX "215" (getAt 3 labels |> Maybe.withDefault "RELEASE 1")
+                    [ labelTextView settings textX (String.fromInt <| settings.size.height * 2 + 50) (getAt 2 labels |> Maybe.withDefault "USER STORIES")
+                    , labelTextView settings textX (String.fromInt <| settings.size.height * 2 + 80) (getAt 3 labels |> Maybe.withDefault "RELEASE 1")
                     ]
 
                 else

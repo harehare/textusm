@@ -1,4 +1,4 @@
-module Views.DropDownList exposing (colorValue, stringValue, view)
+module Views.DropDownList exposing (DropDownItem, DropDownValue, colorValue, stringValue, view)
 
 import Html exposing (Html, div, span, text)
 import Html.Attributes exposing (class, style)

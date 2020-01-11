@@ -41,7 +41,7 @@ cardView settings ( posX, posY ) item =
             , settings.size.height - 1
             )
             backgroundColor
-        , textView settings ( 0, 0 ) color item.text
+        , textView settings ( 0, 0 ) ( settings.size.width, settings.size.height ) color item.text
         ]
 
 
@@ -56,13 +56,13 @@ rectView ( svgWidth, svgHeight ) color =
         []
 
 
-textView : Settings -> ( Int, Int ) -> String -> String -> Svg Msg
-textView settings ( posX, posY ) colour textOrUrl =
+textView : Settings -> ( Int, Int ) -> ( Int, Int ) -> String -> String -> Svg Msg
+textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour textOrUrl =
     foreignObject
         [ x <| String.fromInt posX
         , y <| String.fromInt posY
-        , width <| String.fromInt settings.size.width
-        , height <| String.fromInt settings.size.height
+        , width <| String.fromInt svgWidth
+        , height <| String.fromInt svgHeight
         , fill colour
         , color colour
         , fontSize (textOrUrl |> String.replace " " "" |> Utils.calcFontSize settings.size.width)

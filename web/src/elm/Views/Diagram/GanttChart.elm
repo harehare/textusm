@@ -96,6 +96,7 @@ view model =
                                         :: List.indexedMap
                                             (\i item ->
                                                 itemView model.settings
+                                                    i
                                                     ( Constants.leftMargin
                                                     , posY + i * Constants.ganttItemSize
                                                     )
@@ -147,7 +148,7 @@ weekView settings svgHeight ( from, to ) =
                             [ x1 posX
                             , y1 <| String.fromInt <| Constants.ganttItemSize + 2
                             , x2 posX
-                            , y2 <| String.fromInt <| Constants.ganttItemSize + svgHeight + 2
+                            , y2 <| String.fromInt <| Constants.ganttItemSize + svgHeight - 2
                             , stroke settings.color.line
                             , strokeWidth "0.5"
                             ]
@@ -170,11 +171,12 @@ sectionView settings sectionWidth sectionHeight ( posX, posY ) text =
             ]
             []
         , foreignObject
-            [ x <| String.fromInt <| posX + 10
-            , y <| String.fromInt <| posY + 10
-            , width <| String.fromInt <| Constants.leftMargin - 16
-            , height <| String.fromInt sectionHeight
-            , color settings.color.label
+            [ x <| String.fromInt <| posX
+            , y <| String.fromInt <| posY + 3
+            , width <| String.fromInt <| Constants.leftMargin - 2
+            , height <| String.fromInt <| sectionHeight - 2
+            , color settings.color.activity.color
+            , Attr.style "background-color" settings.color.activity.backgroundColor
             , fontSize "11"
             , fontWeight "bold"
             , fontFamily settings.font
@@ -183,41 +185,59 @@ sectionView settings sectionWidth sectionHeight ( posX, posY ) text =
             [ div
                 [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
                 , Attr.style "word-wrap" "break-word"
+                , Attr.style "padding" "8px"
                 ]
                 [ Html.text text ]
             ]
         ]
 
 
-itemView : Settings -> ( Int, Int ) -> Posix -> Item -> Svg Msg
-itemView settings ( posX, posY ) baseFrom item =
+itemView : Settings -> Int -> ( Int, Int ) -> Posix -> Item -> Svg Msg
+itemView settings index ( posX, posY ) baseFrom item =
     let
         values =
             Utils.extractDateValues item.text
+
+        isOdd =
+            if index == 0 then
+                False
+
+            else
+                modBy 2 index == 1
     in
     case values of
         Just ( ( from, to ), text ) ->
             let
                 interval =
                     diff Day utc baseFrom from
+
+                colour =
+                    if isOdd then
+                        ( settings.color.story.backgroundColor, settings.color.text |> Maybe.withDefault settings.color.label )
+
+                    else
+                        ( settings.color.task.backgroundColor, settings.color.text |> Maybe.withDefault settings.color.label )
             in
-            taskView settings ( posX + interval * Constants.ganttItemSize, posY ) from to text
+            taskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
 
         Nothing ->
             g [] []
 
 
-taskView : Settings -> ( Int, Int ) -> Posix -> Posix -> String -> Svg Msg
-taskView settings ( posX, posY ) from to text =
+taskView : Settings -> ( String, String ) -> ( Int, Int ) -> Posix -> Posix -> String -> Svg Msg
+taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
     let
         interval =
             diff Day utc from to
 
         svgWidth =
             Constants.ganttItemSize * interval
+
+        textWidth =
+            String.length text * 20
     in
     svg
-        [ width <| String.fromInt (svgWidth * 2)
+        [ width <| String.fromInt (svgWidth + textWidth)
         , height <| String.fromInt Constants.ganttItemSize
         , x <| String.fromInt posX
         , y <| String.fromInt posY
@@ -226,19 +246,18 @@ taskView settings ( posX, posY ) from to text =
             ( svgWidth
             , Constants.ganttItemSize
             )
-            settings.color.story.backgroundColor
-        , Views.textView settings ( svgWidth, 0 ) settings.color.story.color text
+            backgroundColor
+        , Views.textView settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour text
         ]
 
 
 rectView : ( Int, Int ) -> String -> Svg Msg
 rectView ( svgWidth, svgHeight ) color =
     rect
-        [ width <| String.fromInt svgWidth
-        , height <| String.fromInt <| svgHeight - 6
-        , x "1"
-        , y "6"
+        [ width <| String.fromInt <| svgWidth
+        , height <| String.fromInt <| svgHeight
+        , x "0"
+        , y "3"
         , fill color
-        , stroke "rgba(192,192,192,0.5)"
         ]
         []

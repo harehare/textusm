@@ -8,7 +8,7 @@ import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
 import List
 import List.Extra exposing (getAt, scanl, unique)
-import Models.Diagram exposing (..)
+import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.DiagramType exposing (DiagramType(..))
 import Models.Item as Item exposing (Item, ItemType(..))
 import Parser

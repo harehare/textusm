@@ -6,9 +6,10 @@ import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Msg(..))
 import Models.Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap)
-import Views.DropDownList as DropDownList
+import Views.DropDownList as DropDownList exposing(DropDownValue)
 
 
+baseColorItems : List { name : String, value : DropDownValue }
 baseColorItems =
     [ { name = "WHITE", value = DropDownList.colorValue "#FFFFFF" }
     , { name = "BLACK", value = DropDownList.colorValue "#000000" }
@@ -20,8 +21,8 @@ baseColorItems =
     , { name = "PINK", value = DropDownList.colorValue "#F6CFE6" }
     , { name = "RED", value = DropDownList.colorValue "#EE8A8B" }
     , { name = "PURPLE", value = DropDownList.colorValue "#CD89F7" }
-    , { name = "ACTIVITY DEFALUT", value = DropDownList.colorValue "#266B9A" }
-    , { name = "TASK DEFALUT", value = DropDownList.colorValue "#3E9BCD" }
+    , { name = "BACKGROUND1 DEFALUT", value = DropDownList.colorValue "#266B9A" }
+    , { name = "BACKGROUND2 DEFALUT", value = DropDownList.colorValue "#3E9BCD" }
     , { name = "LINE DEFALUT", value = DropDownList.colorValue "#434343" }
     , { name = "LABEL DEFALUT", value = DropDownList.colorValue "#8C9FAE" }
     , { name = "BACKGROUND DEFALUT", value = DropDownList.colorValue "#F4F4F5" }
@@ -29,6 +30,7 @@ baseColorItems =
     ]
 
 
+baseSizeItems : List { name : String, value : DropDownValue }
 baseSizeItems =
     List.range 0 100
         |> List.map
@@ -36,7 +38,7 @@ baseSizeItems =
                 { name = String.fromInt <| 50 + i * 5, value = DropDownList.stringValue <| String.fromInt <| 50 + i * 5 }
             )
 
-
+fontSizeItems : List { name : String, value : DropDownValue }
 fontSizeItems =
     [ { name = "8", value = DropDownList.stringValue "8" }
     , { name = "9", value = DropDownList.stringValue "9" }
@@ -51,6 +53,8 @@ fontSizeItems =
     ]
 
 
+
+fontFamilyItems : List { name : String, value : DropDownValue }
 fontFamilyItems =
     [ { name = "ABeeZee", value = DropDownList.stringValue "ABeeZee" }
     , { name = "Abel", value = DropDownList.stringValue "Abel" }
@@ -1169,7 +1173,7 @@ view dropDownIndex settings =
         , section (Just "Color")
         , div [ class "controls" ]
             [ div [ class "control" ]
-                [ div [ class "label" ] [ text "Background for User Activity" ]
+                [ div [ class "label" ] [ text "Background Color1" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view "activity-background-color"
                         dropDownIndex
@@ -1183,7 +1187,7 @@ view dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "Foreground for User Activity" ]
+                [ div [ class "label" ] [ text "Foreground Color1" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view "activity-foreground-color"
                         dropDownIndex
@@ -1200,7 +1204,7 @@ view dropDownIndex settings =
         , section Nothing
         , div [ class "controls" ]
             [ div [ class "control" ]
-                [ div [ class "label" ] [ text "Background for User Task" ]
+                [ div [ class "label" ] [ text "Background Color2" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view "task-background-color"
                         dropDownIndex
@@ -1214,7 +1218,7 @@ view dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "Foreground for User Task" ]
+                [ div [ class "label" ] [ text "Foreground Color2" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view "task-foreground-color"
                         dropDownIndex
@@ -1231,7 +1235,7 @@ view dropDownIndex settings =
         , section Nothing
         , div [ class "controls" ]
             [ div [ class "control" ]
-                [ div [ class "label" ] [ text "Background for User Story" ]
+                [ div [ class "label" ] [ text "Background Color3" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view "story-background-color"
                         dropDownIndex
@@ -1245,7 +1249,7 @@ view dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "Foreground for User Story" ]
+                [ div [ class "label" ] [ text "Foreground Color3" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view "story-foreground-color"
                         dropDownIndex

@@ -11,13 +11,12 @@ import Views.Icon as Icon
 view : String -> Int -> Html Msg -> Html Msg -> Html Msg
 view backgroundColor index view1 view2 =
     div
-        (Styles.flex
-            ++ [ style "width" "100vw"
-               , style "flex-direction" "column"
-               , style "backgrond-color" "#282C32"
-               , style "position" "relative"
-               ]
-        )
+        [ style "width" "100vw"
+        , style "flex-direction" "column"
+        , style "backgrond-color" "#282C32"
+        , style "position" "relative"
+        , style "display" "flex"
+        ]
         [ div
             [ style "position" "fixed"
             , style "bottom" "72px"

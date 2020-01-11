@@ -9,7 +9,7 @@ import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra as MaybeEx
 import Models.DiagramItem exposing (DiagramItem)
-import Models.DiagramList exposing (..)
+import Models.DiagramList exposing (Model, Msg(..))
 import Models.DiagramType exposing (DiagramType(..))
 import Models.User as UserModel exposing (User)
 import Subscriptions exposing (getDiagrams, removeDiagrams)
