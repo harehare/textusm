@@ -13,12 +13,7 @@ get idToken apiRoot path query resolver =
         { method = "GET"
         , headers =
             [ Http.header "Content-Type" "application/json"
-            , case idToken of
-                Just i ->
-                    IdToken.unwrap i |> Http.header "Authorization"
-
-                Nothing ->
-                    Http.header "Authorization" "dummy"
+            , idToken |> Maybe.withDefault (IdToken.fromString "dummy") |> IdToken.unwrap |> Http.header "Authorization"
             ]
         , url = crossOrigin apiRoot path query
         , body = Http.emptyBody
@@ -33,12 +28,7 @@ post idToken apiRoot path body resolver =
         { method = "POST"
         , headers =
             [ Http.header "Content-Type" "application/json"
-            , case idToken of
-                Just i ->
-                    IdToken.unwrap i |> Http.header "Authorization"
-
-                Nothing ->
-                    Http.header "Authorization" "dummy"
+            , idToken |> Maybe.withDefault (IdToken.fromString "dummy") |> IdToken.unwrap |> Http.header "Authorization"
             ]
         , url = crossOrigin apiRoot path []
         , body = body
@@ -53,12 +43,7 @@ delete idToken apiRoot path query resolver =
         { method = "DELETE"
         , headers =
             [ Http.header "Content-Type" "application/json"
-            , case idToken of
-                Just i ->
-                    IdToken.unwrap i |> Http.header "Authorization"
-
-                Nothing ->
-                    Http.header "Authorization" "dummy"
+            , idToken |> Maybe.withDefault (IdToken.fromString "dummy") |> IdToken.unwrap |> Http.header "Authorization"
             ]
         , url = crossOrigin apiRoot path query
         , body = Http.emptyBody
