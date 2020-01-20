@@ -1,4 +1,4 @@
-package services
+package item
 
 import (
 	"bytes"
@@ -24,13 +24,13 @@ func removeBase64Padding(value string) string {
 	return strings.Replace(value, "=", "", -1)
 }
 
-func Pad(src []byte) []byte {
+func pad(src []byte) []byte {
 	padding := aes.BlockSize - len(src)%aes.BlockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(src, padtext...)
 }
 
-func Unpad(src []byte) ([]byte, error) {
+func unpad(src []byte) ([]byte, error) {
 	length := len(src)
 	unpadding := int(src[length-1])
 
@@ -41,13 +41,13 @@ func Unpad(src []byte) ([]byte, error) {
 	return src[:(length - unpadding)], nil
 }
 
-func encrypt(key []byte, text string) (string, error) {
+func Encrypt(key []byte, text string) (string, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
 	}
 
-	msg := Pad([]byte(text))
+	msg := pad([]byte(text))
 	ciphertext := make([]byte, aes.BlockSize+len(msg))
 	iv := ciphertext[:aes.BlockSize]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
@@ -60,7 +60,7 @@ func encrypt(key []byte, text string) (string, error) {
 	return finalMsg, nil
 }
 
-func decrypt(key []byte, text string) (string, error) {
+func Decrypt(key []byte, text string) (string, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
@@ -81,7 +81,7 @@ func decrypt(key []byte, text string) (string, error) {
 	cfb := cipher.NewCFBDecrypter(block, iv)
 	cfb.XORKeyStream(msg, msg)
 
-	unpadMsg, err := Unpad(msg)
+	unpadMsg, err := unpad(msg)
 	if err != nil {
 		return "", err
 	}

@@ -2,7 +2,8 @@ package main
 
 import (
 	"os"
-	"github.com/harehare/textusm/server"
+
+	server "github.com/harehare/textusm"
 )
 
 func main() {
