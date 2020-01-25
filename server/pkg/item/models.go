@@ -24,7 +24,7 @@ type Item struct {
 	Title      string    `json:"title"`
 	Text       string    `json:"text"`
 	Thumbnail  *string   `json:"thumbnail"`
-	Diagram    Diagram   `json:"Diagram"`
+	Diagram    Diagram   `json:"diagram"`
 	IsPublic   bool      `json:"isPublic"`
 	IsBookmark bool      `json:"isBookmark"`
 	CreatedAt  time.Time `json:"createdAt"`

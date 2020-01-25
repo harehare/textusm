@@ -21,7 +21,7 @@ type Item {
   title: String!
   text: String!
   thumbnail: String
-  Diagram: Diagram!
+  diagram: Diagram!
   isPublic: Boolean!
   isBookmark: Boolean!
   createdAt: Time!

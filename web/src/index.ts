@@ -59,8 +59,10 @@ app.ports.loadEditor.subscribe(([text, option]: [string, EditorOption]) => {
     loadEditor(app, text, option);
 });
 
-app.ports.login.subscribe(() => {
-    auth.login(auth.provideres.google);
+app.ports.login.subscribe((provider: string) => {
+    auth.login(
+        provider === "Google" ? auth.provideres.google : auth.provideres.github
+    );
 });
 
 app.ports.logout.subscribe(async () => {

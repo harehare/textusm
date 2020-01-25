@@ -21,8 +21,24 @@ func NewService(r Repository) *Service {
 
 func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isBookmark, isPublic bool) ([]*Item, error) {
 	userID := ctx.Value(middleware.UIDKey).(string)
+	items, err := s.repo.Find(ctx, userID, offset, limit, isBookmark, isPublic)
 
-	return s.repo.Find(ctx, userID, offset, limit, isBookmark, isPublic)
+	if err != nil {
+		return nil, err
+	}
+
+	resultItems := make([]*Item, len(items))
+
+	for i, item := range items {
+		text, err := Decrypt(encryptKey, item.Text)
+		if err != nil {
+			return nil, err
+		}
+		item.Text = text
+		resultItems[i] = item
+	}
+
+	return resultItems, nil
 }
 
 func (s *Service) FindDiagram(ctx context.Context, itemID string) (*Item, error) {

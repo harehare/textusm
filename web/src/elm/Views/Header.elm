@@ -5,10 +5,9 @@ import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, 
 import Html.Events exposing (keyCode, on, onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
-import Models.Model exposing (Menu(..), Msg(..))
+import Models.Model exposing (LoginProvider(..), Menu(..), Msg(..))
 import Models.User exposing (User)
 import Route exposing (Route(..))
-import Styles
 import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu
@@ -148,7 +147,7 @@ view profile route t isEditTitle fullscreen menu =
               else
                 div
                     [ class "button"
-                    , onClick Login
+                    , stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
                     , style "display" "flex"
                     , style "align-items" "center"
                     ]
@@ -160,6 +159,24 @@ view profile route t isEditTitle fullscreen menu =
                         , style "width" "50px"
                         ]
                         [ text "SIGN IN" ]
+                    , case menu of
+                        Just LoginMenu ->
+                            Menu.menu (Just "30px")
+                                Nothing
+                                Nothing
+                                (Just "5px")
+                                [ { e = Login Google
+                                  , title = "Google"
+                                  , icon = Nothing
+                                  }
+                                , { e = Login Github
+                                  , title = "Github"
+                                  , icon = Nothing
+                                  }
+                                ]
+
+                        _ ->
+                            Empty.view
                     ]
             ]
 

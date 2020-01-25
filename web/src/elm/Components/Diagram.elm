@@ -9,7 +9,6 @@ import Html.Events.Extra.Wheel as Wheel
 import List
 import List.Extra exposing (getAt, scanl, unique)
 import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.DiagramType exposing (DiagramType(..))
 import Models.Item as Item exposing (Item, ItemType(..))
 import Parser
 import Result exposing (andThen)
@@ -19,6 +18,7 @@ import Svg.Attributes exposing (class, height, id, viewBox, width)
 import Svg.Events exposing (onClick)
 import Svg.Lazy exposing (lazy, lazy2, lazy3)
 import Task
+import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.CustomerJourneyMap as CustomerJourneyMap
@@ -88,7 +88,7 @@ getItemType text indent =
                 Stories (indent - 1)
 
 
-loadText : DiagramType -> Int -> Int -> String -> Result String ( List Int, List Item )
+loadText : Diagram -> Int -> Int -> String -> Result String ( List Int, List Item )
 loadText diagramType lineNo indent input =
     let
         splited =
@@ -133,7 +133,7 @@ loadText diagramType lineNo indent input =
             Err err
 
 
-load : DiagramType -> String -> Result String ( Int, List Item )
+load : Diagram -> String -> Result String ( Int, List Item )
 load diagramType t =
     case t of
         "" ->
@@ -310,7 +310,7 @@ view model =
         ]
 
 
-diagramView : DiagramType -> Model -> Svg Msg
+diagramView : Diagram -> Model -> Svg Msg
 diagramView diagramType =
     case diagramType of
         UserStoryMap ->
@@ -322,7 +322,7 @@ diagramView diagramType =
         OpportunityCanvas ->
             OpportunityCanvas.view
 
-        FourLs ->
+        Fourls ->
             FourLs.view
 
         StartStopContinue ->

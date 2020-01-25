@@ -47,7 +47,7 @@ thumbnail =
 {-| -}
 diagram : SelectionSet TextUSM.Enum.Diagram.Diagram TextUSM.Object.Item
 diagram =
-    Object.selectionForField "Enum.Diagram.Diagram" "Diagram" [] TextUSM.Enum.Diagram.decoder
+    Object.selectionForField "Enum.Diagram.Diagram" "diagram" [] TextUSM.Enum.Diagram.decoder
 
 
 {-| -}

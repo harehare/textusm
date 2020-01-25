@@ -1,22 +1,21 @@
 module Components.DiagramList exposing (init, update, view)
 
-import Api.Diagram as DiagramApi
 import Dict
 import Dict.Extra as DictEx
+import GraphQL.Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import GraphQL.Request as Request
 import Html exposing (Html, div, input, span, text)
 import Html.Attributes exposing (class, placeholder, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Json.Decode as D
-import Maybe.Extra as MaybeEx
-import Models.DiagramItem exposing (DiagramItem)
+import Maybe.Extra exposing (isJust)
 import Models.DiagramList exposing (Model, Msg(..))
-import Models.DiagramType exposing (DiagramType(..))
+import Models.DiagramType as DiagramType
 import Models.User as UserModel exposing (User)
 import Subscriptions exposing (getDiagrams, removeDiagrams)
 import Task
 import Time exposing (Zone)
 import Utils
-import Views.Empty as Empty
 import Views.Icon as Icon
 
 
@@ -38,8 +37,7 @@ init user apiRoot =
 
 facet : List DiagramItem -> List ( String, Int )
 facet items =
-    items
-        |> DictEx.groupBy .diagramPath
+    DictEx.groupBy (\i -> i.diagram |> DiagramType.toString) items
         |> Dict.map (\k v -> ( k, List.length v ))
         |> Dict.values
 
@@ -132,7 +130,7 @@ view model =
                 displayDiagrams =
                     case model.selectedType of
                         Just type_ ->
-                            List.filter (\d -> d.diagramPath == type_) diagrams
+                            List.filter (\d -> d.diagram == DiagramType.fromString type_) diagrams
 
                         Nothing ->
                             diagrams
@@ -210,7 +208,7 @@ view model =
                                             identity
                                    )
                                 |> List.map
-                                    (\d -> diagramView model.loginUser model.timeZone d)
+                                    (\d -> diagramView model.timeZone d)
                             )
                     ]
                 ]
@@ -234,14 +232,8 @@ view model =
                 ]
 
 
-diagramView : Maybe User -> Zone -> DiagramItem -> Html Msg
-diagramView user timezone diagram =
-    let
-        isOwner =
-            user
-                |> Maybe.map (\u -> u.id == (diagram.ownerId |> Maybe.withDefault ""))
-                |> Maybe.withDefault False
-    in
+diagramView : Zone -> DiagramItem -> Html Msg
+diagramView timezone diagram =
     div
         [ class "diagram-item"
         , style "background-image" ("url(\"" ++ (diagram.thumbnail |> Maybe.withDefault "") ++ "\")")
@@ -261,17 +253,13 @@ diagramView user timezone diagram =
                 , style "justify-content" "space-between"
                 , style "margin-top" "8px"
                 ]
-                [ div [ style "margin-top" "4px" ] [ text (Utils.millisToString timezone (diagram.updatedAt |> Maybe.withDefault 0)) ]
+                [ div [ style "margin-top" "4px" ] [ text (Utils.millisToString timezone diagram.updatedAt) ]
                 , if diagram.isRemote then
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOn 14 ]
 
                   else
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOff 14 ]
-                , if MaybeEx.isNothing user || MaybeEx.isNothing diagram.ownerId || isOwner then
-                    div [ style "margin-left" "16px", class "button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
-
-                  else
-                    Empty.view
+                , div [ style "margin-left" "16px", class "button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
                 ]
             ]
         ]
@@ -301,12 +289,23 @@ update message model =
             , Cmd.none
             )
 
-        GotLocalDiagrams localItems ->
+        GotLocalDiagramJson json ->
+            let
+                localItems =
+                    Result.withDefault [] <|
+                        D.decodeString (D.list DiagramItem.decoder) json
+            in
             case model.loginUser of
                 Just _ ->
                     let
                         remoteItems =
-                            DiagramApi.items (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser) 1 model.apiRoot
+                            Request.items model.apiRoot (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser) ( 0, 30 ) False False
+                                |> Task.map
+                                    (\i ->
+                                        i
+                                            |> List.filter (\item -> isJust item)
+                                            |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
+                                    )
 
                         items =
                             remoteItems
@@ -317,10 +316,10 @@ update message model =
                                                 (\a b ->
                                                     let
                                                         v1 =
-                                                            a.updatedAt |> Maybe.withDefault 0
+                                                            a.updatedAt |> Time.posixToMillis
 
                                                         v2 =
-                                                            b.updatedAt |> Maybe.withDefault 0
+                                                            b.updatedAt |> Time.posixToMillis
                                                     in
                                                     if v1 - v2 > 0 then
                                                         LT
@@ -346,18 +345,24 @@ update message model =
             ( { model | diagramList = Just items }, Cmd.none )
 
         Remove diagram ->
-            ( model, removeDiagrams diagram )
+            ( model, removeDiagrams (DiagramItem.encoder diagram) )
 
-        RemoveRemote diagram ->
-            ( model
-            , Task.attempt Removed
-                (DiagramApi.remove (Utils.getIdToken model.loginUser) model.apiRoot (diagram.id |> Maybe.withDefault "")
-                    |> Task.mapError (Tuple.pair diagram)
-                    |> Task.map (\_ -> diagram)
-                )
-            )
+        RemoveRemote diagramJson ->
+            case D.decodeString DiagramItem.decoder diagramJson of
+                Ok diagram ->
+                    ( model
+                    , Task.attempt Removed
+                        (Request.delete (Maybe.withDefault "" diagram.id) model.apiRoot (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser)
+                            |> Task.map (\_ -> Just diagram)
+                        )
+                    )
 
-        Removed (Err ( _, _ )) ->
+                Err _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        Removed (Err _) ->
             ( model
             , Cmd.none
             )

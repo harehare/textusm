@@ -98,7 +98,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Item.CreatedAt(childComplexity), true
 
-	case "Item.Diagram":
+	case "Item.diagram":
 		if e.complexity.Item.Diagram == nil {
 			break
 		}
@@ -287,7 +287,7 @@ type Item {
   title: String!
   text: String!
   thumbnail: String
-  Diagram: Diagram!
+  diagram: Diagram!
   isPublic: Boolean!
   isBookmark: Boolean!
   createdAt: Time!
@@ -600,7 +600,7 @@ func (ec *executionContext) _Item_thumbnail(ctx context.Context, field graphql.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Item_Diagram(ctx context.Context, field graphql.CollectedField, obj *item.Item) (ret graphql.Marshaler) {
+func (ec *executionContext) _Item_diagram(ctx context.Context, field graphql.CollectedField, obj *item.Item) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -2274,8 +2274,8 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "thumbnail":
 			out.Values[i] = ec._Item_thumbnail(ctx, field, obj)
-		case "Diagram":
-			out.Values[i] = ec._Item_Diagram(ctx, field, obj)
+		case "diagram":
+			out.Values[i] = ec._Item_diagram(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

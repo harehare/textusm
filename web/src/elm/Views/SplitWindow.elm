@@ -7,8 +7,8 @@ import Json.Decode as D
 import Models.Model exposing (Msg(..), Window)
 
 
-view : Bool -> String -> Window -> Html Msg -> Html Msg -> Html Msg
-view canWrite backgroundColor window left right =
+view : String -> Window -> Html Msg -> Html Msg -> Html Msg
+view backgroundColor window left right =
     let
         ( leftPos, rightPos ) =
             if window.position > 0 then
@@ -32,7 +32,7 @@ view canWrite backgroundColor window left right =
             else
                 ( "calc((100vw - 56px) / 2)", "calc((100vw - 56px) / 2)" )
     in
-    if window.fullscreen || not canWrite then
+    if window.fullscreen then
         div
             [ style "display" "flex", style "background-color" backgroundColor ]
             [ div

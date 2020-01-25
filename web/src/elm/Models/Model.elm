@@ -1,22 +1,20 @@
-module Models.Model exposing (DownloadFileInfo, DownloadInfo, FileType(..), Menu(..), Model, Msg(..), Notification(..), ShareInfo, ShareUrl(..), Window, canWrite)
+module Models.Model exposing (DownloadFileInfo, DownloadInfo, FileType(..), LoginProvider(..), Menu(..), Model, Msg(..), Notification(..), ShareInfo, ShareUrl(..), Window)
 
-import Api.Diagram exposing (AddUserResponse, UpdateUserResponse)
 import Api.UrlShorter
 import Browser
 import Browser.Dom exposing (Viewport)
 import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
 import File exposing (File)
-import Http
-import List.Extra as ListEx
-import Maybe.Extra as MaybeEx
+import GraphQL.Models.DiagramItem exposing (DiagramItem)
+import Graphql.Http as Http
+import Http as Http2
 import Models.Diagram as Diagram
-import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramList as DiagramList
-import Models.DiagramType exposing (DiagramType)
 import Models.Settings exposing (Settings)
 import Models.User exposing (User)
 import Route as Route
+import TextUSM.Enum.Diagram exposing (Diagram)
 import Url
 
 
@@ -35,16 +33,16 @@ type Msg
     | FileSelected File
     | FileLoaded String
     | Save
-    | Saved (Result Http.Error DiagramItem)
+    | Saved (Result (Http.Error DiagramItem) DiagramItem)
     | SaveToFileSystem
-    | SaveToRemote DiagramItem
+    | SaveToRemote String
     | StartEditTitle
     | Progress Bool
     | EndEditTitle Int Bool
     | EditTitle String
     | OnShareUrl ShareInfo
     | OnCurrentShareUrl
-    | Login
+    | Login LoginProvider
     | Logout
     | OnVisibilityChange Visibility
     | OnStartWindowResize Int
@@ -59,26 +57,22 @@ type Msg
     | OnCloseNotification
     | OnAuthStateChanged (Maybe User)
     | WindowSelect Int
-    | GetShortUrl (Result Http.Error Api.UrlShorter.Response)
+    | GetShortUrl (Result Http2.Error Api.UrlShorter.Response)
       -- Diagram type
-    | New DiagramType
+    | New Diagram
     | GetDiagrams
-    | Opened (Result ( DiagramItem, Http.Error ) DiagramItem)
     | UpdateSettings (String -> Settings) String
     | Shortcuts String
     | SelectAll String
       -- SharingDialog
     | CancelSharing
-    | InviteUser
-    | EditInviteMail String
-    | UpdateRole String String
-    | UpdatedRole (Result Http.Error UpdateUserResponse)
-    | AddUser (Result Http.Error AddUserResponse)
-    | DeleteUser String
-    | DeletedUser (Result Http.Error String)
-    | LoadUsers (Result Http.Error DiagramItem)
     | ToggleDropDownList String
     | NavRoute Route.Route
+
+
+type LoginProvider
+    = Google
+    | Github
 
 
 type FileType
@@ -99,6 +93,7 @@ type Menu
     | Export
     | UserSettings
     | HeaderMenu
+    | LoginMenu
 
 
 type alias Model =
@@ -162,50 +157,3 @@ type alias ShareInfo =
 
 type ShareUrl
     = ShareUrl String
-
-
-canWrite : Maybe DiagramItem -> Maybe User -> Bool
-canWrite currentDiagram currentUser =
-    let
-        isRemote =
-            case currentDiagram of
-                Just d ->
-                    d.isRemote
-
-                Nothing ->
-                    False
-
-        loginUser =
-            currentUser
-                |> Maybe.withDefault
-                    { displayName = ""
-                    , email = ""
-                    , photoURL = ""
-                    , idToken = ""
-                    , id = ""
-                    }
-
-        ownerId =
-            currentDiagram
-                |> Maybe.map (\x -> x.ownerId)
-                |> MaybeEx.join
-                |> Maybe.withDefault ""
-
-        roleUser =
-            currentDiagram
-                |> Maybe.map (\x -> x.users)
-                |> MaybeEx.join
-                |> Maybe.map
-                    (\u ->
-                        ListEx.find (\x -> loginUser.id == x.id) u
-                    )
-                |> MaybeEx.join
-                |> Maybe.withDefault
-                    { id = ""
-                    , name = ""
-                    , photoURL = ""
-                    , role = ""
-                    , mail = ""
-                    }
-    in
-    not isRemote || MaybeEx.isNothing currentDiagram || loginUser.id == ownerId || roleUser.role == "Editor"

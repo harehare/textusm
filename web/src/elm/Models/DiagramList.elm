@@ -1,10 +1,9 @@
 module Models.DiagramList exposing (Model, Msg(..))
 
-import Http
-import Models.DiagramItem exposing (DiagramItem)
+import GraphQL.Models.DiagramItem exposing (DiagramItem)
+import Graphql.Http as Http
 import Models.User exposing (User)
 import Time exposing (Zone)
-
 
 
 type Msg
@@ -14,11 +13,11 @@ type Msg
     | Select DiagramItem
     | Reload
     | Remove DiagramItem
-    | RemoveRemote DiagramItem
-    | Removed (Result ( DiagramItem, Http.Error ) DiagramItem)
+    | RemoveRemote String
+    | Removed (Result (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem))
     | GotTimeZone Zone
-    | GotLocalDiagrams (List DiagramItem)
-    | GotDiagrams (Result ( List DiagramItem, Http.Error ) (List DiagramItem))
+    | GotLocalDiagramJson String
+    | GotDiagrams (Result ( List DiagramItem, Http.Error (List (Maybe DiagramItem)) ) (List DiagramItem))
 
 
 type alias Model =

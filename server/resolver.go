@@ -59,20 +59,19 @@ func (r *mutationResolver) Save(ctx context.Context, input item.InputItem) (*ite
 }
 
 func (r *mutationResolver) Delete(ctx context.Context, itemID string) (*item.Item, error) {
-	err := r.service.DeleteDiagram(ctx, itemID)
-
-	if err != nil {
-		return nil, err
-	}
-
 	diagramItem, err := r.service.FindDiagram(ctx, itemID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return diagramItem, nil
+	err = r.service.DeleteDiagram(ctx, itemID)
 
+	if err != nil {
+		return nil, err
+	}
+
+	return diagramItem, nil
 }
 
 type queryResolver struct{ *Resolver }

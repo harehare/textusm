@@ -2,7 +2,6 @@ import Dexie from "dexie";
 import * as uuid from "uuid/v4";
 import { Diagram, DiagramItem } from "./model";
 
-const Version = 1;
 const db = new Dexie("textusm");
 const svg2base64 = (id: string) => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -21,9 +20,23 @@ const svg2base64 = (id: string) => {
     )}`;
 };
 
-db.version(Version).stores({
+db.version(1).stores({
     diagrams: "++id,title,text,thumbnail,diagramPath,createdAt,updatedAt"
 });
+
+db.version(2)
+    .stores({
+        diagrams:
+            "++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt"
+    })
+    .upgrade(trans => {
+        //@ts-ignore
+        return trans.diagrams.toCollection().modify(diagram => {
+            diagram.diagram = diagram.diagramPath;
+            diagram.isBookmark = false;
+            delete diagram.diagramPath;
+        });
+    });
 
 // @ts-ignore
 export const initDB = app => {
@@ -32,8 +45,9 @@ export const initDB = app => {
             id,
             title,
             text,
-            diagramPath,
+            diagram,
             isPublic,
+            isBookmark,
             isRemote
         }: Diagram) => {
             const thumbnail = svg2base64("usm");
@@ -42,24 +56,27 @@ export const initDB = app => {
                 title,
                 text,
                 thumbnail,
-                diagramPath,
+                diagram,
+                isPublic,
+                isBookmark,
                 createdAt,
                 updatedAt: createdAt
             };
 
             if (isRemote) {
-                app.ports.saveToRemote.send({
-                    isRemote: true,
-                    id,
-                    isPublic,
-                    ownerId: null,
-                    users: null,
-                    ...diagramItem
-                });
-                // @ts-ignore
-                await db.diagrams.delete(diagramItem.id).catch(e => {
-                    console.error(e);
-                });
+                app.ports.saveToRemote.send(
+                    JSON.stringify({
+                        isRemote: true,
+                        isBookmark: isBookmark,
+                        id,
+                        isPublic,
+                        ...diagramItem
+                    })
+                );
+                if (id) {
+                    // @ts-ignore
+                    await db.diagrams.delete(id);
+                }
             } else {
                 // @ts-ignore
                 await db.diagrams.put({ id: id ? id : uuid(), ...diagramItem });
@@ -75,11 +92,11 @@ export const initDB = app => {
             )
         ) {
             if (isRemote) {
-                app.ports.removeRemoteDiagram.send(diagram);
+                app.ports.removeRemoteDiagram.send(JSON.stringify(diagram));
             } else {
                 // @ts-ignore
                 await db.diagrams.delete(id);
-                app.ports.removedDiagram.send([diagram, true]);
+                app.ports.removedDiagram.send([JSON.stringify(diagram), true]);
             }
         }
     });
@@ -90,14 +107,17 @@ export const initDB = app => {
             .orderBy("updatedAt")
             .reverse()
             .toArray();
-        app.ports.gotLocalDiagrams.send(
-            diagrams.map((d: Diagram) => ({
-                users: null,
-                ownerId: null,
-                isPublic: false,
-                isRemote: false,
-                ...d
-            }))
+        app.ports.gotLocalDiagramJson.send(
+            JSON.stringify(
+                diagrams.map((d: Diagram) => ({
+                    isPublic: false,
+                    isBookmark: false,
+                    isRemote: false,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    ...d
+                }))
+            )
         );
     });
 };

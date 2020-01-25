@@ -1,6 +1,5 @@
 module Main exposing (init, main, view)
 
-import Api.Diagram as DiagramApi
 import Api.UrlShorter as UrlShorterApi
 import Browser
 import Browser.Dom as Dom
@@ -11,25 +10,26 @@ import Components.DiagramList as DiagramList
 import File exposing (name)
 import File.Download as Download
 import File.Select as Select
+import GraphQL.Models.DiagramItem as DiagramItem
+import GraphQL.Request as Request
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy6, lazy7)
+import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy6)
 import Json.Decode as D
-import List.Extra exposing (updateIf)
-import Maybe.Extra as MaybeEx exposing (isJust, isNothing)
+import Maybe.Extra exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
-import Models.DiagramItem exposing (DiagramUser)
 import Models.DiagramList as DiagramListModel
-import Models.DiagramType as DiagramType exposing (DiagramType)
-import Models.Model as Model exposing (FileType(..), Model, Msg(..), Notification(..), ShareUrl(..))
+import Models.DiagramType as DiagramType
+import Models.Model exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), ShareUrl(..))
 import Models.Settings exposing (Settings, defaultEditorSettings)
-import Models.User exposing (User)
 import Route exposing (Route(..), toRoute)
 import Settings exposing (settingsDecoder)
 import String
 import Subscriptions
 import Task
+import TextUSM.Enum.Diagram as Diagram
+import Time
 import Url as Url exposing (percentDecode)
 import Utils
 import Views.BottomNavigationBar as BottomNavigationBar
@@ -41,7 +41,7 @@ import Views.Menu as Menu
 import Views.Notification as Notification
 import Views.ProgressBar as ProgressBar
 import Views.Settings as Settings
-import Views.ShareDialog as ShareDialog
+import Views.Share as Share
 import Views.SplitWindow as SplitWindow
 import Views.SwitchWindow as SwitchWindow
 
@@ -102,23 +102,9 @@ view model =
         [ lazy6 Header.view model.loginUser (toRoute model.url) model.title model.isEditTitle model.window.fullscreen model.openMenu
         , lazy showNotification model.notification
         , lazy2 showProgressbar model.progress model.window.fullscreen
-        , lazy7 sharingDialogView
-            (toRoute model.url)
-            model.loginUser
-            model.embed
-            model.share
-            model.inviteMailAddress
-            (model.currentDiagram
-                |> Maybe.map (\x -> x.ownerId)
-                |> MaybeEx.join
-            )
-            (model.currentDiagram
-                |> Maybe.map (\x -> x.users)
-                |> MaybeEx.join
-            )
         , div
             [ class "main" ]
-            [ lazy5 Menu.view (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu (Model.canWrite model.currentDiagram model.loginUser)
+            [ lazy4 Menu.view (toRoute model.url) model.diagramModel.width model.window.fullscreen model.openMenu
             , let
                 mainWindow =
                     if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then
@@ -127,8 +113,7 @@ view model =
                             model.editorIndex
 
                     else
-                        lazy5 SplitWindow.view
-                            (Model.canWrite model.currentDiagram model.loginUser)
+                        lazy4 SplitWindow.view
                             model.diagramModel.settings.backgroundColor
                             model.window
               in
@@ -138,6 +123,9 @@ view model =
 
                 Route.Help ->
                     Help.view
+
+                Route.SharingSettings ->
+                    lazy3 sharePage (toRoute model.url) model.embed model.share
 
                 Route.Settings ->
                     lazy2 Settings.view model.dropDownIndex model.settings
@@ -167,21 +155,15 @@ view model =
         ]
 
 
-sharingDialogView : Route -> Maybe User -> Maybe String -> Maybe ShareUrl -> Maybe String -> Maybe String -> Maybe (List DiagramUser) -> Html Msg
-sharingDialogView route user embedUrl shareUrl inviteMailAddress ownerId users =
+sharePage : Route -> Maybe String -> Maybe ShareUrl -> Html Msg
+sharePage route embedUrl shareUrl =
     case route of
         SharingSettings ->
-            case ( user, shareUrl, embedUrl ) of
-                ( Just u, Just (ShareUrl url), Just e ) ->
-                    ShareDialog.view
-                        (inviteMailAddress
-                            |> Maybe.withDefault ""
-                        )
-                        (u.id == Maybe.withDefault "" ownerId)
+            case ( shareUrl, embedUrl ) of
+                ( Just (ShareUrl url), Just e ) ->
+                    Share.view
                         e
                         url
-                        u
-                        users
 
                 _ ->
                     Empty.view
@@ -239,7 +221,7 @@ changeRouteTo route model =
         getCmds cmds =
             Cmd.batch (Task.perform Init Dom.getViewport :: cmds)
 
-        changeDiagramType : DiagramType -> ( Model, Cmd Msg )
+        changeDiagramType : Diagram.Diagram -> ( Model, Cmd Msg )
         changeDiagramType type_ =
             let
                 diagramModel =
@@ -250,7 +232,7 @@ changeRouteTo route model =
             in
             ( { model | diagramModel = newDiagramModel }
             , getCmds
-                [ if type_ == DiagramType.Markdown then
+                [ if type_ == Diagram.Markdown then
                     Subscriptions.setEditorLanguage "markdown"
 
                   else
@@ -373,43 +355,43 @@ changeRouteTo route model =
                     ( model, getCmds [] )
 
         Route.BusinessModelCanvas ->
-            changeDiagramType DiagramType.BusinessModelCanvas
+            changeDiagramType Diagram.BusinessModelCanvas
 
         Route.OpportunityCanvas ->
-            changeDiagramType DiagramType.OpportunityCanvas
+            changeDiagramType Diagram.OpportunityCanvas
 
         Route.FourLs ->
-            changeDiagramType DiagramType.FourLs
+            changeDiagramType Diagram.Fourls
 
         Route.StartStopContinue ->
-            changeDiagramType DiagramType.StartStopContinue
+            changeDiagramType Diagram.StartStopContinue
 
         Route.Kpt ->
-            changeDiagramType DiagramType.Kpt
+            changeDiagramType Diagram.Kpt
 
         Route.Persona ->
-            changeDiagramType DiagramType.UserPersona
+            changeDiagramType Diagram.UserPersona
 
         Route.Markdown ->
-            changeDiagramType DiagramType.Markdown
+            changeDiagramType Diagram.Markdown
 
         Route.MindMap ->
-            changeDiagramType DiagramType.MindMap
+            changeDiagramType Diagram.MindMap
 
         Route.EmpathyMap ->
-            changeDiagramType DiagramType.EmpathyMap
+            changeDiagramType Diagram.EmpathyMap
 
         Route.UserStoryMap ->
-            changeDiagramType DiagramType.UserStoryMap
+            changeDiagramType Diagram.UserStoryMap
 
         Route.CustomerJourneyMap ->
-            changeDiagramType DiagramType.CustomerJourneyMap
+            changeDiagramType Diagram.CustomerJourneyMap
 
         Route.SiteMap ->
-            changeDiagramType DiagramType.SiteMap
+            changeDiagramType Diagram.SiteMap
 
         Route.GanttChart ->
-            changeDiagramType DiagramType.GanttChart
+            changeDiagramType Diagram.GanttChart
 
         Route.Home ->
             ( model, getCmds [] )
@@ -487,11 +469,17 @@ update message model =
             case subMsg of
                 DiagramListModel.Select diagram ->
                     if diagram.isRemote then
-                        ( { model | progress = True }
-                        , Task.attempt Opened
-                            (DiagramApi.item (Utils.getIdToken model.loginUser) model.apiRoot (diagram.id |> Maybe.withDefault "")
-                                |> Task.mapError (Tuple.pair diagram)
-                            )
+                        ( { model
+                            | progress = False
+                            , id = diagram.id
+                            , text = diagram.text
+                            , title = Just diagram.title
+                            , currentDiagram = Just diagram
+                          }
+                        , Cmd.batch
+                            [ Nav.pushUrl model.key <| DiagramType.toString diagram.diagram
+                            , Subscriptions.loadText diagram.text
+                            ]
                         )
 
                     else
@@ -501,15 +489,15 @@ update message model =
                             , title = Just diagram.title
                             , currentDiagram = Just diagram
                           }
-                        , Nav.pushUrl model.key diagram.diagramPath
+                        , Nav.pushUrl model.key <| DiagramType.toString diagram.diagram
                         )
 
-                DiagramListModel.Removed (Err ( diagram, _ )) ->
+                DiagramListModel.Removed (Err _) ->
                     ( model
                     , Cmd.batch
                         [ Utils.delay 3000 OnCloseNotification
                         , Utils.showErrorMessage
-                            ("Failed \"" ++ diagram.title ++ "\" remove")
+                            "Failed remove diagram."
                         ]
                     )
 
@@ -641,7 +629,7 @@ update message model =
                 in
                 ( model_, cmd_ )
 
-            else if Model.canWrite model.currentDiagram model.loginUser then
+            else
                 let
                     title =
                         model.title |> Maybe.withDefault ""
@@ -658,26 +646,24 @@ update message model =
                             Nothing
                   }
                 , Cmd.batch
-                    [ Subscriptions.saveDiagram
-                        { id =
-                            if (isNothing model.currentDiagram || isLocal) && isRemote then
-                                Nothing
+                    [ Subscriptions.saveDiagram <|
+                        DiagramItem.encoder
+                            { id =
+                                if (isNothing model.currentDiagram || isLocal) && isRemote then
+                                    Nothing
 
-                            else
-                                model.id
-                        , title = title
-                        , text = model.text
-                        , thumbnail = Nothing
-                        , diagramPath = DiagramType.toString model.diagramModel.diagramType
-                        , isRemote = isRemote
-                        , updatedAt = Nothing
-                        , users = Nothing
-                        , isPublic = False
-                        , ownerId =
-                            model.currentDiagram
-                                |> Maybe.map (\x -> x.ownerId)
-                                |> MaybeEx.join
-                        }
+                                else
+                                    model.id
+                            , title = title
+                            , text = model.text
+                            , thumbnail = Nothing
+                            , diagram = model.diagramModel.diagramType
+                            , isRemote = isRemote
+                            , isPublic = False
+                            , isBookmark = False
+                            , updatedAt = Time.millisToPosix 0
+                            , createdAt = Time.millisToPosix 0
+                            }
                     , if not isRemote then
                         Utils.delay 3000 OnCloseNotification
 
@@ -686,16 +672,30 @@ update message model =
                     ]
                 )
 
-            else
-                ( model, Cmd.none )
-
-        SaveToRemote diagram ->
+        SaveToRemote diagramJson ->
             let
-                save =
-                    DiagramApi.save (Utils.getIdToken model.loginUser) model.apiRoot diagram
-                        |> Task.map (\_ -> diagram)
+                result =
+                    D.decodeString DiagramItem.decoder diagramJson
+                        |> Result.andThen
+                            (\diagram ->
+                                Ok
+                                    (Request.save (DiagramItem.toInputItem diagram) model.apiRoot (Utils.getIdToken model.loginUser)
+                                        |> Task.map (\_ -> diagram)
+                                    )
+                            )
             in
-            ( { model | progress = True }, Task.attempt Saved save )
+            case result of
+                Ok saveTask ->
+                    ( { model | progress = True }, Task.attempt Saved saveTask )
+
+                Err _ ->
+                    ( { model | progress = True }
+                    , Cmd.batch
+                        [ Utils.delay 3000
+                            OnCloseNotification
+                        , Utils.showWarningMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.")
+                        ]
+                    )
 
         Saved (Err _) ->
             let
@@ -704,12 +704,12 @@ update message model =
                     , title = model.title |> Maybe.withDefault ""
                     , text = model.text
                     , thumbnail = Nothing
-                    , diagramPath = DiagramType.toString model.diagramModel.diagramType
+                    , diagram = model.diagramModel.diagramType
                     , isRemote = False
-                    , updatedAt = Nothing
-                    , users = Nothing
                     , isPublic = False
-                    , ownerId = Nothing
+                    , isBookmark = False
+                    , updatedAt = Time.millisToPosix 0
+                    , createdAt = Time.millisToPosix 0
                     }
             in
             ( { model
@@ -720,16 +720,12 @@ update message model =
                 [ Utils.delay 3000
                     OnCloseNotification
                 , Utils.showWarningMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.")
-                , Subscriptions.saveDiagram item
+                , Subscriptions.saveDiagram <| DiagramItem.encoder item
                 ]
             )
 
         Saved (Ok diagram) ->
-            let
-                newDiagram =
-                    { diagram | ownerId = Just (model.loginUser |> Maybe.map (\u -> u.id) |> Maybe.withDefault "") }
-            in
-            ( { model | currentDiagram = Just newDiagram, progress = False }
+            ( { model | currentDiagram = Just diagram, progress = False }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
                 , Utils.showInfoMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.")
@@ -866,35 +862,15 @@ update message model =
             )
 
         OnCurrentShareUrl ->
-            if isJust model.loginUser then
-                let
-                    loadUsers =
-                        DiagramApi.item (Utils.getIdToken model.loginUser) model.apiRoot (model.id |> Maybe.withDefault "")
-                in
-                ( { model | progress = True }
-                , Cmd.batch
-                    [ Subscriptions.encodeShareText
-                        { diagramType =
-                            DiagramType.toString model.diagramModel.diagramType
-                        , title = model.title
-                        , text = model.text
-                        }
-                    , Task.attempt LoadUsers loadUsers
-                    ]
-                )
-
-            else
-                update Login model
-
-        LoadUsers (Err _) ->
-            ( { model | progress = False }, Cmd.none )
-
-        LoadUsers (Ok res) ->
-            ( { model
-                | progress = False
-                , currentDiagram = Just res
-              }
-            , Cmd.none
+            ( { model | progress = True }
+            , Cmd.batch
+                [ Subscriptions.encodeShareText
+                    { diagramType =
+                        DiagramType.toString model.diagramModel.diagramType
+                    , title = model.title
+                    , text = model.text
+                    }
+                ]
             )
 
         GetShortUrl (Err e) ->
@@ -920,73 +896,6 @@ update message model =
 
         CancelSharing ->
             ( { model | share = Nothing, inviteMailAddress = Nothing }, Nav.back model.key 1 )
-
-        InviteUser ->
-            let
-                addUser =
-                    case model.loginUser of
-                        Just _ ->
-                            Task.attempt AddUser (DiagramApi.addUser (Utils.getIdToken model.loginUser) model.apiRoot { diagramID = Maybe.withDefault "" model.id, mail = model.inviteMailAddress |> Maybe.withDefault "" })
-
-                        Nothing ->
-                            Cmd.none
-            in
-            ( { model | progress = True, share = Nothing, inviteMailAddress = Nothing }, addUser )
-
-        AddUser (Err _) ->
-            ( { model | progress = False }
-            , Cmd.batch
-                [ Utils.delay 3000 OnCloseNotification, Utils.showErrorMessage "Faild add user" ]
-            )
-
-        AddUser (Ok res) ->
-            let
-                users =
-                    Maybe.map (\u -> res :: u)
-                        (model.currentDiagram
-                            |> Maybe.map (\x -> x.users)
-                            |> MaybeEx.join
-                        )
-
-                currentDiagram =
-                    model.currentDiagram
-                        |> Maybe.map (\x -> { x | users = users })
-            in
-            ( { model | currentDiagram = currentDiagram, progress = False }
-            , Cmd.batch
-                [ Utils.delay 3000 OnCloseNotification, Utils.showInfoMessage ("Successfully add \"" ++ res.name ++ "\"") ]
-            )
-
-        DeleteUser userId ->
-            let
-                deleteTask =
-                    DiagramApi.deleteUser (Utils.getIdToken model.loginUser) model.apiRoot userId (Maybe.withDefault "" model.id)
-                        |> Task.map (\_ -> userId)
-            in
-            ( { model | progress = True }, Task.attempt DeletedUser deleteTask )
-
-        DeletedUser (Err _) ->
-            ( { model | progress = False }
-            , Cmd.batch
-                [ Utils.delay 3000 OnCloseNotification
-                , Utils.showInfoMessage "Faild to delete user."
-                ]
-            )
-
-        DeletedUser (Ok userId) ->
-            let
-                users =
-                    (model.currentDiagram
-                        |> Maybe.map (\x -> x.users)
-                        |> MaybeEx.join
-                    )
-                        |> Maybe.map (\u -> List.filter (\x -> x.id /= userId) u)
-
-                currentDiagram =
-                    model.currentDiagram
-                        |> Maybe.map (\x -> { x | users = users })
-            in
-            ( { model | currentDiagram = currentDiagram, progress = False }, Cmd.none )
 
         OnNotification notification ->
             ( { model | notification = Just notification }, Cmd.none )
@@ -1031,31 +940,6 @@ update message model =
         GetDiagrams ->
             ( { model | progress = True }, Nav.pushUrl model.key (Route.toString Route.List) )
 
-        Opened (Err ( diagram, _ )) ->
-            ( { model
-                | progress = False
-                , currentDiagram = Nothing
-              }
-            , Cmd.batch
-                [ Utils.delay 3000 OnCloseNotification
-                , Utils.showWarningMessage ("Failed to load \"" ++ diagram.title ++ "\".")
-                ]
-            )
-
-        Opened (Ok diagram) ->
-            ( { model
-                | progress = False
-                , id = diagram.id
-                , text = diagram.text
-                , title = Just diagram.title
-                , currentDiagram = Just diagram
-              }
-            , Cmd.batch
-                [ Nav.pushUrl model.key diagram.diagramPath
-                , Subscriptions.loadText diagram.text
-                ]
-            )
-
         UpdateSettings getSetting value ->
             let
                 settings =
@@ -1069,63 +953,22 @@ update message model =
             in
             ( { model | dropDownIndex = Nothing, settings = settings, diagramModel = newDiagramModel }, Cmd.none )
 
-        Login ->
-            ( { model | progress = True }, Subscriptions.login () )
+        Login provider ->
+            ( { model | progress = True }
+            , Subscriptions.login <|
+                case provider of
+                    Google ->
+                        "Google"
+
+                    Github ->
+                        "Github"
+            )
 
         Logout ->
             ( { model | loginUser = Nothing, currentDiagram = Nothing }, Subscriptions.logout () )
 
         OnAuthStateChanged user ->
             ( { model | loginUser = user, progress = False }, Cmd.none )
-
-        EditInviteMail mail ->
-            ( { model
-                | inviteMailAddress =
-                    if String.isEmpty mail then
-                        Nothing
-
-                    else
-                        Just mail
-              }
-            , Cmd.none
-            )
-
-        UpdateRole userId role ->
-            let
-                updateRole =
-                    case model.loginUser of
-                        Just _ ->
-                            Task.attempt UpdatedRole (DiagramApi.updateRole (Utils.getIdToken model.loginUser) model.apiRoot userId { diagramID = Maybe.withDefault "" model.id, role = role })
-
-                        Nothing ->
-                            Cmd.none
-            in
-            ( model, updateRole )
-
-        UpdatedRole (Err e) ->
-            ( model, Cmd.batch [ Utils.delay 3000 OnCloseNotification, Utils.showErrorMessage ("Update failed." ++ Utils.httpErrorToString e) ] )
-
-        UpdatedRole (Ok res) ->
-            let
-                users =
-                    model.currentDiagram
-                        |> Maybe.map (\x -> x.users)
-                        |> MaybeEx.join
-                        |> Maybe.map
-                            (\list ->
-                                updateIf
-                                    (\user -> user.id == res.id)
-                                    (\item -> { item | role = res.role })
-                                    list
-                            )
-
-                currentItem =
-                    model.currentDiagram
-
-                updatedItem =
-                    Maybe.map (\item -> { item | users = users }) currentItem
-            in
-            ( { model | currentDiagram = updatedItem }, Cmd.none )
 
         ToggleDropDownList id ->
             let
@@ -1145,43 +988,43 @@ update message model =
             let
                 ( text_, route_ ) =
                     case type_ of
-                        DiagramType.UserStoryMap ->
+                        Diagram.UserStoryMap ->
                             ( "", Route.UserStoryMap )
 
-                        DiagramType.BusinessModelCanvas ->
+                        Diagram.BusinessModelCanvas ->
                             ( "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships", Route.BusinessModelCanvas )
 
-                        DiagramType.OpportunityCanvas ->
+                        Diagram.OpportunityCanvas ->
                             ( "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget", Route.OpportunityCanvas )
 
-                        DiagramType.FourLs ->
+                        Diagram.Fourls ->
                             ( "Liked\nLearned\nLacked\nLonged for", Route.FourLs )
 
-                        DiagramType.StartStopContinue ->
+                        Diagram.StartStopContinue ->
                             ( "Start\nStop\nContinue", Route.StartStopContinue )
 
-                        DiagramType.Kpt ->
+                        Diagram.Kpt ->
                             ( "K\nP\nT", Route.Kpt )
 
-                        DiagramType.UserPersona ->
+                        Diagram.UserPersona ->
                             ( "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology", Route.Persona )
 
-                        DiagramType.Markdown ->
+                        Diagram.Markdown ->
                             ( "", Route.Markdown )
 
-                        DiagramType.MindMap ->
+                        Diagram.MindMap ->
                             ( "", Route.MindMap )
 
-                        DiagramType.EmpathyMap ->
+                        Diagram.EmpathyMap ->
                             ( "https://app.textusm.com/images/logo.svg\nSAYS\nTHINKS\nDOES\nFEELS", Route.EmpathyMap )
 
-                        DiagramType.CustomerJourneyMap ->
+                        Diagram.CustomerJourneyMap ->
                             ( "Discover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n", Route.CustomerJourneyMap )
 
-                        DiagramType.SiteMap ->
+                        Diagram.SiteMap ->
                             ( "", Route.SiteMap )
 
-                        DiagramType.GanttChart ->
+                        Diagram.GanttChart ->
                             ( "2019-12-26,2020-01-31: title\n    subtitle1\n        2019-12-26, 2019-12-31: task1\n        2019-12-31, 2020-01-04: task2\n", Route.GanttChart )
 
                 displayText =
