@@ -12,7 +12,7 @@ import TextUSM.InputObject exposing (InputItem)
 
 graphQLUrl : String -> String
 graphQLUrl url =
-    url ++ "/query"
+    url ++ "/graphql"
 
 
 item : String -> Maybe IdToken -> String -> Task (Http.Error DiagramItem) DiagramItem

@@ -12,6 +12,7 @@ import File.Download as Download
 import File.Select as Select
 import GraphQL.Models.DiagramItem as DiagramItem
 import GraphQL.Request as Request
+import Graphql.Http as Http
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
@@ -492,20 +493,50 @@ update message model =
                         , Nav.pushUrl model.key <| DiagramType.toString diagram.diagram
                         )
 
-                DiagramListModel.Removed (Err _) ->
-                    ( model
-                    , Cmd.batch
-                        [ Utils.delay 3000 OnCloseNotification
-                        , Utils.showErrorMessage
-                            "Failed remove diagram."
-                        ]
-                    )
+                DiagramListModel.Removed (Err e) ->
+                    case e of
+                        Http.GraphqlError _ _ ->
+                            ( model
+                            , Cmd.batch
+                                [ Utils.delay 3000 OnCloseNotification
+                                , Utils.showErrorMessage
+                                    "Failed remove diagram."
+                                ]
+                            )
+
+                        Http.HttpError Http.Timeout ->
+                            ( model
+                            , Cmd.batch
+                                [ Utils.delay 3000 OnCloseNotification
+                                , Utils.showErrorMessage
+                                    "Request timeout."
+                                ]
+                            )
+
+                        Http.HttpError Http.NetworkError ->
+                            ( model
+                            , Cmd.batch
+                                [ Utils.delay 3000 OnCloseNotification
+                                , Utils.showErrorMessage
+                                    "Network error."
+                                ]
+                            )
+
+                        Http.HttpError _ ->
+                            ( model
+                            , Cmd.batch
+                                [ Utils.delay 3000 OnCloseNotification
+                                , Utils.showErrorMessage
+                                    "Failed remove diagram."
+                                ]
+                            )
 
                 DiagramListModel.GotDiagrams (Err _) ->
                     ( model
                     , Cmd.batch
                         [ Utils.delay 3000 OnCloseNotification
-                        , Utils.showWarningMessage "Failed to load files."
+                        , Utils.showErrorMessage
+                            "Failed remove diagram."
                         ]
                     )
 

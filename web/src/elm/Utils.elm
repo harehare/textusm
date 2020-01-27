@@ -12,7 +12,7 @@ import Models.User as User exposing (User)
 import Process
 import Task
 import TextUSM.Enum.Diagram as Diagram
-import Time exposing (Month(..), Posix, Zone, millisToPosix, toDay, toMonth, toYear, utc)
+import Time exposing (Month(..), Posix, Zone, toDay, toMonth, toYear, utc)
 import Time.Extra exposing (Interval(..), Parts, diff, partsToPosix)
 
 

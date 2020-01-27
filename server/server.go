@@ -82,15 +82,14 @@ func Run() int {
 	})
 
 	root := mux.NewRouter()
-	r.PathPrefix("/query").Handler(negroni.New(
+	r.PathPrefix("/graphql").Handler(negroni.New(
 		negroni.HandlerFunc(middleware.AuthMiddleware(app)),
 		negroni.Wrap(root)))
 	subRouter := root.PathPrefix("/").Subrouter()
-	subRouter.Methods("POST").Path("/query").HandlerFunc(gqlHandler.GraphQL(NewExecutableSchema(Config{Resolvers: &Resolver{service: service}})))
+	subRouter.Methods("POST").Path("/graphql").HandlerFunc(gqlHandler.GraphQL(NewExecutableSchema(Config{Resolvers: &Resolver{service: service}})))
 
 	apiBase := mux.NewRouter()
 	r.PathPrefix("/api").Handler(negroni.New(
-		negroni.HandlerFunc(middleware.AuthMiddleware(app)),
 		negroni.Wrap(apiBase)))
 	share := apiBase.PathPrefix("/api").Subrouter()
 	share.Methods("POST").Path("/urlshorter").HandlerFunc(handler.Shorter)

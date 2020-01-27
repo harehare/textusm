@@ -18,6 +18,7 @@ type Msg
     | GotTimeZone Zone
     | GotLocalDiagramJson String
     | GotDiagrams (Result ( List DiagramItem, Http.Error (List (Maybe DiagramItem)) ) (List DiagramItem))
+    | LoadNextPage Int
 
 
 type alias Model =
@@ -27,4 +28,7 @@ type alias Model =
     , selectedType : Maybe String
     , loginUser : Maybe User
     , apiRoot : String
+    , pageNo : Int
+    , hasMorePage : Bool
+    , isLoading : Bool
     }

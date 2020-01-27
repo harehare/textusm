@@ -8,7 +8,7 @@ import Html exposing (Html, div, input, span, text)
 import Html.Attributes exposing (class, placeholder, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Json.Decode as D
-import Maybe.Extra exposing (isJust)
+import Maybe.Extra exposing (isJust, isNothing)
 import Models.DiagramList exposing (Model, Msg(..))
 import Models.DiagramType as DiagramType
 import Models.User as UserModel exposing (User)
@@ -16,7 +16,18 @@ import Subscriptions exposing (getDiagrams, removeDiagrams)
 import Task
 import Time exposing (Zone)
 import Utils
+import Views.Empty as Empty
 import Views.Icon as Icon
+
+
+pageSize : Int
+pageSize =
+    30
+
+
+pageOffsetAndLimit : Int -> ( Int, Int )
+pageOffsetAndLimit pageNo =
+    ( pageSize * (pageNo - 1), pageSize * pageNo )
 
 
 init : Maybe User -> String -> ( Model, Cmd Msg )
@@ -27,6 +38,9 @@ init user apiRoot =
       , selectedType = Nothing
       , loginUser = user
       , apiRoot = apiRoot
+      , pageNo = 1
+      , hasMorePage = False
+      , isLoading = False
       }
     , Cmd.batch
         [ Task.perform GotTimeZone Time.here
@@ -188,28 +202,51 @@ view model =
 
                       else
                         div
-                            [ style "display" "flex"
-                            , style "align-items" "flex-start"
-                            , style "justify-content" "flex-start"
-                            , style "height" "calc(100vh - 70px)"
-                            , style "flex-wrap" "wrap"
-                            , style "margin-bottom" "8px"
-                            , style "align-content" "flex-start"
-                            , style "overflow" "scroll"
-                            , style "will-change" "transform"
-                            , style "border-top" "1px solid #323B46"
+                            [ style "height" "calc(100vh - 70px)"
+                            , style "display" "flex"
+                            , style "flex-direction" "column"
                             ]
-                            (displayDiagrams
-                                |> (case model.searchQuery of
-                                        Just query ->
-                                            List.filter (\d -> String.contains query d.title)
+                            [ div
+                                [ style "display" "flex"
+                                , style "align-items" "flex-start"
+                                , style "justify-content" "flex-start"
+                                , style "height" "calc(100% - 95px)"
+                                , style "flex-wrap" "wrap"
+                                , style "margin-bottom" "8px"
+                                , style "align-content" "flex-start"
+                                , style "overflow-y" "scroll"
+                                , style "will-change" "transform"
+                                , style "border-top" "1px solid #323B46"
+                                ]
+                                (displayDiagrams
+                                    |> (case model.searchQuery of
+                                            Just query ->
+                                                List.filter (\d -> String.contains query d.title)
 
-                                        Nothing ->
-                                            identity
-                                   )
-                                |> List.map
-                                    (\d -> diagramView model.timeZone d)
-                            )
+                                            Nothing ->
+                                                identity
+                                       )
+                                    |> List.map
+                                        (\d -> diagramView model.timeZone d)
+                                )
+                            , if model.hasMorePage then
+                                div
+                                    [ class "primary-button button"
+                                    , style "padding" "8px"
+                                    , style "margin-top" "4px"
+                                    , style "align-self" "center"
+                                    , onClick <| LoadNextPage <| model.pageNo + 1
+                                    ]
+                                    [ if model.isLoading then
+                                        text "Loading"
+
+                                      else
+                                        text "Load more"
+                                    ]
+
+                              else
+                                Empty.view
+                            ]
                     ]
                 ]
 
@@ -289,60 +326,95 @@ update message model =
             , Cmd.none
             )
 
+        LoadNextPage pageNo ->
+            ( { model | pageNo = pageNo }, getDiagrams () )
+
         GotLocalDiagramJson json ->
-            let
-                localItems =
-                    Result.withDefault [] <|
-                        D.decodeString (D.list DiagramItem.decoder) json
-            in
-            case model.loginUser of
-                Just _ ->
-                    let
-                        remoteItems =
-                            Request.items model.apiRoot (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser) ( 0, 30 ) False False
-                                |> Task.map
-                                    (\i ->
-                                        i
-                                            |> List.filter (\item -> isJust item)
-                                            |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
-                                    )
+            if model.isLoading then
+                ( model, Cmd.none )
 
-                        items =
-                            remoteItems
-                                |> Task.map
-                                    (\item ->
-                                        List.concat [ localItems, item ]
-                                            |> List.sortWith
-                                                (\a b ->
-                                                    let
-                                                        v1 =
-                                                            a.updatedAt |> Time.posixToMillis
+            else
+                let
+                    localItems =
+                        Result.withDefault [] <|
+                            D.decodeString (D.list DiagramItem.decoder) json
+                in
+                case model.loginUser of
+                    Just _ ->
+                        let
+                            remoteItems =
+                                Request.items model.apiRoot (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser) (pageOffsetAndLimit model.pageNo) False False
+                                    |> Task.map
+                                        (\i ->
+                                            i
+                                                |> List.filter (\item -> isJust item)
+                                                |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
+                                        )
 
-                                                        v2 =
-                                                            b.updatedAt |> Time.posixToMillis
-                                                    in
-                                                    if v1 - v2 > 0 then
-                                                        LT
+                            items =
+                                remoteItems
+                                    |> Task.map
+                                        (\item ->
+                                            List.concat [ localItems, item ]
+                                                |> List.sortWith
+                                                    (\a b ->
+                                                        let
+                                                            v1 =
+                                                                a.updatedAt |> Time.posixToMillis
 
-                                                    else if v1 - v2 < 0 then
-                                                        GT
+                                                            v2 =
+                                                                b.updatedAt |> Time.posixToMillis
+                                                        in
+                                                        if v1 - v2 > 0 then
+                                                            LT
 
-                                                    else
-                                                        EQ
-                                                )
-                                    )
-                                |> Task.mapError (Tuple.pair localItems)
-                    in
-                    ( model, Task.attempt GotDiagrams items )
+                                                        else if v1 - v2 < 0 then
+                                                            GT
 
-                Nothing ->
-                    ( { model | diagramList = Just localItems }, Cmd.none )
+                                                        else
+                                                            EQ
+                                                    )
+                                        )
+                                    |> Task.mapError (Tuple.pair localItems)
+                        in
+                        ( { model | isLoading = True }, Task.attempt GotDiagrams items )
+
+                    Nothing ->
+                        ( { model
+                            | hasMorePage = False
+                            , isLoading = False
+                            , diagramList = Just localItems
+                          }
+                        , Cmd.none
+                        )
 
         GotDiagrams (Err ( items, _ )) ->
-            ( { model | diagramList = Just items }, Cmd.none )
+            ( { model
+                | hasMorePage = List.length items >= pageSize
+                , isLoading = False
+                , diagramList =
+                    if isNothing model.diagramList then
+                        Just items
+
+                    else
+                        Maybe.andThen (\currentItems -> Just <| List.concat [ currentItems, items ]) model.diagramList
+              }
+            , Cmd.none
+            )
 
         GotDiagrams (Ok items) ->
-            ( { model | diagramList = Just items }, Cmd.none )
+            ( { model
+                | hasMorePage = List.length items >= pageSize
+                , isLoading = False
+                , diagramList =
+                    if isNothing model.diagramList then
+                        Just items
+
+                    else
+                        Maybe.andThen (\currentItems -> Just <| List.concat [ currentItems, items ]) model.diagramList
+              }
+            , Cmd.none
+            )
 
         Remove diagram ->
             ( model, removeDiagrams (DiagramItem.encoder diagram) )

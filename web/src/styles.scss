@@ -104,6 +104,12 @@ select {
     right: 10px;
 }
 
+.primary-button {
+    background-color: var(--activity-color);
+    width: 100px;
+    text-align: center;
+}
+
 .button {
     color: var(--text-color);
     cursor: pointer;
