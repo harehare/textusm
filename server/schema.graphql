@@ -1,0 +1,54 @@
+scalar Time
+
+enum Diagram {
+  USER_STORY_MAP
+  OPPORTUNITY_CANVAS
+  BUSINESS_MODEL_CANVAS
+  FOURLS
+  START_STOP_CONTINUE
+  KPT
+  USER_PERSONA
+  MARKDOWN
+  MIND_MAP
+  EMPATHY_MAP
+  CUSTOMER_JOURNEY_MAP
+  SITE_MAP
+  GANTT_CHART
+}
+
+type Item {
+  id: ID!
+  title: String!
+  text: String!
+  thumbnail: String
+  diagram: Diagram!
+  isPublic: Boolean!
+  isBookmark: Boolean!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type Query {
+  item(id: String!): Item!
+  items(
+    offset: Int = 0
+    limit: Int = 30
+    isBookmark: Boolean = False
+    isPublic: Boolean = False
+  ): [Item]!
+}
+
+input InputItem {
+  id: ID
+  title: String!
+  text: String!
+  thumbnail: String
+  diagram: Diagram!
+  isPublic: Boolean!
+  isBookmark: Boolean!
+}
+
+type Mutation {
+  save(input: InputItem!): Item!
+  delete(itemID: String!): Item
+}

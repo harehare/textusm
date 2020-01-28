@@ -104,6 +104,12 @@ select {
     right: 10px;
 }
 
+.primary-button {
+    background-color: var(--activity-color);
+    width: 100px;
+    text-align: center;
+}
+
 .button {
     color: var(--text-color);
     cursor: pointer;
@@ -287,19 +293,6 @@ select {
     }
 }
 
-.dialog-background {
-    position: fixed;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 100;
-    background-color: rgba(0, 0, 0, 0.6);
-
-    @media screen and (max-width: 480px) {
-        z-index: 101;
-    }
-}
-
 .diagram-item {
     width: 20%;
     border: 1px solid rgba(192, 192, 192, 0.5);
@@ -457,6 +450,24 @@ select {
     transition: all 0.2s ease-out;
     margin: 4px;
     overflow-y: auto;
+}
+
+.share {
+    background-color: var(--background-color);
+    width: 100%;
+    height: calc(100vh - 35px);
+    color: var(--text-color);
+
+    .text {
+        padding: 16px;
+        line-height: 1.2;
+        font-size: 0.95rem;
+    }
+
+    @media screen and (max-width: 480px) {
+        width: 100vw;
+        height: calc(100vh - 130px);
+    }
 }
 
 .help {

@@ -2,10 +2,9 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 
 export class Auth {
-    gitHubAuthProvider = new firebase.auth.GithubAuthProvider();
     provideres = {
         google: new firebase.auth.GoogleAuthProvider(),
-        github: this.gitHubAuthProvider
+        github: new firebase.auth.GithubAuthProvider()
     };
 
     constructor() {
@@ -17,7 +16,6 @@ export class Auth {
             appId: process.env.FIREBASE_APP_ID
         };
         firebase.initializeApp(firebaseConfig);
-        this.gitHubAuthProvider.addScope("repo");
     }
 
     getUser() {

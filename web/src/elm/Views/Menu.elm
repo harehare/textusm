@@ -6,9 +6,9 @@ import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List
 import Maybe.Extra exposing (isNothing)
-import Models.DiagramType as DiagramType
 import Models.Model exposing (FileType(..), Menu(..), Msg(..))
 import Route exposing (Route(..))
+import TextUSM.Enum.Diagram as Diagram
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -21,8 +21,8 @@ type alias MenuItem =
     }
 
 
-view : Route -> Int -> Bool -> Maybe Menu -> Bool -> Html Msg
-view route width fullscreen openMenu canWrite =
+view : Route -> Int -> Bool -> Maybe Menu -> Html Msg
+view route width fullscreen openMenu =
     let
         menuItemStyle =
             [ class "menu-button"
@@ -65,17 +65,13 @@ view route width fullscreen openMenu canWrite =
                     28
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text "Diagrams" ] ]
                 ]
-            , if canWrite then
-                div
-                    (onClick Save :: class "save-button" :: menuItemStyle)
-                    [ Icon.save
-                        "#848A90"
-                        26
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
-                    ]
-
-              else
-                Empty.view
+            , div
+                (onClick Save :: class "save-button" :: menuItemStyle)
+                [ Icon.save
+                    "#848A90"
+                    26
+                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
+                ]
             , div
                 (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
                 [ Icon.download
@@ -127,55 +123,55 @@ view route width fullscreen openMenu canWrite =
 
 newMenu : List MenuItem
 newMenu =
-    [ { e = New DiagramType.UserStoryMap
+    [ { e = New Diagram.UserStoryMap
       , title = "User Story Map"
       , icon = Just <| img [ src "/images/user_story_map.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.BusinessModelCanvas
+    , { e = New Diagram.BusinessModelCanvas
       , title = "Business Model Canvas"
       , icon = Just <| img [ src "/images/business_model_canvas.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.OpportunityCanvas
+    , { e = New Diagram.OpportunityCanvas
       , title = "Opportunity Canvas"
       , icon = Just <| img [ src "/images/opportunity_canvas.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.UserPersona
+    , { e = New Diagram.UserPersona
       , title = "User Persona"
       , icon = Just <| img [ src "/images/user_persona.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.FourLs
+    , { e = New Diagram.Fourls
       , title = "4Ls Retrospective"
       , icon = Just <| img [ src "/images/4ls.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.StartStopContinue
+    , { e = New Diagram.StartStopContinue
       , title = "Start, Stop, Continue Retrospective"
       , icon = Just <| img [ src "/images/start_stop_continue.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.Kpt
+    , { e = New Diagram.Kpt
       , title = "KPT Retrospective"
       , icon = Just <| img [ src "/images/kpt.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.Markdown
+    , { e = New Diagram.Markdown
       , title = "Markdown"
       , icon = Just <| img [ src "/images/markdown.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.MindMap
+    , { e = New Diagram.MindMap
       , title = "Mind Map"
       , icon = Just <| img [ src "/images/mind_map.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.EmpathyMap
+    , { e = New Diagram.EmpathyMap
       , title = "Empathy Map"
       , icon = Just <| img [ src "/images/empathy_map.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.CustomerJourneyMap
+    , { e = New Diagram.CustomerJourneyMap
       , title = "Customer Journey Map"
       , icon = Just <| img [ src "/images/customer_journey_map.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.SiteMap
+    , { e = New Diagram.SiteMap
       , title = "Site Map"
       , icon = Just <| img [ src "/images/site_map.svg", style "width" "56px", alt "logo" ] []
       }
-    , { e = New DiagramType.GanttChart
+    , { e = New Diagram.GanttChart
       , title = "Gantt Chart"
       , icon = Just <| img [ src "/images/gantt_chart.svg", style "width" "56px", alt "logo" ] []
       }

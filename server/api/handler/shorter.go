@@ -1,4 +1,4 @@
-package controllers
+package handler
 
 import (
 	"io/ioutil"

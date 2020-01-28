@@ -1,18 +1,23 @@
 module github.com/harehare/textusm
 
 require (
-	cloud.google.com/go v0.40.0 // indirect
+	cloud.google.com/go v0.40.0
 	firebase.google.com/go v3.8.1+incompatible
+	github.com/99designs/gqlgen v0.10.2
+	github.com/agnivade/levenshtein v1.0.3 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/eminetto/clean-architecture-go v0.0.0-20191219160450-d9c68a5a2e98 // indirect
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-siris/siris v7.4.0+incompatible // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v25 v25.0.4
 	github.com/gorilla/mux v1.7.2
+	github.com/gorilla/websocket v1.4.1 // indirect
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/jinzhu/gorm v1.9.9
 	github.com/kelseyhightower/envconfig v1.3.0
-	github.com/kr/pretty v0.1.0 // indirect
 	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/labstack/gommon v0.2.9 // indirect
 	github.com/lib/pq v1.1.1
@@ -21,18 +26,21 @@ require (
 	github.com/oxequa/interact v0.0.0-20171114182912-f8fb5795b5d7 // indirect
 	github.com/oxequa/realize v2.0.2+incompatible // indirect
 	github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.6.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.4.2
+	github.com/urfave/cli v1.22.2 // indirect
 	github.com/urfave/negroni v1.0.0
-	golang.org/x/crypto v0.0.0-20190621222207-cc06ce4a13d4 // indirect
-	golang.org/x/net v0.0.0-20190620200207-3b0461eec859 // indirect
+	github.com/vektah/dataloaden v0.3.0 // indirect
+	github.com/vektah/gqlparser v1.2.1
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sys v0.0.0-20190621203818-d432491b9138 // indirect
-	golang.org/x/tools v0.0.0-20190621195816-6e04913cbbac // indirect
+	golang.org/x/tools v0.0.0-20200117065230-39095c1d176c // indirect
 	google.golang.org/api v0.6.0
+	google.golang.org/grpc v1.20.1
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8 // indirect
+	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
 
 go 1.13

@@ -1,11 +1,11 @@
 module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Settings, Size, UsmSvg, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth)
 
 import Browser.Dom exposing (Viewport)
-import Models.DiagramType exposing (DiagramType)
 import Models.Item exposing (Item, ItemType(..))
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
+import TextUSM.Enum.Diagram exposing (Diagram)
 
 
 type alias Model =
@@ -26,7 +26,7 @@ type alias Model =
     , error : Maybe String
     , showZoomControl : Bool
     , touchDistance : Maybe Float
-    , diagramType : DiagramType
+    , diagramType : Diagram
     , labels : List String
     , text : Maybe String
     , matchParent : Bool

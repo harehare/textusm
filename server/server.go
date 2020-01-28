@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"context"
@@ -14,14 +17,16 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/urfave/negroni"
 
-	"github.com/harehare/textusm/server/controllers"
-	"github.com/harehare/textusm/server/middleware"
+	"github.com/harehare/textusm/api/handler"
+	"github.com/harehare/textusm/api/middleware"
+	"github.com/harehare/textusm/pkg/item"
 	"github.com/phyber/negroni-gzip/gzip"
 
 	negronilogrus "github.com/meatballhat/negroni-logrus"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
 
+	gqlHandler "github.com/99designs/gqlgen/handler"
 	"google.golang.org/api/option"
 )
 
@@ -55,13 +60,15 @@ func Run() int {
 		return 1
 	}
 
-	err = InitDB()
+	firestore, err := app.Firestore(context.Background())
 
 	if err != nil {
-		log.Fatalf("error initializing db: %v\n", err)
+		log.Fatalf("error initializing firestore: %v\n", err)
 		return 1
 	}
 
+	repo := item.NewFirestoreRepository(firestore)
+	service := item.NewService(repo)
 	r := mux.NewRouter()
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
@@ -74,27 +81,18 @@ func Run() int {
 		fmt.Fprintf(w, "{\"status\": \"OK\"}")
 	})
 
-	diagramBase := mux.NewRouter()
-	r.PathPrefix("/diagram").Handler(negroni.New(
+	root := mux.NewRouter()
+	r.PathPrefix("/graphql").Handler(negroni.New(
 		negroni.HandlerFunc(middleware.AuthMiddleware(app)),
-		negroni.Wrap(diagramBase)))
-	diagram := diagramBase.PathPrefix("/diagram").Subrouter()
-	diagram.Methods("GET").Path("/items").HandlerFunc(controllers.Items)
-	diagram.Methods("GET").Path("/items/public").HandlerFunc(controllers.PublicItems)
-	diagram.Methods("GET").Path("/items/{ID}").HandlerFunc(controllers.Item(app))
-	diagram.Methods("DELETE").Path("/items/{ID}").HandlerFunc(controllers.Remove)
-	diagram.Methods("POST").Path("/save").HandlerFunc(controllers.Save)
-	diagram.Methods("GET").Path("/search").HandlerFunc(controllers.Search)
-	diagram.Methods("POST").Path("/add/user").HandlerFunc(controllers.AddUserToDiagram(app))
-	diagram.Methods("POST").Path("/update/role/{ID}").HandlerFunc(controllers.UpdateRole)
-	diagram.Methods("DELETE").Path("/delete/user/{ID}/{DiagramID}").HandlerFunc(controllers.DeleteUser)
+		negroni.Wrap(root)))
+	subRouter := root.PathPrefix("/").Subrouter()
+	subRouter.Methods("POST").Path("/graphql").HandlerFunc(gqlHandler.GraphQL(NewExecutableSchema(Config{Resolvers: &Resolver{service: service}})))
 
 	apiBase := mux.NewRouter()
 	r.PathPrefix("/api").Handler(negroni.New(
-		negroni.HandlerFunc(middleware.AuthMiddleware(app)),
 		negroni.Wrap(apiBase)))
 	share := apiBase.PathPrefix("/api").Subrouter()
-	share.Methods("POST").Path("/urlshorter").HandlerFunc(controllers.Shorter)
+	share.Methods("POST").Path("/urlshorter").HandlerFunc(handler.Shorter)
 
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
@@ -104,6 +102,12 @@ func Run() int {
 	n.Use(gzip.Gzip(gzip.DefaultCompression))
 	n.UseHandler(r)
 
+	done := make(chan bool, 1)
+	quit := make(chan os.Signal, 1)
+
+	signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, syscall.SIGTERM)
+
 	s := &http.Server{
 		Addr:              fmt.Sprintf(":%s", env.Port),
 		Handler:           n,
@@ -112,6 +116,8 @@ func Run() int {
 		MaxHeaderBytes:    1 << 20,
 		ReadHeaderTimeout: 8 * time.Second,
 	}
+
+	go gracefullShutdown(s, quit, done)
 	err = s.ListenAndServe()
 
 	if err != nil {
@@ -119,4 +125,15 @@ func Run() int {
 	}
 
 	return 0
+}
+
+func gracefullShutdown(server *http.Server, quit <-chan os.Signal, done chan<- bool) {
+	<-quit
+	log.Println("Server is shutting down...")
+
+	server.SetKeepAlivesEnabled(false)
+	if err := server.Shutdown(context.Background()); err != nil {
+		log.Fatalf("Could not gracefully shutdown the server: %v\n", err)
+	}
+	close(done)
 }

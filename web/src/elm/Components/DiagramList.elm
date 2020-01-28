@@ -1,16 +1,16 @@
 module Components.DiagramList exposing (init, update, view)
 
-import Api.Diagram as DiagramApi
 import Dict
 import Dict.Extra as DictEx
+import GraphQL.Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import GraphQL.Request as Request
 import Html exposing (Html, div, input, span, text)
 import Html.Attributes exposing (class, placeholder, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Json.Decode as D
-import Maybe.Extra as MaybeEx
-import Models.DiagramItem exposing (DiagramItem)
+import Maybe.Extra exposing (isJust, isNothing)
 import Models.DiagramList exposing (Model, Msg(..))
-import Models.DiagramType exposing (DiagramType(..))
+import Models.DiagramType as DiagramType
 import Models.User as UserModel exposing (User)
 import Subscriptions exposing (getDiagrams, removeDiagrams)
 import Task
@@ -18,6 +18,16 @@ import Time exposing (Zone)
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
+
+
+pageSize : Int
+pageSize =
+    30
+
+
+pageOffsetAndLimit : Int -> ( Int, Int )
+pageOffsetAndLimit pageNo =
+    ( pageSize * (pageNo - 1), pageSize * pageNo )
 
 
 init : Maybe User -> String -> ( Model, Cmd Msg )
@@ -28,6 +38,9 @@ init user apiRoot =
       , selectedType = Nothing
       , loginUser = user
       , apiRoot = apiRoot
+      , pageNo = 1
+      , hasMorePage = False
+      , isLoading = False
       }
     , Cmd.batch
         [ Task.perform GotTimeZone Time.here
@@ -38,8 +51,7 @@ init user apiRoot =
 
 facet : List DiagramItem -> List ( String, Int )
 facet items =
-    items
-        |> DictEx.groupBy .diagramPath
+    DictEx.groupBy (\i -> i.diagram |> DiagramType.toString) items
         |> Dict.map (\k v -> ( k, List.length v ))
         |> Dict.values
 
@@ -132,7 +144,7 @@ view model =
                 displayDiagrams =
                     case model.selectedType of
                         Just type_ ->
-                            List.filter (\d -> d.diagramPath == type_) diagrams
+                            List.filter (\d -> d.diagram == DiagramType.fromString type_) diagrams
 
                         Nothing ->
                             diagrams
@@ -193,15 +205,15 @@ view model =
                             [ style "display" "flex"
                             , style "align-items" "flex-start"
                             , style "justify-content" "flex-start"
-                            , style "height" "calc(100vh - 70px)"
+                            , style "height" "calc(100% - 70px)"
                             , style "flex-wrap" "wrap"
                             , style "margin-bottom" "8px"
                             , style "align-content" "flex-start"
-                            , style "overflow" "scroll"
+                            , style "overflow-y" "scroll"
                             , style "will-change" "transform"
                             , style "border-top" "1px solid #323B46"
                             ]
-                            (displayDiagrams
+                            ((displayDiagrams
                                 |> (case model.searchQuery of
                                         Just query ->
                                             List.filter (\d -> String.contains query d.title)
@@ -210,7 +222,32 @@ view model =
                                             identity
                                    )
                                 |> List.map
-                                    (\d -> diagramView model.loginUser model.timeZone d)
+                                    (\d -> diagramView model.timeZone d)
+                             )
+                                ++ [ if model.hasMorePage then
+                                        div
+                                            [ style "width" "100%"
+                                            , style "display" "flex"
+                                            , style "align-items" "center"
+                                            , style "justify-content" "center"
+                                            ]
+                                            [ div
+                                                [ class "primary-button button"
+                                                , style "padding" "16px"
+                                                , style "margin" "8px"
+                                                , onClick <| LoadNextPage <| model.pageNo + 1
+                                                ]
+                                                [ if model.isLoading then
+                                                    text "Loading"
+
+                                                  else
+                                                    text "Load more"
+                                                ]
+                                            ]
+
+                                     else
+                                        Empty.view
+                                   ]
                             )
                     ]
                 ]
@@ -234,14 +271,8 @@ view model =
                 ]
 
 
-diagramView : Maybe User -> Zone -> DiagramItem -> Html Msg
-diagramView user timezone diagram =
-    let
-        isOwner =
-            user
-                |> Maybe.map (\u -> u.id == (diagram.ownerId |> Maybe.withDefault ""))
-                |> Maybe.withDefault False
-    in
+diagramView : Zone -> DiagramItem -> Html Msg
+diagramView timezone diagram =
     div
         [ class "diagram-item"
         , style "background-image" ("url(\"" ++ (diagram.thumbnail |> Maybe.withDefault "") ++ "\")")
@@ -261,17 +292,13 @@ diagramView user timezone diagram =
                 , style "justify-content" "space-between"
                 , style "margin-top" "8px"
                 ]
-                [ div [ style "margin-top" "4px" ] [ text (Utils.millisToString timezone (diagram.updatedAt |> Maybe.withDefault 0)) ]
+                [ div [ style "margin-top" "4px" ] [ text (Utils.millisToString timezone diagram.updatedAt) ]
                 , if diagram.isRemote then
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOn 14 ]
 
                   else
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOff 14 ]
-                , if MaybeEx.isNothing user || MaybeEx.isNothing diagram.ownerId || isOwner then
-                    div [ style "margin-left" "16px", class "button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
-
-                  else
-                    Empty.view
+                , div [ style "margin-left" "16px", class "button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
                 ]
             ]
         ]
@@ -301,63 +328,115 @@ update message model =
             , Cmd.none
             )
 
-        GotLocalDiagrams localItems ->
-            case model.loginUser of
-                Just _ ->
-                    let
-                        remoteItems =
-                            DiagramApi.items (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser) 1 model.apiRoot
+        LoadNextPage pageNo ->
+            ( { model | pageNo = pageNo }, getDiagrams () )
 
-                        items =
-                            remoteItems
-                                |> Task.map
-                                    (\item ->
-                                        List.concat [ localItems, item ]
-                                            |> List.sortWith
-                                                (\a b ->
-                                                    let
-                                                        v1 =
-                                                            a.updatedAt |> Maybe.withDefault 0
+        GotLocalDiagramJson json ->
+            if model.isLoading then
+                ( model, Cmd.none )
 
-                                                        v2 =
-                                                            b.updatedAt |> Maybe.withDefault 0
-                                                    in
-                                                    if v1 - v2 > 0 then
-                                                        LT
+            else
+                let
+                    localItems =
+                        Result.withDefault [] <|
+                            D.decodeString (D.list DiagramItem.decoder) json
+                in
+                case model.loginUser of
+                    Just _ ->
+                        let
+                            remoteItems =
+                                Request.items model.apiRoot (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser) (pageOffsetAndLimit model.pageNo) False False
+                                    |> Task.map
+                                        (\i ->
+                                            i
+                                                |> List.filter (\item -> isJust item)
+                                                |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
+                                        )
 
-                                                    else if v1 - v2 < 0 then
-                                                        GT
+                            items =
+                                remoteItems
+                                    |> Task.map
+                                        (\item ->
+                                            List.concat [ localItems, item ]
+                                                |> List.sortWith
+                                                    (\a b ->
+                                                        let
+                                                            v1 =
+                                                                a.updatedAt |> Time.posixToMillis
 
-                                                    else
-                                                        EQ
-                                                )
-                                    )
-                                |> Task.mapError (Tuple.pair localItems)
-                    in
-                    ( model, Task.attempt GotDiagrams items )
+                                                            v2 =
+                                                                b.updatedAt |> Time.posixToMillis
+                                                        in
+                                                        if v1 - v2 > 0 then
+                                                            LT
 
-                Nothing ->
-                    ( { model | diagramList = Just localItems }, Cmd.none )
+                                                        else if v1 - v2 < 0 then
+                                                            GT
+
+                                                        else
+                                                            EQ
+                                                    )
+                                        )
+                                    |> Task.mapError (Tuple.pair localItems)
+                        in
+                        ( { model | isLoading = True }, Task.attempt GotDiagrams items )
+
+                    Nothing ->
+                        ( { model
+                            | hasMorePage = False
+                            , isLoading = False
+                            , diagramList = Just localItems
+                          }
+                        , Cmd.none
+                        )
 
         GotDiagrams (Err ( items, _ )) ->
-            ( { model | diagramList = Just items }, Cmd.none )
+            ( { model
+                | hasMorePage = List.length items >= pageSize
+                , isLoading = False
+                , diagramList =
+                    if isNothing model.diagramList then
+                        Just items
 
-        GotDiagrams (Ok items) ->
-            ( { model | diagramList = Just items }, Cmd.none )
-
-        Remove diagram ->
-            ( model, removeDiagrams diagram )
-
-        RemoveRemote diagram ->
-            ( model
-            , Task.attempt Removed
-                (DiagramApi.remove (Utils.getIdToken model.loginUser) model.apiRoot (diagram.id |> Maybe.withDefault "")
-                    |> Task.mapError (Tuple.pair diagram)
-                    |> Task.map (\_ -> diagram)
-                )
+                    else
+                        Maybe.andThen (\currentItems -> Just <| List.concat [ currentItems, items ]) model.diagramList
+              }
+            , Cmd.none
             )
 
-        Removed (Err ( _, _ )) ->
+        GotDiagrams (Ok items) ->
+            ( { model
+                | hasMorePage = List.length items >= pageSize
+                , isLoading = False
+                , diagramList =
+                    if isNothing model.diagramList then
+                        Just items
+
+                    else
+                        Maybe.andThen (\currentItems -> Just <| List.concat [ currentItems, items ]) model.diagramList
+              }
+            , Cmd.none
+            )
+
+        Remove diagram ->
+            ( model, removeDiagrams (DiagramItem.encoder diagram) )
+
+        RemoveRemote diagramJson ->
+            case D.decodeString DiagramItem.decoder diagramJson of
+                Ok diagram ->
+                    ( model
+                    , Task.attempt Removed
+                        (Request.delete (Maybe.withDefault "" diagram.id) model.apiRoot (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser)
+                            |> Task.map (\_ -> Just diagram)
+                        )
+                    )
+
+                Err _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        Removed (Err _) ->
             ( model
             , Cmd.none
             )

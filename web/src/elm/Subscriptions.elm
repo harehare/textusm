@@ -2,8 +2,8 @@ port module Subscriptions exposing (applySettings, changeText, closeFullscreen, 
 
 import Browser.Events exposing (onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Json.Decode as D
+import Json.Encode as E
 import Models.Diagram as DiagramModel
-import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramList as DiagramListModel
 import Models.Model exposing (DownloadFileInfo, DownloadInfo, Model, Msg(..), Notification(..), ShareInfo)
 import Models.Settings exposing (EditorSettings, Settings)
@@ -43,7 +43,7 @@ port onWarnNotification : (String -> msg) -> Sub msg
 port shortcuts : (String -> msg) -> Sub msg
 
 
-port removeRemoteDiagram : (DiagramItem -> msg) -> Sub msg
+port removeRemoteDiagram : (String -> msg) -> Sub msg
 
 
 port downloadPng : DownloadInfo -> Cmd msg
@@ -61,7 +61,7 @@ port downloadHtml : DownloadInfo -> Cmd msg
 port loadEditor : ( String, EditorSettings ) -> Cmd msg
 
 
-port login : () -> Cmd msg
+port login : String -> Cmd msg
 
 
 port logout : () -> Cmd msg
@@ -109,10 +109,10 @@ port openFullscreen : () -> Cmd msg
 port closeFullscreen : () -> Cmd msg
 
 
-port saveDiagram : DiagramItem -> Cmd msg
+port saveDiagram : E.Value -> Cmd msg
 
 
-port removeDiagrams : DiagramItem -> Cmd msg
+port removeDiagrams : E.Value -> Cmd msg
 
 
 port getDiagrams : () -> Cmd msg
@@ -121,13 +121,13 @@ port getDiagrams : () -> Cmd msg
 port getDiagram : String -> Cmd msg
 
 
-port gotLocalDiagrams : (List DiagramItem -> msg) -> Sub msg
+port gotLocalDiagramJson : (String -> msg) -> Sub msg
 
 
-port removedDiagram : (( DiagramItem, Bool ) -> msg) -> Sub msg
+port removedDiagram : (( String, Bool ) -> msg) -> Sub msg
 
 
-port saveToRemote : (DiagramItem -> msg) -> Sub msg
+port saveToRemote : (String -> msg) -> Sub msg
 
 
 subscriptions : Model -> Sub Msg
@@ -136,7 +136,7 @@ subscriptions model =
         ([ changeText (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
          , applySettings ApplySettings
          , startDownload StartDownload
-         , gotLocalDiagrams (\items -> UpdateDiagramList (DiagramListModel.GotLocalDiagrams items))
+         , gotLocalDiagramJson (\json -> UpdateDiagramList (DiagramListModel.GotLocalDiagramJson json))
          , removedDiagram (\_ -> UpdateDiagramList DiagramListModel.Reload)
          , onVisibilityChange OnVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))

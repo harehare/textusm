@@ -1,23 +1,9 @@
-module Models.DiagramType exposing (DiagramType(..), fromString, toString)
+module Models.DiagramType exposing (fromString, toString)
+
+import TextUSM.Enum.Diagram exposing (Diagram(..))
 
 
-type DiagramType
-    = UserStoryMap
-    | OpportunityCanvas
-    | BusinessModelCanvas
-    | FourLs
-    | StartStopContinue
-    | Kpt
-    | UserPersona
-    | Markdown
-    | MindMap
-    | EmpathyMap
-    | CustomerJourneyMap
-    | SiteMap
-    | GanttChart
-
-
-toString : DiagramType -> String
+toString : Diagram -> String
 toString diagramType =
     case diagramType of
         UserStoryMap ->
@@ -29,7 +15,7 @@ toString diagramType =
         BusinessModelCanvas ->
             "bmc"
 
-        FourLs ->
+        Fourls ->
             "4ls"
 
         StartStopContinue ->
@@ -60,7 +46,7 @@ toString diagramType =
             "gct"
 
 
-fromString : String -> DiagramType
+fromString : String -> Diagram
 fromString s =
     case s of
         "usm" ->
@@ -73,7 +59,7 @@ fromString s =
             BusinessModelCanvas
 
         "4ls" ->
-            FourLs
+            Fourls
 
         "ssc" ->
             StartStopContinue

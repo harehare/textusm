@@ -4,8 +4,8 @@ import Api.Api as Api
 import Http exposing (Error(..))
 import Json.Decode as D
 import Json.Encode as E
-import Task exposing (Task)
 import Models.IdToken exposing (IdToken)
+import Task exposing (Task)
 
 
 type alias Request =

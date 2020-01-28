@@ -5,14 +5,14 @@ import File exposing (File)
 import Http exposing (Error(..))
 import List.Extra exposing (getAt, last, scanl1)
 import Models.Diagram as DiagramModel
-import Models.DiagramType as DiagramType
 import Models.IdToken exposing (IdToken)
 import Models.Item as Item
 import Models.Model exposing (Msg(..), Notification(..))
 import Models.User as User exposing (User)
 import Process
 import Task
-import Time exposing (Month(..), Posix, Zone, millisToPosix, toDay, toMonth, toYear, utc)
+import TextUSM.Enum.Diagram as Diagram
+import Time exposing (Month(..), Posix, Zone, toDay, toHour, toMinute, toMonth, toSecond, toYear, utc)
 import Time.Extra exposing (Interval(..), Parts, diff, partsToPosix)
 
 
@@ -88,17 +88,26 @@ isImageUrl url =
         && (String.endsWith ".svg" url || String.endsWith ".png" url || String.endsWith ".jpg" url)
 
 
-millisToString : Zone -> Int -> String
-millisToString timezone millis =
-    let
-        posix =
-            millisToPosix millis
-    in
+zeroPadding : Int -> Int -> String
+zeroPadding num value =
+    String.fromInt value
+        |> String.padLeft num '0'
+        |> String.right num
+
+
+millisToString : Zone -> Posix -> String
+millisToString timezone posix =
     String.fromInt (toYear timezone posix)
         ++ "-"
-        ++ String.fromInt (monthToInt (toMonth timezone posix))
+        ++ (monthToInt (toMonth timezone posix) |> zeroPadding 2)
         ++ "-"
-        ++ String.fromInt (toDay timezone posix)
+        ++ (toDay timezone posix |> zeroPadding 2)
+        ++ " "
+        ++ (toHour timezone posix |> zeroPadding 2)
+        ++ ":"
+        ++ (toMinute timezone posix |> zeroPadding 2)
+        ++ ":"
+        ++ (toSecond timezone posix |> zeroPadding 2)
 
 
 intToMonth : Int -> Month
@@ -327,31 +336,31 @@ getCanvasSize model =
     let
         ( width, height ) =
             case model.diagramType of
-                DiagramType.FourLs ->
+                Diagram.Fourls ->
                     ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20 )
 
-                DiagramType.EmpathyMap ->
+                Diagram.EmpathyMap ->
                     ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20 )
 
-                DiagramType.OpportunityCanvas ->
+                Diagram.OpportunityCanvas ->
                     ( Constants.itemWidth * 5 + 20, Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 3 + 20 )
 
-                DiagramType.BusinessModelCanvas ->
+                Diagram.BusinessModelCanvas ->
                     ( Constants.itemWidth * 5 + 20, Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 3 + 20 )
 
-                DiagramType.Kpt ->
+                Diagram.Kpt ->
                     ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.itemHeight (30 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20 )
 
-                DiagramType.StartStopContinue ->
+                Diagram.StartStopContinue ->
                     ( Constants.itemWidth * 3 + 20, Basics.max Constants.largeItemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) + 20 )
 
-                DiagramType.UserPersona ->
+                Diagram.UserPersona ->
                     ( Constants.itemWidth * 5 + 25, Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0)) * 2 + 20 )
 
-                DiagramType.Markdown ->
+                Diagram.Markdown ->
                     ( 15 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Maybe.withDefault "" <| model.text), getMarkdownHeight <| String.lines <| Maybe.withDefault "" <| model.text )
 
-                DiagramType.MindMap ->
+                Diagram.MindMap ->
                     ( (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
                     , case List.head model.items of
                         Just head ->
@@ -361,12 +370,12 @@ getCanvasSize model =
                             0
                     )
 
-                DiagramType.CustomerJourneyMap ->
+                Diagram.CustomerJourneyMap ->
                     ( model.settings.size.width * (List.length model.items + 1)
                     , model.settings.size.height * ((model.items |> List.head |> Maybe.withDefault Item.emptyItem |> .children |> Item.unwrapChildren |> List.length) + 1) + Constants.itemMargin
                     )
 
-                DiagramType.SiteMap ->
+                Diagram.SiteMap ->
                     let
                         items =
                             model.items
@@ -411,10 +420,10 @@ getCanvasSize model =
                     in
                     ( svgWidth + Constants.itemSpan, svgHeight + Constants.itemSpan )
 
-                DiagramType.UserStoryMap ->
+                Diagram.UserStoryMap ->
                     ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1), (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2) )
 
-                DiagramType.GanttChart ->
+                Diagram.GanttChart ->
                     let
                         rootItem =
                             List.head model.items

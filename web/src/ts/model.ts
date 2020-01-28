@@ -2,7 +2,9 @@ export interface DiagramItem {
     title: string;
     text: string;
     thumbnail: string;
-    diagramPath: string;
+    diagram: string;
+    isBookmark: boolean;
+    isPublic: boolean;
     createdAt: number;
     updatedAt: number;
 }
@@ -11,9 +13,10 @@ export interface Diagram {
     id: string;
     title: string;
     text: string;
-    diagramPath: string;
+    diagram: string;
     isPublic: boolean;
     isRemote: boolean;
+    isBookmark: boolean;
 }
 
 export interface DownloadInfo {
