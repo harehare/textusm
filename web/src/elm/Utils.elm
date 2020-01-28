@@ -12,7 +12,7 @@ import Models.User as User exposing (User)
 import Process
 import Task
 import TextUSM.Enum.Diagram as Diagram
-import Time exposing (Month(..), Posix, Zone, toDay, toMonth, toYear, utc)
+import Time exposing (Month(..), Posix, Zone, toDay, toHour, toMinute, toMonth, toSecond, toYear, utc)
 import Time.Extra exposing (Interval(..), Parts, diff, partsToPosix)
 
 
@@ -88,13 +88,26 @@ isImageUrl url =
         && (String.endsWith ".svg" url || String.endsWith ".png" url || String.endsWith ".jpg" url)
 
 
+zeroPadding : Int -> Int -> String
+zeroPadding num value =
+    String.fromInt value
+        |> String.padLeft num '0'
+        |> String.right num
+
+
 millisToString : Zone -> Posix -> String
 millisToString timezone posix =
     String.fromInt (toYear timezone posix)
         ++ "-"
-        ++ String.fromInt (monthToInt (toMonth timezone posix))
+        ++ (monthToInt (toMonth timezone posix) |> zeroPadding 2)
         ++ "-"
-        ++ String.fromInt (toDay timezone posix)
+        ++ (toDay timezone posix |> zeroPadding 2)
+        ++ " "
+        ++ (toHour timezone posix |> zeroPadding 2)
+        ++ ":"
+        ++ (toMinute timezone posix |> zeroPadding 2)
+        ++ ":"
+        ++ (toSecond timezone posix |> zeroPadding 2)
 
 
 intToMonth : Int -> Month

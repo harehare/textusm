@@ -202,51 +202,53 @@ view model =
 
                       else
                         div
-                            [ style "height" "calc(100vh - 70px)"
-                            , style "display" "flex"
-                            , style "flex-direction" "column"
+                            [ style "display" "flex"
+                            , style "align-items" "flex-start"
+                            , style "justify-content" "flex-start"
+                            , style "height" "calc(100% - 70px)"
+                            , style "flex-wrap" "wrap"
+                            , style "margin-bottom" "8px"
+                            , style "align-content" "flex-start"
+                            , style "overflow-y" "scroll"
+                            , style "will-change" "transform"
+                            , style "border-top" "1px solid #323B46"
                             ]
-                            [ div
-                                [ style "display" "flex"
-                                , style "align-items" "flex-start"
-                                , style "justify-content" "flex-start"
-                                , style "height" "calc(100% - 95px)"
-                                , style "flex-wrap" "wrap"
-                                , style "margin-bottom" "8px"
-                                , style "align-content" "flex-start"
-                                , style "overflow-y" "scroll"
-                                , style "will-change" "transform"
-                                , style "border-top" "1px solid #323B46"
-                                ]
-                                (displayDiagrams
-                                    |> (case model.searchQuery of
-                                            Just query ->
-                                                List.filter (\d -> String.contains query d.title)
+                            ((displayDiagrams
+                                |> (case model.searchQuery of
+                                        Just query ->
+                                            List.filter (\d -> String.contains query d.title)
 
-                                            Nothing ->
-                                                identity
-                                       )
-                                    |> List.map
-                                        (\d -> diagramView model.timeZone d)
-                                )
-                            , if model.hasMorePage then
-                                div
-                                    [ class "primary-button button"
-                                    , style "padding" "8px"
-                                    , style "margin-top" "4px"
-                                    , style "align-self" "center"
-                                    , onClick <| LoadNextPage <| model.pageNo + 1
-                                    ]
-                                    [ if model.isLoading then
-                                        text "Loading"
+                                        Nothing ->
+                                            identity
+                                   )
+                                |> List.map
+                                    (\d -> diagramView model.timeZone d)
+                             )
+                                ++ [ if model.hasMorePage then
+                                        div
+                                            [ style "width" "100%"
+                                            , style "display" "flex"
+                                            , style "align-items" "center"
+                                            , style "justify-content" "center"
+                                            ]
+                                            [ div
+                                                [ class "primary-button button"
+                                                , style "padding" "16px"
+                                                , style "margin" "8px"
+                                                , onClick <| LoadNextPage <| model.pageNo + 1
+                                                ]
+                                                [ if model.isLoading then
+                                                    text "Loading"
 
-                                      else
-                                        text "Load more"
-                                    ]
+                                                  else
+                                                    text "Load more"
+                                                ]
+                                            ]
 
-                              else
-                                Empty.view
-                            ]
+                                     else
+                                        Empty.view
+                                   ]
+                            )
                     ]
                 ]
 
