@@ -103,7 +103,7 @@ view route width fullscreen openMenu =
                         menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing exportMenu
 
                     Just NewFile ->
-                        menu Nothing (Just "10px") (Just "50px") Nothing newMenu
+                        menu Nothing (Just "10px") (Just "30px") Nothing newMenu
 
                     _ ->
                         Empty.view

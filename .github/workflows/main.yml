@@ -33,19 +33,19 @@ jobs:
       - name: Run Tests
         working-directory: web
         run: npm run test
-      # - name: Run e2e tests
-      #   uses: cypress-io/github-action@v1
-      #   with:
-      #     start: npm run start
-      #     wait-on: "http://localhost:3000"
-      #     working-directory: e2e
-      #   env:
-      #     API_ROOT: ${{ secrets.API_ROOT }}
-      #     FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-      #     FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
-      #     FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-      #     FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
-      #     FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+      - name: Run e2e tests
+        uses: cypress-io/github-action@v1
+        with:
+          start: npm run start
+          wait-on: "http://localhost:3000"
+          working-directory: e2e
+        env:
+          API_ROOT: ${{ secrets.API_ROOT }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
       - name: Archive Production Artifact
         uses: actions/upload-artifact@master
         with:

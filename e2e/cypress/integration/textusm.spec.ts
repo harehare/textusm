@@ -1,6 +1,6 @@
 /// <reference types="cypress"/>
 
-const HOST_NAME = "http://localhost:3000";
+const HOST_NAME = "https://app.textusm.com";
 
 context("TextUSM", () => {
   beforeEach(() => {
