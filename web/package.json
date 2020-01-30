@@ -75,6 +75,6 @@
         "test": "elm-test",
         "vscode:build": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.js && mv elm.js ../extension/vscode/js/",
         "lib:build": "elm make src/elm/Extension/Lib.elm --optimize --output elm.js && mv elm.js ../extension/lib/src/js/",
-        "generate-elm-types": "elm-graphql http://localhost:8081/query --base TextUSM --output src/elm"
+        "generate-elm-types": "elm-graphql http://localhost:8081/graphql --base TextUSM --output src/elm"
     }
 }

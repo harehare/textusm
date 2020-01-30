@@ -280,6 +280,7 @@ enum Diagram {
   CUSTOMER_JOURNEY_MAP
   SITE_MAP
   GANTT_CHART
+  IMPACT_MAP
 }
 
 type Item {

@@ -25,6 +25,7 @@ import Views.Diagram.CustomerJourneyMap as CustomerJourneyMap
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
 import Views.Diagram.GanttChart as GanttChart
+import Views.Diagram.ImpactMap as ImpactMap
 import Views.Diagram.Kpt as Kpt
 import Views.Diagram.Markdown as Markdown
 import Views.Diagram.MindMap as MindMap
@@ -351,6 +352,9 @@ diagramView diagramType =
 
         GanttChart ->
             GanttChart.view
+
+        ImpactMap ->
+            ImpactMap.view
 
 
 miniMapView : Model -> Html Msg

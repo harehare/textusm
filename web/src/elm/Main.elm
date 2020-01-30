@@ -379,6 +379,9 @@ changeRouteTo route model =
         Route.MindMap ->
             changeDiagramType Diagram.MindMap
 
+        Route.ImpactMap ->
+            changeDiagramType Diagram.ImpactMap
+
         Route.EmpathyMap ->
             changeDiagramType Diagram.EmpathyMap
 
@@ -1045,6 +1048,9 @@ update message model =
 
                         Diagram.MindMap ->
                             ( "", Route.MindMap )
+
+                        Diagram.ImpactMap ->
+                            ( "", Route.ImpactMap )
 
                         Diagram.EmpathyMap ->
                             ( "https://app.textusm.com/images/logo.svg\nSAYS\nTHINKS\nDOES\nFEELS", Route.EmpathyMap )

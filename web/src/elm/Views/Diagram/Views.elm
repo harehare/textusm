@@ -9,7 +9,7 @@ import Models.Diagram as Diagram exposing (Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (Svg, foreignObject, image, rect, svg, text, text_)
-import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, xlinkHref, y)
+import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, width, x, xlinkHref, y)
 import Svg.Events exposing (onClick, stopPropagationOn)
 import Utils
 

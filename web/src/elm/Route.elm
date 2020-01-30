@@ -36,6 +36,7 @@ type Route
     | CustomerJourneyMap
     | SiteMap
     | GanttChart
+    | ImpactMap
     | List
     | Settings
     | Help
@@ -67,6 +68,7 @@ parser =
         , map EmpathyMap (s "emm")
         , map CustomerJourneyMap (s "cjm")
         , map GanttChart (s "gct")
+        , map ImpactMap (s "imm")
         , map List (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
@@ -123,6 +125,9 @@ toString route =
 
         GanttChart ->
             absolute [ "gct" ] []
+
+        ImpactMap ->
+            absolute [ "imm" ] []
 
         List ->
             absolute [ "list" ] []

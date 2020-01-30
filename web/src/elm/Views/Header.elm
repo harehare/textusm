@@ -133,10 +133,11 @@ view profile route t isEditTitle fullscreen menu =
                                     Nothing
                                     Nothing
                                     (Just "5px")
-                                    [ { e = Logout
-                                      , title = "SIGN OUT"
-                                      , icon = Nothing
-                                      }
+                                    [ Menu.Item
+                                        { e = Logout
+                                        , title = "SIGN OUT"
+                                        , icon = Nothing
+                                        }
                                     ]
 
                             _ ->
@@ -165,14 +166,16 @@ view profile route t isEditTitle fullscreen menu =
                                 Nothing
                                 Nothing
                                 (Just "5px")
-                                [ { e = Login Google
-                                  , title = "Google"
-                                  , icon = Nothing
-                                  }
-                                , { e = Login Github
-                                  , title = "Github"
-                                  , icon = Nothing
-                                  }
+                                [ Menu.Item
+                                    { e = Login Google
+                                    , title = "Google"
+                                    , icon = Nothing
+                                    }
+                                , Menu.Item
+                                    { e = Login Github
+                                    , title = "Github"
+                                    , icon = Nothing
+                                    }
                                 ]
 
                         _ ->

@@ -45,6 +45,9 @@ toString diagramType =
         GanttChart ->
             "gct"
 
+        ImpactMap ->
+            "imm"
+
 
 fromString : String -> Diagram
 fromString s =
@@ -87,6 +90,9 @@ fromString s =
 
         "gct" ->
             GanttChart
+
+        "imm" ->
+            ImpactMap
 
         _ ->
             UserStoryMap

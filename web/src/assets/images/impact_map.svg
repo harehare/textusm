@@ -1,0 +1,110 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="800" height="300" style="background-color: transparent;">
+    <defs>
+        <style>@import url('https://fonts.googleapis.com/css?family=Noto Sans&amp;display=swap');</style>
+    </defs>
+    <g transform="translate(10,142)">
+        <g>
+            <line x1="125" y1="30" x2="235" y2="-210" stroke="#FFFFFF" stroke-width="1.3"/>
+            <g>
+                <line x1="355" y1="-210" x2="465" y2="-270" stroke="#FFFFFF" stroke-width="1.3"/>
+                <g/>
+                <svg width="130" height="60" x="460" y="-300">
+                    <rect width="130" height="59" fill="#FFF9B2" stroke="rgba(192,192,192,0.5)"/>
+                    <foreignObject x="0" y="0" width="130" height="60" fill="#000000" color="#000000" font-size="15" font-family="Noto Sans" class=".select-none">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">        test
+                        </div>
+                    </foreignObject>
+                </svg>
+                <line x1="355" y1="-210" x2="465" y2="-200" stroke="#FFFFFF" stroke-width="1.3"/>
+                <g/>
+                <svg width="130" height="60" x="460" y="-230">
+                    <rect width="130" height="59" fill="#FFF9B2" stroke="rgba(192,192,192,0.5)"/>
+                    <foreignObject x="0" y="0" width="130" height="60" fill="#000000" color="#000000" font-size="15" font-family="Noto Sans" class=".select-none">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">        test
+                        </div>
+                    </foreignObject>
+                </svg>
+                <line x1="355" y1="-210" x2="465" y2="-130" stroke="#FFFFFF" stroke-width="1.3"/>
+                <g/>
+                <svg width="130" height="60" x="460" y="-160">
+                    <rect width="130" height="59" fill="#FFF9B2" stroke="rgba(192,192,192,0.5)"/>
+                    <foreignObject x="0" y="0" width="130" height="60" fill="#000000" color="#000000" font-size="15" font-family="Noto Sans" class=".select-none">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">        test
+                        </div>
+                    </foreignObject>
+                </svg>
+            </g>
+            <svg width="130" height="60" x="230" y="-240">
+                <rect width="130" height="59" fill="#3E9BCD" stroke="rgba(192,192,192,0.5)"/>
+                <foreignObject x="0" y="0" width="130" height="60" fill="#FFFFFF" color="#FFFFFF" font-size="15" font-family="Noto Sans" class=".select-none">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">    test
+                    </div>
+                </foreignObject>
+            </svg>
+            <line x1="125" y1="30" x2="235" y2="100" stroke="#FFFFFF" stroke-width="1.3"/>
+            <g>
+                <line x1="355" y1="100" x2="465" y2="40" stroke="#FFFFFF" stroke-width="1.3"/>
+                <g/>
+                <svg width="130" height="60" x="460" y="10">
+                    <rect width="130" height="59" fill="#FFF9B2" stroke="rgba(192,192,192,0.5)"/>
+                    <foreignObject x="0" y="0" width="130" height="60" fill="#000000" color="#000000" font-size="15" font-family="Noto Sans" class=".select-none">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">        test
+                        </div>
+                    </foreignObject>
+                </svg>
+                <line x1="355" y1="100" x2="465" y2="110" stroke="#FFFFFF" stroke-width="1.3"/>
+                <g/>
+                <svg width="130" height="60" x="460" y="80">
+                    <rect width="130" height="59" fill="#FFF9B2" stroke="rgba(192,192,192,0.5)"/>
+                    <foreignObject x="0" y="0" width="130" height="60" fill="#000000" color="#000000" font-size="15" font-family="Noto Sans" class=".select-none">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">        test
+                        </div>
+                    </foreignObject>
+                </svg>
+                <line x1="355" y1="100" x2="465" y2="180" stroke="#FFFFFF" stroke-width="1.3"/>
+                <g/>
+                <svg width="130" height="60" x="460" y="150">
+                    <rect width="130" height="59" fill="#FFF9B2" stroke="rgba(192,192,192,0.5)"/>
+                    <foreignObject x="0" y="0" width="130" height="60" fill="#000000" color="#000000" font-size="15" font-family="Noto Sans" class=".select-none">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">        test
+                        </div>
+                    </foreignObject>
+                </svg>
+            </g>
+            <svg width="130" height="60" x="230" y="70">
+                <rect width="130" height="59" fill="#3E9BCD" stroke="rgba(192,192,192,0.5)"/>
+                <foreignObject x="0" y="0" width="130" height="60" fill="#FFFFFF" color="#FFFFFF" font-size="15" font-family="Noto Sans" class=".select-none">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">    test
+                    </div>
+                </foreignObject>
+            </svg>
+            <line x1="125" y1="30" x2="235" y2="290" stroke="#FFFFFF" stroke-width="1.3"/>
+            <g/>
+            <svg width="130" height="60" x="230" y="260">
+                <rect width="130" height="59" fill="#3E9BCD" stroke="rgba(192,192,192,0.5)"/>
+                <foreignObject x="0" y="0" width="130" height="60" fill="#FFFFFF" color="#FFFFFF" font-size="15" font-family="Noto Sans" class=".select-none">
+                    <div
+                        xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">    test
+                    </div>
+                </foreignObject>
+            </svg>
+        </g>
+        <svg width="130" height="60" x="0" y="0">
+            <rect width="130" height="59" fill="#266B9A" stroke="rgba(192,192,192,0.5)"/>
+            <foreignObject x="0" y="0" width="130" height="60" fill="#FFFFFF" color="#FFFFFF" font-size="15" font-family="Noto Sans" class=".select-none">
+                <div
+                    xmlns="http://www.w3.org/1999/xhtml" style="padding: 8px; font-family: &quot;Noto Sans&quot;, sans-serif; overflow-wrap: break-word;">test
+                </div>
+            </foreignObject>
+        </svg>
+    </g>
+</svg>

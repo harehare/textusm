@@ -423,6 +423,16 @@ getCanvasSize model =
                 Diagram.UserStoryMap ->
                     ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1), (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2) )
 
+                Diagram.ImpactMap ->
+                    ( (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
+                    , case List.head model.items of
+                        Just head ->
+                            Item.getLeafCount head * (model.settings.size.height + 15)
+
+                        Nothing ->
+                            0
+                    )
+
                 Diagram.GanttChart ->
                     let
                         rootItem =
