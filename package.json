@@ -1,6 +1,6 @@
 {
   "name": "textusm-e2e",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "scripts": {
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",

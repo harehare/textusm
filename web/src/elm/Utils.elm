@@ -427,7 +427,7 @@ getCanvasSize model =
                     ( (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
                     , case List.head model.items of
                         Just head ->
-                            Item.getLeafCount head * (model.settings.size.height + 15)
+                            Item.getLeafCount head * (model.settings.size.height + 15) * 2
 
                         Nothing ->
                             0

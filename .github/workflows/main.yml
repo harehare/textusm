@@ -57,10 +57,10 @@ jobs:
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           PROJECT_ID: textusm
-      - name: Run e2e tests
-        uses: cypress-io/github-action@v1
-        with:
-          working-directory: e2e
+      # - name: Run e2e tests
+      #   uses: cypress-io/github-action@v1
+      #   with:
+      #     working-directory: e2e
   audit:
     runs-on: ubuntu-latest
     name: audit

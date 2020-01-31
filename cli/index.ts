@@ -101,6 +101,7 @@ const validDiagramType = [
   "customer_journey_map",
   "site_map",
   "gantt_chart",
+  "impact_map",
   ""
 ];
 
@@ -162,6 +163,8 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
         ? "smp"
         : diagramType === "gantt_chart"
         ? "gct"
+        : diagramType === "impact_map"
+        ? "imm"
         : "usm";
     await page.goto(
       `https://app.textusm.com/view/${type}/${encodeURIComponent(

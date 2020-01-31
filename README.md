@@ -22,6 +22,7 @@ TextUSM is a simple tool. Help you draw user story map using indented text.
   - Customer Journey Map
   - Site Map
   - Gantt Chart
+  - Impact Map
 - Export a Diagram
   - SVG
   - PNG
@@ -237,6 +238,22 @@ Home
 ```
 
 ![image](./img/gct.png)
+
+### Impact Map
+
+```
+TextUSM
+    WORK QUICKLY
+        Draw diagrams without leaving the keyboard.
+    SAVE TIME
+        Instantly visualize your ideas.
+    EXPORT TO IMAGES
+        Images can be exported as png or svg.
+    SHARING
+        Share your diagrams online with your colleagues.
+```
+
+![image](./img/imm.png)
 
 ## Installation
 

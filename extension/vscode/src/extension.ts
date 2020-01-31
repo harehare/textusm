@@ -18,7 +18,8 @@ const showQuickPick = (
     { label: "Empathy Map", value: "emm" },
     { label: "Customer Journey Map", value: "cjm" },
     { label: "Site Map", value: "smp" },
-    { label: "Gantt Chart", value: "gct" }
+    { label: "Gantt Chart", value: "gct" },
+    { label: "Impact Map", value: "imm" }
   ];
   const quickPick = vscode.window.createQuickPick();
   quickPick.items = options.map(item => ({ label: item.label }));
@@ -100,7 +101,8 @@ export function activate(context: vscode.ExtensionContext) {
         { label: "Empathy Map", value: "emm" },
         { label: "Customer Journey Map", value: "cjm" },
         { label: "Site Map", value: "smp" },
-        { label: "Gantt Chart", value: "gct" }
+        { label: "Gantt Chart", value: "gct" },
+        { label: "Impact Map", value: "imm" }
       ];
       const quickPick = vscode.window.createQuickPick();
       quickPick.items = options.map(item => ({ label: item.label }));
