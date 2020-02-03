@@ -8,8 +8,8 @@ import Html.Attributes exposing (class, style)
 import Html.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
-import Models.DiagramType as DiagramType
 import Task
+import TextUSM.Enum.Diagram as Diagram
 
 
 
@@ -62,40 +62,43 @@ init flags =
             , showZoomControl = flags.showZoomControl
             , diagramType =
                 if flags.diagramType == "BusinessModelCanvas" then
-                    DiagramType.BusinessModelCanvas
+                    Diagram.BusinessModelCanvas
 
                 else if flags.diagramType == "OpportunityCanvas" then
-                    DiagramType.OpportunityCanvas
+                    Diagram.OpportunityCanvas
 
                 else if flags.diagramType == "4Ls" then
-                    DiagramType.FourLs
+                    Diagram.Fourls
 
                 else if flags.diagramType == "StartStopContinue" then
-                    DiagramType.StartStopContinue
+                    Diagram.StartStopContinue
 
                 else if flags.diagramType == "Kpt" then
-                    DiagramType.Kpt
+                    Diagram.Kpt
 
                 else if flags.diagramType == "UserPersona" then
-                    DiagramType.UserPersona
+                    Diagram.UserPersona
 
                 else if flags.diagramType == "MindMap" then
-                    DiagramType.MindMap
+                    Diagram.MindMap
 
                 else if flags.diagramType == "EmpathyMap" then
-                    DiagramType.EmpathyMap
+                    Diagram.EmpathyMap
 
                 else if flags.diagramType == "CustomerJourneyMap" then
-                    DiagramType.CustomerJourneyMap
+                    Diagram.CustomerJourneyMap
 
                 else if flags.diagramType == "SiteMap" then
-                    DiagramType.SiteMap
+                    Diagram.SiteMap
 
                 else if flags.diagramType == "GanttChart" then
-                    DiagramType.GanttChart
+                    Diagram.GanttChart
+
+                else if flags.diagramType == "ImpactMap" then
+                    Diagram.ImpactMap
 
                 else
-                    DiagramType.UserStoryMap
+                    Diagram.UserStoryMap
             , settings = flags.settings
             , error = Nothing
             , touchDistance = Nothing

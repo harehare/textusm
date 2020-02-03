@@ -67,6 +67,7 @@ init settings =
       , text = Nothing
       , showMiniMap = False
       , matchParent = False
+      , windowWidth = 0
       }
     , Cmd.none
     )
@@ -658,10 +659,10 @@ update message model =
             in
             case result of
                 Ok usm ->
-                    ( { usm | settings = settings, error = Nothing }, Cmd.none )
+                    ( { usm | windowWidth = width, settings = settings, error = Nothing }, Cmd.none )
 
                 Err err ->
-                    ( { model | error = Just err }, Cmd.none )
+                    ( { model | windowWidth = width, error = Just err }, Cmd.none )
 
         ZoomIn ->
             ( if model.svg.scale >= 0.1 then

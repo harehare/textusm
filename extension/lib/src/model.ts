@@ -29,6 +29,8 @@ interface Node {
 
 export type SiteMap = MindMap;
 
+export type ImpactMap = MindMap;
+
 interface Node {
   text: string;
   children: Node[];
@@ -149,6 +151,7 @@ export function toString(
     | CustomerJourneyMap
     | SiteMap
     | GanttChart
+    | ImpactMap
 ): string {
   return "activities" in definition
     ? userStoryMap2Text(definition)
@@ -189,6 +192,7 @@ export function toTypeString(
     | CustomerJourneyMap
     | SiteMap
     | GanttChart
+    | ImpactMap
 ): string {
   return "activities" in definition
     ? "UserStoryMap"
@@ -387,7 +391,7 @@ function userStoryMap2Text(userStoryMap: UserStoryMap): string {
   }, userStoryMap.activities).join("\n")}`;
 }
 
-function node2Text(map: MindMap | SiteMap): string {
+function node2Text(map: MindMap | SiteMap | ImpactMap): string {
   const _node2Text = (node: Node[], indent: number): string[] => {
     return flatMap(n => {
       if (n.children.length === 0) {

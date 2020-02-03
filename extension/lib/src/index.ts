@@ -12,7 +12,8 @@ import {
   EmpathyMap,
   CustomerJourneyMap,
   SiteMap,
-  GanttChart
+  GanttChart,
+  ImpactMap
 } from "./model";
 
 interface Config {
@@ -86,7 +87,8 @@ function render(
     | EmpathyMap
     | CustomerJourneyMap
     | SiteMap
-    | GanttChart,
+    | GanttChart
+    | ImpactMap,
   options?: {
     diagramType?:
       | "UserStoryMap"
@@ -100,7 +102,8 @@ function render(
       | "CustomerJourneyMap"
       | "SiteMap"
       | "EmpathyMap"
-      | "GanttChart";
+      | "GanttChart"
+      | "ImpactMap";
     size?: Size;
     showZoomControl?: boolean;
     showMiniMap?: boolean;

@@ -31,6 +31,7 @@ type alias Model =
     , text : Maybe String
     , matchParent : Bool
     , showMiniMap : Bool
+    , windowWidth : Int
     }
 
 

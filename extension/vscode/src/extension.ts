@@ -163,6 +163,8 @@ export function activate(context: vscode.ExtensionContext) {
                 newTextOpen(
                   "2019-12-26,2020-01-31: title\n    subtitle1\n        2019-12-26, 2019-12-31: task1\n        2019-12-31, 2020-01-04: task2\n"
                 );
+              case "imm":
+                newTextOpen("");
                 break;
             }
           }

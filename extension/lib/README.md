@@ -15,6 +15,7 @@ Generate a Diagram from indented text.
 - CustomerJourneyMap
 - SiteMap
 - Gantt Chart
+- Impact Map
 
 ## Installation
 
@@ -549,6 +550,34 @@ textusm.render(
 ```
 
 ![image](./img/gct.png)
+
+### Impact Map
+
+```javascript
+const textusm = require("textusm");
+const elm = document.getElementById("id");
+
+textusm.render(
+  elm || "id",
+  `TextUSM
+WORK QUICKLY
+    Draw diagrams without leaving the keyboard.
+SAVE TIME
+    Instantly visualize your ideas.
+EXPORT TO IMAGES
+    Images can be exported as png or svg.
+SHARING
+    Share your diagrams online with your colleagues.`,
+  {
+    size: { width: 1024, height: 1024 },
+    diagramType: "ImpactMap",
+    showZoomControl: true
+  },
+  {}
+);
+```
+
+![image](./img/imm.png)
 
 ### Configuration
 
