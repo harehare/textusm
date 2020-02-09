@@ -77,10 +77,11 @@ view model =
                         ++ ")"
                     )
                 ]
-                [ nodesView model.settings 2 ( 0, 0 ) Left left
-                , nodesView model.settings 2 ( 0, 0 ) Right right
-                , nodeItemView model.settings
+                [ nodesView model.settings 2 ( 0, 0 ) Left model.selectedItem left
+                , nodesView model.settings 2 ( 0, 0 ) Right model.selectedItem right
+                , Views.cardView model.settings
                     ( 0, 0 )
+                    model.selectedItem
                     root
                 ]
 
@@ -88,8 +89,8 @@ view model =
             g [] []
 
 
-nodesView : Settings -> Int -> ( Int, Int ) -> Direction -> List Item -> Svg Msg
-nodesView settings hierarchy ( x, y ) direction items =
+nodesView : Settings -> Int -> ( Int, Int ) -> Direction -> Maybe Item -> List Item -> Svg Msg
+nodesView settings hierarchy ( x, y ) direction selectedItem items =
     let
         svgWidth =
             settings.size.width
@@ -156,9 +157,11 @@ nodesView settings hierarchy ( x, y ) direction items =
                         , itemY
                         )
                         direction
+                        selectedItem
                         (Item.unwrapChildren item.children)
-                    , nodeItemView settings
+                    , Views.cardView settings
                         ( itemX, itemY )
+                        selectedItem
                         item
                     ]
                 )
@@ -195,8 +198,3 @@ nodeLineView settings direction fromBase toBase =
         , strokeWidth "1.3"
         ]
         []
-
-
-nodeItemView : Settings -> ( Int, Int ) -> Item -> Svg Msg
-nodeItemView settings ( posX, posY ) item =
-    Views.cardView settings ( posX, posY ) item

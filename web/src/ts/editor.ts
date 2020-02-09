@@ -188,17 +188,6 @@ export const loadEditor = (
             }
         });
 
-        app.ports.selectLine.subscribe((line: number) => {
-            if (!monacoEditor) {
-                return;
-            }
-
-            monacoEditor.setPosition({
-                column: 0,
-                lineNumber: line
-            });
-        });
-
         let update: number | null = null;
 
         monacoEditor.onDidChangeModelContent(e => {

@@ -18,6 +18,7 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy6)
 import Json.Decode as D
+import List.Extra exposing (getAt, setAt)
 import Maybe.Extra exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
@@ -418,15 +419,43 @@ update message model =
 
         UpdateDiagram subMsg ->
             case subMsg of
-                DiagramModel.ItemClick item ->
-                    ( model, Subscriptions.selectLine (item.lineNo + 1) )
-
                 DiagramModel.OnResize _ _ ->
                     let
                         ( model_, cmd_ ) =
                             Diagram.update subMsg model.diagramModel
                     in
                     ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor ) ] )
+
+                DiagramModel.EndEditSelectedItem item code isComposing ->
+                    if code == 13 && not isComposing then
+                        let
+                            lines =
+                                model.text
+                                    |> String.lines
+
+                            currentText =
+                                getAt item.lineNo lines
+
+                            prefix =
+                                (String.indexes " " (Maybe.withDefault "" currentText)
+                                    |> List.length
+                                    |> String.repeat
+                                )
+                                    " "
+
+                            text =
+                                setAt item.lineNo (prefix ++ item.text) lines
+                                    |> String.join "\n"
+                        in
+                        ( { model | text = text }
+                        , Cmd.batch
+                            [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
+                            , Subscriptions.loadText text
+                            ]
+                        )
+
+                    else
+                        ( model, Cmd.none )
 
                 DiagramModel.ToggleFullscreen ->
                     let

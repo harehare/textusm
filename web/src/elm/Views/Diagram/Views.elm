@@ -1,21 +1,23 @@
 module Views.Diagram.Views exposing (canvasImageView, canvasView, cardView, rectView, textView)
 
 import Constants
-import Html exposing (div, img)
+import Events exposing (onKeyDown)
+import Html exposing (div, img, input)
 import Html.Attributes as Attr
-import Json.Decode as D
+import Html.Events exposing (onBlur, onInput)
 import List.Extra exposing (last)
+import Maybe.Extra exposing (isJust)
 import Models.Diagram as Diagram exposing (Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
-import Svg exposing (Svg, foreignObject, image, rect, svg, text, text_)
-import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, width, x, xlinkHref, y)
-import Svg.Events exposing (onClick, stopPropagationOn)
+import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
+import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, xlinkHref, y)
+import Svg.Events exposing (onClick)
 import Utils
 
 
-cardView : Settings -> ( Int, Int ) -> Item -> Svg Msg
-cardView settings ( posX, posY ) item =
+cardView : Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+cardView settings ( posX, posY ) selectedItem item =
     let
         ( color, backgroundColor ) =
             case item.itemType of
@@ -33,15 +35,21 @@ cardView settings ( posX, posY ) item =
         , height (String.fromInt settings.size.height)
         , x (String.fromInt posX)
         , y (String.fromInt posY)
-        , onClick (ItemClick item)
-        , stopPropagationOn "dblclick" (D.map (\d -> ( d, True )) (D.succeed (ItemDblClick item)))
         ]
-        [ rectView
-            ( settings.size.width
-            , settings.size.height - 1
-            )
-            backgroundColor
-        , textView settings ( 0, 0 ) ( settings.size.width, settings.size.height ) color item.text
+        [ if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
+            inputView settings ( 0, 0 ) ( settings.size.width, settings.size.height ) ( color, backgroundColor ) (Maybe.withDefault Item.emptyItem selectedItem)
+
+          else
+            g
+                [ onClick (ItemClick item)
+                ]
+                [ rectView
+                    ( settings.size.width
+                    , settings.size.height - 1
+                    )
+                    backgroundColor
+                , textView settings ( 0, 0 ) ( settings.size.width, settings.size.height ) color item.text
+                ]
         ]
 
 
@@ -54,6 +62,44 @@ rectView ( svgWidth, svgHeight ) color =
         , stroke "rgba(192,192,192,0.5)"
         ]
         []
+
+
+inputView : Settings -> ( Int, Int ) -> ( Int, Int ) -> ( String, String ) -> Item -> Svg Msg
+inputView settings ( posX, posY ) ( svgWidth, svgHeight ) ( colour, backgroundColor ) item =
+    foreignObject
+        [ x <| String.fromInt posX
+        , y <| String.fromInt posY
+        , width <| String.fromInt svgWidth
+        , height <| String.fromInt svgHeight
+        ]
+        [ div
+            [ Attr.style "background-color" backgroundColor
+            , Attr.style "position" "relative"
+            , Attr.style "width" (String.fromInt svgWidth ++ "px")
+            , Attr.style "height" (String.fromInt svgHeight ++ "px")
+            ]
+            [ input
+                [ Attr.id "edit-item"
+                , Attr.type_ "text"
+                , Attr.style "padding" "8px"
+                , Attr.style "position" "absolute"
+                , Attr.style "top" "0"
+                , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+                , Attr.style "color" colour
+                , Attr.style "background-color" backgroundColor
+                , Attr.style "border" "none"
+                , Attr.style "outline" "none"
+                , Attr.style "width" (String.fromInt (svgWidth - 16) ++ "px")
+                , Attr.style "font-family" settings.font
+                , Attr.style "font-size" ((item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) ++ "px")
+                , Attr.value <| String.trim item.text
+                , onBlur DeselectItem
+                , onInput EditSelectedItem
+                , onKeyDown <| EndEditSelectedItem item
+                ]
+                []
+            ]
+        ]
 
 
 textView : Settings -> ( Int, Int ) -> ( Int, Int ) -> String -> String -> Svg Msg

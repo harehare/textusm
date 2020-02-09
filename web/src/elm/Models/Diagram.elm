@@ -1,4 +1,4 @@
-module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Settings, Size, UsmSvg, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth)
+module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Settings, Size, UsmSvg, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl)
 
 import Browser.Dom exposing (Viewport)
 import Models.Item exposing (Item, ItemType(..))
@@ -10,6 +10,7 @@ import TextUSM.Enum.Diagram exposing (Diagram)
 
 type alias Model =
     { items : List Item
+    , labels : List String
     , hierarchy : Int
     , width : Int
     , height : Int
@@ -27,11 +28,11 @@ type alias Model =
     , showZoomControl : Bool
     , touchDistance : Maybe Float
     , diagramType : Diagram
-    , labels : List String
     , text : Maybe String
     , matchParent : Bool
     , showMiniMap : Bool
     , windowWidth : Int
+    , selectedItem : Maybe Item
     }
 
 
@@ -47,6 +48,7 @@ type alias Settings =
     , size : Size
     , color : ColorSettings
     , backgroundColor : String
+    , zoomControl : Maybe Bool
     }
 
 
@@ -95,6 +97,9 @@ type Msg
     | StartPinch Float
     | ItemClick Item
     | ItemDblClick Item
+    | DeselectItem
+    | EditSelectedItem String
+    | EndEditSelectedItem Item Int Bool
 
 
 getTextColor : ColorSettings -> String
@@ -105,6 +110,11 @@ getTextColor settings =
 settingsOfFont : Lens Settings String
 settingsOfFont =
     Lens .font (\b a -> { a | font = b })
+
+
+settingsOfZoomControl : Lens Settings (Maybe Bool)
+settingsOfZoomControl =
+    Lens .zoomControl (\b a -> { a | zoomControl = b })
 
 
 settingsOfBackgroundColor : Lens Settings String

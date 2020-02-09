@@ -46,16 +46,17 @@ view model =
             model.hierarchy
             model.svg.width
             model.countByHierarchy
-        , lazy4 mainView
+        , lazy5 mainView
             model.settings
+            model.selectedItem
             model.items
             model.countByTasks
             model.countByHierarchy
         ]
 
 
-mainView : Settings -> List Item -> List Int -> List Int -> Svg Msg
-mainView settings items countByTasks countByHierarchy =
+mainView : Settings -> Maybe Item -> List Item -> List Int -> List Int -> Svg Msg
+mainView settings selectedItem items countByTasks countByHierarchy =
     Keyed.node "g"
         []
         (zip
@@ -63,7 +64,7 @@ mainView settings items countByTasks countByHierarchy =
             items
             |> List.indexedMap
                 (\i ( count, item ) ->
-                    ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByHierarchy) (Constants.leftMargin + count * (settings.size.width + Constants.itemMargin)) 10 item )
+                    ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByHierarchy) ( Constants.leftMargin + count * (settings.size.width + Constants.itemMargin), 10 ) selectedItem item )
                 )
         )
 
@@ -145,12 +146,12 @@ labelView labels settings hierarchy width countByHierarchy =
         )
 
 
-activityView : Settings -> List Int -> Int -> Int -> Item -> Svg Msg
-activityView settings verticalCount posX posY item =
+activityView : Settings -> List Int -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+activityView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "activity-" ++ item.text
-         , Views.cardView settings ( posX, posY ) item
+         , Views.cardView settings ( posX, posY ) selectedItem item
          )
             :: (Item.unwrapChildren item.children
                     |> List.indexedMap
@@ -159,7 +160,7 @@ activityView settings verticalCount posX posY item =
                             , taskView
                                 settings
                                 verticalCount
-                                (posX
+                                ( posX
                                     + (i * settings.size.width)
                                     + (if i > 0 then
                                         i * Constants.itemMargin
@@ -167,8 +168,9 @@ activityView settings verticalCount posX posY item =
                                        else
                                         0
                                       )
+                                , posY + Constants.itemMargin + settings.size.height
                                 )
-                                (posY + Constants.itemMargin + settings.size.height)
+                                selectedItem
                                 it
                             )
                         )
@@ -176,8 +178,8 @@ activityView settings verticalCount posX posY item =
         )
 
 
-taskView : Settings -> List Int -> Int -> Int -> Item -> Svg Msg
-taskView settings verticalCount posX posY item =
+taskView : Settings -> List Int -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+taskView settings verticalCount ( posX, posY ) selectedItem item =
     let
         children =
             Item.unwrapChildren item.children
@@ -185,7 +187,7 @@ taskView settings verticalCount posX posY item =
     Keyed.node "g"
         []
         (( "task-" ++ item.text
-         , Views.cardView settings ( posX, posY ) item
+         , Views.cardView settings ( posX, posY ) selectedItem item
          )
             :: (children
                     |> List.indexedMap
@@ -194,8 +196,8 @@ taskView settings verticalCount posX posY item =
                             , storyView settings
                                 verticalCount
                                 (List.length children)
-                                posX
-                                (posY
+                                ( posX
+                                , posY
                                     + ((i + 1) * settings.size.height)
                                     + (Constants.itemMargin * 2)
                                     + (if i > 0 then
@@ -205,6 +207,7 @@ taskView settings verticalCount posX posY item =
                                         0
                                       )
                                 )
+                                selectedItem
                                 it
                             )
                         )
@@ -212,8 +215,8 @@ taskView settings verticalCount posX posY item =
         )
 
 
-storyView : Settings -> List Int -> Int -> Int -> Int -> Item -> Svg Msg
-storyView settings verticalCount parentCount posX posY item =
+storyView : Settings -> List Int -> Int -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
     let
         itemCount =
             List.head verticalCount |> Maybe.withDefault 1
@@ -230,7 +233,7 @@ storyView settings verticalCount parentCount posX posY item =
     Keyed.node "g"
         []
         (( "story-" ++ item.text
-         , Views.cardView settings ( posX, posY ) item
+         , Views.cardView settings ( posX, posY ) selectedItem item
          )
             :: (children
                     |> List.indexedMap
@@ -240,13 +243,14 @@ storyView settings verticalCount parentCount posX posY item =
                                 settings
                                 tail
                                 childrenLength
-                                posX
-                                (posY
+                                ( posX
+                                , posY
                                     + (Basics.max 1 (itemCount - parentCount + i + 1)
                                         * (Constants.itemMargin + settings.size.height)
                                       )
                                     + Constants.itemMargin
                                 )
+                                selectedItem
                                 it
                             )
                         )

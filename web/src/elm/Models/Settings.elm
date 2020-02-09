@@ -1,4 +1,4 @@
-module Models.Settings exposing (EditorSettings, Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap)
+module Models.Settings exposing (EditorSettings, Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
 
 import Models.Diagram as Diagram
 import Monocle.Compose as Compose
@@ -73,6 +73,11 @@ settingsOfHeight =
 settingsOfBackgroundColor : Lens Settings String
 settingsOfBackgroundColor =
     Compose.lensWithLens Diagram.settingsOfBackgroundColor storyMapOfSettings
+
+
+settingsOfZoomControl : Lens Settings (Maybe Bool)
+settingsOfZoomControl =
+    Compose.lensWithLens Diagram.settingsOfZoomControl storyMapOfSettings
 
 
 settingsOfLineColor : Lens Settings String

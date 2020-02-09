@@ -42,16 +42,16 @@ view model =
                         ++ ")"
                     )
                 ]
-                [ siteView model.settings ( 0, Constants.itemSpan + model.settings.size.height ) items
-                , Views.cardView model.settings ( 0, 0 ) root
+                [ siteView model.settings ( 0, Constants.itemSpan + model.settings.size.height ) model.selectedItem items
+                , Views.cardView model.settings ( 0, 0 ) model.selectedItem root
                 ]
 
         Nothing ->
             g [] []
 
 
-siteView : Settings -> ( Int, Int ) -> List Item -> Svg Msg
-siteView settings ( posX, posY ) items =
+siteView : Settings -> ( Int, Int ) -> Maybe Item -> List Item -> Svg Msg
+siteView settings ( posX, posY ) selectedItem items =
     let
         hierarchyCountList =
             0
@@ -80,12 +80,14 @@ siteView settings ( posX, posY ) items =
                         ( x
                         , posY
                         )
+                        selectedItem
                         item
                     , siteLineView settings ( 0, 0 ) ( x, posY )
                     , siteTreeView settings
                         ( x
                         , posY + settings.size.height + Constants.itemSpan
                         )
+                        selectedItem
                         children
                     ]
                 )
@@ -93,8 +95,8 @@ siteView settings ( posX, posY ) items =
         )
 
 
-siteTreeView : Settings -> ( Int, Int ) -> List Item -> Svg Msg
-siteTreeView settings ( posX, posY ) items =
+siteTreeView : Settings -> ( Int, Int ) -> Maybe Item -> List Item -> Svg Msg
+siteTreeView settings ( posX, posY ) selectedItem items =
     let
         childrenCountList =
             0
@@ -129,11 +131,13 @@ siteTreeView settings ( posX, posY ) items =
                         ( x
                         , y
                         )
+                        selectedItem
                         item
                     , siteTreeView settings
                         ( x
                         , y + (settings.size.height + Constants.itemSpan)
                         )
+                        selectedItem
                         children
                     ]
                 )

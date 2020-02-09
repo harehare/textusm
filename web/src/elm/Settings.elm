@@ -20,11 +20,12 @@ settingsDecoder =
 
 diagramDecoder : D.Decoder Diagram.Settings
 diagramDecoder =
-    D.map4 Diagram.Settings
+    D.map5 Diagram.Settings
         (D.field "font" D.string)
         (D.field "size" sizeDecoder)
         (D.field "color" colorSettingsDecoder)
         (D.field "backgroundColor" D.string)
+        (D.maybe (D.field "zoomControl" D.bool))
 
 
 editorSettingsDecoder : D.Decoder EditorSettings

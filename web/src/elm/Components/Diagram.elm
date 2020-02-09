@@ -1,6 +1,7 @@
 module Components.Diagram exposing (init, update, view)
 
 import Basics exposing (max)
+import Browser.Dom as Dom
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Html.Events.Extra.Mouse as Mouse
@@ -68,6 +69,7 @@ init settings =
       , showMiniMap = False
       , matchParent = False
       , windowWidth = 0
+      , selectedItem = Nothing
       }
     , Cmd.none
     )
@@ -99,6 +101,9 @@ loadText diagramType lineNo indent input =
                     Parser.parseLinesIgnoreError indent input
 
                 SiteMap ->
+                    Parser.parseLinesIgnoreError indent input
+
+                ImpactMap ->
                     Parser.parseLinesIgnoreError indent input
 
                 _ ->
@@ -136,28 +141,27 @@ loadText diagramType lineNo indent input =
 
 
 load : Diagram -> String -> Result String ( Int, List Item )
-load diagramType t =
-    case t of
-        "" ->
-            Ok ( 0, [] )
+load diagramType text =
+    if String.isEmpty text then
+        Ok ( 0, [] )
 
-        _ ->
-            let
-                result =
-                    loadText diagramType 0 0 t
-            in
-            case result of
-                Ok ( i, loadedItems ) ->
-                    Ok
-                        ( i
-                            |> List.maximum
-                            |> Maybe.map (\x -> x - 1)
-                            |> Maybe.withDefault 0
-                        , loadedItems
-                        )
+    else
+        let
+            result =
+                loadText diagramType 0 0 text
+        in
+        case result of
+            Ok ( i, loadedItems ) ->
+                Ok
+                    ( i
+                        |> List.maximum
+                        |> Maybe.map (\x -> x - 1)
+                        |> Maybe.withDefault 0
+                    , loadedItems
+                    )
 
-                Err text ->
-                    Err text
+            Err e ->
+                Err e
 
 
 countUpToHierarchy : Int -> List Item -> List Int
@@ -302,7 +306,7 @@ view model =
           else
             Attr.style "cursor" "auto"
         ]
-        [ if model.showZoomControl then
+        [ if model.settings.zoomControl |> Maybe.withDefault model.showZoomControl then
             lazy2 zoomControl model.fullscreen model.svg.scale
 
           else
@@ -778,6 +782,20 @@ update message model =
 
         StartPinch distance ->
             ( { model | touchDistance = Just distance }, Cmd.none )
+
+        ItemClick item ->
+            ( { model | selectedItem = Just item }, Task.attempt (\_ -> NoOp) (Dom.focus "edit-item") )
+
+        DeselectItem ->
+            ( { model | selectedItem = Nothing }, Cmd.none )
+
+        EditSelectedItem text ->
+            ( { model | selectedItem = Maybe.andThen (\i -> Just { i | text = String.trim text }) model.selectedItem }
+            , Cmd.none
+            )
+
+        EndEditSelectedItem _ _ _ ->
+            ( { model | selectedItem = Nothing }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
