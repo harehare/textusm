@@ -151,7 +151,7 @@ activityView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "activity-" ++ item.text
-         , Views.cardView settings ( posX, posY ) selectedItem item
+         , Views.editableCardView settings ( posX, posY ) selectedItem item
          )
             :: (Item.unwrapChildren item.children
                     |> List.indexedMap
@@ -187,7 +187,7 @@ taskView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "task-" ++ item.text
-         , Views.cardView settings ( posX, posY ) selectedItem item
+         , Views.editableCardView settings ( posX, posY ) selectedItem item
          )
             :: (children
                     |> List.indexedMap
@@ -233,7 +233,7 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "story-" ++ item.text
-         , Views.cardView settings ( posX, posY ) selectedItem item
+         , Views.editableCardView settings ( posX, posY ) selectedItem item
          )
             :: (children
                     |> List.indexedMap

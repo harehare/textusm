@@ -129,6 +129,9 @@ menuName path =
         "gct" ->
             "Gantt Chart"
 
+        "imm" ->
+            "Impact Map"
+
         "" ->
             "All"
 

@@ -37,7 +37,6 @@ import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
 import Views.Empty as Empty
 import Views.Icon as Icon
-import Views.MiniMap as MiniMap
 
 
 init : Settings -> ( Model, Cmd Msg )
@@ -66,7 +65,6 @@ init settings =
       , diagramType = UserStoryMap
       , labels = []
       , text = Nothing
-      , showMiniMap = False
       , matchParent = False
       , windowWidth = 0
       , selectedItem = Nothing
@@ -312,7 +310,6 @@ view model =
           else
             Empty.view
         , lazy svgView model
-        , lazy miniMapView model
         ]
 
 
@@ -360,27 +357,6 @@ diagramView diagramType =
 
         ImpactMap ->
             ImpactMap.view
-
-
-miniMapView : Model -> Html Msg
-miniMapView model =
-    if model.showMiniMap && not (List.isEmpty model.items) then
-        let
-            size =
-                Utils.getCanvasSize model
-                    |> Tuple.mapFirst (\x -> String.fromInt x)
-                    |> Tuple.mapSecond (\x -> String.fromInt x)
-
-            newModel =
-                { model | x = 0, y = 0, matchParent = True }
-
-            mainSvg =
-                lazy (diagramView model.diagramType) newModel
-        in
-        lazy3 MiniMap.view model size mainSvg
-
-    else
-        Empty.view
 
 
 svgView : Model -> Svg Msg
@@ -784,18 +760,15 @@ update message model =
             ( { model | touchDistance = Just distance }, Cmd.none )
 
         ItemClick item ->
-            ( { model | selectedItem = Just item }, Task.attempt (\_ -> NoOp) (Dom.focus "edit-item") )
+            ( { model | selectedItem = Just item }, Task.attempt (\_ -> NoOp) (Dom.focus <| "edit-item-" ++ String.fromInt item.lineNo) )
 
         DeselectItem ->
             ( { model | selectedItem = Nothing }, Cmd.none )
 
         EditSelectedItem text ->
-            ( { model | selectedItem = Maybe.andThen (\i -> Just { i | text = String.trim text }) model.selectedItem }
+            ( { model | selectedItem = Maybe.andThen (\i -> Just { i | text = String.trimLeft text }) model.selectedItem }
             , Cmd.none
             )
-
-        EndEditSelectedItem _ _ _ ->
-            ( { model | selectedItem = Nothing }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

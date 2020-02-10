@@ -859,12 +859,6 @@ select {
     padding: 8px;
 }
 
-.minimap {
-    @media screen and (max-width: 480px) {
-        bottom: 55px;
-    }
-}
-
 .bottom-nav-bar {
     width: 100%;
     height: 48px;

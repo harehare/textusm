@@ -30,7 +30,6 @@ type alias Model =
     , diagramType : Diagram
     , text : Maybe String
     , matchParent : Bool
-    , showMiniMap : Bool
     , windowWidth : Int
     , selectedItem : Maybe Item
     }

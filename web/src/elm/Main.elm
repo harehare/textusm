@@ -18,7 +18,7 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy6)
 import Json.Decode as D
-import List.Extra exposing (getAt, setAt)
+import List.Extra exposing (getAt, setAt, takeWhile)
 import Maybe.Extra exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
@@ -98,7 +98,6 @@ view model =
     main_
         [ style "position" "relative"
         , style "width" "100vw"
-        , style "height" "100vh"
         , onClick CloseMenu
         ]
         [ lazy6 Header.view model.loginUser (toRoute model.url) model.title model.isEditTitle model.window.fullscreen model.openMenu
@@ -138,7 +137,7 @@ view model =
                             diagramModel =
                                 model.diagramModel
                           in
-                          lazy Diagram.view { diagramModel | showMiniMap = False }
+                          lazy Diagram.view diagramModel
                             |> Html.map UpdateDiagram
                         , lazy4 BottomNavigationBar.view model.settings diagram title path
                         ]
@@ -150,7 +149,7 @@ view model =
                             diagramModel =
                                 model.diagramModel
                          in
-                         lazy Diagram.view { diagramModel | showMiniMap = Maybe.withDefault True <| model.settings.miniMap }
+                         lazy Diagram.view diagramModel
                             |> Html.map UpdateDiagram
                         )
             ]
@@ -261,7 +260,6 @@ changeRouteTo route model =
                     { diagramModel
                         | diagramType =
                             DiagramType.fromString diagram
-                        , showMiniMap = False
                         , showZoomControl = False
                     }
             in
@@ -292,7 +290,6 @@ changeRouteTo route model =
                     { diagramModel
                         | diagramType =
                             DiagramType.fromString diagram
-                        , showMiniMap = False
                     }
             in
             ( { model
@@ -437,7 +434,10 @@ update message model =
                                 getAt item.lineNo lines
 
                             prefix =
-                                (String.indexes " " (Maybe.withDefault "" currentText)
+                                (currentText
+                                    |> Maybe.withDefault ""
+                                    |> String.toList
+                                    |> takeWhile (\c -> c == ' ')
                                     |> List.length
                                     |> String.repeat
                                 )
@@ -450,6 +450,7 @@ update message model =
                         ( { model | text = text }
                         , Cmd.batch
                             [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
+                            , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
                             , Subscriptions.loadText text
                             ]
                         )
@@ -876,8 +877,6 @@ update message model =
                         , text = Just model.text
                         , title =
                             model.title
-                        , miniMap =
-                            model.settings.miniMap
                         , editor = model.settings.editor
                         }
                 in

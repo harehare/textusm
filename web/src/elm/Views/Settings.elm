@@ -1059,26 +1059,6 @@ view dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "MiniMap" ]
-                , div [ class "input-area" ]
-                    [ label []
-                        [ input
-                            [ type_ "checkbox"
-                            , checked (Maybe.withDefault True settings.miniMap)
-                            , onClick
-                                (UpdateSettings
-                                    (\_ ->
-                                        { settings | miniMap = Maybe.map not settings.miniMap }
-                                    )
-                                    ""
-                                )
-                            ]
-                            []
-                        , text "Enabled"
-                        ]
-                    ]
-                ]
-            , div [ class "control" ]
                 [ div [ class "label" ] [ text "Zoom Control" ]
                 , div [ class "input-area" ]
                     [ label []

@@ -1,4 +1,4 @@
-module Views.Diagram.Views exposing (canvasImageView, canvasView, cardView, rectView, textView)
+module Views.Diagram.Views exposing (canvasImageView, canvasView, editableCardView, readOnlyCardView, rectView, textView)
 
 import Constants
 import Events exposing (onKeyDown)
@@ -16,8 +16,8 @@ import Svg.Events exposing (onClick)
 import Utils
 
 
-cardView : Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
-cardView settings ( posX, posY ) selectedItem item =
+cardView : Bool -> Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+cardView editable settings ( posX, posY ) selectedItem item =
     let
         ( color, backgroundColor ) =
             case item.itemType of
@@ -36,8 +36,8 @@ cardView settings ( posX, posY ) selectedItem item =
         , x (String.fromInt posX)
         , y (String.fromInt posY)
         ]
-        [ if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
-            inputView settings ( 0, 0 ) ( settings.size.width, settings.size.height ) ( color, backgroundColor ) (Maybe.withDefault Item.emptyItem selectedItem)
+        [ if editable && isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
+            inputView settings Nothing ( 0, 0 ) ( settings.size.width, settings.size.height ) ( color, backgroundColor ) (Maybe.withDefault Item.emptyItem selectedItem)
 
           else
             g
@@ -53,19 +53,28 @@ cardView settings ( posX, posY ) selectedItem item =
         ]
 
 
+readOnlyCardView : Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+readOnlyCardView settings ( posX, posY ) selectedItem item =
+    cardView False settings ( posX, posY ) selectedItem item
+
+
+editableCardView : Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+editableCardView settings ( posX, posY ) selectedItem item =
+    cardView True settings ( posX, posY ) selectedItem item
+
+
 rectView : ( Int, Int ) -> String -> Svg Msg
 rectView ( svgWidth, svgHeight ) color =
     rect
         [ width <| String.fromInt svgWidth
         , height <| String.fromInt svgHeight
         , fill color
-        , stroke "rgba(192,192,192,0.5)"
         ]
         []
 
 
-inputView : Settings -> ( Int, Int ) -> ( Int, Int ) -> ( String, String ) -> Item -> Svg Msg
-inputView settings ( posX, posY ) ( svgWidth, svgHeight ) ( colour, backgroundColor ) item =
+inputView : Settings -> Maybe String -> ( Int, Int ) -> ( Int, Int ) -> ( String, String ) -> Item -> Svg Msg
+inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, backgroundColor ) item =
     foreignObject
         [ x <| String.fromInt posX
         , y <| String.fromInt posY
@@ -79,7 +88,7 @@ inputView settings ( posX, posY ) ( svgWidth, svgHeight ) ( colour, backgroundCo
             , Attr.style "height" (String.fromInt svgHeight ++ "px")
             ]
             [ input
-                [ Attr.id "edit-item"
+                [ Attr.id <| "edit-item-" ++ String.fromInt item.lineNo
                 , Attr.type_ "text"
                 , Attr.style "padding" "8px"
                 , Attr.style "position" "absolute"
@@ -91,7 +100,7 @@ inputView settings ( posX, posY ) ( svgWidth, svgHeight ) ( colour, backgroundCo
                 , Attr.style "outline" "none"
                 , Attr.style "width" (String.fromInt (svgWidth - 16) ++ "px")
                 , Attr.style "font-family" settings.font
-                , Attr.style "font-size" ((item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) ++ "px")
+                , Attr.style "font-size" (Maybe.withDefault (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) fontSize ++ "px")
                 , Attr.value <| String.trim item.text
                 , onBlur DeselectItem
                 , onInput EditSelectedItem
@@ -133,8 +142,8 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour textOrUrl =
         ]
 
 
-canvasView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Item -> Svg Msg
-canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
+canvasView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
     let
         lines =
             Item.unwrapChildren item.children
@@ -148,7 +157,11 @@ canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
         , fill "transparent"
         ]
         [ canvasRectView settings ( svgWidth, svgHeight )
-        , titleView settings ( 10, 20 ) item.text
+        , if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
+            inputView settings (Just "20") ( 0, 0 ) ( svgWidth, settings.size.height ) ( settings.color.label, "transparent" ) (Maybe.withDefault Item.emptyItem selectedItem)
+
+          else
+            titleView settings ( 10, 20 ) item
         , canvasTextView settings ( Constants.itemWidth - 13, svgHeight ) ( 10, 35 ) lines
         ]
 
@@ -164,8 +177,8 @@ canvasRectView settings ( rectWidth, rectHeight ) =
         []
 
 
-titleView : Settings -> ( Int, Int ) -> String -> Svg Msg
-titleView settings ( posX, posY ) title =
+titleView : Settings -> ( Int, Int ) -> Item -> Svg Msg
+titleView settings ( posX, posY ) item =
     text_
         [ x <| String.fromInt posX
         , y <| String.fromInt <| posY + 14
@@ -174,8 +187,9 @@ titleView settings ( posX, posY ) title =
         , fontSize "20"
         , fontWeight "bold"
         , class ".select-none"
+        , onClick (ItemClick item)
         ]
-        [ text title ]
+        [ text item.text ]
 
 
 canvasTextView : Settings -> ( Int, Int ) -> ( Int, Int ) -> List String -> Svg Msg
@@ -225,7 +239,7 @@ canvasImageView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
         ]
         [ canvasRectView settings ( svgWidth, svgHeight )
         , imageView ( Constants.itemWidth - 5, svgHeight ) ( 5, 5 ) (lines |> List.head |> Maybe.withDefault "")
-        , titleView settings ( 10, 10 ) item.text
+        , titleView settings ( 10, 10 ) item
         ]
 
 

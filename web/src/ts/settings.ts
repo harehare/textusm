@@ -56,7 +56,6 @@ const defaultSettings = {
     position: -10,
     text: "",
     title: null,
-    miniMap: true,
     editor: {
         fontSize: 12,
         wordWrap: false,

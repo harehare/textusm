@@ -59,7 +59,7 @@ view model =
                     )
                 ]
                 [ nodesView model.settings 2 ( 0, 0 ) model.selectedItem items
-                , Views.cardView model.settings
+                , Views.editableCardView model.settings
                     ( 0, 0 )
                     model.selectedItem
                     root
@@ -133,7 +133,7 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
                         )
                         selectedItem
                         (Item.unwrapChildren item.children)
-                    , Views.cardView settings
+                    , Views.editableCardView settings
                         ( itemX, itemY )
                         selectedItem
                         item
@@ -169,4 +169,4 @@ nodeLineView settings fromBase toBase =
 
 nodeItemView : Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
 nodeItemView settings ( posX, posY ) selectedItem item =
-    Views.cardView settings ( posX, posY ) selectedItem item
+    Views.editableCardView settings ( posX, posY ) selectedItem item

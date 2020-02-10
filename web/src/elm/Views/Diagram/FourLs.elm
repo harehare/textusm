@@ -42,6 +42,7 @@ view model =
           Views.canvasView model.settings
             ( Constants.largeItemWidth, itemHeight )
             ( 0, 0 )
+            model.selectedItem
             (model.items
                 |> getAt 0
                 |> Maybe.withDefault Item.emptyItem
@@ -51,6 +52,7 @@ view model =
         , Views.canvasView model.settings
             ( Constants.largeItemWidth, itemHeight )
             ( Constants.largeItemWidth - 5, 0 )
+            model.selectedItem
             (model.items
                 |> getAt 1
                 |> Maybe.withDefault Item.emptyItem
@@ -60,6 +62,7 @@ view model =
         , Views.canvasView model.settings
             ( Constants.largeItemWidth, itemHeight + 5 )
             ( 0, itemHeight - 5 )
+            model.selectedItem
             (model.items
                 |> getAt 2
                 |> Maybe.withDefault Item.emptyItem
@@ -69,6 +72,7 @@ view model =
         , Views.canvasView model.settings
             ( Constants.largeItemWidth, itemHeight + 5 )
             ( Constants.largeItemWidth - 5, itemHeight - 5 )
+            model.selectedItem
             (model.items
                 |> getAt 3
                 |> Maybe.withDefault Item.emptyItem
