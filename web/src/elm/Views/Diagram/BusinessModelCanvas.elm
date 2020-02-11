@@ -7,6 +7,7 @@ import Models.Item as Item exposing (ItemType(..))
 import String
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (fill, transform)
+import Utils
 import Views.Diagram.Views as Views
 
 
@@ -14,7 +15,7 @@ view : Model -> Svg Msg
 view model =
     let
         itemHeight =
-            Basics.max Constants.itemHeight (14 * (List.maximum model.countByTasks |> Maybe.withDefault 0))
+            Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
     in
     g
         [ transform

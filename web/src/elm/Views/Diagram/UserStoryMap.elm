@@ -12,7 +12,7 @@ import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
 import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
 import Svg.Keyed as Keyed
-import Svg.Lazy exposing (lazy4, lazy5)
+import Svg.Lazy exposing (lazy5)
 import Views.Diagram.Views as Views
 
 

@@ -17,7 +17,7 @@ import String
 import Svg exposing (Svg, defs, g, svg, text)
 import Svg.Attributes exposing (class, height, id, viewBox, width)
 import Svg.Events exposing (onClick)
-import Svg.Lazy exposing (lazy, lazy2, lazy3)
+import Svg.Lazy exposing (lazy, lazy2)
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils

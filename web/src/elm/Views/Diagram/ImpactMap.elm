@@ -165,8 +165,3 @@ nodeLineView settings fromBase toBase =
         , strokeWidth "1.3"
         ]
         []
-
-
-nodeItemView : Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
-nodeItemView settings ( posX, posY ) selectedItem item =
-    Views.editableCardView settings ( posX, posY ) selectedItem item

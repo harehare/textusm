@@ -4,15 +4,14 @@ import Constants
 import Events exposing (onKeyDown)
 import Html exposing (div, img, input)
 import Html.Attributes as Attr
-import Html.Events exposing (onBlur, onInput)
-import List.Extra exposing (last)
+import Html.Events exposing (onBlur, onInput, stopPropagationOn)
+import Json.Decode as D
 import Maybe.Extra exposing (isJust)
-import Models.Diagram as Diagram exposing (Msg(..), Settings)
+import Models.Diagram exposing (Msg(..), Settings, settingsOfWidth)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
 import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, xlinkHref, y)
-import Svg.Events exposing (onClick)
 import Utils
 
 
@@ -41,7 +40,7 @@ cardView editable settings ( posX, posY ) selectedItem item =
 
           else
             g
-                [ onClick (ItemClick item)
+                [ onClickStopPropagation (ItemClick item)
                 ]
                 [ rectView
                     ( settings.size.width
@@ -144,11 +143,6 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour textOrUrl =
 
 canvasView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
 canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
-    let
-        lines =
-            Item.unwrapChildren item.children
-                |> List.map (\i -> i.text)
-    in
     svg
         [ width <| String.fromInt svgWidth
         , height <| String.fromInt svgHeight
@@ -162,7 +156,7 @@ canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
 
           else
             titleView settings ( 10, 20 ) item
-        , canvasTextView settings ( Constants.itemWidth - 13, svgHeight ) ( 10, 35 ) lines
+        , canvasTextView settings svgWidth ( 10, 35 ) selectedItem <| Item.unwrapChildren item.children
         ]
 
 
@@ -187,40 +181,23 @@ titleView settings ( posX, posY ) item =
         , fontSize "20"
         , fontWeight "bold"
         , class ".select-none"
-        , onClick (ItemClick item)
+        , onClickStopPropagation (ItemClick item)
         ]
         [ text item.text ]
 
 
-canvasTextView : Settings -> ( Int, Int ) -> ( Int, Int ) -> List String -> Svg Msg
-canvasTextView settings ( textWidth, textHeight ) ( posX, posY ) lines =
+canvasTextView : Settings -> Int -> ( Int, Int ) -> Maybe Item -> List Item -> Svg Msg
+canvasTextView settings svgWidth ( posX, posY ) selectedItem items =
     let
-        maxLine =
-            List.sortBy String.length lines
-                |> last
-                |> Maybe.withDefault ""
+        newSettings =
+            settings |> settingsOfWidth.set (svgWidth - Constants.itemMargin * 2)
     in
-    foreignObject
-        [ x <| String.fromInt posX
-        , y <| String.fromInt posY
-        , width <| String.fromInt textWidth
-        , height <| String.fromInt textHeight
-        , color settings.color.label
-        , fontSize <| Utils.calcFontSize textWidth maxLine
-        , fontFamily settings.font
-        , class ".select-none"
-        ]
-        (lines
-            |> List.map
-                (\line ->
-                    div
-                        [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-                        , Attr.style "word-wrap" "break-word"
-                        , Attr.style "padding" "0 8px 8px 0"
-                        , Attr.style "color" <| Diagram.getTextColor settings.color
-                        ]
-                        [ Html.text line ]
-                )
+    g []
+        (List.indexedMap
+            (\i item ->
+                editableCardView newSettings ( posX, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin ) selectedItem item
+            )
+            items
         )
 
 
@@ -258,3 +235,13 @@ imageView ( imageWidth, imageHeight ) ( posX, posY ) url =
             ]
             []
         ]
+
+
+onClickStopPropagation : msg -> Html.Attribute msg
+onClickStopPropagation msg =
+    stopPropagationOn "click" (D.map alwaysStopPropagation (D.succeed msg))
+
+
+alwaysStopPropagation : msg -> ( msg, Bool )
+alwaysStopPropagation msg =
+    ( msg, True )
