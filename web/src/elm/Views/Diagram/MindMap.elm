@@ -79,7 +79,7 @@ view model =
                 ]
                 [ nodesView model.settings 2 ( 0, 0 ) Left model.selectedItem left
                 , nodesView model.settings 2 ( 0, 0 ) Right model.selectedItem right
-                , Views.editableCardView model.settings
+                , Views.cardView model.settings
                     ( 0, 0 )
                     model.selectedItem
                     root
@@ -159,7 +159,7 @@ nodesView settings hierarchy ( x, y ) direction selectedItem items =
                         direction
                         selectedItem
                         (Item.unwrapChildren item.children)
-                    , Views.editableCardView settings
+                    , Views.cardView settings
                         ( itemX, itemY )
                         selectedItem
                         item

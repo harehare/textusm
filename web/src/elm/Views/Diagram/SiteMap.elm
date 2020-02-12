@@ -43,7 +43,7 @@ view model =
                     )
                 ]
                 [ siteView model.settings ( 0, Constants.itemSpan + model.settings.size.height ) model.selectedItem items
-                , Views.editableCardView model.settings ( 0, 0 ) model.selectedItem root
+                , Views.cardView model.settings ( 0, 0 ) model.selectedItem root
                 ]
 
         Nothing ->
@@ -76,7 +76,7 @@ siteView settings ( posX, posY ) selectedItem items =
                                 + hierarchyCount
                                 * Constants.itemSpan
                     in
-                    [ Views.editableCardView settings
+                    [ Views.cardView settings
                         ( x
                         , posY
                         )
@@ -127,7 +127,7 @@ siteTreeView settings ( posX, posY ) selectedItem items =
                             posY + i * (settings.size.height + Constants.itemSpan) + childrenCount * (settings.size.height + Constants.itemSpan)
                     in
                     [ siteTreeLineView settings ( posX, posY - Constants.itemSpan ) ( posX, y )
-                    , Views.editableCardView settings
+                    , Views.cardView settings
                         ( x
                         , y
                         )

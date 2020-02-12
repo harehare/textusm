@@ -35,19 +35,24 @@ view model =
             []
 
          else
-            headerView model.settings model.selectedItem model.items
-                ++ rowView model.settings
-                    model.selectedItem
-                    (model.items
-                        |> List.head
-                        |> Maybe.withDefault Item.emptyItem
-                        |> .children
-                        |> Item.unwrapChildren
+            headerView model.settings
+                model.selectedItem
+                (model.items
+                    |> List.head
+                    |> Maybe.withDefault Item.emptyItem
+                    |> .children
+                    |> Item.unwrapChildren
+                )
+                ++ ((model.items
+                        |> List.tail
+                        |> Maybe.withDefault []
                     )
-                ++ (model.items
                         |> List.indexedMap
                             (\i item ->
-                                columnView model.settings (i + 1) model.selectedItem (Item.unwrapChildren item.children)
+                                rowView model.settings
+                                    model.selectedItem
+                                    (i + 1)
+                                    item
                             )
                         |> List.concat
                    )
@@ -56,41 +61,27 @@ view model =
 
 headerView : Settings -> Maybe Item -> List Item -> List (Svg Msg)
 headerView settings selectedItem items =
-    Views.readOnlyCardView settings ( 0, 0 ) selectedItem Item.emptyItem
+    Views.cardView settings ( 0, 0 ) selectedItem Item.emptyItem
         :: List.indexedMap
             (\i item ->
-                Views.readOnlyCardView settings ( settings.size.width * (i + 1), 0 ) selectedItem item
+                Views.cardView settings ( settings.size.width * (i + 1), 0 ) selectedItem { item | itemType = Activities }
             )
             items
 
 
-rowView : Settings -> Maybe Item -> List Item -> List (Svg Msg)
-rowView settings selectedItem items =
-    List.indexedMap
-        (\i item ->
-            Views.readOnlyCardView
-                settings
-                ( 0, settings.size.height * (i + 1) )
-                selectedItem
-                item
-        )
-        items
-
-
-columnView : Settings -> Int -> Maybe Item -> List Item -> List (Svg Msg)
-columnView settings index selectedItem items =
-    List.indexedMap
-        (\i item ->
-            let
-                text =
-                    Item.unwrapChildren item.children
-                        |> List.map (\ii -> ii.text)
-                        |> String.join "\n"
-            in
-            Views.readOnlyCardView
-                settings
-                ( settings.size.width * index, settings.size.height * (i + 1) )
-                selectedItem
-                { item | text = text, itemType = Stories 1 }
-        )
-        items
+rowView : Settings -> Maybe Item -> Int -> Item -> List (Svg Msg)
+rowView settings selectedItem rowNo item =
+    Views.cardView
+        settings
+        ( 0, settings.size.height * rowNo )
+        selectedItem
+        { item | itemType = Tasks }
+        :: List.indexedMap
+            (\i childItem ->
+                Views.cardView
+                    settings
+                    ( settings.size.width * (i + 1), settings.size.height * rowNo )
+                    selectedItem
+                    { childItem | itemType = Stories 1 }
+            )
+            (item.children |> Item.unwrapChildren)

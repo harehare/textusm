@@ -1,4 +1,4 @@
-module Views.Diagram.Views exposing (canvasImageView, canvasView, editableCardView, readOnlyCardView, rectView, textView)
+module Views.Diagram.Views exposing (canvasImageView, canvasView, cardView, rectView, textView)
 
 import Constants
 import Events exposing (onKeyDown)
@@ -15,8 +15,8 @@ import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWe
 import Utils
 
 
-cardView : Bool -> Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
-cardView editable settings ( posX, posY ) selectedItem item =
+cardView : Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+cardView settings ( posX, posY ) selectedItem item =
     let
         ( color, backgroundColor ) =
             case item.itemType of
@@ -35,7 +35,7 @@ cardView editable settings ( posX, posY ) selectedItem item =
         , x (String.fromInt posX)
         , y (String.fromInt posY)
         ]
-        [ if editable && isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
+        [ if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
             inputView settings Nothing ( 0, 0 ) ( settings.size.width, settings.size.height ) ( color, backgroundColor ) (Maybe.withDefault Item.emptyItem selectedItem)
 
           else
@@ -50,16 +50,6 @@ cardView editable settings ( posX, posY ) selectedItem item =
                 , textView settings ( 0, 0 ) ( settings.size.width, settings.size.height ) color item.text
                 ]
         ]
-
-
-readOnlyCardView : Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
-readOnlyCardView settings ( posX, posY ) selectedItem item =
-    cardView False settings ( posX, posY ) selectedItem item
-
-
-editableCardView : Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
-editableCardView settings ( posX, posY ) selectedItem item =
-    cardView True settings ( posX, posY ) selectedItem item
 
 
 rectView : ( Int, Int ) -> String -> Svg Msg
@@ -100,7 +90,7 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
                 , Attr.style "width" (String.fromInt (svgWidth - 16) ++ "px")
                 , Attr.style "font-family" settings.font
                 , Attr.style "font-size" (Maybe.withDefault (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) fontSize ++ "px")
-                , Attr.value <| String.trim item.text
+                , Attr.value <| String.trimLeft item.text
                 , onBlur DeselectItem
                 , onInput EditSelectedItem
                 , onKeyDown <| EndEditSelectedItem item
@@ -195,7 +185,7 @@ canvasTextView settings svgWidth ( posX, posY ) selectedItem items =
     g []
         (List.indexedMap
             (\i item ->
-                editableCardView newSettings ( posX, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin ) selectedItem item
+                cardView newSettings ( posX, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin ) selectedItem item
             )
             items
         )
