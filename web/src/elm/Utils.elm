@@ -381,8 +381,8 @@ getCanvasSize model =
                     )
 
                 Diagram.CustomerJourneyMap ->
-                    ( model.settings.size.width * (List.length model.items + 1)
-                    , model.settings.size.height * ((model.items |> List.head |> Maybe.withDefault Item.emptyItem |> .children |> Item.unwrapChildren |> List.length) + 1) + Constants.itemMargin
+                    ( model.settings.size.width * ((model.items |> List.head |> Maybe.withDefault Item.emptyItem |> .children |> Item.unwrapChildren |> List.length) + 1)
+                    , model.settings.size.height * List.length model.items + Constants.itemMargin
                     )
 
                 Diagram.SiteMap ->
