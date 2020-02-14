@@ -12,7 +12,7 @@ require (
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-siris/siris v7.4.0+incompatible // indirect
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/google/go-github/v25 v25.0.4
+	github.com/google/go-github/v25 v25.1.3
 	github.com/gorilla/mux v1.7.2
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
