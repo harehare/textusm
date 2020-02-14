@@ -36,7 +36,14 @@ cardView settings ( posX, posY ) selectedItem item =
         , y (String.fromInt posY)
         ]
         [ if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
-            inputView settings Nothing ( 0, 0 ) ( settings.size.width, settings.size.height ) ( color, backgroundColor ) (Maybe.withDefault Item.emptyItem selectedItem)
+            g []
+                [ rectView
+                    ( settings.size.width
+                    , settings.size.height - 1
+                    )
+                    backgroundColor
+                , inputView settings Nothing ( 0, 0 ) ( settings.size.width, settings.size.height ) ( color, backgroundColor ) (Maybe.withDefault Item.emptyItem selectedItem)
+                ]
 
           else
             g
@@ -70,33 +77,24 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
         , width <| String.fromInt svgWidth
         , height <| String.fromInt svgHeight
         ]
-        [ div
-            [ Attr.style "background-color" backgroundColor
-            , Attr.style "position" "relative"
-            , Attr.style "width" (String.fromInt svgWidth ++ "px")
-            , Attr.style "height" (String.fromInt svgHeight ++ "px")
+        [ input
+            [ Attr.id "edit-item"
+            , Attr.type_ "text"
+            , Attr.style "padding" "8px"
+            , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+            , Attr.style "color" colour
+            , Attr.style "background-color" backgroundColor
+            , Attr.style "border" "none"
+            , Attr.style "outline" "none"
+            , Attr.style "width" (String.fromInt (svgWidth - 16) ++ "px")
+            , Attr.style "font-family" settings.font
+            , Attr.style "font-size" (Maybe.withDefault (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) fontSize ++ "px")
+            , Attr.value <| String.trimLeft item.text
+            , onBlur DeselectItem
+            , onInput EditSelectedItem
+            , onKeyDown <| EndEditSelectedItem item
             ]
-            [ input
-                [ Attr.id <| "edit-item-" ++ String.fromInt item.lineNo
-                , Attr.type_ "text"
-                , Attr.style "padding" "8px"
-                , Attr.style "position" "absolute"
-                , Attr.style "top" "0"
-                , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-                , Attr.style "color" colour
-                , Attr.style "background-color" backgroundColor
-                , Attr.style "border" "none"
-                , Attr.style "outline" "none"
-                , Attr.style "width" (String.fromInt (svgWidth - 16) ++ "px")
-                , Attr.style "font-family" settings.font
-                , Attr.style "font-size" (Maybe.withDefault (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) fontSize ++ "px")
-                , Attr.value <| String.trimLeft item.text
-                , onBlur DeselectItem
-                , onInput EditSelectedItem
-                , onKeyDown <| EndEditSelectedItem item
-                ]
-                []
-            ]
+            []
         ]
 
 

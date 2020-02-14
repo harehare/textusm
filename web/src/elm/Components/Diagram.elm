@@ -12,6 +12,7 @@ import List.Extra exposing (getAt, scanl, unique)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import Parser
+import Process
 import Result exposing (andThen)
 import String
 import Svg exposing (Svg, defs, g, svg, text)
@@ -760,7 +761,7 @@ update message model =
             ( { model | touchDistance = Just distance }, Cmd.none )
 
         ItemClick item ->
-            ( { model | selectedItem = Just item }, Task.attempt (\_ -> NoOp) (Dom.focus <| "edit-item-" ++ String.fromInt item.lineNo) )
+            ( { model | selectedItem = Just item }, Task.attempt (\_ -> NoOp) (Dom.focus "edit-item") )
 
         DeselectItem ->
             ( { model | selectedItem = Nothing }, Cmd.none )
