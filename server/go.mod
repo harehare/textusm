@@ -33,7 +33,7 @@ require (
 	github.com/urfave/cli v1.22.2 // indirect
 	github.com/urfave/negroni v1.0.0
 	github.com/vektah/dataloaden v0.3.0 // indirect
-	github.com/vektah/gqlparser v1.2.1
+	github.com/vektah/gqlparser v1.3.1
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sys v0.0.0-20190621203818-d432491b9138 // indirect
 	golang.org/x/tools v0.0.0-20200117065230-39095c1d176c // indirect
