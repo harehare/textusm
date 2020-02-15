@@ -9,7 +9,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/eminetto/clean-architecture-go v0.0.0-20191219160450-d9c68a5a2e98 // indirect
 	github.com/fatih/color v1.7.0 // indirect
-	github.com/gin-gonic/gin v1.4.0
+	github.com/gin-gonic/gin v1.5.0
 	github.com/go-siris/siris v7.4.0+incompatible // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v25 v25.0.4
