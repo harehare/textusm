@@ -16,6 +16,7 @@ defaultSettings =
         , height = 65
         }
     , backgroundColor = "#F5F5F6"
+    , zoomControl = Just True
     , color =
         { activity =
             { color = "#FFFFFF"

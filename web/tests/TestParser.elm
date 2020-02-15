@@ -1,7 +1,6 @@
 module TestParser exposing (parserTest)
 
-import Expect exposing (Expectation)
-import Fuzz exposing (Fuzzer, int, list, string)
+import Expect
 import Models.Diagram exposing (..)
 import Parser exposing (..)
 import Test exposing (..)
