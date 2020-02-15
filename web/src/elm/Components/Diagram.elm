@@ -12,11 +12,10 @@ import List.Extra exposing (getAt, scanl, unique)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import Parser
-import Process
 import Result exposing (andThen)
 import String
-import Svg exposing (Svg, defs, g, svg, text)
-import Svg.Attributes exposing (class, height, id, viewBox, width)
+import Svg exposing (Svg, defs, feComponentTransfer, feFuncA, feGaussianBlur, feMerge, feMergeNode, feOffset, filter, g, svg, text)
+import Svg.Attributes exposing (class, dx, dy, height, id, in_, result, slope, stdDeviation, type_, viewBox, width)
 import Svg.Events exposing (onClick)
 import Svg.Lazy exposing (lazy, lazy2)
 import Task
@@ -437,6 +436,19 @@ svgView model =
                     []
                     [ text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ]
                 ]
+        , defs []
+            [ filter [ id "shadow", height "130%" ]
+                [ feGaussianBlur [ in_ "SourceAlpha", stdDeviation "3" ] []
+                , feOffset [ dx "2", dy "2", result "offsetblur" ] []
+                , feComponentTransfer []
+                    [ feFuncA [ type_ "linear", slope "0.5" ] []
+                    ]
+                , feMerge []
+                    [ feMergeNode [] []
+                    , feMergeNode [ in_ "SourceGraphic" ] []
+                    ]
+                ]
+            ]
         , mainSvg
         ]
 
@@ -761,15 +773,17 @@ update message model =
             ( { model | touchDistance = Just distance }, Cmd.none )
 
         ItemClick item ->
-            ( { model | selectedItem = Just item }, Task.attempt (\_ -> NoOp) (Dom.focus "edit-item") )
-
-        DeselectItem ->
-            ( { model | selectedItem = Nothing }, Cmd.none )
+            ( { model | selectedItem = Just item }
+            , Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
+            )
 
         EditSelectedItem text ->
             ( { model | selectedItem = Maybe.andThen (\i -> Just { i | text = String.trimLeft text }) model.selectedItem }
             , Cmd.none
             )
+
+        DeselectItem ->
+            ( { model | selectedItem = Nothing }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

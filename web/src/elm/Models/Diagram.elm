@@ -95,8 +95,8 @@ type Msg
     | OnResize Int Int
     | StartPinch Float
     | ItemClick Item
-    | ItemDblClick Item
     | DeselectItem
+    | ItemDblClick Item
     | EditSelectedItem String
     | EndEditSelectedItem Item Int Bool
 

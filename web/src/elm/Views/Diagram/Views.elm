@@ -1,17 +1,17 @@
-module Views.Diagram.Views exposing (canvasImageView, canvasView, cardView, rectView, textView)
+module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, rectView, textView)
 
 import Constants
 import Events exposing (onKeyDown)
 import Html exposing (div, img, input)
 import Html.Attributes as Attr
-import Html.Events exposing (onBlur, onInput, stopPropagationOn)
+import Html.Events exposing (onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Models.Diagram exposing (Msg(..), Settings, settingsOfWidth)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
-import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, xlinkHref, y)
+import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, style, width, x, xlinkHref, y)
 import Utils
 
 
@@ -29,42 +29,55 @@ cardView settings ( posX, posY ) selectedItem item =
                 _ ->
                     ( settings.color.story.color, settings.color.story.backgroundColor )
     in
-    svg
-        [ width (String.fromInt settings.size.width)
-        , height (String.fromInt settings.size.height)
-        , x (String.fromInt posX)
-        , y (String.fromInt posY)
-        ]
-        [ if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
-            g []
-                [ rectView
-                    ( settings.size.width
-                    , settings.size.height - 1
-                    )
-                    backgroundColor
-                , inputView settings Nothing ( 0, 0 ) ( settings.size.width, settings.size.height ) ( color, backgroundColor ) (Maybe.withDefault Item.emptyItem selectedItem)
-                ]
+    if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
+        g []
+            [ selectedRectView
+                ( posX, posY )
+                ( settings.size.width
+                , settings.size.height - 1
+                )
+                backgroundColor
+            , inputView settings Nothing ( posX, posY ) ( settings.size.width, settings.size.height ) ( color, backgroundColor ) (Maybe.withDefault Item.emptyItem selectedItem)
+            ]
 
-          else
-            g
-                [ onClickStopPropagation (ItemClick item)
-                ]
-                [ rectView
-                    ( settings.size.width
-                    , settings.size.height - 1
-                    )
-                    backgroundColor
-                , textView settings ( 0, 0 ) ( settings.size.width, settings.size.height ) color item.text
-                ]
-        ]
+    else
+        g
+            [ onClickStopPropagation (ItemClick item)
+            ]
+            [ rectView
+                ( posX, posY )
+                ( settings.size.width
+                , settings.size.height - 1
+                )
+                backgroundColor
+            , textView settings ( posX, posY ) ( settings.size.width, settings.size.height ) color item.text
+            ]
 
 
-rectView : ( Int, Int ) -> String -> Svg Msg
-rectView ( svgWidth, svgHeight ) color =
+rectView : ( Int, Int ) -> ( Int, Int ) -> String -> Svg Msg
+rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
     rect
         [ width <| String.fromInt svgWidth
         , height <| String.fromInt svgHeight
+        , x (String.fromInt posX)
+        , y (String.fromInt posY)
         , fill color
+        , style "filter:url(#shadow)"
+        ]
+        []
+
+
+selectedRectView : ( Int, Int ) -> ( Int, Int ) -> String -> Svg Msg
+selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
+    rect
+        [ width <| String.fromInt svgWidth
+        , height <| String.fromInt svgHeight
+        , x (String.fromInt posX)
+        , y (String.fromInt posY)
+        , strokeWidth "3"
+        , stroke "#428BCA"
+        , fill color
+        , style "filter:url(#shadow)"
         ]
         []
 
@@ -77,24 +90,31 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
         , width <| String.fromInt svgWidth
         , height <| String.fromInt svgHeight
         ]
-        [ input
-            [ Attr.id "edit-item"
-            , Attr.type_ "text"
-            , Attr.style "padding" "8px"
-            , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-            , Attr.style "color" colour
-            , Attr.style "background-color" backgroundColor
-            , Attr.style "border" "none"
-            , Attr.style "outline" "none"
-            , Attr.style "width" (String.fromInt (svgWidth - 16) ++ "px")
-            , Attr.style "font-family" settings.font
-            , Attr.style "font-size" (Maybe.withDefault (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) fontSize ++ "px")
-            , Attr.value <| String.trimLeft item.text
-            , onBlur DeselectItem
-            , onInput EditSelectedItem
-            , onKeyDown <| EndEditSelectedItem item
+        [ div
+            [ Attr.style "background-color" "transparent"
+            , Attr.style "width" (String.fromInt svgWidth ++ "px")
+            , Attr.style "height" (String.fromInt svgHeight ++ "px")
             ]
-            []
+            [ input
+                [ Attr.id "edit-item"
+                , Attr.type_ "text"
+                , Attr.style "padding" "8px"
+                , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+                , Attr.style "color" colour
+                , Attr.style "background-color" backgroundColor
+                , Attr.style "border" "none"
+                , Attr.style "outline" "none"
+                , Attr.style "width" (String.fromInt (svgWidth - 20) ++ "px")
+                , Attr.style "font-family" settings.font
+                , Attr.style "font-size" (Maybe.withDefault (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) fontSize ++ "px")
+                , Attr.style "margin-left" "2px"
+                , Attr.style "margin-top" "2px"
+                , Attr.value <| String.trimLeft item.text
+                , onInput EditSelectedItem
+                , onKeyDown <| EndEditSelectedItem item
+                ]
+                []
+            ]
         ]
 
 
@@ -143,8 +163,27 @@ canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
             inputView settings (Just "20") ( 0, 0 ) ( svgWidth, settings.size.height ) ( settings.color.label, "transparent" ) (Maybe.withDefault Item.emptyItem selectedItem)
 
           else
-            titleView settings ( 10, 20 ) item
-        , canvasTextView settings svgWidth ( 10, 35 ) selectedItem <| Item.unwrapChildren item.children
+            titleView settings ( 20, 20 ) item
+        , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren item.children
+        ]
+
+
+canvasBottomView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+canvasBottomView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
+    svg
+        [ width <| String.fromInt svgWidth
+        , height <| String.fromInt svgHeight
+        , x <| String.fromInt posX
+        , y <| String.fromInt posY
+        , fill "transparent"
+        ]
+        [ canvasRectView settings ( svgWidth, svgHeight )
+        , if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
+            inputView settings (Just <| String.fromInt <| svgHeight - 25) ( 0, 0 ) ( svgWidth, settings.size.height ) ( settings.color.label, "transparent" ) (Maybe.withDefault Item.emptyItem selectedItem)
+
+          else
+            titleView settings ( 20, svgHeight - 25 ) item
+        , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren item.children
         ]
 
 
