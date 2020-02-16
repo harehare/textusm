@@ -1,6 +1,6 @@
 {
   "name": "textusm",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Generate a User Story Map from indented text.",
   "main": "dist/index.js",
   "scripts": {

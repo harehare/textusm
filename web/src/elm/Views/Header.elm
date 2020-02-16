@@ -1,8 +1,9 @@
 module Views.Header exposing (view)
 
-import Html exposing (Attribute, Html, a, div, header, img, input, span, text)
+import Events exposing (onKeyDown)
+import Html exposing (Html, a, div, header, img, input, span, text)
 import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, value)
-import Html.Events exposing (keyCode, on, onBlur, onClick, onInput, stopPropagationOn)
+import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Models.Model exposing (LoginProvider(..), Menu(..), Msg(..))
@@ -196,13 +197,3 @@ logo =
         , style "align-items" "center"
         ]
         [ a [ href "/" ] [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ] ]
-
-
-onKeyDown : (Int -> Bool -> msg) -> Attribute msg
-onKeyDown tagger =
-    on "keydown" (D.map2 tagger keyCode isComposing)
-
-
-isComposing : D.Decoder Bool
-isComposing =
-    D.field "isComposing" D.bool

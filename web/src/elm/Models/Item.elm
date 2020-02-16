@@ -41,7 +41,7 @@ emptyItem =
 
 unwrapChildren : Children -> List Item
 unwrapChildren (Children items) =
-    items
+    items |> List.filter (\i -> i.itemType /= Comments)
 
 
 getChildrenCount : Item -> Int

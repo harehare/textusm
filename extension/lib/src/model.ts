@@ -129,11 +129,7 @@ interface Schedule {
 }
 
 export interface CustomerJourneyMap {
-  items: CustomerJourneyItem[];
-}
-
-interface CustomerJourneyItem {
-  title: string;
+  header: CanvasItem;
   items: CanvasItem[];
 }
 
@@ -344,19 +340,14 @@ function empathyMapCanvas2Text(empathyMap: EmpathyMap): string {
 function customerJourneyMap2Text(
   customerJourneyMap: CustomerJourneyMap
 ): string {
-  return customerJourneyMap.items
-    .map(
-      item =>
-        `${item.title}\n${item.items
-          .map(
-            child =>
-              `    ${child.title}${
-                child.text.length > 0 ? "\n" : ""
-              }${child.text.map(c => `        ${c}`).join("\n")}`
-          )
-          .join("\n")}`
-    )
+  const header = `${
+    customerJourneyMap.header.title
+  }\n${customerJourneyMap.header.text.map(t => `    ${t}`).join("\n")}`;
+  const items = customerJourneyMap.items
+    .map(item => `${item.title}\n${item.text.map(t => `    ${t}`).join("\n")}`)
     .join("\n");
+
+  return `${header}\n${items}`;
 }
 
 function ganttchart2Text(ganttChart: GanttChart): string {

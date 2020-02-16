@@ -50,12 +50,12 @@ const defaultSettings = {
             label: "#8C9FAE",
             text: "#111111"
         },
-        backgroundColor: "#F4F4F5"
+        backgroundColor: "#F4F4F5",
+        zoomControl: true
     },
     position: -10,
     text: "",
     title: null,
-    miniMap: true,
     editor: {
         fontSize: 12,
         wordWrap: false,

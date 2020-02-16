@@ -4,8 +4,8 @@ import Dict
 import Dict.Extra as DictEx
 import GraphQL.Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import GraphQL.Request as Request
-import Html exposing (Html, div, input, span, text)
-import Html.Attributes exposing (class, placeholder, style)
+import Html exposing (Html, div, img, input, span, text)
+import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust, isNothing)
@@ -128,6 +128,9 @@ menuName path =
 
         "gct" ->
             "Gantt Chart"
+
+        "imm" ->
+            "Impact Map"
 
         "" ->
             "All"
@@ -266,7 +269,9 @@ view model =
                     , style "color" "#8C9FAE"
                     , style "font-size" "1.5rem"
                     ]
-                    [ div [ style "margin-bottom" "8px" ] [ text "LOADING..." ]
+                    [ div [ style "margin-bottom" "8px" ]
+                        [ img [ src "/images/loading.svg", style "width" "128px", alt "LOADING..." ] []
+                        ]
                     ]
                 ]
 

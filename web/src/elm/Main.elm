@@ -18,6 +18,7 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy6)
 import Json.Decode as D
+import List.Extra exposing (getAt, setAt, takeWhile)
 import Maybe.Extra exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
@@ -97,7 +98,6 @@ view model =
     main_
         [ style "position" "relative"
         , style "width" "100vw"
-        , style "height" "100vh"
         , onClick CloseMenu
         ]
         [ lazy6 Header.view model.loginUser (toRoute model.url) model.title model.isEditTitle model.window.fullscreen model.openMenu
@@ -137,7 +137,7 @@ view model =
                             diagramModel =
                                 model.diagramModel
                           in
-                          lazy Diagram.view { diagramModel | showMiniMap = False }
+                          lazy Diagram.view diagramModel
                             |> Html.map UpdateDiagram
                         , lazy4 BottomNavigationBar.view model.settings diagram title path
                         ]
@@ -149,7 +149,7 @@ view model =
                             diagramModel =
                                 model.diagramModel
                          in
-                         lazy Diagram.view { diagramModel | showMiniMap = Maybe.withDefault True <| model.settings.miniMap }
+                         lazy Diagram.view diagramModel
                             |> Html.map UpdateDiagram
                         )
             ]
@@ -260,7 +260,6 @@ changeRouteTo route model =
                     { diagramModel
                         | diagramType =
                             DiagramType.fromString diagram
-                        , showMiniMap = False
                         , showZoomControl = False
                     }
             in
@@ -291,7 +290,6 @@ changeRouteTo route model =
                     { diagramModel
                         | diagramType =
                             DiagramType.fromString diagram
-                        , showMiniMap = False
                     }
             in
             ( { model
@@ -418,15 +416,76 @@ update message model =
 
         UpdateDiagram subMsg ->
             case subMsg of
-                DiagramModel.ItemClick item ->
-                    ( model, Subscriptions.selectLine (item.lineNo + 1) )
-
                 DiagramModel.OnResize _ _ ->
                     let
                         ( model_, cmd_ ) =
                             Diagram.update subMsg model.diagramModel
                     in
                     ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor ) ] )
+
+                DiagramModel.MoveItem ( fromNo, toNo ) ->
+                    let
+                        lines =
+                            model.text
+                                |> String.lines
+
+                        from =
+                            getAt fromNo lines
+                                |> Maybe.withDefault ""
+
+                        fromPrefix =
+                            Utils.getSpacePrefix from
+
+                        to =
+                            getAt toNo lines
+                                |> Maybe.withDefault ""
+
+                        toPrefix =
+                            Utils.getSpacePrefix to
+
+                        text =
+                            lines
+                                |> setAt fromNo (fromPrefix ++ String.trimLeft to)
+                                |> setAt toNo (toPrefix ++ String.trimLeft from)
+                                |> String.join "\n"
+                    in
+                    ( { model | text = text }
+                        , Cmd.batch
+                            [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
+                            , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
+                            , Subscriptions.loadText text
+                            ]
+                        )
+
+                DiagramModel.EndEditSelectedItem item code isComposing ->
+                    if code == 13 && not isComposing then
+                        let
+                            lines =
+                                model.text
+                                    |> String.lines
+
+                            currentText =
+                                getAt item.lineNo lines
+
+                            prefix =
+                                currentText
+                                    |> Maybe.withDefault ""
+                                    |> Utils.getSpacePrefix
+
+                            text =
+                                setAt item.lineNo (prefix ++ String.trimLeft item.text) lines
+                                    |> String.join "\n"
+                        in
+                        ( { model | text = text }
+                        , Cmd.batch
+                            [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
+                            , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
+                            , Subscriptions.loadText text
+                            ]
+                        )
+
+                    else
+                        ( model, Cmd.none )
 
                 DiagramModel.ToggleFullscreen ->
                     let
@@ -847,8 +906,6 @@ update message model =
                         , text = Just model.text
                         , title =
                             model.title
-                        , miniMap =
-                            model.settings.miniMap
                         , editor = model.settings.editor
                         }
                 in
@@ -1053,10 +1110,10 @@ update message model =
                             ( "", Route.ImpactMap )
 
                         Diagram.EmpathyMap ->
-                            ( "https://app.textusm.com/images/logo.svg\nSAYS\nTHINKS\nDOES\nFEELS", Route.EmpathyMap )
+                            ( "SAYS\nTHINKS\nDOES\nFEELS", Route.EmpathyMap )
 
                         Diagram.CustomerJourneyMap ->
-                            ( "Discover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n", Route.CustomerJourneyMap )
+                            ( "Header\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDiscover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n", Route.CustomerJourneyMap )
 
                         Diagram.SiteMap ->
                             ( "", Route.SiteMap )

@@ -1,12 +1,12 @@
 module Views.Settings exposing (view)
 
 import Html exposing (Html, div, input, label, text)
-import Html.Attributes exposing (checked, class, style, type_, value)
+import Html.Attributes exposing (checked, class, style, type_)
 import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Msg(..))
-import Models.Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap)
-import Views.DropDownList as DropDownList exposing(DropDownValue)
+import Models.Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
+import Views.DropDownList as DropDownList exposing (DropDownValue)
 
 
 baseColorItems : List { name : String, value : DropDownValue }
@@ -38,6 +38,7 @@ baseSizeItems =
                 { name = String.fromInt <| 50 + i * 5, value = DropDownList.stringValue <| String.fromInt <| 50 + i * 5 }
             )
 
+
 fontSizeItems : List { name : String, value : DropDownValue }
 fontSizeItems =
     [ { name = "8", value = DropDownList.stringValue "8" }
@@ -51,7 +52,6 @@ fontSizeItems =
     , { name = "32", value = DropDownList.stringValue "32" }
     , { name = "40", value = DropDownList.stringValue "40" }
     ]
-
 
 
 fontFamilyItems : List { name : String, value : DropDownValue }
@@ -1059,18 +1059,15 @@ view dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "MiniMap" ]
+                [ div [ class "label" ] [ text "Zoom Control" ]
                 , div [ class "input-area" ]
                     [ label []
                         [ input
-                            [ value settings.storyMap.backgroundColor
-                            , type_ "checkbox"
-                            , checked (Maybe.withDefault True settings.miniMap)
+                            [ type_ "checkbox"
+                            , checked (Maybe.withDefault True settings.storyMap.zoomControl)
                             , onClick
                                 (UpdateSettings
-                                    (\_ ->
-                                        { settings | miniMap = Maybe.map not settings.miniMap }
-                                    )
+                                    (\_ -> settings |> settingsOfZoomControl.set (Maybe.map not settings.storyMap.zoomControl))
                                     ""
                                 )
                             ]
@@ -1087,8 +1084,7 @@ view dropDownIndex settings =
                 , div [ class "input-area" ]
                     [ label []
                         [ input
-                            [ value settings.storyMap.backgroundColor
-                            , type_ "checkbox"
+                            [ type_ "checkbox"
                             , checked
                                 (settings.editor |> defaultEditorSettings |> .showLineNumber)
                             , onClick
@@ -1107,8 +1103,7 @@ view dropDownIndex settings =
                 , div [ class "input-area" ]
                     [ label []
                         [ input
-                            [ value settings.storyMap.backgroundColor
-                            , type_ "checkbox"
+                            [ type_ "checkbox"
                             , checked
                                 (settings.editor |> defaultEditorSettings |> .wordWrap)
                             , onClick

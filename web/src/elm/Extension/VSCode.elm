@@ -6,7 +6,9 @@ import Components.Diagram as Diagram
 import Html exposing (Html, div)
 import Html.Attributes exposing (class, style)
 import Html.Lazy exposing (lazy)
+import Html5.DragDrop as DragDrop
 import Json.Decode as D
+import List.Extra exposing (getAt, setAt, takeWhile)
 import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
 import Task
@@ -38,7 +40,6 @@ type alias InitData =
     , textColor : String
     , labelColor : String
     , diagramType : String
-    , showMiniMap : Bool
     }
 
 
@@ -68,7 +69,9 @@ init flags =
             , moveY = 0
             , fullscreen = False
             , showZoomControl = True
+            , selectedItem = Nothing
             , diagramType = DiagramType.fromString flags.diagramType
+            , dragDrop = DragDrop.init
             , settings =
                 { font = flags.fontName
                 , size =
@@ -76,6 +79,7 @@ init flags =
                     , height = 65
                     }
                 , backgroundColor = flags.backgroundColor
+                , zoomControl = Just True
                 , color =
                     { activity =
                         { color = flags.activityColor
@@ -97,7 +101,6 @@ init flags =
             , error = Nothing
             , touchDistance = Nothing
             , labels = []
-            , showMiniMap = flags.showMiniMap
             , text = Nothing
             , matchParent = False
             }
@@ -144,6 +147,75 @@ update message model =
     case message of
         UpdateDiagram subMsg ->
             case subMsg of
+                DiagramModel.EndEditSelectedItem item code isComposing ->
+                    if code == 13 && not isComposing then
+                        let
+                            lines =
+                                model.text
+                                    |> String.lines
+
+                            currentText =
+                                getAt item.lineNo lines
+
+                            prefix =
+                                (currentText
+                                    |> Maybe.withDefault ""
+                                    |> String.toList
+                                    |> takeWhile (\c -> c == ' ')
+                                    |> List.length
+                                    |> String.repeat
+                                )
+                                    " "
+
+                            text =
+                                setAt item.lineNo (prefix ++ String.trimLeft item.text) lines
+                                    |> String.join "\n"
+                        in
+                        ( { model | text = text }
+                        , Cmd.batch
+                            [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
+                            , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
+                            , setText text
+                            ]
+                        )
+
+                    else
+                        ( model, Cmd.none )
+
+                DiagramModel.MoveItem ( fromNo, toNo ) ->
+                    let
+                        lines =
+                            model.text
+                                |> String.lines
+
+                        from =
+                            getAt fromNo lines
+                                |> Maybe.withDefault ""
+
+                        fromPrefix =
+                            Utils.getSpacePrefix from
+
+                        to =
+                            getAt toNo lines
+                                |> Maybe.withDefault ""
+
+                        toPrefix =
+                            Utils.getSpacePrefix to
+
+                        text =
+                            lines
+                                |> setAt fromNo (fromPrefix ++ String.trimLeft to)
+                                |> setAt toNo (toPrefix ++ String.trimLeft from)
+                                |> String.join "\n"
+                    in
+                    ( { model | text = text }
+                    , Cmd.batch
+                        [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
+                        , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
+                        , setText text
+                        ]
+                    )
+
                 DiagramModel.OnChangeText text ->
                     let
                         ( model_, _ ) =
@@ -182,6 +254,9 @@ update message model =
 
 
 port errorLine : String -> Cmd msg
+
+
+port setText : String -> Cmd msg
 
 
 port onGetCanvasSize : ( Int, Int ) -> Cmd msg

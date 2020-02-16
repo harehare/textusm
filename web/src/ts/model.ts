@@ -35,7 +35,6 @@ export interface Settings {
     position: number;
     text: string;
     title: string | null;
-    miniMap: boolean;
     diagramId: string | null;
     storyMap: DiagramSettings;
 }

@@ -1,22 +1,25 @@
 module Components.Diagram exposing (init, update, view)
 
 import Basics exposing (max)
+import Browser.Dom as Dom
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
+import Html5.DragDrop as DragDrop
 import List
 import List.Extra exposing (getAt, scanl, unique)
+import Maybe.Extra exposing (isNothing)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import Parser
 import Result exposing (andThen)
 import String
-import Svg exposing (Svg, defs, g, svg, text)
-import Svg.Attributes exposing (class, height, id, viewBox, width)
+import Svg exposing (Svg, defs, feComponentTransfer, feFuncA, feGaussianBlur, feMerge, feMergeNode, feOffset, filter, g, svg, text)
+import Svg.Attributes exposing (class, dx, dy, height, id, in_, result, slope, stdDeviation, type_, viewBox, width)
 import Svg.Events exposing (onClick)
-import Svg.Lazy exposing (lazy, lazy2, lazy3)
+import Svg.Lazy exposing (lazy, lazy2)
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils
@@ -36,7 +39,6 @@ import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
 import Views.Empty as Empty
 import Views.Icon as Icon
-import Views.MiniMap as MiniMap
 
 
 init : Settings -> ( Model, Cmd Msg )
@@ -65,9 +67,9 @@ init settings =
       , diagramType = UserStoryMap
       , labels = []
       , text = Nothing
-      , showMiniMap = False
       , matchParent = False
-      , windowWidth = 0
+      , selectedItem = Nothing
+      , dragDrop = DragDrop.init
       }
     , Cmd.none
     )
@@ -99,6 +101,9 @@ loadText diagramType lineNo indent input =
                     Parser.parseLinesIgnoreError indent input
 
                 SiteMap ->
+                    Parser.parseLinesIgnoreError indent input
+
+                ImpactMap ->
                     Parser.parseLinesIgnoreError indent input
 
                 _ ->
@@ -136,28 +141,27 @@ loadText diagramType lineNo indent input =
 
 
 load : Diagram -> String -> Result String ( Int, List Item )
-load diagramType t =
-    case t of
-        "" ->
-            Ok ( 0, [] )
+load diagramType text =
+    if String.isEmpty text then
+        Ok ( 0, [] )
 
-        _ ->
-            let
-                result =
-                    loadText diagramType 0 0 t
-            in
-            case result of
-                Ok ( i, loadedItems ) ->
-                    Ok
-                        ( i
-                            |> List.maximum
-                            |> Maybe.map (\x -> x - 1)
-                            |> Maybe.withDefault 0
-                        , loadedItems
-                        )
+    else
+        let
+            result =
+                loadText diagramType 0 0 text
+        in
+        case result of
+            Ok ( i, loadedItems ) ->
+                Ok
+                    ( i
+                        |> List.maximum
+                        |> Maybe.map (\x -> x - 1)
+                        |> Maybe.withDefault 0
+                    , loadedItems
+                    )
 
-                Err text ->
-                    Err text
+            Err e ->
+                Err e
 
 
 countUpToHierarchy : Int -> List Item -> List Int
@@ -302,13 +306,12 @@ view model =
           else
             Attr.style "cursor" "auto"
         ]
-        [ if model.showZoomControl then
+        [ if model.settings.zoomControl |> Maybe.withDefault model.showZoomControl then
             lazy2 zoomControl model.fullscreen model.svg.scale
 
           else
             Empty.view
         , lazy svgView model
-        , lazy miniMapView model
         ]
 
 
@@ -356,27 +359,6 @@ diagramView diagramType =
 
         ImpactMap ->
             ImpactMap.view
-
-
-miniMapView : Model -> Html Msg
-miniMapView model =
-    if model.showMiniMap && not (List.isEmpty model.items) then
-        let
-            size =
-                Utils.getCanvasSize model
-                    |> Tuple.mapFirst (\x -> String.fromInt x)
-                    |> Tuple.mapSecond (\x -> String.fromInt x)
-
-            newModel =
-                { model | x = 0, y = 0, matchParent = True }
-
-            mainSvg =
-                lazy (diagramView model.diagramType) newModel
-        in
-        lazy3 MiniMap.view model size mainSvg
-
-    else
-        Empty.view
 
 
 svgView : Model -> Svg Msg
@@ -440,7 +422,11 @@ svgView model =
         , viewBox ("0 0 " ++ svgWidth ++ " " ++ svgHeight)
         , Attr.style "background-color" model.settings.backgroundColor
         , Wheel.onWheel chooseZoom
-        , onDragStart (Utils.isPhone model.width)
+        , if isNothing model.selectedItem then
+            onDragStart (Utils.isPhone model.width)
+
+          else
+            class ""
         , if model.moveStart then
             onDragMove model.touchDistance (Utils.isPhone model.width)
 
@@ -456,6 +442,19 @@ svgView model =
                     []
                     [ text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ]
                 ]
+        , defs []
+            [ filter [ id "shadow", height "130%" ]
+                [ feGaussianBlur [ in_ "SourceAlpha", stdDeviation "3" ] []
+                , feOffset [ dx "2", dy "2", result "offsetblur" ] []
+                , feComponentTransfer []
+                    [ feFuncA [ type_ "linear", slope "0.5" ] []
+                    ]
+                , feMerge []
+                    [ feMergeNode [] []
+                    , feMergeNode [ in_ "SourceGraphic" ] []
+                    ]
+                ]
+            ]
         , mainSvg
         ]
 
@@ -659,10 +658,10 @@ update message model =
             in
             case result of
                 Ok usm ->
-                    ( { usm | windowWidth = width, settings = settings, error = Nothing }, Cmd.none )
+                    ( { usm | settings = settings, error = Nothing }, Cmd.none )
 
                 Err err ->
-                    ( { model | windowWidth = width, error = Just err }, Cmd.none )
+                    ( { model | error = Just err }, Cmd.none )
 
         ZoomIn ->
             ( if model.svg.scale >= 0.1 then
@@ -778,6 +777,34 @@ update message model =
 
         StartPinch distance ->
             ( { model | touchDistance = Just distance }, Cmd.none )
+
+        ItemClick item ->
+            ( { model | selectedItem = Just item }
+            , Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
+            )
+
+        EditSelectedItem text ->
+            ( { model | selectedItem = Maybe.andThen (\i -> Just { i | text = " " ++ String.trimLeft text }) model.selectedItem }
+            , Cmd.none
+            )
+
+        DeselectItem ->
+            ( { model | selectedItem = Nothing }, Cmd.none )
+
+        DragDropMsg msg_ ->
+            let
+                ( model_, result ) =
+                    DragDrop.update msg_ model.dragDrop
+
+                move =
+                    Maybe.map (\( fromNo, toNo, _ ) -> ( fromNo, toNo )) result
+            in
+            case move of
+                Just ( fromNo, toNo ) ->
+                    ( { model | dragDrop = model_ }, Task.perform MoveItem (Task.succeed ( fromNo, toNo )) )
+
+                Nothing ->
+                    ( { model | dragDrop = model_ }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

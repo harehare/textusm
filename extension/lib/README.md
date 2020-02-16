@@ -339,150 +339,71 @@ const elm = document.getElementById("id");
 textusm.render(
   elm || "id",
   {
+    header: {
+      title: "Header",
+      text: [
+        "Task",
+        "Questions",
+        "Touchpoints",
+        "Emotions",
+        "Influences",
+        "Weaknesses"
+      ]
+    },
     items: [
       {
         title: "Discover",
-        items: [
-          {
-            title: "Task",
-            text: ["Test1"]
-          },
-          {
-            title: "Questions",
-            text: ["Test2"]
-          },
-          {
-            title: "Touchpoints",
-            text: ["Test3"]
-          },
-          {
-            title: "Emotions",
-            text: ["Test4"]
-          },
-          {
-            title: "Influences",
-            text: ["Test5"]
-          },
-          {
-            title: "Weaknesses",
-            text: ["Test6"]
-          }
+        text: [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses"
         ]
       },
       {
         title: "Research",
-        items: [
-          {
-            title: "Task",
-            text: ["Test1"]
-          },
-          {
-            title: "Questions",
-            text: ["Test2"]
-          },
-          {
-            title: "Touchpoints",
-            text: ["Test3"]
-          },
-          {
-            title: "Emotions",
-            text: ["Test4"]
-          },
-          {
-            title: "Influences",
-            text: ["Test5"]
-          },
-          {
-            title: "Weaknesses",
-            text: ["Test6"]
-          }
+        text: [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses"
         ]
       },
       {
         title: "Purchase",
-        items: [
-          {
-            title: "Task",
-            text: ["Test1"]
-          },
-          {
-            title: "Questions",
-            text: ["Test2"]
-          },
-          {
-            title: "Touchpoints",
-            text: ["Test3"]
-          },
-          {
-            title: "Emotions",
-            text: ["Test4"]
-          },
-          {
-            title: "Influences",
-            text: ["Test5"]
-          },
-          {
-            title: "Weaknesses",
-            text: ["Test6"]
-          }
+        text: [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses"
         ]
       },
       {
         title: "Delivery",
-        items: [
-          {
-            title: "Task",
-            text: ["Test1"]
-          },
-          {
-            title: "Questions",
-            text: ["Test2"]
-          },
-          {
-            title: "Touchpoints",
-            text: ["Test3"]
-          },
-          {
-            title: "Emotions",
-            text: ["Test4"]
-          },
-          {
-            title: "Influences",
-            text: ["Test5"]
-          },
-          {
-            title: "Weaknesses",
-            text: ["Test6"]
-          }
+        text: [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses"
         ]
       },
       {
         title: "Post-Sales",
-        items: [
-          {
-            title: "Task",
-            text: ["Test1"]
-          },
-          {
-            title: "Questions",
-            text: ["Test2"]
-          },
-          {
-            title: "Touchpoints",
-            text: ["Test3"]
-          },
-          {
-            title: "Emotions",
-            text: ["Test4"]
-          },
-          {
-            title: "Influences",
-            text: ["Test5"]
-          },
-          {
-            title: "Weaknesses",
-            text: ["Test6"]
-          }
+        text: [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses"
         ]
       }
     ]

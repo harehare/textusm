@@ -409,111 +409,117 @@ test("Site Map, Mind Map to string.", () => {
 });
 
 test("Customer Journey Map to string.", () => {
-  const text = `Discover
+  const text = `Header
     Task
-        Test1
-        Test2
     Questions
-        Test3
     Touchpoints
     Emotions
     Influences
     Weaknesses
-        Test4
+Discover
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
 Research
     Task
-        Test1
-        Test2
     Questions
-        Test3
     Touchpoints
     Emotions
     Influences
     Weaknesses
-        Test4
 Purchase
     Task
-        Test1
-        Test2
     Questions
-        Test3
     Touchpoints
     Emotions
     Influences
     Weaknesses
-        Test4
 Delivery
     Task
-        Test1
-        Test2
     Questions
-        Test3
     Touchpoints
     Emotions
     Influences
     Weaknesses
-        Test4
 Post-Sales
     Task
-        Test1
-        Test2
     Questions
-        Test3
     Touchpoints
     Emotions
     Influences
-    Weaknesses
-        Test4`;
-
-  const items = [
-    {
-      title: "Task",
-      text: ["Test1", "Test2"]
-    },
-    {
-      title: "Questions",
-      text: ["Test3"]
-    },
-    {
-      title: "Touchpoints",
-      text: []
-    },
-    {
-      title: "Emotions",
-      text: []
-    },
-    {
-      title: "Influences",
-      text: []
-    },
-    {
-      title: "Weaknesses",
-      text: ["Test4"]
-    }
-  ];
+    Weaknesses`;
 
   expect(
     toString({
+      header: {
+        title: "Header",
+        text: [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses"
+        ]
+      },
       items: [
         {
           title: "Discover",
-          items
+          text: [
+            "Task",
+            "Questions",
+            "Touchpoints",
+            "Emotions",
+            "Influences",
+            "Weaknesses"
+          ]
         },
         {
           title: "Research",
-          items
+          text: [
+            "Task",
+            "Questions",
+            "Touchpoints",
+            "Emotions",
+            "Influences",
+            "Weaknesses"
+          ]
         },
         {
           title: "Purchase",
-          items
+          text: [
+            "Task",
+            "Questions",
+            "Touchpoints",
+            "Emotions",
+            "Influences",
+            "Weaknesses"
+          ]
         },
         {
           title: "Delivery",
-          items
+          text: [
+            "Task",
+            "Questions",
+            "Touchpoints",
+            "Emotions",
+            "Influences",
+            "Weaknesses"
+          ]
         },
         {
           title: "Post-Sales",
-          items
+          text: [
+            "Task",
+            "Questions",
+            "Touchpoints",
+            "Emotions",
+            "Influences",
+            "Weaknesses"
+          ]
         }
       ]
     })
@@ -781,55 +787,74 @@ test("Mind Map type to string.", () => {
 });
 
 test("Customer Journey Map type to string.", () => {
-  const items = [
-    {
-      title: "Task",
-      text: ["Test1", "Test2"]
-    },
-    {
-      title: "Questions",
-      text: ["Test3"]
-    },
-    {
-      title: "Touchpoints",
-      text: []
-    },
-    {
-      title: "Emotions",
-      text: []
-    },
-    {
-      title: "Influences",
-      text: []
-    },
-    {
-      title: "Weaknesses",
-      text: ["Test4"]
-    }
-  ];
-
   expect(
     toTypeString({
+      header: {
+        title: "header",
+        text: [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses"
+        ]
+      },
       items: [
         {
           title: "Discover",
-          items
+          text: [
+            "Task",
+            "Questions",
+            "Touchpoints",
+            "Emotions",
+            "Influences",
+            "Weaknesses"
+          ]
         },
         {
           title: "Research",
-          items
+          text: [
+            "Task",
+            "Questions",
+            "Touchpoints",
+            "Emotions",
+            "Influences",
+            "Weaknesses"
+          ]
         },
         {
           title: "Purchase",
-          items
+          text: [
+            "Task",
+            "Questions",
+            "Touchpoints",
+            "Emotions",
+            "Influences",
+            "Weaknesses"
+          ]
         },
         {
           title: "Delivery",
-          items
+          text: [
+            "Task",
+            "Questions",
+            "Touchpoints",
+            "Emotions",
+            "Influences",
+            "Weaknesses"
+          ]
         },
         {
           title: "Post-Sales",
-          items
+          text: [
+            "Task",
+            "Questions",
+            "Touchpoints",
+            "Emotions",
+            "Influences",
+            "Weaknesses"
+          ]
         }
       ]
     })

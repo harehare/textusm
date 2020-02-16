@@ -9,14 +9,12 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/eminetto/clean-architecture-go v0.0.0-20191219160450-d9c68a5a2e98 // indirect
 	github.com/fatih/color v1.7.0 // indirect
-	github.com/gin-gonic/gin v1.4.0
 	github.com/go-siris/siris v7.4.0+incompatible // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v25 v25.0.4
 	github.com/gorilla/mux v1.7.2
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/jinzhu/gorm v1.9.12
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/labstack/gommon v0.2.9 // indirect

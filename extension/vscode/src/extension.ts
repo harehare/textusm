@@ -153,7 +153,7 @@ export function activate(context: vscode.ExtensionContext) {
                 break;
               case "cjm":
                 newTextOpen(
-                  "Discover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n"
+                  "Header\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDiscover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n"
                 );
                 break;
               case "smp":
@@ -248,7 +248,11 @@ class DiagramPanel {
     DiagramPanel.currentPanel._addTextChangedEvent(editor);
 
     figurePanel._panel.webview.onDidReceiveMessage(message => {
-      if (message.command === "exportPng") {
+      if (message.command === "setText") {
+        if (editor) {
+          setText(editor, message.text);
+        }
+      } else if (message.command === "exportPng") {
         const dir: string | undefined = vscode.workspace
           .getConfiguration()
           .get("textusm.exportDir");
@@ -426,10 +430,6 @@ class DiagramPanel {
       .getConfiguration()
       .get("textusm.line.color");
 
-    const enabledMiniMap = vscode.workspace
-      .getConfiguration()
-      .get("textusm.minimap.enabled");
-
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -466,9 +466,15 @@ class DiagramPanel {
             textColor: "${textColor ? textColor : "#111111"}",
             labelColor: "${labelColor ? labelColor : "#8C9FAE"}",
             lineColor: "${lineColor ? lineColor : "#434343"}",
-            diagramType: "${diagramType}",
-            showMiniMap: ${enabledMiniMap}
+            diagramType: "${diagramType}"
         }});
+
+        app.ports.setText.subscribe(text => {
+          vscode.postMessage({
+            command: 'setText',
+            text: text,
+          });
+        });
 
         const createSvg = (svgHTML, backgroundColor, width, height) => {
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
