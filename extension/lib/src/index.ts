@@ -21,6 +21,7 @@ interface Config {
   size?: Size;
   color?: ColorConfig;
   backgroundColor?: string;
+  zoomControl?: boolean;
 }
 
 interface ColorConfig {
@@ -70,7 +71,8 @@ const defaultConfig: Config = {
     label: "#8C9FAE",
     text: "#111111"
   },
-  backgroundColor: "#F5F5F6"
+  backgroundColor: "#F5F5F6",
+  zoomControl: true
 };
 
 function render(
@@ -106,7 +108,6 @@ function render(
       | "ImpactMap";
     size?: Size;
     showZoomControl?: boolean;
-    showMiniMap?: boolean;
     scale?:
       | 0.1
       | 0.2
@@ -164,8 +165,6 @@ function render(
       settings: Object.assign(defaultConfig, config),
       showZoomControl:
         options.showZoomControl !== undefined ? options.showZoomControl : true,
-      showMiniMap:
-        options.showMiniMap !== undefined ? options.showMiniMap : false,
       scale:
         options.scale && 2.0 - options.scale > 0 ? 2.0 - options.scale : 1.0
     }

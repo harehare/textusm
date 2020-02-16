@@ -4,7 +4,8 @@ import Constants
 import Events exposing (onKeyDown)
 import Html exposing (div, img, input)
 import Html.Attributes as Attr
-import Html.Events exposing (onInput, stopPropagationOn)
+import Html.Events exposing (onBlur, onInput, stopPropagationOn)
+import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Models.Diagram exposing (Msg(..), Settings, settingsOfWidth)
@@ -51,6 +52,7 @@ cardView settings ( posX, posY ) selectedItem item =
                 )
                 backgroundColor
             , textView settings ( posX, posY ) ( settings.size.width, settings.size.height ) color item.text
+            , dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
             ]
 
 
@@ -75,11 +77,30 @@ selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         , x (String.fromInt posX)
         , y (String.fromInt posY)
         , strokeWidth "3"
-        , stroke "#428BCA"
+        , stroke "#555"
         , fill color
         , style "filter:url(#shadow)"
         ]
         []
+
+
+dropArea : ( Int, Int ) -> ( Int, Int ) -> Item -> Svg Msg
+dropArea ( posX, posY ) ( svgWidth, svgHeight ) item =
+    foreignObject
+        [ x <| String.fromInt posX
+        , y <| String.fromInt posY
+        , width <| String.fromInt svgWidth
+        , height <| String.fromInt svgHeight
+        ]
+        [ div
+            ([ Attr.style "background-color" "transparent"
+             , Attr.style "width" (String.fromInt svgWidth ++ "px")
+             , Attr.style "height" (String.fromInt svgHeight ++ "px")
+             ]
+                ++ DragDrop.droppable DragDropMsg item.lineNo
+            )
+            []
+        ]
 
 
 inputView : Settings -> Maybe String -> ( Int, Int ) -> ( Int, Int ) -> ( String, String ) -> Item -> Svg Msg
@@ -91,14 +112,18 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
         , height <| String.fromInt svgHeight
         ]
         [ div
-            [ Attr.style "background-color" "transparent"
-            , Attr.style "width" (String.fromInt svgWidth ++ "px")
-            , Attr.style "height" (String.fromInt svgHeight ++ "px")
-            ]
+            ([ Attr.style "background-color" "transparent"
+             , Attr.style "width" (String.fromInt svgWidth ++ "px")
+             , Attr.style "height" (String.fromInt svgHeight ++ "px")
+             ]
+                ++ DragDrop.draggable DragDropMsg item.lineNo
+            )
             [ input
                 [ Attr.id "edit-item"
                 , Attr.type_ "text"
-                , Attr.style "padding" "8px"
+                , Attr.autofocus True
+                , Attr.autocomplete False
+                , Attr.style "padding" "8px 8px 8px 0"
                 , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
                 , Attr.style "color" colour
                 , Attr.style "background-color" backgroundColor
@@ -109,7 +134,7 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
                 , Attr.style "font-size" (Maybe.withDefault (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) fontSize ++ "px")
                 , Attr.style "margin-left" "2px"
                 , Attr.style "margin-top" "2px"
-                , Attr.value <| String.trimLeft item.text
+                , Attr.value <| " " ++ String.trimLeft item.text
                 , onInput EditSelectedItem
                 , onKeyDown <| EndEditSelectedItem item
                 ]

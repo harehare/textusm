@@ -423,6 +423,40 @@ update message model =
                     in
                     ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor ) ] )
 
+                DiagramModel.MoveItem ( fromNo, toNo ) ->
+                    let
+                        lines =
+                            model.text
+                                |> String.lines
+
+                        from =
+                            getAt fromNo lines
+                                |> Maybe.withDefault ""
+
+                        fromPrefix =
+                            Utils.getSpacePrefix from
+
+                        to =
+                            getAt toNo lines
+                                |> Maybe.withDefault ""
+
+                        toPrefix =
+                            Utils.getSpacePrefix to
+
+                        text =
+                            lines
+                                |> setAt fromNo (fromPrefix ++ String.trimLeft to)
+                                |> setAt toNo (toPrefix ++ String.trimLeft from)
+                                |> String.join "\n"
+                    in
+                    ( { model | text = text }
+                        , Cmd.batch
+                            [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
+                            , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
+                            , Subscriptions.loadText text
+                            ]
+                        )
+
                 DiagramModel.EndEditSelectedItem item code isComposing ->
                     if code == 13 && not isComposing then
                         let
@@ -434,17 +468,12 @@ update message model =
                                 getAt item.lineNo lines
 
                             prefix =
-                                (currentText
+                                currentText
                                     |> Maybe.withDefault ""
-                                    |> String.toList
-                                    |> takeWhile (\c -> c == ' ')
-                                    |> List.length
-                                    |> String.repeat
-                                )
-                                    " "
+                                    |> Utils.getSpacePrefix
 
                             text =
-                                setAt item.lineNo (prefix ++ item.text) lines
+                                setAt item.lineNo (prefix ++ String.trimLeft item.text) lines
                                     |> String.join "\n"
                         in
                         ( { model | text = text }

@@ -1,9 +1,9 @@
-module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getIdToken, getMarkdownHeight, getTitle, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix)
+module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getIdToken, getMarkdownHeight, getSpacePrefix, getTitle, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix)
 
 import Constants
 import File exposing (File)
 import Http exposing (Error(..))
-import List.Extra exposing (getAt, last, scanl1)
+import List.Extra exposing (getAt, last, scanl1, takeWhile)
 import Models.Diagram as DiagramModel
 import Models.IdToken exposing (IdToken)
 import Models.Item as Item
@@ -488,3 +488,14 @@ getCanvasSize model =
 calcDistance : ( Float, Float ) -> ( Float, Float ) -> Float
 calcDistance ( x1, y1 ) ( x2, y2 ) =
     sqrt (((x2 - x1) ^ 2) + ((y2 - y1) ^ 2))
+
+
+getSpacePrefix : String -> String
+getSpacePrefix text =
+    (text
+        |> String.toList
+        |> takeWhile (\c -> c == ' ')
+        |> List.length
+        |> String.repeat
+    )
+        " "

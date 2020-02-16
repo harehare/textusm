@@ -6,6 +6,7 @@ import Components.Diagram as Diagram
 import Html exposing (Html, div)
 import Html.Attributes exposing (class, style)
 import Html.Lazy exposing (lazy)
+import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Task
@@ -29,7 +30,6 @@ type alias InitData =
     , height : Int
     , settings : DiagramModel.Settings
     , showZoomControl : Bool
-    , showMiniMap : Bool
     , diagramType : String
     , scale : Float
     }
@@ -46,6 +46,7 @@ init flags =
             , hierarchy = 0
             , width = flags.width
             , height = flags.height
+            , selectedItem = Nothing
             , svg =
                 { width = flags.settings.size.width
                 , height = flags.settings.size.height
@@ -54,6 +55,7 @@ init flags =
             , countByHierarchy = []
             , countByTasks = []
             , moveStart = False
+            , dragDrop = DragDrop.init
             , x = 0
             , y = 0
             , moveX = 0
@@ -104,7 +106,6 @@ init flags =
             , touchDistance = Nothing
             , labels = []
             , matchParent = False
-            , showMiniMap = flags.showMiniMap
             , text = Nothing
             }
       , text = flags.text
@@ -146,6 +147,9 @@ update message model =
     case message of
         UpdateDiagram subMsg ->
             case subMsg of
+                DiagramModel.ItemClick _ ->
+                    ( model, Cmd.none )
+
                 DiagramModel.OnChangeText text ->
                     let
                         ( model_, _ ) =

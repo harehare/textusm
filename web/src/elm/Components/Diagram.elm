@@ -7,8 +7,10 @@ import Html.Attributes as Attr
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
+import Html5.DragDrop as DragDrop
 import List
 import List.Extra exposing (getAt, scanl, unique)
+import Maybe.Extra exposing (isNothing)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..))
 import Parser
@@ -66,8 +68,8 @@ init settings =
       , labels = []
       , text = Nothing
       , matchParent = False
-      , windowWidth = 0
       , selectedItem = Nothing
+      , dragDrop = DragDrop.init
       }
     , Cmd.none
     )
@@ -420,7 +422,11 @@ svgView model =
         , viewBox ("0 0 " ++ svgWidth ++ " " ++ svgHeight)
         , Attr.style "background-color" model.settings.backgroundColor
         , Wheel.onWheel chooseZoom
-        , onDragStart (Utils.isPhone model.width)
+        , if isNothing model.selectedItem then
+            onDragStart (Utils.isPhone model.width)
+
+          else
+            class ""
         , if model.moveStart then
             onDragMove model.touchDistance (Utils.isPhone model.width)
 
@@ -652,10 +658,10 @@ update message model =
             in
             case result of
                 Ok usm ->
-                    ( { usm | windowWidth = width, settings = settings, error = Nothing }, Cmd.none )
+                    ( { usm | settings = settings, error = Nothing }, Cmd.none )
 
                 Err err ->
-                    ( { model | windowWidth = width, error = Just err }, Cmd.none )
+                    ( { model | error = Just err }, Cmd.none )
 
         ZoomIn ->
             ( if model.svg.scale >= 0.1 then
@@ -778,12 +784,27 @@ update message model =
             )
 
         EditSelectedItem text ->
-            ( { model | selectedItem = Maybe.andThen (\i -> Just { i | text = String.trimLeft text }) model.selectedItem }
+            ( { model | selectedItem = Maybe.andThen (\i -> Just { i | text = " " ++ String.trimLeft text }) model.selectedItem }
             , Cmd.none
             )
 
         DeselectItem ->
             ( { model | selectedItem = Nothing }, Cmd.none )
+
+        DragDropMsg msg_ ->
+            let
+                ( model_, result ) =
+                    DragDrop.update msg_ model.dragDrop
+
+                move =
+                    Maybe.map (\( fromNo, toNo, _ ) -> ( fromNo, toNo )) result
+            in
+            case move of
+                Just ( fromNo, toNo ) ->
+                    ( { model | dragDrop = model_ }, Task.perform MoveItem (Task.succeed ( fromNo, toNo )) )
+
+                Nothing ->
+                    ( { model | dragDrop = model_ }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

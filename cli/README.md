@@ -189,6 +189,13 @@ FEELS
 ### Customer Journey Map
 
 ```
+Header
+    Task
+    Questions
+    Touchpoints
+    Emotions
+    Influences
+    Weaknesses
 Discover
     Task
     Questions

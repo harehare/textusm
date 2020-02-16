@@ -1,6 +1,7 @@
 module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Settings, Size, UsmSvg, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl)
 
 import Browser.Dom exposing (Viewport)
+import Html5.DragDrop as DragDrop
 import Models.Item exposing (Item, ItemType(..))
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
@@ -30,8 +31,8 @@ type alias Model =
     , diagramType : Diagram
     , text : Maybe String
     , matchParent : Bool
-    , windowWidth : Int
     , selectedItem : Maybe Item
+    , dragDrop : DragDrop.Model Int Int
     }
 
 
@@ -99,6 +100,8 @@ type Msg
     | ItemDblClick Item
     | EditSelectedItem String
     | EndEditSelectedItem Item Int Bool
+    | DragDropMsg (DragDrop.Msg Int Int)
+    | MoveItem ( Int, Int )
 
 
 getTextColor : ColorSettings -> String
