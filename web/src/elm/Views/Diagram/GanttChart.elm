@@ -4,14 +4,14 @@ import Constants
 import Html exposing (div)
 import Html.Attributes as Attr
 import List.Extra exposing (last, scanl1, zip)
-import Models.Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.Item as Item exposing (Item)
 import Svg exposing (Svg, foreignObject, g, line, rect, svg)
-import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
-import Time exposing (Posix, utc)
-import Time.Extra exposing (Interval(..), diff)
+import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
+import Time exposing (Posix, toDay, utc)
+import Time.Extra exposing (Interval(..), add, diff)
 import Utils
-import Views.Diagram.Views as Views
+import Views.Diagram.Views as Views exposing (Position, Size)
 
 
 view : Model -> Svg Msg
@@ -32,7 +32,7 @@ view model =
                                     0
 
                                 else
-                                    Item.getChildrenCount i - 1
+                                    1
                             )
                         |> scanl1 (+)
                    )
@@ -75,41 +75,89 @@ view model =
                 (weekView model.settings
                     svgHeight
                     ( from, to )
+                    :: daysView model.settings
+                        svgHeight
+                        ( from, to )
                     :: (zip nodeCounts items
                             |> List.concatMap
                                 (\( count, sectionItem ) ->
                                     let
-                                        sectionItems =
-                                            Item.unwrapChildren sectionItem.children
+                                        item =
+                                            Item.unwrapChildren sectionItem.children |> List.head |> Maybe.withDefault Item.emptyItem
 
                                         posY =
-                                            count * Constants.ganttItemSize + Constants.ganttItemSize
+                                            count * Constants.ganttItemSize
                                     in
-                                    sectionView
+                                    [ sectionView
                                         model.settings
-                                        lineWidth
-                                        (List.length sectionItems * Constants.ganttItemSize)
+                                        ( lineWidth, Constants.ganttItemSize )
                                         ( 0
-                                        , posY
+                                        , posY + Constants.ganttItemSize
                                         )
                                         sectionItem.text
-                                        :: List.indexedMap
-                                            (\i item ->
-                                                itemView model.settings
-                                                    i
-                                                    ( Constants.leftMargin
-                                                    , posY + i * Constants.ganttItemSize
-                                                    )
-                                                    from
-                                                    item
-                                            )
-                                            sectionItems
+                                    , itemView model.settings
+                                        ( model.settings.color.activity.backgroundColor, model.settings.color.text |> Maybe.withDefault model.settings.color.label )
+                                        ( Constants.leftMargin
+                                        , posY + Constants.ganttItemSize
+                                        )
+                                        from
+                                        item
+                                    ]
                                 )
                        )
                 )
 
         Nothing ->
             g [] []
+
+
+daysView : Settings -> Int -> ( Posix, Posix ) -> Svg Msg
+daysView settings svgHeight ( from, to ) =
+    let
+        daysNum =
+            diff Day utc from to
+    in
+    g []
+        (List.range 0 daysNum
+            |> List.map
+                (\i ->
+                    let
+                        posX =
+                            i * Constants.ganttItemSize + Constants.leftMargin - 1
+
+                        day =
+                            toDay utc <| add Day i utc from
+                    in
+                    g []
+                        [ foreignObject
+                            [ x <| String.fromInt <| posX + 8
+                            , y <| String.fromInt <| Constants.ganttItemSize - 16
+                            , width <| String.fromInt <| Constants.leftMargin
+                            , height "30"
+                            , fontSize "11"
+                            , fontWeight "bold"
+                            , fontFamily <| fontStyle settings
+                            , class ".select-none"
+                            ]
+                            [ div
+                                [ Attr.style "font-family" (fontStyle settings)
+                                , Attr.style "word-wrap" "break-word"
+                                , Attr.style "color" settings.color.label
+                                ]
+                                [ Html.text <| String.fromInt day ]
+                            ]
+                        , line
+                            [ x1 <| String.fromInt posX
+                            , y1 <| String.fromInt <| Constants.ganttItemSize + 2
+                            , x2 <| String.fromInt posX
+                            , y2 <| String.fromInt <| Constants.ganttItemSize + svgHeight - 2
+                            , stroke "#D7D8DF"
+                            , strokeWidth "0.5"
+                            ]
+                            []
+                        ]
+                )
+        )
 
 
 weekView : Settings -> Int -> ( Posix, Posix ) -> Svg Msg
@@ -129,18 +177,17 @@ weekView settings svgHeight ( from, to ) =
                     g []
                         [ foreignObject
                             [ x posX
-                            , y <| String.fromInt <| Constants.ganttItemSize - 16
+                            , y <| String.fromInt <| Constants.ganttItemSize - 32
                             , width <| String.fromInt <| Constants.leftMargin
                             , height "30"
-                            , color settings.color.label
-                            , fontSize "11"
-                            , fontWeight "bold"
-                            , fontFamily settings.font
                             , class ".select-none"
                             ]
                             [ div
-                                [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+                                [ Attr.style "font-family" (fontStyle settings)
                                 , Attr.style "word-wrap" "break-word"
+                                , Attr.style "color" settings.color.label
+                                , Attr.style "font-size" "11px"
+                                , Attr.style "font-weight" "bold"
                                 ]
                                 [ Html.text <| "Week " ++ (String.fromInt <| i + 1) ]
                             ]
@@ -149,7 +196,7 @@ weekView settings svgHeight ( from, to ) =
                             , y1 <| String.fromInt <| Constants.ganttItemSize + 2
                             , x2 posX
                             , y2 <| String.fromInt <| Constants.ganttItemSize + svgHeight - 2
-                            , stroke settings.color.line
+                            , stroke "#D7D8DF"
                             , strokeWidth "0.5"
                             ]
                             []
@@ -158,15 +205,15 @@ weekView settings svgHeight ( from, to ) =
         )
 
 
-sectionView : Settings -> Int -> Int -> ( Int, Int ) -> String -> Svg Msg
-sectionView settings sectionWidth sectionHeight ( posX, posY ) text =
+sectionView : Settings -> Size -> Position -> String -> Svg Msg
+sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) text =
     g []
         [ line
             [ x1 <| String.fromInt posX
             , y1 <| String.fromInt <| posY + 2
             , x2 <| String.fromInt <| posX + sectionWidth + Constants.leftMargin
             , y2 <| String.fromInt <| posY + 2
-            , stroke settings.color.line
+            , stroke "#E2E2E2"
             , strokeWidth "0.5"
             ]
             []
@@ -175,48 +222,34 @@ sectionView settings sectionWidth sectionHeight ( posX, posY ) text =
             , y <| String.fromInt <| posY + 3
             , width <| String.fromInt <| Constants.leftMargin - 2
             , height <| String.fromInt <| sectionHeight - 2
-            , color settings.color.activity.color
-            , Attr.style "background-color" settings.color.activity.backgroundColor
-            , fontSize "11"
-            , fontWeight "bold"
-            , fontFamily settings.font
+            , color "#4A4A4A"
+            , Attr.style "background-color" "#FFFFFF"
             , class ".select-none"
             ]
             [ div
-                [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+                [ Attr.style "font-family" (fontStyle settings)
                 , Attr.style "word-wrap" "break-word"
                 , Attr.style "padding" "8px"
+                , Attr.style "color" settings.color.label
+                , Attr.style "font-size" "11px"
+                , Attr.style "font-weight" "bold"
                 ]
                 [ Html.text text ]
             ]
         ]
 
 
-itemView : Settings -> Int -> ( Int, Int ) -> Posix -> Item -> Svg Msg
-itemView settings index ( posX, posY ) baseFrom item =
+itemView : Settings -> ( String, String ) -> Position -> Posix -> Item -> Svg Msg
+itemView settings colour ( posX, posY ) baseFrom item =
     let
         values =
             Utils.extractDateValues item.text
-
-        isOdd =
-            if index == 0 then
-                False
-
-            else
-                modBy 2 index == 1
     in
     case values of
         Just ( ( from, to ), text ) ->
             let
                 interval =
                     diff Day utc baseFrom from
-
-                colour =
-                    if isOdd then
-                        ( settings.color.story.backgroundColor, settings.color.text |> Maybe.withDefault settings.color.label )
-
-                    else
-                        ( settings.color.task.backgroundColor, settings.color.text |> Maybe.withDefault settings.color.label )
             in
             taskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
 
@@ -224,7 +257,7 @@ itemView settings index ( posX, posY ) baseFrom item =
             g [] []
 
 
-taskView : Settings -> ( String, String ) -> ( Int, Int ) -> Posix -> Posix -> String -> Svg Msg
+taskView : Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
 taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
     let
         interval =
@@ -244,20 +277,22 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
         ]
         [ rectView
             ( svgWidth
-            , Constants.ganttItemSize
+            , Constants.ganttItemSize - 6
             )
             backgroundColor
         , Views.textView settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour text
         ]
 
 
-rectView : ( Int, Int ) -> String -> Svg Msg
+rectView : Size -> String -> Svg Msg
 rectView ( svgWidth, svgHeight ) color =
     rect
         [ width <| String.fromInt <| svgWidth
         , height <| String.fromInt <| svgHeight
         , x "0"
-        , y "3"
+        , y "5"
         , fill color
+        , rx "3"
+        , ry "3"
         ]
         []

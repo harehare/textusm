@@ -6,7 +6,7 @@ import Models.Item as Item exposing (Item, ItemType(..))
 import Svg exposing (Svg, g, line)
 import Svg.Attributes exposing (stroke, strokeWidth, transform, x1, x2, y1, y2)
 import Utils
-import Views.Diagram.Views as Views
+import Views.Diagram.Views as Views exposing (Position)
 
 
 type Direction
@@ -89,7 +89,7 @@ view model =
             g [] []
 
 
-nodesView : Settings -> Int -> ( Int, Int ) -> Direction -> Maybe Item -> List Item -> Svg Msg
+nodesView : Settings -> Int -> Position -> Direction -> Maybe Item -> List Item -> Svg Msg
 nodesView settings hierarchy ( x, y ) direction selectedItem items =
     let
         svgWidth =

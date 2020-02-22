@@ -6,7 +6,7 @@ import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item)
 import Svg exposing (Svg, g, line)
 import Svg.Attributes exposing (stroke, strokeWidth, transform, x1, x2, y1, y2)
-import Views.Diagram.Views as Views
+import Views.Diagram.Views as Views exposing (Position)
 
 
 view : Model -> Svg Msg
@@ -95,7 +95,7 @@ siteView settings ( posX, posY ) selectedItem items =
         )
 
 
-siteTreeView : Settings -> ( Int, Int ) -> Maybe Item -> List Item -> Svg Msg
+siteTreeView : Settings -> Position -> Maybe Item -> List Item -> Svg Msg
 siteTreeView settings ( posX, posY ) selectedItem items =
     let
         childrenCountList =
@@ -145,7 +145,7 @@ siteTreeView settings ( posX, posY ) selectedItem items =
         )
 
 
-siteLineView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Svg Msg
+siteLineView : Settings -> Position -> Position -> Svg Msg
 siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
     let
         centerX =
@@ -185,7 +185,7 @@ siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
             ]
 
 
-siteTreeLineView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Svg Msg
+siteTreeLineView : Settings -> Position -> Position -> Svg Msg
 siteTreeLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
     let
         itemPadding =

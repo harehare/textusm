@@ -1,14 +1,14 @@
-module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, rectView, textView)
+module Views.Diagram.Views exposing (Position, Size, canvasBottomView, canvasImageView, canvasView, cardView, rectView, textView)
 
 import Constants
 import Events exposing (onKeyDown)
 import Html exposing (div, img, input)
 import Html.Attributes as Attr
-import Html.Events exposing (onBlur, onInput, stopPropagationOn)
+import Html.Events exposing (onInput, stopPropagationOn)
 import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
-import Models.Diagram exposing (Msg(..), Settings, settingsOfWidth)
+import Models.Diagram exposing (Msg(..), Settings, fontStyle, settingsOfWidth)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
@@ -16,7 +16,31 @@ import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWe
 import Utils
 
 
-cardView : Settings -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+type alias Width =
+    Int
+
+
+type alias Height =
+    Int
+
+
+type alias Size =
+    ( Width, Height )
+
+
+type alias X =
+    Int
+
+
+type alias Y =
+    Int
+
+
+type alias Position =
+    ( X, Y )
+
+
+cardView : Settings -> Position -> Maybe Item -> Item -> Svg Msg
 cardView settings ( posX, posY ) selectedItem item =
     let
         ( color, backgroundColor ) =
@@ -56,7 +80,7 @@ cardView settings ( posX, posY ) selectedItem item =
             ]
 
 
-rectView : ( Int, Int ) -> ( Int, Int ) -> String -> Svg Msg
+rectView : Position -> Size -> String -> Svg Msg
 rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
     rect
         [ width <| String.fromInt svgWidth
@@ -69,7 +93,7 @@ rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         []
 
 
-selectedRectView : ( Int, Int ) -> ( Int, Int ) -> String -> Svg Msg
+selectedRectView : Position -> Size -> String -> Svg Msg
 selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
     rect
         [ width <| String.fromInt svgWidth
@@ -84,7 +108,7 @@ selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         []
 
 
-dropArea : ( Int, Int ) -> ( Int, Int ) -> Item -> Svg Msg
+dropArea : Position -> Size -> Item -> Svg Msg
 dropArea ( posX, posY ) ( svgWidth, svgHeight ) item =
     foreignObject
         [ x <| String.fromInt posX
@@ -103,7 +127,7 @@ dropArea ( posX, posY ) ( svgWidth, svgHeight ) item =
         ]
 
 
-inputView : Settings -> Maybe String -> ( Int, Int ) -> ( Int, Int ) -> ( String, String ) -> Item -> Svg Msg
+inputView : Settings -> Maybe String -> Position -> Size -> ( String, String ) -> Item -> Svg Msg
 inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, backgroundColor ) item =
     foreignObject
         [ x <| String.fromInt posX
@@ -124,13 +148,12 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
                 , Attr.autofocus True
                 , Attr.autocomplete False
                 , Attr.style "padding" "8px 8px 8px 0"
-                , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+                , Attr.style "font-family" (fontStyle settings)
                 , Attr.style "color" colour
                 , Attr.style "background-color" backgroundColor
                 , Attr.style "border" "none"
                 , Attr.style "outline" "none"
                 , Attr.style "width" (String.fromInt (svgWidth - 20) ++ "px")
-                , Attr.style "font-family" settings.font
                 , Attr.style "font-size" (Maybe.withDefault (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) fontSize ++ "px")
                 , Attr.style "margin-left" "2px"
                 , Attr.style "margin-top" "2px"
@@ -143,7 +166,7 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
         ]
 
 
-textView : Settings -> ( Int, Int ) -> ( Int, Int ) -> String -> String -> Svg Msg
+textView : Settings -> Position -> Size -> String -> String -> Svg Msg
 textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour textOrUrl =
     foreignObject
         [ x <| String.fromInt posX
@@ -153,7 +176,6 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour textOrUrl =
         , fill colour
         , color colour
         , fontSize (textOrUrl |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
-        , fontFamily settings.font
         , class ".select-none"
         ]
         [ if Utils.isImageUrl textOrUrl then
@@ -167,14 +189,14 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour textOrUrl =
           else
             div
                 [ Attr.style "padding" "8px"
-                , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+                , Attr.style "font-family" (fontStyle settings)
                 , Attr.style "word-wrap" "break-word"
                 ]
                 [ Html.text textOrUrl ]
         ]
 
 
-canvasView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+canvasView : Settings -> Size -> Position -> Maybe Item -> Item -> Svg Msg
 canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
     svg
         [ width <| String.fromInt svgWidth
@@ -193,7 +215,7 @@ canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
         ]
 
 
-canvasBottomView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+canvasBottomView : Settings -> Size -> Position -> Maybe Item -> Item -> Svg Msg
 canvasBottomView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
     svg
         [ width <| String.fromInt svgWidth
@@ -212,7 +234,7 @@ canvasBottomView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem it
         ]
 
 
-canvasRectView : Settings -> ( Int, Int ) -> Svg Msg
+canvasRectView : Settings -> Size -> Svg Msg
 canvasRectView settings ( rectWidth, rectHeight ) =
     rect
         [ width <| String.fromInt rectWidth
@@ -223,12 +245,12 @@ canvasRectView settings ( rectWidth, rectHeight ) =
         []
 
 
-titleView : Settings -> ( Int, Int ) -> Item -> Svg Msg
+titleView : Settings -> Position -> Item -> Svg Msg
 titleView settings ( posX, posY ) item =
     text_
         [ x <| String.fromInt posX
         , y <| String.fromInt <| posY + 14
-        , fontFamily settings.font
+        , fontFamily (fontStyle settings)
         , fill settings.color.label
         , fontSize "20"
         , fontWeight "bold"
@@ -238,7 +260,7 @@ titleView settings ( posX, posY ) item =
         [ text item.text ]
 
 
-canvasTextView : Settings -> Int -> ( Int, Int ) -> Maybe Item -> List Item -> Svg Msg
+canvasTextView : Settings -> Int -> Position -> Maybe Item -> List Item -> Svg Msg
 canvasTextView settings svgWidth ( posX, posY ) selectedItem items =
     let
         newSettings =
@@ -253,7 +275,7 @@ canvasTextView settings svgWidth ( posX, posY ) selectedItem items =
         )
 
 
-canvasImageView : Settings -> ( Int, Int ) -> ( Int, Int ) -> Item -> Svg Msg
+canvasImageView : Settings -> Size -> Position -> Item -> Svg Msg
 canvasImageView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
     let
         lines =
@@ -272,7 +294,7 @@ canvasImageView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
         ]
 
 
-imageView : ( Int, Int ) -> ( Int, Int ) -> String -> Svg Msg
+imageView : Size -> Position -> String -> Svg Msg
 imageView ( imageWidth, imageHeight ) ( posX, posY ) url =
     svg
         [ width <| String.fromInt imageWidth

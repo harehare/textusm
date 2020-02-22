@@ -1,4 +1,4 @@
-module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Settings, Size, UsmSvg, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl)
+module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Settings, Size, UsmSvg, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl)
 
 import Browser.Dom exposing (Viewport)
 import Html5.DragDrop as DragDrop
@@ -50,6 +50,11 @@ type alias Settings =
     , backgroundColor : String
     , zoomControl : Maybe Bool
     }
+
+
+fontStyle : Settings -> String
+fontStyle settings =
+    "'" ++ settings.font ++ "', sans-serif"
 
 
 type alias ColorSettings =

@@ -16,7 +16,7 @@ context("TextUSM", () => {
       .get("body")
       .find("rect")
       .its("length")
-      .should("eq", 4);
+      .should("eq", 2);
   });
 
   it("business model canvas should work", () => {
@@ -29,7 +29,7 @@ context("TextUSM", () => {
       .get("body")
       .find("rect")
       .its("length")
-      .should("eq", 18);
+      .should("eq", 9);
   });
 
   it("edit title should work", () => {

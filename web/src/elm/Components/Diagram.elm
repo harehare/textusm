@@ -106,6 +106,9 @@ loadText diagramType lineNo indent input =
                 ImpactMap ->
                     Parser.parseLinesIgnoreError indent input
 
+                GanttChart ->
+                    Parser.parseLinesIgnoreError indent input
+
                 _ ->
                     Parser.parseLines indent input
     in

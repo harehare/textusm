@@ -6,14 +6,14 @@ import Html exposing (div)
 import Html.Attributes as Attr
 import List
 import List.Extra exposing (getAt, zip)
-import Models.Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
-import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
+import Svg.Attributes exposing (class, color, fill, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
 import Svg.Keyed as Keyed
 import Svg.Lazy exposing (lazy5)
-import Views.Diagram.Views as Views
+import Views.Diagram.Views as Views exposing (Position)
 
 
 view : Model -> Svg Msg
@@ -72,16 +72,16 @@ mainView settings selectedItem items countByTasks countByHierarchy =
 labelView : List String -> Settings -> Int -> Int -> List Int -> Svg Msg
 labelView labels settings hierarchy width countByHierarchy =
     let
-        textX =
-            "16"
+        posX =
+            16
     in
     g []
         (([ if hierarchy > 0 then
                 line
-                    [ x1 textX
-                    , y1 (String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2))
-                    , x2 (String.fromInt width)
-                    , y2 (String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2))
+                    [ x1 <| String.fromInt posX
+                    , y1 <| String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2)
+                    , x2 <| String.fromInt width
+                    , y2 <| String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2)
                     , stroke settings.color.line
                     , strokeWidth "2"
                     ]
@@ -90,19 +90,19 @@ labelView labels settings hierarchy width countByHierarchy =
             else
                 line [] []
           , if hierarchy > 0 then
-                labelTextView settings textX "10" (getAt 0 labels |> Maybe.withDefault "USER ACTIVITIES")
+                labelTextView settings ( posX, 10 ) (getAt 0 labels |> Maybe.withDefault "USER ACTIVITIES")
 
             else
                 text_ [] []
           , if hierarchy > 0 then
-                labelTextView settings textX (String.fromInt <| settings.size.height + 25) (getAt 1 labels |> Maybe.withDefault "USER TASKS")
+                labelTextView settings ( posX, settings.size.height + 25 ) (getAt 1 labels |> Maybe.withDefault "USER TASKS")
 
             else
                 text_ [] []
           ]
             ++ (if hierarchy > 1 then
-                    [ labelTextView settings textX (String.fromInt <| settings.size.height * 2 + 50) (getAt 2 labels |> Maybe.withDefault "USER STORIES")
-                    , labelTextView settings textX (String.fromInt <| settings.size.height * 2 + 80) (getAt 3 labels |> Maybe.withDefault "RELEASE 1")
+                    [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) (getAt 2 labels |> Maybe.withDefault "USER STORIES")
+                    , labelTextView settings ( posX, settings.size.height * 2 + 80 ) (getAt 3 labels |> Maybe.withDefault "RELEASE 1")
                     ]
 
                 else
@@ -127,15 +127,15 @@ labelView labels settings hierarchy width countByHierarchy =
                                             + ((xx - 1) * Constants.itemMargin)
                                 in
                                 [ line
-                                    [ x1 textX
-                                    , y1 (String.fromInt releaseY)
-                                    , x2 (String.fromInt width)
-                                    , y2 (String.fromInt releaseY)
+                                    [ x1 <| String.fromInt posX
+                                    , y1 <| String.fromInt releaseY
+                                    , x2 <| String.fromInt width
+                                    , y2 <| String.fromInt releaseY
                                     , stroke settings.color.line
                                     , strokeWidth "2"
                                     ]
                                     []
-                                , labelTextView settings textX (String.fromInt (releaseY + Constants.itemMargin)) (getAt (xx + 3) labels |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1)))
+                                , labelTextView settings ( posX, releaseY + Constants.itemMargin ) (getAt (xx + 3) labels |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1)))
                                 ]
 
                             else
@@ -146,7 +146,7 @@ labelView labels settings hierarchy width countByHierarchy =
         )
 
 
-activityView : Settings -> List Int -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+activityView : Settings -> List Int -> Position -> Maybe Item -> Item -> Svg Msg
 activityView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
@@ -178,7 +178,7 @@ activityView settings verticalCount ( posX, posY ) selectedItem item =
         )
 
 
-taskView : Settings -> List Int -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+taskView : Settings -> List Int -> Position -> Maybe Item -> Item -> Svg Msg
 taskView settings verticalCount ( posX, posY ) selectedItem item =
     let
         children =
@@ -215,7 +215,7 @@ taskView settings verticalCount ( posX, posY ) selectedItem item =
         )
 
 
-storyView : Settings -> List Int -> Int -> ( Int, Int ) -> Maybe Item -> Item -> Svg Msg
+storyView : Settings -> List Int -> Int -> Position -> Maybe Item -> Item -> Svg Msg
 storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
     let
         itemCount =
@@ -258,21 +258,20 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
         )
 
 
-labelTextView : Settings -> String -> String -> String -> Svg Msg
-labelTextView settings posX posY t =
+labelTextView : Settings -> Position -> String -> Svg Msg
+labelTextView settings ( posX, posY ) t =
     foreignObject
-        [ x posX
-        , y posY
+        [ x <| String.fromInt posX
+        , y <| String.fromInt posY
         , width "100"
         , height "30"
         , color settings.color.label
         , fontSize "11"
         , fontWeight "bold"
-        , fontFamily settings.font
         , class ".select-none"
         ]
         [ div
-            [ Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+            [ Attr.style "font-family" (fontStyle settings)
             , Attr.style "word-wrap" "break-word"
             ]
             [ Html.text t ]
