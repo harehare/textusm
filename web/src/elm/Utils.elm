@@ -278,43 +278,25 @@ getMarkdownHeight lines =
     lines |> List.map (\l -> getHeight l) |> List.sum
 
 
-extractDateValues : String -> Maybe ( ( Posix, Posix ), String )
+extractDateValues : String -> Maybe ( Posix, Posix )
 extractDateValues s =
     let
-        tokens =
-            String.split ":" s
-
         rangeValues =
-            getAt 0 tokens
-                |> Maybe.andThen
-                    (\range ->
-                        Just <| String.split "," (String.trim range)
-                    )
-
-        text =
-            getAt 1 tokens
+            String.split "," (String.trim s)
 
         fromDate =
-            Maybe.andThen
-                (\v ->
-                    getAt 0 v
-                        |> Maybe.andThen
-                            (\vv ->
-                                stringToPosix (String.trim vv)
-                            )
-                )
-                rangeValues
+            getAt 0 rangeValues
+                |> Maybe.andThen
+                    (\vv ->
+                        stringToPosix (String.trim vv)
+                    )
 
         toDate =
-            Maybe.andThen
-                (\v ->
-                    getAt 1 v
-                        |> Maybe.andThen
-                            (\vv ->
-                                stringToPosix (String.trim vv)
-                            )
-                )
-                rangeValues
+            getAt 1 rangeValues
+                |> Maybe.andThen
+                    (\vv ->
+                        stringToPosix (String.trim vv)
+                    )
     in
     fromDate
         |> Maybe.andThen
@@ -322,11 +304,7 @@ extractDateValues s =
                 toDate
                     |> Maybe.andThen
                         (\to ->
-                            text
-                                |> Maybe.andThen
-                                    (\t ->
-                                        Just ( ( from, to ), t )
-                                    )
+                            Just ( from, to )
                         )
             )
 
@@ -472,7 +450,7 @@ getCanvasSize model =
                             (last nodeCounts |> Maybe.withDefault 0) * Constants.ganttItemSize + List.length children * 2
                     in
                     case extractDateValues rootItem.text of
-                        Just ( ( from, to ), _ ) ->
+                        Just ( from, to ) ->
                             let
                                 interval =
                                     diff Day utc from to

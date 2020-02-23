@@ -18,7 +18,7 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy6)
 import Json.Decode as D
-import List.Extra exposing (getAt, setAt, takeWhile)
+import List.Extra exposing (getAt, setAt)
 import Maybe.Extra exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
@@ -450,12 +450,12 @@ update message model =
                                 |> String.join "\n"
                     in
                     ( { model | text = text }
-                        , Cmd.batch
-                            [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
-                            , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
-                            , Subscriptions.loadText text
-                            ]
-                        )
+                    , Cmd.batch
+                        [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
+                        , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
+                        , Subscriptions.loadText text
+                        ]
+                    )
 
                 DiagramModel.EndEditSelectedItem item code isComposing ->
                     if code == 13 && not isComposing then

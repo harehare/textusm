@@ -18,7 +18,7 @@ itemMargin =
 
 ganttItemSize : Int
 ganttItemSize =
-    30
+    32
 
 
 smallItemMargin : Int
