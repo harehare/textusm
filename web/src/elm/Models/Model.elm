@@ -64,8 +64,6 @@ type Msg
     | UpdateSettings (String -> Settings) String
     | Shortcuts String
     | SelectAll String
-      -- SharingDialog
-    | CancelSharing
     | ToggleDropDownList String
     | NavRoute Route.Route
 
@@ -116,7 +114,6 @@ type alias Model =
     , progress : Bool
     , apiRoot : String
     , loginUser : Maybe User
-    , inviteMailAddress : Maybe String
     , dropDownIndex : Maybe String
     }
 
@@ -142,8 +139,8 @@ type alias DownloadInfo =
     , id : String
     , title : String
     , text : String
-    , x : Int
-    , y : Int
+    , x : Float
+    , y : Float
     , diagramType : String
     }
 

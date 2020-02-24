@@ -19,8 +19,8 @@ type alias Model =
     , countByTasks : List Int
     , svg : UsmSvg
     , moveStart : Bool
-    , x : Int
-    , y : Int
+    , x : Float
+    , y : Float
     , moveX : Int
     , moveY : Int
     , fullscreen : Bool

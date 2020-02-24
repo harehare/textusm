@@ -441,13 +441,13 @@ getCanvasSize model =
                                                     0
 
                                                 else
-                                                    Item.getChildrenCount i - 1
+                                                    Item.getChildrenCount i // 2
                                             )
                                         |> scanl1 (+)
                                    )
 
                         svgHeight =
-                            (last nodeCounts |> Maybe.withDefault 0) * Constants.ganttItemSize + List.length children * 2
+                            (last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length children * 2
                     in
                     case extractDateValues rootItem.text of
                         Just ( from, to ) ->
@@ -455,7 +455,7 @@ getCanvasSize model =
                                 interval =
                                     diff Day utc from to
                             in
-                            ( Constants.ganttItemSize + interval * Constants.ganttItemSize, svgHeight )
+                            ( Constants.leftMargin + 20 + Constants.ganttItemSize + interval * Constants.ganttItemSize, svgHeight + Constants.ganttItemSize )
 
                         Nothing ->
                             ( 0, 0 )

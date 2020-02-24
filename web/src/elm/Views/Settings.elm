@@ -14,6 +14,7 @@ baseColorItems =
     [ { name = "WHITE", value = DropDownList.colorValue "#FFFFFF" }
     , { name = "BLACK", value = DropDownList.colorValue "#000000" }
     , { name = "GRAY", value = DropDownList.colorValue "#333333" }
+    , { name = "LIGHT GRAY", value = DropDownList.colorValue "#D3D3D3" }
     , { name = "YELLOW", value = DropDownList.colorValue "#FFF9B2" }
     , { name = "GREEN", value = DropDownList.colorValue "#D3F8E2" }
     , { name = "BLUE", value = DropDownList.colorValue "#CEE5F2" }

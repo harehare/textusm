@@ -84,7 +84,6 @@ init flags url key =
                 , progress = True
                 , apiRoot = apiRoot
                 , loginUser = Nothing
-                , inviteMailAddress = Nothing
                 , currentDiagram = Nothing
                 , embed = Nothing
                 , dropDownIndex = Nothing
@@ -643,7 +642,7 @@ update message model =
                     model.diagramModel
 
                 newDiagramModel =
-                    { diagramModel | x = x, y = y, matchParent = False }
+                    { diagramModel | x = toFloat x, y = toFloat y, matchParent = False }
             in
             ( { model | diagramModel = newDiagramModel }, Cmd.none )
 
@@ -985,9 +984,6 @@ update message model =
             , Subscriptions.encodeShareText shareInfo
             )
 
-        CancelSharing ->
-            ( { model | share = Nothing, inviteMailAddress = Nothing }, Nav.back model.key 1 )
-
         OnNotification notification ->
             ( { model | notification = Just notification }, Cmd.none )
 
@@ -1119,7 +1115,7 @@ update message model =
                             ( "", Route.SiteMap )
 
                         Diagram.GanttChart ->
-                            ( "2019-12-26,2020-01-31: title\n    subtitle1\n        2019-12-26, 2019-12-31: task1\n        2019-12-31, 2020-01-04: task2\n", Route.GanttChart )
+                            ( "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n", Route.GanttChart )
 
                 displayText =
                     if String.isEmpty text_ then

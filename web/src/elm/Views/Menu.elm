@@ -131,74 +131,74 @@ newMenu =
     [ Item
         { e = New Diagram.UserStoryMap
         , title = "User Story Map"
-        , icon = Just <| img [ src "/images/user_story_map.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Item
         { e = New Diagram.CustomerJourneyMap
         , title = "Customer Journey Map"
-        , icon = Just <| img [ src "/images/customer_journey_map.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Item
         { e = New Diagram.EmpathyMap
         , title = "Empathy Map"
-        , icon = Just <| img [ src "/images/empathy_map.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Item
         { e = New Diagram.ImpactMap
         , title = "Impact Map"
-        , icon = Just <| img [ src "/images/impact_map.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Item
         { e = New Diagram.MindMap
         , title = "Mind Map"
-        , icon = Just <| img [ src "/images/mind_map.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Item
         { e = New Diagram.SiteMap
         , title = "Site Map"
-        , icon = Just <| img [ src "/images/site_map.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Separator
     , Item
         { e = New Diagram.BusinessModelCanvas
         , title = "Business Model Canvas"
-        , icon = Just <| img [ src "/images/business_model_canvas.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Item
         { e = New Diagram.OpportunityCanvas
         , title = "Opportunity Canvas"
-        , icon = Just <| img [ src "/images/opportunity_canvas.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Item
         { e = New Diagram.UserPersona
         , title = "User Persona"
-        , icon = Just <| img [ src "/images/user_persona.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Item
         { e = New Diagram.GanttChart
         , title = "Gantt Chart"
-        , icon = Just <| img [ src "/images/gantt_chart.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Item
         { e = New Diagram.Markdown
         , title = "Markdown"
-        , icon = Just <| img [ src "/images/markdown.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Separator
     , Item
         { e = New Diagram.Kpt
         , title = "KPT Retrospective"
-        , icon = Just <| img [ src "/images/kpt.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Item
         { e = New Diagram.StartStopContinue
         , title = "Start, Stop, Continue Retrospective"
-        , icon = Just <| img [ src "/images/start_stop_continue.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     , Item
         { e = New Diagram.Fourls
         , title = "4Ls Retrospective"
-        , icon = Just <| img [ src "/images/4ls.svg", style "width" "56px", alt "logo" ] []
+        , icon = Nothing
         }
     ]
 

@@ -21,16 +21,16 @@ view model =
     g
         [ transform
             ("translate("
-                ++ String.fromInt
-                    (if isInfinite <| toFloat <| model.x then
+                ++ String.fromFloat
+                    (if isInfinite <| model.x then
                         0
 
                      else
                         model.x
                     )
                 ++ ","
-                ++ String.fromInt
-                    (if isInfinite <| toFloat <| model.y then
+                ++ String.fromFloat
+                    (if isInfinite <| model.y then
                         0
 
                      else

@@ -7,9 +7,11 @@ import List.Extra exposing (last, scanl1, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.Item as Item exposing (Item)
 import Svg exposing (Svg, foreignObject, g, line, polygon, rect, svg)
-import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, points, rx, ry, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
+import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, points, rx, ry, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
+import Svg.Keyed as Keyed
 import Time exposing (Posix, toDay, utc)
 import Time.Extra exposing (Interval(..), add, diff)
+import Tuple exposing (first, second)
 import Utils
 import Views.Diagram.Views as Views exposing (Position, Size)
 
@@ -37,13 +39,13 @@ view model =
                                     0
 
                                 else
-                                    Item.getChildrenCount i // 2 - 1
+                                    Item.getChildrenCount i // 2
                             )
                         |> scanl1 (+)
                    )
 
         svgHeight =
-            (last nodeCounts |> Maybe.withDefault 0) * Constants.ganttItemSize + List.length items * 2
+            (last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length items * 2
     in
     case Utils.extractDateValues rootItem.text of
         Just ( from, to ) ->
@@ -59,16 +61,16 @@ view model =
             g
                 [ transform
                     ("translate("
-                        ++ String.fromInt
-                            (if isInfinite <| toFloat <| model.x then
+                        ++ String.fromFloat
+                            (if isInfinite <| model.x then
                                 0
 
                              else
                                 model.x
                             )
                         ++ ","
-                        ++ String.fromInt
-                            (if isInfinite <| toFloat <| model.y then
+                        ++ String.fromFloat
+                            (if isInfinite <| model.y then
                                 0
 
                              else
@@ -78,7 +80,6 @@ view model =
                     )
                 ]
                 (weekView model.settings
-                    svgHeight
                     ( from, to )
                     :: daysView model.settings
                         svgHeight
@@ -87,7 +88,7 @@ view model =
                             |> List.concatMap
                                 (\( count, sectionItem ) ->
                                     let
-                                        workItems =
+                                        taskItems =
                                             Item.unwrapChildren sectionItem.children
 
                                         posY =
@@ -101,21 +102,17 @@ view model =
                                         )
                                         from
                                         sectionItem
-                                        :: (workItems
+                                        :: (taskItems
                                                 |> List.indexedMap
-                                                    (\i workItem ->
-                                                        let
-                                                            newPosY =
-                                                                posY + ((i + 2) * Constants.ganttItemSize)
-                                                        in
+                                                    (\i taskItem ->
                                                         [ sectionView
                                                             model.settings
                                                             ( lineWidth, Constants.ganttItemSize )
                                                             ( 20
-                                                            , newPosY
+                                                            , posY + ((i + 2) * Constants.ganttItemSize)
                                                             )
                                                             from
-                                                            workItem
+                                                            taskItem
                                                         ]
                                                     )
                                                 |> List.concat
@@ -142,43 +139,51 @@ daysView settings svgHeight ( from, to ) =
                         posX =
                             i * Constants.ganttItemSize + sectionMargin - 1
 
+                        currentDay =
+                            add Day i utc from
+
                         day =
-                            toDay utc <| add Day i utc from
+                            toDay utc currentDay
                     in
-                    g []
-                        [ foreignObject
-                            [ x <| String.fromInt <| posX + 8
-                            , y <| String.fromInt <| Constants.ganttItemSize - 16
-                            , width <| String.fromInt <| sectionMargin
-                            , height "30"
-                            , fontSize "11"
-                            , fontWeight "bold"
-                            , fontFamily <| fontStyle settings
-                            , class ".select-none"
-                            ]
-                            [ div
-                                [ Attr.style "font-family" (fontStyle settings)
-                                , Attr.style "word-wrap" "break-word"
-                                , Attr.style "color" settings.color.label
+                    Keyed.node "g"
+                        []
+                        [ ( "day_" ++ Utils.millisToString utc currentDay
+                          , g []
+                                [ foreignObject
+                                    [ x <| String.fromInt <| posX + 8
+                                    , y <| String.fromInt <| Constants.ganttItemSize - 16
+                                    , width <| String.fromInt <| sectionMargin
+                                    , height "30"
+                                    , fontSize "11"
+                                    , fontWeight "bold"
+                                    , fontFamily <| fontStyle settings
+                                    , class ".select-none"
+                                    ]
+                                    [ div
+                                        [ Attr.style "font-family" (fontStyle settings)
+                                        , Attr.style "word-wrap" "break-word"
+                                        , Attr.style "color" settings.color.label
+                                        ]
+                                        [ Html.text <| String.fromInt day ]
+                                    ]
+                                , line
+                                    [ x1 <| String.fromInt posX
+                                    , y1 <| String.fromInt <| Constants.ganttItemSize
+                                    , x2 <| String.fromInt posX
+                                    , y2 <| String.fromInt <| Constants.ganttItemSize + svgHeight
+                                    , stroke settings.color.line
+                                    , strokeWidth "0.3"
+                                    ]
+                                    []
                                 ]
-                                [ Html.text <| String.fromInt day ]
-                            ]
-                        , line
-                            [ x1 <| String.fromInt posX
-                            , y1 <| String.fromInt <| Constants.ganttItemSize + 2
-                            , x2 <| String.fromInt posX
-                            , y2 <| String.fromInt <| Constants.ganttItemSize + svgHeight - 2
-                            , stroke "#D7D8DF"
-                            , strokeWidth "0.5"
-                            ]
-                            []
+                          )
                         ]
                 )
         )
 
 
-weekView : Settings -> Int -> ( Posix, Posix ) -> Svg Msg
-weekView settings svgHeight ( from, to ) =
+weekView : Settings -> ( Posix, Posix ) -> Svg Msg
+weekView settings ( from, to ) =
     let
         weekNum =
             diff Day utc from to // 7
@@ -191,32 +196,26 @@ weekView settings svgHeight ( from, to ) =
                         posX =
                             String.fromInt <| i * 7 * Constants.ganttItemSize + sectionMargin - 1
                     in
-                    g []
-                        [ foreignObject
-                            [ x posX
-                            , y <| String.fromInt <| Constants.ganttItemSize - 32
-                            , width <| String.fromInt <| sectionMargin
-                            , height "30"
-                            , class ".select-none"
-                            ]
-                            [ div
-                                [ Attr.style "font-family" (fontStyle settings)
-                                , Attr.style "word-wrap" "break-word"
-                                , Attr.style "color" settings.color.label
-                                , Attr.style "font-size" "11px"
-                                , Attr.style "font-weight" "bold"
+                    Keyed.node "g"
+                        []
+                        [ ( "week_" ++ String.fromInt i
+                          , foreignObject
+                                [ x posX
+                                , y <| String.fromInt <| Constants.ganttItemSize - 32
+                                , width <| String.fromInt <| sectionMargin
+                                , height "30"
+                                , class ".select-none"
                                 ]
-                                [ Html.text <| "Week " ++ (String.fromInt <| i + 1) ]
-                            ]
-                        , line
-                            [ x1 posX
-                            , y1 <| String.fromInt <| Constants.ganttItemSize + 2
-                            , x2 posX
-                            , y2 <| String.fromInt <| Constants.ganttItemSize + svgHeight - 2
-                            , stroke "#D7D8DF"
-                            , strokeWidth "0.5"
-                            ]
-                            []
+                                [ div
+                                    [ Attr.style "font-family" (fontStyle settings)
+                                    , Attr.style "word-wrap" "break-word"
+                                    , Attr.style "color" settings.color.label
+                                    , Attr.style "font-size" "11px"
+                                    , Attr.style "font-weight" "bold"
+                                    ]
+                                    [ Html.text <| "Week " ++ (String.fromInt <| i + 1) ]
+                                ]
+                          )
                         ]
                 )
         )
@@ -235,21 +234,19 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from i
     in
     g []
         [ line
-            [ x1 <| String.fromInt posX
-            , y1 <| String.fromInt <| posY + 2
-            , x2 <| String.fromInt <| posX + sectionWidth + sectionMargin
-            , y2 <| String.fromInt <| posY + 2
-            , stroke "#E2E2E2"
-            , strokeWidth "0.5"
+            [ x1 "0"
+            , y1 <| String.fromInt <| posY
+            , x2 <| String.fromInt <| posX + sectionWidth + sectionMargin + Constants.ganttItemSize
+            , y2 <| String.fromInt <| posY
+            , stroke settings.color.line
+            , strokeWidth "0.3"
             ]
             []
         , foreignObject
             [ x <| String.fromInt <| posX
-            , y <| String.fromInt <| posY + 3
+            , y <| String.fromInt <| posY
             , width <| String.fromInt <| sectionMargin - 2
-            , height <| String.fromInt <| sectionHeight - 2
-            , color "#4A4A4A"
-            , Attr.style "background-color" "#FFFFFF"
+            , height <| String.fromInt <| sectionHeight
             , class ".select-none"
             ]
             [ div
@@ -266,7 +263,7 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from i
             ( settings.color.activity.backgroundColor
             , settings.color.text |> Maybe.withDefault settings.color.label
             )
-            ( posX + sectionMargin
+            ( posX + sectionMargin - 1
             , posY
             )
             from
@@ -283,21 +280,19 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from item =
     in
     g []
         [ line
-            [ x1 <| String.fromInt posX
-            , y1 <| String.fromInt <| posY + 2
-            , x2 <| String.fromInt <| posX + sectionWidth + sectionMargin
-            , y2 <| String.fromInt <| posY + 2
-            , stroke "#E2E2E2"
-            , strokeWidth "0.5"
+            [ x1 "0"
+            , y1 <| String.fromInt <| posY
+            , x2 <| String.fromInt <| posX + sectionWidth + sectionMargin - posX + Constants.ganttItemSize
+            , y2 <| String.fromInt <| posY
+            , stroke settings.color.line
+            , strokeWidth "0.3"
             ]
             []
         , foreignObject
             [ x <| String.fromInt <| posX
-            , y <| String.fromInt <| posY + 3
-            , width <| String.fromInt <| sectionMargin - 2
-            , height <| String.fromInt <| sectionHeight - 2
-            , color "#4A4A4A"
-            , Attr.style "background-color" "#FFFFFF"
+            , y <| String.fromInt <| posY
+            , width <| String.fromInt <| sectionMargin - posX - 2
+            , height <| String.fromInt <| sectionHeight
             , class ".select-none"
             ]
             [ div
@@ -314,7 +309,7 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from item =
             ( settings.color.task.backgroundColor
             , settings.color.text |> Maybe.withDefault settings.color.label
             )
-            ( sectionMargin
+            ( sectionMargin - 1
             , posY
             )
             from
@@ -403,11 +398,33 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
         textWidth =
             String.length text * 20
 
-        startFromY =
-            String.fromInt <| Constants.ganttItemSize // 4 + 1
+        triPosY =
+            Constants.ganttItemSize // 4
 
-        startToY =
-            String.fromInt <| Constants.ganttItemSize // 4 + 16
+        startFromY =
+            triPosY + 1
+
+        startTo =
+            triPosY + 12
+
+        polygonToString pol =
+            pol
+                |> List.map (\i -> String.fromInt (first i) ++ "," ++ String.fromInt (second i))
+                |> String.join " "
+
+        fromPolygon =
+            [ ( 0, startFromY )
+            , ( 0, startTo )
+            , ( startTo, startFromY )
+            ]
+                |> polygonToString
+
+        toPolygon =
+            [ ( svgWidth - 20, startFromY )
+            , ( svgWidth, startFromY )
+            , ( svgWidth, startTo )
+            ]
+                |> polygonToString
     in
     svg
         [ width <| String.fromInt (svgWidth + textWidth)
@@ -424,7 +441,12 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
             ]
             []
         , polygon
-            [ points <| "0," ++ startFromY ++ " 0," ++ startToY ++ " " ++ startToY ++ "," ++ startFromY
+            [ points fromPolygon
+            , fill backgroundColor
+            ]
+            []
+        , polygon
+            [ points toPolygon
             , fill backgroundColor
             ]
             []

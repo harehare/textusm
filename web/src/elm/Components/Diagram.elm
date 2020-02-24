@@ -741,8 +741,8 @@ update message model =
 
               else
                 { model
-                    | x = model.x + (x - model.moveX)
-                    , y = model.y + (y - model.moveY)
+                    | x = model.x + (toFloat x - toFloat model.moveX) * model.svg.scale
+                    , y = model.y + (toFloat y - toFloat model.moveY) * model.svg.scale
                     , moveX = x
                     , moveY = y
                 }
@@ -751,8 +751,8 @@ update message model =
 
         MoveTo x y ->
             ( { model
-                | x = x
-                , y = y
+                | x = toFloat x
+                , y = toFloat y
                 , moveX = 0
                 , moveY = 0
               }

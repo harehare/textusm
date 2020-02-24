@@ -4,17 +4,19 @@ import Html exposing (Html, div)
 import Html.Attributes exposing (id, style)
 import Models.Model exposing (Msg)
 import Route exposing (Route(..))
-import Styles
 
 
 view : Html Msg
 view =
     div
-        (style "background-color" "#273037" :: Styles.matchParent)
+        [ style "background-color" "#273037"
+        , style "width" "100%"
+        , style "height" "100%"
+        ]
         [ div
-            (Styles.matchParent
-                ++ [ id "editor"
-                   ]
-            )
+            [ id "editor"
+            , style "width" "100%"
+            , style "height" "100%"
+            ]
             []
         ]

@@ -47,28 +47,28 @@ view model =
 
                 ( xCenter, yCenter ) =
                     if model.matchParent then
-                        ( canvasWidth // 2 - model.settings.size.width * 2
-                        , canvasHeight // 2 - model.settings.size.height * 2
+                        ( toFloat canvasWidth / 2 - toFloat model.settings.size.width * 2
+                        , toFloat canvasHeight / 2 - toFloat model.settings.size.height * 2
                         )
 
                     else
-                        ( model.width // 2 - model.settings.size.width * 2
-                        , model.height // 2 - model.settings.size.height * 2
+                        ( toFloat model.width / 2 - toFloat model.settings.size.width * 2
+                        , toFloat model.height / 2 - toFloat model.settings.size.height * 2
                         )
             in
             g
                 [ transform
                     ("translate("
-                        ++ String.fromInt
-                            (if isInfinite <| toFloat <| model.x then
+                        ++ String.fromFloat
+                            (if isInfinite <| model.x then
                                 0
 
                              else
                                 model.x + xCenter
                             )
                         ++ ","
-                        ++ String.fromInt
-                            (if isInfinite <| toFloat <| model.y then
+                        ++ String.fromFloat
+                            (if isInfinite <| model.y then
                                 0
 
                              else

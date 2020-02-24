@@ -4,7 +4,6 @@ import Html exposing (Html, div)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Models.Model exposing (Msg(..))
-import Styles
 import Views.Icon as Icon
 
 
@@ -41,27 +40,30 @@ view backgroundColor index view1 view2 =
               else
                 Icon.edit 20
             ]
-        , div Styles.matchParent
+        , div
+            [ style "width" "100%"
+            , style "height" "100%"
+            ]
             [ div
-                ((if index == 1 then
+                [ if index == 1 then
                     style "display" "block"
 
                   else
                     style "display" "none"
-                 )
-                    :: Styles.matchParent
-                )
+                , style "width" "100%"
+                , style "height" "100%"
+                ]
                 [ view1 ]
             , div
-                ((if index == 2 then
+                [ if index == 2 then
                     style "display" "block"
 
                   else
                     style "display" "none"
-                 )
-                    :: style "background-color" backgroundColor
-                    :: Styles.matchParent
-                )
+                , style "background-color" backgroundColor
+                , style "width" "100%"
+                , style "height" "100%"
+                ]
                 [ view2 ]
             ]
         ]

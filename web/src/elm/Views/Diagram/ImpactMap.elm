@@ -35,21 +35,21 @@ view model =
                     Utils.getCanvasSize model
 
                 yCenter =
-                    canvasHeight // 2
+                    toFloat canvasHeight / 2
             in
             g
                 [ transform
                     ("translate("
-                        ++ String.fromInt
-                            (if isInfinite <| toFloat <| model.x then
+                        ++ String.fromFloat
+                            (if isInfinite <| model.x then
                                 10
 
                              else
                                 model.x + 10
                             )
                         ++ ","
-                        ++ String.fromInt
-                            (if isInfinite <| toFloat <| model.y then
+                        ++ String.fromFloat
+                            (if isInfinite <| model.y then
                                 0
 
                              else
