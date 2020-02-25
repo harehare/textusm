@@ -13,7 +13,7 @@
         "jspdf": "^1.5.3",
         "lzutf8": "^0.5.5",
         "monaco-editor": "^0.20.0",
-        "uuid": "^3.4.0"
+        "uuid": "^7.0.1"
     },
     "devDependencies": {
         "@babel/core": "^7.8.4",
