@@ -113,7 +113,6 @@ interface UrlItem {
 export interface GanttChart {
   from: string;
   to: string;
-  title: string;
   chartitems: GanttChartItem[];
 }
 
@@ -351,13 +350,11 @@ function customerJourneyMap2Text(
 }
 
 function ganttchart2Text(ganttChart: GanttChart): string {
-  return `${ganttChart.from},${ganttChart.to}: ${
-    ganttChart.title
-  }\n${ganttChart.chartitems
+  return `${ganttChart.from},${ganttChart.to}\n${ganttChart.chartitems
     .map(item => {
       return `    ${item.title}\n${item.schedules
         .map(schedule => {
-          return `        ${schedule.from},${schedule.to}: ${schedule.title}`;
+          return `        ${schedule.title}\n            ${schedule.from},${schedule.to}`;
         })
         .join("\n")}`;
     })

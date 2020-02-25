@@ -866,7 +866,6 @@ test("Gantt Chart type to string.", () => {
     toString({
       from: "2019-12-26",
       to: "2020-01-31",
-      title: "Test",
       chartitems: [
         {
           title: "subtitle1",
@@ -875,6 +874,6 @@ test("Gantt Chart type to string.", () => {
       ]
     })
   ).toBe(
-    `2019-12-26,2020-01-31: Test\n    subtitle1\n        2019-12-26,2019-12-31: task1`
+    `2019-12-26,2020-01-31\n    subtitle1\n        task1\n            2019-12-26,2019-12-31`
   );
 });

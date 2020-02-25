@@ -316,7 +316,7 @@ getCanvasHeight model =
             List.map (\i -> Item.unwrapChildren i.children |> List.length) model.items
                 |> List.maximum
     in
-    (model.settings.size.height + Constants.itemMargin) * (taskCount |> Maybe.withDefault 0) + 50
+    (model.settings.size.height + Constants.itemMargin) * (taskCount |> Maybe.withDefault 1) + 50
 
 
 getCanvasSize : DiagramModel.Model -> ( Int, Int )
@@ -325,7 +325,7 @@ getCanvasSize model =
         ( width, height ) =
             case model.diagramType of
                 Diagram.Fourls ->
-                    ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.itemHeight (getCanvasHeight model) * 2 + 50 )
+                    ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.largeItemHeight (getCanvasHeight model) * 2 + 50 )
 
                 Diagram.EmpathyMap ->
                     ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.itemHeight (getCanvasHeight model) * 2 + 50 )
