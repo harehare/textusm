@@ -7,45 +7,53 @@ import Task exposing (Task)
 import Url.Builder exposing (QueryParameter, crossOrigin)
 
 
-get : Maybe IdToken -> String -> List String -> List QueryParameter -> Http.Resolver Http.Error a -> Task Http.Error a
-get idToken apiRoot path query resolver =
+type alias RequestInfo =
+    { idToken : Maybe IdToken
+    , url : String
+    , path : List String
+    , query : List QueryParameter
+    }
+
+
+get : RequestInfo -> Http.Resolver Http.Error a -> Task Http.Error a
+get req resolver =
     Http.task
         { method = "GET"
         , headers =
             [ Http.header "Content-Type" "application/json"
-            , idToken |> Maybe.withDefault (IdToken.fromString "dummy") |> IdToken.unwrap |> Http.header "Authorization"
+            , req.idToken |> Maybe.withDefault (IdToken.fromString "dummy") |> IdToken.unwrap |> Http.header "Authorization"
             ]
-        , url = crossOrigin apiRoot path query
+        , url = crossOrigin req.url req.path req.query
         , body = Http.emptyBody
         , resolver = resolver
         , timeout = Nothing
         }
 
 
-post : Maybe IdToken -> String -> List String -> Http.Body -> Http.Resolver Http.Error a -> Task Http.Error a
-post idToken apiRoot path body resolver =
+post : RequestInfo -> Http.Body -> Http.Resolver Http.Error a -> Task Http.Error a
+post req body resolver =
     Http.task
         { method = "POST"
         , headers =
             [ Http.header "Content-Type" "application/json"
-            , idToken |> Maybe.withDefault (IdToken.fromString "dummy") |> IdToken.unwrap |> Http.header "Authorization"
+            , req.idToken |> Maybe.withDefault (IdToken.fromString "dummy") |> IdToken.unwrap |> Http.header "Authorization"
             ]
-        , url = crossOrigin apiRoot path []
+        , url = crossOrigin req.url req.path []
         , body = body
         , resolver = resolver
         , timeout = Nothing
         }
 
 
-delete : Maybe IdToken -> String -> List String -> List QueryParameter -> Http.Resolver Http.Error a -> Task Http.Error a
-delete idToken apiRoot path query resolver =
+delete : RequestInfo -> Http.Resolver Http.Error a -> Task Http.Error a
+delete req resolver =
     Http.task
         { method = "DELETE"
         , headers =
             [ Http.header "Content-Type" "application/json"
-            , idToken |> Maybe.withDefault (IdToken.fromString "dummy") |> IdToken.unwrap |> Http.header "Authorization"
+            , req.idToken |> Maybe.withDefault (IdToken.fromString "dummy") |> IdToken.unwrap |> Http.header "Authorization"
             ]
-        , url = crossOrigin apiRoot path query
+        , url = crossOrigin req.url req.path req.query
         , body = Http.emptyBody
         , resolver = resolver
         , timeout = Nothing

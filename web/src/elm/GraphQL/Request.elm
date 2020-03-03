@@ -10,40 +10,46 @@ import Task exposing (Task)
 import TextUSM.InputObject exposing (InputItem)
 
 
+type alias RequestInfo =
+    { idToken : Maybe IdToken
+    , url : String
+    }
+
+
 graphQLUrl : String -> String
 graphQLUrl url =
     url ++ "/graphql"
 
 
-item : String -> Maybe IdToken -> String -> Task (Http.Error DiagramItem) DiagramItem
-item url idToken id =
+item : RequestInfo -> String -> Task (Http.Error DiagramItem) DiagramItem
+item req id =
     Query.item id
-        |> Http.queryRequest (graphQLUrl url)
-        |> headers idToken
+        |> Http.queryRequest (graphQLUrl req.url)
+        |> headers req.idToken
         |> Http.toTask
 
 
-items : String -> Maybe IdToken -> ( Int, Int ) -> Bool -> Bool -> Task (Http.Error (List (Maybe DiagramItem))) (List (Maybe DiagramItem))
-items url idToken ( offset, limit ) isBookmark isPublic =
+items : RequestInfo -> ( Int, Int ) -> Bool -> Bool -> Task (Http.Error (List (Maybe DiagramItem))) (List (Maybe DiagramItem))
+items req ( offset, limit ) isBookmark isPublic =
     Query.items ( offset, limit ) isBookmark isPublic
-        |> Http.queryRequest (graphQLUrl url)
-        |> headers idToken
+        |> Http.queryRequest (graphQLUrl req.url)
+        |> headers req.idToken
         |> Http.toTask
 
 
-save : InputItem -> String -> Maybe IdToken -> Task (Http.Error DiagramItem) DiagramItem
-save input url idToken =
+save : RequestInfo -> InputItem -> Task (Http.Error DiagramItem) DiagramItem
+save req input =
     Mutation.save input
-        |> Http.mutationRequest (graphQLUrl url)
-        |> headers idToken
+        |> Http.mutationRequest (graphQLUrl req.url)
+        |> headers req.idToken
         |> Http.toTask
 
 
-delete : String -> String -> Maybe IdToken -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
-delete itemID url idToken =
+delete : RequestInfo -> String -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
+delete req itemID =
     Mutation.delete itemID
-        |> Http.mutationRequest (graphQLUrl url)
-        |> headers idToken
+        |> Http.mutationRequest (graphQLUrl req.url)
+        |> headers req.idToken
         |> Http.toTask
 
 

@@ -350,7 +350,7 @@ update message model =
                     Just _ ->
                         let
                             remoteItems =
-                                Request.items model.apiRoot (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser) (pageOffsetAndLimit model.pageNo) False False
+                                Request.items { url = model.apiRoot, idToken = Maybe.map (\u -> UserModel.getIdToken u) model.loginUser } (pageOffsetAndLimit model.pageNo) False False
                                     |> Task.map
                                         (\i ->
                                             i
@@ -431,7 +431,7 @@ update message model =
                 Ok diagram ->
                     ( model
                     , Task.attempt Removed
-                        (Request.delete (Maybe.withDefault "" diagram.id) model.apiRoot (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser)
+                        (Request.delete { url = model.apiRoot, idToken = Maybe.map (\u -> UserModel.getIdToken u) model.loginUser } (Maybe.withDefault "" diagram.id)
                             |> Task.map (\_ -> Just diagram)
                         )
                     )

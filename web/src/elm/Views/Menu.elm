@@ -1,7 +1,7 @@
 module Views.Menu exposing (MenuItem(..), menu, view)
 
-import Html exposing (Html, div, img, nav, span, text)
-import Html.Attributes exposing (alt, class, src, style)
+import Html exposing (Html, div, nav, span, text)
+import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List

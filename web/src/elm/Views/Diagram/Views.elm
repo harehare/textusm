@@ -1,12 +1,11 @@
 module Views.Diagram.Views exposing (Position, Size, canvasBottomView, canvasImageView, canvasView, cardView, rectView, textView)
 
 import Constants
-import Events exposing (onKeyDown)
+import Events exposing (onClickStopPropagation, onKeyDown)
 import Html exposing (div, img, input)
 import Html.Attributes as Attr
-import Html.Events exposing (onInput, stopPropagationOn)
+import Html.Events exposing (onInput)
 import Html5.DragDrop as DragDrop
-import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Models.Diagram exposing (Msg(..), Settings, fontStyle, settingsOfWidth)
 import Models.Item as Item exposing (Item, ItemType(..))
@@ -38,6 +37,10 @@ type alias Y =
 
 type alias Position =
     ( X, Y )
+
+
+type alias RGB =
+    String
 
 
 cardView : Settings -> Position -> Maybe Item -> Item -> Svg Msg
@@ -80,7 +83,7 @@ cardView settings ( posX, posY ) selectedItem item =
             ]
 
 
-rectView : Position -> Size -> String -> Svg Msg
+rectView : Position -> Size -> RGB -> Svg Msg
 rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
     rect
         [ width <| String.fromInt svgWidth
@@ -93,7 +96,7 @@ rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         []
 
 
-selectedRectView : Position -> Size -> String -> Svg Msg
+selectedRectView : Position -> Size -> RGB -> Svg Msg
 selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
     rect
         [ width <| String.fromInt svgWidth
@@ -127,7 +130,7 @@ dropArea ( posX, posY ) ( svgWidth, svgHeight ) item =
         ]
 
 
-inputView : Settings -> Maybe String -> Position -> Size -> ( String, String ) -> Item -> Svg Msg
+inputView : Settings -> Maybe String -> Position -> Size -> ( RGB, RGB ) -> Item -> Svg Msg
 inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, backgroundColor ) item =
     foreignObject
         [ x <| String.fromInt posX
@@ -166,7 +169,7 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
         ]
 
 
-textView : Settings -> Position -> Size -> String -> String -> Svg Msg
+textView : Settings -> Position -> Size -> RGB -> String -> Svg Msg
 textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour textOrUrl =
     foreignObject
         [ x <| String.fromInt posX
@@ -309,13 +312,3 @@ imageView ( imageWidth, imageHeight ) ( posX, posY ) url =
             ]
             []
         ]
-
-
-onClickStopPropagation : msg -> Html.Attribute msg
-onClickStopPropagation msg =
-    stopPropagationOn "click" (D.map alwaysStopPropagation (D.succeed msg))
-
-
-alwaysStopPropagation : msg -> ( msg, Bool )
-alwaysStopPropagation msg =
-    ( msg, True )

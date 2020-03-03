@@ -771,7 +771,7 @@ update message model =
                         |> Result.andThen
                             (\diagram ->
                                 Ok
-                                    (Request.save (DiagramItem.toInputItem diagram) model.apiRoot (Utils.getIdToken model.loginUser)
+                                    (Request.save { url = model.apiRoot, idToken = Utils.getIdToken model.loginUser } (DiagramItem.toInputItem diagram)
                                         |> Task.map (\_ -> diagram)
                                     )
                             )
