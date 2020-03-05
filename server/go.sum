@@ -12,6 +12,8 @@ github.com/99designs/gqlgen v0.10.2 h1:FfjCqIWejHDJeLpQTI0neoZo5vDO3sdo5oNCucet3
 github.com/99designs/gqlgen v0.10.2/go.mod h1:aDB7oabSAyZ4kUHLEySsLxnWrBy3lA0A2gWKU+qoHwI=
 github.com/99designs/gqlgen v0.11.1 h1:QoSL8/AAJ2T3UOeQbdnBR32JcG4pO08+P/g5jdbFkUg=
 github.com/99designs/gqlgen v0.11.1/go.mod h1:vjFOyBZ7NwDl+GdSD4PFn7BQn5Fy7ohJwXn7Vk8zz+c=
+github.com/99designs/gqlgen v0.11.2 h1:qatIx2DY7YyaUIBd47ORY3Aj/+pJsPLoL7tyuuISJR0=
+github.com/99designs/gqlgen v0.11.2/go.mod h1:RgX5GRRdDWNkh4pBrdzNpNPFVsdoUFY2+adM6nb1N+4=
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
@@ -231,6 +233,8 @@ github.com/urfave/cli v1.20.0 h1:fDqGv3UG/4jbVl/QkFwEdddtEDjh/5Ov6X+0B/3bPaw=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
 github.com/urfave/cli v1.22.2 h1:gsqYFH8bb9ekPA12kRo0hfjngWQjkJPlN9R0N78BoUo=
 github.com/urfave/cli v1.22.2/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
+github.com/urfave/cli/v2 v2.1.1 h1:Qt8FeAtxE/vfdrLmR3rxR6JRE0RoVmbXu8+6kZtYU4k=
+github.com/urfave/cli/v2 v2.1.1/go.mod h1:SE9GqnLQmjVa0iPEY0f1w3ygNIYcIJ0OKPMoW2caLfQ=
 github.com/urfave/negroni v1.0.0 h1:kIimOitoypq34K7TG7DUaJ9kq/N4Ofuwi1sjz0KipXc=
 github.com/urfave/negroni v1.0.0/go.mod h1:Meg73S6kFm/4PpbYdq35yYWoCZ9mS/YSx+lKnmiohz4=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=
