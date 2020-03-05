@@ -394,6 +394,9 @@ changeRouteTo route model =
         Route.GanttChart ->
             changeDiagramType Diagram.GanttChart
 
+        Route.ErDiagram ->
+            changeDiagramType Diagram.ErDiagram
+
         Route.Home ->
             ( model, getCmds [] )
 
@@ -1116,6 +1119,9 @@ update message model =
 
                         Diagram.GanttChart ->
                             ( "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n", Route.GanttChart )
+
+                        Diagram.ErDiagram ->
+                            ( "", Route.ErDiagram )
 
                 displayText =
                     if String.isEmpty text_ then

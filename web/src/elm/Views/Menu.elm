@@ -180,6 +180,11 @@ newMenu =
         , icon = Nothing
         }
     , Item
+        { e = New Diagram.ErDiagram
+        , title = "ER Diagram"
+        , icon = Nothing
+        }
+    , Item
         { e = New Diagram.Markdown
         , title = "Markdown"
         , icon = Nothing

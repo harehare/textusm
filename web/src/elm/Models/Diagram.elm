@@ -2,7 +2,7 @@ module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Set
 
 import Browser.Dom exposing (Viewport)
 import Html5.DragDrop as DragDrop
-import Models.Item exposing (Item, ItemType(..))
+import Models.Item exposing (Item, ItemType(..), Items)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
@@ -10,7 +10,7 @@ import TextUSM.Enum.Diagram exposing (Diagram)
 
 
 type alias Model =
-    { items : List Item
+    { items : Items
     , labels : List String
     , hierarchy : Int
     , width : Int

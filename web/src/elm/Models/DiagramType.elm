@@ -48,6 +48,9 @@ toString diagramType =
         ImpactMap ->
             "imm"
 
+        ErDiagram ->
+            "erd"
+
 
 fromString : String -> Diagram
 fromString s =
@@ -93,6 +96,9 @@ fromString s =
 
         "imm" ->
             ImpactMap
+
+        "erd" ->
+            ErDiagram
 
         _ ->
             UserStoryMap

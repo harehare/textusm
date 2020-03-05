@@ -281,6 +281,7 @@ enum Diagram {
   SITE_MAP
   GANTT_CHART
   IMPACT_MAP
+  ER_DIAGRAM
 }
 
 type Item {

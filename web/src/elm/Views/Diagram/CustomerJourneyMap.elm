@@ -1,7 +1,7 @@
 module Views.Diagram.CustomerJourneyMap exposing (view)
 
 import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.Item as Item exposing (Item, ItemType(..))
+import Models.Item as Item exposing (Item, ItemType(..), Items)
 import String
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (transform)
@@ -31,23 +31,23 @@ view model =
                 ++ ")"
             )
         ]
-        (if List.isEmpty model.items then
+        (if Item.isEmpty model.items then
             []
 
          else
             headerView model.settings
                 model.selectedItem
                 (model.items
-                    |> List.head
+                    |> Item.head
                     |> Maybe.withDefault Item.emptyItem
                     |> .children
                     |> Item.unwrapChildren
                 )
                 ++ ((model.items
-                        |> List.tail
-                        |> Maybe.withDefault []
+                        |> Item.tail
+                        |> Maybe.withDefault Item.empty
                     )
-                        |> List.indexedMap
+                        |> Item.indexedMap
                             (\i item ->
                                 rowView model.settings
                                     model.selectedItem
@@ -59,10 +59,10 @@ view model =
         )
 
 
-headerView : Settings -> Maybe Item -> List Item -> List (Svg Msg)
+headerView : Settings -> Maybe Item -> Items -> List (Svg Msg)
 headerView settings selectedItem items =
     Views.cardView settings ( 0, 0 ) selectedItem Item.emptyItem
-        :: List.indexedMap
+        :: Item.indexedMap
             (\i item ->
                 Views.cardView settings ( settings.size.width * (i + 1), 0 ) selectedItem { item | itemType = Activities }
             )
@@ -76,7 +76,7 @@ rowView settings selectedItem rowNo item =
         ( 0, settings.size.height * rowNo )
         selectedItem
         { item | itemType = Tasks }
-        :: List.indexedMap
+        :: Item.indexedMap
             (\i childItem ->
                 Views.cardView
                     settings

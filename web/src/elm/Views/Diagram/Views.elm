@@ -8,7 +8,7 @@ import Html.Events exposing (onInput)
 import Html5.DragDrop as DragDrop
 import Maybe.Extra exposing (isJust)
 import Models.Diagram exposing (Msg(..), Settings, fontStyle, settingsOfWidth)
-import Models.Item as Item exposing (Item, ItemType(..))
+import Models.Item as Item exposing (Item, ItemType(..), Items)
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
 import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, style, width, x, xlinkHref, y)
@@ -263,14 +263,14 @@ titleView settings ( posX, posY ) item =
         [ text item.text ]
 
 
-canvasTextView : Settings -> Int -> Position -> Maybe Item -> List Item -> Svg Msg
+canvasTextView : Settings -> Int -> Position -> Maybe Item -> Items -> Svg Msg
 canvasTextView settings svgWidth ( posX, posY ) selectedItem items =
     let
         newSettings =
             settings |> settingsOfWidth.set (svgWidth - Constants.itemMargin * 2)
     in
     g []
-        (List.indexedMap
+        (Item.indexedMap
             (\i item ->
                 cardView newSettings ( posX, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin ) selectedItem item
             )
@@ -283,7 +283,7 @@ canvasImageView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
     let
         lines =
             Item.unwrapChildren item.children
-                |> List.map (\i -> i.text)
+                |> Item.map (\i -> i.text)
     in
     svg
         [ width <| String.fromInt svgWidth

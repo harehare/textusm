@@ -1,9 +1,8 @@
 module Views.Diagram.OpportunityCanvas exposing (view)
 
 import Constants
-import List.Extra exposing (getAt)
 import Models.Diagram exposing (Model, Msg(..))
-import Models.Item as Item exposing (Children(..), ItemType(..))
+import Models.Item as Item exposing (ItemType(..))
 import String
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (fill, transform)
@@ -45,7 +44,7 @@ view model =
             ( 0, 0 )
             model.selectedItem
             (model.items
-                |> getAt 2
+                |> Item.getAt 2
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -55,7 +54,7 @@ view model =
             ( Constants.itemWidth - 5, 0 )
             model.selectedItem
             (model.items
-                |> getAt 0
+                |> Item.getAt 0
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -65,7 +64,7 @@ view model =
             ( Constants.itemWidth - 5, itemHeight - 5 )
             model.selectedItem
             (model.items
-                |> getAt 3
+                |> Item.getAt 3
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -75,7 +74,7 @@ view model =
             ( Constants.itemWidth * 2 - 10, 0 )
             model.selectedItem
             (model.items
-                |> getAt 1
+                |> Item.getAt 1
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -85,7 +84,7 @@ view model =
             ( Constants.itemWidth * 3 - 15, 0 )
             model.selectedItem
             (model.items
-                |> getAt 5
+                |> Item.getAt 5
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -95,7 +94,7 @@ view model =
             ( Constants.itemWidth * 3 - 15, itemHeight - 5 )
             model.selectedItem
             (model.items
-                |> getAt 7
+                |> Item.getAt 7
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -105,7 +104,7 @@ view model =
             ( Constants.itemWidth * 4 - 20, 0 )
             model.selectedItem
             (model.items
-                |> getAt 6
+                |> Item.getAt 6
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -115,7 +114,7 @@ view model =
             ( 0, itemHeight * 2 - 5 )
             model.selectedItem
             (model.items
-                |> getAt 4
+                |> Item.getAt 4
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -125,7 +124,7 @@ view model =
             ( round (toFloat Constants.itemWidth * 2) - 10, itemHeight * 2 - 5 )
             model.selectedItem
             (model.items
-                |> getAt 9
+                |> Item.getAt 9
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -135,7 +134,7 @@ view model =
             ( round (toFloat Constants.itemWidth * 3) - 15, itemHeight * 2 - 5 )
             model.selectedItem
             (model.items
-                |> getAt 8
+                |> Item.getAt 8
                 |> Maybe.withDefault Item.emptyItem
             )
         ]

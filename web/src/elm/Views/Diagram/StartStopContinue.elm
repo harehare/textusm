@@ -1,9 +1,8 @@
 module Views.Diagram.StartStopContinue exposing (view)
 
 import Constants
-import List.Extra exposing (getAt)
 import Models.Diagram exposing (Model, Msg(..))
-import Models.Item as Item exposing (Children(..), ItemType(..))
+import Models.Item as Item exposing (ItemType(..))
 import String
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (fill, transform)
@@ -45,7 +44,7 @@ view model =
             ( 0, 0 )
             model.selectedItem
             (model.items
-                |> getAt 0
+                |> Item.getAt 0
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -55,7 +54,7 @@ view model =
             ( Constants.itemWidth - 5, 0 )
             model.selectedItem
             (model.items
-                |> getAt 1
+                |> Item.getAt 1
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -65,7 +64,7 @@ view model =
             ( Constants.itemWidth * 2 - 10, 0 )
             model.selectedItem
             (model.items
-                |> getAt 2
+                |> Item.getAt 2
                 |> Maybe.withDefault Item.emptyItem
             )
         ]

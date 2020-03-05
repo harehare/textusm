@@ -1,7 +1,7 @@
-module Models.ER.Item exposing (Attribute(..), Column(..), ColumnType(..), IndexType(..), Relationship, Table, itemsToErDiagram)
+module Models.ER.Item exposing (Attribute(..), Column(..), ColumnType(..), Index, IndexType(..), Relationship, Table, itemsToErDiagram)
 
 import List.Extra exposing (getAt)
-import Models.Item as Item exposing (Item)
+import Models.Item as Item exposing (Item, Items)
 
 
 type alias Name =
@@ -21,6 +21,7 @@ type Relationship
     | OneToMany TableName TableName
     | ManyToOne TableName TableName
     | OneToOne TableName TableName
+    | NoRelation
 
 
 type Table
@@ -73,17 +74,17 @@ type Attribute
     | None
 
 
-itemsToErDiagram : List Item -> ( List (Maybe Relationship), List Table )
+itemsToErDiagram : Items -> ( List Relationship, List Table )
 itemsToErDiagram items =
     let
         relationships =
-            getAt 0 items
+            Item.getAt 0 items
                 |> Maybe.withDefault Item.emptyItem
                 |> .children
                 |> Item.unwrapChildren
 
         tables =
-            getAt 1 items
+            Item.getAt 1 items
                 |> Maybe.withDefault Item.emptyItem
                 |> .children
                 |> Item.unwrapChildren
@@ -91,76 +92,76 @@ itemsToErDiagram items =
     ( itemsToRelationships relationships, itemsToTables tables )
 
 
-itemsToRelationships : List Item -> List (Maybe Relationship)
+itemsToRelationships : Items -> List Relationship
 itemsToRelationships items =
-    List.map itemToRelationship items
+    Item.map itemToRelationship items
 
 
-itemToRelationship : Item -> Maybe Relationship
+itemToRelationship : Item -> Relationship
 itemToRelationship item =
     if String.contains " < " item.text then
         case String.split " < " item.text of
             [ table1, table2 ] ->
-                Just <| OneToMany table1 table2
+                OneToMany table1 table2
 
             _ ->
-                Nothing
+                NoRelation
 
     else if String.contains " > " item.text then
         case String.split " > " item.text of
             [ table1, table2 ] ->
-                Just <| ManyToOne table1 table2
+                ManyToOne table1 table2
 
             _ ->
-                Nothing
+                NoRelation
 
     else if String.contains " - " item.text then
         case String.split " - " item.text of
             [ table1, table2 ] ->
-                Just <| OneToOne table1 table2
+                OneToOne table1 table2
 
             _ ->
-                Nothing
+                NoRelation
 
     else if String.contains " = " item.text then
         case String.split " = " item.text of
             [ table1, table2 ] ->
-                Just <| ManyToMany table1 table2
+                ManyToMany table1 table2
 
             _ ->
-                Nothing
+                NoRelation
 
     else
-        Nothing
+        NoRelation
 
 
-itemsToTables : List Item -> List Table
+itemsToTables : Items -> List Table
 itemsToTables items =
-    List.map itemToTable items
+    Item.map itemToTable items
 
 
 itemToTable : Item -> Table
 itemToTable item =
     let
         tableName =
-            item.text
+            String.trim item.text
 
-        children =
+        items =
             Item.unwrapChildren item.children
 
         columns =
-            getAt 0 children
+            Item.getAt 0 items
                 |> Maybe.withDefault Item.emptyItem
                 |> .children
                 |> Item.unwrapChildren
-                |> List.map itemToColumn
+                |> Item.map itemToColumn
 
         indexes =
-            getAt 1 children
+            Item.getAt 1 items
                 |> Maybe.withDefault Item.emptyItem
                 |> .children
                 |> Item.unwrapChildren
-                |> List.map itemToIndex
+                |> Item.map itemToIndex
     in
     Table tableName columns indexes
 

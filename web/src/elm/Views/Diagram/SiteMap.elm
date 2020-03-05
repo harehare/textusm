@@ -3,7 +3,7 @@ module Views.Diagram.SiteMap exposing (view)
 import Constants
 import List.Extra exposing (scanl1, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.Item as Item exposing (Item)
+import Models.Item as Item exposing (Item, Items)
 import Svg exposing (Svg, g, line)
 import Svg.Attributes exposing (stroke, strokeWidth, transform, x1, x2, y1, y2)
 import Views.Diagram.Views as Views exposing (Position)
@@ -13,7 +13,7 @@ view : Model -> Svg Msg
 view model =
     let
         rootItem =
-            List.head model.items
+            Item.head model.items
     in
     case rootItem of
         Just root ->
@@ -50,16 +50,16 @@ view model =
             g [] []
 
 
-siteView : Settings -> ( Int, Int ) -> Maybe Item -> List Item -> Svg Msg
+siteView : Settings -> ( Int, Int ) -> Maybe Item -> Items -> Svg Msg
 siteView settings ( posX, posY ) selectedItem items =
     let
         hierarchyCountList =
             0
-                :: List.map (\item -> Item.getHierarchyCount item - 1) items
+                :: Item.map (\item -> Item.getHierarchyCount item - 1) items
                 |> scanl1 (+)
     in
     g []
-        (zip hierarchyCountList items
+        (zip hierarchyCountList (Item.unwrap items)
             |> List.indexedMap
                 (\i ( hierarchyCount, item ) ->
                     let
@@ -95,15 +95,15 @@ siteView settings ( posX, posY ) selectedItem items =
         )
 
 
-siteTreeView : Settings -> Position -> Maybe Item -> List Item -> Svg Msg
+siteTreeView : Settings -> Position -> Maybe Item -> Items -> Svg Msg
 siteTreeView settings ( posX, posY ) selectedItem items =
     let
         childrenCountList =
             0
                 :: (items
-                        |> List.map
+                        |> Item.map
                             (\i ->
-                                if List.isEmpty (Item.unwrapChildren i.children) then
+                                if Item.isEmpty (Item.unwrapChildren i.children) then
                                     0
 
                                 else
@@ -113,7 +113,7 @@ siteTreeView settings ( posX, posY ) selectedItem items =
                    )
     in
     g []
-        (zip childrenCountList items
+        (zip childrenCountList (Item.unwrap items)
             |> List.indexedMap
                 (\i ( childrenCount, item ) ->
                     let

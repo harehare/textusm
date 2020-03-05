@@ -12,7 +12,7 @@ import List
 import List.Extra exposing (getAt, scanl, unique)
 import Maybe.Extra exposing (isNothing)
 import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.Item as Item exposing (Item, ItemType(..))
+import Models.Item as Item exposing (Item, ItemType(..), Items)
 import Parser
 import Result exposing (andThen)
 import String
@@ -26,6 +26,7 @@ import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.CustomerJourneyMap as CustomerJourneyMap
 import Views.Diagram.EmpathyMap as EmpathyMap
+import Views.Diagram.ErDiagram as ErDiagram
 import Views.Diagram.FourLs as FourLs
 import Views.Diagram.GanttChart as GanttChart
 import Views.Diagram.ImpactMap as ImpactMap
@@ -37,13 +38,14 @@ import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
+import Views.Diagram.Views as Views exposing (Size)
 import Views.Empty as Empty
 import Views.Icon as Icon
 
 
 init : Settings -> ( Model, Cmd Msg )
 init settings =
-    ( { items = []
+    ( { items = Item.empty
       , hierarchy = 0
       , width = 0
       , height = 0
@@ -92,7 +94,7 @@ getItemType text indent =
                 Stories (indent - 1)
 
 
-loadText : Diagram -> Int -> Int -> String -> Result String ( List Int, List Item )
+loadText : Diagram -> Int -> Int -> String -> Result String ( List Int, Items )
 loadText diagramType lineNo indent input =
     let
         splited =
@@ -125,35 +127,34 @@ loadText diagramType lineNo indent input =
                                 (\( indents2, tailItems ) ->
                                     Ok
                                         ( indent :: indents ++ indents2
-                                        , { lineNo = lineNo
-                                          , text = x
-                                          , itemType = getItemType x indent
-                                          , children = Item.fromItems items
-                                          }
-                                            :: tailItems
-                                            |> List.filter (\item -> item.itemType /= Comments)
+                                        , Item.cons
+                                            { lineNo = lineNo
+                                            , text = x
+                                            , itemType = getItemType x indent
+                                            , children = Item.childrenFromItems items
+                                            }
+                                            (Item.filter
+                                                (\item -> item.itemType /= Comments)
+                                                tailItems
+                                            )
                                         )
                                 )
                     )
 
         Ok _ ->
-            Ok ( [ indent ], [] )
+            Ok ( [ indent ], Item.empty )
 
         Err err ->
             Err err
 
 
-load : Diagram -> String -> Result String ( Int, List Item )
+load : Diagram -> String -> Result String ( Int, Items )
 load diagramType text =
     if String.isEmpty text then
-        Ok ( 0, [] )
+        Ok ( 0, Item.empty )
 
     else
-        let
-            result =
-                loadText diagramType 0 0 text
-        in
-        case result of
+        case loadText diagramType 0 0 text of
             Ok ( i, loadedItems ) ->
                 Ok
                     ( i
@@ -167,18 +168,17 @@ load diagramType text =
                 Err e
 
 
-countUpToHierarchy : Int -> List Item -> List Int
+countUpToHierarchy : Int -> Items -> List Int
 countUpToHierarchy hierarchy items =
     let
-        countUp : List Item -> List (List Int)
+        countUp : Items -> List (List Int)
         countUp countItems =
-            -- Do not count activity, task and comment items.
             [ countItems
-                |> List.filter (\x -> x.itemType /= Tasks && x.itemType /= Activities)
-                |> List.length
+                |> Item.filter (\x -> x.itemType /= Tasks && x.itemType /= Activities)
+                |> Item.length
             ]
                 :: (countItems
-                        |> List.map
+                        |> Item.map
                             (\it ->
                                 let
                                     results =
@@ -362,6 +362,9 @@ diagramView diagramType =
 
         ImpactMap ->
             ImpactMap.view
+
+        ErDiagram ->
+            ErDiagram.view
 
 
 svgView : Model -> Svg Msg
@@ -574,8 +577,8 @@ touchCoordinates touchEvent =
 -- Update
 
 
-updateDiagram : Int -> Int -> Model -> String -> Result String Model
-updateDiagram width height base text =
+updateDiagram : Size -> Model -> String -> Result String Model
+updateDiagram ( width, height ) base text =
     load base.diagramType text
         |> Result.andThen
             (\( hierarchy, items ) ->
@@ -606,7 +609,7 @@ updateDiagram width height base text =
                                 []
 
                     countByTasks =
-                        scanl (\it v -> v + List.length (Item.unwrapChildren it.children)) 0 items
+                        scanl (\it v -> v + Item.length (Item.unwrapChildren it.children)) 0 (Item.unwrap items)
 
                     newModel =
                         { base
@@ -657,7 +660,7 @@ update message model =
                     round window.viewport.height - 50
 
                 result =
-                    updateDiagram width height model text
+                    updateDiagram ( width, height ) model text
             in
             case result of
                 Ok usm ->
@@ -705,7 +708,7 @@ update message model =
         OnChangeText text ->
             let
                 result =
-                    updateDiagram model.width model.height model text
+                    updateDiagram ( model.width, model.height ) model text
             in
             ( case result of
                 Ok usm ->

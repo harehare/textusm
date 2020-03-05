@@ -1,7 +1,6 @@
 module Views.Diagram.FourLs exposing (view)
 
 import Constants
-import List.Extra exposing (getAt)
 import Models.Diagram exposing (Model, Msg(..))
 import Models.Item as Item exposing (ItemType(..))
 import String
@@ -45,7 +44,7 @@ view model =
             ( 0, 0 )
             model.selectedItem
             (model.items
-                |> getAt 0
+                |> Item.getAt 0
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -55,7 +54,7 @@ view model =
             ( Constants.largeItemWidth - 5, 0 )
             model.selectedItem
             (model.items
-                |> getAt 1
+                |> Item.getAt 1
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -65,7 +64,7 @@ view model =
             ( 0, itemHeight - 5 )
             model.selectedItem
             (model.items
-                |> getAt 2
+                |> Item.getAt 2
                 |> Maybe.withDefault Item.emptyItem
             )
 
@@ -75,7 +74,7 @@ view model =
             ( Constants.largeItemWidth - 5, itemHeight - 5 )
             model.selectedItem
             (model.items
-                |> getAt 3
+                |> Item.getAt 3
                 |> Maybe.withDefault Item.emptyItem
             )
         ]
