@@ -1,4 +1,4 @@
-module Models.ER.Item exposing (Attribute(..), Column(..), ColumnType(..), Index, IndexType(..), Relationship, Table, itemsToErDiagram)
+module Models.ER.Item exposing (Attribute(..), Column(..), ColumnType(..), Index, IndexType(..), Relationship(..), Table(..), columnTypeToString, itemsToErDiagram, tableWidth)
 
 import List.Extra exposing (getAt)
 import Models.Item as Item exposing (Item, Items)
@@ -74,6 +74,20 @@ type Attribute
     | None
 
 
+tableWidth : Table -> Int
+tableWidth (Table name columns indexes) =
+    String.length name
+        :: List.map (\(Column colName _ _) -> String.length colName)
+            columns
+        ++ List.map
+            (\index -> String.length index.name)
+            indexes
+        |> List.maximum
+        |> Maybe.map (\maxLength -> 12 * maxLength)
+        |> Maybe.withDefault 180
+        |> max 180
+
+
 itemsToErDiagram : Items -> ( List Relationship, List Table )
 itemsToErDiagram items =
     let
@@ -99,32 +113,36 @@ itemsToRelationships items =
 
 itemToRelationship : Item -> Relationship
 itemToRelationship item =
-    if String.contains " < " item.text then
-        case String.split " < " item.text of
+    let
+        text =
+            String.trim item.text
+    in
+    if String.contains " < " text then
+        case String.split " < " text of
             [ table1, table2 ] ->
                 OneToMany table1 table2
 
             _ ->
                 NoRelation
 
-    else if String.contains " > " item.text then
-        case String.split " > " item.text of
+    else if String.contains " > " text then
+        case String.split " > " text of
             [ table1, table2 ] ->
                 ManyToOne table1 table2
 
             _ ->
                 NoRelation
 
-    else if String.contains " - " item.text then
-        case String.split " - " item.text of
+    else if String.contains " - " text then
+        case String.split " - " text of
             [ table1, table2 ] ->
                 OneToOne table1 table2
 
             _ ->
                 NoRelation
 
-    else if String.contains " = " item.text then
-        case String.split " = " item.text of
+    else if String.contains " = " text then
+        case String.split " = " text of
             [ table1, table2 ] ->
                 ManyToMany table1 table2
 
@@ -320,3 +338,49 @@ textToIndexType text =
 
         _ ->
             BTree
+
+
+columnTypeToString : ColumnType -> String
+columnTypeToString type_ =
+    case type_ of
+        TinyInt ->
+            "tinyint"
+
+        Int ->
+            "int"
+
+        Float ->
+            "float"
+
+        Double ->
+            "double"
+
+        Decimal ->
+            "decimal"
+
+        Char ->
+            "char"
+
+        Text ->
+            "text"
+
+        Blob ->
+            "blob"
+
+        VarChar size ->
+            "varchar(" ++ String.fromInt size ++ ")"
+
+        Boolean ->
+            "boolean"
+
+        Timestamp ->
+            "timestamp"
+
+        Date ->
+            "date"
+
+        DateTime ->
+            "datetime"
+
+        Enum ->
+            "enum"

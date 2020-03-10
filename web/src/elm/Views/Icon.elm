@@ -142,8 +142,8 @@ cloudOff size =
 icon : String -> Int -> Int -> String -> List (Svg msg) -> Svg msg
 icon color w h v children =
     Svg.svg
-        [ width (String.fromInt w)
-        , height (String.fromInt h)
+        [ width <| String.fromInt w
+        , height <| String.fromInt h
         , viewBox v
         ]
         [ Svg.g

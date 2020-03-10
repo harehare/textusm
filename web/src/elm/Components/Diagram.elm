@@ -12,7 +12,7 @@ import List
 import List.Extra exposing (getAt, scanl, unique)
 import Maybe.Extra exposing (isNothing)
 import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Models.Item as Item exposing (ItemType(..), Items)
 import Parser
 import Result exposing (andThen)
 import String
@@ -109,6 +109,9 @@ loadText diagramType lineNo indent input =
                     Parser.parseLinesIgnoreError indent input
 
                 GanttChart ->
+                    Parser.parseLinesIgnoreError indent input
+
+                ErDiagram ->
                     Parser.parseLinesIgnoreError indent input
 
                 _ ->

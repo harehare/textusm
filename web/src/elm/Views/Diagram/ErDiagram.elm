@@ -1,27 +1,275 @@
 module Views.Diagram.ErDiagram exposing (view)
 
-import Constants
-import List.Extra exposing (getAt)
-import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.ER.Item as ER exposing (Column, ColumnType(..), Index, IndexType(..), Relationship, Table)
-import Models.Item as Item exposing (ItemType(..))
+import Dict as Dict exposing (Dict)
+import Html exposing (div)
+import Html.Attributes as Attr
+import List.Extra exposing (find)
+import Maybe.Extra exposing (isJust)
+import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
+import Models.ER.Item as ER exposing (Attribute(..), Column(..), ColumnType(..), Index, IndexType(..), Relationship(..), Table(..))
 import String
-import Svg exposing (Svg, g)
-import Svg.Attributes exposing (fill, transform)
-import Utils
-import Views.Diagram.Views as Views exposing (Position)
+import Svg exposing (Svg, foreignObject, g, line, path, rect, text, text_)
+import Svg.Attributes exposing (class, d, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
+import Views.Diagram.Path as Path
+import Views.Diagram.Views exposing (Position, Size)
+
+
+rowHeight : Int
+rowHeight =
+    40
+
+
+tableMargin : Int
+tableMargin =
+    180
+
+
+type alias TableViewInfo =
+    { table : Table
+    , size : Size
+    , position : Position
+    }
+
+
+type alias TableViewModel =
+    Dict String TableViewInfo
 
 
 view : Model -> Svg Msg
 view model =
     let
-        erItems =
+        ( relationships, tables ) =
             ER.itemsToErDiagram model.items
-                |> Debug.log "a"
+
+        tableDict =
+            tablesToDict tables
     in
-    g [] []
+    g
+        [ transform
+            ("translate("
+                ++ String.fromFloat
+                    (if isInfinite <| model.x then
+                        0
+
+                     else
+                        model.x
+                    )
+                ++ ","
+                ++ String.fromFloat
+                    (if isInfinite <| model.y then
+                        0
+
+                     else
+                        model.y
+                    )
+                ++ ")"
+            )
+        , fill model.settings.backgroundColor
+        ]
+        (relationshipView model.settings relationships tableDict
+            :: (Dict.toList tableDict
+                    |> List.map
+                        (\( _, t ) ->
+                            tableView model.settings t.position t.size t.table
+                        )
+               )
+        )
 
 
-tableView : Settings -> Table -> Position -> Svg Msg
-tableView settings table ( posX, posY ) =
-    g [] []
+tablesToDict : List Table -> TableViewModel
+tablesToDict tables =
+    tables
+        |> List.indexedMap
+            (\i table ->
+                let
+                    (Table name columns _) =
+                        table
+
+                    width =
+                        ER.tableWidth table
+
+                    height =
+                        rowHeight * (List.length columns + 1)
+
+                    odd =
+                        modBy 2 i
+
+                    index =
+                        i // 2
+                in
+                ( name
+                , { table = table
+                  , size = ( width, height )
+                  , position =
+                        ( index * (width + tableMargin)
+                        , if odd == 1 then
+                            height + tableMargin
+
+                          else
+                            0
+                        )
+                  }
+                )
+            )
+        |> Dict.fromList
+
+
+tableView : Settings -> Position -> Size -> Table -> Svg Msg
+tableView settings ( posX, posY ) ( tableWidth, tableHeight ) table =
+    let
+        (Table tableName columns _) =
+            table
+    in
+    g []
+        (rect
+            [ width <| String.fromInt tableWidth
+            , height <| String.fromInt tableHeight
+            , x (String.fromInt posX)
+            , y (String.fromInt posY)
+            , strokeWidth "1"
+            , stroke settings.color.activity.backgroundColor
+            ]
+            []
+            :: tableHeaderView settings tableName tableWidth ( posX, posY )
+            :: List.indexedMap
+                (\i column -> columnView settings tableWidth ( posX, posY + rowHeight * (i + 1) ) column)
+                columns
+        )
+
+
+tableHeaderView : Settings -> String -> Int -> Position -> Svg Msg
+tableHeaderView settings headerText headerWidth ( posX, posY ) =
+    g []
+        [ rect
+            [ width <| String.fromInt headerWidth
+            , height <| String.fromInt rowHeight
+            , x (String.fromInt posX)
+            , y (String.fromInt posY)
+            , fill settings.color.activity.backgroundColor
+            ]
+            []
+        , text_
+            [ x <| String.fromInt <| posX + 8
+            , y <| String.fromInt <| posY + 24
+            , fontFamily (fontStyle settings)
+            , fill settings.color.activity.color
+            , fontSize "16"
+            , fontWeight "bold"
+            , class ".select-none"
+            ]
+            [ text headerText ]
+        ]
+
+
+columnView : Settings -> Int -> Position -> Column -> Svg Msg
+columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
+    let
+        colX =
+            String.fromInt posX
+
+        colY =
+            String.fromInt posY
+
+        isPrimaryKey =
+            find (\i -> i == PrimaryKey) attrs |> isJust
+
+        style =
+            if isPrimaryKey then
+                [ Attr.style "font-weight" "600", Attr.style "color" settings.color.story.color ]
+
+            else
+                [ Attr.style "font-weight" "400", Attr.style "color" settings.color.label ]
+    in
+    g []
+        [ rect
+            [ width <| String.fromInt columnWidth
+            , height <| String.fromInt rowHeight
+            , x colX
+            , y colY
+            , fill settings.color.story.backgroundColor
+            ]
+            []
+        , foreignObject
+            [ x colX
+            , y colY
+            , width <| String.fromInt columnWidth
+            , height <| String.fromInt rowHeight
+            ]
+            [ div
+                ([ Attr.style "width" (String.fromInt columnWidth ++ "px")
+                 , Attr.style "display" "flex"
+                 , Attr.style "align-items" "center"
+                 , Attr.style "justify-content" "space-between"
+                 , Attr.style "height" (String.fromInt rowHeight ++ "px")
+                 , Attr.style "color" settings.color.story.color
+                 ]
+                    ++ style
+                )
+                [ div
+                    [ Attr.style "margin-left" "8px"
+                    ]
+                    [ text name_ ]
+                , div
+                    [ Attr.style "margin-right" "8px" ]
+                    [ text <| ER.columnTypeToString type_ ]
+                ]
+            ]
+        ]
+
+
+relationshipView : Settings -> List Relationship -> TableViewModel -> Svg Msg
+relationshipView settings relationships tables =
+    g []
+        (List.map
+            (\relationship ->
+                let
+                    ( tableName1, tableName2 ) =
+                        case relationship of
+                            ManyToMany t1 t2 ->
+                                ( t1, t2 )
+
+                            OneToMany t1 t2 ->
+                                ( t1, t2 )
+
+                            ManyToOne t1 t2 ->
+                                ( t1, t2 )
+
+                            OneToOne t1 t2 ->
+                                ( t1, t2 )
+
+                            NoRelation ->
+                                ( "", "" )
+
+                    table1 =
+                        Dict.get tableName1 tables
+
+                    table2 =
+                        Dict.get tableName2 tables
+                in
+                case ( table1, table2 ) of
+                    ( Just t1, Just t2 ) ->
+                        pathView settings t1 t2
+
+                    _ ->
+                        g [] []
+            )
+            relationships
+        )
+
+
+pathView : Settings -> TableViewInfo -> TableViewInfo -> Svg Msg
+pathView settings from to =
+    let
+        fromPosition =
+            Tuple.mapBoth toFloat toFloat from.position
+
+        fromSize =
+            Tuple.mapBoth toFloat toFloat from.size
+
+        toPosition =
+            Tuple.mapBoth toFloat toFloat to.position
+
+        toSize =
+            Tuple.mapBoth toFloat toFloat to.size
+    in
+    Path.view settings ( fromPosition, fromSize ) ( toPosition, toSize )
