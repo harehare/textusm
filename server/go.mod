@@ -1,9 +1,9 @@
 module github.com/harehare/textusm
 
 require (
-	cloud.google.com/go v0.40.0
-	firebase.google.com/go v3.8.1+incompatible
-	github.com/99designs/gqlgen v0.10.2
+	cloud.google.com/go v0.54.0
+	firebase.google.com/go v3.12.0+incompatible
+	github.com/99designs/gqlgen v0.11.2
 	github.com/agnivade/levenshtein v1.0.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
@@ -25,7 +25,7 @@ require (
 	github.com/oxequa/realize v2.0.2+incompatible // indirect
 	github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029
 	github.com/pkg/errors v0.9.1
-	github.com/rs/cors v1.6.0
+	github.com/rs/cors v1.7.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/urfave/cli v1.22.2 // indirect
@@ -35,7 +35,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	golang.org/x/sys v0.0.0-20190621203818-d432491b9138 // indirect
 	golang.org/x/tools v0.0.0-20200117065230-39095c1d176c // indirect
-	google.golang.org/api v0.17.0
+	google.golang.org/api v0.19.0
 	google.golang.org/grpc v1.27.0
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
