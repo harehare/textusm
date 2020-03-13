@@ -11,30 +11,22 @@ parserTest =
     describe "parser test"
         [ test "0 indent" <|
             \() ->
-                parseLines 0 "test\ntest"
+                parse 0 "test\ntest"
                     |> Expect.equal
-                        (Ok
-                            ( [ "test" ], [ "test" ] )
-                        )
+                        ( [ "test" ], [ "test" ] )
         , test "0 indent and 1 indent" <|
             \() ->
-                parseLines 0 "test1\n    test2\ntest3\n    test4"
+                parse 0 "test1\n    test2\ntest3\n    test4"
                     |> Expect.equal
-                        (Ok
-                            ( [ "test1", "    test2" ], [ "test3", "    test4" ] )
-                        )
+                        ( [ "test1", "    test2" ], [ "test3", "    test4" ] )
         , test "1 indent" <|
             \() ->
-                parseLines 1 "test\n    test2\n    test3"
+                parse 1 "test\n    test2\n    test3"
                     |> Expect.equal
-                        (Ok
-                            ( [ "test" ], [ "    test2", "    test3" ] )
-                        )
+                        ( [ "test" ], [ "    test2", "    test3" ] )
         , test "2 indent" <|
             \() ->
-                parseLines 2 "    test\n        test2\n        test3"
+                parse 2 "    test\n        test2\n        test3"
                     |> Expect.equal
-                        (Ok
-                            ( [ "    test" ], [ "        test2", "        test3" ] )
-                        )
+                        ( [ "    test" ], [ "        test2", "        test3" ] )
         ]

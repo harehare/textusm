@@ -516,12 +516,7 @@ update message model =
                         ( model_, _ ) =
                             Diagram.update subMsg model.diagramModel
                     in
-                    case model_.error of
-                        Just err ->
-                            ( { model | text = text, diagramModel = model_ }, Subscriptions.errorLine err )
-
-                        Nothing ->
-                            ( { model | text = text, diagramModel = model_ }, Subscriptions.errorLine "" )
+                    ( { model | text = text, diagramModel = model_ }, Cmd.none )
 
                 _ ->
                     let
@@ -615,29 +610,15 @@ update message model =
 
         Init window ->
             let
-                ( model_, cmd_ ) =
+                ( model_, _ ) =
                     Diagram.update (DiagramModel.Init model.diagramModel.settings window model.text) model.diagramModel
             in
-            case model_.error of
-                Just err ->
-                    ( { model
-                        | diagramModel = model_
-                        , progress = False
-                      }
-                    , Cmd.batch
-                        [ Subscriptions.errorLine err
-                        , Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor )
-                        , cmd_ |> Cmd.map UpdateDiagram
-                        ]
-                    )
-
-                Nothing ->
-                    ( { model
-                        | diagramModel = model_
-                        , progress = False
-                      }
-                    , Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor )
-                    )
+            ( { model
+                | diagramModel = model_
+                , progress = False
+              }
+            , Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor )
+            )
 
         DownloadCompleted ( x, y ) ->
             let

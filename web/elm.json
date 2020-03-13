@@ -23,6 +23,7 @@
             "elm-community/list-extra": "8.2.3",
             "elm-community/maybe-extra": "5.2.0",
             "elm-explorations/markdown": "1.0.0",
+            "folkertdev/elm-state": "3.0.1",
             "justinmimbs/time-extra": "1.1.0",
             "krisajenkins/remotedata": "6.0.1",
             "mpizenberg/elm-pointer-events": "4.0.1",

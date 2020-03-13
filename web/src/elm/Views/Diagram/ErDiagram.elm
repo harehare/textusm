@@ -7,9 +7,10 @@ import List.Extra exposing (find)
 import Maybe.Extra exposing (isJust)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.ER.Item as ER exposing (Attribute(..), Column(..), ColumnType(..), Index, IndexType(..), Relationship(..), Table(..))
+import State as State exposing (Step(..))
 import String
-import Svg exposing (Svg, foreignObject, g, line, path, rect, text, text_)
-import Svg.Attributes exposing (class, d, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
+import Svg exposing (Svg, foreignObject, g, rect, text, text_)
+import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, y)
 import Views.Diagram.Path as Path
 import Views.Diagram.Views exposing (Position, Size)
 
@@ -28,6 +29,8 @@ type alias TableViewInfo =
     { table : Table
     , size : Size
     , position : Position
+    , releationCount : Int
+    , releations : Dict String String
     }
 
 
@@ -43,6 +46,7 @@ view model =
 
         tableDict =
             tablesToDict tables
+                |> adjustTablePosition relationships
     in
     g
         [ transform
@@ -74,6 +78,111 @@ view model =
                         )
                )
         )
+
+
+adjustTablePosition : List Relationship -> TableViewModel -> TableViewModel
+adjustTablePosition r t =
+    let
+        go { tablePositions, relationships } =
+            if List.isEmpty relationships then
+                Done tablePositions
+
+            else
+                case relationships of
+                    x :: xs ->
+                        case ER.relationshipToString x of
+                            Just ( ( tableName1, relationString1 ), ( tableName2, relationString2 ) ) ->
+                                let
+                                    table1 =
+                                        Dict.get tableName1 tablePositions
+
+                                    table2 =
+                                        Dict.get tableName2 tablePositions
+                                in
+                                case ( table1, table2 ) of
+                                    ( Just t1, Just t2 ) ->
+                                        let
+                                            childPosition =
+                                                tablePosition t1.size t2.size t1.position (t1.releationCount + 1)
+
+                                            table1Updated =
+                                                Dict.update
+                                                    tableName1
+                                                    (Maybe.map (\v -> { v | releationCount = t1.releationCount + 1, releations = Dict.insert tableName2 relationString1 v.releations }))
+                                                    tablePositions
+
+                                            table2Updated =
+                                                Dict.update
+                                                    tableName2
+                                                    (Maybe.map (\v -> { v | position = childPosition, releations = Dict.insert tableName1 relationString2 v.releations }))
+                                                    table1Updated
+                                        in
+                                        Loop
+                                            { tablePositions = table2Updated
+                                            , relationships = xs
+                                            }
+
+                                    _ ->
+                                        Loop
+                                            { tablePositions = tablePositions
+                                            , relationships = xs
+                                            }
+
+                            Nothing ->
+                                Loop
+                                    { tablePositions = tablePositions
+                                    , relationships = xs
+                                    }
+
+                    _ ->
+                        Loop
+                            { tablePositions = tablePositions
+                            , relationships = []
+                            }
+    in
+    State.tailRec go { relationships = r, tablePositions = t }
+
+
+tablePosition : Size -> Size -> Position -> Int -> Position
+tablePosition ( tableWidth1, tableHeight1 ) ( tableWidth2, tableHeight2 ) ( posX, posY ) relationCount =
+    let
+        n =
+            if relationCount // 8 > 0 then
+                relationCount // 8
+
+            else
+                1
+
+        w =
+            max tableWidth1 240 * n
+
+        h =
+            max tableHeight1 240 * n
+    in
+    case relationCount of
+        1 ->
+            ( posX, posY - h - tableHeight2 )
+
+        2 ->
+            ( posX + tableWidth1 + w, posY - h - tableHeight2 )
+
+        3 ->
+            ( posX + tableWidth1 + w, posY )
+
+        4 ->
+            ( posX + tableWidth1 + w, posY + h + tableHeight1 )
+
+        5 ->
+            ( posX, posY + h + tableHeight1 )
+
+        6 ->
+            ( posX - tableWidth2 - w, posY + tableHeight1 + h )
+
+        7 ->
+            ( posX - tableWidth1 - w, posY )
+
+        _ ->
+            ( posX - tableWidth1 - w, posY + tableHeight1 - h )
 
 
 tablesToDict : List Table -> TableViewModel
@@ -108,6 +217,8 @@ tablesToDict tables =
                           else
                             0
                         )
+                  , releationCount = 0
+                  , releations = Dict.empty
                   }
                 )
             )

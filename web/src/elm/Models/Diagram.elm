@@ -25,7 +25,6 @@ type alias Model =
     , moveY : Int
     , fullscreen : Bool
     , settings : Settings
-    , error : Maybe String
     , showZoomControl : Bool
     , touchDistance : Maybe Float
     , diagramType : Diagram

@@ -1,4 +1,4 @@
-module Parser exposing (parseComment, parseLines, parseLinesIgnoreError)
+module Parser exposing (parse, parseComment)
 
 import Constants exposing (inputPrefix)
 import List.Extra exposing (findIndex, splitAt)
@@ -62,18 +62,8 @@ parseComment text =
             )
 
 
-parseLines : Int -> String -> Result String ( List String, List String )
-parseLines indent text =
-    parse indent text False
-
-
-parseLinesIgnoreError : Int -> String -> Result String ( List String, List String )
-parseLinesIgnoreError indent text =
-    parse indent text True
-
-
-parse : Int -> String -> Bool -> Result String ( List String, List String )
-parse indent text ignoreError =
+parse : Int -> String -> ( List String, List String )
+parse indent text =
     let
         line =
             String.lines text
@@ -96,21 +86,10 @@ parse indent text ignoreError =
                     |> findIndex (hasIndent indent)
             of
                 Just xs ->
-                    let
-                        itemPair =
-                            splitAt (xs + 1) line
-
-                        result =
-                            if not ignoreError && indent > 1 && List.length (Tuple.first itemPair |> List.filter (\i -> not (i |> String.trim |> String.startsWith "#"))) > 1 then
-                                Err text
-
-                            else
-                                Ok itemPair
-                    in
-                    result
+                    splitAt (xs + 1) line
 
                 Nothing ->
-                    Ok ( line, [] )
+                    ( line, [] )
 
         Nothing ->
-            Ok ( [], [] )
+            ( [], [] )

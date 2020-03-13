@@ -144,50 +144,6 @@ export const loadEditor = (
             }, delay);
         });
 
-        app.ports.errorLine.subscribe((err: string) => {
-            if (!monacoEditor) {
-                return;
-            }
-
-            const model = monacoEditor.getModel();
-
-            if (model === null) {
-                return model;
-            }
-
-            if (err !== "") {
-                const errLines = err.split("\n");
-                const errLine = errLines.length > 1 ? errLines[1] : err;
-
-                const res = model.findNextMatch(
-                    errLine,
-                    {
-                        lineNumber: 1,
-                        column: 1
-                    },
-                    false,
-                    false,
-                    null,
-                    false
-                );
-
-                if (res) {
-                    monaco.editor.setModelMarkers(model, "usm", [
-                        {
-                            severity: 8,
-                            startColumn: res.range.startColumn,
-                            startLineNumber: res.range.startLineNumber,
-                            endColumn: res.range.endColumn,
-                            endLineNumber: res.range.startLineNumber,
-                            message: "unexpected indent."
-                        }
-                    ]);
-                }
-            } else {
-                monaco.editor.setModelMarkers(model, "usm", []);
-            }
-        });
-
         let update: number | null = null;
 
         monacoEditor.onDidChangeModelContent(e => {

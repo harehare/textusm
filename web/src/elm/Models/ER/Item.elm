@@ -1,4 +1,4 @@
-module Models.ER.Item exposing (Attribute(..), Column(..), ColumnType(..), Index, IndexType(..), Relationship(..), Table(..), columnTypeToString, itemsToErDiagram, tableWidth)
+module Models.ER.Item exposing (Attribute(..), Column(..), ColumnType(..), Index, IndexType(..), Relationship(..), Table(..), columnTypeToString, itemsToErDiagram, relationshipToString, tableWidth)
 
 import List.Extra exposing (getAt)
 import Models.Item as Item exposing (Item, Items)
@@ -9,6 +9,10 @@ type alias Name =
 
 
 type alias TableName =
+    String
+
+
+type alias RelationShipString =
     String
 
 
@@ -338,6 +342,25 @@ textToIndexType text =
 
         _ ->
             BTree
+
+
+relationshipToString : Relationship -> Maybe ( ( TableName, RelationShipString ), ( TableName, RelationShipString ) )
+relationshipToString relationship =
+    case relationship of
+        ManyToMany table1 table2 ->
+            Just ( ( table1, "*" ), ( table2, "*" ) )
+
+        OneToMany table1 table2 ->
+            Just ( ( table1, "1" ), ( table2, "*" ) )
+
+        ManyToOne table1 table2 ->
+            Just ( ( table1, "*" ), ( table2, "1" ) )
+
+        OneToOne table1 table2 ->
+            Just ( ( table1, "1" ), ( table2, "1" ) )
+
+        NoRelation ->
+            Nothing
 
 
 columnTypeToString : ColumnType -> String

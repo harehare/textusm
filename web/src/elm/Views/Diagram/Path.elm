@@ -1,7 +1,7 @@
 module Views.Diagram.Path exposing (view)
 
 import Models.Diagram exposing (Msg(..), Settings)
-import Svg exposing (Svg, g, line, path)
+import Svg exposing (Svg, line, path)
 import Svg.Attributes exposing (d, stroke, strokeWidth)
 
 
@@ -24,24 +24,58 @@ cornerSize =
 
 view : Settings -> ( Position, Size ) -> ( Position, Size ) -> Svg Msg
 view settings ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( toWidth, toHeight ) ) =
-    if fromX == toX then
+    if fromX == toX && fromY < toY then
         draw
             settings
             [ start ( fromX + fromWidth / 2, fromY + fromHeight )
             , line ( toX + fromWidth / 2, toY )
             ]
 
-    else if fromY == toY then
+    else if fromX == toX && fromY > toY then
+        draw
+            settings
+            [ start ( fromX + fromWidth / 2, toY + toHeight )
+            , line ( toX + fromWidth / 2, fromY )
+            ]
+
+    else if fromY == toY && fromX < toX then
         draw
             settings
             [ start ( fromX + fromWidth, fromY + fromHeight / 2 )
             , line ( toX, toY + fromHeight / 2 )
             ]
 
-    else if fromX < toX && fromX < toY then
+    else if fromY == toY && fromX > toX then
+        draw
+            settings
+            [ start ( fromX + fromWidth, fromY + fromHeight / 2 )
+            , line ( toX, toY + fromHeight / 2 )
+            ]
+
+    else if fromX < toX && fromX < toY || fromX < toX && fromY > toY then
+        draw
+            settings
+            (drawLines
+                ( ( fromX, fromY ), ( fromWidth, fromHeight ) )
+                ( ( toX, toY ), ( toWidth, toHeight ) )
+            )
+
+    else
+        draw
+            settings
+            (drawLines
+                ( ( toX, toY ), ( toWidth, toHeight ) )
+                ( ( fromX, fromY ), ( fromWidth, fromHeight ) )
+            )
+
+
+drawLines : ( Position, Size ) -> ( Position, Size ) -> List Path
+drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, toHeight ) ) =
+    -- TODO: 調整
+    if fromX < toX && fromX < toY then
         let
             interval =
-                (toX - (fromY + fromWidth)) / 2
+                (toX - (fromX + fromWidth)) / 2
 
             fromMargin =
                 fromHeight / 2
@@ -49,27 +83,32 @@ view settings ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( 
             toMargin =
                 toHeight / 2
         in
-        draw
-            settings
-            [ start ( fromX + fromWidth, fromY + fromMargin )
-            , line ( fromX + fromWidth + interval - cornerSize, fromY + fromMargin )
-            , topRightcorner ( fromX + fromWidth + interval, fromY + fromMargin + cornerSize )
-            , line ( fromX + fromWidth + interval, toY + toMargin - cornerSize )
-            , bottomLeftcorner ( fromX + fromWidth + interval + cornerSize, toY + toMargin )
-            , line ( toX, toY + toMargin )
-            ]
-
-    else if fromX < toX && fromX > toY then
-        -- TODO
-        g [] []
-
-    else if fromX > toX && fromX < toY then
-        -- TODO
-        g [] []
+        [ start ( fromX + fromWidth, fromY + fromMargin )
+        , line ( fromX + fromWidth + interval - cornerSize, fromY + fromMargin )
+        , topRightcorner ( fromX + fromWidth + interval, fromY + fromMargin + cornerSize )
+        , line ( fromX + fromWidth + interval, toY + toMargin - cornerSize )
+        , bottomLeftcorner ( fromX + fromWidth + interval + cornerSize, toY + toMargin )
+        , line ( toX, toY + toMargin )
+        ]
 
     else
-        -- TODO
-        g [] []
+        let
+            interval =
+                (toX - (fromX + fromWidth)) / 2
+
+            fromMargin =
+                fromHeight / 2
+
+            toMargin =
+                toHeight / 2
+        in
+        [ start ( fromX + fromWidth, fromY + fromMargin )
+        , line ( fromX + fromWidth + interval - cornerSize, fromY + fromMargin )
+        , bottomLeftcorner ( fromX + fromWidth + interval, fromY + fromMargin - cornerSize )
+        , line ( fromX + fromWidth + interval, toY + toMargin + cornerSize )
+        , topRightcorner ( fromX + fromWidth + interval + cornerSize, toY + toMargin )
+        , line ( toX, toY + toMargin )
+        ]
 
 
 draw : Settings -> List Path -> Svg Msg
