@@ -36,7 +36,7 @@ require (
 	golang.org/x/sys v0.0.0-20190621203818-d432491b9138 // indirect
 	golang.org/x/tools v0.0.0-20200117065230-39095c1d176c // indirect
 	google.golang.org/api v0.19.0
-	google.golang.org/grpc v1.27.0
+	google.golang.org/grpc v1.28.0
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
