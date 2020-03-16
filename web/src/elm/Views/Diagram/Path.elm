@@ -2,7 +2,7 @@ module Views.Diagram.Path exposing (view)
 
 import Models.Diagram exposing (Msg(..), Settings)
 import Svg exposing (Svg, line, path)
-import Svg.Attributes exposing (d, stroke, strokeWidth)
+import Svg.Attributes exposing (d, fill, stroke, strokeWidth)
 
 
 type alias Path =
@@ -71,8 +71,8 @@ view settings ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( 
 
 drawLines : ( Position, Size ) -> ( Position, Size ) -> List Path
 drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, toHeight ) ) =
-    -- TODO: 調整
-    if fromX < toX && fromX < toY then
+    -- TODO:
+    if fromX < toX && fromY < toY then
         let
             interval =
                 (toX - (fromX + fromWidth)) / 2
@@ -88,6 +88,45 @@ drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, t
         , topRightcorner ( fromX + fromWidth + interval, fromY + fromMargin + cornerSize )
         , line ( fromX + fromWidth + interval, toY + toMargin - cornerSize )
         , bottomLeftcorner ( fromX + fromWidth + interval + cornerSize, toY + toMargin )
+        , line ( toX, toY + toMargin )
+        ]
+
+    else if fromX < toX && fromY > toY then
+        let
+            interval =
+                (toX - (fromX + fromWidth)) / 2
+
+            fromMargin =
+                fromHeight / 2
+
+            toMargin =
+                toHeight / 2
+        in
+        [ start ( fromX + fromWidth, fromY + fromMargin )
+        , line ( fromX + fromWidth + interval - cornerSize, fromY + fromMargin )
+        , bottomLeftcorner ( fromX + fromWidth + interval, fromY + fromMargin - cornerSize )
+        , line ( fromX + fromWidth + interval, toY + toMargin + cornerSize )
+        , topRightcorner ( fromX + fromWidth + interval + cornerSize, toY + toMargin )
+        , line ( toX, toY + toMargin )
+        ]
+
+    else if fromX > toX && fromY < toY then
+        -- TODO
+        let
+            interval =
+                (toX - (fromX + fromWidth)) / 2
+
+            fromMargin =
+                fromHeight / 2
+
+            toMargin =
+                toHeight / 2
+        in
+        [ start ( fromX + fromWidth, fromY + fromMargin )
+        , line ( fromX + fromWidth + interval - cornerSize, fromY + fromMargin )
+        , bottomLeftcorner ( fromX + fromWidth + interval, fromY + fromMargin - cornerSize )
+        , line ( fromX + fromWidth + interval, toY + toMargin + cornerSize )
+        , topRightcorner ( fromX + fromWidth + interval + cornerSize, toY + toMargin )
         , line ( toX, toY + toMargin )
         ]
 
@@ -117,6 +156,7 @@ draw settings pathList =
         [ strokeWidth "1"
         , stroke settings.color.line
         , d <| String.join " " pathList
+        , fill "transparent"
         ]
         []
 

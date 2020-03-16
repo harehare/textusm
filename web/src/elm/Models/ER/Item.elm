@@ -1,6 +1,9 @@
 module Models.ER.Item exposing (Attribute(..), Column(..), ColumnType(..), Index, IndexType(..), Relationship(..), Table(..), columnTypeToString, itemsToErDiagram, relationshipToString, tableWidth)
 
+import Dict exposing (Dict)
+import Dict.Extra exposing (find)
 import List.Extra exposing (getAt)
+import Maybe.Extra exposing (isJust)
 import Models.Item as Item exposing (Item, Items)
 
 
@@ -16,7 +19,7 @@ type alias RelationShipString =
     String
 
 
-type alias Size =
+type alias Length =
     Int
 
 
@@ -37,20 +40,25 @@ type Column
 
 
 type ColumnType
-    = TinyInt
-    | Int
-    | Float
-    | Double
-    | Decimal
-    | Char
+    = TinyInt ColumnLength
+    | Int ColumnLength
+    | Float ColumnLength
+    | Double ColumnLength
+    | Decimal ColumnLength
+    | Char ColumnLength
     | Text
     | Blob
-    | VarChar Size
+    | VarChar ColumnLength
     | Boolean
     | Timestamp
     | Date
     | DateTime
-    | Enum
+    | Enum (List String)
+
+
+type ColumnLength
+    = Length Int
+    | NoLimit
 
 
 type alias Index =
@@ -72,6 +80,7 @@ type IndexType
 type Attribute
     = PrimaryKey
     | NotNull
+    | Null
     | Unique
     | Increment
     | Default String
@@ -172,11 +181,7 @@ itemToTable item =
             Item.unwrapChildren item.children
 
         columns =
-            Item.getAt 0 items
-                |> Maybe.withDefault Item.emptyItem
-                |> .children
-                |> Item.unwrapChildren
-                |> Item.map itemToColumn
+            Item.map itemToColumn items
 
         indexes =
             Item.getAt 1 items
@@ -192,7 +197,9 @@ itemToColumn : Item -> Column
 itemToColumn item =
     let
         tokens =
-            String.split "," item.text
+            item.text
+                |> String.trim
+                |> String.split " "
                 |> List.map (\i -> String.trim i)
 
         columnName =
@@ -202,95 +209,196 @@ itemToColumn item =
         columnType =
             getAt 1 tokens
                 |> Maybe.map textToColumnType
-                |> Maybe.withDefault Int
+                |> Maybe.withDefault (Int NoLimit)
 
         columnAttributes =
             List.drop 2 tokens
-                |> List.map
-                    textToColumnAttribute
+                |> List.indexedMap (\i v -> ( String.toLower v, i ))
+                |> Dict.fromList
+                |> textToColumnAttribute
     in
     Column columnName columnType columnAttributes
 
 
-textToColumnAttribute : String -> Attribute
-textToColumnAttribute text =
+textToColumnAttribute : Dict String Int -> List Attribute
+textToColumnAttribute attrDict =
     let
-        tokens =
-            String.split ":" text
-                |> List.map (\i -> String.trim i |> String.toLower)
+        getkAttributeIndex : String -> Maybe Int
+        getkAttributeIndex attrName =
+            Dict.get attrName attrDict
+
+        primaryKey =
+            if isJust <| getkAttributeIndex "pk" then
+                PrimaryKey
+
+            else
+                None
+
+        notNull =
+            getkAttributeIndex "not"
+                |> Maybe.andThen
+                    (\no ->
+                        getkAttributeIndex "null"
+                            |> Maybe.andThen
+                                (\nu ->
+                                    if nu - no == 1 then
+                                        Just NotNull
+
+                                    else
+                                        Nothing
+                                )
+                    )
+                |> Maybe.withDefault None
+
+        unique =
+            if isJust <| getkAttributeIndex "Unique" then
+                Unique
+
+            else
+                None
+
+        null =
+            getkAttributeIndex "null"
+                |> Maybe.andThen
+                    (\_ ->
+                        if isJust <| getkAttributeIndex "not" then
+                            Nothing
+
+                        else
+                            Just Null
+                    )
+                |> Maybe.withDefault None
+
+        increment =
+            if isJust <| getkAttributeIndex "increment" then
+                Increment
+
+            else
+                None
+
+        default =
+            getkAttributeIndex "default"
+                |> Maybe.andThen
+                    (\d ->
+                        find (\_ value -> value == d + 1) attrDict
+                            |> Maybe.andThen
+                                (\( k, _ ) ->
+                                    Just <| Default k
+                                )
+                    )
+                |> Maybe.withDefault None
     in
-    case tokens of
-        [ "pk" ] ->
-            PrimaryKey
-
-        [ "not null" ] ->
-            NotNull
-
-        [ "unique" ] ->
-            Unique
-
-        [ "increment" ] ->
-            Increment
-
-        [ "default", value ] ->
-            Default value
-
-        _ ->
-            None
+    [ primaryKey, notNull, unique, increment, default, null ]
 
 
 textToColumnType : String -> ColumnType
 textToColumnType text =
     let
         tokens =
-            String.split ":" text
-                |> List.map (\i -> String.trim i |> String.toLower)
+            String.split "(" text
+                |> List.map (\i -> ( String.trim i |> String.toLower |> String.replace ")" "", String.endsWith ")" i ))
     in
     case tokens of
-        [ "tinyint" ] ->
-            TinyInt
+        [ ( "tinyint", False ) ] ->
+            TinyInt NoLimit
 
-        [ "int" ] ->
-            Int
+        [ ( "tinyint", False ), ( size, True ) ] ->
+            case String.toInt size of
+                Just v ->
+                    TinyInt (Length v)
 
-        [ "float" ] ->
-            Float
+                Nothing ->
+                    TinyInt NoLimit
 
-        [ "double" ] ->
-            Double
+        [ ( "int", False ) ] ->
+            Int NoLimit
 
-        [ "decimal" ] ->
-            Decimal
+        [ ( "int", False ), ( size, True ) ] ->
+            case String.toInt size of
+                Just v ->
+                    Int (Length v)
 
-        [ "char" ] ->
-            Char
+                Nothing ->
+                    Int NoLimit
 
-        [ "text" ] ->
+        [ ( "float", False ) ] ->
+            Float NoLimit
+
+        [ ( "float", False ), ( size, True ) ] ->
+            case String.toInt size of
+                Just v ->
+                    Float (Length v)
+
+                Nothing ->
+                    Float NoLimit
+
+        [ ( "double", False ) ] ->
+            Double NoLimit
+
+        [ ( "double", False ), ( size, True ) ] ->
+            case String.toInt size of
+                Just v ->
+                    Double (Length v)
+
+                Nothing ->
+                    Double NoLimit
+
+        [ ( "decimal", False ) ] ->
+            Decimal NoLimit
+
+        [ ( "decimal", False ), ( size, True ) ] ->
+            case String.toInt size of
+                Just v ->
+                    Decimal (Length v)
+
+                Nothing ->
+                    Decimal NoLimit
+
+        [ ( "char", False ) ] ->
+            Char NoLimit
+
+        [ ( "char", False ), ( size, True ) ] ->
+            case String.toInt size of
+                Just v ->
+                    Char (Length v)
+
+                Nothing ->
+                    Char NoLimit
+
+        [ ( "text", False ) ] ->
             Text
 
-        [ "blob" ] ->
+        [ ( "blob", False ) ] ->
             Blob
 
-        [ "varchar", size ] ->
-            VarChar <| Maybe.withDefault 255 <| String.toInt size
+        [ ( "varchar", False ) ] ->
+            VarChar NoLimit
 
-        [ "boolean" ] ->
+        [ ( "varchar", False ), ( size, True ) ] ->
+            case String.toInt size of
+                Just v ->
+                    VarChar (Length v)
+
+                Nothing ->
+                    VarChar NoLimit
+
+        [ ( "boolean", False ) ] ->
             Boolean
 
-        [ "timestamp" ] ->
+        [ ( "timestamp", False ) ] ->
             Timestamp
 
-        [ "date" ] ->
+        [ ( "date", False ) ] ->
             Date
 
-        [ "datetime" ] ->
+        [ ( "datetime", False ) ] ->
             DateTime
 
-        [ "enum" ] ->
-            Enum
+        [ ( "enum", False ), ( values, True ) ] ->
+            Enum (String.split "," values |> List.map String.trim)
 
         _ ->
-            Int
+            Int NoLimit
 
 
 itemToIndex : Item -> Index
@@ -366,22 +474,40 @@ relationshipToString relationship =
 columnTypeToString : ColumnType -> String
 columnTypeToString type_ =
     case type_ of
-        TinyInt ->
+        TinyInt (Length v) ->
+            "tinyint(" ++ String.fromInt v ++ ")"
+
+        TinyInt _ ->
             "tinyint"
 
-        Int ->
+        Int (Length v) ->
+            "int(" ++ String.fromInt v ++ ")"
+
+        Int _ ->
             "int"
 
-        Float ->
+        Float (Length v) ->
+            "float(" ++ String.fromInt v ++ ")"
+
+        Float _ ->
             "float"
 
-        Double ->
+        Double (Length v) ->
+            "double(" ++ String.fromInt v ++ ")"
+
+        Double _ ->
             "double"
 
-        Decimal ->
+        Decimal (Length v) ->
+            "decimal(" ++ String.fromInt v ++ ")"
+
+        Decimal _ ->
             "decimal"
 
-        Char ->
+        Char (Length v) ->
+            "char(" ++ String.fromInt v ++ ")"
+
+        Char _ ->
             "char"
 
         Text ->
@@ -390,8 +516,11 @@ columnTypeToString type_ =
         Blob ->
             "blob"
 
-        VarChar size ->
-            "varchar(" ++ String.fromInt size ++ ")"
+        VarChar (Length v) ->
+            "varchar(" ++ String.fromInt v ++ ")"
+
+        VarChar _ ->
+            "varchar"
 
         Boolean ->
             "boolean"
@@ -405,5 +534,5 @@ columnTypeToString type_ =
         DateTime ->
             "datetime"
 
-        Enum ->
+        Enum _ ->
             "enum"

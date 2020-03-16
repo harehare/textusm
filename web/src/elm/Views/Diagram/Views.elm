@@ -1,4 +1,4 @@
-module Views.Diagram.Views exposing (Position, Size, canvasBottomView, canvasImageView, canvasView, cardView, rectView, textView)
+module Views.Diagram.Views exposing (Position, Size, canvasBottomView, canvasImageView, canvasView, cardView, getHeight, getWidth, getX, getY, rectView, textView)
 
 import Constants
 import Events exposing (onClickStopPropagation, onKeyDown)
@@ -41,6 +41,26 @@ type alias Position =
 
 type alias RGB =
     String
+
+
+getWidth : Size -> Width
+getWidth ( width, _ ) =
+    width
+
+
+getHeight : Size -> Width
+getHeight ( _, height ) =
+    height
+
+
+getX : Position -> X
+getX ( x, _ ) =
+    x
+
+
+getY : Position -> Y
+getY ( _, y ) =
+    y
 
 
 cardView : Settings -> Position -> Maybe Item -> Item -> Svg Msg

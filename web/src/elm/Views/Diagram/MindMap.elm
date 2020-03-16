@@ -3,9 +3,10 @@ module Views.Diagram.MindMap exposing (view)
 import List.Extra exposing (getAt, scanl1, splitAt, zip3)
 import Models.Diagram exposing (Model, Msg(..), Point, Settings)
 import Models.Item as Item exposing (Item, ItemType(..), Items)
-import Svg exposing (Svg, g, line)
-import Svg.Attributes exposing (stroke, strokeWidth, transform, x1, x2, y1, y2)
+import Svg exposing (Svg, g)
+import Svg.Attributes exposing (transform)
 import Utils
+import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views exposing (Position)
 
 
@@ -147,7 +148,6 @@ nodesView settings hierarchy ( x, y ) direction selectedItem items =
                             y + (nodeCount * svgHeight - yOffset) + (i * yMargin)
                     in
                     [ nodeLineView settings
-                        direction
                         { x = x, y = y }
                         { x = itemX, y = itemY }
                     , nodesView
@@ -168,33 +168,21 @@ nodesView settings hierarchy ( x, y ) direction selectedItem items =
         )
 
 
-nodeLineView : Settings -> Direction -> Point -> Point -> Svg Msg
-nodeLineView settings direction fromBase toBase =
+nodeLineView : Settings -> Point -> Point -> Svg Msg
+nodeLineView settings fromBase toBase =
     let
-        offsetHeight =
-            settings.size.height // 2
-
-        offsetWidth =
-            5
-
         ( fromPoint, toPoint ) =
-            case direction of
-                Left ->
-                    ( { x = fromBase.x + offsetWidth, y = fromBase.y + offsetHeight }
-                    , { x = toBase.x + settings.size.width - offsetWidth, y = toBase.y + offsetHeight }
-                    )
+            ( ( toFloat <| fromBase.x
+              , toFloat <| fromBase.y
+              )
+            , ( toFloat <| toBase.x
+              , toFloat <| toBase.y
+              )
+            )
 
-                Right ->
-                    ( { x = fromBase.x + settings.size.width - offsetWidth, y = fromBase.y + offsetHeight }
-                    , { x = toBase.x + offsetWidth, y = toBase.y + offsetHeight }
-                    )
+        size =
+            ( toFloat settings.size.width, toFloat settings.size.height )
     in
-    line
-        [ x1 <| String.fromInt fromPoint.x
-        , y1 <| String.fromInt fromPoint.y
-        , x2 <| String.fromInt toPoint.x
-        , y2 <| String.fromInt toPoint.y
-        , stroke settings.color.line
-        , strokeWidth "1.3"
-        ]
-        []
+    Path.view settings
+        ( fromPoint, size )
+        ( toPoint, size )

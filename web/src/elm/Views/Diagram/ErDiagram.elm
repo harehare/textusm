@@ -3,6 +3,7 @@ module Views.Diagram.ErDiagram exposing (view)
 import Dict as Dict exposing (Dict)
 import Html exposing (div)
 import Html.Attributes as Attr
+import Html.Lazy exposing (lazy3, lazy4)
 import List.Extra exposing (find)
 import Maybe.Extra exposing (isJust)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
@@ -12,7 +13,7 @@ import String
 import Svg exposing (Svg, foreignObject, g, rect, text, text_)
 import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, y)
 import Views.Diagram.Path as Path
-import Views.Diagram.Views exposing (Position, Size)
+import Views.Diagram.Views as Views exposing (Position, Size)
 
 
 rowHeight : Int
@@ -22,7 +23,7 @@ rowHeight =
 
 tableMargin : Int
 tableMargin =
-    180
+    240
 
 
 type alias TableViewInfo =
@@ -70,11 +71,11 @@ view model =
             )
         , fill model.settings.backgroundColor
         ]
-        (relationshipView model.settings relationships tableDict
+        (lazy3 relationshipView model.settings relationships tableDict
             :: (Dict.toList tableDict
                     |> List.map
                         (\( _, t ) ->
-                            tableView model.settings t.position t.size t.table
+                            lazy4 tableView model.settings t.position t.size t.table
                         )
                )
         )
@@ -108,13 +109,27 @@ adjustTablePosition r t =
                                             table1Updated =
                                                 Dict.update
                                                     tableName1
-                                                    (Maybe.map (\v -> { v | releationCount = t1.releationCount + 1, releations = Dict.insert tableName2 relationString1 v.releations }))
+                                                    (Maybe.map
+                                                        (\v ->
+                                                            { v
+                                                                | releationCount = t1.releationCount + 1
+                                                                , releations = Dict.insert tableName2 relationString1 v.releations
+                                                            }
+                                                        )
+                                                    )
                                                     tablePositions
 
                                             table2Updated =
                                                 Dict.update
                                                     tableName2
-                                                    (Maybe.map (\v -> { v | position = childPosition, releations = Dict.insert tableName1 relationString2 v.releations }))
+                                                    (Maybe.map
+                                                        (\v ->
+                                                            { v
+                                                                | position = childPosition
+                                                                , releations = Dict.insert tableName1 relationString2 v.releations
+                                                            }
+                                                        )
+                                                    )
                                                     table1Updated
                                         in
                                         Loop
@@ -284,6 +299,12 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
         isPrimaryKey =
             find (\i -> i == PrimaryKey) attrs |> isJust
 
+        isNull =
+            find (\i -> i == Null) attrs |> isJust
+
+        isNotNull =
+            find (\i -> i == NotNull) attrs |> isJust
+
         style =
             if isPrimaryKey then
                 [ Attr.style "font-weight" "600", Attr.style "color" settings.color.story.color ]
@@ -322,7 +343,21 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
                     [ text name_ ]
                 , div
                     [ Attr.style "margin-right" "8px" ]
-                    [ text <| ER.columnTypeToString type_ ]
+                    [ text <|
+                        ER.columnTypeToString type_
+                            ++ (if isNull then
+                                    "?"
+
+                                else
+                                    ""
+                               )
+                            ++ (if isNotNull then
+                                    "!"
+
+                                else
+                                    ""
+                               )
+                    ]
                 ]
             ]
         ]
@@ -359,13 +394,93 @@ relationshipView settings relationships tables =
                 in
                 case ( table1, table2 ) of
                     ( Just t1, Just t2 ) ->
-                        pathView settings t1 t2
+                        let
+                            t1rel =
+                                Dict.get tableName2 t1.releations
+
+                            t2rel =
+                                Dict.get tableName1 t2.releations
+                        in
+                        g []
+                            [ pathView settings t1 t2
+                            , relationLabelView settings t1 t2 (Maybe.withDefault "" t1rel)
+                            , relationLabelView settings t2 t1 (Maybe.withDefault "" t2rel)
+                            ]
 
                     _ ->
                         g [] []
             )
             relationships
         )
+
+
+relationLabelView : Settings -> TableViewInfo -> TableViewInfo -> String -> Svg Msg
+relationLabelView settings table1 table2 label =
+    if Views.getX table1.position == Views.getX table2.position && Views.getY table1.position < Views.getY table2.position then
+        text_
+            [ x <| String.fromInt <| Views.getX table1.position + Views.getWidth table1.size // 2 + 10
+            , y <| String.fromInt <| Views.getY table1.position + Views.getHeight table1.size + 15
+            , fontFamily (fontStyle settings)
+            , fill settings.color.label
+            , fontSize "14"
+            , fontWeight "bold"
+            ]
+            [ text label ]
+
+    else if Views.getX table1.position == Views.getX table2.position && Views.getY table1.position > Views.getY table2.position then
+        text_
+            [ x <| String.fromInt <| Views.getX table1.position + Views.getWidth table1.size // 2 + 10
+            , y <| String.fromInt <| Views.getY table1.position - 15
+            , fontFamily (fontStyle settings)
+            , fill settings.color.label
+            , fontSize "14"
+            , fontWeight "bold"
+            ]
+            [ text label ]
+
+    else if Views.getX table1.position < Views.getX table2.position && Views.getY table1.position == Views.getY table2.position then
+        text_
+            [ x <| String.fromInt <| Views.getX table1.position + Views.getWidth table1.size + 10
+            , y <| String.fromInt <| Views.getY table1.position + Views.getHeight table1.size // 2 - 15
+            , fontFamily (fontStyle settings)
+            , fill settings.color.label
+            , fontSize "14"
+            , fontWeight "bold"
+            ]
+            [ text label ]
+
+    else if Views.getX table1.position > Views.getX table2.position && Views.getY table1.position == Views.getY table2.position then
+        text_
+            [ x <| String.fromInt <| Views.getX table1.position + Views.getWidth table1.size - 10
+            , y <| String.fromInt <| Views.getY table1.position + Views.getHeight table1.size // 2 + 15
+            , fontFamily (fontStyle settings)
+            , fill settings.color.label
+            , fontSize "14"
+            , fontWeight "bold"
+            ]
+            [ text label ]
+
+    else if Views.getX table1.position < Views.getX table2.position then
+        text_
+            [ x <| String.fromInt <| Views.getX table1.position + Views.getWidth table1.size + 10
+            , y <| String.fromInt <| Views.getY table1.position + Views.getHeight table1.size // 2 + 15
+            , fontFamily (fontStyle settings)
+            , fill settings.color.label
+            , fontSize "14"
+            , fontWeight "bold"
+            ]
+            [ text label ]
+
+    else
+        text_
+            [ x <| String.fromInt <| Views.getX table1.position - 15
+            , y <| String.fromInt <| Views.getY table1.position + Views.getHeight table1.size // 2 - 10
+            , fontFamily (fontStyle settings)
+            , fill settings.color.label
+            , fontSize "14"
+            , fontWeight "bold"
+            ]
+            [ text label ]
 
 
 pathView : Settings -> TableViewInfo -> TableViewInfo -> Svg Msg
