@@ -2,6 +2,7 @@ module Models.DiagramList exposing (Model, Msg(..))
 
 import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import Graphql.Http as Http
+import Models.PotentialData exposing (Pot)
 import Models.User exposing (User)
 import Time exposing (Zone)
 
@@ -24,7 +25,7 @@ type Msg
 type alias Model =
     { searchQuery : Maybe String
     , timeZone : Zone
-    , diagramList : Maybe (List DiagramItem)
+    , diagramList : Pot (List DiagramItem)
     , selectedType : Maybe String
     , loginUser : Maybe User
     , apiRoot : String

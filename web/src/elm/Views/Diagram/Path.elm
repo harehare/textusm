@@ -19,7 +19,7 @@ type alias Size =
 
 cornerSize : Float
 cornerSize =
-    10.0
+    5.0
 
 
 view : Settings -> ( Position, Size ) -> ( Position, Size ) -> Svg Msg
@@ -52,7 +52,7 @@ view settings ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( 
             , line ( toX, toY + fromHeight / 2 )
             ]
 
-    else if fromX < toX && fromX < toY || fromX < toX && fromY > toY then
+    else if fromX < toX then
         draw
             settings
             (drawLines
@@ -70,9 +70,8 @@ view settings ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( 
 
 
 drawLines : ( Position, Size ) -> ( Position, Size ) -> List Path
-drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, toHeight ) ) =
-    -- TODO:
-    if fromX < toX && fromY < toY then
+drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( toWidth, toHeight ) ) =
+    if fromY < toY then
         let
             interval =
                 (toX - (fromX + fromWidth)) / 2
@@ -88,45 +87,6 @@ drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, t
         , topRightcorner ( fromX + fromWidth + interval, fromY + fromMargin + cornerSize )
         , line ( fromX + fromWidth + interval, toY + toMargin - cornerSize )
         , bottomLeftcorner ( fromX + fromWidth + interval + cornerSize, toY + toMargin )
-        , line ( toX, toY + toMargin )
-        ]
-
-    else if fromX < toX && fromY > toY then
-        let
-            interval =
-                (toX - (fromX + fromWidth)) / 2
-
-            fromMargin =
-                fromHeight / 2
-
-            toMargin =
-                toHeight / 2
-        in
-        [ start ( fromX + fromWidth, fromY + fromMargin )
-        , line ( fromX + fromWidth + interval - cornerSize, fromY + fromMargin )
-        , bottomLeftcorner ( fromX + fromWidth + interval, fromY + fromMargin - cornerSize )
-        , line ( fromX + fromWidth + interval, toY + toMargin + cornerSize )
-        , topRightcorner ( fromX + fromWidth + interval + cornerSize, toY + toMargin )
-        , line ( toX, toY + toMargin )
-        ]
-
-    else if fromX > toX && fromY < toY then
-        -- TODO
-        let
-            interval =
-                (toX - (fromX + fromWidth)) / 2
-
-            fromMargin =
-                fromHeight / 2
-
-            toMargin =
-                toHeight / 2
-        in
-        [ start ( fromX + fromWidth, fromY + fromMargin )
-        , line ( fromX + fromWidth + interval - cornerSize, fromY + fromMargin )
-        , bottomLeftcorner ( fromX + fromWidth + interval, fromY + fromMargin - cornerSize )
-        , line ( fromX + fromWidth + interval, toY + toMargin + cornerSize )
-        , topRightcorner ( fromX + fromWidth + interval + cornerSize, toY + toMargin )
         , line ( toX, toY + toMargin )
         ]
 

@@ -1,4 +1,4 @@
-module Models.PotentialData exposing (empty, failed, isEmpty, isPending, pending, ready)
+module Models.PotentialData exposing (Pot(..), andThen, empty, failed, isEmpty, isPending, isReady, pending, ready)
 
 
 type Pot a
@@ -6,6 +6,22 @@ type Pot a
     | Pending
     | Ready a
     | Failed
+
+
+andThen : (a -> Pot b) -> Pot a -> Pot b
+andThen f a =
+    case a of
+        Ready v ->
+            f v
+
+        Pending ->
+            Pending
+
+        Empty ->
+            Empty
+
+        Failed ->
+            Failed
 
 
 empty : Pot a
@@ -31,6 +47,16 @@ failed =
 isEmpty : Pot a -> Bool
 isEmpty a =
     a == Empty
+
+
+isReady : Pot a -> Bool
+isReady a =
+    case a of
+        Ready _ ->
+            True
+
+        _ ->
+            False
 
 
 isPending : Pot a -> Bool

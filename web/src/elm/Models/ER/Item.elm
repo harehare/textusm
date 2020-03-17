@@ -1,4 +1,4 @@
-module Models.ER.Item exposing (Attribute(..), Column(..), ColumnType(..), Index, IndexType(..), Relationship(..), Table(..), columnTypeToString, itemsToErDiagram, relationshipToString, tableWidth)
+module Models.ER.Item exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..), columnTypeToString, itemsToErDiagram, relationshipToString, tableWidth)
 
 import Dict exposing (Dict)
 import Dict.Extra exposing (find)
@@ -32,7 +32,7 @@ type Relationship
 
 
 type Table
-    = Table Name (List Column) (List Index)
+    = Table Name (List Column)
 
 
 type Column
@@ -61,22 +61,6 @@ type ColumnLength
     | NoLimit
 
 
-type alias Index =
-    { name : String
-    , type_ : IndexType
-    }
-
-
-type IndexType
-    = BTree
-    | Hash
-    | Gist
-    | SPGist
-    | GIN
-    | BRIN
-    | Bloom
-
-
 type Attribute
     = PrimaryKey
     | NotNull
@@ -84,17 +68,15 @@ type Attribute
     | Unique
     | Increment
     | Default String
+    | Index
     | None
 
 
 tableWidth : Table -> Int
-tableWidth (Table name columns indexes) =
+tableWidth (Table name columns) =
     String.length name
         :: List.map (\(Column colName _ _) -> String.length colName)
             columns
-        ++ List.map
-            (\index -> String.length index.name)
-            indexes
         |> List.maximum
         |> Maybe.map (\maxLength -> 12 * maxLength)
         |> Maybe.withDefault 180
@@ -182,15 +164,8 @@ itemToTable item =
 
         columns =
             Item.map itemToColumn items
-
-        indexes =
-            Item.getAt 1 items
-                |> Maybe.withDefault Item.emptyItem
-                |> .children
-                |> Item.unwrapChildren
-                |> Item.map itemToIndex
     in
-    Table tableName columns indexes
+    Table tableName columns
 
 
 itemToColumn : Item -> Column
@@ -276,6 +251,13 @@ textToColumnAttribute attrDict =
             else
                 None
 
+        index =
+            if isJust <| getkAttributeIndex "index" then
+                Index
+
+            else
+                None
+
         default =
             getkAttributeIndex "default"
                 |> Maybe.andThen
@@ -288,7 +270,7 @@ textToColumnAttribute attrDict =
                     )
                 |> Maybe.withDefault None
     in
-    [ primaryKey, notNull, unique, increment, default, null ]
+    [ primaryKey, notNull, unique, increment, default, index, null ]
 
 
 textToColumnType : String -> ColumnType
@@ -399,57 +381,6 @@ textToColumnType text =
 
         _ ->
             Int NoLimit
-
-
-itemToIndex : Item -> Index
-itemToIndex item =
-    let
-        tokens =
-            String.split "," item.text
-                |> List.map (\i -> String.trim i)
-
-        indexName =
-            getAt 0 tokens
-                |> Maybe.withDefault ""
-
-        indexType =
-            getAt 1 tokens
-                |> Maybe.map textToIndexType
-                |> Maybe.withDefault BTree
-    in
-    Index indexName indexType
-
-
-textToIndexType : String -> IndexType
-textToIndexType text =
-    let
-        indexType =
-            String.toLower text |> String.trim
-    in
-    case indexType of
-        "btree" ->
-            BTree
-
-        "hash" ->
-            Hash
-
-        "gist" ->
-            Gist
-
-        "spgist" ->
-            SPGist
-
-        "gin" ->
-            GIN
-
-        "brin" ->
-            BRIN
-
-        "bloom" ->
-            Bloom
-
-        _ ->
-            BTree
 
 
 relationshipToString : Relationship -> Maybe ( ( TableName, RelationShipString ), ( TableName, RelationShipString ) )

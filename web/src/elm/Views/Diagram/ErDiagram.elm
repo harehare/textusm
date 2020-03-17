@@ -7,13 +7,15 @@ import Html.Lazy exposing (lazy3, lazy4)
 import List.Extra exposing (find)
 import Maybe.Extra exposing (isJust)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
-import Models.ER.Item as ER exposing (Attribute(..), Column(..), ColumnType(..), Index, IndexType(..), Relationship(..), Table(..))
+import Models.ER.Item as ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..))
 import State as State exposing (Step(..))
 import String
 import Svg exposing (Svg, foreignObject, g, rect, text, text_)
 import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, y)
 import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views exposing (Position, Size)
+import Views.Empty as Empty
+import Views.Icon as Icon
 
 
 rowHeight : Int
@@ -206,7 +208,7 @@ tablesToDict tables =
         |> List.indexedMap
             (\i table ->
                 let
-                    (Table name columns _) =
+                    (Table name columns) =
                         table
 
                     width =
@@ -243,7 +245,7 @@ tablesToDict tables =
 tableView : Settings -> Position -> Size -> Table -> Svg Msg
 tableView settings ( posX, posY ) ( tableWidth, tableHeight ) table =
     let
-        (Table tableName columns _) =
+        (Table tableName columns) =
             table
     in
     g []
@@ -302,6 +304,9 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
         isNull =
             find (\i -> i == Null) attrs |> isJust
 
+        isIndex =
+            find (\i -> i == Index) attrs |> isJust
+
         isNotNull =
             find (\i -> i == NotNull) attrs |> isJust
 
@@ -340,10 +345,29 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
                 [ div
                     [ Attr.style "margin-left" "8px"
                     ]
-                    [ text name_ ]
+                    [ text name_
+                    ]
                 , div
-                    [ Attr.style "margin-right" "8px" ]
-                    [ text <|
+                    [ Attr.style "margin-right" "8px"
+                    , Attr.style "display" "flex"
+                    , Attr.style "align-items" "center"
+                    ]
+                    [ if isPrimaryKey then
+                        div [ Attr.style "margin-right" "8px" ]
+                            [ Icon.key settings.color.story.color 12
+                            ]
+
+                      else if isIndex then
+                        div
+                            [ Attr.style "margin-right" "8px"
+                            , Attr.style "margin-top" "5px"
+                            ]
+                            [ Icon.search settings.color.story.color 16
+                            ]
+
+                      else
+                        Empty.view
+                    , text <|
                         ER.columnTypeToString type_
                             ++ (if isNull then
                                     "?"

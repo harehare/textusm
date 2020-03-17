@@ -8,9 +8,10 @@ import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Json.Decode as D
-import Maybe.Extra exposing (isJust, isNothing)
+import Maybe.Extra exposing (isJust)
 import Models.DiagramList exposing (Model, Msg(..))
 import Models.DiagramType as DiagramType
+import Models.PotentialData as Pot exposing (Pot(..))
 import Models.User as UserModel exposing (User)
 import Subscriptions exposing (getDiagrams, removeDiagrams)
 import Task
@@ -34,7 +35,7 @@ init : Maybe User -> String -> ( Model, Cmd Msg )
 init user apiRoot =
     ( { searchQuery = Nothing
       , timeZone = Time.utc
-      , diagramList = Nothing
+      , diagramList = Pot.pending
       , selectedType = Nothing
       , loginUser = user
       , apiRoot = apiRoot
@@ -142,7 +143,7 @@ menuName path =
 view : Model -> Html Msg
 view model =
     case model.diagramList of
-        Just diagrams ->
+        Ready diagrams ->
             let
                 displayDiagrams =
                     case model.selectedType of
@@ -178,7 +179,7 @@ view model =
                                 , style "right" "20px"
                                 , style "top" "18px"
                                 ]
-                                [ Icon.search 24 ]
+                                [ Icon.search "#8C9FAE" 24 ]
                             , input
                                 [ placeholder "Search"
                                 , style "border-radius" "20px"
@@ -255,7 +256,7 @@ view model =
                     ]
                 ]
 
-        Nothing ->
+        Pending ->
             div
                 [ class "diagram-list"
                 , style "width" "100vw"
@@ -270,7 +271,47 @@ view model =
                     , style "font-size" "1.5rem"
                     ]
                     [ div [ style "margin-bottom" "8px" ]
-                        [ img [ src "/images/loading.svg", style "width" "128px", alt "LOADING..." ] []
+                        [ img [ src "/images/loading.svg", style "width" "64px", alt "LOADING..." ] []
+                        ]
+                    ]
+                ]
+
+        Empty ->
+            div
+                [ class "diagram-list"
+                , style "width" "100vw"
+                ]
+                [ div
+                    [ style "display" "flex"
+                    , style "align-items" "center"
+                    , style "justify-content" "center"
+                    , style "height" "100%"
+                    , style "padding-bottom" "32px"
+                    , style "color" "#8C9FAE"
+                    , style "font-size" "1.5rem"
+                    ]
+                    [ div [ style "margin-bottom" "8px" ]
+                        [ text "EMPTY"
+                        ]
+                    ]
+                ]
+
+        Failed ->
+            div
+                [ class "diagram-list"
+                , style "width" "100vw"
+                ]
+                [ div
+                    [ style "display" "flex"
+                    , style "align-items" "center"
+                    , style "justify-content" "center"
+                    , style "height" "100%"
+                    , style "padding-bottom" "32px"
+                    , style "color" "#8C9FAE"
+                    , style "font-size" "1.5rem"
+                    ]
+                    [ div [ style "margin-bottom" "8px" ]
+                        [ text "FAILED"
                         ]
                     ]
                 ]
@@ -390,7 +431,12 @@ update message model =
                         ( { model
                             | hasMorePage = False
                             , isLoading = False
-                            , diagramList = Just localItems
+                            , diagramList =
+                                if List.isEmpty localItems then
+                                    Pot.empty
+
+                                else
+                                    Pot.ready localItems
                           }
                         , Cmd.none
                         )
@@ -400,11 +446,11 @@ update message model =
                 | hasMorePage = List.length items >= pageSize
                 , isLoading = False
                 , diagramList =
-                    if isNothing model.diagramList then
-                        Just items
+                    if Pot.isPending model.diagramList || Pot.isEmpty model.diagramList then
+                        Ready items
 
                     else
-                        Maybe.andThen (\currentItems -> Just <| List.concat [ currentItems, items ]) model.diagramList
+                        Pot.andThen (\currentItems -> Ready <| List.concat [ currentItems, items ]) model.diagramList
               }
             , Cmd.none
             )
@@ -414,11 +460,11 @@ update message model =
                 | hasMorePage = List.length items >= pageSize
                 , isLoading = False
                 , diagramList =
-                    if isNothing model.diagramList then
-                        Just items
+                    if Pot.isPending model.diagramList || Pot.isEmpty model.diagramList then
+                        Ready items
 
                     else
-                        Maybe.andThen (\currentItems -> Just <| List.concat [ currentItems, items ]) model.diagramList
+                        Pot.andThen (\currentItems -> Ready <| List.concat [ currentItems, items ]) model.diagramList
               }
             , Cmd.none
             )
