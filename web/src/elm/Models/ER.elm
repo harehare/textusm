@@ -1,8 +1,8 @@
-module Models.ER.Item exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..), columnTypeToString, itemsToErDiagram, relationshipToString, tableWidth)
+module Models.ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..), columnTypeToString, itemsToErDiagram, relationshipToString, tableToString, tableWidth)
 
 import Dict exposing (Dict)
 import Dict.Extra exposing (find)
-import List.Extra exposing (getAt)
+import List.Extra as ListEx exposing (getAt)
 import Maybe.Extra exposing (isJust)
 import Models.Item as Item exposing (Item, Items)
 
@@ -78,9 +78,9 @@ tableWidth (Table name columns) =
         :: List.map (\(Column colName _ _) -> String.length colName)
             columns
         |> List.maximum
-        |> Maybe.map (\maxLength -> 12 * maxLength)
-        |> Maybe.withDefault 180
-        |> max 180
+        |> Maybe.map (\maxLength -> 14 * maxLength + 30)
+        |> Maybe.withDefault 160
+        |> max 160
 
 
 itemsToErDiagram : Items -> ( List Relationship, List Table )
@@ -467,3 +467,170 @@ columnTypeToString type_ =
 
         Enum _ ->
             "enum"
+
+
+tableToString : Table -> String
+tableToString (Table name columns) =
+    let
+        columnStrings =
+            List.map (\c -> columnToString c |> String.trimRight) columns
+    in
+    "CREATE TABLE "
+        ++ name
+        ++ " (\n"
+        ++ (primaryKeyToString columns
+                |> Maybe.map
+                    (\primaryKey ->
+                        String.join ",\n" columnStrings ++ ",\n" ++ primaryKey
+                    )
+                |> Maybe.withDefault (String.join ",\n" columnStrings)
+           )
+        ++ "\n);\n"
+        ++ (Maybe.andThen (\v -> Just <| v ++ "\n") (indexToString name columns)
+                |> Maybe.withDefault ""
+           )
+
+
+primaryKeyToString : List Column -> Maybe String
+primaryKeyToString columns =
+    let
+        primaryKeys =
+            List.filter
+                (\(Column _ _ attrs) ->
+                    ListEx.find (\i -> i == PrimaryKey) attrs |> isJust
+                )
+                columns
+                |> List.map (\(Column name _ _) -> "`" ++ name ++ "`")
+    in
+    if List.isEmpty primaryKeys then
+        Nothing
+
+    else
+        Just <|
+            "    PRIMARY KEY (\n"
+                ++ "    "
+                ++ String.join "," primaryKeys
+                ++ "\n    )"
+
+
+indexToString : String -> List Column -> Maybe String
+indexToString tableName columns =
+    let
+        indexes =
+            List.filter
+                (\(Column _ _ attrs) ->
+                    ListEx.find (\i -> i == Index) attrs |> isJust
+                )
+                columns
+    in
+    if List.isEmpty indexes then
+        Nothing
+
+    else
+        Just
+            (indexes
+                |> List.map
+                    (\(Column name _ _) ->
+                        "CREATE INDEX `idx_" ++ tableName ++ "_" ++ name ++ "` ON `" ++ tableName ++ "` (`" ++ name ++ "`);"
+                    )
+                |> String.join "\n"
+            )
+
+
+columnToString : Column -> String
+columnToString (Column name type_ attrs) =
+    "    `"
+        ++ name
+        ++ "` "
+        ++ columnTypeToFullString type_
+        ++ " "
+        ++ String.join " " (List.map columnAttributeToString attrs |> List.filter (\v -> not <| String.isEmpty v))
+
+
+columnTypeToFullString : ColumnType -> String
+columnTypeToFullString type_ =
+    case type_ of
+        TinyInt (Length v) ->
+            "tinyint(" ++ String.fromInt v ++ ")"
+
+        TinyInt _ ->
+            "tinyint"
+
+        Int (Length v) ->
+            "int(" ++ String.fromInt v ++ ")"
+
+        Int _ ->
+            "int"
+
+        Float (Length v) ->
+            "float(" ++ String.fromInt v ++ ")"
+
+        Float _ ->
+            "float"
+
+        Double (Length v) ->
+            "double(" ++ String.fromInt v ++ ")"
+
+        Double _ ->
+            "double"
+
+        Decimal (Length v) ->
+            "decimal(" ++ String.fromInt v ++ ")"
+
+        Decimal _ ->
+            "decimal"
+
+        Char (Length v) ->
+            "char(" ++ String.fromInt v ++ ")"
+
+        Char _ ->
+            "char"
+
+        Text ->
+            "text"
+
+        Blob ->
+            "blob"
+
+        VarChar (Length v) ->
+            "varchar(" ++ String.fromInt v ++ ")"
+
+        VarChar _ ->
+            "varchar"
+
+        Boolean ->
+            "boolean"
+
+        Timestamp ->
+            "timestamp"
+
+        Date ->
+            "date"
+
+        DateTime ->
+            "datetime"
+
+        Enum values ->
+            "enum(" ++ String.join "," values ++ ")"
+
+
+columnAttributeToString : Attribute -> String
+columnAttributeToString attr =
+    case attr of
+        NotNull ->
+            "NOT NULL"
+
+        Null ->
+            "NULL"
+
+        Unique ->
+            "UNIQUE"
+
+        Increment ->
+            "AUTO_INCREMENT"
+
+        Default v ->
+            "DEFAULT " ++ v
+
+        _ ->
+            ""

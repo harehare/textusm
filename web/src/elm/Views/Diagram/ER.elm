@@ -1,13 +1,14 @@
-module Views.Diagram.ErDiagram exposing (view)
+module Views.Diagram.ER exposing (view)
 
+import Constants
 import Dict as Dict exposing (Dict)
 import Html exposing (div)
 import Html.Attributes as Attr
 import Html.Lazy exposing (lazy3, lazy4)
 import List.Extra exposing (find)
-import Maybe.Extra exposing (isJust)
+import Maybe.Extra exposing (isJust, isNothing, or)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
-import Models.ER.Item as ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..))
+import Models.ER as ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..))
 import State as State exposing (Step(..))
 import String
 import Svg exposing (Svg, foreignObject, g, rect, text, text_)
@@ -18,26 +19,16 @@ import Views.Empty as Empty
 import Views.Icon as Icon
 
 
-rowHeight : Int
-rowHeight =
-    40
-
-
-tableMargin : Int
-tableMargin =
-    240
-
-
 type alias TableViewInfo =
     { table : Table
     , size : Size
-    , position : Position
+    , position : Maybe Position
     , releationCount : Int
     , releations : Dict String String
     }
 
 
-type alias TableViewModel =
+type alias TableViewDict =
     Dict String TableViewInfo
 
 
@@ -50,6 +41,14 @@ view model =
         tableDict =
             tablesToDict tables
                 |> adjustTablePosition relationships
+
+        ( centerX, centerY ) =
+            if model.matchParent then
+                getTableCenter tableDict
+                    |> Tuple.mapBoth toFloat toFloat
+
+            else
+                ( model.x, model.y )
     in
     g
         [ transform
@@ -59,7 +58,7 @@ view model =
                         0
 
                      else
-                        model.x
+                        centerX
                     )
                 ++ ","
                 ++ String.fromFloat
@@ -67,7 +66,7 @@ view model =
                         0
 
                      else
-                        model.y
+                        centerY
                     )
                 ++ ")"
             )
@@ -77,16 +76,31 @@ view model =
             :: (Dict.toList tableDict
                     |> List.map
                         (\( _, t ) ->
-                            lazy4 tableView model.settings t.position t.size t.table
+                            lazy4 tableView model.settings (getPosition t.position) t.size t.table
                         )
                )
         )
 
 
-adjustTablePosition : List Relationship -> TableViewModel -> TableViewModel
+getTableCenter : TableViewDict -> Position
+getTableCenter tableDict =
+    let
+        ( ( mx, my ), ( xx, xy ) ) =
+            Dict.values tableDict
+                |> List.map (\p -> getPosition p.position)
+                |> List.foldl
+                    (\( x1, y1 ) ( ( minX, minY ), ( maxX, maxY ) ) ->
+                        ( ( min x1 minX, min y1 minY ), ( max x1 maxX, max y1 maxY ) )
+                    )
+                    ( ( 0, 0 ), ( 0, 0 ) )
+    in
+    ( xx - mx, xy - my )
+
+
+adjustTablePosition : List Relationship -> TableViewDict -> TableViewDict
 adjustTablePosition r t =
     let
-        go { tablePositions, relationships } =
+        go { nextPosition, tablePositions, relationships } =
             if List.isEmpty relationships then
                 Done tablePositions
 
@@ -95,27 +109,27 @@ adjustTablePosition r t =
                     x :: xs ->
                         case ER.relationshipToString x of
                             Just ( ( tableName1, relationString1 ), ( tableName2, relationString2 ) ) ->
-                                let
-                                    table1 =
-                                        Dict.get tableName1 tablePositions
-
-                                    table2 =
-                                        Dict.get tableName2 tablePositions
-                                in
-                                case ( table1, table2 ) of
+                                case ( Dict.get tableName1 tablePositions, Dict.get tableName2 tablePositions ) of
                                     ( Just t1, Just t2 ) ->
                                         let
-                                            childPosition =
-                                                tablePosition t1.size t2.size t1.position (t1.releationCount + 1)
+                                            ( ( table1, name1, rel1 ), ( table2, name2, rel2 ) ) =
+                                                if t1.releationCount >= t2.releationCount && isNothing t2.position then
+                                                    ( ( t1, tableName1, relationString1 ), ( t2, tableName2, relationString2 ) )
+
+                                                else
+                                                    ( ( t2, tableName2, relationString2 ), ( t1, tableName1, relationString1 ) )
+
+                                            ( next, childPosition ) =
+                                                calcTablePosition table1.size table2.size table1.position nextPosition (table1.releationCount + 1)
 
                                             table1Updated =
                                                 Dict.update
-                                                    tableName1
+                                                    name1
                                                     (Maybe.map
                                                         (\v ->
                                                             { v
-                                                                | releationCount = t1.releationCount + 1
-                                                                , releations = Dict.insert tableName2 relationString1 v.releations
+                                                                | releationCount = table1.releationCount + 1
+                                                                , releations = Dict.insert name2 rel1 v.releations
                                                             }
                                                         )
                                                     )
@@ -123,12 +137,13 @@ adjustTablePosition r t =
 
                                             table2Updated =
                                                 Dict.update
-                                                    tableName2
+                                                    name2
                                                     (Maybe.map
                                                         (\v ->
                                                             { v
-                                                                | position = childPosition
-                                                                , releations = Dict.insert tableName1 relationString2 v.releations
+                                                                | position = Just childPosition
+                                                                , releationCount = table1.releationCount + 1
+                                                                , releations = Dict.insert name1 rel2 v.releations
                                                             }
                                                         )
                                                     )
@@ -137,31 +152,35 @@ adjustTablePosition r t =
                                         Loop
                                             { tablePositions = table2Updated
                                             , relationships = xs
+                                            , nextPosition = or next nextPosition
                                             }
 
                                     _ ->
                                         Loop
                                             { tablePositions = tablePositions
                                             , relationships = xs
+                                            , nextPosition = nextPosition
                                             }
 
                             Nothing ->
                                 Loop
                                     { tablePositions = tablePositions
                                     , relationships = xs
+                                    , nextPosition = nextPosition
                                     }
 
                     _ ->
                         Loop
                             { tablePositions = tablePositions
                             , relationships = []
+                            , nextPosition = nextPosition
                             }
     in
-    State.tailRec go { relationships = r, tablePositions = t }
+    State.tailRec go { nextPosition = Nothing, relationships = r, tablePositions = t }
 
 
-tablePosition : Size -> Size -> Position -> Int -> Position
-tablePosition ( tableWidth1, tableHeight1 ) ( tableWidth2, tableHeight2 ) ( posX, posY ) relationCount =
+calcTablePosition : Size -> Size -> Maybe Position -> Maybe Position -> Int -> ( Maybe Position, Position )
+calcTablePosition ( tableWidth1, tableHeight1 ) ( tableWidth2, tableHeight2 ) pos nextPosition relationCount =
     let
         n =
             if relationCount // 8 > 0 then
@@ -171,42 +190,58 @@ tablePosition ( tableWidth1, tableHeight1 ) ( tableWidth2, tableHeight2 ) ( posX
                 1
 
         w =
-            max tableWidth1 240 * n
+            max tableWidth1 Constants.tableMargin * n
 
         h =
-            max tableHeight1 240 * n
+            max tableHeight1 Constants.tableMargin * n
+
+        ( next, ( posX, posY ) ) =
+            case pos of
+                Just ( x, y ) ->
+                    ( Nothing, ( x, y ) )
+
+                Nothing ->
+                    case nextPosition of
+                        Just ( nextX, nextY ) ->
+                            ( Just ( nextX + tableWidth1 + w, nextY ), ( nextX, nextY ) )
+
+                        Nothing ->
+                            ( Just ( tableWidth1 + w, 0 ), ( 0, 0 ) )
     in
-    case relationCount of
+    case modBy 8 relationCount of
         1 ->
-            ( posX, posY - h - tableHeight2 )
+            ( next, ( posX, posY - h - tableHeight2 ) )
 
         2 ->
-            ( posX + tableWidth1 + w, posY - h - tableHeight2 )
+            ( next, ( posX + tableWidth1 + w, posY - h - tableHeight2 ) )
 
         3 ->
-            ( posX + tableWidth1 + w, posY )
+            ( next, ( posX + tableWidth1 + w, posY ) )
 
         4 ->
-            ( posX + tableWidth1 + w, posY + h + tableHeight1 )
+            ( next, ( posX + tableWidth1 + w, posY + h + tableHeight1 ) )
 
         5 ->
-            ( posX, posY + h + tableHeight1 )
+            ( next, ( posX, posY + h + tableHeight1 ) )
 
         6 ->
-            ( posX - tableWidth2 - w, posY + tableHeight1 + h )
+            ( next, ( posX - tableWidth2 - w, posY + tableHeight1 + h ) )
 
         7 ->
-            ( posX - tableWidth1 - w, posY )
+            ( next, ( posX - tableWidth1 - w, posY ) )
+
+        8 ->
+            ( next, ( posX - tableWidth1 - w, posY + tableHeight1 - h ) )
 
         _ ->
-            ( posX - tableWidth1 - w, posY + tableHeight1 - h )
+            ( next, ( posX, posY - h - tableHeight2 ) )
 
 
-tablesToDict : List Table -> TableViewModel
+tablesToDict : List Table -> TableViewDict
 tablesToDict tables =
     tables
-        |> List.indexedMap
-            (\i table ->
+        |> List.map
+            (\table ->
                 let
                     (Table name columns) =
                         table
@@ -215,25 +250,12 @@ tablesToDict tables =
                         ER.tableWidth table
 
                     height =
-                        rowHeight * (List.length columns + 1)
-
-                    odd =
-                        modBy 2 i
-
-                    index =
-                        i // 2
+                        Constants.tableRowHeight * (List.length columns + 1)
                 in
                 ( name
                 , { table = table
                   , size = ( width, height )
-                  , position =
-                        ( index * (width + tableMargin)
-                        , if odd == 1 then
-                            height + tableMargin
-
-                          else
-                            0
-                        )
+                  , position = Nothing
                   , releationCount = 0
                   , releations = Dict.empty
                   }
@@ -260,7 +282,7 @@ tableView settings ( posX, posY ) ( tableWidth, tableHeight ) table =
             []
             :: tableHeaderView settings tableName tableWidth ( posX, posY )
             :: List.indexedMap
-                (\i column -> columnView settings tableWidth ( posX, posY + rowHeight * (i + 1) ) column)
+                (\i column -> columnView settings tableWidth ( posX, posY + Constants.tableRowHeight * (i + 1) ) column)
                 columns
         )
 
@@ -270,7 +292,7 @@ tableHeaderView settings headerText headerWidth ( posX, posY ) =
     g []
         [ rect
             [ width <| String.fromInt headerWidth
-            , height <| String.fromInt rowHeight
+            , height <| String.fromInt Constants.tableRowHeight
             , x (String.fromInt posX)
             , y (String.fromInt posY)
             , fill settings.color.activity.backgroundColor
@@ -320,7 +342,7 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
     g []
         [ rect
             [ width <| String.fromInt columnWidth
-            , height <| String.fromInt rowHeight
+            , height <| String.fromInt Constants.tableRowHeight
             , x colX
             , y colY
             , fill settings.color.story.backgroundColor
@@ -330,14 +352,15 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
             [ x colX
             , y colY
             , width <| String.fromInt columnWidth
-            , height <| String.fromInt rowHeight
+            , height <| String.fromInt Constants.tableRowHeight
             ]
             [ div
                 ([ Attr.style "width" (String.fromInt columnWidth ++ "px")
                  , Attr.style "display" "flex"
                  , Attr.style "align-items" "center"
                  , Attr.style "justify-content" "space-between"
-                 , Attr.style "height" (String.fromInt rowHeight ++ "px")
+                 , Attr.style "font-size" "0.9rem"
+                 , Attr.style "height" (String.fromInt Constants.tableRowHeight ++ "px")
                  , Attr.style "color" settings.color.story.color
                  ]
                     ++ style
@@ -351,6 +374,7 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
                     [ Attr.style "margin-right" "8px"
                     , Attr.style "display" "flex"
                     , Attr.style "align-items" "center"
+                    , Attr.style "font-size" "0.8rem"
                     ]
                     [ if isPrimaryKey then
                         div [ Attr.style "margin-right" "8px" ]
@@ -387,7 +411,7 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
         ]
 
 
-relationshipView : Settings -> List Relationship -> TableViewModel -> Svg Msg
+relationshipView : Settings -> List Relationship -> TableViewDict -> Svg Msg
 relationshipView settings relationships tables =
     g []
         (List.map
@@ -438,12 +462,17 @@ relationshipView settings relationships tables =
         )
 
 
+getPosition : Maybe Position -> Position
+getPosition pos =
+    Maybe.withDefault ( 0, 0 ) pos
+
+
 relationLabelView : Settings -> TableViewInfo -> TableViewInfo -> String -> Svg Msg
 relationLabelView settings table1 table2 label =
-    if Views.getX table1.position == Views.getX table2.position && Views.getY table1.position < Views.getY table2.position then
+    if (Views.getX <| getPosition table1.position) == (Views.getX <| getPosition table2.position) && (Views.getY <| getPosition table1.position) < (Views.getY <| getPosition table2.position) then
         text_
-            [ x <| String.fromInt <| Views.getX table1.position + Views.getWidth table1.size // 2 + 10
-            , y <| String.fromInt <| Views.getY table1.position + Views.getHeight table1.size + 15
+            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size // 2 + 10
+            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size + 15
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
@@ -451,10 +480,10 @@ relationLabelView settings table1 table2 label =
             ]
             [ text label ]
 
-    else if Views.getX table1.position == Views.getX table2.position && Views.getY table1.position > Views.getY table2.position then
+    else if (Views.getX <| getPosition table1.position) == (Views.getX <| getPosition table2.position) && (Views.getY <| getPosition table1.position) > (Views.getY <| getPosition table2.position) then
         text_
-            [ x <| String.fromInt <| Views.getX table1.position + Views.getWidth table1.size // 2 + 10
-            , y <| String.fromInt <| Views.getY table1.position - 15
+            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size // 2 + 10
+            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) - 15
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
@@ -462,10 +491,15 @@ relationLabelView settings table1 table2 label =
             ]
             [ text label ]
 
-    else if Views.getX table1.position < Views.getX table2.position && Views.getY table1.position == Views.getY table2.position then
+    else if
+        Views.getX (Maybe.withDefault ( 0, 0 ) table1.position)
+            < Views.getX (Maybe.withDefault ( 0, 0 ) table2.position)
+            && Views.getY (Maybe.withDefault ( 0, 0 ) table1.position)
+            == Views.getY (Maybe.withDefault ( 0, 0 ) table2.position)
+    then
         text_
-            [ x <| String.fromInt <| Views.getX table1.position + Views.getWidth table1.size + 10
-            , y <| String.fromInt <| Views.getY table1.position + Views.getHeight table1.size // 2 - 15
+            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size + 10
+            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 - 15
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
@@ -473,10 +507,15 @@ relationLabelView settings table1 table2 label =
             ]
             [ text label ]
 
-    else if Views.getX table1.position > Views.getX table2.position && Views.getY table1.position == Views.getY table2.position then
+    else if
+        Views.getX (Maybe.withDefault ( 0, 0 ) table1.position)
+            > Views.getX (Maybe.withDefault ( 0, 0 ) table2.position)
+            && Views.getY (Maybe.withDefault ( 0, 0 ) table1.position)
+            == Views.getY (Maybe.withDefault ( 0, 0 ) table2.position)
+    then
         text_
-            [ x <| String.fromInt <| Views.getX table1.position + Views.getWidth table1.size - 10
-            , y <| String.fromInt <| Views.getY table1.position + Views.getHeight table1.size // 2 + 15
+            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size - 10
+            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 + 15
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
@@ -484,10 +523,10 @@ relationLabelView settings table1 table2 label =
             ]
             [ text label ]
 
-    else if Views.getX table1.position < Views.getX table2.position then
+    else if Views.getX (Maybe.withDefault ( 0, 0 ) table1.position) < Views.getX (Maybe.withDefault ( 0, 0 ) table2.position) then
         text_
-            [ x <| String.fromInt <| Views.getX table1.position + Views.getWidth table1.size + 10
-            , y <| String.fromInt <| Views.getY table1.position + Views.getHeight table1.size // 2 + 15
+            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size + 10
+            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 + 15
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
@@ -497,8 +536,8 @@ relationLabelView settings table1 table2 label =
 
     else
         text_
-            [ x <| String.fromInt <| Views.getX table1.position - 15
-            , y <| String.fromInt <| Views.getY table1.position + Views.getHeight table1.size // 2 - 10
+            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) - 15
+            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 - 10
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
@@ -511,13 +550,13 @@ pathView : Settings -> TableViewInfo -> TableViewInfo -> Svg Msg
 pathView settings from to =
     let
         fromPosition =
-            Tuple.mapBoth toFloat toFloat from.position
+            Tuple.mapBoth toFloat toFloat (getPosition from.position)
 
         fromSize =
             Tuple.mapBoth toFloat toFloat from.size
 
         toPosition =
-            Tuple.mapBoth toFloat toFloat to.position
+            Tuple.mapBoth toFloat toFloat (getPosition to.position)
 
         toSize =
             Tuple.mapBoth toFloat toFloat to.size

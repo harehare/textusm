@@ -9,7 +9,7 @@ import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
 import List
-import List.Extra exposing (getAt, scanl, unique)
+import List.Extra exposing (getAt, scanl)
 import Maybe.Extra exposing (isNothing)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (ItemType(..), Items)
@@ -25,8 +25,8 @@ import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.CustomerJourneyMap as CustomerJourneyMap
+import Views.Diagram.ER as ER
 import Views.Diagram.EmpathyMap as EmpathyMap
-import Views.Diagram.ErDiagram as ErDiagram
 import Views.Diagram.FourLs as FourLs
 import Views.Diagram.GanttChart as GanttChart
 import Views.Diagram.ImpactMap as ImpactMap
@@ -41,10 +41,6 @@ import Views.Diagram.UserStoryMap as UserStoryMap
 import Views.Diagram.Views exposing (Size)
 import Views.Empty as Empty
 import Views.Icon as Icon
-
-
-type alias LineNo =
-    Int
 
 
 type alias Hierarchy =
@@ -159,7 +155,7 @@ countUpToHierarchy hierarchy items =
                                 let
                                     results =
                                         countUp (Item.unwrapChildren it.children)
-                                            |> transpose
+                                            |> Utils.transpose
                                 in
                                 if List.length results > hierarchy then
                                     List.map
@@ -178,33 +174,12 @@ countUpToHierarchy hierarchy items =
     1
         :: 1
         :: (countUp items
-                |> transpose
+                |> Utils.transpose
                 |> List.map
                     (\it ->
                         List.maximum it |> Maybe.withDefault 0
                     )
            )
-
-
-transpose ll =
-    case ll of
-        [] ->
-            []
-
-        [] :: xss ->
-            transpose xss
-
-        (x :: xs) :: xss ->
-            let
-                heads =
-                    List.filterMap List.head xss
-                        |> unique
-
-                tails =
-                    List.filterMap List.tail xss
-                        |> unique
-            in
-            (x :: heads) :: transpose (xs :: tails)
 
 
 zoomControl : Bool -> Float -> Html Msg
@@ -340,24 +315,37 @@ diagramView diagramType =
             ImpactMap.view
 
         ErDiagram ->
-            ErDiagram.view
+            ER.view
+
+
+scaleAdjustment : Diagram -> Float
+scaleAdjustment type_ =
+    case type_ of
+        ErDiagram ->
+            0.4
+
+        _ ->
+            0.2
 
 
 svgView : Model -> Svg Msg
 svgView model =
     let
+        adjustmentValue =
+            scaleAdjustment model.diagramType
+
         svgWidth =
             if model.fullscreen then
                 Basics.toFloat
                     (Basics.max model.svg.width model.width)
-                    * (model.svg.scale + 0.2)
+                    * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
 
             else
                 Basics.toFloat
                     model.width
-                    * (model.svg.scale + 0.2)
+                    * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
 
@@ -365,14 +353,14 @@ svgView model =
             if model.fullscreen then
                 Basics.toFloat
                     (Basics.max model.svg.height model.height)
-                    * (model.svg.scale + 0.2)
+                    * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
 
             else
                 Basics.toFloat
                     model.height
-                    * (model.svg.scale + 0.2)
+                    * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
 

@@ -70,7 +70,7 @@ export const initDowonlad = app => {
                 extension: ".svg",
                 mimeType: "image/svg+xml"
             });
-            app.ports.downloadCompleted.send([x, y]);
+            app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
         }
     );
 
@@ -114,7 +114,10 @@ export const initDowonlad = app => {
 
                         printPage(0);
                         doc.save(title);
-                        app.ports.downloadCompleted.send([x, y]);
+                        app.ports.downloadCompleted.send([
+                            Math.floor(x),
+                            Math.floor(y)
+                        ]);
                     }
                 });
             } else {
@@ -139,7 +142,10 @@ export const initDowonlad = app => {
                             height * (pageWidth / width)
                         );
                         doc.save(title);
-                        app.ports.downloadCompleted.send([x, y]);
+                        app.ports.downloadCompleted.send([
+                            Math.floor(x),
+                            Math.floor(y)
+                        ]);
                     }
                 });
             }
@@ -164,7 +170,10 @@ export const initDowonlad = app => {
                         window.URL.revokeObjectURL(url);
                         a.remove();
                     }, 10);
-                    app.ports.downloadCompleted.send([x, y]);
+                    app.ports.downloadCompleted.send([
+                        Math.floor(x),
+                        Math.floor(y)
+                    ]);
                 }
             });
         }

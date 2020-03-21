@@ -1,10 +1,11 @@
-module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getIdToken, getMarkdownHeight, getSpacePrefix, getTitle, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix)
+module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getIdToken, getMarkdownHeight, getSpacePrefix, getTitle, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix, transpose)
 
 import Constants
 import File exposing (File)
 import Http exposing (Error(..))
-import List.Extra exposing (getAt, last, scanl1, takeWhile)
+import List.Extra exposing (getAt, last, scanl1, takeWhile, unique)
 import Models.Diagram as DiagramModel
+import Models.ER as ER exposing (Table(..))
 import Models.IdToken exposing (IdToken)
 import Models.Item as Item
 import Models.Model exposing (Msg(..), Notification(..))
@@ -349,8 +350,30 @@ getCanvasSize model =
                     ( 15 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Maybe.withDefault "" <| model.text), getMarkdownHeight <| String.lines <| Maybe.withDefault "" <| model.text )
 
                 Diagram.ErDiagram ->
-                    -- TODO: set size
-                    ( 0, 0 )
+                    let
+                        ( _, tables ) =
+                            ER.itemsToErDiagram model.items
+
+                        sizeList =
+                            List.map
+                                (\table ->
+                                    let
+                                        (Table _ columns) =
+                                            table
+                                    in
+                                    ( ER.tableWidth table, (List.length columns + 1) * Constants.tableRowHeight )
+                                )
+                                tables
+
+                        ( tableWidth, tableHeight ) =
+                            List.foldl
+                                (\( w1, h1 ) ( w2, h2 ) ->
+                                    ( w1 + w2 + Constants.tableMargin, h1 + h2 + Constants.tableMargin )
+                                )
+                                ( 0, 0 )
+                                sizeList
+                    in
+                    ( tableWidth, tableHeight )
 
                 Diagram.MindMap ->
                     ( (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
@@ -481,3 +504,25 @@ getSpacePrefix text =
         |> String.repeat
     )
         " "
+
+
+transpose : List (List comparable) -> List (List comparable)
+transpose ll =
+    case ll of
+        [] ->
+            []
+
+        [] :: xss ->
+            transpose xss
+
+        (x :: xs) :: xss ->
+            let
+                heads =
+                    List.filterMap List.head xss
+                        |> unique
+
+                tails =
+                    List.filterMap List.tail xss
+                        |> unique
+            in
+            (x :: heads) :: transpose (xs :: tails)

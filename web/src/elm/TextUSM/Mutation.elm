@@ -45,3 +45,20 @@ type alias DeleteRequiredArguments =
 delete : DeleteRequiredArguments -> SelectionSet decodesTo TextUSM.Object.Item -> SelectionSet (Maybe decodesTo) RootMutation
 delete requiredArgs object_ =
     Object.selectionForCompositeField "delete" [ Argument.required "itemID" requiredArgs.itemID Encode.string ] object_ (identity >> Decode.nullable)
+
+
+type alias BookmarkRequiredArguments =
+    { itemID : String
+    , isBookmark : Bool
+    }
+
+
+{-|
+
+  - itemID -
+  - isBookmark -
+
+-}
+bookmark : BookmarkRequiredArguments -> SelectionSet decodesTo TextUSM.Object.Item -> SelectionSet (Maybe decodesTo) RootMutation
+bookmark requiredArgs object_ =
+    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs.itemID Encode.string, Argument.required "isBookmark" requiredArgs.isBookmark Encode.bool ] object_ (identity >> Decode.nullable)

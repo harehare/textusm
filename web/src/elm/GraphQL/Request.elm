@@ -1,4 +1,4 @@
-module GraphQL.Request exposing (delete, item, items, save)
+module GraphQL.Request exposing (bookmark, delete, item, items, save)
 
 import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import GraphQL.Mutation as Mutation
@@ -48,6 +48,14 @@ save req input =
 delete : RequestInfo -> String -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
 delete req itemID =
     Mutation.delete itemID
+        |> Http.mutationRequest (graphQLUrl req.url)
+        |> headers req.idToken
+        |> Http.toTask
+
+
+bookmark : RequestInfo -> String -> Bool -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
+bookmark req itemID isBookmark =
+    Mutation.bookmark itemID isBookmark
         |> Http.mutationRequest (graphQLUrl req.url)
         |> headers req.idToken
         |> Http.toTask

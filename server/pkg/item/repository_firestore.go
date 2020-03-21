@@ -36,9 +36,9 @@ func (r *FirestoreRepository) FindByID(ctx context.Context, userID, itemID strin
 	return &i, nil
 }
 
-func (r *FirestoreRepository) Find(ctx context.Context, userID string, offset, limit int, isBookmark, isPublic bool) ([]*Item, error) {
+func (r *FirestoreRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*Item, error) {
 	var items []*Item
-	iter := r.client.Collection("users").Doc(userID).Collection("items").Where("IsBookmark", "==", isBookmark).Where("IsPublic", "==", isPublic).Offset(offset).Limit(limit).Documents(ctx)
+	iter := r.client.Collection("users").Doc(userID).Collection("items").Where("IsPublic", "==", isPublic).Offset(offset).Limit(limit).Documents(ctx)
 
 	for {
 		doc, err := iter.Next()

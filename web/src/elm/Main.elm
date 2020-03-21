@@ -23,6 +23,7 @@ import Maybe.Extra exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
 import Models.DiagramType as DiagramType
+import Models.ER as ER
 import Models.Model exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), ShareUrl(..))
 import Models.Settings exposing (Settings, defaultEditorSettings)
 import Route exposing (Route(..), toRoute)
@@ -631,42 +632,57 @@ update message model =
             ( { model | diagramModel = newDiagramModel }, Cmd.none )
 
         Download fileType ->
-            let
-                ( width, height ) =
-                    Utils.getCanvasSize model.diagramModel
+            if fileType == DDL then
+                let
+                    ( _, tables ) =
+                        ER.itemsToErDiagram model.diagramModel.items
 
-                diagramModel =
-                    model.diagramModel
+                    ddl =
+                        List.map ER.tableToString tables
+                            |> String.join "\n"
+                in
+                ( model, Download.string (Utils.getTitle model.title ++ ".sql") "text/plain" ddl )
 
-                newDiagramModel =
-                    { diagramModel | x = 0, y = 0, matchParent = True }
+            else
+                let
+                    ( width, height ) =
+                        Utils.getCanvasSize model.diagramModel
 
-                ( sub, extension ) =
-                    case fileType of
-                        Png ->
-                            ( Subscriptions.downloadPng, ".png" )
+                    diagramModel =
+                        model.diagramModel
 
-                        Pdf ->
-                            ( Subscriptions.downloadPdf, ".pdf" )
+                    newDiagramModel =
+                        { diagramModel | x = 0, y = 0, matchParent = True }
 
-                        Svg ->
-                            ( Subscriptions.downloadSvg, ".svg" )
+                    ( sub, extension ) =
+                        case fileType of
+                            Png ->
+                                ( Subscriptions.downloadPng, ".png" )
 
-                        HTML ->
-                            ( Subscriptions.downloadHtml, ".html" )
-            in
-            ( { model | diagramModel = newDiagramModel }
-            , sub
-                { width = width
-                , height = height
-                , id = "usm"
-                , title = Utils.getTitle model.title ++ extension
-                , x = model.diagramModel.x
-                , y = model.diagramModel.y
-                , text = model.text
-                , diagramType = DiagramType.toString model.diagramModel.diagramType
-                }
-            )
+                            Pdf ->
+                                ( Subscriptions.downloadPdf, ".pdf" )
+
+                            Svg ->
+                                ( Subscriptions.downloadSvg, ".svg" )
+
+                            HTML ->
+                                ( Subscriptions.downloadHtml, ".html" )
+
+                            _ ->
+                                ( Subscriptions.downloadSvg, ".svg" )
+                in
+                ( { model | diagramModel = newDiagramModel }
+                , sub
+                    { width = width
+                    , height = height
+                    , id = "usm"
+                    , title = Utils.getTitle model.title ++ extension
+                    , x = model.diagramModel.x
+                    , y = model.diagramModel.y
+                    , text = model.text
+                    , diagramType = DiagramType.toString model.diagramModel.diagramType
+                    }
+                )
 
         StartDownload info ->
             ( model, Cmd.batch [ Download.string (Utils.getTitle model.title ++ info.extension) info.mimeType info.content, Task.perform identity (Task.succeed CloseMenu) ] )

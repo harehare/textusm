@@ -1,5 +1,6 @@
-//go:generate go run github.com/99designs/gqlgen
 package server
+
+// THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
 import (
 	"context"
@@ -12,17 +13,7 @@ type Resolver struct {
 	service *item.Service
 }
 
-func (r *Resolver) Mutation() MutationResolver {
-	return &mutationResolver{r}
-}
-func (r *Resolver) Query() QueryResolver {
-	return &queryResolver{r}
-}
-
-type mutationResolver struct{ *Resolver }
-
 func (r *mutationResolver) Save(ctx context.Context, input item.InputItem) (*item.Item, error) {
-
 	if input.ID == nil {
 		saveItem := item.Item{
 			ID:         "",
@@ -74,11 +65,29 @@ func (r *mutationResolver) Delete(ctx context.Context, itemID string) (*item.Ite
 	return diagramItem, nil
 }
 
-type queryResolver struct{ *Resolver }
+func (r *mutationResolver) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error) {
+	diagramItem, err := r.service.FindDiagram(ctx, itemID)
+
+	if err != nil {
+		return nil, err
+	}
+	diagramItem.IsBookmark = isBookmark
+	return r.service.SaveDiagram(ctx, diagramItem)
+}
 
 func (r *queryResolver) Item(ctx context.Context, id string) (*item.Item, error) {
 	return r.service.FindDiagram(ctx, id)
 }
-func (r *queryResolver) Items(ctx context.Context, first *int, offset *int, isBookmark *bool, isPublic *bool) ([]*item.Item, error) {
-	return r.service.FindDiagrams(ctx, *first, *offset, *isBookmark, *isPublic)
+
+func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*item.Item, error) {
+	return r.service.FindDiagrams(ctx, *offset, *limit, *isPublic)
 }
+
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
+
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

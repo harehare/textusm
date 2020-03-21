@@ -105,7 +105,7 @@ view route width fullscreen openMenu =
             , if Utils.isPhone width then
                 case openMenu of
                     Just Export ->
-                        menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing exportMenu
+                        menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing (exportMenu route)
 
                     Just NewFile ->
                         menu Nothing (Just "10px") (Just "30px") Nothing newMenu
@@ -116,7 +116,7 @@ view route width fullscreen openMenu =
               else
                 case openMenu of
                     Just Export ->
-                        menu (Just "125px") (Just "56px") Nothing Nothing exportMenu
+                        menu (Just "125px") (Just "56px") Nothing Nothing (exportMenu route)
 
                     Just NewFile ->
                         menu (Just "0") (Just "56px") Nothing Nothing newMenu
@@ -181,7 +181,7 @@ newMenu =
         }
     , Item
         { e = New Diagram.ErDiagram
-        , title = "ER Diagram"
+        , title = "ER Diagram(beta)"
         , icon = Nothing
         }
     , Item
@@ -208,8 +208,22 @@ newMenu =
     ]
 
 
-exportMenu : List MenuItem
-exportMenu =
+exportMenu : Route -> List MenuItem
+exportMenu route =
+    if route == ErDiagram then
+        Item
+            { e = Download DDL
+            , title = "DDL"
+            , icon = Nothing
+            }
+            :: baseExportMenu
+
+    else
+        baseExportMenu
+
+
+baseExportMenu : List MenuItem
+baseExportMenu =
     [ Item
         { e = Download Svg
         , title = "SVG"

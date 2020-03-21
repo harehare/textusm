@@ -77,6 +77,7 @@ type FileType
     | Svg
     | Pdf
     | HTML
+    | DDL
 
 
 type Notification

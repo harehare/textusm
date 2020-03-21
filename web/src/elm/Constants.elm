@@ -1,4 +1,4 @@
-module Constants exposing (commentSize, ganttItemSize, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, smallItemMargin)
+module Constants exposing (commentSize, ganttItemSize, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, smallItemMargin, tableMargin, tableRowHeight)
 
 
 itemSpan : Int
@@ -54,3 +54,13 @@ largeItemWidth =
 largeItemHeight : Int
 largeItemHeight =
     600
+
+
+tableRowHeight : Int
+tableRowHeight =
+    40
+
+
+tableMargin : Int
+tableMargin =
+    240

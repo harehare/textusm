@@ -53,4 +53,5 @@ input InputItem {
 type Mutation {
   save(input: InputItem!): Item!
   delete(itemID: String!): Item
+  bookmark(itemID: String!, isBookmark: Boolean!): Item
 }
