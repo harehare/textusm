@@ -58,7 +58,7 @@ view model =
                         0
 
                      else
-                        centerX
+                        centerX + 32
                     )
                 ++ ","
                 ++ String.fromFloat
@@ -66,7 +66,7 @@ view model =
                         0
 
                      else
-                        centerY
+                        centerY + (toFloat model.height / toFloat 2)
                     )
                 ++ ")"
             )
@@ -523,7 +523,7 @@ relationLabelView settings table1 table2 label =
             ]
             [ text label ]
 
-    else if (Views.getX <| getPosition table1.position) < (Views.getX <| getPosition  table2.position) then
+    else if (Views.getX <| getPosition table1.position) < (Views.getX <| getPosition table2.position) then
         text_
             [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size + 10
             , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 + 15

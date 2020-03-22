@@ -1,13 +1,12 @@
 import * as jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { loadSettings } from "./settings";
 import { DownloadInfo } from "./model";
+import { ElmApp } from "./elm";
 
 // @ts-ignore
 window.html2canvas = html2canvas;
 
-// @ts-ignore
-export const initDowonlad = app => {
+export const initDowonlad = (app: ElmApp) => {
     const createSvg = (id: string, width: number, height: number) => {
         const svg = document.createElementNS(
             "http://www.w3.org/2000/svg",

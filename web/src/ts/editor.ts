@@ -1,4 +1,5 @@
 import * as monaco from "monaco-editor";
+import { ElmApp } from "./elm";
 
 monaco.languages.register({
     id: "userStoryMap"
@@ -51,8 +52,7 @@ export interface EditorOption {
 
 // @ts-ignore
 export const loadEditor = (
-    // @ts-ignore
-    app,
+    app: ElmApp,
     text: string,
     { fontSize, wordWrap, showLineNumber }: EditorOption = {
         fontSize: 14,
