@@ -7,15 +7,17 @@ import GraphQL.Request as Request
 import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
+import Html.Lazy exposing (lazy4)
 import Json.Decode as D
-import List.Extra exposing (find, updateIf)
+import List.Extra exposing (updateIf)
 import Maybe.Extra exposing (isJust)
-import Models.DiagramList exposing (Model, Msg(..))
+import Models.DiagramList exposing (FilterCondition(..), FilterValue(..), Model, Msg(..))
 import Models.DiagramType as DiagramType
 import Models.User as UserModel exposing (User)
 import RemoteData exposing (RemoteData(..))
 import Subscriptions exposing (getDiagrams, removeDiagrams)
 import Task
+import TextUSM.Enum.Diagram exposing (Diagram)
 import Time exposing (Zone)
 import Utils
 import Views.Empty as Empty
@@ -37,7 +39,7 @@ init user apiRoot =
     ( { searchQuery = Nothing
       , timeZone = Time.utc
       , diagramList = NotAsked
-      , selectedType = Nothing
+      , filterCondition = FilterCondition FilterAll (\_ -> True)
       , loginUser = user
       , apiRoot = apiRoot
       , pageNo = 1
@@ -50,118 +52,73 @@ init user apiRoot =
     )
 
 
-facet : List DiagramItem -> List ( String, Int )
+facet : List DiagramItem -> List ( Diagram, Int )
 facet items =
-    DictEx.groupBy (\i -> i.diagram |> DiagramType.toString) items
+    DictEx.groupBy (\i -> DiagramType.toString i.diagram) items
         |> Dict.map (\k v -> ( k, List.length v ))
         |> Dict.values
+        |> List.map (\( d, i ) -> ( DiagramType.fromString d, i ))
 
 
-sideMenu : String -> Int -> List ( String, Int ) -> Html Msg
-sideMenu selectedPath allCount items =
+sideMenu : FilterValue -> Int -> Int -> List ( Diagram, Int ) -> Html Msg
+sideMenu filter allCount bookmarkCount items =
     div [ class "side-menu" ]
         (div
             [ class <|
-                if String.isEmpty selectedPath then
+                if filter == FilterAll then
                     "item selected"
 
                 else
                     "item"
-            , onClick (Filter Nothing)
+            , onClick (Filter (FilterCondition FilterAll (\_ -> True)))
             ]
             [ text "All", span [ class "facet-count" ] [ text <| "(" ++ String.fromInt allCount ++ ")" ] ]
+            :: div
+                [ class <|
+                    if filter == FilterBookmark then
+                        "item selected"
+
+                    else
+                        "item"
+                , onClick (Filter (FilterCondition FilterBookmark (\item -> item.isBookmark)))
+                ]
+                [ text "Bookmarks", span [ class "facet-count" ] [ text <| "(" ++ String.fromInt bookmarkCount ++ ")" ] ]
             :: (items
                     |> List.map
-                        (\( diagramPath, count ) ->
+                        (\( diagram, count ) ->
                             div
                                 [ class <|
-                                    if selectedPath == diagramPath then
+                                    if filter == FilterValue diagram then
                                         "item selected"
 
                                     else
                                         "item"
-                                , onClick (Filter <| Just diagramPath)
+                                , onClick (Filter (FilterCondition (FilterValue diagram) (\item -> item.diagram == diagram)))
                                 ]
-                                [ text <| menuName diagramPath, span [ class "facet-count" ] [ text <| "(" ++ String.fromInt count ++ ")" ] ]
+                                [ text <| DiagramType.toLongString diagram, span [ class "facet-count" ] [ text <| "(" ++ String.fromInt count ++ ")" ] ]
                         )
                )
         )
-
-
-menuName : String -> String
-menuName path =
-    case path of
-        "usm" ->
-            "User Story Map"
-
-        "opc" ->
-            "Opportunity Canvas"
-
-        "bmc" ->
-            "Business Model Canvas"
-
-        "4ls" ->
-            "4Ls"
-
-        "ssc" ->
-            "Start, Stop, Continue"
-
-        "kpt" ->
-            "KPT"
-
-        "persona" ->
-            "User Persona"
-
-        "md" ->
-            "Markdown"
-
-        "mmp" ->
-            "Mind Map"
-
-        "emm" ->
-            "Empathy Map"
-
-        "cjm" ->
-            "Customer Journey Map"
-
-        "smp" ->
-            "Site Map"
-
-        "gct" ->
-            "Gantt Chart"
-
-        "imm" ->
-            "Impact Map"
-
-        "erd" ->
-            "ER Diagram"
-
-        "" ->
-            "All"
-
-        _ ->
-            "User Story Map"
-
 
 view : Model -> Html Msg
 view model =
     case model.diagramList of
         Success diagrams ->
             let
-                displayDiagrams =
-                    case model.selectedType of
-                        Just type_ ->
-                            List.filter (\d -> d.diagram == DiagramType.fromString type_) diagrams
+                (FilterCondition selectedPath filterCondition) =
+                    model.filterCondition
 
-                        Nothing ->
-                            diagrams
+                displayDiagrams =
+                    List.filter filterCondition diagrams
             in
             div
                 [ class "diagram-list"
                 , style "display" "flex"
                 ]
-                [ sideMenu (Maybe.withDefault "" model.selectedType)
+                [ lazy4 sideMenu
+                    selectedPath
                     (List.length diagrams)
+                    (List.length (List.filter (\i -> i.isBookmark) diagrams))
                     (facet diagrams)
                 , div
                     [ style "width" "100%" ]
@@ -350,8 +307,8 @@ update message model =
         GotTimeZone zone ->
             ( { model | timeZone = zone }, Cmd.none )
 
-        Filter type_ ->
-            ( { model | selectedType = type_ }, Cmd.none )
+        Filter cond ->
+            ( { model | filterCondition = cond }, Cmd.none )
 
         SearchInput input ->
             ( { model
@@ -369,59 +326,72 @@ update message model =
             ( { model | pageNo = pageNo }, getDiagrams () )
 
         GotLocalDiagramJson json ->
-            let
-                localItems =
-                    Result.withDefault [] <|
-                        D.decodeString (D.list DiagramItem.decoder) json
-            in
-            case model.loginUser of
-                Just _ ->
-                    let
-                        remoteItems =
-                            Request.items { url = model.apiRoot, idToken = Maybe.map (\u -> UserModel.getIdToken u) model.loginUser } (pageOffsetAndLimit model.pageNo) False False
-                                |> Task.map
-                                    (\i ->
-                                        i
-                                            |> List.filter (\item -> isJust item)
-                                            |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
-                                    )
+            if model.diagramList == Loading then
+                ( model, Cmd.none )
 
-                        items =
-                            remoteItems
-                                |> Task.map
-                                    (\item ->
-                                        List.concat [ localItems, item ]
-                                            |> List.sortWith
-                                                (\a b ->
-                                                    let
-                                                        v1 =
-                                                            a.updatedAt |> Time.posixToMillis
+            else
+                let
+                    localItems =
+                        Result.withDefault [] <|
+                            D.decodeString (D.list DiagramItem.decoder) json
+                in
+                case model.loginUser of
+                    Just _ ->
+                        let
+                            remoteItems =
+                                Request.items { url = model.apiRoot, idToken = Maybe.map (\u -> UserModel.getIdToken u) model.loginUser } (pageOffsetAndLimit model.pageNo) False False
+                                    |> Task.map
+                                        (\i ->
+                                            i
+                                                |> List.filter (\item -> isJust item)
+                                                |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
+                                        )
 
-                                                        v2 =
-                                                            b.updatedAt |> Time.posixToMillis
-                                                    in
-                                                    if v1 - v2 > 0 then
-                                                        LT
+                            items =
+                                remoteItems
+                                    |> Task.map
+                                        (\item ->
+                                            List.concat [ localItems, item ]
+                                                |> List.sortWith
+                                                    (\a b ->
+                                                        let
+                                                            v1 =
+                                                                a.updatedAt |> Time.posixToMillis
 
-                                                    else if v1 - v2 < 0 then
-                                                        GT
+                                                            v2 =
+                                                                b.updatedAt |> Time.posixToMillis
+                                                        in
+                                                        if v1 - v2 > 0 then
+                                                            LT
 
-                                                    else
-                                                        EQ
-                                                )
-                                    )
-                                |> Task.mapError (Tuple.pair localItems)
-                    in
-                    ( model, Task.attempt GotDiagrams items )
+                                                        else if v1 - v2 < 0 then
+                                                            GT
 
-                Nothing ->
-                    ( { model
-                        | hasMorePage = False
-                        , diagramList =
-                            Success localItems
-                      }
-                    , Cmd.none
-                    )
+                                                        else
+                                                            EQ
+                                                    )
+                                        )
+                                    |> Task.mapError (Tuple.pair localItems)
+                        in
+                        ( { model
+                            | diagramList =
+                                if RemoteData.isNotAsked model.diagramList then
+                                    Loading
+
+                                else
+                                    model.diagramList
+                          }
+                        , Task.attempt GotDiagrams items
+                        )
+
+                    Nothing ->
+                        ( { model
+                            | hasMorePage = False
+                            , diagramList =
+                                Success localItems
+                          }
+                        , Cmd.none
+                        )
 
         GotDiagrams (Err ( items, _ )) ->
             ( { model

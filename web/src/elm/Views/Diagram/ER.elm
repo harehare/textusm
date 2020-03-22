@@ -492,10 +492,10 @@ relationLabelView settings table1 table2 label =
             [ text label ]
 
     else if
-        Views.getX (Maybe.withDefault ( 0, 0 ) table1.position)
-            < Views.getX (Maybe.withDefault ( 0, 0 ) table2.position)
-            && Views.getY (Maybe.withDefault ( 0, 0 ) table1.position)
-            == Views.getY (Maybe.withDefault ( 0, 0 ) table2.position)
+        (Views.getX <| getPosition table1.position)
+            < (Views.getX <| getPosition table2.position)
+            && (Views.getY <| getPosition table1.position)
+            == (Views.getY <| getPosition table2.position)
     then
         text_
             [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size + 10
@@ -508,10 +508,10 @@ relationLabelView settings table1 table2 label =
             [ text label ]
 
     else if
-        Views.getX (Maybe.withDefault ( 0, 0 ) table1.position)
-            > Views.getX (Maybe.withDefault ( 0, 0 ) table2.position)
-            && Views.getY (Maybe.withDefault ( 0, 0 ) table1.position)
-            == Views.getY (Maybe.withDefault ( 0, 0 ) table2.position)
+        (Views.getX <| getPosition table1.position)
+            > (Views.getX <| getPosition table2.position)
+            && (Views.getY <| getPosition table1.position)
+            == (Views.getY <| getPosition table2.position)
     then
         text_
             [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size - 10
@@ -523,7 +523,7 @@ relationLabelView settings table1 table2 label =
             ]
             [ text label ]
 
-    else if Views.getX (Maybe.withDefault ( 0, 0 ) table1.position) < Views.getX (Maybe.withDefault ( 0, 0 ) table2.position) then
+    else if (Views.getX <| getPosition table1.position) < (Views.getX <| getPosition  table2.position) then
         text_
             [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size + 10
             , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 + 15

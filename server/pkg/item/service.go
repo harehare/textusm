@@ -30,11 +30,14 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 	resultItems := make([]*Item, len(items))
 
 	for i, item := range items {
-		text, err := Decrypt(encryptKey, item.Text)
-		if err != nil {
-			return nil, err
+		if item.Text != "" {
+			text, err := Decrypt(encryptKey, item.Text)
+			if err != nil {
+				return nil, err
+			}
+			item.Text = text
 		}
-		item.Text = text
+
 		resultItems[i] = item
 	}
 
