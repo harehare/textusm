@@ -44,7 +44,7 @@ view model =
 
         ( centerX, centerY ) =
             if model.matchParent then
-                getTableCenter tableDict
+                getTableTopLeft tableDict
                     |> Tuple.mapBoth toFloat toFloat
 
             else
@@ -82,19 +82,19 @@ view model =
         )
 
 
-getTableCenter : TableViewDict -> Position
-getTableCenter tableDict =
+getTableTopLeft : TableViewDict -> Position
+getTableTopLeft tableDict =
     let
-        ( ( mx, my ), ( xx, xy ) ) =
+        ( mx, my ) =
             Dict.values tableDict
                 |> List.map (\p -> getPosition p.position)
                 |> List.foldl
-                    (\( x1, y1 ) ( ( minX, minY ), ( maxX, maxY ) ) ->
-                        ( ( min x1 minX, min y1 minY ), ( max x1 maxX, max y1 maxY ) )
+                    (\( x1, y1 ) ( minX, minY ) ->
+                        ( min x1 minX, min y1 minY )
                     )
-                    ( ( 0, 0 ), ( 0, 0 ) )
+                    ( 0, 0 )
     in
-    ( xx - mx, xy - my )
+    ( -mx, -my )
 
 
 adjustTablePosition : List Relationship -> TableViewDict -> TableViewDict
@@ -109,7 +109,14 @@ adjustTablePosition r t =
                     x :: xs ->
                         case ER.relationshipToString x of
                             Just ( ( tableName1, relationString1 ), ( tableName2, relationString2 ) ) ->
-                                case ( Dict.get tableName1 tablePositions, Dict.get tableName2 tablePositions ) of
+                                let
+                                    maybeTable1 =
+                                        Dict.get tableName1 tablePositions
+
+                                    maybeTable2 =
+                                        Dict.get tableName2 tablePositions
+                                in
+                                case ( maybeTable1, maybeTable2 ) of
                                     ( Just t1, Just t2 ) ->
                                         let
                                             ( ( table1, name1, rel1 ), ( table2, name2, rel2 ) ) =
@@ -469,7 +476,12 @@ getPosition pos =
 
 relationLabelView : Settings -> TableViewInfo -> TableViewInfo -> String -> Svg Msg
 relationLabelView settings table1 table2 label =
-    if (Views.getX <| getPosition table1.position) == (Views.getX <| getPosition table2.position) && (Views.getY <| getPosition table1.position) < (Views.getY <| getPosition table2.position) then
+    if
+        (Views.getX <| getPosition table1.position)
+            == (Views.getX <| getPosition table2.position)
+            && (Views.getY <| getPosition table1.position)
+            < (Views.getY <| getPosition table2.position)
+    then
         text_
             [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size // 2 + 10
             , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size + 15
@@ -480,7 +492,12 @@ relationLabelView settings table1 table2 label =
             ]
             [ text label ]
 
-    else if (Views.getX <| getPosition table1.position) == (Views.getX <| getPosition table2.position) && (Views.getY <| getPosition table1.position) > (Views.getY <| getPosition table2.position) then
+    else if
+        (Views.getX <| getPosition table1.position)
+            == (Views.getX <| getPosition table2.position)
+            && (Views.getY <| getPosition table1.position)
+            > (Views.getY <| getPosition table2.position)
+    then
         text_
             [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size // 2 + 10
             , y <| String.fromInt <| (Views.getY <| getPosition table1.position) - 15
@@ -514,7 +531,7 @@ relationLabelView settings table1 table2 label =
             == (Views.getY <| getPosition table2.position)
     then
         text_
-            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size - 10
+            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) - 15
             , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 + 15
             , fontFamily (fontStyle settings)
             , fill settings.color.label
@@ -523,7 +540,10 @@ relationLabelView settings table1 table2 label =
             ]
             [ text label ]
 
-    else if (Views.getX <| getPosition table1.position) < (Views.getX <| getPosition table2.position) then
+    else if
+        (Views.getX <| getPosition table1.position)
+            < (Views.getX <| getPosition table2.position)
+    then
         text_
             [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size + 10
             , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 + 15

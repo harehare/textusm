@@ -11,6 +11,7 @@ import Json.Decode as D
 import List.Extra exposing (getAt, setAt, takeWhile)
 import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
+import Models.Item as Item exposing (ItemType(..))
 import Task
 import Utils
 
@@ -51,7 +52,7 @@ type Msg
 init : InitData -> ( Model, Cmd Msg )
 init flags =
     ( { diagramModel =
-            { items = []
+            { items = Item.empty
             , hierarchy = 0
             , width = 1024
             , height = 1024
@@ -98,7 +99,6 @@ init flags =
                     , text = Just flags.textColor
                     }
                 }
-            , error = Nothing
             , touchDistance = Nothing
             , labels = []
             , text = Nothing
@@ -221,12 +221,7 @@ update message model =
                         ( model_, _ ) =
                             Diagram.update subMsg model.diagramModel
                     in
-                    case model_.error of
-                        Just err ->
-                            ( { model | text = text, diagramModel = model_ }, errorLine err )
-
-                        Nothing ->
-                            ( { model | text = text, diagramModel = model_ }, errorLine "" )
+                    ( { model | text = text, diagramModel = model_ }, Cmd.none )
 
                 _ ->
                     let
@@ -251,9 +246,6 @@ update message model =
 
 
 -- Subscription
-
-
-port errorLine : String -> Cmd msg
 
 
 port setText : String -> Cmd msg

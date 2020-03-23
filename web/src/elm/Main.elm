@@ -677,8 +677,8 @@ update message model =
                     , height = height
                     , id = "usm"
                     , title = Utils.getTitle model.title ++ extension
-                    , x = model.diagramModel.x
-                    , y = model.diagramModel.y
+                    , x = 0
+                    , y = 0
                     , text = model.text
                     , diagramType = DiagramType.toString model.diagramModel.diagramType
                     }

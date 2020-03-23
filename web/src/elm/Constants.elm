@@ -63,4 +63,4 @@ tableRowHeight =
 
 tableMargin : Int
 tableMargin =
-    240
+    160
