@@ -78,6 +78,7 @@ type FileType
     | Pdf
     | HTML
     | DDL
+    | MarkdownTable
 
 
 type Notification

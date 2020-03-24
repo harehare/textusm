@@ -24,6 +24,7 @@ import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
 import Models.DiagramType as DiagramType
 import Models.ER as ER
+import Models.Item as Item
 import Models.Model exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), ShareUrl(..))
 import Models.Settings exposing (Settings, defaultEditorSettings)
 import Route exposing (Route(..), toRoute)
@@ -642,6 +643,9 @@ update message model =
                             |> String.join "\n"
                 in
                 ( model, Download.string (Utils.getTitle model.title ++ ".sql") "text/plain" ddl )
+
+            else if fileType == MarkdownTable then
+                ( model, Download.string (Utils.getTitle model.title ++ ".md") "text/plain" (Item.toMarkdownTable model.diagramModel.items) )
 
             else
                 let

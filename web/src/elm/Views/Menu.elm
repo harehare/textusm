@@ -218,6 +218,14 @@ exportMenu route =
             }
             :: baseExportMenu
 
+    else if route == CustomerJourneyMap then
+        Item
+            { e = Download MarkdownTable
+            , title = "Markdown"
+            , icon = Nothing
+            }
+            :: baseExportMenu
+
     else
         baseExportMenu
 

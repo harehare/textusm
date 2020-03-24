@@ -1,4 +1,4 @@
-module Models.Item exposing (Item, ItemType(..), Items(..), childrenFromItems, cons, empty, emptyChildren, emptyItem, filter, fromList, getAt, getChildrenCount, getHierarchyCount, getLeafCount, head, indexedMap, isEmpty, length, map, splitAt, tail, toString, unwrap, unwrapChildren)
+module Models.Item exposing (Item, ItemType(..), Items(..), childrenFromItems, cons, empty, emptyChildren, emptyItem, filter, fromList, getAt, getChildrenCount, getHierarchyCount, getLeafCount, head, indexedMap, isEmpty, length, map, splitAt, tail, toMarkdownTable, toString, unwrap, unwrapChildren)
 
 import List.Extra as ListEx
 
@@ -184,3 +184,55 @@ toString =
                 |> String.join "\n"
     in
     itemsToString 0
+
+
+toMarkdownTable : Items -> String
+toMarkdownTable items =
+    let
+        header =
+            "|"
+                ++ (items
+                        |> head
+                        |> Maybe.withDefault emptyItem
+                        |> .children
+                        |> unwrapChildren
+                        |> map (\i -> String.trim i.text)
+                        |> String.join "|"
+                   )
+                ++ "|"
+
+        section =
+            "|"
+                ++ (items
+                        |> head
+                        |> Maybe.withDefault emptyItem
+                        |> .children
+                        |> unwrapChildren
+                        |> map
+                            (\item ->
+                                " " ++ String.repeat (String.trim item.text |> String.length) "-" ++ " "
+                            )
+                        |> String.join "|"
+                   )
+                ++ "|"
+
+        row =
+            items
+                |> tail
+                |> Maybe.withDefault empty
+                |> map
+                    (\item ->
+                        "|"
+                            ++ (item.text
+                                    :: (item
+                                            |> .children
+                                            |> unwrapChildren
+                                            |> map (\i -> String.trim i.text)
+                                       )
+                                    |> String.join "|"
+                               )
+                            ++ "|"
+                    )
+                |> String.join "\n"
+    in
+    String.join "\n" [ header, section, row ]
