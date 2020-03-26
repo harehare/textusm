@@ -9,9 +9,9 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
 const ClosurePlugin = require("closure-webpack-plugin");
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const PreloadWebpackPlugin = require("preload-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 const MODE =
     process.env.NODE_ENV === "production" ? "production" : "development";
 const withDebug = !process.env.NODE_ENV;
@@ -44,7 +44,7 @@ const common = {
             include: ["runtime", "vendors"]
         }),
         new MonacoWebpackPlugin({
-            languages: ["json", "markdown"],
+            languages: ["markdown"],
             features: ["find"]
         })
     ],
@@ -214,6 +214,7 @@ if (MODE === "production") {
             runtimeChunk: {
                 name: "runtime"
             },
+            minimize: true,
             minimizer: [
                 new ClosurePlugin(
                     {
@@ -221,12 +222,15 @@ if (MODE === "production") {
                     },
                     {}
                 ),
-                // new UglifyJsPlugin({
-                //     uglifyOptions: {
-                //         compress: true,
-                //         sourceMap: false
-                //     }
-                // }),
+                new TerserPlugin({
+                    parallel: true,
+                    sourceMap: false,
+                    terserOptions: {
+                        compress: {
+                            drop_console: true
+                        }
+                    }
+                }),
                 new OptimizeCSSAssetsPlugin()
             ]
         }
