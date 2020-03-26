@@ -1,6 +1,5 @@
 import { Elm } from "./js/elm";
 import {
-  UserStoryMap,
   BusinessModelCanvas,
   OpportunityCanvas,
   FourLs,
@@ -8,13 +7,13 @@ import {
   Kpt,
   toString,
   toTypeString,
-  MindMap,
   EmpathyMap,
   CustomerJourneyMap,
-  SiteMap,
-  GanttChart,
-  ImpactMap
+  GanttChart
 } from "./model";
+import { UserStoryMap } from "./models/UserStoryMap";
+import { MindMap, SiteMap, ImpactMap } from "./models/MindMap";
+import { ERDiagram } from "./models/ER";
 
 interface Config {
   font?: string;
@@ -90,7 +89,8 @@ function render(
     | CustomerJourneyMap
     | SiteMap
     | GanttChart
-    | ImpactMap,
+    | ImpactMap
+    | ERDiagram,
   options?: {
     diagramType?:
       | "UserStoryMap"
@@ -105,7 +105,8 @@ function render(
       | "SiteMap"
       | "EmpathyMap"
       | "GanttChart"
-      | "ImpactMap";
+      | "ImpactMap"
+      | "ERDiagram";
     size?: Size;
     showZoomControl?: boolean;
     scale?:

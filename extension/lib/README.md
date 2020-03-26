@@ -16,6 +16,7 @@ Generate a Diagram from indented text.
 - SiteMap
 - Gantt Chart
 - Impact Map
+- ER Diagram
 
 ## Installation
 
@@ -61,6 +62,7 @@ const elm = document.getElementById("id");
 textusm.render(
   elm || "id",
   {
+    name: "UserStoryMap",
     activities: [
       {
         name: "TextUSM",
@@ -104,6 +106,7 @@ const elm = document.getElementById("id");
 textusm.render(
   elm || "id",
   {
+    name: "BusinessModelCanvas",
     keyPartners: {
       title: "👥 Key Partners",
       text: ["Key Partners"]
@@ -160,6 +163,7 @@ const elm = document.getElementById("id");
 textusm.render(
   elm || "id",
   {
+    name: "OpportunityCanvas",
     problems: {
       title: "Problems",
       text: ["Problems"]
@@ -220,6 +224,7 @@ const elm = document.getElementById("id");
 textusm.render(
   elm || "id",
   {
+    name: "4Ls",
     liked: { title: "liked", text: ["liked"] },
     learned: { title: "learned", text: ["learned"] },
     lacked: { title: "lacked", text: ["lacked"] },
@@ -244,6 +249,7 @@ const elm = document.getElementById("id");
 textusm.render(
   elm || "id",
   {
+    name: "StartStopContinue",
     start: { title: "start", text: ["start"] },
     stop: { title: "stop", text: ["stop"] },
     continue: { title: "continue", text: ["continue"] }
@@ -267,6 +273,7 @@ const elm = document.getElementById("id");
 textusm.render(
   elm || "id",
   {
+    name: "Kpt",
     keep: { title: "keep", text: ["keep"] },
     problem: { title: "problem", text: ["problem"] },
     try: { title: "try", text: ["try"] }
@@ -318,6 +325,7 @@ const elm = document.getElementById("id");
 textusm.render(
   elm || "id",
   {
+    name: "EmpathyMap",
     imageUrl: "test",
     says: { title: "test", text: ["test"] },
     thinks: { title: "test", text: ["test"] },
@@ -339,6 +347,7 @@ const elm = document.getElementById("id");
 textusm.render(
   elm || "id",
   {
+    name: "CustomerJourneyMap",
     header: {
       title: "Header",
       text: [
@@ -451,6 +460,7 @@ const elm = document.getElementById("id");
 textusm.render(
   elm || "id",
   {
+    name: "GanttChart",
     from: "2019-12-26",
     to: "2020-01-31",
     title: "Test",
@@ -499,6 +509,42 @@ SHARING
 ```
 
 ![image](./img/imm.png)
+
+### ER Diagram
+
+```javascript
+{
+      name: "ER",
+      relations: [
+        {
+          table1: "table1",
+          table2: "table2",
+          relation: "="
+        },
+        {
+          table1: "table1",
+          table2: "table2",
+          relation: "-"
+        }
+      ],
+      tables: [
+        {
+          name: "table1",
+          columns: [
+            {
+              name: "column1",
+              type: {
+                name: "int"
+              },
+              attribute: { name: "pk" }
+            }
+          ]
+        }
+      ]
+    }
+```
+
+![image](./img/erd.png)
 
 ### Configuration
 

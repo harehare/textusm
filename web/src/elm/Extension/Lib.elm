@@ -100,6 +100,9 @@ init flags =
                 else if flags.diagramType == "ImpactMap" then
                     Diagram.ImpactMap
 
+                else if flags.diagramType == "ER" then
+                    Diagram.ErDiagram
+
                 else
                     Diagram.UserStoryMap
             , settings = flags.settings
