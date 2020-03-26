@@ -1,4 +1,4 @@
-module Models.DiagramType exposing (fromString, toString)
+module Models.DiagramType exposing (fromString, toLongString, toString)
 
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 
@@ -48,6 +48,58 @@ toString diagramType =
         ImpactMap ->
             "imm"
 
+        ErDiagram ->
+            "erd"
+
+
+toLongString : Diagram -> String
+toLongString diagramType =
+    case diagramType of
+        UserStoryMap ->
+            "User Story Map"
+
+        OpportunityCanvas ->
+            "Opportunity Canvas"
+
+        BusinessModelCanvas ->
+            "Business Model Canvas"
+
+        Fourls ->
+            "4Ls"
+
+        StartStopContinue ->
+            "Start, Stop, Continue"
+
+        Kpt ->
+            "KPT"
+
+        UserPersona ->
+            "User Persona"
+
+        Markdown ->
+            "Markdown"
+
+        MindMap ->
+            "Mind Map"
+
+        EmpathyMap ->
+            "Empathy Map"
+
+        CustomerJourneyMap ->
+            "Customer Journey Map"
+
+        SiteMap ->
+            "Site Map"
+
+        GanttChart ->
+            "Gantt Chart"
+
+        ImpactMap ->
+            "Impact Map"
+
+        ErDiagram ->
+            "ER Diagram"
+
 
 fromString : String -> Diagram
 fromString s =
@@ -93,6 +145,9 @@ fromString s =
 
         "imm" ->
             ImpactMap
+
+        "erd" ->
+            ErDiagram
 
         _ ->
             UserStoryMap

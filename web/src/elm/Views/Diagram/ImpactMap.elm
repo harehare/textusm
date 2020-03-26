@@ -2,10 +2,11 @@ module Views.Diagram.ImpactMap exposing (view)
 
 import List.Extra exposing (getAt, scanl1, zip3)
 import Models.Diagram exposing (Model, Msg(..), Point, Settings)
-import Models.Item as Item exposing (Item, ItemType(..))
-import Svg exposing (Svg, g, line)
-import Svg.Attributes exposing (stroke, strokeWidth, transform, x1, x2, y1, y2)
+import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Svg exposing (Svg, g)
+import Svg.Attributes exposing (transform)
 import Utils
+import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views exposing (Position)
 
 
@@ -23,7 +24,7 @@ view : Model -> Svg Msg
 view model =
     let
         rootItem =
-            List.head model.items
+            Item.head model.items
     in
     case rootItem of
         Just root ->
@@ -69,7 +70,7 @@ view model =
             g [] []
 
 
-nodesView : Settings -> Int -> Position -> Maybe Item -> List Item -> Svg Msg
+nodesView : Settings -> Int -> Position -> Maybe Item -> Items -> Svg Msg
 nodesView settings hierarchy ( x, y ) selectedItem items =
     let
         svgWidth =
@@ -80,9 +81,9 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
 
         tmpNodeCounts =
             items
-                |> List.map
+                |> Item.map
                     (\i ->
-                        if List.isEmpty (Item.unwrapChildren i.children) then
+                        if Item.isEmpty (Item.unwrapChildren i.children) then
                             0
 
                         else
@@ -112,7 +113,7 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
             List.range 0 (List.length nodeCounts)
     in
     g []
-        (zip3 range nodeCounts items
+        (zip3 range nodeCounts (Item.unwrap items)
             |> List.concatMap
                 (\( i, nodeCount, item ) ->
                     let
@@ -145,23 +146,18 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
 nodeLineView : Settings -> Point -> Point -> Svg Msg
 nodeLineView settings fromBase toBase =
     let
-        offsetHeight =
-            settings.size.height // 2
-
-        offsetWidth =
-            5
-
         ( fromPoint, toPoint ) =
-            ( { x = fromBase.x + settings.size.width - offsetWidth, y = fromBase.y + offsetHeight }
-            , { x = toBase.x + offsetWidth, y = toBase.y + offsetHeight }
+            ( ( toFloat <| fromBase.x
+              , toFloat <| fromBase.y
+              )
+            , ( toFloat <| toBase.x
+              , toFloat <| toBase.y
+              )
             )
+
+        size =
+            ( toFloat settings.size.width, toFloat settings.size.height )
     in
-    line
-        [ x1 <| String.fromInt fromPoint.x
-        , y1 <| String.fromInt fromPoint.y
-        , x2 <| String.fromInt toPoint.x
-        , y2 <| String.fromInt toPoint.y
-        , stroke settings.color.line
-        , strokeWidth "1.3"
-        ]
-        []
+    Path.view settings
+        ( fromPoint, size )
+        ( toPoint, size )

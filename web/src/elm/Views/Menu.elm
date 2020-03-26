@@ -1,7 +1,7 @@
 module Views.Menu exposing (MenuItem(..), menu, view)
 
-import Html exposing (Html, div, img, nav, span, text)
-import Html.Attributes exposing (alt, class, src, style)
+import Html exposing (Html, div, nav, span, text)
+import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List
@@ -105,7 +105,7 @@ view route width fullscreen openMenu =
             , if Utils.isPhone width then
                 case openMenu of
                     Just Export ->
-                        menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing exportMenu
+                        menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing (exportMenu route)
 
                     Just NewFile ->
                         menu Nothing (Just "10px") (Just "30px") Nothing newMenu
@@ -116,7 +116,7 @@ view route width fullscreen openMenu =
               else
                 case openMenu of
                     Just Export ->
-                        menu (Just "125px") (Just "56px") Nothing Nothing exportMenu
+                        menu (Just "125px") (Just "56px") Nothing Nothing (exportMenu route)
 
                     Just NewFile ->
                         menu (Just "0") (Just "56px") Nothing Nothing newMenu
@@ -180,6 +180,11 @@ newMenu =
         , icon = Nothing
         }
     , Item
+        { e = New Diagram.ErDiagram
+        , title = "ER Diagram(beta)"
+        , icon = Nothing
+        }
+    , Item
         { e = New Diagram.Markdown
         , title = "Markdown"
         , icon = Nothing
@@ -203,8 +208,30 @@ newMenu =
     ]
 
 
-exportMenu : List MenuItem
-exportMenu =
+exportMenu : Route -> List MenuItem
+exportMenu route =
+    if route == ErDiagram then
+        Item
+            { e = Download DDL
+            , title = "DDL"
+            , icon = Nothing
+            }
+            :: baseExportMenu
+
+    else if route == CustomerJourneyMap then
+        Item
+            { e = Download MarkdownTable
+            , title = "Markdown"
+            , icon = Nothing
+            }
+            :: baseExportMenu
+
+    else
+        baseExportMenu
+
+
+baseExportMenu : List MenuItem
+baseExportMenu =
     [ Item
         { e = Download Svg
         , title = "SVG"

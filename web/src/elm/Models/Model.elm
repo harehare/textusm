@@ -58,7 +58,6 @@ type Msg
     | OnAuthStateChanged (Maybe User)
     | WindowSelect Int
     | GetShortUrl (Result Http2.Error Api.UrlShorter.Response)
-      -- Diagram type
     | New Diagram
     | GetDiagrams
     | UpdateSettings (String -> Settings) String
@@ -78,6 +77,8 @@ type FileType
     | Svg
     | Pdf
     | HTML
+    | DDL
+    | MarkdownTable
 
 
 type Notification

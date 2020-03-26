@@ -1,8 +1,14 @@
-module Models.Item exposing (Children, Item, ItemType(..), emptyChildren, emptyItem, fromItems, getChildrenCount, getHierarchyCount, getLeafCount, toString, unwrapChildren)
+module Models.Item exposing (Item, ItemType(..), Items(..), childrenFromItems, cons, empty, emptyChildren, emptyItem, filter, fromList, getAt, getChildrenCount, getHierarchyCount, getLeafCount, head, indexedMap, isEmpty, length, map, splitAt, tail, toMarkdownTable, toString, unwrap, unwrapChildren)
+
+import List.Extra as ListEx
 
 
 type Children
-    = Children (List Item)
+    = Children Items
+
+
+type Items
+    = Items (List Item)
 
 
 type alias Item =
@@ -20,14 +26,84 @@ type ItemType
     | Comments
 
 
-fromItems : List Item -> Children
-fromItems items =
-    Children items
+getAt : Int -> Items -> Maybe Item
+getAt i (Items items) =
+    ListEx.getAt i items
+
+
+head : Items -> Maybe Item
+head (Items items) =
+    List.head items
+
+
+tail : Items -> Maybe Items
+tail (Items items) =
+    List.tail items
+        |> Maybe.map (\i -> Items i)
+
+
+map : (Item -> a) -> Items -> List a
+map f (Items items) =
+    List.map f items
+
+
+filter : (Item -> Bool) -> Items -> Items
+filter f (Items items) =
+    Items (List.filter f items)
+
+
+empty : Items
+empty =
+    Items []
+
+
+cons : Item -> Items -> Items
+cons item (Items items) =
+    Items (item :: items)
+
+
+indexedMap : (Int -> Item -> b) -> Items -> List b
+indexedMap f (Items items) =
+    List.indexedMap f items
+
+
+length : Items -> Int
+length (Items items) =
+    List.length items
+
+
+isEmpty : Items -> Bool
+isEmpty items =
+    length items == 0
+
+
+unwrap : Items -> List Item
+unwrap (Items items) =
+    items
+
+
+splitAt : Int -> Items -> ( Items, Items )
+splitAt i (Items items) =
+    let
+        ( left, right ) =
+            ListEx.splitAt i items
+    in
+    ( Items left, Items right )
+
+
+childrenFromItems : Items -> Children
+childrenFromItems (Items items) =
+    Children (Items items)
+
+
+fromList : List Item -> Items
+fromList items =
+    Items items
 
 
 emptyChildren : Children
 emptyChildren =
-    Children []
+    Children empty
 
 
 emptyItem : Item
@@ -39,9 +115,9 @@ emptyItem =
     }
 
 
-unwrapChildren : Children -> List Item
-unwrapChildren (Children items) =
-    items |> List.filter (\i -> i.itemType /= Comments)
+unwrapChildren : Children -> Items
+unwrapChildren (Children (Items items)) =
+    Items (items |> List.filter (\i -> i.itemType /= Comments))
 
 
 getChildrenCount : Item -> Int
@@ -49,13 +125,13 @@ getChildrenCount item =
     childrenCount <| unwrapChildren item.children
 
 
-childrenCount : List Item -> Int
-childrenCount ii =
-    if List.isEmpty ii then
+childrenCount : Items -> Int
+childrenCount (Items items) =
+    if List.isEmpty items then
         0
 
     else
-        List.length ii + (ii |> List.map (\i -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
+        List.length items + (items |> List.map (\i -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
 
 
 getHierarchyCount : Item -> Int
@@ -65,13 +141,13 @@ getHierarchyCount item =
         |> List.length
 
 
-hierarchyCount : List Item -> List Int
-hierarchyCount ii =
-    if List.isEmpty ii then
+hierarchyCount : Items -> List Int
+hierarchyCount (Items items) =
+    if List.isEmpty items then
         []
 
     else
-        1 :: List.concatMap (\i -> hierarchyCount <| unwrapChildren i.children) ii
+        1 :: List.concatMap (\i -> hierarchyCount <| unwrapChildren i.children) items
 
 
 getLeafCount : Item -> Int
@@ -79,19 +155,19 @@ getLeafCount item =
     leafCount <| unwrapChildren item.children
 
 
-leafCount : List Item -> Int
-leafCount ii =
-    if List.isEmpty ii then
+leafCount : Items -> Int
+leafCount (Items items) =
+    if List.isEmpty items then
         1
 
     else
-        ii |> List.map (\i -> leafCount <| unwrapChildren i.children) |> List.sum
+        items |> List.map (\i -> leafCount <| unwrapChildren i.children) |> List.sum
 
 
-toString : List Item -> String
+toString : Items -> String
 toString =
     let
-        itemsToString : Int -> List Item -> String
+        itemsToString : Int -> Items -> String
         itemsToString hierarcy items =
             let
                 itemToString : Item -> Int -> String
@@ -99,15 +175,64 @@ toString =
                     String.repeat hi "    " ++ i.text
             in
             items
-                |> List.map
+                |> map
                     (\item ->
                         case item.children of
-                            Children [] ->
-                                itemToString item hierarcy
-
                             Children c ->
                                 itemToString item hierarcy ++ "\n" ++ itemsToString (hierarcy + 1) c
                     )
                 |> String.join "\n"
     in
     itemsToString 0
+
+
+toMarkdownTable : Items -> String
+toMarkdownTable items =
+    let
+        header =
+            "|"
+                ++ (items
+                        |> head
+                        |> Maybe.withDefault emptyItem
+                        |> .children
+                        |> unwrapChildren
+                        |> map (\i -> String.trim i.text)
+                        |> String.join "|"
+                   )
+                ++ "|"
+
+        section =
+            "|"
+                ++ (items
+                        |> head
+                        |> Maybe.withDefault emptyItem
+                        |> .children
+                        |> unwrapChildren
+                        |> map
+                            (\item ->
+                                " " ++ String.repeat (String.trim item.text |> String.length) "-" ++ " "
+                            )
+                        |> String.join "|"
+                   )
+                ++ "|"
+
+        row =
+            items
+                |> tail
+                |> Maybe.withDefault empty
+                |> map
+                    (\item ->
+                        "|"
+                            ++ (item.text
+                                    :: (item
+                                            |> .children
+                                            |> unwrapChildren
+                                            |> map (\i -> String.trim i.text)
+                                       )
+                                    |> String.join "|"
+                               )
+                            ++ "|"
+                    )
+                |> String.join "\n"
+    in
+    String.join "\n" [ header, section, row ]

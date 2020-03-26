@@ -8,10 +8,11 @@ import { initDB } from "./ts/db";
 import { Auth } from "./ts/auth";
 import { loadSettings, saveSettings } from "./ts/settings";
 import { Settings } from "./ts/model";
+import { ElmApp } from "./ts/elm";
 // @ts-ignore
 import { Elm } from "./elm/Main.elm";
 
-const app = Elm.Main.init({
+const app: ElmApp = Elm.Main.init({
     flags: [process.env.API_ROOT, loadSettings()]
 });
 const auth = new Auth();
@@ -79,10 +80,14 @@ auth.authn(
         app.ports.progress.send(false);
     },
     async (idToken, profile) => {
-        if (profile) {
-            app.ports.onAuthStateChanged.send(
-                idToken ? { idToken, id: profile.uid, ...profile } : null
-            );
+        if (profile && idToken) {
+            app.ports.onAuthStateChanged.send({
+                idToken,
+                id: profile.uid,
+                displayName: profile.displayName || "",
+                email: profile.email || "",
+                photoURL: profile.photoURL || ""
+            });
         }
     }
 );

@@ -15,6 +15,7 @@ enum Diagram {
   SITE_MAP
   GANTT_CHART
   IMPACT_MAP
+  ER_DIAGRAM
 }
 
 type Item {
@@ -52,4 +53,5 @@ input InputItem {
 type Mutation {
   save(input: InputItem!): Item!
   delete(itemID: String!): Item
+  bookmark(itemID: String!, isBookmark: Boolean!): Item
 }

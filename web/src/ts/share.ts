@@ -1,12 +1,13 @@
 import * as LZUTF8 from "lzutf8";
+import { ElmApp } from "./elm";
 
-// @ts-ignore
-export const initShare = app => {
-    // @ts-ignore
-    app.ports.encodeShareText.subscribe(({ diagramType, title, text }) => {
+export const initShare = (app: ElmApp) => {
+    app.ports.encodeShareText.subscribe((params: { [s: string]: string }) => {
         app.ports.onEncodeShareText.send(
-            `/${diagramType}/${title ? title : "untitled"}/${encodeURIComponent(
-                LZUTF8.compress(text, {
+            `/${params.diagramType}/${
+                params.title ? params.title : "untitled"
+            }/${encodeURIComponent(
+                LZUTF8.compress(params.text, {
                     outputEncoding: "Base64"
                 })
             )}`

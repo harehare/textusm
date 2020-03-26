@@ -23,6 +23,7 @@ repl-temp-*
 
 .DS_Store
 dist
+.metals
 
 ignore
 dist

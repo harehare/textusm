@@ -1,4 +1,4 @@
-module Views.Icon exposing (add, clear, cloudOff, cloudOn, download, edit, error, export, file, folderOpen, fullscreen, fullscreenExit, helpOutline, indent, info, link, openInNew, people, remove, save, search, settings, share, viewComfy, viewModule, visibility, warning)
+module Views.Icon exposing (add, bookmark, clear, cloudOff, cloudOn, download, edit, error, export, file, folderOpen, fullscreen, fullscreenExit, helpOutline, indent, info, key, link, openInNew, people, remove, save, search, settings, share, unbookmark, viewComfy, viewModule, visibility, warning)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (d, fill, height, viewBox, width)
@@ -39,9 +39,9 @@ link size =
     icon "#8C9FAE" size size "0 0 48 48" [ Svg.path [ d "M7.8 24c0-3.42 2.78-6.2 6.2-6.2h8V14h-8C8.48 14 4 18.48 4 24s4.48 10 10 10h8v-3.8h-8c-3.42 0-6.2-2.78-6.2-6.2zm8.2 2h16v-4H16v4zm18-12h-8v3.8h8c3.42 0 6.2 2.78 6.2 6.2s-2.78 6.2-6.2 6.2h-8V34h8c5.52 0 10-4.48 10-10s-4.48-10-10-10z" ] [] ]
 
 
-search : Int -> Svg msg
-search size =
-    icon "#8C9FAE" size size "0 0 48 48" [ Svg.path [ d "M31 28h-1.59l-.55-.55C30.82 25.18 32 22.23 32 19c0-7.18-5.82-13-13-13S6 11.82 6 19s5.82 13 13 13c3.23 0 6.18-1.18 8.45-3.13l.55.55V31l10 9.98L40.98 38 31 28zm-12 0c-4.97 0-9-4.03-9-9s4.03-9 9-9 9 4.03 9 9-4.03 9-9 9z" ] [] ]
+search : String -> Int -> Svg msg
+search color size =
+    icon color size size "0 0 48 48" [ Svg.path [ d "M31 28h-1.59l-.55-.55C30.82 25.18 32 22.23 32 19c0-7.18-5.82-13-13-13S6 11.82 6 19s5.82 13 13 13c3.23 0 6.18-1.18 8.45-3.13l.55.55V31l10 9.98L40.98 38 31 28zm-12 0c-4.97 0-9-4.03-9-9s4.03-9 9-9 9 4.03 9 9-4.03 9-9 9z" ] [] ]
 
 
 download : String -> Int -> Svg msg
@@ -139,11 +139,26 @@ cloudOff size =
     icon "rgba(51, 51, 51, 0.7)" size size "0 0 48 48" [ Svg.path [ d "M38.71 20.07C37.35 13.19 31.28 8 24 8c-2.95 0-5.7.87-8.02 2.34l2.92 2.92C20.43 12.47 22.16 12 24 12c6.08 0 11 4.92 11 11v1h3c3.31 0 6 2.69 6 6 0 2.27-1.27 4.22-3.13 5.24l2.9 2.9C46.32 36.33 48 33.37 48 30c0-5.28-4.11-9.56-9.29-9.93zM6 10.55l5.5 5.48C5.12 16.3 0 21.55 0 28c0 6.63 5.37 12 12 12h23.45l4 4L42 41.46 8.55 8 6 10.55zM15.45 20l16 16H12c-4.42 0-8-3.58-8-8s3.58-8 8-8h3.45z" ] [] ]
 
 
+key : String -> Int -> Svg msg
+key color size =
+    icon color size size "0 0 512 512" [ Svg.path [ d "M512 176.001C512 273.203 433.202 352 336 352c-11.22 0-22.19-1.062-32.827-3.069l-24.012 27.014A23.999 23.999 0 0 1 261.223 384H224v40c0 13.255-10.745 24-24 24h-40v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24v-78.059c0-6.365 2.529-12.47 7.029-16.971l161.802-161.802C163.108 213.814 160 195.271 160 176 160 78.798 238.797.001 335.999 0 433.488-.001 512 78.511 512 176.001zM336 128c0 26.51 21.49 48 48 48s48-21.49 48-48-21.49-48-48-48-48 21.49-48 48z" ] [] ]
+
+
+bookmark : String -> Int -> Svg msg
+bookmark color size =
+    icon color size size "0 0 384 512" [ Svg.path [ d "M0 512V48C0 21.49 21.49 0 48 0h288c26.51 0 48 21.49 48 48v464L192 400 0 512z" ] [] ]
+
+
+unbookmark : String -> Int -> Svg msg
+unbookmark color size =
+    icon color size size "0 0 384 512" [ Svg.path [ d "M336 0H48C21.49 0 0 21.49 0 48v464l192-112 192 112V48c0-26.51-21.49-48-48-48zm0 428.43l-144-84-144 84V54a6 6 0 0 1 6-6h276c3.314 0 6 2.683 6 5.996V428.43z" ] [] ]
+
+
 icon : String -> Int -> Int -> String -> List (Svg msg) -> Svg msg
 icon color w h v children =
     Svg.svg
-        [ width (String.fromInt w)
-        , height (String.fromInt h)
+        [ width <| String.fromInt w
+        , height <| String.fromInt h
         , viewBox v
         ]
         [ Svg.g

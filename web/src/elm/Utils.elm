@@ -1,10 +1,11 @@
-module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getIdToken, getMarkdownHeight, getSpacePrefix, getTitle, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix)
+module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getIdToken, getMarkdownHeight, getSpacePrefix, getTitle, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix, transpose)
 
 import Constants
 import File exposing (File)
 import Http exposing (Error(..))
-import List.Extra exposing (getAt, last, scanl1, takeWhile)
+import List.Extra exposing (getAt, last, scanl1, takeWhile, unique)
 import Models.Diagram as DiagramModel
+import Models.ER as ER exposing (Table(..))
 import Models.IdToken exposing (IdToken)
 import Models.Item as Item
 import Models.Model exposing (Msg(..), Notification(..))
@@ -313,7 +314,7 @@ getCanvasHeight : DiagramModel.Model -> Int
 getCanvasHeight model =
     let
         taskCount =
-            List.map (\i -> Item.unwrapChildren i.children |> List.length) model.items
+            Item.map (\i -> Item.unwrapChildren i.children |> Item.length) model.items
                 |> List.maximum
     in
     (model.settings.size.height + Constants.itemMargin) * (taskCount |> Maybe.withDefault 1) + 50
@@ -348,9 +349,35 @@ getCanvasSize model =
                 Diagram.Markdown ->
                     ( 15 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Maybe.withDefault "" <| model.text), getMarkdownHeight <| String.lines <| Maybe.withDefault "" <| model.text )
 
+                Diagram.ErDiagram ->
+                    let
+                        ( _, tables ) =
+                            ER.itemsToErDiagram model.items
+
+                        sizeList =
+                            List.map
+                                (\table ->
+                                    let
+                                        (Table _ columns) =
+                                            table
+                                    in
+                                    ( ER.tableWidth table, (List.length columns + 1) * Constants.tableRowHeight )
+                                )
+                                tables
+
+                        ( tableWidth, tableHeight ) =
+                            List.foldl
+                                (\( w1, h1 ) ( w2, h2 ) ->
+                                    ( w1 + w2 + Constants.tableMargin, h1 + h2 + Constants.tableMargin )
+                                )
+                                ( 0, 0 )
+                                sizeList
+                    in
+                    ( tableWidth, tableHeight )
+
                 Diagram.MindMap ->
                     ( (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
-                    , case List.head model.items of
+                    , case Item.head model.items of
                         Just head ->
                             Item.getLeafCount head * (model.settings.size.height + 15)
 
@@ -359,37 +386,37 @@ getCanvasSize model =
                     )
 
                 Diagram.CustomerJourneyMap ->
-                    ( model.settings.size.width * ((model.items |> List.head |> Maybe.withDefault Item.emptyItem |> .children |> Item.unwrapChildren |> List.length) + 1)
-                    , model.settings.size.height * List.length model.items + Constants.itemMargin
+                    ( model.settings.size.width * ((model.items |> Item.head |> Maybe.withDefault Item.emptyItem |> .children |> Item.unwrapChildren |> Item.length) + 1)
+                    , model.settings.size.height * Item.length model.items + Constants.itemMargin
                     )
 
                 Diagram.SiteMap ->
                     let
                         items =
                             model.items
-                                |> List.head
+                                |> Item.head
                                 |> Maybe.withDefault Item.emptyItem
                                 |> .children
                                 |> Item.unwrapChildren
 
                         hierarchy =
                             items
-                                |> List.map (\item -> Item.getHierarchyCount item)
+                                |> Item.map (\item -> Item.getHierarchyCount item)
                                 |> List.sum
 
                         svgWidth =
                             (model.settings.size.width
                                 + Constants.itemSpan
                             )
-                                * List.length items
+                                * Item.length items
                                 + Constants.itemSpan
                                 * hierarchy
 
                         maxChildrenCount =
                             items
-                                |> List.map
+                                |> Item.map
                                     (\i ->
-                                        if List.isEmpty (Item.unwrapChildren i.children) then
+                                        if Item.isEmpty (Item.unwrapChildren i.children) then
                                             0
 
                                         else
@@ -413,7 +440,7 @@ getCanvasSize model =
 
                 Diagram.ImpactMap ->
                     ( (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
-                    , case List.head model.items of
+                    , case Item.head model.items of
                         Just head ->
                             Item.getLeafCount head * (model.settings.size.height + 15) * 2
 
@@ -424,7 +451,7 @@ getCanvasSize model =
                 Diagram.GanttChart ->
                     let
                         rootItem =
-                            List.head model.items
+                            Item.head model.items
                                 |> Maybe.withDefault Item.emptyItem
 
                         children =
@@ -435,9 +462,9 @@ getCanvasSize model =
                         nodeCounts =
                             0
                                 :: (children
-                                        |> List.map
+                                        |> Item.map
                                             (\i ->
-                                                if List.isEmpty (Item.unwrapChildren i.children) then
+                                                if Item.isEmpty (Item.unwrapChildren i.children) then
                                                     0
 
                                                 else
@@ -447,7 +474,7 @@ getCanvasSize model =
                                    )
 
                         svgHeight =
-                            (last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length children * 2
+                            (last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + Item.length children * 2
                     in
                     case extractDateValues rootItem.text of
                         Just ( from, to ) ->
@@ -477,3 +504,25 @@ getSpacePrefix text =
         |> String.repeat
     )
         " "
+
+
+transpose : List (List comparable) -> List (List comparable)
+transpose ll =
+    case ll of
+        [] ->
+            []
+
+        [] :: xss ->
+            transpose xss
+
+        (x :: xs) :: xss ->
+            let
+                heads =
+                    List.filterMap List.head xss
+                        |> unique
+
+                tails =
+                    List.filterMap List.tail xss
+                        |> unique
+            in
+            (x :: heads) :: transpose (xs :: tails)

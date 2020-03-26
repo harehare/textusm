@@ -19,9 +19,9 @@ func NewService(r Repository) *Service {
 	}
 }
 
-func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isBookmark, isPublic bool) ([]*Item, error) {
+func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic bool) ([]*Item, error) {
 	userID := ctx.Value(middleware.UIDKey).(string)
-	items, err := s.repo.Find(ctx, userID, offset, limit, isBookmark, isPublic)
+	items, err := s.repo.Find(ctx, userID, offset, limit, isPublic)
 
 	if err != nil {
 		return nil, err
@@ -30,11 +30,14 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isBookmar
 	resultItems := make([]*Item, len(items))
 
 	for i, item := range items {
-		text, err := Decrypt(encryptKey, item.Text)
-		if err != nil {
-			return nil, err
+		if item.Text != "" {
+			text, err := Decrypt(encryptKey, item.Text)
+			if err != nil {
+				return nil, err
+			}
+			item.Text = text
 		}
-		item.Text = text
+
 		resultItems[i] = item
 	}
 

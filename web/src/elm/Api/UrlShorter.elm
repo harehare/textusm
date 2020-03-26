@@ -37,4 +37,4 @@ responseDecoder =
 
 urlShorter : Maybe IdToken -> String -> LongURL -> Task Http.Error Response
 urlShorter idToken apiRoot longURL =
-    Api.post idToken apiRoot [ "api", "urlshorter" ] (Http.jsonBody (requestEncoder { longDynamicLink = "https://textusm.page.link/?link=" ++ longURL })) (Api.jsonResolver responseDecoder)
+    Api.post { idToken = idToken, url = apiRoot, path = [ "api", "urlshorter" ], query = [] } (Http.jsonBody (requestEncoder { longDynamicLink = "https://textusm.page.link/?link=" ++ longURL })) (Api.jsonResolver responseDecoder)

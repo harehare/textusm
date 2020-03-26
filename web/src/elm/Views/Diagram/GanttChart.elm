@@ -25,7 +25,7 @@ view : Model -> Svg Msg
 view model =
     let
         rootItem =
-            List.head model.items |> Maybe.withDefault Item.emptyItem
+            Item.head model.items |> Maybe.withDefault Item.emptyItem
 
         items =
             Item.unwrapChildren rootItem.children
@@ -33,9 +33,9 @@ view model =
         nodeCounts =
             0
                 :: (items
-                        |> List.map
+                        |> Item.map
                             (\i ->
-                                if List.isEmpty (Item.unwrapChildren i.children) then
+                                if Item.isEmpty (Item.unwrapChildren i.children) then
                                     0
 
                                 else
@@ -45,7 +45,7 @@ view model =
                    )
 
         svgHeight =
-            (last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length items * 2
+            (last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + Item.length items * 2
     in
     case Utils.extractDateValues rootItem.text of
         Just ( from, to ) ->
@@ -84,7 +84,7 @@ view model =
                     :: daysView model.settings
                         svgHeight
                         ( from, to )
-                    :: (zip nodeCounts items
+                    :: (zip nodeCounts (Item.unwrap items)
                             |> List.concatMap
                                 (\( count, sectionItem ) ->
                                     let
@@ -103,7 +103,7 @@ view model =
                                         from
                                         sectionItem
                                         :: (taskItems
-                                                |> List.indexedMap
+                                                |> Item.indexedMap
                                                     (\i taskItem ->
                                                         [ sectionView
                                                             model.settings
@@ -226,9 +226,9 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from i
     let
         text =
             Item.unwrapChildren item.children
-                |> List.map
+                |> Item.map
                     (\childItem ->
-                        Item.unwrapChildren childItem.children |> List.head |> Maybe.withDefault Item.emptyItem |> .text
+                        Item.unwrapChildren childItem.children |> Item.head |> Maybe.withDefault Item.emptyItem |> .text
                     )
                 |> List.maximum
     in
@@ -276,7 +276,7 @@ sectionView : Settings -> Size -> Position -> Posix -> Item -> Svg Msg
 sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from item =
     let
         childItem =
-            Item.unwrapChildren item.children |> List.head |> Maybe.withDefault Item.emptyItem
+            Item.unwrapChildren item.children |> Item.head |> Maybe.withDefault Item.emptyItem
     in
     g []
         [ line

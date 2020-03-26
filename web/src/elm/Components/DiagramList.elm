@@ -7,13 +7,17 @@ import GraphQL.Request as Request
 import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
+import Html.Lazy exposing (lazy4)
 import Json.Decode as D
-import Maybe.Extra exposing (isJust, isNothing)
-import Models.DiagramList exposing (Model, Msg(..))
+import List.Extra exposing (updateIf)
+import Maybe.Extra exposing (isJust)
+import Models.DiagramList exposing (FilterCondition(..), FilterValue(..), Model, Msg(..))
 import Models.DiagramType as DiagramType
 import Models.User as UserModel exposing (User)
+import RemoteData exposing (RemoteData(..))
 import Subscriptions exposing (getDiagrams, removeDiagrams)
 import Task
+import TextUSM.Enum.Diagram exposing (Diagram)
 import Time exposing (Zone)
 import Utils
 import Views.Empty as Empty
@@ -34,13 +38,12 @@ init : Maybe User -> String -> ( Model, Cmd Msg )
 init user apiRoot =
     ( { searchQuery = Nothing
       , timeZone = Time.utc
-      , diagramList = Nothing
-      , selectedType = Nothing
+      , diagramList = NotAsked
+      , filterCondition = FilterCondition FilterAll (\_ -> True)
       , loginUser = user
       , apiRoot = apiRoot
       , pageNo = 1
       , hasMorePage = False
-      , isLoading = False
       }
     , Cmd.batch
         [ Task.perform GotTimeZone Time.here
@@ -49,115 +52,73 @@ init user apiRoot =
     )
 
 
-facet : List DiagramItem -> List ( String, Int )
+facet : List DiagramItem -> List ( Diagram, Int )
 facet items =
-    DictEx.groupBy (\i -> i.diagram |> DiagramType.toString) items
+    DictEx.groupBy (\i -> DiagramType.toString i.diagram) items
         |> Dict.map (\k v -> ( k, List.length v ))
         |> Dict.values
+        |> List.map (\( d, i ) -> ( DiagramType.fromString d, i ))
 
 
-sideMenu : String -> Int -> List ( String, Int ) -> Html Msg
-sideMenu selectedPath allCount items =
+sideMenu : FilterValue -> Int -> Int -> List ( Diagram, Int ) -> Html Msg
+sideMenu filter allCount bookmarkCount items =
     div [ class "side-menu" ]
         (div
             [ class <|
-                if String.isEmpty selectedPath then
+                if filter == FilterAll then
                     "item selected"
 
                 else
                     "item"
-            , onClick (Filter Nothing)
+            , onClick (Filter (FilterCondition FilterAll (\_ -> True)))
             ]
             [ text "All", span [ class "facet-count" ] [ text <| "(" ++ String.fromInt allCount ++ ")" ] ]
+            :: div
+                [ class <|
+                    if filter == FilterBookmark then
+                        "item selected"
+
+                    else
+                        "item"
+                , onClick (Filter (FilterCondition FilterBookmark (\item -> item.isBookmark)))
+                ]
+                [ text "Bookmarks", span [ class "facet-count" ] [ text <| "(" ++ String.fromInt bookmarkCount ++ ")" ] ]
             :: (items
                     |> List.map
-                        (\( diagramPath, count ) ->
+                        (\( diagram, count ) ->
                             div
                                 [ class <|
-                                    if selectedPath == diagramPath then
+                                    if filter == FilterValue diagram then
                                         "item selected"
 
                                     else
                                         "item"
-                                , onClick (Filter <| Just diagramPath)
+                                , onClick (Filter (FilterCondition (FilterValue diagram) (\item -> item.diagram == diagram)))
                                 ]
-                                [ text <| menuName diagramPath, span [ class "facet-count" ] [ text <| "(" ++ String.fromInt count ++ ")" ] ]
+                                [ text <| DiagramType.toLongString diagram, span [ class "facet-count" ] [ text <| "(" ++ String.fromInt count ++ ")" ] ]
                         )
                )
         )
 
-
-menuName : String -> String
-menuName path =
-    case path of
-        "usm" ->
-            "User Story Map"
-
-        "opc" ->
-            "Opportunity Canvas"
-
-        "bmc" ->
-            "Business Model Canvas"
-
-        "4ls" ->
-            "4Ls"
-
-        "ssc" ->
-            "Start, Stop, Continue"
-
-        "kpt" ->
-            "KPT"
-
-        "persona" ->
-            "User Persona"
-
-        "md" ->
-            "Markdown"
-
-        "mmp" ->
-            "Mind Map"
-
-        "emm" ->
-            "Empathy Map"
-
-        "cjm" ->
-            "Customer Journey Map"
-
-        "smp" ->
-            "Site Map"
-
-        "gct" ->
-            "Gantt Chart"
-
-        "imm" ->
-            "Impact Map"
-
-        "" ->
-            "All"
-
-        _ ->
-            "User Story Map"
-
-
 view : Model -> Html Msg
 view model =
     case model.diagramList of
-        Just diagrams ->
+        Success diagrams ->
             let
-                displayDiagrams =
-                    case model.selectedType of
-                        Just type_ ->
-                            List.filter (\d -> d.diagram == DiagramType.fromString type_) diagrams
+                (FilterCondition selectedPath filterCondition) =
+                    model.filterCondition
 
-                        Nothing ->
-                            diagrams
+                displayDiagrams =
+                    List.filter filterCondition diagrams
             in
             div
                 [ class "diagram-list"
                 , style "display" "flex"
                 ]
-                [ sideMenu (Maybe.withDefault "" model.selectedType)
+                [ lazy4 sideMenu
+                    selectedPath
                     (List.length diagrams)
+                    (List.length (List.filter (\i -> i.isBookmark) diagrams))
                     (facet diagrams)
                 , div
                     [ style "width" "100%" ]
@@ -178,7 +139,7 @@ view model =
                                 , style "right" "20px"
                                 , style "top" "18px"
                                 ]
-                                [ Icon.search 24 ]
+                                [ Icon.search "#8C9FAE" 24 ]
                             , input
                                 [ placeholder "Search"
                                 , style "border-radius" "20px"
@@ -240,12 +201,7 @@ view model =
                                                 , style "margin" "8px"
                                                 , onClick <| LoadNextPage <| model.pageNo + 1
                                                 ]
-                                                [ if model.isLoading then
-                                                    text "Loading"
-
-                                                  else
-                                                    text "Load more"
-                                                ]
+                                                [ text "Load more" ]
                                             ]
 
                                      else
@@ -255,7 +211,7 @@ view model =
                     ]
                 ]
 
-        Nothing ->
+        Failure e ->
             div
                 [ class "diagram-list"
                 , style "width" "100vw"
@@ -270,7 +226,27 @@ view model =
                     , style "font-size" "1.5rem"
                     ]
                     [ div [ style "margin-bottom" "8px" ]
-                        [ img [ src "/images/loading.svg", style "width" "128px", alt "LOADING..." ] []
+                        [ text ("FAILED " ++ Utils.httpErrorToString e)
+                        ]
+                    ]
+                ]
+
+        _ ->
+            div
+                [ class "diagram-list"
+                , style "width" "100vw"
+                ]
+                [ div
+                    [ style "display" "flex"
+                    , style "align-items" "center"
+                    , style "justify-content" "center"
+                    , style "height" "100%"
+                    , style "padding-bottom" "32px"
+                    , style "color" "#8C9FAE"
+                    , style "font-size" "1.5rem"
+                    ]
+                    [ div [ style "margin-bottom" "8px" ]
+                        [ img [ src "/images/loading.svg", style "width" "64px", alt "LOADING..." ] []
                         ]
                     ]
                 ]
@@ -304,6 +280,19 @@ diagramView timezone diagram =
                   else
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOff 14 ]
                 , div [ style "margin-left" "16px", class "button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
+                , if diagram.isBookmark then
+                    div
+                        [ class "bookmark"
+                        , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
+                        ]
+                        [ Icon.bookmark "#3e9bcd" 16 ]
+
+                  else
+                    div
+                        [ class "bookmark"
+                        , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
+                        ]
+                        [ Icon.unbookmark "#3e9bcd" 16 ]
                 ]
             ]
         ]
@@ -318,8 +307,8 @@ update message model =
         GotTimeZone zone ->
             ( { model | timeZone = zone }, Cmd.none )
 
-        Filter type_ ->
-            ( { model | selectedType = type_ }, Cmd.none )
+        Filter cond ->
+            ( { model | filterCondition = cond }, Cmd.none )
 
         SearchInput input ->
             ( { model
@@ -337,7 +326,7 @@ update message model =
             ( { model | pageNo = pageNo }, getDiagrams () )
 
         GotLocalDiagramJson json ->
-            if model.isLoading then
+            if model.diagramList == Loading then
                 ( model, Cmd.none )
 
             else
@@ -350,7 +339,7 @@ update message model =
                     Just _ ->
                         let
                             remoteItems =
-                                Request.items model.apiRoot (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser) (pageOffsetAndLimit model.pageNo) False False
+                                Request.items { url = model.apiRoot, idToken = Maybe.map (\u -> UserModel.getIdToken u) model.loginUser } (pageOffsetAndLimit model.pageNo) False False
                                     |> Task.map
                                         (\i ->
                                             i
@@ -384,13 +373,22 @@ update message model =
                                         )
                                     |> Task.mapError (Tuple.pair localItems)
                         in
-                        ( { model | isLoading = True }, Task.attempt GotDiagrams items )
+                        ( { model
+                            | diagramList =
+                                if RemoteData.isNotAsked model.diagramList then
+                                    Loading
+
+                                else
+                                    model.diagramList
+                          }
+                        , Task.attempt GotDiagrams items
+                        )
 
                     Nothing ->
                         ( { model
                             | hasMorePage = False
-                            , isLoading = False
-                            , diagramList = Just localItems
+                            , diagramList =
+                                Success localItems
                           }
                         , Cmd.none
                         )
@@ -398,13 +396,12 @@ update message model =
         GotDiagrams (Err ( items, _ )) ->
             ( { model
                 | hasMorePage = List.length items >= pageSize
-                , isLoading = False
                 , diagramList =
-                    if isNothing model.diagramList then
-                        Just items
+                    if RemoteData.isFailure model.diagramList then
+                        Success items
 
                     else
-                        Maybe.andThen (\currentItems -> Just <| List.concat [ currentItems, items ]) model.diagramList
+                        RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) model.diagramList
               }
             , Cmd.none
             )
@@ -412,13 +409,12 @@ update message model =
         GotDiagrams (Ok items) ->
             ( { model
                 | hasMorePage = List.length items >= pageSize
-                , isLoading = False
                 , diagramList =
-                    if isNothing model.diagramList then
-                        Just items
+                    if List.isEmpty <| RemoteData.withDefault [] model.diagramList then
+                        Success items
 
                     else
-                        Maybe.andThen (\currentItems -> Just <| List.concat [ currentItems, items ]) model.diagramList
+                        RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) model.diagramList
               }
             , Cmd.none
             )
@@ -431,7 +427,7 @@ update message model =
                 Ok diagram ->
                     ( model
                     , Task.attempt Removed
-                        (Request.delete (Maybe.withDefault "" diagram.id) model.apiRoot (Maybe.map (\u -> UserModel.getIdToken u) model.loginUser)
+                        (Request.delete { url = model.apiRoot, idToken = Maybe.map (\u -> UserModel.getIdToken u) model.loginUser } (Maybe.withDefault "" diagram.id)
                             |> Task.map (\_ -> Just diagram)
                         )
                     )
@@ -454,6 +450,18 @@ update message model =
         Reload ->
             ( model
             , getDiagrams ()
+            )
+
+        Bookmark diagram ->
+            let
+                diagramList =
+                    RemoteData.withDefault [] model.diagramList |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark })
+            in
+            ( { model | diagramList = Success diagramList }
+            , Task.attempt Bookmarked
+                (Request.bookmark { url = model.apiRoot, idToken = Maybe.map (\u -> UserModel.getIdToken u) model.loginUser } (Maybe.withDefault "" diagram.id) (not diagram.isBookmark)
+                    |> Task.map (\_ -> Just diagram)
+                )
             )
 
         _ ->

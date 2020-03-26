@@ -1,15 +1,14 @@
-module Views.Diagram.Views exposing (Position, Size, canvasBottomView, canvasImageView, canvasView, cardView, rectView, textView)
+module Views.Diagram.Views exposing (Position, Size, canvasBottomView, canvasImageView, canvasView, cardView, getHeight, getWidth, getX, getY, rectView, textView)
 
 import Constants
-import Events exposing (onKeyDown)
+import Events exposing (onClickStopPropagation, onKeyDown)
 import Html exposing (div, img, input)
 import Html.Attributes as Attr
-import Html.Events exposing (onInput, stopPropagationOn)
+import Html.Events exposing (onInput)
 import Html5.DragDrop as DragDrop
-import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Models.Diagram exposing (Msg(..), Settings, fontStyle, settingsOfWidth)
-import Models.Item as Item exposing (Item, ItemType(..))
+import Models.Item as Item exposing (Item, ItemType(..), Items)
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
 import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, style, width, x, xlinkHref, y)
@@ -38,6 +37,30 @@ type alias Y =
 
 type alias Position =
     ( X, Y )
+
+
+type alias RGB =
+    String
+
+
+getWidth : Size -> Width
+getWidth ( width, _ ) =
+    width
+
+
+getHeight : Size -> Width
+getHeight ( _, height ) =
+    height
+
+
+getX : Position -> X
+getX ( x, _ ) =
+    x
+
+
+getY : Position -> Y
+getY ( _, y ) =
+    y
 
 
 cardView : Settings -> Position -> Maybe Item -> Item -> Svg Msg
@@ -80,7 +103,7 @@ cardView settings ( posX, posY ) selectedItem item =
             ]
 
 
-rectView : Position -> Size -> String -> Svg Msg
+rectView : Position -> Size -> RGB -> Svg Msg
 rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
     rect
         [ width <| String.fromInt svgWidth
@@ -93,7 +116,7 @@ rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         []
 
 
-selectedRectView : Position -> Size -> String -> Svg Msg
+selectedRectView : Position -> Size -> RGB -> Svg Msg
 selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
     rect
         [ width <| String.fromInt svgWidth
@@ -127,7 +150,7 @@ dropArea ( posX, posY ) ( svgWidth, svgHeight ) item =
         ]
 
 
-inputView : Settings -> Maybe String -> Position -> Size -> ( String, String ) -> Item -> Svg Msg
+inputView : Settings -> Maybe String -> Position -> Size -> ( RGB, RGB ) -> Item -> Svg Msg
 inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, backgroundColor ) item =
     foreignObject
         [ x <| String.fromInt posX
@@ -166,7 +189,7 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
         ]
 
 
-textView : Settings -> Position -> Size -> String -> String -> Svg Msg
+textView : Settings -> Position -> Size -> RGB -> String -> Svg Msg
 textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour textOrUrl =
     foreignObject
         [ x <| String.fromInt posX
@@ -260,14 +283,14 @@ titleView settings ( posX, posY ) item =
         [ text item.text ]
 
 
-canvasTextView : Settings -> Int -> Position -> Maybe Item -> List Item -> Svg Msg
+canvasTextView : Settings -> Int -> Position -> Maybe Item -> Items -> Svg Msg
 canvasTextView settings svgWidth ( posX, posY ) selectedItem items =
     let
         newSettings =
             settings |> settingsOfWidth.set (svgWidth - Constants.itemMargin * 2)
     in
     g []
-        (List.indexedMap
+        (Item.indexedMap
             (\i item ->
                 cardView newSettings ( posX, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin ) selectedItem item
             )
@@ -280,7 +303,7 @@ canvasImageView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
     let
         lines =
             Item.unwrapChildren item.children
-                |> List.map (\i -> i.text)
+                |> Item.map (\i -> i.text)
     in
     svg
         [ width <| String.fromInt svgWidth
@@ -309,13 +332,3 @@ imageView ( imageWidth, imageHeight ) ( posX, posY ) url =
             ]
             []
         ]
-
-
-onClickStopPropagation : msg -> Html.Attribute msg
-onClickStopPropagation msg =
-    stopPropagationOn "click" (D.map alwaysStopPropagation (D.succeed msg))
-
-
-alwaysStopPropagation : msg -> ( msg, Bool )
-alwaysStopPropagation msg =
-    ( msg, True )

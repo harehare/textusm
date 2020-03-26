@@ -1,42 +1,9 @@
-export interface UserStoryMap {
-  labels?: string[];
-  activities: Activity[];
-}
+import { UserStoryMap } from "./models/UserStoryMap";
+import { MindMap, SiteMap, ImpactMap, MapNode } from "./models/MindMap";
+import { ERDiagram } from "./models/ER";
 
-interface Activity {
-  name: string;
-  tasks: Task[];
-}
-
-interface Task {
-  name: string;
-  stories: Story[];
-}
-
-interface Story {
-  name: string;
-  release: number;
-}
-
-export interface MindMap {
-  node: Node;
-}
-
-interface Node {
-  text: string;
-  children: Node[];
-}
-
-export type SiteMap = MindMap;
-
-export type ImpactMap = MindMap;
-
-interface Node {
-  text: string;
-  children: Node[];
-}
-
-export interface BusinessModelCanvas {
+export type BusinessModelCanvas = {
+  name: "BusinessModelCanvas";
   keyPartners: CanvasItem;
   customerSegments: CanvasItem;
   valueProposition: CanvasItem;
@@ -46,9 +13,10 @@ export interface BusinessModelCanvas {
   costStructure: CanvasItem;
   keyResources: CanvasItem;
   customerRelationships: CanvasItem;
-}
+};
 
-export interface OpportunityCanvas {
+export type OpportunityCanvas = {
+  name: "OpportunityCanvas";
   problems: CanvasItem;
   solutionIdeas: CanvasItem;
   usersAndCustomers: CanvasItem;
@@ -59,28 +27,32 @@ export interface OpportunityCanvas {
   adoptionStrategy: CanvasItem;
   businessBenefitsAndMetrics: CanvasItem;
   budget: CanvasItem;
-}
+};
 
-export interface FourLs {
+export type FourLs = {
+  name: "4Ls";
   liked: CanvasItem;
   learned: CanvasItem;
   lacked: CanvasItem;
   longedFor: CanvasItem;
-}
+};
 
-export interface StartStopContinue {
+export type StartStopContinue = {
+  name: "StartStopContinue";
   start: CanvasItem;
   stop: CanvasItem;
   continue: CanvasItem;
-}
+};
 
-export interface Kpt {
+export type Kpt = {
+  name: "Kpt";
   keep: CanvasItem;
   problem: CanvasItem;
   try: CanvasItem;
-}
+};
 
-export interface UserPersona {
+export type UserPersona = {
+  name: "UserPersona";
   url: UrlItem;
   whoAmI: CanvasItem;
   item1: CanvasItem;
@@ -90,47 +62,50 @@ export interface UserPersona {
   item5: CanvasItem;
   item6: CanvasItem;
   item7: CanvasItem;
-}
+};
 
-export interface EmpathyMap {
+export type EmpathyMap = {
+  name: "EmpathyMap";
   imageUrl: string;
   says: CanvasItem;
   thinks: CanvasItem;
   does: CanvasItem;
   feels: CanvasItem;
-}
+};
 
-interface CanvasItem {
+type CanvasItem = {
   title: string;
   text: string[];
-}
+};
 
-interface UrlItem {
+type UrlItem = {
   title: string;
   url: string;
-}
+};
 
-export interface GanttChart {
+export type GanttChart = {
+  name: "GanttChart";
   from: string;
   to: string;
   chartitems: GanttChartItem[];
-}
+};
 
-interface GanttChartItem {
+type GanttChartItem = {
   title: string;
   schedules: Schedule[];
-}
+};
 
-interface Schedule {
+type Schedule = {
   from: string;
   to: string;
   title: string;
-}
+};
 
-export interface CustomerJourneyMap {
+export type CustomerJourneyMap = {
+  name: "CustomerJourneyMap";
   header: CanvasItem;
   items: CanvasItem[];
-}
+};
 
 export function toString(
   definition:
@@ -147,29 +122,32 @@ export function toString(
     | SiteMap
     | GanttChart
     | ImpactMap
+    | ERDiagram
 ): string {
-  return "activities" in definition
+  return definition.name === "UserStoryMap"
     ? userStoryMap2Text(definition)
-    : "keyPartners" in definition
+    : definition.name === "BusinessModelCanvas"
     ? businessModelCanvas2Text(definition)
-    : "problems" in definition
+    : definition.name === "OpportunityCanvas"
     ? opportunityCanvas2Text(definition)
-    : "liked" in definition
+    : definition.name === "4Ls"
     ? fourLsCanvas2Text(definition)
-    : "start" in definition
+    : definition.name === "StartStopContinue"
     ? startStopContinueCanvas2Text(definition)
-    : "keep" in definition
+    : definition.name === "Kpt"
     ? kptCanvas2Text(definition)
-    : "whoAmI" in definition
+    : definition.name === "UserPersona"
     ? userPersonaCanvas2Text(definition)
-    : "node" in definition
+    : definition.name === "MindMap"
     ? node2Text(definition)
-    : "says" in definition
+    : definition.name === "EmpathyMap"
     ? empathyMapCanvas2Text(definition)
-    : "items" in definition
+    : definition.name === "CustomerJourneyMap"
     ? customerJourneyMap2Text(definition)
-    : "from" in definition
+    : definition.name === "GanttChart"
     ? ganttchart2Text(definition)
+    : definition.name === "ER"
+    ? erDiagram2Text(definition)
     : "";
 }
 
@@ -188,30 +166,9 @@ export function toTypeString(
     | SiteMap
     | GanttChart
     | ImpactMap
+    | ERDiagram
 ): string {
-  return "activities" in definition
-    ? "UserStoryMap"
-    : "keyPartners" in definition
-    ? "BusinessModelCanvas"
-    : "problems" in definition
-    ? "OpportunityCanvas"
-    : "liked" in definition
-    ? "4Ls"
-    : "start" in definition
-    ? "StartStopContinue"
-    : "keep" in definition
-    ? "Kpt"
-    : "whoAmI" in definition
-    ? "UserPersona"
-    : "node" in definition
-    ? "MindMap"
-    : "says" in definition
-    ? "EmpathyMap"
-    : "items" in definition
-    ? "CustomerJourneyMap"
-    : "from" in definition
-    ? "GanttChart"
-    : "UserStoryMap";
+  return definition.name;
 }
 
 function concat<T>(x: T[], y: T[]): T[] {
@@ -380,7 +337,7 @@ function userStoryMap2Text(userStoryMap: UserStoryMap): string {
 }
 
 function node2Text(map: MindMap | SiteMap | ImpactMap): string {
-  const _node2Text = (node: Node[], indent: number): string[] => {
+  const _node2Text = (node: MapNode[], indent: number): string[] => {
     return flatMap(n => {
       if (n.children.length === 0) {
         return [`${"    ".repeat(indent)}${n.text}`];
@@ -393,4 +350,29 @@ function node2Text(map: MindMap | SiteMap | ImpactMap): string {
   };
 
   return [map.node.text].concat(_node2Text(map.node.children, 1)).join("\n");
+}
+
+function erDiagram2Text(er: ERDiagram): string {
+  const relations = ["relations"].concat(
+    er.relations.map(e => {
+      return `    ${e.table1} ${e.relation} ${e.table2}`;
+    })
+  );
+
+  const tables = ["tables"].concat(
+    er.tables.map(table => {
+      const columns = table.columns.map(column => {
+        const columnText = `${column.name}`;
+        const columnLength =
+          column.type.columnLength > 0 ? `(${column.type.columnLength})` : "";
+        const columnAttribute = `${column.attribute.name}${
+          column.attribute.value ? ` ${column.attribute.value}` : ""
+        }`;
+        return `        ${columnText} ${column.type.name}${columnLength} ${columnAttribute}`;
+      });
+      return `    ${table.name}\n${columns.join("\n")}`;
+    })
+  );
+
+  return `${relations.join("\n")}\n${tables.join("\n")}`;
 }

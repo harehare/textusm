@@ -1,8 +1,18 @@
-module Events exposing (onKeyDown)
+module Events exposing (onClickStopPropagation, onKeyDown)
 
 import Html exposing (Attribute)
-import Html.Events exposing (keyCode, on)
+import Html.Events exposing (keyCode, on, stopPropagationOn)
 import Json.Decode as D
+
+
+onClickStopPropagation : msg -> Html.Attribute msg
+onClickStopPropagation msg =
+    stopPropagationOn "click" (D.map alwaysStopPropagation (D.succeed msg))
+
+
+alwaysStopPropagation : msg -> ( msg, Bool )
+alwaysStopPropagation msg =
+    ( msg, True )
 
 
 onKeyDown : (Int -> Bool -> msg) -> Attribute msg

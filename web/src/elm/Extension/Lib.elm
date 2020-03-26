@@ -1,4 +1,4 @@
-port module Extension.Lib exposing (init, main, view)
+module Extension.Lib exposing (init, main, view)
 
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
@@ -9,6 +9,7 @@ import Html.Lazy exposing (lazy)
 import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import Models.Diagram as DiagramModel
+import Models.Item as Item exposing (ItemType(..))
 import Task
 import TextUSM.Enum.Diagram as Diagram
 
@@ -42,7 +43,7 @@ type Msg
 init : InitData -> ( Model, Cmd Msg )
 init flags =
     ( { diagramModel =
-            { items = []
+            { items = Item.empty
             , hierarchy = 0
             , width = flags.width
             , height = flags.height
@@ -99,10 +100,12 @@ init flags =
                 else if flags.diagramType == "ImpactMap" then
                     Diagram.ImpactMap
 
+                else if flags.diagramType == "ER" then
+                    Diagram.ErDiagram
+
                 else
                     Diagram.UserStoryMap
             , settings = flags.settings
-            , error = Nothing
             , touchDistance = Nothing
             , labels = []
             , matchParent = False
@@ -155,12 +158,7 @@ update message model =
                         ( model_, _ ) =
                             Diagram.update subMsg model.diagramModel
                     in
-                    case model_.error of
-                        Just err ->
-                            ( { model | text = text, diagramModel = model_ }, errorLine err )
-
-                        Nothing ->
-                            ( { model | text = text, diagramModel = model_ }, errorLine "" )
+                    ( { model | text = text, diagramModel = model_ }, Cmd.none )
 
                 _ ->
                     let
@@ -168,9 +166,6 @@ update message model =
                             Diagram.update subMsg model.diagramModel
                     in
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-
-
-port errorLine : String -> Cmd msg
 
 
 subscriptions : Model -> Sub Msg

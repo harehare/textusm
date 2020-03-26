@@ -23,11 +23,13 @@ TextUSM is a simple tool. Help you draw user story map using indented text.
   - Site Map
   - Gantt Chart
   - Impact Map
+  - ER Diagram
 - Export a Diagram
   - SVG
   - PNG
   - TXT
   - PDF
+  - DDL(only ER Diagram)
 
 ## Example
 
@@ -264,6 +266,42 @@ TextUSM
 ```
 
 ![image](./img/imm.png)
+
+### ER Diagram
+
+```
+relations
+    DiagramDetail - Diagram
+    # One To Many
+    User < Comment
+    Diagram < Comment
+    User < Diagram
+    User < DiagramUser
+    Diagram < DiagramUser
+tables
+    Diagram
+        diagram_id int pk
+        name varchar(255) not null
+        type enum(userstorymap,mindmap)
+        is_bookmark boolean default false
+    DiagramDetail
+        diagram_id int pk
+        is_bookmark boolean default false
+        is_public boolean default false
+    Comment
+        comment_id int pk
+        comment text not null
+        diagram_id int not null
+        user_id int not null
+    User
+        user_id int pk
+        name varchar(255)
+    DiagramUser
+        diagram_id int pk
+        user_id int pk
+```
+
+![image](./img/erd.png)
 
 ## Installation
 

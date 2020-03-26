@@ -9,10 +9,10 @@ import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
 import List
-import List.Extra exposing (getAt, scanl, unique)
+import List.Extra exposing (getAt, scanl)
 import Maybe.Extra exposing (isNothing)
 import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.Item as Item exposing (Item, ItemType(..))
+import Models.Item as Item exposing (ItemType(..), Items)
 import Parser
 import Result exposing (andThen)
 import String
@@ -25,6 +25,7 @@ import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.CustomerJourneyMap as CustomerJourneyMap
+import Views.Diagram.ER as ER
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
 import Views.Diagram.GanttChart as GanttChart
@@ -37,13 +38,18 @@ import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
+import Views.Diagram.Views exposing (Size)
 import Views.Empty as Empty
 import Views.Icon as Icon
 
 
+type alias Hierarchy =
+    Int
+
+
 init : Settings -> ( Model, Cmd Msg )
 init settings =
-    ( { items = []
+    ( { items = Item.empty
       , hierarchy = 0
       , width = 0
       , height = 0
@@ -63,7 +69,6 @@ init settings =
       , showZoomControl = True
       , touchDistance = Nothing
       , settings = settings
-      , error = Nothing
       , diagramType = UserStoryMap
       , labels = []
       , text = Nothing
@@ -92,98 +97,65 @@ getItemType text indent =
                 Stories (indent - 1)
 
 
-loadText : Diagram -> Int -> Int -> String -> Result String ( List Int, List Item )
+loadText : Diagram -> Int -> Int -> String -> ( List Hierarchy, Items )
 loadText diagramType lineNo indent input =
-    let
-        splited =
-            case diagramType of
-                MindMap ->
-                    Parser.parseLinesIgnoreError indent input
+    case Parser.parse indent input of
+        ( x :: xs, other ) ->
+            let
+                ( xsIndent, xsItems ) =
+                    loadText diagramType (lineNo + 1) (indent + 1) (String.join "\n" xs)
 
-                SiteMap ->
-                    Parser.parseLinesIgnoreError indent input
+                ( otherIndents, otherItems ) =
+                    loadText diagramType (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
+            in
+            ( indent :: xsIndent ++ otherIndents
+            , Item.cons
+                { lineNo = lineNo
+                , text = x
+                , itemType = getItemType x indent
+                , children = Item.childrenFromItems xsItems
+                }
+                (Item.filter (\item -> item.itemType /= Comments) otherItems)
+            )
 
-                ImpactMap ->
-                    Parser.parseLinesIgnoreError indent input
-
-                GanttChart ->
-                    Parser.parseLinesIgnoreError indent input
-
-                _ ->
-                    Parser.parseLines indent input
-    in
-    case splited of
-        Ok ( x :: xs, xxs ) ->
-            loadText diagramType (lineNo + 1) (indent + 1) (String.join "\n" xs)
-                |> Result.andThen
-                    (\( indents, items ) ->
-                        loadText diagramType
-                            (lineNo + List.length (x :: xs))
-                            indent
-                            (String.join "\n" xxs)
-                            |> Result.andThen
-                                (\( indents2, tailItems ) ->
-                                    Ok
-                                        ( indent :: indents ++ indents2
-                                        , { lineNo = lineNo
-                                          , text = x
-                                          , itemType = getItemType x indent
-                                          , children = Item.fromItems items
-                                          }
-                                            :: tailItems
-                                            |> List.filter (\item -> item.itemType /= Comments)
-                                        )
-                                )
-                    )
-
-        Ok _ ->
-            Ok ( [ indent ], [] )
-
-        Err err ->
-            Err err
+        ( [], _ ) ->
+            ( [ indent ], Item.empty )
 
 
-load : Diagram -> String -> Result String ( Int, List Item )
+load : Diagram -> String -> ( Hierarchy, Items )
 load diagramType text =
     if String.isEmpty text then
-        Ok ( 0, [] )
+        ( 0, Item.empty )
 
     else
         let
-            result =
+            ( indentList, loadedItems ) =
                 loadText diagramType 0 0 text
         in
-        case result of
-            Ok ( i, loadedItems ) ->
-                Ok
-                    ( i
-                        |> List.maximum
-                        |> Maybe.map (\x -> x - 1)
-                        |> Maybe.withDefault 0
-                    , loadedItems
-                    )
-
-            Err e ->
-                Err e
+        ( indentList
+            |> List.maximum
+            |> Maybe.map (\x -> x - 1)
+            |> Maybe.withDefault 0
+        , loadedItems
+        )
 
 
-countUpToHierarchy : Int -> List Item -> List Int
+countUpToHierarchy : Int -> Items -> List Int
 countUpToHierarchy hierarchy items =
     let
-        countUp : List Item -> List (List Int)
+        countUp : Items -> List (List Int)
         countUp countItems =
-            -- Do not count activity, task and comment items.
             [ countItems
-                |> List.filter (\x -> x.itemType /= Tasks && x.itemType /= Activities)
-                |> List.length
+                |> Item.filter (\x -> x.itemType /= Tasks && x.itemType /= Activities)
+                |> Item.length
             ]
                 :: (countItems
-                        |> List.map
+                        |> Item.map
                             (\it ->
                                 let
                                     results =
                                         countUp (Item.unwrapChildren it.children)
-                                            |> transpose
+                                            |> Utils.transpose
                                 in
                                 if List.length results > hierarchy then
                                     List.map
@@ -202,33 +174,12 @@ countUpToHierarchy hierarchy items =
     1
         :: 1
         :: (countUp items
-                |> transpose
+                |> Utils.transpose
                 |> List.map
                     (\it ->
                         List.maximum it |> Maybe.withDefault 0
                     )
            )
-
-
-transpose ll =
-    case ll of
-        [] ->
-            []
-
-        [] :: xss ->
-            transpose xss
-
-        (x :: xs) :: xss ->
-            let
-                heads =
-                    List.filterMap List.head xss
-                        |> unique
-
-                tails =
-                    List.filterMap List.tail xss
-                        |> unique
-            in
-            (x :: heads) :: transpose (xs :: tails)
 
 
 zoomControl : Bool -> Float -> Html Msg
@@ -363,22 +314,38 @@ diagramView diagramType =
         ImpactMap ->
             ImpactMap.view
 
+        ErDiagram ->
+            ER.view
+
+
+scaleAdjustment : Diagram -> Float
+scaleAdjustment type_ =
+    case type_ of
+        ErDiagram ->
+            0.4
+
+        _ ->
+            0.2
+
 
 svgView : Model -> Svg Msg
 svgView model =
     let
+        adjustmentValue =
+            scaleAdjustment model.diagramType
+
         svgWidth =
             if model.fullscreen then
                 Basics.toFloat
                     (Basics.max model.svg.width model.width)
-                    * (model.svg.scale + 0.2)
+                    * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
 
             else
                 Basics.toFloat
                     model.width
-                    * (model.svg.scale + 0.2)
+                    * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
 
@@ -386,14 +353,14 @@ svgView model =
             if model.fullscreen then
                 Basics.toFloat
                     (Basics.max model.svg.height model.height)
-                    * (model.svg.scale + 0.2)
+                    * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
 
             else
                 Basics.toFloat
                     model.height
-                    * (model.svg.scale + 0.2)
+                    * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
 
@@ -574,72 +541,66 @@ touchCoordinates touchEvent =
 -- Update
 
 
-updateDiagram : Int -> Int -> Model -> String -> Result String Model
-updateDiagram width height base text =
-    load base.diagramType text
-        |> Result.andThen
-            (\( hierarchy, items ) ->
-                let
-                    labels =
-                        Parser.parseComment text
-                            |> List.filter
-                                (\( k, _ ) ->
-                                    k == "labels"
-                                )
-                            |> List.map Tuple.second
-                            |> List.head
-                            |> Maybe.andThen
-                                (\v ->
-                                    Just (String.split "," v)
-                                )
-                            |> Maybe.withDefault []
+updateDiagram : Size -> Model -> String -> Model
+updateDiagram ( width, height ) base text =
+    let
+        ( hierarchy, items ) =
+            load base.diagramType text
 
-                    countByHierarchy =
-                        case base.diagramType of
-                            UserStoryMap ->
-                                countUpToHierarchy (hierarchy - 2) items
+        labels =
+            Parser.parseComment text
+                |> List.filter
+                    (\( k, _ ) ->
+                        k == "labels"
+                    )
+                |> List.map Tuple.second
+                |> List.head
+                |> Maybe.andThen
+                    (\v ->
+                        Just (String.split "," v)
+                    )
+                |> Maybe.withDefault []
 
-                            MindMap ->
-                                countUpToHierarchy (hierarchy - 2) items
+        countByHierarchy =
+            case base.diagramType of
+                UserStoryMap ->
+                    countUpToHierarchy (hierarchy - 2) items
 
-                            _ ->
-                                []
+                MindMap ->
+                    countUpToHierarchy (hierarchy - 2) items
 
-                    countByTasks =
-                        scanl (\it v -> v + List.length (Item.unwrapChildren it.children)) 0 items
+                _ ->
+                    []
 
-                    newModel =
-                        { base
-                            | items = items
-                            , hierarchy = hierarchy
-                            , countByTasks = countByTasks
-                            , countByHierarchy = countByHierarchy
-                        }
+        newModel =
+            { base
+                | items = items
+                , hierarchy = hierarchy
+                , countByTasks = scanl (\it v -> v + Item.length (Item.unwrapChildren it.children)) 0 (Item.unwrap items)
+                , countByHierarchy = countByHierarchy
+            }
 
-                    ( svgWidth, svgHeight ) =
-                        Utils.getCanvasSize newModel
-                in
-                Ok
-                    { newModel
-                        | width = width
-                        , height = height
-                        , svg =
-                            { width = svgWidth
-                            , height = svgHeight
-                            , scale = base.svg.scale
-                            }
-                        , moveX = 0
-                        , moveY = 0
-                        , error = Nothing
-                        , labels = labels
-                        , text =
-                            if String.isEmpty text then
-                                Nothing
+        ( svgWidth, svgHeight ) =
+            Utils.getCanvasSize newModel
+    in
+    { newModel
+        | width = width
+        , height = height
+        , svg =
+            { width = svgWidth
+            , height = svgHeight
+            , scale = base.svg.scale
+            }
+        , moveX = 0
+        , moveY = 0
+        , labels = labels
+        , text =
+            if String.isEmpty text then
+                Nothing
 
-                            else
-                                Just text
-                    }
-            )
+            else
+                Just text
+    }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -656,15 +617,10 @@ update message model =
                 height =
                     round window.viewport.height - 50
 
-                result =
-                    updateDiagram width height model text
+                model_ =
+                    updateDiagram ( width, height ) model text
             in
-            case result of
-                Ok usm ->
-                    ( { usm | settings = settings, error = Nothing }, Cmd.none )
-
-                Err err ->
-                    ( { model | error = Just err }, Cmd.none )
+            ( { model_ | settings = settings }, Cmd.none )
 
         ZoomIn ->
             ( if model.svg.scale >= 0.1 then
@@ -704,17 +660,10 @@ update message model =
 
         OnChangeText text ->
             let
-                result =
-                    updateDiagram model.width model.height model text
+                model_ =
+                    updateDiagram ( model.width, model.height ) model text
             in
-            ( case result of
-                Ok usm ->
-                    { usm | error = Nothing }
-
-                Err err ->
-                    { model | error = Just err }
-            , Cmd.none
-            )
+            ( model_, Cmd.none )
 
         Start x y ->
             ( { model

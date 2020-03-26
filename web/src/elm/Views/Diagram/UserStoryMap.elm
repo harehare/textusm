@@ -7,7 +7,7 @@ import Html.Attributes as Attr
 import List
 import List.Extra exposing (getAt, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
-import Models.Item as Item exposing (Item, ItemType(..))
+import Models.Item as Item exposing (Item, ItemType(..), Items)
 import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
 import Svg.Attributes exposing (class, color, fill, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
@@ -55,13 +55,13 @@ view model =
         ]
 
 
-mainView : Settings -> Maybe Item -> List Item -> List Int -> List Int -> Svg Msg
+mainView : Settings -> Maybe Item -> Items -> List Int -> List Int -> Svg Msg
 mainView settings selectedItem items countByTasks countByHierarchy =
     Keyed.node "g"
         []
         (zip
             countByTasks
-            items
+            (Item.unwrap items)
             |> List.indexedMap
                 (\i ( count, item ) ->
                     ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByHierarchy) ( Constants.leftMargin + count * (settings.size.width + Constants.itemMargin), 10 ) selectedItem item )
@@ -154,7 +154,7 @@ activityView settings verticalCount ( posX, posY ) selectedItem item =
          , Views.cardView settings ( posX, posY ) selectedItem item
          )
             :: (Item.unwrapChildren item.children
-                    |> List.indexedMap
+                    |> Item.indexedMap
                         (\i it ->
                             ( "task-" ++ it.text
                             , taskView
@@ -190,12 +190,12 @@ taskView settings verticalCount ( posX, posY ) selectedItem item =
          , Views.cardView settings ( posX, posY ) selectedItem item
          )
             :: (children
-                    |> List.indexedMap
+                    |> Item.indexedMap
                         (\i it ->
                             ( "story-" ++ it.text
                             , storyView settings
                                 verticalCount
-                                (List.length children)
+                                (Item.length children)
                                 ( posX
                                 , posY
                                     + ((i + 1) * settings.size.height)
@@ -225,7 +225,7 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
             Item.unwrapChildren item.children
 
         childrenLength =
-            List.length children
+            Item.length children
 
         tail =
             List.tail verticalCount |> Maybe.withDefault []
@@ -236,7 +236,7 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
          , Views.cardView settings ( posX, posY ) selectedItem item
          )
             :: (children
-                    |> List.indexedMap
+                    |> Item.indexedMap
                         (\i it ->
                             ( "story-" ++ item.text
                             , storyView

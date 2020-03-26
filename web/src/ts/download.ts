@@ -1,13 +1,12 @@
 import * as jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { loadSettings } from "./settings";
 import { DownloadInfo } from "./model";
+import { ElmApp } from "./elm";
 
 // @ts-ignore
 window.html2canvas = html2canvas;
 
-// @ts-ignore
-export const initDowonlad = app => {
+export const initDowonlad = (app: ElmApp) => {
     const createSvg = (id: string, width: number, height: number) => {
         const svg = document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -70,7 +69,7 @@ export const initDowonlad = app => {
                 extension: ".svg",
                 mimeType: "image/svg+xml"
             });
-            app.ports.downloadCompleted.send([x, y]);
+            app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
         }
     );
 
@@ -114,7 +113,10 @@ export const initDowonlad = app => {
 
                         printPage(0);
                         doc.save(title);
-                        app.ports.downloadCompleted.send([x, y]);
+                        app.ports.downloadCompleted.send([
+                            Math.floor(x),
+                            Math.floor(y)
+                        ]);
                     }
                 });
             } else {
@@ -139,7 +141,10 @@ export const initDowonlad = app => {
                             height * (pageWidth / width)
                         );
                         doc.save(title);
-                        app.ports.downloadCompleted.send([x, y]);
+                        app.ports.downloadCompleted.send([
+                            Math.floor(x),
+                            Math.floor(y)
+                        ]);
                     }
                 });
             }
@@ -164,7 +169,10 @@ export const initDowonlad = app => {
                         window.URL.revokeObjectURL(url);
                         a.remove();
                     }, 10);
-                    app.ports.downloadCompleted.send([x, y]);
+                    app.ports.downloadCompleted.send([
+                        Math.floor(x),
+                        Math.floor(y)
+                    ]);
                 }
             });
         }

@@ -219,127 +219,151 @@ changeTextTest =
                     |> Tuple.first
                     |> .items
                     |> Expect.equal
-                        [ { text = "test1"
-                          , itemType = Activities
-                          , lineNo = 0
-                          , children = Item.emptyChildren
-                          }
-                        ]
+                        (Item.fromList
+                            [ { text = "test1"
+                              , itemType = Activities
+                              , lineNo = 0
+                              , children = Item.emptyChildren
+                              }
+                            ]
+                        )
         , test "load activity items" <|
             \() ->
                 update (OnChangeText "test1\ntest2") defInit
                     |> Tuple.first
                     |> .items
                     |> Expect.equal
-                        [ { text = "test1"
-                          , itemType = Activities
-                          , lineNo = 0
-                          , children = Item.emptyChildren
-                          }
-                        , { text = "test2"
-                          , itemType = Activities
-                          , lineNo = 1
-                          , children = Item.emptyChildren
-                          }
-                        ]
+                        (Item.fromList
+                            [ { text = "test1"
+                              , itemType = Activities
+                              , lineNo = 0
+                              , children = Item.emptyChildren
+                              }
+                            , { text = "test2"
+                              , itemType = Activities
+                              , lineNo = 1
+                              , children = Item.emptyChildren
+                              }
+                            ]
+                        )
         , test "load task item" <|
             \() ->
                 update (OnChangeText "test1\n    test2") defInit
                     |> Tuple.first
                     |> .items
                     |> Expect.equal
-                        [ { text = "test1"
-                          , itemType = Activities
-                          , lineNo = 0
-                          , children =
-                                Item.fromItems
-                                    [ { text = "    test2"
-                                      , itemType = Tasks
-                                      , children = Item.emptyChildren
-                                      , lineNo = 1
-                                      }
-                                    ]
-                          }
-                        ]
+                        (Item.fromList
+                            [ { text = "test1"
+                              , itemType = Activities
+                              , lineNo = 0
+                              , children =
+                                    Item.childrenFromItems
+                                        (Item.fromList
+                                            [ { text = "    test2"
+                                              , itemType = Tasks
+                                              , children = Item.emptyChildren
+                                              , lineNo = 1
+                                              }
+                                            ]
+                                        )
+                              }
+                            ]
+                        )
         , test "load task items" <|
             \() ->
                 update (OnChangeText "test1\n    test2\n    test3") defInit
                     |> Tuple.first
                     |> .items
                     |> Expect.equal
-                        [ { text = "test1"
-                          , itemType = Activities
-                          , lineNo = 0
-                          , children =
-                                Item.fromItems
-                                    [ { text = "    test2"
-                                      , itemType = Tasks
-                                      , lineNo = 1
-                                      , children = Item.emptyChildren
-                                      }
-                                    , { text = "    test3"
-                                      , itemType = Tasks
-                                      , lineNo = 2
-                                      , children = Item.emptyChildren
-                                      }
-                                    ]
-                          }
-                        ]
+                        (Item.fromList
+                            [ { text = "test1"
+                              , itemType = Activities
+                              , lineNo = 0
+                              , children =
+                                    Item.childrenFromItems
+                                        (Item.fromList
+                                            [ { text = "    test2"
+                                              , itemType = Tasks
+                                              , lineNo = 1
+                                              , children = Item.emptyChildren
+                                              }
+                                            , { text = "    test3"
+                                              , itemType = Tasks
+                                              , lineNo = 2
+                                              , children = Item.emptyChildren
+                                              }
+                                            ]
+                                        )
+                              }
+                            ]
+                        )
         , test "load story item" <|
             \() ->
                 update (OnChangeText "test1\n    test2\n        test3") defInit
                     |> Tuple.first
                     |> .items
                     |> Expect.equal
-                        [ { text = "test1"
-                          , itemType = Activities
-                          , lineNo = 0
-                          , children =
-                                Item.fromItems
-                                    [ { text = "    test2"
-                                      , itemType = Tasks
-                                      , lineNo = 1
-                                      , children =
-                                            Item.fromItems
-                                                [ { text = "        test3"
-                                                  , itemType = Stories 1
-                                                  , children = Item.emptyChildren
-                                                  , lineNo = 2
-                                                  }
-                                                ]
-                                      }
-                                    ]
-                          }
-                        ]
+                        (Item.fromList
+                            [ { text = "test1"
+                              , itemType = Activities
+                              , lineNo = 0
+                              , children =
+                                    Item.childrenFromItems
+                                        (Item.fromList
+                                            [ { text = "    test2"
+                                              , itemType = Tasks
+                                              , lineNo = 1
+                                              , children =
+                                                    Item.childrenFromItems
+                                                        (Item.fromList
+                                                            [ { text = "        test3"
+                                                              , itemType = Stories 1
+                                                              , children = Item.emptyChildren
+                                                              , lineNo = 2
+                                                              }
+                                                            ]
+                                                        )
+                                              }
+                                            ]
+                                        )
+                              }
+                            ]
+                        )
         , test "load story items" <|
             \() ->
                 update (OnChangeText "test1\n    test2\n        test3\n        test4") defInit
                     |> Tuple.first
                     |> .items
                     |> Expect.equal
-                        [ { text = "test1"
-                          , itemType = Activities
-                          , lineNo = 0
-                          , children =
-                                Item.fromItems
-                                    [ { text = "    test2"
-                                      , itemType = Tasks
-                                      , lineNo = 1
-                                      , children =
-                                            Item.fromItems
-                                                [ { text = "        test3"
-                                                  , itemType = Stories 1
-                                                  , lineNo = 2
-                                                  , children = Item.emptyChildren
-                                                  }
-                                                , { text = "        test4"
-                                                  , itemType = Stories 1
-                                                  , lineNo = 3
-                                                  , children = Item.emptyChildren
-                                                  }
-                                                ]
-                                      }
-                                    ]
-                          }
-                        ]
+                        (Item.fromList
+                            [ { text = "test1"
+                              , itemType = Activities
+                              , lineNo = 0
+                              , children =
+                                    Item.childrenFromItems
+                                        (Item.fromList
+                                            [ { text = "    test2"
+                                              , itemType = Tasks
+                                              , lineNo = 1
+                                              , children =
+                                                    Item.childrenFromItems
+                                                        (Item.fromList
+                                                            [ { text = "        test3"
+                                                              , itemType = Stories 1
+                                                              , lineNo = 2
+                                                              , children = Item.emptyChildren
+                                                              }
+                                                            , { text = "        test4"
+                                                              , itemType = Stories 1
+                                                              , lineNo = 3
+                                                              , children = Item.emptyChildren
+                                                              }
+                                                            ]
+                                                        )
+                                              }
+                                            ]
+                                        )
+                              }
+                            ]
+                        )
         ]

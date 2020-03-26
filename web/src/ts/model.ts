@@ -1,4 +1,4 @@
-export interface DiagramItem {
+export type DiagramItem = {
     title: string;
     text: string;
     thumbnail: string;
@@ -7,9 +7,9 @@ export interface DiagramItem {
     isPublic: boolean;
     createdAt: number;
     updatedAt: number;
-}
+};
 
-export interface Diagram {
+export type Diagram = {
     id: string;
     title: string;
     text: string;
@@ -17,9 +17,9 @@ export interface Diagram {
     isPublic: boolean;
     isRemote: boolean;
     isBookmark: boolean;
-}
+};
 
-export interface DownloadInfo {
+export type DownloadInfo = {
     width: number;
     height: number;
     id: string;
@@ -28,39 +28,39 @@ export interface DownloadInfo {
     x: number;
     y: number;
     diagramType: string;
-}
+};
 
-export interface Settings {
+export type Settings = {
     font: string;
     position: number;
     text: string;
     title: string | null;
     diagramId: string | null;
     storyMap: DiagramSettings;
-}
+};
 
-export interface DiagramSettings {
+export type DiagramSettings = {
     font: string;
     size: Size;
     color: ColorSettings;
     backgroundColor: string;
-}
+};
 
-export interface Size {
+export type Size = {
     width: number;
     height: number;
-}
+};
 
-export interface ColorSettings {
+export type ColorSettings = {
     activity: Color;
     task: Color;
     story: Color;
     line: string;
     label: string;
     text: string;
-}
+};
 
-export interface Color {
+export type Color = {
     color: string;
     backgroundColor: string;
-}
+};

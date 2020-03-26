@@ -1,6 +1,7 @@
 import Dexie from "dexie";
 import * as uuid from "uuid/v4";
 import { Diagram, DiagramItem } from "./model";
+import { ElmApp } from "./elm";
 
 const db = new Dexie("textusm");
 const svg2base64 = (id: string) => {
@@ -38,8 +39,7 @@ db.version(2)
         });
     });
 
-// @ts-ignore
-export const initDB = app => {
+export const initDB = (app: ElmApp) => {
     app.ports.saveDiagram.subscribe(
         async ({
             id,

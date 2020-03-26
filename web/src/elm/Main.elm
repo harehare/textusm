@@ -23,6 +23,8 @@ import Maybe.Extra exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
 import Models.DiagramType as DiagramType
+import Models.ER as ER
+import Models.Item as Item
 import Models.Model exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), ShareUrl(..))
 import Models.Settings exposing (Settings, defaultEditorSettings)
 import Route exposing (Route(..), toRoute)
@@ -394,6 +396,9 @@ changeRouteTo route model =
         Route.GanttChart ->
             changeDiagramType Diagram.GanttChart
 
+        Route.ErDiagram ->
+            changeDiagramType Diagram.ErDiagram
+
         Route.Home ->
             ( model, getCmds [] )
 
@@ -513,12 +518,7 @@ update message model =
                         ( model_, _ ) =
                             Diagram.update subMsg model.diagramModel
                     in
-                    case model_.error of
-                        Just err ->
-                            ( { model | text = text, diagramModel = model_ }, Subscriptions.errorLine err )
-
-                        Nothing ->
-                            ( { model | text = text, diagramModel = model_ }, Subscriptions.errorLine "" )
+                    ( { model | text = text, diagramModel = model_ }, Cmd.none )
 
                 _ ->
                     let
@@ -612,29 +612,15 @@ update message model =
 
         Init window ->
             let
-                ( model_, cmd_ ) =
+                ( model_, _ ) =
                     Diagram.update (DiagramModel.Init model.diagramModel.settings window model.text) model.diagramModel
             in
-            case model_.error of
-                Just err ->
-                    ( { model
-                        | diagramModel = model_
-                        , progress = False
-                      }
-                    , Cmd.batch
-                        [ Subscriptions.errorLine err
-                        , Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor )
-                        , cmd_ |> Cmd.map UpdateDiagram
-                        ]
-                    )
-
-                Nothing ->
-                    ( { model
-                        | diagramModel = model_
-                        , progress = False
-                      }
-                    , Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor )
-                    )
+            ( { model
+                | diagramModel = model_
+                , progress = False
+              }
+            , Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor )
+            )
 
         DownloadCompleted ( x, y ) ->
             let
@@ -647,42 +633,60 @@ update message model =
             ( { model | diagramModel = newDiagramModel }, Cmd.none )
 
         Download fileType ->
-            let
-                ( width, height ) =
-                    Utils.getCanvasSize model.diagramModel
+            if fileType == DDL then
+                let
+                    ( _, tables ) =
+                        ER.itemsToErDiagram model.diagramModel.items
 
-                diagramModel =
-                    model.diagramModel
+                    ddl =
+                        List.map ER.tableToString tables
+                            |> String.join "\n"
+                in
+                ( model, Download.string (Utils.getTitle model.title ++ ".sql") "text/plain" ddl )
 
-                newDiagramModel =
-                    { diagramModel | x = 0, y = 0, matchParent = True }
+            else if fileType == MarkdownTable then
+                ( model, Download.string (Utils.getTitle model.title ++ ".md") "text/plain" (Item.toMarkdownTable model.diagramModel.items) )
 
-                ( sub, extension ) =
-                    case fileType of
-                        Png ->
-                            ( Subscriptions.downloadPng, ".png" )
+            else
+                let
+                    ( width, height ) =
+                        Utils.getCanvasSize model.diagramModel
 
-                        Pdf ->
-                            ( Subscriptions.downloadPdf, ".pdf" )
+                    diagramModel =
+                        model.diagramModel
 
-                        Svg ->
-                            ( Subscriptions.downloadSvg, ".svg" )
+                    newDiagramModel =
+                        { diagramModel | x = 0, y = 0, matchParent = True }
 
-                        HTML ->
-                            ( Subscriptions.downloadHtml, ".html" )
-            in
-            ( { model | diagramModel = newDiagramModel }
-            , sub
-                { width = width
-                , height = height
-                , id = "usm"
-                , title = Utils.getTitle model.title ++ extension
-                , x = model.diagramModel.x
-                , y = model.diagramModel.y
-                , text = model.text
-                , diagramType = DiagramType.toString model.diagramModel.diagramType
-                }
-            )
+                    ( sub, extension ) =
+                        case fileType of
+                            Png ->
+                                ( Subscriptions.downloadPng, ".png" )
+
+                            Pdf ->
+                                ( Subscriptions.downloadPdf, ".pdf" )
+
+                            Svg ->
+                                ( Subscriptions.downloadSvg, ".svg" )
+
+                            HTML ->
+                                ( Subscriptions.downloadHtml, ".html" )
+
+                            _ ->
+                                ( Subscriptions.downloadSvg, ".svg" )
+                in
+                ( { model | diagramModel = newDiagramModel }
+                , sub
+                    { width = width
+                    , height = height
+                    , id = "usm"
+                    , title = Utils.getTitle model.title ++ extension
+                    , x = 0
+                    , y = 0
+                    , text = model.text
+                    , diagramType = DiagramType.toString model.diagramModel.diagramType
+                    }
+                )
 
         StartDownload info ->
             ( model, Cmd.batch [ Download.string (Utils.getTitle model.title ++ info.extension) info.mimeType info.content, Task.perform identity (Task.succeed CloseMenu) ] )
@@ -771,7 +775,7 @@ update message model =
                         |> Result.andThen
                             (\diagram ->
                                 Ok
-                                    (Request.save (DiagramItem.toInputItem diagram) model.apiRoot (Utils.getIdToken model.loginUser)
+                                    (Request.save { url = model.apiRoot, idToken = Utils.getIdToken model.loginUser } (DiagramItem.toInputItem diagram)
                                         |> Task.map (\_ -> diagram)
                                     )
                             )
@@ -1117,12 +1121,15 @@ update message model =
                         Diagram.GanttChart ->
                             ( "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n", Route.GanttChart )
 
+                        Diagram.ErDiagram ->
+                            ( "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n", Route.ErDiagram )
+
                 displayText =
-                    if String.isEmpty text_ then
-                        model.text
+                    if String.isEmpty model.text then
+                        text_
 
                     else
-                        text_
+                        model.text
             in
             ( { model
                 | id = Nothing

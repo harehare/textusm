@@ -13,6 +13,7 @@ t
 `;
   expect(
     toString({
+      name: "Kpt",
       keep: {
         title: "k",
         text: ["k", "text"]
@@ -42,6 +43,7 @@ continue
 `;
   expect(
     toString({
+      name: "StartStopContinue",
       start: {
         title: "start",
         text: ["start", "text"]
@@ -74,6 +76,7 @@ longedFor
 `;
   expect(
     toString({
+      name: "4Ls",
       liked: {
         title: "liked",
         text: ["liked", "text"]
@@ -128,6 +131,7 @@ budget
 `;
   expect(
     toString({
+      name: "OpportunityCanvas",
       problems: {
         title: "problems",
         text: ["problems", "text"]
@@ -203,6 +207,7 @@ customerRelationships
 `;
   expect(
     toString({
+      name: "BusinessModelCanvas",
       keyPartners: {
         title: "keyPartners",
         text: ["keyPartners", "text"]
@@ -274,6 +279,7 @@ item7
 
   expect(
     toString({
+      name: "UserPersona",
       url: {
         title: "title",
         url: "url"
@@ -332,6 +338,7 @@ feels
 
   expect(
     toString({
+      name: "EmpathyMap",
       imageUrl: "imageUrl",
       says: {
         title: "says",
@@ -361,6 +368,7 @@ test("User Story Map to string.", () => {
 
   expect(
     toString({
+      name: "UserStoryMap",
       activities: [
         {
           name: "activity",
@@ -385,7 +393,7 @@ test("User Story Map to string.", () => {
   ).toBe(text);
 });
 
-test("Site Map, Mind Map to string.", () => {
+test("Mind Map to string.", () => {
   const text = `test1
     test2
         test22
@@ -396,6 +404,7 @@ test("Site Map, Mind Map to string.", () => {
 
   expect(
     toString({
+      name: "MindMap",
       node: {
         text: "test1",
         children: [
@@ -454,6 +463,7 @@ Post-Sales
 
   expect(
     toString({
+      name: "CustomerJourneyMap",
       header: {
         title: "Header",
         text: [
@@ -529,6 +539,7 @@ Post-Sales
 test("KPT type to string.", () => {
   expect(
     toTypeString({
+      name: "Kpt",
       keep: {
         title: "k",
         text: ["k", "text"]
@@ -548,6 +559,7 @@ test("KPT type to string.", () => {
 test("Start stop continue type to string.", () => {
   expect(
     toTypeString({
+      name: "StartStopContinue",
       start: {
         title: "start",
         text: ["start", "text"]
@@ -567,6 +579,7 @@ test("Start stop continue type to string.", () => {
 test("4LS type to string.", () => {
   expect(
     toTypeString({
+      name: "4Ls",
       liked: {
         title: "liked",
         text: ["liked", "text"]
@@ -590,6 +603,7 @@ test("4LS type to string.", () => {
 test("Opportunity Canvas type to string.", () => {
   expect(
     toTypeString({
+      name: "OpportunityCanvas",
       problems: {
         title: "problems",
         text: ["problems", "text"]
@@ -637,6 +651,7 @@ test("Opportunity Canvas type to string.", () => {
 test("Business Model Canvas type to string.", () => {
   expect(
     toTypeString({
+      name: "BusinessModelCanvas",
       keyPartners: {
         title: "keyPartners",
         text: ["keyPartners", "text"]
@@ -680,6 +695,7 @@ test("Business Model Canvas type to string.", () => {
 test("User Persona type to string.", () => {
   expect(
     toTypeString({
+      name: "UserPersona",
       url: {
         title: "title",
         url: "url"
@@ -723,6 +739,7 @@ test("User Persona type to string.", () => {
 test("Empathy Map type to string.", () => {
   expect(
     toTypeString({
+      name: "EmpathyMap",
       imageUrl: "imageUrl",
       says: {
         title: "says",
@@ -747,6 +764,7 @@ test("Empathy Map type to string.", () => {
 test("User Story Map type to string.", () => {
   expect(
     toTypeString({
+      name: "UserStoryMap",
       activities: [
         {
           name: "activity",
@@ -774,6 +792,7 @@ test("User Story Map type to string.", () => {
 test("Mind Map type to string.", () => {
   expect(
     toTypeString({
+      name: "MindMap",
       node: {
         text: "test1",
         children: [
@@ -789,6 +808,7 @@ test("Mind Map type to string.", () => {
 test("Customer Journey Map type to string.", () => {
   expect(
     toTypeString({
+      name: "CustomerJourneyMap",
       header: {
         title: "header",
         text: [
@@ -864,6 +884,7 @@ test("Customer Journey Map type to string.", () => {
 test("Gantt Chart type to string.", () => {
   expect(
     toString({
+      name: "GanttChart",
       from: "2019-12-26",
       to: "2020-01-31",
       chartitems: [
@@ -875,5 +896,41 @@ test("Gantt Chart type to string.", () => {
     })
   ).toBe(
     `2019-12-26,2020-01-31\n    subtitle1\n        task1\n            2019-12-26,2019-12-31`
+  );
+});
+
+test("ER Diagram type to string.", () => {
+  expect(
+    toString({
+      name: "ER",
+      relations: [
+        {
+          table1: "table1",
+          table2: "table2",
+          relation: "="
+        },
+        {
+          table1: "table1",
+          table2: "table2",
+          relation: "-"
+        }
+      ],
+      tables: [
+        {
+          name: "table1",
+          columns: [
+            {
+              name: "column1",
+              type: {
+                name: "int"
+              },
+              attribute: { name: "pk" }
+            }
+          ]
+        }
+      ]
+    })
+  ).toBe(
+    `relations\n    table1 = table2\n    table1 - table2\ntables\n    table1\n        column1 int pk`
   );
 });
