@@ -1,8 +1,8 @@
 module github.com/harehare/textusm
 
 require (
-	cloud.google.com/go/firestore v1.1.1
 	cloud.google.com/go v0.55.0
+	cloud.google.com/go/firestore v1.2.0
 	firebase.google.com/go v3.12.0+incompatible
 	github.com/99designs/gqlgen v0.11.3
 	github.com/agnivade/levenshtein v1.0.3 // indirect
@@ -35,10 +35,10 @@ require (
 	github.com/vektah/gqlparser v1.3.1
 	github.com/vektah/gqlparser/v2 v2.0.1
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	google.golang.org/api v0.20.0
-	google.golang.org/grpc v1.27.1
 	golang.org/x/sys v0.0.0-20190621203818-d432491b9138 // indirect
 	golang.org/x/tools v0.0.0-20200117065230-39095c1d176c // indirect
+	google.golang.org/api v0.20.0
+	google.golang.org/grpc v1.27.1
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
