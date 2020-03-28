@@ -1,11 +1,10 @@
-module TestDiagram exposing (changeTextTest, moveStartTest, moveStopTest, moveTest, moveToTest, zoomInTest, zoomOutTest)
+module TestDiagram exposing (changeTextTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, toggleFullscreenText, zoomInTest, zoomOutTest)
 
-import Components.Diagram exposing (..)
-import Expect exposing (Expectation)
-import Fuzz exposing (Fuzzer, int, list, string)
-import Models.Diagram exposing (..)
-import Models.Item as Item exposing (..)
-import Test exposing (..)
+import Components.Diagram exposing (init, update)
+import Expect
+import Models.Diagram exposing (Model, Msg(..), Settings)
+import Models.Item as Item exposing (ItemType(..))
+import Test exposing (Test, describe, test)
 
 
 defaultSettings : Settings
@@ -43,6 +42,7 @@ defInit =
         |> Tuple.first
 
 
+noOpTest : Test
 noOpTest =
     describe "no op test"
         [ test "no op" <|
@@ -53,6 +53,7 @@ noOpTest =
         ]
 
 
+zoomInTest : Test
 zoomInTest =
     describe "zoom in test"
         [ test "Zoom in" <|
@@ -84,6 +85,7 @@ zoomInTest =
         ]
 
 
+zoomOutTest : Test
 zoomOutTest =
     describe "zoom out test"
         [ test "Zoom out" <|
@@ -115,6 +117,7 @@ zoomOutTest =
         ]
 
 
+moveStartTest : Test
 moveStartTest =
     describe "move start test"
         [ test "Move start" <|
@@ -128,6 +131,7 @@ moveStartTest =
         ]
 
 
+moveStopTest : Test
 moveStopTest =
     describe "move stop test"
         [ test "move stop " <|
@@ -141,6 +145,7 @@ moveStopTest =
         ]
 
 
+moveTest : Test
 moveTest =
     describe "move test"
         [ test "Did not move" <|
@@ -174,6 +179,7 @@ moveTest =
         ]
 
 
+moveToTest : Test
 moveToTest =
     describe "move to test"
         [ test "Move to specified position" <|
@@ -187,6 +193,7 @@ moveToTest =
         ]
 
 
+toggleFullscreenText : Test
 toggleFullscreenText =
     describe "Toggle fullscreen"
         [ test "Fullscreen" <|

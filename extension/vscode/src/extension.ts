@@ -2,26 +2,28 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
 
+const diagrams = [
+  { label: "User Story Map", value: "usm" },
+  { label: "Customer Journey Map", value: "cjm" },
+  { label: "Empathy Map", value: "emm" },
+  { label: "Impact Map", value: "imm" },
+  { label: "Mind Map", value: "mmp" },
+  { label: "Site Map", value: "smp" },
+  { label: "Business Model Canvas", value: "bmc" },
+  { label: "Opportunity Canvas", value: "opc" },
+  { label: "User Persona", value: "persona" },
+  { label: "Gantt Chart", value: "gct" },
+  { label: "ER Diagram", value: "erd" },
+  { label: "KPT Retrospective", value: "kpt" },
+  { label: "Start, Stop, Continue Retrospective", value: "ssc" },
+  { label: "4Ls Retrospective", value: "4ls" }
+];
+
 const showQuickPick = (
   context: vscode.ExtensionContext,
   callback: () => void
 ) => {
-  const options = [
-    { label: "User Story Map", value: "usm" },
-    { label: "Business Model Canvas", value: "bmc" },
-    { label: "Opportunity Canvas", value: "opc" },
-    { label: "User Persona", value: "persona" },
-    { label: "4Ls Retrospective", value: "4ls" },
-    { label: "Start, Stop, Continue Retrospective", value: "ssc" },
-    { label: "KPT Retrospective", value: "kpt" },
-    { label: "Mind Map", value: "mmp" },
-    { label: "Empathy Map", value: "emm" },
-    { label: "Customer Journey Map", value: "cjm" },
-    { label: "Site Map", value: "smp" },
-    { label: "Gantt Chart", value: "gct" },
-    { label: "Impact Map", value: "imm" },
-    { label: "ER Diagram", value: "erd" }
-  ];
+  const options = diagrams;
   const quickPick = vscode.window.createQuickPick();
   quickPick.items = options.map(item => ({ label: item.label }));
   // @ts-ignore
@@ -90,22 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.newDiagram", () => {
-      const options = [
-        { label: "User Story Map", value: "usm" },
-        { label: "Business Model Canvas", value: "bmc" },
-        { label: "Opportunity Canvas", value: "opc" },
-        { label: "User Persona", value: "persona" },
-        { label: "4Ls Retrospective", value: "4ls" },
-        { label: "Start, Stop, Continue Retrospective", value: "ssc" },
-        { label: "KPT Retrospective", value: "kpt" },
-        { label: "Mind Map", value: "mmp" },
-        { label: "Empathy Map", value: "emm" },
-        { label: "Customer Journey Map", value: "cjm" },
-        { label: "Site Map", value: "smp" },
-        { label: "Gantt Chart", value: "gct" },
-        { label: "Impact Map", value: "imm" },
-        { label: "ER Diagram", value: "erd" }
-      ];
+      const options = diagrams;
       const quickPick = vscode.window.createQuickPick();
       quickPick.items = options.map(item => ({ label: item.label }));
       quickPick.onDidChangeSelection(selection => {

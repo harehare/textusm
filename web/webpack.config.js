@@ -147,11 +147,6 @@ if (MODE === "production") {
     module.exports = merge(common, {
         plugins: [
             new WorkboxWebpackPlugin.GenerateSW({
-                globDirectory: dist,
-                globPatterns: [
-                    "*.{html,js,css}",
-                    "images/**/*.{jpg,jpeg,png,gif,webp,svg}"
-                ],
                 swDest: dist + "/sw.js",
                 clientsClaim: true,
                 skipWaiting: true
