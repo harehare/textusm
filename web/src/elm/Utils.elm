@@ -9,6 +9,7 @@ import Models.ER as ER exposing (Table(..))
 import Models.IdToken exposing (IdToken)
 import Models.Item as Item
 import Models.Model exposing (Msg(..), Notification(..))
+import Models.Text as Text
 import Models.User as User exposing (User)
 import Process
 import Task
@@ -347,7 +348,7 @@ getCanvasSize model =
                     ( Constants.itemWidth * 5 + 25, Basics.max Constants.itemHeight (getCanvasHeight model) * 2 + 50 )
 
                 Diagram.Markdown ->
-                    ( 15 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Maybe.withDefault "" <| model.text), getMarkdownHeight <| String.lines <| Maybe.withDefault "" <| model.text )
+                    ( 15 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Text.toString model.text), getMarkdownHeight <| String.lines <| Text.toString model.text )
 
                 Diagram.ErDiagram ->
                     let

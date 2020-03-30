@@ -13,6 +13,7 @@ import List.Extra exposing (getAt, scanl)
 import Maybe.Extra exposing (isNothing)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (ItemType(..), Items)
+import Models.Text as Text
 import Parser
 import Result exposing (andThen)
 import String
@@ -71,7 +72,7 @@ init settings =
       , settings = settings
       , diagramType = UserStoryMap
       , labels = []
-      , text = Nothing
+      , text = Text.empty
       , matchParent = False
       , selectedItem = Nothing
       , dragDrop = DragDrop.init
@@ -594,12 +595,7 @@ updateDiagram ( width, height ) base text =
         , moveX = 0
         , moveY = 0
         , labels = labels
-        , text =
-            if String.isEmpty text then
-                Nothing
-
-            else
-                Just text
+        , text = Text.edit base.text text
     }
 
 

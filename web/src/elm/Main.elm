@@ -27,6 +27,7 @@ import Models.ER as ER
 import Models.Item as Item
 import Models.Model exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), ShareUrl(..))
 import Models.Settings exposing (Settings, defaultEditorSettings)
+import Models.Text as Text
 import Route exposing (Route(..), toRoute)
 import Settings exposing (settingsDecoder)
 import String
@@ -67,7 +68,7 @@ init flags url key =
                 { id = settings.diagramId
                 , diagramModel = diagramModel
                 , diagramListModel = diagramListModel
-                , text = settings.text |> Maybe.withDefault ""
+                , text = Text.edit Text.empty (Maybe.withDefault "" settings.text)
                 , openMenu = Nothing
                 , title = settings.title
                 , isEditTitle = False
@@ -345,7 +346,7 @@ changeRouteTo route model =
                             , moveX = model.window.moveX
                             , fullscreen = True
                             }
-                        , text = String.replace "\\n" "\n" (settings.text |> Maybe.withDefault "")
+                        , text = Text.edit model.text (String.replace "\\n" "\n" (Maybe.withDefault "" settings.text))
                         , title = settings.title
                       }
                     , getCmds []
@@ -425,13 +426,17 @@ update message model =
                         ( model_, cmd_ ) =
                             Diagram.update subMsg model.diagramModel
                     in
-                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor ) ] )
+                    ( { model | diagramModel = model_ }
+                    , Cmd.batch
+                        [ cmd_ |> Cmd.map UpdateDiagram
+                        , Subscriptions.loadEditor ( Text.toString model.text, defaultEditorSettings model.settings.editor )
+                        ]
+                    )
 
                 DiagramModel.MoveItem ( fromNo, toNo ) ->
                     let
                         lines =
-                            model.text
-                                |> String.lines
+                            Text.lines model.text
 
                         from =
                             getAt fromNo lines
@@ -453,7 +458,7 @@ update message model =
                                 |> setAt toNo (toPrefix ++ String.trimLeft from)
                                 |> String.join "\n"
                     in
-                    ( { model | text = text }
+                    ( { model | text = Text.edit model.text text }
                     , Cmd.batch
                         [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
                         , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
@@ -465,8 +470,7 @@ update message model =
                     if code == 13 && not isComposing then
                         let
                             lines =
-                                model.text
-                                    |> String.lines
+                                Text.lines model.text
 
                             currentText =
                                 getAt item.lineNo lines
@@ -480,7 +484,7 @@ update message model =
                                 setAt item.lineNo (prefix ++ String.trimLeft item.text) lines
                                     |> String.join "\n"
                         in
-                        ( { model | text = text }
+                        ( { model | text = Text.edit model.text text }
                         , Cmd.batch
                             [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
                             , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
@@ -518,7 +522,7 @@ update message model =
                         ( model_, _ ) =
                             Diagram.update subMsg model.diagramModel
                     in
-                    ( { model | text = text, diagramModel = model_ }, Cmd.none )
+                    ( { model | text = Text.edit model.text text, diagramModel = model_ }, Cmd.none )
 
                 _ ->
                     let
@@ -534,7 +538,7 @@ update message model =
                         ( { model
                             | progress = False
                             , id = diagram.id
-                            , text = diagram.text
+                            , text = Text.edit model.text diagram.text
                             , title = Just diagram.title
                             , currentDiagram = Just diagram
                           }
@@ -547,7 +551,7 @@ update message model =
                     else
                         ( { model
                             | id = diagram.id
-                            , text = diagram.text
+                            , text = Text.edit model.text diagram.text
                             , title = Just diagram.title
                             , currentDiagram = Just diagram
                           }
@@ -613,13 +617,13 @@ update message model =
         Init window ->
             let
                 ( model_, _ ) =
-                    Diagram.update (DiagramModel.Init model.diagramModel.settings window model.text) model.diagramModel
+                    Diagram.update (DiagramModel.Init model.diagramModel.settings window (Text.toString model.text)) model.diagramModel
             in
             ( { model
                 | diagramModel = model_
                 , progress = False
               }
-            , Subscriptions.loadEditor ( model.text, defaultEditorSettings model.settings.editor )
+            , Subscriptions.loadEditor ( Text.toString model.text, defaultEditorSettings model.settings.editor )
             )
 
         DownloadCompleted ( x, y ) ->
@@ -683,7 +687,7 @@ update message model =
                     , title = Utils.getTitle model.title ++ extension
                     , x = 0
                     , y = 0
-                    , text = model.text
+                    , text = Text.toString model.text
                     , diagramType = DiagramType.toString model.diagramModel.diagramType
                     }
                 )
@@ -711,7 +715,7 @@ update message model =
                 title =
                     model.title |> Maybe.withDefault ""
             in
-            ( model, Download.string title "text/plain" model.text )
+            ( model, Download.string title "text/plain" (Text.toString model.text) )
 
         Save ->
             let
@@ -740,6 +744,7 @@ update message model =
 
                         else
                             Nothing
+                    , text = Text.edit model.text (Text.toString model.text)
                   }
                 , Cmd.batch
                     [ Subscriptions.saveDiagram <|
@@ -751,7 +756,7 @@ update message model =
                                 else
                                     model.id
                             , title = title
-                            , text = model.text
+                            , text = Text.toString model.text
                             , thumbnail = Nothing
                             , diagram = model.diagramModel.diagramType
                             , isRemote = isRemote
@@ -798,7 +803,7 @@ update message model =
                 item =
                     { id = model.id
                     , title = model.title |> Maybe.withDefault ""
-                    , text = model.text
+                    , text = Text.toString model.text
                     , thumbnail = Nothing
                     , diagram = model.diagramModel.diagramType
                     , isRemote = False
@@ -906,7 +911,7 @@ update message model =
                         , font = model.settings.font
                         , diagramId = model.id
                         , storyMap = newStoryMap
-                        , text = Just model.text
+                        , text = Just (Text.toString model.text)
                         , title =
                             model.title
                         , editor = model.settings.editor
@@ -962,7 +967,7 @@ update message model =
                     { diagramType =
                         DiagramType.toString model.diagramModel.diagramType
                     , title = model.title
-                    , text = model.text
+                    , text = Text.toString model.text
                     }
                 ]
             )
@@ -1125,8 +1130,8 @@ update message model =
                             ( "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n", Route.ErDiagram )
 
                 displayText =
-                    if String.isEmpty model.text then
-                        text_
+                    if Text.isEmpty model.text then
+                        Text.edit model.text text_
 
                     else
                         model.text
@@ -1134,8 +1139,8 @@ update message model =
             ( { model
                 | id = Nothing
                 , title = Nothing
-                , text = text_
+                , text = displayText
                 , currentDiagram = Nothing
               }
-            , Cmd.batch [ Subscriptions.loadText displayText, Nav.pushUrl model.key (Route.toString route_) ]
+            , Cmd.batch [ Subscriptions.loadText (Text.toString displayText), Nav.pushUrl model.key (Route.toString route_) ]
             )

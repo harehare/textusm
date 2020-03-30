@@ -12,6 +12,7 @@ import Http as Http2
 import Models.Diagram as Diagram
 import Models.DiagramList as DiagramList
 import Models.Settings exposing (Settings)
+import Models.Text exposing (Text)
 import Models.User exposing (User)
 import Route as Route
 import TextUSM.Enum.Diagram exposing (Diagram)
@@ -97,7 +98,7 @@ type Menu
 
 type alias Model =
     { id : Maybe String
-    , text : String
+    , text : Text
     , currentDiagram : Maybe DiagramItem
     , key : Nav.Key
     , url : Url.Url

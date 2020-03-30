@@ -3,6 +3,7 @@ module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Set
 import Browser.Dom exposing (Viewport)
 import Html5.DragDrop as DragDrop
 import Models.Item exposing (Item, ItemType(..), Items)
+import Models.Text exposing (Text)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
@@ -28,7 +29,7 @@ type alias Model =
     , showZoomControl : Bool
     , touchDistance : Maybe Float
     , diagramType : Diagram
-    , text : Maybe String
+    , text : Text
     , matchParent : Bool
     , selectedItem : Maybe Item
     , dragDrop : DragDrop.Model Int Int
