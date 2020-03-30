@@ -45,7 +45,7 @@ const common = {
         }),
         new MonacoWebpackPlugin({
             languages: ["markdown"],
-            features: []
+            features: ["folding"]
         })
     ],
     resolve: {
