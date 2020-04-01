@@ -70,7 +70,7 @@ view settings ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( 
 
 
 drawLines : ( Position, Size ) -> ( Position, Size ) -> List Path
-drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( toWidth, toHeight ) ) =
+drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, toHeight ) ) =
     if fromY < toY then
         let
             interval =
