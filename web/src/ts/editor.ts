@@ -85,7 +85,8 @@ export const loadEditor = (
                 enabled: false
             },
             fontSize,
-            mouseWheelZoom: true
+            mouseWheelZoom: true,
+            automaticLayout: true
         });
 
         // @ts-ignore
@@ -112,12 +113,6 @@ export const loadEditor = (
                 app.ports.shortcuts.send("save");
             }
         });
-
-        window.onresize = () => {
-            if (monacoEditor) {
-                monacoEditor.layout();
-            }
-        };
 
         app.ports.loadText.subscribe((text: string) => {
             if (monacoEditor) {
