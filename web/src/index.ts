@@ -16,7 +16,7 @@ const app: ElmApp = Elm.Main.init({
     flags: [process.env.API_ROOT, loadSettings()]
 });
 const auth = new Auth();
-const openFullscreen = function() {
+const openFullscreen = () => {
     const elem = document.documentElement;
     if (elem.requestFullscreen) {
         elem.requestFullscreen();
@@ -34,7 +34,7 @@ const openFullscreen = function() {
         elem.msRequestFullscreen();
     }
 };
-const closeFullscreen = function() {
+const closeFullscreen = () => {
     if (document.exitFullscreen) {
         document.exitFullscreen();
         // @ts-ignore

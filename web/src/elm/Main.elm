@@ -16,7 +16,7 @@ import Graphql.Http as Http
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy6)
+import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy7)
 import Json.Decode as D
 import List.Extra exposing (getAt, setAt)
 import Maybe.Extra exposing (isJust, isNothing)
@@ -68,7 +68,7 @@ init flags url key =
                 { id = settings.diagramId
                 , diagramModel = diagramModel
                 , diagramListModel = diagramListModel
-                , text = Text.edit Text.empty (Maybe.withDefault "" settings.text)
+                , text = Text.fromString (Maybe.withDefault "" settings.text)
                 , openMenu = Nothing
                 , title = settings.title
                 , isEditTitle = False
@@ -102,7 +102,7 @@ view model =
         , style "width" "100vw"
         , onClick CloseMenu
         ]
-        [ lazy6 Header.view model.loginUser (toRoute model.url) model.title model.isEditTitle model.window.fullscreen model.openMenu
+        [ lazy7 Header.view model.loginUser (toRoute model.url) model.title model.isEditTitle model.window.fullscreen model.openMenu model.text
         , lazy showNotification model.notification
         , lazy2 showProgressbar model.progress model.window.fullscreen
         , div
@@ -622,6 +622,7 @@ update message model =
             ( { model
                 | diagramModel = model_
                 , progress = False
+                , text = Text.saved model.text
               }
             , Subscriptions.loadEditor ( Text.toString model.text, defaultEditorSettings model.settings.editor )
             )

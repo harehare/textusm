@@ -7,6 +7,7 @@ import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Models.Model exposing (LoginProvider(..), Menu(..), Msg(..))
+import Models.Text as Text exposing (Text)
 import Models.User exposing (User)
 import Route exposing (Route(..))
 import Views.Empty as Empty
@@ -14,8 +15,8 @@ import Views.Icon as Icon
 import Views.Menu as Menu
 
 
-view : Maybe User -> Route -> Maybe String -> Bool -> Bool -> Maybe Menu -> Html Msg
-view profile route t isEditTitle fullscreen menu =
+view : Maybe User -> Route -> Maybe String -> Bool -> Bool -> Maybe Menu -> Text -> Html Msg
+view profile route t isEditTitle fullscreen menu currentText =
     let
         title =
             t |> Maybe.withDefault ""
@@ -62,6 +63,9 @@ view profile route t isEditTitle fullscreen menu =
                             , style "white-space" "nowrap"
                             , style "font-weight" "400"
                             , style "padding" "2px"
+                            , style "display" "flex"
+                            , style "align-items" "center"
+                            , style "justify-content" "flex-start"
                             , onClick StartEditTitle
                             ]
                             [ text
@@ -71,6 +75,14 @@ view profile route t isEditTitle fullscreen menu =
                                  else
                                     title
                                 )
+                            , div
+                                [ style "margin-left" "8px" ]
+                                [ if Text.isChanged currentText then
+                                    Icon.circle "#FEFEFE" 10
+
+                                  else
+                                    Empty.view
+                                ]
                             ]
 
                   else

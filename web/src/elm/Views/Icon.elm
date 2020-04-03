@@ -1,4 +1,4 @@
-module Views.Icon exposing (add, bookmark, clear, cloudOff, cloudOn, download, edit, error, export, file, folderOpen, fullscreen, fullscreenExit, helpOutline, indent, info, key, link, openInNew, people, remove, save, search, settings, share, unbookmark, viewComfy, viewModule, visibility, warning)
+module Views.Icon exposing (add, bookmark, circle, clear, cloudOff, cloudOn, download, edit, error, export, file, folderOpen, fullscreen, fullscreenExit, helpOutline, indent, info, key, link, openInNew, people, remove, save, search, settings, share, unbookmark, viewComfy, viewModule, visibility, warning)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (d, fill, height, viewBox, width)
@@ -152,6 +152,11 @@ bookmark color size =
 unbookmark : String -> Int -> Svg msg
 unbookmark color size =
     icon color size size "0 0 384 512" [ Svg.path [ d "M336 0H48C21.49 0 0 21.49 0 48v464l192-112 192 112V48c0-26.51-21.49-48-48-48zm0 428.43l-144-84-144 84V54a6 6 0 0 1 6-6h276c3.314 0 6 2.683 6 5.996V428.43z" ] [] ]
+
+
+circle : String -> Int -> Svg msg
+circle color size =
+    icon color size size "0 0 512 512" [ Svg.path [ d "M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z" ] [] ]
 
 
 icon : String -> Int -> Int -> String -> List (Svg msg) -> Svg msg
