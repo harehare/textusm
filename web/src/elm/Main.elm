@@ -16,7 +16,7 @@ import Graphql.Http as Http
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy7)
+import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy6)
 import Json.Decode as D
 import List.Extra exposing (getAt, setAt)
 import Maybe.Extra exposing (isJust, isNothing)
@@ -28,6 +28,8 @@ import Models.Item as Item
 import Models.Model exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), ShareUrl(..))
 import Models.Settings exposing (Settings, defaultEditorSettings)
 import Models.Text as Text
+import Models.Title as Title
+import RemoteData
 import Route exposing (Route(..), toRoute)
 import Settings exposing (settingsDecoder)
 import String
@@ -70,8 +72,7 @@ init flags url key =
                 , diagramListModel = diagramListModel
                 , text = Text.fromString (Maybe.withDefault "" settings.text)
                 , openMenu = Nothing
-                , title = settings.title
-                , isEditTitle = False
+                , title = Title.fromString (Maybe.withDefault "" settings.title)
                 , window =
                     { position = settings.position |> Maybe.withDefault 0
                     , moveStart = False
@@ -102,7 +103,7 @@ view model =
         , style "width" "100vw"
         , onClick CloseMenu
         ]
-        [ lazy7 Header.view model.loginUser (toRoute model.url) model.title model.isEditTitle model.window.fullscreen model.openMenu model.text
+        [ lazy6 Header.view model.loginUser (toRoute model.url) model.title model.window.fullscreen model.openMenu model.text
         , lazy showNotification model.notification
         , lazy2 showProgressbar model.progress model.window.fullscreen
         , div
@@ -182,7 +183,7 @@ main =
         , update = update
         , view =
             \m ->
-                { title = Maybe.withDefault "untitled" m.title ++ " | TextUSM"
+                { title = Title.toString m.title ++ " | TextUSM"
                 , body = [ view m ]
                 }
         , subscriptions = Subscriptions.subscriptions
@@ -245,13 +246,17 @@ changeRouteTo route model =
     in
     case route of
         Route.List ->
-            let
-                ( model_, cmd_ ) =
-                    DiagramList.init model.loginUser model.apiRoot
-            in
-            ( { model | progress = True, diagramListModel = model_ }
-            , getCmds [ Subscriptions.getDiagrams (), cmd_ |> Cmd.map UpdateDiagramList ]
-            )
+            if RemoteData.isNotAsked model.diagramListModel.diagramList || List.isEmpty (RemoteData.withDefault [] model.diagramListModel.diagramList) then
+                let
+                    ( model_, cmd_ ) =
+                        DiagramList.init model.loginUser model.apiRoot
+                in
+                ( { model | progress = True, diagramListModel = model_ }
+                , getCmds [ Subscriptions.getDiagrams (), cmd_ |> Cmd.map UpdateDiagramList ]
+                )
+
+            else
+                ( { model | progress = False }, Cmd.none )
 
         Route.Embed diagram title path ->
             let
@@ -273,12 +278,7 @@ changeRouteTo route model =
                     , fullscreen = True
                     }
                 , diagramModel = newDiagramModel
-                , title =
-                    if title == "untitled" then
-                        Nothing
-
-                    else
-                        Just title
+                , title = Title.fromString title
               }
             , getCmds [ Subscriptions.decodeShareText path ]
             )
@@ -296,12 +296,7 @@ changeRouteTo route model =
             in
             ( { model
                 | diagramModel = newDiagramModel
-                , title =
-                    if title == "untitled" then
-                        Nothing
-
-                    else
-                        percentDecode title
+                , title = Title.fromString title
               }
             , getCmds [ Subscriptions.decodeShareText path ]
             )
@@ -347,7 +342,7 @@ changeRouteTo route model =
                             , fullscreen = True
                             }
                         , text = Text.edit model.text (String.replace "\\n" "\n" (Maybe.withDefault "" settings.text))
-                        , title = settings.title
+                        , title = Title.fromString <| Maybe.withDefault "" settings.title
                       }
                     , getCmds []
                     )
@@ -539,7 +534,7 @@ update message model =
                             | progress = False
                             , id = diagram.id
                             , text = Text.edit model.text diagram.text
-                            , title = Just diagram.title
+                            , title = Title.fromString diagram.title
                             , currentDiagram = Just diagram
                           }
                         , Cmd.batch
@@ -552,7 +547,7 @@ update message model =
                         ( { model
                             | id = diagram.id
                             , text = Text.edit model.text diagram.text
-                            , title = Just diagram.title
+                            , title = Title.fromString diagram.title
                             , currentDiagram = Just diagram
                           }
                         , Nav.pushUrl model.key <| DiagramType.toString diagram.diagram
@@ -647,10 +642,10 @@ update message model =
                         List.map ER.tableToString tables
                             |> String.join "\n"
                 in
-                ( model, Download.string (Utils.getTitle model.title ++ ".sql") "text/plain" ddl )
+                ( model, Download.string (Title.toString model.title ++ ".sql") "text/plain" ddl )
 
             else if fileType == MarkdownTable then
-                ( model, Download.string (Utils.getTitle model.title ++ ".md") "text/plain" (Item.toMarkdownTable model.diagramModel.items) )
+                ( model, Download.string (Title.toString model.title ++ ".md") "text/plain" (Item.toMarkdownTable model.diagramModel.items) )
 
             else
                 let
@@ -685,7 +680,7 @@ update message model =
                     { width = width
                     , height = height
                     , id = "usm"
-                    , title = Utils.getTitle model.title ++ extension
+                    , title = Title.toString model.title ++ extension
                     , x = 0
                     , y = 0
                     , text = Text.toString model.text
@@ -694,7 +689,7 @@ update message model =
                 )
 
         StartDownload info ->
-            ( model, Cmd.batch [ Download.string (Utils.getTitle model.title ++ info.extension) info.mimeType info.content, Task.perform identity (Task.succeed CloseMenu) ] )
+            ( model, Cmd.batch [ Download.string (Title.toString model.title ++ info.extension) info.mimeType info.content, Task.perform identity (Task.succeed CloseMenu) ] )
 
         OpenMenu menu ->
             ( { model | openMenu = Just menu }, Cmd.none )
@@ -706,7 +701,7 @@ update message model =
             ( model, Select.file [ "text/plain", "text/markdown" ] FileSelected )
 
         FileSelected file ->
-            ( { model | title = Just (File.name file) }, Utils.fileLoad file FileLoaded )
+            ( { model | title = Title.fromString (File.name file) }, Utils.fileLoad file FileLoaded )
 
         FileLoaded text ->
             ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))), Subscriptions.loadText text ] )
@@ -714,7 +709,7 @@ update message model =
         SaveToFileSystem ->
             let
                 title =
-                    model.title |> Maybe.withDefault ""
+                    Title.toString model.title
             in
             ( model, Download.string title "text/plain" (Text.toString model.text) )
 
@@ -722,8 +717,14 @@ update message model =
             let
                 isRemote =
                     isJust model.loginUser
+
+                diagramListModel =
+                    model.diagramListModel
+
+                newDiagramListModel =
+                    { diagramListModel | diagramList = RemoteData.NotAsked }
             in
-            if isNothing model.title then
+            if Title.isUntitled model.title then
                 let
                     ( model_, cmd_ ) =
                         update StartEditTitle model
@@ -733,7 +734,7 @@ update message model =
             else
                 let
                     title =
-                        model.title |> Maybe.withDefault ""
+                        Title.toString model.title
 
                     isLocal =
                         Maybe.map (\d -> not d.isRemote) model.currentDiagram |> Maybe.withDefault True
@@ -745,6 +746,7 @@ update message model =
 
                         else
                             Nothing
+                    , diagramListModel = newDiagramListModel
                     , text = Text.edit model.text (Text.toString model.text)
                   }
                 , Cmd.batch
@@ -795,7 +797,7 @@ update message model =
                     , Cmd.batch
                         [ Utils.delay 3000
                             OnCloseNotification
-                        , Utils.showWarningMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.")
+                        , Utils.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
                         ]
                     )
 
@@ -803,7 +805,7 @@ update message model =
             let
                 item =
                     { id = model.id
-                    , title = model.title |> Maybe.withDefault ""
+                    , title = Title.toString model.title
                     , text = Text.toString model.text
                     , thumbnail = Nothing
                     , diagram = model.diagramModel.diagramType
@@ -821,7 +823,7 @@ update message model =
             , Cmd.batch
                 [ Utils.delay 3000
                     OnCloseNotification
-                , Utils.showWarningMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.")
+                , Utils.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
                 , Subscriptions.saveDiagram <| DiagramItem.encoder item
                 ]
             )
@@ -830,7 +832,7 @@ update message model =
             ( { model | currentDiagram = Just diagram, progress = False }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
-                , Utils.showInfoMessage ("Successfully \"" ++ (model.title |> Maybe.withDefault "") ++ "\" saved.")
+                , Utils.showInfoMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
                 ]
             )
 
@@ -848,7 +850,7 @@ update message model =
                 ( model, Cmd.none )
 
         StartEditTitle ->
-            ( { model | isEditTitle = True }
+            ( { model | title = Title.edit model.title }
             , Task.attempt
                 (\_ -> NoOp)
               <|
@@ -857,27 +859,16 @@ update message model =
 
         EndEditTitle code isComposing ->
             if code == 13 && not isComposing then
-                ( { model | isEditTitle = False }, Cmd.none )
+                ( { model | title = Title.view model.title }, Cmd.none )
 
             else
                 ( model, Cmd.none )
 
         EditTitle title ->
-            ( { model
-                | title =
-                    if String.isEmpty title then
-                        Nothing
-
-                    else
-                        Just title
-              }
-            , Cmd.none
-            )
+            ( { model | title = Title.edit <| Title.fromString title }, Cmd.none )
 
         NavRoute route ->
-            ( model
-            , Nav.pushUrl model.key (Route.toString route)
-            )
+            ( model, Nav.pushUrl model.key (Route.toString route) )
 
         ApplySettings settings ->
             let
@@ -914,7 +905,7 @@ update message model =
                         , storyMap = newStoryMap
                         , text = Just (Text.toString model.text)
                         , title =
-                            model.title
+                            Just <| Title.toString model.title
                         , editor = model.settings.editor
                         }
                 in
@@ -967,7 +958,7 @@ update message model =
                 [ Subscriptions.encodeShareText
                     { diagramType =
                         DiagramType.toString model.diagramModel.diagramType
-                    , title = model.title
+                    , title = Just <| Title.toString model.title
                     , text = Text.toString model.text
                     }
                 ]
@@ -1139,7 +1130,7 @@ update message model =
             in
             ( { model
                 | id = Nothing
-                , title = Nothing
+                , title = Title.untitled
                 , text = displayText
                 , currentDiagram = Nothing
               }

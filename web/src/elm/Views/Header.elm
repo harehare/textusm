@@ -8,6 +8,7 @@ import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Models.Model exposing (LoginProvider(..), Menu(..), Msg(..))
 import Models.Text as Text exposing (Text)
+import Models.Title as Title exposing (Title)
 import Models.User exposing (User)
 import Route exposing (Route(..))
 import Views.Empty as Empty
@@ -15,12 +16,8 @@ import Views.Icon as Icon
 import Views.Menu as Menu
 
 
-view : Maybe User -> Route -> Maybe String -> Bool -> Bool -> Maybe Menu -> Text -> Html Msg
-view profile route t isEditTitle fullscreen menu currentText =
-    let
-        title =
-            t |> Maybe.withDefault ""
-    in
+view : Maybe User -> Route -> Title -> Bool -> Maybe Menu -> Text -> Html Msg
+view profile route title fullscreen menu currentText =
     if fullscreen then
         header [] []
 
@@ -35,7 +32,7 @@ view profile route t isEditTitle fullscreen menu currentText =
                 ]
                 [ logo
                 , if route /= Route.List then
-                    if isEditTitle then
+                    if Title.isEdit title then
                         input
                             [ id "title"
                             , class "title"
@@ -44,7 +41,7 @@ view profile route t isEditTitle fullscreen menu currentText =
                             , style "background-color" "var(--main-color)"
                             , style "border" "none"
                             , style "font-weight" "400"
-                            , value title
+                            , value <| Title.toString title
                             , onInput EditTitle
                             , onBlur (EndEditTitle 13 False)
                             , onKeyDown EndEditTitle
@@ -68,13 +65,7 @@ view profile route t isEditTitle fullscreen menu currentText =
                             , style "justify-content" "flex-start"
                             , onClick StartEditTitle
                             ]
-                            [ text
-                                (if String.isEmpty title then
-                                    "UNTITLED"
-
-                                 else
-                                    title
-                                )
+                            [ text <| Title.toString title
                             , div
                                 [ style "margin-left" "8px" ]
                                 [ if Text.isChanged currentText then

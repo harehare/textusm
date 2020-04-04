@@ -10,10 +10,12 @@
   "engines": {
     "vscode": "^1.33.0"
   },
+  "homepage": "https://textusm.com",
   "galleryBanner": {
     "color": "#282C32",
     "theme": "dark"
   },
+  "license": "MIT",
   "icon": "images/icon.png",
   "categories": [
     "Other"
@@ -143,6 +145,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/harehare/textusm.git"
+    "url": "https://github.com/harehare/textusm.git"
   }
 }

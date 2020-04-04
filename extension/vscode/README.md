@@ -315,7 +315,3 @@ tables
   "textusm.task.color": "#000000"
 }
 ```
-
-## License
-
-[MIT](http://opensource.org/licenses/MIT)

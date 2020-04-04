@@ -1,4 +1,4 @@
-module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getIdToken, getMarkdownHeight, getSpacePrefix, getTitle, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix, transpose)
+module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getIdToken, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix, transpose)
 
 import Constants
 import File exposing (File)
@@ -40,11 +40,6 @@ isPhone width =
 fileLoad : File -> (String -> Msg) -> Cmd Msg
 fileLoad file msg =
     Task.perform msg (File.toString file)
-
-
-getTitle : Maybe String -> String
-getTitle title =
-    title |> Maybe.withDefault "untitled"
 
 
 delay : Float -> Msg -> Cmd Msg

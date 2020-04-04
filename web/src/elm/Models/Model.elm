@@ -13,6 +13,7 @@ import Models.Diagram as Diagram
 import Models.DiagramList as DiagramList
 import Models.Settings exposing (Settings)
 import Models.Text exposing (Text)
+import Models.Title exposing (Title)
 import Models.User exposing (User)
 import Route as Route
 import TextUSM.Enum.Diagram exposing (Diagram)
@@ -109,9 +110,8 @@ type alias Model =
     , settings : Settings
     , share : Maybe ShareUrl
     , embed : Maybe String
-    , title : Maybe String
+    , title : Title
     , notification : Maybe Notification
-    , isEditTitle : Bool
     , editorIndex : Int
     , progress : Bool
     , apiRoot : String
