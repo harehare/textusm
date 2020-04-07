@@ -226,7 +226,7 @@ colorSettingsOfActivity =
 
 colorSettingsOfTask : Lens ColorSettings Color
 colorSettingsOfTask =
-    Lens .activity (\b a -> { a | task = b })
+    Lens .task (\b a -> { a | task = b })
 
 
 colorSettingsOfStory : Lens ColorSettings Color

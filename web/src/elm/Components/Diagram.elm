@@ -27,6 +27,7 @@ import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.CustomerJourneyMap as CustomerJourneyMap
 import Views.Diagram.ER as ER
+import Views.Diagram.Kanban as Kanban
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
 import Views.Diagram.GanttChart as GanttChart
@@ -317,6 +318,9 @@ diagramView diagramType =
 
         ErDiagram ->
             ER.view
+
+        Kanban ->
+            Kanban.view
 
 
 scaleAdjustment : Diagram -> Float

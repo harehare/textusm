@@ -10,6 +10,7 @@ import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.Item as Item exposing (ItemType(..))
+import Models.Text as Text
 import Task
 import TextUSM.Enum.Diagram as Diagram
 
@@ -109,7 +110,7 @@ init flags =
             , touchDistance = Nothing
             , labels = []
             , matchParent = False
-            , text = Nothing
+            , text = Text.empty
             }
       , text = flags.text
       , backgroundColor = flags.settings.backgroundColor

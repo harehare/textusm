@@ -38,6 +38,7 @@ type Route
     | GanttChart
     | ImpactMap
     | ErDiagram
+    | Kanban
     | List
     | Settings
     | Help
@@ -71,6 +72,7 @@ parser =
         , map GanttChart (s "gct")
         , map ImpactMap (s "imm")
         , map ErDiagram (s "erd")
+        , map Kanban (s "kanban")
         , map List (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
@@ -133,6 +135,9 @@ toString route =
 
         ErDiagram ->
             absolute [ "erd" ] []
+
+        Kanban ->
+            absolute [ "kanban" ] []
 
         List ->
             absolute [ "list" ] []

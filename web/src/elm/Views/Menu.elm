@@ -185,6 +185,11 @@ newMenu =
         , icon = Nothing
         }
     , Item
+        { e = New Diagram.Kanban
+        , title = "Kanban"
+        , icon = Nothing
+        }
+    , Item
         { e = New Diagram.Markdown
         , title = "Markdown"
         , icon = Nothing

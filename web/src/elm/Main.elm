@@ -18,7 +18,7 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy6)
 import Json.Decode as D
-import List.Extra exposing (getAt, setAt)
+import List.Extra exposing (getAt, removeAt, setAt, splitAt)
 import Maybe.Extra exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
@@ -395,6 +395,9 @@ changeRouteTo route model =
         Route.ErDiagram ->
             changeDiagramType Diagram.ErDiagram
 
+        Route.Kanban ->
+            changeDiagramType Diagram.Kanban
+
         Route.Home ->
             ( model, getCmds [] )
 
@@ -437,20 +440,23 @@ update message model =
                             getAt fromNo lines
                                 |> Maybe.withDefault ""
 
-                        fromPrefix =
-                            Utils.getSpacePrefix from
+                        newLines =
+                            removeAt fromNo lines
 
-                        to =
-                            getAt toNo lines
-                                |> Maybe.withDefault ""
+                        ( left, right ) =
+                            splitAt
+                                (if fromNo < toNo then
+                                    toNo - 1
 
-                        toPrefix =
-                            Utils.getSpacePrefix to
+                                 else
+                                    toNo
+                                )
+                                newLines
 
                         text =
-                            lines
-                                |> setAt fromNo (fromPrefix ++ String.trimLeft to)
-                                |> setAt toNo (toPrefix ++ String.trimLeft from)
+                            left
+                                ++ from
+                                :: right
                                 |> String.join "\n"
                     in
                     ( { model | text = Text.edit model.text text }
@@ -1120,6 +1126,9 @@ update message model =
 
                         Diagram.ErDiagram ->
                             ( "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n", Route.ErDiagram )
+
+                        Diagram.Kanban ->
+                            ( "TODO\nDOING\nDONE", Route.Kanban )
 
                 displayText =
                     if Text.isEmpty model.text then

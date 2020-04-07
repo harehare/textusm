@@ -8,6 +8,7 @@ import Models.Diagram as DiagramModel
 import Models.ER as ER exposing (Table(..))
 import Models.IdToken exposing (IdToken)
 import Models.Item as Item
+import Models.Kanban as Kanban
 import Models.Model exposing (Msg(..), Notification(..))
 import Models.Text as Text
 import Models.User as User exposing (User)
@@ -482,6 +483,13 @@ getCanvasSize model =
 
                         Nothing ->
                             ( 0, 0 )
+
+                Diagram.Kanban ->
+                    let
+                        kanban =
+                            Kanban.itemsToKanban model.items
+                    in
+                    ( Kanban.getListCount kanban * (model.settings.size.width + Constants.itemMargin * 3), Kanban.getCardCount kanban * (model.settings.size.height + Constants.itemMargin) + Constants.itemMargin * 2 )
     in
     ( width, height )
 

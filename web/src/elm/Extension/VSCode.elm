@@ -12,6 +12,7 @@ import List.Extra exposing (getAt, setAt, takeWhile)
 import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
 import Models.Item as Item exposing (ItemType(..))
+import Models.Text as Text
 import Task
 import Utils
 
@@ -101,7 +102,7 @@ init flags =
                 }
             , touchDistance = Nothing
             , labels = []
-            , text = Nothing
+            , text = Text.empty
             , matchParent = False
             }
       , text = flags.text

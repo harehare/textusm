@@ -1,3 +1,4 @@
+//go:generate go run github.com/99designs/gqlgen
 package server
 
 // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.

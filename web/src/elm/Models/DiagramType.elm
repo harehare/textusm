@@ -51,6 +51,9 @@ toString diagramType =
         ErDiagram ->
             "erd"
 
+        Kanban ->
+            "kanban"
+
 
 toLongString : Diagram -> String
 toLongString diagramType =
@@ -99,6 +102,9 @@ toLongString diagramType =
 
         ErDiagram ->
             "ER Diagram"
+
+        Kanban ->
+            "Kanban"
 
 
 fromString : String -> Diagram

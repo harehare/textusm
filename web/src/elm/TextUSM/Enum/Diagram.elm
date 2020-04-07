@@ -24,6 +24,7 @@ import Json.Decode as Decode exposing (Decoder)
   - GanttChart -
   - ImpactMap -
   - ErDiagram -
+  - Kanban -
 
 -}
 type Diagram
@@ -42,11 +43,12 @@ type Diagram
     | GanttChart
     | ImpactMap
     | ErDiagram
+    | Kanban
 
 
 list : List Diagram
 list =
-    [ UserStoryMap, OpportunityCanvas, BusinessModelCanvas, Fourls, StartStopContinue, Kpt, UserPersona, Markdown, MindMap, EmpathyMap, CustomerJourneyMap, SiteMap, GanttChart, ImpactMap, ErDiagram ]
+    [ UserStoryMap, OpportunityCanvas, BusinessModelCanvas, Fourls, StartStopContinue, Kpt, UserPersona, Markdown, MindMap, EmpathyMap, CustomerJourneyMap, SiteMap, GanttChart, ImpactMap, ErDiagram, Kanban ]
 
 
 decoder : Decoder Diagram
@@ -99,6 +101,9 @@ decoder =
 
                     "ER_DIAGRAM" ->
                         Decode.succeed ErDiagram
+
+                    "KANBAN" ->
+                        Decode.succeed Kanban
 
                     _ ->
                         Decode.fail ("Invalid Diagram type, " ++ string ++ " try re-running the @dillonkearns/elm-graphql CLI ")
@@ -154,6 +159,9 @@ toString enum =
 
         ErDiagram ->
             "ER_DIAGRAM"
+
+        Kanban ->
+            "KANBAN"
 
 
 {-| Convert from a String representation to an elm representation enum.
@@ -214,6 +222,9 @@ fromString enumString =
 
         "ER_DIAGRAM" ->
             Just ErDiagram
+
+        "KANBAN" ->
+            Just Kanban
 
         _ ->
             Nothing

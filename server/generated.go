@@ -298,6 +298,7 @@ enum Diagram {
   GANTT_CHART
   IMPACT_MAP
   ER_DIAGRAM
+  KANBAN
 }
 
 type Item {

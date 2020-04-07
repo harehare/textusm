@@ -1,4 +1,4 @@
-module Models.Kanban exposing (Card, Kanban, KanbanList, itemsToKanban)
+module Models.Kanban exposing (Card(..), Kanban(..), KanbanList(..), getCardCount, getListCount, itemsToKanban)
 
 import Models.Item as Item exposing (Item, Items)
 
@@ -16,7 +16,20 @@ type KanbanList
 
 
 type Card
-    = Card Name
+    = Card Item
+
+
+getListCount : Kanban -> Int
+getListCount (Kanban lists) =
+    List.length lists
+
+
+getCardCount : Kanban -> Int
+getCardCount (Kanban lists) =
+    lists
+        |> List.map (\(KanbanList _ cards) -> List.length cards)
+        |> List.maximum
+        |> Maybe.withDefault 0
 
 
 itemsToKanban : Items -> Kanban
@@ -31,4 +44,4 @@ itemsToKanbanList item =
 
 itemToCard : Item -> Card
 itemToCard item =
-    Card item.text
+    Card item
