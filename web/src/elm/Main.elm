@@ -3,7 +3,7 @@ module Main exposing (init, main, view)
 import Api.UrlShorter as UrlShorterApi
 import Browser
 import Browser.Dom as Dom
-import Browser.Events exposing (Visibility(..))
+import Browser.Events exposing (Visibility(..), onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Components.DiagramList as DiagramList
@@ -29,11 +29,11 @@ import Models.Settings exposing (Settings, defaultEditorSettings)
 import Models.Text as Text
 import Models.Title as Title
 import Models.Views.ER as ER
+import Ports
 import RemoteData
 import Route exposing (Route(..), toRoute)
 import Settings exposing (settingsDecoder)
 import String
-import Subscriptions
 import Task
 import TextUSM.Enum.Diagram as Diagram
 import Time
@@ -186,7 +186,7 @@ main =
                 { title = Title.toString m.title ++ " | TextUSM"
                 , body = [ view m ]
                 }
-        , subscriptions = Subscriptions.subscriptions
+        , subscriptions = subscriptions
         , onUrlChange = UrlChanged
         , onUrlRequest = LinkClicked
         }
@@ -237,10 +237,10 @@ changeRouteTo route model =
             ( { model | diagramModel = newDiagramModel }
             , getCmds
                 [ if type_ == Diagram.Markdown then
-                    Subscriptions.setEditorLanguage "markdown"
+                    Ports.setEditorLanguage "markdown"
 
                   else
-                    Subscriptions.setEditorLanguage "userStoryMap"
+                    Ports.setEditorLanguage "userStoryMap"
                 ]
             )
     in
@@ -252,7 +252,7 @@ changeRouteTo route model =
                         DiagramList.init model.loginUser model.apiRoot
                 in
                 ( { model | progress = True, diagramListModel = model_ }
-                , getCmds [ Subscriptions.getDiagrams (), cmd_ |> Cmd.map UpdateDiagramList ]
+                , getCmds [ Ports.getDiagrams (), cmd_ |> Cmd.map UpdateDiagramList ]
                 )
 
             else
@@ -280,7 +280,7 @@ changeRouteTo route model =
                 , diagramModel = newDiagramModel
                 , title = Title.fromString title
               }
-            , getCmds [ Subscriptions.decodeShareText path ]
+            , getCmds [ Ports.decodeShareText path ]
             )
 
         Route.Share diagram title path ->
@@ -298,7 +298,7 @@ changeRouteTo route model =
                 | diagramModel = newDiagramModel
                 , title = Title.fromString title
               }
-            , getCmds [ Subscriptions.decodeShareText path ]
+            , getCmds [ Ports.decodeShareText path ]
             )
 
         Route.UsmView settingsJson ->
@@ -427,7 +427,7 @@ update message model =
                     ( { model | diagramModel = model_ }
                     , Cmd.batch
                         [ cmd_ |> Cmd.map UpdateDiagram
-                        , Subscriptions.loadEditor ( Text.toString model.text, defaultEditorSettings model.settings.editor )
+                        , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settings.editor )
                         ]
                     )
 
@@ -463,7 +463,7 @@ update message model =
                     , Cmd.batch
                         [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
                         , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
-                        , Subscriptions.loadText text
+                        , Ports.loadText text
                         ]
                     )
 
@@ -489,7 +489,7 @@ update message model =
                         , Cmd.batch
                             [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
                             , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
-                            , Subscriptions.loadText text
+                            , Ports.loadText text
                             ]
                         )
 
@@ -511,10 +511,10 @@ update message model =
                     , Cmd.batch
                         [ cmd_ |> Cmd.map UpdateDiagram
                         , if newWindow.fullscreen then
-                            Subscriptions.openFullscreen ()
+                            Ports.openFullscreen ()
 
                           else
-                            Subscriptions.closeFullscreen ()
+                            Ports.closeFullscreen ()
                         ]
                     )
 
@@ -545,7 +545,7 @@ update message model =
                           }
                         , Cmd.batch
                             [ Nav.pushUrl model.key <| DiagramType.toString diagram.diagram
-                            , Subscriptions.loadText diagram.text
+                            , Ports.loadText diagram.text
                             ]
                         )
 
@@ -625,7 +625,7 @@ update message model =
                 , progress = False
                 , text = Text.saved model.text
               }
-            , Subscriptions.loadEditor ( Text.toString model.text, defaultEditorSettings model.settings.editor )
+            , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settings.editor )
             )
 
         DownloadCompleted ( x, y ) ->
@@ -667,19 +667,19 @@ update message model =
                     ( sub, extension ) =
                         case fileType of
                             Png ->
-                                ( Subscriptions.downloadPng, ".png" )
+                                ( Ports.downloadPng, ".png" )
 
                             Pdf ->
-                                ( Subscriptions.downloadPdf, ".pdf" )
+                                ( Ports.downloadPdf, ".pdf" )
 
                             Svg ->
-                                ( Subscriptions.downloadSvg, ".svg" )
+                                ( Ports.downloadSvg, ".svg" )
 
                             HTML ->
-                                ( Subscriptions.downloadHtml, ".html" )
+                                ( Ports.downloadHtml, ".html" )
 
                             _ ->
-                                ( Subscriptions.downloadSvg, ".svg" )
+                                ( Ports.downloadSvg, ".svg" )
                 in
                 ( { model | diagramModel = newDiagramModel }
                 , sub
@@ -710,7 +710,7 @@ update message model =
             ( { model | title = Title.fromString (File.name file) }, Utils.fileLoad file FileLoaded )
 
         FileLoaded text ->
-            ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))), Subscriptions.loadText text ] )
+            ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))), Ports.loadText text ] )
 
         SaveToFileSystem ->
             let
@@ -756,7 +756,7 @@ update message model =
                     , text = Text.edit model.text (Text.toString model.text)
                   }
                 , Cmd.batch
-                    [ Subscriptions.saveDiagram <|
+                    [ Ports.saveDiagram <|
                         DiagramItem.encoder
                             { id =
                                 if (isNothing model.currentDiagram || isLocal) && isRemote then
@@ -830,7 +830,7 @@ update message model =
                 [ Utils.delay 3000
                     OnCloseNotification
                 , Utils.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
-                , Subscriptions.saveDiagram <| DiagramItem.encoder item
+                , Ports.saveDiagram <| DiagramItem.encoder item
                 ]
             )
 
@@ -843,7 +843,7 @@ update message model =
             )
 
         SelectAll id ->
-            ( model, Subscriptions.selectTextById id )
+            ( model, Ports.selectTextById id )
 
         Shortcuts x ->
             if x == "save" then
@@ -919,7 +919,7 @@ update message model =
                         }
                 in
                 ( { model | settings = newSettings }
-                , Subscriptions.saveSettings newSettings
+                , Ports.saveSettings newSettings
                 )
 
             else
@@ -958,13 +958,13 @@ update message model =
                     , fullscreen = model.window.fullscreen
                     }
               }
-            , Subscriptions.layoutEditor 0
+            , Ports.layoutEditor 0
             )
 
         OnCurrentShareUrl ->
             ( { model | progress = True }
             , Cmd.batch
-                [ Subscriptions.encodeShareText
+                [ Ports.encodeShareText
                     { diagramType =
                         DiagramType.toString model.diagramModel.diagramType
                     , title = Just <| Title.toString model.title
@@ -991,7 +991,7 @@ update message model =
 
         OnShareUrl shareInfo ->
             ( model
-            , Subscriptions.encodeShareText shareInfo
+            , Ports.encodeShareText shareInfo
             )
 
         OnNotification notification ->
@@ -1017,7 +1017,7 @@ update message model =
             ( model, Task.perform identity (Task.succeed (FileLoaded text)) )
 
         WindowSelect tab ->
-            ( { model | editorIndex = tab }, Subscriptions.layoutEditor 100 )
+            ( { model | editorIndex = tab }, Ports.layoutEditor 100 )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -1052,7 +1052,7 @@ update message model =
 
         Login provider ->
             ( { model | progress = True }
-            , Subscriptions.login <|
+            , Ports.login <|
                 case provider of
                     Google ->
                         "Google"
@@ -1062,7 +1062,7 @@ update message model =
             )
 
         Logout ->
-            ( { model | loginUser = Nothing, currentDiagram = Nothing }, Subscriptions.logout () )
+            ( { model | loginUser = Nothing, currentDiagram = Nothing }, Ports.logout () )
 
         OnAuthStateChanged user ->
             ( { model | loginUser = user, progress = False }, Cmd.none )
@@ -1146,5 +1146,48 @@ update message model =
                 , text = displayText
                 , currentDiagram = Nothing
               }
-            , Cmd.batch [ Subscriptions.loadText (Text.toString displayText), Nav.pushUrl model.key (Route.toString route_) ]
+            , Cmd.batch [ Ports.loadText (Text.toString displayText), Nav.pushUrl model.key (Route.toString route_) ]
             )
+
+
+
+-- Ports
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        ([ Ports.changeText (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
+         , Ports.applySettings ApplySettings
+         , Ports.startDownload StartDownload
+         , Ports.gotLocalDiagramJson (\json -> UpdateDiagramList (DiagramListModel.GotLocalDiagramJson json))
+         , Ports.removedDiagram (\_ -> UpdateDiagramList DiagramListModel.Reload)
+         , onVisibilityChange OnVisibilityChange
+         , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
+         , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
+         , Ports.onEncodeShareText OnEncodeShareText
+         , Ports.onDecodeShareText OnDecodeShareText
+         , Ports.shortcuts Shortcuts
+         , Ports.onNotification (\n -> OnAutoCloseNotification (Info n))
+         , Ports.onErrorNotification (\n -> OnAutoCloseNotification (Error n))
+         , Ports.onWarnNotification (\n -> OnAutoCloseNotification (Warning n))
+         , Ports.onAuthStateChanged OnAuthStateChanged
+         , Ports.saveToRemote SaveToRemote
+         , Ports.removeRemoteDiagram (\diagram -> UpdateDiagramList <| DiagramListModel.RemoveRemote diagram)
+         , Ports.downloadCompleted DownloadCompleted
+         , Ports.progress Progress
+         ]
+            ++ (if model.window.moveStart then
+                    [ onMouseUp (D.succeed Stop)
+                    , onMouseMove (D.map OnWindowResize pageX)
+                    ]
+
+                else
+                    [ Sub.none ]
+               )
+        )
+
+
+pageX : D.Decoder Int
+pageX =
+    D.field "pageX" D.int

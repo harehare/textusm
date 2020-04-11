@@ -14,8 +14,8 @@ import Maybe.Extra exposing (isJust)
 import Models.DiagramList exposing (FilterCondition(..), FilterValue(..), Model, Msg(..))
 import Models.DiagramType as DiagramType
 import Models.User as UserModel exposing (User)
+import Ports exposing (getDiagrams, removeDiagrams)
 import RemoteData exposing (RemoteData(..))
-import Subscriptions exposing (getDiagrams, removeDiagrams)
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram)
 import Time exposing (Zone)
@@ -99,6 +99,7 @@ sideMenu filter allCount bookmarkCount items =
                         )
                )
         )
+
 
 view : Model -> Html Msg
 view model =

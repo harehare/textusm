@@ -155,5 +155,8 @@ fromString s =
         "erd" ->
             ErDiagram
 
+        "kanban" ->
+            Kanban
+
         _ ->
             UserStoryMap
