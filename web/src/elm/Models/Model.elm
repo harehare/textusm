@@ -67,6 +67,7 @@ type Msg
     | SelectAll String
     | ToggleDropDownList String
     | NavRoute Route.Route
+    | NavBack
 
 
 type LoginProvider

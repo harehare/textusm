@@ -2,7 +2,7 @@ module Views.Diagram.FourLs exposing (view)
 
 import Constants
 import Models.Diagram exposing (Model, Msg(..))
-import Models.Item as Item exposing (ItemType(..))
+import Models.Views.FourLs as FourLs exposing (FourLsItem(..))
 import String
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (fill, transform)
@@ -15,6 +15,21 @@ view model =
     let
         itemHeight =
             Basics.max Constants.largeItemHeight <| Utils.getCanvasHeight model
+
+        fourLs =
+            FourLs.fromItems model.items
+
+        (FourLsItem liked) =
+            fourLs.liked
+
+        (FourLsItem learned) =
+            fourLs.learned
+
+        (FourLsItem lacked) =
+            fourLs.lacked
+
+        (FourLsItem longedFor) =
+            fourLs.longedFor
     in
     g
         [ transform
@@ -38,43 +53,24 @@ view model =
             )
         , fill model.settings.backgroundColor
         ]
-        [ -- Liked
-          Views.canvasView model.settings
+        [ Views.canvasView model.settings
             ( Constants.largeItemWidth, itemHeight )
             ( 0, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 0
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Learned
+            liked
         , Views.canvasView model.settings
             ( Constants.largeItemWidth, itemHeight )
             ( Constants.largeItemWidth - 5, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 1
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Lacked
+            learned
         , Views.canvasView model.settings
             ( Constants.largeItemWidth, itemHeight + 5 )
             ( 0, itemHeight - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 2
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Longed for
+            lacked
         , Views.canvasView model.settings
             ( Constants.largeItemWidth, itemHeight + 5 )
             ( Constants.largeItemWidth - 5, itemHeight - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 3
-                |> Maybe.withDefault Item.emptyItem
-            )
+            longedFor
         ]

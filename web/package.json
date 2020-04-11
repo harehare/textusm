@@ -73,8 +73,8 @@
         "prod": "NODE_ENV=production webpack --mode production",
         "start": "npm run dev",
         "test": "elm-test",
-        "vscode:build": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.js && mv elm.js ../extension/vscode/js/",
-        "lib:build": "elm make src/elm/Extension/Lib.elm --optimize --output elm.js && mv elm.js ../extension/lib/src/js/",
+        "vscode:build": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.optimized.js && google-closure-compiler --js=elm.optimized.js --js_output_file=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/vscode/js/",
+        "lib:build": "elm make src/elm/Extension/Lib.elm --optimize --output elm.optimized.js && google-closure-compiler --js=elm.optimized.js --js_output_file=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/lib/src/js/",
         "generate-elm-types": "elm-graphql http://localhost:8081/graphql --base TextUSM --output src/elm"
     }
 }

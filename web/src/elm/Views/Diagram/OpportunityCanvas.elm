@@ -2,7 +2,7 @@ module Views.Diagram.OpportunityCanvas exposing (view)
 
 import Constants
 import Models.Diagram exposing (Model, Msg(..))
-import Models.Item as Item exposing (ItemType(..))
+import Models.Views.OpportunityCanvas as OpportunityCanvas exposing (OpportunityCanvasItem(..))
 import String
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (fill, transform)
@@ -15,6 +15,39 @@ view model =
     let
         itemHeight =
             Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
+
+        opportunityCanvas =
+            OpportunityCanvas.fromItems model.items
+
+        (OpportunityCanvasItem usersAndCustomers) =
+            opportunityCanvas.usersAndCustomers
+
+        (OpportunityCanvasItem problems) =
+            opportunityCanvas.problems
+
+        (OpportunityCanvasItem solutionsToday) =
+            opportunityCanvas.solutionsToday
+
+        (OpportunityCanvasItem solutionIdeas) =
+            opportunityCanvas.solutionIdeas
+
+        (OpportunityCanvasItem howWillUsersUseSolution) =
+            opportunityCanvas.howWillUsersUseSolution
+
+        (OpportunityCanvasItem adoptionStrategy) =
+            opportunityCanvas.adoptionStrategy
+
+        (OpportunityCanvasItem userMetrics) =
+            opportunityCanvas.userMetrics
+
+        (OpportunityCanvasItem businessChallenges) =
+            opportunityCanvas.businessChallenges
+
+        (OpportunityCanvasItem budget) =
+            opportunityCanvas.budget
+
+        (OpportunityCanvasItem businessBenefitsAndMetrics) =
+            opportunityCanvas.businessBenefitsAndMetrics
     in
     g
         [ transform
@@ -38,103 +71,54 @@ view model =
             )
         , fill model.settings.backgroundColor
         ]
-        [ -- Users and Customers
-          Views.canvasView model.settings
+        [ Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight * 2 )
             ( 0, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 2
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Problems
+            usersAndCustomers
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight )
             ( Constants.itemWidth - 5, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 0
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Solutions Today
+            problems
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight + 5 )
             ( Constants.itemWidth - 5, itemHeight - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 3
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Solution Ideas
+            solutionsToday
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight * 2 )
             ( Constants.itemWidth * 2 - 10, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 1
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- ️How will Users use Solution?
+            solutionIdeas
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight )
             ( Constants.itemWidth * 3 - 15, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 5
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Adoption Strategy
+            howWillUsersUseSolution
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight + 5 )
             ( Constants.itemWidth * 3 - 15, itemHeight - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 7
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- User Metrics
+            adoptionStrategy
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight * 2 )
             ( Constants.itemWidth * 4 - 20, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 6
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Business Challenges
+            userMetrics
         , Views.canvasView model.settings
             ( round (toFloat Constants.itemWidth * 2) - 5, itemHeight + 5 )
             ( 0, itemHeight * 2 - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 4
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Budget
+            businessChallenges
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight + 5 )
             ( round (toFloat Constants.itemWidth * 2) - 10, itemHeight * 2 - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 9
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Business Benefits and Metrics
+            budget
         , Views.canvasView model.settings
             ( round (toFloat Constants.itemWidth * 2) - 5, itemHeight + 5 )
             ( round (toFloat Constants.itemWidth * 3) - 15, itemHeight * 2 - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 8
-                |> Maybe.withDefault Item.emptyItem
-            )
+            businessBenefitsAndMetrics
         ]

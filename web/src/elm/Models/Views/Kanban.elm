@@ -1,4 +1,4 @@
-module Models.Kanban exposing (Card(..), Kanban(..), KanbanList(..), getCardCount, getListCount, itemsToKanban)
+module Models.Views.Kanban exposing (Card(..), Kanban(..), KanbanList(..), fromItems, getCardCount, getListCount)
 
 import Models.Item as Item exposing (Item, Items)
 
@@ -32,13 +32,13 @@ getCardCount (Kanban lists) =
         |> Maybe.withDefault 0
 
 
-itemsToKanban : Items -> Kanban
-itemsToKanban items =
-    Kanban (Item.map itemsToKanbanList items)
+fromItems : Items -> Kanban
+fromItems items =
+    Kanban (Item.map fromItemsList items)
 
 
-itemsToKanbanList : Item -> KanbanList
-itemsToKanbanList item =
+fromItemsList : Item -> KanbanList
+fromItemsList item =
     KanbanList item.text (Item.map itemToCard (Item.unwrapChildren item.children))
 
 

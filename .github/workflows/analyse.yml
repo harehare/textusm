@@ -1,0 +1,17 @@
+name: analyse
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - release
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@master
+      - uses: harehare/elm-analyse-action@v1
+        with:
+          working_directory: ./web

@@ -8,13 +8,14 @@ import Html.Lazy exposing (lazy3, lazy4)
 import List.Extra exposing (find)
 import Maybe.Extra exposing (isJust, isNothing, or)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
-import Models.ER as ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..))
+import Models.Position exposing (Position, getX, getY)
+import Models.Size exposing (Size, getWidth, getHeight)
+import Models.Views.ER as ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..))
 import State as State exposing (Step(..))
 import String
 import Svg exposing (Svg, foreignObject, g, rect, text, text_)
 import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, y)
 import Views.Diagram.Path as Path
-import Views.Diagram.Views as Views exposing (Position, Size)
 import Views.Empty as Empty
 import Views.Icon as Icon
 
@@ -36,7 +37,7 @@ view : Model -> Svg Msg
 view model =
     let
         ( relationships, tables ) =
-            ER.itemsToErDiagram model.items
+            ER.fromItems model.items
 
         tableDict =
             tablesToDict tables
@@ -477,14 +478,14 @@ getPosition pos =
 relationLabelView : Settings -> TableViewInfo -> TableViewInfo -> String -> Svg Msg
 relationLabelView settings table1 table2 label =
     if
-        (Views.getX <| getPosition table1.position)
-            == (Views.getX <| getPosition table2.position)
-            && (Views.getY <| getPosition table1.position)
-            < (Views.getY <| getPosition table2.position)
+        (getX <| getPosition table1.position)
+            == (getX <| getPosition table2.position)
+            && (getY <| getPosition table1.position)
+            < (getY <| getPosition table2.position)
     then
         text_
-            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size // 2 + 10
-            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size + 15
+            [ x <| String.fromInt <| (getX <| getPosition table1.position) + getWidth table1.size // 2 + 10
+            , y <| String.fromInt <| (getY <| getPosition table1.position) + getHeight table1.size + 15
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
@@ -493,14 +494,14 @@ relationLabelView settings table1 table2 label =
             [ text label ]
 
     else if
-        (Views.getX <| getPosition table1.position)
-            == (Views.getX <| getPosition table2.position)
-            && (Views.getY <| getPosition table1.position)
-            > (Views.getY <| getPosition table2.position)
+        (getX <| getPosition table1.position)
+            == (getX <| getPosition table2.position)
+            && (getY <| getPosition table1.position)
+            > (getY <| getPosition table2.position)
     then
         text_
-            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size // 2 + 10
-            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) - 15
+            [ x <| String.fromInt <| (getX <| getPosition table1.position) + getWidth table1.size // 2 + 10
+            , y <| String.fromInt <| (getY <| getPosition table1.position) - 15
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
@@ -509,14 +510,14 @@ relationLabelView settings table1 table2 label =
             [ text label ]
 
     else if
-        (Views.getX <| getPosition table1.position)
-            < (Views.getX <| getPosition table2.position)
-            && (Views.getY <| getPosition table1.position)
-            == (Views.getY <| getPosition table2.position)
+        (getX <| getPosition table1.position)
+            < (getX <| getPosition table2.position)
+            && (getY <| getPosition table1.position)
+            == (getY <| getPosition table2.position)
     then
         text_
-            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size + 10
-            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 - 15
+            [ x <| String.fromInt <| (getX <| getPosition table1.position) + getWidth table1.size + 10
+            , y <| String.fromInt <| (getY <| getPosition table1.position) + getHeight table1.size // 2 - 15
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
@@ -525,14 +526,14 @@ relationLabelView settings table1 table2 label =
             [ text label ]
 
     else if
-        (Views.getX <| getPosition table1.position)
-            > (Views.getX <| getPosition table2.position)
-            && (Views.getY <| getPosition table1.position)
-            == (Views.getY <| getPosition table2.position)
+        (getX <| getPosition table1.position)
+            > (getX <| getPosition table2.position)
+            && (getY <| getPosition table1.position)
+            == (getY <| getPosition table2.position)
     then
         text_
-            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) - 15
-            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 + 15
+            [ x <| String.fromInt <| (getX <| getPosition table1.position) - 15
+            , y <| String.fromInt <| (getY <| getPosition table1.position) + getHeight table1.size // 2 + 15
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
@@ -541,12 +542,12 @@ relationLabelView settings table1 table2 label =
             [ text label ]
 
     else if
-        (Views.getX <| getPosition table1.position)
-            < (Views.getX <| getPosition table2.position)
+        (getX <| getPosition table1.position)
+            < (getX <| getPosition table2.position)
     then
         text_
-            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) + Views.getWidth table1.size + 10
-            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 + 15
+            [ x <| String.fromInt <| (getX <| getPosition table1.position) + getWidth table1.size + 10
+            , y <| String.fromInt <| (getY <| getPosition table1.position) + getHeight table1.size // 2 + 15
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
@@ -556,8 +557,8 @@ relationLabelView settings table1 table2 label =
 
     else
         text_
-            [ x <| String.fromInt <| (Views.getX <| getPosition table1.position) - 15
-            , y <| String.fromInt <| (Views.getY <| getPosition table1.position) + Views.getHeight table1.size // 2 - 10
+            [ x <| String.fromInt <| (getX <| getPosition table1.position) - 15
+            , y <| String.fromInt <| (getY <| getPosition table1.position) + getHeight table1.size // 2 - 10
             , fontFamily (fontStyle settings)
             , fill settings.color.label
             , fontSize "14"

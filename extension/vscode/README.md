@@ -17,6 +17,7 @@ TextISM is a simple tool. Help you draw user story map using indented text.
 - Gantt Chart
 - Impact Map
 - ER Diagram
+- Kanban
 
 ![image](./img/textusm.gif)
 
@@ -299,6 +300,22 @@ tables
 ```
 
 ![image](./img/erd.png)
+
+### Kanban
+
+```
+TODO
+    task1
+    task1
+DOING
+    task2
+    task2
+DONE
+    task3
+    task3
+```
+
+![image](./img/kanban.png)
 
 ## Options
 

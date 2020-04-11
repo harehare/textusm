@@ -14,6 +14,7 @@ const diagrams = [
   { label: "User Persona", value: "persona" },
   { label: "Gantt Chart", value: "gct" },
   { label: "ER Diagram", value: "erd" },
+  { label: "Kanban", value: "kanban" },
   { label: "KPT Retrospective", value: "kpt" },
   { label: "Start, Stop, Continue Retrospective", value: "ssc" },
   { label: "4Ls Retrospective", value: "4ls" }
@@ -159,6 +160,9 @@ export function activate(context: vscode.ExtensionContext) {
                 newTextOpen(
                   "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n"
                 );
+                break;
+              case "kanban":
+                newTextOpen("TODO\nDOING\nDONE");
                 break;
             }
           }

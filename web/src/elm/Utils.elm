@@ -5,13 +5,13 @@ import File exposing (File)
 import Http exposing (Error(..))
 import List.Extra exposing (getAt, last, scanl1, takeWhile, unique)
 import Models.Diagram as DiagramModel
-import Models.ER as ER exposing (Table(..))
 import Models.IdToken exposing (IdToken)
 import Models.Item as Item
-import Models.Kanban as Kanban
 import Models.Model exposing (Msg(..), Notification(..))
 import Models.Text as Text
 import Models.User as User exposing (User)
+import Models.Views.ER as ER exposing (Table(..))
+import Models.Views.Kanban as Kanban
 import Process
 import Task
 import TextUSM.Enum.Diagram as Diagram
@@ -349,7 +349,7 @@ getCanvasSize model =
                 Diagram.ErDiagram ->
                     let
                         ( _, tables ) =
-                            ER.itemsToErDiagram model.items
+                            ER.fromItems model.items
 
                         sizeList =
                             List.map
@@ -487,7 +487,7 @@ getCanvasSize model =
                 Diagram.Kanban ->
                     let
                         kanban =
-                            Kanban.itemsToKanban model.items
+                            Kanban.fromItems model.items
                     in
                     ( Kanban.getListCount kanban * (model.settings.size.width + Constants.itemMargin * 3), Kanban.getCardCount kanban * (model.settings.size.height + Constants.itemMargin) + Constants.itemMargin * 2 )
     in

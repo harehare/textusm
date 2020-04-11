@@ -2,7 +2,7 @@ module Views.Diagram.EmpathyMap exposing (view)
 
 import Constants
 import Models.Diagram exposing (Model, Msg(..))
-import Models.Item as Item exposing (ItemType(..))
+import Models.Views.EmpathyMap as EmpathyMap exposing (EmpathyMapItem(..))
 import String
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (fill, transform)
@@ -15,6 +15,21 @@ view model =
     let
         itemHeight =
             Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
+
+        empathyMap =
+            EmpathyMap.fromItems model.items
+
+        (EmpathyMapItem says) =
+            empathyMap.says
+
+        (EmpathyMapItem thinks) =
+            empathyMap.thinks
+
+        (EmpathyMapItem does) =
+            empathyMap.does
+
+        (EmpathyMapItem feels) =
+            empathyMap.feels
     in
     g
         [ transform
@@ -38,43 +53,24 @@ view model =
             )
         , fill model.settings.backgroundColor
         ]
-        [ -- SAYS
-          Views.canvasView model.settings
+        [ Views.canvasView model.settings
             ( Constants.largeItemWidth, itemHeight )
             ( 0, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 0
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- THINKS
+            says
         , Views.canvasView model.settings
             ( Constants.largeItemWidth, itemHeight )
             ( Constants.largeItemWidth - 5, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 1
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- DOES
+            thinks
         , Views.canvasBottomView model.settings
             ( Constants.largeItemWidth, itemHeight + 5 )
             ( 0, itemHeight - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 2
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- FEELS
+            does
         , Views.canvasBottomView model.settings
             ( Constants.largeItemWidth, itemHeight + 5 )
             ( Constants.largeItemWidth - 5, itemHeight - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 3
-                |> Maybe.withDefault Item.emptyItem
-            )
+            feels
         ]

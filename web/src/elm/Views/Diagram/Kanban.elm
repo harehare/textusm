@@ -3,7 +3,7 @@ module Views.Diagram.Kanban exposing (view)
 import Constants
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.Item exposing (Item)
-import Models.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
+import Models.Views.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import String
 import Svg exposing (Svg, g, line, text, text_)
 import Svg.Attributes exposing (fill, fontFamily, fontSize, fontWeight, stroke, strokeWidth, transform, x, x1, x2, y, y1, y2)
@@ -39,7 +39,7 @@ view model =
             )
         , fill model.settings.backgroundColor
         ]
-        [ kanbanView model.settings model.selectedItem (Kanban.itemsToKanban model.items) ]
+        [ kanbanView model.settings model.selectedItem (Kanban.fromItems model.items) ]
 
 
 kanbanView : Settings -> Maybe Item -> Kanban -> Svg Msg

@@ -23,12 +23,12 @@ import Maybe.Extra exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
 import Models.DiagramType as DiagramType
-import Models.ER as ER
 import Models.Item as Item
 import Models.Model exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), ShareUrl(..))
 import Models.Settings exposing (Settings, defaultEditorSettings)
 import Models.Text as Text
 import Models.Title as Title
+import Models.Views.ER as ER
 import RemoteData
 import Route exposing (Route(..), toRoute)
 import Settings exposing (settingsDecoder)
@@ -642,7 +642,7 @@ update message model =
             if fileType == DDL then
                 let
                     ( _, tables ) =
-                        ER.itemsToErDiagram model.diagramModel.items
+                        ER.fromItems model.diagramModel.items
 
                     ddl =
                         List.map ER.tableToString tables
@@ -875,6 +875,9 @@ update message model =
 
         NavRoute route ->
             ( model, Nav.pushUrl model.key (Route.toString route) )
+
+        NavBack ->
+            ( model, Nav.back model.key 1 )
 
         ApplySettings settings ->
             let

@@ -6,6 +6,8 @@ import Html.Attributes as Attr
 import List.Extra exposing (last, scanl1, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.Item as Item exposing (Item)
+import Models.Position exposing (Position)
+import Models.Size exposing (Size)
 import Svg exposing (Svg, foreignObject, g, line, polygon, rect, svg)
 import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, points, rx, ry, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
 import Svg.Keyed as Keyed
@@ -13,7 +15,7 @@ import Time exposing (Posix, toDay, utc)
 import Time.Extra exposing (Interval(..), add, diff)
 import Tuple exposing (first, second)
 import Utils
-import Views.Diagram.Views as Views exposing (Position, Size)
+import Views.Diagram.Views as Views
 
 
 sectionMargin : Int

@@ -1,4 +1,4 @@
-module Views.Diagram.Views exposing (Position, Size, canvasBottomView, canvasImageView, canvasView, cardView, getHeight, getWidth, getX, getY, rectView, textView)
+module Views.Diagram.Views exposing (Position, canvasBottomView, canvasImageView, canvasView, cardView, rectView, textView)
 
 import Constants
 import Events exposing (onClickStopPropagation, onKeyDown)
@@ -9,22 +9,12 @@ import Html5.DragDrop as DragDrop
 import Maybe.Extra exposing (isJust)
 import Models.Diagram exposing (Msg(..), Settings, fontStyle, settingsOfWidth)
 import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Models.Position exposing (getX, getY)
+import Models.Size exposing (Size, Width, getHeight, getWidth)
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
 import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, style, width, x, xlinkHref, y)
 import Utils
-
-
-type alias Width =
-    Int
-
-
-type alias Height =
-    Int
-
-
-type alias Size =
-    ( Width, Height )
 
 
 type alias X =
@@ -41,26 +31,6 @@ type alias Position =
 
 type alias RGB =
     String
-
-
-getWidth : Size -> Width
-getWidth ( width, _ ) =
-    width
-
-
-getHeight : Size -> Width
-getHeight ( _, height ) =
-    height
-
-
-getX : Position -> X
-getX ( x, _ ) =
-    x
-
-
-getY : Position -> Y
-getY ( _, y ) =
-    y
 
 
 cardView : Settings -> Position -> Maybe Item -> Item -> Svg Msg

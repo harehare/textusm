@@ -2,7 +2,7 @@ module Views.Diagram.BusinessModelCanvas exposing (view)
 
 import Constants
 import Models.Diagram exposing (Model, Msg(..))
-import Models.Item as Item exposing (ItemType(..))
+import Models.Views.BusinessModelCanvas as BusinessModelCanvas exposing (BusinessModelCanvasItem(..))
 import String
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (fill, transform)
@@ -15,6 +15,36 @@ view model =
     let
         itemHeight =
             Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
+
+        businessModelCanvas =
+            BusinessModelCanvas.fromItems model.items
+
+        (BusinessModelCanvasItem keyPartners) =
+            businessModelCanvas.keyPartners
+
+        (BusinessModelCanvasItem keyActivities) =
+            businessModelCanvas.keyActivities
+
+        (BusinessModelCanvasItem keyResources) =
+            businessModelCanvas.keyResources
+
+        (BusinessModelCanvasItem valuePropotion) =
+            businessModelCanvas.valuePropotion
+
+        (BusinessModelCanvasItem customerRelationships) =
+            businessModelCanvas.customerRelationships
+
+        (BusinessModelCanvasItem channels) =
+            businessModelCanvas.channels
+
+        (BusinessModelCanvasItem customerSegments) =
+            businessModelCanvas.customerSegments
+
+        (BusinessModelCanvasItem costStructure) =
+            businessModelCanvas.costStructure
+
+        (BusinessModelCanvasItem revenueStreams) =
+            businessModelCanvas.revenueStreams
     in
     g
         [ transform
@@ -38,93 +68,49 @@ view model =
             )
         , fill model.settings.backgroundColor
         ]
-        [ -- Key Partners
-          Views.canvasView model.settings
+        [ Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight * 2 )
             ( 0, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 0
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Key Activities
+            keyPartners
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight )
             ( Constants.itemWidth - 5, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 3
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Key Resources
+            keyActivities
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight + 5 )
             ( Constants.itemWidth - 5, itemHeight - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 7
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Value Propotion
+            keyResources
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight * 2 )
             ( Constants.itemWidth * 2 - 10, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 2
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- ️Customer Relationships
+            valuePropotion
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight )
             ( Constants.itemWidth * 3 - 15, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 8
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Channels
+            customerRelationships
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight + 5 )
             ( Constants.itemWidth * 3 - 15, itemHeight - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 4
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Customer Segments
+            channels
         , Views.canvasView model.settings
             ( Constants.itemWidth, itemHeight * 2 )
             ( Constants.itemWidth * 4 - 20, 0 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 1
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Cost Structure
+            customerSegments
         , Views.canvasView model.settings
             ( round (toFloat Constants.itemWidth * 2.5) - 10, itemHeight + 5 )
             ( 0, itemHeight * 2 - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 6
-                |> Maybe.withDefault Item.emptyItem
-            )
-
-        -- Revenue Streams
+            costStructure
         , Views.canvasView model.settings
             ( round (toFloat Constants.itemWidth * 2.5) - 5, itemHeight + 5 )
             ( round (toFloat Constants.itemWidth * 2.5) - 15, itemHeight * 2 - 5 )
             model.selectedItem
-            (model.items
-                |> Item.getAt 5
-                |> Maybe.withDefault Item.emptyItem
-            )
+            revenueStreams
         ]

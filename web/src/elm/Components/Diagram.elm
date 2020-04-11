@@ -13,6 +13,7 @@ import List.Extra exposing (getAt, scanl)
 import Maybe.Extra exposing (isNothing)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (ItemType(..), Items)
+import Models.Size exposing (Size)
 import Models.Text as Text
 import Parser
 import Result exposing (andThen)
@@ -27,11 +28,11 @@ import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.CustomerJourneyMap as CustomerJourneyMap
 import Views.Diagram.ER as ER
-import Views.Diagram.Kanban as Kanban
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
 import Views.Diagram.GanttChart as GanttChart
 import Views.Diagram.ImpactMap as ImpactMap
+import Views.Diagram.Kanban as Kanban
 import Views.Diagram.Kpt as Kpt
 import Views.Diagram.Markdown as Markdown
 import Views.Diagram.MindMap as MindMap
@@ -40,7 +41,6 @@ import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
-import Views.Diagram.Views exposing (Size)
 import Views.Empty as Empty
 import Views.Icon as Icon
 

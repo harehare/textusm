@@ -32,6 +32,9 @@ view route width fullscreen openMenu =
         menuItemStyle =
             [ class "menu-button"
             ]
+
+        currentFileToolTip =
+            span [ class "tooltip" ] [ span [ class "text" ] [ text "Current File" ] ]
     in
     if fullscreen then
         Empty.view
@@ -41,7 +44,22 @@ view route width fullscreen openMenu =
             [ class "menu-bar"
             ]
             [ div
-                (stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True )) :: style "margin-left" "4px" :: menuItemStyle)
+                ((case route of
+                    List ->
+                        onClick NavBack
+
+                    Settings ->
+                        onClick NavBack
+
+                    Help ->
+                        onClick NavBack
+
+                    _ ->
+                        stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True ))
+                 )
+                    :: style "margin-left" "4px"
+                    :: menuItemStyle
+                )
                 [ Icon.file
                     (case openMenu of
                         Just NewFile ->
@@ -51,7 +69,18 @@ view route width fullscreen openMenu =
                             "#848A90"
                     )
                     20
-                , span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
+                , case route of
+                    List ->
+                        currentFileToolTip
+
+                    Settings ->
+                        currentFileToolTip
+
+                    Help ->
+                        currentFileToolTip
+
+                    _ ->
+                        span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
                 ]
             , div
                 (onClick FileSelect :: menuItemStyle)
