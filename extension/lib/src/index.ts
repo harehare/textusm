@@ -14,6 +14,7 @@ import {
 import { UserStoryMap } from "./models/UserStoryMap";
 import { MindMap, SiteMap, ImpactMap } from "./models/MindMap";
 import { ERDiagram } from "./models/ER";
+import { Kanban } from "./models/Kanban";
 
 interface Config {
   font?: string;
@@ -90,7 +91,8 @@ function render(
     | SiteMap
     | GanttChart
     | ImpactMap
-    | ERDiagram,
+    | ERDiagram
+    | Kanban,
   options?: {
     diagramType?:
       | "UserStoryMap"

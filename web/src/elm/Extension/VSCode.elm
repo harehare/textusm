@@ -8,7 +8,7 @@ import Html.Attributes exposing (class, style)
 import Html.Lazy exposing (lazy)
 import Html5.DragDrop as DragDrop
 import Json.Decode as D
-import List.Extra exposing (getAt, setAt, takeWhile)
+import List.Extra exposing (getAt, removeAt, setAt, splitAt, takeWhile)
 import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
 import Models.Item as Item exposing (ItemType(..))
@@ -186,27 +186,29 @@ update message model =
                 DiagramModel.MoveItem ( fromNo, toNo ) ->
                     let
                         lines =
-                            model.text
-                                |> String.lines
+                            String.lines model.text
 
                         from =
                             getAt fromNo lines
                                 |> Maybe.withDefault ""
 
-                        fromPrefix =
-                            Utils.getSpacePrefix from
+                        newLines =
+                            removeAt fromNo lines
 
-                        to =
-                            getAt toNo lines
-                                |> Maybe.withDefault ""
+                        ( left, right ) =
+                            splitAt
+                                (if fromNo < toNo then
+                                    toNo - 1
 
-                        toPrefix =
-                            Utils.getSpacePrefix to
+                                 else
+                                    toNo
+                                )
+                                newLines
 
                         text =
-                            lines
-                                |> setAt fromNo (fromPrefix ++ String.trimLeft to)
-                                |> setAt toNo (toPrefix ++ String.trimLeft from)
+                            left
+                                ++ from
+                                :: right
                                 |> String.join "\n"
                     in
                     ( { model | text = text }

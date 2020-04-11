@@ -1,6 +1,7 @@
 import { UserStoryMap } from "./models/UserStoryMap";
 import { MindMap, SiteMap, ImpactMap, MapNode } from "./models/MindMap";
 import { ERDiagram } from "./models/ER";
+import { Kanban } from "./models/Kanban";
 
 export type BusinessModelCanvas = {
   name: "BusinessModelCanvas";
@@ -123,6 +124,7 @@ export function toString(
     | GanttChart
     | ImpactMap
     | ERDiagram
+    | Kanban
 ): string {
   return definition.name === "UserStoryMap"
     ? userStoryMap2Text(definition)
@@ -148,6 +150,8 @@ export function toString(
     ? ganttchart2Text(definition)
     : definition.name === "ER"
     ? erDiagram2Text(definition)
+    : definition.name === "Kanban"
+    ? kanban2Text(definition)
     : "";
 }
 
@@ -167,6 +171,7 @@ export function toTypeString(
     | GanttChart
     | ImpactMap
     | ERDiagram
+    | Kanban
 ): string {
   return definition.name;
 }
@@ -375,4 +380,14 @@ function erDiagram2Text(er: ERDiagram): string {
   );
 
   return `${relations.join("\n")}\n${tables.join("\n")}`;
+}
+
+function kanban2Text(kanban: Kanban): string {
+  return kanban.lists
+    .map(list => {
+      return (
+        `${list.name}\n` + list.cards.map(card => `    ${card.text}`).join("\n")
+      );
+    })
+    .join("\n");
 }

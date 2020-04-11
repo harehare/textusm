@@ -317,6 +317,22 @@ tables
 
 ![image](./img/erd.png)
 
+### Kanban
+
+```
+TODO
+    task1
+    task1
+DOING
+    task2
+    task2
+DONE
+    task3
+    task3
+```
+
+![image](./img/kanban.png)
+
 ## Installation
 
 ## Example JSON configuration file

@@ -103,6 +103,7 @@ const validDiagramType = [
   "gantt_chart",
   "impact_map",
   "er_diagram",
+  "kanban",
   ""
 ];
 
@@ -168,6 +169,8 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
         ? "imm"
         : diagramType === "er_diagram"
         ? "erd"
+        : diagramType === "kanban"
+        ? "kanban"
         : "usm";
     await page.goto(
       `https://app.textusm.com/view/${type}/${encodeURIComponent(

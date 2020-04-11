@@ -17,6 +17,7 @@ Generate a Diagram from indented text.
 - Gantt Chart
 - Impact Map
 - ER Diagram
+- Kanban
 
 ## Installation
 
@@ -545,6 +546,33 @@ SHARING
 ```
 
 ![image](./img/erd.png)
+
+### Kanban
+
+```js
+const textusm = require("textusm");
+const elm = document.getElementById("id");
+
+textusm.render(
+  elm || "id",
+  {
+    name: "Kanban",
+    lists: [
+      { name: "Todo", cards: [{ text: "Todo text" }] },
+      { name: "Doing", cards: [{ text: "Doing text" }] },
+      { name: "Done", cards: [{ text: "Done text" }] }
+    ]
+  },
+  {
+    size: { width: 1024, height: 1024 },
+    diagramType: "Kanban",
+    showZoomControl: true
+  },
+  {}
+);
+```
+
+![image](./img/kanban.png)
 
 ### Configuration
 

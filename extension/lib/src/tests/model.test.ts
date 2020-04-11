@@ -934,3 +934,25 @@ test("ER Diagram type to string.", () => {
     `relations\n    table1 = table2\n    table1 - table2\ntables\n    table1\n        column1 int pk`
   );
 });
+
+test("Kanban type to string.", () => {
+  expect(
+    toString({
+      name: "Kanban",
+      lists: [
+        {
+          name: "TODO",
+          cards: [{ text: "TODO CARD" }]
+        },
+        {
+          name: "DOING",
+          cards: [{ text: "DOING CARD" }]
+        },
+        {
+          name: "DONE",
+          cards: [{ text: "DONE CARD" }]
+        }
+      ]
+    })
+  ).toBe("TODO\n    TODO CARD\nDOING\n    DOING CARD\nDONE\n    DONE CARD");
+});
