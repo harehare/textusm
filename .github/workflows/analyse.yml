@@ -15,3 +15,4 @@ jobs:
       - uses: harehare/elm-analyse-action@v1
         with:
           working_directory: ./web
+          ignore_error: true
