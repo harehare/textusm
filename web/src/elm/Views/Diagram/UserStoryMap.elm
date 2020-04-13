@@ -8,12 +8,13 @@ import List
 import List.Extra exposing (getAt, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Models.Position exposing (Position)
 import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
 import Svg.Attributes exposing (class, color, fill, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
 import Svg.Keyed as Keyed
 import Svg.Lazy exposing (lazy5)
-import Views.Diagram.Views as Views exposing (Position)
+import Views.Diagram.Views as Views
 
 
 view : Model -> Svg Msg

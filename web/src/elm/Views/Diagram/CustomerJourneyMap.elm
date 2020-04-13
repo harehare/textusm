@@ -2,6 +2,7 @@ module Views.Diagram.CustomerJourneyMap exposing (view)
 
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Models.Views.CustomerJourneyMap as CustomerJourneyMap exposing (CustomerJourneyMap(..), Header(..), Row(..))
 import String
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (transform)
@@ -10,6 +11,16 @@ import Views.Diagram.Views as Views
 
 view : Model -> Svg Msg
 view model =
+    let
+        customerJourneyMap =
+            CustomerJourneyMap.fromItems model.items
+
+        (CustomerJourneyMap h rows) =
+            customerJourneyMap
+
+        (Header header) =
+            h
+    in
     g
         [ transform
             ("translate("
@@ -37,18 +48,10 @@ view model =
          else
             headerView model.settings
                 model.selectedItem
-                (model.items
-                    |> Item.head
-                    |> Maybe.withDefault Item.emptyItem
-                    |> .children
-                    |> Item.unwrapChildren
-                )
-                ++ ((model.items
-                        |> Item.tail
-                        |> Maybe.withDefault Item.empty
-                    )
-                        |> Item.indexedMap
-                            (\i item ->
+                header
+                ++ (rows
+                        |> List.indexedMap
+                            (\i (Row item) ->
                                 rowView model.settings
                                     model.selectedItem
                                     (i + 1)

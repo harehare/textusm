@@ -1,4 +1,4 @@
-module Views.Diagram.Views exposing (Position, canvasBottomView, canvasImageView, canvasView, cardView, rectView, textView)
+module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, rectView, textView)
 
 import Constants
 import Events exposing (onClickStopPropagation, onKeyDown)
@@ -9,24 +9,12 @@ import Html5.DragDrop as DragDrop
 import Maybe.Extra exposing (isJust)
 import Models.Diagram exposing (Msg(..), Settings, fontStyle, settingsOfWidth)
 import Models.Item as Item exposing (Item, ItemType(..), Items)
-import Models.Position exposing (getX, getY)
-import Models.Size exposing (Size, Width, getHeight, getWidth)
+import Models.Position exposing (Position)
+import Models.Size exposing (Size)
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
 import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, style, width, x, xlinkHref, y)
 import Utils
-
-
-type alias X =
-    Int
-
-
-type alias Y =
-    Int
-
-
-type alias Position =
-    ( X, Y )
 
 
 type alias RGB =
@@ -93,8 +81,8 @@ selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         , height <| String.fromInt svgHeight
         , x (String.fromInt posX)
         , y (String.fromInt posY)
-        , strokeWidth "3"
-        , stroke "#555"
+        , strokeWidth "1"
+        , stroke "#999"
         , fill color
         , style "filter:url(#shadow)"
         ]

@@ -3,11 +3,12 @@ module Views.Diagram.ImpactMap exposing (view)
 import List.Extra exposing (getAt, scanl1, zip3)
 import Models.Diagram exposing (Model, Msg(..), Point, Settings)
 import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Models.Position exposing (Position)
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (transform)
 import Utils
 import Views.Diagram.Path as Path
-import Views.Diagram.Views as Views exposing (Position)
+import Views.Diagram.Views as Views
 
 
 xMargin : Int

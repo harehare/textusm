@@ -4,9 +4,10 @@ import Constants
 import List.Extra exposing (scanl1, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Models.Item as Item exposing (Item, Items)
+import Models.Position exposing (Position)
 import Svg exposing (Svg, g, line)
 import Svg.Attributes exposing (stroke, strokeWidth, transform, x1, x2, y1, y2)
-import Views.Diagram.Views as Views exposing (Position)
+import Views.Diagram.Views as Views
 
 
 view : Model -> Svg Msg

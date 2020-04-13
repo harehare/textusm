@@ -23,11 +23,11 @@ import Maybe.Extra exposing (isJust, isNothing)
 import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
 import Models.DiagramType as DiagramType
-import Models.Item as Item
 import Models.Model exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), ShareUrl(..))
 import Models.Settings exposing (Settings, defaultEditorSettings)
 import Models.Text as Text
 import Models.Title as Title
+import Models.Views.CustomerJourneyMap as CustomerJourneyMap
 import Models.Views.ER as ER
 import Ports
 import RemoteData
@@ -651,7 +651,7 @@ update message model =
                 ( model, Download.string (Title.toString model.title ++ ".sql") "text/plain" ddl )
 
             else if fileType == MarkdownTable then
-                ( model, Download.string (Title.toString model.title ++ ".md") "text/plain" (Item.toMarkdownTable model.diagramModel.items) )
+                ( model, Download.string (Title.toString model.title ++ ".md") "text/plain" (CustomerJourneyMap.toString (CustomerJourneyMap.fromItems model.diagramModel.items)) )
 
             else
                 let

@@ -3,11 +3,12 @@ module Views.Diagram.Kanban exposing (view)
 import Constants
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.Item exposing (Item)
+import Models.Position exposing (Position)
 import Models.Views.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import String
 import Svg exposing (Svg, g, line, text, text_)
 import Svg.Attributes exposing (fill, fontFamily, fontSize, fontWeight, stroke, strokeWidth, transform, x, x1, x2, y, y1, y2)
-import Views.Diagram.Views as Views exposing (Position)
+import Views.Diagram.Views as Views
 
 
 kanbanMargin : Int

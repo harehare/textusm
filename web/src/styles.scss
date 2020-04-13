@@ -166,7 +166,7 @@ select {
     .label {
         font-size: 0.9rem;
         padding: 4px 8px;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
     }
 
     .input-area {
@@ -908,4 +908,8 @@ select {
     background: rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.scroll-decoration {
+    box-shadow: none !important;
 }
