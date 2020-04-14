@@ -1,4 +1,4 @@
-port module Ports exposing (applySettings, changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, editSettings, encodeShareText, getDiagram, getDiagrams, gotLocalDiagramJson, layoutEditor, loadEditor, loadText, login, logout, onAuthStateChanged, onDecodeShareText, onEncodeShareText, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, removeDiagrams, removeRemoteDiagram, removedDiagram, saveDiagram, saveSettings, saveToRemote, selectTextById, setEditorLanguage, shortcuts, startDownload)
+port module Ports exposing (applySettings, changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, editSettings, encodeShareText, getDiagram, getDiagrams, gotLocalDiagramJson, layoutEditor, loadEditor, loadText, login, logout, onAuthStateChanged, onDecodeShareText, onEncodeShareText, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, removeDiagrams, removeRemoteDiagram, removedDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, selectTextById, setEditorLanguage, shortcuts, startDownload)
 
 import Json.Encode as E
 import Models.Model exposing (DownloadFileInfo, DownloadInfo, Msg(..), Notification(..), ShareInfo)
@@ -118,3 +118,6 @@ port removedDiagram : (( String, Bool ) -> msg) -> Sub msg
 
 
 port saveToRemote : (String -> msg) -> Sub msg
+
+
+port saveToLocalCompleted : (String -> msg) -> Sub msg

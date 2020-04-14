@@ -217,6 +217,7 @@ select {
             height: 30px;
             line-height: 30px;
             padding: 8px;
+            font-size: 0.8rem;
         }
 
         .selected {
@@ -850,7 +851,7 @@ select {
         width: 100%;
         display: block;
         padding: 8px;
-        border: 1px solid #eee;
+        border-bottom: 1px solid #eee;
         background-color: #fff;
 
         &:hover {

@@ -35,7 +35,8 @@ type Msg
     | FileSelected File
     | FileLoaded String
     | Save
-    | Saved (Result (Http.Error DiagramItem) DiagramItem)
+    | SaveToRemoteCompleted (Result (Http.Error DiagramItem) DiagramItem)
+    | SaveToLocalCompleted String
     | SaveToFileSystem
     | SaveToRemote String
     | StartEditTitle

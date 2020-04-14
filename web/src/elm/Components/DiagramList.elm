@@ -134,6 +134,7 @@ view model =
                         [ div
                             [ style "display" "flex"
                             , style "align-items" "center"
+                            , style "width" "100%"
                             ]
                             [ div
                                 [ style "position" "absolute"
@@ -146,6 +147,7 @@ view model =
                                 , style "border-radius" "20px"
                                 , style "padding" "8px"
                                 , style "border" "none"
+                                , style "width" "100%"
                                 , onInput SearchInput
                                 ]
                                 []

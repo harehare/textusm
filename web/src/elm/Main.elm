@@ -741,9 +741,6 @@ update message model =
                 let
                     title =
                         Title.toString model.title
-
-                    isLocal =
-                        Maybe.map (\d -> not d.isRemote) model.currentDiagram |> Maybe.withDefault True
                 in
                 ( { model
                     | notification =
@@ -758,12 +755,7 @@ update message model =
                 , Cmd.batch
                     [ Ports.saveDiagram <|
                         DiagramItem.encoder
-                            { id =
-                                if (isNothing model.currentDiagram || isLocal) && isRemote then
-                                    Nothing
-
-                                else
-                                    model.id
+                            { id = model.id
                             , title = title
                             , text = Text.toString model.text
                             , thumbnail = Nothing
@@ -774,13 +766,25 @@ update message model =
                             , updatedAt = Time.millisToPosix 0
                             , createdAt = Time.millisToPosix 0
                             }
-                    , if not isRemote then
-                        Utils.delay 3000 OnCloseNotification
+                    , if isRemote then
+                        Cmd.none
 
                       else
-                        Cmd.none
+                        Utils.delay 3000 OnCloseNotification
                     ]
                 )
+
+        SaveToLocalCompleted diagramJson ->
+            let
+                result =
+                    D.decodeString DiagramItem.decoder diagramJson
+            in
+            case result of
+                Ok item ->
+                    ( { model | id = item.id, currentDiagram = Just item }, Cmd.none )
+
+                Err _ ->
+                    ( model, Cmd.none )
 
         SaveToRemote diagramJson ->
             let
@@ -796,7 +800,7 @@ update message model =
             in
             case result of
                 Ok saveTask ->
-                    ( { model | progress = True }, Task.attempt Saved saveTask )
+                    ( { model | progress = True }, Task.attempt SaveToRemoteCompleted saveTask )
 
                 Err _ ->
                     ( { model | progress = True }
@@ -807,7 +811,7 @@ update message model =
                         ]
                     )
 
-        Saved (Err _) ->
+        SaveToRemoteCompleted (Err _) ->
             let
                 item =
                     { id = model.id
@@ -834,7 +838,7 @@ update message model =
                 ]
             )
 
-        Saved (Ok diagram) ->
+        SaveToRemoteCompleted (Ok diagram) ->
             ( { model | currentDiagram = Just diagram, progress = False }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
@@ -1176,6 +1180,7 @@ subscriptions model =
          , Ports.removeRemoteDiagram (\diagram -> UpdateDiagramList <| DiagramListModel.RemoveRemote diagram)
          , Ports.downloadCompleted DownloadCompleted
          , Ports.progress Progress
+         , Ports.saveToLocalCompleted SaveToLocalCompleted
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp (D.succeed Stop)

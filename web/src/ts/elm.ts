@@ -44,6 +44,7 @@ export type ElmApp = {
         }>;
         downloadCompleted: Js2ElmPort<number[]>;
         saveToRemote: Js2ElmPort<string>;
+        saveToLocalCompleted: Js2ElmPort<string>;
         removeRemoteDiagram: Js2ElmPort<string>;
         removedDiagram: Js2ElmPort<[string, boolean]>;
         gotLocalDiagramJson: Js2ElmPort<string>;

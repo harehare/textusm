@@ -61,12 +61,18 @@ view route width fullscreen openMenu =
                     :: menuItemStyle
                 )
                 [ Icon.file
-                    (case openMenu of
-                        Just NewFile ->
-                            "#F5F5F6"
+                    (case route of
+                        Help ->
+                            "#848A90"
+
+                        Settings ->
+                            "#848A90"
+
+                        List ->
+                            "#848A90"
 
                         _ ->
-                            "#848A90"
+                            "#F5F5F6"
                     )
                     20
                 , case route of
@@ -82,11 +88,15 @@ view route width fullscreen openMenu =
                     _ ->
                         span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
                 ]
-            , div
-                (onClick FileSelect :: menuItemStyle)
-                [ Icon.folderOpen "#848A90" 20
-                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Open File" ] ]
-                ]
+            , if route == List then
+                Empty.view
+
+              else
+                div
+                    (onClick FileSelect :: menuItemStyle)
+                    [ Icon.folderOpen "#848A90" 20
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Open File" ] ]
+                    ]
             , div
                 (onClick GetDiagrams :: class "list-button" :: menuItemStyle)
                 [ Icon.viewComfy
@@ -99,26 +109,34 @@ view route width fullscreen openMenu =
                     28
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text "Diagrams" ] ]
                 ]
-            , div
-                (onClick Save :: class "save-button" :: menuItemStyle)
-                [ Icon.save
-                    "#848A90"
-                    26
-                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
-                ]
-            , div
-                (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
-                [ Icon.download
-                    (case openMenu of
-                        Just Export ->
-                            "#F5F5F6"
+            , if route == List then
+                Empty.view
 
-                        _ ->
-                            "#848A90"
-                    )
-                    22
-                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
-                ]
+              else
+                div
+                    (onClick Save :: class "save-button" :: menuItemStyle)
+                    [ Icon.save
+                        "#848A90"
+                        26
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
+                    ]
+            , if route == List then
+                Empty.view
+
+              else
+                div
+                    (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
+                    [ Icon.download
+                        (case openMenu of
+                            Just Export ->
+                                "#F5F5F6"
+
+                            _ ->
+                                "#848A90"
+                        )
+                        22
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
+                    ]
             , div
                 (onClick (NavRoute Route.Settings) :: menuItemStyle)
                 [ Icon.settings

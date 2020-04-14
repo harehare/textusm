@@ -22,17 +22,17 @@ const svg2base64 = (id: string) => {
 };
 
 db.version(1).stores({
-    diagrams: "++id,title,text,thumbnail,diagramPath,createdAt,updatedAt"
+    diagrams: "++id,title,text,thumbnail,diagramPath,createdAt,updatedAt",
 });
 
 db.version(2)
     .stores({
         diagrams:
-            "++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt"
+            "++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt",
     })
-    .upgrade(trans => {
+    .upgrade((trans) => {
         //@ts-ignore
-        return trans.diagrams.toCollection().modify(diagram => {
+        return trans.diagrams.toCollection().modify((diagram) => {
             diagram.diagram = diagram.diagramPath;
             diagram.isBookmark = false;
             delete diagram.diagramPath;
@@ -48,7 +48,7 @@ export const initDB = (app: ElmApp) => {
             diagram,
             isPublic,
             isBookmark,
-            isRemote
+            isRemote,
         }: Diagram) => {
             const thumbnail = svg2base64("usm");
             const createdAt = new Date().getTime();
@@ -60,7 +60,7 @@ export const initDB = (app: ElmApp) => {
                 isPublic,
                 isBookmark,
                 createdAt,
-                updatedAt: createdAt
+                updatedAt: createdAt,
             };
 
             if (isRemote) {
@@ -70,7 +70,7 @@ export const initDB = (app: ElmApp) => {
                         isBookmark: isBookmark,
                         id,
                         isPublic,
-                        ...diagramItem
+                        ...diagramItem,
                     })
                 );
                 if (id) {
@@ -78,8 +78,18 @@ export const initDB = (app: ElmApp) => {
                     await db.diagrams.delete(id);
                 }
             } else {
+                const newId = id ? id : uuid();
                 // @ts-ignore
-                await db.diagrams.put({ id: id ? id : uuid(), ...diagramItem });
+                await db.diagrams.put({ id: newId, ...diagramItem });
+                app.ports.saveToLocalCompleted.send(
+                    JSON.stringify({
+                        isRemote: false,
+                        isBookmark: isBookmark,
+                        id: newId,
+                        isPublic,
+                        ...diagramItem,
+                    })
+                );
             }
         }
     );
@@ -115,7 +125,7 @@ export const initDB = (app: ElmApp) => {
                     isRemote: false,
                     createdAt: new Date(),
                     updatedAt: new Date(),
-                    ...d
+                    ...d,
                 }))
             )
         );
