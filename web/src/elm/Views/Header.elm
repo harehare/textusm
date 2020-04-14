@@ -161,7 +161,7 @@ view profile route title fullscreen menu currentText =
                         , style "padding" "0 8px"
                         , style "font-weight" "400"
                         , style "margin-right" "4px"
-                        , style "width" "50px"
+                        , style "width" "55px"
                         ]
                         [ text "SIGN IN" ]
                     , case menu of

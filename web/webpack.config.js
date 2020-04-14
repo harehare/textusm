@@ -23,13 +23,13 @@ const common = {
     output: {
         path: dist,
         publicPath: "/",
-        filename: MODE === "production" ? "[name]-[hash].js" : "index.js"
+        filename: MODE === "production" ? "[name]-[hash].js" : "index.js",
     },
     plugins: [
         new HTMLWebpackPlugin({
             template: "src/index.html",
             inject: "body",
-            inlineSource: ".css$"
+            inlineSource: ".css$",
         }),
         new webpack.EnvironmentPlugin([
             "API_ROOT",
@@ -37,23 +37,23 @@ const common = {
             "FIREBASE_AUTH_DOMAIN",
             "FIREBASE_PROJECT_ID",
             "FIREBASE_STORAGE_BUCKET",
-            "FIREBASE_APP_ID"
+            "FIREBASE_APP_ID",
         ]),
         new PreloadWebpackPlugin({
             rel: "preload",
-            include: ["runtime", "vendors"]
+            include: ["runtime", "vendors"],
         }),
         new MonacoWebpackPlugin({
             languages: ["markdown"],
-            features: ["folding"]
-        })
+            features: ["folding"],
+        }),
     ],
     resolve: {
         modules: [path.join(__dirname, "src"), "node_modules"],
         extensions: [".js", ".ts", ".elm", ".scss", ".css"],
         alias: {
-            "monaco-editor": "monaco-editor/esm/vs/editor/editor.api.js"
-        }
+            "monaco-editor": "monaco-editor/esm/vs/editor/editor.api.js",
+        },
     },
     module: {
         rules: [
@@ -61,23 +61,27 @@ const common = {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 use: {
-                    loader: "babel-loader"
-                }
+                    loader: "babel-loader",
+                },
             },
             {
                 test: /\.ts$/,
                 exclude: /node_modules/,
-                use: "ts-loader"
+                use: "ts-loader",
             },
             {
                 test: /\.scss$/,
                 exclude: [/elm-stuff/, /node_modules/],
-                loaders: ["style-loader", "css-loader?url=false", "sass-loader"]
+                loaders: [
+                    "style-loader",
+                    "css-loader?url=false",
+                    "sass-loader",
+                ],
             },
             {
                 test: /\.css$/,
                 exclude: [/elm-stuff/],
-                loaders: ["style-loader", "css-loader?url=false"]
+                loaders: ["style-loader", "css-loader?url=false"],
             },
             {
                 test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
@@ -85,32 +89,32 @@ const common = {
                 loader: "url-loader",
                 options: {
                     limit: 10000,
-                    mimetype: "application/font-woff"
-                }
+                    mimetype: "application/font-woff",
+                },
             },
             {
                 test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
                 exclude: [/elm-stuff/, /node_modules/],
-                loader: "file-loader"
+                loader: "file-loader",
             },
             {
                 test: /\.(jpe?g|png|gif|svg)$/i,
                 exclude: [/elm-stuff/, /node_modules/],
-                loader: "file-loader"
+                loader: "file-loader",
             },
             {
                 test: /\.svg$/,
-                loader: "svg-inline-loader"
-            }
-        ]
-    }
+                loader: "svg-inline-loader",
+            },
+        ],
+    },
 };
 
 if (MODE === "development") {
     module.exports = merge(common, {
         plugins: [
             new webpack.NamedModulesPlugin(),
-            new webpack.NoEmitOnErrorsPlugin()
+            new webpack.NoEmitOnErrorsPlugin(),
         ],
         module: {
             rules: [
@@ -119,18 +123,18 @@ if (MODE === "development") {
                     exclude: [/elm-stuff/, /node_modules/],
                     use: [
                         {
-                            loader: "elm-hot-webpack-loader"
+                            loader: "elm-hot-webpack-loader",
                         },
                         {
                             loader: "elm-webpack-loader",
                             options: {
                                 debug: withDebug,
-                                forceWatch: true
-                            }
-                        }
-                    ]
-                }
-            ]
+                                forceWatch: true,
+                            },
+                        },
+                    ],
+                },
+            ],
         },
         devServer: {
             inline: true,
@@ -138,13 +142,13 @@ if (MODE === "development") {
             contentBase: path.join(__dirname, "src/assets"),
             historyApiFallback: true,
             before(app) {
-                app.get("/test", function(req, res) {
+                app.get("/test", function (req, res) {
                     res.json({
-                        result: "OK"
+                        result: "OK",
                     });
                 });
-            }
-        }
+            },
+        },
     });
 }
 if (MODE === "production") {
@@ -153,22 +157,22 @@ if (MODE === "production") {
             new WorkboxWebpackPlugin.GenerateSW({
                 swDest: dist + "/sw.js",
                 clientsClaim: true,
-                skipWaiting: true
+                skipWaiting: true,
             }),
             new CleanWebpackPlugin({
                 root: __dirname,
                 exclude: [],
                 verbose: false,
-                dry: false
+                dry: false,
             }),
             new CopyWebpackPlugin([
                 {
-                    from: "src/assets"
-                }
+                    from: "src/assets",
+                },
             ]),
             new MiniCssExtractPlugin({
-                filename: "[name]-[hash].css"
-            })
+                filename: "[name]-[hash].css",
+            }),
         ],
         module: {
             rules: [
@@ -178,17 +182,17 @@ if (MODE === "production") {
                     use: {
                         loader: "elm-webpack-loader",
                         options: {
-                            optimize: true
-                        }
-                    }
+                            optimize: true,
+                        },
+                    },
                 },
                 {
                     test: /\.css$/,
                     exclude: [/elm-stuff/, /node_modules/],
                     loaders: [
                         MiniCssExtractPlugin.loader,
-                        "css-loader?url=false"
-                    ]
+                        "css-loader?url=false",
+                    ],
                 },
                 {
                     test: /\.scss$/,
@@ -196,28 +200,28 @@ if (MODE === "production") {
                     loaders: [
                         MiniCssExtractPlugin.loader,
                         "css-loader?url=false",
-                        "sass-loader"
-                    ]
-                }
-            ]
+                        "sass-loader",
+                    ],
+                },
+            ],
         },
         optimization: {
             splitChunks: {
                 cacheGroups: {
                     vendors: {
                         test: /[\\/]node_modules[\\/]/i,
-                        chunks: "all"
-                    }
-                }
+                        chunks: "all",
+                    },
+                },
             },
             runtimeChunk: {
-                name: "runtime"
+                name: "runtime",
             },
             minimize: true,
             minimizer: [
                 new ClosurePlugin(
                     {
-                        mode: "STANDARD"
+                        mode: "STANDARD",
                     },
                     {}
                 ),
@@ -226,12 +230,12 @@ if (MODE === "production") {
                     sourceMap: false,
                     terserOptions: {
                         compress: {
-                            drop_console: true
-                        }
-                    }
+                            drop_console: true,
+                        },
+                    },
                 }),
-                new OptimizeCSSAssetsPlugin()
-            ]
-        }
+                new OptimizeCSSAssetsPlugin(),
+            ],
+        },
     });
 }
