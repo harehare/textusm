@@ -37,6 +37,7 @@ export type Settings = {
     title: string | null;
     diagramId: string | null;
     storyMap: DiagramSettings;
+    diagram: Diagram | null;
 };
 
 export type DiagramSettings = {

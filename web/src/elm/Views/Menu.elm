@@ -7,6 +7,7 @@ import Json.Decode as D
 import List
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (FileType(..), Menu(..), Msg(..))
+import Models.Text as Text exposing (Text)
 import Route exposing (Route(..))
 import TextUSM.Enum.Diagram as Diagram
 import Utils
@@ -26,8 +27,8 @@ type alias MenuInfo =
     }
 
 
-view : Route -> Int -> Bool -> Maybe Menu -> Html Msg
-view route width fullscreen openMenu =
+view : Route -> Text -> Int -> Bool -> Maybe Menu -> Html Msg
+view route text_ width fullscreen openMenu =
     let
         menuItemStyle =
             [ class "menu-button"
@@ -114,9 +115,22 @@ view route width fullscreen openMenu =
 
               else
                 div
-                    (onClick Save :: class "save-button" :: menuItemStyle)
+                    ((if Text.isChanged text_ then
+                        onClick Save
+
+                      else
+                        class ""
+                     )
+                        :: class "save-button"
+                        :: menuItemStyle
+                    )
                     [ Icon.save
-                        "#848A90"
+                        (if Text.isChanged text_ then
+                            "#F5F5F6"
+
+                         else
+                            "#848A90"
+                        )
                         26
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
                     ]

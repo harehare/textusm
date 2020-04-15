@@ -16,9 +16,9 @@ const loadSettings = (): Settings => {
                 ...settingsObject.storyMap,
                 color: {
                     ...defaultSettings.storyMap.color,
-                    ...settingsObject.storyMap.color
-                }
-            }
+                    ...settingsObject.storyMap.color,
+                },
+            },
         };
     }
 
@@ -31,27 +31,27 @@ const defaultSettings = {
         font: "Roboto",
         size: {
             width: 140,
-            height: 65
+            height: 65,
         },
         color: {
             activity: {
                 color: "#FFFFFF",
-                backgroundColor: "#266B9A"
+                backgroundColor: "#266B9A",
             },
             task: {
                 color: "#FFFFFF",
-                backgroundColor: "#3E9BCD"
+                backgroundColor: "#3E9BCD",
             },
             story: {
                 color: "#333333",
-                backgroundColor: "#FFFFFF"
+                backgroundColor: "#FFFFFF",
             },
             line: "#434343",
             label: "#8C9FAE",
-            text: "#111111"
+            text: "#111111",
         },
         backgroundColor: "#F4F4F5",
-        zoomControl: true
+        zoomControl: true,
     },
     position: -10,
     text: "",
@@ -59,9 +59,10 @@ const defaultSettings = {
     editor: {
         fontSize: 12,
         wordWrap: false,
-        showLineNumber: true
+        showLineNumber: true,
     },
-    diagramId: null
+    diagramId: null,
+    diagram: null,
 };
 
 const saveSettings = (settings: Settings) => {

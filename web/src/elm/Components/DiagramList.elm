@@ -7,7 +7,7 @@ import GraphQL.Request as Request
 import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
-import Html.Lazy exposing (lazy4)
+import Html.Lazy exposing (lazy2, lazy4)
 import Json.Decode as D
 import List.Extra exposing (updateIf)
 import Maybe.Extra exposing (isJust)
@@ -144,7 +144,7 @@ view model =
                                 [ Icon.search "#8C9FAE" 24 ]
                             , input
                                 [ placeholder "Search"
-                                , style "border-radius" "20px"
+                                , style "border-radius" "16px"
                                 , style "padding" "8px"
                                 , style "border" "none"
                                 , style "width" "100%"
@@ -189,7 +189,7 @@ view model =
                                             identity
                                    )
                                 |> List.map
-                                    (\d -> diagramView model.timeZone d)
+                                    (\d -> lazy2 diagramView model.timeZone d)
                              )
                                 ++ [ if model.hasMorePage then
                                         div
@@ -276,7 +276,7 @@ diagramView timezone diagram =
                 , style "justify-content" "space-between"
                 , style "margin-top" "8px"
                 ]
-                [ div [ style "margin-top" "4px" ] [ text (Utils.millisToString timezone diagram.updatedAt) ]
+                [ div [] [ text (Utils.millisToString timezone diagram.updatedAt) ]
                 , if diagram.isRemote then
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOn 14 ]
 

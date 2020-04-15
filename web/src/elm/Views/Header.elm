@@ -40,6 +40,7 @@ view profile route title fullscreen menu currentText =
                             , style "color" "#f4f4f4"
                             , style "background-color" "var(--main-color)"
                             , style "border" "none"
+                            , style "font-size" "1.1rem"
                             , style "font-weight" "400"
                             , value <| Title.toString title
                             , onInput EditTitle
@@ -61,6 +62,7 @@ view profile route title fullscreen menu currentText =
                             , style "font-weight" "400"
                             , style "padding" "2px"
                             , style "display" "flex"
+                            , style "font-size" "1.1rem"
                             , style "align-items" "center"
                             , style "justify-content" "flex-start"
                             , onClick StartEditTitle

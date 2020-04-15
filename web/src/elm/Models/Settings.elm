@@ -1,5 +1,6 @@
-module Models.Settings exposing (EditorSettings, Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
+module Models.Settings exposing (EditorSettings, Settings, defaultEditorSettings, defaultSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
 
+import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import Models.Diagram as Diagram
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
@@ -14,6 +15,7 @@ type alias Settings =
     , text : Maybe String
     , title : Maybe String
     , editor : Maybe EditorSettings
+    , diagram : Maybe DiagramItem
     }
 
 
@@ -21,6 +23,41 @@ type alias EditorSettings =
     { fontSize : Int
     , wordWrap : Bool
     , showLineNumber : Bool
+    }
+
+
+defaultSettings : Settings
+defaultSettings =
+    { position = Just -10
+    , font = "Roboto"
+    , diagramId = Nothing
+    , storyMap =
+        { font = "Roboto"
+        , size = { width = 140, height = 65 }
+        , color =
+            { activity =
+                { color = "#FFFFFF"
+                , backgroundColor = "#266B9A"
+                }
+            , task =
+                { color = "#FFFFFF"
+                , backgroundColor = "#3E9BCD"
+                }
+            , story =
+                { color = "#333333"
+                , backgroundColor = "#FFFFFF"
+                }
+            , line = "#434343"
+            , label = "#8C9FAE"
+            , text = Just "#111111"
+            }
+        , backgroundColor = "#F4F4F5"
+        , zoomControl = Just True
+        }
+    , text = Nothing
+    , title = Nothing
+    , editor = Nothing
+    , diagram = Nothing
     }
 
 

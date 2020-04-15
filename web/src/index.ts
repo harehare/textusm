@@ -13,7 +13,7 @@ import { ElmApp } from "./ts/elm";
 import { Elm } from "./elm/Main.elm";
 
 const app: ElmApp = Elm.Main.init({
-    flags: [process.env.API_ROOT, loadSettings()]
+    flags: [process.env.API_ROOT, JSON.stringify(loadSettings())],
 });
 const auth = new Auth();
 const openFullscreen = () => {
@@ -67,7 +67,7 @@ app.ports.login.subscribe((provider: string) => {
 });
 
 app.ports.logout.subscribe(async () => {
-    await auth.logout().catch(err => {
+    await auth.logout().catch((err) => {
         app.ports.onErrorNotification.send("Failed sign out.");
     });
 });
@@ -86,7 +86,7 @@ auth.authn(
                 id: profile.uid,
                 displayName: profile.displayName || "",
                 email: profile.email || "",
-                photoURL: profile.photoURL || ""
+                photoURL: profile.photoURL || "",
             });
         }
     }
@@ -110,7 +110,7 @@ app.ports.closeFullscreen.subscribe(() => {
 // @ts-ignore
 const attachApp = (app, list) => {
     // @ts-ignore
-    list.forEach(l => l(app));
+    list.forEach((l) => l(app));
 };
 
 attachApp(app, [initDowonlad, initShare, initDB]);

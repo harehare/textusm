@@ -50,7 +50,6 @@ type Msg
     | OnVisibilityChange Visibility
     | OnStartWindowResize Int
     | OnWindowResize Int
-    | ApplySettings Settings
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | OnEncodeShareText String
@@ -100,8 +99,7 @@ type Menu
 
 
 type alias Model =
-    { id : Maybe String
-    , text : Text
+    { text : Text
     , currentDiagram : Maybe DiagramItem
     , key : Nav.Key
     , url : Url.Url
