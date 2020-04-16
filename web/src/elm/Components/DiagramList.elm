@@ -13,7 +13,7 @@ import List.Extra exposing (updateIf)
 import Maybe.Extra exposing (isJust)
 import Models.DiagramList exposing (FilterCondition(..), FilterValue(..), Model, Msg(..))
 import Models.DiagramType as DiagramType
-import Models.User as UserModel exposing (User)
+import Models.Session as Session exposing (Session)
 import Ports exposing (getDiagrams, removeDiagrams)
 import RemoteData exposing (RemoteData(..))
 import Task
@@ -34,13 +34,13 @@ pageOffsetAndLimit pageNo =
     ( pageSize * (pageNo - 1), pageSize * pageNo )
 
 
-init : Maybe User -> String -> ( Model, Cmd Msg )
-init user apiRoot =
+init : Session -> String -> ( Model, Cmd Msg )
+init session apiRoot =
     ( { searchQuery = Nothing
       , timeZone = Time.utc
       , diagramList = NotAsked
       , filterCondition = FilterCondition FilterAll (\_ -> True)
-      , loginUser = user
+      , session = session
       , apiRoot = apiRoot
       , pageNo = 1
       , hasMorePage = False
@@ -338,63 +338,62 @@ update message model =
                         Result.withDefault [] <|
                             D.decodeString (D.list DiagramItem.decoder) json
                 in
-                case model.loginUser of
-                    Just _ ->
-                        let
-                            remoteItems =
-                                Request.items { url = model.apiRoot, idToken = Maybe.map (\u -> UserModel.getIdToken u) model.loginUser } (pageOffsetAndLimit model.pageNo) False False
-                                    |> Task.map
-                                        (\i ->
-                                            i
-                                                |> List.filter (\item -> isJust item)
-                                                |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
-                                        )
+                if Session.isSignedIn model.session then
+                    let
+                        remoteItems =
+                            Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session } (pageOffsetAndLimit model.pageNo) False False
+                                |> Task.map
+                                    (\i ->
+                                        i
+                                            |> List.filter (\item -> isJust item)
+                                            |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
+                                    )
 
-                            items =
-                                remoteItems
-                                    |> Task.map
-                                        (\item ->
-                                            List.concat [ localItems, item ]
-                                                |> List.sortWith
-                                                    (\a b ->
-                                                        let
-                                                            v1 =
-                                                                a.updatedAt |> Time.posixToMillis
+                        items =
+                            remoteItems
+                                |> Task.map
+                                    (\item ->
+                                        List.concat [ localItems, item ]
+                                            |> List.sortWith
+                                                (\a b ->
+                                                    let
+                                                        v1 =
+                                                            a.updatedAt |> Time.posixToMillis
 
-                                                            v2 =
-                                                                b.updatedAt |> Time.posixToMillis
-                                                        in
-                                                        if v1 - v2 > 0 then
-                                                            LT
+                                                        v2 =
+                                                            b.updatedAt |> Time.posixToMillis
+                                                    in
+                                                    if v1 - v2 > 0 then
+                                                        LT
 
-                                                        else if v1 - v2 < 0 then
-                                                            GT
+                                                    else if v1 - v2 < 0 then
+                                                        GT
 
-                                                        else
-                                                            EQ
-                                                    )
-                                        )
-                                    |> Task.mapError (Tuple.pair localItems)
-                        in
-                        ( { model
-                            | diagramList =
-                                if RemoteData.isNotAsked model.diagramList then
-                                    Loading
+                                                    else
+                                                        EQ
+                                                )
+                                    )
+                                |> Task.mapError (Tuple.pair localItems)
+                    in
+                    ( { model
+                        | diagramList =
+                            if RemoteData.isNotAsked model.diagramList then
+                                Loading
 
-                                else
-                                    model.diagramList
-                          }
-                        , Task.attempt GotDiagrams items
-                        )
+                            else
+                                model.diagramList
+                      }
+                    , Task.attempt GotDiagrams items
+                    )
 
-                    Nothing ->
-                        ( { model
-                            | hasMorePage = False
-                            , diagramList =
-                                Success localItems
-                          }
-                        , Cmd.none
-                        )
+                else
+                    ( { model
+                        | hasMorePage = False
+                        , diagramList =
+                            Success localItems
+                      }
+                    , Cmd.none
+                    )
 
         GotDiagrams (Err ( items, _ )) ->
             ( { model
@@ -430,7 +429,7 @@ update message model =
                 Ok diagram ->
                     ( model
                     , Task.attempt Removed
-                        (Request.delete { url = model.apiRoot, idToken = Maybe.map (\u -> UserModel.getIdToken u) model.loginUser } (Maybe.withDefault "" diagram.id)
+                        (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session } (Maybe.withDefault "" diagram.id)
                             |> Task.map (\_ -> Just diagram)
                         )
                     )
@@ -462,7 +461,7 @@ update message model =
             in
             ( { model | diagramList = Success diagramList }
             , Task.attempt Bookmarked
-                (Request.bookmark { url = model.apiRoot, idToken = Maybe.map (\u -> UserModel.getIdToken u) model.loginUser } (Maybe.withDefault "" diagram.id) (not diagram.isBookmark)
+                (Request.bookmark { url = model.apiRoot, idToken = Session.getIdToken model.session } (Maybe.withDefault "" diagram.id) (not diagram.isBookmark)
                     |> Task.map (\_ -> Just diagram)
                 )
             )

@@ -1,9 +1,9 @@
-port module Ports exposing (changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, encodeShareText, getDiagram, getDiagrams, gotLocalDiagramJson, layoutEditor, loadEditor, loadText, login, logout, onAuthStateChanged, onDecodeShareText, onEncodeShareText, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, removeDiagrams, removeRemoteDiagram, removedDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, selectTextById, setEditorLanguage, shortcuts, startDownload)
+port module Ports exposing (changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, encodeShareText, getDiagram, getDiagrams, gotLocalDiagramJson, layoutEditor, loadEditor, loadText, onAuthStateChanged, onDecodeShareText, onEncodeShareText, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, removeDiagrams, removeRemoteDiagram, removedDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, selectTextById, setEditorLanguage, shortcuts, signIn, signOut, startDownload)
 
 import Json.Encode as E
 import Models.Model exposing (DownloadFileInfo, DownloadInfo, Msg(..), Notification(..), ShareInfo)
-import Models.Settings exposing (EditorSettings, Settings)
-import Models.User exposing (User)
+import Models.Session exposing (User)
+import Models.Settings exposing (EditorSettings)
 
 
 port changeText : (String -> msg) -> Sub msg
@@ -54,10 +54,10 @@ port downloadHtml : DownloadInfo -> Cmd msg
 port loadEditor : ( String, EditorSettings ) -> Cmd msg
 
 
-port login : String -> Cmd msg
+port signIn : String -> Cmd msg
 
 
-port logout : () -> Cmd msg
+port signOut : () -> Cmd msg
 
 
 port loadText : String -> Cmd msg

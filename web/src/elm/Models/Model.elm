@@ -11,10 +11,10 @@ import Graphql.Http as Http
 import Http as Http2
 import Models.Diagram as Diagram
 import Models.DiagramList as DiagramList
+import Models.Session exposing (Session, User)
 import Models.Settings exposing (Settings)
 import Models.Text exposing (Text)
 import Models.Title exposing (Title)
-import Models.User exposing (User)
 import Route as Route
 import TextUSM.Enum.Diagram exposing (Diagram)
 import Url
@@ -45,8 +45,8 @@ type Msg
     | EditTitle String
     | OnShareUrl ShareInfo
     | OnCurrentShareUrl
-    | Login LoginProvider
-    | Logout
+    | SignIn LoginProvider
+    | SignOut
     | OnVisibilityChange Visibility
     | OnStartWindowResize Int
     | OnWindowResize Int
@@ -115,7 +115,7 @@ type alias Model =
     , editorIndex : Int
     , progress : Bool
     , apiRoot : String
-    , loginUser : Maybe User
+    , session : Session
     , dropDownIndex : Maybe String
     }
 

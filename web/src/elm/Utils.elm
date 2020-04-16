@@ -1,15 +1,13 @@
-module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getIdToken, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix, transpose)
+module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix, transpose)
 
 import Constants
 import File exposing (File)
 import Http exposing (Error(..))
 import List.Extra exposing (getAt, last, scanl1, takeWhile, unique)
 import Models.Diagram as DiagramModel
-import Models.IdToken exposing (IdToken)
 import Models.Item as Item
 import Models.Model exposing (Msg(..), Notification(..))
 import Models.Text as Text
-import Models.User as User exposing (User)
 import Models.Views.ER as ER exposing (Table(..))
 import Models.Views.Kanban as Kanban
 import Process
@@ -17,11 +15,6 @@ import Task
 import TextUSM.Enum.Diagram as Diagram
 import Time exposing (Month(..), Posix, Zone, toDay, toHour, toMinute, toMonth, toSecond, toYear, utc)
 import Time.Extra exposing (Interval(..), Parts, diff, partsToPosix)
-
-
-getIdToken : Maybe User -> Maybe IdToken
-getIdToken user =
-    Maybe.map (\u -> User.getIdToken u) user
 
 
 calcFontSize : Int -> String -> String

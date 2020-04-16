@@ -2,7 +2,7 @@ module Models.DiagramList exposing (FilterCondition(..), FilterValue(..), Model,
 
 import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import Graphql.Http as Http
-import Models.User exposing (User)
+import Models.Session exposing (Session)
 import RemoteData exposing (WebData)
 import TextUSM.Enum.Diagram exposing (Diagram)
 import Time exposing (Zone)
@@ -40,7 +40,7 @@ type alias Model =
     , timeZone : Zone
     , diagramList : WebData (List DiagramItem)
     , filterCondition : FilterCondition
-    , loginUser : Maybe User
+    , session : Session
     , apiRoot : String
     , pageNo : Int
     , hasMorePage : Bool

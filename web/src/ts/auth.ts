@@ -4,7 +4,7 @@ import "firebase/auth";
 export class Auth {
     provideres = {
         google: new firebase.auth.GoogleAuthProvider(),
-        github: new firebase.auth.GithubAuthProvider()
+        github: new firebase.auth.GithubAuthProvider(),
     };
 
     constructor() {
@@ -13,7 +13,7 @@ export class Auth {
             authDomain: process.env.FIREBASE_AUTH_DOMAIN,
             projectId: process.env.FIREBASE_PROJECT_ID,
             storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-            appId: process.env.FIREBASE_APP_ID
+            appId: process.env.FIREBASE_APP_ID,
         };
         firebase.initializeApp(firebaseConfig);
     }
@@ -22,15 +22,15 @@ export class Auth {
         return firebase.auth().currentUser || null;
     }
 
-    login(provider: firebase.auth.AuthProvider) {
+    signIn(provider: firebase.auth.AuthProvider) {
         return new Promise((resolve, reject) => {
             firebase
                 .auth()
                 .signInWithRedirect(provider)
-                .then(result => {
+                .then((result) => {
                     resolve(result);
                 })
-                .catch(err => {
+                .catch((err) => {
                     reject(err);
                 });
         });
@@ -44,10 +44,10 @@ export class Auth {
             user: firebase.User | null
         ) => void
     ) {
-        firebase.auth().onAuthStateChanged(user => {
+        firebase.auth().onAuthStateChanged((user) => {
             onBeforeAuth();
             if (user) {
-                user.getIdToken(true).then(idToken => {
+                user.getIdToken(true).then((idToken) => {
                     onAuthStateChanged(idToken, user);
                 });
             } else {
@@ -57,15 +57,15 @@ export class Auth {
         });
     }
 
-    logout() {
+    signOut() {
         return new Promise((resolve, reject) => {
             firebase
                 .auth()
                 .signOut()
-                .then(result => {
+                .then((result) => {
                     resolve(result);
                 })
-                .catch(err => {
+                .catch((err) => {
                     reject(err);
                 });
         });

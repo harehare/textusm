@@ -24,6 +24,7 @@ import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
 import Models.DiagramType as DiagramType
 import Models.Model exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), ShareUrl(..))
+import Models.Session as Session
 import Models.Settings exposing (defaultEditorSettings, defaultSettings)
 import Models.Text as Text
 import Models.Title as Title
@@ -64,7 +65,7 @@ init flags url key =
                 |> Result.withDefault defaultSettings
 
         ( diagramListModel, _ ) =
-            DiagramList.init Nothing apiRoot
+            DiagramList.init Session.guest apiRoot
 
         ( diagramModel, _ ) =
             Diagram.init settings.storyMap
@@ -90,7 +91,7 @@ init flags url key =
                 , editorIndex = 1
                 , progress = True
                 , apiRoot = apiRoot
-                , loginUser = Nothing
+                , session = Session.guest
                 , currentDiagram = settings.diagram
                 , embed = Nothing
                 , dropDownIndex = Nothing
@@ -106,7 +107,7 @@ view model =
         , style "width" "100vw"
         , onClick CloseMenu
         ]
-        [ lazy6 Header.view model.loginUser (toRoute model.url) model.title model.window.fullscreen model.openMenu model.text
+        [ lazy6 Header.view model.session (toRoute model.url) model.title model.window.fullscreen model.openMenu model.text
         , lazy showNotification model.notification
         , lazy2 showProgressbar model.progress model.window.fullscreen
         , div
@@ -252,7 +253,7 @@ changeRouteTo route model =
             if RemoteData.isNotAsked model.diagramListModel.diagramList || List.isEmpty (RemoteData.withDefault [] model.diagramListModel.diagramList) then
                 let
                     ( model_, cmd_ ) =
-                        DiagramList.init model.loginUser model.apiRoot
+                        DiagramList.init model.session model.apiRoot
                 in
                 ( { model | progress = True, diagramListModel = model_ }
                 , getCmds [ Ports.getDiagrams (), cmd_ |> Cmd.map UpdateDiagramList ]
@@ -723,7 +724,7 @@ update message model =
         Save ->
             let
                 isRemote =
-                    isJust model.loginUser
+                    Session.isSignedIn model.session
 
                 diagramListModel =
                     model.diagramListModel
@@ -794,7 +795,7 @@ update message model =
                         |> Result.andThen
                             (\diagram ->
                                 Ok
-                                    (Request.save { url = model.apiRoot, idToken = Utils.getIdToken model.loginUser } (DiagramItem.toInputItem diagram)
+                                    (Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram)
                                         |> Task.map (\_ -> diagram)
                                     )
                             )
@@ -1001,7 +1002,7 @@ update message model =
                 embedUrl =
                     "https://app.textusm.com/embed" ++ path
             in
-            ( { model | embed = Just embedUrl }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Utils.getIdToken model.loginUser) model.apiRoot shareUrl) )
+            ( { model | embed = Just embedUrl }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl) )
 
         OnDecodeShareText text ->
             ( model, Task.perform identity (Task.succeed (FileLoaded text)) )
@@ -1040,9 +1041,9 @@ update message model =
             in
             ( { model | dropDownIndex = Nothing, settings = settings, diagramModel = newDiagramModel }, Cmd.none )
 
-        Login provider ->
+        SignIn provider ->
             ( { model | progress = True }
-            , Ports.login <|
+            , Ports.signIn <|
                 case provider of
                     Google ->
                         "Google"
@@ -1051,11 +1052,14 @@ update message model =
                         "Github"
             )
 
-        Logout ->
-            ( { model | loginUser = Nothing, currentDiagram = Nothing }, Ports.logout () )
+        SignOut ->
+            ( { model | session = Session.guest, currentDiagram = Nothing }, Ports.signOut () )
 
-        OnAuthStateChanged user ->
-            ( { model | loginUser = user, progress = False }, Cmd.none )
+        OnAuthStateChanged (Just user) ->
+            ( { model | session = Session.signIn user, progress = False }, Cmd.none )
+
+        OnAuthStateChanged Nothing ->
+            ( { model | session = Session.guest, progress = False }, Cmd.none )
 
         ToggleDropDownList id ->
             let

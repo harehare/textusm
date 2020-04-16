@@ -60,14 +60,14 @@ app.ports.loadEditor.subscribe(([text, option]: [string, EditorOption]) => {
     loadEditor(app, text, option);
 });
 
-app.ports.login.subscribe((provider: string) => {
-    auth.login(
+app.ports.signIn.subscribe((provider: string) => {
+    auth.signIn(
         provider === "Google" ? auth.provideres.google : auth.provideres.github
     );
 });
 
-app.ports.logout.subscribe(async () => {
-    await auth.logout().catch((err) => {
+app.ports.signOut.subscribe(async () => {
+    await auth.signOut().catch((err) => {
         app.ports.onErrorNotification.send("Failed sign out.");
     });
 });

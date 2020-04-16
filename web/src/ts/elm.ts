@@ -15,8 +15,8 @@ export type ElmApp = {
         loadEditor: Elm2JsPort<
             ([text, option]: [string, EditorOption]) => void
         >;
-        login: Elm2JsPort<(provider: string) => void>;
-        logout: Elm2JsPort<() => Promise<void>>;
+        signIn: Elm2JsPort<(provider: string) => void>;
+        signOut: Elm2JsPort<() => Promise<void>>;
         selectTextById: Elm2JsPort<(id: string) => void>;
         openFullscreen: Elm2JsPort<() => void>;
         closeFullscreen: Elm2JsPort<() => void>;

@@ -5,19 +5,18 @@ import Html exposing (Html, a, div, header, img, input, span, text)
 import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, value)
 import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
-import Maybe.Extra exposing (isJust)
 import Models.Model exposing (LoginProvider(..), Menu(..), Msg(..))
+import Models.Session as Session exposing (Session)
 import Models.Text as Text exposing (Text)
 import Models.Title as Title exposing (Title)
-import Models.User exposing (User)
 import Route exposing (Route(..))
 import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu
 
 
-view : Maybe User -> Route -> Title -> Bool -> Maybe Menu -> Text -> Html Msg
-view profile route title fullscreen menu currentText =
+view : Session -> Route -> Title -> Bool -> Maybe Menu -> Text -> Html Msg
+view session route title fullscreen menu currentText =
     if fullscreen then
         header [] []
 
@@ -101,10 +100,10 @@ view profile route title fullscreen menu currentText =
                 [ Icon.people 24
                 , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Share" ] ]
                 ]
-            , if isJust profile then
+            , if Session.isSignedIn session then
                 let
                     user =
-                        profile
+                        Session.getUser session
                             |> Maybe.withDefault
                                 { displayName = ""
                                 , email = ""
@@ -140,7 +139,7 @@ view profile route title fullscreen menu currentText =
                                     Nothing
                                     (Just "5px")
                                     [ Menu.Item
-                                        { e = Logout
+                                        { e = SignOut
                                         , title = "SIGN OUT"
                                         , icon = Nothing
                                         }
@@ -173,12 +172,12 @@ view profile route title fullscreen menu currentText =
                                 Nothing
                                 (Just "5px")
                                 [ Menu.Item
-                                    { e = Login Google
+                                    { e = SignIn Google
                                     , title = "Google"
                                     , icon = Nothing
                                     }
                                 , Menu.Item
-                                    { e = Login Github
+                                    { e = SignIn Github
                                     , title = "Github"
                                     , icon = Nothing
                                     }
