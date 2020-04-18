@@ -1,10 +1,5 @@
-import * as jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import { DownloadInfo } from "./model";
 import { ElmApp } from "./elm";
-
-// @ts-ignore
-window.html2canvas = html2canvas;
 
 export const initDowonlad = (app: ElmApp) => {
     const createSvg = (id: string, width: number, height: number) => {
@@ -67,19 +62,23 @@ export const initDowonlad = (app: ElmApp) => {
                     createSvg(id, width, height)
                 ),
                 extension: ".svg",
-                mimeType: "image/svg+xml"
+                mimeType: "image/svg+xml",
             });
             app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
         }
     );
 
     app.ports.downloadPdf.subscribe(
-        ({ id, width, height, title, x, y }: DownloadInfo) => {
+        async ({ id, width, height, title, x, y }: DownloadInfo) => {
+            // @ts-ignore
+            window.html2canvas = await import("html2canvas");
+            const jsPDF = await import("jspdf");
+
             if (location.pathname === "/md") {
                 const doc = new jsPDF({
                     orientation: "p",
                     unit: "px",
-                    compress: true
+                    compress: true,
                 });
                 const pageWidth = doc.internal.pageSize.width;
                 const pageHeight = doc.internal.pageSize.height;
@@ -115,9 +114,9 @@ export const initDowonlad = (app: ElmApp) => {
                         doc.save(title);
                         app.ports.downloadCompleted.send([
                             Math.floor(x),
-                            Math.floor(y)
+                            Math.floor(y),
                         ]);
-                    }
+                    },
                 });
             } else {
                 createImage({
@@ -129,7 +128,7 @@ export const initDowonlad = (app: ElmApp) => {
                         const doc = new jsPDF({
                             orientation: "l",
                             unit: "px",
-                            compress: true
+                            compress: true,
                         });
                         const pageWidth = doc.internal.pageSize.getWidth();
                         doc.addImage(
@@ -143,9 +142,9 @@ export const initDowonlad = (app: ElmApp) => {
                         doc.save(title);
                         app.ports.downloadCompleted.send([
                             Math.floor(x),
-                            Math.floor(y)
+                            Math.floor(y),
                         ]);
-                    }
+                    },
                 });
             }
         }
@@ -165,15 +164,15 @@ export const initDowonlad = (app: ElmApp) => {
                     a.style.display = "none";
                     a.click();
 
-                    setTimeout(function() {
+                    setTimeout(function () {
                         window.URL.revokeObjectURL(url);
                         a.remove();
                     }, 10);
                     app.ports.downloadCompleted.send([
                         Math.floor(x),
-                        Math.floor(y)
+                        Math.floor(y),
                     ]);
-                }
+                },
             });
         }
     );
@@ -202,7 +201,7 @@ export const initDowonlad = (app: ElmApp) => {
             app.ports.startDownload.send({
                 content: `<html>${elm.outerHTML}</html>`,
                 extension: ".html",
-                mimeType: "text/html"
+                mimeType: "text/html",
             });
         }
     });

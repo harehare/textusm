@@ -3,43 +3,69 @@ import * as uuid from "uuid/v4";
 import { Diagram, DiagramItem } from "./model";
 import { ElmApp } from "./elm";
 
-const db = new Dexie("textusm");
-const svg2base64 = (id: string) => {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", `0 0 1280 960`);
-    svg.setAttribute("width", "320");
-    svg.setAttribute("height", "240");
-    svg.setAttribute("style", "background-color: #F5F5F6;");
-    const elm = document.querySelector(`#${id}`);
-
-    if (elm) {
-        svg.innerHTML = elm.innerHTML;
-    }
-
-    return `data:image/svg+xml;base64,${window.btoa(
-        unescape(encodeURIComponent(new XMLSerializer().serializeToString(svg)))
-    )}`;
-};
-
-db.version(1).stores({
-    diagrams: "++id,title,text,thumbnail,diagramPath,createdAt,updatedAt",
-});
-
-db.version(2)
-    .stores({
-        diagrams:
-            "++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt",
-    })
-    .upgrade((trans) => {
-        //@ts-ignore
-        return trans.diagrams.toCollection().modify((diagram) => {
-            diagram.diagram = diagram.diagramPath;
-            diagram.isBookmark = false;
-            delete diagram.diagramPath;
-        });
-    });
-
 export const initDB = (app: ElmApp) => {
+    const lazyDB = () => {
+        // @ts-ignore
+        let db = null;
+
+        return async () => {
+            // @ts-ignore
+            if (!db) {
+                db = new Dexie("textusm");
+                // @ts-ignore
+                db.version(1).stores({
+                    diagrams:
+                        "++id,title,text,thumbnail,diagramPath,createdAt,updatedAt",
+                });
+
+                db.version(2)
+                    .stores({
+                        diagrams:
+                            "++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt",
+                    })
+                    //@ts-ignore
+                    .upgrade((trans) => {
+                        //@ts-ignore
+                        return (
+                            //@ts-ignore
+                            trans.diagrams
+                                .toCollection()
+                                //@ts-ignore
+                                .modify((diagram) => {
+                                    diagram.diagram = diagram.diagramPath;
+                                    diagram.isBookmark = false;
+                                    delete diagram.diagramPath;
+                                })
+                        );
+                    });
+            }
+            //@ts-ignore
+            return db;
+        };
+    };
+    const db = lazyDB();
+    const svg2base64 = (id: string) => {
+        const svg = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "svg"
+        );
+        svg.setAttribute("viewBox", `0 0 1280 960`);
+        svg.setAttribute("width", "320");
+        svg.setAttribute("height", "240");
+        svg.setAttribute("style", "background-color: #F5F5F6;");
+        const elm = document.querySelector(`#${id}`);
+
+        if (elm) {
+            svg.innerHTML = elm.innerHTML;
+        }
+
+        return `data:image/svg+xml;base64,${window.btoa(
+            unescape(
+                encodeURIComponent(new XMLSerializer().serializeToString(svg))
+            )
+        )}`;
+    };
+
     app.ports.saveDiagram.subscribe(
         async ({
             id,
@@ -75,12 +101,12 @@ export const initDB = (app: ElmApp) => {
                 );
                 if (id) {
                     // @ts-ignore
-                    await db.diagrams.delete(id);
+                    await (await db()).diagrams.delete(id);
                 }
             } else {
                 const newId = id ? id : uuid();
                 // @ts-ignore
-                await db.diagrams.put({ id: newId, ...diagramItem });
+                await (await db()).diagrams.put({ id: newId, ...diagramItem });
                 app.ports.saveToLocalCompleted.send(
                     JSON.stringify({
                         isRemote: false,
@@ -105,7 +131,7 @@ export const initDB = (app: ElmApp) => {
                 app.ports.removeRemoteDiagram.send(JSON.stringify(diagram));
             } else {
                 // @ts-ignore
-                await db.diagrams.delete(id);
+                await (await db()).diagrams.delete(id);
                 app.ports.removedDiagram.send([JSON.stringify(diagram), true]);
             }
         }
@@ -113,7 +139,7 @@ export const initDB = (app: ElmApp) => {
 
     app.ports.getDiagrams.subscribe(async () => {
         // @ts-ignore
-        const diagrams = await db.diagrams
+        const diagrams = await (await db()).diagrams
             .orderBy("updatedAt")
             .reverse()
             .toArray();

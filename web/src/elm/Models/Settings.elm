@@ -29,10 +29,10 @@ type alias EditorSettings =
 defaultSettings : Settings
 defaultSettings =
     { position = Just -10
-    , font = "Roboto"
+    , font = "Nunito Sans"
     , diagramId = Nothing
     , storyMap =
-        { font = "Roboto"
+        { font = "Nunito Sans"
         , size = { width = 140, height = 65 }
         , color =
             { activity =

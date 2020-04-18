@@ -19,7 +19,6 @@ import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy5, lazy6)
 import Json.Decode as D
 import List.Extra exposing (getAt, removeAt, setAt, splitAt)
-import Maybe.Extra exposing (isJust)
 import Models.Diagram as DiagramModel
 import Models.DiagramList as DiagramListModel
 import Models.DiagramType as DiagramType
@@ -568,7 +567,7 @@ update message model =
                             , Cmd.batch
                                 [ Utils.delay 3000 OnCloseNotification
                                 , Utils.showErrorMessage
-                                    "Failed remove diagram."
+                                    "Failed."
                                 ]
                             )
 
@@ -595,7 +594,7 @@ update message model =
                             , Cmd.batch
                                 [ Utils.delay 3000 OnCloseNotification
                                 , Utils.showErrorMessage
-                                    "Failed remove diagram."
+                                    "Failed."
                                 ]
                             )
 
@@ -604,7 +603,7 @@ update message model =
                     , Cmd.batch
                         [ Utils.delay 3000 OnCloseNotification
                         , Utils.showErrorMessage
-                            "Failed remove diagram."
+                            "Failed."
                         ]
                     )
 
@@ -1144,7 +1143,7 @@ update message model =
 
 
 
--- Ports
+-- Subscriptions
 
 
 subscriptions : Model -> Sub Msg
@@ -1172,15 +1171,10 @@ subscriptions model =
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp (D.succeed Stop)
-                    , onMouseMove (D.map OnWindowResize pageX)
+                    , onMouseMove (D.map OnWindowResize (D.field "pageX" D.int))
                     ]
 
                 else
                     [ Sub.none ]
                )
         )
-
-
-pageX : D.Decoder Int
-pageX =
-    D.field "pageX" D.int

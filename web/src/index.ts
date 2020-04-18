@@ -16,6 +16,7 @@ const app: ElmApp = Elm.Main.init({
     flags: [process.env.API_ROOT, JSON.stringify(loadSettings())],
 });
 const auth = new Auth();
+
 const openFullscreen = () => {
     const elem = document.documentElement;
     if (elem.requestFullscreen) {
@@ -107,9 +108,7 @@ app.ports.closeFullscreen.subscribe(() => {
     closeFullscreen();
 });
 
-// @ts-ignore
-const attachApp = (app, list) => {
-    // @ts-ignore
+const attachApp = (app: ElmApp, list: ((app: ElmApp) => void)[]) => {
     list.forEach((l) => l(app));
 };
 

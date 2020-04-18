@@ -26,9 +26,9 @@ const loadSettings = (): Settings => {
 };
 
 const defaultSettings = {
-    font: "Roboto",
+    font: "Nunito Sans",
     storyMap: {
-        font: "Roboto",
+        font: "Nunito Sans",
         size: {
             width: 140,
             height: 65,

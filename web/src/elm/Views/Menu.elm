@@ -55,6 +55,9 @@ view route text_ width fullscreen openMenu =
                     Help ->
                         onClick NavBack
 
+                    Share _ _ _ ->
+                        onClick NavBack
+
                     _ ->
                         stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True ))
                  )

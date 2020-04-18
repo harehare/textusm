@@ -207,6 +207,7 @@ if (MODE === "production") {
         },
         optimization: {
             splitChunks: {
+                chunks: "async",
                 cacheGroups: {
                     vendors: {
                         test: /[\\/]node_modules[\\/]/i,
@@ -234,7 +235,19 @@ if (MODE === "production") {
                         },
                     },
                 }),
-                new OptimizeCSSAssetsPlugin(),
+                new OptimizeCSSAssetsPlugin({
+                    cssProcessor: require("cssnano"),
+                    cssProcessorPluginOptions: {
+                        preset: [
+                            "advanced",
+                            {
+                                discardComments: { removeAll: true },
+                                cssDeclarationSorter: { order: "smacss" },
+                            },
+                        ],
+                    },
+                    canPrint: true,
+                }),
             ],
         },
     });

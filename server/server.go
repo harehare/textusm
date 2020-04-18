@@ -99,7 +99,7 @@ func Run() int {
 	n.Use(negroni.HandlerFunc(middleware.ApiMiddleware))
 	n.Use(c)
 	n.Use(negronilogrus.NewCustomMiddleware(logrus.InfoLevel, &logrus.JSONFormatter{}, "textusm"))
-	n.Use(gzip.Gzip(gzip.DefaultCompression))
+	n.Use(gzip.Gzip(gzip.BestSpeed))
 	n.UseHandler(r)
 
 	done := make(chan bool, 1)
