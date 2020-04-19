@@ -1,4 +1,3 @@
-import Dexie from "dexie";
 import * as uuid from "uuid/v4";
 import { Diagram, DiagramItem } from "./model";
 import { ElmApp } from "./elm";
@@ -11,7 +10,9 @@ export const initDB = (app: ElmApp) => {
         return async () => {
             // @ts-ignore
             if (!db) {
-                db = new Dexie("textusm");
+                const Dexie = await import("dexie");
+                // @ts-ignore
+                db = new Dexie.default("textusm");
                 // @ts-ignore
                 db.version(1).stores({
                     diagrams:
