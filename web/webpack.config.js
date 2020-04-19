@@ -12,6 +12,8 @@ const ClosurePlugin = require("closure-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const PreloadWebpackPlugin = require("preload-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin")
+    .default;
 const MODE =
     process.env.NODE_ENV === "production" ? "production" : "development";
 const withDebug = !process.env.NODE_ENV;
@@ -159,6 +161,7 @@ if (MODE === "production") {
                 clientsClaim: true,
                 skipWaiting: true,
             }),
+            new HTMLInlineCSSWebpackPlugin(),
             new CleanWebpackPlugin({
                 root: __dirname,
                 exclude: [],
