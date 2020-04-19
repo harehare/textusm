@@ -5,7 +5,7 @@
     "dependencies": {
         "direct": {
             "NoRedInk/elm-json-decode-pipeline": "1.0.0",
-            "arturopala/elm-monocle": "2.1.0",
+            "arturopala/elm-monocle": "2.2.0",
             "dillonkearns/elm-graphql": "5.0.0",
             "elm/browser": "1.0.2",
             "elm/core": "1.0.5",
@@ -18,7 +18,7 @@
             "elm/url": "1.0.0",
             "elm-community/dict-extra": "2.4.0",
             "elm-community/json-extra": "4.2.0",
-            "elm-community/list-extra": "8.2.3",
+            "elm-community/list-extra": "8.2.4",
             "elm-community/maybe-extra": "5.2.0",
             "elm-explorations/markdown": "1.0.0",
             "folkertdev/elm-state": "3.0.1",
