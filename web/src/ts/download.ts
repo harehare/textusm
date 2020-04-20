@@ -71,7 +71,7 @@ export const initDowonlad = (app: ElmApp) => {
     app.ports.downloadPdf.subscribe(
         async ({ id, width, height, title, x, y }: DownloadInfo) => {
             // @ts-ignore
-            window.html2canvas = await import("html2canvas");
+            window.html2canvas = (await import("html2canvas")).default;
             const jsPDF = await import("jspdf");
 
             if (location.pathname === "/md") {

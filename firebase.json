@@ -24,7 +24,34 @@
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "max-age=604800"
+            "value": "max-age=31536000"
+          }
+        ]
+      },
+      {
+        "source": "main.**.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000"
+          }
+        ]
+      },
+      {
+        "source": "runtime.**.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000"
+          }
+        ]
+      },
+      {
+        "source": "vendors.**.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=31536000"
           }
         ]
       }
