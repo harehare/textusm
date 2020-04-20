@@ -1,6 +1,6 @@
 module Models.Views.CustomerJourneyMap exposing (CustomerJourneyMap(..), Header(..), Row(..), fromItems, toString)
 
-import Models.Item as Item exposing (Item, Items)
+import Models.Item as Item exposing (Item, ItemType(..), Items)
 
 
 type CustomerJourneyMap
@@ -44,7 +44,7 @@ toString customerJourneyMap =
 
         header =
             "|"
-                ++ (headerItems
+                ++ (Item.cons Item.emptyItem headerItems
                         |> Item.map (\i -> String.trim i.text)
                         |> String.join "|"
                    )
@@ -52,7 +52,9 @@ toString customerJourneyMap =
 
         section =
             "|"
-                ++ (headerItems
+                ++ (Item.cons
+                        (Item 0 "dummy" Activities Item.emptyChildren)
+                        headerItems
                         |> Item.map
                             (\item ->
                                 " " ++ String.repeat (String.trim item.text |> String.length) "-" ++ " "

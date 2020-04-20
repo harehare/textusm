@@ -870,7 +870,7 @@ update message model =
 
         EndEditTitle code isComposing ->
             if code == 13 && not isComposing then
-                ( { model | title = Title.view model.title }, Cmd.none )
+                ( { model | title = Title.view model.title, text = Text.change model.text }, Cmd.none )
 
             else
                 ( model, Cmd.none )

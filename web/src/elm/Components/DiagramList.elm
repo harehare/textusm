@@ -163,8 +163,7 @@ view model =
                             , style "font-size" "1.5rem"
                             , style "padding-bottom" "32px"
                             ]
-                            [ div [ style "margin-right" "8px" ] [ Icon.viewComfy "#8C9FAE" 64 ]
-                            , div [ style "margin-bottom" "8px" ] [ text "NOTHING" ]
+                            [ div [ style "margin-bottom" "8px" ] [ text "NOTHING" ]
                             ]
 
                       else

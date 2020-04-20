@@ -1,4 +1,4 @@
-import * as uuid from "uuid/v4";
+import { v4 as uuidv4 } from "uuid";
 import { Diagram, DiagramItem } from "./model";
 import { ElmApp } from "./elm";
 
@@ -105,7 +105,7 @@ export const initDB = (app: ElmApp) => {
                     await (await db()).diagrams.delete(id);
                 }
             } else {
-                const newId = id ? id : uuid();
+                const newId = id ? id : uuidv4();
                 // @ts-ignore
                 await (await db()).diagrams.put({ id: newId, ...diagramItem });
                 app.ports.saveToLocalCompleted.send(

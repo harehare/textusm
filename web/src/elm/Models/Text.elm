@@ -1,4 +1,4 @@
-module Models.Text exposing (Text, edit, empty, fromString, isChanged, isEmpty, lines, saved, toString)
+module Models.Text exposing (Text, change, edit, empty, fromString, isChanged, isEmpty, lines, saved, toString)
 
 
 type Text
@@ -61,6 +61,19 @@ saved text =
 
         Empty ->
             Saved ""
+
+
+change : Text -> Text
+change text =
+    case text of
+        Saved t ->
+            Changed t
+
+        Changed t ->
+            Changed t
+
+        Empty ->
+            Changed ""
 
 
 edit : Text -> String -> Text
