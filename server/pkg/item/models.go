@@ -10,13 +10,14 @@ import (
 )
 
 type InputItem struct {
-	ID         *string `json:"id"`
-	Title      string  `json:"title"`
-	Text       string  `json:"text"`
-	Thumbnail  *string `json:"thumbnail"`
-	Diagram    Diagram `json:"diagram"`
-	IsPublic   bool    `json:"isPublic"`
-	IsBookmark bool    `json:"isBookmark"`
+	ID         *string   `json:"id"`
+	Title      string    `json:"title"`
+	Text       string    `json:"text"`
+	Thumbnail  *string   `json:"thumbnail"`
+	Diagram    Diagram   `json:"diagram"`
+	IsPublic   bool      `json:"isPublic"`
+	IsBookmark bool      `json:"isBookmark"`
+	Tags       []*string `json:"tags"`
 }
 
 type Item struct {
@@ -27,6 +28,7 @@ type Item struct {
 	Diagram    Diagram   `json:"diagram"`
 	IsPublic   bool      `json:"isPublic"`
 	IsBookmark bool      `json:"isBookmark"`
+	Tags       []*string `json:"tags"`
 	CreatedAt  time.Time `json:"createdAt"`
 	UpdatedAt  time.Time `json:"updatedAt"`
 }

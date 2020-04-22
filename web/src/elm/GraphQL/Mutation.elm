@@ -22,6 +22,7 @@ save input =
             |> with TextUSM.Object.Item.isPublic
             |> with TextUSM.Object.Item.isBookmark
             |> hardcoded True
+            |> with TextUSM.Object.Item.tags
             |> with (TextUSM.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (TextUSM.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
         )
@@ -39,6 +40,7 @@ delete itemID =
             |> with TextUSM.Object.Item.isPublic
             |> with TextUSM.Object.Item.isBookmark
             |> hardcoded True
+            |> with TextUSM.Object.Item.tags
             |> with (TextUSM.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (TextUSM.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
         )
@@ -56,6 +58,7 @@ bookmark itemID isBookmark =
             |> with TextUSM.Object.Item.isPublic
             |> with TextUSM.Object.Item.isBookmark
             |> hardcoded True
+            |> with TextUSM.Object.Item.tags
             |> with (TextUSM.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (TextUSM.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
         )

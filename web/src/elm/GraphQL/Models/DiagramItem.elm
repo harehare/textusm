@@ -23,6 +23,7 @@ type alias DiagramItem =
     , isPublic : Bool
     , isBookmark : Bool
     , isRemote : Bool
+    , tags : Maybe (List (Maybe String))
     , createdAt : Posix
     , updatedAt : Posix
     }
@@ -49,6 +50,7 @@ toInputItem item =
     , diagram = item.diagram
     , isPublic = item.isPublic
     , isBookmark = item.isBookmark
+    , tags = Present (item.tags |> Maybe.withDefault [])
     }
 
 
@@ -62,6 +64,7 @@ empty =
     , isPublic = False
     , isBookmark = False
     , isRemote = False
+    , tags = Nothing
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
     }
@@ -78,6 +81,7 @@ encoder diagram =
         , ( "isPublic", E.bool diagram.isPublic )
         , ( "isBookmark", E.bool diagram.isBookmark )
         , ( "isRemote", E.bool diagram.isRemote )
+        , ( "tags", maybe (E.list (maybe E.string)) diagram.tags )
         , ( "createdAt", E.int <| Time.posixToMillis diagram.createdAt )
         , ( "updatedAt", E.int <| Time.posixToMillis diagram.updatedAt )
         ]
@@ -94,6 +98,7 @@ decoder =
         |> required "isPublic" D.bool
         |> required "isBookmark" D.bool
         |> required "isRemote" D.bool
+        |> optional "tags" (D.map Just (D.list (D.maybe D.string))) Nothing
         |> required "createdAt" (D.map Time.millisToPosix D.int)
         |> required "updatedAt" (D.map Time.millisToPosix D.int)
 

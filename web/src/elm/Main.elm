@@ -16,7 +16,7 @@ import Graphql.Http as Http
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy5, lazy6)
+import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy5, lazy6, lazy7)
 import Json.Decode as D
 import List.Extra exposing (getAt, removeAt, setAt, splitAt)
 import Models.Diagram as DiagramModel
@@ -106,7 +106,7 @@ view model =
         , style "width" "100vw"
         , onClick CloseMenu
         ]
-        [ lazy6 Header.view model.session (toRoute model.url) model.title model.window.fullscreen model.openMenu model.text
+        [ lazy7 Header.view model.session (toRoute model.url) model.title model.window.fullscreen model.currentDiagram model.openMenu model.text
         , lazy showNotification model.notification
         , lazy2 showProgressbar model.progress model.window.fullscreen
         , div
@@ -299,7 +299,7 @@ changeRouteTo route model =
             in
             ( { model
                 | diagramModel = newDiagramModel
-                , title = Title.fromString title
+                , title = percentDecode title |> Maybe.withDefault "" |> Title.fromString
               }
             , getCmds [ Ports.decodeShareText path ]
             )
@@ -754,6 +754,7 @@ update message model =
                     , text = Text.edit model.text (Text.toString model.text)
                   }
                 , Cmd.batch
+                    -- TODO: add tags
                     [ Ports.saveDiagram <|
                         DiagramItem.encoder
                             { id = Maybe.andThen .id model.currentDiagram
@@ -764,6 +765,7 @@ update message model =
                             , isRemote = isRemote
                             , isPublic = False
                             , isBookmark = False
+                            , tags = Nothing
                             , updatedAt = Time.millisToPosix 0
                             , createdAt = Time.millisToPosix 0
                             }
@@ -823,6 +825,7 @@ update message model =
                     , isRemote = False
                     , isPublic = False
                     , isBookmark = False
+                    , tags = Nothing
                     , updatedAt = Time.millisToPosix 0
                     , createdAt = Time.millisToPosix 0
                     }

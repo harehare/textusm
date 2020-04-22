@@ -178,6 +178,7 @@ view model =
                             , style "overflow-y" "scroll"
                             , style "will-change" "transform"
                             , style "border-top" "1px solid #323B46"
+                            , style "padding" "8px"
                             ]
                             ((displayDiagrams
                                 |> (case model.searchQuery of

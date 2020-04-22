@@ -5,6 +5,7 @@ export type DiagramItem = {
     diagram: string;
     isBookmark: boolean;
     isPublic: boolean;
+    tags: string[] | null;
     createdAt: number;
     updatedAt: number;
 };
@@ -17,6 +18,7 @@ export type Diagram = {
     isPublic: boolean;
     isRemote: boolean;
     isBookmark: boolean;
+    tags: string[] | null;
 };
 
 export type DownloadInfo = {

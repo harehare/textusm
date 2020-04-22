@@ -15,6 +15,7 @@ type Resolver struct {
 }
 
 func (r *mutationResolver) Save(ctx context.Context, input item.InputItem) (*item.Item, error) {
+
 	if input.ID == nil {
 		saveItem := item.Item{
 			ID:         "",
@@ -24,6 +25,7 @@ func (r *mutationResolver) Save(ctx context.Context, input item.InputItem) (*ite
 			Diagram:    input.Diagram,
 			IsPublic:   input.IsPublic,
 			IsBookmark: input.IsBookmark,
+			Tags:       input.Tags,
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
 		}
@@ -43,6 +45,7 @@ func (r *mutationResolver) Save(ctx context.Context, input item.InputItem) (*ite
 		Diagram:    input.Diagram,
 		IsPublic:   input.IsPublic,
 		IsBookmark: input.IsBookmark,
+		Tags:       input.Tags,
 		CreatedAt:  baseItem.CreatedAt,
 		UpdatedAt:  time.Now(),
 	}

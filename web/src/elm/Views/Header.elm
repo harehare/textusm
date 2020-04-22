@@ -1,10 +1,12 @@
 module Views.Header exposing (view)
 
 import Events exposing (onKeyDown)
+import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import Html exposing (Html, a, div, header, img, input, span, text)
 import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, value)
 import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
+import Maybe.Extra exposing (isJust)
 import Models.Model exposing (LoginProvider(..), Menu(..), Msg(..))
 import Models.Session as Session exposing (Session)
 import Models.Text as Text exposing (Text)
@@ -15,8 +17,8 @@ import Views.Icon as Icon
 import Views.Menu as Menu
 
 
-view : Session -> Route -> Title -> Bool -> Maybe Menu -> Text -> Html Msg
-view session route title fullscreen menu currentText =
+view : Session -> Route -> Title -> Bool -> Maybe DiagramItem -> Maybe Menu -> Text -> Html Msg
+view session route title fullscreen currentDiagram menu currentText =
     if fullscreen then
         header [] []
 
@@ -41,6 +43,7 @@ view session route title fullscreen menu currentText =
                             , style "border" "none"
                             , style "font-size" "1.1rem"
                             , style "font-weight" "400"
+                            , style "font-family" "'Nunito Sans', sans-serif"
                             , value <| Title.toString title
                             , onInput EditTitle
                             , onBlur (EndEditTitle 13 False)
@@ -80,6 +83,20 @@ view session route title fullscreen menu currentText =
                   else
                     Empty.view
                 ]
+            , if isJust currentDiagram then
+                div
+                    [ class "button"
+                    , onClick <| NavRoute Help
+                    , style "padding" "8px"
+                    , style "display" "flex"
+                    , style "align-items" "center"
+                    ]
+                    [ Icon.tag 17
+                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Tag" ] ]
+                    ]
+
+              else
+                Empty.view
             , div
                 [ class "button"
                 , onClick <| NavRoute Help
