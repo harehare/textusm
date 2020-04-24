@@ -1,27 +1,66 @@
-module Components.DiagramList exposing (init, update, view)
+port module Page.List exposing (Model, Msg(..), init, update, view)
 
 import Dict
 import Dict.Extra as DictEx
 import GraphQL.Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import GraphQL.Request as Request
+import Graphql.Http as Http
 import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Html.Lazy exposing (lazy2, lazy4)
 import Json.Decode as D
+import Json.Encode as E
 import List.Extra exposing (updateIf)
 import Maybe.Extra exposing (isJust)
-import Models.DiagramList exposing (FilterCondition(..), FilterValue(..), Model, Msg(..))
 import Models.DiagramType as DiagramType
 import Models.Session as Session exposing (Session)
-import Ports exposing (getDiagrams, removeDiagrams)
-import RemoteData exposing (RemoteData(..))
+import RemoteData exposing (RemoteData(..), WebData)
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram)
 import Time exposing (Zone)
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
+
+
+type Msg
+    = NoOp
+    | Filter FilterCondition
+    | SearchInput String
+    | Select DiagramItem
+    | Reload
+    | Remove DiagramItem
+    | Bookmark DiagramItem
+    | RemoveRemote String
+    | Removed (Result (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem))
+    | Bookmarked (Result (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem))
+    | GotTimeZone Zone
+    | GotLocalDiagramJson String
+    | GotDiagrams (Result ( List DiagramItem, Http.Error (List (Maybe DiagramItem)) ) (List DiagramItem))
+    | LoadNextPage Int
+
+
+type FilterValue
+    = FilterAll
+    | FilterBookmark
+    | FilterValue Diagram
+
+
+type FilterCondition
+    = FilterCondition FilterValue (DiagramItem -> Bool)
+
+
+type alias Model =
+    { searchQuery : Maybe String
+    , timeZone : Zone
+    , diagramList : WebData (List DiagramItem)
+    , filterCondition : FilterCondition
+    , session : Session
+    , apiRoot : String
+    , pageNo : Int
+    , hasMorePage : Bool
+    }
 
 
 pageSize : Int
@@ -32,6 +71,12 @@ pageSize =
 pageOffsetAndLimit : Int -> ( Int, Int )
 pageOffsetAndLimit pageNo =
     ( pageSize * (pageNo - 1), pageSize * pageNo )
+
+
+port getDiagrams : () -> Cmd msg
+
+
+port removeDiagrams : E.Value -> Cmd msg
 
 
 init : Session -> String -> ( Model, Cmd Msg )

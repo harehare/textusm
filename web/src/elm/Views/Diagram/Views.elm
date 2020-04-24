@@ -215,7 +215,7 @@ canvasBottomView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem it
         ]
 
 
-canvasRectView : Settings -> Size -> Svg Msg
+canvasRectView : Settings -> Size -> Svg msg
 canvasRectView settings ( rectWidth, rectHeight ) =
     rect
         [ width <| String.fromInt rectWidth
@@ -275,7 +275,7 @@ canvasImageView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
         ]
 
 
-imageView : Size -> Position -> String -> Svg Msg
+imageView : Size -> Position -> String -> Svg msg
 imageView ( imageWidth, imageHeight ) ( posX, posY ) url =
     svg
         [ width <| String.fromInt imageWidth

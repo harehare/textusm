@@ -1,4 +1,4 @@
-module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, showErrorMessage, showInfoMessage, showWarningMessage, stringToPosix, transpose)
+module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, stringToPosix, transpose)
 
 import Constants
 import File exposing (File)
@@ -6,7 +6,6 @@ import Http exposing (Error(..))
 import List.Extra exposing (getAt, last, scanl1, takeWhile, unique)
 import Models.Diagram as DiagramModel
 import Models.Item as Item
-import Models.Model exposing (Msg(..), Notification(..))
 import Models.Text as Text
 import Models.Views.ER as ER exposing (Table(..))
 import Models.Views.Kanban as Kanban
@@ -31,30 +30,15 @@ isPhone width =
     width <= 480
 
 
-fileLoad : File -> (String -> Msg) -> Cmd Msg
+fileLoad : File -> (String -> msg) -> Cmd msg
 fileLoad file msg =
     Task.perform msg (File.toString file)
 
 
-delay : Float -> Msg -> Cmd Msg
+delay : Float -> msg -> Cmd msg
 delay time msg =
     Process.sleep time
         |> Task.perform (\_ -> msg)
-
-
-showWarningMessage : String -> Cmd Msg
-showWarningMessage msg =
-    Task.perform identity (Task.succeed (OnNotification (Warning msg)))
-
-
-showInfoMessage : String -> Cmd Msg
-showInfoMessage msg =
-    Task.perform identity (Task.succeed (OnNotification (Info msg)))
-
-
-showErrorMessage : String -> Cmd Msg
-showErrorMessage msg =
-    Task.perform identity (Task.succeed (OnNotification (Error msg)))
 
 
 httpErrorToString : Http.Error -> String

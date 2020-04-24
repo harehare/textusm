@@ -2,11 +2,10 @@ module Views.Editor exposing (view)
 
 import Html exposing (Html, div)
 import Html.Attributes exposing (id, style)
-import Models.Model exposing (Msg)
 import Route exposing (Route(..))
 
 
-view : Html Msg
+view : Html msg
 view =
     div
         [ style "background-color" "#273037"

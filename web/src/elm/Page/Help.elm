@@ -1,12 +1,11 @@
-module Views.Help exposing (view)
+module Page.Help exposing (view)
 
 import Html exposing (Html, div, img, span, text)
 import Html.Attributes exposing (alt, class, src, style)
 import Maybe.Extra exposing (isNothing)
-import Models.Model exposing (Msg(..))
 
 
-view : Html Msg
+view : Html msg
 view =
     div
         [ class "help"
@@ -88,7 +87,7 @@ view =
         ]
 
 
-section : Maybe String -> Html Msg
+section : Maybe String -> Html msg
 section title =
     div
         [ if isNothing title then

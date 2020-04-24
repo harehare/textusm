@@ -17,9 +17,20 @@ import Views.Icon as Icon
 import Views.Menu as Menu
 
 
-view : Session -> Route -> Title -> Bool -> Maybe DiagramItem -> Maybe Menu -> Text -> Html Msg
-view session route title fullscreen currentDiagram menu currentText =
-    if fullscreen then
+type alias HeaderProps =
+    { session : Session
+    , route : Route
+    , title : Title
+    , isFullscreen : Bool
+    , currentDiagram : Maybe DiagramItem
+    , menu : Maybe Menu
+    , currentText : Text
+    }
+
+
+view : HeaderProps -> Html Msg
+view props =
+    if props.isFullscreen then
         header [] []
 
     else
@@ -32,8 +43,8 @@ view session route title fullscreen currentDiagram menu currentText =
                 , style "align-items" "center"
                 ]
                 [ logo
-                , if route /= Route.List then
-                    if Title.isEdit title then
+                , if props.route /= Route.List then
+                    if Title.isEdit props.title then
                         input
                             [ id "title"
                             , class "title"
@@ -44,7 +55,7 @@ view session route title fullscreen currentDiagram menu currentText =
                             , style "font-size" "1.1rem"
                             , style "font-weight" "400"
                             , style "font-family" "'Nunito Sans', sans-serif"
-                            , value <| Title.toString title
+                            , value <| Title.toString props.title
                             , onInput EditTitle
                             , onBlur (EndEditTitle 13 False)
                             , onKeyDown EndEditTitle
@@ -69,10 +80,10 @@ view session route title fullscreen currentDiagram menu currentText =
                             , style "justify-content" "flex-start"
                             , onClick StartEditTitle
                             ]
-                            [ text <| Title.toString title
+                            [ text <| Title.toString props.title
                             , div
                                 [ style "margin-left" "8px" ]
-                                [ if Text.isChanged currentText then
+                                [ if Text.isChanged props.currentText then
                                     Icon.circle "#FEFEFE" 10
 
                                   else
@@ -83,10 +94,10 @@ view session route title fullscreen currentDiagram menu currentText =
                   else
                     Empty.view
                 ]
-            , if isJust currentDiagram then
+            , if isJust props.currentDiagram then
                 div
                     [ class "button"
-                    , onClick <| NavRoute Help
+                    , onClick <| NavRoute Tag
                     , style "padding" "8px"
                     , style "display" "flex"
                     , style "align-items" "center"
@@ -117,10 +128,10 @@ view session route title fullscreen currentDiagram menu currentText =
                 [ Icon.people 24
                 , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Share" ] ]
                 ]
-            , if Session.isSignedIn session then
+            , if Session.isSignedIn props.session then
                 let
                     user =
-                        Session.getUser session
+                        Session.getUser props.session
                             |> Maybe.withDefault
                                 { displayName = ""
                                 , email = ""
@@ -149,7 +160,7 @@ view session route title fullscreen currentDiagram menu currentText =
                             , style "border-radius" "4px"
                             ]
                             []
-                        , case menu of
+                        , case props.menu of
                             Just HeaderMenu ->
                                 Menu.menu (Just "36px")
                                     Nothing
@@ -182,7 +193,7 @@ view session route title fullscreen currentDiagram menu currentText =
                         , style "width" "55px"
                         ]
                         [ text "SIGN IN" ]
-                    , case menu of
+                    , case props.menu of
                         Just LoginMenu ->
                             Menu.menu (Just "30px")
                                 Nothing

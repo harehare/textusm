@@ -4,11 +4,11 @@ import Html exposing (Attribute, Html, div)
 import Html.Attributes exposing (class, style)
 import Html.Events as Events
 import Json.Decode as D
-import Models.Model exposing (Msg(..), Window)
+import Models.Model exposing (Window)
 
 
-view : String -> Window -> Html Msg -> Html Msg -> Html Msg
-view backgroundColor window left right =
+view : (Int -> msg) -> String -> Window -> Html msg -> Html msg -> Html msg
+view onResize backgroundColor window left right =
     let
         ( leftPos, rightPos ) =
             if window.position > 0 then
@@ -65,7 +65,7 @@ view backgroundColor window left right =
                 [ style "width" "6px"
                 , style "cursor" "col-resize"
                 , class "separator"
-                , onStartWindowResize
+                , onStartWindowResize onResize
                 ]
                 []
             , div
@@ -80,9 +80,9 @@ view backgroundColor window left right =
             ]
 
 
-onStartWindowResize : Attribute Msg
-onStartWindowResize =
-    Events.on "mousedown" (D.map OnStartWindowResize pageX)
+onStartWindowResize : (Int -> msg) -> Attribute msg
+onStartWindowResize e =
+    Events.on "mousedown" (D.map e pageX)
 
 
 pageX : D.Decoder Int

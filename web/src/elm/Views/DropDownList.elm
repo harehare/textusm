@@ -48,8 +48,8 @@ getColor value =
             Nothing
 
 
-view : String -> Maybe String -> (String -> Msg) -> List DropDownItem -> String -> Html Msg
-view dropDownId currentId onChange items selectedValue =
+view : (String -> msg) -> String -> Maybe String -> (String -> msg) -> List DropDownItem -> String -> Html msg
+view onToggleDropDownList dropDownId currentId onChange items selectedValue =
     let
         selectedItem =
             items
@@ -59,7 +59,7 @@ view dropDownId currentId onChange items selectedValue =
     div
         [ class "dropdown-list"
         ]
-        [ itemView selectedItem (ToggleDropDownList dropDownId)
+        [ itemView selectedItem (onToggleDropDownList dropDownId)
         , if dropDownId == Maybe.withDefault "" currentId then
             dropdownView items onChange
 
@@ -68,7 +68,7 @@ view dropDownId currentId onChange items selectedValue =
         ]
 
 
-dropdownView : List DropDownItem -> (String -> Msg) -> Html Msg
+dropdownView : List DropDownItem -> (String -> msg) -> Html msg
 dropdownView items onChange =
     div
         [ class "list"
@@ -76,7 +76,7 @@ dropdownView items onChange =
         (List.map (\item -> dropDownItemView item onChange) items)
 
 
-itemView : DropDownItem -> Msg -> Html Msg
+itemView : DropDownItem -> msg -> Html msg
 itemView item onActive =
     div
         [ class
@@ -99,7 +99,7 @@ itemView item onActive =
         ]
 
 
-dropDownItemView : DropDownItem -> (String -> Msg) -> Html Msg
+dropDownItemView : DropDownItem -> (String -> msg) -> Html msg
 dropDownItemView item onChange =
     div
         [ class

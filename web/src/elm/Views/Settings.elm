@@ -5,7 +5,7 @@ import Html.Attributes exposing (checked, class, style, type_)
 import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Msg(..))
-import Models.Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
+import Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 
 
@@ -1034,7 +1034,8 @@ view dropDownIndex settings =
             [ div [ class "control" ]
                 [ div [ class "label" ] [ text "Font Family" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "font-family"
+                    [ DropDownList.view ToggleDropDownList
+                        "font-family"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1048,7 +1049,8 @@ view dropDownIndex settings =
             , div [ class "control" ]
                 [ div [ class "label" ] [ text "Background color" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "background-color"
+                    [ DropDownList.view ToggleDropDownList
+                        "background-color"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1123,7 +1125,8 @@ view dropDownIndex settings =
             , div [ class "control" ]
                 [ div [ class "label" ] [ text "Font Size" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "editor-font-size"
+                    [ DropDownList.view ToggleDropDownList
+                        "editor-font-size"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1140,7 +1143,8 @@ view dropDownIndex settings =
             [ div [ class "control" ]
                 [ div [ class "label" ] [ text "Card Width" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "card-width"
+                    [ DropDownList.view ToggleDropDownList
+                        "card-width"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1154,7 +1158,8 @@ view dropDownIndex settings =
             , div [ class "control" ]
                 [ div [ class "label" ] [ text "Card Height" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "card-height"
+                    [ DropDownList.view ToggleDropDownList
+                        "card-height"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1171,7 +1176,8 @@ view dropDownIndex settings =
             [ div [ class "control" ]
                 [ div [ class "label" ] [ text "Background Color1" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "activity-background-color"
+                    [ DropDownList.view ToggleDropDownList
+                        "activity-background-color"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1185,7 +1191,8 @@ view dropDownIndex settings =
             , div [ class "control" ]
                 [ div [ class "label" ] [ text "Foreground Color1" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "activity-foreground-color"
+                    [ DropDownList.view ToggleDropDownList
+                        "activity-foreground-color"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1202,7 +1209,8 @@ view dropDownIndex settings =
             [ div [ class "control" ]
                 [ div [ class "label" ] [ text "Background Color2" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "task-background-color"
+                    [ DropDownList.view ToggleDropDownList
+                        "task-background-color"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1216,7 +1224,8 @@ view dropDownIndex settings =
             , div [ class "control" ]
                 [ div [ class "label" ] [ text "Foreground Color2" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "task-foreground-color"
+                    [ DropDownList.view ToggleDropDownList
+                        "task-foreground-color"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1233,7 +1242,8 @@ view dropDownIndex settings =
             [ div [ class "control" ]
                 [ div [ class "label" ] [ text "Background Color3" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "story-background-color"
+                    [ DropDownList.view ToggleDropDownList
+                        "story-background-color"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1247,7 +1257,8 @@ view dropDownIndex settings =
             , div [ class "control" ]
                 [ div [ class "label" ] [ text "Foreground Color3" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "story-foreground-color"
+                    [ DropDownList.view ToggleDropDownList
+                        "story-foreground-color"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1265,7 +1276,8 @@ view dropDownIndex settings =
             [ div [ class "control" ]
                 [ div [ class "label" ] [ text "Line Color" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "line-color"
+                    [ DropDownList.view ToggleDropDownList
+                        "line-color"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1279,7 +1291,8 @@ view dropDownIndex settings =
             , div [ class "control" ]
                 [ div [ class "label" ] [ text "Label Color" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "label-color"
+                    [ DropDownList.view ToggleDropDownList
+                        "label-color"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->
@@ -1293,7 +1306,8 @@ view dropDownIndex settings =
             , div [ class "control" ]
                 [ div [ class "label" ] [ text "Text Color" ]
                 , div [ class "input-area" ]
-                    [ DropDownList.view "text-color"
+                    [ DropDownList.view ToggleDropDownList
+                        "text-color"
                         dropDownIndex
                         (UpdateSettings
                             (\x ->

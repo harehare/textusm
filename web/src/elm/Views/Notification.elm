@@ -1,9 +1,10 @@
-module Views.Notification exposing (view)
+module Views.Notification exposing (showErrorMessage, showInfoMessage, showWarningMessage, view)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Models.Model exposing (Msg(..), Notification(..))
+import Task
 import Views.Icon as Icon
 
 
@@ -45,3 +46,18 @@ view notification =
             ]
             []
         ]
+
+
+showWarningMessage : String -> Cmd Msg
+showWarningMessage msg =
+    Task.perform identity (Task.succeed (OnNotification (Warning msg)))
+
+
+showInfoMessage : String -> Cmd Msg
+showInfoMessage msg =
+    Task.perform identity (Task.succeed (OnNotification (Info msg)))
+
+
+showErrorMessage : String -> Cmd Msg
+showErrorMessage msg =
+    Task.perform identity (Task.succeed (OnNotification (Error msg)))

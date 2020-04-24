@@ -42,6 +42,7 @@ type Route
     | List
     | Settings
     | Help
+    | Tag
     | SharingSettings
     | Share DiagramPath Title Path
     | Embed DiagramPath Title Path
@@ -76,6 +77,7 @@ parser =
         , map List (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
+        , map Tag (s "tag")
         , map SharingSettings (s "sharing")
         ]
 
@@ -147,6 +149,9 @@ toString route =
 
         Help ->
             absolute [ "help" ] []
+
+        Tag ->
+            absolute [ "tag" ] []
 
         SharingSettings ->
             absolute [ "sharing" ] []

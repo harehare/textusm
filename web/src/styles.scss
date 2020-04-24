@@ -898,6 +898,34 @@ select {
     }
 }
 
+.tags {
+    background-color: var(--background-color);
+    width: 100%;
+    height: calc(100vh - 35px);
+    color: var(--text-color);
+    .tag-list {
+        border-bottom: 1px solid var(--main-color);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .input {
+        background-color: transparent;
+        color: var(--text-color);
+        width: 150px;
+        font-size: 1rem;
+    }
+    .tag {
+        border-radius: 8px;
+        color: var(--text-color);
+        background-color: var(--activity-color);
+        padding: 8px 16px;
+        margin: 8px;
+        text-align: center;
+    }
+}
+
 ::-webkit-scrollbar {
     width: 2px;
 }

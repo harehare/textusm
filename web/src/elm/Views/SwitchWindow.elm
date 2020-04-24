@@ -7,8 +7,8 @@ import Models.Model exposing (Msg(..))
 import Views.Icon as Icon
 
 
-view : String -> Int -> Html Msg -> Html Msg -> Html Msg
-view backgroundColor index view1 view2 =
+view : (Int -> msg) -> String -> Int -> Html msg -> Html msg -> Html msg
+view onWindowSelect backgroundColor index view1 view2 =
     div
         [ style "width" "100vw"
         , style "flex-direction" "column"
@@ -29,10 +29,10 @@ view backgroundColor index view1 view2 =
             , style "border-radius" "100%"
             , style "box-shadow" "0 1px 4px rgba(0, 0, 0, .6)"
             , if index == 1 then
-                onClick (WindowSelect 2)
+                onClick (onWindowSelect 2)
 
               else
-                onClick (WindowSelect 1)
+                onClick (onWindowSelect 1)
             ]
             [ if index == 1 then
                 Icon.visibility 20
