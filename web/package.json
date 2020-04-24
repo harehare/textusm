@@ -27,7 +27,7 @@
         "clean-webpack-plugin": "^3.0.0",
         "closure-webpack-plugin": "^2.3.0",
         "copy-webpack-plugin": "^5.1.1",
-        "css-loader": "^3.5.2",
+        "css-loader": "^3.5.3",
         "cssnano": "^4.1.10",
         "cssnano-preset-advanced": "^4.0.7",
         "elm": "^0.19.1-3",
