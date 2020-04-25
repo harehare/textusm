@@ -1,4 +1,4 @@
-module Models.Model exposing (DownloadFileInfo, DownloadInfo, FileType(..), LoginProvider(..), Menu(..), Model, Msg(..), Notification(..), Page(..), ShareInfo, ShareUrl(..), Window)
+module Models.Model exposing (DownloadFileInfo, DownloadInfo, FileType(..), LoginProvider(..), Menu(..), Model, Msg(..), Notification(..), Page(..), ShareInfo, Window)
 
 import Api.UrlShorter
 import Browser
@@ -16,6 +16,7 @@ import Models.Diagram as Diagram
 import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Share as Share
+import Page.Tags as Tags
 import Route as Route
 import TextUSM.Enum.Diagram exposing (Diagram)
 import Url
@@ -28,6 +29,7 @@ type Msg
     | UpdateDiagramList DiagramList.Msg
     | UpdateShare Share.Msg
     | UpdateSettings Settings.Msg
+    | UpdateTags Tags.Msg
     | OpenMenu Menu
     | Stop
     | CloseMenu
@@ -102,30 +104,29 @@ type Page
     = Main
     | Help
     | List
-    | Tags
-    | Share Share.Model
+    | Tags Tags.Model
+    | Share
     | Settings
     | Embed String String String
 
 
 type alias Model =
-    { text : Text
-    , key : Nav.Key
+    { key : Nav.Key
     , url : Url.Url
     , page : Page
     , diagramModel : Diagram.Model
     , diagramListModel : DiagramList.Model
     , settingsModel : Settings.Model
+    , shareModel : Share.Model
     , session : Session
     , currentDiagram : Maybe DiagramItem
     , openMenu : Maybe Menu
     , window : Window
-    , share : Maybe ShareUrl
-    , embed : Maybe String
     , title : Title
     , notification : Maybe Notification
     , editorIndex : Int
     , progress : Bool
+    , text : Text
     , apiRoot : String
     }
 
@@ -162,7 +163,3 @@ type alias ShareInfo =
     , text : String
     , diagramType : String
     }
-
-
-type ShareUrl
-    = ShareUrl String

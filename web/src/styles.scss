@@ -209,6 +209,7 @@ select {
         height: calc(100vh - 40px);
         font-size: 0.9rem;
         background-color: var(--main-color);
+        overflow-y: scroll;
         @media screen and (max-width: 480px) {
             display: none;
         }
@@ -223,6 +224,27 @@ select {
         .selected {
             background-color: var(--background-color);
         }
+    }
+    .diagram-tags {
+        position: absolute;
+        bottom: 60px;
+        width: 230px;
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        transform: scale(0.7);
+    }
+
+    .diagram-tag {
+        border-radius: 8px;
+        color: var(--text-color);
+        background-color: var(--activity-color);
+        padding: 4px;
+        margin: 2px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        font-size: 0.5rem;
     }
 }
 
@@ -909,6 +931,7 @@ select {
         display: flex;
         align-items: center;
         flex-wrap: wrap;
+        padding: 8px;
     }
     .input {
         background-color: transparent;
@@ -919,10 +942,17 @@ select {
     .tag {
         border-radius: 8px;
         color: var(--text-color);
-        background-color: var(--activity-color);
         padding: 8px 16px;
         margin: 8px;
         text-align: center;
+        display: flex;
+        align-items: center;
+    }
+    .normal-tag {
+        background-color: var(--activity-color);
+    }
+    .delete-tag {
+        background-color: var(--error-color);
     }
 }
 

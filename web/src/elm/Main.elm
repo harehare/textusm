@@ -19,17 +19,18 @@ import Graphql.Http as Http
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5)
+import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy6)
 import Json.Decode as D
 import List.Extra exposing (getAt, removeAt, setAt, splitAt)
 import Models.Diagram as DiagramModel
-import Models.Model as Page exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), Page(..), ShareUrl(..))
+import Models.Model as Page exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), Page(..))
 import Models.Views.CustomerJourneyMap as CustomerJourneyMap
 import Models.Views.ER as ER
 import Page.Help as Help
 import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Share as Share
+import Page.Tags as Tags
 import Ports
 import RemoteData
 import Route exposing (Route(..), toRoute)
@@ -67,6 +68,9 @@ init flags url key =
         ( diagramModel, _ ) =
             Diagram.init initSettings.storyMap
 
+        ( shareModel, _ ) =
+            Share.init "" ""
+
         ( settingsModel, _ ) =
             Settings.init initSettings
 
@@ -75,6 +79,7 @@ init flags url key =
                 { diagramModel = diagramModel
                 , diagramListModel = diagramListModel
                 , settingsModel = settingsModel
+                , shareModel = shareModel
                 , text = Text.fromString (Maybe.withDefault "" initSettings.text)
                 , openMenu = Nothing
                 , title = Title.fromString (Maybe.withDefault "" initSettings.title)
@@ -84,7 +89,6 @@ init flags url key =
                     , moveX = 0
                     , fullscreen = False
                     }
-                , share = Nothing
                 , notification = Nothing
                 , url = url
                 , key = key
@@ -93,7 +97,6 @@ init flags url key =
                 , apiRoot = apiRoot
                 , session = Session.guest
                 , currentDiagram = initSettings.diagram
-                , embed = Nothing
                 , page = Page.Main
                 }
     in
@@ -107,12 +110,12 @@ view model =
         , style "width" "100vw"
         , onClick CloseMenu
         ]
-        [ lazy Header.view { session = model.session, route = toRoute model.url, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.text }
+        [ lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.text }
         , lazy showNotification model.notification
         , lazy2 showProgressbar model.progress model.window.fullscreen
         , div
             [ class "main" ]
-            [ lazy5 Menu.view (toRoute model.url) model.text model.diagramModel.width model.window.fullscreen model.openMenu
+            [ lazy6 Menu.view model.page (toRoute model.url) model.text model.diagramModel.width model.window.fullscreen model.openMenu
             , let
                 mainWindow =
                     if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then
@@ -134,11 +137,14 @@ view model =
                 Page.Help ->
                     Help.view
 
-                Page.Share m ->
-                    lazy Share.view m |> Html.map UpdateShare
+                Page.Share ->
+                    lazy Share.view model.shareModel |> Html.map UpdateShare
 
                 Page.Settings ->
                     lazy Settings.view model.settingsModel |> Html.map UpdateSettings
+
+                Page.Tags m ->
+                    Tags.view m |> Html.map UpdateTags
 
                 Page.Embed diagram title path ->
                     div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
@@ -252,7 +258,16 @@ changeRouteTo route model =
                 ( { model | page = Page.List, progress = False }, Cmd.none )
 
         Route.Tag ->
-            ( { model | page = Page.Tags }, Cmd.none )
+            case model.currentDiagram of
+                Just diagram ->
+                    let
+                        ( model_, _ ) =
+                            Tags.init (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault ""))
+                    in
+                    ( { model | page = Page.Tags model_ }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
         Route.Embed diagram title path ->
             let
@@ -411,12 +426,7 @@ changeRouteTo route model =
             ( { model | page = Page.Help }, getCmds [] )
 
         Route.SharingSettings ->
-            case ( model.share, model.embed ) of
-                ( Just (ShareUrl url), Just e ) ->
-                    ( { model | page = Page.Share { url = url, embedUrl = e } }, Cmd.none )
-
-                _ ->
-                    ( { model | page = Page.Main }, getCmds [] )
+            ( { model | page = Page.Share }, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -427,12 +437,27 @@ update message model =
 
         UpdateShare msg ->
             case model.page of
-                Page.Share share ->
+                Page.Share ->
                     let
                         ( model_, cmd_ ) =
-                            Share.update msg share
+                            Share.update msg model.shareModel
                     in
-                    ( { model | page = Page.Share model_ }, cmd_ )
+                    ( { model | shareModel = model_, page = Page.Share }, cmd_ )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        UpdateTags msg ->
+            case ( model.page, model.currentDiagram ) of
+                ( Page.Tags m, Just diagram ) ->
+                    let
+                        ( model_, _ ) =
+                            Tags.update msg m
+
+                        newDiagram =
+                            { diagram | tags = Just (List.map Just model_.tags) }
+                    in
+                    ( { model | text = Text.change model.text, page = Page.Tags model_, currentDiagram = Just newDiagram }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -790,7 +815,6 @@ update message model =
                     , text = Text.edit model.text (Text.toString model.text)
                   }
                 , Cmd.batch
-                    -- TODO: add tags
                     [ Ports.saveDiagram <|
                         DiagramItem.encoder
                             { id = Maybe.andThen .id model.currentDiagram
@@ -801,7 +825,7 @@ update message model =
                             , isRemote = isRemote
                             , isPublic = False
                             , isBookmark = False
-                            , tags = Nothing
+                            , tags = Maybe.andThen .tags model.currentDiagram
                             , updatedAt = Time.millisToPosix 0
                             , createdAt = Time.millisToPosix 0
                             }
@@ -1011,9 +1035,16 @@ update message model =
             )
 
         GetShortUrl (Ok res) ->
+            let
+                shareModel =
+                    model.shareModel
+
+                newShareModel =
+                    { shareModel | url = res.shortLink }
+            in
             ( { model
                 | progress = False
-                , share = Just (ShareUrl res.shortLink)
+                , shareModel = newShareModel
               }
             , Nav.pushUrl model.key (Route.toString Route.SharingSettings)
             )
@@ -1039,8 +1070,14 @@ update message model =
 
                 embedUrl =
                     "https://app.textusm.com/embed" ++ path
+
+                shareModel =
+                    model.shareModel
+
+                newShareModel =
+                    { shareModel | embedUrl = embedUrl }
             in
-            ( { model | embed = Just embedUrl }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl) )
+            ( { model | shareModel = newShareModel }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl) )
 
         OnDecodeShareText text ->
             ( model, Task.perform identity (Task.succeed (FileLoaded text)) )

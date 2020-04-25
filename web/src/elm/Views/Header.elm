@@ -10,7 +10,7 @@ import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, 
 import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
-import Models.Model exposing (LoginProvider(..), Menu(..), Msg(..))
+import Models.Model as Page exposing (LoginProvider(..), Menu(..), Msg(..), Page(..))
 import Route exposing (Route(..))
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -19,7 +19,7 @@ import Views.Menu as Menu
 
 type alias HeaderProps =
     { session : Session
-    , route : Route
+    , page : Page
     , title : Title
     , isFullscreen : Bool
     , currentDiagram : Maybe DiagramItem
@@ -43,7 +43,7 @@ view props =
                 , style "align-items" "center"
                 ]
                 [ logo
-                , if props.route /= Route.List then
+                , if props.page /= Page.List then
                     if Title.isEdit props.title then
                         input
                             [ id "title"
@@ -110,7 +110,7 @@ view props =
                 Empty.view
             , div
                 [ class "button"
-                , onClick <| NavRoute Help
+                , onClick <| NavRoute Route.Help
                 , style "padding" "8px"
                 , style "display" "flex"
                 , style "align-items" "center"

@@ -10,12 +10,13 @@ import Graphql.Http as Http
 import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
-import Html.Lazy exposing (lazy2, lazy4)
+import Html.Lazy exposing (lazy2, lazy5)
 import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (updateIf)
 import Maybe.Extra exposing (isJust)
 import RemoteData exposing (RemoteData(..), WebData)
+import Set
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram)
 import Time exposing (Zone)
@@ -45,6 +46,7 @@ type FilterValue
     = FilterAll
     | FilterBookmark
     | FilterValue Diagram
+    | FilterTag String
 
 
 type FilterCondition
@@ -105,8 +107,23 @@ facet items =
         |> List.map (\( d, i ) -> ( DiagramType.fromString d, i ))
 
 
-sideMenu : FilterValue -> Int -> Int -> List ( Diagram, Int ) -> Html Msg
-sideMenu filter allCount bookmarkCount items =
+tags : List DiagramItem -> List String
+tags items =
+    List.map
+        (\item ->
+            item.tags
+                |> Maybe.withDefault []
+                |> List.map (Maybe.withDefault "")
+                |> List.filter (String.isEmpty >> not)
+        )
+        items
+        |> List.concat
+        |> Set.fromList
+        |> Set.toList
+
+
+sideMenu : FilterValue -> Int -> Int -> List ( Diagram, Int ) -> List String -> Html Msg
+sideMenu filter allCount bookmarkCount diagramItems tagItems =
     div [ class "side-menu" ]
         (div
             [ class <|
@@ -128,7 +145,7 @@ sideMenu filter allCount bookmarkCount items =
                 , onClick (Filter (FilterCondition FilterBookmark (\item -> item.isBookmark)))
                 ]
                 [ text "Bookmarks", span [ class "facet-count" ] [ text <| "(" ++ String.fromInt bookmarkCount ++ ")" ] ]
-            :: (items
+            :: (diagramItems
                     |> List.map
                         (\( diagram, count ) ->
                             div
@@ -141,6 +158,32 @@ sideMenu filter allCount bookmarkCount items =
                                 , onClick (Filter (FilterCondition (FilterValue diagram) (\item -> item.diagram == diagram)))
                                 ]
                                 [ text <| DiagramType.toLongString diagram, span [ class "facet-count" ] [ text <| "(" ++ String.fromInt count ++ ")" ] ]
+                        )
+               )
+            ++ (tagItems
+                    |> List.map
+                        (\tag ->
+                            div
+                                [ class <|
+                                    if filter == FilterTag tag then
+                                        "item selected"
+
+                                    else
+                                        "item"
+                                , onClick
+                                    (Filter
+                                        (FilterCondition (FilterTag tag)
+                                            (\item ->
+                                                List.member tag
+                                                    (item.tags
+                                                        |> Maybe.withDefault []
+                                                        |> List.map (Maybe.withDefault "")
+                                                    )
+                                            )
+                                        )
+                                    )
+                                ]
+                                [ text tag ]
                         )
                )
         )
@@ -161,11 +204,12 @@ view model =
                 [ class "diagram-list"
                 , style "display" "flex"
                 ]
-                [ lazy4 sideMenu
+                [ lazy5 sideMenu
                     selectedPath
                     (List.length diagrams)
                     (List.length (List.filter (\i -> i.isBookmark) diagrams))
                     (facet diagrams)
+                    (tags diagrams)
                 , div
                     [ style "width" "100%" ]
                     [ div
@@ -341,9 +385,15 @@ diagramView timezone diagram =
                         , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
                         ]
                         [ Icon.unbookmark "#3e9bcd" 16 ]
+                , div [ class "diagram-tags" ] (List.map tagView (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
                 ]
             ]
         ]
+
+
+tagView : String -> Html Msg
+tagView tag =
+    div [ class "diagram-tag" ] [ text tag ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

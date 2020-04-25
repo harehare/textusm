@@ -7,9 +7,9 @@ import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List
 import Maybe.Extra exposing (isNothing)
-import Models.Model exposing (FileType(..), Menu(..), Msg(..))
-import Route exposing (Route(..))
-import TextUSM.Enum.Diagram as Diagram
+import Models.Model exposing (FileType(..), Menu(..), Msg(..), Page(..))
+import Route exposing (Route)
+import TextUSM.Enum.Diagram as Diagram exposing (Diagram(..))
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -27,8 +27,8 @@ type alias MenuInfo =
     }
 
 
-view : Route -> Text -> Int -> Bool -> Maybe Menu -> Html Msg
-view route text_ width fullscreen openMenu =
+view : Page -> Route -> Text -> Int -> Bool -> Maybe Menu -> Html Msg
+view page route text_ width fullscreen openMenu =
     let
         menuItemStyle =
             [ class "menu-button"
@@ -45,7 +45,7 @@ view route text_ width fullscreen openMenu =
             [ class "menu-bar"
             ]
             [ div
-                ((case route of
+                ((case page of
                     List ->
                         onClick NavBack
 
@@ -55,7 +55,10 @@ view route text_ width fullscreen openMenu =
                     Help ->
                         onClick NavBack
 
-                    Share _ _ _ ->
+                    Share ->
+                        onClick NavBack
+
+                    Tags _ ->
                         onClick NavBack
 
                     _ ->
@@ -65,7 +68,7 @@ view route text_ width fullscreen openMenu =
                     :: menuItemStyle
                 )
                 [ Icon.file
-                    (case route of
+                    (case page of
                         Help ->
                             "#848A90"
 
@@ -75,11 +78,14 @@ view route text_ width fullscreen openMenu =
                         List ->
                             "#848A90"
 
+                        Tags _ ->
+                            "#848A90"
+
                         _ ->
                             "#F5F5F6"
                     )
                     20
-                , case route of
+                , case page of
                     List ->
                         currentFileToolTip
 
@@ -89,10 +95,13 @@ view route text_ width fullscreen openMenu =
                     Help ->
                         currentFileToolTip
 
+                    Tags _ ->
+                        currentFileToolTip
+
                     _ ->
                         span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
                 ]
-            , if route == List then
+            , if page == List then
                 Empty.view
 
               else
@@ -104,7 +113,7 @@ view route text_ width fullscreen openMenu =
             , div
                 (onClick GetDiagrams :: class "list-button" :: menuItemStyle)
                 [ Icon.viewComfy
-                    (if isNothing openMenu && route == List then
+                    (if isNothing openMenu && page == List then
                         "#F5F5F6"
 
                      else
@@ -113,7 +122,7 @@ view route text_ width fullscreen openMenu =
                     28
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text "Diagrams" ] ]
                 ]
-            , if route == List then
+            , if page == List then
                 Empty.view
 
               else
@@ -137,27 +146,34 @@ view route text_ width fullscreen openMenu =
                         26
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text "Save" ] ]
                     ]
-            , if route == List then
-                Empty.view
+            , case page of
+                List ->
+                    Empty.view
 
-              else
-                div
-                    (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
-                    [ Icon.download
-                        (case openMenu of
-                            Just Export ->
-                                "#F5F5F6"
+                Share ->
+                    Empty.view
 
-                            _ ->
-                                "#848A90"
-                        )
-                        22
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
-                    ]
+                Tags _ ->
+                    Empty.view
+
+                _ ->
+                    div
+                        (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
+                        [ Icon.download
+                            (case openMenu of
+                                Just Export ->
+                                    "#F5F5F6"
+
+                                _ ->
+                                    "#848A90"
+                            )
+                            22
+                        , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
+                        ]
             , div
                 (onClick (NavRoute Route.Settings) :: menuItemStyle)
                 [ Icon.settings
-                    (if isNothing openMenu && route == Settings then
+                    (if isNothing openMenu && page == Settings then
                         "#F5F5F6"
 
                      else
@@ -279,24 +295,25 @@ newMenu =
 
 exportMenu : Route -> List MenuItem
 exportMenu route =
-    if route == ErDiagram then
-        Item
-            { e = Download DDL
-            , title = "DDL"
-            , icon = Nothing
-            }
-            :: baseExportMenu
+    case route of
+        Route.ErDiagram ->
+            Item
+                { e = Download DDL
+                , title = "DDL"
+                , icon = Nothing
+                }
+                :: baseExportMenu
 
-    else if route == CustomerJourneyMap then
-        Item
-            { e = Download MarkdownTable
-            , title = "Markdown"
-            , icon = Nothing
-            }
-            :: baseExportMenu
+        Route.CustomerJourneyMap ->
+            Item
+                { e = Download MarkdownTable
+                , title = "Markdown"
+                , icon = Nothing
+                }
+                :: baseExportMenu
 
-    else
-        baseExportMenu
+        _ ->
+            baseExportMenu
 
 
 baseExportMenu : List MenuItem
