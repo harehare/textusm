@@ -5,18 +5,18 @@ import Browser
 import Browser.Dom exposing (Viewport)
 import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
+import Data.Session exposing (Session, User)
+import Data.Text exposing (Text)
+import Data.Title exposing (Title)
 import File exposing (File)
 import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import Graphql.Http as Http
 import Http as Http2
 import Models.Diagram as Diagram
-import Models.Session exposing (Session, User)
-import Models.Text exposing (Text)
-import Models.Title exposing (Title)
 import Page.List as DiagramList
+import Page.Settings as Settings
 import Page.Share as Share
 import Route as Route
-import Settings exposing (Settings)
 import TextUSM.Enum.Diagram exposing (Diagram)
 import Url
 
@@ -27,6 +27,7 @@ type Msg
     | UpdateDiagram Diagram.Msg
     | UpdateDiagramList DiagramList.Msg
     | UpdateShare Share.Msg
+    | UpdateSettings Settings.Msg
     | OpenMenu Menu
     | Stop
     | CloseMenu
@@ -64,9 +65,7 @@ type Msg
     | GetShortUrl (Result Http2.Error Api.UrlShorter.Response)
     | New Diagram
     | GetDiagrams
-    | UpdateSettings (String -> Settings) String
     | Shortcuts String
-    | ToggleDropDownList String
     | NavRoute Route.Route
     | NavBack
 
@@ -116,11 +115,11 @@ type alias Model =
     , page : Page
     , diagramModel : Diagram.Model
     , diagramListModel : DiagramList.Model
+    , settingsModel : Settings.Model
     , session : Session
     , currentDiagram : Maybe DiagramItem
     , openMenu : Maybe Menu
     , window : Window
-    , settings : Settings
     , share : Maybe ShareUrl
     , embed : Maybe String
     , title : Title
@@ -128,7 +127,6 @@ type alias Model =
     , editorIndex : Int
     , progress : Bool
     , apiRoot : String
-    , dropDownIndex : Maybe String
     }
 
 

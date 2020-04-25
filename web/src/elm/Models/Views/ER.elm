@@ -1,10 +1,10 @@
 module Models.Views.ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..), columnTypeToString, fromItems, relationshipToString, tableToString, tableWidth)
 
+import Data.Item as Item exposing (Item, Items)
 import Dict exposing (Dict)
 import Dict.Extra exposing (find)
 import List.Extra as ListEx exposing (getAt)
 import Maybe.Extra exposing (isJust)
-import Models.Item as Item exposing (Item, Items)
 
 
 type alias Name =

@@ -1,6 +1,6 @@
 module Models.Views.BusinessModelCanvas exposing (BusinessModelCanvas, BusinessModelCanvasItem(..), fromItems)
 
-import Models.Item as Item exposing (Item, Items)
+import Data.Item as Item exposing (Item, Items)
 
 
 type alias BusinessModelCanvas =

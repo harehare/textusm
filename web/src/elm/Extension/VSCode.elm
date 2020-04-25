@@ -3,6 +3,8 @@ port module Extension.VSCode exposing (init, main, view)
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
 import Components.Diagram as Diagram
+import Data.DiagramType as DiagramType
+import Data.Item as Item exposing (ItemType(..))
 import Html exposing (Html, div)
 import Html.Attributes exposing (class, style)
 import Html.Lazy exposing (lazy)
@@ -10,8 +12,6 @@ import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import List.Extra exposing (getAt, removeAt, setAt, splitAt, takeWhile)
 import Models.Diagram as DiagramModel
-import Models.DiagramType as DiagramType
-import Models.Item as Item exposing (ItemType(..))
 import Models.Text as Text
 import Task
 import Utils

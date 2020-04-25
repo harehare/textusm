@@ -4,7 +4,6 @@ import Html exposing (Html, div, span, text)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import List.Extra exposing (find)
-import Models.Model exposing (Msg(..))
 
 
 type alias DropDownItem =

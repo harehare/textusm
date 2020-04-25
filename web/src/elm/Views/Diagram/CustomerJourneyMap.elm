@@ -1,7 +1,7 @@
 module Views.Diagram.CustomerJourneyMap exposing (view)
 
+import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.Item as Item exposing (Item, ItemType(..), Items)
 import Models.Views.CustomerJourneyMap as CustomerJourneyMap exposing (CustomerJourneyMap(..), Header(..), Row(..))
 import String
 import Svg exposing (Svg, g)

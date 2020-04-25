@@ -1,5 +1,8 @@
 module Views.Header exposing (view)
 
+import Data.Session as Session exposing (Session)
+import Data.Text as Text exposing (Text)
+import Data.Title as Title exposing (Title)
 import Events exposing (onKeyDown)
 import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import Html exposing (Html, a, div, header, img, input, span, text)
@@ -8,9 +11,6 @@ import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Models.Model exposing (LoginProvider(..), Menu(..), Msg(..))
-import Models.Session as Session exposing (Session)
-import Models.Text as Text exposing (Text)
-import Models.Title as Title exposing (Title)
 import Route exposing (Route(..))
 import Views.Empty as Empty
 import Views.Icon as Icon

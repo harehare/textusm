@@ -1,5 +1,6 @@
 module Views.Menu exposing (MenuItem(..), menu, view)
 
+import Data.Text as Text exposing (Text)
 import Html exposing (Html, div, nav, span, text)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick, stopPropagationOn)
@@ -7,7 +8,6 @@ import Json.Decode as D
 import List
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (FileType(..), Menu(..), Msg(..))
-import Models.Text as Text exposing (Text)
 import Route exposing (Route(..))
 import TextUSM.Enum.Diagram as Diagram
 import Utils

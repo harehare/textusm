@@ -1,4 +1,4 @@
-module Models.DiagramType exposing (fromString, toLongString, toString)
+module Data.DiagramType exposing (fromString, toLongString, toString)
 
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 

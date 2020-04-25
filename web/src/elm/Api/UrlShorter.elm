@@ -1,10 +1,10 @@
 module Api.UrlShorter exposing (Request, Response, urlShorter)
 
 import Api.Api as Api
+import Data.IdToken exposing (IdToken)
 import Http exposing (Error(..))
 import Json.Decode as D
 import Json.Encode as E
-import Models.IdToken exposing (IdToken)
 import Task exposing (Task)
 
 

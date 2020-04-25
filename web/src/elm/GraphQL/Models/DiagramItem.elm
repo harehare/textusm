@@ -1,5 +1,6 @@
 module GraphQL.Models.DiagramItem exposing (DiagramItem, decoder, empty, encoder, idToString, mapToDateTime, toInputItem)
 
+import Data.DiagramType as DiagramType
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Iso8601
@@ -7,7 +8,6 @@ import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
-import Models.DiagramType as DiagramType
 import TextUSM.Enum.Diagram
 import TextUSM.InputObject exposing (InputItem)
 import TextUSM.Scalar exposing (Id(..))

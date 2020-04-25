@@ -1,5 +1,7 @@
 port module Page.List exposing (Model, Msg(..), init, update, view)
 
+import Data.DiagramType as DiagramType
+import Data.Session as Session exposing (Session)
 import Dict
 import Dict.Extra as DictEx
 import GraphQL.Models.DiagramItem as DiagramItem exposing (DiagramItem)
@@ -13,8 +15,6 @@ import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (updateIf)
 import Maybe.Extra exposing (isJust)
-import Models.DiagramType as DiagramType
-import Models.Session as Session exposing (Session)
 import RemoteData exposing (RemoteData(..), WebData)
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram)

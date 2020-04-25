@@ -1,12 +1,12 @@
 module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, stringToPosix, transpose)
 
 import Constants
+import Data.Item as Item
+import Data.Text as Text
 import File exposing (File)
 import Http exposing (Error(..))
 import List.Extra exposing (getAt, last, scanl1, takeWhile, unique)
 import Models.Diagram as DiagramModel
-import Models.Item as Item
-import Models.Text as Text
 import Models.Views.ER as ER exposing (Table(..))
 import Models.Views.Kanban as Kanban
 import Process

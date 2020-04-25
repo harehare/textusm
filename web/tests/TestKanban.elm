@@ -1,7 +1,7 @@
 module TestKanban exposing (all)
 
+import Data.Item as Item exposing (ItemType(..))
 import Expect
-import Models.Item as Item exposing (ItemType(..))
 import Models.Views.Kanban as Kanban
 import Test exposing (Test, describe, test)
 

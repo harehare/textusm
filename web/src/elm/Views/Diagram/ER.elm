@@ -1,6 +1,8 @@
 module Views.Diagram.ER exposing (view)
 
 import Constants
+import Data.Position exposing (Position, getX, getY)
+import Data.Size exposing (Size, getHeight, getWidth)
 import Dict as Dict exposing (Dict)
 import Html exposing (div)
 import Html.Attributes as Attr
@@ -8,8 +10,6 @@ import Html.Lazy exposing (lazy3, lazy4)
 import List.Extra exposing (find)
 import Maybe.Extra exposing (isJust, isNothing, or)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
-import Models.Position exposing (Position, getX, getY)
-import Models.Size exposing (Size, getWidth, getHeight)
 import Models.Views.ER as ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..))
 import State as State exposing (Step(..))
 import String

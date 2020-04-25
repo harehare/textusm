@@ -1,7 +1,7 @@
 module TestDiagramType exposing (all)
 
+import Data.DiagramType exposing (toLongString, toString)
 import Expect
-import Models.DiagramType exposing (toLongString, toString)
 import Test exposing (Test, describe, test)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 

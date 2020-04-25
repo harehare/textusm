@@ -1,9 +1,9 @@
 module Views.Diagram.ImpactMap exposing (view)
 
+import Data.Item as Item exposing (Item, ItemType(..), Items)
+import Data.Position exposing (Position)
 import List.Extra exposing (getAt, scanl1, zip3)
 import Models.Diagram exposing (Model, Msg(..), Point, Settings)
-import Models.Item as Item exposing (Item, ItemType(..), Items)
-import Models.Position exposing (Position)
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (transform)
 import Utils

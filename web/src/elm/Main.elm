@@ -6,6 +6,10 @@ import Browser.Dom as Dom
 import Browser.Events exposing (Visibility(..), onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
+import Data.DiagramType as DiagramType
+import Data.Session as Session
+import Data.Text as Text
+import Data.Title as Title
 import File exposing (name)
 import File.Download as Download
 import File.Select as Select
@@ -19,15 +23,12 @@ import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5)
 import Json.Decode as D
 import List.Extra exposing (getAt, removeAt, setAt, splitAt)
 import Models.Diagram as DiagramModel
-import Models.DiagramType as DiagramType
 import Models.Model as Page exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), Page(..), ShareUrl(..))
-import Models.Session as Session
-import Models.Text as Text
-import Models.Title as Title
 import Models.Views.CustomerJourneyMap as CustomerJourneyMap
 import Models.Views.ER as ER
 import Page.Help as Help
 import Page.List as DiagramList
+import Page.Settings as Settings
 import Page.Share as Share
 import Ports
 import RemoteData
@@ -46,7 +47,6 @@ import Views.Header as Header
 import Views.Menu as Menu
 import Views.Notification as Notification
 import Views.ProgressBar as ProgressBar
-import Views.Settings as Settings
 import Views.SplitWindow as SplitWindow
 import Views.SwitchWindow as SwitchWindow
 
@@ -57,7 +57,7 @@ init flags url key =
         ( apiRoot, settingsJson ) =
             flags
 
-        settings =
+        initSettings =
             D.decodeString settingsDecoder settingsJson
                 |> Result.withDefault defaultSettings
 
@@ -65,23 +65,26 @@ init flags url key =
             DiagramList.init Session.guest apiRoot
 
         ( diagramModel, _ ) =
-            Diagram.init settings.storyMap
+            Diagram.init initSettings.storyMap
+
+        ( settingsModel, _ ) =
+            Settings.init initSettings
 
         ( model, cmds ) =
             changeRouteTo (toRoute url)
                 { diagramModel = diagramModel
                 , diagramListModel = diagramListModel
-                , text = Text.fromString (Maybe.withDefault "" settings.text)
+                , settingsModel = settingsModel
+                , text = Text.fromString (Maybe.withDefault "" initSettings.text)
                 , openMenu = Nothing
-                , title = Title.fromString (Maybe.withDefault "" settings.title)
+                , title = Title.fromString (Maybe.withDefault "" initSettings.title)
                 , window =
-                    { position = settings.position |> Maybe.withDefault 0
+                    { position = initSettings.position |> Maybe.withDefault 0
                     , moveStart = False
                     , moveX = 0
                     , fullscreen = False
                     }
                 , share = Nothing
-                , settings = settings
                 , notification = Nothing
                 , url = url
                 , key = key
@@ -89,9 +92,8 @@ init flags url key =
                 , progress = True
                 , apiRoot = apiRoot
                 , session = Session.guest
-                , currentDiagram = settings.diagram
+                , currentDiagram = initSettings.diagram
                 , embed = Nothing
-                , dropDownIndex = Nothing
                 , page = Page.Main
                 }
     in
@@ -133,20 +135,20 @@ view model =
                     Help.view
 
                 Page.Share m ->
-                    Share.view m |> Html.map UpdateShare
+                    lazy Share.view m |> Html.map UpdateShare
 
                 Page.Settings ->
-                    lazy2 Settings.view model.dropDownIndex model.settings
+                    lazy Settings.view model.settingsModel |> Html.map UpdateSettings
 
                 Page.Embed diagram title path ->
-                    div [ style "width" "100%", style "height" "100%", style "background-color" model.settings.storyMap.backgroundColor ]
+                    div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
                         [ let
                             diagramModel =
                                 model.diagramModel
                           in
                           lazy Diagram.view diagramModel
                             |> Html.map UpdateDiagram
-                        , lazy4 BottomNavigationBar.view model.settings diagram title path
+                        , lazy4 BottomNavigationBar.view model.settingsModel.settings diagram title path
                         ]
 
                 _ ->
@@ -328,8 +330,12 @@ changeRouteTo route model =
             in
             case maybeSettings of
                 Just settings ->
+                    let
+                        ( settingsModel_, cmd_ ) =
+                            Settings.init settings
+                    in
                     ( { model
-                        | settings = settings
+                        | settingsModel = settingsModel_
                         , diagramModel = updatedDiagramModel
                         , window =
                             { position = model.window.position
@@ -341,7 +347,7 @@ changeRouteTo route model =
                         , title = Title.fromString <| Maybe.withDefault "" settings.title
                         , page = Page.Main
                       }
-                    , getCmds []
+                    , getCmds [ cmd_ |> Cmd.map UpdateSettings ]
                     )
 
                 Nothing ->
@@ -431,6 +437,25 @@ update message model =
                 _ ->
                     ( model, Cmd.none )
 
+        UpdateSettings msg ->
+            let
+                ( model_, cmd_ ) =
+                    Settings.update msg model.settingsModel
+
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel | settings = model_.settings.storyMap }
+            in
+            ( { model
+                | page = Page.Settings
+                , diagramModel = newDiagramModel
+                , settingsModel = model_
+              }
+            , cmd_
+            )
+
         UpdateDiagram msg ->
             case msg of
                 DiagramModel.OnResize _ _ ->
@@ -441,7 +466,7 @@ update message model =
                     ( { model | diagramModel = model_ }
                     , Cmd.batch
                         [ cmd_ |> Cmd.map UpdateDiagram
-                        , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settings.editor )
+                        , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settingsModel.settings.editor )
                         ]
                     )
 
@@ -637,7 +662,7 @@ update message model =
                 , progress = False
                 , text = Text.saved model.text
               }
-            , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settings.editor )
+            , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settingsModel.settings.editor )
             )
 
         DownloadCompleted ( x, y ) ->
@@ -902,24 +927,27 @@ update message model =
             else if visible == Hidden then
                 let
                     storyMap =
-                        model.settings.storyMap
+                        model.settingsModel.settings.storyMap
 
                     newStoryMap =
-                        { storyMap | font = model.settings.font }
+                        { storyMap | font = model.settingsModel.settings.font }
 
                     newSettings =
                         { position = Just model.window.position
-                        , font = model.settings.font
+                        , font = model.settingsModel.settings.font
                         , diagramId = Maybe.andThen .id model.currentDiagram
                         , storyMap = newStoryMap
                         , text = Just (Text.toString model.text)
                         , title =
                             Just <| Title.toString model.title
-                        , editor = model.settings.editor
+                        , editor = model.settingsModel.settings.editor
                         , diagram = model.currentDiagram
                         }
+
+                    ( newSettingsModel, _ ) =
+                        Settings.init newSettings
                 in
-                ( { model | settings = newSettings }
+                ( { model | settingsModel = newSettingsModel }
                 , Ports.saveSettings (settingsEncoder newSettings)
                 )
 
@@ -1038,19 +1066,6 @@ update message model =
         GetDiagrams ->
             ( { model | progress = True }, Nav.pushUrl model.key (Route.toString Route.List) )
 
-        UpdateSettings getSetting value ->
-            let
-                settings =
-                    getSetting value
-
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | settings = settings.storyMap }
-            in
-            ( { model | dropDownIndex = Nothing, settings = settings, diagramModel = newDiagramModel }, Cmd.none )
-
         SignIn provider ->
             ( { model | progress = True }
             , Ports.signIn <|
@@ -1070,17 +1085,6 @@ update message model =
 
         OnAuthStateChanged Nothing ->
             ( { model | session = Session.guest, progress = False }, Cmd.none )
-
-        ToggleDropDownList id ->
-            let
-                activeIndex =
-                    if (model.dropDownIndex |> Maybe.withDefault "") == id then
-                        Nothing
-
-                    else
-                        Just id
-            in
-            ( { model | dropDownIndex = activeIndex }, Cmd.none )
 
         Progress visible ->
             ( { model | progress = visible }, Cmd.none )

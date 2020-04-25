@@ -1,4 +1,4 @@
-module Models.Title exposing (Title, edit, fromString, isEdit, isUntitled, isView, toString, untitled, view)
+module Data.Title exposing (Title, edit, fromString, isEdit, isUntitled, isView, toString, untitled, view)
 
 
 type Title

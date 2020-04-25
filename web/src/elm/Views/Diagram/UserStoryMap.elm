@@ -2,13 +2,13 @@ module Views.Diagram.UserStoryMap exposing (view)
 
 import Basics exposing (max)
 import Constants
+import Data.Item as Item exposing (Item, ItemType(..), Items)
+import Data.Position exposing (Position)
 import Html exposing (div)
 import Html.Attributes as Attr
 import List
 import List.Extra exposing (getAt, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
-import Models.Item as Item exposing (Item, ItemType(..), Items)
-import Models.Position exposing (Position)
 import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
 import Svg.Attributes exposing (class, color, fill, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)

@@ -1,11 +1,11 @@
 module GraphQL.Request exposing (bookmark, delete, item, items, save)
 
+import Data.IdToken as IdToken exposing (IdToken)
 import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import GraphQL.Mutation as Mutation
 import GraphQL.Query as Query
 import Graphql.Http as Http
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
-import Models.IdToken as IdToken exposing (IdToken)
 import Task exposing (Task)
 import TextUSM.InputObject exposing (InputItem)
 

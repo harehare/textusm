@@ -1,9 +1,9 @@
 module Views.Diagram.Markdown exposing (view)
 
+import Data.Text as Text
 import Html.Attributes as Attr
 import Markdown
 import Models.Diagram as Diagram exposing (Model, Msg)
-import Models.Text as Text
 import Svg exposing (Svg, foreignObject, g)
 import Svg.Attributes exposing (class, fill, height, transform, width, x, y)
 import Utils
