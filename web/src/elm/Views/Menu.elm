@@ -47,19 +47,19 @@ view page route text_ width fullscreen openMenu =
             [ div
                 ((case page of
                     List ->
-                        onClick NavBack
+                        onClick BackToEdit
 
                     Settings ->
-                        onClick NavBack
+                        onClick BackToEdit
 
                     Help ->
-                        onClick NavBack
+                        onClick BackToEdit
 
                     Share ->
-                        onClick NavBack
+                        onClick BackToEdit
 
                     Tags _ ->
-                        onClick NavBack
+                        onClick BackToEdit
 
                     _ ->
                         stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True ))

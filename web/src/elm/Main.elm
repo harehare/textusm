@@ -28,6 +28,7 @@ import Models.Views.CustomerJourneyMap as CustomerJourneyMap
 import Models.Views.ER as ER
 import Page.Help as Help
 import Page.List as DiagramList
+import Page.NotFound as NotFound
 import Page.Settings as Settings
 import Page.Share as Share
 import Page.Tags as Tags
@@ -157,6 +158,9 @@ view model =
                         , lazy4 BottomNavigationBar.view model.settingsModel.settings diagram title path
                         ]
 
+                Page.NotFound ->
+                    NotFound.view
+
                 _ ->
                     mainWindow
                         Editor.view
@@ -268,6 +272,9 @@ changeRouteTo route model =
 
                 Nothing ->
                     ( model, Cmd.none )
+
+        Route.NotFound ->
+            ( { model | page = Page.NotFound }, Cmd.none )
 
         Route.Embed diagram title path ->
             let
@@ -793,11 +800,7 @@ update message model =
                     { diagramListModel | diagramList = RemoteData.NotAsked }
             in
             if Title.isUntitled model.title then
-                let
-                    ( model_, cmd_ ) =
-                        update StartEditTitle model
-                in
-                ( model_, cmd_ )
+                update StartEditTitle model
 
             else
                 let
@@ -941,8 +944,8 @@ update message model =
         NavRoute route ->
             ( model, Nav.pushUrl model.key (Route.toString route) )
 
-        NavBack ->
-            ( model, Nav.back model.key 1 )
+        BackToEdit ->
+            ( model, Nav.pushUrl model.key (Route.toString (Route.toDiagramToRoute (Maybe.withDefault DiagramItem.empty model.currentDiagram |> .diagram))) )
 
         OnVisibilityChange visible ->
             if model.window.fullscreen then

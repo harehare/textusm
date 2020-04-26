@@ -1,5 +1,6 @@
-module Route exposing (Route(..), toRoute, toString)
+module Route exposing (Route(..), toDiagramToRoute, toRoute, toString)
 
+import TextUSM.Enum.Diagram as Diagram
 import Url exposing (Url)
 import Url.Builder exposing (absolute)
 import Url.Parser as Parser exposing ((</>), Parser, map, oneOf, parse, s, string)
@@ -48,6 +49,7 @@ type Route
     | Embed DiagramPath Title Path
     | UsmView SettingsJson
     | View DiagramPath SettingsJson
+    | NotFound
 
 
 parser : Parser (Route -> a) a
@@ -84,7 +86,59 @@ parser =
 
 toRoute : Url -> Route
 toRoute url =
-    Maybe.withDefault Home (parse parser url)
+    Maybe.withDefault NotFound (parse parser url)
+
+
+toDiagramToRoute : Diagram.Diagram -> Route
+toDiagramToRoute diagram =
+    case diagram of
+        Diagram.UserStoryMap ->
+            UserStoryMap
+
+        Diagram.OpportunityCanvas ->
+            OpportunityCanvas
+
+        Diagram.BusinessModelCanvas ->
+            BusinessModelCanvas
+
+        Diagram.Fourls ->
+            FourLs
+
+        Diagram.StartStopContinue ->
+            StartStopContinue
+
+        Diagram.Kpt ->
+            Kpt
+
+        Diagram.UserPersona ->
+            Persona
+
+        Diagram.Markdown ->
+            Markdown
+
+        Diagram.MindMap ->
+            MindMap
+
+        Diagram.EmpathyMap ->
+            EmpathyMap
+
+        Diagram.CustomerJourneyMap ->
+            CustomerJourneyMap
+
+        Diagram.SiteMap ->
+            SiteMap
+
+        Diagram.GanttChart ->
+            GanttChart
+
+        Diagram.ImpactMap ->
+            ImpactMap
+
+        Diagram.ErDiagram ->
+            ErDiagram
+
+        Diagram.Kanban ->
+            Kanban
 
 
 toString : Route -> String
@@ -155,6 +209,9 @@ toString route =
 
         SharingSettings ->
             absolute [ "sharing" ] []
+
+        NotFound ->
+            absolute [ "notfound" ] []
 
         Share diagramPath title path ->
             absolute [ "share", diagramPath, title, path ] []

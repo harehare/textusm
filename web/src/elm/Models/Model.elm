@@ -69,7 +69,7 @@ type Msg
     | GetDiagrams
     | Shortcuts String
     | NavRoute Route.Route
-    | NavBack
+    | BackToEdit
 
 
 type LoginProvider
@@ -108,6 +108,7 @@ type Page
     | Share
     | Settings
     | Embed String String String
+    | NotFound
 
 
 type alias Model =

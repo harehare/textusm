@@ -3,7 +3,7 @@ module Page.Tags exposing (Model, Msg(..), init, update, view)
 import Browser.Dom as Dom
 import Events
 import Html exposing (Html, div, input, text)
-import Html.Attributes exposing (class, id, placeholder, style)
+import Html.Attributes exposing (autofocus, class, id, placeholder, style)
 import Html.Events exposing (onClick, onInput)
 import List.Extra exposing (last)
 import Task
@@ -83,6 +83,7 @@ view model =
                         , placeholder "ADD TAG"
                         , Events.onKeyDown AddOrDeleteTag
                         , onInput EditTag
+                        , autofocus True
                         ]
                         []
                    ]

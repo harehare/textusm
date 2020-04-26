@@ -598,6 +598,16 @@ select {
     display: none !important;
 }
 
+.notfound {
+    height: calc(100vh - 40px);
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    font-size: 1.2rem;
+}
+
 .notification {
     position: fixed;
     bottom: 5%;
