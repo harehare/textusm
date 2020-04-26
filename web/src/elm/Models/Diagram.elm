@@ -1,9 +1,9 @@
 module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Settings, Size, UsmSvg, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl)
 
 import Browser.Dom exposing (Viewport)
+import Data.Item exposing (Item, ItemType(..), Items)
+import Data.Text exposing (Text)
 import Html5.DragDrop as DragDrop
-import Models.Item exposing (Item, ItemType(..), Items)
-import Models.Text exposing (Text)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)

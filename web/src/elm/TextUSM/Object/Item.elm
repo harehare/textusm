@@ -63,6 +63,12 @@ isBookmark =
 
 
 {-| -}
+tags : SelectionSet (Maybe (List (Maybe String))) TextUSM.Object.Item
+tags =
+    Object.selectionForField "(Maybe (List (Maybe String)))" "tags" [] (Decode.string |> Decode.nullable |> Decode.list |> Decode.nullable)
+
+
+{-| -}
 createdAt : SelectionSet TextUSM.ScalarCodecs.Time TextUSM.Object.Item
 createdAt =
     Object.selectionForField "ScalarCodecs.Time" "createdAt" [] (TextUSM.ScalarCodecs.codecs |> TextUSM.Scalar.unwrapCodecs |> .codecTime |> .decoder)

@@ -1,4 +1,4 @@
-module Models.Text exposing (Text, change, edit, empty, fromString, isChanged, isEmpty, lines, saved, toString)
+module Data.Text exposing (Text, change, edit, empty, fromString, isChanged, isEmpty, lines, saved, toString)
 
 
 type Text

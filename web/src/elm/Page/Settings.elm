@@ -1,10 +1,9 @@
-module Views.Settings exposing (view)
+module Page.Settings exposing (Model, Msg, init, update, view)
 
 import Html exposing (Html, div, input, label, text)
 import Html.Attributes exposing (checked, class, style, type_)
 import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
-import Models.Model exposing (Msg(..))
 import Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 
@@ -1018,8 +1017,53 @@ fontFamilyItems =
     ]
 
 
-view : Maybe String -> Settings -> Html Msg
-view dropDownIndex settings =
+type alias Model =
+    { dropDownIndex : Maybe String
+    , settings : Settings
+    }
+
+
+type Msg
+    = UpdateSettings (String -> Settings) String
+    | ToggleDropDownList String
+
+
+init : Settings -> ( Model, Cmd Msg )
+init settings =
+    ( Model Nothing settings
+    , Cmd.none
+    )
+
+
+update : Msg -> Model -> ( Model, Cmd msg )
+update msg model =
+    case msg of
+        ToggleDropDownList id ->
+            let
+                activeIndex =
+                    if (model.dropDownIndex |> Maybe.withDefault "") == id then
+                        Nothing
+
+                    else
+                        Just id
+            in
+            ( { model | dropDownIndex = activeIndex }, Cmd.none )
+
+        UpdateSettings getSetting value ->
+            let
+                settings =
+                    getSetting value
+            in
+            ( { model | dropDownIndex = Nothing, settings = settings }, Cmd.none )
+
+
+view : Model -> Html Msg
+view model =
+    view_ model.dropDownIndex model.settings
+
+
+view_ : Maybe String -> Settings -> Html Msg
+view_ dropDownIndex settings =
     div
         [ class "settings"
         , style "user-select" "none"

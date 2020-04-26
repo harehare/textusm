@@ -1,6 +1,6 @@
 module Models.Views.FourLs exposing (FourLs, FourLsItem(..), fromItems)
 
-import Models.Item as Item exposing (Item, Items)
+import Data.Item as Item exposing (Item, Items)
 
 
 type alias FourLs =

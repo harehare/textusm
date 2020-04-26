@@ -10,13 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@cypress/webpack-preprocessor": "^4.1.1",
-    "cypress": "^4.0.2",
-    "ts-loader": "^6.2.1",
-    "typescript": "^3.7.5",
-    "webpack": "^4.41.6"
+    "@cypress/webpack-preprocessor": "^5.1.2",
+    "cypress": "^4.4.1",
+    "ts-loader": "^7.0.1",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1"
   },
   "devDependencies": {
-    "@types/node": "^13.7.1"
+    "@types/node": "^13.13.1"
   }
 }

@@ -1,4 +1,4 @@
-module Models.Position exposing (Position, X, Y, getX, getY)
+module Data.Position exposing (Position, X, Y, getX, getY)
 
 
 type alias X =

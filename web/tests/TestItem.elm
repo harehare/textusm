@@ -1,7 +1,7 @@
 module TestItem exposing (all)
 
+import Data.Item as Item exposing (ItemType(..), Items(..))
 import Expect
-import Models.Item as Item exposing (ItemType(..), Items(..))
 import Test exposing (Test, describe, test)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 

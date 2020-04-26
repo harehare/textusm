@@ -1,9 +1,9 @@
 module TestDiagram exposing (changeTextTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, toggleFullscreenText, zoomInTest, zoomOutTest)
 
 import Components.Diagram exposing (init, update)
+import Data.Item as Item exposing (ItemType(..))
 import Expect
 import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.Item as Item exposing (ItemType(..))
 import Test exposing (Test, describe, test)
 
 

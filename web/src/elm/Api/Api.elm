@@ -1,8 +1,8 @@
 module Api.Api exposing (delete, emptyResolver, get, jsonResolver, post)
 
+import Data.IdToken as IdToken exposing (IdToken)
 import Http exposing (Error(..))
 import Json.Decode as D
-import Models.IdToken as IdToken exposing (IdToken)
 import Task exposing (Task)
 import Url.Builder exposing (QueryParameter, crossOrigin)
 

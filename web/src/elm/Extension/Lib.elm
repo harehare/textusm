@@ -3,14 +3,14 @@ module Extension.Lib exposing (init, main, view)
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
 import Components.Diagram as Diagram
+import Data.Item as Item exposing (ItemType(..))
+import Data.Text as Text
 import Html exposing (Html, div)
 import Html.Attributes exposing (class, style)
 import Html.Lazy exposing (lazy)
 import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import Models.Diagram as DiagramModel
-import Models.Item as Item exposing (ItemType(..))
-import Models.Text as Text
 import Task
 import TextUSM.Enum.Diagram as Diagram
 

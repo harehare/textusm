@@ -6,7 +6,10 @@ import Browser.Dom as Dom
 import Browser.Events exposing (Visibility(..), onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
-import Components.DiagramList as DiagramList
+import Data.DiagramType as DiagramType
+import Data.Session as Session
+import Data.Text as Text
+import Data.Title as Title
 import File exposing (name)
 import File.Download as Download
 import File.Select as Select
@@ -16,23 +19,23 @@ import Graphql.Http as Http
 import Html exposing (Html, div, main_)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy2, lazy3, lazy4, lazy5, lazy6)
+import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy6)
 import Json.Decode as D
 import List.Extra exposing (getAt, removeAt, setAt, splitAt)
 import Models.Diagram as DiagramModel
-import Models.DiagramList as DiagramListModel
-import Models.DiagramType as DiagramType
-import Models.Model exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), ShareUrl(..))
-import Models.Session as Session
-import Models.Settings exposing (defaultEditorSettings, defaultSettings)
-import Models.Text as Text
-import Models.Title as Title
+import Models.Model as Page exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), Page(..))
 import Models.Views.CustomerJourneyMap as CustomerJourneyMap
 import Models.Views.ER as ER
+import Page.Help as Help
+import Page.List as DiagramList
+import Page.NotFound as NotFound
+import Page.Settings as Settings
+import Page.Share as Share
+import Page.Tags as Tags
 import Ports
 import RemoteData
 import Route exposing (Route(..), toRoute)
-import Settings exposing (settingsDecoder, settingsEncoder)
+import Settings exposing (defaultEditorSettings, defaultSettings, settingsDecoder, settingsEncoder)
 import String
 import Task
 import TextUSM.Enum.Diagram as Diagram
@@ -43,12 +46,9 @@ import Views.BottomNavigationBar as BottomNavigationBar
 import Views.Editor as Editor
 import Views.Empty as Empty
 import Views.Header as Header
-import Views.Help as Help
 import Views.Menu as Menu
 import Views.Notification as Notification
 import Views.ProgressBar as ProgressBar
-import Views.Settings as Settings
-import Views.Share as Share
 import Views.SplitWindow as SplitWindow
 import Views.SwitchWindow as SwitchWindow
 
@@ -59,7 +59,7 @@ init flags url key =
         ( apiRoot, settingsJson ) =
             flags
 
-        settings =
+        initSettings =
             D.decodeString settingsDecoder settingsJson
                 |> Result.withDefault defaultSettings
 
@@ -67,23 +67,29 @@ init flags url key =
             DiagramList.init Session.guest apiRoot
 
         ( diagramModel, _ ) =
-            Diagram.init settings.storyMap
+            Diagram.init initSettings.storyMap
+
+        ( shareModel, _ ) =
+            Share.init "" ""
+
+        ( settingsModel, _ ) =
+            Settings.init initSettings
 
         ( model, cmds ) =
             changeRouteTo (toRoute url)
                 { diagramModel = diagramModel
                 , diagramListModel = diagramListModel
-                , text = Text.fromString (Maybe.withDefault "" settings.text)
+                , settingsModel = settingsModel
+                , shareModel = shareModel
+                , text = Text.fromString (Maybe.withDefault "" initSettings.text)
                 , openMenu = Nothing
-                , title = Title.fromString (Maybe.withDefault "" settings.title)
+                , title = Title.fromString (Maybe.withDefault "" initSettings.title)
                 , window =
-                    { position = settings.position |> Maybe.withDefault 0
+                    { position = initSettings.position |> Maybe.withDefault 0
                     , moveStart = False
                     , moveX = 0
                     , fullscreen = False
                     }
-                , share = Nothing
-                , settings = settings
                 , notification = Nothing
                 , url = url
                 , key = key
@@ -91,9 +97,8 @@ init flags url key =
                 , progress = True
                 , apiRoot = apiRoot
                 , session = Session.guest
-                , currentDiagram = settings.diagram
-                , embed = Nothing
-                , dropDownIndex = Nothing
+                , currentDiagram = initSettings.diagram
+                , page = Page.Main
                 }
     in
     ( model, cmds )
@@ -106,47 +111,55 @@ view model =
         , style "width" "100vw"
         , onClick CloseMenu
         ]
-        [ lazy6 Header.view model.session (toRoute model.url) model.title model.window.fullscreen model.openMenu model.text
+        [ lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.text }
         , lazy showNotification model.notification
         , lazy2 showProgressbar model.progress model.window.fullscreen
         , div
             [ class "main" ]
-            [ lazy5 Menu.view (toRoute model.url) model.text model.diagramModel.width model.window.fullscreen model.openMenu
+            [ lazy6 Menu.view model.page (toRoute model.url) model.text model.diagramModel.width model.window.fullscreen model.openMenu
             , let
                 mainWindow =
                     if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then
-                        lazy4 SwitchWindow.view
+                        lazy5 SwitchWindow.view
+                            WindowSelect
                             model.diagramModel.settings.backgroundColor
                             model.editorIndex
 
                     else
-                        lazy4 SplitWindow.view
+                        lazy5 SplitWindow.view
+                            OnStartWindowResize
                             model.diagramModel.settings.backgroundColor
                             model.window
               in
-              case toRoute model.url of
-                Route.List ->
+              case model.page of
+                Page.List ->
                     lazy DiagramList.view model.diagramListModel |> Html.map UpdateDiagramList
 
-                Route.Help ->
+                Page.Help ->
                     Help.view
 
-                Route.SharingSettings ->
-                    lazy3 sharePage (toRoute model.url) model.embed model.share
+                Page.Share ->
+                    lazy Share.view model.shareModel |> Html.map UpdateShare
 
-                Route.Settings ->
-                    lazy2 Settings.view model.dropDownIndex model.settings
+                Page.Settings ->
+                    lazy Settings.view model.settingsModel |> Html.map UpdateSettings
 
-                Route.Embed diagram title path ->
-                    div [ style "width" "100%", style "height" "100%", style "background-color" model.settings.storyMap.backgroundColor ]
+                Page.Tags m ->
+                    Tags.view m |> Html.map UpdateTags
+
+                Page.Embed diagram title path ->
+                    div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
                         [ let
                             diagramModel =
                                 model.diagramModel
                           in
                           lazy Diagram.view diagramModel
                             |> Html.map UpdateDiagram
-                        , lazy4 BottomNavigationBar.view model.settings diagram title path
+                        , lazy4 BottomNavigationBar.view model.settingsModel.settings diagram title path
                         ]
+
+                Page.NotFound ->
+                    NotFound.view
 
                 _ ->
                     mainWindow
@@ -160,23 +173,6 @@ view model =
                         )
             ]
         ]
-
-
-sharePage : Route -> Maybe String -> Maybe ShareUrl -> Html Msg
-sharePage route embedUrl shareUrl =
-    case route of
-        SharingSettings ->
-            case ( shareUrl, embedUrl ) of
-                ( Just (ShareUrl url), Just e ) ->
-                    Share.view
-                        e
-                        url
-
-                _ ->
-                    Empty.view
-
-        _ ->
-            Empty.view
 
 
 main : Program ( String, String ) Model Msg
@@ -237,7 +233,7 @@ changeRouteTo route model =
                 newDiagramModel =
                     { diagramModel | diagramType = type_ }
             in
-            ( { model | diagramModel = newDiagramModel }
+            ( { model | diagramModel = newDiagramModel, page = Page.Main }
             , getCmds
                 [ if type_ == Diagram.Markdown then
                     Ports.setEditorLanguage "markdown"
@@ -254,12 +250,31 @@ changeRouteTo route model =
                     ( model_, cmd_ ) =
                         DiagramList.init model.session model.apiRoot
                 in
-                ( { model | progress = True, diagramListModel = model_ }
-                , getCmds [ Ports.getDiagrams (), cmd_ |> Cmd.map UpdateDiagramList ]
+                ( { model
+                    | page = Page.List
+                    , progress = True
+                    , diagramListModel = model_
+                  }
+                , getCmds [ cmd_ |> Cmd.map UpdateDiagramList ]
                 )
 
             else
-                ( { model | progress = False }, Cmd.none )
+                ( { model | page = Page.List, progress = False }, Cmd.none )
+
+        Route.Tag ->
+            case model.currentDiagram of
+                Just diagram ->
+                    let
+                        ( model_, _ ) =
+                            Tags.init (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault ""))
+                    in
+                    ( { model | page = Page.Tags model_ }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        Route.NotFound ->
+            ( { model | page = Page.NotFound }, Cmd.none )
 
         Route.Embed diagram title path ->
             let
@@ -282,6 +297,7 @@ changeRouteTo route model =
                     }
                 , diagramModel = newDiagramModel
                 , title = Title.fromString title
+                , page = Page.Embed diagram title path
               }
             , getCmds [ Ports.decodeShareText path ]
             )
@@ -299,7 +315,8 @@ changeRouteTo route model =
             in
             ( { model
                 | diagramModel = newDiagramModel
-                , title = Title.fromString title
+                , title = percentDecode title |> Maybe.withDefault "" |> Title.fromString
+                , page = Page.Main
               }
             , getCmds [ Ports.decodeShareText path ]
             )
@@ -335,8 +352,12 @@ changeRouteTo route model =
             in
             case maybeSettings of
                 Just settings ->
+                    let
+                        ( settingsModel_, cmd_ ) =
+                            Settings.init settings
+                    in
                     ( { model
-                        | settings = settings
+                        | settingsModel = settingsModel_
                         , diagramModel = updatedDiagramModel
                         , window =
                             { position = model.window.position
@@ -346,8 +367,9 @@ changeRouteTo route model =
                             }
                         , text = Text.edit model.text (String.replace "\\n" "\n" (Maybe.withDefault "" settings.text))
                         , title = Title.fromString <| Maybe.withDefault "" settings.title
+                        , page = Page.Main
                       }
-                    , getCmds []
+                    , getCmds [ cmd_ |> Cmd.map UpdateSettings ]
                     )
 
                 Nothing ->
@@ -402,16 +424,16 @@ changeRouteTo route model =
             changeDiagramType Diagram.Kanban
 
         Route.Home ->
-            ( model, getCmds [] )
+            ( { model | page = Page.Main }, getCmds [] )
 
         Route.Settings ->
-            ( model, getCmds [] )
+            ( { model | page = Page.Settings }, getCmds [] )
 
         Route.Help ->
-            ( model, getCmds [] )
+            ( { model | page = Page.Help }, getCmds [] )
 
         Route.SharingSettings ->
-            ( model, getCmds [] )
+            ( { model | page = Page.Share }, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -420,17 +442,69 @@ update message model =
         NoOp ->
             ( model, Cmd.none )
 
-        UpdateDiagram subMsg ->
-            case subMsg of
+        UpdateShare msg ->
+            case model.page of
+                Page.Share ->
+                    let
+                        ( model_, cmd_ ) =
+                            Share.update msg model.shareModel
+                    in
+                    ( { model | shareModel = model_, page = Page.Share }, cmd_ )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        UpdateTags msg ->
+            case ( model.page, model.currentDiagram ) of
+                ( Page.Tags m, Just diagram ) ->
+                    let
+                        ( model_, cmd_ ) =
+                            Tags.update msg m
+
+                        newDiagram =
+                            { diagram | tags = Just (List.map Just model_.tags) }
+                    in
+                    ( { model
+                        | text = Text.change model.text
+                        , page = Page.Tags model_
+                        , currentDiagram = Just newDiagram
+                      }
+                    , cmd_ |> Cmd.map UpdateTags
+                    )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        UpdateSettings msg ->
+            let
+                ( model_, cmd_ ) =
+                    Settings.update msg model.settingsModel
+
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel | settings = model_.settings.storyMap }
+            in
+            ( { model
+                | page = Page.Settings
+                , diagramModel = newDiagramModel
+                , settingsModel = model_
+              }
+            , cmd_
+            )
+
+        UpdateDiagram msg ->
+            case msg of
                 DiagramModel.OnResize _ _ ->
                     let
                         ( model_, cmd_ ) =
-                            Diagram.update subMsg model.diagramModel
+                            Diagram.update msg model.diagramModel
                     in
                     ( { model | diagramModel = model_ }
                     , Cmd.batch
                         [ cmd_ |> Cmd.map UpdateDiagram
-                        , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settings.editor )
+                        , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settingsModel.settings.editor )
                         ]
                     )
 
@@ -508,7 +582,7 @@ update message model =
                             { window | fullscreen = not window.fullscreen }
 
                         ( model_, cmd_ ) =
-                            Diagram.update subMsg model.diagramModel
+                            Diagram.update msg model.diagramModel
                     in
                     ( { model | window = newWindow, diagramModel = model_ }
                     , Cmd.batch
@@ -524,20 +598,20 @@ update message model =
                 DiagramModel.OnChangeText text ->
                     let
                         ( model_, _ ) =
-                            Diagram.update subMsg model.diagramModel
+                            Diagram.update msg model.diagramModel
                     in
                     ( { model | text = Text.edit model.text text, diagramModel = model_ }, Cmd.none )
 
                 _ ->
                     let
                         ( model_, cmd_ ) =
-                            Diagram.update subMsg model.diagramModel
+                            Diagram.update msg model.diagramModel
                     in
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
         UpdateDiagramList subMsg ->
             case subMsg of
-                DiagramListModel.Select diagram ->
+                DiagramList.Select diagram ->
                     if diagram.isRemote then
                         ( { model
                             | progress = False
@@ -560,13 +634,13 @@ update message model =
                         , Nav.pushUrl model.key <| DiagramType.toString diagram.diagram
                         )
 
-                DiagramListModel.Removed (Err e) ->
+                DiagramList.Removed (Err e) ->
                     case e of
                         Http.GraphqlError _ _ ->
                             ( model
                             , Cmd.batch
                                 [ Utils.delay 3000 OnCloseNotification
-                                , Utils.showErrorMessage
+                                , Notification.showErrorMessage
                                     "Failed."
                                 ]
                             )
@@ -575,7 +649,7 @@ update message model =
                             ( model
                             , Cmd.batch
                                 [ Utils.delay 3000 OnCloseNotification
-                                , Utils.showErrorMessage
+                                , Notification.showErrorMessage
                                     "Request timeout."
                                 ]
                             )
@@ -584,7 +658,7 @@ update message model =
                             ( model
                             , Cmd.batch
                                 [ Utils.delay 3000 OnCloseNotification
-                                , Utils.showErrorMessage
+                                , Notification.showErrorMessage
                                     "Network error."
                                 ]
                             )
@@ -593,16 +667,16 @@ update message model =
                             ( model
                             , Cmd.batch
                                 [ Utils.delay 3000 OnCloseNotification
-                                , Utils.showErrorMessage
+                                , Notification.showErrorMessage
                                     "Failed."
                                 ]
                             )
 
-                DiagramListModel.GotDiagrams (Err _) ->
+                DiagramList.GotDiagrams (Err _) ->
                     ( model
                     , Cmd.batch
                         [ Utils.delay 3000 OnCloseNotification
-                        , Utils.showErrorMessage
+                        , Notification.showErrorMessage
                             "Failed."
                         ]
                     )
@@ -626,7 +700,7 @@ update message model =
                 , progress = False
                 , text = Text.saved model.text
               }
-            , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settings.editor )
+            , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settingsModel.settings.editor )
             )
 
         DownloadCompleted ( x, y ) ->
@@ -732,11 +806,7 @@ update message model =
                     { diagramListModel | diagramList = RemoteData.NotAsked }
             in
             if Title.isUntitled model.title then
-                let
-                    ( model_, cmd_ ) =
-                        update StartEditTitle model
-                in
-                ( model_, cmd_ )
+                update StartEditTitle model
 
             else
                 let
@@ -764,6 +834,7 @@ update message model =
                             , isRemote = isRemote
                             , isPublic = False
                             , isBookmark = False
+                            , tags = Maybe.andThen .tags model.currentDiagram
                             , updatedAt = Time.millisToPosix 0
                             , createdAt = Time.millisToPosix 0
                             }
@@ -808,7 +879,7 @@ update message model =
                     , Cmd.batch
                         [ Utils.delay 3000
                             OnCloseNotification
-                        , Utils.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
+                        , Notification.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
                         ]
                     )
 
@@ -823,6 +894,7 @@ update message model =
                     , isRemote = False
                     , isPublic = False
                     , isBookmark = False
+                    , tags = Nothing
                     , updatedAt = Time.millisToPosix 0
                     , createdAt = Time.millisToPosix 0
                     }
@@ -834,7 +906,7 @@ update message model =
             , Cmd.batch
                 [ Utils.delay 3000
                     OnCloseNotification
-                , Utils.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
+                , Notification.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
                 , Ports.saveDiagram <| DiagramItem.encoder item
                 ]
             )
@@ -843,12 +915,9 @@ update message model =
             ( { model | currentDiagram = Just diagram, progress = False }
             , Cmd.batch
                 [ Utils.delay 3000 OnCloseNotification
-                , Utils.showInfoMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
+                , Notification.showInfoMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
                 ]
             )
-
-        SelectAll id ->
-            ( model, Ports.selectTextById id )
 
         Shortcuts x ->
             if x == "save" then
@@ -881,8 +950,8 @@ update message model =
         NavRoute route ->
             ( model, Nav.pushUrl model.key (Route.toString route) )
 
-        NavBack ->
-            ( model, Nav.back model.key 1 )
+        BackToEdit ->
+            ( model, Nav.pushUrl model.key (Route.toString (Route.toDiagramToRoute (Maybe.withDefault DiagramItem.empty model.currentDiagram |> .diagram))) )
 
         OnVisibilityChange visible ->
             if model.window.fullscreen then
@@ -891,24 +960,27 @@ update message model =
             else if visible == Hidden then
                 let
                     storyMap =
-                        model.settings.storyMap
+                        model.settingsModel.settings.storyMap
 
                     newStoryMap =
-                        { storyMap | font = model.settings.font }
+                        { storyMap | font = model.settingsModel.settings.font }
 
                     newSettings =
                         { position = Just model.window.position
-                        , font = model.settings.font
+                        , font = model.settingsModel.settings.font
                         , diagramId = Maybe.andThen .id model.currentDiagram
                         , storyMap = newStoryMap
                         , text = Just (Text.toString model.text)
                         , title =
                             Just <| Title.toString model.title
-                        , editor = model.settings.editor
+                        , editor = model.settingsModel.settings.editor
                         , diagram = model.currentDiagram
                         }
+
+                    ( newSettingsModel, _ ) =
+                        Settings.init newSettings
                 in
-                ( { model | settings = newSettings }
+                ( { model | settingsModel = newSettingsModel }
                 , Ports.saveSettings (settingsEncoder newSettings)
                 )
 
@@ -972,9 +1044,16 @@ update message model =
             )
 
         GetShortUrl (Ok res) ->
+            let
+                shareModel =
+                    model.shareModel
+
+                newShareModel =
+                    { shareModel | url = res.shortLink }
+            in
             ( { model
                 | progress = False
-                , share = Just (ShareUrl res.shortLink)
+                , shareModel = newShareModel
               }
             , Nav.pushUrl model.key (Route.toString Route.SharingSettings)
             )
@@ -1000,8 +1079,14 @@ update message model =
 
                 embedUrl =
                     "https://app.textusm.com/embed" ++ path
+
+                shareModel =
+                    model.shareModel
+
+                newShareModel =
+                    { shareModel | embedUrl = embedUrl }
             in
-            ( { model | embed = Just embedUrl }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl) )
+            ( { model | shareModel = newShareModel }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl) )
 
         OnDecodeShareText text ->
             ( model, Task.perform identity (Task.succeed (FileLoaded text)) )
@@ -1027,19 +1112,6 @@ update message model =
         GetDiagrams ->
             ( { model | progress = True }, Nav.pushUrl model.key (Route.toString Route.List) )
 
-        UpdateSettings getSetting value ->
-            let
-                settings =
-                    getSetting value
-
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | settings = settings.storyMap }
-            in
-            ( { model | dropDownIndex = Nothing, settings = settings, diagramModel = newDiagramModel }, Cmd.none )
-
         SignIn provider ->
             ( { model | progress = True }
             , Ports.signIn <|
@@ -1059,17 +1131,6 @@ update message model =
 
         OnAuthStateChanged Nothing ->
             ( { model | session = Session.guest, progress = False }, Cmd.none )
-
-        ToggleDropDownList id ->
-            let
-                activeIndex =
-                    if (model.dropDownIndex |> Maybe.withDefault "") == id then
-                        Nothing
-
-                    else
-                        Just id
-            in
-            ( { model | dropDownIndex = activeIndex }, Cmd.none )
 
         Progress visible ->
             ( { model | progress = visible }, Cmd.none )
@@ -1151,8 +1212,8 @@ subscriptions model =
     Sub.batch
         ([ Ports.changeText (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
          , Ports.startDownload StartDownload
-         , Ports.gotLocalDiagramJson (\json -> UpdateDiagramList (DiagramListModel.GotLocalDiagramJson json))
-         , Ports.removedDiagram (\_ -> UpdateDiagramList DiagramListModel.Reload)
+         , Ports.gotLocalDiagramJson (\json -> UpdateDiagramList (DiagramList.GotLocalDiagramJson json))
+         , Ports.removedDiagram (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange OnVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
          , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
@@ -1164,7 +1225,7 @@ subscriptions model =
          , Ports.onWarnNotification (\n -> OnAutoCloseNotification (Warning n))
          , Ports.onAuthStateChanged OnAuthStateChanged
          , Ports.saveToRemote SaveToRemote
-         , Ports.removeRemoteDiagram (\diagram -> UpdateDiagramList <| DiagramListModel.RemoveRemote diagram)
+         , Ports.removeRemoteDiagram (\diagram -> UpdateDiagramList <| DiagramList.RemoveRemote diagram)
          , Ports.downloadCompleted DownloadCompleted
          , Ports.progress Progress
          , Ports.saveToLocalCompleted SaveToLocalCompleted

@@ -1,6 +1,6 @@
-module Models.Session exposing (Session, User, getIdToken, getUser, guest, isGuest, isSignedIn, signIn)
+module Data.Session exposing (Session, User, getIdToken, getUser, guest, isGuest, isSignedIn, signIn)
 
-import Models.IdToken as IdToken exposing (IdToken)
+import Data.IdToken as IdToken exposing (IdToken)
 
 
 type Session

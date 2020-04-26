@@ -27,6 +27,7 @@ type Item {
   diagram: Diagram!
   isPublic: Boolean!
   isBookmark: Boolean!
+  tags: [String]
   createdAt: Time!
   updatedAt: Time!
 }
@@ -49,6 +50,7 @@ input InputItem {
   diagram: Diagram!
   isPublic: Boolean!
   isBookmark: Boolean!
+  tags: [String]
 }
 
 type Mutation {

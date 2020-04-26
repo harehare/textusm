@@ -5,8 +5,8 @@ import Html.Attributes exposing (alt, class, href, src, style, target)
 import Html.Events exposing (onClick)
 import Models.Diagram as DiagramModel
 import Models.Model exposing (Msg(..))
-import Models.Settings exposing (Settings)
 import Route exposing (Route(..))
+import Settings exposing (Settings)
 import Views.Icon as Icon
 
 
@@ -44,7 +44,7 @@ view settings diagram title path =
         ]
 
 
-logo : Html Msg
+logo : Html msg
 logo =
     div
         [ style "width"

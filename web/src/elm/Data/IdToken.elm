@@ -1,4 +1,4 @@
-module Models.IdToken exposing
+module Data.IdToken exposing
     ( IdToken
     , fromString
     , unwrap

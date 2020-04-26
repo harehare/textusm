@@ -1,8 +1,22 @@
-module Events exposing (onClickStopPropagation, onKeyDown)
+module Events exposing (keyBackspace, keyEnter, onClickStopPropagation, onKeyDown)
 
 import Html exposing (Attribute)
 import Html.Events exposing (keyCode, on, stopPropagationOn)
 import Json.Decode as D
+
+
+type alias KeyCode =
+    Int
+
+
+keyEnter : KeyCode
+keyEnter =
+    13
+
+
+keyBackspace : KeyCode
+keyBackspace =
+    8
 
 
 onClickStopPropagation : msg -> Html.Attribute msg

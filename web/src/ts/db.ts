@@ -76,6 +76,7 @@ export const initDB = (app: ElmApp) => {
             isPublic,
             isBookmark,
             isRemote,
+            tags,
         }: Diagram) => {
             const thumbnail = svg2base64("usm");
             const createdAt = new Date().getTime();
@@ -86,6 +87,7 @@ export const initDB = (app: ElmApp) => {
                 diagram,
                 isPublic,
                 isBookmark,
+                tags,
                 createdAt,
                 updatedAt: createdAt,
             };

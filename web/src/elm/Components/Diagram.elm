@@ -2,6 +2,9 @@ module Components.Diagram exposing (init, update, view)
 
 import Basics exposing (max)
 import Browser.Dom as Dom
+import Data.Item as Item exposing (ItemType(..), Items)
+import Data.Size exposing (Size)
+import Data.Text as Text
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Html.Events.Extra.Mouse as Mouse
@@ -12,9 +15,6 @@ import List
 import List.Extra exposing (getAt, scanl)
 import Maybe.Extra exposing (isNothing)
 import Models.Diagram exposing (Model, Msg(..), Settings)
-import Models.Item as Item exposing (ItemType(..), Items)
-import Models.Size exposing (Size)
-import Models.Text as Text
 import Parser
 import Result exposing (andThen)
 import String

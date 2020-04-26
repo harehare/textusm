@@ -1,23 +1,36 @@
 module Views.Header exposing (view)
 
+import Data.Session as Session exposing (Session)
+import Data.Text as Text exposing (Text)
+import Data.Title as Title exposing (Title)
 import Events exposing (onKeyDown)
+import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import Html exposing (Html, a, div, header, img, input, span, text)
 import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, value)
 import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
-import Models.Model exposing (LoginProvider(..), Menu(..), Msg(..))
-import Models.Session as Session exposing (Session)
-import Models.Text as Text exposing (Text)
-import Models.Title as Title exposing (Title)
+import Maybe.Extra exposing (isJust)
+import Models.Model as Page exposing (LoginProvider(..), Menu(..), Msg(..), Page(..))
 import Route exposing (Route(..))
 import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu
 
 
-view : Session -> Route -> Title -> Bool -> Maybe Menu -> Text -> Html Msg
-view session route title fullscreen menu currentText =
-    if fullscreen then
+type alias HeaderProps =
+    { session : Session
+    , page : Page
+    , title : Title
+    , isFullscreen : Bool
+    , currentDiagram : Maybe DiagramItem
+    , menu : Maybe Menu
+    , currentText : Text
+    }
+
+
+view : HeaderProps -> Html Msg
+view props =
+    if props.isFullscreen then
         header [] []
 
     else
@@ -30,8 +43,8 @@ view session route title fullscreen menu currentText =
                 , style "align-items" "center"
                 ]
                 [ logo
-                , if route /= Route.List then
-                    if Title.isEdit title then
+                , if props.page /= Page.List then
+                    if Title.isEdit props.title then
                         input
                             [ id "title"
                             , class "title"
@@ -41,9 +54,10 @@ view session route title fullscreen menu currentText =
                             , style "border" "none"
                             , style "font-size" "1.1rem"
                             , style "font-weight" "400"
-                            , value <| Title.toString title
+                            , style "font-family" "'Nunito Sans', sans-serif"
+                            , value <| Title.toString props.title
                             , onInput EditTitle
-                            , onBlur (EndEditTitle 13 False)
+                            , onBlur (EndEditTitle Events.keyEnter False)
                             , onKeyDown EndEditTitle
                             , placeholder "UNTITLED"
                             ]
@@ -66,10 +80,10 @@ view session route title fullscreen menu currentText =
                             , style "justify-content" "flex-start"
                             , onClick StartEditTitle
                             ]
-                            [ text <| Title.toString title
+                            [ text <| Title.toString props.title
                             , div
                                 [ style "margin-left" "8px" ]
-                                [ if Text.isChanged currentText then
+                                [ if Text.isChanged props.currentText then
                                     Icon.circle "#FEFEFE" 10
 
                                   else
@@ -80,9 +94,23 @@ view session route title fullscreen menu currentText =
                   else
                     Empty.view
                 ]
+            , if isJust props.currentDiagram then
+                div
+                    [ class "button"
+                    , onClick <| NavRoute Tag
+                    , style "padding" "8px"
+                    , style "display" "flex"
+                    , style "align-items" "center"
+                    ]
+                    [ Icon.tag 17
+                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Tags" ] ]
+                    ]
+
+              else
+                Empty.view
             , div
                 [ class "button"
-                , onClick <| NavRoute Help
+                , onClick <| NavRoute Route.Help
                 , style "padding" "8px"
                 , style "display" "flex"
                 , style "align-items" "center"
@@ -100,10 +128,10 @@ view session route title fullscreen menu currentText =
                 [ Icon.people 24
                 , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Share" ] ]
                 ]
-            , if Session.isSignedIn session then
+            , if Session.isSignedIn props.session then
                 let
                     user =
-                        Session.getUser session
+                        Session.getUser props.session
                             |> Maybe.withDefault
                                 { displayName = ""
                                 , email = ""
@@ -132,7 +160,7 @@ view session route title fullscreen menu currentText =
                             , style "border-radius" "4px"
                             ]
                             []
-                        , case menu of
+                        , case props.menu of
                             Just HeaderMenu ->
                                 Menu.menu (Just "36px")
                                     Nothing
@@ -165,7 +193,7 @@ view session route title fullscreen menu currentText =
                         , style "width" "55px"
                         ]
                         [ text "SIGN IN" ]
-                    , case menu of
+                    , case props.menu of
                         Just LoginMenu ->
                             Menu.menu (Just "30px")
                                 Nothing

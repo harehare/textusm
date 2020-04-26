@@ -1,6 +1,6 @@
 module Models.Views.UserPersona exposing (UserPersona, UserPersonaItem(..), fromItems)
 
-import Models.Item as Item exposing (Item, Items)
+import Data.Item as Item exposing (Item, Items)
 
 
 type alias UserPersona =

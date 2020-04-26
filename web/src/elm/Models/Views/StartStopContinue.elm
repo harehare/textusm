@@ -1,6 +1,6 @@
 module Models.Views.StartStopContinue exposing (StartStopContinue, StartStopContinueItem(..), fromItems)
 
-import Models.Item as Item exposing (Item, Items)
+import Data.Item as Item exposing (Item, Items)
 
 
 type alias StartStopContinue =

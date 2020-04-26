@@ -1,20 +1,22 @@
-module Models.Model exposing (DownloadFileInfo, DownloadInfo, FileType(..), LoginProvider(..), Menu(..), Model, Msg(..), Notification(..), ShareInfo, ShareUrl(..), Window)
+module Models.Model exposing (DownloadFileInfo, DownloadInfo, FileType(..), LoginProvider(..), Menu(..), Model, Msg(..), Notification(..), Page(..), ShareInfo, Window)
 
 import Api.UrlShorter
 import Browser
 import Browser.Dom exposing (Viewport)
 import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
+import Data.Session exposing (Session, User)
+import Data.Text exposing (Text)
+import Data.Title exposing (Title)
 import File exposing (File)
 import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import Graphql.Http as Http
 import Http as Http2
 import Models.Diagram as Diagram
-import Models.DiagramList as DiagramList
-import Models.Session exposing (Session, User)
-import Models.Settings exposing (Settings)
-import Models.Text exposing (Text)
-import Models.Title exposing (Title)
+import Page.List as DiagramList
+import Page.Settings as Settings
+import Page.Share as Share
+import Page.Tags as Tags
 import Route as Route
 import TextUSM.Enum.Diagram exposing (Diagram)
 import Url
@@ -25,6 +27,9 @@ type Msg
     | Init Viewport
     | UpdateDiagram Diagram.Msg
     | UpdateDiagramList DiagramList.Msg
+    | UpdateShare Share.Msg
+    | UpdateSettings Settings.Msg
+    | UpdateTags Tags.Msg
     | OpenMenu Menu
     | Stop
     | CloseMenu
@@ -62,12 +67,9 @@ type Msg
     | GetShortUrl (Result Http2.Error Api.UrlShorter.Response)
     | New Diagram
     | GetDiagrams
-    | UpdateSettings (String -> Settings) String
     | Shortcuts String
-    | SelectAll String
-    | ToggleDropDownList String
     | NavRoute Route.Route
-    | NavBack
+    | BackToEdit
 
 
 type LoginProvider
@@ -98,25 +100,35 @@ type Menu
     | LoginMenu
 
 
+type Page
+    = Main
+    | Help
+    | List
+    | Tags Tags.Model
+    | Share
+    | Settings
+    | Embed String String String
+    | NotFound
+
+
 type alias Model =
-    { text : Text
-    , currentDiagram : Maybe DiagramItem
-    , key : Nav.Key
+    { key : Nav.Key
     , url : Url.Url
+    , page : Page
     , diagramModel : Diagram.Model
     , diagramListModel : DiagramList.Model
+    , settingsModel : Settings.Model
+    , shareModel : Share.Model
+    , session : Session
+    , currentDiagram : Maybe DiagramItem
     , openMenu : Maybe Menu
     , window : Window
-    , settings : Settings
-    , share : Maybe ShareUrl
-    , embed : Maybe String
     , title : Title
     , notification : Maybe Notification
     , editorIndex : Int
     , progress : Bool
+    , text : Text
     , apiRoot : String
-    , session : Session
-    , dropDownIndex : Maybe String
     }
 
 
@@ -152,7 +164,3 @@ type alias ShareInfo =
     , text : String
     , diagramType : String
     }
-
-
-type ShareUrl
-    = ShareUrl String

@@ -1,6 +1,6 @@
 module Models.Views.CustomerJourneyMap exposing (CustomerJourneyMap(..), Header(..), Row(..), fromItems, toString)
 
-import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Data.Item as Item exposing (Item, ItemType(..), Items)
 
 
 type CustomerJourneyMap

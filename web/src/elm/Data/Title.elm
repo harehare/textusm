@@ -1,4 +1,4 @@
-module Models.Title exposing (Title, edit, fromString, isEdit, isUntitled, isView, toString, untitled, view)
+module Data.Title exposing (Title, edit, fromString, isEdit, isUntitled, isView, toString, untitled, view)
 
 
 type Title
@@ -9,7 +9,15 @@ type Title
 
 isUntitled : Title -> Bool
 isUntitled title =
-    title == UnTitled
+    case title of
+        UnTitled ->
+            True
+
+        Edit t ->
+            String.isEmpty t
+
+        View t ->
+            String.isEmpty t
 
 
 isView : Title -> Bool

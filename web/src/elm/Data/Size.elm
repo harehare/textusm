@@ -1,4 +1,4 @@
-module Models.Size exposing (Height, Size, Width, getHeight, getWidth)
+module Data.Size exposing (Height, Size, Width, getHeight, getWidth)
 
 
 type alias Width =
