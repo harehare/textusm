@@ -1,7 +1,7 @@
 module TestText exposing (all)
 
+import Data.Text as Text
 import Expect
-import Models.Text as Text
 import Test exposing (Test, describe, test)
 
 

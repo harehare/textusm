@@ -1,7 +1,7 @@
 module TestTitle exposing (all)
 
+import Data.Title as Title
 import Expect
-import Models.Title as Title
 import Test exposing (Test, describe, test)
 
 

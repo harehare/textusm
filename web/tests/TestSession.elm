@@ -1,8 +1,8 @@
 module TestSession exposing (all)
 
+import Data.IdToken as IdToken
+import Data.Session as Session
 import Expect
-import Models.IdToken as IdToken
-import Models.Session as Session
 import Test exposing (Test, describe, test)
 
 
