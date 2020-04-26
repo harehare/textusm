@@ -797,7 +797,7 @@ update message model =
         Save ->
             let
                 isRemote =
-                    Session.isSignedIn model.session
+                    Maybe.andThen (\d -> Just d.isRemote) model.currentDiagram |> Maybe.withDefault (Session.isSignedIn model.session)
 
                 diagramListModel =
                     model.diagramListModel
