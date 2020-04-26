@@ -458,13 +458,19 @@ update message model =
             case ( model.page, model.currentDiagram ) of
                 ( Page.Tags m, Just diagram ) ->
                     let
-                        ( model_, _ ) =
+                        ( model_, cmd_ ) =
                             Tags.update msg m
 
                         newDiagram =
                             { diagram | tags = Just (List.map Just model_.tags) }
                     in
-                    ( { model | text = Text.change model.text, page = Page.Tags model_, currentDiagram = Just newDiagram }, Cmd.none )
+                    ( { model
+                        | text = Text.change model.text
+                        , page = Page.Tags model_
+                        , currentDiagram = Just newDiagram
+                      }
+                    , cmd_ |> Cmd.map UpdateTags
+                    )
 
                 _ ->
                     ( model, Cmd.none )

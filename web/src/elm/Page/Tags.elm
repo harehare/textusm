@@ -6,6 +6,7 @@ import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (autofocus, class, id, placeholder, style)
 import Html.Events exposing (onClick, onInput)
 import List.Extra exposing (last)
+import Process
 import Task
 import Views.Icon as Icon
 
@@ -37,7 +38,8 @@ init tags =
 
 focusInput : Cmd Msg
 focusInput =
-    Task.attempt (\_ -> NoOp) (Dom.focus "edit-tag")
+    Task.attempt (\_ -> NoOp)
+        (Dom.focus "edit-tag")
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

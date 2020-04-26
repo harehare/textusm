@@ -114,10 +114,7 @@ const common = {
 
 if (MODE === "development") {
     module.exports = merge(common, {
-        plugins: [
-            new webpack.NamedModulesPlugin(),
-            new webpack.NoEmitOnErrorsPlugin(),
-        ],
+        plugins: [],
         module: {
             rules: [
                 {

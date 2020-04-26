@@ -43,7 +43,7 @@ view model =
             , style "justify-content" "flex-start"
             ]
             [ div [ class "title" ]
-                [ text "Share"
+                [ text "SHARE"
                 , link "share-url" "Link to share" model.url
                 , link "embed" "Embed" ("<iframe src=\"" ++ model.embedUrl ++ "\"  width=\"800\" height=\"600\" frameborder=\"0\" style=\"border:0\" allowfullscreen></iframe>")
                 ]

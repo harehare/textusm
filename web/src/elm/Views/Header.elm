@@ -57,7 +57,7 @@ view props =
                             , style "font-family" "'Nunito Sans', sans-serif"
                             , value <| Title.toString props.title
                             , onInput EditTitle
-                            , onBlur (EndEditTitle 13 False)
+                            , onBlur (EndEditTitle Events.keyEnter False)
                             , onKeyDown EndEditTitle
                             , placeholder "UNTITLED"
                             ]
@@ -103,7 +103,7 @@ view props =
                     , style "align-items" "center"
                     ]
                     [ Icon.tag 17
-                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Tag" ] ]
+                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Tags" ] ]
                     ]
 
               else
