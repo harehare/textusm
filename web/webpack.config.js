@@ -14,18 +14,18 @@ const PreloadWebpackPlugin = require("preload-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin")
     .default;
-const MODE =
+const mode =
     process.env.NODE_ENV === "production" ? "production" : "development";
 const withDebug = !process.env.NODE_ENV;
 const dist = path.join(__dirname, "dist");
 
 const common = {
-    mode: MODE,
+    mode,
     entry: "./src/index.ts",
     output: {
         path: dist,
         publicPath: "/",
-        filename: MODE === "production" ? "[name]-[hash].js" : "index.js",
+        filename: mode === "production" ? "[name]-[hash].js" : "index.js",
     },
     plugins: [
         new HTMLWebpackPlugin({
@@ -112,7 +112,7 @@ const common = {
     },
 };
 
-if (MODE === "development") {
+if (mode === "development") {
     module.exports = merge(common, {
         plugins: [],
         module: {
@@ -150,7 +150,7 @@ if (MODE === "development") {
         },
     });
 }
-if (MODE === "production") {
+if (mode === "production") {
     module.exports = merge(common, {
         plugins: [
             new WorkboxWebpackPlugin.GenerateSW({
@@ -172,6 +172,7 @@ if (MODE === "production") {
             ]),
             new MiniCssExtractPlugin({
                 filename: "[name]-[hash].css",
+                chunkFilename: "[id]-[contenthash].css",
             }),
         ],
         module: {

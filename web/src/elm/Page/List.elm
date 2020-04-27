@@ -339,7 +339,7 @@ view model =
                     , style "font-size" "1.5rem"
                     ]
                     [ div [ style "margin-bottom" "8px" ]
-                        [ img [ src "/images/loading.svg", style "width" "64px", alt "LOADING..." ] []
+                        [ img [ class "keyframe anim", src "/images/logo.svg", style "width" "64px", alt "LOADING..." ] []
                         ]
                     ]
                 ]

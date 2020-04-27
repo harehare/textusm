@@ -22,6 +22,25 @@
             crossorigin="anonymous"
             onload="this.onload=null;this.rel='stylesheet'"
         />
+        <style>
+            .keyframe {
+                animation-name: logo-anim;
+                transform: scale(0.95, 0.95);
+            }
+
+            @keyframes logo-anim {
+                100% {
+                    transform: scale(1, 1);
+                }
+            }
+
+            .anim {
+                animation-timing-function: ease-in-out;
+                animation-iteration-count: infinite;
+                animation-direction: alternate;
+                animation-duration: 0.3s;
+            }
+        </style>
     </head>
 
     <body style="margin: 0; padding: 0;">
@@ -35,9 +54,17 @@
                 background-color: #273037;
             "
         >
-            <img src="/images/logo.svg" style="width: 1px;" />
+            <img
+                class="keyframe anim"
+                src="/images/logo.svg"
+                style="width: 64px;"
+            />
             <noscript>
-                <img src="/images/logo.svg" style="width: 1px;" />
+                <img
+                    class="keyframe anim"
+                    src="/images/logo.svg"
+                    style="width: 64px;"
+                />
                 <div style="color: #f5f5f6;">
                     PLEASE ENABLE JAVASCRIPT
                 </div>
