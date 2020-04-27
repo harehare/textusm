@@ -13,7 +13,7 @@ import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Html.Lazy exposing (lazy2, lazy5)
 import Json.Decode as D
 import Json.Encode as E
-import List.Extra exposing (updateIf)
+import List.Extra exposing (group, updateIf)
 import Maybe.Extra exposing (isJust)
 import RemoteData exposing (RemoteData(..), WebData)
 import Set
@@ -107,7 +107,7 @@ facet items =
         |> List.map (\( d, i ) -> ( DiagramType.fromString d, i ))
 
 
-tags : List DiagramItem -> List String
+tags : List DiagramItem -> List ( String, Int )
 tags items =
     List.map
         (\item ->
@@ -118,11 +118,12 @@ tags items =
         )
         items
         |> List.concat
-        |> Set.fromList
-        |> Set.toList
+        |> List.sort
+        |> group
+        |> List.map (\( v, l ) -> ( v, List.length l + 1 ))
 
 
-sideMenu : FilterValue -> Int -> Int -> List ( Diagram, Int ) -> List String -> Html Msg
+sideMenu : FilterValue -> Int -> Int -> List ( Diagram, Int ) -> List ( String, Int ) -> Html Msg
 sideMenu filter allCount bookmarkCount diagramItems tagItems =
     div [ class "side-menu" ]
         (div
@@ -162,7 +163,7 @@ sideMenu filter allCount bookmarkCount diagramItems tagItems =
                )
             ++ (tagItems
                     |> List.map
-                        (\tag ->
+                        (\( tag, count ) ->
                             div
                                 [ class <|
                                     if filter == FilterTag tag then
@@ -183,7 +184,7 @@ sideMenu filter allCount bookmarkCount diagramItems tagItems =
                                         )
                                     )
                                 ]
-                                [ text tag ]
+                                [ text tag, span [ class "facet-count" ] [ text <| "(" ++ String.fromInt count ++ ")" ] ]
                         )
                )
         )
