@@ -38,7 +38,7 @@
         "file-loader": "^6.0.0",
         "google-closure-compiler": "^20200406.0.0",
         "html-inline-css-webpack-plugin": "^1.8.0",
-        "html-webpack-plugin": "^4.2.0",
+        "html-webpack-plugin": "^4.2.1",
         "mini-css-extract-plugin": "^0.9.0",
         "monaco-editor-webpack-plugin": "^1.9.0",
         "node-sass": "^4.14.0",
