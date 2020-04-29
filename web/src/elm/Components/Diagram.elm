@@ -14,7 +14,16 @@ import Html5.DragDrop as DragDrop
 import List
 import List.Extra exposing (getAt, scanl)
 import Maybe.Extra exposing (isNothing)
-import Models.Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
+import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
+import Models.Views.CustomerJourneyMap as CustomerJourneyMapModel
+import Models.Views.EmpathyMap as EmpathyMapModel
+import Models.Views.FourLs as FourLsModel
+import Models.Views.Kanban as KanbanModel
+import Models.Views.Kpt as KptModel
+import Models.Views.OpportunityCanvas as OpportunityCanvasModel
+import Models.Views.StartStopContinue as StartStopContinueModel
+import Models.Views.UserPersona as UserPersonaModel
 import Parser
 import Result exposing (andThen)
 import String
@@ -52,6 +61,7 @@ type alias Hierarchy =
 init : Settings -> ( Model, Cmd Msg )
 init settings =
     ( { items = Item.empty
+      , data = Diagram.Empty
       , hierarchy = 0
       , width = 0
       , height = 0
@@ -587,10 +597,43 @@ updateDiagram ( width, height ) base text =
 
         ( svgWidth, svgHeight ) =
             Utils.getCanvasSize newModel
+
+        data =
+            case base.diagramType of
+                CustomerJourneyMap ->
+                    Diagram.CustomerJourneyMap <| CustomerJourneyMapModel.fromItems items
+
+                Kpt ->
+                    Diagram.Kpt <| KptModel.fromItems items
+
+                BusinessModelCanvas ->
+                    Diagram.BusinessModelCanvas <| BusinessModelCanvasModel.fromItems items
+
+                EmpathyMap ->
+                    Diagram.EmpathyMap <| EmpathyMapModel.fromItems items
+
+                Fourls ->
+                    Diagram.FourLs <| FourLsModel.fromItems items
+
+                Kanban ->
+                    Diagram.Kanban <| KanbanModel.fromItems items
+
+                OpportunityCanvas ->
+                    Diagram.OpportunityCanvas <| OpportunityCanvasModel.fromItems items
+
+                StartStopContinue ->
+                    Diagram.StartStopContinue <| StartStopContinueModel.fromItems items
+
+                UserPersona ->
+                    Diagram.UserPersona <| UserPersonaModel.fromItems items
+
+                _ ->
+                    Diagram.Items items
     in
     { newModel
         | width = width
         , height = height
+        , data = data
         , svg =
             { width = svgWidth
             , height = svgHeight

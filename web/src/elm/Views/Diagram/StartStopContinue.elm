@@ -1,68 +1,75 @@
 module Views.Diagram.StartStopContinue exposing (view)
 
 import Constants
-import Models.Diagram exposing (Model, Msg(..))
-import Models.Views.StartStopContinue as StartStopContinue exposing (StartStopContinueItem(..))
+import Models.Diagram as Diagram exposing (Model, Msg(..))
+import Models.Views.StartStopContinue exposing (StartStopContinueItem(..))
 import String
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (fill, transform)
+import Svg.Lazy exposing (lazy5)
 import Utils
 import Views.Diagram.Views as Views
+import Views.Empty as Empty
 
 
 view : Model -> Svg Msg
 view model =
-    let
-        itemHeight =
-            Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
+    case model.data of
+        Diagram.StartStopContinue s ->
+            let
+                itemHeight =
+                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
 
-        startStopContinue =
-            StartStopContinue.fromItems model.items
+                (StartStopContinueItem start) =
+                    s.start
 
-        (StartStopContinueItem start) =
-            startStopContinue.start
+                (StartStopContinueItem stop) =
+                    s.stop
 
-        (StartStopContinueItem stop) =
-            startStopContinue.stop
+                (StartStopContinueItem continue) =
+                    s.continue
+            in
+            g
+                [ transform
+                    ("translate("
+                        ++ String.fromFloat
+                            (if isInfinite <| model.x then
+                                0
 
-        (StartStopContinueItem continue) =
-            startStopContinue.continue
-    in
-    g
-        [ transform
-            ("translate("
-                ++ String.fromFloat
-                    (if isInfinite <| model.x then
-                        0
+                             else
+                                model.x
+                            )
+                        ++ ","
+                        ++ String.fromFloat
+                            (if isInfinite <| model.y then
+                                0
 
-                     else
-                        model.x
+                             else
+                                model.y
+                            )
+                        ++ ")"
                     )
-                ++ ","
-                ++ String.fromFloat
-                    (if isInfinite <| model.y then
-                        0
+                , fill model.settings.backgroundColor
+                ]
+                [ lazy5 Views.canvasView
+                    model.settings
+                    ( Constants.itemWidth, itemHeight )
+                    ( 0, 0 )
+                    model.selectedItem
+                    start
+                , lazy5 Views.canvasView
+                    model.settings
+                    ( Constants.itemWidth, itemHeight )
+                    ( Constants.itemWidth - 5, 0 )
+                    model.selectedItem
+                    stop
+                , lazy5 Views.canvasView
+                    model.settings
+                    ( Constants.itemWidth, itemHeight )
+                    ( Constants.itemWidth * 2 - 10, 0 )
+                    model.selectedItem
+                    continue
+                ]
 
-                     else
-                        model.y
-                    )
-                ++ ")"
-            )
-        , fill model.settings.backgroundColor
-        ]
-        [ Views.canvasView model.settings
-            ( Constants.itemWidth, itemHeight )
-            ( 0, 0 )
-            model.selectedItem
-            start
-        , Views.canvasView model.settings
-            ( Constants.itemWidth, itemHeight )
-            ( Constants.itemWidth - 5, 0 )
-            model.selectedItem
-            stop
-        , Views.canvasView model.settings
-            ( Constants.itemWidth, itemHeight )
-            ( Constants.itemWidth * 2 - 10, 0 )
-            model.selectedItem
-            continue
-        ]
+        _ ->
+            Empty.view

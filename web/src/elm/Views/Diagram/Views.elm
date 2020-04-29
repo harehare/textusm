@@ -82,7 +82,7 @@ selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         , x (String.fromInt posX)
         , y (String.fromInt posY)
         , strokeWidth "1"
-        , stroke "#999"
+        , stroke "rgba(0, 0, 0, 0.1)"
         , fill color
         , style "filter:url(#shadow)"
         ]

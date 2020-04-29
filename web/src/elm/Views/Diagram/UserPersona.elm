@@ -1,115 +1,128 @@
 module Views.Diagram.UserPersona exposing (view)
 
 import Constants
-import Models.Diagram exposing (Model, Msg(..))
-import Models.Views.UserPersona as UserPersona exposing (UserPersonaItem(..))
+import Models.Diagram as Diagram exposing (Model, Msg(..))
+import Models.Views.UserPersona exposing (UserPersonaItem(..))
 import String
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (fill, transform)
+import Svg.Lazy exposing (lazy4, lazy5)
 import Utils
 import Views.Diagram.Views as Views
+import Views.Empty as Empty
 
 
 view : Model -> Svg Msg
 view model =
-    let
-        itemHeight =
-            Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
+    case model.data of
+        Diagram.UserPersona u ->
+            let
+                itemHeight =
+                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
 
-        userPersona =
-            UserPersona.fromItems model.items
+                (UserPersonaItem name) =
+                    u.name
 
-        (UserPersonaItem name) =
-            userPersona.name
+                (UserPersonaItem whoAmI) =
+                    u.whoAmI
 
-        (UserPersonaItem whoAmI) =
-            userPersona.whoAmI
+                (UserPersonaItem threeReasonsToUseYourProduct) =
+                    u.threeReasonsToUseYourProduct
 
-        (UserPersonaItem threeReasonsToUseYourProduct) =
-            userPersona.threeReasonsToUseYourProduct
+                (UserPersonaItem threeReasonsToBuyYourProduct) =
+                    u.threeReasonsToBuyYourProduct
 
-        (UserPersonaItem threeReasonsToBuyYourProduct) =
-            userPersona.threeReasonsToBuyYourProduct
+                (UserPersonaItem myInterests) =
+                    u.myInterests
 
-        (UserPersonaItem myInterests) =
-            userPersona.myInterests
+                (UserPersonaItem myPersonality) =
+                    u.myPersonality
 
-        (UserPersonaItem myPersonality) =
-            userPersona.myPersonality
+                (UserPersonaItem mySkils) =
+                    u.mySkils
 
-        (UserPersonaItem mySkils) =
-            userPersona.mySkils
+                (UserPersonaItem myDreams) =
+                    u.myDreams
 
-        (UserPersonaItem myDreams) =
-            userPersona.myDreams
+                (UserPersonaItem myRelationshipWithTechnology) =
+                    u.myRelationshipWithTechnology
+            in
+            g
+                [ transform
+                    ("translate("
+                        ++ String.fromFloat
+                            (if isInfinite <| model.x then
+                                0
 
-        (UserPersonaItem myRelationshipWithTechnology) =
-            userPersona.myRelationshipWithTechnology
-    in
-    g
-        [ transform
-            ("translate("
-                ++ String.fromFloat
-                    (if isInfinite <| model.x then
-                        0
+                             else
+                                model.x
+                            )
+                        ++ ","
+                        ++ String.fromFloat
+                            (if isInfinite <| model.y then
+                                0
 
-                     else
-                        model.x
+                             else
+                                model.y
+                            )
+                        ++ ")"
                     )
-                ++ ","
-                ++ String.fromFloat
-                    (if isInfinite <| model.y then
-                        0
+                , fill model.settings.backgroundColor
+                ]
+                [ lazy4 Views.canvasImageView
+                    model.settings
+                    ( Constants.itemWidth, itemHeight )
+                    ( 0, 0 )
+                    name
+                , lazy5 Views.canvasView
+                    model.settings
+                    ( Constants.itemWidth, itemHeight )
+                    ( Constants.itemWidth - 5, 0 )
+                    model.selectedItem
+                    whoAmI
+                , lazy5 Views.canvasView
+                    model.settings
+                    ( round (toFloat Constants.itemWidth * 1.5 - 5), itemHeight )
+                    ( round (toFloat Constants.itemWidth * 2) - 10, 0 )
+                    model.selectedItem
+                    threeReasonsToUseYourProduct
+                , lazy5 Views.canvasView
+                    model.settings
+                    ( round (toFloat Constants.itemWidth * 1.5), itemHeight )
+                    ( round (toFloat Constants.itemWidth * 3.5) - 20, 0 )
+                    model.selectedItem
+                    threeReasonsToBuyYourProduct
+                , lazy5 Views.canvasView
+                    model.settings
+                    ( Constants.itemWidth, itemHeight )
+                    ( 0, itemHeight - 5 )
+                    model.selectedItem
+                    myInterests
+                , lazy5 Views.canvasView
+                    model.settings
+                    ( Constants.itemWidth, itemHeight )
+                    ( Constants.itemWidth - 5, itemHeight - 5 )
+                    model.selectedItem
+                    myPersonality
+                , lazy5 Views.canvasView
+                    model.settings
+                    ( Constants.itemWidth, itemHeight )
+                    ( Constants.itemWidth * 2 - 10, itemHeight - 5 )
+                    model.selectedItem
+                    mySkils
+                , lazy5 Views.canvasView
+                    model.settings
+                    ( Constants.itemWidth, itemHeight )
+                    ( Constants.itemWidth * 3 - 15, itemHeight - 5 )
+                    model.selectedItem
+                    myDreams
+                , lazy5 Views.canvasView
+                    model.settings
+                    ( Constants.itemWidth, itemHeight )
+                    ( Constants.itemWidth * 4 - 20, itemHeight - 5 )
+                    model.selectedItem
+                    myRelationshipWithTechnology
+                ]
 
-                     else
-                        model.y
-                    )
-                ++ ")"
-            )
-        , fill model.settings.backgroundColor
-        ]
-        [ Views.canvasImageView model.settings
-            ( Constants.itemWidth, itemHeight )
-            ( 0, 0 )
-            name
-        , Views.canvasView model.settings
-            ( Constants.itemWidth, itemHeight )
-            ( Constants.itemWidth - 5, 0 )
-            model.selectedItem
-            whoAmI
-        , Views.canvasView model.settings
-            ( round (toFloat Constants.itemWidth * 1.5 - 5), itemHeight )
-            ( round (toFloat Constants.itemWidth * 2) - 10, 0 )
-            model.selectedItem
-            threeReasonsToUseYourProduct
-        , Views.canvasView model.settings
-            ( round (toFloat Constants.itemWidth * 1.5), itemHeight )
-            ( round (toFloat Constants.itemWidth * 3.5) - 20, 0 )
-            model.selectedItem
-            threeReasonsToBuyYourProduct
-        , Views.canvasView model.settings
-            ( Constants.itemWidth, itemHeight )
-            ( 0, itemHeight - 5 )
-            model.selectedItem
-            myInterests
-        , Views.canvasView model.settings
-            ( Constants.itemWidth, itemHeight )
-            ( Constants.itemWidth - 5, itemHeight - 5 )
-            model.selectedItem
-            myPersonality
-        , Views.canvasView model.settings
-            ( Constants.itemWidth, itemHeight )
-            ( Constants.itemWidth * 2 - 10, itemHeight - 5 )
-            model.selectedItem
-            mySkils
-        , Views.canvasView model.settings
-            ( Constants.itemWidth, itemHeight )
-            ( Constants.itemWidth * 3 - 15, itemHeight - 5 )
-            model.selectedItem
-            myDreams
-        , Views.canvasView model.settings
-            ( Constants.itemWidth, itemHeight )
-            ( Constants.itemWidth * 4 - 20, itemHeight - 5 )
-            model.selectedItem
-            myRelationshipWithTechnology
-        ]
+        _ ->
+            Empty.view

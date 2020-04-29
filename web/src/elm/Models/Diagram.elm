@@ -1,9 +1,18 @@
-module Models.Diagram exposing (Color, ColorSettings, Model, Msg(..), Point, Settings, Size, UsmSvg, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl)
+module Models.Diagram exposing (Color, ColorSettings, Data(..), Model, Msg(..), Point, Settings, Size, UsmSvg, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl)
 
 import Browser.Dom exposing (Viewport)
 import Data.Item exposing (Item, ItemType(..), Items)
 import Data.Text exposing (Text)
 import Html5.DragDrop as DragDrop
+import Models.Views.BusinessModelCanvas exposing (BusinessModelCanvas)
+import Models.Views.CustomerJourneyMap exposing (CustomerJourneyMap)
+import Models.Views.EmpathyMap exposing (EmpathyMap)
+import Models.Views.FourLs exposing (FourLs)
+import Models.Views.Kanban exposing (Kanban)
+import Models.Views.Kpt exposing (Kpt)
+import Models.Views.OpportunityCanvas exposing (OpportunityCanvas)
+import Models.Views.StartStopContinue exposing (StartStopContinue)
+import Models.Views.UserPersona exposing (UserPersona)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
@@ -12,6 +21,7 @@ import TextUSM.Enum.Diagram exposing (Diagram)
 
 type alias Model =
     { items : Items
+    , data : Data
     , labels : List String
     , hierarchy : Int
     , width : Int
@@ -34,6 +44,20 @@ type alias Model =
     , selectedItem : Maybe Item
     , dragDrop : DragDrop.Model Int Int
     }
+
+
+type Data
+    = Empty
+    | Items Items
+    | CustomerJourneyMap CustomerJourneyMap
+    | Kpt Kpt
+    | FourLs FourLs
+    | Kanban Kanban
+    | BusinessModelCanvas BusinessModelCanvas
+    | EmpathyMap EmpathyMap
+    | OpportunityCanvas OpportunityCanvas
+    | UserPersona UserPersona
+    | StartStopContinue StartStopContinue
 
 
 type alias UsmSvg =

@@ -3,12 +3,14 @@ module Views.Diagram.Kanban exposing (view)
 import Constants
 import Data.Item exposing (Item)
 import Data.Position exposing (Position)
-import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
+import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.Views.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import String
 import Svg exposing (Svg, g, line, text, text_)
 import Svg.Attributes exposing (fill, fontFamily, fontSize, fontWeight, stroke, strokeWidth, transform, x, x1, x2, y, y1, y2)
+import Svg.Lazy exposing (lazy3)
 import Views.Diagram.Views as Views
+import Views.Empty as Empty
 
 
 kanbanMargin : Int
@@ -18,29 +20,34 @@ kanbanMargin =
 
 view : Model -> Svg Msg
 view model =
-    g
-        [ transform
-            ("translate("
-                ++ String.fromFloat
-                    (if isInfinite <| model.x then
-                        0
+    case model.data of
+        Diagram.Kanban k ->
+            g
+                [ transform
+                    ("translate("
+                        ++ String.fromFloat
+                            (if isInfinite <| model.x then
+                                0
 
-                     else
-                        model.x
-                    )
-                ++ ","
-                ++ String.fromFloat
-                    (if isInfinite <| model.y then
-                        0
+                             else
+                                model.x
+                            )
+                        ++ ","
+                        ++ String.fromFloat
+                            (if isInfinite <| model.y then
+                                0
 
-                     else
-                        model.y
+                             else
+                                model.y
+                            )
+                        ++ ")"
                     )
-                ++ ")"
-            )
-        , fill model.settings.backgroundColor
-        ]
-        [ kanbanView model.settings model.selectedItem (Kanban.fromItems model.items) ]
+                , fill model.settings.backgroundColor
+                ]
+                [ lazy3 kanbanView model.settings model.selectedItem k ]
+
+        _ ->
+            Empty.view
 
 
 kanbanView : Settings -> Maybe Item -> Kanban -> Svg Msg
