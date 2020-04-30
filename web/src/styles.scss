@@ -1,12 +1,29 @@
 :root {
     --main-color: #273037;
     --text-color: #f5f5f6;
+    --dark-text-color: #555;
     --background-color: #323d46;
+    --light-background-color: #fefefe;
     --accent-color: #3e9bcd;
     --border-color: #fefefe;
     --error-color: #ff0000;
     --comment-color: #008800;
     --activity-color: #266b9a;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --main-color: #273037;
+        --text-color: #828288;
+        --dark-text-color: #555;
+        --background-color: #323d46;
+        --light-background-color: #828288;
+        --accent-color: #3e9bcd;
+        --border-color: #47474a;
+        --error-color: #ff0000;
+        --comment-color: #008800;
+        --activity-color: #266b9a;
+    }
 }
 
 body {
@@ -27,18 +44,6 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
-    @media (prefers-color-scheme: dark) {
-        body {
-            background-color: #444;
-            color: #e4e4e4;
-        }
-        a {
-            color: var(--text-color);
-        }
-        img {
-            filter: grayscale(30%);
-        }
-    }
 }
 
 a {
@@ -173,13 +178,10 @@ select {
         max-width: 300px;
         width: 90%;
         padding: 4px 8px;
-        input[type="text"] {
-            width: 100%;
-        }
         input {
             height: 34px;
-            color: #555555;
-            background-color: #fff;
+            color: var(--dark-text-color);
+            background-color: var(--light-background-color);
             background-image: none;
             border: 1px solid #ccc;
             font-size: 0.9rem;
@@ -257,7 +259,7 @@ select {
     border-top: 1px solid var(--border-color);
     height: 40px;
     padding: 8px;
-    background-color: #fefefe;
+    background-color: var(--light-background-color);
     @media screen and (max-width: 480px) {
         width: 45vw;
     }
@@ -318,7 +320,7 @@ select {
 
 .diagram-item {
     width: 18%;
-    border: 1px solid rgba(192, 192, 192, 0.5);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     display: flex;
     align-items: flex-end;
@@ -862,8 +864,8 @@ select {
     .item {
         display: block;
         padding: 8px;
-        border: 1px solid #eee;
-        background-color: #fff;
+        border: 1px solid var(--border-color);
+        background-color: var(--light-background-color);
 
         &::after {
             content: "";
@@ -883,8 +885,8 @@ select {
         width: 100%;
         display: block;
         padding: 8px;
-        border-bottom: 1px solid #eee;
-        background-color: #fff;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--light-background-color);
 
         &:hover {
             background-color: #eee;
@@ -893,7 +895,7 @@ select {
 }
 
 .facet-count {
-    color: #888;
+    color: var(--dark-text-color);
     padding: 8px;
     font-family: apple-system, BlinkMacSystemFont, Helvetica Neue,
         Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,

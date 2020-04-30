@@ -224,11 +224,12 @@ view model =
                             [ style "display" "flex"
                             , style "align-items" "center"
                             , style "width" "100%"
+                            , style "position" "relative"
                             ]
                             [ div
                                 [ style "position" "absolute"
-                                , style "right" "20px"
-                                , style "top" "18px"
+                                , style "left" "3px"
+                                , style "top" "5px"
                                 ]
                                 [ Icon.search "#8C9FAE" 24 ]
                             , input
@@ -237,6 +238,8 @@ view model =
                                 , style "padding" "8px"
                                 , style "border" "none"
                                 , style "width" "100%"
+                                , style "font-size" "0.9rem"
+                                , style "padding-left" "32px"
                                 , onInput SearchInput
                                 ]
                                 []
