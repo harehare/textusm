@@ -29,7 +29,7 @@
         ]
       },
       {
-        "source": "main.**.js",
+        "source": "**/main.**.js",
         "headers": [
           {
             "key": "Cache-Control",
@@ -38,7 +38,7 @@
         ]
       },
       {
-        "source": "runtime.**.js",
+        "source": "**/runtime.**.js",
         "headers": [
           {
             "key": "Cache-Control",
@@ -47,7 +47,7 @@
         ]
       },
       {
-        "source": "vendors.**.js",
+        "source": "**/vendors.**.js",
         "headers": [
           {
             "key": "Cache-Control",

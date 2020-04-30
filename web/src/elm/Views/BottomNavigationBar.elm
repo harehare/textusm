@@ -20,7 +20,18 @@ view settings diagram title path =
             [ style "display" "flex"
             , style "align-items" "center"
             ]
-            [ logo
+            [ div
+                [ style "width"
+                    "40px"
+                , style "height"
+                    "40px"
+                , style "display" "flex"
+                , style "justify-content" "center"
+                , style "align-items" "center"
+                ]
+                [ a [ href "https://app.textusm.com", target "blank_" ]
+                    [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ]
+                ]
             , a [ href <| "https://app.textusm.com/share/" ++ diagram ++ "/" ++ title ++ "/" ++ path, target "blank_", style "color" settings.storyMap.color.label ]
                 [ text title ]
             ]
@@ -41,20 +52,4 @@ view settings diagram title path =
                 ]
                 [ Icon.fullscreen 32 ]
             ]
-        ]
-
-
-logo : Html msg
-logo =
-    div
-        [ style "width"
-            "40px"
-        , style "height"
-            "40px"
-        , style "display" "flex"
-        , style "justify-content" "center"
-        , style "align-items" "center"
-        ]
-        [ a [ href "https://app.textusm.com", target "blank_" ]
-            [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ]
         ]

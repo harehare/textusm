@@ -15,14 +15,13 @@ import Views.Empty as Empty
 import Views.Icon as Icon
 
 
-type MenuItem
-    = Item MenuInfo
+type MenuItem msg
+    = Item (MenuInfo msg)
     | Separator
 
 
-type alias MenuInfo =
-    { e : Msg
-    , icon : Maybe (Html Msg)
+type alias MenuInfo msg =
+    { e : msg
     , title : String
     }
 
@@ -206,101 +205,84 @@ view page route text_ width fullscreen openMenu =
             ]
 
 
-newMenu : List MenuItem
+newMenu : List (MenuItem Msg)
 newMenu =
     [ Item
         { e = New Diagram.UserStoryMap
         , title = "User Story Map"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.CustomerJourneyMap
         , title = "Customer Journey Map"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.EmpathyMap
         , title = "Empathy Map"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.ImpactMap
         , title = "Impact Map"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.MindMap
         , title = "Mind Map"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.SiteMap
         , title = "Site Map"
-        , icon = Nothing
         }
     , Separator
     , Item
         { e = New Diagram.BusinessModelCanvas
         , title = "Business Model Canvas"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.OpportunityCanvas
         , title = "Opportunity Canvas"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.UserPersona
         , title = "User Persona"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.GanttChart
         , title = "Gantt Chart"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.ErDiagram
         , title = "ER Diagram(beta)"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.Kanban
         , title = "Kanban"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.Markdown
         , title = "Markdown"
-        , icon = Nothing
         }
     , Separator
     , Item
         { e = New Diagram.Kpt
         , title = "KPT Retrospective"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.StartStopContinue
         , title = "Start, Stop, Continue Retrospective"
-        , icon = Nothing
         }
     , Item
         { e = New Diagram.Fourls
         , title = "4Ls Retrospective"
-        , icon = Nothing
         }
     ]
 
 
-exportMenu : Route -> List MenuItem
+exportMenu : Route -> List (MenuItem Msg)
 exportMenu route =
     case route of
         Route.ErDiagram ->
             Item
                 { e = Download DDL
                 , title = "DDL"
-                , icon = Nothing
                 }
                 :: baseExportMenu
 
@@ -308,7 +290,6 @@ exportMenu route =
             Item
                 { e = Download MarkdownTable
                 , title = "Markdown"
-                , icon = Nothing
                 }
                 :: baseExportMenu
 
@@ -316,37 +297,32 @@ exportMenu route =
             baseExportMenu
 
 
-baseExportMenu : List MenuItem
+baseExportMenu : List (MenuItem Msg)
 baseExportMenu =
     [ Item
         { e = Download Svg
         , title = "SVG"
-        , icon = Nothing
         }
     , Item
         { e = Download Png
         , title = "PNG"
-        , icon = Nothing
         }
     , Item
         { e = Download Pdf
         , title = "PDF"
-        , icon = Nothing
         }
     , Item
         { e = SaveToFileSystem
         , title = "Text"
-        , icon = Nothing
         }
     , Item
         { e = Download HTML
         , title = "HTML"
-        , icon = Nothing
         }
     ]
 
 
-menu : Maybe String -> Maybe String -> Maybe String -> Maybe String -> List MenuItem -> Html Msg
+menu : Maybe String -> Maybe String -> Maybe String -> Maybe String -> List (MenuItem Msg) -> Html Msg
 menu top left bottom right items =
     div
         [ style "top" (top |> Maybe.withDefault "none")
@@ -364,8 +340,7 @@ menu top left bottom right items =
                                 [ class "menu-item-container"
                                 , onClick menuItem.e
                                 ]
-                                [ menuItem.icon |> Maybe.withDefault (text "")
-                                , div [ class "menu-item" ]
+                                [ div [ class "menu-item" ]
                                     [ text menuItem.title
                                     ]
                                 ]

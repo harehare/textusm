@@ -1,10 +1,10 @@
 module Views.Header exposing (view)
 
+import Data.DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
 import Data.Text as Text exposing (Text)
 import Data.Title as Title exposing (Title)
 import Events exposing (onKeyDown)
-import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import Html exposing (Html, a, div, header, img, input, span, text)
 import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, value)
 import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
@@ -42,7 +42,16 @@ view props =
                 , style "display" "flex"
                 , style "align-items" "center"
                 ]
-                [ logo
+                [ div
+                    [ style "width"
+                        "56px"
+                    , style "height"
+                        "40px"
+                    , style "display" "flex"
+                    , style "justify-content" "center"
+                    , style "align-items" "center"
+                    ]
+                    [ a [ href "/" ] [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ] ]
                 , if props.page /= Page.List then
                     if Title.isEdit props.title then
                         input
@@ -132,13 +141,6 @@ view props =
                 let
                     user =
                         Session.getUser props.session
-                            |> Maybe.withDefault
-                                { displayName = ""
-                                , email = ""
-                                , photoURL = ""
-                                , idToken = ""
-                                , id = ""
-                                }
                 in
                 div
                     [ class "button"
@@ -153,7 +155,7 @@ view props =
                         , style "margin-right" "4px"
                         ]
                         [ img
-                            [ src user.photoURL
+                            [ src <| (Maybe.map .photoURL user |> Maybe.withDefault "")
                             , style "width" "30px"
                             , style "margin-top" "4px"
                             , style "object-fit" "cover"
@@ -169,7 +171,6 @@ view props =
                                     [ Menu.Item
                                         { e = SignOut
                                         , title = "SIGN OUT"
-                                        , icon = Nothing
                                         }
                                     ]
 
@@ -202,12 +203,10 @@ view props =
                                 [ Menu.Item
                                     { e = SignIn Google
                                     , title = "Google"
-                                    , icon = Nothing
                                     }
                                 , Menu.Item
                                     { e = SignIn Github
                                     , title = "Github"
-                                    , icon = Nothing
                                     }
                                 ]
 
@@ -215,17 +214,3 @@ view props =
                             Empty.view
                     ]
             ]
-
-
-logo : Html Msg
-logo =
-    div
-        [ style "width"
-            "56px"
-        , style "height"
-            "40px"
-        , style "display" "flex"
-        , style "justify-content" "center"
-        , style "align-items" "center"
-        ]
-        [ a [ href "/" ] [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ] ]

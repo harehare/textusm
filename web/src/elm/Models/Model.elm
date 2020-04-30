@@ -4,11 +4,11 @@ import Browser
 import Browser.Dom exposing (Viewport)
 import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
+import Data.DiagramItem exposing (DiagramItem)
 import Data.Session exposing (Session, User)
 import Data.Text exposing (Text)
 import Data.Title exposing (Title)
 import File exposing (File)
-import GraphQL.Models.DiagramItem exposing (DiagramItem)
 import Graphql.Http as Http
 import Http as Http2
 import Models.Diagram as Diagram

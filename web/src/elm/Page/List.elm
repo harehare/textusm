@@ -1,10 +1,10 @@
 port module Page.List exposing (Model, Msg(..), init, update, view)
 
+import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
 import Data.Session as Session exposing (Session)
 import Dict
 import Dict.Extra as DictEx
-import GraphQL.Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import GraphQL.Request as Request
 import Graphql.Http as Http
 import Html exposing (Html, div, img, input, span, text)

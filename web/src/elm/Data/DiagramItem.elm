@@ -1,4 +1,4 @@
-module GraphQL.Models.DiagramItem exposing (DiagramItem, decoder, empty, encoder, idToString, mapToDateTime, toInputItem)
+module Data.DiagramItem exposing (DiagramItem, decoder, empty, encoder, idToString, mapToDateTime, toInputItem)
 
 import Data.DiagramType as DiagramType
 import Graphql.OptionalArgument exposing (OptionalArgument(..))

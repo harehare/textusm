@@ -1,6 +1,6 @@
 module GraphQL.Mutation exposing (bookmark, delete, save)
 
-import GraphQL.Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Graphql.Operation exposing (RootMutation)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)

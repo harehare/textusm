@@ -6,6 +6,7 @@ import Browser.Dom as Dom
 import Browser.Events exposing (Visibility(..), onMouseMove, onMouseUp, onResize, onVisibilityChange)
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
+import Data.DiagramItem as DiagramItem
 import Data.DiagramType as DiagramType
 import Data.Session as Session
 import Data.Text as Text
@@ -13,7 +14,6 @@ import Data.Title as Title
 import File exposing (name)
 import File.Download as Download
 import File.Select as Select
-import GraphQL.Models.DiagramItem as DiagramItem
 import GraphQL.Request as Request
 import Graphql.Http as Http
 import Html exposing (Html, div, main_)

@@ -1,6 +1,6 @@
 module Settings exposing (EditorSettings, Settings, defaultEditorSettings, defaultSettings, settingsDecoder, settingsEncoder, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
 
-import GraphQL.Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Json.Decode as D
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)

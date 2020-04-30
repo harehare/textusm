@@ -1,6 +1,6 @@
 module GraphQL.Query exposing (item, items)
 
-import GraphQL.Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Graphql.Operation exposing (RootQuery)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
