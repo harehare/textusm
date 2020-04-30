@@ -6,7 +6,6 @@ import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (autofocus, class, id, placeholder, style)
 import Html.Events exposing (onClick, onInput)
 import List.Extra exposing (last)
-import Process
 import Task
 import Views.Icon as Icon
 

@@ -16,7 +16,6 @@ import Json.Encode as E
 import List.Extra exposing (group, updateIf)
 import Maybe.Extra exposing (isJust)
 import RemoteData exposing (RemoteData(..), WebData)
-import Set
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram)
 import Time exposing (Zone)
