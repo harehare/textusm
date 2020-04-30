@@ -1043,13 +1043,13 @@ update message model =
                 ]
             )
 
-        GetShortUrl (Ok res) ->
+        GetShortUrl (Ok url) ->
             let
                 shareModel =
                     model.shareModel
 
                 newShareModel =
-                    { shareModel | url = res.shortLink }
+                    { shareModel | url = url }
             in
             ( { model
                 | progress = False

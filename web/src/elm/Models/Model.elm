@@ -1,6 +1,5 @@
 module Models.Model exposing (DownloadFileInfo, DownloadInfo, FileType(..), LoginProvider(..), Menu(..), Model, Msg(..), Notification(..), Page(..), ShareInfo, Window)
 
-import Api.UrlShorter
 import Browser
 import Browser.Dom exposing (Viewport)
 import Browser.Events exposing (Visibility)
@@ -64,7 +63,7 @@ type Msg
     | OnCloseNotification
     | OnAuthStateChanged (Maybe User)
     | WindowSelect Int
-    | GetShortUrl (Result Http2.Error Api.UrlShorter.Response)
+    | GetShortUrl (Result Http2.Error String)
     | New Diagram
     | GetDiagrams
     | Shortcuts String
