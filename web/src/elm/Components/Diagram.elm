@@ -17,6 +17,7 @@ import Maybe.Extra exposing (isNothing)
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Views.CustomerJourneyMap as CustomerJourneyMapModel
+import Models.Views.ER as ErDiagramModel
 import Models.Views.EmpathyMap as EmpathyMapModel
 import Models.Views.FourLs as FourLsModel
 import Models.Views.Kanban as KanbanModel
@@ -626,6 +627,9 @@ updateDiagram ( width, height ) base text =
 
                 UserPersona ->
                     Diagram.UserPersona <| UserPersonaModel.fromItems items
+
+                ErDiagram ->
+                    Diagram.ErDiagram <| ErDiagramModel.fromItems items
 
                 _ ->
                     Diagram.Items items

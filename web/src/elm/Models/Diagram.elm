@@ -6,6 +6,7 @@ import Data.Text exposing (Text)
 import Html5.DragDrop as DragDrop
 import Models.Views.BusinessModelCanvas exposing (BusinessModelCanvas)
 import Models.Views.CustomerJourneyMap exposing (CustomerJourneyMap)
+import Models.Views.ER exposing (ErDiagram)
 import Models.Views.EmpathyMap exposing (EmpathyMap)
 import Models.Views.FourLs exposing (FourLs)
 import Models.Views.Kanban exposing (Kanban)
@@ -58,6 +59,7 @@ type Data
     | OpportunityCanvas OpportunityCanvas
     | UserPersona UserPersona
     | StartStopContinue StartStopContinue
+    | ErDiagram ErDiagram
 
 
 type alias UsmSvg =

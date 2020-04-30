@@ -1,10 +1,14 @@
-module Models.Views.ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..), columnTypeToString, fromItems, relationshipToString, tableToString, tableWidth)
+module Models.Views.ER exposing (Attribute(..), Column(..), ColumnType(..), ErDiagram, Relationship(..), Table(..), columnTypeToString, fromItems, relationshipToString, tableToString, tableWidth)
 
 import Data.Item as Item exposing (Item, Items)
 import Dict exposing (Dict)
 import Dict.Extra exposing (find)
 import List.Extra as ListEx exposing (getAt)
 import Maybe.Extra exposing (isJust)
+
+
+type alias ErDiagram =
+    ( List Relationship, List Table )
 
 
 type alias Name =
@@ -83,7 +87,7 @@ tableWidth (Table name columns) =
         |> max 160
 
 
-fromItems : Items -> ( List Relationship, List Table )
+fromItems : Items -> ErDiagram
 fromItems items =
     let
         relationships =

@@ -9,7 +9,7 @@ import Html.Attributes as Attr
 import Html.Lazy exposing (lazy3, lazy4)
 import List.Extra exposing (find)
 import Maybe.Extra exposing (isJust, isNothing, or)
-import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
+import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.Views.ER as ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..))
 import State as State exposing (Step(..))
 import String
@@ -35,52 +35,57 @@ type alias TableViewDict =
 
 view : Model -> Svg Msg
 view model =
-    let
-        ( relationships, tables ) =
-            ER.fromItems model.items
+    case model.data of
+        Diagram.ErDiagram e ->
+            let
+                ( relationships, tables ) =
+                    e
 
-        tableDict =
-            tablesToDict tables
-                |> adjustTablePosition relationships
+                tableDict =
+                    tablesToDict tables
+                        |> adjustTablePosition relationships
 
-        ( centerX, centerY ) =
-            if model.matchParent then
-                getTableTopLeft tableDict
-                    |> Tuple.mapBoth toFloat toFloat
+                ( centerX, centerY ) =
+                    if model.matchParent then
+                        getTableTopLeft tableDict
+                            |> Tuple.mapBoth toFloat toFloat
 
-            else
-                ( model.x, model.y )
-    in
-    g
-        [ transform
-            ("translate("
-                ++ String.fromFloat
-                    (if isInfinite <| model.x then
-                        0
+                    else
+                        ( model.x, model.y )
+            in
+            g
+                [ transform
+                    ("translate("
+                        ++ String.fromFloat
+                            (if isInfinite <| model.x then
+                                0
 
-                     else
-                        centerX + 32
+                             else
+                                centerX + 32
+                            )
+                        ++ ","
+                        ++ String.fromFloat
+                            (if isInfinite <| model.y then
+                                0
+
+                             else
+                                centerY + (toFloat model.height / toFloat 2)
+                            )
+                        ++ ")"
                     )
-                ++ ","
-                ++ String.fromFloat
-                    (if isInfinite <| model.y then
-                        0
+                , fill model.settings.backgroundColor
+                ]
+                (lazy3 relationshipView model.settings relationships tableDict
+                    :: (Dict.toList tableDict
+                            |> List.map
+                                (\( _, t ) ->
+                                    lazy4 tableView model.settings (getPosition t.position) t.size t.table
+                                )
+                       )
+                )
 
-                     else
-                        centerY + (toFloat model.height / toFloat 2)
-                    )
-                ++ ")"
-            )
-        , fill model.settings.backgroundColor
-        ]
-        (lazy3 relationshipView model.settings relationships tableDict
-            :: (Dict.toList tableDict
-                    |> List.map
-                        (\( _, t ) ->
-                            lazy4 tableView model.settings (getPosition t.position) t.size t.table
-                        )
-               )
-        )
+        _ ->
+            Empty.view
 
 
 getTableTopLeft : TableViewDict -> Position
