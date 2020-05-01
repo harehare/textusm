@@ -54,6 +54,7 @@ init : InitData -> ( Model, Cmd Msg )
 init flags =
     ( { diagramModel =
             { items = Item.empty
+            , data = DiagramModel.Empty
             , hierarchy = 0
             , width = 1024
             , height = 1024

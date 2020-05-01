@@ -1,4 +1,4 @@
-module Models.Model exposing (DownloadFileInfo, DownloadInfo, FileType(..), LoginProvider(..), Menu(..), Model, Msg(..), Notification(..), Page(..), ShareInfo, Window)
+module Models.Model exposing (DownloadFileInfo, DownloadInfo, FileType(..), LoginProvider(..), Menu(..), Model, Msg(..), Notification(..), Page(..), ShareInfo, SwitchWindow(..), Window)
 
 import Browser
 import Browser.Dom exposing (Viewport)
@@ -62,7 +62,7 @@ type Msg
     | OnAutoCloseNotification Notification
     | OnCloseNotification
     | OnAuthStateChanged (Maybe User)
-    | WindowSelect Int
+    | SwitchWindow SwitchWindow
     | GetShortUrl (Result Http2.Error String)
     | New Diagram
     | GetDiagrams
@@ -99,6 +99,11 @@ type Menu
     | LoginMenu
 
 
+type SwitchWindow
+    = Left
+    | Right
+
+
 type Page
     = Main
     | Help
@@ -124,7 +129,7 @@ type alias Model =
     , window : Window
     , title : Title
     , notification : Maybe Notification
-    , editorIndex : Int
+    , switchWindow : SwitchWindow
     , progress : Bool
     , text : Text
     , apiRoot : String

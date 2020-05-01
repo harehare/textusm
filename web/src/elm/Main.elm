@@ -23,7 +23,7 @@ import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy6)
 import Json.Decode as D
 import List.Extra exposing (getAt, removeAt, setAt, splitAt)
 import Models.Diagram as DiagramModel
-import Models.Model as Page exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), Page(..))
+import Models.Model as Page exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
 import Models.Views.CustomerJourneyMap as CustomerJourneyMap
 import Models.Views.ER as ER
 import Page.Help as Help
@@ -93,7 +93,7 @@ init flags url key =
                 , notification = Nothing
                 , url = url
                 , key = key
-                , editorIndex = 1
+                , switchWindow = Left
                 , progress = True
                 , apiRoot = apiRoot
                 , session = Session.guest
@@ -121,9 +121,9 @@ view model =
                 mainWindow =
                     if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then
                         lazy5 SwitchWindow.view
-                            WindowSelect
+                            SwitchWindow
                             model.diagramModel.settings.backgroundColor
-                            model.editorIndex
+                            model.switchWindow
 
                     else
                         lazy5 SplitWindow.view
@@ -248,7 +248,7 @@ changeRouteTo route model =
             if RemoteData.isNotAsked model.diagramListModel.diagramList || List.isEmpty (RemoteData.withDefault [] model.diagramListModel.diagramList) then
                 let
                     ( model_, cmd_ ) =
-                        DiagramList.init model.session model.apiRoot
+                        DiagramList.init model.session model.diagramListModel.apiRoot
                 in
                 ( { model
                     | page = Page.List
@@ -1091,8 +1091,8 @@ update message model =
         OnDecodeShareText text ->
             ( model, Task.perform identity (Task.succeed (FileLoaded text)) )
 
-        WindowSelect tab ->
-            ( { model | editorIndex = tab }, Ports.layoutEditor 100 )
+        SwitchWindow w ->
+            ( { model | switchWindow = w }, Ports.layoutEditor 100 )
 
         LinkClicked urlRequest ->
             case urlRequest of

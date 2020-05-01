@@ -3,12 +3,12 @@ module Views.SwitchWindow exposing (view)
 import Html exposing (Html, div)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
-import Models.Model exposing (Msg(..))
+import Models.Model exposing (Msg(..), SwitchWindow(..))
 import Views.Icon as Icon
 
 
-view : (Int -> msg) -> String -> Int -> Html msg -> Html msg -> Html msg
-view onWindowSelect backgroundColor index view1 view2 =
+view : (SwitchWindow -> msg) -> String -> SwitchWindow -> Html msg -> Html msg -> Html msg
+view onSwitchWindow backgroundColor window view1 view2 =
     div
         [ style "width" "100vw"
         , style "flex-direction" "column"
@@ -28,38 +28,42 @@ view onWindowSelect backgroundColor index view1 view2 =
             , style "padding" "12px"
             , style "border-radius" "100%"
             , style "box-shadow" "0 1px 4px rgba(0, 0, 0, .6)"
-            , if index == 1 then
-                onClick (onWindowSelect 2)
+            , case window of
+                Left ->
+                    onClick (onSwitchWindow Right)
 
-              else
-                onClick (onWindowSelect 1)
+                Right ->
+                    onClick (onSwitchWindow Left)
             ]
-            [ if index == 1 then
-                Icon.visibility 20
+            [ case window of
+                Left ->
+                    Icon.visibility 20
 
-              else
-                Icon.edit 20
+                Right ->
+                    Icon.edit 20
             ]
         , div
             [ style "width" "100%"
             , style "height" "100%"
             ]
             [ div
-                [ if index == 1 then
-                    style "display" "block"
+                [ case window of
+                    Left ->
+                        style "display" "block"
 
-                  else
-                    style "display" "none"
+                    Right ->
+                        style "display" "none"
                 , style "width" "100%"
                 , style "height" "100%"
                 ]
                 [ view1 ]
             , div
-                [ if index == 2 then
-                    style "display" "block"
+                [ case window of
+                    Right ->
+                        style "display" "block"
 
-                  else
-                    style "display" "none"
+                    Left ->
+                        style "display" "none"
                 , style "background-color" backgroundColor
                 , style "width" "100%"
                 , style "height" "100%"
