@@ -13,7 +13,7 @@
         "jspdf": "^1.5.3",
         "lzutf8": "^0.5.5",
         "monaco-editor": "^0.20.0",
-        "uuid": "^7.0.3"
+        "uuid": "^8.0.0"
     },
     "devDependencies": {
         "@babel/core": "^7.9.6",
@@ -38,7 +38,7 @@
         "file-loader": "^6.0.0",
         "google-closure-compiler": "^20200406.0.0",
         "html-inline-css-webpack-plugin": "^1.8.0",
-        "html-webpack-plugin": "^4.2.1",
+        "html-webpack-plugin": "^4.3.0",
         "mini-css-extract-plugin": "^0.9.0",
         "monaco-editor-webpack-plugin": "^1.9.0",
         "node-sass": "^4.14.0",
@@ -49,7 +49,7 @@
         "style-loader": "^1.2.1",
         "svg-inline-loader": "^0.8.2",
         "terser-webpack-plugin": "^2.3.6",
-        "ts-loader": "^7.0.1",
+        "ts-loader": "^7.0.2",
         "typescript": "^3.8.3",
         "url-loader": "^4.1.0",
         "webpack": "^4.43.0",
