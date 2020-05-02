@@ -62,10 +62,6 @@ view =
         , div [ class "text comment", style "padding" "0 16px 16px" ]
             [ text "# Comment..."
             ]
-        , section (Just "Label Syntax")
-        , div [ class "text comment", style "padding" "0 16px 16px" ]
-            [ text "# labels: User Activities, User Tasks, ..."
-            ]
         , section (Just "Hotkeys")
         , div [ class "rows" ]
             [ div [ class "row header" ]

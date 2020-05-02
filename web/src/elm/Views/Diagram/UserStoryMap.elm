@@ -7,7 +7,7 @@ import Data.Position exposing (Position)
 import Html exposing (div)
 import Html.Attributes as Attr
 import List
-import List.Extra exposing (getAt, zip)
+import List.Extra exposing (zip)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
@@ -41,8 +41,7 @@ view model =
             )
         , fill model.settings.backgroundColor
         ]
-        [ lazy5 labelView
-            model.labels
+        [ lazy4 labelView
             model.settings
             model.hierarchy
             model.svg.width
@@ -70,8 +69,8 @@ mainView settings selectedItem items countByTasks countByHierarchy =
         )
 
 
-labelView : List String -> Settings -> Int -> Int -> List Int -> Svg Msg
-labelView labels settings hierarchy width countByHierarchy =
+labelView : Settings -> Int -> Int -> List Int -> Svg Msg
+labelView settings hierarchy width countByHierarchy =
     let
         posX =
             16
@@ -91,19 +90,19 @@ labelView labels settings hierarchy width countByHierarchy =
             else
                 line [] []
           , if hierarchy > 0 then
-                labelTextView settings ( posX, 10 ) (getAt 0 labels |> Maybe.withDefault "USER ACTIVITIES")
+                labelTextView settings ( posX, 10 ) "USER ACTIVITIES"
 
             else
                 text_ [] []
           , if hierarchy > 0 then
-                labelTextView settings ( posX, settings.size.height + 25 ) (getAt 1 labels |> Maybe.withDefault "USER TASKS")
+                labelTextView settings ( posX, settings.size.height + 25 ) "USER TASKS"
 
             else
                 text_ [] []
           ]
             ++ (if hierarchy > 1 then
-                    [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) (getAt 2 labels |> Maybe.withDefault "USER STORIES")
-                    , labelTextView settings ( posX, settings.size.height * 2 + 80 ) (getAt 3 labels |> Maybe.withDefault "RELEASE 1")
+                    [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) "USER STORIES"
+                    , labelTextView settings ( posX, settings.size.height * 2 + 80 ) "RELEASE 1"
                     ]
 
                 else
@@ -136,7 +135,7 @@ labelView labels settings hierarchy width countByHierarchy =
                                     , strokeWidth "2"
                                     ]
                                     []
-                                , labelTextView settings ( posX, releaseY + Constants.itemMargin ) (getAt (xx + 3) labels |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1)))
+                                , labelTextView settings ( posX, releaseY + Constants.itemMargin ) ("RELEASE " ++ String.fromInt (xx + 1))
                                 ]
 
                             else

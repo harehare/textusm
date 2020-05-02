@@ -1,8 +1,7 @@
-module Parser exposing (parse, parseComment)
+module Parser exposing (parse)
 
 import Constants exposing (inputPrefix)
 import List.Extra exposing (findIndex, splitAt)
-import Maybe.Extra exposing (isJust)
 
 
 indentSpace : Int
@@ -22,44 +21,6 @@ hasIndent indent text =
     else
         String.startsWith lineinputPrefix text
             && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
-
-
-parseComment : String -> List ( String, String )
-parseComment text =
-    String.lines text
-        |> List.filter
-            (\x ->
-                let
-                    str =
-                        x |> String.trim
-                in
-                not (String.isEmpty str)
-                    && String.startsWith "#" str
-            )
-        |> List.map
-            (\x ->
-                let
-                    tokens =
-                        x
-                            |> String.replace "#" ""
-                            |> String.trim
-                            |> String.split ":"
-                in
-                case tokens of
-                    [ xx, xxx ] ->
-                        Just ( xx, String.trim xxx )
-
-                    _ ->
-                        Nothing
-            )
-        |> List.filter
-            (\x ->
-                isJust x
-            )
-        |> List.map
-            (\x ->
-                x |> Maybe.withDefault ( "", "" )
-            )
 
 
 parse : Int -> String -> ( List String, List String )

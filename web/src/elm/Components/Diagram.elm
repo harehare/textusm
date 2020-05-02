@@ -83,7 +83,6 @@ init settings =
       , touchDistance = Nothing
       , settings = settings
       , diagramType = UserStoryMap
-      , labels = []
       , text = Text.empty
       , matchParent = False
       , selectedItem = Nothing
@@ -110,40 +109,40 @@ getItemType text indent =
                 Stories (indent - 1)
 
 
-loadText : Diagram -> Int -> Int -> String -> ( List Hierarchy, Items )
-loadText diagramType lineNo indent input =
-    case Parser.parse indent input of
-        ( x :: xs, other ) ->
-            let
-                ( xsIndent, xsItems ) =
-                    loadText diagramType (lineNo + 1) (indent + 1) (String.join "\n" xs)
+load : String -> ( Hierarchy, Items )
+load text =
+    let
+        loadText : Int -> Int -> String -> ( List Hierarchy, Items )
+        loadText lineNo indent input =
+            case Parser.parse indent input of
+                ( x :: xs, other ) ->
+                    let
+                        ( xsIndent, xsItems ) =
+                            loadText (lineNo + 1) (indent + 1) (String.join "\n" xs)
 
-                ( otherIndents, otherItems ) =
-                    loadText diagramType (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
-            in
-            ( indent :: xsIndent ++ otherIndents
-            , Item.cons
-                { lineNo = lineNo
-                , text = x
-                , itemType = getItemType x indent
-                , children = Item.childrenFromItems xsItems
-                }
-                (Item.filter (\item -> item.itemType /= Comments) otherItems)
-            )
+                        ( otherIndents, otherItems ) =
+                            loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
+                    in
+                    ( indent :: xsIndent ++ otherIndents
+                    , Item.cons
+                        { lineNo = lineNo
+                        , text = x
+                        , itemType = getItemType x indent
+                        , children = Item.childrenFromItems xsItems
+                        }
+                        (Item.filter (\item -> item.itemType /= Comments) otherItems)
+                    )
 
-        ( [], _ ) ->
-            ( [ indent ], Item.empty )
-
-
-load : Diagram -> String -> ( Hierarchy, Items )
-load diagramType text =
+                ( [], _ ) ->
+                    ( [ indent ], Item.empty )
+    in
     if String.isEmpty text then
         ( 0, Item.empty )
 
     else
         let
             ( indentList, loadedItems ) =
-                loadText diagramType 0 0 text
+                loadText 0 0 text
         in
         ( indentList
             |> List.maximum
@@ -561,21 +560,7 @@ updateDiagram : Size -> Model -> String -> Model
 updateDiagram ( width, height ) base text =
     let
         ( hierarchy, items ) =
-            load base.diagramType text
-
-        labels =
-            Parser.parseComment text
-                |> List.filter
-                    (\( k, _ ) ->
-                        k == "labels"
-                    )
-                |> List.map Tuple.second
-                |> List.head
-                |> Maybe.andThen
-                    (\v ->
-                        Just (String.split "," v)
-                    )
-                |> Maybe.withDefault []
+            load text
 
         countByHierarchy =
             case base.diagramType of
@@ -645,7 +630,6 @@ updateDiagram ( width, height ) base text =
             }
         , moveX = 0
         , moveY = 0
-        , labels = labels
         , text = Text.edit base.text text
     }
 

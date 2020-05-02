@@ -23,7 +23,6 @@ import TextUSM.Enum.Diagram exposing (Diagram)
 type alias Model =
     { items : Items
     , data : Data
-    , labels : List String
     , hierarchy : Int
     , width : Int
     , height : Int
