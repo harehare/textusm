@@ -1,9 +1,14 @@
 module Route exposing (Route(..), toDiagramToRoute, toRoute, toString)
 
+import Data.DiagramType as DiagramType
 import TextUSM.Enum.Diagram as Diagram
 import Url exposing (Url)
 import Url.Builder exposing (absolute)
-import Url.Parser as Parser exposing ((</>), Parser, map, oneOf, parse, s, string)
+import Url.Parser as Parser exposing ((</>), Parser, custom, map, oneOf, parse, s, string)
+
+
+type alias Id =
+    String
 
 
 type alias DiagramPath =
@@ -24,22 +29,8 @@ type alias SettingsJson =
 
 type Route
     = Home
-    | BusinessModelCanvas
-    | OpportunityCanvas
-    | UserStoryMap
-    | FourLs
-    | StartStopContinue
-    | Kpt
-    | Persona
-    | Markdown
-    | MindMap
-    | EmpathyMap
-    | CustomerJourneyMap
-    | SiteMap
-    | GanttChart
-    | ImpactMap
-    | ErDiagram
-    | Kanban
+    | Edit DiagramPath
+    | EditFile DiagramPath Id
     | List
     | Settings
     | Help
@@ -56,32 +47,25 @@ parser : Parser (Route -> a) a
 parser =
     oneOf
         [ map Home Parser.top
-        , map Share (s "share" </> string </> string </> string)
-        , map Embed (s "embed" </> string </> string </> string)
+        , map Share (s "share" </> diagramType </> string </> string)
+        , map Embed (s "embed" </> diagramType </> string </> string)
         , map UsmView (s "view" </> string)
         , map View (s "view" </> string </> string)
-        , map BusinessModelCanvas (s "bmc")
-        , map OpportunityCanvas (s "opc")
-        , map UserStoryMap (s "usm")
-        , map FourLs (s "4ls")
-        , map StartStopContinue (s "ssc")
-        , map Kpt (s "kpt")
-        , map Persona (s "persona")
-        , map Markdown (s "md")
-        , map MindMap (s "mmp")
-        , map SiteMap (s "smp")
-        , map EmpathyMap (s "emm")
-        , map CustomerJourneyMap (s "cjm")
-        , map GanttChart (s "gct")
-        , map ImpactMap (s "imm")
-        , map ErDiagram (s "erd")
-        , map Kanban (s "kanban")
         , map List (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
         , map Tag (s "tag")
         , map SharingSettings (s "sharing")
+        , map Edit (s "edit" </> diagramType)
+        , map EditFile (s "edit" </> diagramType </> string)
         ]
+
+
+diagramType : Parser (String -> a) a
+diagramType =
+    custom "DIAGRAM_TYPE" <|
+        \segment ->
+            Just <| DiagramType.toString <| DiagramType.fromString segment
 
 
 toRoute : Url -> Route
@@ -91,54 +75,7 @@ toRoute url =
 
 toDiagramToRoute : Diagram.Diagram -> Route
 toDiagramToRoute diagram =
-    case diagram of
-        Diagram.UserStoryMap ->
-            UserStoryMap
-
-        Diagram.OpportunityCanvas ->
-            OpportunityCanvas
-
-        Diagram.BusinessModelCanvas ->
-            BusinessModelCanvas
-
-        Diagram.Fourls ->
-            FourLs
-
-        Diagram.StartStopContinue ->
-            StartStopContinue
-
-        Diagram.Kpt ->
-            Kpt
-
-        Diagram.UserPersona ->
-            Persona
-
-        Diagram.Markdown ->
-            Markdown
-
-        Diagram.MindMap ->
-            MindMap
-
-        Diagram.EmpathyMap ->
-            EmpathyMap
-
-        Diagram.CustomerJourneyMap ->
-            CustomerJourneyMap
-
-        Diagram.SiteMap ->
-            SiteMap
-
-        Diagram.GanttChart ->
-            GanttChart
-
-        Diagram.ImpactMap ->
-            ImpactMap
-
-        Diagram.ErDiagram ->
-            ErDiagram
-
-        Diagram.Kanban ->
-            Kanban
+    Edit <| DiagramType.toString diagram
 
 
 toString : Route -> String
@@ -147,53 +84,11 @@ toString route =
         Home ->
             absolute [] []
 
-        BusinessModelCanvas ->
-            absolute [ "bmc" ] []
+        Edit type_ ->
+            absolute [ "edit", type_ ] []
 
-        OpportunityCanvas ->
-            absolute [ "opc" ] []
-
-        UserStoryMap ->
-            absolute [ "usm" ] []
-
-        FourLs ->
-            absolute [ "4ls" ] []
-
-        StartStopContinue ->
-            absolute [ "ssc" ] []
-
-        Kpt ->
-            absolute [ "kpt" ] []
-
-        Persona ->
-            absolute [ "persona" ] []
-
-        Markdown ->
-            absolute [ "md" ] []
-
-        MindMap ->
-            absolute [ "mmp" ] []
-
-        EmpathyMap ->
-            absolute [ "emm" ] []
-
-        CustomerJourneyMap ->
-            absolute [ "cjm" ] []
-
-        SiteMap ->
-            absolute [ "smp" ] []
-
-        GanttChart ->
-            absolute [ "gct" ] []
-
-        ImpactMap ->
-            absolute [ "imm" ] []
-
-        ErDiagram ->
-            absolute [ "erd" ] []
-
-        Kanban ->
-            absolute [ "kanban" ] []
+        EditFile type_ id_ ->
+            absolute [ "edit", type_, id_ ] []
 
         List ->
             absolute [ "list" ] []

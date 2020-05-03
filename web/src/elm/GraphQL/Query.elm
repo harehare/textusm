@@ -17,7 +17,7 @@ item id =
             |> with TextUSM.Object.Item.text
             |> with TextUSM.Object.Item.diagram
             |> with TextUSM.Object.Item.title
-            |> with TextUSM.Object.Item.thumbnail
+            |> hardcoded Nothing
             |> with TextUSM.Object.Item.isPublic
             |> with TextUSM.Object.Item.isBookmark
             |> hardcoded True
@@ -32,7 +32,7 @@ items ( offset, limit ) isBookmark isPublic =
     Query.items (\optionals -> { optionals | offset = Present offset, limit = Present limit, isBookmark = Present isBookmark, isPublic = Present isPublic }) <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
-            |> with TextUSM.Object.Item.text
+            |> hardcoded ""
             |> with TextUSM.Object.Item.diagram
             |> with TextUSM.Object.Item.title
             |> with TextUSM.Object.Item.thumbnail

@@ -21,7 +21,7 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy6)
 import Json.Decode as D
-import List.Extra exposing (getAt, removeAt, setAt, splitAt)
+import List.Extra exposing (find, getAt, removeAt, setAt, splitAt)
 import Models.Diagram as DiagramModel
 import Models.Model as Page exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
 import Models.Views.CustomerJourneyMap as CustomerJourneyMap
@@ -33,7 +33,7 @@ import Page.Settings as Settings
 import Page.Share as Share
 import Page.Tags as Tags
 import Ports
-import RemoteData
+import RemoteData exposing (RemoteData(..))
 import Route exposing (Route(..), toRoute)
 import Settings exposing (defaultEditorSettings, defaultSettings, settingsDecoder, settingsEncoder)
 import String
@@ -220,28 +220,9 @@ showNotification notify =
 changeRouteTo : Route -> Model -> ( Model, Cmd Msg )
 changeRouteTo route model =
     let
-        getCmds : List (Cmd Msg) -> Cmd Msg
-        getCmds cmds =
-            Cmd.batch (Task.perform Init Dom.getViewport :: cmds)
-
-        changeDiagramType : Diagram.Diagram -> ( Model, Cmd Msg )
-        changeDiagramType type_ =
-            let
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | diagramType = type_ }
-            in
-            ( { model | diagramModel = newDiagramModel, page = Page.Main }
-            , getCmds
-                [ if type_ == Diagram.Markdown then
-                    Ports.setEditorLanguage "markdown"
-
-                  else
-                    Ports.setEditorLanguage "userStoryMap"
-                ]
-            )
+        cmds : List (Cmd Msg) -> Cmd Msg
+        cmds c =
+            Cmd.batch (Task.perform Init Dom.getViewport :: c)
     in
     case route of
         Route.List ->
@@ -255,7 +236,7 @@ changeRouteTo route model =
                     , progress = True
                     , diagramListModel = model_
                   }
-                , getCmds [ cmd_ |> Cmd.map UpdateDiagramList ]
+                , cmds [ cmd_ |> Cmd.map UpdateDiagramList ]
                 )
 
             else
@@ -299,7 +280,7 @@ changeRouteTo route model =
                 , title = Title.fromString title
                 , page = Page.Embed diagram title path
               }
-            , getCmds [ Ports.decodeShareText path ]
+            , cmds [ Ports.decodeShareText path ]
             )
 
         Route.Share diagram title path ->
@@ -318,7 +299,7 @@ changeRouteTo route model =
                 , title = percentDecode title |> Maybe.withDefault "" |> Title.fromString
                 , page = Page.Main
               }
-            , getCmds [ Ports.decodeShareText path ]
+            , cmds [ Ports.decodeShareText path ]
             )
 
         Route.UsmView settingsJson ->
@@ -369,68 +350,62 @@ changeRouteTo route model =
                         , title = Title.fromString <| Maybe.withDefault "" settings.title
                         , page = Page.Main
                       }
-                    , getCmds [ cmd_ |> Cmd.map UpdateSettings ]
+                    , cmds [ cmd_ |> Cmd.map UpdateSettings ]
                     )
 
                 Nothing ->
-                    ( model, getCmds [] )
+                    ( model, cmds [] )
 
-        Route.BusinessModelCanvas ->
-            changeDiagramType Diagram.BusinessModelCanvas
+        Route.Edit type_ ->
+            let
+                diagramType =
+                    DiagramType.fromString type_
 
-        Route.OpportunityCanvas ->
-            changeDiagramType Diagram.OpportunityCanvas
+                diagramModel =
+                    model.diagramModel
 
-        Route.FourLs ->
-            changeDiagramType Diagram.Fourls
+                newDiagramModel =
+                    { diagramModel | diagramType = diagramType }
+            in
+            ( { model | diagramModel = newDiagramModel, page = Page.Main }
+            , cmds
+                [ setEditorLanguage diagramType
+                ]
+            )
 
-        Route.StartStopContinue ->
-            changeDiagramType Diagram.StartStopContinue
+        Route.EditFile _ id_ ->
+            case model.diagramListModel.diagramList of
+                Success d ->
+                    let
+                        loadItem =
+                            find (\diagram -> Maybe.withDefault "" diagram.id == id_) d
+                    in
+                    case loadItem of
+                        Just item ->
+                            if item.isRemote then
+                                ( { model | page = Page.Main }
+                                , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } id_
+                                )
 
-        Route.Kpt ->
-            changeDiagramType Diagram.Kpt
+                            else
+                                ( { model | page = Page.Main }
+                                , Task.attempt Load <| Task.succeed item
+                                )
 
-        Route.Persona ->
-            changeDiagramType Diagram.UserPersona
+                        Nothing ->
+                            ( { model | page = Page.NotFound }, Cmd.none )
 
-        Route.Markdown ->
-            changeDiagramType Diagram.Markdown
-
-        Route.MindMap ->
-            changeDiagramType Diagram.MindMap
-
-        Route.ImpactMap ->
-            changeDiagramType Diagram.ImpactMap
-
-        Route.EmpathyMap ->
-            changeDiagramType Diagram.EmpathyMap
-
-        Route.UserStoryMap ->
-            changeDiagramType Diagram.UserStoryMap
-
-        Route.CustomerJourneyMap ->
-            changeDiagramType Diagram.CustomerJourneyMap
-
-        Route.SiteMap ->
-            changeDiagramType Diagram.SiteMap
-
-        Route.GanttChart ->
-            changeDiagramType Diagram.GanttChart
-
-        Route.ErDiagram ->
-            changeDiagramType Diagram.ErDiagram
-
-        Route.Kanban ->
-            changeDiagramType Diagram.Kanban
+                _ ->
+                    ( { model | page = Page.NotFound }, Cmd.none )
 
         Route.Home ->
-            ( { model | page = Page.Main }, getCmds [] )
+            ( { model | page = Page.Main }, cmds [] )
 
         Route.Settings ->
-            ( { model | page = Page.Settings }, getCmds [] )
+            ( { model | page = Page.Settings }, Cmd.none )
 
         Route.Help ->
-            ( { model | page = Page.Help }, getCmds [] )
+            ( { model | page = Page.Help }, Cmd.none )
 
         Route.SharingSettings ->
             ( { model | page = Page.Share }, Cmd.none )
@@ -612,27 +587,15 @@ update message model =
         UpdateDiagramList subMsg ->
             case subMsg of
                 DiagramList.Select diagram ->
-                    if diagram.isRemote then
-                        ( { model
-                            | progress = False
-                            , text = Text.edit model.text diagram.text
-                            , title = Title.fromString diagram.title
-                            , currentDiagram = Just diagram
-                          }
-                        , Cmd.batch
-                            [ Nav.pushUrl model.key <| DiagramType.toString diagram.diagram
-                            , Ports.loadText diagram.text
-                            ]
+                    ( { model
+                        | progress = True
+                      }
+                    , Nav.pushUrl model.key
+                        (Route.toString <|
+                            EditFile (DiagramType.toString diagram.diagram)
+                                (Maybe.withDefault "" diagram.id)
                         )
-
-                    else
-                        ( { model
-                            | text = Text.edit model.text diagram.text
-                            , title = Title.fromString diagram.title
-                            , currentDiagram = Just diagram
-                          }
-                        , Nav.pushUrl model.key <| DiagramType.toString diagram.diagram
-                        )
+                    )
 
                 DiagramList.Removed (Err e) ->
                     case e of
@@ -692,7 +655,7 @@ update message model =
 
         Init window ->
             let
-                ( model_, _ ) =
+                ( model_, cmd_ ) =
                     Diagram.update (DiagramModel.Init model.diagramModel.settings window (Text.toString model.text)) model.diagramModel
             in
             ( { model
@@ -700,7 +663,7 @@ update message model =
                 , progress = False
                 , text = Text.saved model.text
               }
-            , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settingsModel.settings.editor )
+            , Cmd.batch [ Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settingsModel.settings.editor ), cmd_ |> Cmd.map UpdateDiagram ]
             )
 
         DownloadCompleted ( x, y ) ->
@@ -1140,52 +1103,52 @@ update message model =
                 ( text_, route_ ) =
                     case type_ of
                         Diagram.UserStoryMap ->
-                            ( "", Route.UserStoryMap )
+                            ( "", Route.Edit (DiagramType.toString Diagram.UserStoryMap) )
 
                         Diagram.BusinessModelCanvas ->
-                            ( "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships", Route.BusinessModelCanvas )
+                            ( "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships", Route.Edit (DiagramType.toString Diagram.BusinessModelCanvas) )
 
                         Diagram.OpportunityCanvas ->
-                            ( "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget", Route.OpportunityCanvas )
+                            ( "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget", Route.Edit (DiagramType.toString Diagram.OpportunityCanvas) )
 
                         Diagram.Fourls ->
-                            ( "Liked\nLearned\nLacked\nLonged for", Route.FourLs )
+                            ( "Liked\nLearned\nLacked\nLonged for", Route.Edit (DiagramType.toString Diagram.Fourls) )
 
                         Diagram.StartStopContinue ->
-                            ( "Start\nStop\nContinue", Route.StartStopContinue )
+                            ( "Start\nStop\nContinue", Route.Edit (DiagramType.toString Diagram.StartStopContinue) )
 
                         Diagram.Kpt ->
-                            ( "K\nP\nT", Route.Kpt )
+                            ( "K\nP\nT", Route.Edit (DiagramType.toString Diagram.Kpt) )
 
                         Diagram.UserPersona ->
-                            ( "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology", Route.Persona )
+                            ( "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology", Route.Edit (DiagramType.toString Diagram.UserPersona) )
 
                         Diagram.Markdown ->
-                            ( "", Route.Markdown )
+                            ( "", Route.Edit (DiagramType.toString Diagram.Markdown) )
 
                         Diagram.MindMap ->
-                            ( "", Route.MindMap )
+                            ( "", Route.Edit (DiagramType.toString Diagram.MindMap) )
 
                         Diagram.ImpactMap ->
-                            ( "", Route.ImpactMap )
+                            ( "", Route.Edit (DiagramType.toString Diagram.ImpactMap) )
 
                         Diagram.EmpathyMap ->
-                            ( "SAYS\nTHINKS\nDOES\nFEELS", Route.EmpathyMap )
+                            ( "SAYS\nTHINKS\nDOES\nFEELS", Route.Edit (DiagramType.toString Diagram.EmpathyMap) )
 
                         Diagram.CustomerJourneyMap ->
-                            ( "Header\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDiscover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n", Route.CustomerJourneyMap )
+                            ( "Header\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDiscover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n", Route.Edit (DiagramType.toString Diagram.CustomerJourneyMap) )
 
                         Diagram.SiteMap ->
-                            ( "", Route.SiteMap )
+                            ( "", Route.Edit (DiagramType.toString Diagram.SiteMap) )
 
                         Diagram.GanttChart ->
-                            ( "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n", Route.GanttChart )
+                            ( "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n", Route.Edit (DiagramType.toString Diagram.GanttChart) )
 
                         Diagram.ErDiagram ->
-                            ( "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n", Route.ErDiagram )
+                            ( "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n", Route.Edit (DiagramType.toString Diagram.ErDiagram) )
 
                         Diagram.Kanban ->
-                            ( "TODO\nDOING\nDONE", Route.Kanban )
+                            ( "TODO\nDOING\nDONE", Route.Edit (DiagramType.toString Diagram.Kanban) )
 
                 displayText =
                     if Text.isEmpty model.text then
@@ -1201,6 +1164,54 @@ update message model =
               }
             , Cmd.batch [ Ports.loadText (Text.toString displayText), Nav.pushUrl model.key (Route.toString route_) ]
             )
+
+        Load (Ok diagram) ->
+            let
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel
+                        | diagramType = diagram.diagram
+                        , text = Text.fromString diagram.text
+                    }
+
+                ( model_, cmd_ ) =
+                    Diagram.update (DiagramModel.OnChangeText diagram.text) newDiagramModel
+            in
+            ( { model
+                | progress = False
+                , text = Text.fromString diagram.text
+                , title = Title.fromString diagram.title
+                , currentDiagram = Just diagram
+                , diagramModel = model_
+              }
+            , Cmd.batch
+                [ Ports.loadEditor ( diagram.text, defaultEditorSettings model.settingsModel.settings.editor )
+                , cmd_ |> Cmd.map UpdateDiagram
+                , setEditorLanguage diagram.diagram
+                ]
+            )
+
+        Load (Err _) ->
+            ( { model
+                | progress = False
+              }
+            , Cmd.batch
+                [ Utils.delay 3000 OnCloseNotification
+                , Notification.showErrorMessage
+                    "Failed."
+                ]
+            )
+
+
+setEditorLanguage : Diagram.Diagram -> Cmd Msg
+setEditorLanguage diagram =
+    if diagram == Diagram.Markdown then
+        Ports.setEditorLanguage "markdown"
+
+    else
+        Ports.setEditorLanguage "userStoryMap"
 
 
 

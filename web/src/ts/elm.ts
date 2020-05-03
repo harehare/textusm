@@ -7,6 +7,7 @@ export interface Js2ElmPort<T> {
 
 export interface Elm2JsPort<T> {
     subscribe: (callback: T) => void;
+    unsubscribe: (callback: T) => void;
 }
 
 export type ElmApp = {

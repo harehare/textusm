@@ -279,14 +279,14 @@ newMenu =
 exportMenu : Route -> List (MenuItem Msg)
 exportMenu route =
     case route of
-        Route.ErDiagram ->
+        Route.Edit "erd" ->
             Item
                 { e = Download DDL
                 , title = "DDL"
                 }
                 :: baseExportMenu
 
-        Route.CustomerJourneyMap ->
+        Route.Edit "cjm" ->
             Item
                 { e = Download MarkdownTable
                 , title = "Markdown"

@@ -69,6 +69,7 @@ type Msg
     | Shortcuts String
     | NavRoute Route.Route
     | BackToEdit
+    | Load (Result (Http.Error DiagramItem) DiagramItem)
 
 
 type LoginProvider

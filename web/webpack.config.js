@@ -141,7 +141,7 @@ if (mode === "development") {
             contentBase: path.join(__dirname, "src/assets"),
             historyApiFallback: true,
             before(app) {
-                app.get("/test", function (req, res) {
+                app.get("/test", function (_, res) {
                     res.json({
                         result: "OK",
                     });

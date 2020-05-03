@@ -16,7 +16,6 @@ const app: ElmApp = Elm.Main.init({
     flags: [process.env.API_ROOT, JSON.stringify(loadSettings())],
 });
 const auth = new Auth();
-const editor = loadEditor(app);
 
 const openFullscreen = () => {
     const elem = document.documentElement;
@@ -59,7 +58,7 @@ app.ports.saveSettings.subscribe((settings: Settings) => {
 });
 
 app.ports.loadEditor.subscribe(([text, option]: [string, EditorOption]) => {
-    editor(text, option);
+    loadEditor(app, text, option);
 });
 
 app.ports.signIn.subscribe((provider: string) => {
