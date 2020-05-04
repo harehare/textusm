@@ -1220,33 +1220,45 @@ update message model =
                 , currentDiagram = Nothing
                 , diagramModel = newDiagramModel
               }
-            , Cmd.batch [ Ports.loadText (Text.toString displayText), Nav.pushUrl model.key (Route.toString route_) ]
+            , Cmd.batch [ Nav.pushUrl model.key (Route.toString route_) ]
             )
 
         Load (Ok diagram) ->
             let
+                newDiagram =
+                    case diagram.id of
+                        Just _ ->
+                            diagram
+
+                        Nothing ->
+                            { diagram
+                                | title = Title.toString model.title
+                                , text = Text.toString model.diagramModel.text
+                                , diagram = model.diagramModel.diagramType
+                            }
+
                 diagramModel =
                     model.diagramModel
 
                 newDiagramModel =
                     { diagramModel
-                        | diagramType = diagram.diagram
-                        , text = Text.fromString diagram.text
+                        | diagramType = newDiagram.diagram
+                        , text = Text.fromString newDiagram.text
                     }
 
                 ( model_, cmd_ ) =
-                    Diagram.update (DiagramModel.OnChangeText diagram.text) newDiagramModel
+                    Diagram.update (DiagramModel.OnChangeText newDiagram.text) newDiagramModel
             in
             ( { model
                 | progress = False
-                , title = Title.fromString diagram.title
-                , currentDiagram = Just diagram
+                , title = Title.fromString newDiagram.title
+                , currentDiagram = Just newDiagram
                 , diagramModel = model_
               }
             , Cmd.batch
-                [ Ports.loadEditor ( diagram.text, defaultEditorSettings model.settingsModel.settings.editor )
+                [ Ports.loadEditor ( newDiagram.text, defaultEditorSettings model.settingsModel.settings.editor )
                 , cmd_ |> Cmd.map UpdateDiagram
-                , setEditorLanguage diagram.diagram
+                , setEditorLanguage newDiagram.diagram
                 ]
             )
 

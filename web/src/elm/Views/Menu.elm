@@ -303,7 +303,7 @@ exportMenu route =
         Route.EditFile "cjm" _ ->
             Item
                 { e = Download MarkdownTable
-                , title = "Markdown"
+                , title = "MARKDOWN"
                 }
                 :: baseExportMenu
 
@@ -327,7 +327,7 @@ baseExportMenu =
         }
     , Item
         { e = SaveToFileSystem
-        , title = "Text"
+        , title = "TEXT"
         }
     , Item
         { e = Download HTML

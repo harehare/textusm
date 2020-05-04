@@ -1,7 +1,9 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "esnext",
+        "module": "esnext",
+        "target": "es2019",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
         "lib": ["es6", "dom"],
         "rootDir": "src/ts",
         "strict": true
