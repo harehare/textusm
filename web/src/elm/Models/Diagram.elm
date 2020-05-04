@@ -1,4 +1,4 @@
-module Models.Diagram exposing (Color, ColorSettings, Data(..), Model, Msg(..), Point, Settings, Size, UsmSvg, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl)
+module Models.Diagram exposing (Color, ColorSettings, Data(..), Model, Msg(..), Point, Settings, Size, UsmSvg, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
 
 import Browser.Dom exposing (Viewport)
 import Data.Item exposing (Item, ItemType(..), Items)
@@ -80,6 +80,11 @@ type alias Settings =
 fontStyle : Settings -> String
 fontStyle settings =
     "'" ++ settings.font ++ "', sans-serif"
+
+
+updatedText : Model -> Text -> Model
+updatedText model text =
+    { model | text = text }
 
 
 type alias ColorSettings =

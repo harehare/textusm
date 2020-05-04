@@ -47,8 +47,9 @@ export class Auth {
         firebase.auth().onAuthStateChanged((user) => {
             onBeforeAuth();
             if (user) {
-                user.getIdToken(true).then((idToken) => {
+                user.getIdToken().then((idToken) => {
                     onAuthStateChanged(idToken, user);
+                    onAfterAuth();
                 });
             } else {
                 onAuthStateChanged(null, null);

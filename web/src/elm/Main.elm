@@ -77,11 +77,10 @@ init flags url key =
 
         ( model, cmds ) =
             changeRouteTo (toRoute url)
-                { diagramModel = diagramModel
+                { diagramModel = { diagramModel | text = Text.fromString (Maybe.withDefault "" initSettings.text) }
                 , diagramListModel = diagramListModel
                 , settingsModel = settingsModel
                 , shareModel = shareModel
-                , text = Text.fromString (Maybe.withDefault "" initSettings.text)
                 , openMenu = Nothing
                 , title = Title.fromString (Maybe.withDefault "" initSettings.title)
                 , window =
@@ -111,12 +110,12 @@ view model =
         , style "width" "100vw"
         , onClick CloseMenu
         ]
-        [ lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.text }
+        [ lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.diagramModel.text }
         , lazy showNotification model.notification
         , lazy2 showProgressbar model.progress model.window.fullscreen
         , div
             [ class "main" ]
-            [ lazy6 Menu.view model.page (toRoute model.url) model.text model.diagramModel.width model.window.fullscreen model.openMenu
+            [ lazy6 Menu.view model.page (toRoute model.url) model.diagramModel.text model.diagramModel.width model.window.fullscreen model.openMenu
             , let
                 mainWindow =
                     if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then
@@ -215,6 +214,11 @@ showNotification notify =
 
 
 -- Update
+
+
+loadText : DiagramItem.DiagramItem -> Cmd Msg
+loadText diagram =
+    Task.attempt Load <| Task.succeed diagram
 
 
 changeRouteTo : Route -> Model -> ( Model, Cmd Msg )
@@ -326,7 +330,12 @@ changeRouteTo route model =
                 updatedDiagramModel =
                     case maybeSettings of
                         Just settings ->
-                            { newDiagramModel | settings = settings.storyMap, showZoomControl = False, fullscreen = True }
+                            { newDiagramModel
+                                | settings = settings.storyMap
+                                , showZoomControl = False
+                                , fullscreen = True
+                                , text = Text.edit newDiagramModel.text (String.replace "\\n" "\n" (Maybe.withDefault "" settings.text))
+                            }
 
                         Nothing ->
                             { newDiagramModel | showZoomControl = False, fullscreen = True }
@@ -346,7 +355,6 @@ changeRouteTo route model =
                             , moveX = model.window.moveX
                             , fullscreen = True
                             }
-                        , text = Text.edit model.text (String.replace "\\n" "\n" (Maybe.withDefault "" settings.text))
                         , title = Title.fromString <| Maybe.withDefault "" settings.title
                         , page = Page.Main
                       }
@@ -396,7 +404,15 @@ changeRouteTo route model =
                             ( { model | page = Page.NotFound }, Cmd.none )
 
                 _ ->
-                    ( { model | page = Page.NotFound }, Cmd.none )
+                    if Session.isSignedIn model.session then
+                        ( { model | page = Page.Main }
+                        , cmds [ Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } id_ ]
+                        )
+
+                    else
+                        ( { model | page = Page.Main }
+                        , cmds [ Ports.getDiagram id_ ]
+                        )
 
         Route.Home ->
             ( { model | page = Page.Main }, cmds [] )
@@ -437,12 +453,14 @@ update message model =
                             Tags.update msg m
 
                         newDiagram =
-                            { diagram | tags = Just (List.map Just model_.tags) }
+                            { diagram
+                                | tags = Just (List.map Just model_.tags)
+                            }
                     in
                     ( { model
-                        | text = Text.change model.text
-                        , page = Page.Tags model_
+                        | page = Page.Tags model_
                         , currentDiagram = Just newDiagram
+                        , diagramModel = DiagramModel.updatedText model.diagramModel (Text.change <| Text.fromString diagram.text)
                       }
                     , cmd_ |> Cmd.map UpdateTags
                     )
@@ -479,14 +497,14 @@ update message model =
                     ( { model | diagramModel = model_ }
                     , Cmd.batch
                         [ cmd_ |> Cmd.map UpdateDiagram
-                        , Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settingsModel.settings.editor )
+                        , Ports.loadEditor ( Text.toString model.diagramModel.text, defaultEditorSettings model.settingsModel.settings.editor )
                         ]
                     )
 
                 DiagramModel.MoveItem ( fromNo, toNo ) ->
                     let
                         lines =
-                            Text.lines model.text
+                            Text.lines model.diagramModel.text
 
                         from =
                             getAt fromNo lines
@@ -511,10 +529,9 @@ update message model =
                                 :: right
                                 |> String.join "\n"
                     in
-                    ( { model | text = Text.edit model.text text }
+                    ( model
                     , Cmd.batch
-                        [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
-                        , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
+                        [ Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
                         , Ports.loadText text
                         ]
                     )
@@ -523,7 +540,7 @@ update message model =
                     if code == 13 && not isComposing then
                         let
                             lines =
-                                Text.lines model.text
+                                Text.lines model.diagramModel.text
 
                             currentText =
                                 getAt item.lineNo lines
@@ -537,10 +554,9 @@ update message model =
                                 setAt item.lineNo (prefix ++ String.trimLeft item.text) lines
                                     |> String.join "\n"
                         in
-                        ( { model | text = Text.edit model.text text }
+                        ( model
                         , Cmd.batch
-                            [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
-                            , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
+                            [ Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
                             , Ports.loadText text
                             ]
                         )
@@ -569,13 +585,6 @@ update message model =
                             Ports.closeFullscreen ()
                         ]
                     )
-
-                DiagramModel.OnChangeText text ->
-                    let
-                        ( model_, _ ) =
-                            Diagram.update msg model.diagramModel
-                    in
-                    ( { model | text = Text.edit model.text text, diagramModel = model_ }, Cmd.none )
 
                 _ ->
                     let
@@ -656,14 +665,21 @@ update message model =
         Init window ->
             let
                 ( model_, cmd_ ) =
-                    Diagram.update (DiagramModel.Init model.diagramModel.settings window (Text.toString model.text)) model.diagramModel
+                    Diagram.update (DiagramModel.Init model.diagramModel.settings window (Text.toString model.diagramModel.text)) model.diagramModel
             in
             ( { model
                 | diagramModel = model_
                 , progress = False
-                , text = Text.saved model.text
               }
-            , Cmd.batch [ Ports.loadEditor ( Text.toString model.text, defaultEditorSettings model.settingsModel.settings.editor ), cmd_ |> Cmd.map UpdateDiagram ]
+            , Cmd.batch
+                [ case model.currentDiagram of
+                    Just diagram ->
+                        loadText diagram
+
+                    Nothing ->
+                        loadText DiagramItem.empty
+                , cmd_ |> Cmd.map UpdateDiagram
+                ]
             )
 
         DownloadCompleted ( x, y ) ->
@@ -727,7 +743,7 @@ update message model =
                     , title = Title.toString model.title ++ extension
                     , x = 0
                     , y = 0
-                    , text = Text.toString model.text
+                    , text = Text.toString model.diagramModel.text
                     , diagramType = DiagramType.toString model.diagramModel.diagramType
                     }
                 )
@@ -748,14 +764,14 @@ update message model =
             ( { model | title = Title.fromString (File.name file) }, Utils.fileLoad file FileLoaded )
 
         FileLoaded text ->
-            ( model, Cmd.batch [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text))), Ports.loadText text ] )
+            ( model, Ports.loadText text )
 
         SaveToFileSystem ->
             let
                 title =
                     Title.toString model.title
             in
-            ( model, Download.string title "text/plain" (Text.toString model.text) )
+            ( model, Download.string title "text/plain" (Text.toString model.diagramModel.text) )
 
         Save ->
             let
@@ -775,6 +791,9 @@ update message model =
                 let
                     title =
                         Title.toString model.title
+
+                    newDiagramModel =
+                        DiagramModel.updatedText model.diagramModel (Text.saved model.diagramModel.text)
                 in
                 ( { model
                     | notification =
@@ -784,16 +803,16 @@ update message model =
                         else
                             Nothing
                     , diagramListModel = newDiagramListModel
-                    , text = Text.edit model.text (Text.toString model.text)
+                    , diagramModel = newDiagramModel
                   }
                 , Cmd.batch
                     [ Ports.saveDiagram <|
                         DiagramItem.encoder
                             { id = Maybe.andThen .id model.currentDiagram
                             , title = title
-                            , text = Text.toString model.text
+                            , text = Text.toString newDiagramModel.text
                             , thumbnail = Nothing
-                            , diagram = model.diagramModel.diagramType
+                            , diagram = newDiagramModel.diagramType
                             , isRemote = isRemote
                             , isPublic = False
                             , isBookmark = False
@@ -851,7 +870,7 @@ update message model =
                 item =
                     { id = Nothing
                     , title = Title.toString model.title
-                    , text = Text.toString model.text
+                    , text = Text.toString model.diagramModel.text
                     , thumbnail = Nothing
                     , diagram = model.diagramModel.diagramType
                     , isRemote = False
@@ -902,7 +921,14 @@ update message model =
 
         EndEditTitle code isComposing ->
             if code == 13 && not isComposing then
-                ( { model | title = Title.view model.title, text = Text.change model.text }, Cmd.none )
+                let
+                    diagramModel =
+                        model.diagramModel
+
+                    newDiagramModel =
+                        { diagramModel | text = Text.change diagramModel.text }
+                in
+                ( { model | title = Title.view model.title, diagramModel = newDiagramModel }, Cmd.none )
 
             else
                 ( model, Cmd.none )
@@ -933,7 +959,7 @@ update message model =
                         , font = model.settingsModel.settings.font
                         , diagramId = Maybe.andThen .id model.currentDiagram
                         , storyMap = newStoryMap
-                        , text = Just (Text.toString model.text)
+                        , text = Just (Text.toString model.diagramModel.text)
                         , title =
                             Just <| Title.toString model.title
                         , editor = model.settingsModel.settings.editor
@@ -993,7 +1019,7 @@ update message model =
                     { diagramType =
                         DiagramType.toString model.diagramModel.diagramType
                     , title = Just <| Title.toString model.title
-                    , text = Text.toString model.text
+                    , text = Text.toString model.diagramModel.text
                     }
                 ]
             )
@@ -1151,16 +1177,22 @@ update message model =
                             ( "TODO\nDOING\nDONE", Route.Edit (DiagramType.toString Diagram.Kanban) )
 
                 displayText =
-                    if Text.isEmpty model.text then
-                        Text.edit model.text text_
+                    if Text.isEmpty model.diagramModel.text then
+                        Text.edit model.diagramModel.text text_
 
                     else
-                        model.text
+                        model.diagramModel.text
+
+                diagramModel =
+                    model.diagramModel
+
+                newDiagramModel =
+                    { diagramModel | text = displayText }
             in
             ( { model
                 | title = Title.untitled
-                , text = displayText
                 , currentDiagram = Nothing
+                , diagramModel = newDiagramModel
               }
             , Cmd.batch [ Ports.loadText (Text.toString displayText), Nav.pushUrl model.key (Route.toString route_) ]
             )
@@ -1181,7 +1213,6 @@ update message model =
             in
             ( { model
                 | progress = False
-                , text = Text.fromString diagram.text
                 , title = Title.fromString diagram.title
                 , currentDiagram = Just diagram
                 , diagramModel = model_
@@ -1204,6 +1235,18 @@ update message model =
                 ]
             )
 
+        GotLocalDiagramJson json ->
+            let
+                localItem =
+                    D.decodeString DiagramItem.decoder json
+            in
+            case localItem of
+                Ok item ->
+                    ( model, loadText item )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
 
 setEditorLanguage : Diagram.Diagram -> Cmd Msg
 setEditorLanguage diagram =
@@ -1223,7 +1266,7 @@ subscriptions model =
     Sub.batch
         ([ Ports.changeText (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
          , Ports.startDownload StartDownload
-         , Ports.gotLocalDiagramJson (\json -> UpdateDiagramList (DiagramList.GotLocalDiagramJson json))
+         , Ports.gotLocalDiagramsJson (\json -> UpdateDiagramList (DiagramList.GotLocalDiagramsJson json))
          , Ports.removedDiagram (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange OnVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
@@ -1240,6 +1283,7 @@ subscriptions model =
          , Ports.downloadCompleted DownloadCompleted
          , Ports.progress Progress
          , Ports.saveToLocalCompleted SaveToLocalCompleted
+         , Ports.gotLocalDiagramJson GotLocalDiagramJson
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp (D.succeed Stop)

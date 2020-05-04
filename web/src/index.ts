@@ -12,10 +12,10 @@ import { ElmApp } from "./ts/elm";
 // @ts-ignore
 import { Elm } from "./elm/Main.elm";
 
+const auth = new Auth();
 const app: ElmApp = Elm.Main.init({
     flags: [process.env.API_ROOT, JSON.stringify(loadSettings())],
 });
-const auth = new Auth();
 
 const openFullscreen = () => {
     const elem = document.documentElement;

@@ -286,7 +286,21 @@ exportMenu route =
                 }
                 :: baseExportMenu
 
+        Route.EditFile "erd" _ ->
+            Item
+                { e = Download DDL
+                , title = "DDL"
+                }
+                :: baseExportMenu
+
         Route.Edit "cjm" ->
+            Item
+                { e = Download MarkdownTable
+                , title = "Markdown"
+                }
+                :: baseExportMenu
+
+        Route.EditFile "cjm" _ ->
             Item
                 { e = Download MarkdownTable
                 , title = "Markdown"

@@ -30,6 +30,7 @@ export type ElmApp = {
         downloadHtml: Elm2JsPort<(download: DownloadInfo) => void>;
         saveDiagram: Elm2JsPort<(diagram: Diagram) => void>;
         removeDiagrams: Elm2JsPort<(diagram: Diagram) => Promise<void>>;
+        getDiagram: Elm2JsPort<(diagramId: string) => Promise<void>>;
         getDiagrams: Elm2JsPort<() => Promise<void>>;
         encodeShareText: Elm2JsPort<(obj: { [s: string]: string }) => void>;
         decodeShareText: Elm2JsPort<(text: string) => void>;
@@ -49,6 +50,7 @@ export type ElmApp = {
         removeRemoteDiagram: Js2ElmPort<string>;
         removedDiagram: Js2ElmPort<[string, boolean]>;
         gotLocalDiagramJson: Js2ElmPort<string>;
+        gotLocalDiagramsJson: Js2ElmPort<string>;
         onEncodeShareText: Js2ElmPort<string>;
         onDecodeShareText: Js2ElmPort<string>;
         onAuthStateChanged: Js2ElmPort<{

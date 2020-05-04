@@ -1,5 +1,6 @@
 import { ElmApp } from "./elm";
 import * as monaco from "monaco-editor";
+import { sleep } from "./utils";
 
 export interface EditorOption {
     fontSize: number;
@@ -85,82 +86,86 @@ export const loadEditor = async (
         ],
     });
 
-    setTimeout(() => {
-        const editor = document.getElementById("editor");
+    let editor = null;
+    let tryCount = 0;
 
-        if (!editor) {
+    while (!editor) {
+        editor = document.getElementById("editor");
+        tryCount++;
+        if (tryCount > 10) {
             return;
         }
+        await sleep(100);
+    }
 
-        if (monacoEditor) {
-            monacoEditor.dispose();
-        }
+    if (monacoEditor) {
+        monacoEditor.dispose();
+    }
 
-        monacoEditor = monaco.editor.create(editor, {
-            value: text,
-            language: location.pathname.startsWith("/md")
-                ? "markdown"
-                : "userStoryMap",
-            theme: "usmTheme",
-            lineNumbers: showLineNumber ? "on" : "off",
-            wordWrap: wordWrap ? "on" : "off",
-            minimap: {
-                enabled: false,
-            },
-            fontSize,
-            mouseWheelZoom: true,
-            automaticLayout: true,
-        });
+    monacoEditor = monaco.editor.create(editor, {
+        value: text,
+        language: location.pathname.startsWith("/md")
+            ? "markdown"
+            : "userStoryMap",
+        theme: "usmTheme",
+        lineNumbers: showLineNumber ? "on" : "off",
+        wordWrap: wordWrap ? "on" : "off",
+        minimap: {
+            enabled: false,
+        },
+        fontSize,
+        mouseWheelZoom: true,
+        automaticLayout: true,
+    });
 
-        // @ts-ignore
-        monacoEditor._standaloneKeybindingService.addDynamicKeybinding(
-            "-actions.find"
-        );
+    // @ts-ignore
+    monacoEditor._standaloneKeybindingService.addDynamicKeybinding(
+        "-actions.find"
+    );
 
-        monacoEditor.addAction({
-            id: "open",
-            label: "open",
-            keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
-            contextMenuOrder: 1.5,
-            run: () => {
-                app.ports.shortcuts.send("open");
-            },
-        });
+    monacoEditor.addAction({
+        id: "open",
+        label: "open",
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
+        contextMenuOrder: 1.5,
+        run: () => {
+            app.ports.shortcuts.send("open");
+        },
+    });
 
-        monacoEditor.addAction({
-            id: "save-to-local",
-            label: "save",
-            keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
-            contextMenuOrder: 1.5,
-            run: () => {
-                app.ports.shortcuts.send("save");
-            },
-        });
+    monacoEditor.addAction({
+        id: "save-to-local",
+        label: "save",
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
+        contextMenuOrder: 1.5,
+        run: () => {
+            app.ports.shortcuts.send("save");
+        },
+    });
 
-        app.ports.loadText.unsubscribe(loadText);
-        app.ports.loadText.subscribe(loadText);
+    app.ports.loadText.unsubscribe(loadText);
+    app.ports.loadText.subscribe(loadText);
 
-        app.ports.setEditorLanguage.unsubscribe(setEditorLanguage);
-        app.ports.setEditorLanguage.subscribe(setEditorLanguage);
+    app.ports.setEditorLanguage.unsubscribe(setEditorLanguage);
+    app.ports.setEditorLanguage.subscribe(setEditorLanguage);
 
-        app.ports.layoutEditor.unsubscribe(layout);
-        app.ports.layoutEditor.subscribe(layout);
+    app.ports.layoutEditor.unsubscribe(layout);
+    app.ports.layoutEditor.subscribe(layout);
 
-        let update: number | null = null;
+    let update: number | null = null;
 
-        monacoEditor.onDidChangeModelContent((e) => {
-            if (e.changes.length > 0) {
-                if (update) {
-                    window.clearTimeout(update);
-                    update = null;
-                }
-                update = window.setTimeout(() => {
-                    if (!monacoEditor) {
-                        return;
-                    }
-                    app.ports.changeText.send(monacoEditor.getValue());
-                }, 500);
+    monacoEditor.onDidChangeModelContent((e) => {
+        if (e.changes.length > 0) {
+            if (update) {
+                window.clearTimeout(update);
+                update = null;
             }
-        });
-    }, 100);
+            update = window.setTimeout(() => {
+                if (!monacoEditor) {
+                    return;
+                }
+                app.ports.changeText.send(monacoEditor.getValue());
+            }, 500);
+        }
+    });
 };

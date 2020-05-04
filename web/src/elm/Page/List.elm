@@ -36,7 +36,7 @@ type Msg
     | Removed (Result (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem))
     | Bookmarked (Result (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem))
     | GotTimeZone Zone
-    | GotLocalDiagramJson String
+    | GotLocalDiagramsJson String
     | GotDiagrams (Result ( List DiagramItem, Http.Error (List (Maybe DiagramItem)) ) (List DiagramItem))
     | LoadNextPage Int
 
@@ -426,7 +426,7 @@ update message model =
         LoadNextPage pageNo ->
             ( { model | pageNo = pageNo }, getDiagrams () )
 
-        GotLocalDiagramJson json ->
+        GotLocalDiagramsJson json ->
             if model.diagramList == Loading then
                 ( model, Cmd.none )
 

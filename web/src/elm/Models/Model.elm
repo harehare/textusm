@@ -69,6 +69,7 @@ type Msg
     | Shortcuts String
     | NavRoute Route.Route
     | BackToEdit
+    | GotLocalDiagramJson String
     | Load (Result (Http.Error DiagramItem) DiagramItem)
 
 
@@ -132,7 +133,6 @@ type alias Model =
     , notification : Maybe Notification
     , switchWindow : SwitchWindow
     , progress : Bool
-    , text : Text
     , apiRoot : String
     }
 

@@ -140,13 +140,28 @@ export const initDB = (app: ElmApp) => {
         }
     });
 
+    app.ports.getDiagram.subscribe(async (diagramId: string) => {
+        // @ts-ignore
+        const diagram = await (await db()).diagrams.get(diagramId);
+        app.ports.gotLocalDiagramJson.send(
+            JSON.stringify({
+                isPublic: false,
+                isBookmark: false,
+                isRemote: false,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                ...diagram,
+            })
+        );
+    });
+
     app.ports.getDiagrams.subscribe(async () => {
         // @ts-ignore
         const diagrams = await (await db()).diagrams
             .orderBy("updatedAt")
             .reverse()
             .toArray();
-        app.ports.gotLocalDiagramJson.send(
+        app.ports.gotLocalDiagramsJson.send(
             JSON.stringify(
                 diagrams.map((d: Diagram) => ({
                     isPublic: false,
