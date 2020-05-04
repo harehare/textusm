@@ -940,7 +940,7 @@ update message model =
             ( model, Nav.pushUrl model.key (Route.toString route) )
 
         BackToEdit ->
-            ( model, Nav.pushUrl model.key (Route.toString (Route.toDiagramToRoute (Maybe.withDefault DiagramItem.empty model.currentDiagram |> .diagram))) )
+            ( model, Nav.pushUrl model.key (Route.toString (Route.toDiagramToRoute (Maybe.withDefault DiagramItem.empty model.currentDiagram))) )
 
         OnVisibilityChange visible ->
             if model.window.fullscreen then
@@ -1116,7 +1116,33 @@ update message model =
             ( { model | session = Session.guest, currentDiagram = Nothing }, Ports.signOut () )
 
         OnAuthStateChanged (Just user) ->
-            ( { model | session = Session.signIn user, progress = False }, Cmd.none )
+            let
+                newModel =
+                    { model | session = Session.signIn user, progress = False }
+            in
+            case ( toRoute model.url, model.currentDiagram ) of
+                ( Route.EditFile type_ id_, Just diagram ) ->
+                    if Maybe.withDefault "" diagram.id /= id_ then
+                        ( newModel, Nav.pushUrl model.key (Route.toString <| Route.EditFile type_ id_) )
+
+                    else
+                        ( newModel, Cmd.none )
+
+                ( Route.EditFile type_ id_, _ ) ->
+                    ( newModel, Nav.pushUrl model.key (Route.toString <| Route.EditFile type_ id_) )
+
+                ( Route.List, _ ) ->
+                    let
+                        diagramListModel =
+                            model.diagramListModel
+
+                        newDiagramListModel =
+                            { diagramListModel | diagramList = NotAsked }
+                    in
+                    ( { newModel | diagramListModel = newDiagramListModel }, Nav.pushUrl model.key (Route.toString <| Route.List) )
+
+                _ ->
+                    ( newModel, Cmd.none )
 
         OnAuthStateChanged Nothing ->
             ( { model | session = Session.guest, progress = False }, Cmd.none )

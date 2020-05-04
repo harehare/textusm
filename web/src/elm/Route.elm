@@ -1,7 +1,7 @@
 module Route exposing (Route(..), toDiagramToRoute, toRoute, toString)
 
+import Data.DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
-import TextUSM.Enum.Diagram as Diagram
 import Url exposing (Url)
 import Url.Builder exposing (absolute)
 import Url.Parser as Parser exposing ((</>), Parser, custom, map, oneOf, parse, s, string)
@@ -73,9 +73,14 @@ toRoute url =
     Maybe.withDefault NotFound (parse parser url)
 
 
-toDiagramToRoute : Diagram.Diagram -> Route
+toDiagramToRoute : DiagramItem -> Route
 toDiagramToRoute diagram =
-    Edit <| DiagramType.toString diagram
+    case diagram.id of
+        Just id_ ->
+            EditFile (DiagramType.toString diagram.diagram) id_
+
+        Nothing ->
+            Edit <| DiagramType.toString diagram.diagram
 
 
 toString : Route -> String
