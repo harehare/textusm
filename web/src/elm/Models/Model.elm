@@ -6,7 +6,6 @@ import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
 import Data.DiagramItem exposing (DiagramItem)
 import Data.Session exposing (Session, User)
-import Data.Text exposing (Text)
 import Data.Title exposing (Title)
 import File exposing (File)
 import Graphql.Http as Http

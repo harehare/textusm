@@ -13,6 +13,12 @@ isUntitled title =
         UnTitled ->
             True
 
+        View "UNTITLED" ->
+            True
+
+        Edit "UNTITLED" ->
+            True
+
         Edit t ->
             String.isEmpty t
 
@@ -51,6 +57,12 @@ edit title =
         UnTitled ->
             Edit ""
 
+        View "UNTITLED" ->
+            Edit ""
+
+        Edit "UNTITLED" ->
+            Edit ""
+
         View t ->
             Edit t
 
@@ -63,6 +75,12 @@ view title =
     case title of
         UnTitled ->
             View ""
+
+        View "" ->
+            View "UNTITLED"
+
+        Edit "" ->
+            View "UNTITLED"
 
         View t ->
             View t

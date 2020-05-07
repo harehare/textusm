@@ -5,6 +5,7 @@ import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Models.Model exposing (Msg(..), Notification(..))
 import Task
+import Utils
 import Views.Icon as Icon
 
 
@@ -50,14 +51,14 @@ view notification =
 
 showWarningMessage : String -> Cmd Msg
 showWarningMessage msg =
-    Task.perform identity (Task.succeed (OnNotification (Warning msg)))
+    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Warning msg))), Utils.delay 3000 OnCloseNotification ]
 
 
 showInfoMessage : String -> Cmd Msg
 showInfoMessage msg =
-    Task.perform identity (Task.succeed (OnNotification (Info msg)))
+    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Info msg))), Utils.delay 3000 OnCloseNotification ]
 
 
 showErrorMessage : String -> Cmd Msg
 showErrorMessage msg =
-    Task.perform identity (Task.succeed (OnNotification (Error msg)))
+    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Error msg))), Utils.delay 3000 OnCloseNotification ]

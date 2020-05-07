@@ -16,8 +16,8 @@ import File.Download as Download
 import File.Select as Select
 import GraphQL.Request as Request
 import Graphql.Http as Http
-import Html exposing (Html, div, main_)
-import Html.Attributes exposing (class, style)
+import Html exposing (Html, a, div, img, main_, text)
+import Html.Attributes exposing (alt, class, href, src, style, target)
 import Html.Events exposing (onClick)
 import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy6)
 import Json.Decode as D
@@ -35,17 +35,17 @@ import Page.Tags as Tags
 import Ports
 import RemoteData exposing (RemoteData(..))
 import Route exposing (Route(..), toRoute)
-import Settings exposing (defaultEditorSettings, defaultSettings, settingsDecoder, settingsEncoder)
+import Settings exposing (Settings, defaultEditorSettings, defaultSettings, settingsDecoder, settingsEncoder)
 import String
 import Task
 import TextUSM.Enum.Diagram as Diagram
 import Time
 import Url as Url exposing (percentDecode)
 import Utils
-import Views.BottomNavigationBar as BottomNavigationBar
 import Views.Editor as Editor
 import Views.Empty as Empty
 import Views.Header as Header
+import Views.Icon as Icon
 import Views.Menu as Menu
 import Views.Notification as Notification
 import Views.ProgressBar as ProgressBar
@@ -103,6 +103,51 @@ init flags url key =
     ( model, cmds )
 
 
+bottomNavigationBar : Settings -> String -> String -> String -> Html Msg
+bottomNavigationBar settings diagram title path =
+    div
+        [ class "bottom-nav-bar"
+        , style "background-color" settings.storyMap.backgroundColor
+        ]
+        [ div
+            [ style "display" "flex"
+            , style "align-items" "center"
+            ]
+            [ div
+                [ style "width"
+                    "40px"
+                , style "height"
+                    "40px"
+                , style "display" "flex"
+                , style "justify-content" "center"
+                , style "align-items" "center"
+                ]
+                [ a [ href "https://app.textusm.com", target "blank_" ]
+                    [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ]
+                ]
+            , a [ href <| "https://app.textusm.com/share/" ++ diagram ++ "/" ++ title ++ "/" ++ path, target "blank_", style "color" settings.storyMap.color.label ]
+                [ text title ]
+            ]
+        , div [ class "buttons" ]
+            [ div
+                [ class "button"
+                , onClick <| UpdateDiagram DiagramModel.ZoomIn
+                ]
+                [ Icon.add 32 ]
+            , div
+                [ class "button"
+                , onClick <| UpdateDiagram DiagramModel.ZoomOut
+                ]
+                [ Icon.remove 32 ]
+            , div
+                [ class "button"
+                , onClick <| UpdateDiagram DiagramModel.ToggleFullscreen
+                ]
+                [ Icon.fullscreen 32 ]
+            ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
     main_
@@ -114,7 +159,13 @@ view model =
         , lazy showNotification model.notification
         , lazy2 showProgressbar model.progress model.window.fullscreen
         , div
-            [ class "main" ]
+            [ class "main"
+            , if model.window.fullscreen then
+                style "height" "100vh"
+
+              else
+                style "height" "calc(100vh - 56px)"
+            ]
             [ lazy6 Menu.view model.page (toRoute model.url) model.diagramModel.text model.diagramModel.width model.window.fullscreen model.openMenu
             , let
                 mainWindow =
@@ -144,7 +195,7 @@ view model =
                     lazy Settings.view model.settingsModel |> Html.map UpdateSettings
 
                 Page.Tags m ->
-                    Tags.view m |> Html.map UpdateTags
+                    lazy Tags.view m |> Html.map UpdateTags
 
                 Page.Embed diagram title path ->
                     div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
@@ -154,7 +205,7 @@ view model =
                           in
                           lazy Diagram.view diagramModel
                             |> Html.map UpdateDiagram
-                        , lazy4 BottomNavigationBar.view model.settingsModel.settings diagram title path
+                        , lazy4 bottomNavigationBar model.settingsModel.settings diagram title path
                         ]
 
                 Page.NotFound ->
@@ -163,11 +214,7 @@ view model =
                 _ ->
                     mainWindow
                         Editor.view
-                        (let
-                            diagramModel =
-                                model.diagramModel
-                         in
-                         lazy Diagram.view diagramModel
+                        (lazy Diagram.view model.diagramModel
                             |> Html.map UpdateDiagram
                         )
             ]
@@ -226,7 +273,7 @@ changeRouteTo route model =
     let
         cmds : List (Cmd Msg) -> Cmd Msg
         cmds c =
-            Cmd.batch (Task.perform Init Dom.getViewport :: c)
+            Cmd.batch <| Task.perform Init Dom.getViewport :: c
     in
     case route of
         Route.List ->
@@ -497,7 +544,6 @@ update message model =
                     ( { model | diagramModel = model_ }
                     , Cmd.batch
                         [ cmd_ |> Cmd.map UpdateDiagram
-                        , Ports.loadEditor ( Text.toString model.diagramModel.text, defaultEditorSettings model.settingsModel.settings.editor )
                         ]
                     )
 
@@ -609,49 +655,19 @@ update message model =
                 DiagramList.Removed (Err e) ->
                     case e of
                         Http.GraphqlError _ _ ->
-                            ( model
-                            , Cmd.batch
-                                [ Utils.delay 3000 OnCloseNotification
-                                , Notification.showErrorMessage
-                                    "Failed."
-                                ]
-                            )
+                            ( model, Notification.showErrorMessage "Failed." )
 
                         Http.HttpError Http.Timeout ->
-                            ( model
-                            , Cmd.batch
-                                [ Utils.delay 3000 OnCloseNotification
-                                , Notification.showErrorMessage
-                                    "Request timeout."
-                                ]
-                            )
+                            ( model, Notification.showErrorMessage "Request timeout." )
 
                         Http.HttpError Http.NetworkError ->
-                            ( model
-                            , Cmd.batch
-                                [ Utils.delay 3000 OnCloseNotification
-                                , Notification.showErrorMessage
-                                    "Network error."
-                                ]
-                            )
+                            ( model, Notification.showErrorMessage "Network error." )
 
                         Http.HttpError _ ->
-                            ( model
-                            , Cmd.batch
-                                [ Utils.delay 3000 OnCloseNotification
-                                , Notification.showErrorMessage
-                                    "Failed."
-                                ]
-                            )
+                            ( model, Notification.showErrorMessage "Failed." )
 
                 DiagramList.GotDiagrams (Err _) ->
-                    ( model
-                    , Cmd.batch
-                        [ Utils.delay 3000 OnCloseNotification
-                        , Notification.showErrorMessage
-                            "Failed."
-                        ]
-                    )
+                    ( model, Notification.showErrorMessage "Failed." )
 
                 _ ->
                     let
@@ -857,13 +873,7 @@ update message model =
                     ( { model | progress = True }, Task.attempt SaveToRemoteCompleted saveTask )
 
                 Err _ ->
-                    ( { model | progress = True }
-                    , Cmd.batch
-                        [ Utils.delay 3000
-                            OnCloseNotification
-                        , Notification.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
-                        ]
-                    )
+                    ( { model | progress = True }, Notification.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.") )
 
         SaveToRemoteCompleted (Err _) ->
             let
@@ -881,35 +891,24 @@ update message model =
                     , createdAt = Time.millisToPosix 0
                     }
             in
-            ( { model
-                | progress = False
-                , currentDiagram = Just item
-              }
+            ( { model | progress = False, currentDiagram = Just item }
             , Cmd.batch
-                [ Utils.delay 3000
-                    OnCloseNotification
-                , Notification.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
+                [ Notification.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
                 , Ports.saveDiagram <| DiagramItem.encoder item
                 ]
             )
 
         SaveToRemoteCompleted (Ok diagram) ->
-            ( { model | currentDiagram = Just diagram, progress = False }
-            , Cmd.batch
-                [ Utils.delay 3000 OnCloseNotification
-                , Notification.showInfoMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
-                ]
-            )
+            ( { model | currentDiagram = Just diagram, progress = False }, Notification.showInfoMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.") )
 
         Shortcuts x ->
-            if x == "save" then
-                update Save model
-
-            else if x == "open" then
-                update GetDiagrams model
-
-            else
-                ( model, Cmd.none )
+            case x of
+                "save" ->
+                    update Save model
+                "open" ->
+                    update GetDiagrams model
+                _ ->
+                    ( model, Cmd.none )
 
         StartEditTitle ->
             ( { model | title = Title.edit model.title }
@@ -1208,17 +1207,11 @@ update message model =
 
                     else
                         model.diagramModel.text
-
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | text = displayText }
             in
             ( { model
                 | title = Title.untitled
                 , currentDiagram = Nothing
-                , diagramModel = newDiagramModel
+                , diagramModel = DiagramModel.updatedText model.diagramModel displayText
               }
             , Cmd.batch [ Nav.pushUrl model.key (Route.toString route_) ]
             )
@@ -1263,22 +1256,10 @@ update message model =
             )
 
         Load (Err _) ->
-            ( { model
-                | progress = False
-              }
-            , Cmd.batch
-                [ Utils.delay 3000 OnCloseNotification
-                , Notification.showErrorMessage
-                    "Failed."
-                ]
-            )
+            ( { model | progress = False }, Notification.showErrorMessage "Failed." )
 
         GotLocalDiagramJson json ->
-            let
-                localItem =
-                    D.decodeString DiagramItem.decoder json
-            in
-            case localItem of
+            case D.decodeString DiagramItem.decoder json of
                 Ok item ->
                     ( model, loadText item )
 

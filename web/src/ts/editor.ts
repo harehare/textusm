@@ -101,7 +101,6 @@ export const loadEditor = async (
     if (monacoEditor) {
         monacoEditor.dispose();
     }
-
     monacoEditor = monaco.editor.create(editor, {
         value: text,
         language: location.pathname.startsWith("/md")

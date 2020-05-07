@@ -198,17 +198,17 @@ select {
 
 .diagram-list {
     background-color: var(--background-color);
-    height: calc(100vh - 40px);
+    height: calc(100vh - 48px);
     width: 100vw;
     @media screen and (max-width: 480px) {
         width: 100vw;
-        height: calc(100vh - 40px);
+        height: calc(100vh - 48px);
     }
 
     .side-menu {
         color: var(--text-color);
         width: 240px;
-        height: calc(100vh - 40px);
+        height: calc(100vh - 48px);
         font-size: 0.9rem;
         background-color: var(--main-color);
         overflow-y: scroll;
@@ -764,7 +764,6 @@ select {
         display: flex;
         overflow: hidden;
         position: relative;
-        height: calc(100vh - 56px);
     }
 
     .close {
