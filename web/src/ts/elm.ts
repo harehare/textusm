@@ -21,6 +21,7 @@ export type ElmApp = {
         selectTextById: Elm2JsPort<(id: string) => void>;
         openFullscreen: Elm2JsPort<() => void>;
         closeFullscreen: Elm2JsPort<() => void>;
+        focusEditor: Elm2JsPort<() => void>;
         loadText: Elm2JsPort<(text: string) => void>;
         setEditorLanguage: Elm2JsPort<(languageId: string) => void>;
         layoutEditor: Elm2JsPort<(delay: number) => void>;

@@ -16,6 +16,12 @@ const loadText = (text: string) => {
     }
 };
 
+const focusEditor = () => {
+    setTimeout(() => {
+        if (monacoEditor) monacoEditor.focus();
+    }, 100);
+};
+
 const setEditorLanguage = (languageId: string) => {
     if (!monacoEditor) {
         return;
@@ -144,6 +150,9 @@ export const loadEditor = async (
 
     app.ports.loadText.unsubscribe(loadText);
     app.ports.loadText.subscribe(loadText);
+
+    app.ports.focusEditor.unsubscribe(focusEditor);
+    app.ports.focusEditor.subscribe(focusEditor);
 
     app.ports.setEditorLanguage.unsubscribe(setEditorLanguage);
     app.ports.setEditorLanguage.subscribe(setEditorLanguage);

@@ -1,5 +1,6 @@
-module Route exposing (Route(..), toDiagramToRoute, toRoute, toString)
+module Route exposing (Route(..), replaceRoute, toDiagramToRoute, toRoute, toString)
 
+import Browser.Navigation as Nav
 import Data.DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
 import Url exposing (Url)
@@ -124,3 +125,8 @@ toString route =
 
         View diagramPath settingsJson ->
             absolute [ "view", diagramPath, settingsJson ] []
+
+
+replaceRoute : Nav.Key -> Route -> Cmd msg
+replaceRoute key route =
+    Nav.replaceUrl key (toString route)

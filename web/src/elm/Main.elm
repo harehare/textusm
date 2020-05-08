@@ -429,8 +429,8 @@ changeRouteTo route model =
             )
 
         Route.EditFile _ id_ ->
-            case model.diagramListModel.diagramList of
-                Success d ->
+            case ( model.diagramListModel.diagramList, model.currentDiagram ) of
+                ( Success d, _ ) ->
                     let
                         loadItem =
                             find (\diagram -> Maybe.withDefault "" diagram.id == id_) d
@@ -449,6 +449,27 @@ changeRouteTo route model =
 
                         Nothing ->
                             ( { model | page = Page.NotFound }, Cmd.none )
+
+                ( _, Just diagram ) ->
+                    if Maybe.withDefault "" diagram.id == id_ then
+                        ( { model | page = Page.Main }
+                          -- diagram component not initialized
+                        , if model.diagramModel.width == 0 && model.diagramModel.height == 0 then
+                            cmds []
+
+                          else
+                            Cmd.none
+                        )
+
+                    else if Session.isSignedIn model.session then
+                        ( { model | page = Page.Main }
+                        , cmds [ Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } id_ ]
+                        )
+
+                    else
+                        ( { model | page = Page.Main }
+                        , cmds [ Ports.getDiagram id_ ]
+                        )
 
                 _ ->
                     if Session.isSignedIn model.session then
@@ -792,7 +813,20 @@ update message model =
         Save ->
             let
                 isRemote =
-                    Maybe.andThen (\d -> Just d.isRemote) model.currentDiagram |> Maybe.withDefault (Session.isSignedIn model.session)
+                    Maybe.andThen
+                        (\d ->
+                            case ( d.isRemote, d.id ) of
+                                ( False, Nothing ) ->
+                                    Nothing
+
+                                ( False, Just _ ) ->
+                                    Just False
+
+                                ( True, _ ) ->
+                                    Just True
+                        )
+                        model.currentDiagram
+                        |> Maybe.withDefault (Session.isSignedIn model.session)
 
                 diagramListModel =
                     model.diagramListModel
@@ -812,13 +846,7 @@ update message model =
                         DiagramModel.updatedText model.diagramModel (Text.saved model.diagramModel.text)
                 in
                 ( { model
-                    | notification =
-                        if not isRemote then
-                            Just (Info ("Successfully \"" ++ title ++ "\" saved."))
-
-                        else
-                            Nothing
-                    , diagramListModel = newDiagramListModel
+                    | diagramListModel = newDiagramListModel
                     , diagramModel = newDiagramModel
                   }
                 , Cmd.batch
@@ -836,11 +864,7 @@ update message model =
                             , updatedAt = Time.millisToPosix 0
                             , createdAt = Time.millisToPosix 0
                             }
-                    , if isRemote then
-                        Cmd.none
-
-                      else
-                        Utils.delay 3000 OnCloseNotification
+                    , Cmd.none
                     ]
                 )
 
@@ -851,7 +875,13 @@ update message model =
             in
             case result of
                 Ok item ->
-                    ( { model | currentDiagram = Just item }, Cmd.none )
+                    ( { model | currentDiagram = Just item }
+                    , Cmd.batch
+                        [ Notification.showInfoMessage ("Successfully \"" ++ item.title ++ "\" saved.")
+                        , Route.replaceRoute model.key
+                            (Route.EditFile (DiagramType.toString item.diagram) (Maybe.withDefault "" item.id))
+                        ]
+                    )
 
                 Err _ ->
                     ( model, Cmd.none )
@@ -864,7 +894,7 @@ update message model =
                             (\diagram ->
                                 Ok
                                     (Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram)
-                                        |> Task.map (\_ -> diagram)
+                                        |> Task.mapError (\_ -> diagram)
                                     )
                             )
             in
@@ -893,20 +923,28 @@ update message model =
             in
             ( { model | progress = False, currentDiagram = Just item }
             , Cmd.batch
-                [ Notification.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
+                [ Notification.showWarningMessage ("Failed \"" ++ Title.toString model.title ++ "\" saved.")
                 , Ports.saveDiagram <| DiagramItem.encoder item
                 ]
             )
 
         SaveToRemoteCompleted (Ok diagram) ->
-            ( { model | currentDiagram = Just diagram, progress = False }, Notification.showInfoMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.") )
+            ( { model | currentDiagram = Just diagram, progress = False }
+            , Cmd.batch
+                [ Notification.showInfoMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
+                , Route.replaceRoute model.key
+                    (Route.EditFile (DiagramType.toString diagram.diagram) (Maybe.withDefault "" diagram.id))
+                ]
+            )
 
         Shortcuts x ->
             case x of
                 "save" ->
                     update Save model
+
                 "open" ->
                     update GetDiagrams model
+
                 _ ->
                     ( model, Cmd.none )
 
@@ -927,7 +965,7 @@ update message model =
                     newDiagramModel =
                         { diagramModel | text = Text.change diagramModel.text }
                 in
-                ( { model | title = Title.view model.title, diagramModel = newDiagramModel }, Cmd.none )
+                ( { model | title = Title.view model.title, diagramModel = newDiagramModel }, Ports.focusEditor () )
 
             else
                 ( model, Cmd.none )
@@ -1256,7 +1294,7 @@ update message model =
             )
 
         Load (Err _) ->
-            ( { model | progress = False }, Notification.showErrorMessage "Failed." )
+            ( { model | progress = False }, Notification.showErrorMessage "Failed load diagram." )
 
         GotLocalDiagramJson json ->
             case D.decodeString DiagramItem.decoder json of
