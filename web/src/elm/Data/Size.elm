@@ -1,4 +1,4 @@
-module Data.Size exposing (Height, Size, Width, getHeight, getWidth)
+module Data.Size exposing (Height, Size, Width, getHeight, getWidth, isZero)
 
 
 type alias Width =
@@ -21,3 +21,13 @@ getWidth ( width, _ ) =
 getHeight : Size -> Width
 getHeight ( _, height ) =
     height
+
+
+isZero : Size -> Bool
+isZero size =
+    case size of
+        ( 0, 0 ) ->
+            True
+
+        _ ->
+            False

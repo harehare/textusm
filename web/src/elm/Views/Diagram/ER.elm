@@ -69,7 +69,7 @@ view model =
                                 0
 
                              else
-                                centerY + (toFloat model.height / toFloat 2)
+                                centerY + (toFloat (getHeight model.size) / toFloat 2)
                             )
                         ++ ")"
                     )

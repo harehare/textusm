@@ -336,7 +336,7 @@ baseExportMenu =
     ]
 
 
-menu : Maybe String -> Maybe String -> Maybe String -> Maybe String -> List (MenuItem Msg) -> Html Msg
+menu : Maybe String -> Maybe String -> Maybe String -> Maybe String -> List (MenuItem msg) -> Html msg
 menu top left bottom right items =
     div
         [ style "top" (top |> Maybe.withDefault "none")

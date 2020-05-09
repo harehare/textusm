@@ -1,5 +1,6 @@
 module Views.Diagram.Markdown exposing (view)
 
+import Data.Size as Size
 import Data.Text as Text
 import Html.Attributes as Attr
 import Markdown
@@ -36,7 +37,7 @@ view model =
         [ foreignObject
             [ x "0"
             , y "0"
-            , width <| String.fromInt model.width
+            , width <| String.fromInt (Size.getWidth model.size)
             , height <| String.fromInt (Text.toString model.text |> String.lines |> Utils.getMarkdownHeight)
             ]
             [ Markdown.toHtml

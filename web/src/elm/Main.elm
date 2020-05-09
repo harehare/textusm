@@ -9,6 +9,7 @@ import Components.Diagram as Diagram
 import Data.DiagramItem as DiagramItem
 import Data.DiagramType as DiagramType
 import Data.Session as Session
+import Data.Size as Size
 import Data.Text as Text
 import Data.Title as Title
 import File exposing (name)
@@ -166,10 +167,10 @@ view model =
               else
                 style "height" "calc(100vh - 56px)"
             ]
-            [ lazy6 Menu.view model.page (toRoute model.url) model.diagramModel.text model.diagramModel.width model.window.fullscreen model.openMenu
+            [ lazy6 Menu.view model.page (toRoute model.url) model.diagramModel.text (Size.getWidth model.diagramModel.size) model.window.fullscreen model.openMenu
             , let
                 mainWindow =
-                    if model.diagramModel.width > 0 && Utils.isPhone model.diagramModel.width then
+                    if Size.getWidth model.diagramModel.size > 0 && Utils.isPhone (Size.getWidth model.diagramModel.size) then
                         lazy5 SwitchWindow.view
                             SwitchWindow
                             model.diagramModel.settings.backgroundColor
@@ -429,6 +430,18 @@ changeRouteTo route model =
             )
 
         Route.EditFile _ id_ ->
+            let
+                loadText_ =
+                    if Session.isSignedIn model.session then
+                        ( { model | page = Page.Main }
+                        , cmds [ Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } id_ ]
+                        )
+
+                    else
+                        ( { model | page = Page.Main }
+                        , cmds [ Ports.getDiagram id_ ]
+                        )
+            in
             case ( model.diagramListModel.diagramList, model.currentDiagram ) of
                 ( Success d, _ ) ->
                     let
@@ -454,33 +467,18 @@ changeRouteTo route model =
                     if Maybe.withDefault "" diagram.id == id_ then
                         ( { model | page = Page.Main }
                           -- diagram component not initialized
-                        , if model.diagramModel.width == 0 && model.diagramModel.height == 0 then
+                        , if Size.isZero model.diagramModel.size then
                             cmds []
 
                           else
                             Cmd.none
                         )
 
-                    else if Session.isSignedIn model.session then
-                        ( { model | page = Page.Main }
-                        , cmds [ Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } id_ ]
-                        )
-
                     else
-                        ( { model | page = Page.Main }
-                        , cmds [ Ports.getDiagram id_ ]
-                        )
+                        loadText_
 
                 _ ->
-                    if Session.isSignedIn model.session then
-                        ( { model | page = Page.Main }
-                        , cmds [ Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } id_ ]
-                        )
-
-                    else
-                        ( { model | page = Page.Main }
-                        , cmds [ Ports.getDiagram id_ ]
-                        )
+                    loadText_
 
         Route.Home ->
             ( { model | page = Page.Main }, cmds [] )
@@ -1188,71 +1186,68 @@ update message model =
             ( { model | progress = visible }, Cmd.none )
 
         New type_ ->
-            let
-                ( text_, route_ ) =
-                    case type_ of
-                        Diagram.UserStoryMap ->
-                            ( "", Route.Edit (DiagramType.toString Diagram.UserStoryMap) )
+            if Text.isChanged model.diagramModel.text then
+                ( model, Task.perform identity (Task.succeed Save) )
 
-                        Diagram.BusinessModelCanvas ->
-                            ( "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships", Route.Edit (DiagramType.toString Diagram.BusinessModelCanvas) )
+            else
+                let
+                    ( text_, route_ ) =
+                        case type_ of
+                            Diagram.UserStoryMap ->
+                                ( "", Route.Edit (DiagramType.toString Diagram.UserStoryMap) )
 
-                        Diagram.OpportunityCanvas ->
-                            ( "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget", Route.Edit (DiagramType.toString Diagram.OpportunityCanvas) )
+                            Diagram.BusinessModelCanvas ->
+                                ( "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships", Route.Edit (DiagramType.toString Diagram.BusinessModelCanvas) )
 
-                        Diagram.Fourls ->
-                            ( "Liked\nLearned\nLacked\nLonged for", Route.Edit (DiagramType.toString Diagram.Fourls) )
+                            Diagram.OpportunityCanvas ->
+                                ( "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget", Route.Edit (DiagramType.toString Diagram.OpportunityCanvas) )
 
-                        Diagram.StartStopContinue ->
-                            ( "Start\nStop\nContinue", Route.Edit (DiagramType.toString Diagram.StartStopContinue) )
+                            Diagram.Fourls ->
+                                ( "Liked\nLearned\nLacked\nLonged for", Route.Edit (DiagramType.toString Diagram.Fourls) )
 
-                        Diagram.Kpt ->
-                            ( "K\nP\nT", Route.Edit (DiagramType.toString Diagram.Kpt) )
+                            Diagram.StartStopContinue ->
+                                ( "Start\nStop\nContinue", Route.Edit (DiagramType.toString Diagram.StartStopContinue) )
 
-                        Diagram.UserPersona ->
-                            ( "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology", Route.Edit (DiagramType.toString Diagram.UserPersona) )
+                            Diagram.Kpt ->
+                                ( "K\nP\nT", Route.Edit (DiagramType.toString Diagram.Kpt) )
 
-                        Diagram.Markdown ->
-                            ( "", Route.Edit (DiagramType.toString Diagram.Markdown) )
+                            Diagram.UserPersona ->
+                                ( "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology", Route.Edit (DiagramType.toString Diagram.UserPersona) )
 
-                        Diagram.MindMap ->
-                            ( "", Route.Edit (DiagramType.toString Diagram.MindMap) )
+                            Diagram.Markdown ->
+                                ( "", Route.Edit (DiagramType.toString Diagram.Markdown) )
 
-                        Diagram.ImpactMap ->
-                            ( "", Route.Edit (DiagramType.toString Diagram.ImpactMap) )
+                            Diagram.MindMap ->
+                                ( "", Route.Edit (DiagramType.toString Diagram.MindMap) )
 
-                        Diagram.EmpathyMap ->
-                            ( "SAYS\nTHINKS\nDOES\nFEELS", Route.Edit (DiagramType.toString Diagram.EmpathyMap) )
+                            Diagram.ImpactMap ->
+                                ( "", Route.Edit (DiagramType.toString Diagram.ImpactMap) )
 
-                        Diagram.CustomerJourneyMap ->
-                            ( "Header\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDiscover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n", Route.Edit (DiagramType.toString Diagram.CustomerJourneyMap) )
+                            Diagram.EmpathyMap ->
+                                ( "SAYS\nTHINKS\nDOES\nFEELS", Route.Edit (DiagramType.toString Diagram.EmpathyMap) )
 
-                        Diagram.SiteMap ->
-                            ( "", Route.Edit (DiagramType.toString Diagram.SiteMap) )
+                            Diagram.CustomerJourneyMap ->
+                                ( "Header\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDiscover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n", Route.Edit (DiagramType.toString Diagram.CustomerJourneyMap) )
 
-                        Diagram.GanttChart ->
-                            ( "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n", Route.Edit (DiagramType.toString Diagram.GanttChart) )
+                            Diagram.SiteMap ->
+                                ( "", Route.Edit (DiagramType.toString Diagram.SiteMap) )
 
-                        Diagram.ErDiagram ->
-                            ( "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n", Route.Edit (DiagramType.toString Diagram.ErDiagram) )
+                            Diagram.GanttChart ->
+                                ( "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n", Route.Edit (DiagramType.toString Diagram.GanttChart) )
 
-                        Diagram.Kanban ->
-                            ( "TODO\nDOING\nDONE", Route.Edit (DiagramType.toString Diagram.Kanban) )
+                            Diagram.ErDiagram ->
+                                ( "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n", Route.Edit (DiagramType.toString Diagram.ErDiagram) )
 
-                displayText =
-                    if Text.isEmpty model.diagramModel.text then
-                        Text.edit model.diagramModel.text text_
-
-                    else
-                        model.diagramModel.text
-            in
-            ( { model
-                | title = Title.untitled
-                , currentDiagram = Nothing
-                , diagramModel = DiagramModel.updatedText model.diagramModel displayText
-              }
-            , Cmd.batch [ Nav.pushUrl model.key (Route.toString route_) ]
-            )
+                            Diagram.Kanban ->
+                                ( "TODO\nDOING\nDONE", Route.Edit (DiagramType.toString Diagram.Kanban) )
+                in
+                ( { model
+                    | title = Title.untitled
+                    , currentDiagram = Nothing
+                    , diagramModel = DiagramModel.updatedText model.diagramModel (Text.fromString text_)
+                  }
+                , Cmd.batch [ Nav.pushUrl model.key (Route.toString route_) ]
+                )
 
         Load (Ok diagram) ->
             let

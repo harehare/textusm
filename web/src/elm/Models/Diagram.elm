@@ -1,7 +1,9 @@
-module Models.Diagram exposing (Color, ColorSettings, Data(..), Model, Msg(..), Point, Settings, Size, UsmSvg, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
+module Models.Diagram exposing (Color, ColorSettings, Data(..), Model, Msg(..), Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
 
 import Browser.Dom exposing (Viewport)
 import Data.Item exposing (Item, ItemType(..), Items)
+import Data.Position exposing (Position)
+import Data.Size as Size
 import Data.Text exposing (Text)
 import Html5.DragDrop as DragDrop
 import Models.Views.BusinessModelCanvas exposing (BusinessModelCanvas)
@@ -24,16 +26,18 @@ type alias Model =
     { items : Items
     , data : Data
     , hierarchy : Int
-    , width : Int
-    , height : Int
+    , size : Size.Size
     , countByHierarchy : List Int
     , countByTasks : List Int
-    , svg : UsmSvg
+    , svg :
+        { width : Int
+        , height : Int
+        , scale : Float
+        }
     , moveStart : Bool
     , x : Float
     , y : Float
-    , moveX : Int
-    , moveY : Int
+    , movePosition : Position
     , fullscreen : Bool
     , settings : Settings
     , showZoomControl : Bool
@@ -59,13 +63,6 @@ type Data
     | UserPersona UserPersona
     | StartStopContinue StartStopContinue
     | ErDiagram ErDiagram
-
-
-type alias UsmSvg =
-    { width : Int
-    , height : Int
-    , scale : Float
-    }
 
 
 type alias Settings =
@@ -106,12 +103,6 @@ type alias Color =
 type alias Size =
     { width : Int
     , height : Int
-    }
-
-
-type alias Point =
-    { x : Int
-    , y : Int
     }
 
 

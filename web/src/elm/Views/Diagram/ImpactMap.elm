@@ -3,7 +3,7 @@ module Views.Diagram.ImpactMap exposing (view)
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import List.Extra exposing (getAt, scanl1, zip3)
-import Models.Diagram exposing (Model, Msg(..), Point, Settings)
+import Models.Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g)
 import Svg.Attributes exposing (transform)
 import Utils
@@ -125,8 +125,8 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
                             y + (nodeCount * svgHeight - yOffset) + (i * yMargin)
                     in
                     [ nodeLineView settings
-                        { x = x, y = y }
-                        { x = itemX, y = itemY }
+                        ( x, y )
+                        ( itemX, itemY )
                     , nodesView
                         settings
                         (hierarchy + 1)
@@ -144,17 +144,11 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
         )
 
 
-nodeLineView : Settings -> Point -> Point -> Svg Msg
+nodeLineView : Settings -> Position -> Position -> Svg Msg
 nodeLineView settings fromBase toBase =
     let
         ( fromPoint, toPoint ) =
-            ( ( toFloat <| fromBase.x
-              , toFloat <| fromBase.y
-              )
-            , ( toFloat <| toBase.x
-              , toFloat <| toBase.y
-              )
-            )
+            ( Tuple.mapBoth toFloat toFloat fromBase, Tuple.mapBoth toFloat toFloat toBase )
 
         size =
             ( toFloat settings.size.width, toFloat settings.size.height )

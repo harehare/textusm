@@ -64,6 +64,7 @@ func (s *Service) FindDiagram(ctx context.Context, itemID string) (*Item, error)
 
 func (s *Service) SaveDiagram(ctx context.Context, item *Item) (*Item, error) {
 	userID := ctx.Value(middleware.UIDKey).(string)
+	currentText := item.Text
 	text, err := Encrypt(encryptKey, item.Text)
 
 	if err != nil {
@@ -71,7 +72,10 @@ func (s *Service) SaveDiagram(ctx context.Context, item *Item) (*Item, error) {
 	}
 
 	item.Text = text
-	return s.repo.Save(ctx, userID, item)
+	resultItem, err := s.repo.Save(ctx, userID, item)
+	item.Text = currentText
+
+	return resultItem, err
 }
 
 func (s *Service) DeleteDiagram(ctx context.Context, itemID string) error {

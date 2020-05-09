@@ -113,7 +113,7 @@ drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, t
 draw : Settings -> List Path -> Svg Msg
 draw settings pathList =
     path
-        [ strokeWidth "1"
+        [ strokeWidth "2"
         , stroke settings.color.line
         , d <| String.join " " pathList
         , fill "transparent"

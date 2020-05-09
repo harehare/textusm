@@ -3,7 +3,8 @@ module Components.Diagram exposing (init, update, view)
 import Basics exposing (max)
 import Browser.Dom as Dom
 import Data.Item as Item exposing (ItemType(..), Items)
-import Data.Size exposing (Size)
+import Data.Position as Position
+import Data.Size as Size exposing (Size)
 import Data.Text as Text
 import Html exposing (Html, div)
 import Html.Attributes as Attr
@@ -64,8 +65,7 @@ init settings =
     ( { items = Item.empty
       , data = Diagram.Empty
       , hierarchy = 0
-      , width = 0
-      , height = 0
+      , size = ( 0, 0 )
       , svg =
             { width = 0
             , height = 0
@@ -76,8 +76,7 @@ init settings =
       , moveStart = False
       , x = 0
       , y = 20
-      , moveX = 0
-      , moveY = 0
+      , movePosition = ( 0, 0 )
       , fullscreen = False
       , showZoomControl = True
       , touchDistance = Nothing
@@ -352,14 +351,14 @@ svgView model =
         svgWidth =
             if model.fullscreen then
                 Basics.toFloat
-                    (Basics.max model.svg.width model.width)
+                    (Basics.max model.svg.width (Size.getWidth model.size))
                     * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
 
             else
                 Basics.toFloat
-                    model.width
+                    (Size.getWidth model.size)
                     * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
@@ -367,14 +366,14 @@ svgView model =
         svgHeight =
             if model.fullscreen then
                 Basics.toFloat
-                    (Basics.max model.svg.height model.height)
+                    (Basics.max model.svg.height (Size.getHeight model.size))
                     * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
 
             else
                 Basics.toFloat
-                    model.height
+                    (Size.getHeight model.size)
                     * (model.svg.scale + adjustmentValue)
                     |> round
                     |> String.fromInt
@@ -386,11 +385,11 @@ svgView model =
         [ Attr.id "usm"
         , width
             (String.fromInt
-                (if Utils.isPhone model.width || model.fullscreen then
-                    model.width
+                (if Utils.isPhone (Size.getWidth model.size) || model.fullscreen then
+                    Size.getWidth model.size
 
-                 else if model.width - 56 > 0 then
-                    model.width - 56
+                 else if Size.getWidth model.size - 56 > 0 then
+                    Size.getWidth model.size - 56
 
                  else
                     0
@@ -399,21 +398,21 @@ svgView model =
         , height
             (String.fromInt <|
                 if model.fullscreen then
-                    model.height + 56
+                    Size.getHeight model.size + 56
 
                 else
-                    model.height
+                    Size.getHeight model.size
             )
         , viewBox ("0 0 " ++ svgWidth ++ " " ++ svgHeight)
         , Attr.style "background-color" model.settings.backgroundColor
         , Wheel.onWheel chooseZoom
         , if isNothing model.selectedItem then
-            onDragStart (Utils.isPhone model.width)
+            onDragStart (Utils.isPhone <| Size.getWidth model.size)
 
           else
             class ""
         , if model.moveStart then
-            onDragMove model.touchDistance (Utils.isPhone model.width)
+            onDragMove model.touchDistance (Utils.isPhone <| Size.getWidth model.size)
 
           else
             Attr.style "" ""
@@ -620,16 +619,14 @@ updateDiagram ( width, height ) base text =
                     Diagram.Items items
     in
     { newModel
-        | width = width
-        , height = height
+        | size = ( width, height )
         , data = data
         , svg =
             { width = svgWidth
             , height = svgHeight
             , scale = base.svg.scale
             }
-        , moveX = 0
-        , moveY = 0
+        , movePosition = ( 0, 0 )
         , text = Text.edit base.text text
     }
 
@@ -692,15 +689,14 @@ update message model =
         OnChangeText text ->
             let
                 model_ =
-                    updateDiagram ( model.width, model.height ) model text
+                    updateDiagram model.size model text
             in
             ( model_, Cmd.none )
 
         Start x y ->
             ( { model
                 | moveStart = True
-                , moveX = x
-                , moveY = y
+                , movePosition = ( x, y )
               }
             , Cmd.none
             )
@@ -708,23 +704,21 @@ update message model =
         Stop ->
             ( { model
                 | moveStart = False
-                , moveX = 0
-                , moveY = 0
+                , movePosition = ( 0, 0 )
                 , touchDistance = Nothing
               }
             , Cmd.none
             )
 
         Move x y ->
-            ( if not model.moveStart || (x == model.moveX && y == model.moveY) then
+            ( if not model.moveStart || (x == Position.getX model.movePosition && y == Position.getY model.movePosition) then
                 model
 
               else
                 { model
-                    | x = model.x + (toFloat x - toFloat model.moveX) * model.svg.scale
-                    , y = model.y + (toFloat y - toFloat model.moveY) * model.svg.scale
-                    , moveX = x
-                    , moveY = y
+                    | x = model.x + (toFloat x - toFloat (Position.getX model.movePosition)) * model.svg.scale
+                    , y = model.y + (toFloat y - toFloat (Position.getY model.movePosition)) * model.svg.scale
+                    , movePosition = ( x, y )
                 }
             , Cmd.none
             )
@@ -733,16 +727,14 @@ update message model =
             ( { model
                 | x = toFloat x
                 , y = toFloat y
-                , moveX = 0
-                , moveY = 0
+                , movePosition = ( 0, 0 )
               }
             , Cmd.none
             )
 
         ToggleFullscreen ->
             ( { model
-                | moveX = 0
-                , moveY = 0
+                | movePosition = ( 0, 0 )
                 , fullscreen = not model.fullscreen
               }
             , Cmd.none
@@ -750,10 +742,8 @@ update message model =
 
         OnResize width height ->
             ( { model
-                | width = width
-                , height = height - 56
-                , moveX = 0
-                , moveY = 0
+                | size = ( width, height - 56 )
+                , movePosition = ( 0, 0 )
               }
             , Cmd.none
             )

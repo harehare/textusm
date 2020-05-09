@@ -321,7 +321,7 @@ view model =
                     , style "font-size" "1.5rem"
                     ]
                     [ div [ style "margin-bottom" "8px" ]
-                        [ text ("FAILED " ++ Utils.httpErrorToString e)
+                        [ text ("Failed " ++ Utils.httpErrorToString e)
                         ]
                     ]
                 ]
