@@ -27,8 +27,6 @@ type alias Model =
     , data : Data
     , hierarchy : Int
     , size : Size.Size
-    , countByHierarchy : List Int
-    , countByTasks : List Int
     , svg :
         { width : Int
         , height : Int
@@ -50,9 +48,18 @@ type alias Model =
     }
 
 
+type alias CountByHierarchy =
+    List Int
+
+
+type alias CountByTasks =
+    List Int
+
+
 type Data
     = Empty
     | Items Items
+    | UserStoryMap Items CountByHierarchy CountByTasks
     | CustomerJourneyMap CustomerJourneyMap
     | Kpt Kpt
     | FourLs FourLs

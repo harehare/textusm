@@ -56,8 +56,7 @@ init flags =
             { items = Item.empty
             , data = DiagramModel.Empty
             , hierarchy = 0
-            , width = 1024
-            , height = 1024
+            , size = ( 1024, 1024 )
             , svg =
                 { width = 140
                 , height = 65
@@ -68,8 +67,7 @@ init flags =
             , moveStart = False
             , x = 0
             , y = 0
-            , moveX = 0
-            , moveY = 0
+            , movePosition = ( 0, 0 )
             , fullscreen = False
             , showZoomControl = True
             , selectedItem = Nothing
@@ -102,7 +100,6 @@ init flags =
                     }
                 }
             , touchDistance = Nothing
-            , labels = []
             , text = Text.empty
             , matchParent = False
             }

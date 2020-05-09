@@ -8,51 +8,57 @@ import Html exposing (div)
 import Html.Attributes as Attr
 import List
 import List.Extra exposing (zip)
-import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
+import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
 import Svg.Attributes exposing (class, color, fill, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
 import Svg.Keyed as Keyed
 import Svg.Lazy exposing (lazy4, lazy5)
 import Views.Diagram.Views as Views
+import Views.Empty as Empty
 
 
 view : Model -> Svg Msg
 view model =
-    g
-        [ transform
-            ("translate("
-                ++ String.fromFloat
-                    (if isInfinite <| model.x then
-                        0
+    case model.data of
+        Diagram.UserStoryMap items countByHierarchy countByTasks ->
+            g
+                [ transform
+                    ("translate("
+                        ++ String.fromFloat
+                            (if isInfinite <| model.x then
+                                0
 
-                     else
-                        model.x
-                    )
-                ++ ","
-                ++ String.fromFloat
-                    (if isInfinite <| model.y then
-                        0
+                             else
+                                model.x
+                            )
+                        ++ ","
+                        ++ String.fromFloat
+                            (if isInfinite <| model.y then
+                                0
 
-                     else
-                        model.y
+                             else
+                                model.y
+                            )
+                        ++ ")"
                     )
-                ++ ")"
-            )
-        , fill model.settings.backgroundColor
-        ]
-        [ lazy4 labelView
-            model.settings
-            model.hierarchy
-            model.svg.width
-            model.countByHierarchy
-        , lazy5 mainView
-            model.settings
-            model.selectedItem
-            model.items
-            model.countByTasks
-            model.countByHierarchy
-        ]
+                , fill model.settings.backgroundColor
+                ]
+                [ lazy4 labelView
+                    model.settings
+                    model.hierarchy
+                    model.svg.width
+                    countByHierarchy
+                , lazy5 mainView
+                    model.settings
+                    model.selectedItem
+                    items
+                    countByTasks
+                    countByHierarchy
+                ]
+
+        _ ->
+            Empty.view
 
 
 mainView : Settings -> Maybe Item -> Items -> List Int -> List Int -> Svg Msg

@@ -71,8 +71,6 @@ init settings =
             , height = 0
             , scale = 1.0
             }
-      , countByHierarchy = []
-      , countByTasks = []
       , moveStart = False
       , x = 0
       , y = 20
@@ -561,23 +559,10 @@ updateDiagram ( width, height ) base text =
         ( hierarchy, items ) =
             load text
 
-        countByHierarchy =
-            case base.diagramType of
-                UserStoryMap ->
-                    countUpToHierarchy (hierarchy - 2) items
-
-                MindMap ->
-                    countUpToHierarchy (hierarchy - 2) items
-
-                _ ->
-                    []
-
         newModel =
             { base
                 | items = items
                 , hierarchy = hierarchy
-                , countByTasks = scanl (\it v -> v + Item.length (Item.unwrapChildren it.children)) 0 (Item.unwrap items)
-                , countByHierarchy = countByHierarchy
             }
 
         ( svgWidth, svgHeight ) =
@@ -585,6 +570,9 @@ updateDiagram ( width, height ) base text =
 
         data =
             case base.diagramType of
+                UserStoryMap ->
+                    Diagram.UserStoryMap items (countUpToHierarchy (hierarchy - 2) items) (scanl (\it v -> v + Item.length (Item.unwrapChildren it.children)) 0 (Item.unwrap items))
+
                 CustomerJourneyMap ->
                     Diagram.CustomerJourneyMap <| CustomerJourneyMapModel.fromItems items
 

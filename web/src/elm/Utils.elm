@@ -410,7 +410,12 @@ getCanvasSize model =
                     ( svgWidth + Constants.itemSpan, svgHeight + Constants.itemSpan )
 
                 Diagram.UserStoryMap ->
-                    ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum model.countByTasks |> Maybe.withDefault 1), (model.settings.size.height + Constants.itemMargin) * (List.sum model.countByHierarchy + 2) )
+                    case model.data of
+                        DiagramModel.UserStoryMap _ countByHierarchy countByTasks ->
+                            ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum countByTasks |> Maybe.withDefault 1), (model.settings.size.height + Constants.itemMargin) * (List.sum countByHierarchy + 2) )
+
+                        _ ->
+                            ( 0, 0 )
 
                 Diagram.ImpactMap ->
                     ( (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
