@@ -1,10 +1,11 @@
-package item
+package service
 
 import (
 	"context"
 	"testing"
 
 	"github.com/harehare/textusm/api/middleware"
+	"github.com/harehare/textusm/pkg/item"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -12,19 +13,19 @@ type MockRepository struct {
 	mock.Mock
 }
 
-func (m *MockRepository) FindByID(ctx context.Context, userID, itemID string) (*Item, error) {
+func (m *MockRepository) FindByID(ctx context.Context, userID, itemID string) (*item.Item, error) {
 	ret := m.Called(ctx, userID, itemID)
-	return ret.Get(0).(*Item), ret.Error(1)
+	return ret.Get(0).(*item.Item), ret.Error(1)
 }
 
-func (m *MockRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*Item, error) {
+func (m *MockRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*item.Item, error) {
 	ret := m.Called(ctx, userID, offset, limit, isPublic)
-	return ret.Get(0).([]*Item), ret.Error(1)
+	return ret.Get(0).([]*item.Item), ret.Error(1)
 }
 
-func (m *MockRepository) Save(ctx context.Context, userID string, item *Item) (*Item, error) {
-	ret := m.Called(ctx, userID, item)
-	return ret.Get(0).(*Item), ret.Error(1)
+func (m *MockRepository) Save(ctx context.Context, userID string, i *item.Item) (*item.Item, error) {
+	ret := m.Called(ctx, userID, i)
+	return ret.Get(0).(*item.Item), ret.Error(1)
 }
 
 func (m *MockRepository) Delete(ctx context.Context, userID string, itemID string) error {
@@ -45,8 +46,8 @@ func TestFindDiagrams(t *testing.T) {
 		t.Fatal("failed test")
 	}
 
-	item := Item{ID: "id", Text: text}
-	items := []*Item{&item}
+	i := item.Item{ID: "id", Text: text}
+	items := []*item.Item{&i}
 
 	mockRepo.On("Find", ctx, "testID", 0, 10, false).Return(items, nil)
 
@@ -77,7 +78,7 @@ func TestFindDiagram(t *testing.T) {
 		t.Fatal("failed test")
 	}
 
-	item := Item{ID: "id", Text: text}
+	item := item.Item{ID: "id", Text: text}
 
 	mockRepo.On("FindByID", ctx, "userID", "testID").Return(&item, nil)
 
@@ -95,14 +96,14 @@ func TestSaveDiagram(t *testing.T) {
 	ctx = context.WithValue(ctx, middleware.UIDKey, "userID")
 
 	baseText := "test"
-	item := Item{ID: "id", Text: baseText}
+	item := item.Item{ID: "id", Text: baseText}
 
 	mockRepo.On("Save", ctx, "userID", &item).Return(&item, nil)
 
 	service := NewService(mockRepo)
 	diagram, err := service.SaveDiagram(ctx, &item)
 
-	if err != nil || diagram == nil || diagram.Text == baseText {
+	if err != nil || diagram == nil || diagram.Text != baseText {
 		t.Fatal("failed SaveDiagram")
 	}
 }

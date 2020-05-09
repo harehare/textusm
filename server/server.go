@@ -19,7 +19,8 @@ import (
 
 	"github.com/harehare/textusm/api/handler"
 	"github.com/harehare/textusm/api/middleware"
-	"github.com/harehare/textusm/pkg/item"
+	"github.com/harehare/textusm/pkg/repository"
+	"github.com/harehare/textusm/pkg/service"
 	"github.com/phyber/negroni-gzip/gzip"
 
 	negronilogrus "github.com/meatballhat/negroni-logrus"
@@ -67,8 +68,8 @@ func Run() int {
 		return 1
 	}
 
-	repo := item.NewFirestoreRepository(firestore)
-	service := item.NewService(repo)
+	repo := repository.NewFirestoreRepository(firestore)
+	service := service.NewService(repo)
 	r := mux.NewRouter()
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},

@@ -8,10 +8,11 @@ import (
 	"time"
 
 	"github.com/harehare/textusm/pkg/item"
+	"github.com/harehare/textusm/pkg/service"
 )
 
 type Resolver struct {
-	service *item.Service
+	service *service.Service
 }
 
 func (r *mutationResolver) Save(ctx context.Context, input item.InputItem) (*item.Item, error) {

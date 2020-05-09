@@ -1,10 +1,11 @@
-package item
+package repository
 
 import (
 	"context"
 	"errors"
 
 	"cloud.google.com/go/firestore"
+	"github.com/harehare/textusm/pkg/item"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc"
@@ -19,7 +20,7 @@ func NewFirestoreRepository(client *firestore.Client) Repository {
 	return &FirestoreRepository{client: client}
 }
 
-func (r *FirestoreRepository) FindByID(ctx context.Context, userID, itemID string) (*Item, error) {
+func (r *FirestoreRepository) FindByID(ctx context.Context, userID, itemID string) (*item.Item, error) {
 	fields, err := r.client.Collection("users").Doc(userID).Collection("items").Doc(itemID).Get(ctx)
 
 	if grpc.Code(err) == codes.NotFound {
@@ -30,14 +31,14 @@ func (r *FirestoreRepository) FindByID(ctx context.Context, userID, itemID strin
 		return nil, err
 	}
 
-	var i Item
+	var i item.Item
 	fields.DataTo(&i)
 
 	return &i, nil
 }
 
-func (r *FirestoreRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*Item, error) {
-	var items []*Item
+func (r *FirestoreRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*item.Item, error) {
+	var items []*item.Item
 	iter := r.client.Collection("users").Doc(userID).Collection("items").OrderBy("UpdatedAt", firestore.Desc).Offset(offset).Limit(limit).Documents(ctx)
 
 	for {
@@ -50,7 +51,7 @@ func (r *FirestoreRepository) Find(ctx context.Context, userID string, offset, l
 			return nil, err
 		}
 
-		var i Item
+		var i item.Item
 		doc.DataTo(&i)
 
 		items = append(items, &i)
@@ -59,7 +60,7 @@ func (r *FirestoreRepository) Find(ctx context.Context, userID string, offset, l
 	return items, nil
 }
 
-func (r *FirestoreRepository) Save(ctx context.Context, userID string, item *Item) (*Item, error) {
+func (r *FirestoreRepository) Save(ctx context.Context, userID string, item *item.Item) (*item.Item, error) {
 	if item.ID == "" {
 		uuidv4 := uuid.NewV4()
 		item.ID = uuidv4.String()

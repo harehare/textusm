@@ -1,25 +1,27 @@
-package item
+package service
 
 import (
 	"context"
 	"os"
 
 	"github.com/harehare/textusm/api/middleware"
+	"github.com/harehare/textusm/pkg/item"
+	"github.com/harehare/textusm/pkg/repository"
 )
 
 var encryptKey = []byte(os.Getenv("ENCRYPT_KEY"))
 
 type Service struct {
-	repo Repository
+	repo repository.Repository
 }
 
-func NewService(r Repository) *Service {
+func NewService(r repository.Repository) *Service {
 	return &Service{
 		repo: r,
 	}
 }
 
-func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic bool) ([]*Item, error) {
+func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic bool) ([]*item.Item, error) {
 	userID := ctx.Value(middleware.UIDKey).(string)
 	items, err := s.repo.Find(ctx, userID, offset, limit, isPublic)
 
@@ -27,7 +29,7 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 		return nil, err
 	}
 
-	resultItems := make([]*Item, len(items))
+	resultItems := make([]*item.Item, len(items))
 
 	for i, item := range items {
 		if item.Text != "" {
@@ -44,7 +46,7 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 	return resultItems, nil
 }
 
-func (s *Service) FindDiagram(ctx context.Context, itemID string) (*Item, error) {
+func (s *Service) FindDiagram(ctx context.Context, itemID string) (*item.Item, error) {
 	userID := ctx.Value(middleware.UIDKey).(string)
 	item, err := s.repo.FindByID(ctx, userID, itemID)
 
@@ -62,7 +64,7 @@ func (s *Service) FindDiagram(ctx context.Context, itemID string) (*Item, error)
 	return item, nil
 }
 
-func (s *Service) SaveDiagram(ctx context.Context, item *Item) (*Item, error) {
+func (s *Service) SaveDiagram(ctx context.Context, item *item.Item) (*item.Item, error) {
 	userID := ctx.Value(middleware.UIDKey).(string)
 	currentText := item.Text
 	text, err := Encrypt(encryptKey, item.Text)
