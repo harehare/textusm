@@ -127,7 +127,7 @@ moveStartTest =
                         update (Start 10 20) defInit
                             |> Tuple.first
                 in
-                Expect.equal newModel { newModel | moveStart = True, moveX = 10, moveY = 20 }
+                Expect.equal newModel { newModel | moveStart = True, movePosition = ( 10, 20 ) }
         ]
 
 
@@ -141,7 +141,7 @@ moveStopTest =
                         update Stop defInit
                             |> Tuple.first
                 in
-                Expect.equal newModel { newModel | moveStart = False, moveX = 0, moveY = 0, touchDistance = Nothing }
+                Expect.equal newModel { newModel | moveStart = False, movePosition = ( 0, 0 ), touchDistance = Nothing }
         ]
 
 
@@ -175,7 +175,7 @@ moveTest =
                         update (Move 10 20) newModel
                             |> Tuple.first
                 in
-                Expect.equal moveModel { newModel | x = newModel.x + 10, y = newModel.y + 20, moveX = 10, moveY = 20 }
+                Expect.equal moveModel { newModel | x = newModel.x + 10, y = newModel.y + 20, movePosition = ( 10, 20 ) }
         ]
 
 
