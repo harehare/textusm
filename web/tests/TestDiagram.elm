@@ -124,7 +124,7 @@ moveStartTest =
             \() ->
                 let
                     newModel =
-                        update (Start 10 20) defInit
+                        update (Start ( 10, 20 )) defInit
                             |> Tuple.first
                 in
                 Expect.equal newModel { newModel | moveStart = True, movePosition = ( 10, 20 ) }
@@ -152,7 +152,7 @@ moveTest =
             \() ->
                 let
                     newModel =
-                        update (Move 10 20) defInit
+                        update (Move ( 10, 20 )) defInit
                             |> Tuple.first
                 in
                 Expect.equal defInit newModel
@@ -160,7 +160,7 @@ moveTest =
             \() ->
                 let
                     newModel =
-                        update (Move 0 0) defInit
+                        update (Move ( 0, 0 )) defInit
                             |> Tuple.first
                 in
                 Expect.equal defInit newModel
@@ -168,11 +168,11 @@ moveTest =
             \() ->
                 let
                     newModel =
-                        update (Start 0 0) defInit
+                        update (Start ( 0, 0 )) defInit
                             |> Tuple.first
 
                     moveModel =
-                        update (Move 10 20) newModel
+                        update (Move ( 10, 20 )) newModel
                             |> Tuple.first
                 in
                 Expect.equal moveModel { newModel | x = newModel.x + 10, y = newModel.y + 20, movePosition = ( 10, 20 ) }
@@ -186,7 +186,7 @@ moveToTest =
             \() ->
                 let
                     newModel =
-                        update (MoveTo 10 20) defInit
+                        update (MoveTo ( 10, 20 )) defInit
                             |> Tuple.first
                 in
                 Expect.equal newModel { defInit | x = 10, y = 20 }
