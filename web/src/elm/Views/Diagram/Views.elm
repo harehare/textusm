@@ -57,7 +57,11 @@ cardView settings ( posX, posY ) selectedItem item =
                 )
                 backgroundColor
             , textView settings ( posX, posY ) ( settings.size.width, settings.size.height ) color item.text
-            , dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
+            , if isJust selectedItem then
+                dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
+
+              else
+                g [] []
             ]
 
 
@@ -150,33 +154,38 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
 
 
 textView : Settings -> Position -> Size -> RGB -> String -> Svg Msg
-textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour textOrUrl =
-    foreignObject
-        [ x <| String.fromInt posX
-        , y <| String.fromInt posY
-        , width <| String.fromInt svgWidth
-        , height <| String.fromInt svgHeight
-        , fill colour
-        , color colour
-        , fontSize (textOrUrl |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
-        , class ".select-none"
-        ]
-        [ if Utils.isImageUrl textOrUrl then
-            img
-                [ Attr.style "object-fit" "cover"
-                , Attr.style "width" (String.fromInt settings.size.width)
-                , Attr.src textOrUrl
-                ]
-                []
-
-          else
-            div
+textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
+    if String.length cardText > 20 then
+        foreignObject
+            [ x <| String.fromInt posX
+            , y <| String.fromInt posY
+            , width <| String.fromInt svgWidth
+            , height <| String.fromInt svgHeight
+            , fill colour
+            , color colour
+            , fontSize (cardText |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
+            , class ".select-none"
+            ]
+            [ div
                 [ Attr.style "padding" "8px"
                 , Attr.style "font-family" (fontStyle settings)
                 , Attr.style "word-wrap" "break-word"
                 ]
-                [ Html.text textOrUrl ]
-        ]
+                [ Html.text cardText ]
+            ]
+
+    else
+        text_
+            [ x <| String.fromInt <| posX + 4
+            , y <| String.fromInt <| posY + 18
+            , width <| String.fromInt svgWidth
+            , height <| String.fromInt svgHeight
+            , fill colour
+            , color colour
+            , fontSize (cardText |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
+            , class ".select-none"
+            ]
+            [ text cardText ]
 
 
 canvasView : Settings -> Size -> Position -> Maybe Item -> Item -> Svg Msg
