@@ -2,7 +2,7 @@ module Components.Diagram exposing (init, update, view)
 
 import Basics exposing (max)
 import Browser.Dom as Dom
-import Data.Item as Item exposing (ItemType(..), Items)
+import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position as Position
 import Data.Size as Size exposing (Size)
 import Data.Text as Text
@@ -14,7 +14,6 @@ import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
 import List
 import List.Extra exposing (getAt, scanl)
-import Maybe.Extra exposing (isNothing)
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Views.CustomerJourneyMap as CustomerJourneyMapModel
@@ -264,10 +263,10 @@ view model =
         [ Attr.id "usm-area"
         , Attr.style "position" "relative"
         , if model.moveStart then
-            Attr.style "cursor" "move"
+            Attr.style "cursor" "grabbing"
 
           else
-            Attr.style "cursor" "auto"
+            Attr.style "cursor" "grab"
         ]
         [ if model.settings.zoomControl |> Maybe.withDefault model.showZoomControl then
             lazy2 zoomControl model.fullscreen model.svg.scale
@@ -404,16 +403,8 @@ svgView model =
         , viewBox ("0 0 " ++ svgWidth ++ " " ++ svgHeight)
         , Attr.style "background-color" model.settings.backgroundColor
         , Wheel.onWheel chooseZoom
-        , if isNothing model.selectedItem then
-            onDragStart (Utils.isPhone <| Size.getWidth model.size)
-
-          else
-            class ""
-        , if model.moveStart then
-            onDragMove model.touchDistance (Utils.isPhone <| Size.getWidth model.size)
-
-          else
-            Attr.style "" ""
+        , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
+        , onDragMove model.touchDistance model.moveStart (Utils.isPhone <| Size.getWidth model.size)
         ]
         [ if String.isEmpty model.settings.font then
             g [] []
@@ -441,96 +432,104 @@ svgView model =
         ]
 
 
-onDragStart : Bool -> Svg.Attribute Msg
-onDragStart isPhone =
-    if isPhone then
-        Touch.onStart
-            (\event ->
-                if List.length event.changedTouches > 1 then
-                    let
-                        p1 =
-                            getAt 0 event.changedTouches
-                                |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0, 0 )
+onDragStart : Maybe Item -> Bool -> Svg.Attribute Msg
+onDragStart item isPhone =
+    case ( item, isPhone ) of
+        ( Nothing, True ) ->
+            Touch.onStart
+                (\event ->
+                    if List.length event.changedTouches > 1 then
+                        let
+                            p1 =
+                                getAt 0 event.changedTouches
+                                    |> Maybe.map .pagePos
+                                    |> Maybe.withDefault ( 0, 0 )
 
-                        p2 =
-                            getAt 1 event.changedTouches
-                                |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0, 0 )
-                    in
-                    StartPinch (Utils.calcDistance p1 p2)
+                            p2 =
+                                getAt 1 event.changedTouches
+                                    |> Maybe.map .pagePos
+                                    |> Maybe.withDefault ( 0, 0 )
+                        in
+                        StartPinch (Utils.calcDistance p1 p2)
 
-                else
-                    let
-                        ( x, y ) =
-                            touchCoordinates event
-                    in
-                    Start (round x) (round y)
-            )
+                    else
+                        let
+                            ( x, y ) =
+                                touchCoordinates event
+                        in
+                        Start ( round x, round y )
+                )
 
-    else
-        Mouse.onDown
-            (\event ->
-                let
-                    ( x, y ) =
-                        event.pagePos
-                in
-                Start (round x) (round y)
-            )
-
-
-onDragMove : Maybe Float -> Bool -> Svg.Attribute Msg
-onDragMove distance isPhone =
-    if isPhone then
-        Touch.onMove
-            (\event ->
-                if List.length event.changedTouches > 1 then
-                    let
-                        p1 =
-                            getAt 0 event.changedTouches
-                                |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0, 0 )
-
-                        p2 =
-                            getAt 1 event.changedTouches
-                                |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0, 0 )
-                    in
-                    case distance of
-                        Just x ->
-                            let
-                                newDistance =
-                                    Utils.calcDistance p1 p2
-                            in
-                            if newDistance / x > 1.0 then
-                                PinchIn newDistance
-
-                            else if newDistance / x < 1.0 then
-                                PinchOut newDistance
-
-                            else
-                                NoOp
-
-                        Nothing ->
-                            StartPinch (Utils.calcDistance p1 p2)
-
-                else
+        ( Nothing, False ) ->
+            Mouse.onDown
+                (\event ->
                     let
                         ( x, y ) =
-                            touchCoordinates event
+                            event.pagePos
                     in
-                    Move (round x) (round y)
-            )
+                    Start ( round x, round y )
+                )
 
-    else
-        Mouse.onMove
-            (\event ->
-                let
-                    ( x, y ) =
-                        event.pagePos
-                in
-                Move (round x) (round y)
-            )
+        _ ->
+            Attr.style "" ""
+
+
+onDragMove : Maybe Float -> Bool -> Bool -> Svg.Attribute Msg
+onDragMove distance isDragStart isPhone =
+    case ( isDragStart, isPhone ) of
+        ( True, True ) ->
+            Touch.onMove
+                (\event ->
+                    if List.length event.changedTouches > 1 then
+                        let
+                            p1 =
+                                getAt 0 event.changedTouches
+                                    |> Maybe.map .pagePos
+                                    |> Maybe.withDefault ( 0, 0 )
+
+                            p2 =
+                                getAt 1 event.changedTouches
+                                    |> Maybe.map .pagePos
+                                    |> Maybe.withDefault ( 0, 0 )
+                        in
+                        case distance of
+                            Just x ->
+                                let
+                                    newDistance =
+                                        Utils.calcDistance p1 p2
+                                in
+                                if newDistance / x > 1.0 then
+                                    PinchIn newDistance
+
+                                else if newDistance / x < 1.0 then
+                                    PinchOut newDistance
+
+                                else
+                                    NoOp
+
+                            Nothing ->
+                                StartPinch (Utils.calcDistance p1 p2)
+
+                    else
+                        let
+                            ( x, y ) =
+                                touchCoordinates event
+                        in
+                        Move ( round x, round y )
+                )
+
+        ( True, False ) ->
+            Mouse.onMove
+                (\event ->
+                    let
+                        ( x, y ) =
+                            event.pagePos
+                    in
+                    Move ( round x, round y )
+                )
+
+        _ ->
+            Attr.style "" ""
 
 
 chooseZoom : Wheel.Event -> Msg
@@ -681,10 +680,10 @@ update message model =
             in
             ( model_, Cmd.none )
 
-        Start x y ->
+        Start pos ->
             ( { model
                 | moveStart = True
-                , movePosition = ( x, y )
+                , movePosition = pos
               }
             , Cmd.none
             )
@@ -692,13 +691,13 @@ update message model =
         Stop ->
             ( { model
                 | moveStart = False
-                , movePosition = ( 0, 0 )
+                , movePosition = Position.zero
                 , touchDistance = Nothing
               }
             , Cmd.none
             )
 
-        Move x y ->
+        Move ( x, y ) ->
             ( if not model.moveStart || (x == Position.getX model.movePosition && y == Position.getY model.movePosition) then
                 model
 
@@ -711,7 +710,7 @@ update message model =
             , Cmd.none
             )
 
-        MoveTo x y ->
+        MoveTo ( x, y ) ->
             ( { model
                 | x = toFloat x
                 , y = toFloat y

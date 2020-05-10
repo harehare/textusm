@@ -56,6 +56,10 @@ type alias CountByTasks =
     List Int
 
 
+type alias Distance =
+    Float
+
+
 type Data
     = Empty
     | Items Items
@@ -122,12 +126,12 @@ type Msg
     | PinchIn Float
     | PinchOut Float
     | Stop
-    | Start Int Int
-    | Move Int Int
-    | MoveTo Int Int
+    | Start Position
+    | Move Position
+    | MoveTo Position
     | ToggleFullscreen
     | OnResize Int Int
-    | StartPinch Float
+    | StartPinch Distance
     | ItemClick Item
     | DeselectItem
     | ItemDblClick Item

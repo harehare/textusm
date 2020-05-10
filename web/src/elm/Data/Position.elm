@@ -1,4 +1,4 @@
-module Data.Position exposing (Position, X, Y, getX, getY)
+module Data.Position exposing (Position, X, Y, getX, getY, zero)
 
 
 type alias X =
@@ -21,3 +21,8 @@ getX ( x, _ ) =
 getY : Position -> Y
 getY ( _, y ) =
     y
+
+
+zero : Position
+zero =
+    ( 0, 0 )
