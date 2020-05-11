@@ -62,8 +62,6 @@ init flags =
                 , height = 65
                 , scale = 1.0
                 }
-            , countByHierarchy = []
-            , countByTasks = []
             , moveStart = False
             , x = 0
             , y = 0

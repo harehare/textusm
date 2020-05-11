@@ -47,15 +47,13 @@ init flags =
             { items = Item.empty
             , data = DiagramModel.Empty
             , hierarchy = 0
-            , size = = (flags.width, flags.height)
+            , size = ( flags.width, flags.height )
             , selectedItem = Nothing
             , svg =
                 { width = flags.settings.size.width
                 , height = flags.settings.size.height
                 , scale = flags.scale
                 }
-            , countByHierarchy = []
-            , countByTasks = []
             , moveStart = False
             , dragDrop = DragDrop.init
             , x = 0
@@ -110,7 +108,6 @@ init flags =
                     Diagram.UserStoryMap
             , settings = flags.settings
             , touchDistance = Nothing
-            , labels = []
             , matchParent = False
             , text = Text.empty
             }
