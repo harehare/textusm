@@ -1,6 +1,7 @@
 module Views.Diagram.CustomerJourneyMap exposing (view)
 
 import Data.Item as Item exposing (Item, ItemType(..), Items)
+import Data.Position as Position
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Views.CustomerJourneyMap exposing (CustomerJourneyMap(..), Header(..), Row(..))
 import String
@@ -26,21 +27,9 @@ view model =
             g
                 [ transform
                     ("translate("
-                        ++ String.fromFloat
-                            (if isInfinite <| model.x then
-                                0
-
-                             else
-                                model.x
-                            )
+                        ++ String.fromInt (Position.getX model.position)
                         ++ ","
-                        ++ String.fromFloat
-                            (if isInfinite <| model.y then
-                                0
-
-                             else
-                                model.y
-                            )
+                        ++ String.fromInt (Position.getY model.position)
                         ++ ")"
                     )
                 ]

@@ -33,8 +33,7 @@ type alias Model =
         , scale : Float
         }
     , moveStart : Bool
-    , x : Float
-    , y : Float
+    , position : Position
     , movePosition : Position
     , fullscreen : Bool
     , settings : Settings

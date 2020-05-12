@@ -48,29 +48,16 @@ view model =
                 ( centerX, centerY ) =
                     if model.matchParent then
                         getTableTopLeft tableDict
-                            |> Tuple.mapBoth toFloat toFloat
 
                     else
-                        ( model.x, model.y )
+                        ( getX model.position, getY model.position )
             in
             g
                 [ transform
                     ("translate("
-                        ++ String.fromFloat
-                            (if isInfinite <| model.x then
-                                0
-
-                             else
-                                centerX + 32
-                            )
+                        ++ String.fromInt (centerX + 32)
                         ++ ","
-                        ++ String.fromFloat
-                            (if isInfinite <| model.y then
-                                0
-
-                             else
-                                centerY + (toFloat (getHeight model.size) / toFloat 2)
-                            )
+                        ++ String.fromInt (centerY + getHeight model.size // 2)
                         ++ ")"
                     )
                 , fill model.settings.backgroundColor

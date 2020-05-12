@@ -723,7 +723,7 @@ update message model =
                     model.diagramModel
 
                 newDiagramModel =
-                    { diagramModel | x = toFloat x, y = toFloat y, matchParent = False }
+                    { diagramModel | position = ( x, y ), matchParent = False }
             in
             ( { model | diagramModel = newDiagramModel }, Cmd.none )
 
@@ -751,7 +751,7 @@ update message model =
                         model.diagramModel
 
                     newDiagramModel =
-                        { diagramModel | x = 0, y = 0, matchParent = True }
+                        { diagramModel | position = ( 0, 0 ), matchParent = True }
 
                     ( sub, extension ) =
                         case fileType of

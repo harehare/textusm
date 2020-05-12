@@ -1,6 +1,7 @@
 module Views.Diagram.Kpt exposing (view)
 
 import Constants
+import Data.Position as Position
 import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Views.Kpt exposing (KptItem(..))
 import String
@@ -32,21 +33,9 @@ view model =
             g
                 [ transform
                     ("translate("
-                        ++ String.fromFloat
-                            (if isInfinite <| model.x then
-                                0
-
-                             else
-                                model.x
-                            )
+                        ++ String.fromInt (Position.getX model.position)
                         ++ ","
-                        ++ String.fromFloat
-                            (if isInfinite <| model.y then
-                                0
-
-                             else
-                                model.y
-                            )
+                        ++ String.fromInt (Position.getY model.position)
                         ++ ")"
                     )
                 , fill model.settings.backgroundColor

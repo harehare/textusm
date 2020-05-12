@@ -1,7 +1,7 @@
 module Views.Diagram.ImpactMap exposing (view)
 
 import Data.Item as Item exposing (Item, ItemType(..), Items)
-import Data.Position exposing (Position)
+import Data.Position as Position exposing (Position)
 import List.Extra exposing (getAt, scanl1, zip3)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g)
@@ -37,26 +37,14 @@ view model =
                     Utils.getCanvasSize model
 
                 yCenter =
-                    toFloat canvasHeight / 2
+                    canvasHeight // 2
             in
             g
                 [ transform
                     ("translate("
-                        ++ String.fromFloat
-                            (if isInfinite <| model.x then
-                                10
-
-                             else
-                                model.x + 10
-                            )
+                        ++ String.fromInt (Position.getX model.position + 10)
                         ++ ","
-                        ++ String.fromFloat
-                            (if isInfinite <| model.y then
-                                0
-
-                             else
-                                model.y + yCenter
-                            )
+                        ++ String.fromInt (Position.getY model.position + yCenter)
                         ++ ")"
                     )
                 ]

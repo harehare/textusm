@@ -2,7 +2,7 @@ module Views.Diagram.SiteMap exposing (view)
 
 import Constants
 import Data.Item as Item exposing (Item, Items)
-import Data.Position exposing (Position)
+import Data.Position as Position exposing (Position)
 import List.Extra exposing (scanl1, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g, line)
@@ -25,21 +25,9 @@ view model =
             g
                 [ transform
                     ("translate("
-                        ++ String.fromFloat
-                            (if isInfinite <| model.x then
-                                0
-
-                             else
-                                model.x + toFloat Constants.itemSpan
-                            )
+                        ++ String.fromInt (Position.getX model.position)
                         ++ ","
-                        ++ String.fromFloat
-                            (if isInfinite <| model.y then
-                                0
-
-                             else
-                                model.y + toFloat Constants.itemSpan
-                            )
+                        ++ String.fromInt (Position.getY model.position)
                         ++ ")"
                     )
                 ]

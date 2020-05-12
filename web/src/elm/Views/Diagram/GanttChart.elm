@@ -2,7 +2,7 @@ module Views.Diagram.GanttChart exposing (view)
 
 import Constants
 import Data.Item as Item exposing (Item)
-import Data.Position exposing (Position)
+import Data.Position as Position exposing (Position)
 import Data.Size exposing (Size)
 import Html exposing (div)
 import Html.Attributes as Attr
@@ -63,21 +63,9 @@ view model =
             g
                 [ transform
                     ("translate("
-                        ++ String.fromFloat
-                            (if isInfinite <| model.x then
-                                0
-
-                             else
-                                model.x
-                            )
+                        ++ String.fromInt (Position.getX model.position)
                         ++ ","
-                        ++ String.fromFloat
-                            (if isInfinite <| model.y then
-                                0
-
-                             else
-                                model.y
-                            )
+                        ++ String.fromInt (Position.getY model.position)
                         ++ ")"
                     )
                 ]

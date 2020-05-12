@@ -2,6 +2,7 @@ module Components.Diagram exposing (init, update, view)
 
 import Basics exposing (max)
 import Browser.Dom as Dom
+import Constants exposing (inputPrefix)
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position as Position
 import Data.Size as Size exposing (Size)
@@ -13,7 +14,7 @@ import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
 import List
-import List.Extra exposing (getAt, scanl)
+import List.Extra exposing (findIndex, getAt, scanl, splitAt)
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Views.CustomerJourneyMap as CustomerJourneyMapModel
@@ -25,7 +26,6 @@ import Models.Views.Kpt as KptModel
 import Models.Views.OpportunityCanvas as OpportunityCanvasModel
 import Models.Views.StartStopContinue as StartStopContinueModel
 import Models.Views.UserPersona as UserPersonaModel
-import Parser
 import Result exposing (andThen)
 import String
 import Svg exposing (Svg, defs, feComponentTransfer, feFuncA, feGaussianBlur, feMerge, feMergeNode, feOffset, filter, g, svg, text)
@@ -59,6 +59,11 @@ type alias Hierarchy =
     Int
 
 
+indentSpace : Int
+indentSpace =
+    4
+
+
 init : Settings -> ( Model, Cmd Msg )
 init settings =
     ( { items = Item.empty
@@ -71,8 +76,7 @@ init settings =
             , scale = 1.0
             }
       , moveStart = False
-      , x = 0
-      , y = 20
+      , position = ( 0, 20 )
       , movePosition = ( 0, 0 )
       , fullscreen = False
       , showZoomControl = True
@@ -105,12 +109,59 @@ getItemType text indent =
                 Stories (indent - 1)
 
 
+hasIndent : Int -> String -> Bool
+hasIndent indent text =
+    let
+        lineinputPrefix =
+            String.repeat indent inputPrefix
+    in
+    if indent == 0 then
+        String.left 1 text /= " "
+
+    else
+        String.startsWith lineinputPrefix text
+            && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
+
+
+parse : Int -> String -> ( List String, List String )
+parse indent text =
+    let
+        line =
+            String.lines text
+                |> List.filter
+                    (\x ->
+                        let
+                            str =
+                                x |> String.trim
+                        in
+                        not (String.isEmpty str)
+                    )
+
+        tail =
+            List.tail line
+    in
+    case tail of
+        Just t ->
+            case
+                t
+                    |> findIndex (hasIndent indent)
+            of
+                Just xs ->
+                    splitAt (xs + 1) line
+
+                Nothing ->
+                    ( line, [] )
+
+        Nothing ->
+            ( [], [] )
+
+
 load : String -> ( Hierarchy, Items )
 load text =
     let
         loadText : Int -> Int -> String -> ( List Hierarchy, Items )
         loadText lineNo indent input =
-            case Parser.parse indent input of
+            case parse indent input of
                 ( x :: xs, other ) ->
                     let
                         ( xsIndent, xsItems ) =
@@ -703,17 +754,18 @@ update message model =
 
               else
                 { model
-                    | x = model.x + (toFloat x - toFloat (Position.getX model.movePosition)) * model.svg.scale
-                    , y = model.y + (toFloat y - toFloat (Position.getY model.movePosition)) * model.svg.scale
+                    | position =
+                        ( Position.getX model.position + (x - round (toFloat (Position.getX model.movePosition) * model.svg.scale))
+                        , Position.getY model.position + (y - round (toFloat (Position.getY model.movePosition) * model.svg.scale))
+                        )
                     , movePosition = ( x, y )
                 }
             , Cmd.none
             )
 
-        MoveTo ( x, y ) ->
+        MoveTo position ->
             ( { model
-                | x = toFloat x
-                , y = toFloat y
+                | position = position
                 , movePosition = ( 0, 0 )
               }
             , Cmd.none

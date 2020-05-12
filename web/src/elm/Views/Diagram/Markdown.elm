@@ -1,5 +1,6 @@
 module Views.Diagram.Markdown exposing (view)
 
+import Data.Position as Position
 import Data.Size as Size
 import Data.Text as Text
 import Html.Attributes as Attr
@@ -15,21 +16,9 @@ view model =
     g
         [ transform
             ("translate("
-                ++ String.fromFloat
-                    (if isInfinite <| model.x then
-                        0
-
-                     else
-                        model.x
-                    )
+                ++ String.fromInt (Position.getX model.position)
                 ++ ","
-                ++ String.fromFloat
-                    (if isInfinite <| model.y then
-                        0
-
-                     else
-                        model.y
-                    )
+                ++ String.fromInt (Position.getY model.position)
                 ++ ")"
             )
         , fill model.settings.backgroundColor

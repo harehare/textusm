@@ -1,7 +1,7 @@
 module Views.Diagram.MindMap exposing (view)
 
 import Data.Item as Item exposing (Item, ItemType(..), Items)
-import Data.Position exposing (Position)
+import Data.Position as Position exposing (Position)
 import Data.Size as Size
 import List.Extra exposing (getAt, scanl1, splitAt, zip3)
 import Models.Diagram exposing (Model, Msg(..), Settings)
@@ -50,33 +50,21 @@ view model =
 
                 ( xCenter, yCenter ) =
                     if model.matchParent then
-                        ( toFloat canvasWidth / 2 - toFloat model.settings.size.width * 2
-                        , toFloat canvasHeight / 2 - toFloat model.settings.size.height * 2
+                        ( canvasWidth // 2 - model.settings.size.width * 2
+                        , canvasHeight // 2 - model.settings.size.height * 2
                         )
 
                     else
-                        ( toFloat (Size.getWidth model.size) / 2 - toFloat model.settings.size.width * 2
-                        , toFloat (Size.getHeight model.size) / 2 - toFloat model.settings.size.height * 2
+                        ( Size.getWidth model.size // 2 - model.settings.size.width * 2
+                        , Size.getHeight model.size // 2 - model.settings.size.height * 2
                         )
             in
             g
                 [ transform
                     ("translate("
-                        ++ String.fromFloat
-                            (if isInfinite <| model.x then
-                                0
-
-                             else
-                                model.x + xCenter
-                            )
+                        ++ String.fromInt (Position.getX model.position + xCenter)
                         ++ ","
-                        ++ String.fromFloat
-                            (if isInfinite <| model.y then
-                                0
-
-                             else
-                                model.y + yCenter
-                            )
+                        ++ String.fromInt (Position.getY model.position + yCenter)
                         ++ ")"
                     )
                 ]

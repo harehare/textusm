@@ -3,7 +3,7 @@ module Views.Diagram.UserStoryMap exposing (view)
 import Basics exposing (max)
 import Constants
 import Data.Item as Item exposing (Item, ItemType(..), Items)
-import Data.Position exposing (Position)
+import Data.Position as Position exposing (Position)
 import Html exposing (div)
 import Html.Attributes as Attr
 import List
@@ -25,21 +25,9 @@ view model =
             g
                 [ transform
                     ("translate("
-                        ++ String.fromFloat
-                            (if isInfinite <| model.x then
-                                0
-
-                             else
-                                model.x
-                            )
+                        ++ String.fromInt (Position.getX model.position)
                         ++ ","
-                        ++ String.fromFloat
-                            (if isInfinite <| model.y then
-                                0
-
-                             else
-                                model.y
-                            )
+                        ++ String.fromInt (Position.getY model.position)
                         ++ ")"
                     )
                 , fill model.settings.backgroundColor
