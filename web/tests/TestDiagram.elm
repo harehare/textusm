@@ -2,6 +2,7 @@ module TestDiagram exposing (changeTextTest, moveStartTest, moveStopTest, moveTe
 
 import Components.Diagram exposing (init, update)
 import Data.Item as Item exposing (ItemType(..))
+import Data.Position as Position
 import Expect
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Test exposing (Test, describe, test)
@@ -175,7 +176,7 @@ moveTest =
                         update (Move ( 10, 20 )) newModel
                             |> Tuple.first
                 in
-                Expect.equal moveModel { newModel | x = newModel.x + 10, y = newModel.y + 20, movePosition = ( 10, 20 ) }
+                Expect.equal moveModel { newModel | position = ( Position.getX newModel.position + 10, Position.getY newModel.position + 20 ), movePosition = ( 10, 20 ) }
         ]
 
 
@@ -189,7 +190,7 @@ moveToTest =
                         update (MoveTo ( 10, 20 )) defInit
                             |> Tuple.first
                 in
-                Expect.equal newModel { defInit | x = 10, y = 20 }
+                Expect.equal newModel { defInit | position = ( 10, 20 ) }
         ]
 
 
