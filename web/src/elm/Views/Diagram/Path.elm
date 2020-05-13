@@ -19,7 +19,7 @@ type alias Size =
 
 cornerSize : Float
 cornerSize =
-    5.0
+    10.0
 
 
 view : Settings -> ( Position, Size ) -> ( Position, Size ) -> Svg Msg
