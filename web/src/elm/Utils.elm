@@ -20,7 +20,7 @@ calcFontSize : Int -> String -> String
 calcFontSize width text =
     let
         size =
-            min (String.length text) 16
+            max (String.length text) 16
     in
     String.fromInt (Basics.min (width // size) 16)
 

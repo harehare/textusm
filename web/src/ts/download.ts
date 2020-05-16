@@ -13,7 +13,6 @@ export const initDowonlad = (app: ElmApp) => {
         svg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
         svg.setAttribute("width", width.toString());
         svg.setAttribute("height", height.toString());
-        svg.setAttribute("style", "background-color: transparent;");
 
         if (element) {
             svg.innerHTML = element.innerHTML;
