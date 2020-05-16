@@ -1,23 +1,23 @@
-module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, rectView, textView)
+module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, rectView, startTextNodeView, textNodeView, textView)
 
 import Constants
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size exposing (Size)
 import Events exposing (onClickStopPropagation, onKeyDown)
-import Html exposing (div, img, input)
+import Html exposing (div, input)
 import Html.Attributes as Attr
 import Html.Events exposing (onInput)
 import Html5.DragDrop as DragDrop
 import Maybe.Extra exposing (isJust)
-import Models.Diagram exposing (Msg(..), Settings, fontStyle, settingsOfWidth)
+import Models.Diagram exposing (Msg(..), Settings, fontStyle, getTextColor, settingsOfWidth)
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
 import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x, xlinkHref, y)
 import Utils
 
 
-type alias RGB =
+type alias RgbColor =
     String
 
 
@@ -65,7 +65,7 @@ cardView settings ( posX, posY ) selectedItem item =
             ]
 
 
-rectView : Position -> Size -> RGB -> Svg Msg
+rectView : Position -> Size -> RgbColor -> Svg Msg
 rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
     rect
         [ width <| String.fromInt svgWidth
@@ -80,7 +80,7 @@ rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         []
 
 
-selectedRectView : Position -> Size -> RGB -> Svg Msg
+selectedRectView : Position -> Size -> RgbColor -> Svg Msg
 selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
     rect
         [ width <| String.fromInt svgWidth
@@ -114,7 +114,7 @@ dropArea ( posX, posY ) ( svgWidth, svgHeight ) item =
         ]
 
 
-inputView : Settings -> Maybe String -> Position -> Size -> ( RGB, RGB ) -> Item -> Svg Msg
+inputView : Settings -> Maybe String -> Position -> Size -> ( RgbColor, RgbColor ) -> Item -> Svg Msg
 inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, backgroundColor ) item =
     foreignObject
         [ x <| String.fromInt posX
@@ -153,7 +153,7 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
         ]
 
 
-textView : Settings -> Position -> Size -> RGB -> String -> Svg Msg
+textView : Settings -> Position -> Size -> RgbColor -> String -> Svg Msg
 textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
     if String.length cardText > 20 then
         foreignObject
@@ -301,3 +301,172 @@ imageView ( imageWidth, imageHeight ) ( posX, posY ) url =
             ]
             []
         ]
+
+
+textNodeView : Settings -> Position -> Maybe Item -> Item -> Svg Msg
+textNodeView settings ( posX, posY ) selectedItem item =
+    let
+        ( color, backgroundColor ) =
+            case item.itemType of
+                Activities ->
+                    ( settings.color.activity.color, settings.backgroundColor )
+
+                Tasks ->
+                    ( settings.color.task.color, settings.backgroundColor )
+
+                _ ->
+                    ( settings.color.story.color, settings.backgroundColor )
+
+        nodeWidth =
+            settings.size.width
+    in
+    if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
+        g []
+            [ rect
+                [ width <| String.fromInt nodeWidth
+                , height <| String.fromInt <| settings.size.height - 1
+                , x (String.fromInt posX)
+                , y (String.fromInt posY)
+                , strokeWidth "1"
+                , stroke "rgba(0, 0, 0, 0.1)"
+                , fill backgroundColor
+                ]
+                []
+            , textNodeInput settings ( posX, posY ) ( nodeWidth, settings.size.height ) (Maybe.withDefault Item.emptyItem selectedItem)
+            ]
+
+    else
+        g
+            [ onClickStopPropagation (ItemClick item)
+            ]
+            [ rect
+                [ width <| String.fromInt nodeWidth
+                , height <| String.fromInt <| settings.size.height - 1
+                , x (String.fromInt posX)
+                , y (String.fromInt posY)
+                , fill backgroundColor
+                ]
+                []
+            , textNode settings ( posX, posY ) ( nodeWidth, settings.size.height ) color item.text
+            , if isJust selectedItem then
+                dropArea ( posX, posY ) ( nodeWidth, settings.size.height ) item
+
+              else
+                g [] []
+            ]
+
+
+startTextNodeView : Settings -> Position -> Maybe Item -> Item -> Svg Msg
+startTextNodeView settings ( posX, posY ) selectedItem item =
+    if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
+        g []
+            [ startTextNodeRect
+                ( posX, posY )
+                ( settings.size.width
+                , settings.size.height - 1
+                )
+                ( settings.color.activity.backgroundColor, settings.backgroundColor )
+            , textNodeInput settings ( posX, posY ) ( settings.size.width, settings.size.height ) (Maybe.withDefault Item.emptyItem selectedItem)
+            ]
+
+    else
+        g
+            [ onClickStopPropagation (ItemClick item)
+            ]
+            [ startTextNodeRect
+                ( posX, posY )
+                ( settings.size.width
+                , settings.size.height - 1
+                )
+                ( settings.color.activity.backgroundColor, settings.backgroundColor )
+            , textNode settings ( posX, posY ) ( settings.size.width, settings.size.height ) settings.color.activity.color item.text
+            , if isJust selectedItem then
+                dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
+
+              else
+                g [] []
+            ]
+
+
+textNode : Settings -> Position -> Size -> RgbColor -> String -> Svg Msg
+textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour nodeText =
+    foreignObject
+        [ x <| String.fromInt posX
+        , y <| String.fromInt posY
+        , width <| String.fromInt svgWidth
+        , height <| String.fromInt svgHeight
+        , fill colour
+        , color <| getTextColor settings.color
+        , fontSize (nodeText |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
+        , class ".select-none"
+        ]
+        [ div
+            [ Attr.style "width" (String.fromInt svgWidth ++ "px")
+            , Attr.style "height" (String.fromInt svgHeight ++ "px")
+            , Attr.style "font-family" (fontStyle settings)
+            , Attr.style "word-wrap" "break-word"
+            , Attr.style "display" "flex"
+            , Attr.style "align-items" "center"
+            , Attr.style "justify-content" "center"
+            ]
+            [ div [ Attr.style "font-size" "14px" ] [ Html.text nodeText ]
+            ]
+        ]
+
+
+textNodeInput : Settings -> Position -> Size -> Item -> Svg Msg
+textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
+    foreignObject
+        [ x <| String.fromInt posX
+        , y <| String.fromInt posY
+        , width <| String.fromInt svgWidth
+        , height <| String.fromInt svgHeight
+        ]
+        [ div
+            ([ Attr.style "background-color" "transparent"
+             , Attr.style "width" (String.fromInt svgWidth ++ "px")
+             , Attr.style "height" (String.fromInt svgHeight ++ "px")
+             , Attr.style "display" "flex"
+             , Attr.style "align-items" "center"
+             , Attr.style "justify-content" "center"
+             ]
+                ++ DragDrop.draggable DragDropMsg item.lineNo
+            )
+            [ input
+                [ Attr.id "edit-item"
+                , Attr.type_ "text"
+                , Attr.autofocus True
+                , Attr.autocomplete False
+                , Attr.style "padding" "8px 8px 8px 0"
+                , Attr.style "font-family" (fontStyle settings)
+                , Attr.style "color" (getTextColor settings.color)
+                , Attr.style "background-color" "transparent"
+                , Attr.style "border" "none"
+                , Attr.style "outline" "none"
+                , Attr.style "width" (String.fromInt (svgWidth - 20) ++ "px")
+                , Attr.style "font-size" "14px"
+                , Attr.style "margin-left" "2px"
+                , Attr.style "margin-top" "2px"
+                , Attr.value <| " " ++ String.trimLeft item.text
+                , onInput EditSelectedItem
+                , onKeyDown <| EndEditSelectedItem item
+                ]
+                []
+            ]
+        ]
+
+
+startTextNodeRect : Position -> Size -> ( RgbColor, RgbColor ) -> Svg Msg
+startTextNodeRect ( posX, posY ) ( svgWidth, svgHeight ) ( color, backgroundColor ) =
+    rect
+        [ width <| String.fromInt svgWidth
+        , height <| String.fromInt <| svgHeight
+        , x (String.fromInt posX)
+        , y (String.fromInt posY)
+        , strokeWidth "2"
+        , stroke color
+        , rx "32"
+        , ry "32"
+        , fill backgroundColor
+        ]
+        []

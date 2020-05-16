@@ -2,6 +2,7 @@ module Views.Diagram.ImpactMap exposing (view)
 
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position as Position exposing (Position)
+import Data.Size exposing (Size)
 import List.Extra exposing (getAt, scanl1, zip3)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g)
@@ -37,7 +38,7 @@ view model =
                     Utils.getCanvasSize model
 
                 yCenter =
-                    canvasHeight // 2
+                    canvasHeight // 2 - model.settings.size.height * 4
             in
             g
                 [ transform
@@ -49,7 +50,7 @@ view model =
                     )
                 ]
                 [ nodesView model.settings 2 ( 0, 0 ) model.selectedItem items
-                , Views.cardView model.settings
+                , Views.startTextNodeView model.settings
                     ( 0, 0 )
                     model.selectedItem
                     root
@@ -112,7 +113,9 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
                         itemY =
                             y + (nodeCount * svgHeight - yOffset) + (i * yMargin)
                     in
-                    [ nodeLineView settings
+                    [ nodeLineView
+                        ( settings.size.width, settings.size.height )
+                        settings.color.task.backgroundColor
                         ( x, y )
                         ( itemX, itemY )
                     , nodesView
@@ -123,7 +126,7 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
                         )
                         selectedItem
                         (Item.unwrapChildren item.children)
-                    , Views.cardView settings
+                    , Views.textNodeView settings
                         ( itemX, itemY )
                         selectedItem
                         item
@@ -132,15 +135,15 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
         )
 
 
-nodeLineView : Settings -> Position -> Position -> Svg Msg
-nodeLineView settings fromBase toBase =
+nodeLineView : Size -> String -> Position -> Position -> Svg Msg
+nodeLineView ( width, height ) colour fromBase toBase =
     let
         ( fromPoint, toPoint ) =
             ( Tuple.mapBoth toFloat toFloat fromBase, Tuple.mapBoth toFloat toFloat toBase )
 
         size =
-            ( toFloat settings.size.width, toFloat settings.size.height )
+            ( toFloat width, toFloat height )
     in
-    Path.view settings
+    Path.view colour
         ( fromPoint, size )
         ( toPoint, size )

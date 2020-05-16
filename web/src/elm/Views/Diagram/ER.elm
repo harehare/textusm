@@ -574,4 +574,4 @@ pathView settings from to =
         toSize =
             Tuple.mapBoth toFloat toFloat to.size
     in
-    Path.view settings ( fromPosition, fromSize ) ( toPosition, toSize )
+    Path.view settings.color.line ( fromPosition, fromSize ) ( toPosition, toSize )

@@ -380,34 +380,21 @@ diagramView diagramType =
             Kanban.view
 
 
-scaleAdjustment : Diagram -> Float
-scaleAdjustment type_ =
-    case type_ of
-        ErDiagram ->
-            0.4
-
-        _ ->
-            0.2
-
-
 svgView : Model -> Svg Msg
 svgView model =
     let
-        adjustmentValue =
-            scaleAdjustment model.diagramType
-
         svgWidth =
             if model.fullscreen then
                 Basics.toFloat
                     (Basics.max model.svg.width (Size.getWidth model.size))
-                    * (model.svg.scale + adjustmentValue)
+                    * model.svg.scale
                     |> round
                     |> String.fromInt
 
             else
                 Basics.toFloat
                     (Size.getWidth model.size)
-                    * (model.svg.scale + adjustmentValue)
+                    * model.svg.scale
                     |> round
                     |> String.fromInt
 
@@ -415,14 +402,14 @@ svgView model =
             if model.fullscreen then
                 Basics.toFloat
                     (Basics.max model.svg.height (Size.getHeight model.size))
-                    * (model.svg.scale + adjustmentValue)
+                    * model.svg.scale
                     |> round
                     |> String.fromInt
 
             else
                 Basics.toFloat
                     (Size.getHeight model.size)
-                    * (model.svg.scale + adjustmentValue)
+                    * model.svg.scale
                     |> round
                     |> String.fromInt
 

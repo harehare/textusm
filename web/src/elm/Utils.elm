@@ -20,9 +20,9 @@ calcFontSize : Int -> String -> String
 calcFontSize width text =
     let
         size =
-            min (String.length text) 15
+            min (String.length text) 16
     in
-    String.fromInt (Basics.min (width // size) 15)
+    String.fromInt (Basics.min (width // size) 16)
 
 
 isPhone : Int -> Bool

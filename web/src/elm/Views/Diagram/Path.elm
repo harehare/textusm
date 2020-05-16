@@ -1,6 +1,6 @@
 module Views.Diagram.Path exposing (view)
 
-import Models.Diagram exposing (Msg(..), Settings)
+import Models.Diagram exposing (Msg(..))
 import Svg exposing (Svg, line, path)
 import Svg.Attributes exposing (d, fill, stroke, strokeWidth)
 
@@ -19,42 +19,50 @@ type alias Size =
 
 cornerSize : Float
 cornerSize =
-    10.0
+    8.0
 
 
-view : Settings -> ( Position, Size ) -> ( Position, Size ) -> Svg Msg
-view settings ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( toWidth, toHeight ) ) =
+view : String -> ( Position, Size ) -> ( Position, Size ) -> Svg Msg
+view colour ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( toWidth, toHeight ) ) =
     if fromX == toX && fromY < toY then
         draw
-            settings
+            colour
             [ start ( fromX + fromWidth / 2, fromY + fromHeight )
             , line ( toX + fromWidth / 2, toY )
             ]
 
     else if fromX == toX && fromY > toY then
         draw
-            settings
+            colour
             [ start ( fromX + fromWidth / 2, toY + toHeight )
             , line ( toX + fromWidth / 2, fromY )
             ]
 
-    else if fromY == toY && fromX < toX then
+    else if abs (fromY - toY) <= 10 && fromX < toX then
+        let
+            y =
+                fromY + fromHeight / 2
+        in
         draw
-            settings
-            [ start ( fromX + fromWidth, fromY + fromHeight / 2 )
-            , line ( toX, toY + fromHeight / 2 )
+            colour
+            [ start ( fromX + fromWidth, y )
+            , line ( toX, y )
             ]
 
-    else if fromY == toY && fromX > toX then
+    else if abs (fromY - toY) <= 10 && fromX > toX then
+        let
+            y =
+                fromY + fromHeight / 2
+        in
         draw
-            settings
-            [ start ( fromX + fromWidth, fromY + fromHeight / 2 )
-            , line ( toX, toY + fromHeight / 2 )
+            colour
+            [ start ( fromX + fromWidth, y )
+            , line ( toX, y )
             ]
 
     else if fromX < toX then
         draw
-            settings
+            colour
             (drawLines
                 ( ( fromX, fromY ), ( fromWidth, fromHeight ) )
                 ( ( toX, toY ), ( toWidth, toHeight ) )
@@ -62,7 +70,7 @@ view settings ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( 
 
     else
         draw
-            settings
+            colour
             (drawLines
                 ( ( toX, toY ), ( toWidth, toHeight ) )
                 ( ( fromX, fromY ), ( fromWidth, fromHeight ) )
@@ -110,11 +118,11 @@ drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, t
         ]
 
 
-draw : Settings -> List Path -> Svg Msg
-draw settings pathList =
+draw : String -> List Path -> Svg Msg
+draw colour pathList =
     path
         [ strokeWidth "2"
-        , stroke settings.color.line
+        , stroke colour
         , d <| String.join " " pathList
         , fill "transparent"
         ]
