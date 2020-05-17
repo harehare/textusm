@@ -350,10 +350,10 @@ getCanvasSize model =
                     ( tableWidth, tableHeight )
 
                 Diagram.MindMap ->
-                    ( (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
+                    ( (model.settings.size.width + 100) * (model.hierarchy * 2) + (model.settings.size.width * 2)
                     , case Item.head model.items of
                         Just head ->
-                            Item.getLeafCount head * (model.settings.size.height + 15)
+                            Item.getLeafCount head * (model.settings.size.height + 24)
 
                         Nothing ->
                             0
@@ -418,10 +418,10 @@ getCanvasSize model =
                             ( 0, 0 )
 
                 Diagram.ImpactMap ->
-                    ( (model.settings.size.width + 100) * ((model.hierarchy + 1) * 2 + 1) + 100
+                    ( (model.settings.size.width + 24) * ((model.hierarchy + 1) * 2) + 100
                     , case Item.head model.items of
                         Just head ->
-                            Item.getLeafCount head * (model.settings.size.height + 15) * 2
+                            Item.getLeafCount head * (model.settings.size.height + 24) * 2
 
                         Nothing ->
                             0

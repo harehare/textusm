@@ -50,8 +50,8 @@ view model =
 
                 ( xCenter, yCenter ) =
                     if model.matchParent then
-                        ( canvasWidth // 2 - model.settings.size.width * 2
-                        , canvasHeight // 2 - model.settings.size.height * 2
+                        ( canvasWidth // 2 - model.settings.size.width // 2
+                        , canvasHeight // 2 - model.settings.size.height // 2
                         )
 
                     else

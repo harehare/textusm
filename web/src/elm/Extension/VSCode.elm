@@ -63,8 +63,7 @@ init flags =
                 , scale = 1.0
                 }
             , moveStart = False
-            , x = 0
-            , y = 0
+            , position = ( 0, 0 )
             , movePosition = ( 0, 0 )
             , fullscreen = False
             , showZoomControl = True

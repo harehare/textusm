@@ -7,14 +7,13 @@ export const initDowonlad = (app: ElmApp) => {
             "http://www.w3.org/2000/svg",
             "svg"
         );
-        const svgWidth = width;
-        const svgHeight = height;
         const element = document.querySelector(`#${id}`);
-        svg.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
+        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
         svg.setAttribute("width", width.toString());
         svg.setAttribute("height", height.toString());
 
         if (element) {
+            svg.setAttribute("style", element.getAttribute("style") ?? "");
             svg.innerHTML = element.innerHTML;
         }
 
@@ -40,7 +39,7 @@ export const initDowonlad = (app: ElmApp) => {
             img.addEventListener(
                 "load",
                 () => {
-                    context.drawImage(img, 0, 0);
+                    context.drawImage(img, 0, 0, width, height);
                     const url = canvas.toDataURL("image/png");
                     callback(url);
                 },
@@ -71,7 +70,7 @@ export const initDowonlad = (app: ElmApp) => {
         async ({ id, width, height, title, x, y }: DownloadInfo) => {
             // @ts-ignore
             window.html2canvas = (await import("html2canvas")).default;
-            const jsPDF = await (await import("jspdf")).default;
+            const jsPDF = (await import("jspdf")).default;
 
             if (location.pathname === "/md") {
                 const doc = new jsPDF({
@@ -122,7 +121,7 @@ export const initDowonlad = (app: ElmApp) => {
                     id,
                     width,
                     height,
-                    scale: 2,
+                    scale: 3,
                     callback: (url: string) => {
                         const doc = new jsPDF({
                             orientation: "l",

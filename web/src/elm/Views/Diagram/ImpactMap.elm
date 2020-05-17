@@ -2,7 +2,7 @@ module Views.Diagram.ImpactMap exposing (view)
 
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position as Position exposing (Position)
-import Data.Size exposing (Size)
+import Data.Size as Size exposing (Size)
 import List.Extra exposing (getAt, scanl1, zip3)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g)
@@ -38,7 +38,11 @@ view model =
                     Utils.getCanvasSize model
 
                 yCenter =
-                    canvasHeight // 2 - model.settings.size.height * 4
+                    if model.matchParent then
+                        canvasHeight // 2 - model.settings.size.height // 2
+
+                    else
+                        Size.getHeight model.size // 2 - model.settings.size.height * 2
             in
             g
                 [ transform

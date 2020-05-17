@@ -462,7 +462,9 @@ class DiagramPanel {
             node: document.getElementById("svg"),
             flags: {text: \`${text}\`, fontName: "${fontName}",
             backgroundColor: "${
-              backgroundColor ? backgroundColor : "transparent"
+              backgroundColor && backgroundColor !== "transparent"
+                ? backgroundColor
+                : "#F4F4F5"
             }",
             activityBackgroundColor: "${
               activityBackground ? activityBackground : "#266B9A"
@@ -491,9 +493,7 @@ class DiagramPanel {
 
         const createSvg = (svgHTML, backgroundColor, width, height) => {
             const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-            const svgWidth = width * 1.3;
-            const svgHeight = height * 1.3;
-            svg.setAttribute('viewBox', '0 0 ' + svgWidth.toString() + ' ' + svgHeight.toString());
+            svg.setAttribute('viewBox', '0 0 ' + width.toString() + ' ' + height.toString());
             svg.setAttribute('width', width);
             svg.setAttribute('height', height);
             svg.setAttribute('style', 'background-color: ' + backgroundColor);
@@ -533,15 +533,15 @@ class DiagramPanel {
                 } catch {}
 
                 const canvas = document.createElement('canvas');
-                canvas.setAttribute('width', usmSvg.getAttribute('width'));
-                canvas.setAttribute('height', usmSvg.getAttribute('height'));
                 canvas.style.display = 'none';
 
-                const context = canvas.getContext('2d');
-                const img = new Image();
-
-                img.addEventListener('load', () => {
-                    context.drawImage(img, 0, 0);
+                app.ports.onGetCanvasSize.subscribe(([width, height]) => {
+                  canvas.setAttribute('width', width);
+                  canvas.setAttribute('height', height);
+                  const context = canvas.getContext('2d');
+                  const img = new Image();
+                  img.addEventListener('load', () => {
+                    context.drawImage(img, 0, 0, width, height);
                     const url = canvas.toDataURL('image/png');
                     setTimeout(() => {
                         canvas.remove();
@@ -551,7 +551,6 @@ class DiagramPanel {
                         })
                     }, 10);
                 }, false);
-                app.ports.onGetCanvasSize.subscribe(([width, height]) => {
                   img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(new XMLSerializer().serializeToString(
                     createSvg(usmSvg.innerHTML,
                               message.backgroundColor,
