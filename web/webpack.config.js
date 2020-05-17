@@ -165,11 +165,13 @@ if (mode === "production") {
                 verbose: false,
                 dry: false,
             }),
-            new CopyWebpackPlugin([
-                {
-                    from: "src/assets",
-                },
-            ]),
+            new CopyWebpackPlugin({
+                patterns: [
+                    {
+                        from: "src/assets",
+                    },
+                ],
+            }),
             new MiniCssExtractPlugin({
                 filename: "[name]-[hash].css",
                 chunkFilename: "[id]-[contenthash].css",

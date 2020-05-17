@@ -95,11 +95,11 @@ export const initDB = (app: ElmApp) => {
             if (isRemote) {
                 app.ports.saveToRemote.send(
                     JSON.stringify({
+                        ...diagramItem,
                         isRemote: true,
                         isBookmark: isBookmark,
                         id,
                         isPublic,
-                        ...diagramItem,
                     })
                 );
                 if (id) {
@@ -112,11 +112,11 @@ export const initDB = (app: ElmApp) => {
                 await (await db()).diagrams.put({ id: newId, ...diagramItem });
                 app.ports.saveToLocalCompleted.send(
                     JSON.stringify({
+                        ...diagramItem,
                         isRemote: false,
                         isBookmark: isBookmark,
                         id: newId,
                         isPublic,
-                        ...diagramItem,
                     })
                 );
             }
@@ -145,12 +145,12 @@ export const initDB = (app: ElmApp) => {
         const diagram = await (await db()).diagrams.get(diagramId);
         app.ports.gotLocalDiagramJson.send(
             JSON.stringify({
+                ...diagram,
                 isPublic: false,
                 isBookmark: false,
                 isRemote: false,
                 createdAt: new Date(),
                 updatedAt: new Date(),
-                ...diagram,
             })
         );
     });
@@ -164,12 +164,12 @@ export const initDB = (app: ElmApp) => {
         app.ports.gotLocalDiagramsJson.send(
             JSON.stringify(
                 diagrams.map((d: Diagram) => ({
+                    ...d,
                     isPublic: false,
                     isBookmark: false,
                     isRemote: false,
                     createdAt: new Date(),
                     updatedAt: new Date(),
-                    ...d,
                 }))
             )
         );
