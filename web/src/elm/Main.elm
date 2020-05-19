@@ -471,7 +471,7 @@ changeRouteTo route model =
                             cmds []
 
                           else
-                            Cmd.none
+                            cmds []
                         )
 
                     else
@@ -938,7 +938,11 @@ update message model =
         Shortcuts x ->
             case x of
                 "save" ->
-                    update Save model
+                    if Text.isChanged model.diagramModel.text then
+                        update Save model
+
+                    else
+                        ( model, Cmd.none )
 
                 "open" ->
                     update GetDiagrams model

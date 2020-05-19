@@ -159,7 +159,7 @@ view props =
                             , style "width" "30px"
                             , style "margin-top" "4px"
                             , style "object-fit" "cover"
-                            , style "border-radius" "4px"
+                            , style "border-radius" "50%"
                             ]
                             []
                         , case props.menu of
@@ -169,6 +169,10 @@ view props =
                                     Nothing
                                     (Just "5px")
                                     [ Menu.Item
+                                        { e = NoOp
+                                        , title = Maybe.map .email user |> Maybe.withDefault ""
+                                        }
+                                    , Menu.Item
                                         { e = SignOut
                                         , title = "SIGN OUT"
                                         }

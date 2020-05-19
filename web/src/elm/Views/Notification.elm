@@ -24,7 +24,7 @@ view notification =
                     ( text, Icon.warning 22 )
     in
     div
-        [ class "notification"
+        [ class "notification fade-in"
         , onClick OnCloseNotification
         ]
         [ div

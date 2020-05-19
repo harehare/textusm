@@ -611,6 +611,7 @@ select {
 }
 
 .notification {
+    opacity: 0;
     position: fixed;
     bottom: 5%;
     right: 10px;
@@ -965,6 +966,20 @@ select {
     }
     .delete-tag {
         background-color: var(--error-color);
+    }
+}
+
+.fade-in {
+    animation: fade-in 0.2s ease 0.3s 1 normal;
+    animation-fill-mode: forwards;
+}
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
     }
 }
 
