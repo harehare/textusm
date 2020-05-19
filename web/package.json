@@ -36,7 +36,7 @@
         "elm-verify-examples": "^5.0.0",
         "elm-webpack-loader": "^6.0.1",
         "file-loader": "^6.0.0",
-        "google-closure-compiler": "^20200504.0.0",
+        "google-closure-compiler": "^20200517.0.0",
         "html-inline-css-webpack-plugin": "^1.8.0",
         "html-webpack-plugin": "^4.3.0",
         "mini-css-extract-plugin": "^0.9.0",
