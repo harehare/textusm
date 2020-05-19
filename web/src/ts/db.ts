@@ -149,8 +149,6 @@ export const initDB = (app: ElmApp) => {
                 isPublic: false,
                 isBookmark: false,
                 isRemote: false,
-                createdAt: new Date(),
-                updatedAt: new Date(),
             })
         );
     });
@@ -168,8 +166,6 @@ export const initDB = (app: ElmApp) => {
                     isPublic: false,
                     isBookmark: false,
                     isRemote: false,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
                 }))
             )
         );
