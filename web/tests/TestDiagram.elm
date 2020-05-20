@@ -1,4 +1,4 @@
-module TestDiagram exposing (changeTextTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, toggleFullscreenText, zoomInTest, zoomOutTest)
+module TestDiagram exposing (changeTextTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, toggleFullscreenText)
 
 import Components.Diagram exposing (init, update)
 import Data.Item as Item exposing (ItemType(..))
@@ -51,70 +51,6 @@ noOpTest =
                 update NoOp defInit
                     |> Tuple.first
                     |> Expect.equal defInit
-        ]
-
-
-zoomInTest : Test
-zoomInTest =
-    describe "zoom in test"
-        [ test "Zoom in" <|
-            \() ->
-                update ZoomIn defInit
-                    |> Tuple.first
-                    |> .svg
-                    |> .scale
-                    |> List.singleton
-                    |> Expect.equal [ 0.95 ]
-        , test "Zoom in limit" <|
-            \() ->
-                let
-                    newModel =
-                        { defInit
-                            | svg =
-                                { width = defInit.svg.width
-                                , height = defInit.svg.height
-                                , scale = 0.1
-                                }
-                        }
-                in
-                update ZoomIn newModel
-                    |> Tuple.first
-                    |> .svg
-                    |> .scale
-                    |> List.singleton
-                    |> Expect.equal [ 0.05 ]
-        ]
-
-
-zoomOutTest : Test
-zoomOutTest =
-    describe "zoom out test"
-        [ test "Zoom out" <|
-            \() ->
-                update ZoomOut defInit
-                    |> Tuple.first
-                    |> .svg
-                    |> .scale
-                    |> List.singleton
-                    |> Expect.equal [ 1.05 ]
-        , test "Zoom out limit" <|
-            \() ->
-                let
-                    newModel =
-                        { defInit
-                            | svg =
-                                { width = defInit.svg.width
-                                , height = defInit.svg.height
-                                , scale = 2.0
-                                }
-                        }
-                in
-                update ZoomOut newModel
-                    |> Tuple.first
-                    |> .svg
-                    |> .scale
-                    |> List.singleton
-                    |> Expect.equal [ 2.05 ]
         ]
 
 
