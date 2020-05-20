@@ -58,6 +58,10 @@ view model =
                         ++ String.fromInt (centerX + 32)
                         ++ ","
                         ++ String.fromInt (centerY + getHeight model.size // 2)
+                        ++ "), scale("
+                        ++ String.fromFloat model.svg.scale
+                        ++ ","
+                        ++ String.fromFloat model.svg.scale
                         ++ ")"
                     )
                 , fill model.settings.backgroundColor

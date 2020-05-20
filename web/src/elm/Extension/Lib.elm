@@ -56,8 +56,7 @@ init flags =
                 }
             , moveStart = False
             , dragDrop = DragDrop.init
-            , x = 0
-            , y = 0
+            , position = ( 0, 0 )
             , movePosition = ( 0, 0 )
             , fullscreen = False
             , showZoomControl = flags.showZoomControl

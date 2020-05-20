@@ -6,7 +6,7 @@ import Data.Position as Position exposing (Position)
 import List.Extra exposing (scanl1, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g, line)
-import Svg.Attributes exposing (stroke, strokeWidth, transform, x1, x2, y1, y2)
+import Svg.Attributes exposing (fill, stroke, strokeWidth, transform, x1, x2, y1, y2)
 import Views.Diagram.Views as Views
 
 
@@ -28,8 +28,13 @@ view model =
                         ++ String.fromInt (Position.getX model.position)
                         ++ ","
                         ++ String.fromInt (Position.getY model.position)
+                        ++ "), scale("
+                        ++ String.fromFloat model.svg.scale
+                        ++ ","
+                        ++ String.fromFloat model.svg.scale
                         ++ ")"
                     )
+                , fill model.settings.backgroundColor
                 ]
                 [ siteView model.settings ( 0, Constants.itemSpan + model.settings.size.height ) model.selectedItem items
                 , Views.cardView model.settings ( 0, 0 ) model.selectedItem root

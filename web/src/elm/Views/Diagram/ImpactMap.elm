@@ -6,7 +6,7 @@ import Data.Size as Size exposing (Size)
 import List.Extra exposing (getAt, scanl1, zip3)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g)
-import Svg.Attributes exposing (transform)
+import Svg.Attributes exposing (fill, transform)
 import Utils
 import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views
@@ -50,8 +50,13 @@ view model =
                         ++ String.fromInt (Position.getX model.position + 10)
                         ++ ","
                         ++ String.fromInt (Position.getY model.position + yCenter)
+                        ++ "), scale("
+                        ++ String.fromFloat model.svg.scale
+                        ++ ","
+                        ++ String.fromFloat model.svg.scale
                         ++ ")"
                     )
+                , fill model.settings.backgroundColor
                 ]
                 [ nodesView model.settings 2 ( 0, 0 ) model.selectedItem items
                 , Views.startTextNodeView model.settings

@@ -66,8 +66,13 @@ view model =
                         ++ String.fromInt (Position.getX model.position)
                         ++ ","
                         ++ String.fromInt (Position.getY model.position)
+                        ++ "), scale("
+                        ++ String.fromFloat model.svg.scale
+                        ++ ","
+                        ++ String.fromFloat model.svg.scale
                         ++ ")"
                     )
+                , fill model.settings.backgroundColor
                 ]
                 (weekView model.settings
                     ( from, to )
