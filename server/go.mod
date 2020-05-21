@@ -3,9 +3,8 @@ module github.com/harehare/textusm
 require (
 	cloud.google.com/go v0.57.0
 	cloud.google.com/go/firestore v1.2.0
-	firebase.google.com/go v3.12.1+incompatible
+	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.11.3
-	github.com/agnivade/levenshtein v1.0.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/eminetto/clean-architecture-go v0.0.0-20191219160450-d9c68a5a2e98 // indirect
