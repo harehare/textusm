@@ -5,7 +5,6 @@ require (
 	cloud.google.com/go/firestore v1.2.0
 	firebase.google.com/go v3.12.1+incompatible
 	github.com/99designs/gqlgen v0.11.3
-	github.com/agnivade/levenshtein v1.0.3 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/eminetto/clean-architecture-go v0.0.0-20191219160450-d9c68a5a2e98 // indirect
@@ -36,7 +35,7 @@ require (
 	github.com/vektah/gqlparser v1.3.1
 	github.com/vektah/gqlparser/v2 v2.0.1
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	google.golang.org/api v0.24.0
+	google.golang.org/api v0.25.0
 	google.golang.org/grpc v1.29.1
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
