@@ -6,7 +6,7 @@ import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Views.UserPersona exposing (UserPersonaItem(..))
 import String
 import Svg exposing (Svg, g)
-import Svg.Attributes exposing (fill, transform)
+import Svg.Attributes exposing (fill, style, transform)
 import Svg.Lazy exposing (lazy4, lazy5)
 import Utils
 import Views.Diagram.Views as Views
@@ -61,6 +61,11 @@ view model =
                         ++ ")"
                     )
                 , fill model.settings.backgroundColor
+                , if model.moveStart then
+                    style "will-change: transform;"
+
+                  else
+                    style "will-change: transform;transition: transform 0.15s ease"
                 ]
                 [ lazy4 Views.canvasImageView
                     model.settings

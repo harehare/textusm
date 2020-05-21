@@ -6,7 +6,7 @@ import Data.Size as Size exposing (Size)
 import List.Extra exposing (getAt, scanl1, zip3)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g)
-import Svg.Attributes exposing (fill, transform)
+import Svg.Attributes exposing (fill, style, transform)
 import Utils
 import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views
@@ -57,6 +57,11 @@ view model =
                         ++ ")"
                     )
                 , fill model.settings.backgroundColor
+                , if model.moveStart then
+                    style "will-change: transform;"
+
+                  else
+                    style "will-change: transform;transition: transform 0.15s ease"
                 ]
                 [ nodesView model.settings 2 ( 0, 0 ) model.selectedItem items
                 , Views.startTextNodeView model.settings

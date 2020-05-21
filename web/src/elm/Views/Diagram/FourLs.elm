@@ -6,7 +6,7 @@ import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Views.FourLs exposing (FourLsItem(..))
 import String
 import Svg exposing (Svg, g)
-import Svg.Attributes exposing (fill, transform)
+import Svg.Attributes exposing (fill, style, transform)
 import Utils
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
@@ -45,6 +45,11 @@ view model =
                         ++ ")"
                     )
                 , fill model.settings.backgroundColor
+                , if model.moveStart then
+                    style "will-change: transform;"
+
+                  else
+                    style "will-change: transform;transition: transform 0.15s ease"
                 ]
                 [ Views.canvasView model.settings
                     ( Constants.largeItemWidth, itemHeight )

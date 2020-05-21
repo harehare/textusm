@@ -11,7 +11,7 @@ import List.Extra exposing (zip)
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
-import Svg.Attributes exposing (class, color, fill, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, x1, x2, y, y1, y2)
+import Svg.Attributes exposing (class, color, fill, fontSize, fontWeight, height, stroke, strokeWidth, style, transform, width, x, x1, x2, y, y1, y2)
 import Svg.Keyed as Keyed
 import Svg.Lazy exposing (lazy4, lazy5)
 import Views.Diagram.Views as Views
@@ -35,6 +35,11 @@ view model =
                         ++ ")"
                     )
                 , fill model.settings.backgroundColor
+                , if model.moveStart then
+                    style "will-change: transform;"
+
+                  else
+                    style "will-change: transform;transition: transform 0.15s ease"
                 ]
                 [ lazy4 labelView
                     model.settings

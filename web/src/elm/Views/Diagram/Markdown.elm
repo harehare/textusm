@@ -7,7 +7,7 @@ import Html.Attributes as Attr
 import Markdown
 import Models.Diagram as Diagram exposing (Model, Msg)
 import Svg exposing (Svg, foreignObject, g)
-import Svg.Attributes exposing (class, fill, height, transform, width, x, y)
+import Svg.Attributes exposing (class, fill, height, style, transform, width, x, y)
 import Utils
 
 
@@ -26,6 +26,11 @@ view model =
                 ++ ")"
             )
         , fill model.settings.backgroundColor
+        , if model.moveStart then
+            style "will-change: transform;"
+
+          else
+            style "will-change: transform;transition: transform 0.15s ease"
         ]
         [ foreignObject
             [ x "0"

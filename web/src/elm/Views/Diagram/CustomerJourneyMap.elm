@@ -6,7 +6,7 @@ import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Views.CustomerJourneyMap exposing (CustomerJourneyMap(..), Header(..), Row(..))
 import String
 import Svg exposing (Svg, g)
-import Svg.Attributes exposing (fill, transform)
+import Svg.Attributes exposing (fill, style, transform)
 import Svg.Keyed as Keyed
 import Svg.Lazy exposing (lazy3, lazy4)
 import Views.Diagram.Views as Views
@@ -37,6 +37,11 @@ view model =
                         ++ ")"
                     )
                 , fill model.settings.backgroundColor
+                , if model.moveStart then
+                    style "will-change: transform;"
+
+                  else
+                    style "will-change: transform;transition: transform 0.15s ease"
                 ]
                 (lazy3 headerView
                     model.settings

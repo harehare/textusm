@@ -14,7 +14,7 @@ import Models.Views.ER as ER exposing (Attribute(..), Column(..), ColumnType(..)
 import State as State exposing (Step(..))
 import String
 import Svg exposing (Svg, foreignObject, g, rect, text, text_)
-import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, transform, width, x, y)
+import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, style, transform, width, x, y)
 import Views.Diagram.Path as Path
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -65,6 +65,11 @@ view model =
                         ++ ")"
                     )
                 , fill model.settings.backgroundColor
+                , if model.moveStart then
+                    style "will-change: transform;"
+
+                  else
+                    style "will-change: transform;transition: transform 0.15s ease"
                 ]
                 (lazy3 relationshipView model.settings relationships tableDict
                     :: (Dict.toList tableDict

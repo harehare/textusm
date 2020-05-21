@@ -466,12 +466,15 @@ changeRouteTo route model =
                 ( _, Just diagram ) ->
                     if Maybe.withDefault "" diagram.id == id_ then
                         ( { model | page = Page.Main }
-                          -- diagram component not initialized
-                        , if Size.isZero model.diagramModel.size then
-                            cmds []
+                        , case ( model.page, Size.isZero model.diagramModel.size ) of
+                            ( Page.Main, True ) ->
+                                cmds []
 
-                          else
-                            cmds []
+                            ( Page.Main, False ) ->
+                                Cmd.none
+
+                            _ ->
+                                cmds []
                         )
 
                     else

@@ -7,7 +7,7 @@ import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.Views.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import String
 import Svg exposing (Svg, g, line, text, text_)
-import Svg.Attributes exposing (fill, fontFamily, fontSize, fontWeight, stroke, strokeWidth, transform, x, x1, x2, y, y1, y2)
+import Svg.Attributes exposing (fill, fontFamily, fontSize, fontWeight, stroke, strokeWidth, style, transform, x, x1, x2, y, y1, y2)
 import Svg.Lazy exposing (lazy3)
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
@@ -35,6 +35,11 @@ view model =
                         ++ ")"
                     )
                 , fill model.settings.backgroundColor
+                , if model.moveStart then
+                    style "will-change: transform;"
+
+                  else
+                    style "will-change: transform;transition: transform 0.15s ease"
                 ]
                 [ lazy3 kanbanView model.settings model.selectedItem k ]
 
