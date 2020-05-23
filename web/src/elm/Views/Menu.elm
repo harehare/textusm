@@ -281,14 +281,14 @@ exportMenu route =
     case route of
         Route.Edit "erd" ->
             Item
-                { e = Download DDL
+                { e = Download Ddl
                 , title = "DDL"
                 }
                 :: baseExportMenu
 
         Route.EditFile "erd" _ ->
             Item
-                { e = Download DDL
+                { e = Download Ddl
                 , title = "DDL"
                 }
                 :: baseExportMenu
@@ -330,7 +330,7 @@ baseExportMenu =
         , title = "TEXT"
         }
     , Item
-        { e = Download HTML
+        { e = Download Html
         , title = "HTML"
         }
     ]

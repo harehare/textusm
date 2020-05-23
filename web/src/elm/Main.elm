@@ -731,7 +731,7 @@ update message model =
             ( { model | diagramModel = newDiagramModel }, Cmd.none )
 
         Download fileType ->
-            if fileType == DDL then
+            if fileType == Ddl then
                 let
                     ( _, tables ) =
                         ER.fromItems model.diagramModel.items
@@ -767,7 +767,7 @@ update message model =
                             Svg ->
                                 ( Ports.downloadSvg, ".svg" )
 
-                            HTML ->
+                            Html ->
                                 ( Ports.downloadHtml, ".html" )
 
                             _ ->

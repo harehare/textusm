@@ -362,13 +362,13 @@ diagramView timezone diagram =
             [ div
                 [ style "overflow" "hidden"
                 , style "text-overflow" "ellipsis"
+                , style "font-size" "1.05em"
                 ]
                 [ text diagram.title ]
             , div
                 [ style "display" "flex"
                 , style "align-items" "center"
                 , style "justify-content" "space-between"
-                , style "margin-top" "2px"
                 ]
                 [ div [ class "datetime" ] [ text (Utils.millisToString timezone diagram.updatedAt) ]
                 , if diagram.isRemote then

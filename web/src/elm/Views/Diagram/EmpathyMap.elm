@@ -19,7 +19,7 @@ view model =
         Diagram.EmpathyMap e ->
             let
                 itemHeight =
-                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
+                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model.settings model.items
 
                 (EmpathyMapItem says) =
                     e.says

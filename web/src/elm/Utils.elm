@@ -1,7 +1,7 @@
 module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, stringToPosix, transpose)
 
 import Constants
-import Data.Item as Item
+import Data.Item as Item exposing (Items)
 import Data.Text as Text
 import File exposing (File)
 import Http exposing (Error(..))
@@ -284,14 +284,14 @@ extractDateValues s =
             )
 
 
-getCanvasHeight : DiagramModel.Model -> Int
-getCanvasHeight model =
+getCanvasHeight : DiagramModel.Settings -> Items -> Int
+getCanvasHeight settings items =
     let
         taskCount =
-            Item.map (\i -> Item.unwrapChildren i.children |> Item.length) model.items
+            Item.map (\i -> Item.unwrapChildren i.children |> Item.length) items
                 |> List.maximum
     in
-    (model.settings.size.height + Constants.itemMargin) * (taskCount |> Maybe.withDefault 1) + 50
+    (settings.size.height + Constants.itemMargin) * (taskCount |> Maybe.withDefault 1) + 50
 
 
 getCanvasSize : DiagramModel.Model -> ( Int, Int )
@@ -300,25 +300,25 @@ getCanvasSize model =
         ( width, height ) =
             case model.diagramType of
                 Diagram.Fourls ->
-                    ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.largeItemHeight (getCanvasHeight model) * 2 + 50 )
+                    ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.largeItemHeight (getCanvasHeight model.settings model.items) * 2 + 50 )
 
                 Diagram.EmpathyMap ->
-                    ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.itemHeight (getCanvasHeight model) * 2 + 50 )
+                    ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.itemHeight (getCanvasHeight model.settings model.items) * 2 + 50 )
 
                 Diagram.OpportunityCanvas ->
-                    ( Constants.itemWidth * 5 + 20, Basics.max Constants.itemHeight (getCanvasHeight model) * 3 + 50 )
+                    ( Constants.itemWidth * 5 + 20, Basics.max Constants.itemHeight (getCanvasHeight model.settings model.items) * 3 + 50 )
 
                 Diagram.BusinessModelCanvas ->
-                    ( Constants.itemWidth * 5 + 20, Basics.max Constants.itemHeight (getCanvasHeight model) * 3 + 50 )
+                    ( Constants.itemWidth * 5 + 20, Basics.max Constants.itemHeight (getCanvasHeight model.settings model.items) * 3 + 50 )
 
                 Diagram.Kpt ->
-                    ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.itemHeight (getCanvasHeight model) * 2 + 50 )
+                    ( Constants.largeItemWidth * 2 + 20, Basics.max Constants.itemHeight (getCanvasHeight model.settings model.items) * 2 + 50 )
 
                 Diagram.StartStopContinue ->
-                    ( Constants.itemWidth * 3 + 20, Basics.max Constants.itemHeight (getCanvasHeight model) + 50 )
+                    ( Constants.itemWidth * 3 + 20, Basics.max Constants.itemHeight (getCanvasHeight model.settings model.items) + 50 )
 
                 Diagram.UserPersona ->
-                    ( Constants.itemWidth * 5 + 25, Basics.max Constants.itemHeight (getCanvasHeight model) * 2 + 50 )
+                    ( Constants.itemWidth * 5 + 25, Basics.max Constants.itemHeight (getCanvasHeight model.settings model.items) * 2 + 50 )
 
                 Diagram.Markdown ->
                     ( 15 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Text.toString model.text), getMarkdownHeight <| String.lines <| Text.toString model.text )

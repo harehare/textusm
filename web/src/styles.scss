@@ -256,7 +256,7 @@ select {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    height: 40px;
+    height: 38px;
     padding: 8px;
     border-radius: 0 0 4px 4px;
     background-color: var(--light-background-color);
@@ -332,6 +332,7 @@ select {
     cursor: pointer;
     position: relative;
     box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--light-background-color);
 
     &::after {
         position: absolute;
@@ -342,6 +343,7 @@ select {
         height: 182px;
         transition: all 0.3s ease;
         background-color: rgba(0, 0, 0, 0);
+        border-radius: 4px 4px 0 0;
     }
 
     &:hover {
@@ -363,6 +365,13 @@ select {
             display: block;
             font-size: 0.7rem;
             color: var(--dark-text-color);
+        }
+
+        .cloud {
+            position: absolute;
+            display: block;
+            top: 5px;
+            right: 10px;
         }
     }
 
@@ -390,9 +399,7 @@ select {
     }
 
     .cloud {
-        position: absolute;
-        top: 5px;
-        right: 10px;
+        display: none;
     }
 }
 
