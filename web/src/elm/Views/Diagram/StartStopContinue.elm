@@ -19,7 +19,7 @@ view model =
         Diagram.StartStopContinue s ->
             let
                 itemHeight =
-                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
+                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model.settings model.items
 
                 (StartStopContinueItem start) =
                     s.start

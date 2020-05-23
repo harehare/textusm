@@ -19,7 +19,7 @@ view model =
         Diagram.UserPersona u ->
             let
                 itemHeight =
-                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
+                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model.settings model.items
 
                 (UserPersonaItem name) =
                     u.name

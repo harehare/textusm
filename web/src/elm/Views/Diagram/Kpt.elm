@@ -19,7 +19,7 @@ view model =
         Diagram.Kpt k ->
             let
                 itemHeight =
-                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
+                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model.settings model.items
 
                 (KptItem keep) =
                     k.keep

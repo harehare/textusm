@@ -18,7 +18,7 @@ view model =
         Diagram.FourLs f ->
             let
                 itemHeight =
-                    Basics.max Constants.largeItemHeight <| Utils.getCanvasHeight model
+                    Basics.max Constants.largeItemHeight <| Utils.getCanvasHeight model.settings model.items
 
                 (FourLsItem liked) =
                     f.liked

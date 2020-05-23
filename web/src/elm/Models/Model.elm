@@ -81,8 +81,8 @@ type FileType
     = Png
     | Svg
     | Pdf
-    | HTML
-    | DDL
+    | Html
+    | Ddl
     | MarkdownTable
 
 

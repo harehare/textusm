@@ -19,7 +19,7 @@ view model =
         Diagram.OpportunityCanvas o ->
             let
                 itemHeight =
-                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model
+                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model.settings model.items
 
                 (OpportunityCanvasItem usersAndCustomers) =
                     o.usersAndCustomers
