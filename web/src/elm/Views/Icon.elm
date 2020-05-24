@@ -1,4 +1,4 @@
-module Views.Icon exposing (add, bookmark, circle, clear, cloudOff, cloudOn, download, edit, error, export, file, folderOpen, fullscreen, fullscreenExit, helpOutline, indent, info, key, link, openInNew, people, remove, save, search, settings, share, tag, unbookmark, viewComfy, viewModule, visibility, warning)
+module Views.Icon exposing (add, bookmark, circle, clear, cloudOff, cloudOn, download, edit, error, expandAlt, export, file, folderOpen, fullscreen, fullscreenExit, helpOutline, indent, info, key, link, openInNew, people, remove, save, search, settings, share, tag, unbookmark, viewComfy, viewModule, visibility, warning)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (d, fill, height, viewBox, width)
@@ -162,6 +162,11 @@ circle color size =
 tag : Int -> Svg msg
 tag size =
     icon "#F5F5F6" size size "0 0 512 512" [ Svg.path [ d "M0 252.118V48C0 21.49 21.49 0 48 0h204.118a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882L293.823 497.941c-18.745 18.745-49.137 18.745-67.882 0L14.059 286.059A48 48 0 0 1 0 252.118zM112 64c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48z" ] [] ]
+
+
+expandAlt : Int -> Svg msg
+expandAlt size =
+    icon "#848a90" size size "0 0 448 512" [ Svg.path [ d "M212.686 315.314L120 408l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C10.697 480 0 469.255 0 456V344c0-21.382 25.803-32.09 40.922-16.971L72 360l92.686-92.686c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.249 6.248 6.249 16.378 0 22.627zm22.628-118.628L328 104l-32.922-31.029C279.958 57.851 290.666 32 312.048 32h112C437.303 32 448 42.745 448 56v112c0 21.382-25.803 32.09-40.922 16.971L376 152l-92.686 92.686c-6.248 6.248-16.379 6.248-22.627 0l-25.373-25.373c-6.249-6.248-6.249-16.378 0-22.627z" ] [] ]
 
 
 icon : String -> Int -> Int -> String -> List (Svg msg) -> Svg msg

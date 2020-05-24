@@ -19,7 +19,7 @@ TextUSM is a simple tool. Help you draw user story map using indented text.
   - KPT Retrospective
   - Mind Map
   - Empathy Map
-  - Customer Journey Map
+  - Table
   - Site Map
   - Gantt Chart
   - Impact Map
@@ -31,6 +31,7 @@ TextUSM is a simple tool. Help you draw user story map using indented text.
   - TXT
   - PDF
   - DDL(only ER Diagram)
+  - Markdown(only Table)
 
 ## Example
 
@@ -170,7 +171,7 @@ FEELS
 
 ![image](./img/emm.png)
 
-### Customer Journey Map
+### Table
 
 ```
 Header

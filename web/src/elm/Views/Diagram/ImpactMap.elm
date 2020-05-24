@@ -1,13 +1,11 @@
 module Views.Diagram.ImpactMap exposing (view)
 
 import Data.Item as Item exposing (Item, ItemType(..), Items)
-import Data.Position as Position exposing (Position)
-import Data.Size as Size exposing (Size)
+import Data.Position exposing (Position)
+import Data.Size exposing (Size)
 import List.Extra exposing (getAt, scanl1, zip3)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g)
-import Svg.Attributes exposing (fill, style, transform)
-import Utils
 import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views
 
@@ -33,36 +31,9 @@ view model =
             let
                 items =
                     Item.unwrapChildren root.children
-
-                ( _, canvasHeight ) =
-                    Utils.getCanvasSize model
-
-                yCenter =
-                    if model.matchParent then
-                        canvasHeight // 2 - model.settings.size.height // 2
-
-                    else
-                        Size.getHeight model.size // 2 - model.settings.size.height * 2
             in
             g
-                [ transform
-                    ("translate("
-                        ++ String.fromInt (Position.getX model.position + 10)
-                        ++ ","
-                        ++ String.fromInt (Position.getY model.position + yCenter)
-                        ++ "), scale("
-                        ++ String.fromFloat model.svg.scale
-                        ++ ","
-                        ++ String.fromFloat model.svg.scale
-                        ++ ")"
-                    )
-                , fill model.settings.backgroundColor
-                , if model.moveStart then
-                    style "will-change: transform;"
-
-                  else
-                    style "will-change: transform;transition: transform 0.15s ease"
-                ]
+                []
                 [ nodesView model.settings 2 ( 0, 0 ) model.selectedItem items
                 , Views.startTextNodeView model.settings
                     ( 0, 0 )

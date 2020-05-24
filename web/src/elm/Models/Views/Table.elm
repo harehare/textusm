@@ -1,10 +1,10 @@
-module Models.Views.CustomerJourneyMap exposing (CustomerJourneyMap(..), Header(..), Row(..), fromItems, toString)
+module Models.Views.Table exposing (Header(..), Row(..), Table(..), fromItems, toString)
 
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 
 
-type CustomerJourneyMap
-    = CustomerJourneyMap Header (List Row)
+type Table
+    = Table Header (List Row)
 
 
 type Header
@@ -15,9 +15,9 @@ type Row
     = Row Item
 
 
-fromItems : Items -> CustomerJourneyMap
+fromItems : Items -> Table
 fromItems items =
-    CustomerJourneyMap
+    Table
         (Header
             (items
                 |> Item.head
@@ -33,18 +33,18 @@ fromItems items =
         )
 
 
-toString : CustomerJourneyMap -> String
-toString customerJourneyMap =
+toString : Table -> String
+toString table =
     let
-        (CustomerJourneyMap h rows) =
-            customerJourneyMap
+        (Table h rows) =
+            table
 
         (Header headerItems) =
             h
 
         header =
             "|"
-                ++ (Item.cons Item.emptyItem headerItems
+                ++ (headerItems
                         |> Item.map (\i -> String.trim i.text)
                         |> String.join "|"
                    )

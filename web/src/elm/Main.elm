@@ -25,8 +25,8 @@ import Json.Decode as D
 import List.Extra exposing (find, getAt, removeAt, setAt, splitAt)
 import Models.Diagram as DiagramModel
 import Models.Model as Page exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
-import Models.Views.CustomerJourneyMap as CustomerJourneyMap
 import Models.Views.ER as ER
+import Models.Views.Table as Table
 import Page.Help as Help
 import Page.List as DiagramList
 import Page.NotFound as NotFound
@@ -743,7 +743,7 @@ update message model =
                 ( model, Download.string (Title.toString model.title ++ ".sql") "text/plain" ddl )
 
             else if fileType == MarkdownTable then
-                ( model, Download.string (Title.toString model.title ++ ".md") "text/plain" (CustomerJourneyMap.toString (CustomerJourneyMap.fromItems model.diagramModel.items)) )
+                ( model, Download.string (Title.toString model.title ++ ".md") "text/plain" (Table.toString (Table.fromItems model.diagramModel.items)) )
 
             else
                 let
@@ -1233,8 +1233,8 @@ update message model =
                             Diagram.EmpathyMap ->
                                 ( "SAYS\nTHINKS\nDOES\nFEELS", Route.Edit (DiagramType.toString Diagram.EmpathyMap) )
 
-                            Diagram.CustomerJourneyMap ->
-                                ( "Header\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDiscover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n", Route.Edit (DiagramType.toString Diagram.CustomerJourneyMap) )
+                            Diagram.Table ->
+                                ( "Header\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\n    Column7\nRow1\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\nRow2\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6", Route.Edit (DiagramType.toString Diagram.Table) )
 
                             Diagram.SiteMap ->
                                 ( "", Route.Edit (DiagramType.toString Diagram.SiteMap) )

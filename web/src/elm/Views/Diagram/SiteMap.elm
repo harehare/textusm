@@ -2,11 +2,11 @@ module Views.Diagram.SiteMap exposing (view)
 
 import Constants
 import Data.Item as Item exposing (Item, Items)
-import Data.Position as Position exposing (Position)
+import Data.Position exposing (Position)
 import List.Extra exposing (scanl1, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g, line)
-import Svg.Attributes exposing (fill, stroke, strokeWidth, style, transform, x1, x2, y1, y2)
+import Svg.Attributes exposing (stroke, strokeWidth, x1, x2, y1, y2)
 import Views.Diagram.Views as Views
 
 
@@ -23,24 +23,7 @@ view model =
                     Item.unwrapChildren root.children
             in
             g
-                [ transform
-                    ("translate("
-                        ++ String.fromInt (Position.getX model.position)
-                        ++ ","
-                        ++ String.fromInt (Position.getY model.position)
-                        ++ "), scale("
-                        ++ String.fromFloat model.svg.scale
-                        ++ ","
-                        ++ String.fromFloat model.svg.scale
-                        ++ ")"
-                    )
-                , fill model.settings.backgroundColor
-                , if model.moveStart then
-                    style "will-change: transform;"
-
-                  else
-                    style "will-change: transform; transition: transform 0.15s ease"
-                ]
+                []
                 [ siteView model.settings ( 0, Constants.itemSpan + model.settings.size.height ) model.selectedItem items
                 , Views.cardView model.settings ( 0, 0 ) model.selectedItem root
                 ]

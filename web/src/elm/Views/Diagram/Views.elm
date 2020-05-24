@@ -14,7 +14,6 @@ import Models.Diagram exposing (Msg(..), Settings, fontStyle, getTextColor, sett
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
 import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x, xlinkHref, y)
-import Utils
 
 
 type alias RgbColor =
@@ -73,8 +72,6 @@ rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         , x (String.fromInt posX)
         , y (String.fromInt posY)
         , fill color
-        , rx "2"
-        , ry "2"
         , style "filter:url(#shadow)"
         ]
         []
@@ -141,7 +138,7 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
                 , Attr.style "border" "none"
                 , Attr.style "outline" "none"
                 , Attr.style "width" (String.fromInt (svgWidth - 20) ++ "px")
-                , Attr.style "font-size" (Maybe.withDefault (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) fontSize ++ "px")
+                , Attr.style "font-size" <| Constants.fontSize ++ "px"
                 , Attr.style "margin-left" "2px"
                 , Attr.style "margin-top" "2px"
                 , Attr.value <| " " ++ String.trimLeft item.text
@@ -163,7 +160,7 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
             , height <| String.fromInt svgHeight
             , fill colour
             , color colour
-            , fontSize (cardText |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
+            , fontSize Constants.fontSize
             , class ".select-none"
             ]
             [ div
@@ -182,7 +179,7 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
             , height <| String.fromInt svgHeight
             , fill colour
             , color colour
-            , fontSize (cardText |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
+            , fontSize <| Constants.fontSize
             , class ".select-none"
             ]
             [ text cardText ]
@@ -397,7 +394,7 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour nodeText =
         , height <| String.fromInt svgHeight
         , fill colour
         , color <| getTextColor settings.color
-        , fontSize (nodeText |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
+        , fontSize Constants.fontSize
         , class ".select-none"
         ]
         [ div

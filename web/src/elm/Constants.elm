@@ -1,4 +1,9 @@
-module Constants exposing (commentSize, ganttItemSize, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, smallItemMargin, tableMargin, tableRowHeight)
+module Constants exposing (commentSize, fontSize, ganttItemSize, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, smallItemMargin, tableMargin, tableRowHeight)
+
+
+fontSize : String
+fontSize =
+    "14"
 
 
 itemSpan : Int

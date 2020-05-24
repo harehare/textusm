@@ -1,13 +1,11 @@
 module Views.Diagram.MindMap exposing (view)
 
 import Data.Item as Item exposing (Item, ItemType(..), Items)
-import Data.Position as Position exposing (Position)
-import Data.Size as Size exposing (Size)
+import Data.Position exposing (Position)
+import Data.Size exposing (Size)
 import List.Extra exposing (getAt, scanl1, splitAt, zip3)
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g)
-import Svg.Attributes exposing (fill, style, transform)
-import Utils
 import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views
 
@@ -44,40 +42,9 @@ view model =
 
                 ( right, left ) =
                     Item.splitAt (itemsCount // 2) items
-
-                ( canvasWidth, canvasHeight ) =
-                    Utils.getCanvasSize model
-
-                ( xCenter, yCenter ) =
-                    if model.matchParent then
-                        ( canvasWidth // 2 - model.settings.size.width // 2
-                        , canvasHeight // 2 - model.settings.size.height // 2
-                        )
-
-                    else
-                        ( Size.getWidth model.size // 2 - model.settings.size.width * 2
-                        , Size.getHeight model.size // 2 - model.settings.size.height * 2
-                        )
             in
             g
-                [ transform
-                    ("translate("
-                        ++ String.fromInt (Position.getX model.position + xCenter)
-                        ++ ","
-                        ++ String.fromInt (Position.getY model.position + yCenter)
-                        ++ "), scale("
-                        ++ String.fromFloat model.svg.scale
-                        ++ ","
-                        ++ String.fromFloat model.svg.scale
-                        ++ ")"
-                    )
-                , fill model.settings.backgroundColor
-                , if model.moveStart then
-                    style "will-change: transform;"
-
-                  else
-                    style "will-change: transform;transition: transform 0.15s ease"
-                ]
+                []
                 [ nodesView model.settings 2 ( 0, 0 ) Left model.selectedItem left
                 , nodesView model.settings 2 ( 0, 0 ) Right model.selectedItem right
                 , Views.startTextNodeView model.settings

@@ -1,12 +1,9 @@
 module Views.Diagram.EmpathyMap exposing (view)
 
 import Constants
-import Data.Position as Position
 import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Views.EmpathyMap exposing (EmpathyMapItem(..))
-import String
 import Svg exposing (Svg, g)
-import Svg.Attributes exposing (fill, style, transform)
 import Svg.Lazy exposing (lazy5)
 import Utils
 import Views.Diagram.Views as Views
@@ -34,24 +31,7 @@ view model =
                     e.feels
             in
             g
-                [ transform
-                    ("translate("
-                        ++ String.fromInt (Position.getX model.position)
-                        ++ ","
-                        ++ String.fromInt (Position.getY model.position)
-                        ++ "), scale("
-                        ++ String.fromFloat model.svg.scale
-                        ++ ","
-                        ++ String.fromFloat model.svg.scale
-                        ++ ")"
-                    )
-                , fill model.settings.backgroundColor
-                , if model.moveStart then
-                    style "will-change: transform;"
-
-                  else
-                    style "will-change: transform;transition: transform 0.15s ease"
-                ]
+                []
                 [ lazy5 Views.canvasView
                     model.settings
                     ( Constants.largeItemWidth, itemHeight )

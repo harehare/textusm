@@ -17,7 +17,6 @@ import List
 import List.Extra exposing (findIndex, getAt, scanl, splitAt)
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
-import Models.Views.CustomerJourneyMap as CustomerJourneyMapModel
 import Models.Views.ER as ErDiagramModel
 import Models.Views.EmpathyMap as EmpathyMapModel
 import Models.Views.FourLs as FourLsModel
@@ -25,18 +24,18 @@ import Models.Views.Kanban as KanbanModel
 import Models.Views.Kpt as KptModel
 import Models.Views.OpportunityCanvas as OpportunityCanvasModel
 import Models.Views.StartStopContinue as StartStopContinueModel
+import Models.Views.Table as TableModel
 import Models.Views.UserPersona as UserPersonaModel
 import Result exposing (andThen)
 import String
 import Svg exposing (Svg, defs, feComponentTransfer, feFuncA, feGaussianBlur, feMerge, feMergeNode, feOffset, filter, g, svg, text)
-import Svg.Attributes exposing (class, dx, dy, height, id, in_, result, slope, stdDeviation, type_, viewBox, width)
+import Svg.Attributes exposing (class, dx, dy, fill, height, id, in_, result, slope, stdDeviation, style, transform, type_, viewBox, width)
 import Svg.Events exposing (onClick)
 import Svg.Lazy exposing (lazy, lazy2)
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
-import Views.Diagram.CustomerJourneyMap as CustomerJourneyMap
 import Views.Diagram.ER as ER
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
@@ -49,6 +48,7 @@ import Views.Diagram.MindMap as MindMap
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
 import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
+import Views.Diagram.Table as Table
 import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
 import Views.Empty as Empty
@@ -254,10 +254,20 @@ zoomControl isFullscreen scale =
         , Attr.style "right" "35px"
         , Attr.style "top" "5px"
         , Attr.style "display" "flex"
-        , Attr.style "width" "140px"
+        , Attr.style "width" "180px"
         , Attr.style "justify-content" "space-between"
         ]
         [ div
+            [ Attr.style "width" "24px"
+            , Attr.style "height" "24px"
+            , Attr.style "cursor" "pointer"
+            , Attr.style "display" "flex"
+            , Attr.style "align-items" "center"
+            , onClick FitToWindow
+            ]
+            [ Icon.expandAlt 14
+            ]
+        , div
             [ Attr.style "width" "24px"
             , Attr.style "height" "24px"
             , Attr.style "cursor" "pointer"
@@ -354,8 +364,8 @@ diagramView diagramType =
         EmpathyMap ->
             EmpathyMap.view
 
-        CustomerJourneyMap ->
-            CustomerJourneyMap.view
+        Table ->
+            Table.view
 
         SiteMap ->
             SiteMap.view
@@ -455,7 +465,26 @@ svgView model =
                     ]
                 ]
             ]
-        , mainSvg
+        , g
+            [ transform
+                ("translate("
+                    ++ String.fromInt (Position.getX model.position)
+                    ++ ","
+                    ++ String.fromInt (Position.getY model.position)
+                    ++ "), scale("
+                    ++ String.fromFloat model.svg.scale
+                    ++ ","
+                    ++ String.fromFloat model.svg.scale
+                    ++ ")"
+                )
+            , fill model.settings.backgroundColor
+            , if model.moveStart then
+                style "will-change: transform;"
+
+              else
+                style "will-change: transform;transition: transform 0.15s ease"
+            ]
+            [ mainSvg ]
         ]
 
 
@@ -599,8 +628,8 @@ updateDiagram ( width, height ) base text =
                 UserStoryMap ->
                     Diagram.UserStoryMap items (countUpToHierarchy (hierarchy - 2) items) (scanl (\it v -> v + Item.length (Item.unwrapChildren it.children)) 0 (Item.unwrap items))
 
-                CustomerJourneyMap ->
-                    Diagram.CustomerJourneyMap <| CustomerJourneyMapModel.fromItems items
+                Table ->
+                    Diagram.Table <| TableModel.fromItems items
 
                 Kpt ->
                     Diagram.Kpt <| KptModel.fromItems items
@@ -793,6 +822,28 @@ update message model =
 
                 Nothing ->
                     ( { model | dragDrop = model_ }, Cmd.none )
+
+        FitToWindow ->
+            let
+                ( windowWidth, windowHeight ) =
+                    model.size
+
+                ( canvasWidth, canvasHeight ) =
+                    Utils.getCanvasSize model
+
+                ( widthRatio, heightRatio ) =
+                    ( toFloat windowWidth / toFloat canvasWidth, toFloat windowHeight / toFloat canvasHeight )
+
+                svgModel =
+                    model.svg
+
+                newSvgModel =
+                    { svgModel | scale = min widthRatio heightRatio }
+
+                position =
+                    ( windowWidth // 2 - round (toFloat canvasWidth / 2 * widthRatio), windowHeight // 2 - round (toFloat canvasHeight / 2 * heightRatio) )
+            in
+            ( { model | svg = newSvgModel, position = position }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

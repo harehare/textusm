@@ -212,10 +212,6 @@ newMenu =
         , title = "User Story Map"
         }
     , Item
-        { e = New Diagram.CustomerJourneyMap
-        , title = "Customer Journey Map"
-        }
-    , Item
         { e = New Diagram.EmpathyMap
         , title = "Empathy Map"
         }
@@ -259,6 +255,11 @@ newMenu =
     , Item
         { e = New Diagram.Markdown
         , title = "Markdown"
+        }
+    , Separator
+    , Item
+        { e = New Diagram.Table
+        , title = "Table"
         }
     , Separator
     , Item

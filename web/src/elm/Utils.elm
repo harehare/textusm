@@ -1,4 +1,4 @@
-module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, stringToPosix, transpose)
+module Utils exposing (calcDistance, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, stringToPosix, transpose)
 
 import Constants
 import Data.Item as Item exposing (Items)
@@ -14,15 +14,6 @@ import Task
 import TextUSM.Enum.Diagram as Diagram
 import Time exposing (Month(..), Posix, Zone, toDay, toHour, toMinute, toMonth, toSecond, toYear, utc)
 import Time.Extra exposing (Interval(..), Parts, diff, partsToPosix)
-
-
-calcFontSize : Int -> String -> String
-calcFontSize width text =
-    let
-        size =
-            max (String.length text) 16
-    in
-    String.fromInt (Basics.min (width // size) 16)
 
 
 isPhone : Int -> Bool
@@ -359,7 +350,7 @@ getCanvasSize model =
                             0
                     )
 
-                Diagram.CustomerJourneyMap ->
+                Diagram.Table ->
                     ( model.settings.size.width * ((model.items |> Item.head |> Maybe.withDefault Item.emptyItem |> .children |> Item.unwrapChildren |> Item.length) + 1)
                     , model.settings.size.height * Item.length model.items + Constants.itemMargin
                     )

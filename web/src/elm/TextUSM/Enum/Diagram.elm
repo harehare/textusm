@@ -19,12 +19,12 @@ import Json.Decode as Decode exposing (Decoder)
   - Markdown -
   - MindMap -
   - EmpathyMap -
-  - CustomerJourneyMap -
   - SiteMap -
   - GanttChart -
   - ImpactMap -
   - ErDiagram -
   - Kanban -
+  - Table -
 
 -}
 type Diagram
@@ -38,17 +38,17 @@ type Diagram
     | Markdown
     | MindMap
     | EmpathyMap
-    | CustomerJourneyMap
     | SiteMap
     | GanttChart
     | ImpactMap
     | ErDiagram
     | Kanban
+    | Table
 
 
 list : List Diagram
 list =
-    [ UserStoryMap, OpportunityCanvas, BusinessModelCanvas, Fourls, StartStopContinue, Kpt, UserPersona, Markdown, MindMap, EmpathyMap, CustomerJourneyMap, SiteMap, GanttChart, ImpactMap, ErDiagram, Kanban ]
+    [ UserStoryMap, OpportunityCanvas, BusinessModelCanvas, Fourls, StartStopContinue, Kpt, UserPersona, Markdown, MindMap, EmpathyMap, SiteMap, GanttChart, ImpactMap, ErDiagram, Kanban, Table ]
 
 
 decoder : Decoder Diagram
@@ -87,9 +87,6 @@ decoder =
                     "EMPATHY_MAP" ->
                         Decode.succeed EmpathyMap
 
-                    "CUSTOMER_JOURNEY_MAP" ->
-                        Decode.succeed CustomerJourneyMap
-
                     "SITE_MAP" ->
                         Decode.succeed SiteMap
 
@@ -104,6 +101,9 @@ decoder =
 
                     "KANBAN" ->
                         Decode.succeed Kanban
+
+                    "TABLE" ->
+                        Decode.succeed Table
 
                     _ ->
                         Decode.fail ("Invalid Diagram type, " ++ string ++ " try re-running the @dillonkearns/elm-graphql CLI ")
@@ -145,9 +145,6 @@ toString enum =
         EmpathyMap ->
             "EMPATHY_MAP"
 
-        CustomerJourneyMap ->
-            "CUSTOMER_JOURNEY_MAP"
-
         SiteMap ->
             "SITE_MAP"
 
@@ -162,6 +159,9 @@ toString enum =
 
         Kanban ->
             "KANBAN"
+
+        Table ->
+            "TABLE"
 
 
 {-| Convert from a String representation to an elm representation enum.
@@ -208,9 +208,6 @@ fromString enumString =
         "EMPATHY_MAP" ->
             Just EmpathyMap
 
-        "CUSTOMER_JOURNEY_MAP" ->
-            Just CustomerJourneyMap
-
         "SITE_MAP" ->
             Just SiteMap
 
@@ -225,6 +222,9 @@ fromString enumString =
 
         "KANBAN" ->
             Just Kanban
+
+        "TABLE" ->
+            Just Table
 
         _ ->
             Nothing

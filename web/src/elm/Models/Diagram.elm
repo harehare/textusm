@@ -7,7 +7,6 @@ import Data.Size as Size
 import Data.Text exposing (Text)
 import Html5.DragDrop as DragDrop
 import Models.Views.BusinessModelCanvas exposing (BusinessModelCanvas)
-import Models.Views.CustomerJourneyMap exposing (CustomerJourneyMap)
 import Models.Views.ER exposing (ErDiagram)
 import Models.Views.EmpathyMap exposing (EmpathyMap)
 import Models.Views.FourLs exposing (FourLs)
@@ -15,6 +14,7 @@ import Models.Views.Kanban exposing (Kanban)
 import Models.Views.Kpt exposing (Kpt)
 import Models.Views.OpportunityCanvas exposing (OpportunityCanvas)
 import Models.Views.StartStopContinue exposing (StartStopContinue)
+import Models.Views.Table exposing (Table)
 import Models.Views.UserPersona exposing (UserPersona)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
@@ -63,7 +63,7 @@ type Data
     = Empty
     | Items Items
     | UserStoryMap Items CountByHierarchy CountByTasks
-    | CustomerJourneyMap CustomerJourneyMap
+    | Table Table
     | Kpt Kpt
     | FourLs FourLs
     | Kanban Kanban
@@ -138,6 +138,7 @@ type Msg
     | EndEditSelectedItem Item Int Bool
     | DragDropMsg (DragDrop.Msg Int Int)
     | MoveItem ( Int, Int )
+    | FitToWindow
 
 
 getTextColor : ColorSettings -> String
