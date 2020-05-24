@@ -252,13 +252,13 @@ select {
 
 .diagram-text {
     font-size: 0.8rem;
-    width: 19vw;
+    width: 100%;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    border-top: 1px solid var(--border-color);
-    height: 40px;
+    height: 38px;
     padding: 8px;
+    border-radius: 0 0 4px 4px;
     background-color: var(--light-background-color);
     @media screen and (max-width: 480px) {
         width: 45vw;
@@ -319,18 +319,20 @@ select {
 }
 
 .diagram-item {
-    width: 18%;
-    border: 1px solid var(--border-color);
+    width: 22%;
     border-radius: 4px;
     display: flex;
     align-items: flex-end;
     justify-content: flex-end;
     transition: box-shadow 0.1s ease-in-out 0.1s;
+    will-change: box-shadow;
     background-size: cover;
     margin: 0 8px 8px 8px;
-    height: 190px;
+    height: 240px;
     cursor: pointer;
     position: relative;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--light-background-color);
 
     &::after {
         position: absolute;
@@ -338,15 +340,45 @@ select {
         top: 0;
         left: 0;
         width: 100%;
-        height: 133px;
-        transition: all 0.5s ease;
+        height: 182px;
+        transition: all 0.3s ease;
         background-color: rgba(0, 0, 0, 0);
+        border-radius: 4px 4px 0 0;
     }
 
     &:hover {
         &::after {
-            background-color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.5);
         }
+        .bookmark {
+            display: block;
+            position: absolute;
+            bottom: 30px;
+            right: 9px;
+        }
+
+        .remove {
+            display: block;
+        }
+
+        .datetime {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--dark-text-color);
+        }
+
+        .cloud {
+            position: absolute;
+            display: block;
+            top: 5px;
+            right: 10px;
+        }
+    }
+
+    .datetime,
+    .bookmark,
+    .remove {
+        display: none;
     }
 
     &:active {
@@ -367,15 +399,7 @@ select {
     }
 
     .cloud {
-        position: absolute;
-        top: 5px;
-        right: 10px;
-    }
-
-    .bookmark {
-        position: absolute;
-        bottom: 30px;
-        right: 9px;
+        display: none;
     }
 }
 

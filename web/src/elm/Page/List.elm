@@ -352,6 +352,8 @@ diagramView timezone diagram =
     div
         [ class "diagram-item"
         , style "background-image" ("url(\"" ++ (diagram.thumbnail |> Maybe.withDefault "") ++ "\")")
+        , style "background-size" "contain"
+        , style "background-repeat" "no-repeat"
         , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
         ]
         [ div
@@ -360,21 +362,21 @@ diagramView timezone diagram =
             [ div
                 [ style "overflow" "hidden"
                 , style "text-overflow" "ellipsis"
+                , style "font-size" "1.05em"
                 ]
                 [ text diagram.title ]
             , div
                 [ style "display" "flex"
                 , style "align-items" "center"
                 , style "justify-content" "space-between"
-                , style "margin-top" "8px"
                 ]
-                [ div [] [ text (Utils.millisToString timezone diagram.updatedAt) ]
+                [ div [ class "datetime" ] [ text (Utils.millisToString timezone diagram.updatedAt) ]
                 , if diagram.isRemote then
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOn 14 ]
 
                   else
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOff 14 ]
-                , div [ style "margin-left" "16px", class "button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
+                , div [ style "margin-left" "16px", class "remove button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
                 , if diagram.isBookmark then
                     div
                         [ class "bookmark"
