@@ -731,60 +731,64 @@ update message model =
             ( { model | diagramModel = newDiagramModel }, Cmd.none )
 
         Download fileType ->
-            if fileType == Ddl then
-                let
-                    ( _, tables ) =
-                        ER.fromItems model.diagramModel.items
+            case fileType of
+                Ddl ->
+                    let
+                        ( _, tables ) =
+                            ER.fromItems model.diagramModel.items
 
-                    ddl =
-                        List.map ER.tableToString tables
-                            |> String.join "\n"
-                in
-                ( model, Download.string (Title.toString model.title ++ ".sql") "text/plain" ddl )
+                        ddl =
+                            List.map ER.tableToString tables
+                                |> String.join "\n"
+                    in
+                    ( model, Download.string (Title.toString model.title ++ ".sql") "text/plain" ddl )
 
-            else if fileType == MarkdownTable then
-                ( model, Download.string (Title.toString model.title ++ ".md") "text/plain" (Table.toString (Table.fromItems model.diagramModel.items)) )
+                MarkdownTable ->
+                    ( model, Download.string (Title.toString model.title ++ ".md") "text/plain" (Table.toString (Table.fromItems model.diagramModel.items)) )
 
-            else
-                let
-                    ( width, height ) =
-                        Utils.getCanvasSize model.diagramModel
+                PlainText ->
+                    ( model, Download.string (Title.toString model.title) "text/plain" (Text.toString model.diagramModel.text) )
 
-                    diagramModel =
-                        model.diagramModel
+                _ ->
+                    let
+                        ( width, height ) =
+                            Utils.getCanvasSize model.diagramModel
 
-                    newDiagramModel =
-                        { diagramModel | position = ( 0, 0 ), matchParent = True }
+                        diagramModel =
+                            model.diagramModel
 
-                    ( sub, extension ) =
-                        case fileType of
-                            Png ->
-                                ( Ports.downloadPng, ".png" )
+                        newDiagramModel =
+                            { diagramModel | position = ( 0, 0 ), matchParent = True }
 
-                            Pdf ->
-                                ( Ports.downloadPdf, ".pdf" )
+                        ( sub, extension ) =
+                            case fileType of
+                                Png ->
+                                    ( Ports.downloadPng, ".png" )
 
-                            Svg ->
-                                ( Ports.downloadSvg, ".svg" )
+                                Pdf ->
+                                    ( Ports.downloadPdf, ".pdf" )
 
-                            Html ->
-                                ( Ports.downloadHtml, ".html" )
+                                Svg ->
+                                    ( Ports.downloadSvg, ".svg" )
 
-                            _ ->
-                                ( Ports.downloadSvg, ".svg" )
-                in
-                ( { model | diagramModel = newDiagramModel }
-                , sub
-                    { width = width
-                    , height = height
-                    , id = "usm"
-                    , title = Title.toString model.title ++ extension
-                    , x = 0
-                    , y = 0
-                    , text = Text.toString model.diagramModel.text
-                    , diagramType = DiagramType.toString model.diagramModel.diagramType
-                    }
-                )
+                                Html ->
+                                    ( Ports.downloadHtml, ".html" )
+
+                                _ ->
+                                    ( Ports.downloadSvg, ".svg" )
+                    in
+                    ( { model | diagramModel = newDiagramModel }
+                    , sub
+                        { width = width
+                        , height = height
+                        , id = "usm"
+                        , title = Title.toString model.title ++ extension
+                        , x = 0
+                        , y = 0
+                        , text = Text.toString model.diagramModel.text
+                        , diagramType = DiagramType.toString model.diagramModel.diagramType
+                        }
+                    )
 
         StartDownload info ->
             ( model, Cmd.batch [ Download.string (Title.toString model.title ++ info.extension) info.mimeType info.content, Task.perform identity (Task.succeed CloseMenu) ] )
@@ -803,13 +807,6 @@ update message model =
 
         FileLoaded text ->
             ( model, Ports.loadText text )
-
-        SaveToFileSystem ->
-            let
-                title =
-                    Title.toString model.title
-            in
-            ( model, Download.string title "text/plain" (Text.toString model.diagramModel.text) )
 
         Save ->
             let
@@ -870,11 +867,7 @@ update message model =
                 )
 
         SaveToLocalCompleted diagramJson ->
-            let
-                result =
-                    D.decodeString DiagramItem.decoder diagramJson
-            in
-            case result of
+            case D.decodeString DiagramItem.decoder diagramJson of
                 Ok item ->
                     ( { model | currentDiagram = Just item }
                     , Cmd.batch
@@ -948,7 +941,7 @@ update message model =
                         ( model, Cmd.none )
 
                 "open" ->
-                    update GetDiagrams model
+                    ( model, Nav.load <| Route.toString (toRoute model.url) )
 
                 _ ->
                     ( model, Cmd.none )
@@ -977,9 +970,6 @@ update message model =
 
         EditTitle title ->
             ( { model | title = Title.edit <| Title.fromString title }, Cmd.none )
-
-        NavRoute route ->
-            ( model, Nav.pushUrl model.key (Route.toString route) )
 
         BackToEdit ->
             ( model, Nav.pushUrl model.key (Route.toString (Route.toDiagramToRoute (Maybe.withDefault DiagramItem.empty model.currentDiagram))) )
@@ -1134,14 +1124,7 @@ update message model =
                     ( model, Nav.load href )
 
         UrlChanged url ->
-            let
-                updatedModel =
-                    { model | url = url }
-            in
-            changeRouteTo (toRoute url) updatedModel
-
-        GetDiagrams ->
-            ( { model | progress = True }, Nav.pushUrl model.key (Route.toString Route.List) )
+            changeRouteTo (toRoute url) { model | url = url }
 
         SignIn provider ->
             ( { model | progress = True }

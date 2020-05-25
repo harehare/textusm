@@ -40,7 +40,6 @@ type Msg
     | Save
     | SaveToRemoteCompleted (Result DiagramItem DiagramItem)
     | SaveToLocalCompleted String
-    | SaveToFileSystem
     | SaveToRemote String
     | StartEditTitle
     | Progress Bool
@@ -64,9 +63,7 @@ type Msg
     | SwitchWindow SwitchWindow
     | GetShortUrl (Result Http2.Error String)
     | New Diagram
-    | GetDiagrams
     | Shortcuts String
-    | NavRoute Route.Route
     | BackToEdit
     | GotLocalDiagramJson String
     | Load (Result (Http.Error DiagramItem) DiagramItem)
@@ -84,6 +81,7 @@ type FileType
     | Html
     | Ddl
     | MarkdownTable
+    | PlainText
 
 
 type Notification

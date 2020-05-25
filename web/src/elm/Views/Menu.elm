@@ -1,8 +1,8 @@
 module Views.Menu exposing (MenuItem(..), menu, view)
 
 import Data.Text as Text exposing (Text)
-import Html exposing (Html, div, nav, span, text)
-import Html.Attributes exposing (class, style)
+import Html exposing (Html, a, div, nav, span, text)
+import Html.Attributes exposing (class, href, style)
 import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List
@@ -110,16 +110,18 @@ view page route text_ width fullscreen openMenu =
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text "Open File" ] ]
                     ]
             , div
-                (onClick GetDiagrams :: class "list-button" :: menuItemStyle)
-                [ Icon.viewComfy
-                    (if isNothing openMenu && page == List then
-                        "#F5F5F6"
+                (class "list-button" :: menuItemStyle)
+                [ a [ href <| Route.toString Route.List ]
+                    [ Icon.viewComfy
+                        (if isNothing openMenu && page == List then
+                            "#F5F5F6"
 
-                     else
-                        "#848A90"
-                    )
-                    28
-                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Diagrams" ] ]
+                         else
+                            "#848A90"
+                        )
+                        28
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Diagrams" ] ]
+                    ]
                 ]
             , if page == List then
                 Empty.view
@@ -170,16 +172,18 @@ view page route text_ width fullscreen openMenu =
                         , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
                         ]
             , div
-                (onClick (NavRoute Route.Settings) :: menuItemStyle)
-                [ Icon.settings
-                    (if isNothing openMenu && page == Settings then
-                        "#F5F5F6"
+                menuItemStyle
+                [ a [ href <| Route.toString Route.Settings ]
+                    [ Icon.settings
+                        (if isNothing openMenu && page == Settings then
+                            "#F5F5F6"
 
-                     else
-                        "#848A90"
-                    )
-                    25
-                , span [ class "tooltip" ] [ span [ class "text" ] [ text "Settings" ] ]
+                         else
+                            "#848A90"
+                        )
+                        25
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Settings" ] ]
+                    ]
                 ]
             , if Utils.isPhone width then
                 case openMenu of
@@ -246,7 +250,7 @@ newMenu =
         }
     , Item
         { e = New Diagram.ErDiagram
-        , title = "ER Diagram(beta)"
+        , title = "ER Diagram"
         }
     , Item
         { e = New Diagram.Kanban
@@ -255,11 +259,6 @@ newMenu =
     , Item
         { e = New Diagram.Markdown
         , title = "Markdown"
-        }
-    , Separator
-    , Item
-        { e = New Diagram.Table
-        , title = "Table"
         }
     , Separator
     , Item
@@ -273,6 +272,11 @@ newMenu =
     , Item
         { e = New Diagram.Fourls
         , title = "4Ls Retrospective"
+        }
+    , Separator
+    , Item
+        { e = New Diagram.Table
+        , title = "Table"
         }
     ]
 
@@ -327,7 +331,7 @@ baseExportMenu =
         , title = "PDF"
         }
     , Item
-        { e = SaveToFileSystem
+        { e = Download PlainText
         , title = "TEXT"
         }
     , Item

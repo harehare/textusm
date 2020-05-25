@@ -45,10 +45,8 @@ view props =
                 , style "align-items" "center"
                 ]
                 [ div
-                    [ style "width"
-                        "56px"
-                    , style "height"
-                        "40px"
+                    [ style "width" "56px"
+                    , style "height" "40px"
                     , style "display" "flex"
                     , style "justify-content" "center"
                     , style "align-items" "center"
@@ -108,26 +106,28 @@ view props =
             , if isJust props.currentDiagram then
                 div
                     [ class "button"
-                    , onClick <| NavRoute Tag
                     , style "padding" "8px"
                     , style "display" "flex"
                     , style "align-items" "center"
                     ]
-                    [ Icon.tag 17
-                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Tags" ] ]
+                    [ a [ style "display" "flex", href <| Route.toString Route.Tag ]
+                        [ Icon.tag 17
+                        , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Tags" ] ]
+                        ]
                     ]
 
               else
                 Empty.view
             , div
                 [ class "button"
-                , onClick <| NavRoute Route.Help
                 , style "padding" "8px"
                 , style "display" "flex"
                 , style "align-items" "center"
                 ]
-                [ Icon.helpOutline 20
-                , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Help" ] ]
+                [ a [ style "display" "flex", href <| Route.toString Route.Help ]
+                    [ Icon.helpOutline 20
+                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Help" ] ]
+                    ]
                 ]
             , div
                 [ class "button"
