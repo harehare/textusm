@@ -100,27 +100,18 @@ view page route text_ width fullscreen openMenu =
                     _ ->
                         span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
                 ]
-            , if page == List then
-                Empty.view
-
-              else
-                div
-                    (onClick FileSelect :: menuItemStyle)
-                    [ Icon.folderOpen "#848A90" 20
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Open File" ] ]
-                    ]
             , div
                 (class "list-button" :: menuItemStyle)
                 [ a [ href <| Route.toString Route.List ]
-                    [ Icon.viewComfy
+                    [ Icon.folderOpen
                         (if isNothing openMenu && page == List then
                             "#F5F5F6"
 
                          else
                             "#848A90"
                         )
-                        28
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Diagrams" ] ]
+                        20
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "Open File" ] ]
                     ]
                 ]
             , if page == List then

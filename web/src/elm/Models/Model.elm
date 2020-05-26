@@ -15,7 +15,6 @@ import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Share as Share
 import Page.Tags as Tags
-import Route as Route
 import TextUSM.Enum.Diagram exposing (Diagram)
 import Url
 
@@ -46,7 +45,6 @@ type Msg
     | EndEditTitle Int Bool
     | EditTitle String
     | OnShareUrl ShareInfo
-    | OnCurrentShareUrl
     | SignIn LoginProvider
     | SignOut
     | OnVisibilityChange Visibility

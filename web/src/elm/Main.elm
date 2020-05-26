@@ -492,8 +492,17 @@ changeRouteTo route model =
         Route.Help ->
             ( { model | page = Page.Help }, Cmd.none )
 
-        Route.SharingSettings ->
-            ( { model | page = Page.Share }, Cmd.none )
+        Route.SharingDiagram ->
+            ( { model | page = Page.Share, progress = True }
+            , Cmd.batch
+                [ Ports.encodeShareText
+                    { diagramType =
+                        DiagramType.toString model.diagramModel.diagramType
+                    , title = Just <| Title.toString model.title
+                    , text = Text.toString model.diagramModel.text
+                    }
+                ]
+            )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -1044,18 +1053,6 @@ update message model =
             , Ports.layoutEditor 0
             )
 
-        OnCurrentShareUrl ->
-            ( { model | progress = True }
-            , Cmd.batch
-                [ Ports.encodeShareText
-                    { diagramType =
-                        DiagramType.toString model.diagramModel.diagramType
-                    , title = Just <| Title.toString model.title
-                    , text = Text.toString model.diagramModel.text
-                    }
-                ]
-            )
-
         GetShortUrl (Err e) ->
             ( { model | progress = False }
             , Cmd.batch
@@ -1076,7 +1073,7 @@ update message model =
                 | progress = False
                 , shareModel = newShareModel
               }
-            , Nav.pushUrl model.key (Route.toString Route.SharingSettings)
+            , Cmd.none
             )
 
         OnShareUrl shareInfo ->

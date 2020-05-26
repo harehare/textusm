@@ -258,7 +258,7 @@ select {
     overflow: hidden;
     height: 38px;
     padding: 8px;
-    border-radius: 0 0 4px 4px;
+    border-radius: 0 0 2px 2px;
     background-color: var(--light-background-color);
     @media screen and (max-width: 480px) {
         width: 45vw;
@@ -332,7 +332,7 @@ select {
     cursor: pointer;
     position: relative;
     box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--light-background-color);
+    border: 3px solid var(--light-background-color);
 
     &::after {
         position: absolute;

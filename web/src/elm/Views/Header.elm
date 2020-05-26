@@ -104,13 +104,13 @@ view props =
                     Empty.view
                 ]
             , if isJust props.currentDiagram then
-                div
-                    [ class "button"
-                    , style "padding" "8px"
-                    , style "display" "flex"
-                    , style "align-items" "center"
-                    ]
-                    [ a [ style "display" "flex", href <| Route.toString Route.Tag ]
+                a [ style "display" "flex", href <| Route.toString Route.Tag ]
+                    [ div
+                        [ class "button"
+                        , style "padding" "8px"
+                        , style "display" "flex"
+                        , style "align-items" "center"
+                        ]
                         [ Icon.tag 17
                         , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Tags" ] ]
                         ]
@@ -118,26 +118,30 @@ view props =
 
               else
                 Empty.view
-            , div
-                [ class "button"
-                , style "padding" "8px"
-                , style "display" "flex"
-                , style "align-items" "center"
-                ]
-                [ a [ style "display" "flex", href <| Route.toString Route.Help ]
+            , a [ style "display" "flex", href <| Route.toString Route.Help ]
+                [ div
+                    [ class "button"
+                    , style "padding" "8px"
+                    , style "display" "flex"
+                    , style "align-items" "center"
+                    ]
                     [ Icon.helpOutline 20
                     , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Help" ] ]
                     ]
                 ]
-            , div
-                [ class "button"
-                , onClick OnCurrentShareUrl
-                , style "padding" "8px"
-                , style "display" "flex"
-                , style "align-items" "center"
+            , a
+                [ style "display" "flex"
+                , href <| Route.toString Route.SharingDiagram
                 ]
-                [ Icon.people 24
-                , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Share" ] ]
+                [ div
+                    [ class "button"
+                    , style "padding" "8px"
+                    , style "display" "flex"
+                    , style "align-items" "center"
+                    ]
+                    [ Icon.people 24
+                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Share" ] ]
+                    ]
                 ]
             , if Session.isSignedIn props.session then
                 let
