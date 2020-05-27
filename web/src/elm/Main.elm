@@ -1214,7 +1214,7 @@ update message model =
                                 ( "SAYS\nTHINKS\nDOES\nFEELS", Route.Edit (DiagramType.toString Diagram.EmpathyMap) )
 
                             Diagram.Table ->
-                                ( "Header\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\n    Column7\nRow1\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\nRow2\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6", Route.Edit (DiagramType.toString Diagram.Table) )
+                                ( "Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\n    Column7\nRow1\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\nRow2\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6", Route.Edit (DiagramType.toString Diagram.Table) )
 
                             Diagram.SiteMap ->
                                 ( "", Route.Edit (DiagramType.toString Diagram.SiteMap) )

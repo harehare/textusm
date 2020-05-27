@@ -44,14 +44,14 @@ view model =
             Empty.view
 
 
-headerView : Settings -> Maybe Item -> Items -> Svg Msg
-headerView settings selectedItem items =
+headerView : Settings -> Maybe Item -> Item -> Svg Msg
+headerView settings selectedItem item =
     g []
         (Item.indexedMap
-            (\i item ->
-                lazy4 Views.cardView settings ( settings.size.width * i, 0 ) selectedItem { item | itemType = Activities }
+            (\i ii ->
+                lazy4 Views.gridView settings ( settings.size.width * i, 0 ) selectedItem { ii | itemType = Activities }
             )
-            items
+            (Item.cons item (Item.unwrapChildren item.children))
         )
 
 
@@ -60,7 +60,7 @@ rowView settings selectedItem rowNo item =
     Keyed.node "g"
         []
         (( "row" ++ String.fromInt rowNo
-         , lazy4 Views.cardView
+         , lazy4 Views.gridView
             settings
             ( 0, settings.size.height * rowNo )
             selectedItem
@@ -69,7 +69,7 @@ rowView settings selectedItem rowNo item =
             :: Item.indexedMap
                 (\i childItem ->
                     ( "row" ++ String.fromInt childItem.lineNo
-                    , lazy4 Views.cardView
+                    , lazy4 Views.gridView
                         settings
                         ( settings.size.width * (i + 1), settings.size.height * rowNo )
                         selectedItem

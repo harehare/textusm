@@ -8,7 +8,7 @@ type Table
 
 
 type Header
-    = Header Items
+    = Header Item
 
 
 type Row
@@ -22,8 +22,6 @@ fromItems items =
             (items
                 |> Item.head
                 |> Maybe.withDefault Item.emptyItem
-                |> .children
-                |> Item.unwrapChildren
             )
         )
         (items
@@ -39,26 +37,31 @@ toString table =
         (Table h rows) =
             table
 
-        (Header headerItems) =
+        (Header headerItem) =
             h
 
         header =
             "|"
-                ++ (headerItems
-                        |> Item.map (\i -> String.trim i.text)
+                ++ ((headerItem.text
+                        :: (headerItem.children
+                                |> Item.unwrapChildren
+                                |> Item.map (\i -> String.trim i.text)
+                           )
+                    )
                         |> String.join "|"
                    )
                 ++ "|"
 
         section =
             "|"
-                ++ (Item.cons
-                        (Item 0 "dummy" Activities Item.emptyChildren)
-                        headerItems
-                        |> Item.map
-                            (\item ->
-                                " " ++ String.repeat (String.trim item.text |> String.length) "-" ++ " "
-                            )
+                ++ ((" " ++ String.repeat (String.trim headerItem.text |> String.length) "-" ++ " ")
+                        :: (headerItem.children
+                                |> Item.unwrapChildren
+                                |> Item.map
+                                    (\item ->
+                                        " " ++ String.repeat (String.trim item.text |> String.length) "-" ++ " "
+                                    )
+                           )
                         |> String.join "|"
                    )
                 ++ "|"

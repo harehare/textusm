@@ -289,10 +289,10 @@ exportMenu route =
                 }
                 :: baseExportMenu
 
-        Route.Edit "cjm" ->
+        Route.Edit "table" ->
             Item
                 { e = Download MarkdownTable
-                , title = "Markdown"
+                , title = "MARKDOWN"
                 }
                 :: baseExportMenu
 

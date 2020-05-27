@@ -1,4 +1,4 @@
-module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, rectView, startTextNodeView, textNodeView, textView)
+module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, gridView, rectView, startTextNodeView, textNodeView, textView)
 
 import Constants
 import Data.Item as Item exposing (Item, ItemType(..), Items)
@@ -10,7 +10,7 @@ import Html.Attributes as Attr
 import Html.Events exposing (onInput)
 import Html5.DragDrop as DragDrop
 import Maybe.Extra exposing (isJust)
-import Models.Diagram exposing (Msg(..), Settings, fontStyle, getTextColor, settingsOfWidth)
+import Models.Diagram as Diagram exposing (Msg(..), Settings, fontStyle, getTextColor, settingsOfWidth)
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
 import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x, xlinkHref, y)
@@ -467,3 +467,45 @@ startTextNodeRect ( posX, posY ) ( svgWidth, svgHeight ) ( color, backgroundColo
         , fill backgroundColor
         ]
         []
+
+
+gridView : Settings -> Position -> Maybe Item -> Item -> Svg Msg
+gridView settings ( posX, posY ) selectedItem item =
+    if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
+        g []
+            [ rect
+                [ width <| String.fromInt settings.size.width
+                , height <| String.fromInt <| settings.size.height - 1
+                , x (String.fromInt posX)
+                , y (String.fromInt posY)
+                , strokeWidth "3"
+                , stroke "rgba(0, 0, 0, 0.1)"
+                , fill "transparent"
+                , stroke settings.color.line
+                , strokeWidth "3"
+                ]
+                []
+            , inputView settings Nothing ( posX, posY ) ( settings.size.width, settings.size.height ) ( Diagram.getTextColor settings.color, "transparent" ) (Maybe.withDefault Item.emptyItem selectedItem)
+            ]
+
+    else
+        g
+            [ onClickStopPropagation (ItemClick item)
+            ]
+            [ rect
+                [ width <| String.fromInt settings.size.width
+                , height <| String.fromInt <| settings.size.height - 1
+                , x (String.fromInt posX)
+                , y (String.fromInt posY)
+                , fill "transparent"
+                , stroke settings.color.line
+                , strokeWidth "3"
+                ]
+                []
+            , textView settings ( posX, posY ) ( settings.size.width, settings.size.height ) (Diagram.getTextColor settings.color) item.text
+            , if isJust selectedItem then
+                dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
+
+              else
+                g [] []
+            ]
