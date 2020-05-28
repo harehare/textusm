@@ -832,7 +832,7 @@ update message model =
                     Utils.getCanvasSize model
 
                 ( widthRatio, heightRatio ) =
-                    ( toFloat windowWidth / toFloat canvasWidth, toFloat windowHeight / toFloat canvasHeight )
+                    ( toFloat (round (toFloat windowWidth / toFloat canvasWidth / 0.05)) * 0.05, toFloat (round (toFloat windowHeight / toFloat canvasHeight / 0.05)) * 0.05 )
 
                 svgModel =
                     model.svg

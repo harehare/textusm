@@ -72,6 +72,8 @@ rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         , x (String.fromInt posX)
         , y (String.fromInt posY)
         , fill color
+        , rx "1"
+        , ry "1"
         , style "filter:url(#shadow)"
         ]
         []
@@ -80,12 +82,14 @@ rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
 selectedRectView : Position -> Size -> RgbColor -> Svg Msg
 selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
     rect
-        [ width <| String.fromInt svgWidth
-        , height <| String.fromInt svgHeight
-        , x (String.fromInt posX)
-        , y (String.fromInt posY)
-        , strokeWidth "1"
-        , stroke "rgba(0, 0, 0, 0.1)"
+        [ width <| String.fromInt <| svgWidth + 4
+        , height <| String.fromInt <| svgHeight + 4
+        , x (String.fromInt <| posX - 2)
+        , y (String.fromInt <| posY - 2)
+        , strokeWidth "3"
+        , stroke "rgba(0, 0, 0, 0.5)"
+        , rx "1"
+        , ry "1"
         , fill color
         , style "filter:url(#shadow)"
         ]
@@ -173,8 +177,8 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
 
     else
         text_
-            [ x <| String.fromInt <| posX + 4
-            , y <| String.fromInt <| posY + 18
+            [ x <| String.fromInt <| posX + 6
+            , y <| String.fromInt <| posY + 24
             , width <| String.fromInt svgWidth
             , height <| String.fromInt svgHeight
             , fill colour

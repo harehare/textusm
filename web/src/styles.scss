@@ -207,7 +207,7 @@ select {
 
     .side-menu {
         color: var(--text-color);
-        width: 240px;
+        width: 250px;
         height: calc(100vh - 48px);
         font-size: 0.9rem;
         background-color: var(--main-color);
@@ -220,7 +220,7 @@ select {
             height: 30px;
             line-height: 30px;
             padding: 8px;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
         }
 
         .selected {

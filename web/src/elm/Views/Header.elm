@@ -51,7 +51,7 @@ view props =
                     , style "justify-content" "center"
                     , style "align-items" "center"
                     ]
-                    [ a [ href "/" ] [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ] ]
+                    [ a [ href "/", style "margin-top" "8px" ] [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ] ]
                 , if props.page /= Page.List then
                     if Title.isEdit props.title then
                         input
