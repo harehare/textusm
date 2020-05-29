@@ -39,24 +39,29 @@ view : Html msg
 view =
     div
         [ class "diagram-list"
-        , style "display" "flex"
-        , style "align-items" "flex-start"
-        , style "justify-content" "space-between"
-        , style "flex-wrap" "wrap"
         , style "margin" "16px"
-        , style "flex-flow" "row wrap"
+        , style "display" "flex"
+        , style "flex-direction" "column"
         ]
-        (List.map
-            (\item ->
-                a [ href item.url, style "width" "20%" ]
-                    [ div [ class "new-item" ]
-                        [ img [ src item.imagePath, class "new-item-image" ] []
-                        , div
-                            [ class "new-item-text"
+        [ div [ class "page-title" ] [ text "NEW DIAGRAM" ]
+        , div
+            [ style "display" "flex"
+            , style "align-items" "flex-start"
+            , style "justify-content" "space-between"
+            , style "flex-wrap" "wrap"
+            ]
+            (List.map
+                (\item ->
+                    a [ href item.url, style "width" "20%" ]
+                        [ div [ class "new-item" ]
+                            [ img [ src item.imagePath, class "new-item-image" ] []
+                            , div
+                                [ class "new-item-text"
+                                ]
+                                [ text item.name ]
                             ]
-                            [ text item.name ]
                         ]
-                    ]
+                )
+                newItems
             )
-            newItems
-        )
+        ]

@@ -1069,8 +1069,7 @@ view_ dropDownIndex settings =
         , style "user-select" "none"
         ]
         [ div
-            [ style "font-weight" "400"
-            , style "padding" "16px"
+            [ class "page-title"
             ]
             [ text "SETTINGS" ]
         , section (Just "Basic")

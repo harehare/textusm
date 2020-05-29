@@ -42,8 +42,8 @@ view model =
             , style "align-items" "center"
             , style "justify-content" "flex-start"
             ]
-            [ div [ class "title" ]
-                [ text "SHARE"
+            [ div [ style "width" "100%" ]
+                [ div [ class "page-title" ] [ text "SHARE" ]
                 , link "share-url" "Link to share" model.url
                 , link "embed" "Embed" ("<iframe src=\"" ++ model.embedUrl ++ "\"  width=\"800\" height=\"600\" frameborder=\"0\" style=\"border:0\" allowfullscreen></iframe>")
                 ]
@@ -53,7 +53,7 @@ view model =
 
 link : String -> String -> String -> Html Msg
 link elementId label url =
-    div [ style "padding-top" "16px" ]
+    div [ style "padding" "16px" ]
         [ div [ class "label" ] [ text label ]
         , input
             [ class "input"

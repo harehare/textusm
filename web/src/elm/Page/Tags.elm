@@ -75,7 +75,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ class "tags" ]
-        [ div [ style "font-weight" "400", style "padding" "16px" ] [ text "TAGS" ]
+        [ div [ class "page-title" ] [ text "TAGS" ]
         , div [ class "tag-list" ]
             (List.map (tagView model.deleteTag) (List.filter (String.isEmpty >> not) model.tags)
                 ++ [ input

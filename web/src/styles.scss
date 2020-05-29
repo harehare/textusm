@@ -103,6 +103,12 @@ select {
     }
 }
 
+.page-title {
+    padding: 16px;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
 .label {
     padding: 0px 8px;
     font-size: 0.8rem;
@@ -256,7 +262,7 @@ select {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        height: 38px;
+        height: 42px;
         padding: 8px;
         border-radius: 0 0 2px 2px;
         background-color: var(--light-background-color);
@@ -266,7 +272,7 @@ select {
     }
 
     .diagram-item {
-        width: 22%;
+        width: 21%;
         border-radius: 4px;
         display: flex;
         align-items: flex-end;
@@ -274,7 +280,7 @@ select {
         transition: box-shadow 0.1s ease-in-out 0.1s;
         will-change: box-shadow;
         background-size: cover;
-        margin: 0 8px 8px 8px;
+        margin: 16px;
         height: 240px;
         cursor: pointer;
         position: relative;
