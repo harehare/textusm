@@ -28,7 +28,7 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.0
 	github.com/urfave/cli v1.22.2 // indirect
 	github.com/urfave/negroni v1.0.0
 	github.com/vektah/dataloaden v0.3.0 // indirect
