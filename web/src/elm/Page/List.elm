@@ -202,7 +202,6 @@ view model =
             in
             div
                 [ class "diagram-list"
-                , style "display" "flex"
                 ]
                 [ lazy5 sideMenu
                     selectedPath
@@ -329,6 +328,8 @@ view model =
         _ ->
             div
                 [ class "diagram-list"
+                , style "align-items" "center"
+                , style "justify-content" "center"
                 , style "width" "100vw"
                 ]
                 [ div

@@ -29,6 +29,7 @@ import Models.Views.ER as ER
 import Models.Views.Table as Table
 import Page.Help as Help
 import Page.List as DiagramList
+import Page.New as New
 import Page.NotFound as NotFound
 import Page.Settings as Settings
 import Page.Share as Share
@@ -209,6 +210,9 @@ view model =
                         , lazy4 bottomNavigationBar model.settingsModel.settings diagram title path
                         ]
 
+                Page.NewList ->
+                    New.view
+
                 Page.NotFound ->
                     NotFound.view
 
@@ -305,6 +309,9 @@ changeRouteTo route model =
 
                 Nothing ->
                     ( model, Cmd.none )
+
+        Route.New ->
+            ( { model | page = Page.NewList }, Cmd.none )
 
         Route.NotFound ->
             ( { model | page = Page.NotFound }, Cmd.none )
@@ -417,13 +424,56 @@ changeRouteTo route model =
                 diagramType =
                     DiagramType.fromString type_
 
+                defaultText =
+                    case diagramType of
+                        Diagram.BusinessModelCanvas ->
+                            "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships"
+
+                        Diagram.OpportunityCanvas ->
+                            "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget"
+
+                        Diagram.Fourls ->
+                            "Liked\nLearned\nLacked\nLonged for"
+
+                        Diagram.StartStopContinue ->
+                            "Start\nStop\nContinue"
+
+                        Diagram.Kpt ->
+                            "K\nP\nT"
+
+                        Diagram.UserPersona ->
+                            "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology"
+
+                        Diagram.EmpathyMap ->
+                            "SAYS\nTHINKS\nDOES\nFEELS"
+
+                        Diagram.Table ->
+                            "Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\n    Column7\nRow1\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\nRow2\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6"
+
+                        Diagram.GanttChart ->
+                            "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n"
+
+                        Diagram.ErDiagram ->
+                            "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n"
+
+                        Diagram.Kanban ->
+                            "TODO\nDOING\nDONE"
+
+                        _ ->
+                            ""
+
                 diagramModel =
                     model.diagramModel
 
                 newDiagramModel =
                     { diagramModel | diagramType = diagramType }
             in
-            ( { model | diagramModel = newDiagramModel, page = Page.Main }
+            ( { model
+                | title = Title.untitled
+                , currentDiagram = Nothing
+                , diagramModel = DiagramModel.updatedText newDiagramModel (Text.fromString defaultText)
+                , page = Page.Main
+              }
             , cmds
                 [ setEditorLanguage diagramType
                 ]
@@ -1171,70 +1221,6 @@ update message model =
 
         Progress visible ->
             ( { model | progress = visible }, Cmd.none )
-
-        New type_ ->
-            if Text.isChanged model.diagramModel.text then
-                ( model, Task.perform identity (Task.succeed Save) )
-
-            else
-                let
-                    ( text_, route_ ) =
-                        case type_ of
-                            Diagram.UserStoryMap ->
-                                ( "", Route.Edit (DiagramType.toString Diagram.UserStoryMap) )
-
-                            Diagram.BusinessModelCanvas ->
-                                ( "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships", Route.Edit (DiagramType.toString Diagram.BusinessModelCanvas) )
-
-                            Diagram.OpportunityCanvas ->
-                                ( "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget", Route.Edit (DiagramType.toString Diagram.OpportunityCanvas) )
-
-                            Diagram.Fourls ->
-                                ( "Liked\nLearned\nLacked\nLonged for", Route.Edit (DiagramType.toString Diagram.Fourls) )
-
-                            Diagram.StartStopContinue ->
-                                ( "Start\nStop\nContinue", Route.Edit (DiagramType.toString Diagram.StartStopContinue) )
-
-                            Diagram.Kpt ->
-                                ( "K\nP\nT", Route.Edit (DiagramType.toString Diagram.Kpt) )
-
-                            Diagram.UserPersona ->
-                                ( "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology", Route.Edit (DiagramType.toString Diagram.UserPersona) )
-
-                            Diagram.Markdown ->
-                                ( "", Route.Edit (DiagramType.toString Diagram.Markdown) )
-
-                            Diagram.MindMap ->
-                                ( "", Route.Edit (DiagramType.toString Diagram.MindMap) )
-
-                            Diagram.ImpactMap ->
-                                ( "", Route.Edit (DiagramType.toString Diagram.ImpactMap) )
-
-                            Diagram.EmpathyMap ->
-                                ( "SAYS\nTHINKS\nDOES\nFEELS", Route.Edit (DiagramType.toString Diagram.EmpathyMap) )
-
-                            Diagram.Table ->
-                                ( "Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\n    Column7\nRow1\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\nRow2\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6", Route.Edit (DiagramType.toString Diagram.Table) )
-
-                            Diagram.SiteMap ->
-                                ( "", Route.Edit (DiagramType.toString Diagram.SiteMap) )
-
-                            Diagram.GanttChart ->
-                                ( "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n", Route.Edit (DiagramType.toString Diagram.GanttChart) )
-
-                            Diagram.ErDiagram ->
-                                ( "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n", Route.Edit (DiagramType.toString Diagram.ErDiagram) )
-
-                            Diagram.Kanban ->
-                                ( "TODO\nDOING\nDONE", Route.Edit (DiagramType.toString Diagram.Kanban) )
-                in
-                ( { model
-                    | title = Title.untitled
-                    , currentDiagram = Nothing
-                    , diagramModel = DiagramModel.updatedText model.diagramModel (Text.fromString text_)
-                  }
-                , Cmd.batch [ Nav.pushUrl model.key (Route.toString route_) ]
-                )
 
         Load (Ok diagram) ->
             let

@@ -1,0 +1,187 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 960" width="960" height="960" style="transparent">
+    <defs>
+        <style>@import url('https://fonts.googleapis.com/css?family=Nunito Sans&amp;display=swap');</style>
+    </defs>
+    <defs>
+        <filter id="shadow" height="130%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+            <feOffset dx="2" dy="2" result="offsetblur"/>
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.5"/>
+            </feComponentTransfer>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+    <g transform="translate(0,500), scale(1.3,1.3)" fill="transparent" style="will-change: transform;transition: transform 0.15s ease">
+        <g>
+            <g>
+                <g>
+                    <path stroke-width="2" stroke="#333333" d="M80,-240 L80,0" fill="transparent"/>
+                </g>
+                <g>
+                    <path stroke-width="2" stroke="#333333" d="M160,120 L392,120 A8,8,0,0,0,400,112 L400,-292 A8,8,0,0,1,408,-300 L640,-300" fill="transparent"/>
+                </g>
+            </g>
+            <g>
+                <rect width="160" height="240" x="0" y="0" stroke-width="1" stroke="#266B9A"/>
+                <g>
+                    <rect width="160" height="40" x="0" y="0" fill="#266B9A"/>
+                </g>
+                <g>
+                    <rect width="160" height="40" x="0" y="40" fill="#F4F4F5"/>
+                    <foreignObject x="0" y="40" width="160" height="40">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="width: 160px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; height: 40px; color: rgb(17, 17, 17); font-weight: 600;">
+                            <div style="margin-left: 8px;">id</div>
+                            <div style="margin-right: 8px; display: flex; align-items: center; font-size: 0.8rem;">
+                                <div style="margin-right: 8px;">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 512 512">
+                                        <g fill="#111111">
+                                            <path d="M512 176.001C512 273.203 433.202 352 336 352c-11.22 0-22.19-1.062-32.827-3.069l-24.012 27.014A23.999 23.999 0 0 1 261.223 384H224v40c0 13.255-10.745 24-24 24h-40v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24v-78.059c0-6.365 2.529-12.47 7.029-16.971l161.802-161.802C163.108 213.814 160 195.271 160 176 160 78.798 238.797.001 335.999 0 433.488-.001 512 78.511 512 176.001zM336 128c0 26.51 21.49 48 48 48s48-21.49 48-48-21.49-48-48-48-48 21.49-48 48z"/>
+                                        </g>
+                                    </svg>
+                                </div>int
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                            </div>
+                        </div>
+                    </foreignObject>
+                </g>
+                <g>
+                    <rect width="160" height="40" x="0" y="80" fill="#F4F4F5"/>
+                    <foreignObject x="0" y="80" width="160" height="40">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="width: 160px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; height: 40px; color: rgb(51, 51, 51); font-weight: 400;">
+                            <div style="margin-left: 8px;">name</div>
+                            <div style="margin-right: 8px; display: flex; align-items: center; font-size: 0.8rem;">varchar(255)</div>
+                        </div>
+                    </foreignObject>
+                </g>
+                <g>
+                    <rect width="160" height="40" x="0" y="120" fill="#F4F4F5"/>
+                    <foreignObject x="0" y="120" width="160" height="40">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="width: 160px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; height: 40px; color: rgb(51, 51, 51); font-weight: 400;">
+                            <div style="margin-left: 8px;">rate</div>
+                            <div style="margin-right: 8px; display: flex; align-items: center; font-size: 0.8rem;">float?</div>
+                        </div>
+                    </foreignObject>
+                </g>
+                <g>
+                    <rect width="160" height="40" x="0" y="160" fill="#F4F4F5"/>
+                    <foreignObject x="0" y="160" width="160" height="40">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="width: 160px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; height: 40px; color: rgb(51, 51, 51); font-weight: 400;">
+                            <div style="margin-left: 8px;">value</div>
+                            <div style="margin-right: 8px; display: flex; align-items: center; font-size: 0.8rem;">double!</div>
+                        </div>
+                    </foreignObject>
+                </g>
+                <g>
+                    <rect width="160" height="40" x="0" y="200" fill="#F4F4F5"/>
+                    <foreignObject x="0" y="200" width="160" height="40">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="width: 160px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; height: 40px; color: rgb(51, 51, 51); font-weight: 400;">
+                            <div style="margin-left: 8px;">values</div>
+                            <div style="margin-right: 8px; display: flex; align-items: center; font-size: 0.8rem;">enum!</div>
+                        </div>
+                    </foreignObject>
+                </g>
+            </g>
+            <g>
+                <rect width="160" height="120" x="0" y="-360" stroke-width="1" stroke="#266B9A"/>
+                <g>
+                    <rect width="160" height="40" x="0" y="-360" fill="#266B9A"/>
+                </g>
+                <g>
+                    <rect width="160" height="40" x="0" y="-320" fill="#F4F4F5"/>
+                    <foreignObject x="0" y="-320" width="160" height="40">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="width: 160px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; height: 40px; color: rgb(17, 17, 17); font-weight: 600;">
+                            <div style="margin-left: 8px;">id</div>
+                            <div style="margin-right: 8px; display: flex; align-items: center; font-size: 0.8rem;">
+                                <div style="margin-right: 8px;">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 512 512">
+                                        <g fill="#111111">
+                                            <path d="M512 176.001C512 273.203 433.202 352 336 352c-11.22 0-22.19-1.062-32.827-3.069l-24.012 27.014A23.999 23.999 0 0 1 261.223 384H224v40c0 13.255-10.745 24-24 24h-40v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24v-78.059c0-6.365 2.529-12.47 7.029-16.971l161.802-161.802C163.108 213.814 160 195.271 160 176 160 78.798 238.797.001 335.999 0 433.488-.001 512 78.511 512 176.001zM336 128c0 26.51 21.49 48 48 48s48-21.49 48-48-21.49-48-48-48-48 21.49-48 48z"/>
+                                        </g>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                </g>
+                <g>
+                    <rect width="160" height="40" x="0" y="-280" fill="#F4F4F5"/>
+                    <foreignObject x="0" y="-280" width="160" height="40">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="width: 160px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; height: 40px; color: rgb(51, 51, 51); font-weight: 400;">
+                        </div>
+                    </foreignObject>
+                </g>
+            </g>
+            <g>
+                <rect width="160" height="120" x="640" y="-360" stroke-width="1" stroke="#266B9A"/>
+                <g>
+                    <rect width="160" height="40" x="640" y="-360" fill="#266B9A"/>
+                    <text x="648" y="-336" font-family="'Nunito Sans', sans-serif" fill="#FFFFFF" font-size="16" font-weight="bold" class=".select-none">Table3</text>
+                </g>
+                <g>
+                    <rect width="160" height="40" x="640" y="-320" fill="#F4F4F5"/>
+                    <foreignObject x="640" y="-320" width="160" height="40">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="width: 160px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; height: 40px; color: rgb(17, 17, 17); font-weight: 600;">
+                            <div style="margin-right: 8px; display: flex; align-items: center; font-size: 0.8rem;">
+                                <div style="margin-right: 8px;">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 512 512">
+                                        <g fill="#111111">
+                                            <path d="M512 176.001C512 273.203 433.202 352 336 352c-11.22 0-22.19-1.062-32.827-3.069l-24.012 27.014A23.999 23.999 0 0 1 261.223 384H224v40c0 13.255-10.745 24-24 24h-40v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24v-78.059c0-6.365 2.529-12.47 7.029-16.971l161.802-161.802C163.108 213.814 160 195.271 160 176 160 78.798 238.797.001 335.999 0 433.488-.001 512 78.511 512 176.001zM336 128c0 26.51 21.49 48 48 48s48-21.49 48-48-21.49-48-48-48-48 21.49-48 48z"/>
+                                        </g>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                </g>
+                <g>
+                    <rect width="160" height="40" x="640" y="-280" fill="#F4F4F5"/>
+                    <foreignObject x="640" y="-280" width="160" height="40">
+                        <div
+                            xmlns="http://www.w3.org/1999/xhtml" style="width: 160px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; height: 40px; color: rgb(51, 51, 51); font-weight: 400;">
+                            <div style="margin-right: 8px; display: flex; align-items: center; font-size: 0.8rem;">
+                                <div style="margin-right: 8px; margin-top: 5px;">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 48 48">
+                                        <g fill="#111111">
+                                            <path d="M31 28h-1.59l-.55-.55C30.82 25.18 32 22.23 32 19c0-7.18-5.82-13-13-13S6 11.82 6 19s5.82 13 13 13c3.23 0 6.18-1.18 8.45-3.13l.55.55V31l10 9.98L40.98 38 31 28zm-12 0c-4.97 0-9-4.03-9-9s4.03-9 9-9 9 4.03 9 9-4.03 9-9 9z"/>
+                                        </g>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </foreignObject>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

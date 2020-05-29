@@ -9,7 +9,6 @@ import List
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (FileType(..), Menu(..), Msg(..), Page(..))
 import Route exposing (Route)
-import TextUSM.Enum.Diagram as Diagram exposing (Diagram(..))
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -28,14 +27,6 @@ type alias MenuInfo msg =
 
 view : Page -> Route -> Text -> Int -> Bool -> Maybe Menu -> Html Msg
 view page route text_ width fullscreen openMenu =
-    let
-        menuItemStyle =
-            [ class "menu-button"
-            ]
-
-        currentFileToolTip =
-            span [ class "tooltip" ] [ span [ class "text" ] [ text "Current File" ] ]
-    in
     if fullscreen then
         Empty.view
 
@@ -43,66 +34,32 @@ view page route text_ width fullscreen openMenu =
         nav
             [ class "menu-bar"
             ]
-            [ div
-                ((case page of
-                    List ->
-                        onClick BackToEdit
+            [ if Text.isChanged text_ then
+                div
+                    [ style "margin-left" "4px"
+                    , class "menu-button"
+                    ]
+                    [ Icon.file "#848A90" 20
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
+                    ]
 
-                    Settings ->
-                        onClick BackToEdit
-
-                    Help ->
-                        onClick BackToEdit
-
-                    Share ->
-                        onClick BackToEdit
-
-                    Tags _ ->
-                        onClick BackToEdit
-
-                    _ ->
-                        stopPropagationOn "click" (D.succeed ( OpenMenu NewFile, True ))
-                 )
-                    :: style "margin-left" "4px"
-                    :: menuItemStyle
-                )
-                [ Icon.file
-                    (case page of
-                        Help ->
-                            "#848A90"
-
-                        Settings ->
-                            "#848A90"
-
-                        List ->
-                            "#848A90"
-
-                        Tags _ ->
-                            "#848A90"
-
-                        _ ->
-                            "#F5F5F6"
-                    )
-                    20
-                , case page of
-                    List ->
-                        currentFileToolTip
-
-                    Settings ->
-                        currentFileToolTip
-
-                    Help ->
-                        currentFileToolTip
-
-                    Tags _ ->
-                        currentFileToolTip
-
-                    _ ->
-                        span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
-                ]
+              else
+                a
+                    [ href <| Route.toString <| Route.New
+                    ]
+                    [ div
+                        [ style "margin-left" "4px"
+                        , class "menu-button"
+                        ]
+                        [ Icon.file "#F5F5F6" 20
+                        , span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
+                        ]
+                    ]
             , div
-                (class "list-button" :: menuItemStyle)
-                [ a [ href <| Route.toString Route.List ]
+                [ class "menu-button list-button" ]
+                [ a
+                    [ href <| Route.toString Route.List
+                    ]
                     [ Icon.folderOpen
                         (if isNothing openMenu && page == List then
                             "#F5F5F6"
@@ -119,15 +76,13 @@ view page route text_ width fullscreen openMenu =
 
               else
                 div
-                    ((if Text.isChanged text_ then
+                    [ if Text.isChanged text_ then
                         onClick Save
 
                       else
-                        class ""
-                     )
-                        :: class "save-button"
-                        :: menuItemStyle
-                    )
+                        style "" ""
+                    , class "menu-button save-button"
+                    ]
                     [ Icon.save
                         (if Text.isChanged text_ then
                             "#F5F5F6"
@@ -150,7 +105,7 @@ view page route text_ width fullscreen openMenu =
 
                 _ ->
                     div
-                        (stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )) :: menuItemStyle)
+                        [ stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )), class "menu-button" ]
                         [ Icon.download
                             (case openMenu of
                                 Just Export ->
@@ -163,7 +118,7 @@ view page route text_ width fullscreen openMenu =
                         , span [ class "tooltip" ] [ span [ class "text" ] [ text "Export" ] ]
                         ]
             , div
-                menuItemStyle
+                [ class "menu-button" ]
                 [ a [ href <| Route.toString Route.Settings ]
                     [ Icon.settings
                         (if isNothing openMenu && page == Settings then
@@ -181,9 +136,6 @@ view page route text_ width fullscreen openMenu =
                     Just Export ->
                         menu Nothing (Just (String.fromInt (width // 5 * 3) ++ "px")) (Just "50px") Nothing (exportMenu route)
 
-                    Just NewFile ->
-                        menu Nothing (Just "10px") (Just "30px") Nothing newMenu
-
                     _ ->
                         Empty.view
 
@@ -192,84 +144,9 @@ view page route text_ width fullscreen openMenu =
                     Just Export ->
                         menu (Just "125px") (Just "56px") Nothing Nothing (exportMenu route)
 
-                    Just NewFile ->
-                        menu (Just "0") (Just "56px") Nothing Nothing newMenu
-
                     _ ->
                         Empty.view
             ]
-
-
-newMenu : List (MenuItem Msg)
-newMenu =
-    [ Item
-        { e = New Diagram.UserStoryMap
-        , title = "User Story Map"
-        }
-    , Item
-        { e = New Diagram.EmpathyMap
-        , title = "Empathy Map"
-        }
-    , Item
-        { e = New Diagram.ImpactMap
-        , title = "Impact Map"
-        }
-    , Item
-        { e = New Diagram.MindMap
-        , title = "Mind Map"
-        }
-    , Item
-        { e = New Diagram.SiteMap
-        , title = "Site Map"
-        }
-    , Separator
-    , Item
-        { e = New Diagram.BusinessModelCanvas
-        , title = "Business Model Canvas"
-        }
-    , Item
-        { e = New Diagram.OpportunityCanvas
-        , title = "Opportunity Canvas"
-        }
-    , Item
-        { e = New Diagram.UserPersona
-        , title = "User Persona"
-        }
-    , Item
-        { e = New Diagram.GanttChart
-        , title = "Gantt Chart"
-        }
-    , Item
-        { e = New Diagram.ErDiagram
-        , title = "ER Diagram"
-        }
-    , Item
-        { e = New Diagram.Kanban
-        , title = "Kanban"
-        }
-    , Item
-        { e = New Diagram.Markdown
-        , title = "Markdown"
-        }
-    , Separator
-    , Item
-        { e = New Diagram.Kpt
-        , title = "KPT Retrospective"
-        }
-    , Item
-        { e = New Diagram.StartStopContinue
-        , title = "Start, Stop, Continue Retrospective"
-        }
-    , Item
-        { e = New Diagram.Fourls
-        , title = "4Ls Retrospective"
-        }
-    , Separator
-    , Item
-        { e = New Diagram.Table
-        , title = "Table"
-        }
-    ]
 
 
 exportMenu : Route -> List (MenuItem Msg)

@@ -52,7 +52,7 @@ view props =
                     , style "align-items" "center"
                     ]
                     [ a [ href "/", style "margin-top" "8px" ] [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ] ]
-                , if props.page /= Page.List then
+                , if props.page == Page.Main then
                     if Title.isEdit props.title then
                         input
                             [ id "title"

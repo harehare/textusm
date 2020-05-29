@@ -197,6 +197,7 @@ select {
 }
 
 .diagram-list {
+    display: flex;
     background-color: var(--background-color);
     height: calc(100vh - 48px);
     width: 100vw;
@@ -248,20 +249,137 @@ select {
         align-items: center;
         font-size: 0.5rem;
     }
-}
 
-.diagram-text {
-    font-size: 0.8rem;
-    width: 100%;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    height: 38px;
-    padding: 8px;
-    border-radius: 0 0 2px 2px;
-    background-color: var(--light-background-color);
-    @media screen and (max-width: 480px) {
-        width: 45vw;
+    .diagram-text {
+        font-size: 0.8rem;
+        width: 100%;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        height: 38px;
+        padding: 8px;
+        border-radius: 0 0 2px 2px;
+        background-color: var(--light-background-color);
+        @media screen and (max-width: 480px) {
+            width: 45vw;
+        }
+    }
+
+    .diagram-item {
+        width: 22%;
+        border-radius: 4px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-end;
+        transition: box-shadow 0.1s ease-in-out 0.1s;
+        will-change: box-shadow;
+        background-size: cover;
+        margin: 0 8px 8px 8px;
+        height: 240px;
+        cursor: pointer;
+        position: relative;
+        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3);
+        border: 3px solid var(--light-background-color);
+
+        &::after {
+            position: absolute;
+            content: "";
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 182px;
+            transition: all 0.3s ease;
+            background-color: rgba(0, 0, 0, 0);
+            border-radius: 4px 4px 0 0;
+        }
+
+        &:hover {
+            &::after {
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+            .bookmark {
+                display: block;
+                position: absolute;
+                bottom: 30px;
+                right: 9px;
+            }
+
+            .remove {
+                display: block;
+            }
+
+            .datetime {
+                display: block;
+                font-size: 0.7rem;
+                color: var(--dark-text-color);
+            }
+
+            .cloud {
+                position: absolute;
+                display: block;
+                top: 5px;
+                right: 10px;
+            }
+        }
+
+        .datetime,
+        .bookmark,
+        .remove {
+            display: none;
+        }
+
+        &:active {
+            &::after {
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            width: 39vw;
+            height: 150px;
+            align-items: flex-end;
+            justify-content: flex-start;
+            img {
+                width: 39vw;
+                height: 125px;
+            }
+        }
+
+        .cloud {
+            display: none;
+        }
+    }
+    .new-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        border-radius: 4px;
+        height: 140px;
+        margin: 0 8px 8px 8px;
+        cursor: pointer;
+        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3);
+        background-color: var(--light-background-color);
+        .new-item-image {
+            object-fit: contain;
+            width: 100%;
+            height: 100px;
+        }
+        .new-item-text {
+            font-size: 0.85rem;
+            height: 20px;
+            vertical-align: middle;
+            color: var(--main-color);
+            font-weight: 600;
+            padding-top: 16px;
+        }
+
+        &:hover {
+            .new-item-text {
+                color: var(--accent-color);
+                font-weight: 600;
+            }
+        }
     }
 }
 
@@ -315,91 +433,6 @@ select {
         border-radius: 0px;
         z-index: 100;
         height: 100vh;
-    }
-}
-
-.diagram-item {
-    width: 22%;
-    border-radius: 4px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    transition: box-shadow 0.1s ease-in-out 0.1s;
-    will-change: box-shadow;
-    background-size: cover;
-    margin: 0 8px 8px 8px;
-    height: 240px;
-    cursor: pointer;
-    position: relative;
-    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3);
-    border: 3px solid var(--light-background-color);
-
-    &::after {
-        position: absolute;
-        content: "";
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 182px;
-        transition: all 0.3s ease;
-        background-color: rgba(0, 0, 0, 0);
-        border-radius: 4px 4px 0 0;
-    }
-
-    &:hover {
-        &::after {
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        .bookmark {
-            display: block;
-            position: absolute;
-            bottom: 30px;
-            right: 9px;
-        }
-
-        .remove {
-            display: block;
-        }
-
-        .datetime {
-            display: block;
-            font-size: 0.7rem;
-            color: var(--dark-text-color);
-        }
-
-        .cloud {
-            position: absolute;
-            display: block;
-            top: 5px;
-            right: 10px;
-        }
-    }
-
-    .datetime,
-    .bookmark,
-    .remove {
-        display: none;
-    }
-
-    &:active {
-        &::after {
-            background-color: rgba(0, 0, 0, 0.2);
-        }
-    }
-
-    @media screen and (max-width: 480px) {
-        width: 39vw;
-        height: 150px;
-        align-items: flex-end;
-        justify-content: flex-start;
-        img {
-            width: 39vw;
-            height: 125px;
-        }
-    }
-
-    .cloud {
-        display: none;
     }
 }
 

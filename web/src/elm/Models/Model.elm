@@ -15,7 +15,6 @@ import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Share as Share
 import Page.Tags as Tags
-import TextUSM.Enum.Diagram exposing (Diagram)
 import Url
 
 
@@ -60,7 +59,6 @@ type Msg
     | OnAuthStateChanged (Maybe User)
     | SwitchWindow SwitchWindow
     | GetShortUrl (Result Http2.Error String)
-    | New Diagram
     | Shortcuts String
     | BackToEdit
     | GotLocalDiagramJson String
@@ -89,8 +87,7 @@ type Notification
 
 
 type Menu
-    = NewFile
-    | Export
+    = Export
     | UserSettings
     | HeaderMenu
     | LoginMenu
@@ -103,6 +100,7 @@ type SwitchWindow
 
 type Page
     = Main
+    | NewList
     | Help
     | List
     | Tags Tags.Model
