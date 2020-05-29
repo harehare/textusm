@@ -8,7 +8,7 @@
     },
     "dependencies": {
         "dexie": "^3.0.1",
-        "firebase": "^7.14.5",
+        "firebase": "^7.14.6",
         "html2canvas": "^1.0.0-rc.3",
         "jspdf": "^1.5.3",
         "lzutf8": "^0.5.5",
