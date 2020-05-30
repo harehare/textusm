@@ -210,7 +210,7 @@ view model =
                         , lazy4 bottomNavigationBar model.settingsModel.settings diagram title path
                         ]
 
-                Page.NewList ->
+                Page.New ->
                     New.view
 
                 Page.NotFound ->
@@ -311,7 +311,7 @@ changeRouteTo route model =
                     ( model, Cmd.none )
 
         Route.New ->
-            ( { model | page = Page.NewList }, Cmd.none )
+            ( { model | page = Page.New }, Cmd.none )
 
         Route.NotFound ->
             ( { model | page = Page.NotFound }, Cmd.none )

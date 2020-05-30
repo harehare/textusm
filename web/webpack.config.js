@@ -192,8 +192,13 @@ if (mode === "production") {
                 {
                     test: /\.css$/,
                     exclude: [/elm-stuff/, /node_modules/],
-                    loaders: [
-                        MiniCssExtractPlugin.loader,
+                    use: [
+                        {
+                            loader: MiniCssExtractPlugin.loader,
+                            options: {
+                                esModule: true,
+                            },
+                        },
                         "css-loader?url=false",
                     ],
                 },

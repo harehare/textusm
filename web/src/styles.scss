@@ -103,10 +103,19 @@ select {
     }
 }
 
-.page-title {
-    padding: 16px;
-    color: var(--text-color);
-    font-weight: 600;
+.header-title {
+    color: #f4f4f4;
+    text-overflow: ellipsis;
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    font-weight: 400;
+    padding: 2px;
+    display: flex;
+    font-size: 1.1rem;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .label {

@@ -100,7 +100,7 @@ type SwitchWindow
 
 type Page
     = Main
-    | NewList
+    | New
     | Help
     | List
     | Tags Tags.Model

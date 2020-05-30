@@ -43,8 +43,7 @@ view =
         , style "display" "flex"
         , style "flex-direction" "column"
         ]
-        [ div [ class "page-title" ] [ text "NEW DIAGRAM" ]
-        , div
+        [ div
             [ style "display" "flex"
             , style "align-items" "flex-start"
             , style "justify-content" "space-between"

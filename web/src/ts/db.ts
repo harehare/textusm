@@ -97,7 +97,6 @@ export const initDB = (app: ElmApp) => {
                     JSON.stringify({
                         ...diagramItem,
                         isRemote: true,
-                        isBookmark: isBookmark,
                         id,
                         isPublic,
                     })
@@ -114,7 +113,6 @@ export const initDB = (app: ElmApp) => {
                     JSON.stringify({
                         ...diagramItem,
                         isRemote: false,
-                        isBookmark: isBookmark,
                         id: newId,
                         isPublic,
                     })
@@ -147,7 +145,6 @@ export const initDB = (app: ElmApp) => {
             JSON.stringify({
                 ...diagram,
                 isPublic: false,
-                isBookmark: false,
                 isRemote: false,
             })
         );
@@ -164,7 +161,6 @@ export const initDB = (app: ElmApp) => {
                 diagrams.map((d: Diagram) => ({
                     ...d,
                     isPublic: false,
-                    isBookmark: false,
                     isRemote: false,
                 }))
             )

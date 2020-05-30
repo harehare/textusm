@@ -52,56 +52,63 @@ view props =
                     , style "align-items" "center"
                     ]
                     [ a [ href "/", style "margin-top" "8px" ] [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ] ]
-                , if props.page == Page.Main then
-                    if Title.isEdit props.title then
-                        input
-                            [ id "title"
-                            , class "title"
-                            , style "padding" "2px"
-                            , style "color" "#f4f4f4"
-                            , style "background-color" "var(--main-color)"
-                            , style "border" "none"
-                            , style "font-size" "1.1rem"
-                            , style "font-weight" "400"
-                            , style "font-family" "'Nunito Sans', sans-serif"
-                            , value <| Title.toString props.title
-                            , onInput EditTitle
-                            , onBlur (EndEditTitle Events.keyEnter False)
-                            , onKeyDown EndEditTitle
-                            , placeholder "UNTITLED"
-                            ]
-                            []
-
-                    else
-                        div
-                            [ class "title"
-                            , style "color" "#f4f4f4"
-                            , style "text-overflow" "ellipsis"
-                            , style "text-align" "left"
-                            , style "cursor" "pointer"
-                            , style "overflow" "hidden"
-                            , style "white-space" "nowrap"
-                            , style "font-weight" "400"
-                            , style "padding" "2px"
-                            , style "display" "flex"
-                            , style "font-size" "1.1rem"
-                            , style "align-items" "center"
-                            , style "justify-content" "flex-start"
-                            , onClick StartEditTitle
-                            ]
-                            [ text <| Title.toString props.title
-                            , div
-                                [ style "margin-left" "8px" ]
-                                [ if Text.isChanged props.currentText then
-                                    Icon.circle "#FEFEFE" 10
-
-                                  else
-                                    Empty.view
+                , case props.page of
+                    Page.Main ->
+                        if Title.isEdit props.title then
+                            input
+                                [ id "title"
+                                , class "title"
+                                , style "padding" "2px"
+                                , style "color" "#f4f4f4"
+                                , style "background-color" "var(--main-color)"
+                                , style "border" "none"
+                                , style "font-size" "1.1rem"
+                                , style "font-weight" "400"
+                                , style "font-family" "'Nunito Sans', sans-serif"
+                                , value <| Title.toString props.title
+                                , onInput EditTitle
+                                , onBlur (EndEditTitle Events.keyEnter False)
+                                , onKeyDown EndEditTitle
+                                , placeholder "UNTITLED"
                                 ]
-                            ]
+                                []
 
-                  else
-                    Empty.view
+                        else
+                            div
+                                [ class "title header-title"
+                                , onClick StartEditTitle
+                                ]
+                                [ text <| Title.toString props.title
+                                , div
+                                    [ style "margin-left" "8px" ]
+                                    [ if Text.isChanged props.currentText then
+                                        Icon.circle "#FEFEFE" 10
+
+                                      else
+                                        Empty.view
+                                    ]
+                                ]
+
+                    Page.New ->
+                        div [ class "title header-title" ] [ text "NEW" ]
+
+                    Page.List ->
+                        div [ class "title header-title" ] [ text "LIST" ]
+
+                    Page.Settings ->
+                        div [ class "title header-title" ] [ text "SETTINGS" ]
+
+                    Page.Help ->
+                        div [ class "title header-title" ] [ text "HELP" ]
+
+                    Page.Tags _ ->
+                        div [ class "title header-title" ] [ text "TAGS" ]
+
+                    Page.Share ->
+                        div [ class "title header-title" ] [ text "SHARE" ]
+
+                    _ ->
+                        Empty.view
                 ]
             , if isJust props.currentDiagram then
                 a [ style "display" "flex", href <| Route.toString Route.Tag ]
