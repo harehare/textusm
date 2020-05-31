@@ -110,7 +110,7 @@ view props =
                     _ ->
                         Empty.view
                 ]
-            , if isJust props.currentDiagram then
+            , if isJust <| Maybe.andThen .id props.currentDiagram then
                 a [ style "display" "flex", href <| Route.toString Route.Tag ]
                     [ div
                         [ class "button"

@@ -12,7 +12,6 @@ import { ElmApp } from "./ts/elm";
 // @ts-ignore
 import { Elm } from "./elm/Main.elm";
 
-const auth = new Auth();
 const app: ElmApp = Elm.Main.init({
     flags: [process.env.API_ROOT, JSON.stringify(loadSettings())],
 });
@@ -61,6 +60,8 @@ app.ports.loadEditor.subscribe(([text, option]: [string, EditorOption]) => {
     loadEditor(app, text, option);
 });
 
+const auth = new Auth();
+
 app.ports.signIn.subscribe((provider: string) => {
     auth.signIn(
         provider === "Google" ? auth.provideres.google : auth.provideres.github
@@ -85,9 +86,9 @@ auth.authn(
             app.ports.onAuthStateChanged.send({
                 idToken,
                 id: profile.uid,
-                displayName: profile.displayName || "",
-                email: profile.email || "",
-                photoURL: profile.photoURL || "",
+                displayName: profile.displayName ?? "",
+                email: profile.email ?? "",
+                photoURL: profile.photoURL ?? "",
             });
         }
     }

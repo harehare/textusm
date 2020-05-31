@@ -18,9 +18,9 @@ import File.Select as Select
 import GraphQL.Request as Request
 import Graphql.Http as Http
 import Html exposing (Html, a, div, img, main_, text)
-import Html.Attributes exposing (alt, class, href, src, style, target)
-import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy6)
+import Html.Attributes exposing (alt, class, href, id, src, style, target)
+import Html.Events as E
+import Html.Lazy as Lazy
 import Json.Decode as D
 import List.Extra exposing (find, getAt, removeAt, setAt, splitAt)
 import Models.Diagram as DiagramModel
@@ -44,7 +44,6 @@ import TextUSM.Enum.Diagram as Diagram
 import Time
 import Url as Url exposing (percentDecode)
 import Utils
-import Views.Editor as Editor
 import Views.Empty as Empty
 import Views.Header as Header
 import Views.Icon as Icon
@@ -133,17 +132,17 @@ bottomNavigationBar settings diagram title path =
         , div [ class "buttons" ]
             [ div
                 [ class "button"
-                , onClick <| UpdateDiagram DiagramModel.ZoomIn
+                , E.onClick <| UpdateDiagram DiagramModel.ZoomIn
                 ]
                 [ Icon.add 32 ]
             , div
                 [ class "button"
-                , onClick <| UpdateDiagram DiagramModel.ZoomOut
+                , E.onClick <| UpdateDiagram DiagramModel.ZoomOut
                 ]
                 [ Icon.remove 32 ]
             , div
                 [ class "button"
-                , onClick <| UpdateDiagram DiagramModel.ToggleFullscreen
+                , E.onClick <| UpdateDiagram DiagramModel.ToggleFullscreen
                 ]
                 [ Icon.fullscreen 32 ]
             ]
@@ -155,11 +154,11 @@ view model =
     main_
         [ style "position" "relative"
         , style "width" "100vw"
-        , onClick CloseMenu
+        , E.onClick CloseMenu
         ]
-        [ lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.diagramModel.text }
-        , lazy showNotification model.notification
-        , lazy2 showProgressbar model.progress model.window.fullscreen
+        [ Lazy.lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.diagramModel.text }
+        , Lazy.lazy showNotification model.notification
+        , Lazy.lazy2 showProgressbar model.progress model.window.fullscreen
         , div
             [ class "main"
             , if model.window.fullscreen then
@@ -168,36 +167,36 @@ view model =
               else
                 style "height" "calc(100vh - 56px)"
             ]
-            [ lazy6 Menu.view model.page (toRoute model.url) model.diagramModel.text (Size.getWidth model.diagramModel.size) model.window.fullscreen model.openMenu
+            [ Lazy.lazy6 Menu.view model.page (toRoute model.url) model.diagramModel.text (Size.getWidth model.diagramModel.size) model.window.fullscreen model.openMenu
             , let
                 mainWindow =
                     if Size.getWidth model.diagramModel.size > 0 && Utils.isPhone (Size.getWidth model.diagramModel.size) then
-                        lazy5 SwitchWindow.view
+                        Lazy.lazy5 SwitchWindow.view
                             SwitchWindow
                             model.diagramModel.settings.backgroundColor
                             model.switchWindow
 
                     else
-                        lazy5 SplitWindow.view
+                        Lazy.lazy5 SplitWindow.view
                             OnStartWindowResize
                             model.diagramModel.settings.backgroundColor
                             model.window
               in
               case model.page of
                 Page.List ->
-                    lazy DiagramList.view model.diagramListModel |> Html.map UpdateDiagramList
+                    Lazy.lazy DiagramList.view model.diagramListModel |> Html.map UpdateDiagramList
 
                 Page.Help ->
                     Help.view
 
                 Page.Share ->
-                    lazy Share.view model.shareModel |> Html.map UpdateShare
+                    Lazy.lazy Share.view model.shareModel |> Html.map UpdateShare
 
                 Page.Settings ->
-                    lazy Settings.view model.settingsModel |> Html.map UpdateSettings
+                    Lazy.lazy Settings.view model.settingsModel |> Html.map UpdateSettings
 
                 Page.Tags m ->
-                    lazy Tags.view m |> Html.map UpdateTags
+                    Lazy.lazy Tags.view m |> Html.map UpdateTags
 
                 Page.Embed diagram title path ->
                     div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
@@ -205,9 +204,9 @@ view model =
                             diagramModel =
                                 model.diagramModel
                           in
-                          lazy Diagram.view diagramModel
+                          Lazy.lazy Diagram.view diagramModel
                             |> Html.map UpdateDiagram
-                        , lazy4 bottomNavigationBar model.settingsModel.settings diagram title path
+                        , Lazy.lazy4 bottomNavigationBar model.settingsModel.settings diagram title path
                         ]
 
                 Page.New ->
@@ -218,8 +217,20 @@ view model =
 
                 _ ->
                     mainWindow
-                        Editor.view
-                        (lazy Diagram.view model.diagramModel
+                        (div
+                            [ style "background-color" "#273037"
+                            , style "width" "100%"
+                            , style "height" "100%"
+                            ]
+                            [ div
+                                [ id "editor"
+                                , style "width" "100%"
+                                , style "height" "100%"
+                                ]
+                                []
+                            ]
+                        )
+                        (Lazy.lazy Diagram.view model.diagramModel
                             |> Html.map UpdateDiagram
                         )
             ]

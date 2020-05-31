@@ -246,7 +246,7 @@ select {
     .diagram-tags {
         position: absolute;
         bottom: 60px;
-        width: 210px;
+        width: 100%;
         display: flex;
         justify-content: flex-end;
         flex-wrap: wrap;
@@ -262,7 +262,7 @@ select {
         text-align: center;
         display: flex;
         align-items: center;
-        font-size: 0.5rem;
+        font-size: 0.8rem;
     }
 
     .diagram-text {
