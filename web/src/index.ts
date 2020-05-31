@@ -94,10 +94,14 @@ auth.authn(
     }
 );
 
-app.ports.selectTextById.subscribe((id: string) => {
+app.ports.selectTextById.subscribe(async (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-        (element as HTMLInputElement).select();
+        const inputelemnt = element as HTMLInputElement;
+        inputelemnt.select();
+        if (navigator.clipboard) {
+            await navigator.clipboard.writeText(inputelemnt.value);
+        }
     }
 });
 

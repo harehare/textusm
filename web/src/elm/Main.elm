@@ -123,7 +123,7 @@ bottomNavigationBar settings diagram title path =
                 , style "justify-content" "center"
                 , style "align-items" "center"
                 ]
-                [ a [ href "https://app.textusm.com", target "blank_" ]
+                [ a [ href "https://app.textusm.com", target "blank_", style "display" "flex", style "align-items" "center" ]
                     [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ]
                 ]
             , a [ href <| "https://app.textusm.com/share/" ++ diagram ++ "/" ++ title ++ "/" ++ path, target "blank_", style "color" settings.storyMap.color.label ]
@@ -134,17 +134,12 @@ bottomNavigationBar settings diagram title path =
                 [ class "button"
                 , E.onClick <| UpdateDiagram DiagramModel.ZoomIn
                 ]
-                [ Icon.add 32 ]
+                [ Icon.add 24 ]
             , div
                 [ class "button"
                 , E.onClick <| UpdateDiagram DiagramModel.ZoomOut
                 ]
-                [ Icon.remove 32 ]
-            , div
-                [ class "button"
-                , E.onClick <| UpdateDiagram DiagramModel.ToggleFullscreen
-                ]
-                [ Icon.fullscreen 32 ]
+                [ Icon.remove 24 ]
             ]
         ]
 
