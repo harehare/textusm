@@ -16,7 +16,7 @@
         "uuid": "^8.1.0"
     },
     "devDependencies": {
-        "@babel/core": "^7.10.1",
+        "@babel/core": "^7.10.2",
         "@babel/plugin-proposal-class-properties": "^7.10.1",
         "@babel/preset-env": "^7.10.1",
         "@dillonkearns/elm-graphql": "^4.0.2",
