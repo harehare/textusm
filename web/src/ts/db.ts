@@ -39,6 +39,23 @@ export const initDB = (app: ElmApp) => {
                                 })
                         );
                     });
+                db.version(3)
+                    //@ts-ignore
+                    .upgrade((trans) => {
+                        //@ts-ignore
+                        return (
+                            //@ts-ignore
+                            trans.diagrams
+                                .toCollection()
+                                //@ts-ignore
+                                .modify((diagram) => {
+                                    diagram.diagram =
+                                        diagram.diagram === "cjm"
+                                            ? "table"
+                                            : "";
+                                })
+                        );
+                    });
             }
             //@ts-ignore
             return db;

@@ -18,7 +18,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/labstack/gommon v0.2.9 // indirect
-	github.com/lib/pq v1.5.2
+	github.com/lib/pq v1.6.0
 	github.com/meatballhat/negroni-logrus v0.0.0-20170801195057-31067281800f
 	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450
 	github.com/oxequa/interact v0.0.0-20171114182912-f8fb5795b5d7 // indirect
@@ -28,14 +28,14 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.6.0
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.0
 	github.com/urfave/cli v1.22.2 // indirect
 	github.com/urfave/negroni v1.0.0
 	github.com/vektah/dataloaden v0.3.0 // indirect
 	github.com/vektah/gqlparser v1.3.1
 	github.com/vektah/gqlparser/v2 v2.0.1
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	google.golang.org/api v0.25.0
+	google.golang.org/api v0.26.0
 	google.golang.org/grpc v1.29.1
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
