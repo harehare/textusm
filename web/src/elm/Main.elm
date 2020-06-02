@@ -12,9 +12,8 @@ import Data.Session as Session
 import Data.Size as Size
 import Data.Text as Text
 import Data.Title as Title
-import File exposing (name)
+import Events
 import File.Download as Download
-import File.Select as Select
 import GraphQL.Request as Request
 import Graphql.Http as Http
 import Html exposing (Html, a, div, img, main_, text)
@@ -42,6 +41,7 @@ import String
 import Task
 import TextUSM.Enum.Diagram as Diagram
 import Time
+import Translations
 import Url as Url exposing (percentDecode)
 import Utils
 import Views.Empty as Empty
@@ -54,10 +54,10 @@ import Views.SplitWindow as SplitWindow
 import Views.SwitchWindow as SwitchWindow
 
 
-init : ( String, String ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init : ( ( String, String ), String ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        ( apiRoot, settingsJson ) =
+        ( ( apiRoot, lang ), settingsJson ) =
             flags
 
         initSettings =
@@ -99,6 +99,7 @@ init flags url key =
                 , session = Session.guest
                 , currentDiagram = initSettings.diagram
                 , page = Page.Main
+                , lang = Translations.fromString lang
                 }
     in
     ( model, cmds )
@@ -151,7 +152,7 @@ view model =
         , style "width" "100vw"
         , E.onClick CloseMenu
         ]
-        [ Lazy.lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.diagramModel.text }
+        [ Lazy.lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.diagramModel.text, lang = model.lang }
         , Lazy.lazy showNotification model.notification
         , Lazy.lazy2 showProgressbar model.progress model.window.fullscreen
         , div
@@ -162,7 +163,7 @@ view model =
               else
                 style "height" "calc(100vh - 56px)"
             ]
-            [ Lazy.lazy6 Menu.view model.page (toRoute model.url) model.diagramModel.text (Size.getWidth model.diagramModel.size) model.window.fullscreen model.openMenu
+            [ Lazy.lazy Menu.view { page = model.page, route = toRoute model.url, text = model.diagramModel.text, width = Size.getWidth model.diagramModel.size, fullscreen = model.window.fullscreen, openMenu = model.openMenu, lang = model.lang }
             , let
                 mainWindow =
                     if Size.getWidth model.diagramModel.size > 0 && Utils.isPhone (Size.getWidth model.diagramModel.size) then
@@ -232,14 +233,22 @@ view model =
         ]
 
 
-main : Program ( String, String ) Model Msg
+main : Program ( ( String, String ), String ) Model Msg
 main =
     Browser.application
         { init = init
         , update = update
         , view =
             \m ->
-                { title = Title.toString m.title ++ " | TextUSM"
+                { title =
+                    Title.toString m.title
+                        ++ (if Text.isChanged m.diagramModel.text then
+                                "*"
+
+                            else
+                                ""
+                           )
+                        ++ " | TextUSM"
                 , body = [ view m ]
                 }
         , subscriptions = subscriptions
@@ -742,19 +751,19 @@ update message model =
                 DiagramList.Removed (Err e) ->
                     case e of
                         Http.GraphqlError _ _ ->
-                            ( model, Notification.showErrorMessage "Failed." )
+                            ( model, Notification.showErrorMessage <| Translations.messageFailed model.lang )
 
                         Http.HttpError Http.Timeout ->
-                            ( model, Notification.showErrorMessage "Request timeout." )
+                            ( model, Notification.showErrorMessage <| Translations.messageRequestTimeout model.lang )
 
                         Http.HttpError Http.NetworkError ->
-                            ( model, Notification.showErrorMessage "Network error." )
+                            ( model, Notification.showErrorMessage <| Translations.messageNetworkError model.lang )
 
                         Http.HttpError _ ->
-                            ( model, Notification.showErrorMessage "Failed." )
+                            ( model, Notification.showErrorMessage <| Translations.messageFailed model.lang )
 
                 DiagramList.GotDiagrams (Err _) ->
-                    ( model, Notification.showErrorMessage "Failed." )
+                    ( model, Notification.showErrorMessage <| Translations.messageFailed model.lang )
 
                 _ ->
                     let
@@ -864,15 +873,6 @@ update message model =
         CloseMenu ->
             ( { model | openMenu = Nothing }, Cmd.none )
 
-        FileSelect ->
-            ( model, Select.file [ "text/plain", "text/markdown" ] FileSelected )
-
-        FileSelected file ->
-            ( { model | title = Title.fromString (File.name file) }, Utils.fileLoad file FileLoaded )
-
-        FileLoaded text ->
-            ( model, Ports.loadText text )
-
         Save ->
             let
                 isRemote =
@@ -902,9 +902,6 @@ update message model =
 
             else
                 let
-                    title =
-                        Title.toString model.title
-
                     newDiagramModel =
                         DiagramModel.updatedText model.diagramModel (Text.saved model.diagramModel.text)
                 in
@@ -916,7 +913,7 @@ update message model =
                     [ Ports.saveDiagram <|
                         DiagramItem.encoder
                             { id = Maybe.andThen .id model.currentDiagram
-                            , title = title
+                            , title = Title.toString model.title
                             , text = Text.toString newDiagramModel.text
                             , thumbnail = Nothing
                             , diagram = newDiagramModel.diagramType
@@ -936,7 +933,7 @@ update message model =
                 Ok item ->
                     ( { model | currentDiagram = Just item }
                     , Cmd.batch
-                        [ Notification.showInfoMessage ("Successfully \"" ++ item.title ++ "\" saved.")
+                        [ Notification.showInfoMessage <| Translations.messageSuccessfullySaved model.lang item.title
                         , Route.replaceRoute model.key
                             (Route.EditFile (DiagramType.toString item.diagram) (Maybe.withDefault "" item.id))
                         ]
@@ -982,7 +979,7 @@ update message model =
             in
             ( { model | progress = False, currentDiagram = Just item }
             , Cmd.batch
-                [ Notification.showWarningMessage ("Failed \"" ++ Title.toString model.title ++ "\" saved.")
+                [ Notification.showWarningMessage <| Translations.messageFailedSaved model.lang (Title.toString model.title)
                 , Ports.saveDiagram <| DiagramItem.encoder item
                 ]
             )
@@ -990,7 +987,7 @@ update message model =
         SaveToRemoteCompleted (Ok diagram) ->
             ( { model | currentDiagram = Just diagram, progress = False }
             , Cmd.batch
-                [ Notification.showInfoMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
+                [ Notification.showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString model.title)
                 , Route.replaceRoute model.key
                     (Route.EditFile (DiagramType.toString diagram.diagram) (Maybe.withDefault "" diagram.id))
                 ]
@@ -1012,15 +1009,10 @@ update message model =
                     ( model, Cmd.none )
 
         StartEditTitle ->
-            ( { model | title = Title.edit model.title }
-            , Task.attempt
-                (\_ -> NoOp)
-              <|
-                Dom.focus "title"
-            )
+            ( { model | title = Title.edit model.title }, Task.attempt (\_ -> NoOp) <| Dom.focus "title" )
 
         EndEditTitle code isComposing ->
-            if code == 13 && not isComposing then
+            if code == Events.keyEnter && not isComposing then
                 let
                     diagramModel =
                         model.diagramModel
@@ -1036,66 +1028,54 @@ update message model =
         EditTitle title ->
             ( { model | title = Title.edit <| Title.fromString title }, Cmd.none )
 
-        BackToEdit ->
-            ( model, Nav.pushUrl model.key (Route.toString (Route.toDiagramToRoute (Maybe.withDefault DiagramItem.empty model.currentDiagram))) )
-
         OnVisibilityChange visible ->
-            if model.window.fullscreen then
-                ( model, Cmd.none )
+            case visible of
+                Hidden ->
+                    let
+                        newStoryMap =
+                            model.settingsModel.settings |> Settings.settingsOfFont.set model.settingsModel.settings.font
 
-            else if visible == Hidden then
-                let
-                    storyMap =
-                        model.settingsModel.settings.storyMap
+                        newSettings =
+                            { position = Just model.window.position
+                            , font = model.settingsModel.settings.font
+                            , diagramId = Maybe.andThen .id model.currentDiagram
+                            , storyMap = newStoryMap.storyMap
+                            , text = Just (Text.toString model.diagramModel.text)
+                            , title =
+                                Just <| Title.toString model.title
+                            , editor = model.settingsModel.settings.editor
+                            , diagram = model.currentDiagram
+                            }
 
-                    newStoryMap =
-                        { storyMap | font = model.settingsModel.settings.font }
+                        ( newSettingsModel, _ ) =
+                            Settings.init newSettings
+                    in
+                    ( { model | settingsModel = newSettingsModel }
+                    , Ports.saveSettings (settingsEncoder newSettings)
+                    )
 
-                    newSettings =
-                        { position = Just model.window.position
-                        , font = model.settingsModel.settings.font
-                        , diagramId = Maybe.andThen .id model.currentDiagram
-                        , storyMap = newStoryMap
-                        , text = Just (Text.toString model.diagramModel.text)
-                        , title =
-                            Just <| Title.toString model.title
-                        , editor = model.settingsModel.settings.editor
-                        , diagram = model.currentDiagram
-                        }
-
-                    ( newSettingsModel, _ ) =
-                        Settings.init newSettings
-                in
-                ( { model | settingsModel = newSettingsModel }
-                , Ports.saveSettings (settingsEncoder newSettings)
-                )
-
-            else
-                ( model, Cmd.none )
+                _ ->
+                    ( model, Cmd.none )
 
         OnStartWindowResize x ->
-            ( { model
-                | window =
-                    { position = model.window.position
-                    , moveStart = True
-                    , moveX = x
-                    , fullscreen = model.window.fullscreen
-                    }
-              }
-            , Cmd.none
-            )
+            let
+                window =
+                    model.window
+
+                newWindow =
+                    { window | moveStart = True, moveX = x }
+            in
+            ( { model | window = newWindow }, Cmd.none )
 
         Stop ->
-            ( { model
-                | window =
-                    { position = model.window.position
-                    , moveStart = False
-                    , moveX = model.window.moveX
-                    , fullscreen = model.window.fullscreen
-                    }
-              }
-            , Cmd.none
-            )
+            let
+                window =
+                    model.window
+
+                newWindow =
+                    { window | moveStart = False }
+            in
+            ( { model | window = newWindow }, Cmd.none )
 
         OnWindowResize x ->
             ( { model
@@ -1110,12 +1090,7 @@ update message model =
             )
 
         GetShortUrl (Err e) ->
-            ( { model | progress = False }
-            , Cmd.batch
-                [ Task.perform identity (Task.succeed (OnNotification (Error ("Error. " ++ Utils.httpErrorToString e))))
-                , Utils.delay 3000 OnCloseNotification
-                ]
-            )
+            ( { model | progress = False }, Notification.showErrorMessage ("Error. " ++ Utils.httpErrorToString e) )
 
         GetShortUrl (Ok url) ->
             let
@@ -1163,7 +1138,7 @@ update message model =
             ( { model | shareModel = newShareModel }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl) )
 
         OnDecodeShareText text ->
-            ( model, Task.perform identity (Task.succeed (FileLoaded text)) )
+            ( model, Ports.loadText text )
 
         SwitchWindow w ->
             ( { model | switchWindow = w }, Ports.layoutEditor 100 )

@@ -13,13 +13,14 @@ import MD5
 import Maybe.Extra exposing (isJust)
 import Models.Model as Page exposing (LoginProvider(..), Menu(..), Msg(..), Page(..))
 import Route exposing (Route(..))
+import Translations exposing (Lang)
 import Url
 import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu
 
 
-type alias HeaderProps =
+type alias Props =
     { session : Session
     , page : Page
     , title : Title
@@ -27,10 +28,11 @@ type alias HeaderProps =
     , currentDiagram : Maybe DiagramItem
     , menu : Maybe Menu
     , currentText : Text
+    , lang : Lang
     }
 
 
-view : HeaderProps -> Html Msg
+view : Props -> Html Msg
 view props =
     if props.isFullscreen then
         header [] []
@@ -119,7 +121,7 @@ view props =
                         , style "align-items" "center"
                         ]
                         [ Icon.tag 17
-                        , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Tags" ] ]
+                        , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipTags props.lang ] ]
                         ]
                     ]
 
@@ -133,7 +135,7 @@ view props =
                     , style "align-items" "center"
                     ]
                     [ Icon.helpOutline 20
-                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Help" ] ]
+                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipHelp props.lang ] ]
                     ]
                 ]
             , a
@@ -147,7 +149,7 @@ view props =
                     , style "align-items" "center"
                     ]
                     [ Icon.people 24
-                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Share" ] ]
+                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipShare props.lang ] ]
                     ]
                 ]
             , if Session.isSignedIn props.session then

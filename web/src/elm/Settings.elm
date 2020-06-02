@@ -1,4 +1,4 @@
-module Settings exposing (EditorSettings, Settings, defaultEditorSettings, defaultSettings, settingsDecoder, settingsEncoder, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
+module Settings exposing (EditorSettings, Settings, defaultEditorSettings, defaultSettings, settingsDecoder, settingsEncoder, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Json.Decode as D
@@ -162,6 +162,11 @@ settingsOfTaskBackgroundColor =
 settingsOfStoryBackgroundColor : Lens Settings String
 settingsOfStoryBackgroundColor =
     Compose.lensWithLens Diagram.settingsOfStoryBackgroundColor storyMapOfSettings
+
+
+settingsOfFont : Lens Settings String
+settingsOfFont =
+    Compose.lensWithLens Diagram.settingsOfFont storyMapOfSettings
 
 
 storyMapOfSettings : Lens Settings Diagram.Settings

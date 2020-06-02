@@ -7,7 +7,6 @@ import Browser.Navigation as Nav
 import Data.DiagramItem exposing (DiagramItem)
 import Data.Session exposing (Session, User)
 import Data.Title exposing (Title)
-import File exposing (File)
 import Graphql.Http as Http
 import Http as Http2
 import Models.Diagram as Diagram
@@ -15,6 +14,7 @@ import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Share as Share
 import Page.Tags as Tags
+import Translations exposing (Lang)
 import Url
 
 
@@ -32,9 +32,6 @@ type Msg
     | Download FileType
     | DownloadCompleted ( Int, Int )
     | StartDownload DownloadFileInfo
-    | FileSelect
-    | FileSelected File
-    | FileLoaded String
     | Save
     | SaveToRemoteCompleted (Result DiagramItem DiagramItem)
     | SaveToLocalCompleted String
@@ -60,7 +57,6 @@ type Msg
     | SwitchWindow SwitchWindow
     | GetShortUrl (Result Http2.Error String)
     | Shortcuts String
-    | BackToEdit
     | GotLocalDiagramJson String
     | Load (Result (Http.Error DiagramItem) DiagramItem)
 
@@ -127,6 +123,7 @@ type alias Model =
     , switchWindow : SwitchWindow
     , progress : Bool
     , apiRoot : String
+    , lang : Lang
     }
 
 

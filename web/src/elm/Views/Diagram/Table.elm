@@ -1,6 +1,6 @@
 module Views.Diagram.Table exposing (view)
 
-import Data.Item as Item exposing (Item, ItemType(..), Items)
+import Data.Item as Item exposing (Item, ItemType(..))
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Views.Table exposing (Header(..), Row(..), Table(..))
 import String

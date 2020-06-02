@@ -12,8 +12,16 @@ import { ElmApp } from "./ts/elm";
 // @ts-ignore
 import { Elm } from "./elm/Main.elm";
 
+const lang =
+    (window.navigator.languages && window.navigator.languages[0]) ||
+    window.navigator.language ||
+    // @ts-ignore
+    window.navigator.userLanguage ||
+    // @ts-ignore
+    window.navigator.browserLanguage;
+
 const app: ElmApp = Elm.Main.init({
-    flags: [process.env.API_ROOT, JSON.stringify(loadSettings())],
+    flags: [[process.env.API_ROOT, lang], JSON.stringify(loadSettings())],
 });
 
 const openFullscreen = () => {
