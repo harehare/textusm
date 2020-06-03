@@ -96,7 +96,7 @@
                 </g>
             </g>
             <g>
-                <rect width="140" height="64" x="0" y="0" stroke-width="2" stroke="#266B9A" rx="32" ry="32" fill="#fefefe"/>
+                <rect width="140" height="64" x="0" y="0" stroke-width="2" stroke="#266B9A" rx="32" ry="32" fill="#f5f5f6"/>
                 <foreignObject x="0" y="0" width="140" height="65" fill="#FFFFFF" color="#111111" font-size="14" class=".select-none">
                     <div
                         xmlns="http://www.w3.org/1999/xhtml" style="width: 140px; height: 65px; font-family: &quot;Nunito Sans&quot;, sans-serif; overflow-wrap: break-word; display: flex; align-items: center; justify-content: center;">

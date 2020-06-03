@@ -10,6 +10,7 @@
         "dexie": "^3.0.1",
         "firebase": "^7.14.6",
         "html2canvas": "^1.0.0-rc.3",
+        "imagemin-webpack-plugin": "^2.4.2",
         "jspdf": "^1.5.3",
         "lzutf8": "^0.5.5",
         "monaco-editor": "^0.20.0",

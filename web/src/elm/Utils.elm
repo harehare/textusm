@@ -1,9 +1,8 @@
-module Utils exposing (calcDistance, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, stringToPosix, transpose)
+module Utils exposing (calcDistance, delay, extractDateValues, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isPhone, millisToString, monthToInt, stringToPosix, transpose)
 
 import Constants
 import Data.Item as Item exposing (Items)
 import Data.Text as Text
-import File exposing (File)
 import Http exposing (Error(..))
 import List.Extra exposing (getAt, last, scanl1, takeWhile, unique)
 import Models.Diagram as DiagramModel
@@ -19,11 +18,6 @@ import Time.Extra exposing (Interval(..), Parts, diff, partsToPosix)
 isPhone : Int -> Bool
 isPhone width =
     width <= 480
-
-
-fileLoad : File -> (String -> msg) -> Cmd msg
-fileLoad file msg =
-    Task.perform msg (File.toString file)
 
 
 delay : Float -> msg -> Cmd msg
@@ -46,12 +40,6 @@ httpErrorToString err =
 
         _ ->
             "Internal server error. Please try again later."
-
-
-isImageUrl : String -> Bool
-isImageUrl url =
-    (String.startsWith "/" url || String.startsWith "https://" url || String.startsWith "http://" url)
-        && (String.endsWith ".svg" url || String.endsWith ".png" url || String.endsWith ".jpg" url)
 
 
 zeroPadding : Int -> Int -> String
