@@ -42,7 +42,7 @@ all =
                     Expect.equal (toString EmpathyMap) "emm"
             , test "cjm test" <|
                 \() ->
-                    Expect.equal (toString CustomerJourneyMap) "cjm"
+                    Expect.equal (toString Table) "table"
             , test "smp test" <|
                 \() ->
                     Expect.equal (toString SiteMap) "smp"
@@ -89,7 +89,7 @@ all =
                     Expect.equal (toLongString EmpathyMap) "Empathy Map"
             , test "cjm test" <|
                 \() ->
-                    Expect.equal (toLongString CustomerJourneyMap) "Customer Journey Map"
+                    Expect.equal (toLongString Table) "Table"
             , test "smp test" <|
                 \() ->
                     Expect.equal (toLongString SiteMap) "Site Map"
