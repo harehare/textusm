@@ -30,13 +30,14 @@ type alias SettingsJson =
 
 type Route
     = Home
+    | New
     | Edit DiagramPath
     | EditFile DiagramPath Id
     | List
     | Settings
     | Help
     | Tag
-    | SharingSettings
+    | SharingDiagram
     | Share DiagramPath Title Path
     | Embed DiagramPath Title Path
     | UsmView SettingsJson
@@ -56,7 +57,8 @@ parser =
         , map Settings (s "settings")
         , map Help (s "help")
         , map Tag (s "tag")
-        , map SharingSettings (s "sharing")
+        , map New (s "new")
+        , map SharingDiagram (s "sharing")
         , map Edit (s "edit" </> diagramType)
         , map EditFile (s "edit" </> diagramType </> string)
         ]
@@ -90,6 +92,9 @@ toString route =
         Home ->
             absolute [] []
 
+        New ->
+            absolute [ "new" ] []
+
         Edit type_ ->
             absolute [ "edit", type_ ] []
 
@@ -108,7 +113,7 @@ toString route =
         Tag ->
             absolute [ "tag" ] []
 
-        SharingSettings ->
+        SharingDiagram ->
             absolute [ "sharing" ] []
 
         NotFound ->

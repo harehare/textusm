@@ -202,7 +202,6 @@ view model =
             in
             div
                 [ class "diagram-list"
-                , style "display" "flex"
                 ]
                 [ lazy5 sideMenu
                     selectedPath
@@ -329,6 +328,8 @@ view model =
         _ ->
             div
                 [ class "diagram-list"
+                , style "align-items" "center"
+                , style "justify-content" "center"
                 , style "width" "100vw"
                 ]
                 [ div
@@ -377,19 +378,23 @@ diagramView timezone diagram =
                   else
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOff 14 ]
                 , div [ style "margin-left" "16px", class "remove button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
-                , if diagram.isBookmark then
-                    div
-                        [ class "bookmark"
-                        , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
-                        ]
-                        [ Icon.bookmark "#3e9bcd" 16 ]
+                , case ( diagram.isBookmark, diagram.isRemote ) of
+                    ( True, True ) ->
+                        div
+                            [ class "bookmark"
+                            , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
+                            ]
+                            [ Icon.bookmark "#3e9bcd" 16 ]
 
-                  else
-                    div
-                        [ class "bookmark"
-                        , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
-                        ]
-                        [ Icon.unbookmark "#3e9bcd" 16 ]
+                    ( False, True ) ->
+                        div
+                            [ class "bookmark"
+                            , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
+                            ]
+                            [ Icon.unbookmark "#3e9bcd" 16 ]
+
+                    _ ->
+                        Empty.view
                 , div [ class "diagram-tags" ] (List.map tagView (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
                 ]
             ]

@@ -12,9 +12,16 @@ import { ElmApp } from "./ts/elm";
 // @ts-ignore
 import { Elm } from "./elm/Main.elm";
 
-const auth = new Auth();
+const lang =
+    (window.navigator.languages && window.navigator.languages[0]) ||
+    window.navigator.language ||
+    // @ts-ignore
+    window.navigator.userLanguage ||
+    // @ts-ignore
+    window.navigator.browserLanguage;
+
 const app: ElmApp = Elm.Main.init({
-    flags: [process.env.API_ROOT, JSON.stringify(loadSettings())],
+    flags: [[process.env.API_ROOT, lang], JSON.stringify(loadSettings())],
 });
 
 const openFullscreen = () => {
@@ -61,6 +68,8 @@ app.ports.loadEditor.subscribe(([text, option]: [string, EditorOption]) => {
     loadEditor(app, text, option);
 });
 
+const auth = new Auth();
+
 app.ports.signIn.subscribe((provider: string) => {
     auth.signIn(
         provider === "Google" ? auth.provideres.google : auth.provideres.github
@@ -85,18 +94,22 @@ auth.authn(
             app.ports.onAuthStateChanged.send({
                 idToken,
                 id: profile.uid,
-                displayName: profile.displayName || "",
-                email: profile.email || "",
-                photoURL: profile.photoURL || "",
+                displayName: profile.displayName ?? "",
+                email: profile.email ?? "",
+                photoURL: profile.photoURL ?? "",
             });
         }
     }
 );
 
-app.ports.selectTextById.subscribe((id: string) => {
+app.ports.selectTextById.subscribe(async (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-        (element as HTMLInputElement).select();
+        const inputelemnt = element as HTMLInputElement;
+        inputelemnt.select();
+        if (navigator.clipboard) {
+            await navigator.clipboard.writeText(inputelemnt.value);
+        }
     }
 });
 

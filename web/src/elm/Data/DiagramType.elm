@@ -36,8 +36,8 @@ toString diagramType =
         EmpathyMap ->
             "emm"
 
-        CustomerJourneyMap ->
-            "cjm"
+        Table ->
+            "table"
 
         SiteMap ->
             "smp"
@@ -88,8 +88,8 @@ toLongString diagramType =
         EmpathyMap ->
             "Empathy Map"
 
-        CustomerJourneyMap ->
-            "Customer Journey Map"
+        Table ->
+            "Table"
 
         SiteMap ->
             "Site Map"
@@ -140,8 +140,8 @@ fromString s =
         "emm" ->
             EmpathyMap
 
-        "cjm" ->
-            CustomerJourneyMap
+        "table" ->
+            Table
 
         "smp" ->
             SiteMap

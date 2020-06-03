@@ -14,7 +14,7 @@ import Models.Views.ER as ER exposing (Attribute(..), Column(..), ColumnType(..)
 import State as State exposing (Step(..))
 import String
 import Svg exposing (Svg, foreignObject, g, rect, text, text_)
-import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, style, transform, width, x, y)
+import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, y)
 import Views.Diagram.Path as Path
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -44,33 +44,9 @@ view model =
                 tableDict =
                     tablesToDict tables
                         |> adjustTablePosition relationships
-
-                ( centerX, centerY ) =
-                    if model.matchParent then
-                        getTableTopLeft tableDict
-
-                    else
-                        ( getX model.position, getY model.position )
             in
             g
-                [ transform
-                    ("translate("
-                        ++ String.fromInt (centerX + 32)
-                        ++ ","
-                        ++ String.fromInt (centerY + getHeight model.size // 2)
-                        ++ "), scale("
-                        ++ String.fromFloat model.svg.scale
-                        ++ ","
-                        ++ String.fromFloat model.svg.scale
-                        ++ ")"
-                    )
-                , fill model.settings.backgroundColor
-                , if model.moveStart then
-                    style "will-change: transform;"
-
-                  else
-                    style "will-change: transform;transition: transform 0.15s ease"
-                ]
+                []
                 (lazy3 relationshipView model.settings relationships tableDict
                     :: (Dict.toList tableDict
                             |> List.map
@@ -82,21 +58,6 @@ view model =
 
         _ ->
             Empty.view
-
-
-getTableTopLeft : TableViewDict -> Position
-getTableTopLeft tableDict =
-    let
-        ( mx, my ) =
-            Dict.values tableDict
-                |> List.map (\p -> getPosition p.position)
-                |> List.foldl
-                    (\( x1, y1 ) ( minX, minY ) ->
-                        ( min x1 minX, min y1 minY )
-                    )
-                    ( 0, 0 )
-    in
-    ( -mx, -my )
 
 
 adjustTablePosition : List Relationship -> TableViewDict -> TableViewDict

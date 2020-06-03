@@ -1,12 +1,9 @@
 module Views.Diagram.FourLs exposing (view)
 
 import Constants
-import Data.Position as Position
 import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Views.FourLs exposing (FourLsItem(..))
-import String
 import Svg exposing (Svg, g)
-import Svg.Attributes exposing (fill, style, transform)
 import Utils
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
@@ -33,24 +30,7 @@ view model =
                     f.longedFor
             in
             g
-                [ transform
-                    ("translate("
-                        ++ String.fromInt (Position.getX model.position)
-                        ++ ","
-                        ++ String.fromInt (Position.getY model.position)
-                        ++ "), scale("
-                        ++ String.fromFloat model.svg.scale
-                        ++ ","
-                        ++ String.fromFloat model.svg.scale
-                        ++ ")"
-                    )
-                , fill model.settings.backgroundColor
-                , if model.moveStart then
-                    style "will-change: transform;"
-
-                  else
-                    style "will-change: transform;transition: transform 0.15s ease"
-                ]
+                []
                 [ Views.canvasView model.settings
                     ( Constants.largeItemWidth, itemHeight )
                     ( 0, 0 )

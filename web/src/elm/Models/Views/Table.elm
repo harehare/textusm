@@ -1,29 +1,27 @@
-module Models.Views.CustomerJourneyMap exposing (CustomerJourneyMap(..), Header(..), Row(..), fromItems, toString)
+module Models.Views.Table exposing (Header(..), Row(..), Table(..), fromItems, toString)
 
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 
 
-type CustomerJourneyMap
-    = CustomerJourneyMap Header (List Row)
+type Table
+    = Table Header (List Row)
 
 
 type Header
-    = Header Items
+    = Header Item
 
 
 type Row
     = Row Item
 
 
-fromItems : Items -> CustomerJourneyMap
+fromItems : Items -> Table
 fromItems items =
-    CustomerJourneyMap
+    Table
         (Header
             (items
                 |> Item.head
                 |> Maybe.withDefault Item.emptyItem
-                |> .children
-                |> Item.unwrapChildren
             )
         )
         (items
@@ -33,32 +31,37 @@ fromItems items =
         )
 
 
-toString : CustomerJourneyMap -> String
-toString customerJourneyMap =
+toString : Table -> String
+toString table =
     let
-        (CustomerJourneyMap h rows) =
-            customerJourneyMap
+        (Table h rows) =
+            table
 
-        (Header headerItems) =
+        (Header headerItem) =
             h
 
         header =
             "|"
-                ++ (Item.cons Item.emptyItem headerItems
-                        |> Item.map (\i -> String.trim i.text)
+                ++ ((headerItem.text
+                        :: (headerItem.children
+                                |> Item.unwrapChildren
+                                |> Item.map (\i -> String.trim i.text)
+                           )
+                    )
                         |> String.join "|"
                    )
                 ++ "|"
 
         section =
             "|"
-                ++ (Item.cons
-                        (Item 0 "dummy" Activities Item.emptyChildren)
-                        headerItems
-                        |> Item.map
-                            (\item ->
-                                " " ++ String.repeat (String.trim item.text |> String.length) "-" ++ " "
-                            )
+                ++ ((" " ++ String.repeat (String.trim headerItem.text |> String.length) "-" ++ " ")
+                        :: (headerItem.children
+                                |> Item.unwrapChildren
+                                |> Item.map
+                                    (\item ->
+                                        " " ++ String.repeat (String.trim item.text |> String.length) "-" ++ " "
+                                    )
+                           )
                         |> String.join "|"
                    )
                 ++ "|"

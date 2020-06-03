@@ -1,4 +1,4 @@
-module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, rectView, startTextNodeView, textNodeView, textView)
+module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, gridView, rectView, startTextNodeView, textNodeView, textView)
 
 import Constants
 import Data.Item as Item exposing (Item, ItemType(..), Items)
@@ -10,11 +10,10 @@ import Html.Attributes as Attr
 import Html.Events exposing (onInput)
 import Html5.DragDrop as DragDrop
 import Maybe.Extra exposing (isJust)
-import Models.Diagram exposing (Msg(..), Settings, fontStyle, getTextColor, settingsOfWidth)
+import Models.Diagram as Diagram exposing (Msg(..), Settings, fontStyle, getTextColor, settingsOfWidth)
 import String
 import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
 import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x, xlinkHref, y)
-import Utils
 
 
 type alias RgbColor =
@@ -73,8 +72,8 @@ rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         , x (String.fromInt posX)
         , y (String.fromInt posY)
         , fill color
-        , rx "2"
-        , ry "2"
+        , rx "1"
+        , ry "1"
         , style "filter:url(#shadow)"
         ]
         []
@@ -83,12 +82,14 @@ rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
 selectedRectView : Position -> Size -> RgbColor -> Svg Msg
 selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
     rect
-        [ width <| String.fromInt svgWidth
-        , height <| String.fromInt svgHeight
-        , x (String.fromInt posX)
-        , y (String.fromInt posY)
-        , strokeWidth "1"
-        , stroke "rgba(0, 0, 0, 0.1)"
+        [ width <| String.fromInt <| svgWidth + 4
+        , height <| String.fromInt <| svgHeight + 4
+        , x (String.fromInt <| posX - 2)
+        , y (String.fromInt <| posY - 2)
+        , strokeWidth "3"
+        , stroke "rgba(0, 0, 0, 0.5)"
+        , rx "1"
+        , ry "1"
         , fill color
         , style "filter:url(#shadow)"
         ]
@@ -141,7 +142,7 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
                 , Attr.style "border" "none"
                 , Attr.style "outline" "none"
                 , Attr.style "width" (String.fromInt (svgWidth - 20) ++ "px")
-                , Attr.style "font-size" (Maybe.withDefault (item.text |> String.replace " " "" |> Utils.calcFontSize settings.size.width) fontSize ++ "px")
+                , Attr.style "font-size" <| Constants.fontSize ++ "px"
                 , Attr.style "margin-left" "2px"
                 , Attr.style "margin-top" "2px"
                 , Attr.value <| " " ++ String.trimLeft item.text
@@ -163,7 +164,7 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
             , height <| String.fromInt svgHeight
             , fill colour
             , color colour
-            , fontSize (cardText |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
+            , fontSize Constants.fontSize
             , class ".select-none"
             ]
             [ div
@@ -176,13 +177,13 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
 
     else
         text_
-            [ x <| String.fromInt <| posX + 4
-            , y <| String.fromInt <| posY + 18
+            [ x <| String.fromInt <| posX + 6
+            , y <| String.fromInt <| posY + 24
             , width <| String.fromInt svgWidth
             , height <| String.fromInt svgHeight
             , fill colour
             , color colour
-            , fontSize (cardText |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
+            , fontSize <| Constants.fontSize
             , class ".select-none"
             ]
             [ text cardText ]
@@ -397,7 +398,7 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour nodeText =
         , height <| String.fromInt svgHeight
         , fill colour
         , color <| getTextColor settings.color
-        , fontSize (nodeText |> String.replace " " "" |> Utils.calcFontSize settings.size.width)
+        , fontSize Constants.fontSize
         , class ".select-none"
         ]
         [ div
@@ -470,3 +471,45 @@ startTextNodeRect ( posX, posY ) ( svgWidth, svgHeight ) ( color, backgroundColo
         , fill backgroundColor
         ]
         []
+
+
+gridView : Settings -> Position -> Maybe Item -> Item -> Svg Msg
+gridView settings ( posX, posY ) selectedItem item =
+    if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
+        g []
+            [ rect
+                [ width <| String.fromInt settings.size.width
+                , height <| String.fromInt <| settings.size.height - 1
+                , x (String.fromInt posX)
+                , y (String.fromInt posY)
+                , strokeWidth "3"
+                , stroke "rgba(0, 0, 0, 0.1)"
+                , fill "transparent"
+                , stroke settings.color.line
+                , strokeWidth "3"
+                ]
+                []
+            , inputView settings Nothing ( posX, posY ) ( settings.size.width, settings.size.height ) ( Diagram.getTextColor settings.color, "transparent" ) (Maybe.withDefault Item.emptyItem selectedItem)
+            ]
+
+    else
+        g
+            [ onClickStopPropagation (ItemClick item)
+            ]
+            [ rect
+                [ width <| String.fromInt settings.size.width
+                , height <| String.fromInt <| settings.size.height - 1
+                , x (String.fromInt posX)
+                , y (String.fromInt posY)
+                , fill "transparent"
+                , stroke settings.color.line
+                , strokeWidth "3"
+                ]
+                []
+            , textView settings ( posX, posY ) ( settings.size.width, settings.size.height ) (Diagram.getTextColor settings.color) item.text
+            , if isJust selectedItem then
+                dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
+
+              else
+                g [] []
+            ]

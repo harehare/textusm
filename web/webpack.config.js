@@ -14,6 +14,7 @@ const PreloadWebpackPlugin = require("preload-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin")
     .default;
+const ImageminPlugin = require("imagemin-webpack-plugin").default;
 const mode =
     process.env.NODE_ENV === "production" ? "production" : "development";
 const withDebug = !process.env.NODE_ENV;
@@ -172,6 +173,7 @@ if (mode === "production") {
                     },
                 ],
             }),
+            new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i }),
             new MiniCssExtractPlugin({
                 filename: "[name]-[hash].css",
                 chunkFilename: "[id]-[contenthash].css",
@@ -192,8 +194,13 @@ if (mode === "production") {
                 {
                     test: /\.css$/,
                     exclude: [/elm-stuff/, /node_modules/],
-                    loaders: [
-                        MiniCssExtractPlugin.loader,
+                    use: [
+                        {
+                            loader: MiniCssExtractPlugin.loader,
+                            options: {
+                                esModule: true,
+                            },
+                        },
                         "css-loader?url=false",
                     ],
                 },

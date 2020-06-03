@@ -1,9 +1,8 @@
-module Utils exposing (calcDistance, calcFontSize, delay, extractDateValues, fileLoad, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isImageUrl, isPhone, millisToString, monthToInt, stringToPosix, transpose)
+module Utils exposing (calcDistance, delay, extractDateValues, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isPhone, millisToString, monthToInt, stringToPosix, transpose)
 
 import Constants
 import Data.Item as Item exposing (Items)
 import Data.Text as Text
-import File exposing (File)
 import Http exposing (Error(..))
 import List.Extra exposing (getAt, last, scanl1, takeWhile, unique)
 import Models.Diagram as DiagramModel
@@ -16,23 +15,9 @@ import Time exposing (Month(..), Posix, Zone, toDay, toHour, toMinute, toMonth, 
 import Time.Extra exposing (Interval(..), Parts, diff, partsToPosix)
 
 
-calcFontSize : Int -> String -> String
-calcFontSize width text =
-    let
-        size =
-            max (String.length text) 16
-    in
-    String.fromInt (Basics.min (width // size) 16)
-
-
 isPhone : Int -> Bool
 isPhone width =
     width <= 480
-
-
-fileLoad : File -> (String -> msg) -> Cmd msg
-fileLoad file msg =
-    Task.perform msg (File.toString file)
 
 
 delay : Float -> msg -> Cmd msg
@@ -55,12 +40,6 @@ httpErrorToString err =
 
         _ ->
             "Internal server error. Please try again later."
-
-
-isImageUrl : String -> Bool
-isImageUrl url =
-    (String.startsWith "/" url || String.startsWith "https://" url || String.startsWith "http://" url)
-        && (String.endsWith ".svg" url || String.endsWith ".png" url || String.endsWith ".jpg" url)
 
 
 zeroPadding : Int -> Int -> String
@@ -359,7 +338,7 @@ getCanvasSize model =
                             0
                     )
 
-                Diagram.CustomerJourneyMap ->
+                Diagram.Table ->
                     ( model.settings.size.width * ((model.items |> Item.head |> Maybe.withDefault Item.emptyItem |> .children |> Item.unwrapChildren |> Item.length) + 1)
                     , model.settings.size.height * Item.length model.items + Constants.itemMargin
                     )

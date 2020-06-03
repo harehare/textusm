@@ -132,7 +132,7 @@ export const loadEditor = async (
         id: "open",
         label: "open",
         keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
-        contextMenuOrder: 1.5,
+        contextMenuOrder: 1,
         run: () => {
             app.ports.shortcuts.send("open");
         },
@@ -142,7 +142,7 @@ export const loadEditor = async (
         id: "save-to-local",
         label: "save",
         keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
-        contextMenuOrder: 1.5,
+        contextMenuOrder: 2,
         run: () => {
             app.ports.shortcuts.send("save");
         },
@@ -173,7 +173,7 @@ export const loadEditor = async (
                     return;
                 }
                 app.ports.changeText.send(monacoEditor.getValue());
-            }, 500);
+            }, 300);
         }
     });
 };

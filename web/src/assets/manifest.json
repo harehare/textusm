@@ -6,7 +6,8 @@
     "display": "standalone",
     "scope": "/",
     "start_url": ".",
-    "icons": [{
+    "icons": [
+        {
             "src": "images/icon_72x72.png",
             "type": "image/png",
             "sizes": "72x72"
@@ -40,6 +41,48 @@
             "src": "images/icon_512x512.png",
             "type": "image/png",
             "sizes": "512x512"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "New User Story Map",
+            "url": "/edit/usm"
+        },
+        {
+            "name": "New Mind Map",
+            "url": "/edit/mmp"
+        },
+        {
+            "name": "New Mind Map",
+            "url": "/edit/mmp"
+        },
+        {
+            "name": "New Business Model Canvas",
+            "url": "/edit/bmc"
+        },
+        {
+            "name": "New Gantt Chart",
+            "url": "/edit/gct"
+        },
+        {
+            "name": "New Kanban",
+            "url": "/edit/kanban"
+        },
+        {
+            "name": "New ER Diagram",
+            "url": "/edit/erd"
+        },
+        {
+            "name": "New 4Ls",
+            "url": "/edit/4ls"
+        },
+        {
+            "name": "New KPT",
+            "url": "/edit/kpt"
+        },
+        {
+            "name": "New Table",
+            "url": "/edit/table"
         }
     ]
 }

@@ -2,12 +2,12 @@ module Views.Diagram.Kanban exposing (view)
 
 import Constants
 import Data.Item exposing (Item)
-import Data.Position as Position exposing (Position)
+import Data.Position exposing (Position)
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Models.Views.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import String
 import Svg exposing (Svg, g, line, text, text_)
-import Svg.Attributes exposing (fill, fontFamily, fontSize, fontWeight, stroke, strokeWidth, style, transform, x, x1, x2, y, y1, y2)
+import Svg.Attributes exposing (fill, fontFamily, fontSize, fontWeight, stroke, strokeWidth, x, x1, x2, y, y1, y2)
 import Svg.Lazy exposing (lazy3)
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
@@ -23,24 +23,7 @@ view model =
     case model.data of
         Diagram.Kanban k ->
             g
-                [ transform
-                    ("translate("
-                        ++ String.fromInt (Position.getX model.position)
-                        ++ ","
-                        ++ String.fromInt (Position.getY model.position)
-                        ++ "), scale("
-                        ++ String.fromFloat model.svg.scale
-                        ++ ","
-                        ++ String.fromFloat model.svg.scale
-                        ++ ")"
-                    )
-                , fill model.settings.backgroundColor
-                , if model.moveStart then
-                    style "will-change: transform;"
-
-                  else
-                    style "will-change: transform;transition: transform 0.15s ease"
-                ]
+                []
                 [ lazy3 kanbanView model.settings model.selectedItem k ]
 
         _ ->

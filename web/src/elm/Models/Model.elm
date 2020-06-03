@@ -7,7 +7,6 @@ import Browser.Navigation as Nav
 import Data.DiagramItem exposing (DiagramItem)
 import Data.Session exposing (Session, User)
 import Data.Title exposing (Title)
-import File exposing (File)
 import Graphql.Http as Http
 import Http as Http2
 import Models.Diagram as Diagram
@@ -15,8 +14,7 @@ import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Share as Share
 import Page.Tags as Tags
-import Route as Route
-import TextUSM.Enum.Diagram exposing (Diagram)
+import Translations exposing (Lang)
 import Url
 
 
@@ -34,20 +32,15 @@ type Msg
     | Download FileType
     | DownloadCompleted ( Int, Int )
     | StartDownload DownloadFileInfo
-    | FileSelect
-    | FileSelected File
-    | FileLoaded String
     | Save
     | SaveToRemoteCompleted (Result DiagramItem DiagramItem)
     | SaveToLocalCompleted String
-    | SaveToFileSystem
     | SaveToRemote String
     | StartEditTitle
     | Progress Bool
     | EndEditTitle Int Bool
     | EditTitle String
     | OnShareUrl ShareInfo
-    | OnCurrentShareUrl
     | SignIn LoginProvider
     | SignOut
     | OnVisibilityChange Visibility
@@ -63,11 +56,7 @@ type Msg
     | OnAuthStateChanged (Maybe User)
     | SwitchWindow SwitchWindow
     | GetShortUrl (Result Http2.Error String)
-    | New Diagram
-    | GetDiagrams
     | Shortcuts String
-    | NavRoute Route.Route
-    | BackToEdit
     | GotLocalDiagramJson String
     | Load (Result (Http.Error DiagramItem) DiagramItem)
 
@@ -84,6 +73,7 @@ type FileType
     | Html
     | Ddl
     | MarkdownTable
+    | PlainText
 
 
 type Notification
@@ -93,8 +83,7 @@ type Notification
 
 
 type Menu
-    = NewFile
-    | Export
+    = Export
     | UserSettings
     | HeaderMenu
     | LoginMenu
@@ -107,6 +96,7 @@ type SwitchWindow
 
 type Page
     = Main
+    | New
     | Help
     | List
     | Tags Tags.Model
@@ -133,6 +123,7 @@ type alias Model =
     , switchWindow : SwitchWindow
     , progress : Bool
     , apiRoot : String
+    , lang : Lang
     }
 
 

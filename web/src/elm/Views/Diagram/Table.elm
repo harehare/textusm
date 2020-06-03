@@ -1,12 +1,10 @@
-module Views.Diagram.CustomerJourneyMap exposing (view)
+module Views.Diagram.Table exposing (view)
 
-import Data.Item as Item exposing (Item, ItemType(..), Items)
-import Data.Position as Position
+import Data.Item as Item exposing (Item, ItemType(..))
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
-import Models.Views.CustomerJourneyMap exposing (CustomerJourneyMap(..), Header(..), Row(..))
+import Models.Views.Table exposing (Header(..), Row(..), Table(..))
 import String
 import Svg exposing (Svg, g)
-import Svg.Attributes exposing (fill, style, transform)
 import Svg.Keyed as Keyed
 import Svg.Lazy exposing (lazy3, lazy4)
 import Views.Diagram.Views as Views
@@ -16,33 +14,16 @@ import Views.Empty as Empty
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.CustomerJourneyMap c ->
+        Diagram.Table t ->
             let
-                (CustomerJourneyMap h rows) =
-                    c
+                (Table h rows) =
+                    t
 
                 (Header header) =
                     h
             in
             g
-                [ transform
-                    ("translate("
-                        ++ String.fromInt (Position.getX model.position)
-                        ++ ","
-                        ++ String.fromInt (Position.getY model.position)
-                        ++ "), scale("
-                        ++ String.fromFloat model.svg.scale
-                        ++ ","
-                        ++ String.fromFloat model.svg.scale
-                        ++ ")"
-                    )
-                , fill model.settings.backgroundColor
-                , if model.moveStart then
-                    style "will-change: transform;"
-
-                  else
-                    style "will-change: transform;transition: transform 0.15s ease"
-                ]
+                []
                 (lazy3 headerView
                     model.settings
                     model.selectedItem
@@ -63,15 +44,14 @@ view model =
             Empty.view
 
 
-headerView : Settings -> Maybe Item -> Items -> Svg Msg
-headerView settings selectedItem items =
+headerView : Settings -> Maybe Item -> Item -> Svg Msg
+headerView settings selectedItem item =
     g []
-        (lazy4 Views.cardView settings ( 0, 0 ) selectedItem Item.emptyItem
-            :: Item.indexedMap
-                (\i item ->
-                    lazy4 Views.cardView settings ( settings.size.width * (i + 1), 0 ) selectedItem { item | itemType = Activities }
-                )
-                items
+        (Item.indexedMap
+            (\i ii ->
+                lazy4 Views.gridView settings ( settings.size.width * i, 0 ) selectedItem { ii | itemType = Activities }
+            )
+            (Item.cons item (Item.unwrapChildren item.children))
         )
 
 
@@ -80,7 +60,7 @@ rowView settings selectedItem rowNo item =
     Keyed.node "g"
         []
         (( "row" ++ String.fromInt rowNo
-         , lazy4 Views.cardView
+         , lazy4 Views.gridView
             settings
             ( 0, settings.size.height * rowNo )
             selectedItem
@@ -89,7 +69,7 @@ rowView settings selectedItem rowNo item =
             :: Item.indexedMap
                 (\i childItem ->
                     ( "row" ++ String.fromInt childItem.lineNo
-                    , lazy4 Views.cardView
+                    , lazy4 Views.gridView
                         settings
                         ( settings.size.width * (i + 1), settings.size.height * rowNo )
                         selectedItem

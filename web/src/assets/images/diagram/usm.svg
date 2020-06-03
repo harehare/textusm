@@ -1,0 +1,95 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 828 486" width="828" height="486" style="transparent">
+    <defs>
+        <style>@import url('https://fonts.googleapis.com/css?family=Nunito Sans&amp;display=swap');</style>
+    </defs>
+    <defs>
+        <filter id="shadow" height="130%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+            <feOffset dx="2" dy="2" result="offsetblur"/>
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.5"/>
+            </feComponentTransfer>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+    <g transform="translate(0,20), scale(1,1)" fill="transparent" style="will-change: transform;transition: transform 0.15s ease">
+        <g>
+            <g>
+                <g>
+                    <g>
+                        <rect width="140" height="64" x="140" y="10" fill="#266B9A" rx="1" ry="1" style="filter:url(#shadow)"/>
+                        <g/></g>
+                    <g>
+                        <g>
+                            <rect width="140" height="64" x="140" y="91" fill="#3E9BCD" rx="1" ry="1" style="filter:url(#shadow)"/>
+                            <g/></g>
+                        <g>
+                            <g>
+                                <rect width="140" height="64" x="140" y="188" fill="#F4F4F5" rx="1" ry="1" style="filter:url(#shadow)"/>
+                                <g/></g>
+                        </g>
+                        <g>
+                            <g>
+                                <rect width="140" height="64" x="140" y="269" fill="#F4F4F5" rx="1" ry="1" style="filter:url(#shadow)"/>
+                                <g/></g>
+                        </g>
+                    </g>
+                </g>
+                <g>
+                    <g>
+                        <rect width="140" height="64" x="296" y="10" fill="#266B9A" rx="1" ry="1" style="filter:url(#shadow)"/>
+                        <g/></g>
+                    <g>
+                        <g>
+                            <rect width="140" height="64" x="296" y="91" fill="#3E9BCD" rx="1" ry="1" style="filter:url(#shadow)"/>
+                            <g/></g>
+                        <g>
+                            <g>
+                                <rect width="140" height="64" x="296" y="188" fill="#F4F4F5" rx="1" ry="1" style="filter:url(#shadow)"/>
+                                <g/></g>
+                        </g>
+                    </g>
+                </g>
+                <g>
+                    <g>
+                        <rect width="140" height="64" x="452" y="10" fill="#266B9A" rx="1" ry="1" style="filter:url(#shadow)"/>
+                        <g/></g>
+                    <g>
+                        <g>
+                            <rect width="140" height="64" x="452" y="91" fill="#3E9BCD" rx="1" ry="1" style="filter:url(#shadow)"/>
+                            <g/></g>
+                        <g>
+                            <g>
+                                <rect width="140" height="64" x="452" y="188" fill="#F4F4F5" rx="1" ry="1" style="filter:url(#shadow)"/>
+                                <g/></g>
+                        </g>
+                        <g>
+                            <g>
+                                <rect width="140" height="64" x="452" y="269" fill="#F4F4F5" rx="1" ry="1" style="filter:url(#shadow)"/>
+                                <g/></g>
+                        </g>
+                    </g>
+                </g>
+                <g>
+                    <g>
+                        <rect width="140" height="64" x="608" y="10" fill="#266B9A" rx="1" ry="1" style="filter:url(#shadow)"/>
+                        <g/></g>
+                    <g>
+                        <g>
+                            <rect width="140" height="64" x="608" y="91" fill="#3E9BCD" rx="1" ry="1" style="filter:url(#shadow)"/>
+                            <g/></g>
+                        <g>
+                            <g>
+                                <rect width="140" height="64" x="608" y="188" fill="#F4F4F5" rx="1" ry="1" style="filter:url(#shadow)"/>
+                                <g/></g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

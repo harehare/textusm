@@ -39,6 +39,23 @@ export const initDB = (app: ElmApp) => {
                                 })
                         );
                     });
+                db.version(3)
+                    //@ts-ignore
+                    .upgrade((trans) => {
+                        //@ts-ignore
+                        return (
+                            //@ts-ignore
+                            trans.diagrams
+                                .toCollection()
+                                //@ts-ignore
+                                .modify((diagram) => {
+                                    diagram.diagram =
+                                        diagram.diagram === "cjm"
+                                            ? "table"
+                                            : "";
+                                })
+                        );
+                    });
             }
             //@ts-ignore
             return db;
@@ -97,7 +114,6 @@ export const initDB = (app: ElmApp) => {
                     JSON.stringify({
                         ...diagramItem,
                         isRemote: true,
-                        isBookmark: isBookmark,
                         id,
                         isPublic,
                     })
@@ -107,14 +123,13 @@ export const initDB = (app: ElmApp) => {
                     await (await db()).diagrams.delete(id);
                 }
             } else {
-                const newId = id ? id : uuidv4();
+                const newId = id ?? uuidv4();
                 // @ts-ignore
                 await (await db()).diagrams.put({ id: newId, ...diagramItem });
                 app.ports.saveToLocalCompleted.send(
                     JSON.stringify({
                         ...diagramItem,
                         isRemote: false,
-                        isBookmark: isBookmark,
                         id: newId,
                         isPublic,
                     })
@@ -147,7 +162,6 @@ export const initDB = (app: ElmApp) => {
             JSON.stringify({
                 ...diagram,
                 isPublic: false,
-                isBookmark: false,
                 isRemote: false,
             })
         );
@@ -164,7 +178,6 @@ export const initDB = (app: ElmApp) => {
                 diagrams.map((d: Diagram) => ({
                     ...d,
                     isPublic: false,
-                    isBookmark: false,
                     isRemote: false,
                 }))
             )

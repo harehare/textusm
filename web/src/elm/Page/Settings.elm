@@ -1068,12 +1068,8 @@ view_ dropDownIndex settings =
         [ class "settings"
         , style "user-select" "none"
         ]
-        [ div
-            [ style "font-weight" "400"
-            , style "padding" "16px"
-            ]
-            [ text "SETTINGS" ]
-        , section (Just "Basic")
+        [
+        section (Just "Basic")
         , div [ class "controls" ]
             [ div [ class "control" ]
                 [ div [ class "label" ] [ text "Font Family" ]

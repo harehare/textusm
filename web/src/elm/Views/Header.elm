@@ -13,13 +13,14 @@ import MD5
 import Maybe.Extra exposing (isJust)
 import Models.Model as Page exposing (LoginProvider(..), Menu(..), Msg(..), Page(..))
 import Route exposing (Route(..))
+import Translations exposing (Lang)
 import Url
 import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu
 
 
-type alias HeaderProps =
+type alias Props =
     { session : Session
     , page : Page
     , title : Title
@@ -27,10 +28,11 @@ type alias HeaderProps =
     , currentDiagram : Maybe DiagramItem
     , menu : Maybe Menu
     , currentText : Text
+    , lang : Lang
     }
 
 
-view : HeaderProps -> Html Msg
+view : Props -> Html Msg
 view props =
     if props.isFullscreen then
         header [] []
@@ -45,99 +47,110 @@ view props =
                 , style "align-items" "center"
                 ]
                 [ div
-                    [ style "width"
-                        "56px"
-                    , style "height"
-                        "40px"
+                    [ style "width" "56px"
+                    , style "height" "40px"
                     , style "display" "flex"
                     , style "justify-content" "center"
                     , style "align-items" "center"
                     ]
-                    [ a [ href "/" ] [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ] ]
-                , if props.page /= Page.List then
-                    if Title.isEdit props.title then
-                        input
-                            [ id "title"
-                            , class "title"
-                            , style "padding" "2px"
-                            , style "color" "#f4f4f4"
-                            , style "background-color" "var(--main-color)"
-                            , style "border" "none"
-                            , style "font-size" "1.1rem"
-                            , style "font-weight" "400"
-                            , style "font-family" "'Nunito Sans', sans-serif"
-                            , value <| Title.toString props.title
-                            , onInput EditTitle
-                            , onBlur (EndEditTitle Events.keyEnter False)
-                            , onKeyDown EndEditTitle
-                            , placeholder "UNTITLED"
-                            ]
-                            []
-
-                    else
-                        div
-                            [ class "title"
-                            , style "color" "#f4f4f4"
-                            , style "text-overflow" "ellipsis"
-                            , style "text-align" "left"
-                            , style "cursor" "pointer"
-                            , style "overflow" "hidden"
-                            , style "white-space" "nowrap"
-                            , style "font-weight" "400"
-                            , style "padding" "2px"
-                            , style "display" "flex"
-                            , style "font-size" "1.1rem"
-                            , style "align-items" "center"
-                            , style "justify-content" "flex-start"
-                            , onClick StartEditTitle
-                            ]
-                            [ text <| Title.toString props.title
-                            , div
-                                [ style "margin-left" "8px" ]
-                                [ if Text.isChanged props.currentText then
-                                    Icon.circle "#FEFEFE" 10
-
-                                  else
-                                    Empty.view
+                    [ a [ href "/", style "margin-top" "8px" ] [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ] ]
+                , case props.page of
+                    Page.Main ->
+                        if Title.isEdit props.title then
+                            input
+                                [ id "title"
+                                , class "title"
+                                , style "padding" "2px"
+                                , style "color" "#f4f4f4"
+                                , style "background-color" "var(--main-color)"
+                                , style "border" "none"
+                                , style "font-size" "1.1rem"
+                                , style "font-weight" "400"
+                                , style "font-family" "'Nunito Sans', sans-serif"
+                                , value <| Title.toString props.title
+                                , onInput EditTitle
+                                , onBlur (EndEditTitle Events.keyEnter False)
+                                , onKeyDown EndEditTitle
+                                , placeholder "UNTITLED"
                                 ]
-                            ]
+                                []
 
-                  else
-                    Empty.view
+                        else
+                            div
+                                [ class "title header-title"
+                                , onClick StartEditTitle
+                                ]
+                                [ text <| Title.toString props.title
+                                , div
+                                    [ style "margin-left" "8px" ]
+                                    [ if Text.isChanged props.currentText then
+                                        Icon.circle "#FEFEFE" 10
+
+                                      else
+                                        Empty.view
+                                    ]
+                                ]
+
+                    Page.New ->
+                        div [ class "title header-title" ] [ text "NEW" ]
+
+                    Page.List ->
+                        div [ class "title header-title" ] [ text "LIST" ]
+
+                    Page.Settings ->
+                        div [ class "title header-title" ] [ text "SETTINGS" ]
+
+                    Page.Help ->
+                        div [ class "title header-title" ] [ text "HELP" ]
+
+                    Page.Tags _ ->
+                        div [ class "title header-title" ] [ text "TAGS" ]
+
+                    Page.Share ->
+                        div [ class "title header-title" ] [ text "SHARE" ]
+
+                    _ ->
+                        Empty.view
                 ]
-            , if isJust props.currentDiagram then
-                div
-                    [ class "button"
-                    , onClick <| NavRoute Tag
-                    , style "padding" "8px"
-                    , style "display" "flex"
-                    , style "align-items" "center"
-                    ]
-                    [ Icon.tag 17
-                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Tags" ] ]
+            , if isJust <| Maybe.andThen .id props.currentDiagram then
+                a [ style "display" "flex", href <| Route.toString Route.Tag ]
+                    [ div
+                        [ class "button"
+                        , style "padding" "8px"
+                        , style "display" "flex"
+                        , style "align-items" "center"
+                        ]
+                        [ Icon.tag 17
+                        , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipTags props.lang ] ]
+                        ]
                     ]
 
               else
                 Empty.view
-            , div
-                [ class "button"
-                , onClick <| NavRoute Route.Help
-                , style "padding" "8px"
-                , style "display" "flex"
-                , style "align-items" "center"
+            , a [ style "display" "flex", href <| Route.toString Route.Help ]
+                [ div
+                    [ class "button"
+                    , style "padding" "8px"
+                    , style "display" "flex"
+                    , style "align-items" "center"
+                    ]
+                    [ Icon.helpOutline 20
+                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipHelp props.lang ] ]
+                    ]
                 ]
-                [ Icon.helpOutline 20
-                , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Help" ] ]
+            , a
+                [ style "display" "flex"
+                , href <| Route.toString Route.SharingDiagram
                 ]
-            , div
-                [ class "button"
-                , onClick OnCurrentShareUrl
-                , style "padding" "8px"
-                , style "display" "flex"
-                , style "align-items" "center"
-                ]
-                [ Icon.people 24
-                , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text "Share" ] ]
+                [ div
+                    [ class "button"
+                    , style "padding" "8px"
+                    , style "display" "flex"
+                    , style "align-items" "center"
+                    ]
+                    [ Icon.people 24
+                    , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipShare props.lang ] ]
+                    ]
                 ]
             , if Session.isSignedIn props.session then
                 let

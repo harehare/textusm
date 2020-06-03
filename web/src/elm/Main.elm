@@ -12,23 +12,23 @@ import Data.Session as Session
 import Data.Size as Size
 import Data.Text as Text
 import Data.Title as Title
-import File exposing (name)
+import Events
 import File.Download as Download
-import File.Select as Select
 import GraphQL.Request as Request
 import Graphql.Http as Http
 import Html exposing (Html, a, div, img, main_, text)
-import Html.Attributes exposing (alt, class, href, src, style, target)
-import Html.Events exposing (onClick)
-import Html.Lazy exposing (lazy, lazy2, lazy4, lazy5, lazy6)
+import Html.Attributes exposing (alt, class, href, id, src, style, target)
+import Html.Events as E
+import Html.Lazy as Lazy
 import Json.Decode as D
 import List.Extra exposing (find, getAt, removeAt, setAt, splitAt)
 import Models.Diagram as DiagramModel
 import Models.Model as Page exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
-import Models.Views.CustomerJourneyMap as CustomerJourneyMap
 import Models.Views.ER as ER
+import Models.Views.Table as Table
 import Page.Help as Help
 import Page.List as DiagramList
+import Page.New as New
 import Page.NotFound as NotFound
 import Page.Settings as Settings
 import Page.Share as Share
@@ -41,9 +41,9 @@ import String
 import Task
 import TextUSM.Enum.Diagram as Diagram
 import Time
+import Translations
 import Url as Url exposing (percentDecode)
 import Utils
-import Views.Editor as Editor
 import Views.Empty as Empty
 import Views.Header as Header
 import Views.Icon as Icon
@@ -54,10 +54,10 @@ import Views.SplitWindow as SplitWindow
 import Views.SwitchWindow as SwitchWindow
 
 
-init : ( String, String ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init : ( ( String, String ), String ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        ( apiRoot, settingsJson ) =
+        ( ( apiRoot, lang ), settingsJson ) =
             flags
 
         initSettings =
@@ -99,6 +99,7 @@ init flags url key =
                 , session = Session.guest
                 , currentDiagram = initSettings.diagram
                 , page = Page.Main
+                , lang = Translations.fromString lang
                 }
     in
     ( model, cmds )
@@ -123,7 +124,7 @@ bottomNavigationBar settings diagram title path =
                 , style "justify-content" "center"
                 , style "align-items" "center"
                 ]
-                [ a [ href "https://app.textusm.com", target "blank_" ]
+                [ a [ href "https://app.textusm.com", target "blank_", style "display" "flex", style "align-items" "center" ]
                     [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ]
                 ]
             , a [ href <| "https://app.textusm.com/share/" ++ diagram ++ "/" ++ title ++ "/" ++ path, target "blank_", style "color" settings.storyMap.color.label ]
@@ -132,19 +133,14 @@ bottomNavigationBar settings diagram title path =
         , div [ class "buttons" ]
             [ div
                 [ class "button"
-                , onClick <| UpdateDiagram DiagramModel.ZoomIn
+                , E.onClick <| UpdateDiagram DiagramModel.ZoomIn
                 ]
-                [ Icon.add 32 ]
+                [ Icon.add 24 ]
             , div
                 [ class "button"
-                , onClick <| UpdateDiagram DiagramModel.ZoomOut
+                , E.onClick <| UpdateDiagram DiagramModel.ZoomOut
                 ]
-                [ Icon.remove 32 ]
-            , div
-                [ class "button"
-                , onClick <| UpdateDiagram DiagramModel.ToggleFullscreen
-                ]
-                [ Icon.fullscreen 32 ]
+                [ Icon.remove 24 ]
             ]
         ]
 
@@ -154,11 +150,11 @@ view model =
     main_
         [ style "position" "relative"
         , style "width" "100vw"
-        , onClick CloseMenu
+        , E.onClick CloseMenu
         ]
-        [ lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.diagramModel.text }
-        , lazy showNotification model.notification
-        , lazy2 showProgressbar model.progress model.window.fullscreen
+        [ Lazy.lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.diagramModel.text, lang = model.lang }
+        , Lazy.lazy showNotification model.notification
+        , Lazy.lazy2 showProgressbar model.progress model.window.fullscreen
         , div
             [ class "main"
             , if model.window.fullscreen then
@@ -167,36 +163,36 @@ view model =
               else
                 style "height" "calc(100vh - 56px)"
             ]
-            [ lazy6 Menu.view model.page (toRoute model.url) model.diagramModel.text (Size.getWidth model.diagramModel.size) model.window.fullscreen model.openMenu
+            [ Lazy.lazy Menu.view { page = model.page, route = toRoute model.url, text = model.diagramModel.text, width = Size.getWidth model.diagramModel.size, fullscreen = model.window.fullscreen, openMenu = model.openMenu, lang = model.lang }
             , let
                 mainWindow =
                     if Size.getWidth model.diagramModel.size > 0 && Utils.isPhone (Size.getWidth model.diagramModel.size) then
-                        lazy5 SwitchWindow.view
+                        Lazy.lazy5 SwitchWindow.view
                             SwitchWindow
                             model.diagramModel.settings.backgroundColor
                             model.switchWindow
 
                     else
-                        lazy5 SplitWindow.view
+                        Lazy.lazy5 SplitWindow.view
                             OnStartWindowResize
                             model.diagramModel.settings.backgroundColor
                             model.window
               in
               case model.page of
                 Page.List ->
-                    lazy DiagramList.view model.diagramListModel |> Html.map UpdateDiagramList
+                    Lazy.lazy DiagramList.view model.diagramListModel |> Html.map UpdateDiagramList
 
                 Page.Help ->
                     Help.view
 
                 Page.Share ->
-                    lazy Share.view model.shareModel |> Html.map UpdateShare
+                    Lazy.lazy Share.view model.shareModel |> Html.map UpdateShare
 
                 Page.Settings ->
-                    lazy Settings.view model.settingsModel |> Html.map UpdateSettings
+                    Lazy.lazy Settings.view model.settingsModel |> Html.map UpdateSettings
 
                 Page.Tags m ->
-                    lazy Tags.view m |> Html.map UpdateTags
+                    Lazy.lazy Tags.view m |> Html.map UpdateTags
 
                 Page.Embed diagram title path ->
                     div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
@@ -204,32 +200,55 @@ view model =
                             diagramModel =
                                 model.diagramModel
                           in
-                          lazy Diagram.view diagramModel
+                          Lazy.lazy Diagram.view diagramModel
                             |> Html.map UpdateDiagram
-                        , lazy4 bottomNavigationBar model.settingsModel.settings diagram title path
+                        , Lazy.lazy4 bottomNavigationBar model.settingsModel.settings diagram title path
                         ]
+
+                Page.New ->
+                    New.view
 
                 Page.NotFound ->
                     NotFound.view
 
                 _ ->
                     mainWindow
-                        Editor.view
-                        (lazy Diagram.view model.diagramModel
+                        (div
+                            [ style "background-color" "#273037"
+                            , style "width" "100%"
+                            , style "height" "100%"
+                            ]
+                            [ div
+                                [ id "editor"
+                                , style "width" "100%"
+                                , style "height" "100%"
+                                ]
+                                []
+                            ]
+                        )
+                        (Lazy.lazy Diagram.view model.diagramModel
                             |> Html.map UpdateDiagram
                         )
             ]
         ]
 
 
-main : Program ( String, String ) Model Msg
+main : Program ( ( String, String ), String ) Model Msg
 main =
     Browser.application
         { init = init
         , update = update
         , view =
             \m ->
-                { title = Title.toString m.title ++ " | TextUSM"
+                { title =
+                    Title.toString m.title
+                        ++ (if Text.isChanged m.diagramModel.text then
+                                "*"
+
+                            else
+                                ""
+                           )
+                        ++ " | TextUSM"
                 , body = [ view m ]
                 }
         , subscriptions = subscriptions
@@ -305,6 +324,9 @@ changeRouteTo route model =
 
                 Nothing ->
                     ( model, Cmd.none )
+
+        Route.New ->
+            ( { model | page = Page.New }, Cmd.none )
 
         Route.NotFound ->
             ( { model | page = Page.NotFound }, Cmd.none )
@@ -417,13 +439,56 @@ changeRouteTo route model =
                 diagramType =
                     DiagramType.fromString type_
 
+                defaultText =
+                    case diagramType of
+                        Diagram.BusinessModelCanvas ->
+                            "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships"
+
+                        Diagram.OpportunityCanvas ->
+                            "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget"
+
+                        Diagram.Fourls ->
+                            "Liked\nLearned\nLacked\nLonged for"
+
+                        Diagram.StartStopContinue ->
+                            "Start\nStop\nContinue"
+
+                        Diagram.Kpt ->
+                            "K\nP\nT"
+
+                        Diagram.UserPersona ->
+                            "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology"
+
+                        Diagram.EmpathyMap ->
+                            "SAYS\nTHINKS\nDOES\nFEELS"
+
+                        Diagram.Table ->
+                            "Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\n    Column7\nRow1\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\nRow2\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6"
+
+                        Diagram.GanttChart ->
+                            "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n"
+
+                        Diagram.ErDiagram ->
+                            "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n"
+
+                        Diagram.Kanban ->
+                            "TODO\nDOING\nDONE"
+
+                        _ ->
+                            ""
+
                 diagramModel =
                     model.diagramModel
 
                 newDiagramModel =
                     { diagramModel | diagramType = diagramType }
             in
-            ( { model | diagramModel = newDiagramModel, page = Page.Main }
+            ( { model
+                | title = Title.untitled
+                , currentDiagram = Nothing
+                , diagramModel = DiagramModel.updatedText newDiagramModel (Text.fromString defaultText)
+                , page = Page.Main
+              }
             , cmds
                 [ setEditorLanguage diagramType
                 ]
@@ -492,8 +557,17 @@ changeRouteTo route model =
         Route.Help ->
             ( { model | page = Page.Help }, Cmd.none )
 
-        Route.SharingSettings ->
-            ( { model | page = Page.Share }, Cmd.none )
+        Route.SharingDiagram ->
+            ( { model | page = Page.Share, progress = True }
+            , Cmd.batch
+                [ Ports.encodeShareText
+                    { diagramType =
+                        DiagramType.toString model.diagramModel.diagramType
+                    , title = Just <| Title.toString model.title
+                    , text = Text.toString model.diagramModel.text
+                    }
+                ]
+            )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -677,19 +751,19 @@ update message model =
                 DiagramList.Removed (Err e) ->
                     case e of
                         Http.GraphqlError _ _ ->
-                            ( model, Notification.showErrorMessage "Failed." )
+                            ( model, Notification.showErrorMessage <| Translations.messageFailed model.lang )
 
                         Http.HttpError Http.Timeout ->
-                            ( model, Notification.showErrorMessage "Request timeout." )
+                            ( model, Notification.showErrorMessage <| Translations.messageRequestTimeout model.lang )
 
                         Http.HttpError Http.NetworkError ->
-                            ( model, Notification.showErrorMessage "Network error." )
+                            ( model, Notification.showErrorMessage <| Translations.messageNetworkError model.lang )
 
                         Http.HttpError _ ->
-                            ( model, Notification.showErrorMessage "Failed." )
+                            ( model, Notification.showErrorMessage <| Translations.messageFailed model.lang )
 
                 DiagramList.GotDiagrams (Err _) ->
-                    ( model, Notification.showErrorMessage "Failed." )
+                    ( model, Notification.showErrorMessage <| Translations.messageFailed model.lang )
 
                 _ ->
                     let
@@ -731,60 +805,64 @@ update message model =
             ( { model | diagramModel = newDiagramModel }, Cmd.none )
 
         Download fileType ->
-            if fileType == Ddl then
-                let
-                    ( _, tables ) =
-                        ER.fromItems model.diagramModel.items
+            case fileType of
+                Ddl ->
+                    let
+                        ( _, tables ) =
+                            ER.fromItems model.diagramModel.items
 
-                    ddl =
-                        List.map ER.tableToString tables
-                            |> String.join "\n"
-                in
-                ( model, Download.string (Title.toString model.title ++ ".sql") "text/plain" ddl )
+                        ddl =
+                            List.map ER.tableToString tables
+                                |> String.join "\n"
+                    in
+                    ( model, Download.string (Title.toString model.title ++ ".sql") "text/plain" ddl )
 
-            else if fileType == MarkdownTable then
-                ( model, Download.string (Title.toString model.title ++ ".md") "text/plain" (CustomerJourneyMap.toString (CustomerJourneyMap.fromItems model.diagramModel.items)) )
+                MarkdownTable ->
+                    ( model, Download.string (Title.toString model.title ++ ".md") "text/plain" (Table.toString (Table.fromItems model.diagramModel.items)) )
 
-            else
-                let
-                    ( width, height ) =
-                        Utils.getCanvasSize model.diagramModel
+                PlainText ->
+                    ( model, Download.string (Title.toString model.title) "text/plain" (Text.toString model.diagramModel.text) )
 
-                    diagramModel =
-                        model.diagramModel
+                _ ->
+                    let
+                        ( width, height ) =
+                            Utils.getCanvasSize model.diagramModel
 
-                    newDiagramModel =
-                        { diagramModel | position = ( 0, 0 ), matchParent = True }
+                        diagramModel =
+                            model.diagramModel
 
-                    ( sub, extension ) =
-                        case fileType of
-                            Png ->
-                                ( Ports.downloadPng, ".png" )
+                        newDiagramModel =
+                            { diagramModel | position = ( 0, 0 ), matchParent = True }
 
-                            Pdf ->
-                                ( Ports.downloadPdf, ".pdf" )
+                        ( sub, extension ) =
+                            case fileType of
+                                Png ->
+                                    ( Ports.downloadPng, ".png" )
 
-                            Svg ->
-                                ( Ports.downloadSvg, ".svg" )
+                                Pdf ->
+                                    ( Ports.downloadPdf, ".pdf" )
 
-                            Html ->
-                                ( Ports.downloadHtml, ".html" )
+                                Svg ->
+                                    ( Ports.downloadSvg, ".svg" )
 
-                            _ ->
-                                ( Ports.downloadSvg, ".svg" )
-                in
-                ( { model | diagramModel = newDiagramModel }
-                , sub
-                    { width = width
-                    , height = height
-                    , id = "usm"
-                    , title = Title.toString model.title ++ extension
-                    , x = 0
-                    , y = 0
-                    , text = Text.toString model.diagramModel.text
-                    , diagramType = DiagramType.toString model.diagramModel.diagramType
-                    }
-                )
+                                Html ->
+                                    ( Ports.downloadHtml, ".html" )
+
+                                _ ->
+                                    ( Ports.downloadSvg, ".svg" )
+                    in
+                    ( { model | diagramModel = newDiagramModel }
+                    , sub
+                        { width = width
+                        , height = height
+                        , id = "usm"
+                        , title = Title.toString model.title ++ extension
+                        , x = 0
+                        , y = 0
+                        , text = Text.toString model.diagramModel.text
+                        , diagramType = DiagramType.toString model.diagramModel.diagramType
+                        }
+                    )
 
         StartDownload info ->
             ( model, Cmd.batch [ Download.string (Title.toString model.title ++ info.extension) info.mimeType info.content, Task.perform identity (Task.succeed CloseMenu) ] )
@@ -794,22 +872,6 @@ update message model =
 
         CloseMenu ->
             ( { model | openMenu = Nothing }, Cmd.none )
-
-        FileSelect ->
-            ( model, Select.file [ "text/plain", "text/markdown" ] FileSelected )
-
-        FileSelected file ->
-            ( { model | title = Title.fromString (File.name file) }, Utils.fileLoad file FileLoaded )
-
-        FileLoaded text ->
-            ( model, Ports.loadText text )
-
-        SaveToFileSystem ->
-            let
-                title =
-                    Title.toString model.title
-            in
-            ( model, Download.string title "text/plain" (Text.toString model.diagramModel.text) )
 
         Save ->
             let
@@ -840,9 +902,6 @@ update message model =
 
             else
                 let
-                    title =
-                        Title.toString model.title
-
                     newDiagramModel =
                         DiagramModel.updatedText model.diagramModel (Text.saved model.diagramModel.text)
                 in
@@ -854,7 +913,7 @@ update message model =
                     [ Ports.saveDiagram <|
                         DiagramItem.encoder
                             { id = Maybe.andThen .id model.currentDiagram
-                            , title = title
+                            , title = Title.toString model.title
                             , text = Text.toString newDiagramModel.text
                             , thumbnail = Nothing
                             , diagram = newDiagramModel.diagramType
@@ -870,15 +929,11 @@ update message model =
                 )
 
         SaveToLocalCompleted diagramJson ->
-            let
-                result =
-                    D.decodeString DiagramItem.decoder diagramJson
-            in
-            case result of
+            case D.decodeString DiagramItem.decoder diagramJson of
                 Ok item ->
                     ( { model | currentDiagram = Just item }
                     , Cmd.batch
-                        [ Notification.showInfoMessage ("Successfully \"" ++ item.title ++ "\" saved.")
+                        [ Notification.showInfoMessage <| Translations.messageSuccessfullySaved model.lang item.title
                         , Route.replaceRoute model.key
                             (Route.EditFile (DiagramType.toString item.diagram) (Maybe.withDefault "" item.id))
                         ]
@@ -924,7 +979,7 @@ update message model =
             in
             ( { model | progress = False, currentDiagram = Just item }
             , Cmd.batch
-                [ Notification.showWarningMessage ("Failed \"" ++ Title.toString model.title ++ "\" saved.")
+                [ Notification.showWarningMessage <| Translations.messageFailedSaved model.lang (Title.toString model.title)
                 , Ports.saveDiagram <| DiagramItem.encoder item
                 ]
             )
@@ -932,7 +987,7 @@ update message model =
         SaveToRemoteCompleted (Ok diagram) ->
             ( { model | currentDiagram = Just diagram, progress = False }
             , Cmd.batch
-                [ Notification.showInfoMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
+                [ Notification.showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString model.title)
                 , Route.replaceRoute model.key
                     (Route.EditFile (DiagramType.toString diagram.diagram) (Maybe.withDefault "" diagram.id))
                 ]
@@ -948,21 +1003,16 @@ update message model =
                         ( model, Cmd.none )
 
                 "open" ->
-                    update GetDiagrams model
+                    ( model, Nav.load <| Route.toString (toRoute model.url) )
 
                 _ ->
                     ( model, Cmd.none )
 
         StartEditTitle ->
-            ( { model | title = Title.edit model.title }
-            , Task.attempt
-                (\_ -> NoOp)
-              <|
-                Dom.focus "title"
-            )
+            ( { model | title = Title.edit model.title }, Task.attempt (\_ -> NoOp) <| Dom.focus "title" )
 
         EndEditTitle code isComposing ->
-            if code == 13 && not isComposing then
+            if code == Events.keyEnter && not isComposing then
                 let
                     diagramModel =
                         model.diagramModel
@@ -978,69 +1028,54 @@ update message model =
         EditTitle title ->
             ( { model | title = Title.edit <| Title.fromString title }, Cmd.none )
 
-        NavRoute route ->
-            ( model, Nav.pushUrl model.key (Route.toString route) )
-
-        BackToEdit ->
-            ( model, Nav.pushUrl model.key (Route.toString (Route.toDiagramToRoute (Maybe.withDefault DiagramItem.empty model.currentDiagram))) )
-
         OnVisibilityChange visible ->
-            if model.window.fullscreen then
-                ( model, Cmd.none )
+            case visible of
+                Hidden ->
+                    let
+                        newStoryMap =
+                            model.settingsModel.settings |> Settings.settingsOfFont.set model.settingsModel.settings.font
 
-            else if visible == Hidden then
-                let
-                    storyMap =
-                        model.settingsModel.settings.storyMap
+                        newSettings =
+                            { position = Just model.window.position
+                            , font = model.settingsModel.settings.font
+                            , diagramId = Maybe.andThen .id model.currentDiagram
+                            , storyMap = newStoryMap.storyMap
+                            , text = Just (Text.toString model.diagramModel.text)
+                            , title =
+                                Just <| Title.toString model.title
+                            , editor = model.settingsModel.settings.editor
+                            , diagram = model.currentDiagram
+                            }
 
-                    newStoryMap =
-                        { storyMap | font = model.settingsModel.settings.font }
+                        ( newSettingsModel, _ ) =
+                            Settings.init newSettings
+                    in
+                    ( { model | settingsModel = newSettingsModel }
+                    , Ports.saveSettings (settingsEncoder newSettings)
+                    )
 
-                    newSettings =
-                        { position = Just model.window.position
-                        , font = model.settingsModel.settings.font
-                        , diagramId = Maybe.andThen .id model.currentDiagram
-                        , storyMap = newStoryMap
-                        , text = Just (Text.toString model.diagramModel.text)
-                        , title =
-                            Just <| Title.toString model.title
-                        , editor = model.settingsModel.settings.editor
-                        , diagram = model.currentDiagram
-                        }
-
-                    ( newSettingsModel, _ ) =
-                        Settings.init newSettings
-                in
-                ( { model | settingsModel = newSettingsModel }
-                , Ports.saveSettings (settingsEncoder newSettings)
-                )
-
-            else
-                ( model, Cmd.none )
+                _ ->
+                    ( model, Cmd.none )
 
         OnStartWindowResize x ->
-            ( { model
-                | window =
-                    { position = model.window.position
-                    , moveStart = True
-                    , moveX = x
-                    , fullscreen = model.window.fullscreen
-                    }
-              }
-            , Cmd.none
-            )
+            let
+                window =
+                    model.window
+
+                newWindow =
+                    { window | moveStart = True, moveX = x }
+            in
+            ( { model | window = newWindow }, Cmd.none )
 
         Stop ->
-            ( { model
-                | window =
-                    { position = model.window.position
-                    , moveStart = False
-                    , moveX = model.window.moveX
-                    , fullscreen = model.window.fullscreen
-                    }
-              }
-            , Cmd.none
-            )
+            let
+                window =
+                    model.window
+
+                newWindow =
+                    { window | moveStart = False }
+            in
+            ( { model | window = newWindow }, Cmd.none )
 
         OnWindowResize x ->
             ( { model
@@ -1054,25 +1089,8 @@ update message model =
             , Ports.layoutEditor 0
             )
 
-        OnCurrentShareUrl ->
-            ( { model | progress = True }
-            , Cmd.batch
-                [ Ports.encodeShareText
-                    { diagramType =
-                        DiagramType.toString model.diagramModel.diagramType
-                    , title = Just <| Title.toString model.title
-                    , text = Text.toString model.diagramModel.text
-                    }
-                ]
-            )
-
         GetShortUrl (Err e) ->
-            ( { model | progress = False }
-            , Cmd.batch
-                [ Task.perform identity (Task.succeed (OnNotification (Error ("Error. " ++ Utils.httpErrorToString e))))
-                , Utils.delay 3000 OnCloseNotification
-                ]
-            )
+            ( { model | progress = False }, Notification.showErrorMessage ("Error. " ++ Utils.httpErrorToString e) )
 
         GetShortUrl (Ok url) ->
             let
@@ -1086,7 +1104,7 @@ update message model =
                 | progress = False
                 , shareModel = newShareModel
               }
-            , Nav.pushUrl model.key (Route.toString Route.SharingSettings)
+            , Cmd.none
             )
 
         OnShareUrl shareInfo ->
@@ -1120,7 +1138,7 @@ update message model =
             ( { model | shareModel = newShareModel }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl) )
 
         OnDecodeShareText text ->
-            ( model, Task.perform identity (Task.succeed (FileLoaded text)) )
+            ( model, Ports.loadText text )
 
         SwitchWindow w ->
             ( { model | switchWindow = w }, Ports.layoutEditor 100 )
@@ -1134,14 +1152,7 @@ update message model =
                     ( model, Nav.load href )
 
         UrlChanged url ->
-            let
-                updatedModel =
-                    { model | url = url }
-            in
-            changeRouteTo (toRoute url) updatedModel
-
-        GetDiagrams ->
-            ( { model | progress = True }, Nav.pushUrl model.key (Route.toString Route.List) )
+            changeRouteTo (toRoute url) { model | url = url }
 
         SignIn provider ->
             ( { model | progress = True }
@@ -1191,70 +1202,6 @@ update message model =
 
         Progress visible ->
             ( { model | progress = visible }, Cmd.none )
-
-        New type_ ->
-            if Text.isChanged model.diagramModel.text then
-                ( model, Task.perform identity (Task.succeed Save) )
-
-            else
-                let
-                    ( text_, route_ ) =
-                        case type_ of
-                            Diagram.UserStoryMap ->
-                                ( "", Route.Edit (DiagramType.toString Diagram.UserStoryMap) )
-
-                            Diagram.BusinessModelCanvas ->
-                                ( "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships", Route.Edit (DiagramType.toString Diagram.BusinessModelCanvas) )
-
-                            Diagram.OpportunityCanvas ->
-                                ( "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget", Route.Edit (DiagramType.toString Diagram.OpportunityCanvas) )
-
-                            Diagram.Fourls ->
-                                ( "Liked\nLearned\nLacked\nLonged for", Route.Edit (DiagramType.toString Diagram.Fourls) )
-
-                            Diagram.StartStopContinue ->
-                                ( "Start\nStop\nContinue", Route.Edit (DiagramType.toString Diagram.StartStopContinue) )
-
-                            Diagram.Kpt ->
-                                ( "K\nP\nT", Route.Edit (DiagramType.toString Diagram.Kpt) )
-
-                            Diagram.UserPersona ->
-                                ( "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology", Route.Edit (DiagramType.toString Diagram.UserPersona) )
-
-                            Diagram.Markdown ->
-                                ( "", Route.Edit (DiagramType.toString Diagram.Markdown) )
-
-                            Diagram.MindMap ->
-                                ( "", Route.Edit (DiagramType.toString Diagram.MindMap) )
-
-                            Diagram.ImpactMap ->
-                                ( "", Route.Edit (DiagramType.toString Diagram.ImpactMap) )
-
-                            Diagram.EmpathyMap ->
-                                ( "SAYS\nTHINKS\nDOES\nFEELS", Route.Edit (DiagramType.toString Diagram.EmpathyMap) )
-
-                            Diagram.CustomerJourneyMap ->
-                                ( "Header\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDiscover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n", Route.Edit (DiagramType.toString Diagram.CustomerJourneyMap) )
-
-                            Diagram.SiteMap ->
-                                ( "", Route.Edit (DiagramType.toString Diagram.SiteMap) )
-
-                            Diagram.GanttChart ->
-                                ( "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n", Route.Edit (DiagramType.toString Diagram.GanttChart) )
-
-                            Diagram.ErDiagram ->
-                                ( "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n", Route.Edit (DiagramType.toString Diagram.ErDiagram) )
-
-                            Diagram.Kanban ->
-                                ( "TODO\nDOING\nDONE", Route.Edit (DiagramType.toString Diagram.Kanban) )
-                in
-                ( { model
-                    | title = Title.untitled
-                    , currentDiagram = Nothing
-                    , diagramModel = DiagramModel.updatedText model.diagramModel (Text.fromString text_)
-                  }
-                , Cmd.batch [ Nav.pushUrl model.key (Route.toString route_) ]
-                )
 
         Load (Ok diagram) ->
             let
