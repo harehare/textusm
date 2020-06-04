@@ -4,7 +4,7 @@ import * as fs from "fs";
 
 const diagrams = [
   { label: "User Story Map", value: "usm" },
-  { label: "Customer Journey Map", value: "cjm" },
+  { label: "Table", value: "table" },
   { label: "Empathy Map", value: "emm" },
   { label: "Impact Map", value: "imm" },
   { label: "Mind Map", value: "mmp" },
@@ -45,7 +45,7 @@ const showQuickPick = (
 };
 
 const setText = (editor: vscode.TextEditor, text: string) => {
-  editor.edit((builder) => {
+  return editor.edit((builder) => {
     const document = editor.document;
     const lastLine = document.lineAt(document.lineCount - 1);
 
@@ -66,8 +66,8 @@ export function activate(context: vscode.ExtensionContext) {
       content: text,
     });
     const editor = await vscode.window.showTextDocument(doc, -1, true);
-    setText(editor, text);
-    DiagramPanel.createOrShow(context, diagramType);
+    await setText(editor, text);
+    setTimeout(() => DiagramPanel.createOrShow(context, diagramType), 300);
   };
 
   context.subscriptions.push(
@@ -151,9 +151,9 @@ export function activate(context: vscode.ExtensionContext) {
                   values[0].value
                 );
                 break;
-              case "cjm":
+              case "table":
                 newTextOpen(
-                  "Header\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDiscover\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nResearch\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPurchase\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nDelivery\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\nPost-Sales\n    Task\n    Questions\n    Touchpoints\n    Emotions\n    Influences\n    Weaknesses\n",
+                  "Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\n    Column7\nRow1\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\nRow2\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6",
                   values[0].value
                 );
                 break;
@@ -258,10 +258,10 @@ class DiagramPanel {
     DiagramPanel.currentPanel = figurePanel;
     DiagramPanel.currentPanel._addTextChangedEvent(editor);
 
-    figurePanel._panel.webview.onDidReceiveMessage((message) => {
+    figurePanel._panel.webview.onDidReceiveMessage(async (message) => {
       if (message.command === "setText") {
         if (editor) {
-          setText(editor, message.text);
+          await setText(editor, message.text);
         }
       } else if (message.command === "exportPng") {
         const dir: string | undefined = vscode.workspace
@@ -394,7 +394,7 @@ class DiagramPanel {
               command: "textChanged",
               text: e.document.getText(),
             });
-          }, 1000);
+          }, 300);
         }
       }
     });

@@ -7,12 +7,13 @@ TextISM is a simple tool. Help you draw user story map using indented text.
 - User Story Map
 - Business Model Canvas
 - Opportunity Canvas
+- User Persona
 - 4Ls Retrospective
 - Start, Stop, Continue Retrospective
 - KPT Retrospective
 - Mind Map
 - Empathy Map
-- Customer Journey Map
+- Table
 - Site Map
 - Gantt Chart
 - Impact Map
@@ -170,54 +171,33 @@ FEELS
 
 ![image](./img/emm.png)
 
-### Customer Journey Map
+### Table
 
 ```
-Header
-    Task
-    Questions
-    Touchpoints
-    Emotions
-    Influences
-    Weaknesses
-Discover
-    Task
-    Questions
-    Touchpoints
-    Emotions
-    Influences
-    Weaknesses
-Research
-    Task
-    Questions
-    Touchpoints
-    Emotions
-    Influences
-    Weaknesses
-Purchase
-    Task
-    Questions
-    Touchpoints
-    Emotions
-    Influences
-    Weaknesses
-Delivery
-    Task
-    Questions
-    Touchpoints
-    Emotions
-    Influences
-    Weaknesses
-Post-Sales
-    Task
-    Questions
-    Touchpoints
-    Emotions
-    Influences
-    Weaknesses
+Column1
+    Column2
+    Column3
+    Column4
+    Column5
+    Column6
+    Column7
+Row1
+    Column1
+    Column2
+    Column3
+    Column4
+    Column5
+    Column6
+Row2
+    Column1
+    Column2
+    Column3
+    Column4
+    Column5
+    Column6
 ```
 
-![image](./img/cjm.png)
+![image](./img/table.png)
 
 ### Site Map
 
