@@ -8,8 +8,8 @@ import {
   toString,
   toTypeString,
   EmpathyMap,
-  CustomerJourneyMap,
-  GanttChart
+  Table,
+  GanttChart,
 } from "./model";
 import { UserStoryMap } from "./models/UserStoryMap";
 import { MindMap, SiteMap, ImpactMap } from "./models/MindMap";
@@ -48,31 +48,31 @@ const defaultConfig: Config = {
   font: "Roboto",
   size: {
     width: 140,
-    height: 65
+    height: 65,
   },
   color: {
     activity: {
       color: "#FFFFFF",
-      backgroundColor: "#266B9A"
+      backgroundColor: "#266B9A",
     },
     task: {
       color: "#FFFFFF",
-      backgroundColor: "#3E9BCD"
+      backgroundColor: "#3E9BCD",
     },
     story: {
       color: "#000000",
-      backgroundColor: "#FFFFFF"
+      backgroundColor: "#FFFFFF",
     },
     comment: {
       color: "#000000",
-      backgroundColor: "#F1B090"
+      backgroundColor: "#F1B090",
     },
     line: "#434343",
     label: "#8C9FAE",
-    text: "#111111"
+    text: "#111111",
   },
   backgroundColor: "#F5F5F6",
-  zoomControl: true
+  zoomControl: true,
 };
 
 function render(
@@ -87,7 +87,7 @@ function render(
     | Kpt
     | MindMap
     | EmpathyMap
-    | CustomerJourneyMap
+    | Table
     | SiteMap
     | GanttChart
     | ImpactMap
@@ -103,7 +103,7 @@ function render(
       | "Kpt"
       | "UserPersona"
       | "MindMap"
-      | "CustomerJourneyMap"
+      | "Table"
       | "SiteMap"
       | "EmpathyMap"
       | "GanttChart"
@@ -169,8 +169,8 @@ function render(
       showZoomControl:
         options.showZoomControl !== undefined ? options.showZoomControl : true,
       scale:
-        options.scale && 2.0 - options.scale > 0 ? 2.0 - options.scale : 1.0
-    }
+        options.scale && 2.0 - options.scale > 0 ? 2.0 - options.scale : 1.0,
+    },
   });
 }
 

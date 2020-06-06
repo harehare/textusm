@@ -16,16 +16,16 @@ t
       name: "Kpt",
       keep: {
         title: "k",
-        text: ["k", "text"]
+        text: ["k", "text"],
       },
       problem: {
         title: "p",
-        text: ["p", "text"]
+        text: ["p", "text"],
       },
       try: {
         title: "t",
-        text: ["t", "text"]
-      }
+        text: ["t", "text"],
+      },
     })
   ).toBe(text);
 });
@@ -46,16 +46,16 @@ continue
       name: "StartStopContinue",
       start: {
         title: "start",
-        text: ["start", "text"]
+        text: ["start", "text"],
       },
       stop: {
         title: "stop",
-        text: ["stop", "text"]
+        text: ["stop", "text"],
       },
       continue: {
         title: "continue",
-        text: ["continue", "text"]
-      }
+        text: ["continue", "text"],
+      },
     })
   ).toBe(text);
 });
@@ -79,20 +79,20 @@ longedFor
       name: "4Ls",
       liked: {
         title: "liked",
-        text: ["liked", "text"]
+        text: ["liked", "text"],
       },
       learned: {
         title: "learned",
-        text: ["learned", "text"]
+        text: ["learned", "text"],
       },
       lacked: {
         title: "lacked",
-        text: ["lacked", "text"]
+        text: ["lacked", "text"],
       },
       longedFor: {
         title: "longedFor",
-        text: ["longedFor", "text"]
-      }
+        text: ["longedFor", "text"],
+      },
     })
   ).toBe(text);
 });
@@ -134,44 +134,44 @@ budget
       name: "OpportunityCanvas",
       problems: {
         title: "problems",
-        text: ["problems", "text"]
+        text: ["problems", "text"],
       },
       solutionIdeas: {
         title: "solutionIdeas",
-        text: ["solutionIdeas", "text"]
+        text: ["solutionIdeas", "text"],
       },
       usersAndCustomers: {
         title: "usersAndCustomers",
-        text: ["usersAndCustomers", "text"]
+        text: ["usersAndCustomers", "text"],
       },
       solutionsToday: {
         title: "solutionsToday",
-        text: ["solutionsToday", "text"]
+        text: ["solutionsToday", "text"],
       },
       businessChallenges: {
         title: "businessChallenges",
-        text: ["businessChallenges", "text"]
+        text: ["businessChallenges", "text"],
       },
       howWillUsersUseSolution: {
         title: "howWillUsersUseSolution",
-        text: ["howWillUsersUseSolution", "text"]
+        text: ["howWillUsersUseSolution", "text"],
       },
       userMetrics: {
         title: "userMetrics",
-        text: ["userMetrics", "text"]
+        text: ["userMetrics", "text"],
       },
       adoptionStrategy: {
         title: "adoptionStrategy",
-        text: ["adoptionStrategy", "text"]
+        text: ["adoptionStrategy", "text"],
       },
       businessBenefitsAndMetrics: {
         title: "businessBenefitsAndMetrics",
-        text: ["businessBenefitsAndMetrics", "text"]
+        text: ["businessBenefitsAndMetrics", "text"],
       },
       budget: {
         title: "budget",
-        text: ["budget", "text"]
-      }
+        text: ["budget", "text"],
+      },
     })
   ).toBe(text);
 });
@@ -210,40 +210,40 @@ customerRelationships
       name: "BusinessModelCanvas",
       keyPartners: {
         title: "keyPartners",
-        text: ["keyPartners", "text"]
+        text: ["keyPartners", "text"],
       },
       customerSegments: {
         title: "customerSegments",
-        text: ["customerSegments", "text"]
+        text: ["customerSegments", "text"],
       },
       valueProposition: {
         title: "valueProposition",
-        text: ["valueProposition", "text"]
+        text: ["valueProposition", "text"],
       },
       keyActivities: {
         title: "keyActivities",
-        text: ["keyActivities", "text"]
+        text: ["keyActivities", "text"],
       },
       channels: {
         title: "channels",
-        text: ["channels", "text"]
+        text: ["channels", "text"],
       },
       revenueStreams: {
         title: "revenueStreams",
-        text: ["revenueStreams", "text"]
+        text: ["revenueStreams", "text"],
       },
       costStructure: {
         title: "costStructure",
-        text: ["costStructure", "text"]
+        text: ["costStructure", "text"],
       },
       keyResources: {
         title: "keyResources",
-        text: ["keyResources", "text"]
+        text: ["keyResources", "text"],
       },
       customerRelationships: {
         title: "customerRelationships",
-        text: ["customerRelationships", "text"]
-      }
+        text: ["customerRelationships", "text"],
+      },
     })
   ).toBe(text);
 });
@@ -282,40 +282,40 @@ item7
       name: "UserPersona",
       url: {
         title: "title",
-        url: "url"
+        url: "url",
       },
       whoAmI: {
         title: "whoAmI",
-        text: ["whoAmI", "text"]
+        text: ["whoAmI", "text"],
       },
       item1: {
         title: "item1",
-        text: ["item1", "text"]
+        text: ["item1", "text"],
       },
       item2: {
         title: "item2",
-        text: ["item2", "text"]
+        text: ["item2", "text"],
       },
       item3: {
         title: "item3",
-        text: ["item3", "text"]
+        text: ["item3", "text"],
       },
       item4: {
         title: "item4",
-        text: ["item4", "text"]
+        text: ["item4", "text"],
       },
       item5: {
         title: "item5",
-        text: ["item5", "text"]
+        text: ["item5", "text"],
       },
       item6: {
         title: "item6",
-        text: ["item6", "text"]
+        text: ["item6", "text"],
       },
       item7: {
         title: "item7",
-        text: ["item7", "text"]
-      }
+        text: ["item7", "text"],
+      },
     })
   ).toBe(text);
 });
@@ -342,20 +342,20 @@ feels
       imageUrl: "imageUrl",
       says: {
         title: "says",
-        text: ["says", "text"]
+        text: ["says", "text"],
       },
       thinks: {
         title: "thinks",
-        text: ["thinks", "text"]
+        text: ["thinks", "text"],
       },
       does: {
         title: "does",
-        text: ["does", "text"]
+        text: ["does", "text"],
       },
       feels: {
         title: "feels",
-        text: ["feels", "text"]
-      }
+        text: ["feels", "text"],
+      },
     })
   ).toBe(text);
 });
@@ -378,17 +378,17 @@ test("User Story Map to string.", () => {
               stories: [
                 {
                   name: "story1",
-                  release: 1
+                  release: 1,
                 },
                 {
                   name: "story2",
-                  release: 2
-                }
-              ]
-            }
-          ]
-        }
-      ]
+                  release: 2,
+                },
+              ],
+            },
+          ],
+        },
+      ],
     })
   ).toBe(text);
 });
@@ -410,51 +410,45 @@ test("Mind Map to string.", () => {
         children: [
           { text: "test2", children: [{ text: "test22", children: [] }] },
           { text: "test3", children: [{ text: "test33", children: [] }] },
-          { text: "test4", children: [{ text: "test44", children: [] }] }
-        ]
-      }
+          { text: "test4", children: [{ text: "test44", children: [] }] },
+        ],
+      },
     })
   ).toBe(text);
 });
 
-test("Customer Journey Map to string.", () => {
-  const text = `Header
-    Task
+test("Table to string.", () => {
+  const text = `Task
     Questions
     Touchpoints
     Emotions
     Influences
     Weaknesses
-Discover
-    Task
+Task
     Questions
     Touchpoints
     Emotions
     Influences
     Weaknesses
-Research
-    Task
+Task
     Questions
     Touchpoints
     Emotions
     Influences
     Weaknesses
-Purchase
-    Task
+Task
     Questions
     Touchpoints
     Emotions
     Influences
     Weaknesses
-Delivery
-    Task
+Task
     Questions
     Touchpoints
     Emotions
     Influences
     Weaknesses
-Post-Sales
-    Task
+Task
     Questions
     Touchpoints
     Emotions
@@ -463,75 +457,57 @@ Post-Sales
 
   expect(
     toString({
-      name: "CustomerJourneyMap",
-      header: {
-        title: "Header",
-        text: [
+      name: "Table",
+      header: [
+        "Task",
+        "Questions",
+        "Touchpoints",
+        "Emotions",
+        "Influences",
+        "Weaknesses",
+      ],
+      items: [
+        [
           "Task",
           "Questions",
           "Touchpoints",
           "Emotions",
           "Influences",
-          "Weaknesses"
-        ]
-      },
-      items: [
-        {
-          title: "Discover",
-          text: [
-            "Task",
-            "Questions",
-            "Touchpoints",
-            "Emotions",
-            "Influences",
-            "Weaknesses"
-          ]
-        },
-        {
-          title: "Research",
-          text: [
-            "Task",
-            "Questions",
-            "Touchpoints",
-            "Emotions",
-            "Influences",
-            "Weaknesses"
-          ]
-        },
-        {
-          title: "Purchase",
-          text: [
-            "Task",
-            "Questions",
-            "Touchpoints",
-            "Emotions",
-            "Influences",
-            "Weaknesses"
-          ]
-        },
-        {
-          title: "Delivery",
-          text: [
-            "Task",
-            "Questions",
-            "Touchpoints",
-            "Emotions",
-            "Influences",
-            "Weaknesses"
-          ]
-        },
-        {
-          title: "Post-Sales",
-          text: [
-            "Task",
-            "Questions",
-            "Touchpoints",
-            "Emotions",
-            "Influences",
-            "Weaknesses"
-          ]
-        }
-      ]
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
+      ],
     })
   ).toBe(text);
 });
@@ -542,16 +518,16 @@ test("KPT type to string.", () => {
       name: "Kpt",
       keep: {
         title: "k",
-        text: ["k", "text"]
+        text: ["k", "text"],
       },
       problem: {
         title: "p",
-        text: ["p", "text"]
+        text: ["p", "text"],
       },
       try: {
         title: "t",
-        text: ["t", "text"]
-      }
+        text: ["t", "text"],
+      },
     })
   ).toBe("Kpt");
 });
@@ -562,16 +538,16 @@ test("Start stop continue type to string.", () => {
       name: "StartStopContinue",
       start: {
         title: "start",
-        text: ["start", "text"]
+        text: ["start", "text"],
       },
       stop: {
         title: "stop",
-        text: ["stop", "text"]
+        text: ["stop", "text"],
       },
       continue: {
         title: "continue",
-        text: ["continue", "text"]
-      }
+        text: ["continue", "text"],
+      },
     })
   ).toBe("StartStopContinue");
 });
@@ -582,20 +558,20 @@ test("4LS type to string.", () => {
       name: "4Ls",
       liked: {
         title: "liked",
-        text: ["liked", "text"]
+        text: ["liked", "text"],
       },
       learned: {
         title: "learned",
-        text: ["learned", "text"]
+        text: ["learned", "text"],
       },
       lacked: {
         title: "lacked",
-        text: ["lacked", "text"]
+        text: ["lacked", "text"],
       },
       longedFor: {
         title: "longedFor",
-        text: ["longedFor", "text"]
-      }
+        text: ["longedFor", "text"],
+      },
     })
   ).toBe("4Ls");
 });
@@ -606,44 +582,44 @@ test("Opportunity Canvas type to string.", () => {
       name: "OpportunityCanvas",
       problems: {
         title: "problems",
-        text: ["problems", "text"]
+        text: ["problems", "text"],
       },
       solutionIdeas: {
         title: "solutionIdeas",
-        text: ["solutionIdeas", "text"]
+        text: ["solutionIdeas", "text"],
       },
       usersAndCustomers: {
         title: "usersAndCustomers",
-        text: ["usersAndCustomers", "text"]
+        text: ["usersAndCustomers", "text"],
       },
       solutionsToday: {
         title: "solutionsToday",
-        text: ["solutionsToday", "text"]
+        text: ["solutionsToday", "text"],
       },
       businessChallenges: {
         title: "businessChallenges",
-        text: ["businessChallenges", "text"]
+        text: ["businessChallenges", "text"],
       },
       howWillUsersUseSolution: {
         title: "howWillUsersUseSolution",
-        text: ["howWillUsersUseSolution", "text"]
+        text: ["howWillUsersUseSolution", "text"],
       },
       userMetrics: {
         title: "userMetrics",
-        text: ["userMetrics", "text"]
+        text: ["userMetrics", "text"],
       },
       adoptionStrategy: {
         title: "adoptionStrategy",
-        text: ["adoptionStrategy", "text"]
+        text: ["adoptionStrategy", "text"],
       },
       businessBenefitsAndMetrics: {
         title: "businessBenefitsAndMetrics",
-        text: ["businessBenefitsAndMetrics", "text"]
+        text: ["businessBenefitsAndMetrics", "text"],
       },
       budget: {
         title: "budget",
-        text: ["budget", "text"]
-      }
+        text: ["budget", "text"],
+      },
     })
   ).toBe("OpportunityCanvas");
 });
@@ -654,40 +630,40 @@ test("Business Model Canvas type to string.", () => {
       name: "BusinessModelCanvas",
       keyPartners: {
         title: "keyPartners",
-        text: ["keyPartners", "text"]
+        text: ["keyPartners", "text"],
       },
       customerSegments: {
         title: "customerSegments",
-        text: ["customerSegments", "text"]
+        text: ["customerSegments", "text"],
       },
       valueProposition: {
         title: "valueProposition",
-        text: ["valueProposition", "text"]
+        text: ["valueProposition", "text"],
       },
       keyActivities: {
         title: "keyActivities",
-        text: ["keyActivities", "text"]
+        text: ["keyActivities", "text"],
       },
       channels: {
         title: "channels",
-        text: ["channels", "text"]
+        text: ["channels", "text"],
       },
       revenueStreams: {
         title: "revenueStreams",
-        text: ["revenueStreams", "text"]
+        text: ["revenueStreams", "text"],
       },
       costStructure: {
         title: "costStructure",
-        text: ["costStructure", "text"]
+        text: ["costStructure", "text"],
       },
       keyResources: {
         title: "keyResources",
-        text: ["keyResources", "text"]
+        text: ["keyResources", "text"],
       },
       customerRelationships: {
         title: "customerRelationships",
-        text: ["customerRelationships", "text"]
-      }
+        text: ["customerRelationships", "text"],
+      },
     })
   ).toBe("BusinessModelCanvas");
 });
@@ -698,40 +674,40 @@ test("User Persona type to string.", () => {
       name: "UserPersona",
       url: {
         title: "title",
-        url: "url"
+        url: "url",
       },
       whoAmI: {
         title: "whoAmI",
-        text: ["whoAmI", "text"]
+        text: ["whoAmI", "text"],
       },
       item1: {
         title: "item1",
-        text: ["item1", "text"]
+        text: ["item1", "text"],
       },
       item2: {
         title: "item2",
-        text: ["item2", "text"]
+        text: ["item2", "text"],
       },
       item3: {
         title: "item3",
-        text: ["item3", "text"]
+        text: ["item3", "text"],
       },
       item4: {
         title: "item4",
-        text: ["item4", "text"]
+        text: ["item4", "text"],
       },
       item5: {
         title: "item5",
-        text: ["item5", "text"]
+        text: ["item5", "text"],
       },
       item6: {
         title: "item6",
-        text: ["item6", "text"]
+        text: ["item6", "text"],
       },
       item7: {
         title: "item7",
-        text: ["item7", "text"]
-      }
+        text: ["item7", "text"],
+      },
     })
   ).toBe("UserPersona");
 });
@@ -743,20 +719,20 @@ test("Empathy Map type to string.", () => {
       imageUrl: "imageUrl",
       says: {
         title: "says",
-        text: ["says", "text"]
+        text: ["says", "text"],
       },
       thinks: {
         title: "thinks",
-        text: ["thinks", "text"]
+        text: ["thinks", "text"],
       },
       does: {
         title: "does",
-        text: ["does", "text"]
+        text: ["does", "text"],
       },
       feels: {
         title: "feels",
-        text: ["feels", "text"]
-      }
+        text: ["feels", "text"],
+      },
     })
   ).toBe("EmpathyMap");
 });
@@ -774,17 +750,17 @@ test("User Story Map type to string.", () => {
               stories: [
                 {
                   name: "story1",
-                  release: 1
+                  release: 1,
                 },
                 {
                   name: "story2",
-                  release: 2
-                }
-              ]
-            }
-          ]
-        }
-      ]
+                  release: 2,
+                },
+              ],
+            },
+          ],
+        },
+      ],
     })
   ).toBe("UserStoryMap");
 });
@@ -798,87 +774,69 @@ test("Mind Map type to string.", () => {
         children: [
           { text: "test2", children: [{ text: "test22", children: [] }] },
           { text: "test3", children: [{ text: "test33", children: [] }] },
-          { text: "test4", children: [{ text: "test44", children: [] }] }
-        ]
-      }
+          { text: "test4", children: [{ text: "test44", children: [] }] },
+        ],
+      },
     })
   ).toBe("MindMap");
 });
 
-test("Customer Journey Map type to string.", () => {
+test("Table type to string.", () => {
   expect(
     toTypeString({
-      name: "CustomerJourneyMap",
-      header: {
-        title: "header",
-        text: [
+      name: "Table",
+      header: [
+        "Task",
+        "Questions",
+        "Touchpoints",
+        "Emotions",
+        "Influences",
+        "Weaknesses",
+      ],
+      items: [
+        [
           "Task",
           "Questions",
           "Touchpoints",
           "Emotions",
           "Influences",
-          "Weaknesses"
-        ]
-      },
-      items: [
-        {
-          title: "Discover",
-          text: [
-            "Task",
-            "Questions",
-            "Touchpoints",
-            "Emotions",
-            "Influences",
-            "Weaknesses"
-          ]
-        },
-        {
-          title: "Research",
-          text: [
-            "Task",
-            "Questions",
-            "Touchpoints",
-            "Emotions",
-            "Influences",
-            "Weaknesses"
-          ]
-        },
-        {
-          title: "Purchase",
-          text: [
-            "Task",
-            "Questions",
-            "Touchpoints",
-            "Emotions",
-            "Influences",
-            "Weaknesses"
-          ]
-        },
-        {
-          title: "Delivery",
-          text: [
-            "Task",
-            "Questions",
-            "Touchpoints",
-            "Emotions",
-            "Influences",
-            "Weaknesses"
-          ]
-        },
-        {
-          title: "Post-Sales",
-          text: [
-            "Task",
-            "Questions",
-            "Touchpoints",
-            "Emotions",
-            "Influences",
-            "Weaknesses"
-          ]
-        }
-      ]
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
+      ],
     })
-  ).toBe("CustomerJourneyMap");
+  ).toBe("Table");
 });
 
 test("Gantt Chart type to string.", () => {
@@ -890,9 +848,9 @@ test("Gantt Chart type to string.", () => {
       chartitems: [
         {
           title: "subtitle1",
-          schedules: [{ from: "2019-12-26", to: "2019-12-31", title: "task1" }]
-        }
-      ]
+          schedules: [{ from: "2019-12-26", to: "2019-12-31", title: "task1" }],
+        },
+      ],
     })
   ).toBe(
     `2019-12-26,2020-01-31\n    subtitle1\n        task1\n            2019-12-26,2019-12-31`
@@ -907,13 +865,13 @@ test("ER Diagram type to string.", () => {
         {
           table1: "table1",
           table2: "table2",
-          relation: "="
+          relation: "=",
         },
         {
           table1: "table1",
           table2: "table2",
-          relation: "-"
-        }
+          relation: "-",
+        },
       ],
       tables: [
         {
@@ -922,13 +880,13 @@ test("ER Diagram type to string.", () => {
             {
               name: "column1",
               type: {
-                name: "int"
+                name: "int",
               },
-              attribute: { name: "pk" }
-            }
-          ]
-        }
-      ]
+              attribute: { name: "pk" },
+            },
+          ],
+        },
+      ],
     })
   ).toBe(
     `relations\n    table1 = table2\n    table1 - table2\ntables\n    table1\n        column1 int pk`
@@ -942,17 +900,17 @@ test("Kanban type to string.", () => {
       lists: [
         {
           name: "TODO",
-          cards: [{ text: "TODO CARD" }]
+          cards: [{ text: "TODO CARD" }],
         },
         {
           name: "DOING",
-          cards: [{ text: "DOING CARD" }]
+          cards: [{ text: "DOING CARD" }],
         },
         {
           name: "DONE",
-          cards: [{ text: "DONE CARD" }]
-        }
-      ]
+          cards: [{ text: "DONE CARD" }],
+        },
+      ],
     })
   ).toBe("TODO\n    TODO CARD\nDOING\n    DOING CARD\nDONE\n    DONE CARD");
 });

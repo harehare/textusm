@@ -85,8 +85,8 @@ init flags =
                 else if flags.diagramType == "EmpathyMap" then
                     Diagram.EmpathyMap
 
-                else if flags.diagramType == "CustomerJourneyMap" then
-                    Diagram.CustomerJourneyMap
+                else if flags.diagramType == "Table" then
+                    Diagram.Table
 
                 else if flags.diagramType == "SiteMap" then
                     Diagram.SiteMap

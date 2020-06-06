@@ -1,6 +1,6 @@
 {
   "name": "textusm",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "Generate a User Story Map from indented text.",
   "main": "dist/index.js",
   "scripts": {
@@ -29,16 +29,16 @@
   "author": "harehare",
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^25.1.4",
+    "@types/jest": "^25.2.3",
     "clean-webpack-plugin": "^3.0.0",
-    "jest": "^25.2.1",
+    "jest": "^26.0.1",
     "module": "^1.2.5",
-    "terser-webpack-plugin": "^2.3.5",
-    "ts-jest": "^25.2.1",
-    "ts-loader": "^6.2.2",
-    "tslint": "^6.1.0",
-    "typescript": "^3.8.3",
-    "webpack": "^4.42.1",
+    "terser-webpack-plugin": "^3.0.3",
+    "ts-jest": "^26.1.0",
+    "ts-loader": "^7.0.5",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.5",
+    "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-merge": "^4.2.2"
   },
@@ -60,6 +60,6 @@
     ]
   },
   "dependencies": {
-    "npm-check-updates": "^4.0.6"
+    "npm-check-updates": "^6.0.1"
   }
 }

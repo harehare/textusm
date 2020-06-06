@@ -8,6 +8,7 @@ import Graphql.Http as Http
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Task exposing (Task)
 import TextUSM.InputObject exposing (InputItem)
+import Url.Builder exposing (crossOrigin)
 
 
 type alias RequestInfo =
@@ -16,15 +17,15 @@ type alias RequestInfo =
     }
 
 
-graphQLUrl : String -> String
-graphQLUrl url =
-    url ++ "/graphql"
+graphQLUrl : RequestInfo -> String
+graphQLUrl req =
+    crossOrigin req.url [ "/graphql" ] []
 
 
 item : RequestInfo -> String -> Task (Http.Error DiagramItem) DiagramItem
 item req id =
     Query.item id
-        |> Http.queryRequest (graphQLUrl req.url)
+        |> Http.queryRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask
 
@@ -32,7 +33,7 @@ item req id =
 items : RequestInfo -> ( Int, Int ) -> Bool -> Bool -> Task (Http.Error (List (Maybe DiagramItem))) (List (Maybe DiagramItem))
 items req ( offset, limit ) isBookmark isPublic =
     Query.items ( offset, limit ) isBookmark isPublic
-        |> Http.queryRequest (graphQLUrl req.url)
+        |> Http.queryRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask
 
@@ -40,7 +41,7 @@ items req ( offset, limit ) isBookmark isPublic =
 save : RequestInfo -> InputItem -> Task (Http.Error DiagramItem) DiagramItem
 save req input =
     Mutation.save input
-        |> Http.mutationRequest (graphQLUrl req.url)
+        |> Http.mutationRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask
 
@@ -48,7 +49,7 @@ save req input =
 delete : RequestInfo -> String -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
 delete req itemID =
     Mutation.delete itemID
-        |> Http.mutationRequest (graphQLUrl req.url)
+        |> Http.mutationRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask
 
@@ -56,7 +57,7 @@ delete req itemID =
 bookmark : RequestInfo -> String -> Bool -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
 bookmark req itemID isBookmark =
     Mutation.bookmark itemID isBookmark
-        |> Http.mutationRequest (graphQLUrl req.url)
+        |> Http.mutationRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask
 

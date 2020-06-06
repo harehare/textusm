@@ -102,10 +102,10 @@ type Schedule = {
   title: string;
 };
 
-export type CustomerJourneyMap = {
-  name: "CustomerJourneyMap";
-  header: CanvasItem;
-  items: CanvasItem[];
+export type Table = {
+  name: "Table";
+  header: string[];
+  items: string[][];
 };
 
 export function toString(
@@ -119,7 +119,7 @@ export function toString(
     | UserPersona
     | MindMap
     | EmpathyMap
-    | CustomerJourneyMap
+    | Table
     | SiteMap
     | GanttChart
     | ImpactMap
@@ -144,8 +144,8 @@ export function toString(
     ? node2Text(definition)
     : definition.name === "EmpathyMap"
     ? empathyMapCanvas2Text(definition)
-    : definition.name === "CustomerJourneyMap"
-    ? customerJourneyMap2Text(definition)
+    : definition.name === "Table"
+    ? table2Text(definition)
     : definition.name === "GanttChart"
     ? ganttchart2Text(definition)
     : definition.name === "ER"
@@ -166,7 +166,7 @@ export function toTypeString(
     | UserPersona
     | MindMap
     | EmpathyMap
-    | CustomerJourneyMap
+    | Table
     | SiteMap
     | GanttChart
     | ImpactMap
@@ -187,7 +187,7 @@ function flatMap<T, U>(f: (x: T) => U[], xs: T[]): U[] {
 function canvas2Text(item: CanvasItem) {
   return `${item.title}
 ${(item.text ? item.text : [])
-  .map(line => {
+  .map((line) => {
     return `    ${line}`;
   })
   .join("\n")}
@@ -206,11 +206,11 @@ function businessModelCanvas2Text(
     "revenueStreams",
     "costStructure",
     "keyResources",
-    "customerRelationships"
+    "customerRelationships",
   ];
 
   return items
-    .map(item => {
+    .map((item) => {
       return canvas2Text(businessModelCanvas[item]);
     })
     .join("");
@@ -227,11 +227,11 @@ function opportunityCanvas2Text(opportunityCanvas: OpportunityCanvas): string {
     "userMetrics",
     "adoptionStrategy",
     "businessBenefitsAndMetrics",
-    "budget"
+    "budget",
   ];
 
   return items
-    .map(item => {
+    .map((item) => {
       return canvas2Text(opportunityCanvas[item]);
     })
     .join("");
@@ -241,7 +241,7 @@ function fourLsCanvas2Text(fourls: FourLs): string {
   const items = ["liked", "learned", "lacked", "longedFor"];
 
   return items
-    .map(item => {
+    .map((item) => {
       return canvas2Text(fourls[item]);
     })
     .join("");
@@ -253,7 +253,7 @@ function startStopContinueCanvas2Text(
   const items = ["start", "stop", "continue"];
 
   return items
-    .map(item => {
+    .map((item) => {
       return canvas2Text(startStopContinue[item]);
     })
     .join("");
@@ -263,7 +263,7 @@ function kptCanvas2Text(kpt: Kpt): string {
   const items = ["keep", "problem", "try"];
 
   return items
-    .map(item => {
+    .map((item) => {
       return canvas2Text(kpt[item]);
     })
     .join("");
@@ -278,11 +278,11 @@ function userPersonaCanvas2Text(userPersona: UserPersona): string {
     "item4",
     "item5",
     "item6",
-    "item7"
+    "item7",
   ];
 
   return `${userPersona.url.title}\n    ${userPersona.url.url}\n${items
-    .map(item => {
+    .map((item) => {
       return canvas2Text(userPersona[item]);
     })
     .join("")}`;
@@ -292,30 +292,37 @@ function empathyMapCanvas2Text(empathyMap: EmpathyMap): string {
   const items = ["says", "thinks", "does", "feels"];
 
   return `${empathyMap.imageUrl}\n${items
-    .map(item => {
+    .map((item) => {
       return canvas2Text(empathyMap[item]);
     })
     .join("")}`;
 }
 
-function customerJourneyMap2Text(
-  customerJourneyMap: CustomerJourneyMap
-): string {
-  const header = `${
-    customerJourneyMap.header.title
-  }\n${customerJourneyMap.header.text.map(t => `    ${t}`).join("\n")}`;
-  const items = customerJourneyMap.items
-    .map(item => `${item.title}\n${item.text.map(t => `    ${t}`).join("\n")}`)
+function table2Text(table: Table): string {
+  const rows = table.items
+    .map((item) =>
+      item.length > 0
+        ? `${item[0]}\n${item
+            .slice(1)
+            .map((v) => `    ${v}`)
+            .join("\n")}`
+        : ""
+    )
     .join("\n");
 
-  return `${header}\n${items}`;
+  return table.header.length > 0
+    ? `${table.header[0]}\n${table.header
+        .map((v) => `    ${v}`)
+        .splice(1)
+        .join("\n")}\n${rows}`
+    : "";
 }
 
 function ganttchart2Text(ganttChart: GanttChart): string {
   return `${ganttChart.from},${ganttChart.to}\n${ganttChart.chartitems
-    .map(item => {
+    .map((item) => {
       return `    ${item.title}\n${item.schedules
-        .map(schedule => {
+        .map((schedule) => {
           return `        ${schedule.title}\n            ${schedule.from},${schedule.to}`;
         })
         .join("\n")}`;
@@ -328,11 +335,11 @@ function userStoryMap2Text(userStoryMap: UserStoryMap): string {
     userStoryMap.labels && userStoryMap.labels.length > 0
       ? `#labels: ${userStoryMap.labels.join(",")}\n`
       : "";
-  return `${labels}${flatMap(activity => {
+  return `${labels}${flatMap((activity) => {
     return [activity.name].concat(
-      flatMap(task => {
+      flatMap((task) => {
         return ["    " + task.name].concat(
-          flatMap(story => {
+          flatMap((story) => {
             return ["    ".repeat(story.release + 1) + story.name];
           }, task.stories)
         );
@@ -343,7 +350,7 @@ function userStoryMap2Text(userStoryMap: UserStoryMap): string {
 
 function node2Text(map: MindMap | SiteMap | ImpactMap): string {
   const _node2Text = (node: MapNode[], indent: number): string[] => {
-    return flatMap(n => {
+    return flatMap((n) => {
       if (n.children.length === 0) {
         return [`${"    ".repeat(indent)}${n.text}`];
       }
@@ -359,14 +366,14 @@ function node2Text(map: MindMap | SiteMap | ImpactMap): string {
 
 function erDiagram2Text(er: ERDiagram): string {
   const relations = ["relations"].concat(
-    er.relations.map(e => {
+    er.relations.map((e) => {
       return `    ${e.table1} ${e.relation} ${e.table2}`;
     })
   );
 
   const tables = ["tables"].concat(
-    er.tables.map(table => {
-      const columns = table.columns.map(column => {
+    er.tables.map((table) => {
+      const columns = table.columns.map((column) => {
         const columnText = `${column.name}`;
         const columnLength =
           column.type.columnLength > 0 ? `(${column.type.columnLength})` : "";
@@ -384,9 +391,10 @@ function erDiagram2Text(er: ERDiagram): string {
 
 function kanban2Text(kanban: Kanban): string {
   return kanban.lists
-    .map(list => {
+    .map((list) => {
       return (
-        `${list.name}\n` + list.cards.map(card => `    ${card.text}`).join("\n")
+        `${list.name}\n` +
+        list.cards.map((card) => `    ${card.text}`).join("\n")
       );
     })
     .join("\n");

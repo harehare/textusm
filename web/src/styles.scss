@@ -218,7 +218,7 @@ select {
     width: 100vw;
     @media screen and (max-width: 480px) {
         width: 100vw;
-        height: calc(100vh - 48px);
+        height: calc(100vh - 128px);
     }
 
     .side-menu {
@@ -306,6 +306,9 @@ select {
             transition: all 0.3s ease;
             background-color: rgba(0, 0, 0, 0);
             border-radius: 4px 4px 0 0;
+            @media screen and (max-width: 480px) {
+                height: 150px;
+            }
         }
 
         &:hover {
@@ -362,6 +365,12 @@ select {
 
         .cloud {
             display: none;
+        }
+    }
+    .new-item-container {
+        width: 20%;
+        @media screen and (max-width: 480px) {
+            width: 49%;
         }
     }
     .new-item {

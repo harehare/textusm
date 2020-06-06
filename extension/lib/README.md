@@ -12,7 +12,7 @@ Generate a Diagram from indented text.
 - KPT Retrospective
 - User Persona
 - Mind Map
-- CustomerJourneyMap
+- Table
 - SiteMap
 - Gantt Chart
 - Impact Map
@@ -47,7 +47,7 @@ TextUSM
   // user story map size
   {
     size: { width: 1024, height: 1024 },
-    showZoomControl: true
+    showZoomControl: true,
   },
   // user story map configuration
   {}
@@ -73,23 +73,23 @@ textusm.render(
             stories: [
               {
                 name: "Press Tab to indent lines",
-                release: 1
+                release: 1,
               },
               {
                 name:
                   "Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.",
-                release: 1
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                release: 1,
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
   // user story map size
   {
     size: { width: 1024, height: 1024 },
-    showZoomControl: true
+    showZoomControl: true,
   },
   // user story map configuration
   {}
@@ -110,44 +110,44 @@ textusm.render(
     name: "BusinessModelCanvas",
     keyPartners: {
       title: "👥 Key Partners",
-      text: ["Key Partners"]
+      text: ["Key Partners"],
     },
     customerSegments: {
       title: "📊 Customer Segments",
-      text: ["Customer Segments"]
+      text: ["Customer Segments"],
     },
     valueProposition: {
       title: "🎁 Value Proposition",
-      text: ["Value Proposition"]
+      text: ["Value Proposition"],
     },
     keyActivities: {
       title: "✅ Key Activities",
-      text: ["Key Activities"]
+      text: ["Key Activities"],
     },
     channels: {
       title: "🚚 Channels",
-      text: ["Channels"]
+      text: ["Channels"],
     },
     revenueStreams: {
       title: "💰 Revenue Streams",
-      text: ["Revenue Streams"]
+      text: ["Revenue Streams"],
     },
     costStructure: {
       title: "🏷️ Cost Structure",
-      text: ["Cost Structure"]
+      text: ["Cost Structure"],
     },
     keyResources: {
       title: "💪 Key Resources",
-      text: ["Key Resources"]
+      text: ["Key Resources"],
     },
     customerRelationships: {
       title: "💙 Customer Relationships",
-      text: ["Customer Relationships"]
-    }
+      text: ["Customer Relationships"],
+    },
   },
   {
     size: { width: 1024, height: 1024 },
-    showZoomControl: true
+    showZoomControl: true,
   },
   {}
 );
@@ -167,48 +167,48 @@ textusm.render(
     name: "OpportunityCanvas",
     problems: {
       title: "Problems",
-      text: ["Problems"]
+      text: ["Problems"],
     },
     solutionIdeas: {
       title: "Solution Ideas",
-      text: ["Solution Ideas"]
+      text: ["Solution Ideas"],
     },
     usersAndCustomers: {
       title: "Users and Customers",
-      text: ["Users and Customers"]
+      text: ["Users and Customers"],
     },
     solutionsToday: {
       title: "Solutions Today",
-      text: ["Solutions Today"]
+      text: ["Solutions Today"],
     },
     businessChallenges: {
       title: "Business Challenges",
-      text: ["Business Challenges"]
+      text: ["Business Challenges"],
     },
     howWillUsersUseSolution: {
       title: "How will Users use Solution?",
-      text: ["How will Users use Solution?"]
+      text: ["How will Users use Solution?"],
     },
     userMetrics: {
       title: "User Metrics",
-      text: ["User Metrics"]
+      text: ["User Metrics"],
     },
     adoptionStrategy: {
       title: "Adoption Strategy",
-      text: ["Adoption Strategy"]
+      text: ["Adoption Strategy"],
     },
     businessBenefitsAndMetrics: {
       title: "Business Benefits and Metrics",
-      text: ["Business Benefits and Metrics"]
+      text: ["Business Benefits and Metrics"],
     },
     budget: {
       title: "Budget",
-      text: ["Budget"]
-    }
+      text: ["Budget"],
+    },
   },
   {
     size: { width: 1024, height: 1024 },
-    showZoomControl: true
+    showZoomControl: true,
   },
   {}
 );
@@ -229,11 +229,11 @@ textusm.render(
     liked: { title: "liked", text: ["liked"] },
     learned: { title: "learned", text: ["learned"] },
     lacked: { title: "lacked", text: ["lacked"] },
-    longedFor: { title: "longedFor", text: ["longedFor"] }
+    longedFor: { title: "longedFor", text: ["longedFor"] },
   },
   {
     size: { width: 1024, height: 1024 },
-    showZoomControl: true
+    showZoomControl: true,
   },
   {}
 );
@@ -253,11 +253,11 @@ textusm.render(
     name: "StartStopContinue",
     start: { title: "start", text: ["start"] },
     stop: { title: "stop", text: ["stop"] },
-    continue: { title: "continue", text: ["continue"] }
+    continue: { title: "continue", text: ["continue"] },
   },
   {
     size: { width: 1024, height: 1024 },
-    showZoomControl: true
+    showZoomControl: true,
   },
   {}
 );
@@ -277,11 +277,11 @@ textusm.render(
     name: "Kpt",
     keep: { title: "keep", text: ["keep"] },
     problem: { title: "problem", text: ["problem"] },
-    try: { title: "try", text: ["try"] }
+    try: { title: "try", text: ["try"] },
   },
   {
     size: { width: 1024, height: 1024 },
-    showZoomControl: true
+    showZoomControl: true,
   },
   {}
 );
@@ -309,7 +309,7 @@ SHARING
   {
     size: { width: 1024, height: 1024 },
     diagramType: "MindMap",
-    showZoomControl: true
+    showZoomControl: true,
   },
   {}
 );
@@ -331,7 +331,7 @@ textusm.render(
     says: { title: "test", text: ["test"] },
     thinks: { title: "test", text: ["test"] },
     does: { title: "test", text: ["test"] },
-    feels: { title: "test", text: ["test"] }
+    feels: { title: "test", text: ["test"] },
   },
   { diagramType: "EmpathyMap", size: { width: 2048, height: 1024 } }
 );
@@ -339,7 +339,7 @@ textusm.render(
 
 ![image](./img/emm.png)
 
-### Customer Journey Map
+### Table
 
 ```javascript
 const textusm = require("textusm");
@@ -348,81 +348,64 @@ const elm = document.getElementById("id");
 textusm.render(
   elm || "id",
   {
-    name: "CustomerJourneyMap",
-    header: {
-      title: "Header",
-      text: [
+    name: "Table",
+    header: [
         "Task",
         "Questions",
         "Touchpoints",
         "Emotions",
         "Influences",
-        "Weaknesses"
-      ]
-    },
+        "Weaknesses",
+      ],
     items: [
-      {
-        title: "Discover",
-        text: [
+        [
           "Task",
           "Questions",
           "Touchpoints",
           "Emotions",
           "Influences",
-          "Weaknesses"
-        ]
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
+        [
+          "Task",
+          "Questions",
+          "Touchpoints",
+          "Emotions",
+          "Influences",
+          "Weaknesses",
+        ],
       },
-      {
-        title: "Research",
-        text: [
-          "Task",
-          "Questions",
-          "Touchpoints",
-          "Emotions",
-          "Influences",
-          "Weaknesses"
-        ]
-      },
-      {
-        title: "Purchase",
-        text: [
-          "Task",
-          "Questions",
-          "Touchpoints",
-          "Emotions",
-          "Influences",
-          "Weaknesses"
-        ]
-      },
-      {
-        title: "Delivery",
-        text: [
-          "Task",
-          "Questions",
-          "Touchpoints",
-          "Emotions",
-          "Influences",
-          "Weaknesses"
-        ]
-      },
-      {
-        title: "Post-Sales",
-        text: [
-          "Task",
-          "Questions",
-          "Touchpoints",
-          "Emotions",
-          "Influences",
-          "Weaknesses"
-        ]
-      }
-    ]
+    ],
   },
-  { diagramType: "CustomerJourneyMap", size: { width: 2048, height: 1024 } }
+  { diagramType: "Table", size: { width: 2048, height: 1024 } }
 );
 ```
 
-![image](./img/cjm.png)
+![image](./img/table.png)
 
 ### Site Map
 
@@ -444,7 +427,7 @@ SHARING
   {
     size: { width: 1024, height: 1024 },
     diagramType: "SiteMap",
-    showZoomControl: true
+    showZoomControl: true,
   },
   {}
 );
@@ -468,14 +451,14 @@ textusm.render(
     chartitems: [
       {
         title: "subtitle1",
-        schedules: [{ from: "2019-12-26", to: "2019-12-31", title: "task1" }]
-      }
-    ]
+        schedules: [{ from: "2019-12-26", to: "2019-12-31", title: "task1" }],
+      },
+    ],
   },
   {
     size: { width: 1024, height: 1024 },
     diagramType: "GanttChart",
-    showZoomControl: true
+    showZoomControl: true,
   },
   {}
 );
@@ -503,7 +486,7 @@ SHARING
   {
     size: { width: 1024, height: 1024 },
     diagramType: "ImpactMap",
-    showZoomControl: true
+    showZoomControl: true,
   },
   {}
 );
@@ -560,13 +543,13 @@ textusm.render(
     lists: [
       { name: "Todo", cards: [{ text: "Todo text" }] },
       { name: "Doing", cards: [{ text: "Doing text" }] },
-      { name: "Done", cards: [{ text: "Done text" }] }
-    ]
+      { name: "Done", cards: [{ text: "Done text" }] },
+    ],
   },
   {
     size: { width: 1024, height: 1024 },
     diagramType: "Kanban",
-    showZoomControl: true
+    showZoomControl: true,
   },
   {}
 );

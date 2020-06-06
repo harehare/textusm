@@ -41,26 +41,20 @@ view =
         [ class "diagram-list"
         , style "margin" "16px"
         , style "display" "flex"
-        , style "flex-direction" "column"
+        , style "flex-wrap" "wrap"
+        , style "overflow-y" "scroll"
         ]
-        [ div
-            [ style "display" "flex"
-            , style "align-items" "flex-start"
-            , style "justify-content" "space-between"
-            , style "flex-wrap" "wrap"
-            ]
-            (List.map
-                (\item ->
-                    a [ href item.url, style "width" "20%" ]
-                        [ div [ class "new-item" ]
-                            [ img [ src item.imagePath, class "new-item-image" ] []
-                            , div
-                                [ class "new-item-text"
-                                ]
-                                [ text item.name ]
+        (List.map
+            (\item ->
+                a [ href item.url, class "new-item-container" ]
+                    [ div [ class "new-item" ]
+                        [ img [ src item.imagePath, class "new-item-image" ] []
+                        , div
+                            [ class "new-item-text"
                             ]
+                            [ text item.name ]
                         ]
-                )
-                newItems
+                    ]
             )
-        ]
+            newItems
+        )
