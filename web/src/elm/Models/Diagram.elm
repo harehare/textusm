@@ -25,7 +25,6 @@ import TextUSM.Enum.Diagram exposing (Diagram)
 type alias Model =
     { items : Items
     , data : Data
-    , hierarchy : Int
     , size : Size.Size
     , svg :
         { width : Int
@@ -47,6 +46,10 @@ type alias Model =
     }
 
 
+type alias Hierarchy =
+    Int
+
+
 type alias CountByHierarchy =
     List Int
 
@@ -62,7 +65,10 @@ type alias Distance =
 type Data
     = Empty
     | Items Items
-    | UserStoryMap Items CountByHierarchy CountByTasks
+    | UserStoryMap Items Hierarchy CountByHierarchy CountByTasks
+    | MindMap Items Hierarchy
+    | ImpactMap Items Hierarchy
+    | SiteMap Items Hierarchy
     | Table Table
     | Kpt Kpt
     | FourLs FourLs

@@ -4,10 +4,11 @@ import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size exposing (Size)
 import List.Extra exposing (getAt, scanl1, splitAt, zip3)
-import Models.Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g)
 import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views
+import Views.Empty as Empty
 
 
 type Direction
@@ -27,34 +28,39 @@ yMargin =
 
 view : Model -> Svg Msg
 view model =
-    let
-        rootItem =
-            Item.head model.items
-    in
-    case rootItem of
-        Just root ->
+    case model.data of
+        Diagram.MindMap items _ ->
             let
-                items =
-                    Item.unwrapChildren root.children
-
-                itemsCount =
-                    Item.length items
-
-                ( right, left ) =
-                    Item.splitAt (itemsCount // 2) items
+                rootItem =
+                    Item.head items
             in
-            g
-                []
-                [ nodesView model.settings 2 ( 0, 0 ) Left model.selectedItem left
-                , nodesView model.settings 2 ( 0, 0 ) Right model.selectedItem right
-                , Views.startTextNodeView model.settings
-                    ( 0, 0 )
-                    model.selectedItem
-                    root
-                ]
+            case rootItem of
+                Just root ->
+                    let
+                        mindMapItems =
+                            Item.unwrapChildren root.children
 
-        Nothing ->
-            g [] []
+                        itemsCount =
+                            Item.length mindMapItems
+
+                        ( right, left ) =
+                            Item.splitAt (itemsCount // 2) mindMapItems
+                    in
+                    g
+                        []
+                        [ nodesView model.settings 2 ( 0, 0 ) Left model.selectedItem left
+                        , nodesView model.settings 2 ( 0, 0 ) Right model.selectedItem right
+                        , Views.startTextNodeView model.settings
+                            ( 0, 0 )
+                            model.selectedItem
+                            root
+                        ]
+
+                Nothing ->
+                    g [] []
+
+        _ ->
+            Empty.view
 
 
 nodesView : Settings -> Int -> Position -> Direction -> Maybe Item -> Items -> Svg Msg

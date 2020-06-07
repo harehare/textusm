@@ -4,10 +4,11 @@ import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size exposing (Size)
 import List.Extra exposing (getAt, scanl1, zip3)
-import Models.Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Svg exposing (Svg, g)
 import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views
+import Views.Empty as Empty
 
 
 xMargin : Int
@@ -22,27 +23,32 @@ yMargin =
 
 view : Model -> Svg Msg
 view model =
-    let
-        rootItem =
-            Item.head model.items
-    in
-    case rootItem of
-        Just root ->
+    case model.data of
+        Diagram.ImpactMap items _ ->
             let
-                items =
-                    Item.unwrapChildren root.children
+                rootItem =
+                    Item.head items
             in
-            g
-                []
-                [ nodesView model.settings 2 ( 0, 0 ) model.selectedItem items
-                , Views.startTextNodeView model.settings
-                    ( 0, 0 )
-                    model.selectedItem
-                    root
-                ]
+            case rootItem of
+                Just root ->
+                    let
+                        impactMapItems =
+                            Item.unwrapChildren root.children
+                    in
+                    g
+                        []
+                        [ nodesView model.settings 2 ( 0, 0 ) model.selectedItem impactMapItems
+                        , Views.startTextNodeView model.settings
+                            ( 0, 0 )
+                            model.selectedItem
+                            root
+                        ]
 
-        Nothing ->
-            g [] []
+                Nothing ->
+                    g [] []
+
+        _ ->
+            Empty.view
 
 
 nodesView : Settings -> Int -> Position -> Maybe Item -> Items -> Svg Msg

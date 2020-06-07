@@ -21,12 +21,12 @@ import Views.Empty as Empty
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.UserStoryMap items countByHierarchy countByTasks ->
+        Diagram.UserStoryMap items hierarchy countByHierarchy countByTasks ->
             g
                 []
                 [ lazy4 labelView
                     model.settings
-                    model.hierarchy
+                    hierarchy
                     model.svg.width
                     countByHierarchy
                 , lazy5 mainView

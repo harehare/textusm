@@ -329,14 +329,19 @@ getCanvasSize model =
                     ( tableWidth, tableHeight )
 
                 Diagram.MindMap ->
-                    ( (model.settings.size.width + 100) * (model.hierarchy * 2) + (model.settings.size.width * 2)
-                    , case Item.head model.items of
-                        Just head ->
-                            Item.getLeafCount head * (model.settings.size.height + 24)
+                    case model.data of
+                        DiagramModel.MindMap items hierarchy ->
+                            ( (model.settings.size.width + 100) * (hierarchy * 2) + (model.settings.size.width * 2)
+                            , case Item.head items of
+                                Just head ->
+                                    Item.getLeafCount head * (model.settings.size.height + 24)
 
-                        Nothing ->
-                            0
-                    )
+                                Nothing ->
+                                    0
+                            )
+
+                        _ ->
+                            ( 0, 0 )
 
                 Diagram.Table ->
                     ( model.settings.size.width * ((model.items |> Item.head |> Maybe.withDefault Item.emptyItem |> .children |> Item.unwrapChildren |> Item.length) + 1)
@@ -344,67 +349,72 @@ getCanvasSize model =
                     )
 
                 Diagram.SiteMap ->
-                    let
-                        items =
-                            model.items
-                                |> Item.head
-                                |> Maybe.withDefault Item.emptyItem
-                                |> .children
-                                |> Item.unwrapChildren
+                    case model.data of
+                        DiagramModel.SiteMap siteMapitems hierarchy ->
+                            let
+                                items =
+                                    siteMapitems
+                                        |> Item.head
+                                        |> Maybe.withDefault Item.emptyItem
+                                        |> .children
+                                        |> Item.unwrapChildren
 
-                        hierarchy =
-                            items
-                                |> Item.map (\item -> Item.getHierarchyCount item)
-                                |> List.sum
-
-                        svgWidth =
-                            (model.settings.size.width
-                                + Constants.itemSpan
-                            )
-                                * Item.length items
-                                + Constants.itemSpan
-                                * hierarchy
-
-                        maxChildrenCount =
-                            items
-                                |> Item.map
-                                    (\i ->
-                                        if Item.isEmpty (Item.unwrapChildren i.children) then
-                                            0
-
-                                        else
-                                            Item.getChildrenCount i
+                                svgWidth =
+                                    (model.settings.size.width
+                                        + Constants.itemSpan
                                     )
-                                |> List.maximum
-                                |> Maybe.withDefault 0
+                                        * Item.length items
+                                        + Constants.itemSpan
+                                        * hierarchy
 
-                        svgHeight =
-                            (model.settings.size.height
-                                + Constants.itemSpan
-                            )
-                                * (maxChildrenCount
-                                    + 2
-                                  )
-                    in
-                    ( svgWidth + Constants.itemSpan, svgHeight + Constants.itemSpan )
+                                maxChildrenCount =
+                                    items
+                                        |> Item.map
+                                            (\i ->
+                                                if Item.isEmpty (Item.unwrapChildren i.children) then
+                                                    0
+
+                                                else
+                                                    Item.getChildrenCount i
+                                            )
+                                        |> List.maximum
+                                        |> Maybe.withDefault 0
+
+                                svgHeight =
+                                    (model.settings.size.height
+                                        + Constants.itemSpan
+                                    )
+                                        * (maxChildrenCount
+                                            + 2
+                                          )
+                            in
+                            ( svgWidth + Constants.itemSpan, svgHeight + Constants.itemSpan )
+
+                        _ ->
+                            ( 0, 0 )
 
                 Diagram.UserStoryMap ->
                     case model.data of
-                        DiagramModel.UserStoryMap _ countByHierarchy countByTasks ->
+                        DiagramModel.UserStoryMap _ _ countByHierarchy countByTasks ->
                             ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum countByTasks |> Maybe.withDefault 1), (model.settings.size.height + Constants.itemMargin) * (List.sum countByHierarchy + 2) )
 
                         _ ->
                             ( 0, 0 )
 
                 Diagram.ImpactMap ->
-                    ( (model.settings.size.width + 24) * ((model.hierarchy + 1) * 2) + 100
-                    , case Item.head model.items of
-                        Just head ->
-                            Item.getLeafCount head * (model.settings.size.height + 24) * 2
+                    case model.data of
+                        DiagramModel.ImpactMap items hierarchy ->
+                            ( (model.settings.size.width + 24) * ((hierarchy + 1) * 2) + 100
+                            , case Item.head items of
+                                Just head ->
+                                    Item.getLeafCount head * (model.settings.size.height + 24) * 2
 
-                        Nothing ->
-                            0
-                    )
+                                Nothing ->
+                                    0
+                            )
+
+                        _ ->
+                            ( 0, 0 )
 
                 Diagram.GanttChart ->
                     let

@@ -68,7 +68,6 @@ init : Settings -> ( Model, Cmd Msg )
 init settings =
     ( { items = Item.empty
       , data = Diagram.Empty
-      , hierarchy = 0
       , size = ( 0, 0 )
       , svg =
             { width = 0
@@ -615,10 +614,7 @@ updateDiagram ( width, height ) base text =
             load text
 
         newModel =
-            { base
-                | items = items
-                , hierarchy = hierarchy
-            }
+            { base | items = items }
 
         ( svgWidth, svgHeight ) =
             Utils.getCanvasSize newModel
@@ -626,7 +622,7 @@ updateDiagram ( width, height ) base text =
         data =
             case base.diagramType of
                 UserStoryMap ->
-                    Diagram.UserStoryMap items (countUpToHierarchy (hierarchy - 2) items) (scanl (\it v -> v + Item.length (Item.unwrapChildren it.children)) 0 (Item.unwrap items))
+                    Diagram.UserStoryMap items hierarchy (countUpToHierarchy (hierarchy - 2) items) (scanl (\it v -> v + Item.length (Item.unwrapChildren it.children)) 0 (Item.unwrap items))
 
                 Table ->
                     Diagram.Table <| TableModel.fromItems items
@@ -657,6 +653,15 @@ updateDiagram ( width, height ) base text =
 
                 ErDiagram ->
                     Diagram.ErDiagram <| ErDiagramModel.fromItems items
+
+                MindMap ->
+                    Diagram.MindMap items hierarchy
+
+                ImpactMap ->
+                    Diagram.ImpactMap items hierarchy
+
+                SiteMap ->
+                    Diagram.SiteMap items hierarchy
 
                 _ ->
                     Diagram.Items items
