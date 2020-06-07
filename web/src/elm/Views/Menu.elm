@@ -1,5 +1,6 @@
 module Views.Menu exposing (MenuItem(..), menu, view)
 
+import Data.FileType as FileType
 import Data.Text as Text exposing (Text)
 import Html exposing (Html, a, div, nav, span, text)
 import Html.Attributes exposing (class, href, style)
@@ -7,7 +8,7 @@ import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List
 import Maybe.Extra exposing (isNothing)
-import Models.Model exposing (FileType(..), Menu(..), Msg(..), Page(..))
+import Models.Model exposing (Menu(..), Msg(..), Page(..))
 import Route exposing (Route)
 import Translations exposing (Lang)
 import Utils
@@ -166,28 +167,28 @@ exportMenu route =
     case route of
         Route.Edit "erd" ->
             Item
-                { e = Download Ddl
+                { e = Download <| FileType.ddl
                 , title = "DDL"
                 }
                 :: baseExportMenu
 
         Route.EditFile "erd" _ ->
             Item
-                { e = Download Ddl
+                { e = Download <| FileType.ddl
                 , title = "DDL"
                 }
                 :: baseExportMenu
 
         Route.Edit "table" ->
             Item
-                { e = Download MarkdownTable
+                { e = Download <| FileType.markdown
                 , title = "MARKDOWN"
                 }
                 :: baseExportMenu
 
         Route.EditFile "cjm" _ ->
             Item
-                { e = Download MarkdownTable
+                { e = Download <| FileType.markdown
                 , title = "MARKDOWN"
                 }
                 :: baseExportMenu
@@ -199,24 +200,24 @@ exportMenu route =
 baseExportMenu : List (MenuItem Msg)
 baseExportMenu =
     [ Item
-        { e = Download Svg
-        , title = "SVG"
+        { e = Download <| FileType.svg
+        , title = FileType.toString FileType.svg
         }
     , Item
-        { e = Download Png
-        , title = "PNG"
+        { e = Download <| FileType.png
+        , title = FileType.toString FileType.png
         }
     , Item
-        { e = Download Pdf
-        , title = "PDF"
+        { e = Download <| FileType.pdf
+        , title = FileType.toString FileType.pdf
         }
     , Item
-        { e = Download PlainText
-        , title = "TEXT"
+        { e = Download <| FileType.plainText
+        , title = FileType.toString FileType.plainText
         }
     , Item
-        { e = Download Html
-        , title = "HTML"
+        { e = Download <| FileType.html
+        , title = FileType.toString FileType.html
         }
     ]
 

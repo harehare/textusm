@@ -8,6 +8,7 @@ import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Data.DiagramItem as DiagramItem
 import Data.DiagramType as DiagramType
+import Data.FileType as FileType
 import Data.Session as Session
 import Data.Size as Size
 import Data.Text as Text
@@ -23,7 +24,7 @@ import Html.Lazy as Lazy
 import Json.Decode as D
 import List.Extra exposing (find, getAt, removeAt, setAt, splitAt)
 import Models.Diagram as DiagramModel
-import Models.Model as Page exposing (FileType(..), LoginProvider(..), Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
+import Models.Model as Page exposing (LoginProvider(..), Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
 import Models.Views.ER as ER
 import Models.Views.Table as Table
 import Page.Help as Help
@@ -806,7 +807,7 @@ update message model =
 
         Download fileType ->
             case fileType of
-                Ddl ->
+                FileType.Ddl ex ->
                     let
                         ( _, tables ) =
                             ER.fromItems model.diagramModel.items
@@ -815,13 +816,13 @@ update message model =
                             List.map ER.tableToString tables
                                 |> String.join "\n"
                     in
-                    ( model, Download.string (Title.toString model.title ++ ".sql") "text/plain" ddl )
+                    ( model, Download.string (Title.toString model.title ++ ex) "text/plain" ddl )
 
-                MarkdownTable ->
-                    ( model, Download.string (Title.toString model.title ++ ".md") "text/plain" (Table.toString (Table.fromItems model.diagramModel.items)) )
+                FileType.Markdown ex ->
+                    ( model, Download.string (Title.toString model.title ++ ex) "text/plain" (Table.toString (Table.fromItems model.diagramModel.items)) )
 
-                PlainText ->
-                    ( model, Download.string (Title.toString model.title) "text/plain" (Text.toString model.diagramModel.text) )
+                FileType.PlainText ex ->
+                    ( model, Download.string (Title.toString model.title ++ ex) "text/plain" (Text.toString model.diagramModel.text) )
 
                 _ ->
                     let
@@ -836,20 +837,20 @@ update message model =
 
                         ( sub, extension ) =
                             case fileType of
-                                Png ->
-                                    ( Ports.downloadPng, ".png" )
+                                FileType.Png ex ->
+                                    ( Ports.downloadPng, ex )
 
-                                Pdf ->
-                                    ( Ports.downloadPdf, ".pdf" )
+                                FileType.Pdf ex ->
+                                    ( Ports.downloadPdf, ex )
 
-                                Svg ->
-                                    ( Ports.downloadSvg, ".svg" )
+                                FileType.Svg ex ->
+                                    ( Ports.downloadSvg, ex )
 
-                                Html ->
-                                    ( Ports.downloadHtml, ".html" )
+                                FileType.Html ex ->
+                                    ( Ports.downloadHtml, ex )
 
                                 _ ->
-                                    ( Ports.downloadSvg, ".svg" )
+                                    ( Ports.downloadSvg, "" )
                     in
                     ( { model | diagramModel = newDiagramModel }
                     , sub
