@@ -1,4 +1,20 @@
-module Translations exposing (..)
+module Translations exposing
+    ( Lang(..)
+    , fromString
+    , messageFailed
+    , messageFailedSaved
+    , messageNetworkError
+    , messageRequestTimeout
+    , messageSuccessfullySaved
+    , toolTipExport
+    , toolTipHelp
+    , toolTipNewFile
+    , toolTipOpenFile
+    , toolTipSave
+    , toolTipSettings
+    , toolTipShare
+    , toolTipTags
+    )
 
 
 type Lang

@@ -3,7 +3,14 @@ module Main exposing (init, main, view)
 import Api.UrlShorter as UrlShorterApi
 import Browser
 import Browser.Dom as Dom
-import Browser.Events exposing (Visibility(..), onMouseMove, onMouseUp, onResize, onVisibilityChange)
+import Browser.Events
+    exposing
+        ( Visibility(..)
+        , onMouseMove
+        , onMouseUp
+        , onResize
+        , onVisibilityChange
+        )
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Data.DiagramItem as DiagramItem
@@ -18,7 +25,16 @@ import File.Download as Download
 import GraphQL.Request as Request
 import Graphql.Http as Http
 import Html exposing (Html, a, div, img, main_, text)
-import Html.Attributes exposing (alt, class, href, id, src, style, target)
+import Html.Attributes
+    exposing
+        ( alt
+        , class
+        , href
+        , id
+        , src
+        , style
+        , target
+        )
 import Html.Events as E
 import Html.Lazy as Lazy
 import Json.Decode as D
@@ -37,7 +53,14 @@ import Page.Tags as Tags
 import Ports
 import RemoteData exposing (RemoteData(..))
 import Route exposing (Route(..), toRoute)
-import Settings exposing (Settings, defaultEditorSettings, defaultSettings, settingsDecoder, settingsEncoder)
+import Settings
+    exposing
+        ( Settings
+        , defaultEditorSettings
+        , defaultSettings
+        , settingsDecoder
+        , settingsEncoder
+        )
 import String
 import Task
 import TextUSM.Enum.Diagram as Diagram
@@ -490,9 +513,7 @@ changeRouteTo route model =
                 , diagramModel = DiagramModel.updatedText newDiagramModel (Text.fromString defaultText)
                 , page = Page.Main
               }
-            , cmds
-                [ setEditorLanguage diagramType
-                ]
+            , cmds [ setEditorLanguage diagramType ]
             )
 
         Route.EditFile _ id_ ->
