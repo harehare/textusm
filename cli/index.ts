@@ -10,7 +10,7 @@ const defaultSettings = {
   editor: {
     fontSize: 12,
     showLineNumber: true,
-    wordWrap: false
+    wordWrap: false,
   },
   font: "Open Sans",
   position: 0,
@@ -21,32 +21,32 @@ const defaultSettings = {
     font: "Open Sans",
     size: {
       width: 140,
-      height: 65
+      height: 65,
     },
     backgroundColor: "#F5F5F6",
     color: {
       activity: {
         color: "#FFFFFF",
-        backgroundColor: "#266B9A"
+        backgroundColor: "#266B9A",
       },
       task: {
         color: "#FFFFFF",
-        backgroundColor: "#3E9BCD"
+        backgroundColor: "#3E9BCD",
       },
       story: {
         color: "#000000",
-        backgroundColor: "#FFFFFF"
+        backgroundColor: "#FFFFFF",
       },
       comment: {
         color: "#000000",
-        backgroundColor: "#F1B090"
+        backgroundColor: "#F1B090",
       },
       backgroundColor: "F5F6F6",
       line: "#434343",
-      label: "#8C9FAE"
+      label: "#8C9FAE",
     },
-    title: null
-  }
+    title: null,
+  },
 };
 
 const readConfigFile = (file: string) => {
@@ -59,7 +59,14 @@ const readConfigFile = (file: string) => {
   }
 };
 
-const { configFile, input, width, height, output, diagramType } = commander
+const {
+  configFile,
+  input,
+  width,
+  height,
+  output,
+  diagramType,
+} = commander
   .version("0.1.0")
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file. Required.")
@@ -98,18 +105,18 @@ const validDiagramType = [
   "userpersona",
   "mind_map",
   "empathy_map",
-  "customer_journey_map",
+  "table",
   "site_map",
   "gantt_chart",
   "impact_map",
   "er_diagram",
   "kanban",
-  ""
+  "",
 ];
 
 if (diagramType && validDiagramType.indexOf(diagramType) === -1) {
   console.error(
-    `Output file must be userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, empathy_map, customer_journey_map, gantt_chart.`
+    `Output file must be userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, empathy_map, table, gantt_chart.`
   );
   process.exit(1);
 }
@@ -138,7 +145,7 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
     const page = await browser.newPage();
     page.setViewport({
       width: width ? parseInt(width) : defaultWidth,
-      height: height ? parseInt(height) : defaultHeight
+      height: height ? parseInt(height) : defaultHeight,
     });
     const type =
       diagramType === "user_story_map"
@@ -159,8 +166,8 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
         ? "mmp"
         : diagramType === "empathy_map"
         ? "emm"
-        : diagramType === "customer_journey_map"
-        ? "cjm"
+        : diagramType === "table"
+        ? "table"
         : diagramType === "site_map"
         ? "smp"
         : diagramType === "gantt_chart"
@@ -180,11 +187,11 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
 
     await page.waitForSelector("#usm", {
       timeout: 10000,
-      visible: true
+      visible: true,
     });
 
     if (output.endsWith("svg")) {
-      const svg = await page.$eval("#usm-area", item => {
+      const svg = await page.$eval("#usm-area", (item) => {
         return item.innerHTML;
       });
       fs.writeFileSync(
@@ -202,33 +209,33 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
                   .join('<img xmlns="http://www.w3.org/1999/xhtml"')}`
       );
     } else if (output.endsWith("png")) {
-      const clip = await page.$eval("#usm", svg => {
+      const clip = await page.$eval("#usm", (svg) => {
         const rect = svg.getBoundingClientRect();
         return {
           x: rect.left,
           y: rect.top,
           width: rect.width,
-          height: rect.height
+          height: rect.height,
         };
       });
       await page.screenshot({
         path: output,
         clip,
-        omitBackground: true
+        omitBackground: true,
       });
     } else if (output.endsWith("pdf")) {
       await page.pdf({
         path: output,
         landscape: true,
-        printBackground: false
+        printBackground: false,
       });
     } else if (output.endsWith("html")) {
       const html = await page.evaluate(() => {
         const doc = document.documentElement;
-        doc.querySelectorAll("script").forEach(e => {
+        doc.querySelectorAll("script").forEach((e) => {
           e.remove();
         });
-        doc.querySelectorAll("link").forEach(e => {
+        doc.querySelectorAll("link").forEach((e) => {
           e.remove();
         });
         return `<html>${doc.innerHTML}</html>`;
@@ -242,7 +249,7 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
     console.error("Internal error.");
     browser.close();
   }
-})().catch(e => {
+})().catch((e) => {
   console.log(e);
   console.error("Internal error.");
 });
