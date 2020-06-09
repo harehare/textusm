@@ -1,11 +1,15 @@
-module TestDiagram exposing (changeTextTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, toggleFullscreenText)
+module TestDiagram exposing (businessModelCanvasRenderTest, changeTextTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, toggleFullscreenText, userStoryMapRenderTest)
 
-import Components.Diagram exposing (init, update)
+import Browser.Dom exposing (Viewport)
+import Components.Diagram exposing (init, update, view)
 import Data.Item as Item exposing (ItemType(..))
 import Data.Position as Position
 import Expect
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Test exposing (Test, describe, test)
+import Test.Html.Query as Query
+import Test.Html.Selector exposing (tag)
+import TextUSM.Enum.Diagram exposing (Diagram(..))
 
 
 defaultSettings : Settings
@@ -41,6 +45,21 @@ defInit : Model
 defInit =
     init defaultSettings
         |> Tuple.first
+
+
+defViewport : Viewport
+defViewport =
+    { scene =
+        { width = 0
+        , height = 0
+        }
+    , viewport =
+        { x = 0
+        , y = 0
+        , width = 0
+        , height = 0
+        }
+    }
 
 
 noOpTest : Test
@@ -310,4 +329,54 @@ changeTextTest =
                               }
                             ]
                         )
+        ]
+
+
+userStoryMapRenderTest : Test
+userStoryMapRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "test\n    test\n    test\n        test\n            test\ntest\n    test\n    test\n        test") initModel
+    in
+    describe "User Story Map Rendering"
+        [ test "User Story Map rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 9)
+        , test "User Story Map label count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "foreignObject" ]
+                    |> Query.count (Expect.equal 5)
+        , test "User Story Map line count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "line" ]
+                    |> Query.count (Expect.equal 2)
+        ]
+
+
+businessModelCanvasRenderTest : Test
+businessModelCanvasRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships") { initModel | diagramType = BusinessModelCanvas }
+    in
+    describe "Business Model Canvas Rendering"
+        [ test "Business Model Canvas rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 9)
         ]

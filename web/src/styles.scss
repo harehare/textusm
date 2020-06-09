@@ -233,10 +233,18 @@ select {
         }
         .item {
             cursor: pointer;
+            display: flex;
+            align-items: center;
             height: 30px;
             line-height: 30px;
             padding: 8px;
             font-size: 0.9rem;
+            div {
+                width: 100%;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
         }
 
         .selected {

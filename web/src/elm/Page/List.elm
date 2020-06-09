@@ -1,23 +1,19 @@
 port module Page.List exposing (Model, Msg(..), init, update, view)
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
-import Data.DiagramType as DiagramType
 import Data.Session as Session exposing (Session)
-import Dict
-import Dict.Extra as DictEx
 import GraphQL.Request as Request
 import Graphql.Http as Http
 import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
-import Html.Lazy exposing (lazy2, lazy5)
+import Html.Lazy as Lazy
 import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (group, updateIf)
 import Maybe.Extra exposing (isJust)
 import RemoteData exposing (RemoteData(..), WebData)
 import Task
-import TextUSM.Enum.Diagram exposing (Diagram)
 import Time exposing (Zone)
 import Utils
 import Views.Empty as Empty
@@ -44,7 +40,6 @@ type Msg
 type FilterValue
     = FilterAll
     | FilterBookmark
-    | FilterValue Diagram
     | FilterTag String
 
 
@@ -98,15 +93,7 @@ init session apiRoot =
     )
 
 
-facet : List DiagramItem -> List ( Diagram, Int )
-facet items =
-    DictEx.groupBy (\i -> DiagramType.toString i.diagram) items
-        |> Dict.map (\k v -> ( k, List.length v ))
-        |> Dict.values
-        |> List.map (\( d, i ) -> ( DiagramType.fromString d, i ))
-
-
-tags : List DiagramItem -> List ( String, Int )
+tags : List DiagramItem -> List String
 tags items =
     List.map
         (\item ->
@@ -117,13 +104,10 @@ tags items =
         )
         items
         |> List.concat
-        |> List.sort
-        |> group
-        |> List.map (\( v, l ) -> ( v, List.length l + 1 ))
 
 
-sideMenu : FilterValue -> Int -> Int -> List ( Diagram, Int ) -> List ( String, Int ) -> Html Msg
-sideMenu filter allCount bookmarkCount diagramItems tagItems =
+sideMenu : FilterValue -> List String -> Html Msg
+sideMenu filter tagItems =
     div [ class "side-menu" ]
         (div
             [ class <|
@@ -134,7 +118,7 @@ sideMenu filter allCount bookmarkCount diagramItems tagItems =
                     "item"
             , onClick (Filter (FilterCondition FilterAll (\_ -> True)))
             ]
-            [ text "All", span [ class "facet-count" ] [ text <| "(" ++ String.fromInt allCount ++ ")" ] ]
+            [ text "All" ]
             :: div
                 [ class <|
                     if filter == FilterBookmark then
@@ -144,25 +128,10 @@ sideMenu filter allCount bookmarkCount diagramItems tagItems =
                         "item"
                 , onClick (Filter (FilterCondition FilterBookmark (\item -> item.isBookmark)))
                 ]
-                [ text "Bookmarks", span [ class "facet-count" ] [ text <| "(" ++ String.fromInt bookmarkCount ++ ")" ] ]
-            :: (diagramItems
+                [ Icon.bookmark "#F5F5F6" 12, div [ style "padding" "8px" ] [ text "Bookmarks" ] ]
+            :: (tagItems
                     |> List.map
-                        (\( diagram, count ) ->
-                            div
-                                [ class <|
-                                    if filter == FilterValue diagram then
-                                        "item selected"
-
-                                    else
-                                        "item"
-                                , onClick (Filter (FilterCondition (FilterValue diagram) (\item -> item.diagram == diagram)))
-                                ]
-                                [ text <| DiagramType.toLongString diagram, span [ class "facet-count" ] [ text <| "(" ++ String.fromInt count ++ ")" ] ]
-                        )
-               )
-            ++ (tagItems
-                    |> List.map
-                        (\( tag, count ) ->
+                        (\tag ->
                             div
                                 [ class <|
                                     if filter == FilterTag tag then
@@ -183,7 +152,7 @@ sideMenu filter allCount bookmarkCount diagramItems tagItems =
                                         )
                                     )
                                 ]
-                                [ text tag, span [ class "facet-count" ] [ text <| "(" ++ String.fromInt count ++ ")" ] ]
+                                [ Icon.tag 12, div [ style "padding" "8px" ] [ text tag ] ]
                         )
                )
         )
@@ -203,11 +172,8 @@ view model =
             div
                 [ class "diagram-list"
                 ]
-                [ lazy5 sideMenu
+                [ Lazy.lazy2 sideMenu
                     selectedPath
-                    (List.length diagrams)
-                    (List.length (List.filter (\i -> i.isBookmark) diagrams))
-                    (facet diagrams)
                     (tags diagrams)
                 , div
                     [ style "width" "100%" ]
@@ -280,7 +246,7 @@ view model =
                                             identity
                                    )
                                 |> List.map
-                                    (\d -> lazy2 diagramView model.timeZone d)
+                                    (\d -> Lazy.lazy2 diagramView model.timeZone d)
                              )
                                 ++ [ if model.hasMorePage then
                                         div
