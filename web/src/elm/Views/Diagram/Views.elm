@@ -5,7 +5,7 @@ import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size exposing (Size)
 import Events exposing (onClickStopPropagation, onKeyDown)
-import Html exposing (div, input)
+import Html exposing (div, img, input)
 import Html.Attributes as Attr
 import Html.Events exposing (onInput)
 import Html5.DragDrop as DragDrop
@@ -293,14 +293,20 @@ imageView ( imageWidth, imageHeight ) ( posX, posY ) url =
         [ width <| String.fromInt imageWidth
         , height <| String.fromInt imageHeight
         ]
-        [ image
+        [ foreignObject
             [ x <| String.fromInt posX
             , y <| String.fromInt posY
             , width <| String.fromInt imageWidth
             , height <| String.fromInt imageHeight
-            , xlinkHref url
             ]
-            []
+            [ img
+                [ Attr.src url
+                , Attr.style "width" <| String.fromInt imageWidth ++ "px"
+                , Attr.style "height" <| String.fromInt imageHeight ++ "px"
+                , Attr.style "object-fit" "contain"
+                ]
+                []
+            ]
         ]
 
 

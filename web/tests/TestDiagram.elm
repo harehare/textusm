@@ -1,4 +1,4 @@
-module TestDiagram exposing (businessModelCanvasRenderTest, changeTextTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, toggleFullscreenText, userStoryMapRenderTest)
+module TestDiagram exposing (businessModelCanvasRenderTest, changeTextTest, empathyMapRenderTest, fourlsRenderTest, kanbanRenderTest, kptRenderTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, opportunityCanvasRenderTest, startStopContinueRenderTest, tableRenderTest, toggleFullscreenText, userPersonaRenderTest, userStoryMapRenderTest)
 
 import Browser.Dom exposing (Viewport)
 import Components.Diagram exposing (init, update, view)
@@ -370,7 +370,7 @@ businessModelCanvasRenderTest =
             init defaultSettings
 
         ( model_, _ ) =
-            update (Init defaultSettings defViewport "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships") { initModel | diagramType = BusinessModelCanvas }
+            update (Init defaultSettings defViewport "👥 Key Partners\n    test\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships") { initModel | diagramType = BusinessModelCanvas }
     in
     describe "Business Model Canvas Rendering"
         [ test "Business Model Canvas rect count" <|
@@ -378,5 +378,157 @@ businessModelCanvasRenderTest =
                 view model_
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 10)
+        ]
+
+
+opportunityCanvasRenderTest : Test
+opportunityCanvasRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "Problems\n    test\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget") { initModel | diagramType = OpportunityCanvas }
+    in
+    describe "Opportunity Canvas Rendering"
+        [ test "Opportunity Canvas rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 11)
+        ]
+
+
+kptRenderTest : Test
+kptRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "K\n    test\nP\nT") { initModel | diagramType = Kpt }
+    in
+    describe "KPT Rendering"
+        [ test "KPT rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 4)
+        ]
+
+
+fourlsRenderTest : Test
+fourlsRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "Liked\n    test\nLearned\nLacked\nLonged for") { initModel | diagramType = Fourls }
+    in
+    describe "4Ls Rendering"
+        [ test "4Ls rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 5)
+        ]
+
+
+startStopContinueRenderTest : Test
+startStopContinueRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "Start\n    test\nStop\nContinue") { initModel | diagramType = StartStopContinue }
+    in
+    describe "Start, Stop, Continue Rendering"
+        [ test "Start, Stop, Continue rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 4)
+        ]
+
+
+userPersonaRenderTest : Test
+userPersonaRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "Name\n    test\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology") { initModel | diagramType = UserPersona }
+    in
+    describe "User Persona Rendering"
+        [ test "User Persona rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 9)
+        ]
+
+
+empathyMapRenderTest : Test
+empathyMapRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "SAYS\n    test\nTHINKS\nDOES\nFEELS") { initModel | diagramType = EmpathyMap }
+    in
+    describe "Empathy Map Rendering"
+        [ test "Empathy Map rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 5)
+        ]
+
+
+tableRenderTest : Test
+tableRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\n    Column7\nRow1\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\nRow2\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6") { initModel | diagramType = Table }
+    in
+    describe "Table Rendering"
+        [ test "Table rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 21)
+        ]
+
+
+kanbanRenderTest : Test
+kanbanRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "TODO\n    test\nDOING\nDONE") { initModel | diagramType = Kanban }
+    in
+    describe "Kanban Rendering"
+        [ test "Kanban rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 1)
         ]
