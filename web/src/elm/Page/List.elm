@@ -4,13 +4,13 @@ import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
 import GraphQL.Request as Request
 import Graphql.Http as Http
-import Html exposing (Html, div, img, input, span, text)
+import Html exposing (Html, div, img, input, text)
 import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Html.Lazy as Lazy
 import Json.Decode as D
 import Json.Encode as E
-import List.Extra exposing (group, updateIf)
+import List.Extra exposing (updateIf)
 import Maybe.Extra exposing (isJust)
 import RemoteData exposing (RemoteData(..), WebData)
 import Task

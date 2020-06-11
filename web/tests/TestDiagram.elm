@@ -1,4 +1,4 @@
-module TestDiagram exposing (businessModelCanvasRenderTest, changeTextTest, empathyMapRenderTest, fourlsRenderTest, kanbanRenderTest, kptRenderTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, opportunityCanvasRenderTest, startStopContinueRenderTest, tableRenderTest, toggleFullscreenText, userPersonaRenderTest, userStoryMapRenderTest)
+module TestDiagram exposing (businessModelCanvasRenderTest, changeTextTest, empathyMapRenderTest, erDiagramRenderTest, fourlsRenderTest, ganttChartRenderTest, kanbanRenderTest, kptRenderTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, opportunityCanvasRenderTest, startStopContinueRenderTest, tableRenderTest, toggleFullscreenText, userPersonaRenderTest, userStoryMapRenderTest)
 
 import Browser.Dom exposing (Viewport)
 import Components.Diagram exposing (init, update, view)
@@ -8,7 +8,7 @@ import Expect
 import Models.Diagram exposing (Model, Msg(..), Settings)
 import Test exposing (Test, describe, test)
 import Test.Html.Query as Query
-import Test.Html.Selector exposing (tag)
+import Test.Html.Selector exposing (tag, text)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 
 
@@ -531,4 +531,76 @@ kanbanRenderTest =
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 1)
+        , test "Kanban line count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "line" ]
+                    |> Query.count (Expect.equal 3)
+        , test "Kanban text 1" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "text" ]
+                    |> Query.index 0
+                    |> Query.has [ text "TODO" ]
+        , test "Kanban text 2" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "text" ]
+                    |> Query.index 1
+                    |> Query.has [ text "test" ]
+        , test "Kanban text 3" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "text" ]
+                    |> Query.index 2
+                    |> Query.has [ text "DOING" ]
+        , test "Kanban text 4" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "text" ]
+                    |> Query.index 3
+                    |> Query.has [ text "DONE" ]
+        ]
+
+
+ganttChartRenderTest : Test
+ganttChartRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04") { initModel | diagramType = GanttChart }
+    in
+    describe "GanttChart Rendering"
+        [ test "GanttChart rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 4)
+        ]
+
+
+erDiagramRenderTest : Test
+erDiagramRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n") { initModel | diagramType = ErDiagram }
+    in
+    describe "ErDiagram Rendering"
+        [ test "ErDiagram rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 15)
         ]
