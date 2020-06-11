@@ -19,7 +19,7 @@ type alias RequestInfo =
 
 graphQLUrl : RequestInfo -> String
 graphQLUrl req =
-    crossOrigin req.url [ "/graphql" ] []
+    crossOrigin req.url [ "graphql" ] []
 
 
 item : RequestInfo -> String -> Task (Http.Error DiagramItem) DiagramItem
