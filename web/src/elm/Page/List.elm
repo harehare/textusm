@@ -10,7 +10,7 @@ import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Html.Lazy as Lazy
 import Json.Decode as D
 import Json.Encode as E
-import List.Extra exposing (updateIf)
+import List.Extra exposing (unique, updateIf)
 import Maybe.Extra exposing (isJust)
 import RemoteData exposing (RemoteData(..), WebData)
 import Task
@@ -104,6 +104,7 @@ tags items =
         )
         items
         |> List.concat
+        |> unique
 
 
 sideMenu : FilterValue -> List String -> Html Msg
