@@ -13,6 +13,7 @@ import Browser.Events
         )
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
+import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem
 import Data.DiagramType as DiagramType
 import Data.FileType as FileType
@@ -521,25 +522,25 @@ changeRouteTo route model =
                 loadText_ =
                     if Session.isSignedIn model.session then
                         ( { model | page = Page.Main }
-                        , cmds [ Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } id_ ]
+                        , cmds [ Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_) ]
                         )
 
                     else
                         ( { model | page = Page.Main }
-                        , cmds [ Ports.getDiagram id_ ]
+                        , cmds [ Ports.getDiagram (DiagramId.toString id_) ]
                         )
             in
             case ( model.diagramListModel.diagramList, model.currentDiagram ) of
                 ( Success d, _ ) ->
                     let
                         loadItem =
-                            find (\diagram -> Maybe.withDefault "" diagram.id == id_) d
+                            find (\diagram -> (DiagramItem.getId diagram |> DiagramId.toString) == DiagramId.toString id_) d
                     in
                     case loadItem of
                         Just item ->
                             if item.isRemote then
                                 ( { model | page = Page.Main }
-                                , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } id_
+                                , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_)
                                 )
 
                             else
@@ -551,7 +552,7 @@ changeRouteTo route model =
                             ( { model | page = Page.NotFound }, Cmd.none )
 
                 ( _, Just diagram ) ->
-                    if Maybe.withDefault "" diagram.id == id_ then
+                    if (DiagramItem.getId diagram |> DiagramId.toString) == DiagramId.toString id_ then
                         ( { model | page = Page.Main }
                         , case ( model.page, Size.isZero model.diagramModel.size ) of
                             ( Page.Main, True ) ->
@@ -765,8 +766,7 @@ update message model =
                       }
                     , Nav.pushUrl model.key
                         (Route.toString <|
-                            EditFile (DiagramType.toString diagram.diagram)
-                                (Maybe.withDefault "" diagram.id)
+                            EditFile (DiagramType.toString diagram.diagram) (DiagramItem.getId diagram)
                         )
                     )
 
@@ -957,7 +957,15 @@ update message model =
                     , Cmd.batch
                         [ Notification.showInfoMessage <| Translations.messageSuccessfullySaved model.lang item.title
                         , Route.replaceRoute model.key
-                            (Route.EditFile (DiagramType.toString item.diagram) (Maybe.withDefault "" item.id))
+                            (Route.EditFile (DiagramType.toString item.diagram)
+                                (case item.id of
+                                    Just diagramId ->
+                                        diagramId
+
+                                    Nothing ->
+                                        DiagramId.fromString ""
+                                )
+                            )
                         ]
                     )
 
@@ -1011,7 +1019,15 @@ update message model =
             , Cmd.batch
                 [ Notification.showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString model.title)
                 , Route.replaceRoute model.key
-                    (Route.EditFile (DiagramType.toString diagram.diagram) (Maybe.withDefault "" diagram.id))
+                    (Route.EditFile (DiagramType.toString diagram.diagram)
+                        (case diagram.id of
+                            Just diagramId ->
+                                diagramId
+
+                            Nothing ->
+                                DiagramId.fromString ""
+                        )
+                    )
                 ]
             )
 
@@ -1060,7 +1076,14 @@ update message model =
                         newSettings =
                             { position = Just model.window.position
                             , font = model.settingsModel.settings.font
-                            , diagramId = Maybe.andThen .id model.currentDiagram
+                            , diagramId =
+                                Just <|
+                                    case Maybe.andThen .id model.currentDiagram of
+                                        Just diagramId ->
+                                            DiagramId.toString diagramId
+
+                                        Nothing ->
+                                            ""
                             , storyMap = newStoryMap.storyMap
                             , text = Just (Text.toString model.diagramModel.text)
                             , title =
@@ -1197,7 +1220,7 @@ update message model =
             in
             case ( toRoute model.url, model.currentDiagram ) of
                 ( Route.EditFile type_ id_, Just diagram ) ->
-                    if Maybe.withDefault "" diagram.id /= id_ then
+                    if (DiagramItem.getId diagram |> DiagramId.toString) /= DiagramId.toString id_ then
                         ( newModel, Nav.pushUrl model.key (Route.toString <| Route.EditFile type_ id_) )
 
                     else

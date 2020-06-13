@@ -1,15 +1,12 @@
 module Route exposing (Route(..), replaceRoute, toDiagramToRoute, toRoute, toString)
 
 import Browser.Navigation as Nav
+import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
 import Url exposing (Url)
 import Url.Builder exposing (absolute)
 import Url.Parser as Parser exposing ((</>), Parser, custom, map, oneOf, parse, s, string)
-
-
-type alias Id =
-    String
 
 
 type alias DiagramPath =
@@ -32,7 +29,7 @@ type Route
     = Home
     | New
     | Edit DiagramPath
-    | EditFile DiagramPath Id
+    | EditFile DiagramPath DiagramId
     | List
     | Settings
     | Help
@@ -60,7 +57,7 @@ parser =
         , map New (s "new")
         , map SharingDiagram (s "sharing")
         , map Edit (s "edit" </> diagramType)
-        , map EditFile (s "edit" </> diagramType </> string)
+        , map EditFile (s "edit" </> diagramType </> diagramId)
         ]
 
 
@@ -69,6 +66,13 @@ diagramType =
     custom "DIAGRAM_TYPE" <|
         \segment ->
             Just <| DiagramType.toString <| DiagramType.fromString segment
+
+
+diagramId : Parser (DiagramId -> a) a
+diagramId =
+    custom "DIAGRAM_ID" <|
+        \segment ->
+            Just <| DiagramId.fromString segment
 
 
 toRoute : Url -> Route
@@ -99,7 +103,7 @@ toString route =
             absolute [ "edit", type_ ] []
 
         EditFile type_ id_ ->
-            absolute [ "edit", type_, id_ ] []
+            absolute [ "edit", type_, DiagramId.toString id_ ] []
 
         List ->
             absolute [ "list" ] []

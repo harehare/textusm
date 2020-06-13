@@ -1,5 +1,6 @@
-module Data.DiagramItem exposing (DiagramItem, decoder, empty, encoder, idToString, mapToDateTime, toInputItem)
+module Data.DiagramItem exposing (DiagramItem, decoder, empty, encoder, getId, idToString, mapToDateTime, toInputItem)
 
+import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramType as DiagramType
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
@@ -15,7 +16,7 @@ import Time exposing (Posix)
 
 
 type alias DiagramItem =
-    { id : Maybe String
+    { id : Maybe DiagramId
     , text : String
     , diagram : TextUSM.Enum.Diagram.Diagram
     , title : String
@@ -29,12 +30,22 @@ type alias DiagramItem =
     }
 
 
+getId : DiagramItem -> DiagramId
+getId item =
+    case item.id of
+        Just id_ ->
+            id_
+
+        Nothing ->
+            DiagramId.fromString ""
+
+
 toInputItem : DiagramItem -> InputItem
 toInputItem item =
     { id =
         case item.id of
             Just id ->
-                Present <| Id id
+                Present <| Id <| DiagramId.toString id
 
             Nothing ->
                 Absent
@@ -73,7 +84,7 @@ empty =
 encoder : DiagramItem -> E.Value
 encoder diagram =
     E.object
-        [ ( "id", maybe E.string diagram.id )
+        [ ( "id", maybe E.string (Maybe.andThen (\id -> Just <| DiagramId.toString id) diagram.id) )
         , ( "text", E.string diagram.text )
         , ( "diagram", E.string <| DiagramType.toString diagram.diagram )
         , ( "title", E.string diagram.title )
@@ -90,7 +101,7 @@ encoder diagram =
 decoder : D.Decoder DiagramItem
 decoder =
     D.succeed DiagramItem
-        |> optional "id" (D.map Just D.string) Nothing
+        |> optional "id" (D.map Just DiagramId.decoder) Nothing
         |> required "text" D.string
         |> required "diagram" (D.map DiagramType.fromString D.string)
         |> required "title" D.string
@@ -117,9 +128,9 @@ mapToDateTime =
         )
 
 
-idToString : SelectionSet TextUSM.Scalar.Id typeLock -> SelectionSet (Maybe String) typeLock
+idToString : SelectionSet TextUSM.Scalar.Id typeLock -> SelectionSet (Maybe DiagramId) typeLock
 idToString =
     SelectionSet.map
         (\(TextUSM.Scalar.Id value) ->
-            Just value
+            Just (DiagramId.fromString value)
         )

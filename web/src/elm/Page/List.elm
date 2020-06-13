@@ -1,5 +1,6 @@
 port module Page.List exposing (Model, Msg(..), init, update, view)
 
+import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
 import GraphQL.Request as Request
@@ -501,7 +502,14 @@ update message model =
                 Ok diagram ->
                     ( model
                     , Task.attempt Removed
-                        (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session } (Maybe.withDefault "" diagram.id)
+                        (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session }
+                            (case diagram.id of
+                                Just id ->
+                                    DiagramId.toString id
+
+                                Nothing ->
+                                    ""
+                            )
                             |> Task.map (\_ -> Just diagram)
                         )
                     )
@@ -533,7 +541,15 @@ update message model =
             in
             ( { model | diagramList = Success diagramList }
             , Task.attempt Bookmarked
-                (Request.bookmark { url = model.apiRoot, idToken = Session.getIdToken model.session } (Maybe.withDefault "" diagram.id) (not diagram.isBookmark)
+                (Request.bookmark { url = model.apiRoot, idToken = Session.getIdToken model.session }
+                    (case diagram.id of
+                        Just id ->
+                            DiagramId.toString id
+
+                        Nothing ->
+                            ""
+                    )
+                    (not diagram.isBookmark)
                     |> Task.map (\_ -> Just diagram)
                 )
             )
