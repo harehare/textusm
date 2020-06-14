@@ -1,5 +1,6 @@
 module Page.Help exposing (view)
 
+import Asset
 import Html exposing (Html, div, img, span, text)
 import Html.Attributes exposing (alt, class, src, style)
 import Maybe.Extra exposing (isNothing)
@@ -18,7 +19,7 @@ view =
             , style "justify-content" "flex-start"
             ]
             [ span [ style "margin-right" "2px" ] [ text "ABOUT" ]
-            , img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] []
+            , img [ Asset.src Asset.logo, style "width" "32px", alt "logo" ] []
             , span [ style "margin-left" "2px" ] [ text "TextUSM" ]
             ]
         , div [ class "text", style "padding" "0 16px 16px" ]

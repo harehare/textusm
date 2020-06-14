@@ -1,5 +1,6 @@
 module Page.New exposing (view)
 
+import Asset exposing (Asset)
 import Data.DiagramType as DiagramType
 import Html exposing (Html, a, div, img, text)
 import Html.Attributes exposing (class, href, src, style)
@@ -9,29 +10,29 @@ import TextUSM.Enum.Diagram exposing (Diagram(..))
 
 type alias NewItem =
     { name : String
-    , imagePath : String
+    , image : Asset
     , url : String
     }
 
 
 newItems : List NewItem
 newItems =
-    [ NewItem "User Story Map" "/images/diagram/usm.svg" (Route.toString <| Route.Edit <| DiagramType.toString UserStoryMap)
-    , NewItem "Mind Map" "/images/diagram/mmp.svg" (Route.toString <| Route.Edit <| DiagramType.toString MindMap)
-    , NewItem "Impact Map" "/images/diagram/imm.svg" (Route.toString <| Route.Edit <| DiagramType.toString ImpactMap)
-    , NewItem "Empathy Map" "/images/diagram/emm.svg" (Route.toString <| Route.Edit <| DiagramType.toString EmpathyMap)
-    , NewItem "Site Map" "/images/diagram/smp.svg" (Route.toString <| Route.Edit <| DiagramType.toString SiteMap)
-    , NewItem "Business Model Canvas" "/images/diagram/bmc.svg" (Route.toString <| Route.Edit <| DiagramType.toString BusinessModelCanvas)
-    , NewItem "Opportunity Canvas" "/images/diagram/opc.svg" (Route.toString <| Route.Edit <| DiagramType.toString OpportunityCanvas)
-    , NewItem "User Persona" "/images/diagram/persona.svg" (Route.toString <| Route.Edit <| DiagramType.toString UserPersona)
-    , NewItem "Markdown" "/images/diagram/md.svg" (Route.toString <| Route.Edit <| DiagramType.toString Markdown)
-    , NewItem "Gantt Chart" "/images/diagram/gct.svg" (Route.toString <| Route.Edit <| DiagramType.toString GanttChart)
-    , NewItem "ER Diagram" "/images/diagram/erd.svg" (Route.toString <| Route.Edit <| DiagramType.toString ErDiagram)
-    , NewItem "Kanban" "/images/diagram/kanban.svg" (Route.toString <| Route.Edit <| DiagramType.toString Kanban)
-    , NewItem "4Ls" "/images/diagram/4ls.svg" (Route.toString <| Route.Edit <| DiagramType.toString Fourls)
-    , NewItem "Start, Stop, Continue" "/images/diagram/ssc.svg" (Route.toString <| Route.Edit <| DiagramType.toString StartStopContinue)
-    , NewItem "KPT" "/images/diagram/kpt.svg" (Route.toString <| Route.Edit <| DiagramType.toString Kpt)
-    , NewItem "Table" "/images/diagram/table.svg" (Route.toString <| Route.Edit <| DiagramType.toString Table)
+    [ NewItem "User Story Map" Asset.userStoryMap (Route.toString <| Route.Edit <| DiagramType.toString UserStoryMap)
+    , NewItem "Mind Map" Asset.mindMap (Route.toString <| Route.Edit <| DiagramType.toString MindMap)
+    , NewItem "Impact Map" Asset.impactMap (Route.toString <| Route.Edit <| DiagramType.toString ImpactMap)
+    , NewItem "Empathy Map" Asset.empathyMap (Route.toString <| Route.Edit <| DiagramType.toString EmpathyMap)
+    , NewItem "Site Map" Asset.siteMap (Route.toString <| Route.Edit <| DiagramType.toString SiteMap)
+    , NewItem "Business Model Canvas" Asset.businessModelCanvas (Route.toString <| Route.Edit <| DiagramType.toString BusinessModelCanvas)
+    , NewItem "Opportunity Canvas" Asset.opportunityCanvas (Route.toString <| Route.Edit <| DiagramType.toString OpportunityCanvas)
+    , NewItem "User Persona" Asset.userPersona (Route.toString <| Route.Edit <| DiagramType.toString UserPersona)
+    , NewItem "Markdown" Asset.markdown (Route.toString <| Route.Edit <| DiagramType.toString Markdown)
+    , NewItem "Gantt Chart" Asset.ganttChart (Route.toString <| Route.Edit <| DiagramType.toString GanttChart)
+    , NewItem "ER Diagram" Asset.erDiagram (Route.toString <| Route.Edit <| DiagramType.toString ErDiagram)
+    , NewItem "Kanban" Asset.kanban (Route.toString <| Route.Edit <| DiagramType.toString Kanban)
+    , NewItem "4Ls" Asset.fourLs (Route.toString <| Route.Edit <| DiagramType.toString Fourls)
+    , NewItem "Start, Stop, Continue" Asset.startStopContinue (Route.toString <| Route.Edit <| DiagramType.toString StartStopContinue)
+    , NewItem "KPT" Asset.kpt (Route.toString <| Route.Edit <| DiagramType.toString Kpt)
+    , NewItem "Table" Asset.table (Route.toString <| Route.Edit <| DiagramType.toString Table)
     ]
 
 
@@ -48,7 +49,7 @@ view =
             (\item ->
                 a [ href item.url, class "new-item-container" ]
                     [ div [ class "new-item" ]
-                        [ img [ src item.imagePath, class "new-item-image" ] []
+                        [ img [ Asset.src item.image, class "new-item-image" ] []
                         , div
                             [ class "new-item-text"
                             ]

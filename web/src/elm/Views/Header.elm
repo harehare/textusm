@@ -1,5 +1,6 @@
 module Views.Header exposing (view)
 
+import Asset
 import Data.DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
 import Data.Text as Text exposing (Text)
@@ -53,7 +54,7 @@ view props =
                     , style "justify-content" "center"
                     , style "align-items" "center"
                     ]
-                    [ a [ href "/", style "margin-top" "8px" ] [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ] ]
+                    [ a [ href "/", style "margin-top" "8px" ] [ img [ Asset.src Asset.logo, style "width" "32px", alt "logo" ] [] ] ]
                 , case props.page of
                     Page.Main ->
                         if Title.isEdit props.title then

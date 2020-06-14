@@ -19,6 +19,7 @@ import Time exposing (Zone)
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
+import Asset
 
 
 type Msg
@@ -310,7 +311,7 @@ view model =
                     , style "font-size" "1.5rem"
                     ]
                     [ div [ style "margin-bottom" "8px" ]
-                        [ img [ class "keyframe anim", src "/images/logo.svg", style "width" "64px", alt "LOADING..." ] []
+                        [ img [ class "keyframe anim", Asset.src Asset.logo, style "width" "64px", alt "LOADING..." ] []
                         ]
                     ]
                 ]
