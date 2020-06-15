@@ -69,10 +69,8 @@ view onToggleDropDownList dropDownId currentId onChange items selectedValue =
 
 dropdownView : List DropDownItem -> (String -> msg) -> Html msg
 dropdownView items onChange =
-    div
-        [ class "list"
-        ]
-        (List.map (\item -> dropDownItemView item onChange) items)
+    div [ class "list" ] <|
+        List.map (\item -> dropDownItemView item onChange) items
 
 
 itemView : DropDownItem -> msg -> Html msg

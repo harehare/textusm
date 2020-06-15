@@ -75,7 +75,6 @@ type Notification
 
 type Menu
     = Export
-    | UserSettings
     | HeaderMenu
     | LoginMenu
 

@@ -1,5 +1,6 @@
 port module Page.List exposing (Model, Msg(..), init, update, view)
 
+import Asset
 import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
@@ -19,7 +20,6 @@ import Time exposing (Zone)
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
-import Asset
 
 
 type Msg
@@ -119,7 +119,7 @@ sideMenu filter tagItems =
 
                 else
                     "item"
-            , onClick (Filter (FilterCondition FilterAll (\_ -> True)))
+            , onClick <| Filter (FilterCondition FilterAll (\_ -> True))
             ]
             [ text "All" ]
             :: div
@@ -129,7 +129,7 @@ sideMenu filter tagItems =
 
                     else
                         "item"
-                , onClick (Filter (FilterCondition FilterBookmark (\item -> item.isBookmark)))
+                , onClick <| Filter (FilterCondition FilterBookmark (\item -> item.isBookmark))
                 ]
                 [ Icon.bookmark "#F5F5F6" 12, div [ style "padding" "8px" ] [ text "Bookmarks" ] ]
             :: (tagItems
@@ -142,8 +142,8 @@ sideMenu filter tagItems =
 
                                     else
                                         "item"
-                                , onClick
-                                    (Filter
+                                , onClick <|
+                                    Filter
                                         (FilterCondition (FilterTag tag)
                                             (\item ->
                                                 List.member tag
@@ -153,7 +153,6 @@ sideMenu filter tagItems =
                                                     )
                                             )
                                         )
-                                    )
                                 ]
                                 [ Icon.tag 12, div [ style "padding" "8px" ] [ text tag ] ]
                         )
@@ -516,24 +515,16 @@ update message model =
                     )
 
                 Err _ ->
-                    ( model
-                    , Cmd.none
-                    )
+                    ( model, Cmd.none)
 
         Removed (Err _) ->
-            ( model
-            , Cmd.none
-            )
+            ( model, Cmd.none )
 
         Removed (Ok _) ->
-            ( model
-            , getDiagrams ()
-            )
+            ( model, getDiagrams () )
 
         Reload ->
-            ( model
-            , getDiagrams ()
-            )
+            ( model, getDiagrams () )
 
         Bookmark diagram ->
             let

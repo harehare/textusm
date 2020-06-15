@@ -383,8 +383,8 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
 
 relationshipView : Settings -> List Relationship -> TableViewDict -> Svg Msg
 relationshipView settings relationships tables =
-    g []
-        (List.map
+    g [] <|
+        List.map
             (\relationship ->
                 let
                     ( tableName1, tableName2 ) =
@@ -429,7 +429,6 @@ relationshipView settings relationships tables =
                         g [] []
             )
             relationships
-        )
 
 
 getPosition : Maybe Position -> Position

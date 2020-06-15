@@ -45,7 +45,8 @@ view =
         , style "flex-wrap" "wrap"
         , style "overflow-y" "scroll"
         ]
-        (List.map
+    <|
+        List.map
             (\item ->
                 a [ href item.url, class "new-item-container" ]
                     [ div [ class "new-item" ]
@@ -58,4 +59,3 @@ view =
                     ]
             )
             newItems
-        )

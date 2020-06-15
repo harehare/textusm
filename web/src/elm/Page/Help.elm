@@ -29,34 +29,29 @@ view =
         , div [ class "text activity", style "padding" "0 16px 16px" ]
             [ div [ class "activity" ] [ text "User Activity" ]
             , div [ class "task" ]
-                [ text
-                    ((String.fromChar '\u{00A0}' |> String.repeat 4)
+                [ text <|
+                    (String.fromChar '\u{00A0}' |> String.repeat 4)
                         ++ "User Task"
-                    )
                 ]
             , div [ class "story" ]
-                [ text
-                    ((String.fromChar '\u{00A0}' |> String.repeat 8)
+                [ text <|
+                    (String.fromChar '\u{00A0}' |> String.repeat 8)
                         ++ "User Story Release 1"
-                    )
                 ]
             , div [ class "story" ]
-                [ text
-                    ((String.fromChar '\u{00A0}' |> String.repeat 12)
+                [ text <|
+                    (String.fromChar '\u{00A0}' |> String.repeat 12)
                         ++ "User Story Release 2..."
-                    )
                 ]
             , div [ class "story" ]
-                [ text
-                    ((String.fromChar '\u{00A0}' |> String.repeat 16)
+                [ text <|
+                    (String.fromChar '\u{00A0}' |> String.repeat 16)
                         ++ "Add Images"
-                    )
                 ]
             , div [ class "story" ]
-                [ text
-                    ((String.fromChar '\u{00A0}' |> String.repeat 20)
+                [ text <|
+                    (String.fromChar '\u{00A0}' |> String.repeat 20)
                         ++ "https://app.textusm.com/images/logo.svg"
-                    )
                 ]
             ]
         , section (Just "Comment Syntax")

@@ -75,8 +75,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ class "tags" ]
-        [ div [ class "tag-list" ]
-            (List.map (tagView model.deleteTag) (List.filter (String.isEmpty >> not) model.tags)
+        [ div [ class "tag-list" ] <|
+            List.map (tagView model.deleteTag) (List.filter (String.isEmpty >> not) model.tags)
                 ++ [ input
                         [ class "input"
                         , id "edit-tag"
@@ -87,7 +87,6 @@ view model =
                         ]
                         []
                    ]
-            )
         ]
 
 

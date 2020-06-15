@@ -1,6 +1,7 @@
 module Views.Header exposing (view)
 
 import Asset
+import Avatar exposing (Avatar(..))
 import Data.DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
 import Data.Text as Text exposing (Text)
@@ -10,12 +11,10 @@ import Html exposing (Html, a, div, header, img, input, span, text)
 import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, value)
 import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
-import MD5
 import Maybe.Extra exposing (isJust)
 import Models.Model as Page exposing (LoginProvider(..), Menu(..), Msg(..), Page(..))
 import Route exposing (Route(..))
 import Translations exposing (Lang)
-import Url
 import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu
@@ -157,12 +156,6 @@ view props =
                 let
                     user =
                         Session.getUser props.session
-
-                    defaultImageUrl =
-                        Url.percentEncode (Maybe.map .photoURL user |> Maybe.withDefault "")
-
-                    digest =
-                        MD5.hex (Maybe.map .email user |> Maybe.withDefault "")
                 in
                 div
                     [ class "button"
@@ -177,7 +170,7 @@ view props =
                         , style "margin-right" "4px"
                         ]
                         [ img
-                            [ src <| "https://www.gravatar.com/avatar/" ++ digest ++ "?d=" ++ defaultImageUrl ++ "&s=40"
+                            [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
                             , style "width" "30px"
                             , style "margin-top" "4px"
                             , style "object-fit" "cover"
