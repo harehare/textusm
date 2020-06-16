@@ -201,6 +201,7 @@ select {
             border: 1px solid #ccc;
             font-size: 0.9rem;
             padding: 0 6px;
+            margin: 0 8px;
         }
 
         label {
@@ -981,7 +982,7 @@ select {
         background-color: var(--light-background-color);
 
         &:hover {
-            background-color: #eee;
+            background-color: #ddd;
         }
     }
 }

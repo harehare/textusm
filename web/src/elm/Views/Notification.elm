@@ -1,15 +1,12 @@
-module Views.Notification exposing (showErrorMessage, showInfoMessage, showWarningMessage, view)
+module Views.Notification exposing (view)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, style)
-import Html.Events exposing (onClick)
 import Models.Model exposing (Msg(..), Notification(..))
-import Task
-import Utils
 import Views.Icon as Icon
 
 
-view : Notification -> Html Msg
+view : Notification -> Html msg
 view notification =
     let
         ( t, icon ) =
@@ -24,9 +21,7 @@ view notification =
                     ( text, Icon.warning 22 )
     in
     div
-        [ class "notification fade-in"
-        , onClick OnCloseNotification
-        ]
+        [ class "notification fade-in" ]
         [ div
             [ style "display" "flex"
             , style "align-items" "center"
@@ -41,24 +36,4 @@ view notification =
                 ]
                 [ text t ]
             ]
-        , div
-            [ class "close"
-            , onClick OnCloseNotification
-            ]
-            []
         ]
-
-
-showWarningMessage : String -> Cmd Msg
-showWarningMessage msg =
-    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Warning msg))), Utils.delay 3000 OnCloseNotification ]
-
-
-showInfoMessage : String -> Cmd Msg
-showInfoMessage msg =
-    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Info msg))), Utils.delay 3000 OnCloseNotification ]
-
-
-showErrorMessage : String -> Cmd Msg
-showErrorMessage msg =
-    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Error msg))), Utils.delay 3000 OnCloseNotification ]

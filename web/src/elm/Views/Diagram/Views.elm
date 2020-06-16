@@ -12,8 +12,8 @@ import Html5.DragDrop as DragDrop
 import Maybe.Extra exposing (isJust)
 import Models.Diagram as Diagram exposing (Msg(..), Settings, fontStyle, getTextColor, settingsOfWidth)
 import String
-import Svg exposing (Svg, foreignObject, g, image, rect, svg, text, text_)
-import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x, xlinkHref, y)
+import Svg exposing (Svg, foreignObject, g, rect, svg, text, text_)
+import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x,  y)
 
 
 type alias RgbColor =

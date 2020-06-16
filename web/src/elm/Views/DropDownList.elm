@@ -1,5 +1,6 @@
 module Views.DropDownList exposing (DropDownItem, DropDownValue, colorValue, stringValue, view)
 
+import Events
 import Html exposing (Html, div, span, text)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
@@ -78,7 +79,7 @@ itemView item onActive =
     div
         [ class
             "item"
-        , onClick onActive
+        , Events.onClickStopPropagation onActive
         ]
         [ case getColor item.value of
             Just rgb ->

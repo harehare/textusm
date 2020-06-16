@@ -1,6 +1,7 @@
 module GraphQL.Query exposing (item, items)
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
+import Data.Text as Text
 import Graphql.Operation exposing (RootQuery)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
@@ -14,7 +15,7 @@ item id =
     Query.item { id = id } <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
-            |> with TextUSM.Object.Item.text
+            |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
             |> with TextUSM.Object.Item.diagram
             |> with TextUSM.Object.Item.title
             |> hardcoded Nothing
@@ -32,7 +33,7 @@ items ( offset, limit ) isBookmark isPublic =
     Query.items (\optionals -> { optionals | offset = Present offset, limit = Present limit, isBookmark = Present isBookmark, isPublic = Present isPublic }) <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
-            |> hardcoded ""
+            |> hardcoded Text.empty
             |> with TextUSM.Object.Item.diagram
             |> with TextUSM.Object.Item.title
             |> with TextUSM.Object.Item.thumbnail

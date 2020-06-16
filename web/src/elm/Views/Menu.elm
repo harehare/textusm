@@ -38,8 +38,26 @@ type alias Props =
     }
 
 
+selectedColor : String
+selectedColor =
+    "#F5F5F6"
+
+
+notSelectedColor : String
+notSelectedColor =
+    "#848A90"
+
+
 view : Props -> Html Msg
 view props =
+    let
+        newMenuColor =
+            if isNothing props.openMenu && props.page == New then
+                selectedColor
+
+            else
+                notSelectedColor
+    in
     if props.fullscreen then
         Empty.view
 
@@ -52,7 +70,7 @@ view props =
                     [ style "margin-left" "4px"
                     , class "menu-button"
                     ]
-                    [ Icon.file "#848A90" 20
+                    [ Icon.file newMenuColor 20
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
                     ]
 
@@ -64,7 +82,7 @@ view props =
                         [ style "margin-left" "4px"
                         , class "menu-button"
                         ]
-                        [ Icon.file "#F5F5F6" 20
+                        [ Icon.file newMenuColor 20
                         , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipNewFile props.lang ] ]
                         ]
                     ]
@@ -75,70 +93,55 @@ view props =
                     ]
                     [ Icon.folderOpen
                         (if isNothing props.openMenu && props.page == List then
-                            "#F5F5F6"
+                            selectedColor
 
                          else
-                            "#848A90"
+                            notSelectedColor
                         )
                         20
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipOpenFile props.lang ] ]
                     ]
                 ]
-            , if props.page == List then
-                Empty.view
+            , div
+                [ if Text.isChanged props.text then
+                    onClick Save
 
-              else
-                div
-                    [ if Text.isChanged props.text then
-                        onClick Save
+                  else
+                    style "" ""
+                , class "menu-button save-button"
+                ]
+                [ Icon.save
+                    (if Text.isChanged props.text then
+                        selectedColor
 
-                      else
-                        style "" ""
-                    , class "menu-button save-button"
-                    ]
-                    [ Icon.save
-                        (if Text.isChanged props.text then
-                            "#F5F5F6"
+                     else
+                        notSelectedColor
+                    )
+                    26
+                , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipSave props.lang ] ]
+                ]
+            , div
+                [ stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )), class "menu-button" ]
+                [ Icon.download
+                    (case props.openMenu of
+                        Just Export ->
+                            selectedColor
 
-                         else
-                            "#848A90"
-                        )
-                        26
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipSave props.lang ] ]
-                    ]
-            , case props.page of
-                List ->
-                    Empty.view
-
-                Share ->
-                    Empty.view
-
-                Tags _ ->
-                    Empty.view
-
-                _ ->
-                    div
-                        [ stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )), class "menu-button" ]
-                        [ Icon.download
-                            (case props.openMenu of
-                                Just Export ->
-                                    "#F5F5F6"
-
-                                _ ->
-                                    "#848A90"
-                            )
-                            22
-                        , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport props.lang ] ]
-                        ]
+                        _ ->
+                            notSelectedColor
+                    )
+                    22
+                , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport props.lang ] ]
+                ]
             , div
                 [ class "menu-button" ]
                 [ a [ href <| Route.toString Route.Settings ]
                     [ Icon.settings
                         (if isNothing props.openMenu && props.page == Settings then
-                            "#F5F5F6"
+                            selectedColor
 
                          else
-                            "#848A90"
+                            notSelectedColor
                         )
                         25
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipSettings props.lang ] ]

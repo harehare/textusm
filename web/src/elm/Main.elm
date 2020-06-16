@@ -170,6 +170,21 @@ bottomNavigationBar settings diagram title path =
         ]
 
 
+showWarningMessage : String -> Cmd Msg
+showWarningMessage msg =
+    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Warning msg))), Utils.delay 3000 OnCloseNotification ]
+
+
+showInfoMessage : String -> Cmd Msg
+showInfoMessage msg =
+    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Info msg))), Utils.delay 3000 OnCloseNotification ]
+
+
+showErrorMessage : String -> Cmd Msg
+showErrorMessage msg =
+    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Error msg))), Utils.delay 3000 OnCloseNotification ]
+
+
 view : Model -> Html Msg
 view model =
     main_
@@ -626,7 +641,7 @@ update message model =
                     ( { model
                         | page = Page.Tags model_
                         , currentDiagram = Just newDiagram
-                        , diagramModel = DiagramModel.updatedText model.diagramModel (Text.change <| Text.fromString diagram.text)
+                        , diagramModel = DiagramModel.updatedText model.diagramModel (Text.change diagram.text)
                       }
                     , cmd_ |> Cmd.map UpdateTags
                     )
@@ -649,9 +664,7 @@ update message model =
                 | page = Page.Settings
                 , diagramModel = newDiagramModel
                 , settingsModel = model_
-              }
-            , cmd_
-            )
+              } , cmd_ )
 
         UpdateDiagram msg ->
             case msg of
@@ -660,11 +673,7 @@ update message model =
                         ( model_, cmd_ ) =
                             Diagram.update msg model.diagramModel
                     in
-                    ( { model | diagramModel = model_ }
-                    , Cmd.batch
-                        [ cmd_ |> Cmd.map UpdateDiagram
-                        ]
-                    )
+                    ( { model | diagramModel = model_ } , Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram ] )
 
                 DiagramModel.MoveItem ( fromNo, toNo ) ->
                     let
@@ -773,19 +782,19 @@ update message model =
                 DiagramList.Removed (Err e) ->
                     case e of
                         Http.GraphqlError _ _ ->
-                            ( model, Notification.showErrorMessage <| Translations.messageFailed model.lang )
+                            ( model, showErrorMessage <| Translations.messageFailed model.lang )
 
                         Http.HttpError Http.Timeout ->
-                            ( model, Notification.showErrorMessage <| Translations.messageRequestTimeout model.lang )
+                            ( model, showErrorMessage <| Translations.messageRequestTimeout model.lang )
 
                         Http.HttpError Http.NetworkError ->
-                            ( model, Notification.showErrorMessage <| Translations.messageNetworkError model.lang )
+                            ( model, showErrorMessage <| Translations.messageNetworkError model.lang )
 
                         Http.HttpError _ ->
-                            ( model, Notification.showErrorMessage <| Translations.messageFailed model.lang )
+                            ( model, showErrorMessage <| Translations.messageFailed model.lang )
 
                 DiagramList.GotDiagrams (Err _) ->
-                    ( model, Notification.showErrorMessage <| Translations.messageFailed model.lang )
+                    ( model, showErrorMessage <| Translations.messageFailed model.lang )
 
                 _ ->
                     let
@@ -936,7 +945,7 @@ update message model =
                         DiagramItem.encoder
                             { id = Maybe.andThen .id model.currentDiagram
                             , title = Title.toString model.title
-                            , text = Text.toString newDiagramModel.text
+                            , text = newDiagramModel.text
                             , thumbnail = Nothing
                             , diagram = newDiagramModel.diagramType
                             , isRemote = isRemote
@@ -955,7 +964,7 @@ update message model =
                 Ok item ->
                     ( { model | currentDiagram = Just item }
                     , Cmd.batch
-                        [ Notification.showInfoMessage <| Translations.messageSuccessfullySaved model.lang item.title
+                        [ showInfoMessage <| Translations.messageSuccessfullySaved model.lang item.title
                         , Route.replaceRoute model.key
                             (Route.EditFile (DiagramType.toString item.diagram)
                                 (case item.id of
@@ -989,14 +998,14 @@ update message model =
                     ( { model | progress = True }, Task.attempt SaveToRemoteCompleted saveTask )
 
                 Err _ ->
-                    ( { model | progress = True }, Notification.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.") )
+                    ( { model | progress = True }, showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.") )
 
         SaveToRemoteCompleted (Err _) ->
             let
                 item =
                     { id = Nothing
                     , title = Title.toString model.title
-                    , text = Text.toString model.diagramModel.text
+                    , text = model.diagramModel.text
                     , thumbnail = Nothing
                     , diagram = model.diagramModel.diagramType
                     , isRemote = False
@@ -1009,7 +1018,7 @@ update message model =
             in
             ( { model | progress = False, currentDiagram = Just item }
             , Cmd.batch
-                [ Notification.showWarningMessage <| Translations.messageFailedSaved model.lang (Title.toString model.title)
+                [ showWarningMessage <| Translations.messageFailedSaved model.lang (Title.toString model.title)
                 , Ports.saveDiagram <| DiagramItem.encoder item
                 ]
             )
@@ -1017,7 +1026,7 @@ update message model =
         SaveToRemoteCompleted (Ok diagram) ->
             ( { model | currentDiagram = Just diagram, progress = False }
             , Cmd.batch
-                [ Notification.showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString model.title)
+                [ showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString model.title)
                 , Route.replaceRoute model.key
                     (Route.EditFile (DiagramType.toString diagram.diagram)
                         (case diagram.id of
@@ -1135,7 +1144,7 @@ update message model =
             )
 
         GetShortUrl (Err e) ->
-            ( { model | progress = False }, Notification.showErrorMessage ("Error. " ++ Utils.httpErrorToString e) )
+            ( { model | progress = False }, showErrorMessage ("Error. " ++ Utils.httpErrorToString e) )
 
         GetShortUrl (Ok url) ->
             let
@@ -1258,7 +1267,7 @@ update message model =
                         Nothing ->
                             { diagram
                                 | title = Title.toString model.title
-                                , text = Text.toString model.diagramModel.text
+                                , text = model.diagramModel.text
                                 , diagram = model.diagramModel.diagramType
                             }
 
@@ -1268,11 +1277,11 @@ update message model =
                 newDiagramModel =
                     { diagramModel
                         | diagramType = newDiagram.diagram
-                        , text = Text.fromString newDiagram.text
+                        , text = newDiagram.text
                     }
 
                 ( model_, cmd_ ) =
-                    Diagram.update (DiagramModel.OnChangeText newDiagram.text) newDiagramModel
+                    Diagram.update (DiagramModel.OnChangeText <| Text.toString newDiagram.text) newDiagramModel
             in
             ( { model
                 | progress = False
@@ -1281,14 +1290,14 @@ update message model =
                 , diagramModel = model_
               }
             , Cmd.batch
-                [ Ports.loadEditor ( newDiagram.text, defaultEditorSettings model.settingsModel.settings.editor )
+                [ Ports.loadEditor ( Text.toString newDiagram.text, defaultEditorSettings model.settingsModel.settings.editor )
                 , cmd_ |> Cmd.map UpdateDiagram
                 , setEditorLanguage newDiagram.diagram
                 ]
             )
 
         Load (Err _) ->
-            ( { model | progress = False }, Notification.showErrorMessage "Failed load diagram." )
+            ( { model | progress = False }, showErrorMessage "Failed load diagram." )
 
         GotLocalDiagramJson json ->
             case D.decodeString DiagramItem.decoder json of

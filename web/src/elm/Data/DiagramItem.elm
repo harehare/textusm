@@ -2,6 +2,7 @@ module Data.DiagramItem exposing (DiagramItem, decoder, empty, encoder, getId, i
 
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramType as DiagramType
+import Data.Text as Text exposing (Text)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Iso8601
@@ -17,7 +18,7 @@ import Time exposing (Posix)
 
 type alias DiagramItem =
     { id : Maybe DiagramId
-    , text : String
+    , text : Text
     , diagram : TextUSM.Enum.Diagram.Diagram
     , title : String
     , thumbnail : Maybe String
@@ -50,7 +51,7 @@ toInputItem item =
             Nothing ->
                 Absent
     , title = item.title
-    , text = item.text
+    , text = Text.toString item.text
     , thumbnail =
         case item.thumbnail of
             Just thumbnail ->
@@ -68,7 +69,7 @@ toInputItem item =
 empty : DiagramItem
 empty =
     { id = Nothing
-    , text = ""
+    , text = Text.empty
     , diagram = TextUSM.Enum.Diagram.UserStoryMap
     , title = ""
     , thumbnail = Nothing
@@ -85,7 +86,7 @@ encoder : DiagramItem -> E.Value
 encoder diagram =
     E.object
         [ ( "id", maybe E.string (Maybe.andThen (\id -> Just <| DiagramId.toString id) diagram.id) )
-        , ( "text", E.string diagram.text )
+        , ( "text", E.string <| Text.toString diagram.text )
         , ( "diagram", E.string <| DiagramType.toString diagram.diagram )
         , ( "title", E.string diagram.title )
         , ( "thumbnail", maybe E.string diagram.thumbnail )
@@ -102,7 +103,7 @@ decoder : D.Decoder DiagramItem
 decoder =
     D.succeed DiagramItem
         |> optional "id" (D.map Just DiagramId.decoder) Nothing
-        |> required "text" D.string
+        |> required "text" Text.decoder
         |> required "diagram" (D.map DiagramType.fromString D.string)
         |> required "title" D.string
         |> optional "thumbnail" (D.map Just D.string) Nothing

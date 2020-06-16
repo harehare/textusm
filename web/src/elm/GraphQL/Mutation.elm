@@ -1,6 +1,7 @@
 module GraphQL.Mutation exposing (bookmark, delete, save)
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
+import Data.Text as Text
 import Graphql.Operation exposing (RootMutation)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
@@ -15,7 +16,7 @@ save input =
     Mutation.save { input = input } <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
-            |> with TextUSM.Object.Item.text
+            |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
             |> with TextUSM.Object.Item.diagram
             |> with TextUSM.Object.Item.title
             |> with TextUSM.Object.Item.thumbnail
@@ -33,7 +34,7 @@ delete itemID =
     Mutation.delete { itemID = itemID } <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
-            |> with TextUSM.Object.Item.text
+            |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
             |> with TextUSM.Object.Item.diagram
             |> with TextUSM.Object.Item.title
             |> with TextUSM.Object.Item.thumbnail
@@ -51,7 +52,7 @@ bookmark itemID isBookmark =
     Mutation.bookmark { itemID = itemID, isBookmark = isBookmark } <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
-            |> with TextUSM.Object.Item.text
+            |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
             |> with TextUSM.Object.Item.diagram
             |> with TextUSM.Object.Item.title
             |> with TextUSM.Object.Item.thumbnail

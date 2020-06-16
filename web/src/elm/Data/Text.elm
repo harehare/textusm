@@ -1,4 +1,6 @@
-module Data.Text exposing (Text, change, edit, empty, fromString, isChanged, isEmpty, lines, saved, toString)
+module Data.Text exposing (Text, change, decoder, edit, empty, fromString, isChanged, isEmpty, lines, saved, toString)
+
+import Json.Decode as D exposing (Decoder)
 
 
 type Text
@@ -98,3 +100,8 @@ edit currentText newText =
 
     else
         Changed newText
+
+
+decoder : Decoder Text
+decoder =
+    D.map Saved D.string

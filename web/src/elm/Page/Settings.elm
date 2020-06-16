@@ -1,5 +1,6 @@
 module Page.Settings exposing (Model, Msg, init, update, view)
 
+import Events
 import Html exposing (Html, div, input, label, text)
 import Html.Attributes exposing (checked, class, style, type_)
 import Html.Events exposing (onClick)
@@ -1026,13 +1027,12 @@ type alias Model =
 type Msg
     = UpdateSettings (String -> Settings) String
     | ToggleDropDownList String
+    | DropDownClose
 
 
 init : Settings -> ( Model, Cmd Msg )
 init settings =
-    ( Model Nothing settings
-    , Cmd.none
-    )
+    ( Model Nothing settings, Cmd.none )
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -1056,6 +1056,9 @@ update msg model =
             in
             ( { model | dropDownIndex = Nothing, settings = settings }, Cmd.none )
 
+        DropDownClose ->
+            ( { model | dropDownIndex = Nothing }, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
@@ -1067,9 +1070,9 @@ view_ dropDownIndex settings =
     div
         [ class "settings"
         , style "user-select" "none"
+        , onClick DropDownClose
         ]
-        [
-        section (Just "Basic")
+        [ section (Just "Basic")
         , div [ class "controls" ]
             [ div [ class "control" ]
                 [ div [ class "label" ] [ text "Font Family" ]
