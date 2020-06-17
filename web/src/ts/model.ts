@@ -1,10 +1,12 @@
 export type DiagramItem = {
+    id: string;
     title: string;
     text: string;
     thumbnail: string;
     diagram: string;
     isBookmark: boolean;
     isPublic: boolean;
+    isRemote: boolean;
     tags: string[] | null;
     createdAt: number;
     updatedAt: number;

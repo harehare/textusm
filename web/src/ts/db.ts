@@ -98,11 +98,13 @@ export const initDB = (app: ElmApp) => {
             const thumbnail = svg2base64("usm");
             const createdAt = new Date().getTime();
             const diagramItem: DiagramItem = {
+                id,
                 title,
                 text,
                 thumbnail,
                 diagram,
                 isPublic,
+                isRemote,
                 isBookmark,
                 tags,
                 createdAt,
@@ -110,14 +112,12 @@ export const initDB = (app: ElmApp) => {
             };
 
             if (isRemote) {
-                app.ports.saveToRemote.send(
-                    JSON.stringify({
-                        ...diagramItem,
-                        isRemote: true,
-                        id,
-                        isPublic,
-                    })
-                );
+                app.ports.saveToRemote.send({
+                    ...diagramItem,
+                    isRemote: true,
+                    id,
+                    isPublic,
+                });
                 if (id) {
                     // @ts-ignore
                     await (await db()).diagrams.delete(id);
@@ -125,15 +125,13 @@ export const initDB = (app: ElmApp) => {
             } else {
                 const newId = id ?? uuidv4();
                 // @ts-ignore
-                await (await db()).diagrams.put({ id: newId, ...diagramItem });
-                app.ports.saveToLocalCompleted.send(
-                    JSON.stringify({
-                        ...diagramItem,
-                        isRemote: false,
-                        id: newId,
-                        isPublic,
-                    })
-                );
+                await (await db()).diagrams.put({ ...diagramItem, id: newId });
+                app.ports.saveToLocalCompleted.send({
+                    ...diagramItem,
+                    isRemote: false,
+                    id: newId,
+                    isPublic,
+                });
             }
         }
     );
@@ -146,11 +144,11 @@ export const initDB = (app: ElmApp) => {
             )
         ) {
             if (isRemote) {
-                app.ports.removeRemoteDiagram.send(JSON.stringify(diagram));
+                app.ports.removeRemoteDiagram.send(diagram);
             } else {
                 // @ts-ignore
                 await (await db()).diagrams.delete(id);
-                app.ports.removedDiagram.send([JSON.stringify(diagram), true]);
+                app.ports.reload.send("");
             }
         }
     });
@@ -158,13 +156,11 @@ export const initDB = (app: ElmApp) => {
     app.ports.getDiagram.subscribe(async (diagramId: string) => {
         // @ts-ignore
         const diagram = await (await db()).diagrams.get(diagramId);
-        app.ports.gotLocalDiagramJson.send(
-            JSON.stringify({
-                ...diagram,
-                isPublic: false,
-                isRemote: false,
-            })
-        );
+        app.ports.gotLocalDiagramJson.send({
+            ...diagram,
+            isPublic: false,
+            isRemote: false,
+        });
     });
 
     app.ports.getDiagrams.subscribe(async () => {
@@ -174,13 +170,11 @@ export const initDB = (app: ElmApp) => {
             .reverse()
             .toArray();
         app.ports.gotLocalDiagramsJson.send(
-            JSON.stringify(
-                diagrams.map((d: Diagram) => ({
-                    ...d,
-                    isPublic: false,
-                    isRemote: false,
-                }))
-            )
+            diagrams.map((d: Diagram) => ({
+                ...d,
+                isPublic: false,
+                isRemote: false,
+            }))
         );
     });
 };

@@ -1,4 +1,4 @@
-import { Settings, DownloadInfo, Diagram } from "./model";
+import { Settings, DownloadInfo, Diagram, DiagramItem } from "./model";
 import { EditorOption } from "./editor";
 
 export interface Js2ElmPort<T> {
@@ -46,12 +46,12 @@ export type ElmApp = {
             mimeType: string;
         }>;
         downloadCompleted: Js2ElmPort<number[]>;
-        saveToRemote: Js2ElmPort<string>;
-        saveToLocalCompleted: Js2ElmPort<string>;
-        removeRemoteDiagram: Js2ElmPort<string>;
-        removedDiagram: Js2ElmPort<[string, boolean]>;
-        gotLocalDiagramJson: Js2ElmPort<string>;
-        gotLocalDiagramsJson: Js2ElmPort<string>;
+        saveToRemote: Js2ElmPort<DiagramItem>;
+        saveToLocalCompleted: Js2ElmPort<DiagramItem>;
+        removeRemoteDiagram: Js2ElmPort<Diagram>;
+        reload: Js2ElmPort<string>;
+        gotLocalDiagramJson: Js2ElmPort<DiagramItem>;
+        gotLocalDiagramsJson: Js2ElmPort<DiagramItem[]>;
         onEncodeShareText: Js2ElmPort<string>;
         onDecodeShareText: Js2ElmPort<string>;
         onAuthStateChanged: Js2ElmPort<{

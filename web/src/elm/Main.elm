@@ -79,14 +79,14 @@ import Views.SplitWindow as SplitWindow
 import Views.SwitchWindow as SwitchWindow
 
 
-init : ( ( String, String ), String ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init : ( ( String, String ), D.Value ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
         ( ( apiRoot, lang ), settingsJson ) =
             flags
 
         initSettings =
-            D.decodeString settingsDecoder settingsJson
+            D.decodeValue settingsDecoder settingsJson
                 |> Result.withDefault defaultSettings
 
         ( diagramListModel, _ ) =
@@ -273,7 +273,7 @@ view model =
         ]
 
 
-main : Program ( ( String, String ), String ) Model Msg
+main : Program ( ( String, String ), D.Value ) Model Msg
 main =
     Browser.application
         { init = init
@@ -664,7 +664,9 @@ update message model =
                 | page = Page.Settings
                 , diagramModel = newDiagramModel
                 , settingsModel = model_
-              } , cmd_ )
+              }
+            , cmd_
+            )
 
         UpdateDiagram msg ->
             case msg of
@@ -673,7 +675,7 @@ update message model =
                         ( model_, cmd_ ) =
                             Diagram.update msg model.diagramModel
                     in
-                    ( { model | diagramModel = model_ } , Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram ] )
+                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram ] )
 
                 DiagramModel.MoveItem ( fromNo, toNo ) ->
                     let
@@ -960,7 +962,7 @@ update message model =
                 )
 
         SaveToLocalCompleted diagramJson ->
-            case D.decodeString DiagramItem.decoder diagramJson of
+            case D.decodeValue DiagramItem.decoder diagramJson of
                 Ok item ->
                     ( { model | currentDiagram = Just item }
                     , Cmd.batch
@@ -984,7 +986,7 @@ update message model =
         SaveToRemote diagramJson ->
             let
                 result =
-                    D.decodeString DiagramItem.decoder diagramJson
+                    D.decodeValue DiagramItem.decoder diagramJson
                         |> Result.andThen
                             (\diagram ->
                                 Ok
@@ -1300,7 +1302,7 @@ update message model =
             ( { model | progress = False }, showErrorMessage "Failed load diagram." )
 
         GotLocalDiagramJson json ->
-            case D.decodeString DiagramItem.decoder json of
+            case D.decodeValue DiagramItem.decoder json of
                 Ok item ->
                     ( model, loadText item )
 
@@ -1327,7 +1329,7 @@ subscriptions model =
         ([ Ports.changeText (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
          , Ports.startDownload StartDownload
          , Ports.gotLocalDiagramsJson (\json -> UpdateDiagramList (DiagramList.GotLocalDiagramsJson json))
-         , Ports.removedDiagram (\_ -> UpdateDiagramList DiagramList.Reload)
+         , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange OnVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
          , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
