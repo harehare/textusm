@@ -121,6 +121,10 @@ export const loadEditor = async (
         fontSize,
         mouseWheelZoom: true,
         automaticLayout: true,
+        scrollbar: {
+            verticalScrollbarSize: 6,
+            horizontalScrollbarSize: 6,
+        },
     });
 
     // @ts-ignore

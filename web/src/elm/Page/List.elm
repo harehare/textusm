@@ -30,11 +30,11 @@ type Msg
     | Reload
     | Remove DiagramItem
     | Bookmark DiagramItem
-    | RemoveRemote String
+    | RemoveRemote D.Value
     | Removed (Result (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem))
     | Bookmarked (Result (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem))
     | GotTimeZone Zone
-    | GotLocalDiagramsJson String
+    | GotLocalDiagramsJson D.Value
     | GotDiagrams (Result ( List DiagramItem, Http.Error (List (Maybe DiagramItem)) ) (List DiagramItem))
     | LoadNextPage Int
 
@@ -409,7 +409,7 @@ update message model =
                 let
                     localItems =
                         Result.withDefault [] <|
-                            D.decodeString (D.list DiagramItem.decoder) json
+                            D.decodeValue (D.list DiagramItem.decoder) json
                 in
                 if Session.isSignedIn model.session then
                     let
@@ -498,7 +498,7 @@ update message model =
             ( model, removeDiagrams (DiagramItem.encoder diagram) )
 
         RemoveRemote diagramJson ->
-            case D.decodeString DiagramItem.decoder diagramJson of
+            case D.decodeValue DiagramItem.decoder diagramJson of
                 Ok diagram ->
                     ( model
                     , Task.attempt Removed
@@ -515,7 +515,7 @@ update message model =
                     )
 
                 Err _ ->
-                    ( model, Cmd.none)
+                    ( model, Cmd.none )
 
         Removed (Err _) ->
             ( model, Cmd.none )

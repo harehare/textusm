@@ -246,6 +246,9 @@ select {
                 text-overflow: ellipsis;
                 overflow: hidden;
             }
+            &:hover {
+                color: var(--accent-color);
+            }
         }
 
         .selected {

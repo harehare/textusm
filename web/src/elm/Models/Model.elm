@@ -10,6 +10,7 @@ import Data.Session exposing (Session, User)
 import Data.Title exposing (Title)
 import Graphql.Http as Http
 import Http as Http2
+import Json.Decode as D
 import Models.Diagram as Diagram
 import Page.List as DiagramList
 import Page.Settings as Settings
@@ -35,8 +36,8 @@ type Msg
     | StartDownload DownloadFileInfo
     | Save
     | SaveToRemoteCompleted (Result DiagramItem DiagramItem)
-    | SaveToLocalCompleted String
-    | SaveToRemote String
+    | SaveToLocalCompleted D.Value
+    | SaveToRemote D.Value
     | StartEditTitle
     | Progress Bool
     | EndEditTitle Int Bool
@@ -58,7 +59,7 @@ type Msg
     | SwitchWindow SwitchWindow
     | GetShortUrl (Result Http2.Error String)
     | Shortcuts String
-    | GotLocalDiagramJson String
+    | GotLocalDiagramJson D.Value
     | Load (Result (Http.Error DiagramItem) DiagramItem)
 
 

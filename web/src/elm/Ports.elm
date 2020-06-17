@@ -1,6 +1,7 @@
-port module Ports exposing (changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, encodeShareText, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, layoutEditor, loadEditor, loadText, onAuthStateChanged, onDecodeShareText, onEncodeShareText, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, removeRemoteDiagram, removedDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, setEditorLanguage, shortcuts, signIn, signOut, startDownload)
+port module Ports exposing (changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, encodeShareText, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, layoutEditor, loadEditor, loadText, onAuthStateChanged, onDecodeShareText, onEncodeShareText, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, reload, removeRemoteDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, setEditorLanguage, shortcuts, signIn, signOut, startDownload)
 
 import Data.Session exposing (User)
+import Json.Decode as D
 import Json.Encode as E
 import Models.Model exposing (DownloadFileInfo, DownloadInfo, Msg(..), Notification(..), ShareInfo)
 import Settings exposing (EditorSettings)
@@ -36,7 +37,7 @@ port onWarnNotification : (String -> msg) -> Sub msg
 port shortcuts : (String -> msg) -> Sub msg
 
 
-port removeRemoteDiagram : (String -> msg) -> Sub msg
+port removeRemoteDiagram : (D.Value -> msg) -> Sub msg
 
 
 port downloadPng : DownloadInfo -> Cmd msg
@@ -99,16 +100,16 @@ port saveDiagram : E.Value -> Cmd msg
 port getDiagram : String -> Cmd msg
 
 
-port gotLocalDiagramJson : (String -> msg) -> Sub msg
+port gotLocalDiagramJson : (D.Value -> msg) -> Sub msg
 
 
-port gotLocalDiagramsJson : (String -> msg) -> Sub msg
+port gotLocalDiagramsJson : (D.Value -> msg) -> Sub msg
 
 
-port removedDiagram : (( String, Bool ) -> msg) -> Sub msg
+port reload : (String -> msg) -> Sub msg
 
 
-port saveToRemote : (String -> msg) -> Sub msg
+port saveToRemote : (D.Value -> msg) -> Sub msg
 
 
-port saveToLocalCompleted : (String -> msg) -> Sub msg
+port saveToLocalCompleted : (D.Value -> msg) -> Sub msg
