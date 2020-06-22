@@ -18,7 +18,10 @@ import TextUSM.ScalarCodecs
 import TextUSM.Union
 
 
-buildInputItem : InputItemRequiredFields -> (InputItemOptionalFields -> InputItemOptionalFields) -> InputItem
+buildInputItem :
+    InputItemRequiredFields
+    -> (InputItemOptionalFields -> InputItemOptionalFields)
+    -> InputItem
 buildInputItem required fillOptionals =
     let
         optionals =

@@ -137,7 +137,6 @@ type Msg
     | ToggleFullscreen
     | OnResize Int Int
     | StartPinch Distance
-    | ItemClick Item
     | DeselectItem
     | ItemDblClick Item
     | EditSelectedItem String
@@ -145,6 +144,7 @@ type Msg
     | DragDropMsg (DragDrop.Msg Int Int)
     | MoveItem ( Int, Int )
     | FitToWindow
+    | Select (Maybe Item)
 
 
 getTextColor : ColorSettings -> String

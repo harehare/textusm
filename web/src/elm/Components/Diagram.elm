@@ -441,6 +441,7 @@ svgView model =
         , Wheel.onWheel chooseZoom
         , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
         , onDragMove model.touchDistance model.moveStart (Utils.isPhone <| Size.getWidth model.size)
+        , onClick <| Select Nothing
         ]
         [ if String.isEmpty model.settings.font then
             g [] []
@@ -800,11 +801,6 @@ update message model =
         StartPinch distance ->
             ( { model | touchDistance = Just distance }, Cmd.none )
 
-        ItemClick item ->
-            ( { model | selectedItem = Just item }
-            , Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
-            )
-
         EditSelectedItem text ->
             ( { model | selectedItem = Maybe.andThen (\i -> Just { i | text = " " ++ String.trimLeft text }) model.selectedItem }
             , Cmd.none
@@ -849,6 +845,16 @@ update message model =
                     ( windowWidth // 2 - round (toFloat canvasWidth / 2 * widthRatio), windowHeight // 2 - round (toFloat canvasHeight / 2 * heightRatio) )
             in
             ( { model | svg = newSvgModel, position = position }, Cmd.none )
+
+        Select item ->
+            ( { model | selectedItem = item }
+            , case item of
+                Just _ ->
+                    Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
+
+                Nothing ->
+                    Cmd.none
+            )
 
         _ ->
             ( model, Cmd.none )

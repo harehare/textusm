@@ -1,6 +1,5 @@
 module Page.Settings exposing (Model, Msg, init, update, view)
 
-import Events
 import Html exposing (Html, div, input, label, text)
 import Html.Attributes exposing (checked, class, style, type_)
 import Html.Events exposing (onClick)

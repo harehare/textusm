@@ -5,15 +5,16 @@ import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size exposing (Size)
 import Events exposing (onClickStopPropagation, onKeyDown)
-import Html exposing (div, img, input)
+import Html as Html exposing (Html, div, img, input)
 import Html.Attributes as Attr
 import Html.Events exposing (onInput)
 import Html5.DragDrop as DragDrop
+import Markdown
 import Maybe.Extra exposing (isJust)
 import Models.Diagram as Diagram exposing (Msg(..), Settings, fontStyle, getTextColor, settingsOfWidth)
 import String
 import Svg exposing (Svg, foreignObject, g, rect, svg, text, text_)
-import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x,  y)
+import Svg.Attributes exposing (class, color, fill, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x, y)
 
 
 type alias RgbColor =
@@ -47,7 +48,7 @@ cardView settings ( posX, posY ) selectedItem item =
 
     else
         g
-            [ onClickStopPropagation (ItemClick item)
+            [ onClickStopPropagation <| Select <| Just item
             ]
             [ rectView
                 ( posX, posY )
@@ -87,7 +88,7 @@ selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
         , x (String.fromInt <| posX - 2)
         , y (String.fromInt <| posY - 2)
         , strokeWidth "3"
-        , stroke "rgba(0, 0, 0, 0.5)"
+        , stroke "#1d2f4b"
         , rx "1"
         , ry "1"
         , fill color
@@ -156,7 +157,26 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
 
 textView : Settings -> Position -> Size -> RgbColor -> String -> Svg Msg
 textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
-    if String.length cardText > 20 then
+    if (String.trim cardText |> String.left 3 |> String.toUpper) == "MD:" then
+        foreignObject
+            [ x <| String.fromInt posX
+            , y <| String.fromInt posY
+            , width <| String.fromInt svgWidth
+            , height <| String.fromInt svgHeight
+            , fill colour
+            , color colour
+            , fontSize Constants.fontSize
+            , class ".select-none"
+            ]
+            [ markdownView settings
+                colour
+                (String.trim cardText
+                    |> String.dropLeft 3
+                    |> String.trim
+                )
+            ]
+
+    else if String.length cardText > 20 then
         foreignObject
             [ x <| String.fromInt posX
             , y <| String.fromInt posY
@@ -187,6 +207,16 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
             , class ".select-none"
             ]
             [ text cardText ]
+
+
+markdownView : Settings -> RgbColor -> String -> Html Msg
+markdownView settings colour text =
+    Markdown.toHtml
+        [ Attr.class "md-content"
+        , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+        , Attr.style "color" colour
+        ]
+        text
 
 
 canvasView : Settings -> Size -> Position -> Maybe Item -> Item -> Svg Msg
@@ -248,7 +278,7 @@ titleView settings ( posX, posY ) item =
         , fontSize "20"
         , fontWeight "bold"
         , class ".select-none"
-        , onClickStopPropagation (ItemClick item)
+        , onClickStopPropagation <| Select <| Just item
         ]
         [ text item.text ]
 
@@ -344,7 +374,7 @@ textNodeView settings ( posX, posY ) selectedItem item =
 
     else
         g
-            [ onClickStopPropagation (ItemClick item)
+            [ onClickStopPropagation <| Select <| Just item
             ]
             [ rect
                 [ width <| String.fromInt nodeWidth
@@ -378,7 +408,7 @@ startTextNodeView settings ( posX, posY ) selectedItem item =
 
     else
         g
-            [ onClickStopPropagation (ItemClick item)
+            [ onClickStopPropagation <| Select <| Just item
             ]
             [ startTextNodeRect
                 ( posX, posY )
@@ -500,7 +530,7 @@ gridView settings ( posX, posY ) selectedItem item =
 
     else
         g
-            [ onClickStopPropagation (ItemClick item)
+            [ onClickStopPropagation <| Select <| Just item
             ]
             [ rect
                 [ width <| String.fromInt settings.size.width
