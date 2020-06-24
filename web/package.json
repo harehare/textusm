@@ -15,7 +15,7 @@
         "lzutf8": "^0.5.5",
         "monaco-editor": "^0.20.0",
         "tslib": "^2.0.0",
-        "uuid": "^8.1.0"
+        "uuid": "^8.2.0"
     },
     "devDependencies": {
         "@babel/core": "^7.10.3",
