@@ -25,7 +25,7 @@ import Events
 import File.Download as Download
 import GraphQL.Request as Request
 import Graphql.Http as Http
-import Html exposing (Html, a, div, img, main_, text)
+import Html exposing (Html, a, div, img, main_, text, textarea)
 import Html.Attributes
     exposing
         ( alt
@@ -211,12 +211,37 @@ view model =
                             SwitchWindow
                             model.diagramModel.settings.backgroundColor
                             model.switchWindow
+                            (div
+                                [ style "background-color" "#273037"
+                                , style "width" "100%"
+                                , style "height" "100%"
+                                ]
+                                [ textarea
+                                    [ E.onInput EditText
+                                    , style "font-size" ((defaultEditorSettings model.settingsModel.settings.editor |> .fontSize |> String.fromInt) ++ "px")
+                                    ]
+                                    []
+                                ]
+                            )
 
                     else
                         Lazy.lazy5 SplitWindow.view
                             OnStartWindowResize
                             model.diagramModel.settings.backgroundColor
                             model.window
+                            (div
+                                [ style "background-color" "#273037"
+                                , style "width" "100%"
+                                , style "height" "100%"
+                                ]
+                                [ div
+                                    [ id "editor"
+                                    , style "width" "100%"
+                                    , style "height" "100%"
+                                    ]
+                                    []
+                                ]
+                            )
               in
               case model.page of
                 Page.List ->
@@ -253,19 +278,6 @@ view model =
 
                 _ ->
                     mainWindow
-                        (div
-                            [ style "background-color" "#273037"
-                            , style "width" "100%"
-                            , style "height" "100%"
-                            ]
-                            [ div
-                                [ id "editor"
-                                , style "width" "100%"
-                                , style "height" "100%"
-                                ]
-                                []
-                            ]
-                        )
                         (Lazy.lazy Diagram.view model.diagramModel
                             |> Html.map UpdateDiagram
                         )
@@ -1197,7 +1209,7 @@ update message model =
             ( model, Ports.loadText text )
 
         SwitchWindow w ->
-            ( { model | switchWindow = w }, Ports.layoutEditor 100 )
+            ( { model | switchWindow = w }, Cmd.none )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -1297,6 +1309,13 @@ update message model =
                 , setEditorLanguage newDiagram.diagram
                 ]
             )
+
+        EditText text ->
+            let
+                ( model_, cmd_ ) =
+                    Diagram.update (DiagramModel.OnChangeText text) model.diagramModel
+            in
+            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
         Load (Err _) ->
             ( { model | progress = False }, showErrorMessage "Failed load diagram." )

@@ -78,6 +78,20 @@ select {
     appearance: none;
 }
 
+textarea {
+    font-family: "Nunito Sans", apple-system, BlinkMacSystemFont, Helvetica Neue,
+        Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,
+        メイリオ, Meiryo, sans-serif;
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    outline: none;
+    border: none;
+    background-color: var(--main-color);
+    color: var(--text-color);
+    tab-size: 4;
+}
+
 .main-header {
     display: flex;
     align-items: center;
