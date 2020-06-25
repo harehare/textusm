@@ -1,38 +1,22 @@
-<svg
-    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 350" width="920" height="350" style="transparent">
-    <defs>
-        <style>@import url('https://fonts.googleapis.com/css?family=Nunito Sans&amp;display=swap');</style>
-    </defs>
-    <defs>
-        <filter id="shadow" height="130%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-            <feOffset dx="2" dy="2" result="offsetblur"/>
-            <feComponentTransfer>
-                <feFuncA type="linear" slope="0.5"/>
-            </feComponentTransfer>
-            <feMerge>
-                <feMergeNode/>
-                <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-        </filter>
-    </defs>
-    <g transform="translate(12,0), scale(1,1)" fill="transparent" style="will-change: transform;transition: transform 0.15s ease">
-        <g>
-            <svg width="300" height="300" x="0" y="0" fill="transparent">
-                <rect width="300" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">Start</text>
-                <g/>
-            </svg>
-            <svg width="300" height="300" x="295" y="0" fill="transparent">
-                <rect width="300" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">Stop</text>
-                <g/>
-            </svg>
-            <svg width="300" height="300" x="590" y="0" fill="transparent">
-                <rect width="300" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">Continue</text>
-                <g/>
-            </svg>
-        </g>
-    </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 920 350" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<style>@import url('https://fonts.googleapis.com/css?family=Nunito Sans&amp;display=swap');</style>
+</defs>
+<g transform="translate(12) scale(1)" fill="transparent" style="transition:transform 0.15s ease;will-change:transform">
+<g fill="transparent">
+<svg width="300" height="300">
+<rect width="300" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">Start</text>
+</svg>
+<svg x="295" width="300" height="300">
+<rect width="300" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">Stop</text>
+</svg>
+<svg x="590" width="300" height="300">
+<rect width="300" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">Continue</text>
+</svg>
+</g>
+</g>
 </svg>
