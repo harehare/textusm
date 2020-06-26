@@ -14,6 +14,8 @@ type Items
 type alias Item =
     { lineNo : Int
     , text : String
+    , color : Maybe String
+    , backgroundColor : Maybe String
     , itemType : ItemType
     , children : Children
     }
@@ -110,6 +112,8 @@ emptyItem : Item
 emptyItem =
     { lineNo = 0
     , text = ""
+    , color = Nothing
+    , backgroundColor = Nothing
     , itemType = Activities
     , children = emptyChildren
     }

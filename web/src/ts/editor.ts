@@ -58,7 +58,8 @@ export const loadEditor = async (
     monaco.languages.setMonarchTokensProvider("userStoryMap", {
         tokenizer: {
             root: [
-                [/#.+/, "comment"],
+                [/^#.+/, "comment"],
+                [/#.+/, "color"],
                 [/^[^ ][^#:]+/, "activity"],
                 [/^ {8}[^#:]+/, "story"],
                 [/^ {4}[^#:]+/, "task"],
@@ -76,6 +77,10 @@ export const loadEditor = async (
             {
                 token: "comment",
                 foreground: "#008800",
+            },
+            {
+                token: "color",
+                foreground: "#888888",
             },
             {
                 token: "activity",

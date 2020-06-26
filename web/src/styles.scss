@@ -384,12 +384,12 @@ textarea {
         }
 
         @media screen and (max-width: 480px) {
-            width: 39vw;
+            width: 38%;
             height: 150px;
             align-items: flex-end;
             justify-content: flex-start;
             img {
-                width: 39vw;
+                width: 100%;
                 height: 125px;
             }
         }

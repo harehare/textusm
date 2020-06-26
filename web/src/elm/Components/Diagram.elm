@@ -168,11 +168,24 @@ load text =
 
                         ( otherIndents, otherItems ) =
                             loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
+
+                        ( displayText, color, backgroundColor ) =
+                            case String.split "," x of
+                                [ t, c, b ] ->
+                                    ( t, Just c, Just b )
+
+                                [ t, b ] ->
+                                    ( t, Nothing, Just b )
+
+                                _ ->
+                                    ( x, Nothing, Nothing )
                     in
                     ( indent :: xsIndent ++ otherIndents
                     , Item.cons
                         { lineNo = lineNo
-                        , text = x
+                        , text = displayText
+                        , color = color
+                        , backgroundColor = backgroundColor
                         , itemType = getItemType x indent
                         , children = Item.childrenFromItems xsItems
                         }

@@ -35,6 +35,7 @@ import Html.Attributes
         , src
         , style
         , target
+        , value
         )
 import Html.Events as E
 import Html.Lazy as Lazy
@@ -141,10 +142,8 @@ bottomNavigationBar settings diagram title path =
             , style "align-items" "center"
             ]
             [ div
-                [ style "width"
-                    "40px"
-                , style "height"
-                    "40px"
+                [ style "width" "40px"
+                , style "height" "40px"
                 , style "display" "flex"
                 , style "justify-content" "center"
                 , style "align-items" "center"
@@ -156,16 +155,8 @@ bottomNavigationBar settings diagram title path =
                 [ text title ]
             ]
         , div [ class "buttons" ]
-            [ div
-                [ class "button"
-                , E.onClick <| UpdateDiagram DiagramModel.ZoomIn
-                ]
-                [ Icon.add 24 ]
-            , div
-                [ class "button"
-                , E.onClick <| UpdateDiagram DiagramModel.ZoomOut
-                ]
-                [ Icon.remove 24 ]
+            [ div [ class "button" , E.onClick <| UpdateDiagram DiagramModel.ZoomIn ] [ Icon.add 24 ]
+            , div [ class "button" , E.onClick <| UpdateDiagram DiagramModel.ZoomOut ] [ Icon.remove 24 ]
             ]
         ]
 
@@ -219,6 +210,7 @@ view model =
                                 [ textarea
                                     [ E.onInput EditText
                                     , style "font-size" ((defaultEditorSettings model.settingsModel.settings.editor |> .fontSize |> String.fromInt) ++ "px")
+                                    , value <| Text.toString model.diagramModel.text
                                     ]
                                     []
                                 ]

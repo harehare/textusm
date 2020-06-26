@@ -25,12 +25,33 @@ cardView : Settings -> Position -> Maybe Item -> Item -> Svg Msg
 cardView settings ( posX, posY ) selectedItem item =
     let
         ( color, backgroundColor ) =
-            case item.itemType of
-                Activities ->
+            case ( item.itemType, item.color, item.backgroundColor ) of
+                ( _, Just c, Just b ) ->
+                    ( c, b )
+
+                ( Activities, Just c, Nothing ) ->
+                    ( c, settings.color.activity.backgroundColor )
+
+                ( Activities, Nothing, Just b ) ->
+                    ( settings.color.activity.backgroundColor, b )
+
+                ( Activities, Nothing, Nothing ) ->
                     ( settings.color.activity.color, settings.color.activity.backgroundColor )
 
-                Tasks ->
+                ( Tasks, Just c, Nothing ) ->
+                    ( c, settings.color.task.backgroundColor )
+
+                ( Tasks, Nothing, Just b ) ->
+                    ( settings.color.task.color, b )
+
+                ( Tasks, Nothing, Nothing ) ->
                     ( settings.color.task.color, settings.color.task.backgroundColor )
+
+                ( _, Just c, Nothing ) ->
+                    ( c, settings.color.story.backgroundColor )
+
+                ( _, Nothing, Just b ) ->
+                    ( settings.color.story.color, b )
 
                 _ ->
                     ( settings.color.story.color, settings.color.story.backgroundColor )
