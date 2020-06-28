@@ -80,7 +80,7 @@ export const loadEditor = async (
             },
             {
                 token: "color",
-                foreground: "#888888",
+                foreground: "#323d46",
             },
             {
                 token: "activity",

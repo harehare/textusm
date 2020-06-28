@@ -3,6 +3,7 @@ module Components.Diagram exposing (init, update, view)
 import Basics exposing (max)
 import Browser.Dom as Dom
 import Constants exposing (inputPrefix)
+import Data.Color as Color
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position as Position
 import Data.Size as Size exposing (Size)
@@ -36,6 +37,7 @@ import Task
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
+import Views.Diagram.CardSettings as CardSettings
 import Views.Diagram.ER as ER
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
@@ -184,8 +186,8 @@ load text =
                     , Item.cons
                         { lineNo = lineNo
                         , text = displayText
-                        , color = color
-                        , backgroundColor = backgroundColor
+                        , color = Maybe.andThen (\c -> Just <| Color.fromString c) color
+                        , backgroundColor = Maybe.andThen (\c -> Just <| Color.fromString c) backgroundColor
                         , itemType = getItemType x indent
                         , children = Item.childrenFromItems xsItems
                         }
@@ -340,6 +342,7 @@ view model =
           else
             Empty.view
         , lazy svgView model
+        , CardSettings.view {}
         ]
 
 

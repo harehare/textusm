@@ -1,5 +1,6 @@
 module Page.Settings exposing (Model, Msg, init, update, view)
 
+import Data.Color as Color exposing (colors)
 import Html exposing (Html, div, input, label, text)
 import Html.Attributes exposing (checked, class, style, type_)
 import Html.Events exposing (onClick)
@@ -10,24 +11,11 @@ import Views.DropDownList as DropDownList exposing (DropDownValue)
 
 baseColorItems : List { name : String, value : DropDownValue }
 baseColorItems =
-    [ { name = "WHITE", value = DropDownList.colorValue "#FFFFFF" }
-    , { name = "BLACK", value = DropDownList.colorValue "#000000" }
-    , { name = "GRAY", value = DropDownList.colorValue "#333333" }
-    , { name = "LIGHT GRAY", value = DropDownList.colorValue "#D3D3D3" }
-    , { name = "YELLOW", value = DropDownList.colorValue "#FFF9B2" }
-    , { name = "GREEN", value = DropDownList.colorValue "#D3F8E2" }
-    , { name = "BLUE", value = DropDownList.colorValue "#CEE5F2" }
-    , { name = "ORANGE", value = DropDownList.colorValue "#F7CAB2" }
-    , { name = "PINK", value = DropDownList.colorValue "#F6CFE6" }
-    , { name = "RED", value = DropDownList.colorValue "#EE8A8B" }
-    , { name = "PURPLE", value = DropDownList.colorValue "#CD89F7" }
-    , { name = "BACKGROUND1 DEFALUT", value = DropDownList.colorValue "#266B9A" }
-    , { name = "BACKGROUND2 DEFALUT", value = DropDownList.colorValue "#3E9BCD" }
-    , { name = "LINE DEFALUT", value = DropDownList.colorValue "#434343" }
-    , { name = "LABEL DEFALUT", value = DropDownList.colorValue "#8C9FAE" }
-    , { name = "BACKGROUND DEFALUT", value = DropDownList.colorValue "#F4F4F5" }
-    , { name = "TEXT DEFALUT", value = DropDownList.colorValue "#111111" }
-    ]
+    List.map
+        (\color ->
+            { name = Color.name color, value = DropDownList.colorValue <| Color.toString color }
+        )
+        colors
 
 
 baseSizeItems : List { name : String, value : DropDownValue }

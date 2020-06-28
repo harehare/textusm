@@ -155,8 +155,8 @@ bottomNavigationBar settings diagram title path =
                 [ text title ]
             ]
         , div [ class "buttons" ]
-            [ div [ class "button" , E.onClick <| UpdateDiagram DiagramModel.ZoomIn ] [ Icon.add 24 ]
-            , div [ class "button" , E.onClick <| UpdateDiagram DiagramModel.ZoomOut ] [ Icon.remove 24 ]
+            [ div [ class "button", E.onClick <| UpdateDiagram DiagramModel.ZoomIn ] [ Icon.add 24 ]
+            , div [ class "button", E.onClick <| UpdateDiagram DiagramModel.ZoomOut ] [ Icon.remove 24 ]
             ]
         ]
 
@@ -187,13 +187,7 @@ view model =
         , Lazy.lazy showNotification model.notification
         , Lazy.lazy2 showProgressbar model.progress model.window.fullscreen
         , div
-            [ class "main"
-            , if model.window.fullscreen then
-                style "height" "100vh"
-
-              else
-                style "height" "calc(100vh - 56px)"
-            ]
+            [ class "main", style "height" "100vh" ]
             [ Lazy.lazy Menu.view { page = model.page, route = toRoute model.url, text = model.diagramModel.text, width = Size.getWidth model.diagramModel.size, fullscreen = model.window.fullscreen, openMenu = model.openMenu, lang = model.lang }
             , let
                 mainWindow =

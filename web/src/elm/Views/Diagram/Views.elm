@@ -1,6 +1,7 @@
 module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, gridView, rectView, startTextNodeView, textNodeView, textView)
 
 import Constants
+import Data.Color as Color
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size exposing (Size)
@@ -27,31 +28,31 @@ cardView settings ( posX, posY ) selectedItem item =
         ( color, backgroundColor ) =
             case ( item.itemType, item.color, item.backgroundColor ) of
                 ( _, Just c, Just b ) ->
-                    ( c, b )
+                    ( Color.toString c, Color.toString b )
 
                 ( Activities, Just c, Nothing ) ->
-                    ( c, settings.color.activity.backgroundColor )
+                    ( Color.toString c, settings.color.activity.backgroundColor )
 
                 ( Activities, Nothing, Just b ) ->
-                    ( settings.color.activity.backgroundColor, b )
+                    ( settings.color.activity.backgroundColor, Color.toString b )
 
                 ( Activities, Nothing, Nothing ) ->
                     ( settings.color.activity.color, settings.color.activity.backgroundColor )
 
                 ( Tasks, Just c, Nothing ) ->
-                    ( c, settings.color.task.backgroundColor )
+                    ( Color.toString c, settings.color.task.backgroundColor )
 
                 ( Tasks, Nothing, Just b ) ->
-                    ( settings.color.task.color, b )
+                    ( settings.color.task.color, Color.toString b )
 
                 ( Tasks, Nothing, Nothing ) ->
                     ( settings.color.task.color, settings.color.task.backgroundColor )
 
                 ( _, Just c, Nothing ) ->
-                    ( c, settings.color.story.backgroundColor )
+                    ( Color.toString c, settings.color.story.backgroundColor )
 
                 ( _, Nothing, Just b ) ->
-                    ( settings.color.story.color, b )
+                    ( settings.color.story.color, Color.toString b )
 
                 _ ->
                     ( settings.color.story.color, settings.color.story.backgroundColor )
