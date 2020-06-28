@@ -1,6 +1,7 @@
-module Models.Diagram exposing (Color, ColorSettings, Data(..), Model, Msg(..), Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
+module Models.Diagram exposing (CardMenu(..), Color, ColorSettings, Data(..), Model, Msg(..), Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
 
 import Browser.Dom exposing (Viewport)
+import Data.Color as Color
 import Data.Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size as Size
@@ -43,6 +44,7 @@ type alias Model =
     , matchParent : Bool
     , selectedItem : Maybe Item
     , dragDrop : DragDrop.Model Int Int
+    , cardMenu : CardMenu
     }
 
 
@@ -79,6 +81,12 @@ type Data
     | UserPersona UserPersona
     | StartStopContinue StartStopContinue
     | ErDiagram ErDiagram
+
+
+type CardMenu
+    = CloseMenu
+    | ColorSelectMenu
+    | BackgroundColorSelectMenu
 
 
 type alias Settings =
@@ -145,6 +153,8 @@ type Msg
     | MoveItem ( Int, Int )
     | FitToWindow
     | Select (Maybe Item)
+    | OnColorChanged CardMenu Color.Color
+    | OnMenuSelect CardMenu
 
 
 getTextColor : ColorSettings -> String

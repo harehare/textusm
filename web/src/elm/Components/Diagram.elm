@@ -37,7 +37,7 @@ import Task
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
-import Views.Diagram.CardSettings as CardSettings
+import Views.Diagram.CardMenu as CardMenu
 import Views.Diagram.ER as ER
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
@@ -88,6 +88,7 @@ init settings =
       , matchParent = False
       , selectedItem = Nothing
       , dragDrop = DragDrop.init
+      , cardMenu = Diagram.CloseMenu
       }
     , Cmd.none
     )
@@ -342,7 +343,12 @@ view model =
           else
             Empty.view
         , lazy svgView model
-        , CardSettings.view {}
+        , case model.selectedItem of
+            Just item ->
+                CardMenu.view { state = model.cardMenu, item = item, onMenuSelect = OnMenuSelect, onColorChanged = OnColorChanged Diagram.ColorSelectMenu, onBackgroundColorChanged = OnColorChanged Diagram.BackgroundColorSelectMenu }
+
+            Nothing ->
+                Empty.view
         ]
 
 
@@ -871,6 +877,20 @@ update message model =
                 Nothing ->
                     Cmd.none
             )
+
+        OnMenuSelect menu ->
+            ( { model | cardMenu = menu }, Cmd.none )
+
+        OnColorChanged menu _ ->
+            case menu of
+                Diagram.ColorSelectMenu ->
+                    ( { model | cardMenu = Diagram.CloseMenu }, Cmd.none )
+
+                Diagram.BackgroundColorSelectMenu ->
+                    ( { model | cardMenu = Diagram.CloseMenu }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

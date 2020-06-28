@@ -13,6 +13,7 @@ import Browser.Events
         )
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
+import Data.Color as Color
 import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem
 import Data.DiagramType as DiagramType
@@ -667,12 +668,12 @@ update message model =
             )
 
         UpdateDiagram msg ->
+            let
+                ( model_, cmd_ ) =
+                    Diagram.update msg model.diagramModel
+            in
             case msg of
                 DiagramModel.OnResize _ _ ->
-                    let
-                        ( model_, cmd_ ) =
-                            Diagram.update msg model.diagramModel
-                    in
                     ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram ] )
 
                 DiagramModel.MoveItem ( fromNo, toNo ) ->
@@ -738,6 +739,62 @@ update message model =
                     else
                         ( model, Cmd.none )
 
+                DiagramModel.OnColorChanged menu color ->
+                    case model.diagramModel.selectedItem of
+                        Just item ->
+                            let
+                                lines =
+                                    Text.lines model.diagramModel.text
+
+                                currentText =
+                                    getAt item.lineNo lines
+
+                                tokens =
+                                    Maybe.map (String.split ",") currentText
+
+                                text =
+                                    case ( menu, tokens ) of
+                                        ( DiagramModel.ColorSelectMenu, Just [ t, _, b ] ) ->
+                                            t ++ "," ++ Color.toString color ++ "," ++ b
+
+                                        ( DiagramModel.ColorSelectMenu, Just [ t, _ ] ) ->
+                                            t ++ "," ++ Color.toString color
+
+                                        ( DiagramModel.ColorSelectMenu, Just [ t ] ) ->
+                                            t ++ "," ++ Color.toString color
+
+                                        ( DiagramModel.ColorSelectMenu, Nothing ) ->
+                                            currentText |> Maybe.withDefault ""
+
+                                        ( DiagramModel.BackgroundColorSelectMenu, Just [ t, c, _ ] ) ->
+                                            t ++ "," ++ c ++ "," ++ Color.toString color
+
+                                        ( DiagramModel.BackgroundColorSelectMenu, Just [ t, _ ] ) ->
+                                            t ++ "," ++ "," ++ Color.toString color
+
+                                        ( DiagramModel.BackgroundColorSelectMenu, Just [ t ] ) ->
+                                            t ++ "," ++ "," ++ Color.toString color
+
+                                        ( DiagramModel.BackgroundColorSelectMenu, Nothing ) ->
+                                            currentText |> Maybe.withDefault ""
+
+                                        _ ->
+                                            currentText |> Maybe.withDefault ""
+
+                                prefix =
+                                    currentText
+                                        |> Maybe.withDefault ""
+                                        |> Utils.getSpacePrefix
+
+                                updateText =
+                                    setAt item.lineNo (prefix ++ String.trimLeft text) lines
+                                        |> String.join "\n"
+                            in
+                            ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Ports.loadText updateText ] )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
                 DiagramModel.ToggleFullscreen ->
                     let
                         window =
@@ -745,9 +802,6 @@ update message model =
 
                         newWindow =
                             { window | fullscreen = not window.fullscreen }
-
-                        ( model_, cmd_ ) =
-                            Diagram.update msg model.diagramModel
                     in
                     ( { model | window = newWindow, diagramModel = model_ }
                     , Cmd.batch
@@ -761,10 +815,6 @@ update message model =
                     )
 
                 _ ->
-                    let
-                        ( model_, cmd_ ) =
-                            Diagram.update msg model.diagramModel
-                    in
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
         UpdateDiagramList subMsg ->
