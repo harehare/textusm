@@ -1,4 +1,4 @@
-module Models.Diagram exposing (CardMenu(..), Color, ColorSettings, Data(..), Model, Msg(..), Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
+module Models.Diagram exposing (ContextMenu(..), Color, ColorSettings, Data(..), Model, Msg(..), Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
 
 import Browser.Dom exposing (Viewport)
 import Data.Color as Color
@@ -44,7 +44,7 @@ type alias Model =
     , matchParent : Bool
     , selectedItem : Maybe Item
     , dragDrop : DragDrop.Model Int Int
-    , cardMenu : CardMenu
+    , contextMenu : ContextMenu
     }
 
 
@@ -83,7 +83,7 @@ type Data
     | ErDiagram ErDiagram
 
 
-type CardMenu
+type ContextMenu
     = CloseMenu
     | ColorSelectMenu
     | BackgroundColorSelectMenu
@@ -153,8 +153,8 @@ type Msg
     | MoveItem ( Int, Int )
     | FitToWindow
     | Select (Maybe Item)
-    | OnColorChanged CardMenu Color.Color
-    | OnMenuSelect CardMenu
+    | OnColorChanged ContextMenu Color.Color
+    | OnSelectContextMenu ContextMenu
 
 
 getTextColor : ColorSettings -> String

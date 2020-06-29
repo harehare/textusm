@@ -1,18 +1,18 @@
-module Views.Diagram.CardMenu exposing (view)
+module Views.Diagram.ContextMenu exposing (view)
 
 import Data.Color as Color exposing (Color)
 import Data.Item exposing (Item)
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (style)
 import Html.Events as E
-import Models.Diagram exposing (CardMenu(..))
+import Models.Diagram exposing (ContextMenu(..))
 import Views.Empty as Empty
 
 
 view :
-    { state : CardMenu
+    { state : ContextMenu
     , item : Item
-    , onMenuSelect : CardMenu -> msg
+    , onMenuSelect : ContextMenu -> msg
     , onColorChanged : Color -> msg
     , onBackgroundColorChanged : Color -> msg
     }
@@ -21,7 +21,7 @@ view props =
     div
         [ style "width" "102px"
         , style "height" "50px"
-        , style "background-color" "#F2F2F2"
+        , style "background-color" "#FEFEFE"
         , style "box-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)"
         , style "border-radius" "2px"
         , style "position" "absolute"
@@ -40,7 +40,9 @@ view props =
             , style "border-right" "1px solid #CCC"
             , style "cursor" "pointer"
             ]
-            [ div [ style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color, style "padding" "8px", E.onClick <| props.onMenuSelect ColorSelectMenu ] [ text "Aa" ]
+            [ div [ style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color,
+                style "text-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)",
+                style "padding" "8px", E.onClick <| props.onMenuSelect ColorSelectMenu ] [ text "Aa" ]
             ]
         , div
             [ style "width" "50px"

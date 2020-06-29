@@ -37,7 +37,7 @@ import Task
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
-import Views.Diagram.CardMenu as CardMenu
+import Views.Diagram.ContextMenu as ContextMenu
 import Views.Diagram.ER as ER
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
@@ -88,7 +88,7 @@ init settings =
       , matchParent = False
       , selectedItem = Nothing
       , dragDrop = DragDrop.init
-      , cardMenu = Diagram.CloseMenu
+      , contextMenu = Diagram.CloseMenu
       }
     , Cmd.none
     )
@@ -345,7 +345,7 @@ view model =
         , lazy svgView model
         , case model.selectedItem of
             Just item ->
-                CardMenu.view { state = model.cardMenu, item = item, onMenuSelect = OnMenuSelect, onColorChanged = OnColorChanged Diagram.ColorSelectMenu, onBackgroundColorChanged = OnColorChanged Diagram.BackgroundColorSelectMenu }
+                ContextMenu.view { state = model.contextMenu, item = item, onMenuSelect = OnSelectContextMenu, onColorChanged = OnColorChanged Diagram.ColorSelectMenu, onBackgroundColorChanged = OnColorChanged Diagram.BackgroundColorSelectMenu }
 
             Nothing ->
                 Empty.view
@@ -878,16 +878,16 @@ update message model =
                     Cmd.none
             )
 
-        OnMenuSelect menu ->
-            ( { model | cardMenu = menu }, Cmd.none )
+        OnSelectContextMenu menu ->
+            ( { model | contextMenu = menu }, Cmd.none )
 
-        OnColorChanged menu _ ->
-            case menu of
-                Diagram.ColorSelectMenu ->
-                    ( { model | cardMenu = Diagram.CloseMenu }, Cmd.none )
+        OnColorChanged menu color ->
+            case (model.selectedItem, menu) of
+                (Just item, Diagram.ColorSelectMenu) ->
+                    ( { model | selectedItem = Just {item | color = Just color}, contextMenu = Diagram.CloseMenu }, Cmd.none )
 
-                Diagram.BackgroundColorSelectMenu ->
-                    ( { model | cardMenu = Diagram.CloseMenu }, Cmd.none )
+                (Just item, Diagram.BackgroundColorSelectMenu) ->
+                    ( { model | selectedItem = Just {item | backgroundColor = Just color}, contextMenu = Diagram.CloseMenu }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
