@@ -15,7 +15,7 @@ import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
 import List
-import List.Extra exposing (findIndex, getAt, scanl, splitAt)
+import List.Extra exposing (findIndex, getAt, removeAt, scanl, setAt, splitAt)
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Views.ER as ErDiagramModel
@@ -345,7 +345,7 @@ view model =
         , lazy svgView model
         , case model.selectedItem of
             Just item ->
-                ContextMenu.view { state = model.contextMenu, item = item, onMenuSelect = OnSelectContextMenu, onColorChanged = OnColorChanged Diagram.ColorSelectMenu, onBackgroundColorChanged = OnColorChanged Diagram.BackgroundColorSelectMenu }
+                ContextMenu.view { state = model.contextMenu, item = item, onMenuSelect = OnSelectContextMenu, onColorChanged = OnColorChanged Diagram.ColorSelectMenu, onBackgroundColorChanged = OnColorChanged Diagram.BackgroundColorSelectMenu, onEditMarkdown = OnEditMarkdownMenu }
 
             Nothing ->
                 Empty.view
@@ -828,9 +828,6 @@ update message model =
             , Cmd.none
             )
 
-        DeselectItem ->
-            ( { model | selectedItem = Nothing }, Cmd.none )
-
         DragDropMsg msg_ ->
             let
                 ( model_, result ) =
@@ -878,19 +875,164 @@ update message model =
                     Cmd.none
             )
 
+        EndEditSelectedItem item code isComposing ->
+            case ( model.selectedItem, code, isComposing ) of
+                ( Just selectedItem, 13, False ) ->
+                    let
+                        lines =
+                            Text.lines model.text
+
+                        currentText =
+                            getAt item.lineNo lines
+
+                        prefix =
+                            currentText
+                                |> Maybe.withDefault ""
+                                |> Utils.getSpacePrefix
+
+                        colorText =
+                            case ( selectedItem.color, selectedItem.backgroundColor ) of
+                                ( Just color, Just backgroundColor ) ->
+                                    "," ++ Color.toString color ++ "," ++ Color.toString backgroundColor
+
+                                ( Just color, Nothing ) ->
+                                    "," ++ Color.toString color
+
+                                ( Nothing, Just backgroundColor ) ->
+                                    "," ++ "," ++ Color.toString backgroundColor
+
+                                _ ->
+                                    ""
+
+                        text =
+                            setAt item.lineNo (prefix ++ String.trimLeft (item.text ++ colorText)) lines
+                                |> String.join "\n"
+                    in
+                    ( { model | text = Text.fromString text, selectedItem = Nothing }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
         OnSelectContextMenu menu ->
             ( { model | contextMenu = menu }, Cmd.none )
 
         OnColorChanged menu color ->
-            case (model.selectedItem, menu) of
-                (Just item, Diagram.ColorSelectMenu) ->
-                    ( { model | selectedItem = Just {item | color = Just color}, contextMenu = Diagram.CloseMenu }, Cmd.none )
+            case model.selectedItem of
+                Just item ->
+                    let
+                        lines =
+                            Text.lines model.text
 
-                (Just item, Diagram.BackgroundColorSelectMenu) ->
-                    ( { model | selectedItem = Just {item | backgroundColor = Just color}, contextMenu = Diagram.CloseMenu }, Cmd.none )
+                        currentText =
+                            getAt item.lineNo lines
 
-                _ ->
+                        tokens =
+                            Maybe.map (String.split ",") currentText
+
+                        text =
+                            case ( menu, tokens ) of
+                                ( Diagram.ColorSelectMenu, Just [ t, _, b ] ) ->
+                                    t ++ "," ++ Color.toString color ++ "," ++ b
+
+                                ( Diagram.ColorSelectMenu, Just [ t, _ ] ) ->
+                                    t ++ "," ++ Color.toString color
+
+                                ( Diagram.ColorSelectMenu, Just [ t ] ) ->
+                                    t ++ "," ++ Color.toString color
+
+                                ( Diagram.ColorSelectMenu, Nothing ) ->
+                                    currentText |> Maybe.withDefault ""
+
+                                ( Diagram.BackgroundColorSelectMenu, Just [ t, c, _ ] ) ->
+                                    t ++ "," ++ c ++ "," ++ Color.toString color
+
+                                ( Diagram.BackgroundColorSelectMenu, Just [ t, _ ] ) ->
+                                    t ++ "," ++ "," ++ Color.toString color
+
+                                ( Diagram.BackgroundColorSelectMenu, Just [ t ] ) ->
+                                    t ++ "," ++ "," ++ Color.toString color
+
+                                ( Diagram.BackgroundColorSelectMenu, Nothing ) ->
+                                    currentText |> Maybe.withDefault ""
+
+                                _ ->
+                                    currentText |> Maybe.withDefault ""
+
+                        prefix =
+                            currentText
+                                |> Maybe.withDefault ""
+                                |> Utils.getSpacePrefix
+
+                        updateText =
+                            setAt item.lineNo (prefix ++ String.trimLeft text) lines
+                                |> String.join "\n"
+                    in
+                    case ( model.selectedItem, menu ) of
+                        ( Just i, Diagram.ColorSelectMenu ) ->
+                            ( { model | text = Text.fromString updateText, selectedItem = Just { i | color = Just color }, contextMenu = Diagram.CloseMenu }, Cmd.none )
+
+                        ( Just i, Diagram.BackgroundColorSelectMenu ) ->
+                            ( { model | text = Text.fromString updateText, selectedItem = Just { i | backgroundColor = Just color }, contextMenu = Diagram.CloseMenu }, Cmd.none )
+
+                        _ ->
+                            ( model, Cmd.none )
+
+                Nothing ->
                     ( model, Cmd.none )
+
+        OnEditMarkdownMenu ->
+            case model.selectedItem of
+                Just item ->
+                    let
+                        lines =
+                            Text.lines model.text
+
+                        currentText =
+                            getAt item.lineNo lines
+
+                        prefix =
+                            currentText
+                                |> Maybe.withDefault ""
+                                |> Utils.getSpacePrefix
+
+                        updateText =
+                            setAt item.lineNo (prefix ++ "md:" ++ String.trimLeft (Maybe.withDefault "" currentText)) lines
+                                |> String.join "\n"
+                    in
+                    ( { model | text = Text.fromString updateText }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        MoveItem ( fromNo, toNo ) ->
+            let
+                lines =
+                    Text.lines model.text
+
+                from =
+                    getAt fromNo lines
+                        |> Maybe.withDefault ""
+
+                newLines =
+                    removeAt fromNo lines
+
+                ( left, right ) =
+                    splitAt
+                        (if fromNo < toNo then
+                            toNo - 1
+
+                         else
+                            toNo
+                        )
+                        newLines
+
+                text =
+                    left
+                        ++ from
+                        :: right
+                        |> String.join "\n"
+            in
+            ( { model | text = Text.fromString text, selectedItem = Nothing }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

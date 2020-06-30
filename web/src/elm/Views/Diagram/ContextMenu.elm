@@ -7,6 +7,7 @@ import Html.Attributes exposing (style)
 import Html.Events as E
 import Models.Diagram exposing (ContextMenu(..))
 import Views.Empty as Empty
+import Views.Icon as Icon
 
 
 view :
@@ -15,11 +16,12 @@ view :
     , onMenuSelect : ContextMenu -> msg
     , onColorChanged : Color -> msg
     , onBackgroundColorChanged : Color -> msg
+    , onEditMarkdown : msg
     }
     -> Html msg
 view props =
     div
-        [ style "width" "102px"
+        [ style "width" "152px"
         , style "height" "50px"
         , style "background-color" "#FEFEFE"
         , style "box-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)"
@@ -40,9 +42,13 @@ view props =
             , style "border-right" "1px solid #CCC"
             , style "cursor" "pointer"
             ]
-            [ div [ style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color,
-                style "text-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)",
-                style "padding" "8px", E.onClick <| props.onMenuSelect ColorSelectMenu ] [ text "Aa" ]
+            [ div
+                [ style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color
+                , style "text-shadow" "1px 1px 1px #555555"
+                , style "padding" "8px"
+                , E.onClick <| props.onMenuSelect ColorSelectMenu
+                ]
+                [ text "Aa" ]
             ]
         , div
             [ style "width" "50px"
@@ -55,6 +61,24 @@ view props =
             ]
             [ colorCircle (props.item.backgroundColor |> Maybe.withDefault Color.black) <| props.onMenuSelect BackgroundColorSelectMenu
             ]
+        , div
+            [ style "width" "50px"
+            , style "height" "50px"
+            , style "font-size" "1.2rem"
+            , style "display" "flex"
+            , style "align-items" "center"
+            , style "justify-content" "center"
+            , style "border-right" "1px solid #CCC"
+            , style "cursor" "pointer"
+            ]
+            [ div
+                [ style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color
+                , style "text-shadow" "1px 1px 1px #555555"
+                , style "padding" "8px"
+                , E.onClick props.onEditMarkdown
+                ]
+                [ Icon.markdown "#273037" 32 ]
+            ]
         , case props.state of
             ColorSelectMenu ->
                 colorPicker Color.colors props.onColorChanged
@@ -62,7 +86,7 @@ view props =
             BackgroundColorSelectMenu ->
                 colorPicker Color.colors props.onBackgroundColorChanged
 
-            CloseMenu ->
+            _ ->
                 Empty.view
         ]
 

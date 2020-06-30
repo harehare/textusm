@@ -1,4 +1,4 @@
-module Models.Diagram exposing (ContextMenu(..), Color, ColorSettings, Data(..), Model, Msg(..), Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
+module Models.Diagram exposing (Color, ColorSettings, ContextMenu(..), Data(..), Model, Msg(..), Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
 
 import Browser.Dom exposing (Viewport)
 import Data.Color as Color
@@ -87,6 +87,7 @@ type ContextMenu
     = CloseMenu
     | ColorSelectMenu
     | BackgroundColorSelectMenu
+    | EditMarkdownMenu
 
 
 type alias Settings =
@@ -145,7 +146,6 @@ type Msg
     | ToggleFullscreen
     | OnResize Int Int
     | StartPinch Distance
-    | DeselectItem
     | ItemDblClick Item
     | EditSelectedItem String
     | EndEditSelectedItem Item Int Bool
@@ -155,6 +155,7 @@ type Msg
     | Select (Maybe Item)
     | OnColorChanged ContextMenu Color.Color
     | OnSelectContextMenu ContextMenu
+    | OnEditMarkdownMenu
 
 
 getTextColor : ColorSettings -> String

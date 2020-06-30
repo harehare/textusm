@@ -13,7 +13,6 @@ import Browser.Events
         )
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
-import Data.Color as Color
 import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem
 import Data.DiagramType as DiagramType
@@ -41,7 +40,7 @@ import Html.Attributes
 import Html.Events as E
 import Html.Lazy as Lazy
 import Json.Decode as D
-import List.Extra exposing (find, getAt, removeAt, setAt, splitAt)
+import List.Extra exposing (find)
 import Models.Diagram as DiagramModel
 import Models.Model as Page exposing (LoginProvider(..), Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
 import Models.Views.ER as ER
@@ -676,121 +675,28 @@ update message model =
                 DiagramModel.OnResize _ _ ->
                     ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram ] )
 
-                DiagramModel.MoveItem ( fromNo, toNo ) ->
-                    let
-                        lines =
-                            Text.lines model.diagramModel.text
+                DiagramModel.MoveItem ( _, _ ) ->
+                    ( { model | diagramModel = model_ }, Ports.loadText <| Text.toString model_.text )
 
-                        from =
-                            getAt fromNo lines
-                                |> Maybe.withDefault ""
-
-                        newLines =
-                            removeAt fromNo lines
-
-                        ( left, right ) =
-                            splitAt
-                                (if fromNo < toNo then
-                                    toNo - 1
-
-                                 else
-                                    toNo
-                                )
-                                newLines
-
-                        text =
-                            left
-                                ++ from
-                                :: right
-                                |> String.join "\n"
-                    in
-                    ( model
-                    , Cmd.batch
-                        [ Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
-                        , Ports.loadText text
-                        ]
-                    )
-
-                DiagramModel.EndEditSelectedItem item code isComposing ->
+                DiagramModel.EndEditSelectedItem _ code isComposing ->
                     if code == 13 && not isComposing then
-                        let
-                            lines =
-                                Text.lines model.diagramModel.text
-
-                            currentText =
-                                getAt item.lineNo lines
-
-                            prefix =
-                                currentText
-                                    |> Maybe.withDefault ""
-                                    |> Utils.getSpacePrefix
-
-                            text =
-                                setAt item.lineNo (prefix ++ String.trimLeft item.text) lines
-                                    |> String.join "\n"
-                        in
-                        ( model
-                        , Cmd.batch
-                            [ Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
-                            , Ports.loadText text
-                            ]
-                        )
+                        ( { model | diagramModel = model_ }, Ports.loadText <| Text.toString model_.text )
 
                     else
                         ( model, Cmd.none )
 
-                DiagramModel.OnColorChanged menu color ->
+                DiagramModel.OnEditMarkdownMenu ->
                     case model.diagramModel.selectedItem of
-                        Just item ->
-                            let
-                                lines =
-                                    Text.lines model.diagramModel.text
+                        Just _ ->
+                            ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Ports.loadText <| Text.toString model_.text ] )
 
-                                currentText =
-                                    getAt item.lineNo lines
+                        Nothing ->
+                            ( model, Cmd.none )
 
-                                tokens =
-                                    Maybe.map (String.split ",") currentText
-
-                                text =
-                                    case ( menu, tokens ) of
-                                        ( DiagramModel.ColorSelectMenu, Just [ t, _, b ] ) ->
-                                            t ++ "," ++ Color.toString color ++ "," ++ b
-
-                                        ( DiagramModel.ColorSelectMenu, Just [ t, _ ] ) ->
-                                            t ++ "," ++ Color.toString color
-
-                                        ( DiagramModel.ColorSelectMenu, Just [ t ] ) ->
-                                            t ++ "," ++ Color.toString color
-
-                                        ( DiagramModel.ColorSelectMenu, Nothing ) ->
-                                            currentText |> Maybe.withDefault ""
-
-                                        ( DiagramModel.BackgroundColorSelectMenu, Just [ t, c, _ ] ) ->
-                                            t ++ "," ++ c ++ "," ++ Color.toString color
-
-                                        ( DiagramModel.BackgroundColorSelectMenu, Just [ t, _ ] ) ->
-                                            t ++ "," ++ "," ++ Color.toString color
-
-                                        ( DiagramModel.BackgroundColorSelectMenu, Just [ t ] ) ->
-                                            t ++ "," ++ "," ++ Color.toString color
-
-                                        ( DiagramModel.BackgroundColorSelectMenu, Nothing ) ->
-                                            currentText |> Maybe.withDefault ""
-
-                                        _ ->
-                                            currentText |> Maybe.withDefault ""
-
-                                prefix =
-                                    currentText
-                                        |> Maybe.withDefault ""
-                                        |> Utils.getSpacePrefix
-
-                                updateText =
-                                    setAt item.lineNo (prefix ++ String.trimLeft text) lines
-                                        |> String.join "\n"
-                            in
-                            ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Ports.loadText updateText ] )
+                DiagramModel.OnColorChanged _ _ ->
+                    case model.diagramModel.selectedItem of
+                        Just _ ->
+                            ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Ports.loadText <| Text.toString model_.text ] )
 
                         Nothing ->
                             ( model, Cmd.none )
