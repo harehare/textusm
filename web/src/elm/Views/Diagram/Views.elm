@@ -70,7 +70,7 @@ cardView settings ( posX, posY ) selectedItem item =
 
     else
         g
-            [ onClickStopPropagation <| Select <| Just item
+            [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
             ]
             [ rectView
                 ( posX, posY )
@@ -300,7 +300,7 @@ titleView settings ( posX, posY ) item =
         , fontSize "20"
         , fontWeight "bold"
         , class ".select-none"
-        , onClickStopPropagation <| Select <| Just item
+        , onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
         ]
         [ text item.text ]
 
@@ -396,7 +396,7 @@ textNodeView settings ( posX, posY ) selectedItem item =
 
     else
         g
-            [ onClickStopPropagation <| Select <| Just item
+            [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
             ]
             [ rect
                 [ width <| String.fromInt nodeWidth
@@ -430,7 +430,7 @@ startTextNodeView settings ( posX, posY ) selectedItem item =
 
     else
         g
-            [ onClickStopPropagation <| Select <| Just item
+            [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
             ]
             [ startTextNodeRect
                 ( posX, posY )
@@ -552,7 +552,7 @@ gridView settings ( posX, posY ) selectedItem item =
 
     else
         g
-            [ onClickStopPropagation <| Select <| Just item
+            [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
             ]
             [ rect
                 [ width <| String.fromInt settings.size.width

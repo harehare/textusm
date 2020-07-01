@@ -44,7 +44,7 @@ type alias Model =
     , matchParent : Bool
     , selectedItem : Maybe Item
     , dragDrop : DragDrop.Model Int Int
-    , contextMenu : ContextMenu
+    , contextMenu : Maybe ( ContextMenu, Position )
     }
 
 
@@ -152,7 +152,7 @@ type Msg
     | DragDropMsg (DragDrop.Msg Int Int)
     | MoveItem ( Int, Int )
     | FitToWindow
-    | Select (Maybe Item)
+    | Select (Maybe ( Item, Position ))
     | OnColorChanged ContextMenu Color.Color
     | OnSelectContextMenu ContextMenu
     | OnEditMarkdownMenu

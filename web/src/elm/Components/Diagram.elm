@@ -7,7 +7,7 @@ import Data.Color as Color
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position as Position
 import Data.Size as Size exposing (Size)
-import Data.Text as Text
+import Data.Text as Text exposing (Text)
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Html.Events.Extra.Mouse as Mouse
@@ -88,7 +88,7 @@ init settings =
       , matchParent = False
       , selectedItem = Nothing
       , dragDrop = DragDrop.init
-      , contextMenu = Diagram.CloseMenu
+      , contextMenu = Nothing
       }
     , Cmd.none
     )
@@ -343,12 +343,6 @@ view model =
           else
             Empty.view
         , lazy svgView model
-        , case model.selectedItem of
-            Just item ->
-                ContextMenu.view { state = model.contextMenu, item = item, onMenuSelect = OnSelectContextMenu, onColorChanged = OnColorChanged Diagram.ColorSelectMenu, onBackgroundColorChanged = OnColorChanged Diagram.BackgroundColorSelectMenu, onEditMarkdown = OnEditMarkdownMenu }
-
-            Nothing ->
-                Empty.view
         ]
 
 
@@ -507,6 +501,30 @@ svgView model =
                 style "will-change: transform;transition: transform 0.15s ease"
             ]
             [ mainSvg ]
+        , case ( model.selectedItem, model.contextMenu ) of
+            ( Just item, Just ( contextMenu, position ) ) ->
+                let
+                    ( posX, posY ) =
+                        position
+
+                    ( offsetX, offsetY ) =
+                        model.position
+                in
+                ContextMenu.view
+                    { state = contextMenu
+                    , item = item
+                    , position =
+                        ( round <| toFloat (posX + offsetX) * model.svg.scale
+                        , round <| toFloat (posY + offsetY) * model.svg.scale
+                        )
+                    , onMenuSelect = OnSelectContextMenu
+                    , onColorChanged = OnColorChanged Diagram.ColorSelectMenu
+                    , onBackgroundColorChanged = OnColorChanged Diagram.BackgroundColorSelectMenu
+                    , onEditMarkdown = OnEditMarkdownMenu
+                    }
+
+            _ ->
+                Empty.view
         ]
 
 
@@ -865,15 +883,13 @@ update message model =
             in
             ( { model | svg = newSvgModel, position = position }, Cmd.none )
 
-        Select item ->
-            ( { model | selectedItem = item }
-            , case item of
-                Just _ ->
-                    Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
-
-                Nothing ->
-                    Cmd.none
+        Select (Just ( item, position )) ->
+            ( { model | selectedItem = Just item, contextMenu = Just ( Diagram.CloseMenu, position ) }
+            , Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
             )
+
+        Select Nothing ->
+            ( { model | selectedItem = Nothing }, Cmd.none )
 
         EndEditSelectedItem item code isComposing ->
             case ( model.selectedItem, code, isComposing ) of
@@ -914,7 +930,7 @@ update message model =
                     ( model, Cmd.none )
 
         OnSelectContextMenu menu ->
-            ( { model | contextMenu = menu }, Cmd.none )
+            ( { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
 
         OnColorChanged menu color ->
             case model.selectedItem of
@@ -969,10 +985,10 @@ update message model =
                     in
                     case ( model.selectedItem, menu ) of
                         ( Just i, Diagram.ColorSelectMenu ) ->
-                            ( { model | text = Text.fromString updateText, selectedItem = Just { i | color = Just color }, contextMenu = Diagram.CloseMenu }, Cmd.none )
+                            ( { model | text = Text.fromString updateText, selectedItem = Just { i | color = Just color }, contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
 
                         ( Just i, Diagram.BackgroundColorSelectMenu ) ->
-                            ( { model | text = Text.fromString updateText, selectedItem = Just { i | backgroundColor = Just color }, contextMenu = Diagram.CloseMenu }, Cmd.none )
+                            ( { model | text = Text.fromString updateText, selectedItem = Just { i | backgroundColor = Just color }, contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
