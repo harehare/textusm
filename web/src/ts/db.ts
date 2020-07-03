@@ -1,20 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
+import Dexie from "dexie";
 import { Diagram, DiagramItem } from "./model";
 import { ElmApp } from "./elm";
 
-export const initDB = (app: ElmApp) => {
+export const initDB = (app: ElmApp): void => {
     const lazyDB = () => {
-        // @ts-ignore
-        let db = null;
+        let db: Dexie | null = null;
 
-        return async () => {
-            // @ts-ignore
+        return async (): Promise<Dexie> => {
             if (!db) {
-                const Dexie = await import("dexie");
-                // @ts-ignore
-                db = new Dexie.default("textusm");
-                // @ts-ignore
-                db.version(1).stores({
+                db = new (await import("dexie")).default("textusm");
+                db.version(2).stores({
                     diagrams:
                         "++id,title,text,thumbnail,diagramPath,createdAt,updatedAt",
                 });
@@ -24,40 +20,31 @@ export const initDB = (app: ElmApp) => {
                         diagrams:
                             "++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt",
                     })
-                    //@ts-ignore
                     .upgrade((trans) => {
-                        //@ts-ignore
                         return (
-                            //@ts-ignore
+                            // @ts-ignore
                             trans.diagrams
                                 .toCollection()
-                                //@ts-ignore
-                                .modify((diagram) => {
-                                    diagram.diagram = diagram.diagramPath;
-                                    diagram.isBookmark = false;
-                                    delete diagram.diagramPath;
+                                // @ts-ignore
+                                .modify((d) => {
+                                    d.diagram = d.diagramPath;
+                                    d.isBookmark = false;
+                                    delete d.diagramPath;
                                 })
                         );
                     });
-                db.version(3)
-                    //@ts-ignore
-                    .upgrade((trans) => {
-                        //@ts-ignore
-                        return (
-                            //@ts-ignore
-                            trans.diagrams
-                                .toCollection()
-                                //@ts-ignore
-                                .modify((diagram) => {
-                                    diagram.diagram =
-                                        diagram.diagram === "cjm"
-                                            ? "table"
-                                            : "";
-                                })
-                        );
-                    });
+                db.version(3).upgrade((trans) => {
+                    return (
+                        // @ts-ignore
+                        trans.diagrams
+                            .toCollection()
+                            // @ts-ignore
+                            .modify((d) => {
+                                d.diagram = d.diagram === "cjm" ? "table" : "";
+                            })
+                    );
+                });
             }
-            //@ts-ignore
             return db;
         };
     };

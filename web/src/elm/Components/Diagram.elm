@@ -514,8 +514,8 @@ svgView model =
                     { state = contextMenu
                     , item = item
                     , position =
-                        ( round <| toFloat (posX + offsetX) * model.svg.scale
-                        , round <| toFloat (posY + offsetY) * model.svg.scale
+                        ( floor <| toFloat (posX + offsetX) * model.svg.scale
+                        , floor <| toFloat (posY + offsetY) * model.svg.scale
                         )
                     , onMenuSelect = OnSelectContextMenu
                     , onColorChanged = OnColorChanged Diagram.ColorSelectMenu
@@ -776,11 +776,7 @@ update message model =
             ( { model | touchDistance = Just distance }, Task.perform identity (Task.succeed ZoomOut) )
 
         OnChangeText text ->
-            let
-                model_ =
-                    updateDiagram model.size model text
-            in
-            ( model_, Cmd.none )
+            ( updateDiagram model.size model text, Cmd.none )
 
         Start pos ->
             ( { model
@@ -924,7 +920,7 @@ update message model =
                             setAt item.lineNo (prefix ++ String.trimLeft (item.text ++ colorText)) lines
                                 |> String.join "\n"
                     in
-                    ( { model | text = Text.fromString text, selectedItem = Nothing }, Cmd.none )
+                    ( { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -985,10 +981,10 @@ update message model =
                     in
                     case ( model.selectedItem, menu ) of
                         ( Just i, Diagram.ColorSelectMenu ) ->
-                            ( { model | text = Text.fromString updateText, selectedItem = Just { i | color = Just color }, contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just { i | color = Just color }, contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
 
                         ( Just i, Diagram.BackgroundColorSelectMenu ) ->
-                            ( { model | text = Text.fromString updateText, selectedItem = Just { i | backgroundColor = Just color }, contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just { i | backgroundColor = Just color }, contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
@@ -1015,7 +1011,7 @@ update message model =
                             setAt item.lineNo (prefix ++ "md:" ++ String.trimLeft (Maybe.withDefault "" currentText)) lines
                                 |> String.join "\n"
                     in
-                    ( { model | text = Text.fromString updateText }, Cmd.none )
+                    ( { model | text = Text.change <| Text.fromString updateText }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
@@ -1048,7 +1044,7 @@ update message model =
                         :: right
                         |> String.join "\n"
             in
-            ( { model | text = Text.fromString text, selectedItem = Nothing }, Cmd.none )
+            ( { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

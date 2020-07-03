@@ -27,7 +27,7 @@ view props =
     foreignObject
         [ x <| String.fromInt <| Position.getX props.position
         , y <| String.fromInt <| Position.getY props.position
-        , width "152"
+        , width "162"
         , height "205"
         ]
         [ div
@@ -35,6 +35,7 @@ view props =
             , Attr.style "box-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)"
             , Attr.style "border-radius" "2px"
             , Attr.style "display" "flex"
+            , Attr.style "width" "150px"
             ]
             [ div
                 [ Attr.style "width" "50px"
@@ -72,7 +73,6 @@ view props =
                 , Attr.style "display" "flex"
                 , Attr.style "align-items" "center"
                 , Attr.style "justify-content" "center"
-                , Attr.style "border-right" "1px solid #CCC"
                 , Attr.style "cursor" "pointer"
                 ]
                 [ div
@@ -85,10 +85,10 @@ view props =
                 ]
             , case props.state of
                 ColorSelectMenu ->
-                    colorPicker Color.colors props.onColorChanged
+                    colorPicker 0 Color.colors props.onColorChanged
 
                 BackgroundColorSelectMenu ->
-                    colorPicker Color.colors props.onBackgroundColorChanged
+                    colorPicker 10 Color.colors props.onBackgroundColorChanged
 
                 _ ->
                     Empty.view
@@ -111,8 +111,8 @@ colorCircle color msg =
         []
 
 
-colorPicker : List Color -> (Color -> msg) -> Html msg
-colorPicker colors onColorChanged =
+colorPicker : Int -> List Color -> (Color -> msg) -> Html msg
+colorPicker x colors onColorChanged =
     div
         [ Attr.style "width" "140px"
         , Attr.style "height" "140px"
@@ -121,7 +121,7 @@ colorPicker colors onColorChanged =
         , Attr.style "border-radius" "2px"
         , Attr.style "position" "absolute"
         , Attr.style "bottom" "0"
-        , Attr.style "left" "0"
+        , Attr.style "left" <| String.fromInt x ++ "px"
         , Attr.style "z-index" "100"
         , Attr.style "display" "flex"
         , Attr.style "flex-wrap" "wrap"

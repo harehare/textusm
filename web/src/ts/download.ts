@@ -1,7 +1,7 @@
 import { DownloadInfo } from "./model";
 import { ElmApp } from "./elm";
 
-export const initDowonlad = (app: ElmApp) => {
+export const initDownload = (app: ElmApp): void => {
     const createSvg = (id: string, width: number, height: number) => {
         const svg = document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -70,10 +70,10 @@ export const initDowonlad = (app: ElmApp) => {
         async ({ id, width, height, title, x, y }: DownloadInfo) => {
             // @ts-ignore
             window.html2canvas = (await import("html2canvas")).default;
-            const jsPDF = (await import("jspdf")).default;
+            const JsPdf = (await import("jspdf")).default;
 
-            if (location.pathname === "/md") {
-                const doc = new jsPDF({
+            if (window.location.pathname === "/md") {
+                const doc = new JsPdf({
                     orientation: "p",
                     unit: "px",
                     compress: true,
@@ -123,7 +123,7 @@ export const initDowonlad = (app: ElmApp) => {
                     height,
                     scale: 3,
                     callback: (url: string) => {
-                        const doc = new jsPDF({
+                        const doc = new JsPdf({
                             orientation: "l",
                             unit: "px",
                             compress: true,
@@ -162,7 +162,7 @@ export const initDowonlad = (app: ElmApp) => {
                     a.style.display = "none";
                     a.click();
 
-                    setTimeout(function () {
+                    setTimeout(() => {
                         window.URL.revokeObjectURL(url);
                         a.remove();
                     }, 10);
@@ -175,7 +175,7 @@ export const initDowonlad = (app: ElmApp) => {
         }
     );
 
-    app.ports.downloadHtml.subscribe((_: DownloadInfo) => {
+    app.ports.downloadHtml.subscribe(() => {
         const doc = document.documentElement;
 
         if (!doc) return;

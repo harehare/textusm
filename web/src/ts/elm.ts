@@ -1,60 +1,63 @@
 import { Settings, DownloadInfo, Diagram, DiagramItem } from "./model";
-import { EditorOption } from "./editor";
 
-export interface Js2ElmPort<T> {
+export interface EditorOption {
+    fontSize: number;
+    wordWrap: boolean;
+    showLineNumber: boolean;
+}
+
+export interface Send<T> {
     send: (params: T) => void;
 }
 
-export interface Elm2JsPort<T> {
+export interface Subscribe<T> {
     subscribe: (callback: T) => void;
     unsubscribe: (callback: T) => void;
 }
 
 export type ElmApp = {
     ports: {
-        saveSettings: Elm2JsPort<(settings: Settings) => void>;
-        loadEditor: Elm2JsPort<
-            ([text, option]: [string, EditorOption]) => void
-        >;
-        signIn: Elm2JsPort<(provider: string) => void>;
-        signOut: Elm2JsPort<() => Promise<void>>;
-        selectTextById: Elm2JsPort<(id: string) => void>;
-        openFullscreen: Elm2JsPort<() => void>;
-        closeFullscreen: Elm2JsPort<() => void>;
-        focusEditor: Elm2JsPort<() => void>;
-        loadText: Elm2JsPort<(text: string) => void>;
-        setEditorLanguage: Elm2JsPort<(languageId: string) => void>;
-        layoutEditor: Elm2JsPort<(delay: number) => void>;
-        downloadSvg: Elm2JsPort<(download: DownloadInfo) => void>;
-        downloadPdf: Elm2JsPort<(download: DownloadInfo) => void>;
-        downloadPng: Elm2JsPort<(download: DownloadInfo) => void>;
-        downloadHtml: Elm2JsPort<(download: DownloadInfo) => void>;
-        saveDiagram: Elm2JsPort<(diagram: Diagram) => void>;
-        removeDiagrams: Elm2JsPort<(diagram: Diagram) => Promise<void>>;
-        getDiagram: Elm2JsPort<(diagramId: string) => Promise<void>>;
-        getDiagrams: Elm2JsPort<() => Promise<void>>;
-        encodeShareText: Elm2JsPort<(obj: { [s: string]: string }) => void>;
-        decodeShareText: Elm2JsPort<(text: string) => void>;
+        saveSettings: Subscribe<(settings: Settings) => void>;
+        loadEditor: Subscribe<([text, option]: [string, EditorOption]) => void>;
+        signIn: Subscribe<(provider: string) => void>;
+        signOut: Subscribe<() => Promise<void>>;
+        selectTextById: Subscribe<(id: string) => void>;
+        openFullscreen: Subscribe<() => void>;
+        closeFullscreen: Subscribe<() => void>;
+        focusEditor: Subscribe<() => void>;
+        loadText: Subscribe<(text: string) => void>;
+        setEditorLanguage: Subscribe<(languageId: string) => void>;
+        layoutEditor: Subscribe<(delay: number) => void>;
+        downloadSvg: Subscribe<(download: DownloadInfo) => void>;
+        downloadPdf: Subscribe<(download: DownloadInfo) => void>;
+        downloadPng: Subscribe<(download: DownloadInfo) => void>;
+        downloadHtml: Subscribe<(download: DownloadInfo) => void>;
+        saveDiagram: Subscribe<(diagram: Diagram) => void>;
+        removeDiagrams: Subscribe<(diagram: Diagram) => Promise<void>>;
+        getDiagram: Subscribe<(diagramId: string) => Promise<void>>;
+        getDiagrams: Subscribe<() => Promise<void>>;
+        encodeShareText: Subscribe<(obj: { [s: string]: string }) => void>;
+        decodeShareText: Subscribe<(text: string) => void>;
 
-        onErrorNotification: Js2ElmPort<string>;
-        progress: Js2ElmPort<boolean>;
-        changeText: Js2ElmPort<string>;
-        shortcuts: Js2ElmPort<string>;
-        startDownload: Js2ElmPort<{
+        onErrorNotification: Send<string>;
+        progress: Send<boolean>;
+        changeText: Send<string>;
+        shortcuts: Send<string>;
+        startDownload: Send<{
             content: string;
             extension: string;
             mimeType: string;
         }>;
-        downloadCompleted: Js2ElmPort<number[]>;
-        saveToRemote: Js2ElmPort<DiagramItem>;
-        saveToLocalCompleted: Js2ElmPort<DiagramItem>;
-        removeRemoteDiagram: Js2ElmPort<Diagram>;
-        reload: Js2ElmPort<string>;
-        gotLocalDiagramJson: Js2ElmPort<DiagramItem>;
-        gotLocalDiagramsJson: Js2ElmPort<DiagramItem[]>;
-        onEncodeShareText: Js2ElmPort<string>;
-        onDecodeShareText: Js2ElmPort<string>;
-        onAuthStateChanged: Js2ElmPort<{
+        downloadCompleted: Send<number[]>;
+        saveToRemote: Send<DiagramItem>;
+        saveToLocalCompleted: Send<DiagramItem>;
+        removeRemoteDiagram: Send<Diagram>;
+        reload: Send<string>;
+        gotLocalDiagramJson: Send<DiagramItem>;
+        gotLocalDiagramsJson: Send<DiagramItem[]>;
+        onEncodeShareText: Send<string>;
+        onDecodeShareText: Send<string>;
+        onAuthStateChanged: Send<{
             idToken: string;
             id: string;
             displayName: string;
