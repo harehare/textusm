@@ -4,10 +4,11 @@ import Basics exposing (max)
 import Browser.Dom as Dom
 import Constants exposing (inputPrefix)
 import Data.Color as Color
+import Data.FontStyle as FontStyle
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position as Position
 import Data.Size as Size exposing (Size)
-import Data.Text as Text exposing (Text)
+import Data.Text as Text
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Html.Events.Extra.Mouse as Mouse
@@ -520,7 +521,7 @@ svgView model =
                     , onMenuSelect = OnSelectContextMenu
                     , onColorChanged = OnColorChanged Diagram.ColorSelectMenu
                     , onBackgroundColorChanged = OnColorChanged Diagram.BackgroundColorSelectMenu
-                    , onEditMarkdown = OnEditMarkdownMenu
+                    , onFontStyleChanged = OnFontStyleChanged
                     }
 
             _ ->
@@ -720,6 +721,22 @@ updateDiagram ( width, height ) base text =
     }
 
 
+itemToColorText : Item -> String
+itemToColorText item =
+    case ( item.color, item.backgroundColor ) of
+        ( Just color, Just backgroundColor ) ->
+            "," ++ Color.toString color ++ "," ++ Color.toString backgroundColor
+
+        ( Just color, Nothing ) ->
+            "," ++ Color.toString color
+
+        ( Nothing, Just backgroundColor ) ->
+            "," ++ "," ++ Color.toString backgroundColor
+
+        _ ->
+            ""
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -902,22 +919,8 @@ update message model =
                                 |> Maybe.withDefault ""
                                 |> Utils.getSpacePrefix
 
-                        colorText =
-                            case ( selectedItem.color, selectedItem.backgroundColor ) of
-                                ( Just color, Just backgroundColor ) ->
-                                    "," ++ Color.toString color ++ "," ++ Color.toString backgroundColor
-
-                                ( Just color, Nothing ) ->
-                                    "," ++ Color.toString color
-
-                                ( Nothing, Just backgroundColor ) ->
-                                    "," ++ "," ++ Color.toString backgroundColor
-
-                                _ ->
-                                    ""
-
                         text =
-                            setAt item.lineNo (prefix ++ String.trimLeft (item.text ++ colorText)) lines
+                            setAt item.lineNo (prefix ++ String.trimLeft (item.text ++ itemToColorText selectedItem)) lines
                                 |> String.join "\n"
                     in
                     ( { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }, Cmd.none )
@@ -992,7 +995,7 @@ update message model =
                 Nothing ->
                     ( model, Cmd.none )
 
-        OnEditMarkdownMenu ->
+        OnFontStyleChanged style ->
             case model.selectedItem of
                 Just item ->
                     let
@@ -1001,14 +1004,20 @@ update message model =
 
                         currentText =
                             getAt item.lineNo lines
+                                |> Maybe.withDefault ""
 
                         prefix =
                             currentText
-                                |> Maybe.withDefault ""
                                 |> Utils.getSpacePrefix
 
+                        text =
+                            currentText
+                                |> String.split ","
+                                |> List.head
+                                |> Maybe.withDefault ""
+
                         updateText =
-                            setAt item.lineNo (prefix ++ "md:" ++ String.trimLeft (Maybe.withDefault "" currentText)) lines
+                            setAt item.lineNo (prefix ++ (String.trimLeft text |> FontStyle.apply style) ++ itemToColorText item) lines
                                 |> String.join "\n"
                     in
                     ( { model | text = Text.change <| Text.fromString updateText }, Cmd.none )

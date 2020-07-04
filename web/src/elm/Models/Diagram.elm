@@ -2,6 +2,7 @@ module Models.Diagram exposing (Color, ColorSettings, ContextMenu(..), Data(..),
 
 import Browser.Dom exposing (Viewport)
 import Data.Color as Color
+import Data.FontStyle exposing (FontStyle)
 import Data.Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size as Size
@@ -87,7 +88,8 @@ type ContextMenu
     = CloseMenu
     | ColorSelectMenu
     | BackgroundColorSelectMenu
-    | EditMarkdownMenu
+    | FontBoldMenu
+    | FontItalicMenu
 
 
 type alias Settings =
@@ -155,7 +157,7 @@ type Msg
     | Select (Maybe ( Item, Position ))
     | OnColorChanged ContextMenu Color.Color
     | OnSelectContextMenu ContextMenu
-    | OnEditMarkdownMenu
+    | OnFontStyleChanged FontStyle
 
 
 getTextColor : ColorSettings -> String

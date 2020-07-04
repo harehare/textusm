@@ -685,7 +685,7 @@ update message model =
                     else
                         ( model, Cmd.none )
 
-                DiagramModel.OnEditMarkdownMenu ->
+                DiagramModel.OnFontStyleChanged _ ->
                     case model.diagramModel.selectedItem of
                         Just _ ->
                             ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Ports.loadText <| Text.toString model_.text ] )

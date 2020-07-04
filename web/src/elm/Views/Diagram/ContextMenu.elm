@@ -1,10 +1,11 @@
 module Views.Diagram.ContextMenu exposing (view)
 
 import Data.Color as Color exposing (Color)
+import Data.FontStyle as FontStyle exposing (FontStyle)
 import Data.Item exposing (Item)
 import Data.Position as Position exposing (Position)
 import Events exposing (onClickStopPropagation)
-import Html exposing (Html, div, text)
+import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Models.Diagram exposing (ContextMenu(..))
 import Svg exposing (Svg, foreignObject)
@@ -20,14 +21,14 @@ view :
     , onMenuSelect : ContextMenu -> msg
     , onColorChanged : Color -> msg
     , onBackgroundColorChanged : Color -> msg
-    , onEditMarkdown : msg
+    , onFontStyleChanged : FontStyle -> msg
     }
     -> Svg msg
 view props =
     foreignObject
         [ x <| String.fromInt <| Position.getX props.position
         , y <| String.fromInt <| Position.getY props.position
-        , width "162"
+        , width "262"
         , height "205"
         ]
         [ div
@@ -35,11 +36,11 @@ view props =
             , Attr.style "box-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)"
             , Attr.style "border-radius" "2px"
             , Attr.style "display" "flex"
-            , Attr.style "width" "150px"
+            , Attr.style "width" "250px"
             ]
             [ div
                 [ Attr.style "width" "50px"
-                , Attr.style "height" "50px"
+                , Attr.style "height" "48px"
                 , Attr.style "font-size" "1.2rem"
                 , Attr.style "display" "flex"
                 , Attr.style "align-items" "center"
@@ -48,16 +49,14 @@ view props =
                 , Attr.style "cursor" "pointer"
                 ]
                 [ div
-                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color
-                    , Attr.style "text-shadow" "1px 1px 1px #555555"
-                    , Attr.style "padding" "8px"
-                    , onClickStopPropagation <| props.onMenuSelect ColorSelectMenu
+                    [ onClickStopPropagation <| props.onMenuSelect ColorSelectMenu
+                    , Attr.style "padding-top" "8px"
                     ]
-                    [ text "Aa" ]
+                    [ Icon.font (Color.toString <| Maybe.withDefault Color.black <| props.item.color) 22 ]
                 ]
             , div
                 [ Attr.style "width" "50px"
-                , Attr.style "height" "50px"
+                , Attr.style "height" "48px"
                 , Attr.style "font-size" "1.4rem"
                 , Attr.style "display" "flex"
                 , Attr.style "align-items" "center"
@@ -68,7 +67,7 @@ view props =
                 ]
             , div
                 [ Attr.style "width" "50px"
-                , Attr.style "height" "50px"
+                , Attr.style "height" "48px"
                 , Attr.style "font-size" "1.2rem"
                 , Attr.style "display" "flex"
                 , Attr.style "align-items" "center"
@@ -77,11 +76,42 @@ view props =
                 ]
                 [ div
                     [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color
-                    , Attr.style "text-shadow" "1px 1px 1px #555555"
-                    , Attr.style "padding" "8px"
-                    , onClickStopPropagation props.onEditMarkdown
+                    , Attr.style "padding-top" "8px"
+                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Bold
                     ]
-                    [ Icon.markdown "#273037" 32 ]
+                    [ Icon.bold "#273037" 22 ]
+                ]
+            , div
+                [ Attr.style "width" "50px"
+                , Attr.style "height" "48px"
+                , Attr.style "font-size" "1.2rem"
+                , Attr.style "display" "flex"
+                , Attr.style "align-items" "center"
+                , Attr.style "justify-content" "center"
+                , Attr.style "cursor" "pointer"
+                ]
+                [ div
+                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color
+                    , Attr.style "padding-top" "8px"
+                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Italic
+                    ]
+                    [ Icon.italic "#273037" 22 ]
+                ]
+            , div
+                [ Attr.style "width" "50px"
+                , Attr.style "height" "48px"
+                , Attr.style "font-size" "1.2rem"
+                , Attr.style "display" "flex"
+                , Attr.style "align-items" "center"
+                , Attr.style "justify-content" "center"
+                , Attr.style "cursor" "pointer"
+                ]
+                [ div
+                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color
+                    , Attr.style "padding-top" "8px"
+                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Strikethrough
+                    ]
+                    [ Icon.strikethrough "#273037" 22 ]
                 ]
             , case props.state of
                 ColorSelectMenu ->

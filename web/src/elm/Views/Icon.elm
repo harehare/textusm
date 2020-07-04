@@ -1,4 +1,4 @@
-module Views.Icon exposing (add, bookmark, circle, clear, cloudOff, cloudOn, download, edit, error, expandAlt, export, file, folderOpen, fullscreen, fullscreenExit, helpOutline, indent, info, key, link, markdown, openInNew, people, remove, save, search, settings, share, tag, unbookmark, viewComfy, viewModule, visibility, warning)
+module Views.Icon exposing (add, bold, bookmark, circle, clear, cloudOff, cloudOn, download, edit, error, expandAlt, export, file, folderOpen, font, fullscreen, fullscreenExit, helpOutline, indent, info, italic, key, link, markdown, openInNew, people, remove, save, search, settings, share, strikethrough, tag, unbookmark, viewComfy, viewModule, visibility, warning)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (d, fill, height, viewBox, width)
@@ -172,6 +172,26 @@ expandAlt size =
 markdown : String -> Int -> Svg msg
 markdown color size =
     icon color size size "0 0 640 512" [ Svg.path [ d "M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1zM338.5 360.6H277v-120l-61.5 76.9-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9 61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z" ] [] ]
+
+
+bold : String -> Int -> Svg msg
+bold color size =
+    icon color size size "0 0 384 512" [ Svg.path [ d "M333.49 238a122 122 0 0 0 27-65.21C367.87 96.49 308 32 233.42 32H34a16 16 0 0 0-16 16v48a16 16 0 0 0 16 16h31.87v288H34a16 16 0 0 0-16 16v48a16 16 0 0 0 16 16h209.32c70.8 0 134.14-51.75 141-122.4 4.74-48.45-16.39-92.06-50.83-119.6zM145.66 112h87.76a48 48 0 0 1 0 96h-87.76zm87.76 288h-87.76V288h87.76a56 56 0 0 1 0 112z" ] [] ]
+
+
+font : String -> Int -> Svg msg
+font color size =
+    icon color size size "0 0 448 512" [ Svg.path [ d "M432 416h-23.41L277.88 53.69A32 32 0 0 0 247.58 32h-47.16a32 32 0 0 0-30.3 21.69L39.41 416H16a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16h-19.58l23.3-64h152.56l23.3 64H304a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16zM176.85 272L224 142.51 271.15 272z" ] [] ]
+
+
+italic : String -> Int -> Svg msg
+italic color size =
+    icon color size size "0 0 320 512" [ Svg.path [ d "M320 48v32a16 16 0 0 1-16 16h-62.76l-80 320H208a16 16 0 0 1 16 16v32a16 16 0 0 1-16 16H16a16 16 0 0 1-16-16v-32a16 16 0 0 1 16-16h62.76l80-320H112a16 16 0 0 1-16-16V48a16 16 0 0 1 16-16h192a16 16 0 0 1 16 16z" ] [] ]
+
+
+strikethrough : String -> Int -> Svg msg
+strikethrough color size =
+    icon color size size "0 0 512 512" [ Svg.path [ d "M496 224H293.9l-87.17-26.83A43.55 43.55 0 0 1 219.55 112h66.79A49.89 49.89 0 0 1 331 139.58a16 16 0 0 0 21.46 7.15l42.94-21.47a16 16 0 0 0 7.16-21.46l-.53-1A128 128 0 0 0 287.51 32h-68a123.68 123.68 0 0 0-123 135.64c2 20.89 10.1 39.83 21.78 56.36H16a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h480a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16zm-180.24 96A43 43 0 0 1 336 356.45 43.59 43.59 0 0 1 292.45 400h-66.79A49.89 49.89 0 0 1 181 372.42a16 16 0 0 0-21.46-7.15l-42.94 21.47a16 16 0 0 0-7.16 21.46l.53 1A128 128 0 0 0 224.49 480h68a123.68 123.68 0 0 0 123-135.64 114.25 114.25 0 0 0-5.34-24.36z" ] [] ]
 
 
 icon : String -> Int -> Int -> String -> List (Svg msg) -> Svg msg
