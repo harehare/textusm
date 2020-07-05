@@ -3,6 +3,7 @@ import { ElmApp, EditorOption } from "./elm";
 import { sleep } from "./utils";
 
 let monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;
+let updateTextInterval: number | null = null;
 
 const loadText = (text: string) => {
     if (monacoEditor) {
@@ -92,7 +93,7 @@ export const loadEditor = async (
     });
 
     let editor: HTMLElement | null = null;
-    for (const _ of new Array<null>(10).fill(null)) {
+    for (let i = 0; i < 10; i += 1) {
         editor = document.getElementById("editor") as HTMLElement | null;
         if (editor) break;
         await sleep(100);
@@ -151,11 +152,11 @@ export const loadEditor = async (
 
         monacoEditor.onDidChangeModelContent((e) => {
             if (e.changes.length > 0) {
-                if (update) {
-                    window.clearTimeout(update);
-                    update = null;
+                if (updateTextInterval) {
+                    window.clearTimeout(updateTextInterval);
+                    updateTextInterval = null;
                 }
-                update = window.setTimeout(() => {
+                updateTextInterval = window.setTimeout(() => {
                     if (!monacoEditor) {
                         return;
                     }
@@ -176,6 +177,4 @@ export const loadEditor = async (
 
     app.ports.layoutEditor.unsubscribe(layout);
     app.ports.layoutEditor.subscribe(layout);
-
-    let update: number | null = null;
 };
