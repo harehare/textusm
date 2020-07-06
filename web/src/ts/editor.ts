@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor";
+import * as monaco from "monaco-editor"; // eslint-disable-line import/no-unresolved
 import { ElmApp, EditorOption } from "./elm";
 import { sleep } from "./utils";
 
@@ -96,6 +96,7 @@ export const loadEditor = async (
     for (let i = 0; i < 10; i += 1) {
         editor = document.getElementById("editor") as HTMLElement | null;
         if (editor) break;
+        // eslint-disable-line no-await-in-loop
         await sleep(100);
     }
 
@@ -127,6 +128,7 @@ export const loadEditor = async (
 
     if (monacoEditor) {
         // @ts-ignore
+        // eslint-disable-line no-underscore-dangle
         monacoEditor._standaloneKeybindingService.addDynamicKeybinding(
             "-actions.find"
         );
