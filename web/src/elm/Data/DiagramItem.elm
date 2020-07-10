@@ -1,4 +1,4 @@
-module Data.DiagramItem exposing (DiagramItem, decoder, empty, encoder, getId, idToString, listToString, mapToDateTime, stringToList, toInputItem)
+module Data.DiagramItem exposing (DiagramItem, decoder, empty, encoder, getId, idToString, listToString, listToValue, mapToDateTime, stringToList, toInputItem)
 
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramType as DiagramType
@@ -137,9 +137,14 @@ idToString =
         )
 
 
+listToValue : List DiagramItem -> E.Value
+listToValue items =
+    E.list encoder items
+
+
 listToString : List DiagramItem -> String
 listToString items =
-    E.encode 4 (E.list encoder items)
+    E.encode 4 (listToValue items)
 
 
 stringToList : String -> Result D.Error (List DiagramItem)

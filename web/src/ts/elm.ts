@@ -38,6 +38,7 @@ export type ElmApp = {
         getDiagrams: Subscribe<() => Promise<void>>;
         encodeShareText: Subscribe<(obj: { [s: string]: string }) => void>;
         decodeShareText: Subscribe<(text: string) => void>;
+        importDiagram: Subscribe<(diagrams: DiagramItem[]) => void>;
 
         onErrorNotification: Send<string>;
         progress: Send<boolean>;

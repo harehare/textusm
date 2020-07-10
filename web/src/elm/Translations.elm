@@ -8,6 +8,7 @@ module Translations exposing
     , messageSuccessfullySaved
     , toolTipExport
     , toolTipHelp
+    , toolTipImport
     , toolTipNewFile
     , toolTipOpenFile
     , toolTipSave
@@ -60,6 +61,16 @@ toolTipSave lang =
 
         _ ->
             "Save"
+
+
+toolTipImport : Lang -> String
+toolTipImport lang =
+    case lang of
+        Ja ->
+            "インポート"
+
+        _ ->
+            "Import"
 
 
 toolTipExport : Lang -> String

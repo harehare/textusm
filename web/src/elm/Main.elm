@@ -83,15 +83,18 @@ import Views.SwitchWindow as SwitchWindow
 init : ( ( String, String ), D.Value ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        ( ( apiRoot, lang ), settingsJson ) =
+        ( ( apiRoot, langString ), settingsJson ) =
             flags
 
         initSettings =
             D.decodeValue settingsDecoder settingsJson
                 |> Result.withDefault defaultSettings
 
+        lang =
+            Translations.fromString langString
+
         ( diagramListModel, _ ) =
-            DiagramList.init Session.guest apiRoot
+            DiagramList.init Session.guest lang apiRoot
 
         ( diagramModel, _ ) =
             Diagram.init initSettings.storyMap
@@ -125,7 +128,7 @@ init flags url key =
                 , session = Session.guest
                 , currentDiagram = initSettings.diagram
                 , page = Page.Main
-                , lang = Translations.fromString lang
+                , lang = lang
                 }
     in
     ( model, cmds )
@@ -338,7 +341,7 @@ changeRouteTo route model =
             if RemoteData.isNotAsked model.diagramListModel.diagramList || List.isEmpty (RemoteData.withDefault [] model.diagramListModel.diagramList) then
                 let
                     ( model_, cmd_ ) =
-                        DiagramList.init model.session model.diagramListModel.apiRoot
+                        DiagramList.init model.session model.lang model.diagramListModel.apiRoot
                 in
                 ( { model
                     | page = Page.List

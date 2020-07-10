@@ -4,9 +4,12 @@ import Asset
 import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
+import File exposing (File)
+import File.Download as Download
+import File.Select as Select
 import GraphQL.Request as Request
 import Graphql.Http as Http
-import Html exposing (Html, div, img, input, text)
+import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Html.Lazy as Lazy
@@ -17,6 +20,7 @@ import Maybe.Extra exposing (isJust)
 import RemoteData exposing (RemoteData(..), WebData)
 import Task
 import Time exposing (Zone)
+import Translations exposing (Lang)
 import Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -37,6 +41,10 @@ type Msg
     | GotLocalDiagramsJson D.Value
     | GotDiagrams (Result ( List DiagramItem, Http.Error (List (Maybe DiagramItem)) ) (List DiagramItem))
     | LoadNextPage Int
+    | Export
+    | Import
+    | ImportFile File
+    | ImportComplete String
 
 
 type FilterValue
@@ -58,6 +66,7 @@ type alias Model =
     , apiRoot : String
     , pageNo : Int
     , hasMorePage : Bool
+    , lang : Lang
     }
 
 
@@ -77,8 +86,11 @@ port getDiagrams : () -> Cmd msg
 port removeDiagrams : E.Value -> Cmd msg
 
 
-init : Session -> String -> ( Model, Cmd Msg )
-init session apiRoot =
+port importDiagram : E.Value -> Cmd msg
+
+
+init : Session -> Lang -> String -> ( Model, Cmd Msg )
+init session lang apiRoot =
     ( { searchQuery = Nothing
       , timeZone = Time.utc
       , diagramList = NotAsked
@@ -87,6 +99,7 @@ init session apiRoot =
       , apiRoot = apiRoot
       , pageNo = 1
       , hasMorePage = False
+      , lang = lang
       }
     , Cmd.batch
         [ Task.perform GotTimeZone Time.here
@@ -211,6 +224,18 @@ view model =
                                 ]
                                 []
                             ]
+                        , div
+                            [ class "button"
+                            , style "padding-left" "8px"
+                            , onClick Export
+                            ]
+                            [ Icon.cloudDownload "#FEFEFE" 26, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport model.lang ] ] ]
+                        , div
+                            [ class "button"
+                            , style "padding-left" "8px"
+                            , onClick Import
+                            ]
+                            [ Icon.cloudUpload "#FEFEFE" 26, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipImport model.lang ] ] ]
                         ]
                     , if List.isEmpty displayDiagrams then
                         div
@@ -545,6 +570,28 @@ update message model =
                     |> Task.map (\_ -> Just diagram)
                 )
             )
+
+        Import ->
+            ( model, Select.file [ "application/json" ] ImportFile )
+
+        ImportFile file ->
+            ( model, Task.perform ImportComplete <| File.toString file )
+
+        ImportComplete json ->
+            case DiagramItem.stringToList json of
+                Ok diagrams ->
+                    ( model, importDiagram <| DiagramItem.listToValue diagrams )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
+        Export ->
+            case model.diagramList of
+                Success diagrams ->
+                    ( model, Download.string "diagrams.json" "application/json" <| DiagramItem.listToString diagrams )
+
+                _ ->
+                    ( model, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

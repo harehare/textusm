@@ -1,4 +1,4 @@
-module Views.Icon exposing (add, bold, bookmark, circle, clear, cloudOff, cloudOn, download, edit, error, expandAlt, export, file, folderOpen, font, fullscreen, fullscreenExit, helpOutline, indent, info, italic, key, link, markdown, openInNew, people, remove, save, search, settings, share, strikethrough, tag, unbookmark, viewComfy, viewModule, visibility, warning)
+module Views.Icon exposing (add, bold, bookmark, circle, clear, cloudDownload, cloudOff, cloudOn, cloudUpload, download, edit, error, expandAlt, export, file, folderOpen, font, fullscreen, fullscreenExit, helpOutline, indent, info, italic, key, link, markdown, openInNew, people, remove, save, search, settings, share, strikethrough, tag, unbookmark, viewComfy, viewModule, visibility, warning)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (d, fill, height, viewBox, width)
@@ -192,6 +192,16 @@ italic color size =
 strikethrough : String -> Int -> Svg msg
 strikethrough color size =
     icon color size size "0 0 512 512" [ Svg.path [ d "M496 224H293.9l-87.17-26.83A43.55 43.55 0 0 1 219.55 112h66.79A49.89 49.89 0 0 1 331 139.58a16 16 0 0 0 21.46 7.15l42.94-21.47a16 16 0 0 0 7.16-21.46l-.53-1A128 128 0 0 0 287.51 32h-68a123.68 123.68 0 0 0-123 135.64c2 20.89 10.1 39.83 21.78 56.36H16a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h480a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16zm-180.24 96A43 43 0 0 1 336 356.45 43.59 43.59 0 0 1 292.45 400h-66.79A49.89 49.89 0 0 1 181 372.42a16 16 0 0 0-21.46-7.15l-42.94 21.47a16 16 0 0 0-7.16 21.46l.53 1A128 128 0 0 0 224.49 480h68a123.68 123.68 0 0 0 123-135.64 114.25 114.25 0 0 0-5.34-24.36z" ] [] ]
+
+
+cloudDownload : String -> Int -> Svg msg
+cloudDownload color size =
+    icon color size size "0 0 640 512" [ Svg.path [ d "M537.6 226.6c4.1-10.7 6.4-22.4 6.4-34.6 0-53-43-96-96-96-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32c-88.4 0-160 71.6-160 160 0 2.7.1 5.4.2 8.1C40.2 219.8 0 273.2 0 336c0 79.5 64.5 144 144 144h368c70.7 0 128-57.3 128-128 0-61.9-44-113.6-102.4-125.4zm-132.9 88.7L299.3 420.7c-6.2 6.2-16.4 6.2-22.6 0L171.3 315.3c-10.1-10.1-2.9-27.3 11.3-27.3H248V176c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16v112h65.4c14.2 0 21.4 17.2 11.3 27.3z" ] [] ]
+
+
+cloudUpload : String -> Int -> Svg msg
+cloudUpload color size =
+    icon color size size "0 0 640 512" [ Svg.path [ d "M537.6 226.6c4.1-10.7 6.4-22.4 6.4-34.6 0-53-43-96-96-96-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32c-88.4 0-160 71.6-160 160 0 2.7.1 5.4.2 8.1C40.2 219.8 0 273.2 0 336c0 79.5 64.5 144 144 144h368c70.7 0 128-57.3 128-128 0-61.9-44-113.6-102.4-125.4zM393.4 288H328v112c0 8.8-7.2 16-16 16h-48c-8.8 0-16-7.2-16-16V288h-65.4c-14.3 0-21.4-17.2-11.3-27.3l105.4-105.4c6.2-6.2 16.4-6.2 22.6 0l105.4 105.4c10.1 10.1 2.9 27.3-11.3 27.3z" ] [] ]
 
 
 icon : String -> Int -> Int -> String -> List (Svg msg) -> Svg msg
