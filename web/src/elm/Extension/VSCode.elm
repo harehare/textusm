@@ -11,7 +11,6 @@ import Html.Attributes exposing (class, style)
 import Html.Lazy exposing (lazy)
 import Html5.DragDrop as DragDrop
 import Json.Decode as D
-import List.Extra exposing (getAt, removeAt, setAt, splitAt, takeWhile)
 import Models.Diagram as DiagramModel
 import Task
 import Utils

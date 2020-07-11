@@ -227,6 +227,7 @@ view model =
                         , div
                             [ class "button"
                             , style "padding" "8px"
+                            , style "margin-left" "8px"
                             , onClick Export
                             ]
                             [ Icon.cloudDownload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport model.lang ] ] ]

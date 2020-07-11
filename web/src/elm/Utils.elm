@@ -42,26 +42,19 @@ httpErrorToString err =
             "Internal server error. Please try again later."
 
 
-zeroPadding : Int -> Int -> String
-zeroPadding num value =
-    String.fromInt value
-        |> String.padLeft num '0'
-        |> String.right num
-
-
 millisToString : Zone -> Posix -> String
 millisToString timezone posix =
     String.fromInt (toYear timezone posix)
         ++ "-"
-        ++ (monthToInt (toMonth timezone posix) |> zeroPadding 2)
+        ++ (monthToInt (toMonth timezone posix) |> String.fromInt |> String.padLeft 2 '0')
         ++ "-"
-        ++ (toDay timezone posix |> zeroPadding 2)
+        ++ (toDay timezone posix |> String.fromInt |> String.padLeft 2 '0')
         ++ " "
-        ++ (toHour timezone posix |> zeroPadding 2)
+        ++ (toHour timezone posix |> String.fromInt |> String.padLeft 2 '0')
         ++ ":"
-        ++ (toMinute timezone posix |> zeroPadding 2)
+        ++ (toMinute timezone posix |> String.fromInt |> String.padLeft 2 '0')
         ++ ":"
-        ++ (toSecond timezone posix |> zeroPadding 2)
+        ++ (toSecond timezone posix |> String.fromInt |> String.padLeft 2 '0')
 
 
 intToMonth : Int -> Month

@@ -22,40 +22,45 @@ type alias RgbColor =
     String
 
 
+getItemColor : Settings -> Item -> ( RgbColor, RgbColor )
+getItemColor settings item =
+    case ( item.itemType, item.color, item.backgroundColor ) of
+        ( _, Just c, Just b ) ->
+            ( Color.toString c, Color.toString b )
+
+        ( Activities, Just c, Nothing ) ->
+            ( Color.toString c, settings.color.activity.backgroundColor )
+
+        ( Activities, Nothing, Just b ) ->
+            ( settings.color.activity.backgroundColor, Color.toString b )
+
+        ( Activities, Nothing, Nothing ) ->
+            ( settings.color.activity.color, settings.color.activity.backgroundColor )
+
+        ( Tasks, Just c, Nothing ) ->
+            ( Color.toString c, settings.color.task.backgroundColor )
+
+        ( Tasks, Nothing, Just b ) ->
+            ( settings.color.task.color, Color.toString b )
+
+        ( Tasks, Nothing, Nothing ) ->
+            ( settings.color.task.color, settings.color.task.backgroundColor )
+
+        ( _, Just c, Nothing ) ->
+            ( Color.toString c, settings.color.story.backgroundColor )
+
+        ( _, Nothing, Just b ) ->
+            ( settings.color.story.color, Color.toString b )
+
+        _ ->
+            ( settings.color.story.color, settings.color.story.backgroundColor )
+
+
 cardView : Settings -> Position -> Maybe Item -> Item -> Svg Msg
 cardView settings ( posX, posY ) selectedItem item =
     let
         ( color, backgroundColor ) =
-            case ( item.itemType, item.color, item.backgroundColor ) of
-                ( _, Just c, Just b ) ->
-                    ( Color.toString c, Color.toString b )
-
-                ( Activities, Just c, Nothing ) ->
-                    ( Color.toString c, settings.color.activity.backgroundColor )
-
-                ( Activities, Nothing, Just b ) ->
-                    ( settings.color.activity.backgroundColor, Color.toString b )
-
-                ( Activities, Nothing, Nothing ) ->
-                    ( settings.color.activity.color, settings.color.activity.backgroundColor )
-
-                ( Tasks, Just c, Nothing ) ->
-                    ( Color.toString c, settings.color.task.backgroundColor )
-
-                ( Tasks, Nothing, Just b ) ->
-                    ( settings.color.task.color, Color.toString b )
-
-                ( Tasks, Nothing, Nothing ) ->
-                    ( settings.color.task.color, settings.color.task.backgroundColor )
-
-                ( _, Just c, Nothing ) ->
-                    ( Color.toString c, settings.color.story.backgroundColor )
-
-                ( _, Nothing, Just b ) ->
-                    ( settings.color.story.color, Color.toString b )
-
-                _ ->
-                    ( settings.color.story.color, settings.color.story.backgroundColor )
+            getItemColor settings item
     in
     if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
         g []
@@ -252,7 +257,14 @@ canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
         ]
         [ canvasRectView settings ( svgWidth, svgHeight )
         , if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
-            inputView settings (Just "20") ( 0, 0 ) ( svgWidth, settings.size.height ) ( settings.color.label, "transparent" ) (Maybe.withDefault Item.emptyItem selectedItem)
+            inputView settings
+                (Just "20")
+                ( 0, 0 )
+                ( svgWidth, settings.size.height )
+                ( item.color |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.label
+                , "transparent"
+                )
+                (Maybe.withDefault Item.emptyItem selectedItem)
 
           else
             titleView settings ( 20, 20 ) item
@@ -296,7 +308,7 @@ titleView settings ( posX, posY ) item =
         [ x <| String.fromInt posX
         , y <| String.fromInt <| posY + 14
         , fontFamily (fontStyle settings)
-        , fill settings.color.label
+        , fill (item.color |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.label)
         , fontSize "20"
         , fontWeight "bold"
         , class ".select-none"
@@ -365,16 +377,8 @@ imageView ( imageWidth, imageHeight ) ( posX, posY ) url =
 textNodeView : Settings -> Position -> Maybe Item -> Item -> Svg Msg
 textNodeView settings ( posX, posY ) selectedItem item =
     let
-        ( color, backgroundColor ) =
-            case item.itemType of
-                Activities ->
-                    ( settings.color.activity.color, settings.backgroundColor )
-
-                Tasks ->
-                    ( settings.color.task.color, settings.backgroundColor )
-
-                _ ->
-                    ( settings.color.story.color, settings.backgroundColor )
+        ( color, _ ) =
+            getItemColor settings item
 
         nodeWidth =
             settings.size.width
@@ -388,7 +392,7 @@ textNodeView settings ( posX, posY ) selectedItem item =
                 , y (String.fromInt posY)
                 , strokeWidth "1"
                 , stroke "rgba(0, 0, 0, 0.1)"
-                , fill backgroundColor
+                , fill settings.backgroundColor
                 ]
                 []
             , textNodeInput settings ( posX, posY ) ( nodeWidth, settings.size.height ) (Maybe.withDefault Item.emptyItem selectedItem)
@@ -403,10 +407,10 @@ textNodeView settings ( posX, posY ) selectedItem item =
                 , height <| String.fromInt <| settings.size.height - 1
                 , x (String.fromInt posX)
                 , y (String.fromInt posY)
-                , fill backgroundColor
+                , fill settings.backgroundColor
                 ]
                 []
-            , textNode settings ( posX, posY ) ( nodeWidth, settings.size.height ) color item.text
+            , textNode settings ( posX, posY ) ( nodeWidth, settings.size.height ) color item
             , if isJust selectedItem then
                 dropArea ( posX, posY ) ( nodeWidth, settings.size.height ) item
 
@@ -417,6 +421,13 @@ textNodeView settings ( posX, posY ) selectedItem item =
 
 startTextNodeView : Settings -> Position -> Maybe Item -> Item -> Svg Msg
 startTextNodeView settings ( posX, posY ) selectedItem item =
+    let
+        borderColor =
+            item.backgroundColor |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.activity.backgroundColor
+
+        textColor =
+            item.color |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.activity.color
+    in
     if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
         g []
             [ startTextNodeRect
@@ -424,7 +435,7 @@ startTextNodeView settings ( posX, posY ) selectedItem item =
                 ( settings.size.width
                 , settings.size.height - 1
                 )
-                ( settings.color.activity.backgroundColor, settings.backgroundColor )
+                ( borderColor, settings.backgroundColor )
             , textNodeInput settings ( posX, posY ) ( settings.size.width, settings.size.height ) (Maybe.withDefault Item.emptyItem selectedItem)
             ]
 
@@ -437,8 +448,8 @@ startTextNodeView settings ( posX, posY ) selectedItem item =
                 ( settings.size.width
                 , settings.size.height - 1
                 )
-                ( settings.color.activity.backgroundColor, settings.backgroundColor )
-            , textNode settings ( posX, posY ) ( settings.size.width, settings.size.height ) settings.color.activity.color item.text
+                ( borderColor, settings.backgroundColor )
+            , textNode settings ( posX, posY ) ( settings.size.width, settings.size.height ) textColor item
             , if isJust selectedItem then
                 dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
 
@@ -447,15 +458,19 @@ startTextNodeView settings ( posX, posY ) selectedItem item =
             ]
 
 
-textNode : Settings -> Position -> Size -> RgbColor -> String -> Svg Msg
-textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour nodeText =
+textNode : Settings -> Position -> Size -> RgbColor -> Item -> Svg Msg
+textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
+    let
+        textColor =
+            item.color |> Maybe.withDefault Color.black |> Color.toString
+    in
     foreignObject
         [ x <| String.fromInt posX
         , y <| String.fromInt posY
         , width <| String.fromInt svgWidth
         , height <| String.fromInt svgHeight
         , fill colour
-        , color <| getTextColor settings.color
+        , color textColor
         , fontSize Constants.fontSize
         , class ".select-none"
         ]
@@ -468,13 +483,17 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour nodeText =
             , Attr.style "align-items" "center"
             , Attr.style "justify-content" "center"
             ]
-            [ div [ Attr.style "font-size" "14px" ] [ Html.text nodeText ]
+            [ div [ Attr.style "font-size" "14px" ] [ Html.text item.text ]
             ]
         ]
 
 
 textNodeInput : Settings -> Position -> Size -> Item -> Svg Msg
 textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
+    let
+        textColor =
+            item.color |> Maybe.withDefault Color.black |> Color.toString
+    in
     foreignObject
         [ x <| String.fromInt posX
         , y <| String.fromInt posY
@@ -498,7 +517,7 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
                 , Attr.autocomplete False
                 , Attr.style "padding" "8px 8px 8px 0"
                 , Attr.style "font-family" (fontStyle settings)
-                , Attr.style "color" (getTextColor settings.color)
+                , Attr.style "color" textColor
                 , Attr.style "background-color" "transparent"
                 , Attr.style "border" "none"
                 , Attr.style "outline" "none"
