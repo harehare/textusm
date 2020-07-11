@@ -178,8 +178,8 @@ load text =
                                 [ t, c, b ] ->
                                     ( t, Just c, Just b )
 
-                                [ t, b ] ->
-                                    ( t, Nothing, Just b )
+                                [ t, c ] ->
+                                    ( t, Just c, Nothing )
 
                                 _ ->
                                     ( x, Nothing, Nothing )
@@ -961,8 +961,8 @@ update message model =
                                 ( Diagram.BackgroundColorSelectMenu, Just [ t, c, _ ] ) ->
                                     t ++ "," ++ c ++ "," ++ Color.toString color
 
-                                ( Diagram.BackgroundColorSelectMenu, Just [ t, _ ] ) ->
-                                    t ++ "," ++ "," ++ Color.toString color
+                                ( Diagram.BackgroundColorSelectMenu, Just [ t, c ] ) ->
+                                    t ++ "," ++ c ++ "," ++ Color.toString color
 
                                 ( Diagram.BackgroundColorSelectMenu, Just [ t ] ) ->
                                     t ++ "," ++ "," ++ Color.toString color
