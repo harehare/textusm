@@ -226,16 +226,16 @@ view model =
                             ]
                         , div
                             [ class "button"
-                            , style "padding-left" "8px"
+                            , style "padding" "8px"
                             , onClick Export
                             ]
-                            [ Icon.cloudDownload "#FEFEFE" 26, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport model.lang ] ] ]
+                            [ Icon.cloudDownload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport model.lang ] ] ]
                         , div
                             [ class "button"
-                            , style "padding-left" "8px"
+                            , style "padding" "8px"
                             , onClick Import
                             ]
-                            [ Icon.cloudUpload "#FEFEFE" 26, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipImport model.lang ] ] ]
+                            [ Icon.cloudUpload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipImport model.lang ] ] ]
                         ]
                     , if List.isEmpty displayDiagrams then
                         div
@@ -588,7 +588,7 @@ update message model =
         Export ->
             case model.diagramList of
                 Success diagrams ->
-                    ( model, Download.string "diagrams.json" "application/json" <| DiagramItem.listToString diagrams )
+                    ( model, Download.string "textusm.json" "application/json" <| DiagramItem.listToString diagrams )
 
                 _ ->
                     ( model, Cmd.none )

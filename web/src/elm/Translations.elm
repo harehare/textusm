@@ -3,6 +3,7 @@ module Translations exposing
     , fromString
     , messageFailed
     , messageFailedSaved
+    , messageImportCompleted
     , messageNetworkError
     , messageRequestTimeout
     , messageSuccessfullySaved
@@ -171,3 +172,13 @@ messageFailedSaved lang title =
 
         _ ->
             "Failed \"" ++ title ++ "\" saved."
+
+
+messageImportCompleted : Lang -> String
+messageImportCompleted lang =
+    case lang of
+        Ja ->
+            "インポートが完了しました。"
+
+        _ ->
+            "Import completed."

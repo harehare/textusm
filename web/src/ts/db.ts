@@ -124,10 +124,8 @@ export const initDB = (app: ElmApp): void => {
     );
 
     app.ports.importDiagram.subscribe(async (diagrams: DiagramItem[]) => {
-        for (const diagram of diagrams) {
-            // @ts-ignore
-            await (await db()).diagrams.put(diagram);
-        }
+        // @ts-ignore
+        await (await db()).diagrams.bulkPut(diagrams);
         app.ports.reload.send("");
     });
 

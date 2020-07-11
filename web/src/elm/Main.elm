@@ -727,6 +727,10 @@ update message model =
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
         UpdateDiagramList subMsg ->
+            let
+                ( model_, cmd_ ) =
+                    DiagramList.update subMsg model.diagramListModel
+            in
             case subMsg of
                 DiagramList.Select diagram ->
                     ( { model
@@ -755,11 +759,15 @@ update message model =
                 DiagramList.GotDiagrams (Err _) ->
                     ( model, showErrorMessage <| Translations.messageFailed model.lang )
 
+                DiagramList.ImportComplete json ->
+                    case DiagramItem.stringToList json of
+                        Ok _ ->
+                            ( { model | diagramListModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagramList, showInfoMessage <| Translations.messageImportCompleted model.lang] )
+
+                        Err _ ->
+                            ( model, showErrorMessage <| Translations.messageFailed model.lang )
+
                 _ ->
-                    let
-                        ( model_, cmd_ ) =
-                            DiagramList.update subMsg model.diagramListModel
-                    in
                     ( { model | progress = False, diagramListModel = model_ }
                     , cmd_ |> Cmd.map UpdateDiagramList
                     )
