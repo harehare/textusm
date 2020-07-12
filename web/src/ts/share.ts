@@ -1,6 +1,6 @@
 import { ElmApp } from "./elm";
 
-export const initShare = (app: ElmApp) => {
+export const initShare = (app: ElmApp): void => {
     app.ports.encodeShareText.subscribe(
         async (params: { [s: string]: string }) => {
             const LZUTF8 = await import("lzutf8");

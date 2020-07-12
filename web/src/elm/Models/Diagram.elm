@@ -1,6 +1,8 @@
-module Models.Diagram exposing (Color, ColorSettings, Data(..), Model, Msg(..), Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
+module Models.Diagram exposing (Color, ColorSettings, ContextMenu(..), Data(..), Model, Msg(..), Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
 
 import Browser.Dom exposing (Viewport)
+import Data.Color as Color
+import Data.FontStyle exposing (FontStyle)
 import Data.Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size as Size
@@ -43,6 +45,7 @@ type alias Model =
     , matchParent : Bool
     , selectedItem : Maybe Item
     , dragDrop : DragDrop.Model Int Int
+    , contextMenu : Maybe ( ContextMenu, Position )
     }
 
 
@@ -79,6 +82,14 @@ type Data
     | UserPersona UserPersona
     | StartStopContinue StartStopContinue
     | ErDiagram ErDiagram
+
+
+type ContextMenu
+    = CloseMenu
+    | ColorSelectMenu
+    | BackgroundColorSelectMenu
+    | FontBoldMenu
+    | FontItalicMenu
 
 
 type alias Settings =
@@ -137,14 +148,16 @@ type Msg
     | ToggleFullscreen
     | OnResize Int Int
     | StartPinch Distance
-    | ItemClick Item
-    | DeselectItem
     | ItemDblClick Item
     | EditSelectedItem String
     | EndEditSelectedItem Item Int Bool
     | DragDropMsg (DragDrop.Msg Int Int)
     | MoveItem ( Int, Int )
     | FitToWindow
+    | Select (Maybe ( Item, Position ))
+    | OnColorChanged ContextMenu Color.Color
+    | OnSelectContextMenu ContextMenu
+    | OnFontStyleChanged FontStyle
 
 
 getTextColor : ColorSettings -> String

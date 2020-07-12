@@ -42,6 +42,7 @@ type Msg
     | Progress Bool
     | EndEditTitle Int Bool
     | EditTitle String
+    | EditText String
     | OnShareUrl ShareInfo
     | SignIn LoginProvider
     | SignOut

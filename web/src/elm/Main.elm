@@ -25,7 +25,7 @@ import Events
 import File.Download as Download
 import GraphQL.Request as Request
 import Graphql.Http as Http
-import Html exposing (Html, a, div, img, main_, text)
+import Html exposing (Html, a, div, img, main_, text, textarea)
 import Html.Attributes
     exposing
         ( alt
@@ -35,11 +35,12 @@ import Html.Attributes
         , src
         , style
         , target
+        , value
         )
 import Html.Events as E
 import Html.Lazy as Lazy
 import Json.Decode as D
-import List.Extra exposing (find, getAt, removeAt, setAt, splitAt)
+import List.Extra exposing (find)
 import Models.Diagram as DiagramModel
 import Models.Model as Page exposing (LoginProvider(..), Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
 import Models.Views.ER as ER
@@ -82,15 +83,18 @@ import Views.SwitchWindow as SwitchWindow
 init : ( ( String, String ), D.Value ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        ( ( apiRoot, lang ), settingsJson ) =
+        ( ( apiRoot, langString ), settingsJson ) =
             flags
 
         initSettings =
             D.decodeValue settingsDecoder settingsJson
                 |> Result.withDefault defaultSettings
 
+        lang =
+            Translations.fromString langString
+
         ( diagramListModel, _ ) =
-            DiagramList.init Session.guest apiRoot
+            DiagramList.init Session.guest lang apiRoot
 
         ( diagramModel, _ ) =
             Diagram.init initSettings.storyMap
@@ -124,7 +128,7 @@ init flags url key =
                 , session = Session.guest
                 , currentDiagram = initSettings.diagram
                 , page = Page.Main
-                , lang = Translations.fromString lang
+                , lang = lang
                 }
     in
     ( model, cmds )
@@ -141,10 +145,8 @@ bottomNavigationBar settings diagram title path =
             , style "align-items" "center"
             ]
             [ div
-                [ style "width"
-                    "40px"
-                , style "height"
-                    "40px"
+                [ style "width" "40px"
+                , style "height" "40px"
                 , style "display" "flex"
                 , style "justify-content" "center"
                 , style "align-items" "center"
@@ -156,16 +158,8 @@ bottomNavigationBar settings diagram title path =
                 [ text title ]
             ]
         , div [ class "buttons" ]
-            [ div
-                [ class "button"
-                , E.onClick <| UpdateDiagram DiagramModel.ZoomIn
-                ]
-                [ Icon.add 24 ]
-            , div
-                [ class "button"
-                , E.onClick <| UpdateDiagram DiagramModel.ZoomOut
-                ]
-                [ Icon.remove 24 ]
+            [ div [ class "button", E.onClick <| UpdateDiagram DiagramModel.ZoomIn ] [ Icon.add 24 ]
+            , div [ class "button", E.onClick <| UpdateDiagram DiagramModel.ZoomOut ] [ Icon.remove 24 ]
             ]
         ]
 
@@ -196,13 +190,7 @@ view model =
         , Lazy.lazy showNotification model.notification
         , Lazy.lazy2 showProgressbar model.progress model.window.fullscreen
         , div
-            [ class "main"
-            , if model.window.fullscreen then
-                style "height" "100vh"
-
-              else
-                style "height" "calc(100vh - 56px)"
-            ]
+            [ class "main", style "height" "100vh" ]
             [ Lazy.lazy Menu.view { page = model.page, route = toRoute model.url, text = model.diagramModel.text, width = Size.getWidth model.diagramModel.size, fullscreen = model.window.fullscreen, openMenu = model.openMenu, lang = model.lang }
             , let
                 mainWindow =
@@ -211,12 +199,38 @@ view model =
                             SwitchWindow
                             model.diagramModel.settings.backgroundColor
                             model.switchWindow
+                            (div
+                                [ style "background-color" "#273037"
+                                , style "width" "100%"
+                                , style "height" "100%"
+                                ]
+                                [ textarea
+                                    [ E.onInput EditText
+                                    , style "font-size" ((defaultEditorSettings model.settingsModel.settings.editor |> .fontSize |> String.fromInt) ++ "px")
+                                    , value <| Text.toString model.diagramModel.text
+                                    ]
+                                    []
+                                ]
+                            )
 
                     else
                         Lazy.lazy5 SplitWindow.view
                             OnStartWindowResize
                             model.diagramModel.settings.backgroundColor
                             model.window
+                            (div
+                                [ style "background-color" "#273037"
+                                , style "width" "100%"
+                                , style "height" "100%"
+                                ]
+                                [ div
+                                    [ id "editor"
+                                    , style "width" "100%"
+                                    , style "height" "100%"
+                                    ]
+                                    []
+                                ]
+                            )
               in
               case model.page of
                 Page.List ->
@@ -253,19 +267,6 @@ view model =
 
                 _ ->
                     mainWindow
-                        (div
-                            [ style "background-color" "#273037"
-                            , style "width" "100%"
-                            , style "height" "100%"
-                            ]
-                            [ div
-                                [ id "editor"
-                                , style "width" "100%"
-                                , style "height" "100%"
-                                ]
-                                []
-                            ]
-                        )
                         (Lazy.lazy Diagram.view model.diagramModel
                             |> Html.map UpdateDiagram
                         )
@@ -340,7 +341,7 @@ changeRouteTo route model =
             if RemoteData.isNotAsked model.diagramListModel.diagramList || List.isEmpty (RemoteData.withDefault [] model.diagramListModel.diagramList) then
                 let
                     ( model_, cmd_ ) =
-                        DiagramList.init model.session model.diagramListModel.apiRoot
+                        DiagramList.init model.session model.lang model.diagramListModel.apiRoot
                 in
                 ( { model
                     | page = Page.List
@@ -669,76 +670,39 @@ update message model =
             )
 
         UpdateDiagram msg ->
+            let
+                ( model_, cmd_ ) =
+                    Diagram.update msg model.diagramModel
+            in
             case msg of
                 DiagramModel.OnResize _ _ ->
-                    let
-                        ( model_, cmd_ ) =
-                            Diagram.update msg model.diagramModel
-                    in
                     ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram ] )
 
-                DiagramModel.MoveItem ( fromNo, toNo ) ->
-                    let
-                        lines =
-                            Text.lines model.diagramModel.text
+                DiagramModel.MoveItem ( _, _ ) ->
+                    ( { model | diagramModel = model_ }, Ports.loadText <| Text.toString model_.text )
 
-                        from =
-                            getAt fromNo lines
-                                |> Maybe.withDefault ""
-
-                        newLines =
-                            removeAt fromNo lines
-
-                        ( left, right ) =
-                            splitAt
-                                (if fromNo < toNo then
-                                    toNo - 1
-
-                                 else
-                                    toNo
-                                )
-                                newLines
-
-                        text =
-                            left
-                                ++ from
-                                :: right
-                                |> String.join "\n"
-                    in
-                    ( model
-                    , Cmd.batch
-                        [ Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
-                        , Ports.loadText text
-                        ]
-                    )
-
-                DiagramModel.EndEditSelectedItem item code isComposing ->
+                DiagramModel.EndEditSelectedItem _ code isComposing ->
                     if code == 13 && not isComposing then
-                        let
-                            lines =
-                                Text.lines model.diagramModel.text
-
-                            currentText =
-                                getAt item.lineNo lines
-
-                            prefix =
-                                currentText
-                                    |> Maybe.withDefault ""
-                                    |> Utils.getSpacePrefix
-
-                            text =
-                                setAt item.lineNo (prefix ++ String.trimLeft item.text) lines
-                                    |> String.join "\n"
-                        in
-                        ( model
-                        , Cmd.batch
-                            [ Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
-                            , Ports.loadText text
-                            ]
-                        )
+                        ( { model | diagramModel = model_ }, Ports.loadText <| Text.toString model_.text )
 
                     else
                         ( model, Cmd.none )
+
+                DiagramModel.OnFontStyleChanged _ ->
+                    case model.diagramModel.selectedItem of
+                        Just _ ->
+                            ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Ports.loadText <| Text.toString model_.text ] )
+
+                        Nothing ->
+                            ( model, Cmd.none )
+
+                DiagramModel.OnColorChanged _ _ ->
+                    case model.diagramModel.selectedItem of
+                        Just _ ->
+                            ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, Ports.loadText <| Text.toString model_.text ] )
+
+                        Nothing ->
+                            ( model, Cmd.none )
 
                 DiagramModel.ToggleFullscreen ->
                     let
@@ -747,9 +711,6 @@ update message model =
 
                         newWindow =
                             { window | fullscreen = not window.fullscreen }
-
-                        ( model_, cmd_ ) =
-                            Diagram.update msg model.diagramModel
                     in
                     ( { model | window = newWindow, diagramModel = model_ }
                     , Cmd.batch
@@ -763,13 +724,13 @@ update message model =
                     )
 
                 _ ->
-                    let
-                        ( model_, cmd_ ) =
-                            Diagram.update msg model.diagramModel
-                    in
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
         UpdateDiagramList subMsg ->
+            let
+                ( model_, cmd_ ) =
+                    DiagramList.update subMsg model.diagramListModel
+            in
             case subMsg of
                 DiagramList.Select diagram ->
                     ( { model
@@ -798,11 +759,15 @@ update message model =
                 DiagramList.GotDiagrams (Err _) ->
                     ( model, showErrorMessage <| Translations.messageFailed model.lang )
 
+                DiagramList.ImportComplete json ->
+                    case DiagramItem.stringToList json of
+                        Ok _ ->
+                            ( { model | diagramListModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagramList, showInfoMessage <| Translations.messageImportCompleted model.lang] )
+
+                        Err _ ->
+                            ( model, showErrorMessage <| Translations.messageFailed model.lang )
+
                 _ ->
-                    let
-                        ( model_, cmd_ ) =
-                            DiagramList.update subMsg model.diagramListModel
-                    in
                     ( { model | progress = False, diagramListModel = model_ }
                     , cmd_ |> Cmd.map UpdateDiagramList
                     )
@@ -1197,7 +1162,7 @@ update message model =
             ( model, Ports.loadText text )
 
         SwitchWindow w ->
-            ( { model | switchWindow = w }, Ports.layoutEditor 100 )
+            ( { model | switchWindow = w }, Cmd.none )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -1297,6 +1262,13 @@ update message model =
                 , setEditorLanguage newDiagram.diagram
                 ]
             )
+
+        EditText text ->
+            let
+                ( model_, cmd_ ) =
+                    Diagram.update (DiagramModel.OnChangeText text) model.diagramModel
+            in
+            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
         Load (Err _) ->
             ( { model | progress = False }, showErrorMessage "Failed load diagram." )

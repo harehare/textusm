@@ -1,5 +1,6 @@
 module Data.Item exposing (Item, ItemType(..), Items(..), childrenFromItems, cons, empty, emptyChildren, emptyItem, filter, fromList, getAt, getChildrenCount, getHierarchyCount, getLeafCount, head, indexedMap, isEmpty, length, map, splitAt, tail, toString, unwrap, unwrapChildren)
 
+import Data.Color exposing (Color)
 import List.Extra as ListEx
 
 
@@ -14,6 +15,8 @@ type Items
 type alias Item =
     { lineNo : Int
     , text : String
+    , color : Maybe Color
+    , backgroundColor : Maybe Color
     , itemType : ItemType
     , children : Children
     }
@@ -110,6 +113,8 @@ emptyItem : Item
 emptyItem =
     { lineNo = 0
     , text = ""
+    , color = Nothing
+    , backgroundColor = Nothing
     , itemType = Activities
     , children = emptyChildren
     }

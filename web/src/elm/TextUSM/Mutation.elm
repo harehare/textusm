@@ -28,7 +28,10 @@ type alias SaveRequiredArguments =
   - input -
 
 -}
-save : SaveRequiredArguments -> SelectionSet decodesTo TextUSM.Object.Item -> SelectionSet decodesTo RootMutation
+save :
+    SaveRequiredArguments
+    -> SelectionSet decodesTo TextUSM.Object.Item
+    -> SelectionSet decodesTo RootMutation
 save requiredArgs object_ =
     Object.selectionForCompositeField "save" [ Argument.required "input" requiredArgs.input TextUSM.InputObject.encodeInputItem ] object_ identity
 
@@ -42,7 +45,10 @@ type alias DeleteRequiredArguments =
   - itemID -
 
 -}
-delete : DeleteRequiredArguments -> SelectionSet decodesTo TextUSM.Object.Item -> SelectionSet (Maybe decodesTo) RootMutation
+delete :
+    DeleteRequiredArguments
+    -> SelectionSet decodesTo TextUSM.Object.Item
+    -> SelectionSet (Maybe decodesTo) RootMutation
 delete requiredArgs object_ =
     Object.selectionForCompositeField "delete" [ Argument.required "itemID" requiredArgs.itemID Encode.string ] object_ (identity >> Decode.nullable)
 
@@ -59,6 +65,9 @@ type alias BookmarkRequiredArguments =
   - isBookmark -
 
 -}
-bookmark : BookmarkRequiredArguments -> SelectionSet decodesTo TextUSM.Object.Item -> SelectionSet (Maybe decodesTo) RootMutation
+bookmark :
+    BookmarkRequiredArguments
+    -> SelectionSet decodesTo TextUSM.Object.Item
+    -> SelectionSet (Maybe decodesTo) RootMutation
 bookmark requiredArgs object_ =
     Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs.itemID Encode.string, Argument.required "isBookmark" requiredArgs.isBookmark Encode.bool ] object_ (identity >> Decode.nullable)

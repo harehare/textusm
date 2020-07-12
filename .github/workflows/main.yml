@@ -38,6 +38,8 @@ jobs:
         with:
           name: dist
           path: web/dist
+      - name: lint
+        uses: github/super-linter@v2.0.0
   deploy:
     name: deploy
     needs: build

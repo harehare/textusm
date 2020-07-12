@@ -51,6 +51,11 @@ a {
     font-weight: 600;
 }
 
+p,
+pre {
+    margin: 0;
+}
+
 rect {
     cursor: pointer;
 }
@@ -71,6 +76,20 @@ select {
     background-image: none;
     box-shadow: none;
     appearance: none;
+}
+
+textarea {
+    font-family: "Nunito Sans", apple-system, BlinkMacSystemFont, Helvetica Neue,
+        Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,
+        メイリオ, Meiryo, sans-serif;
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    outline: none;
+    border: none;
+    background-color: var(--main-color);
+    color: var(--text-color);
+    tab-size: 4;
 }
 
 .main-header {
@@ -365,12 +384,12 @@ select {
         }
 
         @media screen and (max-width: 480px) {
-            width: 39vw;
+            width: 38%;
             height: 150px;
             align-items: flex-end;
             justify-content: flex-start;
             img {
-                width: 39vw;
+                width: 100%;
                 height: 125px;
             }
         }
@@ -1065,7 +1084,7 @@ select {
 }
 
 .fade-in {
-    animation: fade-in 0.2s ease 0.3s 1 normal;
+    animation: fade-in 0.1s ease 0.1s 1 normal;
     animation-fill-mode: forwards;
 }
 

@@ -46,7 +46,6 @@ init flags =
     ( { diagramModel =
             { items = Item.empty
             , data = DiagramModel.Empty
-            , hierarchy = 0
             , size = ( flags.width, flags.height )
             , selectedItem = Nothing
             , svg =
@@ -60,6 +59,7 @@ init flags =
             , movePosition = ( 0, 0 )
             , fullscreen = False
             , showZoomControl = flags.showZoomControl
+            , contextMenu = Nothing
             , diagramType =
                 if flags.diagramType == "BusinessModelCanvas" then
                     Diagram.BusinessModelCanvas
@@ -149,7 +149,7 @@ update message model =
     case message of
         UpdateDiagram subMsg ->
             case subMsg of
-                DiagramModel.ItemClick _ ->
+                DiagramModel.Select _ ->
                     ( model, Cmd.none )
 
                 DiagramModel.OnChangeText text ->
