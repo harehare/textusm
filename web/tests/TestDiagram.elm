@@ -186,6 +186,8 @@ changeTextTest =
                             [ { text = "test1"
                               , itemType = Activities
                               , lineNo = 0
+                              , color = Nothing
+                              , backgroundColor = Nothing
                               , children = Item.emptyChildren
                               }
                             ]
@@ -200,11 +202,15 @@ changeTextTest =
                             [ { text = "test1"
                               , itemType = Activities
                               , lineNo = 0
+                              , color = Nothing
+                              , backgroundColor = Nothing
                               , children = Item.emptyChildren
                               }
                             , { text = "test2"
                               , itemType = Activities
                               , lineNo = 1
+                              , color = Nothing
+                              , backgroundColor = Nothing
                               , children = Item.emptyChildren
                               }
                             ]
@@ -219,12 +225,16 @@ changeTextTest =
                             [ { text = "test1"
                               , itemType = Activities
                               , lineNo = 0
+                              , color = Nothing
+                              , backgroundColor = Nothing
                               , children =
                                     Item.childrenFromItems
                                         (Item.fromList
                                             [ { text = "    test2"
                                               , itemType = Tasks
                                               , children = Item.emptyChildren
+                                              , color = Nothing
+                                              , backgroundColor = Nothing
                                               , lineNo = 1
                                               }
                                             ]
@@ -242,17 +252,23 @@ changeTextTest =
                             [ { text = "test1"
                               , itemType = Activities
                               , lineNo = 0
+                              , color = Nothing
+                              , backgroundColor = Nothing
                               , children =
                                     Item.childrenFromItems
                                         (Item.fromList
                                             [ { text = "    test2"
                                               , itemType = Tasks
                                               , lineNo = 1
+                                              , color = Nothing
+                                              , backgroundColor = Nothing
                                               , children = Item.emptyChildren
                                               }
                                             , { text = "    test3"
                                               , itemType = Tasks
                                               , lineNo = 2
+                                              , color = Nothing
+                                              , backgroundColor = Nothing
                                               , children = Item.emptyChildren
                                               }
                                             ]
@@ -270,18 +286,24 @@ changeTextTest =
                             [ { text = "test1"
                               , itemType = Activities
                               , lineNo = 0
+                              , color = Nothing
+                              , backgroundColor = Nothing
                               , children =
                                     Item.childrenFromItems
                                         (Item.fromList
                                             [ { text = "    test2"
                                               , itemType = Tasks
                                               , lineNo = 1
+                                              , color = Nothing
+                                              , backgroundColor = Nothing
                                               , children =
                                                     Item.childrenFromItems
                                                         (Item.fromList
                                                             [ { text = "        test3"
                                                               , itemType = Stories 1
                                                               , children = Item.emptyChildren
+                                                              , color = Nothing
+                                                              , backgroundColor = Nothing
                                                               , lineNo = 2
                                                               }
                                                             ]
@@ -302,23 +324,31 @@ changeTextTest =
                             [ { text = "test1"
                               , itemType = Activities
                               , lineNo = 0
+                              , color = Nothing
+                              , backgroundColor = Nothing
                               , children =
                                     Item.childrenFromItems
                                         (Item.fromList
                                             [ { text = "    test2"
                                               , itemType = Tasks
                                               , lineNo = 1
+                                              , color = Nothing
+                                              , backgroundColor = Nothing
                                               , children =
                                                     Item.childrenFromItems
                                                         (Item.fromList
                                                             [ { text = "        test3"
                                                               , itemType = Stories 1
                                                               , lineNo = 2
+                                                              , color = Nothing
+                                                              , backgroundColor = Nothing
                                                               , children = Item.emptyChildren
                                                               }
                                                             , { text = "        test4"
                                                               , itemType = Stories 1
                                                               , lineNo = 3
+                                                              , color = Nothing
+                                                              , backgroundColor = Nothing
                                                               , children = Item.emptyChildren
                                                               }
                                                             ]
@@ -575,7 +605,7 @@ ganttChartRenderTest =
             init defaultSettings
 
         ( model_, _ ) =
-            update (Init defaultSettings defViewport "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04") { initModel | diagramType = GanttChart }
+            update (Init defaultSettings defViewport "2019-12-26 2020-01-31\n    title1\n        subtitle1\n            2019-12-26 2019-12-31\n    title2\n        subtitle2\n            2019-12-31 2020-01-04") { initModel | diagramType = GanttChart }
     in
     describe "GanttChart Rendering"
         [ test "GanttChart rect count" <|

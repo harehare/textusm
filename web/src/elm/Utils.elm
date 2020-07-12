@@ -229,7 +229,7 @@ extractDateValues : String -> Maybe ( Posix, Posix )
 extractDateValues s =
     let
         rangeValues =
-            String.split "," (String.trim s)
+            String.split " " (String.trim s)
 
         fromDate =
             getAt 0 rangeValues
