@@ -27,7 +27,7 @@ view =
             ]
         , section (Just "Text Syntax")
         , div [ class "text activity", style "padding" "0 16px 16px" ]
-            [ div [ class "activity" ] [ text "User Activity" ]
+            [ div [ class "activity" ] [ text "md: **Markdown Text**" ]
             , div [ class "task" ]
                 [ text <|
                     (String.fromChar '\u{00A0}' |> String.repeat 4)

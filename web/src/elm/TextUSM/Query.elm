@@ -28,7 +28,10 @@ type alias ItemRequiredArguments =
   - id -
 
 -}
-item : ItemRequiredArguments -> SelectionSet decodesTo TextUSM.Object.Item -> SelectionSet decodesTo RootQuery
+item :
+    ItemRequiredArguments
+    -> SelectionSet decodesTo TextUSM.Object.Item
+    -> SelectionSet decodesTo RootQuery
 item requiredArgs object_ =
     Object.selectionForCompositeField "item" [ Argument.required "id" requiredArgs.id Encode.string ] object_ identity
 
@@ -49,7 +52,10 @@ type alias ItemsOptionalArguments =
   - isPublic -
 
 -}
-items : (ItemsOptionalArguments -> ItemsOptionalArguments) -> SelectionSet decodesTo TextUSM.Object.Item -> SelectionSet (List (Maybe decodesTo)) RootQuery
+items :
+    (ItemsOptionalArguments -> ItemsOptionalArguments)
+    -> SelectionSet decodesTo TextUSM.Object.Item
+    -> SelectionSet (List (Maybe decodesTo)) RootQuery
 items fillInOptionals object_ =
     let
         filledInOptionals =

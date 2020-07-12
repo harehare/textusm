@@ -1,43 +1,26 @@
-<svg
-    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1220 1250" width="1220" height="1250" style="transparent">
-    <defs>
-        <style>@import url('https://fonts.googleapis.com/css?family=Nunito Sans&amp;display=swap');</style>
-    </defs>
-    <defs>
-        <filter id="shadow" height="130%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-            <feOffset dx="2" dy="2" result="offsetblur"/>
-            <feComponentTransfer>
-                <feFuncA type="linear" slope="0.5"/>
-            </feComponentTransfer>
-            <feMerge>
-                <feMergeNode/>
-                <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-        </filter>
-    </defs>
-    <g transform="translate(0,20), scale(1,1)" fill="transparent" style="will-change: transform;transition: transform 0.15s ease">
-        <g>
-            <svg width="600" height="600" x="0" y="0" fill="transparent">
-                <rect width="600" height="600" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">Liked</text>
-                <g/>
-            </svg>
-            <svg width="600" height="600" x="595" y="0" fill="transparent">
-                <rect width="600" height="600" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">Learned</text>
-                <g/>
-            </svg>
-            <svg width="600" height="605" x="0" y="595" fill="transparent">
-                <rect width="600" height="605" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">Lacked</text>
-                <g/>
-            </svg>
-            <svg width="600" height="605" x="595" y="595" fill="transparent">
-                <rect width="600" height="605" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">Longed for</text>
-                <g/>
-            </svg>
-        </g>
-    </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1220 1250" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<style>@import url('https://fonts.googleapis.com/css?family=Nunito Sans&amp;display=swap');</style>
+</defs>
+<g transform="translate(0 20) scale(1)" fill="transparent" style="transition:transform 0.15s ease;will-change:transform">
+<g fill="transparent">
+<svg width="600" height="600">
+<rect width="600" height="600" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">Liked</text>
+</svg>
+<svg x="595" width="600" height="600">
+<rect width="600" height="600" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">Learned</text>
+</svg>
+<svg y="595" width="600" height="605">
+<rect width="600" height="605" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">Lacked</text>
+</svg>
+<svg x="595" y="595" width="600" height="605">
+<rect width="600" height="605" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">Longed for</text>
+</svg>
+</g>
+</g>
 </svg>

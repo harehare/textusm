@@ -2,29 +2,6 @@ import { Settings } from "./model";
 
 const SettingsKey = "textusm:settings";
 
-const loadSettings = (): Settings => {
-    const settings = localStorage.getItem(SettingsKey);
-
-    if (settings) {
-        const settingsObject = JSON.parse(settings);
-
-        return {
-            ...defaultSettings,
-            ...settingsObject,
-            storyMap: {
-                ...defaultSettings.storyMap,
-                ...settingsObject.storyMap,
-                color: {
-                    ...defaultSettings.storyMap.color,
-                    ...settingsObject.storyMap.color,
-                },
-            },
-        };
-    }
-
-    return defaultSettings;
-};
-
 const defaultSettings = {
     font: "Nunito Sans",
     storyMap: {
@@ -65,7 +42,30 @@ const defaultSettings = {
     diagram: null,
 };
 
-const saveSettings = (settings: Settings) => {
+const loadSettings = (): Settings => {
+    const settings = localStorage.getItem(SettingsKey);
+
+    if (settings) {
+        const settingsObject = JSON.parse(settings);
+
+        return {
+            ...defaultSettings,
+            ...settingsObject,
+            storyMap: {
+                ...defaultSettings.storyMap,
+                ...settingsObject.storyMap,
+                color: {
+                    ...defaultSettings.storyMap.color,
+                    ...settingsObject.storyMap.color,
+                },
+            },
+        };
+    }
+
+    return defaultSettings;
+};
+
+const saveSettings = (settings: Settings): void => {
     localStorage.setItem(SettingsKey, JSON.stringify(settings));
 };
 

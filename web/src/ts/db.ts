@@ -1,20 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
+import Dexie from "dexie";
 import { Diagram, DiagramItem } from "./model";
 import { ElmApp } from "./elm";
 
-export const initDB = (app: ElmApp) => {
+export const initDB = (app: ElmApp): void => {
     const lazyDB = () => {
-        // @ts-ignore
-        let db = null;
+        let db: Dexie | null = null;
 
-        return async () => {
-            // @ts-ignore
+        return async (): Promise<Dexie> => {
             if (!db) {
-                const Dexie = await import("dexie");
-                // @ts-ignore
-                db = new Dexie.default("textusm");
-                // @ts-ignore
-                db.version(1).stores({
+                db = new (await import("dexie")).default("textusm");
+                db.version(2).stores({
                     diagrams:
                         "++id,title,text,thumbnail,diagramPath,createdAt,updatedAt",
                 });
@@ -24,40 +20,31 @@ export const initDB = (app: ElmApp) => {
                         diagrams:
                             "++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt",
                     })
-                    //@ts-ignore
                     .upgrade((trans) => {
-                        //@ts-ignore
                         return (
-                            //@ts-ignore
+                            // @ts-ignore
                             trans.diagrams
                                 .toCollection()
-                                //@ts-ignore
-                                .modify((diagram) => {
-                                    diagram.diagram = diagram.diagramPath;
-                                    diagram.isBookmark = false;
-                                    delete diagram.diagramPath;
+                                // @ts-ignore
+                                .modify((d) => {
+                                    d.diagram = d.diagramPath;
+                                    d.isBookmark = false;
+                                    delete d.diagramPath;
                                 })
                         );
                     });
-                db.version(3)
-                    //@ts-ignore
-                    .upgrade((trans) => {
-                        //@ts-ignore
-                        return (
-                            //@ts-ignore
-                            trans.diagrams
-                                .toCollection()
-                                //@ts-ignore
-                                .modify((diagram) => {
-                                    diagram.diagram =
-                                        diagram.diagram === "cjm"
-                                            ? "table"
-                                            : "";
-                                })
-                        );
-                    });
+                db.version(3).upgrade((trans) => {
+                    return (
+                        // @ts-ignore
+                        trans.diagrams
+                            .toCollection()
+                            // @ts-ignore
+                            .modify((d) => {
+                                d.diagram = d.diagram === "cjm" ? "table" : "";
+                            })
+                    );
+                });
             }
-            //@ts-ignore
             return db;
         };
     };
@@ -98,11 +85,13 @@ export const initDB = (app: ElmApp) => {
             const thumbnail = svg2base64("usm");
             const createdAt = new Date().getTime();
             const diagramItem: DiagramItem = {
+                id,
                 title,
                 text,
                 thumbnail,
                 diagram,
                 isPublic,
+                isRemote,
                 isBookmark,
                 tags,
                 createdAt,
@@ -110,14 +99,12 @@ export const initDB = (app: ElmApp) => {
             };
 
             if (isRemote) {
-                app.ports.saveToRemote.send(
-                    JSON.stringify({
-                        ...diagramItem,
-                        isRemote: true,
-                        id,
-                        isPublic,
-                    })
-                );
+                app.ports.saveToRemote.send({
+                    ...diagramItem,
+                    isRemote: true,
+                    id,
+                    isPublic,
+                });
                 if (id) {
                     // @ts-ignore
                     await (await db()).diagrams.delete(id);
@@ -125,18 +112,22 @@ export const initDB = (app: ElmApp) => {
             } else {
                 const newId = id ?? uuidv4();
                 // @ts-ignore
-                await (await db()).diagrams.put({ id: newId, ...diagramItem });
-                app.ports.saveToLocalCompleted.send(
-                    JSON.stringify({
-                        ...diagramItem,
-                        isRemote: false,
-                        id: newId,
-                        isPublic,
-                    })
-                );
+                await (await db()).diagrams.put({ ...diagramItem, id: newId });
+                app.ports.saveToLocalCompleted.send({
+                    ...diagramItem,
+                    isRemote: false,
+                    id: newId,
+                    isPublic,
+                });
             }
         }
     );
+
+    app.ports.importDiagram.subscribe(async (diagrams: DiagramItem[]) => {
+        // @ts-ignore
+        await (await db()).diagrams.bulkPut(diagrams);
+        app.ports.reload.send("");
+    });
 
     app.ports.removeDiagrams.subscribe(async (diagram: Diagram) => {
         const { id, title, isRemote } = diagram;
@@ -146,11 +137,11 @@ export const initDB = (app: ElmApp) => {
             )
         ) {
             if (isRemote) {
-                app.ports.removeRemoteDiagram.send(JSON.stringify(diagram));
+                app.ports.removeRemoteDiagram.send(diagram);
             } else {
                 // @ts-ignore
                 await (await db()).diagrams.delete(id);
-                app.ports.removedDiagram.send([JSON.stringify(diagram), true]);
+                app.ports.reload.send("");
             }
         }
     });
@@ -158,13 +149,11 @@ export const initDB = (app: ElmApp) => {
     app.ports.getDiagram.subscribe(async (diagramId: string) => {
         // @ts-ignore
         const diagram = await (await db()).diagrams.get(diagramId);
-        app.ports.gotLocalDiagramJson.send(
-            JSON.stringify({
-                ...diagram,
-                isPublic: false,
-                isRemote: false,
-            })
-        );
+        app.ports.gotLocalDiagramJson.send({
+            ...diagram,
+            isPublic: false,
+            isRemote: false,
+        });
     });
 
     app.ports.getDiagrams.subscribe(async () => {
@@ -174,13 +163,11 @@ export const initDB = (app: ElmApp) => {
             .reverse()
             .toArray();
         app.ports.gotLocalDiagramsJson.send(
-            JSON.stringify(
-                diagrams.map((d: Diagram) => ({
-                    ...d,
-                    isPublic: false,
-                    isRemote: false,
-                }))
-            )
+            diagrams.map((d: Diagram) => ({
+                ...d,
+                isPublic: false,
+                isRemote: false,
+            }))
         );
     });
 };

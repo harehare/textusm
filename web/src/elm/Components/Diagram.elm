@@ -3,6 +3,8 @@ module Components.Diagram exposing (init, update, view)
 import Basics exposing (max)
 import Browser.Dom as Dom
 import Constants exposing (inputPrefix)
+import Data.Color as Color
+import Data.FontStyle as FontStyle
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position as Position
 import Data.Size as Size exposing (Size)
@@ -14,7 +16,7 @@ import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
 import List
-import List.Extra exposing (findIndex, getAt, scanl, splitAt)
+import List.Extra exposing (findIndex, getAt, removeAt, scanl, setAt, splitAt)
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Views.ER as ErDiagramModel
@@ -36,6 +38,7 @@ import Task
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
+import Views.Diagram.ContextMenu as ContextMenu
 import Views.Diagram.ER as ER
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
@@ -86,6 +89,7 @@ init settings =
       , matchParent = False
       , selectedItem = Nothing
       , dragDrop = DragDrop.init
+      , contextMenu = Nothing
       }
     , Cmd.none
     )
@@ -168,11 +172,24 @@ load text =
 
                         ( otherIndents, otherItems ) =
                             loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
+
+                        ( displayText, color, backgroundColor ) =
+                            case String.split "," x of
+                                [ t, c, b ] ->
+                                    ( t, Just c, Just b )
+
+                                [ t, c ] ->
+                                    ( t, Just c, Nothing )
+
+                                _ ->
+                                    ( x, Nothing, Nothing )
                     in
                     ( indent :: xsIndent ++ otherIndents
                     , Item.cons
                         { lineNo = lineNo
-                        , text = x
+                        , text = displayText
+                        , color = Maybe.andThen (\c -> Just <| Color.fromString c) color
+                        , backgroundColor = Maybe.andThen (\c -> Just <| Color.fromString c) backgroundColor
                         , itemType = getItemType x indent
                         , children = Item.childrenFromItems xsItems
                         }
@@ -441,6 +458,7 @@ svgView model =
         , Wheel.onWheel chooseZoom
         , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
         , onDragMove model.touchDistance model.moveStart (Utils.isPhone <| Size.getWidth model.size)
+        , onClick <| Select Nothing
         ]
         [ if String.isEmpty model.settings.font then
             g [] []
@@ -484,6 +502,30 @@ svgView model =
                 style "will-change: transform;transition: transform 0.15s ease"
             ]
             [ mainSvg ]
+        , case ( model.selectedItem, model.contextMenu ) of
+            ( Just item, Just ( contextMenu, position ) ) ->
+                let
+                    ( posX, posY ) =
+                        position
+
+                    ( offsetX, offsetY ) =
+                        model.position
+                in
+                ContextMenu.view
+                    { state = contextMenu
+                    , item = item
+                    , position =
+                        ( floor <| toFloat (posX + offsetX) * model.svg.scale
+                        , floor <| toFloat (posY + offsetY) * model.svg.scale
+                        )
+                    , onMenuSelect = OnSelectContextMenu
+                    , onColorChanged = OnColorChanged Diagram.ColorSelectMenu
+                    , onBackgroundColorChanged = OnColorChanged Diagram.BackgroundColorSelectMenu
+                    , onFontStyleChanged = OnFontStyleChanged
+                    }
+
+            _ ->
+                Empty.view
         ]
 
 
@@ -679,6 +721,22 @@ updateDiagram ( width, height ) base text =
     }
 
 
+itemToColorText : Item -> String
+itemToColorText item =
+    case ( item.color, item.backgroundColor ) of
+        ( Just color, Just backgroundColor ) ->
+            "," ++ Color.toString color ++ "," ++ Color.toString backgroundColor
+
+        ( Just color, Nothing ) ->
+            "," ++ Color.toString color
+
+        ( Nothing, Just backgroundColor ) ->
+            "," ++ "," ++ Color.toString backgroundColor
+
+        _ ->
+            ""
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
@@ -735,11 +793,7 @@ update message model =
             ( { model | touchDistance = Just distance }, Task.perform identity (Task.succeed ZoomOut) )
 
         OnChangeText text ->
-            let
-                model_ =
-                    updateDiagram model.size model text
-            in
-            ( model_, Cmd.none )
+            ( updateDiagram model.size model text, Cmd.none )
 
         Start pos ->
             ( { model
@@ -800,18 +854,10 @@ update message model =
         StartPinch distance ->
             ( { model | touchDistance = Just distance }, Cmd.none )
 
-        ItemClick item ->
-            ( { model | selectedItem = Just item }
-            , Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
-            )
-
         EditSelectedItem text ->
             ( { model | selectedItem = Maybe.andThen (\i -> Just { i | text = " " ++ String.trimLeft text }) model.selectedItem }
             , Cmd.none
             )
-
-        DeselectItem ->
-            ( { model | selectedItem = Nothing }, Cmd.none )
 
         DragDropMsg msg_ ->
             let
@@ -849,6 +895,165 @@ update message model =
                     ( windowWidth // 2 - round (toFloat canvasWidth / 2 * widthRatio), windowHeight // 2 - round (toFloat canvasHeight / 2 * heightRatio) )
             in
             ( { model | svg = newSvgModel, position = position }, Cmd.none )
+
+        Select (Just ( item, position )) ->
+            ( { model | selectedItem = Just item, contextMenu = Just ( Diagram.CloseMenu, position ) }
+            , Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
+            )
+
+        Select Nothing ->
+            ( { model | selectedItem = Nothing }, Cmd.none )
+
+        EndEditSelectedItem item code isComposing ->
+            case ( model.selectedItem, code, isComposing ) of
+                ( Just selectedItem, 13, False ) ->
+                    let
+                        lines =
+                            Text.lines model.text
+
+                        currentText =
+                            getAt item.lineNo lines
+
+                        prefix =
+                            currentText
+                                |> Maybe.withDefault ""
+                                |> Utils.getSpacePrefix
+
+                        text =
+                            setAt item.lineNo (prefix ++ String.trimLeft (item.text ++ itemToColorText selectedItem)) lines
+                                |> String.join "\n"
+                    in
+                    ( { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        OnSelectContextMenu menu ->
+            ( { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+
+        OnColorChanged menu color ->
+            case model.selectedItem of
+                Just item ->
+                    let
+                        lines =
+                            Text.lines model.text
+
+                        currentText =
+                            getAt item.lineNo lines
+
+                        tokens =
+                            Maybe.map (String.split ",") currentText
+
+                        text =
+                            case ( menu, tokens ) of
+                                ( Diagram.ColorSelectMenu, Just [ t, _, b ] ) ->
+                                    t ++ "," ++ Color.toString color ++ "," ++ b
+
+                                ( Diagram.ColorSelectMenu, Just [ t, _ ] ) ->
+                                    t ++ "," ++ Color.toString color
+
+                                ( Diagram.ColorSelectMenu, Just [ t ] ) ->
+                                    t ++ "," ++ Color.toString color
+
+                                ( Diagram.ColorSelectMenu, Nothing ) ->
+                                    currentText |> Maybe.withDefault ""
+
+                                ( Diagram.BackgroundColorSelectMenu, Just [ t, c, _ ] ) ->
+                                    t ++ "," ++ c ++ "," ++ Color.toString color
+
+                                ( Diagram.BackgroundColorSelectMenu, Just [ t, c ] ) ->
+                                    t ++ "," ++ c ++ "," ++ Color.toString color
+
+                                ( Diagram.BackgroundColorSelectMenu, Just [ t ] ) ->
+                                    t ++ "," ++ "," ++ Color.toString color
+
+                                ( Diagram.BackgroundColorSelectMenu, Nothing ) ->
+                                    currentText |> Maybe.withDefault ""
+
+                                _ ->
+                                    currentText |> Maybe.withDefault ""
+
+                        prefix =
+                            currentText
+                                |> Maybe.withDefault ""
+                                |> Utils.getSpacePrefix
+
+                        updateText =
+                            setAt item.lineNo (prefix ++ String.trimLeft text) lines
+                                |> String.join "\n"
+                    in
+                    case ( model.selectedItem, menu ) of
+                        ( Just i, Diagram.ColorSelectMenu ) ->
+                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just { i | color = Just color }, contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+
+                        ( Just i, Diagram.BackgroundColorSelectMenu ) ->
+                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just { i | backgroundColor = Just color }, contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+
+                        _ ->
+                            ( model, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        OnFontStyleChanged style ->
+            case model.selectedItem of
+                Just item ->
+                    let
+                        lines =
+                            Text.lines model.text
+
+                        currentText =
+                            getAt item.lineNo lines
+                                |> Maybe.withDefault ""
+
+                        prefix =
+                            currentText
+                                |> Utils.getSpacePrefix
+
+                        text =
+                            currentText
+                                |> String.split ","
+                                |> List.head
+                                |> Maybe.withDefault ""
+
+                        updateText =
+                            setAt item.lineNo (prefix ++ (String.trimLeft text |> FontStyle.apply style) ++ itemToColorText item) lines
+                                |> String.join "\n"
+                    in
+                    ( { model | text = Text.change <| Text.fromString updateText }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        MoveItem ( fromNo, toNo ) ->
+            let
+                lines =
+                    Text.lines model.text
+
+                from =
+                    getAt fromNo lines
+                        |> Maybe.withDefault ""
+
+                newLines =
+                    removeAt fromNo lines
+
+                ( left, right ) =
+                    splitAt
+                        (if fromNo < toNo then
+                            toNo - 1
+
+                         else
+                            toNo
+                        )
+                        newLines
+
+                text =
+                    left
+                        ++ from
+                        :: right
+                        |> String.join "\n"
+            in
+            ( { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

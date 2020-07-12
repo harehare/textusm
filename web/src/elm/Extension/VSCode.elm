@@ -11,7 +11,6 @@ import Html.Attributes exposing (class, style)
 import Html.Lazy exposing (lazy)
 import Html5.DragDrop as DragDrop
 import Json.Decode as D
-import List.Extra exposing (getAt, removeAt, setAt, splitAt, takeWhile)
 import Models.Diagram as DiagramModel
 import Task
 import Utils
@@ -55,7 +54,6 @@ init flags =
     ( { diagramModel =
             { items = Item.empty
             , data = DiagramModel.Empty
-            , hierarchy = 0
             , size = ( 1024, 1024 )
             , svg =
                 { width = 140
@@ -68,6 +66,7 @@ init flags =
             , fullscreen = False
             , showZoomControl = True
             , selectedItem = Nothing
+            , contextMenu = Nothing
             , diagramType = DiagramType.fromString flags.diagramType
             , dragDrop = DragDrop.init
             , settings =
@@ -142,90 +141,22 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         UpdateDiagram subMsg ->
+            let
+                ( model_, cmd_ ) =
+                    Diagram.update subMsg model.diagramModel
+            in
             case subMsg of
-                DiagramModel.EndEditSelectedItem item code isComposing ->
+                DiagramModel.EndEditSelectedItem _ code isComposing ->
                     if code == 13 && not isComposing then
-                        let
-                            lines =
-                                model.text
-                                    |> String.lines
-
-                            currentText =
-                                getAt item.lineNo lines
-
-                            prefix =
-                                (currentText
-                                    |> Maybe.withDefault ""
-                                    |> String.toList
-                                    |> takeWhile (\c -> c == ' ')
-                                    |> List.length
-                                    |> String.repeat
-                                )
-                                    " "
-
-                            text =
-                                setAt item.lineNo (prefix ++ String.trimLeft item.text) lines
-                                    |> String.join "\n"
-                        in
-                        ( { model | text = text }
-                        , Cmd.batch
-                            [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
-                            , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
-                            , setText text
-                            ]
-                        )
+                        ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, setText (Text.toString model_.text) ] )
 
                     else
                         ( model, Cmd.none )
 
-                DiagramModel.MoveItem ( fromNo, toNo ) ->
-                    let
-                        lines =
-                            String.lines model.text
-
-                        from =
-                            getAt fromNo lines
-                                |> Maybe.withDefault ""
-
-                        newLines =
-                            removeAt fromNo lines
-
-                        ( left, right ) =
-                            splitAt
-                                (if fromNo < toNo then
-                                    toNo - 1
-
-                                 else
-                                    toNo
-                                )
-                                newLines
-
-                        text =
-                            left
-                                ++ from
-                                :: right
-                                |> String.join "\n"
-                    in
-                    ( { model | text = text }
-                    , Cmd.batch
-                        [ Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText text)))
-                        , Task.perform identity (Task.succeed (UpdateDiagram DiagramModel.DeselectItem))
-                        , setText text
-                        ]
-                    )
-
-                DiagramModel.OnChangeText text ->
-                    let
-                        ( model_, _ ) =
-                            Diagram.update subMsg model.diagramModel
-                    in
-                    ( { model | text = text, diagramModel = model_ }, Cmd.none )
+                DiagramModel.MoveItem ( _, _ ) ->
+                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, setText (Text.toString model_.text) ] )
 
                 _ ->
-                    let
-                        ( model_, cmd_ ) =
-                            Diagram.update subMsg model.diagramModel
-                    in
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
         GetCanvasSize diagramType ->

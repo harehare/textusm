@@ -80,26 +80,30 @@ change text =
 
 edit : Text -> String -> Text
 edit currentText newText =
-    let
-        text =
-            case currentText of
-                Empty ->
-                    ""
-
-                Changed t ->
-                    t
-
-                Saved t ->
-                    t
-    in
-    if String.isEmpty newText then
-        Empty
-
-    else if text == newText then
-        Saved newText
+    if isChanged currentText then
+        Changed newText
 
     else
-        Changed newText
+        let
+            text =
+                case currentText of
+                    Empty ->
+                        ""
+
+                    Changed t ->
+                        t
+
+                    Saved t ->
+                        t
+        in
+        if String.isEmpty newText then
+            Empty
+
+        else if text == newText then
+            Saved newText
+
+        else
+            Changed newText
 
 
 decoder : Decoder Text

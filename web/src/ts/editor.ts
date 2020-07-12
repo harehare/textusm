@@ -1,14 +1,9 @@
-import { ElmApp } from "./elm";
-import * as monaco from "monaco-editor";
+import * as monaco from "monaco-editor"; // eslint-disable-line import/no-unresolved
+import { ElmApp, EditorOption } from "./elm";
 import { sleep } from "./utils";
 
-export interface EditorOption {
-    fontSize: number;
-    wordWrap: boolean;
-    showLineNumber: boolean;
-}
-
 let monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;
+let updateTextInterval: number | null = null;
 
 const loadText = (text: string) => {
     if (monacoEditor) {
@@ -50,7 +45,7 @@ export const loadEditor = async (
         wordWrap: false,
         showLineNumber: true,
     }
-) => {
+): Promise<void> => {
     monaco.languages.register({
         id: "userStoryMap",
     });
@@ -58,7 +53,8 @@ export const loadEditor = async (
     monaco.languages.setMonarchTokensProvider("userStoryMap", {
         tokenizer: {
             root: [
-                [/#.+/, "comment"],
+                [/^#.+/, "comment"],
+                [/#.+/, "color"],
                 [/^[^ ][^#:]+/, "activity"],
                 [/^ {8}[^#:]+/, "story"],
                 [/^ {4}[^#:]+/, "task"],
@@ -78,6 +74,10 @@ export const loadEditor = async (
                 foreground: "#008800",
             },
             {
+                token: "color",
+                foreground: "#323d46",
+            },
+            {
                 token: "activity",
                 foreground: "#439ad9",
             },
@@ -92,61 +92,81 @@ export const loadEditor = async (
         ],
     });
 
-    let editor = null;
-    let tryCount = 0;
-
-    while (!editor) {
-        editor = document.getElementById("editor");
-        tryCount++;
-        if (tryCount > 10) {
-            return;
-        }
+    let editor: HTMLElement | null = null;
+    for (let i = 0; i < 10; i += 1) {
+        editor = document.getElementById("editor") as HTMLElement | null;
+        if (editor) break;
+        // eslint-disable-line no-await-in-loop
         await sleep(100);
     }
 
     if (monacoEditor) {
         monacoEditor.dispose();
     }
-    monacoEditor = monaco.editor.create(editor, {
-        value: text,
-        language: location.pathname.startsWith("/md")
-            ? "markdown"
-            : "userStoryMap",
-        theme: "usmTheme",
-        lineNumbers: showLineNumber ? "on" : "off",
-        wordWrap: wordWrap ? "on" : "off",
-        minimap: {
-            enabled: false,
-        },
-        fontSize,
-        mouseWheelZoom: true,
-        automaticLayout: true,
-    });
 
-    // @ts-ignore
-    monacoEditor._standaloneKeybindingService.addDynamicKeybinding(
-        "-actions.find"
-    );
+    if (editor) {
+        monacoEditor = monaco.editor.create(editor, {
+            value: text,
+            language: window.location.pathname.startsWith("/md")
+                ? "markdown"
+                : "userStoryMap",
+            theme: "usmTheme",
+            lineNumbers: showLineNumber ? "on" : "off",
+            wordWrap: wordWrap ? "on" : "off",
+            minimap: {
+                enabled: false,
+            },
+            fontSize,
+            mouseWheelZoom: true,
+            automaticLayout: true,
+            scrollbar: {
+                verticalScrollbarSize: 6,
+                horizontalScrollbarSize: 6,
+            },
+        });
+    }
 
-    monacoEditor.addAction({
-        id: "open",
-        label: "open",
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
-        contextMenuOrder: 1,
-        run: () => {
-            app.ports.shortcuts.send("open");
-        },
-    });
+    if (monacoEditor) {
+        // @ts-ignore
+        // eslint-disable-line no-underscore-dangle
+        monacoEditor._standaloneKeybindingService.addDynamicKeybinding(
+            "-actions.find"
+        );
+        monacoEditor.addAction({
+            id: "open",
+            label: "open",
+            keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
+            contextMenuOrder: 1,
+            run: () => {
+                app.ports.shortcuts.send("open");
+            },
+        });
 
-    monacoEditor.addAction({
-        id: "save-to-local",
-        label: "save",
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
-        contextMenuOrder: 2,
-        run: () => {
-            app.ports.shortcuts.send("save");
-        },
-    });
+        monacoEditor.addAction({
+            id: "save-to-local",
+            label: "save",
+            keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
+            contextMenuOrder: 2,
+            run: () => {
+                app.ports.shortcuts.send("save");
+            },
+        });
+
+        monacoEditor.onDidChangeModelContent((e) => {
+            if (e.changes.length > 0) {
+                if (updateTextInterval) {
+                    window.clearTimeout(updateTextInterval);
+                    updateTextInterval = null;
+                }
+                updateTextInterval = window.setTimeout(() => {
+                    if (!monacoEditor) {
+                        return;
+                    }
+                    app.ports.changeText.send(monacoEditor.getValue());
+                }, 300);
+            }
+        });
+    }
 
     app.ports.loadText.unsubscribe(loadText);
     app.ports.loadText.subscribe(loadText);
@@ -159,21 +179,4 @@ export const loadEditor = async (
 
     app.ports.layoutEditor.unsubscribe(layout);
     app.ports.layoutEditor.subscribe(layout);
-
-    let update: number | null = null;
-
-    monacoEditor.onDidChangeModelContent((e) => {
-        if (e.changes.length > 0) {
-            if (update) {
-                window.clearTimeout(update);
-                update = null;
-            }
-            update = window.setTimeout(() => {
-                if (!monacoEditor) {
-                    return;
-                }
-                app.ports.changeText.send(monacoEditor.getValue());
-            }, 300);
-        }
-    });
 };

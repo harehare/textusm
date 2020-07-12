@@ -1,67 +1,44 @@
-<svg
-    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1525 650" width="1525" height="650" style="transparent">
-    <defs>
-        <style>@import url('https://fonts.googleapis.com/css?family=Nunito Sans&amp;display=swap');</style>
-    </defs>
-    <defs>
-        <filter id="shadow" height="130%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-            <feOffset dx="2" dy="2" result="offsetblur"/>
-            <feComponentTransfer>
-                <feFuncA type="linear" slope="0.5"/>
-            </feComponentTransfer>
-            <feMerge>
-                <feMergeNode/>
-                <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-        </filter>
-    </defs>
-    <g transform="translate(15,20), scale(1,1)" fill="transparent" style="will-change: transform;transition: transform 0.15s ease">
-        <g>
-            <svg width="300" height="300" x="0" y="0">
-                <rect width="300" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="10" y="24" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">Name</text>
-            </svg>
-            <svg width="300" height="300" x="295" y="0" fill="transparent">
-                <rect width="300" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">Who am i...</text>
-                <g/>
-            </svg>
-            <svg width="445" height="300" x="590" y="0" fill="transparent">
-                <rect width="445" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">Three reasons to use your product</text>
-                <g/>
-            </svg>
-            <svg width="450" height="300" x="1030" y="0" fill="transparent">
-                <rect width="450" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">Three reasons to buy your product</text>
-                <g/>
-            </svg>
-            <svg width="300" height="300" x="0" y="295" fill="transparent">
-                <rect width="300" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">My interests</text>
-                <g/>
-            </svg>
-            <svg width="300" height="300" x="295" y="295" fill="transparent">
-                <rect width="300" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">My personality</text>
-                <g/>
-            </svg>
-            <svg width="300" height="300" x="590" y="295" fill="transparent">
-                <rect width="300" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">My Skills</text>
-                <g/>
-            </svg>
-            <svg width="300" height="300" x="885" y="295" fill="transparent">
-                <rect width="300" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">My dreams</text>
-                <g/>
-            </svg>
-            <svg width="300" height="300" x="1180" y="295" fill="transparent">
-                <rect width="300" height="300" stroke="#333333" stroke-width="10"/>
-                <text x="20" y="34" font-family="'Nunito Sans', sans-serif" fill="#333333" font-size="20" font-weight="bold" class=".select-none">My relationship with technology</text>
-                <g/>
-            </svg>
-        </g>
-    </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1525 650" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<style>@import url('https://fonts.googleapis.com/css?family=Nunito Sans&amp;display=swap');</style>
+</defs>
+<g transform="translate(15 20) scale(1)" fill="transparent" style="transition:transform 0.15s ease;will-change:transform">
+<svg width="300" height="300">
+<rect width="300" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="10" y="24" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">Name</text>
+</svg>
+<svg x="295" width="300" height="300" fill="transparent">
+<rect width="300" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">Who am i...</text>
+</svg>
+<svg x="590" width="445" height="300" fill="transparent">
+<rect width="445" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">Three reasons to use your product</text>
+</svg>
+<svg x="1030" width="450" height="300" fill="transparent">
+<rect width="450" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">Three reasons to buy your product</text>
+</svg>
+<svg y="295" width="300" height="300" fill="transparent">
+<rect width="300" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">My interests</text>
+</svg>
+<svg x="295" y="295" width="300" height="300" fill="transparent">
+<rect width="300" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">My personality</text>
+</svg>
+<svg x="590" y="295" width="300" height="300" fill="transparent">
+<rect width="300" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">My Skills</text>
+</svg>
+<svg x="885" y="295" width="300" height="300" fill="transparent">
+<rect width="300" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">My dreams</text>
+</svg>
+<svg x="1180" y="295" width="300" height="300" fill="transparent">
+<rect width="300" height="300" stroke="#333" stroke-width="10"/>
+<text class=".select-none" x="20" y="34" fill="#333333" font-family="'Nunito Sans', sans-serif" font-size="20" font-weight="bold">My relationship with technology</text>
+</svg>
+</g>
 </svg>

@@ -1,4 +1,4 @@
-module Data.DiagramItem exposing (DiagramItem, decoder, empty, encoder, getId, idToString, mapToDateTime, toInputItem)
+module Data.DiagramItem exposing (DiagramItem, decoder, empty, encoder, getId, idToString, listToString, listToValue, mapToDateTime, stringToList, toInputItem)
 
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramType as DiagramType
@@ -135,3 +135,18 @@ idToString =
         (\(TextUSM.Scalar.Id value) ->
             Just (DiagramId.fromString value)
         )
+
+
+listToValue : List DiagramItem -> E.Value
+listToValue items =
+    E.list encoder items
+
+
+listToString : List DiagramItem -> String
+listToString items =
+    E.encode 4 (listToValue items)
+
+
+stringToList : String -> Result D.Error (List DiagramItem)
+stringToList json =
+    D.decodeString (D.list decoder) json

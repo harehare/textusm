@@ -3,11 +3,13 @@ module Translations exposing
     , fromString
     , messageFailed
     , messageFailedSaved
+    , messageImportCompleted
     , messageNetworkError
     , messageRequestTimeout
     , messageSuccessfullySaved
     , toolTipExport
     , toolTipHelp
+    , toolTipImport
     , toolTipNewFile
     , toolTipOpenFile
     , toolTipSave
@@ -60,6 +62,16 @@ toolTipSave lang =
 
         _ ->
             "Save"
+
+
+toolTipImport : Lang -> String
+toolTipImport lang =
+    case lang of
+        Ja ->
+            "インポート"
+
+        _ ->
+            "Import"
 
 
 toolTipExport : Lang -> String
@@ -160,3 +172,13 @@ messageFailedSaved lang title =
 
         _ ->
             "Failed \"" ++ title ++ "\" saved."
+
+
+messageImportCompleted : Lang -> String
+messageImportCompleted lang =
+    case lang of
+        Ja ->
+            "インポートが完了しました。"
+
+        _ ->
+            "Import completed."
