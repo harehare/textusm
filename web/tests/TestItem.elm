@@ -30,6 +30,8 @@ all =
                                 , { lineNo = 0
                                   , text = ""
                                   , itemType = Activities
+                                  , color = Nothing
+                                  , backgroundColor = Nothing
                                   , children = Item.emptyChildren
                                   }
                                 ]
@@ -52,6 +54,8 @@ all =
                                 [ { lineNo = 0
                                   , text = ""
                                   , itemType = Activities
+                                  , color = Nothing
+                                  , backgroundColor = Nothing
                                   , children = Item.emptyChildren
                                   }
                                 , Item.emptyItem
@@ -86,6 +90,8 @@ all =
                                 , { lineNo = 0
                                   , text = "test"
                                   , itemType = Activities
+                                  , color = Nothing
+                                  , backgroundColor = Nothing
                                   , children = Item.emptyChildren
                                   }
                                 ]
@@ -144,6 +150,8 @@ all =
                             { lineNo = 0
                             , text = "test"
                             , itemType = Activities
+                            , color = Nothing
+                            , backgroundColor = Nothing
                             , children = Item.childrenFromItems (Items [ Item.emptyItem ])
                             }
                         )
@@ -161,6 +169,8 @@ all =
                             { lineNo = 0
                             , text = "test"
                             , itemType = Activities
+                            , color = Nothing
+                            , backgroundColor = Nothing
                             , children = Item.childrenFromItems (Items [ Item.emptyItem ])
                             }
                         )
