@@ -1,4 +1,4 @@
-export type UserStoryMap = {
+type UserStoryMap = {
   name: "UserStoryMap";
   labels?: string[];
   activities: Activity[];
@@ -18,3 +18,5 @@ type Story = {
   name: string;
   release: number;
 };
+
+export { UserStoryMap };

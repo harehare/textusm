@@ -45,7 +45,7 @@ interface Color {
 }
 
 const defaultConfig: Config = {
-  font: "Roboto",
+  font: "Nunito Sans",
   size: {
     width: 140,
     height: 65,

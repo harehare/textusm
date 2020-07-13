@@ -1,13 +1,15 @@
-export type MindMap = {
+type MindMap = {
   name: "MindMap";
   node: MapNode;
 };
 
-export type MapNode = {
+type MapNode = {
   text: string;
   children: MapNode[];
 };
 
-export type SiteMap = MindMap;
+type SiteMap = MindMap;
 
-export type ImpactMap = MindMap;
+type ImpactMap = MindMap;
+
+export { MindMap, MapNode, SiteMap, ImpactMap };

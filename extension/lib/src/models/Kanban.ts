@@ -1,13 +1,15 @@
-export type Kanban = {
+type Kanban = {
   name: "Kanban";
   lists: KanbanList[];
 };
 
-export type KanbanList = {
+type KanbanList = {
   name: string;
   cards: KanbanCard[];
 };
 
-export type KanbanCard = {
+type KanbanCard = {
   text: string;
 };
+
+export { Kanban, KanbanList, KanbanCard };

@@ -3,7 +3,7 @@ import { MindMap, SiteMap, ImpactMap, MapNode } from "./models/MindMap";
 import { ERDiagram } from "./models/ER";
 import { Kanban } from "./models/Kanban";
 
-export type BusinessModelCanvas = {
+type BusinessModelCanvas = {
   name: "BusinessModelCanvas";
   keyPartners: CanvasItem;
   customerSegments: CanvasItem;
@@ -16,7 +16,7 @@ export type BusinessModelCanvas = {
   customerRelationships: CanvasItem;
 };
 
-export type OpportunityCanvas = {
+type OpportunityCanvas = {
   name: "OpportunityCanvas";
   problems: CanvasItem;
   solutionIdeas: CanvasItem;
@@ -30,7 +30,7 @@ export type OpportunityCanvas = {
   budget: CanvasItem;
 };
 
-export type FourLs = {
+type FourLs = {
   name: "4Ls";
   liked: CanvasItem;
   learned: CanvasItem;
@@ -38,21 +38,21 @@ export type FourLs = {
   longedFor: CanvasItem;
 };
 
-export type StartStopContinue = {
+type StartStopContinue = {
   name: "StartStopContinue";
   start: CanvasItem;
   stop: CanvasItem;
   continue: CanvasItem;
 };
 
-export type Kpt = {
+type Kpt = {
   name: "Kpt";
   keep: CanvasItem;
   problem: CanvasItem;
   try: CanvasItem;
 };
 
-export type UserPersona = {
+type UserPersona = {
   name: "UserPersona";
   url: UrlItem;
   whoAmI: CanvasItem;
@@ -65,7 +65,7 @@ export type UserPersona = {
   item7: CanvasItem;
 };
 
-export type EmpathyMap = {
+type EmpathyMap = {
   name: "EmpathyMap";
   imageUrl: string;
   says: CanvasItem;
@@ -84,11 +84,11 @@ type UrlItem = {
   url: string;
 };
 
-export type GanttChart = {
+type GanttChart = {
   name: "GanttChart";
   from: string;
   to: string;
-  chartitems: GanttChartItem[];
+  chartItems: GanttChartItem[];
 };
 
 type GanttChartItem = {
@@ -102,13 +102,13 @@ type Schedule = {
   title: string;
 };
 
-export type Table = {
+type Table = {
   name: "Table";
   header: string[];
   items: string[][];
 };
 
-export function toString(
+function toString(
   definition:
     | UserStoryMap
     | BusinessModelCanvas
@@ -155,7 +155,7 @@ export function toString(
     : "";
 }
 
-export function toTypeString(
+function toTypeString(
   definition:
     | UserStoryMap
     | BusinessModelCanvas
@@ -319,11 +319,11 @@ function table2Text(table: Table): string {
 }
 
 function ganttchart2Text(ganttChart: GanttChart): string {
-  return `${ganttChart.from},${ganttChart.to}\n${ganttChart.chartitems
+  return `${ganttChart.from} ${ganttChart.to}\n${ganttChart.chartItems
     .map((item) => {
       return `    ${item.title}\n${item.schedules
         .map((schedule) => {
-          return `        ${schedule.title}\n            ${schedule.from},${schedule.to}`;
+          return `        ${schedule.title}\n            ${schedule.from} ${schedule.to}`;
         })
         .join("\n")}`;
     })
@@ -399,3 +399,17 @@ function kanban2Text(kanban: Kanban): string {
     })
     .join("\n");
 }
+
+export {
+  BusinessModelCanvas,
+  OpportunityCanvas,
+  FourLs,
+  StartStopContinue,
+  Kpt,
+  UserPersona,
+  EmpathyMap,
+  GanttChart,
+  Table,
+  toString,
+  toTypeString,
+};
