@@ -1,4 +1,4 @@
-const merge = require("webpack-merge");
+const { merge } = require("webpack-merge");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
@@ -10,27 +10,27 @@ const common = {
       {
         test: /\.ts$/,
         exclude: /node_modules/,
-        use: "ts-loader"
-      }
-    ]
+        use: "ts-loader",
+      },
+    ],
   },
   output: {
     path: `${__dirname}/dist`,
     filename: "extension.js",
     libraryTarget: "commonjs2",
-    devtoolModuleFilenameTemplate: "../[resource-path]"
+    devtoolModuleFilenameTemplate: "../[resource-path]",
   },
   resolve: {
-    extensions: [".ts", ".js"]
+    extensions: [".ts", ".js"],
   },
   target: "node",
   devtool: "cheap-module-source-map",
   externals: [
     {
-      vscode: "commonjs vscode"
+      vscode: "commonjs vscode",
     },
-    nodeExternals()
-  ]
+    nodeExternals(),
+  ],
 };
 
 if (process.env.NODE_ENV === "production") {
@@ -41,18 +41,18 @@ if (process.env.NODE_ENV === "production") {
         root: `${__dirname}/dist`,
         exclude: [],
         verbose: true,
-        dry: false
-      })
+        dry: false,
+      }),
     ],
     optimization: {
       minimizer: [
         new TerserPlugin({
           cache: false,
           parallel: true,
-          sourceMap: false
-        })
-      ]
-    }
+          sourceMap: false,
+        }),
+      ],
+    },
   });
 } else {
   module.exports = common;

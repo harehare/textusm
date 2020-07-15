@@ -487,7 +487,7 @@ class DiagramPanel {
         app.ports.setText.subscribe(text => {
           vscode.postMessage({
             command: 'setText',
-            text: text,
+            text,
           });
         });
 

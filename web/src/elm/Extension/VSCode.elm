@@ -153,7 +153,13 @@ update message model =
                     else
                         ( model, Cmd.none )
 
-                DiagramModel.MoveItem ( _, _ ) ->
+                DiagramModel.MoveItem _ ->
+                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, setText (Text.toString model_.text) ] )
+
+                DiagramModel.OnFontStyleChanged _ ->
+                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, setText (Text.toString model_.text) ] )
+
+                DiagramModel.OnColorChanged _ _ ->
                     ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, setText (Text.toString model_.text) ] )
 
                 _ ->
