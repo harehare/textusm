@@ -52,7 +52,7 @@ view : Props -> Html Msg
 view props =
     let
         newMenuColor =
-            if isNothing props.openMenu && props.page == New then
+            if Text.isSaved props.text || isNothing props.openMenu && props.page == New then
                 selectedColor
 
             else
