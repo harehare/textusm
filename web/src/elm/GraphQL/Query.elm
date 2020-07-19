@@ -12,7 +12,7 @@ import TextUSM.Scalar exposing (Id(..))
 
 item : String -> SelectionSet DiagramItem RootQuery
 item id =
-    Query.item { id = id } <|
+    Query.item (\optionals -> { optionals | isPublic = Present False }) { id = id } <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
             |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
@@ -30,7 +30,7 @@ item id =
 
 items : ( Int, Int ) -> Bool -> Bool -> SelectionSet (List (Maybe DiagramItem)) RootQuery
 items ( offset, limit ) isBookmark isPublic =
-    Query.items (\optionals -> { optionals | offset = Present offset, limit = Present limit, isBookmark = Present isBookmark, isPublic = Present isPublic }) <|
+    Query.items (\optionals -> { optionals | offset = Present offset, limit = Present limit, isBookmark = Present isBookmark, isPublic = Present False }) <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
             |> hardcoded Text.empty

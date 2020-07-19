@@ -440,7 +440,7 @@ update message model =
                 if Session.isSignedIn model.session then
                     let
                         remoteItems =
-                            Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session } (pageOffsetAndLimit model.pageNo) False False
+                            Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False } (pageOffsetAndLimit model.pageNo) False False
                                 |> Task.map
                                     (\i ->
                                         i
@@ -528,7 +528,7 @@ update message model =
                 Ok diagram ->
                     ( model
                     , Task.attempt Removed
-                        (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session }
+                        (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False}
                             (case diagram.id of
                                 Just id ->
                                     DiagramId.toString id
@@ -559,7 +559,7 @@ update message model =
             in
             ( { model | diagramList = Success diagramList }
             , Task.attempt Bookmarked
-                (Request.bookmark { url = model.apiRoot, idToken = Session.getIdToken model.session }
+                (Request.bookmark { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False }
                     (case diagram.id of
                         Just id ->
                             DiagramId.toString id

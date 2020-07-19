@@ -538,7 +538,7 @@ changeRouteTo route model =
                 loadText_ =
                     if Session.isSignedIn model.session then
                         ( { model | page = Page.Main }
-                        , cmds [ Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_) ]
+                        , cmds [ Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False } (DiagramId.toString id_) ]
                         )
 
                     else
@@ -556,7 +556,7 @@ changeRouteTo route model =
                         Just item ->
                             if item.isRemote then
                                 ( { model | page = Page.Main }
-                                , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_)
+                                , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False } (DiagramId.toString id_)
                                 )
 
                             else
@@ -762,7 +762,7 @@ update message model =
                 DiagramList.ImportComplete json ->
                     case DiagramItem.stringToList json of
                         Ok _ ->
-                            ( { model | diagramListModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagramList, showInfoMessage <| Translations.messageImportCompleted model.lang] )
+                            ( { model | diagramListModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagramList, showInfoMessage <| Translations.messageImportCompleted model.lang ] )
 
                         Err _ ->
                             ( model, showErrorMessage <| Translations.messageFailed model.lang )
@@ -955,7 +955,7 @@ update message model =
                         |> Result.andThen
                             (\diagram ->
                                 Ok
-                                    (Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram)
+                                    (Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False } (DiagramItem.toInputItem diagram)
                                         |> Task.mapError (\_ -> diagram)
                                     )
                             )
@@ -1280,6 +1280,25 @@ update message model =
 
                 Err _ ->
                     ( model, Cmd.none )
+
+        PublicDiagram isPublic ->
+            case model.currentDiagram of
+                Just diagram ->
+                    let
+                        saveTask =
+                            Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = isPublic } (DiagramItem.toInputItem diagram)
+                                |> Task.mapError (\_ -> diagram)
+                    in
+                    ( { model | progress = True }, Task.attempt PublicDiagramCompleted saveTask )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        PublicDiagramCompleted (Ok d) ->
+            ( model, Cmd.none )
+
+        PublicDiagramCompleted (Err d) ->
+            ( model, Cmd.none )
 
 
 setEditorLanguage : Diagram.Diagram -> Cmd Msg

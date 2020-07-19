@@ -15,8 +15,7 @@ type Resolver struct {
 	service *service.Service
 }
 
-func (r *mutationResolver) Save(ctx context.Context, input item.InputItem) (*item.Item, error) {
-
+func (r *mutationResolver) Save(ctx context.Context, input item.InputItem, isPublic *bool) (*item.Item, error) {
 	if input.ID == nil {
 		saveItem := item.Item{
 			ID:         "",
@@ -30,9 +29,9 @@ func (r *mutationResolver) Save(ctx context.Context, input item.InputItem) (*ite
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
 		}
-		return r.service.SaveDiagram(ctx, &saveItem)
+		return r.service.SaveDiagram(ctx, &saveItem, *isPublic)
 	}
-	baseItem, err := r.service.FindDiagram(ctx, *input.ID)
+	baseItem, err := r.service.FindDiagram(ctx, *input.ID, *isPublic)
 
 	if err != nil {
 		return nil, err
@@ -51,17 +50,17 @@ func (r *mutationResolver) Save(ctx context.Context, input item.InputItem) (*ite
 		UpdatedAt:  time.Now(),
 	}
 
-	return r.service.SaveDiagram(ctx, &saveItem)
+	return r.service.SaveDiagram(ctx, &saveItem, *isPublic)
 }
 
-func (r *mutationResolver) Delete(ctx context.Context, itemID string) (*item.Item, error) {
-	diagramItem, err := r.service.FindDiagram(ctx, itemID)
+func (r *mutationResolver) Delete(ctx context.Context, itemID string, isPublic *bool) (*item.Item, error) {
+	diagramItem, err := r.service.FindDiagram(ctx, itemID, *isPublic)
 
 	if err != nil {
 		return nil, err
 	}
 
-	err = r.service.DeleteDiagram(ctx, itemID)
+	err = r.service.DeleteDiagram(ctx, itemID, *isPublic)
 
 	if err != nil {
 		return nil, err
@@ -71,17 +70,17 @@ func (r *mutationResolver) Delete(ctx context.Context, itemID string) (*item.Ite
 }
 
 func (r *mutationResolver) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error) {
-	diagramItem, err := r.service.FindDiagram(ctx, itemID)
+	diagramItem, err := r.service.FindDiagram(ctx, itemID, false)
 
 	if err != nil {
 		return nil, err
 	}
 	diagramItem.IsBookmark = isBookmark
-	return r.service.SaveDiagram(ctx, diagramItem)
+	return r.service.SaveDiagram(ctx, diagramItem, false)
 }
 
-func (r *queryResolver) Item(ctx context.Context, id string) (*item.Item, error) {
-	return r.service.FindDiagram(ctx, id)
+func (r *queryResolver) Item(ctx context.Context, id string, isPublic *bool) (*item.Item, error) {
+	return r.service.FindDiagram(ctx, id, *isPublic)
 }
 
 func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*item.Item, error) {

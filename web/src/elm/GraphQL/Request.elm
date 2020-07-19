@@ -14,6 +14,7 @@ import Url.Builder exposing (crossOrigin)
 type alias RequestInfo =
     { idToken : Maybe IdToken
     , url : String
+    , isPublic : Bool
     }
 
 
@@ -40,7 +41,7 @@ items req ( offset, limit ) isBookmark isPublic =
 
 save : RequestInfo -> InputItem -> Task (Http.Error DiagramItem) DiagramItem
 save req input =
-    Mutation.save input
+    Mutation.save input req.isPublic
         |> Http.mutationRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask
@@ -48,7 +49,7 @@ save req input =
 
 delete : RequestInfo -> String -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
 delete req itemID =
-    Mutation.delete itemID
+    Mutation.delete itemID req.isPublic
         |> Http.mutationRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask

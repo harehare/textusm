@@ -19,6 +19,10 @@ import TextUSM.ScalarCodecs
 import TextUSM.Union
 
 
+type alias SaveOptionalArguments =
+    { isPublic : OptionalArgument Bool }
+
+
 type alias SaveRequiredArguments =
     { input : TextUSM.InputObject.InputItem }
 
@@ -26,14 +30,28 @@ type alias SaveRequiredArguments =
 {-|
 
   - input -
+  - isPublic -
 
 -}
 save :
-    SaveRequiredArguments
+    (SaveOptionalArguments -> SaveOptionalArguments)
+    -> SaveRequiredArguments
     -> SelectionSet decodesTo TextUSM.Object.Item
     -> SelectionSet decodesTo RootMutation
-save requiredArgs object_ =
-    Object.selectionForCompositeField "save" [ Argument.required "input" requiredArgs.input TextUSM.InputObject.encodeInputItem ] object_ identity
+save fillInOptionals requiredArgs object_ =
+    let
+        filledInOptionals =
+            fillInOptionals { isPublic = Absent }
+
+        optionalArgs =
+            [ Argument.optional "isPublic" filledInOptionals.isPublic Encode.bool ]
+                |> List.filterMap identity
+    in
+    Object.selectionForCompositeField "save" (optionalArgs ++ [ Argument.required "input" requiredArgs.input TextUSM.InputObject.encodeInputItem ]) object_ identity
+
+
+type alias DeleteOptionalArguments =
+    { isPublic : OptionalArgument Bool }
 
 
 type alias DeleteRequiredArguments =
@@ -43,14 +61,24 @@ type alias DeleteRequiredArguments =
 {-|
 
   - itemID -
+  - isPublic -
 
 -}
 delete :
-    DeleteRequiredArguments
+    (DeleteOptionalArguments -> DeleteOptionalArguments)
+    -> DeleteRequiredArguments
     -> SelectionSet decodesTo TextUSM.Object.Item
     -> SelectionSet (Maybe decodesTo) RootMutation
-delete requiredArgs object_ =
-    Object.selectionForCompositeField "delete" [ Argument.required "itemID" requiredArgs.itemID Encode.string ] object_ (identity >> Decode.nullable)
+delete fillInOptionals requiredArgs object_ =
+    let
+        filledInOptionals =
+            fillInOptionals { isPublic = Absent }
+
+        optionalArgs =
+            [ Argument.optional "isPublic" filledInOptionals.isPublic Encode.bool ]
+                |> List.filterMap identity
+    in
+    Object.selectionForCompositeField "delete" (optionalArgs ++ [ Argument.required "itemID" requiredArgs.itemID Encode.string ]) object_ (identity >> Decode.nullable)
 
 
 type alias BookmarkRequiredArguments =

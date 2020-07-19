@@ -7,6 +7,8 @@ module Translations exposing
     , messageNetworkError
     , messageRequestTimeout
     , messageSuccessfullySaved
+    , toolPrivate
+    , toolPublic
     , toolTipExport
     , toolTipHelp
     , toolTipImport
@@ -102,6 +104,26 @@ toolTipTags lang =
 
         _ ->
             "Tags"
+
+
+toolPublic : Lang -> String
+toolPublic lang =
+    case lang of
+        Ja ->
+            "公開"
+
+        _ ->
+            "Public"
+
+
+toolPrivate : Lang -> String
+toolPrivate lang =
+    case lang of
+        Ja ->
+            "非公開"
+
+        _ ->
+            "Private"
 
 
 toolTipShare : Lang -> String
