@@ -116,12 +116,13 @@ view props =
                     _ ->
                         Empty.view
                 ]
-            , a [ style "display" "flex", href <| Route.toString Route.Tag ]
-                [ div
+            , if isJust (Maybe.andThen .id props.currentDiagram) && (Maybe.map .isRemote props.currentDiagram |> Maybe.withDefault False) then
+                div
                     [ class "button"
                     , style "padding" "8px"
                     , style "display" "flex"
                     , style "align-items" "center"
+                    , onClick <| ChangePublicStatus (not isPublic)
                     ]
                     [ if isPublic then
                         Icon.lockOpen "#F5F5F6" 17
@@ -139,7 +140,9 @@ view props =
                             ]
                         ]
                     ]
-                ]
+
+              else
+                Empty.view
             , if isJust <| Maybe.andThen .id props.currentDiagram then
                 a [ style "display" "flex", href <| Route.toString Route.Tag ]
                     [ div

@@ -31,7 +31,7 @@ func (r *mutationResolver) Save(ctx context.Context, input item.InputItem, isPub
 		}
 		return r.service.SaveDiagram(ctx, &saveItem, *isPublic)
 	}
-	baseItem, err := r.service.FindDiagram(ctx, *input.ID, *isPublic)
+	baseItem, err := r.service.FindDiagram(ctx, *input.ID, false)
 
 	if err != nil {
 		return nil, err

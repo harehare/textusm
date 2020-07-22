@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"log"
 	"os"
+	"strconv"
 
 	"github.com/harehare/textusm/api/middleware"
 	e "github.com/harehare/textusm/pkg/error"
@@ -23,6 +25,7 @@ func NewService(r repository.Repository) *Service {
 }
 
 func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic bool) ([]*item.Item, error) {
+	log.Println("Find diagrams offset = " + strconv.Itoa(offset) + ", limit = " + strconv.Itoa(limit))
 	userID := ctx.Value(middleware.UIDKey).(string)
 	items, err := s.repo.Find(ctx, userID, offset, limit, isPublic)
 
@@ -48,6 +51,7 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 }
 
 func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool) (*item.Item, error) {
+	log.Println("Find diagram id = " + itemID)
 	userID := ctx.Value(middleware.UIDKey).(string)
 	item, err := s.repo.FindByID(ctx, userID, itemID, isPublic)
 
@@ -66,16 +70,8 @@ func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool)
 }
 
 func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic bool) (*item.Item, error) {
+	log.Println("Save diagram id = " + item.ID)
 	userID := ctx.Value(middleware.UIDKey).(string)
-
-	if isPublic {
-		isOwner, err := s.isPublicDiagramOwner(ctx, item.ID, userID)
-
-		if !isOwner {
-			return nil, e.NoAuthorizationError(err)
-		}
-	}
-
 	currentText := item.Text
 	text, err := Encrypt(encryptKey, item.Text)
 
@@ -86,20 +82,41 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 	item.Text = text
 
 	if isPublic {
+		isOwner, err := s.isPublicDiagramOwner(ctx, item.ID, userID)
+
+		if !isOwner {
+			return nil, e.NoAuthorizationError(err)
+		}
+		item.IsPublic = true
 		_, err = s.repo.Save(ctx, userID, item, true)
 
 		if err != nil {
 			return nil, err
 		}
+
+		log.Println("Save public diagram id = " + item.ID)
+	} else {
+		_, err := s.repo.FindByID(ctx, userID, item.ID, true)
+
+		if err == nil || e.GetCode(err) != e.NotFound {
+			err := s.repo.Delete(ctx, userID, item.ID, true)
+
+			if err != nil {
+				return nil, err
+			}
+			log.Println("Delete public diagram id = " + item.ID)
+		}
 	}
 
 	resultItem, err := s.repo.Save(ctx, userID, item, false)
 	item.Text = currentText
+	resultItem.IsPublic = isPublic
 
 	return resultItem, err
 }
 
 func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic bool) error {
+	log.Println("Delete diagram id = " + itemID)
 	userID := ctx.Value(middleware.UIDKey).(string)
 
 	if isPublic {
@@ -116,12 +133,18 @@ func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic boo
 		if err != nil {
 			return err
 		}
+		log.Println("Delete public diagram id = " + itemID)
 	}
 
 	return s.repo.Delete(ctx, userID, itemID, false)
 }
 
 func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID, ownerUserID string) (bool, error) {
+
+	if itemID == "" {
+		return true, nil
+	}
+
 	_, err := s.repo.FindByID(ctx, ownerUserID, itemID, false)
 	isOwner := err == nil
 

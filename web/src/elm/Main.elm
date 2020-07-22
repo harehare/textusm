@@ -916,7 +916,7 @@ update message model =
                             , thumbnail = Nothing
                             , diagram = newDiagramModel.diagramType
                             , isRemote = isRemote
-                            , isPublic = False
+                            , isPublic = Maybe.map .isPublic model.currentDiagram |> Maybe.withDefault False
                             , isBookmark = False
                             , tags = Maybe.andThen .tags model.currentDiagram
                             , updatedAt = Time.millisToPosix 0
@@ -1281,7 +1281,7 @@ update message model =
                 Err _ ->
                     ( model, Cmd.none )
 
-        PublicDiagram isPublic ->
+        ChangePublicStatus isPublic ->
             case model.currentDiagram of
                 Just diagram ->
                     let
@@ -1289,16 +1289,16 @@ update message model =
                             Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = isPublic } (DiagramItem.toInputItem diagram)
                                 |> Task.mapError (\_ -> diagram)
                     in
-                    ( { model | progress = True }, Task.attempt PublicDiagramCompleted saveTask )
+                    ( { model | progress = True }, Task.attempt ChangePublicStatusCompleted saveTask )
 
                 _ ->
                     ( model, Cmd.none )
 
-        PublicDiagramCompleted (Ok d) ->
-            ( model, Cmd.none )
+        ChangePublicStatusCompleted (Ok d) ->
+            ( { model | progress = False, currentDiagram = Just d }, showInfoMessage ("\"" ++ d.title ++ "\"" ++ " published") )
 
-        PublicDiagramCompleted (Err d) ->
-            ( model, Cmd.none )
+        ChangePublicStatusCompleted (Err d) ->
+            ( { model | progress = False }, showErrorMessage "Failed to change publishing settings" )
 
 
 setEditorLanguage : Diagram.Diagram -> Cmd Msg

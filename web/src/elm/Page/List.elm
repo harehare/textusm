@@ -50,6 +50,7 @@ type Msg
 type FilterValue
     = FilterAll
     | FilterBookmark
+    | FilterPublic
     | FilterTag String
 
 
@@ -61,6 +62,7 @@ type alias Model =
     { searchQuery : Maybe String
     , timeZone : Zone
     , diagramList : WebData (List DiagramItem)
+    , publicDiagramList : WebData (List DiagramItem)
     , filterCondition : FilterCondition
     , session : Session
     , apiRoot : String
@@ -94,6 +96,7 @@ init session lang apiRoot =
     ( { searchQuery = Nothing
       , timeZone = Time.utc
       , diagramList = NotAsked
+      , publicDiagramList = NotAsked
       , filterCondition = FilterCondition FilterAll (\_ -> True)
       , session = session
       , apiRoot = apiRoot
@@ -122,8 +125,8 @@ tags items =
         |> unique
 
 
-sideMenu : FilterValue -> List String -> Html Msg
-sideMenu filter tagItems =
+sideMenu : Session -> FilterValue -> List String -> Html Msg
+sideMenu session filter tagItems =
     div [ class "side-menu" ]
         (div
             [ class <|
@@ -135,6 +138,20 @@ sideMenu filter tagItems =
             , onClick <| Filter (FilterCondition FilterAll (\_ -> True))
             ]
             [ text "All" ]
+            :: (if Session.isSignedIn session then
+                    div
+                        [ class <|
+                            if filter == FilterPublic then
+                                "item selected"
+
+                            else
+                                "item"
+                        ]
+                        [ Icon.globe "#F5F5F6" 16, div [ style "padding" "8px" ] [ text "Public" ] ]
+
+                else
+                    div [] []
+               )
             :: div
                 [ class <|
                     if filter == FilterBookmark then
@@ -144,7 +161,13 @@ sideMenu filter tagItems =
                         "item"
                 , onClick <| Filter (FilterCondition FilterBookmark (\item -> item.isBookmark))
                 ]
-                [ Icon.bookmark "#F5F5F6" 12, div [ style "padding" "8px" ] [ text "Bookmarks" ] ]
+                [ Icon.bookmark "#F5F5F6" 16, div [ style "padding" "8px" ] [ text "Bookmarks" ] ]
+            :: div
+                [ style "width" "100%"
+                , style "height" "2px"
+                , style "border-bottom" "2px solid rgba(0, 0, 0, 0.1)"
+                ]
+                []
             :: (tagItems
                     |> List.map
                         (\tag ->
@@ -167,7 +190,7 @@ sideMenu filter tagItems =
                                             )
                                         )
                                 ]
-                                [ Icon.tag 12, div [ style "padding" "8px" ] [ text tag ] ]
+                                [ Icon.tag 16, div [ style "padding" "8px" ] [ text tag ] ]
                         )
                )
         )
@@ -187,7 +210,8 @@ view model =
             div
                 [ class "diagram-list"
                 ]
-                [ Lazy.lazy2 sideMenu
+                [ Lazy.lazy3 sideMenu
+                    model.session
                     selectedPath
                     (tags diagrams)
                 , div
@@ -528,7 +552,7 @@ update message model =
                 Ok diagram ->
                     ( model
                     , Task.attempt Removed
-                        (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False}
+                        (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False }
                             (case diagram.id of
                                 Just id ->
                                     DiagramId.toString id
