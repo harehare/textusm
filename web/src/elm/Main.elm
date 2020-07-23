@@ -338,7 +338,7 @@ changeRouteTo route model =
     in
     case route of
         Route.List ->
-            if RemoteData.isNotAsked model.diagramListModel.diagramList || List.isEmpty (RemoteData.withDefault [] model.diagramListModel.diagramList) then
+            if DiagramList.isNotAsked model.diagramListModel.diagramList then
                 let
                     ( model_, cmd_ ) =
                         DiagramList.init model.session model.lang model.diagramListModel.apiRoot
@@ -547,7 +547,7 @@ changeRouteTo route model =
                         )
             in
             case ( model.diagramListModel.diagramList, model.currentDiagram ) of
-                ( Success d, _ ) ->
+                ( DiagramList.DiagramList (Success d) _ _, _ ) ->
                     let
                         loadItem =
                             find (\diagram -> (DiagramItem.getId diagram |> DiagramId.toString) == DiagramId.toString id_) d
@@ -893,7 +893,7 @@ update message model =
                     model.diagramListModel
 
                 newDiagramListModel =
-                    { diagramListModel | diagramList = RemoteData.NotAsked }
+                    { diagramListModel | diagramList = DiagramList.notAsked }
             in
             if Title.isUntitled model.title then
                 update StartEditTitle model
@@ -1211,7 +1211,7 @@ update message model =
                             model.diagramListModel
 
                         newDiagramListModel =
-                            { diagramListModel | diagramList = NotAsked }
+                            { diagramListModel | diagramList = DiagramList.notAsked }
                     in
                     ( { newModel | diagramListModel = newDiagramListModel }, Nav.pushUrl model.key (Route.toString <| Route.List) )
 
@@ -1297,7 +1297,7 @@ update message model =
         ChangePublicStatusCompleted (Ok d) ->
             ( { model | progress = False, currentDiagram = Just d }, showInfoMessage ("\"" ++ d.title ++ "\"" ++ " published") )
 
-        ChangePublicStatusCompleted (Err d) ->
+        ChangePublicStatusCompleted (Err _) ->
             ( { model | progress = False }, showErrorMessage "Failed to change publishing settings" )
 
 

@@ -1,4 +1,4 @@
-port module Page.List exposing (Model, Msg(..), init, update, view)
+port module Page.List exposing (DiagramList(..), Model, Msg(..), init, isNotAsked, notAsked, update, view)
 
 import Asset
 import Data.DiagramId as DiagramId
@@ -58,18 +58,30 @@ type FilterCondition
     = FilterCondition FilterValue (DiagramItem -> Bool)
 
 
+type DiagramList
+    = DiagramList (WebData (List DiagramItem)) Int Bool
+
+
 type alias Model =
     { searchQuery : Maybe String
     , timeZone : Zone
-    , diagramList : WebData (List DiagramItem)
-    , publicDiagramList : WebData (List DiagramItem)
+    , diagramList : DiagramList
+    , publicDiagramList : DiagramList
     , filterCondition : FilterCondition
     , session : Session
     , apiRoot : String
-    , pageNo : Int
-    , hasMorePage : Bool
     , lang : Lang
     }
+
+
+notAsked : DiagramList
+notAsked =
+    DiagramList NotAsked 1 False
+
+
+isNotAsked : DiagramList -> Bool
+isNotAsked (DiagramList remoteData _ _) =
+    RemoteData.isNotAsked remoteData || List.isEmpty (RemoteData.withDefault [] remoteData)
 
 
 pageSize : Int
@@ -95,13 +107,11 @@ init : Session -> Lang -> String -> ( Model, Cmd Msg )
 init session lang apiRoot =
     ( { searchQuery = Nothing
       , timeZone = Time.utc
-      , diagramList = NotAsked
-      , publicDiagramList = NotAsked
+      , diagramList = notAsked
+      , publicDiagramList = notAsked
       , filterCondition = FilterCondition FilterAll (\_ -> True)
       , session = session
       , apiRoot = apiRoot
-      , pageNo = 1
-      , hasMorePage = False
       , lang = lang
       }
     , Cmd.batch
@@ -199,9 +209,9 @@ sideMenu session filter tagItems =
 view : Model -> Html Msg
 view model =
     case model.diagramList of
-        Success diagrams ->
+        DiagramList (Success diagrams) pageNo hasMorePage ->
             let
-                (FilterCondition selectedPath filterCondition) =
+                (FilterCondition filterValue filterCondition) =
                     model.filterCondition
 
                 displayDiagrams =
@@ -212,7 +222,7 @@ view model =
                 ]
                 [ Lazy.lazy3 sideMenu
                     model.session
-                    selectedPath
+                    filterValue
                     (tags diagrams)
                 , div
                     [ style "width" "100%" ]
@@ -300,7 +310,7 @@ view model =
                                 |> List.map
                                     (\d -> Lazy.lazy2 diagramView model.timeZone d)
                              )
-                                ++ [ if model.hasMorePage then
+                                ++ [ if hasMorePage then
                                         div
                                             [ style "width" "100%"
                                             , style "display" "flex"
@@ -311,7 +321,7 @@ view model =
                                                 [ class "primary-button button"
                                                 , style "padding" "16px"
                                                 , style "margin" "8px"
-                                                , onClick <| LoadNextPage <| model.pageNo + 1
+                                                , onClick <| LoadNextPage <| pageNo + 1
                                                 ]
                                                 [ text "Load more" ]
                                             ]
@@ -323,7 +333,7 @@ view model =
                     ]
                 ]
 
-        Failure e ->
+        DiagramList (Failure e) _ _ ->
             div
                 [ class "diagram-list"
                 , style "width" "100vw"
@@ -364,6 +374,11 @@ view model =
                         ]
                     ]
                 ]
+
+
+diagramListView: Zone -> DiagramItem -> Html Msg
+diagramListView timezone diagrams =
+    div [] []
 
 
 diagramView : Zone -> DiagramItem -> Html Msg
@@ -449,97 +464,112 @@ update message model =
             )
 
         LoadNextPage pageNo ->
-            ( { model | pageNo = pageNo }, getDiagrams () )
+            let
+                (DiagramList remoteData _ hasMorePage) =
+                    model.diagramList
+            in
+            ( { model | diagramList = DiagramList remoteData pageNo hasMorePage }, getDiagrams () )
 
         GotLocalDiagramsJson json ->
-            if model.diagramList == Loading then
-                ( model, Cmd.none )
+            case model.diagramList of
+                DiagramList Loading _ _ ->
+                    ( model, Cmd.none )
 
-            else
-                let
-                    localItems =
-                        Result.withDefault [] <|
-                            D.decodeValue (D.list DiagramItem.decoder) json
-                in
-                if Session.isSignedIn model.session then
+                DiagramList _ pageNo _ ->
                     let
-                        remoteItems =
-                            Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False } (pageOffsetAndLimit model.pageNo) False False
-                                |> Task.map
-                                    (\i ->
-                                        i
-                                            |> List.filter (\item -> isJust item)
-                                            |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
-                                    )
-
-                        items =
-                            remoteItems
-                                |> Task.map
-                                    (\item ->
-                                        List.concat [ localItems, item ]
-                                            |> List.sortWith
-                                                (\a b ->
-                                                    let
-                                                        v1 =
-                                                            a.updatedAt |> Time.posixToMillis
-
-                                                        v2 =
-                                                            b.updatedAt |> Time.posixToMillis
-                                                    in
-                                                    if v1 - v2 > 0 then
-                                                        LT
-
-                                                    else if v1 - v2 < 0 then
-                                                        GT
-
-                                                    else
-                                                        EQ
-                                                )
-                                    )
-                                |> Task.mapError (Tuple.pair localItems)
+                        localItems =
+                            Result.withDefault [] <|
+                                D.decodeValue (D.list DiagramItem.decoder) json
                     in
-                    ( { model
-                        | diagramList =
-                            if RemoteData.isNotAsked model.diagramList then
-                                Loading
+                    if Session.isSignedIn model.session then
+                        let
+                            remoteItems =
+                                Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False } (pageOffsetAndLimit pageNo) False False
+                                    |> Task.map
+                                        (\i ->
+                                            i
+                                                |> List.filter (\item -> isJust item)
+                                                |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
+                                        )
 
-                            else
-                                model.diagramList
-                      }
-                    , Task.attempt GotDiagrams items
-                    )
+                            items =
+                                remoteItems
+                                    |> Task.map
+                                        (\item ->
+                                            List.concat [ localItems, item ]
+                                                |> List.sortWith
+                                                    (\a b ->
+                                                        let
+                                                            v1 =
+                                                                a.updatedAt |> Time.posixToMillis
 
-                else
-                    ( { model
-                        | hasMorePage = False
-                        , diagramList =
-                            Success localItems
-                      }
-                    , Cmd.none
-                    )
+                                                            v2 =
+                                                                b.updatedAt |> Time.posixToMillis
+                                                        in
+                                                        if v1 - v2 > 0 then
+                                                            LT
 
-        GotDiagrams (Err ( items, _ )) ->
-            ( { model
-                | hasMorePage = List.length items >= pageSize
-                , diagramList =
-                    if RemoteData.isFailure model.diagramList then
-                        Success items
+                                                        else if v1 - v2 < 0 then
+                                                            GT
+
+                                                        else
+                                                            EQ
+                                                    )
+                                        )
+                                    |> Task.mapError (Tuple.pair localItems)
+                        in
+                        ( { model
+                            | diagramList =
+                                case model.diagramList of
+                                    DiagramList NotAsked _ _ ->
+                                        DiagramList Loading 1 False
+
+                                    _ ->
+                                        model.diagramList
+                          }
+                        , Task.attempt GotDiagrams items
+                        )
 
                     else
-                        RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) model.diagramList
+                        ( { model
+                            | diagramList =
+                                DiagramList (Success localItems) 1 False
+                          }
+                        , Cmd.none
+                        )
+
+        GotDiagrams (Err ( items, _ )) ->
+            let
+                hasMorePage =
+                    List.length items >= pageSize
+            in
+            ( { model
+                | diagramList =
+                    case model.diagramList of
+                        DiagramList (Failure _) _ _ ->
+                            DiagramList (Success items) 1 hasMorePage
+
+                        DiagramList remoteData _ _ ->
+                            DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) 1 hasMorePage
               }
             , Cmd.none
             )
 
         GotDiagrams (Ok items) ->
+            let
+                hasMorePage =
+                    List.length items >= pageSize
+
+                (DiagramList remoteData pageNo _) =
+                    model.diagramList
+            in
             ( { model
-                | hasMorePage = List.length items >= pageSize
-                , diagramList =
-                    if List.isEmpty <| RemoteData.withDefault [] model.diagramList then
-                        Success items
+                | diagramList =
+                    if List.isEmpty <| RemoteData.withDefault [] remoteData then
+                        DiagramList (Success items) 1 hasMorePage
 
                     else
-                        RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) model.diagramList
+                        DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) pageNo hasMorePage
               }
             , Cmd.none
             )
@@ -578,10 +608,13 @@ update message model =
 
         Bookmark diagram ->
             let
+                (DiagramList remoteData pageNo hasMorePage) =
+                    model.diagramList
+
                 diagramList =
-                    RemoteData.withDefault [] model.diagramList |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark })
+                    RemoteData.withDefault [] remoteData |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark })
             in
-            ( { model | diagramList = Success diagramList }
+            ( { model | diagramList = DiagramList (Success diagramList) pageNo hasMorePage }
             , Task.attempt Bookmarked
                 (Request.bookmark { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False }
                     (case diagram.id of
@@ -612,7 +645,7 @@ update message model =
 
         Export ->
             case model.diagramList of
-                Success diagrams ->
+                DiagramList (Success diagrams) _ _ ->
                     ( model, Download.string "textusm.json" "application/json" <| DiagramItem.listToString diagrams )
 
                 _ ->
