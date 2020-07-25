@@ -2,7 +2,7 @@ module Views.Header exposing (view)
 
 import Asset
 import Avatar exposing (Avatar(..))
-import Data.DiagramItem exposing (DiagramItem)
+import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
 import Data.Text as Text exposing (Text)
 import Data.Title as Title exposing (Title)
@@ -34,6 +34,10 @@ type alias Props =
 
 view : Props -> Html Msg
 view props =
+    let
+        isPublic =
+            props.currentDiagram |> Maybe.withDefault DiagramItem.empty |> .isPublic
+    in
     if props.isFullscreen then
         header [] []
 
@@ -112,6 +116,33 @@ view props =
                     _ ->
                         Empty.view
                 ]
+            , if isJust (Maybe.andThen .id props.currentDiagram) && (Maybe.map .isRemote props.currentDiagram |> Maybe.withDefault False) then
+                div
+                    [ class "button"
+                    , style "padding" "8px"
+                    , style "display" "flex"
+                    , style "align-items" "center"
+                    , onClick <| ChangePublicStatus (not isPublic)
+                    ]
+                    [ if isPublic then
+                        Icon.lockOpen "#F5F5F6" 17
+
+                      else
+                        Icon.lock "#F5F5F6" 17
+                    , span [ class "bottom-tooltip" ]
+                        [ span [ class "text" ]
+                            [ text <|
+                                if isPublic then
+                                    Translations.toolPublic props.lang
+
+                                else
+                                    Translations.toolPrivate props.lang
+                            ]
+                        ]
+                    ]
+
+              else
+                Empty.view
             , if isJust <| Maybe.andThen .id props.currentDiagram then
                 a [ style "display" "flex", href <| Route.toString Route.Tag ]
                     [ div

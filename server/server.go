@@ -119,6 +119,8 @@ func Run() int {
 	}
 
 	go gracefullShutdown(s, quit, done)
+
+	log.Printf("Start server %s", env.Port)
 	err = s.ListenAndServe()
 
 	if err != nil {

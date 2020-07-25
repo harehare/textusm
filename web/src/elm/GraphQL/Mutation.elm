@@ -11,9 +11,9 @@ import TextUSM.Object.Item
 import TextUSM.Scalar exposing (Id(..))
 
 
-save : InputItem -> SelectionSet DiagramItem RootMutation
-save input =
-    Mutation.save { input = input } <|
+save : InputItem -> Bool -> SelectionSet DiagramItem RootMutation
+save input isPublic =
+    Mutation.save (\optionals -> { optionals | isPublic = Present isPublic }) { input = input } <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
             |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
@@ -29,9 +29,9 @@ save input =
         )
 
 
-delete : String -> SelectionSet (Maybe DiagramItem) RootMutation
-delete itemID =
-    Mutation.delete { itemID = itemID } <|
+delete : String -> Bool -> SelectionSet (Maybe DiagramItem) RootMutation
+delete itemID isPublic =
+    Mutation.delete (\optionals -> { optionals | isPublic = Present isPublic }) { itemID = itemID } <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
             |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))

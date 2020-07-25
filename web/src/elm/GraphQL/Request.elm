@@ -30,25 +30,25 @@ item req id =
         |> Http.toTask
 
 
-items : RequestInfo -> ( Int, Int ) -> Bool -> Bool -> Task (Http.Error (List (Maybe DiagramItem))) (List (Maybe DiagramItem))
-items req ( offset, limit ) isBookmark isPublic =
-    Query.items ( offset, limit ) isBookmark isPublic
+items : RequestInfo -> ( Int, Int ) -> { isPublic : Bool, isBookmark : Bool } -> Task (Http.Error (List (Maybe DiagramItem))) (List (Maybe DiagramItem))
+items req ( offset, limit ) params =
+    Query.items ( offset, limit ) params
         |> Http.queryRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask
 
 
-save : RequestInfo -> InputItem -> Task (Http.Error DiagramItem) DiagramItem
-save req input =
-    Mutation.save input
+save : RequestInfo -> InputItem -> Bool -> Task (Http.Error DiagramItem) DiagramItem
+save req input isPublic =
+    Mutation.save input isPublic
         |> Http.mutationRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask
 
 
-delete : RequestInfo -> String -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
-delete req itemID =
-    Mutation.delete itemID
+delete : RequestInfo -> String -> Bool -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
+delete req itemID isPublic =
+    Mutation.delete itemID isPublic
         |> Http.mutationRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask

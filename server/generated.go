@@ -59,23 +59,23 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		Bookmark func(childComplexity int, itemID string, isBookmark bool) int
-		Delete   func(childComplexity int, itemID string) int
-		Save     func(childComplexity int, input item.InputItem) int
+		Delete   func(childComplexity int, itemID string, isPublic *bool) int
+		Save     func(childComplexity int, input item.InputItem, isPublic *bool) int
 	}
 
 	Query struct {
-		Item  func(childComplexity int, id string) int
+		Item  func(childComplexity int, id string, isPublic *bool) int
 		Items func(childComplexity int, offset *int, limit *int, isBookmark *bool, isPublic *bool) int
 	}
 }
 
 type MutationResolver interface {
-	Save(ctx context.Context, input item.InputItem) (*item.Item, error)
-	Delete(ctx context.Context, itemID string) (*item.Item, error)
+	Save(ctx context.Context, input item.InputItem, isPublic *bool) (*item.Item, error)
+	Delete(ctx context.Context, itemID string, isPublic *bool) (*item.Item, error)
 	Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error)
 }
 type QueryResolver interface {
-	Item(ctx context.Context, id string) (*item.Item, error)
+	Item(ctx context.Context, id string, isPublic *bool) (*item.Item, error)
 	Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*item.Item, error)
 }
 
@@ -186,7 +186,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Delete(childComplexity, args["itemID"].(string)), true
+		return e.complexity.Mutation.Delete(childComplexity, args["itemID"].(string), args["isPublic"].(*bool)), true
 
 	case "Mutation.save":
 		if e.complexity.Mutation.Save == nil {
@@ -198,7 +198,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Save(childComplexity, args["input"].(item.InputItem)), true
+		return e.complexity.Mutation.Save(childComplexity, args["input"].(item.InputItem), args["isPublic"].(*bool)), true
 
 	case "Query.item":
 		if e.complexity.Query.Item == nil {
@@ -210,7 +210,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Item(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.Item(childComplexity, args["id"].(string), args["isPublic"].(*bool)), true
 
 	case "Query.items":
 		if e.complexity.Query.Items == nil {
@@ -323,7 +323,7 @@ type Item {
 }
 
 type Query {
-  item(id: String!): Item!
+  item(id: String!, isPublic: Boolean = False): Item!
   items(
     offset: Int = 0
     limit: Int = 30
@@ -344,8 +344,8 @@ input InputItem {
 }
 
 type Mutation {
-  save(input: InputItem!): Item!
-  delete(itemID: String!): Item
+  save(input: InputItem!, isPublic: Boolean = False): Item!
+  delete(itemID: String!, isPublic: Boolean = False): Item
   bookmark(itemID: String!, isBookmark: Boolean!): Item
 }
 `, BuiltIn: false},
@@ -389,6 +389,14 @@ func (ec *executionContext) field_Mutation_delete_args(ctx context.Context, rawA
 		}
 	}
 	args["itemID"] = arg0
+	var arg1 *bool
+	if tmp, ok := rawArgs["isPublic"]; ok {
+		arg1, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["isPublic"] = arg1
 	return args, nil
 }
 
@@ -403,6 +411,14 @@ func (ec *executionContext) field_Mutation_save_args(ctx context.Context, rawArg
 		}
 	}
 	args["input"] = arg0
+	var arg1 *bool
+	if tmp, ok := rawArgs["isPublic"]; ok {
+		arg1, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["isPublic"] = arg1
 	return args, nil
 }
 
@@ -431,6 +447,14 @@ func (ec *executionContext) field_Query_item_args(ctx context.Context, rawArgs m
 		}
 	}
 	args["id"] = arg0
+	var arg1 *bool
+	if tmp, ok := rawArgs["isPublic"]; ok {
+		arg1, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["isPublic"] = arg1
 	return args, nil
 }
 
@@ -866,7 +890,7 @@ func (ec *executionContext) _Mutation_save(ctx context.Context, field graphql.Co
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Save(rctx, args["input"].(item.InputItem))
+		return ec.resolvers.Mutation().Save(rctx, args["input"].(item.InputItem), args["isPublic"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -907,7 +931,7 @@ func (ec *executionContext) _Mutation_delete(ctx context.Context, field graphql.
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Delete(rctx, args["itemID"].(string))
+		return ec.resolvers.Mutation().Delete(rctx, args["itemID"].(string), args["isPublic"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -983,7 +1007,7 @@ func (ec *executionContext) _Query_item(ctx context.Context, field graphql.Colle
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Item(rctx, args["id"].(string))
+		return ec.resolvers.Query().Item(rctx, args["id"].(string), args["isPublic"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

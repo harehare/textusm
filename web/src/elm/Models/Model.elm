@@ -61,6 +61,8 @@ type Msg
     | GetShortUrl (Result Http2.Error String)
     | Shortcuts String
     | GotLocalDiagramJson D.Value
+    | ChangePublicStatus Bool
+    | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
     | Load (Result (Http.Error DiagramItem) DiagramItem)
 
 

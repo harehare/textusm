@@ -1,4 +1,4 @@
-port module Page.List exposing (Model, Msg(..), init, update, view)
+port module Page.List exposing (DiagramList(..), Model, Msg(..), init, isNotAsked, notAsked, update, view)
 
 import Asset
 import Data.DiagramId as DiagramId
@@ -8,11 +8,12 @@ import File exposing (File)
 import File.Download as Download
 import File.Select as Select
 import GraphQL.Request as Request
-import Graphql.Http as Http
+import Graphql.Http as GraphQLHttp
 import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Html.Lazy as Lazy
+import Http
 import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (unique, updateIf)
@@ -35,12 +36,14 @@ type Msg
     | Remove DiagramItem
     | Bookmark DiagramItem
     | RemoveRemote D.Value
-    | Removed (Result (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem))
-    | Bookmarked (Result (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem))
+    | Removed (Result (GraphQLHttp.Error (Maybe DiagramItem)) (Maybe DiagramItem))
+    | Bookmarked (Result (GraphQLHttp.Error (Maybe DiagramItem)) (Maybe DiagramItem))
     | GotTimeZone Zone
     | GotLocalDiagramsJson D.Value
-    | GotDiagrams (Result ( List DiagramItem, Http.Error (List (Maybe DiagramItem)) ) (List DiagramItem))
-    | LoadNextPage Int
+    | GotDiagrams (Result ( List DiagramItem, GraphQLHttp.Error (List (Maybe DiagramItem)) ) (List DiagramItem))
+    | GetPublicDiagrams
+    | GotPublicDiagrams (Result (GraphQLHttp.Error (List (Maybe DiagramItem))) (List DiagramItem))
+    | LoadNextPage PublicStatus Int
     | Export
     | Import
     | ImportFile File
@@ -50,24 +53,44 @@ type Msg
 type FilterValue
     = FilterAll
     | FilterBookmark
+    | FilterPublic
     | FilterTag String
+
+
+type PublicStatus
+    = Public
+    | Private
 
 
 type FilterCondition
     = FilterCondition FilterValue (DiagramItem -> Bool)
 
 
+type DiagramList
+    = DiagramList (WebData (List DiagramItem)) Int Bool
+
+
 type alias Model =
     { searchQuery : Maybe String
     , timeZone : Zone
-    , diagramList : WebData (List DiagramItem)
+    , diagramList : DiagramList
+    , publicDiagramList : DiagramList
     , filterCondition : FilterCondition
     , session : Session
     , apiRoot : String
-    , pageNo : Int
-    , hasMorePage : Bool
     , lang : Lang
+    , tags : List String
     }
+
+
+notAsked : DiagramList
+notAsked =
+    DiagramList NotAsked 1 False
+
+
+isNotAsked : DiagramList -> Bool
+isNotAsked (DiagramList remoteData _ _) =
+    RemoteData.isNotAsked remoteData || List.isEmpty (RemoteData.withDefault [] remoteData)
 
 
 pageSize : Int
@@ -93,13 +116,13 @@ init : Session -> Lang -> String -> ( Model, Cmd Msg )
 init session lang apiRoot =
     ( { searchQuery = Nothing
       , timeZone = Time.utc
-      , diagramList = NotAsked
+      , diagramList = notAsked
+      , publicDiagramList = notAsked
       , filterCondition = FilterCondition FilterAll (\_ -> True)
       , session = session
       , apiRoot = apiRoot
-      , pageNo = 1
-      , hasMorePage = False
       , lang = lang
+      , tags = []
       }
     , Cmd.batch
         [ Task.perform GotTimeZone Time.here
@@ -122,8 +145,8 @@ tags items =
         |> unique
 
 
-sideMenu : FilterValue -> List String -> Html Msg
-sideMenu filter tagItems =
+sideMenu : Session -> FilterValue -> List String -> Html Msg
+sideMenu session filter tagItems =
     div [ class "side-menu" ]
         (div
             [ class <|
@@ -135,6 +158,21 @@ sideMenu filter tagItems =
             , onClick <| Filter (FilterCondition FilterAll (\_ -> True))
             ]
             [ text "All" ]
+            :: (if Session.isSignedIn session then
+                    div
+                        [ class <|
+                            if filter == FilterPublic then
+                                "item selected"
+
+                            else
+                                "item"
+                        , onClick GetPublicDiagrams
+                        ]
+                        [ Icon.globe "#F5F5F6" 16, div [ style "padding" "8px" ] [ text "Public" ] ]
+
+                else
+                    div [] []
+               )
             :: div
                 [ class <|
                     if filter == FilterBookmark then
@@ -144,7 +182,13 @@ sideMenu filter tagItems =
                         "item"
                 , onClick <| Filter (FilterCondition FilterBookmark (\item -> item.isBookmark))
                 ]
-                [ Icon.bookmark "#F5F5F6" 12, div [ style "padding" "8px" ] [ text "Bookmarks" ] ]
+                [ Icon.bookmark "#F5F5F6" 16, div [ style "padding" "8px" ] [ text "Bookmarks" ] ]
+            :: div
+                [ style "width" "100%"
+                , style "height" "2px"
+                , style "border-bottom" "2px solid rgba(0, 0, 0, 0.1)"
+                ]
+                []
             :: (tagItems
                     |> List.map
                         (\tag ->
@@ -167,7 +211,7 @@ sideMenu filter tagItems =
                                             )
                                         )
                                 ]
-                                [ Icon.tag 12, div [ style "padding" "8px" ] [ text tag ] ]
+                                [ Icon.tag 16, div [ style "padding" "8px" ] [ text tag ] ]
                         )
                )
         )
@@ -175,149 +219,57 @@ sideMenu filter tagItems =
 
 view : Model -> Html Msg
 view model =
-    case model.diagramList of
-        Success diagrams ->
+    case ( model.diagramList, model.publicDiagramList, model.filterCondition ) of
+        ( _, DiagramList (Success diagrams) pageNo hasMorePage, FilterCondition FilterPublic _ ) ->
+            div
+                [ class "diagram-list"
+                ]
+                [ Lazy.lazy3 sideMenu
+                    model.session
+                    FilterPublic
+                    model.tags
+                , diagramListView
+                    { timeZone = model.timeZone
+                    , pageNo = pageNo
+                    , hasMorePage = hasMorePage
+                    , query = model.searchQuery
+                    , lang = model.lang
+                    , diagrams = diagrams
+                    , publicStatus = Public
+                    }
+                ]
+
+        ( DiagramList (Success diagrams) pageNo hasMorePage, _, filterCondition ) ->
             let
-                (FilterCondition selectedPath filterCondition) =
-                    model.filterCondition
+                (FilterCondition filterValue condition) =
+                    filterCondition
 
                 displayDiagrams =
-                    List.filter filterCondition diagrams
+                    List.filter condition diagrams
             in
             div
                 [ class "diagram-list"
                 ]
-                [ Lazy.lazy2 sideMenu
-                    selectedPath
+                [ Lazy.lazy3 sideMenu
+                    model.session
+                    filterValue
                     (tags diagrams)
-                , div
-                    [ style "width" "100%" ]
-                    [ div
-                        [ style "padding" "16px"
-                        , style "display" "flex"
-                        , style "align-items" "center"
-                        , style "justify-content" "flex-end"
-                        , style "font-weight" "400"
-                        , style "color" "#FEFEFE"
-                        ]
-                        [ div
-                            [ style "display" "flex"
-                            , style "align-items" "center"
-                            , style "width" "100%"
-                            , style "position" "relative"
-                            ]
-                            [ div
-                                [ style "position" "absolute"
-                                , style "left" "3px"
-                                , style "top" "5px"
-                                ]
-                                [ Icon.search "#8C9FAE" 24 ]
-                            , input
-                                [ placeholder "Search"
-                                , style "border-radius" "16px"
-                                , style "padding" "8px"
-                                , style "border" "none"
-                                , style "width" "100%"
-                                , style "font-size" "0.9rem"
-                                , style "padding-left" "32px"
-                                , onInput SearchInput
-                                ]
-                                []
-                            ]
-                        , div
-                            [ class "button"
-                            , style "padding" "8px"
-                            , style "margin-left" "8px"
-                            , onClick Export
-                            ]
-                            [ Icon.cloudDownload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport model.lang ] ] ]
-                        , div
-                            [ class "button"
-                            , style "padding" "8px"
-                            , onClick Import
-                            ]
-                            [ Icon.cloudUpload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipImport model.lang ] ] ]
-                        ]
-                    , if List.isEmpty displayDiagrams then
-                        div
-                            [ style "display" "flex"
-                            , style "align-items" "center"
-                            , style "justify-content" "center"
-                            , style "height" "100%"
-                            , style "color" "#8C9FAE"
-                            , style "font-size" "1.5rem"
-                            , style "padding-bottom" "32px"
-                            ]
-                            [ div [ style "margin-bottom" "8px" ] [ text "NOTHING" ]
-                            ]
-
-                      else
-                        div
-                            [ style "display" "flex"
-                            , style "align-items" "flex-start"
-                            , style "justify-content" "flex-start"
-                            , style "height" "calc(100% - 70px)"
-                            , style "flex-wrap" "wrap"
-                            , style "margin-bottom" "8px"
-                            , style "align-content" "flex-start"
-                            , style "overflow-y" "scroll"
-                            , style "will-change" "transform"
-                            , style "border-top" "1px solid #323B46"
-                            , style "padding" "8px"
-                            ]
-                            ((displayDiagrams
-                                |> (case model.searchQuery of
-                                        Just query ->
-                                            List.filter (\d -> String.contains query d.title)
-
-                                        Nothing ->
-                                            identity
-                                   )
-                                |> List.map
-                                    (\d -> Lazy.lazy2 diagramView model.timeZone d)
-                             )
-                                ++ [ if model.hasMorePage then
-                                        div
-                                            [ style "width" "100%"
-                                            , style "display" "flex"
-                                            , style "align-items" "center"
-                                            , style "justify-content" "center"
-                                            ]
-                                            [ div
-                                                [ class "primary-button button"
-                                                , style "padding" "16px"
-                                                , style "margin" "8px"
-                                                , onClick <| LoadNextPage <| model.pageNo + 1
-                                                ]
-                                                [ text "Load more" ]
-                                            ]
-
-                                     else
-                                        Empty.view
-                                   ]
-                            )
-                    ]
+                , diagramListView
+                    { timeZone = model.timeZone
+                    , pageNo = pageNo
+                    , hasMorePage = hasMorePage
+                    , query = model.searchQuery
+                    , lang = model.lang
+                    , diagrams = displayDiagrams
+                    , publicStatus = Private
+                    }
                 ]
 
-        Failure e ->
-            div
-                [ class "diagram-list"
-                , style "width" "100vw"
-                ]
-                [ div
-                    [ style "display" "flex"
-                    , style "align-items" "center"
-                    , style "justify-content" "center"
-                    , style "height" "100%"
-                    , style "padding-bottom" "32px"
-                    , style "color" "#8C9FAE"
-                    , style "font-size" "1.5rem"
-                    ]
-                    [ div [ style "margin-bottom" "8px" ]
-                        [ text ("Failed " ++ Utils.httpErrorToString e)
-                        ]
-                    ]
-                ]
+        ( DiagramList (Failure e) _ _, _, _ ) ->
+            errorView e
+
+        ( _, DiagramList (Failure e) _ _, _ ) ->
+            errorView e
 
         _ ->
             div
@@ -340,6 +292,117 @@ view model =
                         ]
                     ]
                 ]
+
+
+diagramListView : { publicStatus : PublicStatus, timeZone : Zone, pageNo : Int, hasMorePage : Bool, query : Maybe String, lang : Lang, diagrams : List DiagramItem } -> Html Msg
+diagramListView props =
+    div
+        [ style "width" "100%" ]
+        [ div
+            [ style "padding" "16px"
+            , style "display" "flex"
+            , style "align-items" "center"
+            , style "justify-content" "flex-end"
+            , style "font-weight" "400"
+            , style "color" "#FEFEFE"
+            ]
+            [ div
+                [ style "display" "flex"
+                , style "align-items" "center"
+                , style "width" "100%"
+                , style "position" "relative"
+                ]
+                [ div
+                    [ style "position" "absolute"
+                    , style "left" "3px"
+                    , style "top" "5px"
+                    ]
+                    [ Icon.search "#8C9FAE" 24 ]
+                , input
+                    [ placeholder "Search"
+                    , style "border-radius" "16px"
+                    , style "padding" "8px"
+                    , style "border" "none"
+                    , style "width" "100%"
+                    , style "font-size" "0.9rem"
+                    , style "padding-left" "32px"
+                    , onInput SearchInput
+                    ]
+                    []
+                ]
+            , div
+                [ class "button"
+                , style "padding" "8px"
+                , style "margin-left" "8px"
+                , onClick Export
+                ]
+                [ Icon.cloudDownload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport props.lang ] ] ]
+            , div
+                [ class "button"
+                , style "padding" "8px"
+                , onClick Import
+                ]
+                [ Icon.cloudUpload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipImport props.lang ] ] ]
+            ]
+        , if List.isEmpty props.diagrams then
+            div
+                [ style "display" "flex"
+                , style "align-items" "center"
+                , style "justify-content" "center"
+                , style "height" "100%"
+                , style "color" "#8C9FAE"
+                , style "font-size" "1.5rem"
+                , style "padding-bottom" "32px"
+                ]
+                [ div [ style "margin-bottom" "8px" ] [ text "NOTHING" ]
+                ]
+
+          else
+            div
+                [ style "display" "flex"
+                , style "align-items" "flex-start"
+                , style "justify-content" "flex-start"
+                , style "height" "calc(100% - 70px)"
+                , style "flex-wrap" "wrap"
+                , style "margin-bottom" "8px"
+                , style "align-content" "flex-start"
+                , style "overflow-y" "scroll"
+                , style "will-change" "transform"
+                , style "border-top" "1px solid #323B46"
+                , style "padding" "8px"
+                ]
+                ((props.diagrams
+                    |> (case props.query of
+                            Just query ->
+                                List.filter (\d -> String.contains query d.title)
+
+                            Nothing ->
+                                identity
+                       )
+                    |> List.map
+                        (\d -> Lazy.lazy2 diagramView props.timeZone d)
+                 )
+                    ++ [ if props.hasMorePage then
+                            div
+                                [ style "width" "100%"
+                                , style "display" "flex"
+                                , style "align-items" "center"
+                                , style "justify-content" "center"
+                                ]
+                                [ div
+                                    [ class "primary-button button"
+                                    , style "padding" "16px"
+                                    , style "margin" "8px"
+                                    , onClick <| LoadNextPage props.publicStatus <| props.pageNo + 1
+                                    ]
+                                    [ text "Load more" ]
+                                ]
+
+                         else
+                            Empty.view
+                       ]
+                )
+        ]
 
 
 diagramView : Zone -> DiagramItem -> Html Msg
@@ -371,6 +434,11 @@ diagramView timezone diagram =
 
                   else
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOff 14 ]
+                , if diagram.isPublic then
+                    div [ style "margin-left" "16px", class "public" ] [ Icon.lockOpen "rgba(51, 51, 51, 0.7)" 14 ]
+
+                  else
+                    div [ style "margin-left" "16px", class "public" ] [ Icon.lock "rgba(51, 51, 51, 0.7)" 14 ]
                 , div [ style "margin-left" "16px", class "remove button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
                 , case ( diagram.isBookmark, diagram.isRemote ) of
                     ( True, True ) ->
@@ -390,6 +458,28 @@ diagramView timezone diagram =
                     _ ->
                         Empty.view
                 , div [ class "diagram-tags" ] (List.map tagView (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
+                ]
+            ]
+        ]
+
+
+errorView : Http.Error -> Html Msg
+errorView e =
+    div
+        [ class "diagram-list"
+        , style "width" "100vw"
+        ]
+        [ div
+            [ style "display" "flex"
+            , style "align-items" "center"
+            , style "justify-content" "center"
+            , style "height" "100%"
+            , style "padding-bottom" "32px"
+            , style "color" "#8C9FAE"
+            , style "font-size" "1.5rem"
+            ]
+            [ div [ style "margin-bottom" "8px" ]
+                [ text ("Failed " ++ Utils.httpErrorToString e)
                 ]
             ]
         ]
@@ -424,98 +514,151 @@ update message model =
             , Cmd.none
             )
 
-        LoadNextPage pageNo ->
-            ( { model | pageNo = pageNo }, getDiagrams () )
+        LoadNextPage Private pageNo ->
+            let
+                (DiagramList remoteData _ hasMorePage) =
+                    model.diagramList
+            in
+            ( { model | diagramList = DiagramList remoteData pageNo hasMorePage }, getDiagrams () )
+
+        LoadNextPage Public pageNo ->
+            ( { model | publicDiagramList = DiagramList Loading pageNo True }, Task.perform identity (Task.succeed GetPublicDiagrams) )
+
+        GetPublicDiagrams ->
+            let
+                (DiagramList _ pageNo hasMorePage) =
+                    model.publicDiagramList
+
+                remoteTask =
+                    Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session } (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
+                        |> Task.map
+                            (\i ->
+                                i
+                                    |> List.filter (\item -> isJust item)
+                                    |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
+                            )
+            in
+            ( { model | filterCondition = FilterCondition FilterPublic (\_ -> True), publicDiagramList = DiagramList Loading pageNo hasMorePage }, Task.attempt GotPublicDiagrams remoteTask )
+
+        GotPublicDiagrams (Ok diagrams) ->
+            let
+                hasMorePage =
+                    List.length diagrams >= pageSize
+
+                ( pageNo, allDiagrams ) =
+                    case model.publicDiagramList of
+                        DiagramList (Success currentDiagrams) p _ ->
+                            ( p, Success <| List.concat [ currentDiagrams, diagrams ] )
+
+                        DiagramList _ p _ ->
+                            ( p, Success diagrams )
+            in
+            ( { model | publicDiagramList = DiagramList allDiagrams pageNo hasMorePage }, Cmd.none )
+
+        GotPublicDiagrams (Err _) ->
+            ( model, Cmd.none )
 
         GotLocalDiagramsJson json ->
-            if model.diagramList == Loading then
-                ( model, Cmd.none )
+            case model.diagramList of
+                DiagramList Loading _ _ ->
+                    ( model, Cmd.none )
 
-            else
-                let
-                    localItems =
-                        Result.withDefault [] <|
-                            D.decodeValue (D.list DiagramItem.decoder) json
-                in
-                if Session.isSignedIn model.session then
+                DiagramList _ pageNo _ ->
                     let
-                        remoteItems =
-                            Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session } (pageOffsetAndLimit model.pageNo) False False
-                                |> Task.map
-                                    (\i ->
-                                        i
-                                            |> List.filter (\item -> isJust item)
-                                            |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
-                                    )
-
-                        items =
-                            remoteItems
-                                |> Task.map
-                                    (\item ->
-                                        List.concat [ localItems, item ]
-                                            |> List.sortWith
-                                                (\a b ->
-                                                    let
-                                                        v1 =
-                                                            a.updatedAt |> Time.posixToMillis
-
-                                                        v2 =
-                                                            b.updatedAt |> Time.posixToMillis
-                                                    in
-                                                    if v1 - v2 > 0 then
-                                                        LT
-
-                                                    else if v1 - v2 < 0 then
-                                                        GT
-
-                                                    else
-                                                        EQ
-                                                )
-                                    )
-                                |> Task.mapError (Tuple.pair localItems)
+                        localItems =
+                            Result.withDefault [] <|
+                                D.decodeValue (D.list DiagramItem.decoder) json
                     in
-                    ( { model
-                        | diagramList =
-                            if RemoteData.isNotAsked model.diagramList then
-                                Loading
+                    if Session.isSignedIn model.session then
+                        let
+                            remoteItems =
+                                Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session } (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = False }
+                                    |> Task.map
+                                        (\i ->
+                                            i
+                                                |> List.filter (\item -> isJust item)
+                                                |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
+                                        )
 
-                            else
-                                model.diagramList
-                      }
-                    , Task.attempt GotDiagrams items
-                    )
+                            items =
+                                remoteItems
+                                    |> Task.map
+                                        (\item ->
+                                            List.concat [ localItems, item ]
+                                                |> List.sortWith
+                                                    (\a b ->
+                                                        let
+                                                            v1 =
+                                                                a.updatedAt |> Time.posixToMillis
 
-                else
-                    ( { model
-                        | hasMorePage = False
-                        , diagramList =
-                            Success localItems
-                      }
-                    , Cmd.none
-                    )
+                                                            v2 =
+                                                                b.updatedAt |> Time.posixToMillis
+                                                        in
+                                                        if v1 - v2 > 0 then
+                                                            LT
 
-        GotDiagrams (Err ( items, _ )) ->
-            ( { model
-                | hasMorePage = List.length items >= pageSize
-                , diagramList =
-                    if RemoteData.isFailure model.diagramList then
-                        Success items
+                                                        else if v1 - v2 < 0 then
+                                                            GT
+
+                                                        else
+                                                            EQ
+                                                    )
+                                        )
+                                    |> Task.mapError (Tuple.pair localItems)
+                        in
+                        ( { model
+                            | diagramList =
+                                case model.diagramList of
+                                    DiagramList NotAsked _ _ ->
+                                        DiagramList Loading 1 False
+
+                                    _ ->
+                                        model.diagramList
+                          }
+                        , Task.attempt GotDiagrams items
+                        )
 
                     else
-                        RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) model.diagramList
+                        ( { model
+                            | diagramList =
+                                DiagramList (Success localItems) 1 False
+                          }
+                        , Cmd.none
+                        )
+
+        GotDiagrams (Err ( items, _ )) ->
+            let
+                hasMorePage =
+                    List.length items >= pageSize
+            in
+            ( { model
+                | diagramList =
+                    case model.diagramList of
+                        DiagramList (Failure _) _ _ ->
+                            DiagramList (Success items) 1 hasMorePage
+
+                        DiagramList remoteData _ _ ->
+                            DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) 1 hasMorePage
               }
             , Cmd.none
             )
 
         GotDiagrams (Ok items) ->
+            let
+                hasMorePage =
+                    List.length items >= pageSize
+
+                (DiagramList remoteData pageNo _) =
+                    model.diagramList
+            in
             ( { model
-                | hasMorePage = List.length items >= pageSize
-                , diagramList =
-                    if List.isEmpty <| RemoteData.withDefault [] model.diagramList then
-                        Success items
+                | diagramList =
+                    if List.isEmpty <| RemoteData.withDefault [] remoteData then
+                        DiagramList (Success items) 1 hasMorePage
 
                     else
-                        RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) model.diagramList
+                        DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) pageNo hasMorePage
+                , tags = List.concat [ model.tags, tags items ]
               }
             , Cmd.none
             )
@@ -536,6 +679,7 @@ update message model =
                                 Nothing ->
                                     ""
                             )
+                            False
                             |> Task.map (\_ -> Just diagram)
                         )
                     )
@@ -554,10 +698,13 @@ update message model =
 
         Bookmark diagram ->
             let
+                (DiagramList remoteData pageNo hasMorePage) =
+                    model.diagramList
+
                 diagramList =
-                    RemoteData.withDefault [] model.diagramList |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark })
+                    RemoteData.withDefault [] remoteData |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark })
             in
-            ( { model | diagramList = Success diagramList }
+            ( { model | diagramList = DiagramList (Success diagramList) pageNo hasMorePage }
             , Task.attempt Bookmarked
                 (Request.bookmark { url = model.apiRoot, idToken = Session.getIdToken model.session }
                     (case diagram.id of
@@ -588,7 +735,7 @@ update message model =
 
         Export ->
             case model.diagramList of
-                Success diagrams ->
+                DiagramList (Success diagrams) _ _ ->
                     ( model, Download.string "textusm.json" "application/json" <| DiagramItem.listToString diagrams )
 
                 _ ->
