@@ -8,11 +8,12 @@ import File exposing (File)
 import File.Download as Download
 import File.Select as Select
 import GraphQL.Request as Request
-import Graphql.Http as Http
+import Graphql.Http as GraphQLHttp
 import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, src, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Html.Lazy as Lazy
+import Http
 import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (unique, updateIf)
@@ -35,12 +36,14 @@ type Msg
     | Remove DiagramItem
     | Bookmark DiagramItem
     | RemoveRemote D.Value
-    | Removed (Result (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem))
-    | Bookmarked (Result (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem))
+    | Removed (Result (GraphQLHttp.Error (Maybe DiagramItem)) (Maybe DiagramItem))
+    | Bookmarked (Result (GraphQLHttp.Error (Maybe DiagramItem)) (Maybe DiagramItem))
     | GotTimeZone Zone
     | GotLocalDiagramsJson D.Value
-    | GotDiagrams (Result ( List DiagramItem, Http.Error (List (Maybe DiagramItem)) ) (List DiagramItem))
-    | LoadNextPage Int
+    | GotDiagrams (Result ( List DiagramItem, GraphQLHttp.Error (List (Maybe DiagramItem)) ) (List DiagramItem))
+    | GetPublicDiagrams
+    | GotPublicDiagrams (Result (GraphQLHttp.Error (List (Maybe DiagramItem))) (List DiagramItem))
+    | LoadNextPage PublicStatus Int
     | Export
     | Import
     | ImportFile File
@@ -52,6 +55,11 @@ type FilterValue
     | FilterBookmark
     | FilterPublic
     | FilterTag String
+
+
+type PublicStatus
+    = Public
+    | Private
 
 
 type FilterCondition
@@ -71,6 +79,7 @@ type alias Model =
     , session : Session
     , apiRoot : String
     , lang : Lang
+    , tags : List String
     }
 
 
@@ -113,6 +122,7 @@ init session lang apiRoot =
       , session = session
       , apiRoot = apiRoot
       , lang = lang
+      , tags = []
       }
     , Cmd.batch
         [ Task.perform GotTimeZone Time.here
@@ -156,6 +166,7 @@ sideMenu session filter tagItems =
 
                             else
                                 "item"
+                        , onClick GetPublicDiagrams
                         ]
                         [ Icon.globe "#F5F5F6" 16, div [ style "padding" "8px" ] [ text "Public" ] ]
 
@@ -208,14 +219,33 @@ sideMenu session filter tagItems =
 
 view : Model -> Html Msg
 view model =
-    case model.diagramList of
-        DiagramList (Success diagrams) pageNo hasMorePage ->
+    case ( model.diagramList, model.publicDiagramList, model.filterCondition ) of
+        ( _, DiagramList (Success diagrams) pageNo hasMorePage, FilterCondition FilterPublic _ ) ->
+            div
+                [ class "diagram-list"
+                ]
+                [ Lazy.lazy3 sideMenu
+                    model.session
+                    FilterPublic
+                    model.tags
+                , diagramListView
+                    { timeZone = model.timeZone
+                    , pageNo = pageNo
+                    , hasMorePage = hasMorePage
+                    , query = model.searchQuery
+                    , lang = model.lang
+                    , diagrams = diagrams
+                    , publicStatus = Public
+                    }
+                ]
+
+        ( DiagramList (Success diagrams) pageNo hasMorePage, _, filterCondition ) ->
             let
-                (FilterCondition filterValue filterCondition) =
-                    model.filterCondition
+                (FilterCondition filterValue condition) =
+                    filterCondition
 
                 displayDiagrams =
-                    List.filter filterCondition diagrams
+                    List.filter condition diagrams
             in
             div
                 [ class "diagram-list"
@@ -224,134 +254,22 @@ view model =
                     model.session
                     filterValue
                     (tags diagrams)
-                , div
-                    [ style "width" "100%" ]
-                    [ div
-                        [ style "padding" "16px"
-                        , style "display" "flex"
-                        , style "align-items" "center"
-                        , style "justify-content" "flex-end"
-                        , style "font-weight" "400"
-                        , style "color" "#FEFEFE"
-                        ]
-                        [ div
-                            [ style "display" "flex"
-                            , style "align-items" "center"
-                            , style "width" "100%"
-                            , style "position" "relative"
-                            ]
-                            [ div
-                                [ style "position" "absolute"
-                                , style "left" "3px"
-                                , style "top" "5px"
-                                ]
-                                [ Icon.search "#8C9FAE" 24 ]
-                            , input
-                                [ placeholder "Search"
-                                , style "border-radius" "16px"
-                                , style "padding" "8px"
-                                , style "border" "none"
-                                , style "width" "100%"
-                                , style "font-size" "0.9rem"
-                                , style "padding-left" "32px"
-                                , onInput SearchInput
-                                ]
-                                []
-                            ]
-                        , div
-                            [ class "button"
-                            , style "padding" "8px"
-                            , style "margin-left" "8px"
-                            , onClick Export
-                            ]
-                            [ Icon.cloudDownload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport model.lang ] ] ]
-                        , div
-                            [ class "button"
-                            , style "padding" "8px"
-                            , onClick Import
-                            ]
-                            [ Icon.cloudUpload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipImport model.lang ] ] ]
-                        ]
-                    , if List.isEmpty displayDiagrams then
-                        div
-                            [ style "display" "flex"
-                            , style "align-items" "center"
-                            , style "justify-content" "center"
-                            , style "height" "100%"
-                            , style "color" "#8C9FAE"
-                            , style "font-size" "1.5rem"
-                            , style "padding-bottom" "32px"
-                            ]
-                            [ div [ style "margin-bottom" "8px" ] [ text "NOTHING" ]
-                            ]
-
-                      else
-                        div
-                            [ style "display" "flex"
-                            , style "align-items" "flex-start"
-                            , style "justify-content" "flex-start"
-                            , style "height" "calc(100% - 70px)"
-                            , style "flex-wrap" "wrap"
-                            , style "margin-bottom" "8px"
-                            , style "align-content" "flex-start"
-                            , style "overflow-y" "scroll"
-                            , style "will-change" "transform"
-                            , style "border-top" "1px solid #323B46"
-                            , style "padding" "8px"
-                            ]
-                            ((displayDiagrams
-                                |> (case model.searchQuery of
-                                        Just query ->
-                                            List.filter (\d -> String.contains query d.title)
-
-                                        Nothing ->
-                                            identity
-                                   )
-                                |> List.map
-                                    (\d -> Lazy.lazy2 diagramView model.timeZone d)
-                             )
-                                ++ [ if hasMorePage then
-                                        div
-                                            [ style "width" "100%"
-                                            , style "display" "flex"
-                                            , style "align-items" "center"
-                                            , style "justify-content" "center"
-                                            ]
-                                            [ div
-                                                [ class "primary-button button"
-                                                , style "padding" "16px"
-                                                , style "margin" "8px"
-                                                , onClick <| LoadNextPage <| pageNo + 1
-                                                ]
-                                                [ text "Load more" ]
-                                            ]
-
-                                     else
-                                        Empty.view
-                                   ]
-                            )
-                    ]
+                , diagramListView
+                    { timeZone = model.timeZone
+                    , pageNo = pageNo
+                    , hasMorePage = hasMorePage
+                    , query = model.searchQuery
+                    , lang = model.lang
+                    , diagrams = displayDiagrams
+                    , publicStatus = Private
+                    }
                 ]
 
-        DiagramList (Failure e) _ _ ->
-            div
-                [ class "diagram-list"
-                , style "width" "100vw"
-                ]
-                [ div
-                    [ style "display" "flex"
-                    , style "align-items" "center"
-                    , style "justify-content" "center"
-                    , style "height" "100%"
-                    , style "padding-bottom" "32px"
-                    , style "color" "#8C9FAE"
-                    , style "font-size" "1.5rem"
-                    ]
-                    [ div [ style "margin-bottom" "8px" ]
-                        [ text ("Failed " ++ Utils.httpErrorToString e)
-                        ]
-                    ]
-                ]
+        ( DiagramList (Failure e) _ _, _, _ ) ->
+            errorView e
+
+        ( _, DiagramList (Failure e) _ _, _ ) ->
+            errorView e
 
         _ ->
             div
@@ -376,9 +294,115 @@ view model =
                 ]
 
 
-diagramListView: Zone -> DiagramItem -> Html Msg
-diagramListView timezone diagrams =
-    div [] []
+diagramListView : { publicStatus : PublicStatus, timeZone : Zone, pageNo : Int, hasMorePage : Bool, query : Maybe String, lang : Lang, diagrams : List DiagramItem } -> Html Msg
+diagramListView props =
+    div
+        [ style "width" "100%" ]
+        [ div
+            [ style "padding" "16px"
+            , style "display" "flex"
+            , style "align-items" "center"
+            , style "justify-content" "flex-end"
+            , style "font-weight" "400"
+            , style "color" "#FEFEFE"
+            ]
+            [ div
+                [ style "display" "flex"
+                , style "align-items" "center"
+                , style "width" "100%"
+                , style "position" "relative"
+                ]
+                [ div
+                    [ style "position" "absolute"
+                    , style "left" "3px"
+                    , style "top" "5px"
+                    ]
+                    [ Icon.search "#8C9FAE" 24 ]
+                , input
+                    [ placeholder "Search"
+                    , style "border-radius" "16px"
+                    , style "padding" "8px"
+                    , style "border" "none"
+                    , style "width" "100%"
+                    , style "font-size" "0.9rem"
+                    , style "padding-left" "32px"
+                    , onInput SearchInput
+                    ]
+                    []
+                ]
+            , div
+                [ class "button"
+                , style "padding" "8px"
+                , style "margin-left" "8px"
+                , onClick Export
+                ]
+                [ Icon.cloudDownload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport props.lang ] ] ]
+            , div
+                [ class "button"
+                , style "padding" "8px"
+                , onClick Import
+                ]
+                [ Icon.cloudUpload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipImport props.lang ] ] ]
+            ]
+        , if List.isEmpty props.diagrams then
+            div
+                [ style "display" "flex"
+                , style "align-items" "center"
+                , style "justify-content" "center"
+                , style "height" "100%"
+                , style "color" "#8C9FAE"
+                , style "font-size" "1.5rem"
+                , style "padding-bottom" "32px"
+                ]
+                [ div [ style "margin-bottom" "8px" ] [ text "NOTHING" ]
+                ]
+
+          else
+            div
+                [ style "display" "flex"
+                , style "align-items" "flex-start"
+                , style "justify-content" "flex-start"
+                , style "height" "calc(100% - 70px)"
+                , style "flex-wrap" "wrap"
+                , style "margin-bottom" "8px"
+                , style "align-content" "flex-start"
+                , style "overflow-y" "scroll"
+                , style "will-change" "transform"
+                , style "border-top" "1px solid #323B46"
+                , style "padding" "8px"
+                ]
+                ((props.diagrams
+                    |> (case props.query of
+                            Just query ->
+                                List.filter (\d -> String.contains query d.title)
+
+                            Nothing ->
+                                identity
+                       )
+                    |> List.map
+                        (\d -> Lazy.lazy2 diagramView props.timeZone d)
+                 )
+                    ++ [ if props.hasMorePage then
+                            div
+                                [ style "width" "100%"
+                                , style "display" "flex"
+                                , style "align-items" "center"
+                                , style "justify-content" "center"
+                                ]
+                                [ div
+                                    [ class "primary-button button"
+                                    , style "padding" "16px"
+                                    , style "margin" "8px"
+                                    , onClick <| LoadNextPage props.publicStatus <| props.pageNo + 1
+                                    ]
+                                    [ text "Load more" ]
+                                ]
+
+                         else
+                            Empty.view
+                       ]
+                )
+        ]
 
 
 diagramView : Zone -> DiagramItem -> Html Msg
@@ -410,6 +434,11 @@ diagramView timezone diagram =
 
                   else
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOff 14 ]
+                , if diagram.isPublic then
+                    div [ style "margin-left" "16px", class "public" ] [ Icon.lockOpen "rgba(51, 51, 51, 0.7)" 14 ]
+
+                  else
+                    div [ style "margin-left" "16px", class "public" ] [ Icon.lock "rgba(51, 51, 51, 0.7)" 14 ]
                 , div [ style "margin-left" "16px", class "remove button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
                 , case ( diagram.isBookmark, diagram.isRemote ) of
                     ( True, True ) ->
@@ -429,6 +458,28 @@ diagramView timezone diagram =
                     _ ->
                         Empty.view
                 , div [ class "diagram-tags" ] (List.map tagView (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
+                ]
+            ]
+        ]
+
+
+errorView : Http.Error -> Html Msg
+errorView e =
+    div
+        [ class "diagram-list"
+        , style "width" "100vw"
+        ]
+        [ div
+            [ style "display" "flex"
+            , style "align-items" "center"
+            , style "justify-content" "center"
+            , style "height" "100%"
+            , style "padding-bottom" "32px"
+            , style "color" "#8C9FAE"
+            , style "font-size" "1.5rem"
+            ]
+            [ div [ style "margin-bottom" "8px" ]
+                [ text ("Failed " ++ Utils.httpErrorToString e)
                 ]
             ]
         ]
@@ -463,12 +514,49 @@ update message model =
             , Cmd.none
             )
 
-        LoadNextPage pageNo ->
+        LoadNextPage Private pageNo ->
             let
                 (DiagramList remoteData _ hasMorePage) =
                     model.diagramList
             in
             ( { model | diagramList = DiagramList remoteData pageNo hasMorePage }, getDiagrams () )
+
+        LoadNextPage Public pageNo ->
+            ( { model | publicDiagramList = DiagramList Loading pageNo True }, Task.perform identity (Task.succeed GetPublicDiagrams) )
+
+        GetPublicDiagrams ->
+            let
+                (DiagramList _ pageNo hasMorePage) =
+                    model.publicDiagramList
+
+                remoteTask =
+                    Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session } (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
+                        |> Task.map
+                            (\i ->
+                                i
+                                    |> List.filter (\item -> isJust item)
+                                    |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
+                            )
+            in
+            ( { model | filterCondition = FilterCondition FilterPublic (\_ -> True), publicDiagramList = DiagramList Loading pageNo hasMorePage }, Task.attempt GotPublicDiagrams remoteTask )
+
+        GotPublicDiagrams (Ok diagrams) ->
+            let
+                hasMorePage =
+                    List.length diagrams >= pageSize
+
+                ( pageNo, allDiagrams ) =
+                    case model.publicDiagramList of
+                        DiagramList (Success currentDiagrams) p _ ->
+                            ( p, Success <| List.concat [ currentDiagrams, diagrams ] )
+
+                        DiagramList _ p _ ->
+                            ( p, Success diagrams )
+            in
+            ( { model | publicDiagramList = DiagramList allDiagrams pageNo hasMorePage }, Cmd.none )
+
+        GotPublicDiagrams (Err _) ->
+            ( model, Cmd.none )
 
         GotLocalDiagramsJson json ->
             case model.diagramList of
@@ -484,7 +572,7 @@ update message model =
                     if Session.isSignedIn model.session then
                         let
                             remoteItems =
-                                Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False } (pageOffsetAndLimit pageNo) False False
+                                Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session } (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = False }
                                     |> Task.map
                                         (\i ->
                                             i
@@ -570,6 +658,7 @@ update message model =
 
                     else
                         DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) pageNo hasMorePage
+                , tags = List.concat [ model.tags, tags items ]
               }
             , Cmd.none
             )
@@ -582,7 +671,7 @@ update message model =
                 Ok diagram ->
                     ( model
                     , Task.attempt Removed
-                        (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False }
+                        (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session }
                             (case diagram.id of
                                 Just id ->
                                     DiagramId.toString id
@@ -590,6 +679,7 @@ update message model =
                                 Nothing ->
                                     ""
                             )
+                            False
                             |> Task.map (\_ -> Just diagram)
                         )
                     )
@@ -616,7 +706,7 @@ update message model =
             in
             ( { model | diagramList = DiagramList (Success diagramList) pageNo hasMorePage }
             , Task.attempt Bookmarked
-                (Request.bookmark { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False }
+                (Request.bookmark { url = model.apiRoot, idToken = Session.getIdToken model.session }
                     (case diagram.id of
                         Just id ->
                             DiagramId.toString id

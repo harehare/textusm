@@ -369,6 +369,12 @@ textarea {
                 top: 5px;
                 right: 10px;
             }
+            .public {
+                position: absolute;
+                display: block;
+                top: 5px;
+                right: 30px;
+            }
         }
 
         .datetime,
@@ -394,7 +400,8 @@ textarea {
             }
         }
 
-        .cloud {
+        .cloud,
+        .public {
             display: none;
         }
     }

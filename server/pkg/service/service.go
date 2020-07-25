@@ -80,6 +80,7 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 	}
 
 	item.Text = text
+	item.IsPublic = isPublic
 
 	if isPublic {
 		isOwner, err := s.isPublicDiagramOwner(ctx, item.ID, userID)
@@ -87,7 +88,6 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 		if !isOwner {
 			return nil, e.NoAuthorizationError(err)
 		}
-		item.IsPublic = true
 		_, err = s.repo.Save(ctx, userID, item, true)
 
 		if err != nil {

@@ -97,7 +97,7 @@ export const loadEditor = async (
         editor = document.getElementById("editor") as HTMLElement | null;
         if (editor) break;
         // eslint-disable-line no-await-in-loop
-        await sleep(100);
+        await sleep(1000);
     }
 
     if (monacoEditor) {

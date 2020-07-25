@@ -538,7 +538,7 @@ changeRouteTo route model =
                 loadText_ =
                     if Session.isSignedIn model.session then
                         ( { model | page = Page.Main }
-                        , cmds [ Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False } (DiagramId.toString id_) ]
+                        , cmds [ Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_) ]
                         )
 
                     else
@@ -556,7 +556,7 @@ changeRouteTo route model =
                         Just item ->
                             if item.isRemote then
                                 ( { model | page = Page.Main }
-                                , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False } (DiagramId.toString id_)
+                                , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_)
                                 )
 
                             else
@@ -955,7 +955,7 @@ update message model =
                         |> Result.andThen
                             (\diagram ->
                                 Ok
-                                    (Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = False } (DiagramItem.toInputItem diagram)
+                                    (Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram) diagram.isPublic
                                         |> Task.mapError (\_ -> diagram)
                                     )
                             )
@@ -1286,7 +1286,7 @@ update message model =
                 Just diagram ->
                     let
                         saveTask =
-                            Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session, isPublic = isPublic } (DiagramItem.toInputItem diagram)
+                            Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram) isPublic
                                 |> Task.mapError (\_ -> diagram)
                     in
                     ( { model | progress = True }, Task.attempt ChangePublicStatusCompleted saveTask )
