@@ -258,7 +258,7 @@ textarea {
             height: 30px;
             line-height: 30px;
             padding: 8px;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             div {
                 width: 100%;
                 white-space: nowrap;
@@ -288,7 +288,7 @@ textarea {
         border-radius: 8px;
         color: var(--text-color);
         background-color: var(--activity-color);
-        padding: 4px;
+        padding: 8px;
         margin: 2px;
         text-align: center;
         display: flex;
@@ -369,6 +369,12 @@ textarea {
                 top: 5px;
                 right: 10px;
             }
+            .public {
+                position: absolute;
+                display: block;
+                top: 5px;
+                right: 30px;
+            }
         }
 
         .datetime,
@@ -394,7 +400,8 @@ textarea {
             }
         }
 
-        .cloud {
+        .cloud,
+        .public {
             display: none;
         }
     }

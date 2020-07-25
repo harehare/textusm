@@ -1030,9 +1030,17 @@ update message model =
                 lines =
                     Text.lines model.text
 
-                from =
-                    getAt fromNo lines
+                toPrefix =
+                    getAt toNo lines
                         |> Maybe.withDefault ""
+                        |> Utils.getSpacePrefix
+
+                from =
+                    toPrefix
+                        ++ (getAt fromNo lines
+                                |> Maybe.withDefault ""
+                                |> String.trimLeft
+                           )
 
                 newLines =
                     removeAt fromNo lines

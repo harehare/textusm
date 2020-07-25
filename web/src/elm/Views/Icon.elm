@@ -1,4 +1,4 @@
-module Views.Icon exposing (add, bold, bookmark, circle, clear, cloudDownload, cloudOff, cloudOn, cloudUpload, download, edit, error, expandAlt, export, file, folderOpen, font, fullscreen, fullscreenExit, helpOutline, indent, info, italic, key, link, markdown, openInNew, people, remove, save, search, settings, share, strikethrough, tag, unbookmark, viewComfy, viewModule, visibility, warning)
+module Views.Icon exposing (add, bold, bookmark, circle, clear, cloudDownload, cloudOff, cloudOn, cloudUpload, download, edit, error, expandAlt, export, file, folderOpen, font, fullscreen, fullscreenExit, globe, helpOutline, indent, info, italic, key, link, lock, lockOpen, markdown, openInNew, people, remove, save, search, settings, share, strikethrough, tag, unbookmark, viewComfy, viewModule, visibility, warning)
 
 import Svg exposing (Svg)
 import Svg.Attributes exposing (d, fill, height, viewBox, width)
@@ -202,6 +202,21 @@ cloudDownload color size =
 cloudUpload : String -> Int -> Svg msg
 cloudUpload color size =
     icon color size size "0 0 640 512" [ Svg.path [ d "M537.6 226.6c4.1-10.7 6.4-22.4 6.4-34.6 0-53-43-96-96-96-19.7 0-38.1 6-53.3 16.2C367 64.2 315.3 32 256 32c-88.4 0-160 71.6-160 160 0 2.7.1 5.4.2 8.1C40.2 219.8 0 273.2 0 336c0 79.5 64.5 144 144 144h368c70.7 0 128-57.3 128-128 0-61.9-44-113.6-102.4-125.4zM393.4 288H328v112c0 8.8-7.2 16-16 16h-48c-8.8 0-16-7.2-16-16V288h-65.4c-14.3 0-21.4-17.2-11.3-27.3l105.4-105.4c6.2-6.2 16.4-6.2 22.6 0l105.4 105.4c10.1 10.1 2.9 27.3-11.3 27.3z" ] [] ]
+
+
+lockOpen : String -> Int -> Svg msg
+lockOpen color size =
+    icon color size size "0 0 576 512" [ Svg.path [ d "M423.5 0C339.5.3 272 69.5 272 153.5V224H48c-26.5 0-48 21.5-48 48v192c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V272c0-26.5-21.5-48-48-48h-48v-71.1c0-39.6 31.7-72.5 71.3-72.9 40-.4 72.7 32.1 72.7 72v80c0 13.3 10.7 24 24 24h32c13.3 0 24-10.7 24-24v-80C576 68 507.5-.3 423.5 0z" ] [] ]
+
+
+lock : String -> Int -> Svg msg
+lock color size =
+    icon color size size "0 0 448 512" [ Svg.path [ d "M400 224h-24v-72C376 68.2 307.8 0 224 0S72 68.2 72 152v72H48c-26.5 0-48 21.5-48 48v192c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V272c0-26.5-21.5-48-48-48zm-104 0H152v-72c0-39.7 32.3-72 72-72s72 32.3 72 72v72z" ] [] ]
+
+
+globe : String -> Int -> Svg msg
+globe color size =
+    icon color size size "0 0 496 512" [ Svg.path [ d "M336.5 160C322 70.7 287.8 8 248 8s-74 62.7-88.5 152h177zM152 256c0 22.2 1.2 43.5 3.3 64h185.3c2.1-20.5 3.3-41.8 3.3-64s-1.2-43.5-3.3-64H155.3c-2.1 20.5-3.3 41.8-3.3 64zm324.7-96c-28.6-67.9-86.5-120.4-158-141.6 24.4 33.8 41.2 84.7 50 141.6h108zM177.2 18.4C105.8 39.6 47.8 92.1 19.3 160h108c8.7-56.9 25.5-107.8 49.9-141.6zM487.4 192H372.7c2.1 21 3.3 42.5 3.3 64s-1.2 43-3.3 64h114.6c5.5-20.5 8.6-41.8 8.6-64s-3.1-43.5-8.5-64zM120 256c0-21.5 1.2-43 3.3-64H8.6C3.2 212.5 0 233.8 0 256s3.2 43.5 8.6 64h114.6c-2-21-3.2-42.5-3.2-64zm39.5 96c14.5 89.3 48.7 152 88.5 152s74-62.7 88.5-152h-177zm159.3 141.6c71.4-21.2 129.4-73.7 158-141.6h-108c-8.8 56.9-25.6 107.8-50 141.6zM19.3 352c28.6 67.9 86.5 120.4 158 141.6-24.4-33.8-41.2-84.7-50-141.6h-108z" ] [] ]
 
 
 icon : String -> Int -> Int -> String -> List (Svg msg) -> Svg msg

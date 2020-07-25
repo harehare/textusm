@@ -19,6 +19,10 @@ import TextUSM.ScalarCodecs
 import TextUSM.Union
 
 
+type alias ItemOptionalArguments =
+    { isPublic : OptionalArgument Bool }
+
+
 type alias ItemRequiredArguments =
     { id : String }
 
@@ -26,14 +30,24 @@ type alias ItemRequiredArguments =
 {-|
 
   - id -
+  - isPublic -
 
 -}
 item :
-    ItemRequiredArguments
+    (ItemOptionalArguments -> ItemOptionalArguments)
+    -> ItemRequiredArguments
     -> SelectionSet decodesTo TextUSM.Object.Item
     -> SelectionSet decodesTo RootQuery
-item requiredArgs object_ =
-    Object.selectionForCompositeField "item" [ Argument.required "id" requiredArgs.id Encode.string ] object_ identity
+item fillInOptionals requiredArgs object_ =
+    let
+        filledInOptionals =
+            fillInOptionals { isPublic = Absent }
+
+        optionalArgs =
+            [ Argument.optional "isPublic" filledInOptionals.isPublic Encode.bool ]
+                |> List.filterMap identity
+    in
+    Object.selectionForCompositeField "item" (optionalArgs ++ [ Argument.required "id" requiredArgs.id Encode.string ]) object_ identity
 
 
 type alias ItemsOptionalArguments =

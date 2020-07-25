@@ -338,7 +338,7 @@ changeRouteTo route model =
     in
     case route of
         Route.List ->
-            if RemoteData.isNotAsked model.diagramListModel.diagramList || List.isEmpty (RemoteData.withDefault [] model.diagramListModel.diagramList) then
+            if DiagramList.isNotAsked model.diagramListModel.diagramList then
                 let
                     ( model_, cmd_ ) =
                         DiagramList.init model.session model.lang model.diagramListModel.apiRoot
@@ -547,7 +547,7 @@ changeRouteTo route model =
                         )
             in
             case ( model.diagramListModel.diagramList, model.currentDiagram ) of
-                ( Success d, _ ) ->
+                ( DiagramList.DiagramList (Success d) _ _, _ ) ->
                     let
                         loadItem =
                             find (\diagram -> (DiagramItem.getId diagram |> DiagramId.toString) == DiagramId.toString id_) d
@@ -762,7 +762,7 @@ update message model =
                 DiagramList.ImportComplete json ->
                     case DiagramItem.stringToList json of
                         Ok _ ->
-                            ( { model | diagramListModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagramList, showInfoMessage <| Translations.messageImportCompleted model.lang] )
+                            ( { model | diagramListModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagramList, showInfoMessage <| Translations.messageImportCompleted model.lang ] )
 
                         Err _ ->
                             ( model, showErrorMessage <| Translations.messageFailed model.lang )
@@ -893,7 +893,7 @@ update message model =
                     model.diagramListModel
 
                 newDiagramListModel =
-                    { diagramListModel | diagramList = RemoteData.NotAsked }
+                    { diagramListModel | diagramList = DiagramList.notAsked }
             in
             if Title.isUntitled model.title then
                 update StartEditTitle model
@@ -916,7 +916,7 @@ update message model =
                             , thumbnail = Nothing
                             , diagram = newDiagramModel.diagramType
                             , isRemote = isRemote
-                            , isPublic = False
+                            , isPublic = Maybe.map .isPublic model.currentDiagram |> Maybe.withDefault False
                             , isBookmark = False
                             , tags = Maybe.andThen .tags model.currentDiagram
                             , updatedAt = Time.millisToPosix 0
@@ -955,7 +955,7 @@ update message model =
                         |> Result.andThen
                             (\diagram ->
                                 Ok
-                                    (Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram)
+                                    (Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram) diagram.isPublic
                                         |> Task.mapError (\_ -> diagram)
                                     )
                             )
@@ -1211,7 +1211,7 @@ update message model =
                             model.diagramListModel
 
                         newDiagramListModel =
-                            { diagramListModel | diagramList = NotAsked }
+                            { diagramListModel | diagramList = DiagramList.notAsked }
                     in
                     ( { newModel | diagramListModel = newDiagramListModel }, Nav.pushUrl model.key (Route.toString <| Route.List) )
 
@@ -1280,6 +1280,25 @@ update message model =
 
                 Err _ ->
                     ( model, Cmd.none )
+
+        ChangePublicStatus isPublic ->
+            case model.currentDiagram of
+                Just diagram ->
+                    let
+                        saveTask =
+                            Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram) isPublic
+                                |> Task.mapError (\_ -> diagram)
+                    in
+                    ( { model | progress = True }, Task.attempt ChangePublicStatusCompleted saveTask )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        ChangePublicStatusCompleted (Ok d) ->
+            ( { model | progress = False, currentDiagram = Just d }, showInfoMessage ("\"" ++ d.title ++ "\"" ++ " published") )
+
+        ChangePublicStatusCompleted (Err _) ->
+            ( { model | progress = False }, showErrorMessage "Failed to change publishing settings" )
 
 
 setEditorLanguage : Diagram.Diagram -> Cmd Msg

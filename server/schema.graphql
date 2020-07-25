@@ -33,7 +33,7 @@ type Item {
 }
 
 type Query {
-  item(id: String!): Item!
+  item(id: String!, isPublic: Boolean = False): Item!
   items(
     offset: Int = 0
     limit: Int = 30
@@ -54,7 +54,7 @@ input InputItem {
 }
 
 type Mutation {
-  save(input: InputItem!): Item!
-  delete(itemID: String!): Item
+  save(input: InputItem!, isPublic: Boolean = False): Item!
+  delete(itemID: String!, isPublic: Boolean = False): Item
   bookmark(itemID: String!, isBookmark: Boolean!): Item
 }
