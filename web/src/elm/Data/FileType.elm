@@ -19,22 +19,22 @@ toString : FileType -> String
 toString fileType =
     case fileType of
         Png _ ->
-            "PNG"
+            "Png"
 
         Svg _ ->
-            "SVG"
+            "Svg"
 
         Pdf _ ->
-            "PDF"
+            "Pdf"
 
         Html _ ->
-            "HTML"
+            "Html"
 
         Ddl _ ->
             "DDL"
 
         Markdown _ ->
-            "MARKDOWN"
+            "Markdown"
 
         PlainText _ ->
             "Text"

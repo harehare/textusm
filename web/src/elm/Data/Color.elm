@@ -15,87 +15,87 @@ type Color
 
 white : Color
 white =
-    Color "WHITE" "#FFFFFF"
+    Color "White" "#FFFFFF"
 
 
 black : Color
 black =
-    Color "BLACK" "#000000"
+    Color "Black" "#000000"
 
 
 gray : Color
 gray =
-    Color "GRAY" "#333333"
+    Color "Gray" "#333333"
 
 
 lightGray : Color
 lightGray =
-    Color "LIGHT GRAY" "#D3D3D3"
+    Color "Light Gray" "#D3D3D3"
 
 
 yellow : Color
 yellow =
-    Color "YELLOW" "#FFF9B2"
+    Color "Yellow" "#FFF9B2"
 
 
 green : Color
 green =
-    Color "GREEN" "#D3F8E2"
+    Color "Green" "#D3F8E2"
 
 
 blue : Color
 blue =
-    Color "BLUE" "#CEE5F2"
+    Color "Blue" "#CEE5F2"
 
 
 orange : Color
 orange =
-    Color "ORANGE" "#F7CAB2"
+    Color "Orange" "#F7CAB2"
 
 
 pink : Color
 pink =
-    Color "PINK" "#F6CFE6"
+    Color "Pink" "#F6CFE6"
 
 
 red : Color
 red =
-    Color "RED" "#EE8A8B"
+    Color "Red" "#EE8A8B"
 
 
 purple : Color
 purple =
-    Color "PURPLE" "#CD89F7"
+    Color "Purple" "#CD89F7"
 
 
 background1Defalut : Color
 background1Defalut =
-    Color "BACKGROUND1 DEFALUT" "#266B9A"
+    Color "Background1 Defalut" "#266B9A"
 
 
 background2Defalut : Color
 background2Defalut =
-    Color "BACKGROUND2 DEFALUT" "#3E9BCD"
+    Color "Background2 Defalut" "#3E9BCD"
 
 
 lineDefalut : Color
 lineDefalut =
-    Color "LINE DEFALUT" "#434343"
+    Color "Line Defalut" "#434343"
 
 
 labelDefalut : Color
 labelDefalut =
-    Color "LABEL DEFALUT" "#8C9FAE"
+    Color "Label Defalut" "#8C9FAE"
 
 
 backgroundDefalut : Color
 backgroundDefalut =
-    Color "BACKGROUND DEFALUT" "#F4F4F5"
+    Color "Background Defalut" "#F4F4F5"
 
 
 textDefalut : Color
 textDefalut =
-    Color "TEXT DEFALUT" "#111111"
+    Color "Text Defalut" "#111111"
 
 
 colors : List Color

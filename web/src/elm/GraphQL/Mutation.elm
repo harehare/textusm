@@ -2,6 +2,7 @@ module GraphQL.Mutation exposing (bookmark, delete, save)
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Text as Text
+import Data.Title as Title
 import Graphql.Operation exposing (RootMutation)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
@@ -18,7 +19,7 @@ save input isPublic =
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
             |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
             |> with TextUSM.Object.Item.diagram
-            |> with TextUSM.Object.Item.title
+            |> with (TextUSM.Object.Item.title |> SelectionSet.map (\value -> Title.fromString value))
             |> with TextUSM.Object.Item.thumbnail
             |> with TextUSM.Object.Item.isPublic
             |> with TextUSM.Object.Item.isBookmark
@@ -36,7 +37,7 @@ delete itemID isPublic =
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
             |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
             |> with TextUSM.Object.Item.diagram
-            |> with TextUSM.Object.Item.title
+            |> with (TextUSM.Object.Item.title |> SelectionSet.map (\value -> Title.fromString value))
             |> with TextUSM.Object.Item.thumbnail
             |> with TextUSM.Object.Item.isPublic
             |> with TextUSM.Object.Item.isBookmark
@@ -54,7 +55,7 @@ bookmark itemID isBookmark =
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
             |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
             |> with TextUSM.Object.Item.diagram
-            |> with TextUSM.Object.Item.title
+            |> with (TextUSM.Object.Item.title |> SelectionSet.map (\value -> Title.fromString value))
             |> with TextUSM.Object.Item.thumbnail
             |> with TextUSM.Object.Item.isPublic
             |> with TextUSM.Object.Item.isBookmark

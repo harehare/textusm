@@ -911,7 +911,7 @@ update message model =
                     [ Ports.saveDiagram <|
                         DiagramItem.encoder
                             { id = Maybe.andThen .id model.currentDiagram
-                            , title = Title.toString model.title
+                            , title = model.title
                             , text = newDiagramModel.text
                             , thumbnail = Nothing
                             , diagram = newDiagramModel.diagramType
@@ -931,7 +931,7 @@ update message model =
                 Ok item ->
                     ( { model | currentDiagram = Just item }
                     , Cmd.batch
-                        [ showInfoMessage <| Translations.messageSuccessfullySaved model.lang item.title
+                        [ showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString item.title)
                         , Route.replaceRoute model.key
                             (Route.EditFile (DiagramType.toString item.diagram)
                                 (case item.id of
@@ -971,7 +971,7 @@ update message model =
             let
                 item =
                     { id = Nothing
-                    , title = Title.toString model.title
+                    , title = model.title
                     , text = model.diagramModel.text
                     , thumbnail = Nothing
                     , diagram = model.diagramModel.diagramType
@@ -1233,7 +1233,7 @@ update message model =
 
                         Nothing ->
                             { diagram
-                                | title = Title.toString model.title
+                                | title = model.title
                                 , text = model.diagramModel.text
                                 , diagram = model.diagramModel.diagramType
                             }
@@ -1252,7 +1252,7 @@ update message model =
             in
             ( { model
                 | progress = False
-                , title = Title.fromString newDiagram.title
+                , title = newDiagram.title
                 , currentDiagram = Just newDiagram
                 , diagramModel = model_
               }
@@ -1295,7 +1295,7 @@ update message model =
                     ( model, Cmd.none )
 
         ChangePublicStatusCompleted (Ok d) ->
-            ( { model | progress = False, currentDiagram = Just d }, showInfoMessage ("\"" ++ d.title ++ "\"" ++ " published") )
+            ( { model | progress = False, currentDiagram = Just d }, showInfoMessage ("\"" ++ Title.toString d.title ++ "\"" ++ " published") )
 
         ChangePublicStatusCompleted (Err _) ->
             ( { model | progress = False }, showErrorMessage "Failed to change publishing settings" )
