@@ -18,7 +18,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/labstack/gommon v0.2.9 // indirect
-	github.com/lib/pq v1.7.1
+	github.com/lib/pq v1.8.0
 	github.com/meatballhat/negroni-logrus v0.0.0-20170801195057-31067281800f
 	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450
 	github.com/oxequa/interact v0.0.0-20171114182912-f8fb5795b5d7 // indirect
