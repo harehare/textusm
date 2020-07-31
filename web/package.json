@@ -7,7 +7,7 @@
         "url": "https://github.com/harehare/textusm/issues"
     },
     "dependencies": {
-        "dexie": "^3.0.1",
+        "dexie": "^3.0.2",
         "firebase": "^7.17.1",
         "html2canvas": "^1.0.0-rc.3",
         "imagemin-webpack-plugin": "^2.4.2",
