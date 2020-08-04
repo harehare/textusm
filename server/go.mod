@@ -35,7 +35,7 @@ require (
 	github.com/vektah/gqlparser v1.3.1
 	github.com/vektah/gqlparser/v2 v2.0.1
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	google.golang.org/api v0.29.0
+	google.golang.org/api v0.30.0
 	google.golang.org/grpc v1.31.0
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
