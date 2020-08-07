@@ -14,7 +14,7 @@
         "jspdf": "^1.5.3",
         "lzutf8": "^0.5.5",
         "monaco-editor": "^0.20.0",
-        "tslib": "^2.0.0",
+        "tslib": "^2.0.1",
         "uuid": "^8.3.0"
     },
     "devDependencies": {
