@@ -49,6 +49,7 @@ import Views.Diagram.Kpt as Kpt
 import Views.Diagram.Markdown as Markdown
 import Views.Diagram.MindMap as MindMap
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
+import Views.Diagram.SequenceDiagram as SequenceDiagram
 import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.Table as Table
@@ -397,6 +398,9 @@ diagramView diagramType =
 
         Kanban ->
             Kanban.view
+
+        SequenceDiagram ->
+            SequenceDiagram.view
 
 
 svgView : Model -> Svg Msg

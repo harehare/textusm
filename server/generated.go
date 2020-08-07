@@ -307,6 +307,7 @@ enum Diagram {
   ER_DIAGRAM
   KANBAN
   TABLE
+  SEQUENCE_DIAGRAM
 }
 
 type Item {

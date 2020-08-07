@@ -1,5 +1,6 @@
 module Data.DiagramType exposing (fromString, toLongString, toString)
 
+import Models.Views.SequenceDiagram exposing (SequenceDiagram)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 
 
@@ -54,6 +55,9 @@ toString diagramType =
         Kanban ->
             "kanban"
 
+        SequenceDiagram ->
+            "sed"
+
 
 toLongString : Diagram -> String
 toLongString diagramType =
@@ -106,6 +110,9 @@ toLongString diagramType =
         Kanban ->
             "Kanban"
 
+        SequenceDiagram ->
+            "Sequence Diagram"
+
 
 fromString : String -> Diagram
 fromString s =
@@ -157,6 +164,9 @@ fromString s =
 
         "kanban" ->
             Kanban
+
+        "sed" ->
+            SequenceDiagram
 
         _ ->
             UserStoryMap

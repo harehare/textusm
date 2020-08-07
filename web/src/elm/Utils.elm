@@ -454,6 +454,10 @@ getCanvasSize model =
                             Kanban.fromItems model.items
                     in
                     ( Kanban.getListCount kanban * (model.settings.size.width + Constants.itemMargin * 3), Kanban.getCardCount kanban * (model.settings.size.height + Constants.itemMargin) + Constants.itemMargin * 2 )
+
+                Diagram.SequenceDiagram ->
+                    -- TODO:
+                    ( 0, 0 )
     in
     ( width, height )
 

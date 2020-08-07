@@ -32,6 +32,7 @@ import Html.Attributes
         , class
         , href
         , id
+        , placeholder
         , src
         , style
         , target
@@ -207,6 +208,7 @@ view model =
                                 [ textarea
                                     [ E.onInput EditText
                                     , style "font-size" ((defaultEditorSettings model.settingsModel.settings.editor |> .fontSize |> String.fromInt) ++ "px")
+                                    , placeholder "Enter Text"
                                     , value <| Text.toString model.diagramModel.text
                                     ]
                                     []
