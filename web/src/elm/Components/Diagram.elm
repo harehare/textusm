@@ -27,6 +27,7 @@ import Models.Views.Kpt as KptModel
 import Models.Views.OpportunityCanvas as OpportunityCanvasModel
 import Models.Views.StartStopContinue as StartStopContinueModel
 import Models.Views.Table as TableModel
+import Models.Views.SequenceDiagram as SequenceDiagramModel
 import Models.Views.UserPersona as UserPersonaModel
 import Result exposing (andThen)
 import String
@@ -708,6 +709,9 @@ updateDiagram ( width, height ) base text =
 
                 SiteMap ->
                     Diagram.SiteMap items hierarchy
+
+                SequenceDiagram ->
+                    Diagram.SequenceDiagram <| SequenceDiagramModel.fromItems items
 
                 _ ->
                     Diagram.Items items

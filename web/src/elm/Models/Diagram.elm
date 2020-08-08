@@ -17,6 +17,7 @@ import Models.Views.Kpt exposing (Kpt)
 import Models.Views.OpportunityCanvas exposing (OpportunityCanvas)
 import Models.Views.StartStopContinue exposing (StartStopContinue)
 import Models.Views.Table exposing (Table)
+import Models.Views.SequenceDiagram exposing (SequenceDiagram)
 import Models.Views.UserPersona exposing (UserPersona)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
@@ -82,6 +83,7 @@ type Data
     | UserPersona UserPersona
     | StartStopContinue StartStopContinue
     | ErDiagram ErDiagram
+    | SequenceDiagram SequenceDiagram
 
 
 type ContextMenu

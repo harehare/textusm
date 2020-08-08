@@ -1,59 +1,79 @@
 module Views.Diagram.SequenceDiagram exposing (view)
 
+import Constants
 import Data.Item exposing (Item)
 import Data.Position as Position exposing (Position)
 import Data.Size exposing (Size)
-import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle, getTextColor)
-import Models.Views.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Lifeline(..), Message(..), MessageType(..), SequenceDiagram(..), SequenceItem(..))
+import List.Extra exposing (scanl, zip)
+import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle, getTextColor)
+import Models.Views.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
 import Svg exposing (Svg, circle, g, line, marker, polygon, polyline, rect, text, text_)
 import Svg.Attributes exposing (class, cx, cy, fill, fontFamily, fontSize, fontWeight, height, id, markerEnd, markerHeight, markerStart, markerWidth, orient, points, r, refX, refY, stroke, strokeDasharray, strokeWidth, viewBox, width, x, x1, x2, y, y1, y2)
 import Svg.Lazy exposing (lazy4)
 import Views.Diagram.Views as Views
+import Views.Empty as Empty
 
 
-lifelineMargin : Int
-lifelineMargin =
+participantMargin : Int
+participantMargin =
     150
 
 
 messageMargin : Int
 messageMargin =
-    80
+    85
+
+
+fragmentOffset : Int
+fragmentOffset =
+    40
 
 
 view : Model -> Svg Msg
 view model =
-    let
-        (SequenceDiagram lifelines items) =
-            SequenceDiagram.fromItems model.items
+    case model.data of
+        Diagram.SequenceDiagram (SequenceDiagram participants items) ->
+            let
+                messageHeight =
+                    SequenceDiagram.messagesCount items
+                        * messageMargin
 
-        messageHeight =
-            (toFloat <|
-                SequenceDiagram.messagesCount items
-                    * messageMargin
-            )
-                * 1.5
-                |> round
-    in
-    g []
-        [ markerView model.settings
-        , g [] (List.indexedMap (\i item -> lifelineView model.settings model.selectedItem ( lifelineX model.settings i, 10 ) item messageHeight) lifelines)
-        , g [] (List.indexedMap (\i item -> sequenceItemView model.settings ((model.settings.size.height + messageMargin) * (i + 1)) item) items)
-        ]
+                messageYList =
+                    scanl
+                        (\(SequenceItem _ messages) y ->
+                            y + List.length messages * messageMargin
+                        )
+                        (model.settings.size.height + messageMargin)
+                        items
+            in
+            g []
+                [ markerView model.settings
+                , g [] (List.indexedMap (\i item -> participantView model.settings model.selectedItem ( participantX model.settings i, 10 ) item messageHeight) participants)
+                , g []
+                    (zip items messageYList
+                        |> List.map
+                            (\( item, y ) ->
+                                sequenceItemView model.settings y item
+                            )
+                    )
+                ]
+
+        _ ->
+            Empty.view
 
 
-lifelineX : Settings -> Int -> Int
-lifelineX settings order =
-    (settings.size.width + lifelineMargin) * order + 10
+participantX : Settings -> Int -> Int
+participantX settings order =
+    (settings.size.width + participantMargin) * order + 10
 
 
 messageX : Settings -> Int -> Int
 messageX settings order =
-    settings.size.width // 2 + (settings.size.width + lifelineMargin) * order + 10
+    settings.size.width // 2 + (settings.size.width + participantMargin) * order + 10
 
 
-lifelineView : Settings -> Maybe Item -> Position -> Lifeline -> Int -> Svg Msg
-lifelineView settings selectedItem pos (Lifeline item _) messageHeight =
+participantView : Settings -> Maybe Item -> Position -> Participant -> Int -> Svg Msg
+participantView settings selectedItem pos (Participant item _) messageHeight =
     let
         lineX =
             Position.getX pos + settings.size.width // 2
@@ -76,17 +96,45 @@ sequenceItemView settings y (SequenceItem fragment messages) =
     let
         mesageViewList =
             List.indexedMap
-                (\i (Message messageType (Lifeline _ order1) (Lifeline _ order2)) ->
+                (\i (Message messageType (Participant _ order1) (Participant _ order2)) ->
                     let
                         messageY =
                             y + i * messageMargin
                     in
-                    messageView settings ( messageX settings order1, messageY ) ( messageX settings order2, messageY ) messageType
+                    if order1 == order2 then
+                        selfMessageView settings ( messageX settings order1, messageY ) messageType
+
+                    else
+                        messageView settings ( messageX settings order1, messageY ) ( messageX settings order2, messageY ) messageType
                 )
                 messages
+
+        orderList =
+            List.concatMap
+                (\(Message _ (Participant _ order1) (Participant _ order2)) ->
+                    [ order1, order2 ]
+                )
+                messages
+
+        fragmentFromX =
+            orderList
+                |> List.minimum
+                |> Maybe.withDefault 0
+                |> messageX settings
+
+        fragmentToX =
+            orderList
+                |> List.maximum
+                |> Maybe.withDefault 0
+                |> messageX settings
+
+        messagesLength =
+            List.length messages
     in
-    -- TODO: fragment
-    g [] mesageViewList
+    g []
+        [ g [] mesageViewList
+        , fragmentView settings ( fragmentFromX - fragmentOffset, y - (messageMargin // 2) ) ( fragmentToX + fragmentOffset, y + messagesLength * messageMargin - (messageMargin // 2) ) fragment
+        ]
 
 
 markerView : Settings -> Svg Msg
@@ -102,6 +150,23 @@ markerView settings =
             [ polyline [ points "0,0 10,5 0,10", fill "none", stroke settings.color.line, strokeWidth "2" ] []
             , circle [ cx "12", cy "5", r "5", fill settings.color.line ] []
             ]
+        ]
+
+
+selfMessageView : Settings -> Position -> MessageType -> Svg Msg
+selfMessageView settings ( posX, posY ) messageType =
+    let
+        messagePoints =
+            [ [ String.fromInt posX, String.fromInt posY ] |> String.join ","
+            , [ String.fromInt <| posX + participantMargin // 2, String.fromInt posY ] |> String.join ","
+            , [ String.fromInt <| posX + participantMargin // 2, String.fromInt <| posY + messageMargin // 2 ] |> String.join ","
+            , [ String.fromInt <| posX + 4, String.fromInt <| posY + messageMargin // 2 ] |> String.join ","
+            ]
+                |> String.join " "
+    in
+    g []
+        [ polyline [ points messagePoints, markerEnd "url(#sync)", fill "none", stroke settings.color.line, strokeWidth "2" ] []
+        , textView settings ( posX + 8, posY - 8 ) ( participantMargin, 8 ) (SequenceDiagram.unwrapMessageType messageType)
         ]
 
 
@@ -129,16 +194,16 @@ messageView settings ( fromX, fromY ) ( toX, toY ) messageType =
                     ( ( True, "", "async" ), ( 0, 4 ) )
 
                 ( True, Found _ ) ->
-                    ( ( False, "found", "async" ), ( lifelineMargin, 5 ) )
+                    ( ( False, "found", "async" ), ( participantMargin, 5 ) )
 
                 ( False, Found _ ) ->
-                    ( ( False, "async", "found" ), ( lifelineMargin, 5 ) )
+                    ( ( False, "async", "found" ), ( participantMargin, 5 ) )
 
                 ( True, Lost _ ) ->
-                    ( ( False, "", "lost" ), ( 0, lifelineMargin ) )
+                    ( ( False, "", "lost" ), ( 0, participantMargin ) )
 
                 ( False, Lost _ ) ->
-                    ( ( False, "lost", "" ), ( 0, lifelineMargin ) )
+                    ( ( False, "lost", "" ), ( 0, participantMargin ) )
     in
     g []
         [ line
@@ -177,41 +242,49 @@ textView settings ( posX, posY ) ( textWidth, textHeight ) message =
 
 fragmentView : Settings -> Position -> Position -> Fragment -> Svg Msg
 fragmentView settings ( fromX, fromY ) ( toX, toY ) fragment =
-    let
-        fragmentWidth =
-            toX - fromX
+    case fragment of
+        Default ->
+            g [] []
 
-        fragmentHeight =
-            toY - fromY
-    in
-    g []
-        [ rect
-            [ x <| String.fromInt fromX
-            , y <| String.fromInt fromY
-            , width <| String.fromInt fragmentWidth
-            , height <| String.fromInt fragmentHeight
-            , stroke settings.color.activity.backgroundColor
-            , strokeWidth "2"
-            ]
-            []
-        , rect
-            [ x <| String.fromInt fromX
-            , y <| String.fromInt fromY
-            , width <| String.fromInt fragmentWidth
-            , height <| String.fromInt fragmentHeight
-            , fill settings.color.activity.backgroundColor
-            ]
-            []
-        , text_
-            [ x <| String.fromInt fromX
-            , y <| String.fromInt fromY
-            , fontFamily (fontStyle settings)
-            , fill settings.color.activity.backgroundColor
-            , fontWeight "bold"
-            , class ".select-none"
-            ]
-            [ text <| SequenceDiagram.fragmentToString fragment ]
-        ]
+        _ ->
+            let
+                fragmentWidth =
+                    toX - fromX
+
+                fragmentHeight =
+                    toY - fromY
+            in
+            g []
+                [ rect
+                    [ x <| String.fromInt fromX
+                    , y <| String.fromInt fromY
+                    , width <| String.fromInt fragmentWidth
+                    , height <| String.fromInt fragmentHeight
+                    , stroke settings.color.activity.backgroundColor
+                    , strokeWidth "2"
+                    , fill "transparent"
+                    ]
+                    []
+                , rect
+                    [ x <| String.fromInt fromX
+                    , y <| String.fromInt fromY
+                    , width "48"
+                    , height "20"
+                    , fill settings.color.activity.backgroundColor
+                    , strokeWidth "2"
+                    ]
+                    []
+                , text_
+                    [ x <| String.fromInt <| fromX + 8
+                    , y <| String.fromInt <| fromY + 14
+                    , fontFamily (fontStyle settings)
+                    , fill settings.color.task.color
+                    , fontSize Constants.fontSize
+                    , fontWeight "bold"
+                    , class ".select-none"
+                    ]
+                    [ text <| SequenceDiagram.fragmentToString fragment ]
+                ]
 
 
 lineView : Settings -> Position -> Position -> Svg Msg

@@ -1,4 +1,4 @@
-module Models.Views.SequenceDiagram exposing (messagesCount, Fragment(..), Lifeline(..), Message(..), MessageType(..), SequenceDiagram(..), SequenceItem(..), fragmentToString, fromItems, unwrapMessageType)
+module Models.Views.SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..), fragmentToString, fromItems, messagesCount, unwrapMessageType)
 
 import Data.Item as Item exposing (Item, Items)
 import Dict exposing (Dict)
@@ -6,19 +6,19 @@ import Maybe.Extra exposing (isJust)
 
 
 type SequenceDiagram
-    = SequenceDiagram (List Lifeline) (List SequenceItem)
+    = SequenceDiagram (List Participant) (List SequenceItem)
 
 
 type SequenceItem
     = SequenceItem Fragment (List Message)
 
 
-type Lifeline
-    = Lifeline Item Int
+type Participant
+    = Participant Item Int
 
 
 type Message
-    = Message MessageType Lifeline Lifeline
+    = Message MessageType Participant Participant
 
 
 type MessageType
@@ -52,8 +52,8 @@ emptySequenceItem =
 fromItems : Items -> SequenceDiagram
 fromItems items =
     let
-        lifelines =
-            itemToLifeline <| Item.head items
+        participants =
+            itemToParticipant <| Item.head items
 
         messages =
             Item.map
@@ -64,7 +64,7 @@ fromItems items =
                     in
                     case fragment of
                         Default ->
-                            case itemToMessage item lifelines of
+                            case itemToMessage item participants of
                                 Just msg ->
                                     Just <| SequenceItem Default [ msg ]
 
@@ -72,13 +72,13 @@ fromItems items =
                                     Nothing
 
                         _ ->
-                            Just <| SequenceItem fragment (itemsToMessages (Item.unwrapChildren item.children) lifelines)
+                            Just <| SequenceItem fragment (itemsToMessages (Item.unwrapChildren item.children) participants)
                 )
                 items
                 |> List.filter isJust
                 |> List.map (\item -> Maybe.withDefault emptySequenceItem item)
     in
-    SequenceDiagram (Dict.values lifelines) messages
+    SequenceDiagram (Dict.values participants) messages
 
 
 messagesCount : List SequenceItem -> Int
@@ -88,28 +88,28 @@ messagesCount items =
         |> List.sum
 
 
-itemToLifeline : Maybe Item -> Dict String Lifeline
-itemToLifeline maybeItem =
+itemToParticipant : Maybe Item -> Dict String Participant
+itemToParticipant maybeItem =
     case ( maybeItem, maybeItem |> Maybe.map .text |> Maybe.withDefault "" |> String.toLower ) of
-        ( Just item, "lifeline" ) ->
-            item.children |> Item.unwrapChildren |> Item.indexedMap (\i childItem -> ( String.trim childItem.text, Lifeline childItem i )) |> Dict.fromList
+        ( Just item, "participant" ) ->
+            item.children |> Item.unwrapChildren |> Item.indexedMap (\i childItem -> ( String.trim childItem.text, Participant childItem i )) |> Dict.fromList
 
         _ ->
             Dict.empty
 
 
-itemsToMessages : Items -> Dict String Lifeline -> List Message
-itemsToMessages items lifelineDict =
-    Item.map (\item -> itemToMessage item lifelineDict) items
+itemsToMessages : Items -> Dict String Participant -> List Message
+itemsToMessages items participantDict =
+    Item.map (\item -> itemToMessage item participantDict) items
         |> List.filter isJust
-        |> List.map (\item -> Maybe.withDefault (Message (Sync "") (Lifeline Item.emptyItem 0) (Lifeline Item.emptyItem 0)) item)
+        |> List.map (\item -> Maybe.withDefault (Message (Sync "") (Participant Item.emptyItem 0) (Participant Item.emptyItem 0)) item)
 
 
-itemToMessage : Item -> Dict String Lifeline -> Maybe Message
-itemToMessage item lifelineDict =
+itemToMessage : Item -> Dict String Participant -> Maybe Message
+itemToMessage item participantDict =
     let
         tokens =
-            String.split " " item.text
+            String.split " " (String.trim item.text)
     in
     case tokens of
         [ c1, m, c2 ] ->
@@ -122,18 +122,18 @@ itemToMessage item lifelineDict =
                         |> .text
                         |> String.trim
 
-                lifeline1 =
-                    Dict.get c1 lifelineDict
+                participant1 =
+                    Dict.get c1 participantDict
 
                 messageType =
                     textToMessageType m text
 
-                lifeline2 =
-                    Dict.get c2 lifelineDict
+                participant2 =
+                    Dict.get c2 participantDict
             in
-            case ( lifeline1, lifeline2 ) of
-                ( Just lifelineFrom, Just lifelineTo ) ->
-                    Just <| Message messageType lifelineFrom lifelineTo
+            case ( participant1, participant2 ) of
+                ( Just participantFrom, Just participantTo ) ->
+                    Just <| Message messageType participantFrom participantTo
 
                 _ ->
                     Nothing
