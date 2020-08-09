@@ -1,4 +1,4 @@
-module Models.Views.SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..), fragmentToString, fromItems, messagesCount, unwrapMessageType)
+module Models.Views.SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..), fragmentToString, fromItems, messagesCount, sequenceItemCount, unwrapMessageType)
 
 import Data.Item as Item exposing (Item, Items)
 import Dict exposing (Dict)
@@ -19,6 +19,7 @@ type Participant
 
 type Message
     = Message MessageType Participant Participant
+    | SubMessage SequenceItem
 
 
 type MessageType
@@ -30,23 +31,28 @@ type MessageType
 
 
 type Fragment
-    = Ref
-    | Alt
-    | Opt
-    | Par
-    | Loop
-    | Break
-    | Critical
-    | Assert
-    | Neg
-    | Ignore
-    | Consider
+    = Ref String
+    | Alt String
+    | Opt String
+    | Par String
+    | Loop String
+    | Break String
+    | Critical String
+    | Assert String
+    | Neg String
+    | Ignore String
+    | Consider String
     | Default
 
 
 emptySequenceItem : SequenceItem
 emptySequenceItem =
     SequenceItem Default []
+
+
+emptyParticipant : Participant
+emptyParticipant =
+    Participant Item.emptyItem 0
 
 
 fromItems : Items -> SequenceDiagram
@@ -56,36 +62,33 @@ fromItems items =
             itemToParticipant <| Item.head items
 
         messages =
-            Item.map
-                (\item ->
-                    let
-                        fragment =
-                            textToFragment item.text
-                    in
-                    case fragment of
-                        Default ->
-                            case itemToMessage item participants of
-                                Just msg ->
-                                    Just <| SequenceItem Default [ msg ]
-
-                                Nothing ->
-                                    Nothing
-
-                        _ ->
-                            Just <| SequenceItem fragment (itemsToMessages (Item.unwrapChildren item.children) participants)
-                )
-                items
+            Item.map (itemToSequenceItem participants) items
                 |> List.filter isJust
                 |> List.map (\item -> Maybe.withDefault emptySequenceItem item)
     in
     SequenceDiagram (Dict.values participants) messages
 
 
-messagesCount : List SequenceItem -> Int
-messagesCount items =
+sequenceItemCount : List SequenceItem -> Int
+sequenceItemCount items =
     items
-        |> List.map (\(SequenceItem _ messages) -> List.length messages)
+        |> List.concatMap (\(SequenceItem _ messages) -> List.map messageCount messages)
         |> List.sum
+
+
+messagesCount : List Message -> Int
+messagesCount messages =
+    List.map messageCount messages |> List.sum
+
+
+messageCount : Message -> Int
+messageCount message =
+    case message of
+        SubMessage (SequenceItem _ items) ->
+            List.map messageCount items |> List.sum
+
+        _ ->
+            1
 
 
 itemToParticipant : Maybe Item -> Dict String Participant
@@ -105,14 +108,33 @@ itemsToMessages items participantDict =
         |> List.map (\item -> Maybe.withDefault (Message (Sync "") (Participant Item.emptyItem 0) (Participant Item.emptyItem 0)) item)
 
 
+itemToSequenceItem : Dict String Participant -> Item -> Maybe SequenceItem
+itemToSequenceItem participants item =
+    let
+        fragment =
+            String.trim item.text |> textToFragment
+    in
+    case fragment of
+        Default ->
+            case itemToMessage item participants of
+                Just msg ->
+                    Just <| SequenceItem Default [ msg ]
+
+                Nothing ->
+                    Nothing
+
+        _ ->
+            Just <| SequenceItem fragment (itemsToMessages (Item.unwrapChildren item.children) participants)
+
+
 itemToMessage : Item -> Dict String Participant -> Maybe Message
 itemToMessage item participantDict =
     let
-        tokens =
-            String.split " " (String.trim item.text)
+        fragment =
+            String.trim item.text |> textToFragment
     in
-    case tokens of
-        [ c1, m, c2 ] ->
+    case fragment of
+        Default ->
             let
                 text =
                     item.children
@@ -121,62 +143,119 @@ itemToMessage item participantDict =
                         |> Maybe.withDefault Item.emptyItem
                         |> .text
                         |> String.trim
-
-                participant1 =
-                    Dict.get c1 participantDict
-
-                messageType =
-                    textToMessageType m text
-
-                participant2 =
-                    Dict.get c2 participantDict
             in
-            case ( participant1, participant2 ) of
-                ( Just participantFrom, Just participantTo ) ->
-                    Just <| Message messageType participantFrom participantTo
+            case String.split " " (String.trim item.text) of
+                [ c1, "->o" ] ->
+                    let
+                        participant1 =
+                            Dict.get c1 participantDict
+
+                        (Participant _ order) =
+                            Maybe.withDefault emptyParticipant participant1
+                    in
+                    case participant1 of
+                        Just participantFrom ->
+                            Just <| Message (Lost text) participantFrom (Participant Item.emptyItem (order + 1))
+
+                        _ ->
+                            Nothing
+
+                [ "o->", c1 ] ->
+                    let
+                        participant1 =
+                            Dict.get c1 participantDict
+
+                        (Participant _ order) =
+                            Maybe.withDefault emptyParticipant participant1
+                    in
+                    case participant1 of
+                        Just participantTo ->
+                            Just <| Message (Found text) (Participant Item.emptyItem (order + 1)) participantTo
+
+                        _ ->
+                            Nothing
+
+                [ c1, m, c2 ] ->
+                    let
+                        participant1 =
+                            Dict.get c1 participantDict
+
+                        ( messageType, isReverse ) =
+                            textToMessageType m text
+
+                        participant2 =
+                            Dict.get c2 participantDict
+                    in
+                    case
+                        if isReverse then
+                            ( participant2, participant1 )
+
+                        else
+                            ( participant1, participant2 )
+                    of
+                        ( Just participantFrom, Just participantTo ) ->
+                            Just <| Message messageType participantFrom participantTo
+
+                        _ ->
+                            Nothing
 
                 _ ->
                     Nothing
 
         _ ->
-            Nothing
+            itemToSequenceItem participantDict item
+                |> Maybe.andThen (\m -> Just <| SubMessage m)
 
 
 textToFragment : String -> Fragment
 textToFragment text =
-    case String.toLower text of
+    let
+        text_ =
+            String.toLower text
+
+        ( fragment, fragmentText ) =
+            case
+                String.split " " text_
+            of
+                f :: tokens ->
+                    ( f, tokens |> String.join " " )
+
+                _ ->
+                    ( text_, "" )
+    in
+    case fragment of
         "ref" ->
-            Ref
+            Ref fragmentText
 
         "alt" ->
-            Alt
+            Alt fragmentText
 
         "opt" ->
-            Opt
+            Opt fragmentText
 
         "par" ->
-            Par
+            Par fragmentText
 
         "loop" ->
-            Loop
+            Loop fragmentText
 
         "break" ->
-            Break
+            Break fragmentText
 
         "critical" ->
-            Critical
+            Critical fragmentText
 
         "assert" ->
-            Assert
+            Assert fragmentText
 
         "neg" ->
-            Neg
+            Neg fragmentText
 
         "ignore" ->
-            Ignore
+            Ignore fragmentText
 
         "consider" ->
-            Consider
+            Consider fragmentText
 
         _ ->
             Default
@@ -185,63 +264,78 @@ textToFragment text =
 fragmentToString : Fragment -> String
 fragmentToString fragment =
     case fragment of
-        Ref ->
+        Ref _ ->
             "ref"
 
-        Alt ->
+        Alt _ ->
             "alt"
 
-        Opt ->
+        Opt _ ->
             "opt"
 
-        Par ->
+        Par _ ->
             "par"
 
-        Loop ->
+        Loop _ ->
             "loop"
 
-        Break ->
+        Break _ ->
             "break"
 
-        Critical ->
+        Critical _ ->
             "critical"
 
-        Assert ->
+        Assert _ ->
             "assert"
 
-        Neg ->
+        Neg _ ->
             "neg"
 
-        Ignore ->
+        Ignore _ ->
             "ignore"
 
-        Consider ->
+        Consider _ ->
             "consider"
 
         _ ->
             ""
 
 
-textToMessageType : String -> String -> MessageType
+textToMessageType : String -> String -> ( MessageType, Bool )
 textToMessageType message text =
     case message of
         "->" ->
-            Sync text
+            ( Sync text, False )
+
+        "<-" ->
+            ( Sync text, True )
 
         "->>" ->
-            Async text
+            ( Async text, False )
+
+        "<<-" ->
+            ( Async text, True )
 
         "-->" ->
-            Response text
+            ( Response text, False )
+
+        "<--" ->
+            ( Response text, True )
 
         "o->" ->
-            Found text
+            ( Found text, False )
+
+        "<-o" ->
+            ( Found text, True )
 
         "->o" ->
-            Lost text
+            ( Lost text, False )
+
+        "o<-" ->
+            ( Lost text, True )
 
         _ ->
-            Sync text
+            ( Sync text, False )
 
 
 unwrapMessageType : MessageType -> String

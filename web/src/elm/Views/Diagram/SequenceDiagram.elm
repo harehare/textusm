@@ -26,7 +26,7 @@ messageMargin =
 
 fragmentOffset : Int
 fragmentOffset =
-    40
+    70
 
 
 view : Model -> Svg Msg
@@ -35,7 +35,7 @@ view model =
         Diagram.SequenceDiagram (SequenceDiagram participants items) ->
             let
                 messageHeight =
-                    SequenceDiagram.messagesCount items
+                    SequenceDiagram.sequenceItemCount items
                         * messageMargin
 
                 messageYList =
@@ -53,7 +53,7 @@ view model =
                     (zip items messageYList
                         |> List.map
                             (\( item, y ) ->
-                                sequenceItemView model.settings y item
+                                sequenceItemView model.settings 0 y item
                             )
                     )
                 ]
@@ -91,28 +91,38 @@ participantView settings selectedItem pos (Participant item _) messageHeight =
         ]
 
 
-sequenceItemView : Settings -> Int -> SequenceItem -> Svg Msg
-sequenceItemView settings y (SequenceItem fragment messages) =
+sequenceItemView : Settings -> Int -> Int -> SequenceItem -> Svg Msg
+sequenceItemView settings level y (SequenceItem fragment messages) =
     let
         mesageViewList =
             List.indexedMap
-                (\i (Message messageType (Participant _ order1) (Participant _ order2)) ->
+                (\i message ->
                     let
                         messageY =
                             y + i * messageMargin
                     in
-                    if order1 == order2 then
-                        selfMessageView settings ( messageX settings order1, messageY ) messageType
+                    case message of
+                        Message messageType (Participant _ order1) (Participant _ order2) ->
+                            if order1 == order2 then
+                                selfMessageView settings ( messageX settings order1, messageY ) messageType
 
-                    else
-                        messageView settings ( messageX settings order1, messageY ) ( messageX settings order2, messageY ) messageType
+                            else
+                                messageView settings ( messageX settings order1, messageY ) ( messageX settings order2, messageY ) messageType
+
+                        SubMessage subItem ->
+                            sequenceItemView settings (level + 1) messageY subItem
                 )
                 messages
 
         orderList =
             List.concatMap
-                (\(Message _ (Participant _ order1) (Participant _ order2)) ->
-                    [ order1, order2 ]
+                (\message ->
+                    case message of
+                        Message _ (Participant _ order1) (Participant _ order2) ->
+                            [ order1, order2 ]
+
+                        _ ->
+                            []
                 )
                 messages
 
@@ -123,17 +133,23 @@ sequenceItemView settings y (SequenceItem fragment messages) =
                 |> messageX settings
 
         fragmentToX =
-            orderList
+            (orderList
                 |> List.maximum
                 |> Maybe.withDefault 0
                 |> messageX settings
+            )
+                + settings.size.height
+                // 2
 
         messagesLength =
-            List.length messages
+            SequenceDiagram.messagesCount messages
+
+        offset =
+            level * 10
     in
     g []
         [ g [] mesageViewList
-        , fragmentView settings ( fragmentFromX - fragmentOffset, y - (messageMargin // 2) ) ( fragmentToX + fragmentOffset, y + messagesLength * messageMargin - (messageMargin // 2) ) fragment
+        , fragmentView settings ( fragmentFromX - fragmentOffset + offset, y - (messageMargin // 2) ) ( fragmentToX + fragmentOffset - offset, y + messagesLength * messageMargin - (messageMargin // 2) - offset ) fragment
         ]
 
 
@@ -179,31 +195,31 @@ messageView settings ( fromX, fromY ) ( toX, toY ) messageType =
                     ( ( False, "", "sync" ), ( 0, 4 ) )
 
                 ( False, Sync _ ) ->
-                    ( ( False, "", "sync" ), ( 0, 4 ) )
+                    ( ( False, "", "sync" ), ( -2, -4 ) )
 
                 ( True, Async _ ) ->
                     ( ( False, "", "async" ), ( 0, 4 ) )
 
                 ( False, Async _ ) ->
-                    ( ( False, "", "async" ), ( 0, 4 ) )
+                    ( ( False, "", "async" ), ( -2, -4 ) )
 
                 ( True, Response _ ) ->
                     ( ( True, "", "async" ), ( 0, 4 ) )
 
                 ( False, Response _ ) ->
-                    ( ( True, "", "async" ), ( 0, 4 ) )
+                    ( ( True, "", "async" ), ( -2, -4 ) )
 
                 ( True, Found _ ) ->
                     ( ( False, "found", "async" ), ( participantMargin, 5 ) )
 
                 ( False, Found _ ) ->
-                    ( ( False, "async", "found" ), ( participantMargin, 5 ) )
+                    ( ( False, "found", "async" ), ( -participantMargin, -4 ) )
 
                 ( True, Lost _ ) ->
                     ( ( False, "", "lost" ), ( 0, participantMargin ) )
 
                 ( False, Lost _ ) ->
-                    ( ( False, "lost", "" ), ( 0, participantMargin ) )
+                    ( ( False, "", "lost" ), ( -participantMargin, -10 ) )
     in
     g []
         [ line
@@ -268,7 +284,7 @@ fragmentView settings ( fromX, fromY ) ( toX, toY ) fragment =
                 , rect
                     [ x <| String.fromInt fromX
                     , y <| String.fromInt fromY
-                    , width "48"
+                    , width "44"
                     , height "20"
                     , fill settings.color.activity.backgroundColor
                     , strokeWidth "2"
