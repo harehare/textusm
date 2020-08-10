@@ -9,24 +9,9 @@ import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle, 
 import Models.Views.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
 import Svg exposing (Svg, circle, g, line, marker, polygon, polyline, rect, text, text_)
 import Svg.Attributes exposing (class, cx, cy, fill, fontFamily, fontSize, fontWeight, height, id, markerEnd, markerHeight, markerStart, markerWidth, orient, points, r, refX, refY, stroke, strokeDasharray, strokeWidth, viewBox, width, x, x1, x2, y, y1, y2)
-import Svg.Lazy exposing (lazy4)
+import Svg.Lazy as Lazy
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
-
-
-participantMargin : Int
-participantMargin =
-    150
-
-
-messageMargin : Int
-messageMargin =
-    85
-
-
-fragmentOffset : Int
-fragmentOffset =
-    70
 
 
 view : Model -> Svg Msg
@@ -36,19 +21,19 @@ view model =
             let
                 messageHeight =
                     SequenceDiagram.sequenceItemCount items
-                        * messageMargin
+                        * Constants.messageMargin
 
                 messageYList =
                     scanl
                         (\(SequenceItem _ messages) y ->
-                            y + List.length messages * messageMargin
+                            y + List.length messages * Constants.messageMargin
                         )
-                        (model.settings.size.height + messageMargin)
+                        (model.settings.size.height + Constants.messageMargin)
                         items
             in
             g []
                 [ markerView model.settings
-                , g [] (List.indexedMap (\i item -> participantView model.settings model.selectedItem ( participantX model.settings i, 10 ) item messageHeight) participants)
+                , g [] (List.indexedMap (\i item -> participantView model.settings model.selectedItem ( participantX model.settings i, 8 ) item messageHeight) participants)
                 , g []
                     (zip items messageYList
                         |> List.map
@@ -64,12 +49,12 @@ view model =
 
 participantX : Settings -> Int -> Int
 participantX settings order =
-    (settings.size.width + participantMargin) * order + 10
+    (settings.size.width + Constants.participantMargin) * order + 8
 
 
 messageX : Settings -> Int -> Int
 messageX settings order =
-    settings.size.width // 2 + (settings.size.width + participantMargin) * order + 10
+    settings.size.width // 2 + (settings.size.width + Constants.participantMargin) * order + 8
 
 
 participantView : Settings -> Maybe Item -> Position -> Participant -> Int -> Svg Msg
@@ -82,12 +67,12 @@ participantView settings selectedItem pos (Participant item _) messageHeight =
             Position.getY pos + settings.size.height
 
         toY =
-            fromY + messageHeight + settings.size.height + messageMargin
+            fromY + messageHeight + settings.size.height + Constants.messageMargin
     in
     g []
-        [ lazy4 Views.cardView settings pos selectedItem item
-        , lazy4 Views.cardView settings ( Position.getX pos, toY ) selectedItem item
-        , lineView settings ( lineX, fromY ) ( lineX, toY )
+        [ Lazy.lazy4 Views.cardView settings pos selectedItem item
+        , Lazy.lazy4 Views.cardView settings ( Position.getX pos, toY ) selectedItem item
+        , Lazy.lazy3 lineView settings ( lineX, fromY ) ( lineX, toY )
         ]
 
 
@@ -99,7 +84,7 @@ sequenceItemView settings level y (SequenceItem fragment messages) =
                 (\i message ->
                     let
                         messageY =
-                            y + i * messageMargin
+                            y + i * Constants.messageMargin
                     in
                     case message of
                         Message messageType (Participant _ order1) (Participant _ order2) ->
@@ -145,11 +130,11 @@ sequenceItemView settings level y (SequenceItem fragment messages) =
             SequenceDiagram.messagesCount messages
 
         offset =
-            level * 10
+            level * 8
     in
     g []
         [ g [] mesageViewList
-        , fragmentView settings ( fragmentFromX - fragmentOffset + offset, y - (messageMargin // 2) ) ( fragmentToX + fragmentOffset - offset, y + messagesLength * messageMargin - (messageMargin // 2) - offset ) fragment
+        , fragmentView settings ( fragmentFromX - Constants.fragmentOffset + offset, y - (Constants.messageMargin // 2) - 16 ) ( fragmentToX + Constants.fragmentOffset - offset, y + messagesLength * Constants.messageMargin - (Constants.messageMargin // 2) - offset ) fragment
         ]
 
 
@@ -174,23 +159,26 @@ selfMessageView settings ( posX, posY ) messageType =
     let
         messagePoints =
             [ [ String.fromInt posX, String.fromInt posY ] |> String.join ","
-            , [ String.fromInt <| posX + participantMargin // 2, String.fromInt posY ] |> String.join ","
-            , [ String.fromInt <| posX + participantMargin // 2, String.fromInt <| posY + messageMargin // 2 ] |> String.join ","
-            , [ String.fromInt <| posX + 4, String.fromInt <| posY + messageMargin // 2 ] |> String.join ","
+            , [ String.fromInt <| posX + Constants.participantMargin // 2, String.fromInt posY ] |> String.join ","
+            , [ String.fromInt <| posX + Constants.participantMargin // 2, String.fromInt <| posY + Constants.messageMargin // 2 ] |> String.join ","
+            , [ String.fromInt <| posX + 4, String.fromInt <| posY + Constants.messageMargin // 2 ] |> String.join ","
             ]
                 |> String.join " "
     in
     g []
         [ polyline [ points messagePoints, markerEnd "url(#sync)", fill "none", stroke settings.color.line, strokeWidth "2" ] []
-        , textView settings ( posX + 8, posY - 8 ) ( participantMargin, 8 ) (SequenceDiagram.unwrapMessageType messageType)
+        , textView settings ( posX + 8, posY - 8 ) ( Constants.participantMargin, 8 ) (SequenceDiagram.unwrapMessageType messageType)
         ]
 
 
 messageView : Settings -> Position -> Position -> MessageType -> Svg Msg
 messageView settings ( fromX, fromY ) ( toX, toY ) messageType =
     let
+        isReverse =
+            fromX - toX > 0
+
         ( ( isDot, markerStartId, markerEndId ), ( fromOffset, toOffset ) ) =
-            case ( fromX - toX < 0, messageType ) of
+            case ( not isReverse, messageType ) of
                 ( True, Sync _ ) ->
                     ( ( False, "", "sync" ), ( 0, 4 ) )
 
@@ -210,16 +198,16 @@ messageView settings ( fromX, fromY ) ( toX, toY ) messageType =
                     ( ( True, "", "async" ), ( -2, -4 ) )
 
                 ( True, Found _ ) ->
-                    ( ( False, "found", "async" ), ( participantMargin, 5 ) )
+                    ( ( False, "found", "async" ), ( Constants.participantMargin, 5 ) )
 
                 ( False, Found _ ) ->
-                    ( ( False, "found", "async" ), ( -participantMargin, -4 ) )
+                    ( ( False, "found", "async" ), ( -Constants.participantMargin, -4 ) )
 
                 ( True, Lost _ ) ->
-                    ( ( False, "", "lost" ), ( 0, participantMargin ) )
+                    ( ( False, "", "lost" ), ( 0, Constants.participantMargin ) )
 
                 ( False, Lost _ ) ->
-                    ( ( False, "", "lost" ), ( -participantMargin, -10 ) )
+                    ( ( False, "", "lost" ), ( -Constants.participantMargin, -10 ) )
     in
     g []
         [ line
@@ -238,7 +226,11 @@ messageView settings ( fromX, fromY ) ( toX, toY ) messageType =
             , markerEnd ("url(#" ++ markerEndId ++ ")")
             ]
             []
-        , textView settings ( fromX + 8 + fromOffset, fromY - 16 ) ( toX - fromX, 8 ) (SequenceDiagram.unwrapMessageType messageType)
+        , if isReverse then
+            textView settings ( fromX + 8 - settings.size.width - Constants.participantMargin, fromY - 16 ) ( toX - fromX, 8 ) (SequenceDiagram.unwrapMessageType messageType)
+
+          else
+            textView settings ( fromX + 8 + fromOffset, fromY - 16 ) ( toX - fromX, 8 ) (SequenceDiagram.unwrapMessageType messageType)
         ]
 
 
@@ -269,6 +261,9 @@ fragmentView settings ( fromX, fromY ) ( toX, toY ) fragment =
 
                 fragmentHeight =
                     toY - fromY
+
+                fragmentText =
+                    SequenceDiagram.unwrapFragment fragment
             in
             g []
                 [ rect
@@ -300,6 +295,20 @@ fragmentView settings ( fromX, fromY ) ( toX, toY ) fragment =
                     , class ".select-none"
                     ]
                     [ text <| SequenceDiagram.fragmentToString fragment ]
+                , if not <| String.isEmpty fragmentText then
+                    text_
+                        [ x <| String.fromInt <| fromX + settings.size.width // 2 + 8
+                        , y <| String.fromInt <| fromY + 14
+                        , fontFamily (fontStyle settings)
+                        , fill <| getTextColor settings.color
+                        , fontSize Constants.fontSize
+                        , fontWeight "bold"
+                        , class ".select-none"
+                        ]
+                        [ text <| "[" ++ fragmentText ++ "]" ]
+
+                  else
+                    g [] []
                 ]
 
 

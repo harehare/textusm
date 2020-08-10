@@ -1,4 +1,4 @@
-module Models.Views.SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..), fragmentToString, fromItems, messagesCount, sequenceItemCount, unwrapMessageType)
+module Models.Views.SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..), fragmentToString, fromItems, messageCountAll, messagesCount, participantCount, sequenceItemCount, unwrapFragment, unwrapMessageType)
 
 import Data.Item as Item exposing (Item, Items)
 import Dict exposing (Dict)
@@ -67,6 +67,18 @@ fromItems items =
                 |> List.map (\item -> Maybe.withDefault emptySequenceItem item)
     in
     SequenceDiagram (Dict.values participants) messages
+
+
+participantCount : SequenceDiagram -> Int
+participantCount (SequenceDiagram participants _) =
+    List.length participants
+
+
+messageCountAll : SequenceDiagram -> Int
+messageCountAll (SequenceDiagram _ items) =
+    items
+        |> List.concatMap (\(SequenceItem _ messages) -> List.map messageCount messages)
+        |> List.sum
 
 
 sequenceItemCount : List SequenceItem -> Int
@@ -296,6 +308,46 @@ fragmentToString fragment =
 
         Consider _ ->
             "consider"
+
+        _ ->
+            ""
+
+
+unwrapFragment : Fragment -> String
+unwrapFragment fragment =
+    case fragment of
+        Ref t ->
+            t
+
+        Alt t ->
+            t
+
+        Opt t ->
+            t
+
+        Par t ->
+            t
+
+        Loop t ->
+            t
+
+        Break t ->
+            t
+
+        Critical t ->
+            t
+
+        Assert t ->
+            t
+
+        Neg t ->
+            t
+
+        Ignore t ->
+            t
+
+        Consider t ->
+            t
 
         _ ->
             ""
