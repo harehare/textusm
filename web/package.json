@@ -9,7 +9,7 @@
     "dependencies": {
         "dexie": "^3.0.2",
         "firebase": "^7.17.2",
-        "html2canvas": "^1.0.0-rc.3",
+        "html2canvas": "^1.0.0-rc.7",
         "imagemin-webpack-plugin": "^2.4.2",
         "jspdf": "^1.5.3",
         "lzutf8": "^0.5.6",
