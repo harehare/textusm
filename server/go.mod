@@ -4,7 +4,7 @@ require (
 	cloud.google.com/go v0.63.0
 	cloud.google.com/go/firestore v1.3.0
 	firebase.google.com/go v3.13.0+incompatible
-	github.com/99designs/gqlgen v0.11.3
+	github.com/99designs/gqlgen v0.12.1
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/eminetto/clean-architecture-go v0.0.0-20191219160450-d9c68a5a2e98 // indirect
@@ -13,7 +13,6 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v25 v25.0.4
 	github.com/gorilla/mux v1.7.2
-	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/labstack/echo v3.3.10+incompatible // indirect
