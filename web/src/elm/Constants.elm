@@ -1,4 +1,4 @@
-module Constants exposing (fragmentOffset, messageMargin, participantMargin, commentSize, fontSize, ganttItemSize, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, smallItemMargin, tableMargin, tableRowHeight)
+module Constants exposing (commentSize, fontSize, fragmentOffset, ganttItemSize, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, messageMargin, participantMargin, smallItemMargin, tableMargin, tableRowHeight)
 
 
 fontSize : String
@@ -78,7 +78,7 @@ participantMargin =
 
 messageMargin : Int
 messageMargin =
-    90
+    100
 
 
 fragmentOffset : Int

@@ -25,8 +25,8 @@ view model =
 
                 messageYList =
                     scanl
-                        (\(SequenceItem _ messages) y ->
-                            y + List.length messages * Constants.messageMargin
+                        (\item y ->
+                            y + List.length (SequenceDiagram.sequenceItemMessages item) * Constants.messageMargin
                         )
                         (model.settings.size.height + Constants.messageMargin)
                         items
@@ -52,9 +52,9 @@ participantX settings order =
     (settings.size.width + Constants.participantMargin) * order + 8
 
 
-messageX : Settings -> Int -> Int
-messageX settings order =
-    settings.size.width // 2 + (settings.size.width + Constants.participantMargin) * order + 8
+messageX : Int -> Int -> Int
+messageX width order =
+    width // 2 + (width + Constants.participantMargin) * order + 8
 
 
 participantView : Settings -> Maybe Item -> Position -> Participant -> Int -> Svg Msg
@@ -70,35 +70,15 @@ participantView settings selectedItem pos (Participant item _) messageHeight =
             fromY + messageHeight + settings.size.height + Constants.messageMargin
     in
     g []
-        [ Lazy.lazy4 Views.cardView settings pos selectedItem item
-        , Lazy.lazy4 Views.cardView settings ( Position.getX pos, toY ) selectedItem item
+        [ Lazy.lazy4 Views.cardView settings ( Position.getX pos, toY ) selectedItem item
         , Lazy.lazy3 lineView settings ( lineX, fromY ) ( lineX, toY )
+        , Lazy.lazy4 Views.cardView settings pos selectedItem item
         ]
 
 
-sequenceItemView : Settings -> Int -> Int -> SequenceItem -> Svg Msg
-sequenceItemView settings level y (SequenceItem fragment messages) =
+fragmentRect : Size -> Int -> Int -> List Message -> ( Position, Position )
+fragmentRect ( itemWidth, itemHeight ) baseY level messages =
     let
-        mesageViewList =
-            List.indexedMap
-                (\i message ->
-                    let
-                        messageY =
-                            y + i * Constants.messageMargin
-                    in
-                    case message of
-                        Message messageType (Participant _ order1) (Participant _ order2) ->
-                            if order1 == order2 then
-                                selfMessageView settings ( messageX settings order1, messageY ) messageType
-
-                            else
-                                messageView settings ( messageX settings order1, messageY ) ( messageX settings order2, messageY ) messageType
-
-                        SubMessage subItem ->
-                            sequenceItemView settings (level + 1) messageY subItem
-                )
-                messages
-
         orderList =
             List.concatMap
                 (\message ->
@@ -115,15 +95,15 @@ sequenceItemView settings level y (SequenceItem fragment messages) =
             orderList
                 |> List.minimum
                 |> Maybe.withDefault 0
-                |> messageX settings
+                |> messageX itemWidth
 
         fragmentToX =
             (orderList
                 |> List.maximum
                 |> Maybe.withDefault 0
-                |> messageX settings
+                |> messageX itemWidth
             )
-                + settings.size.height
+                + itemHeight
                 // 2
 
         messagesLength =
@@ -131,11 +111,116 @@ sequenceItemView settings level y (SequenceItem fragment messages) =
 
         offset =
             level * 8
+
+        fragmentYBase =
+            baseY - Constants.messageMargin + 24
+    in
+    ( ( fragmentFromX - Constants.fragmentOffset + offset
+      , fragmentYBase
+      )
+    , ( fragmentToX + Constants.fragmentOffset - offset
+      , fragmentYBase + messagesLength * Constants.messageMargin - offset - 8
+      )
+    )
+
+
+mesageViewList : Settings -> Int -> Int -> List Message -> Svg Msg
+mesageViewList settings level y messages =
+    g []
+        (List.indexedMap
+            (\i message ->
+                let
+                    messageY =
+                        y + i * Constants.messageMargin
+                in
+                case message of
+                    Message messageType (Participant _ order1) (Participant _ order2) ->
+                        if order1 == order2 then
+                            selfMessageView settings ( messageX settings.size.width order1, messageY ) messageType
+
+                        else
+                            messageView settings ( messageX settings.size.width order1, messageY ) ( messageX settings.size.width order2, messageY ) messageType
+
+                    SubMessage subItem ->
+                        sequenceItemView settings (level + 1) messageY subItem
+            )
+            messages
+        )
+
+
+fragmentAndMessageView : Settings -> Int -> Int -> List Message -> String -> Fragment -> Svg Msg
+fragmentAndMessageView settings level y messages fragmentText fragment =
+    let
+        ( ( fromX, fromY ), ( toX, toY ) ) =
+            fragmentRect ( settings.size.width, settings.size.height ) y level messages
     in
     g []
-        [ g [] mesageViewList
-        , fragmentView settings ( fragmentFromX - Constants.fragmentOffset + offset, y - (Constants.messageMargin // 2) - 16 ) ( fragmentToX + Constants.fragmentOffset - offset, y + messagesLength * Constants.messageMargin - (Constants.messageMargin // 2) - offset ) fragment
+        [ mesageViewList settings level y messages
+        , fragmentView settings ( fromX, fromY ) ( toX, toY ) "transparent" fragment
+        , fragmentTextiew settings ( fromX + settings.size.width // 2 + 4, fromY + 16 ) fragmentText
         ]
+
+
+sequenceItemView : Settings -> Int -> Int -> SequenceItem -> Svg Msg
+sequenceItemView settings level y item =
+    case item of
+        Messages messages ->
+            mesageViewList settings level y messages
+
+        Fragment (Alt ( ifText, ifMessages ) ( elseText, elseMessages )) ->
+            let
+                messages =
+                    ifMessages ++ elseMessages
+
+                elseY =
+                    y + SequenceDiagram.messagesCount ifMessages * Constants.messageMargin - Constants.messageMargin + 16
+
+                ( ( fromX, fromY ), ( toX, toY ) ) =
+                    fragmentRect ( settings.size.width, settings.size.height ) y level messages
+            in
+            g []
+                [ mesageViewList settings level y messages
+                , fragmentView settings ( fromX, fromY ) ( toX, toY ) "transparent" (Alt ( ifText, ifMessages ) ( elseText, elseMessages ))
+                , line
+                    [ x1 <| String.fromInt <| fromX
+                    , y1 <| String.fromInt elseY
+                    , x2 <| String.fromInt <| toX
+                    , y2 <| String.fromInt elseY
+                    , stroke settings.color.line
+                    , strokeWidth "2"
+                    , strokeDasharray "3"
+                    ]
+                    []
+                , fragmentTextiew settings ( fromX + settings.size.width // 2 + 4, fromY + 16 ) ifText
+                , fragmentTextiew settings ( fromX + settings.size.width // 2 + 4, elseY + 16 ) elseText
+                ]
+
+        Fragment (Opt t messages) ->
+            fragmentAndMessageView settings level y messages t (Opt t messages)
+
+        Fragment (Par t messages) ->
+            fragmentAndMessageView settings level y messages t (Par t messages)
+
+        Fragment (Loop t messages) ->
+            fragmentAndMessageView settings level y messages t (Loop t messages)
+
+        Fragment (Break t messages) ->
+            fragmentAndMessageView settings level y messages t (Break t messages)
+
+        Fragment (Critical t messages) ->
+            fragmentAndMessageView settings level y messages t (Critical t messages)
+
+        Fragment (Assert t messages) ->
+            fragmentAndMessageView settings level y messages t (Assert t messages)
+
+        Fragment (Neg t messages) ->
+            fragmentAndMessageView settings level y messages t (Neg t messages)
+
+        Fragment (Ignore t messages) ->
+            fragmentAndMessageView settings level y messages t (Ignore t messages)
+
+        Fragment (Consider t messages) ->
+            fragmentAndMessageView settings level y messages t (Consider t messages)
 
 
 markerView : Settings -> Svg Msg
@@ -191,10 +276,10 @@ messageView settings ( fromX, fromY ) ( toX, toY ) messageType =
                 ( False, Async _ ) ->
                     ( ( False, "", "async" ), ( -2, -4 ) )
 
-                ( True, Response _ ) ->
+                ( True, Reply _ ) ->
                     ( ( True, "", "async" ), ( 0, 4 ) )
 
-                ( False, Response _ ) ->
+                ( False, Reply _ ) ->
                     ( ( True, "", "async" ), ( -2, -4 ) )
 
                 ( True, Found _ ) ->
@@ -239,77 +324,75 @@ textView settings ( posX, posY ) ( textWidth, textHeight ) message =
     text_
         [ x <| String.fromInt <| posX
         , y <| String.fromInt <| posY
+        , fontFamily (fontStyle settings)
         , width <| String.fromInt textWidth
         , height <| String.fromInt textHeight
         , fill <| getTextColor settings.color
-        , fontSize "14"
+        , fontSize Constants.fontSize
         , class ".select-none"
         ]
         [ text message ]
 
 
-fragmentView : Settings -> Position -> Position -> Fragment -> Svg Msg
-fragmentView settings ( fromX, fromY ) ( toX, toY ) fragment =
-    case fragment of
-        Default ->
-            g [] []
+fragmentView : Settings -> Position -> Position -> String -> Fragment -> Svg Msg
+fragmentView settings ( fromX, fromY ) ( toX, toY ) backgroundColor fragment =
+    let
+        fragmentWidth =
+            toX - fromX
 
-        _ ->
-            let
-                fragmentWidth =
-                    toX - fromX
+        fragmentHeight =
+            toY - fromY
+    in
+    Lazy.lazy5 fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) backgroundColor (SequenceDiagram.fragmentToString fragment)
 
-                fragmentHeight =
-                    toY - fromY
 
-                fragmentText =
-                    SequenceDiagram.unwrapFragment fragment
-            in
-            g []
-                [ rect
-                    [ x <| String.fromInt fromX
-                    , y <| String.fromInt fromY
-                    , width <| String.fromInt fragmentWidth
-                    , height <| String.fromInt fragmentHeight
-                    , stroke settings.color.activity.backgroundColor
-                    , strokeWidth "2"
-                    , fill "transparent"
-                    ]
-                    []
-                , rect
-                    [ x <| String.fromInt fromX
-                    , y <| String.fromInt fromY
-                    , width "44"
-                    , height "20"
-                    , fill settings.color.activity.backgroundColor
-                    , strokeWidth "2"
-                    ]
-                    []
-                , text_
-                    [ x <| String.fromInt <| fromX + 8
-                    , y <| String.fromInt <| fromY + 14
-                    , fontFamily (fontStyle settings)
-                    , fill settings.color.task.color
-                    , fontSize Constants.fontSize
-                    , fontWeight "bold"
-                    , class ".select-none"
-                    ]
-                    [ text <| SequenceDiagram.fragmentToString fragment ]
-                , if not <| String.isEmpty fragmentText then
-                    text_
-                        [ x <| String.fromInt <| fromX + settings.size.width // 2 + 8
-                        , y <| String.fromInt <| fromY + 14
-                        , fontFamily (fontStyle settings)
-                        , fill <| getTextColor settings.color
-                        , fontSize Constants.fontSize
-                        , fontWeight "bold"
-                        , class ".select-none"
-                        ]
-                        [ text <| "[" ++ fragmentText ++ "]" ]
+fragmentTextiew : Settings -> Position -> String -> Svg Msg
+fragmentTextiew settings ( fromX, fromY ) fragmentText =
+    text_
+        [ x <| String.fromInt <| fromX
+        , y <| String.fromInt <| fromY
+        , fontFamily (fontStyle settings)
+        , fill <| getTextColor settings.color
+        , fontSize Constants.fontSize
+        , fontWeight "bold"
+        , class ".select-none"
+        ]
+        [ text <| "[" ++ fragmentText ++ "]" ]
 
-                  else
-                    g [] []
-                ]
+
+fragmentRectView : Settings -> Position -> Size -> String -> String -> Svg Msg
+fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) backgroundColor label =
+    g []
+        [ rect
+            [ x <| String.fromInt fromX
+            , y <| String.fromInt fromY
+            , width <| String.fromInt fragmentWidth
+            , height <| String.fromInt fragmentHeight
+            , stroke settings.color.activity.backgroundColor
+            , strokeWidth "2"
+            , fill backgroundColor
+            ]
+            []
+        , rect
+            [ x <| String.fromInt fromX
+            , y <| String.fromInt fromY
+            , width "44"
+            , height "20"
+            , fill settings.color.activity.backgroundColor
+            , strokeWidth "2"
+            ]
+            []
+        , text_
+            [ x <| String.fromInt <| fromX + 8
+            , y <| String.fromInt <| fromY + 14
+            , fontFamily (fontStyle settings)
+            , fill settings.color.task.color
+            , fontSize Constants.fontSize
+            , fontWeight "bold"
+            , class ".select-none"
+            ]
+            [ text label ]
+        ]
 
 
 lineView : Settings -> Position -> Position -> Svg Msg
