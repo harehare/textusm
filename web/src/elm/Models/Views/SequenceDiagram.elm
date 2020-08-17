@@ -39,10 +39,14 @@ type alias AltMessage =
     ( FragmentText, List Message )
 
 
+type alias ParMessage =
+    ( FragmentText, List Message )
+
+
 type Fragment
     = Alt AltMessage AltMessage
     | Opt FragmentText (List Message)
-    | Par FragmentText (List Message)
+    | Par (List ParMessage)
     | Loop FragmentText (List Message)
     | Break FragmentText (List Message)
     | Critical FragmentText (List Message)
@@ -117,8 +121,8 @@ sequenceItemMessages item =
         Fragment (Opt _ messages) ->
             messages
 
-        Fragment (Par _ messages) ->
-            messages
+        Fragment (Par messages) ->
+            List.concatMap (\( _, m ) -> m) messages
 
         Fragment (Loop _ messages) ->
             messages
@@ -208,7 +212,11 @@ itemToSequenceItem participants item =
             Just <| Fragment <| Opt childrenHead.text <| itemsToMessages participants <| grandChild
 
         "par" ->
-            Just <| Fragment <| Par childrenHead.text <| itemsToMessages participants <| grandChild
+            let
+                parMesssages =
+                    Item.map (\child -> ( child.text, itemsToMessages participants <| Item.unwrapChildren <| child.children )) children
+            in
+            Just <| Fragment <| Par parMesssages
 
         "loop" ->
             Just <| Fragment <| Loop childrenHead.text <| itemsToMessages participants <| grandChild
@@ -342,7 +350,7 @@ fragmentToString fragment =
         Opt _ _ ->
             "opt"
 
-        Par _ _ ->
+        Par _ ->
             "par"
 
         Loop _ _ ->

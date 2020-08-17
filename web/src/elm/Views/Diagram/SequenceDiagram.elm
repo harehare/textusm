@@ -198,8 +198,53 @@ sequenceItemView settings level y item =
         Fragment (Opt t messages) ->
             fragmentAndMessageView settings level y messages t (Opt t messages)
 
-        Fragment (Par t messages) ->
-            fragmentAndMessageView settings level y messages t (Par t messages)
+        Fragment (Par parMessages) ->
+            let
+                messages =
+                    List.concatMap (\( _, m ) -> m) parMessages
+
+                ( ( fromX, fromY ), ( toX, toY ) ) =
+                    fragmentRect ( settings.size.width, settings.size.height ) y level messages
+
+                messageYList =
+                    scanl
+                        (\( _, m ) messageY ->
+                            messageY + SequenceDiagram.messagesCount m * Constants.messageMargin - Constants.messageMargin + 16
+                        )
+                        y
+                        parMessages
+
+                lines =
+                    messageYList
+                        |> List.tail
+                        |> Maybe.withDefault []
+                        |> List.map
+                            (\messageY ->
+                                line
+                                    [ x1 <| String.fromInt <| fromX
+                                    , y1 <| String.fromInt messageY
+                                    , x2 <| String.fromInt <| toX
+                                    , y2 <| String.fromInt messageY
+                                    , stroke settings.color.line
+                                    , strokeWidth "2"
+                                    , strokeDasharray "3"
+                                    ]
+                                    []
+                            )
+
+                textList =
+                    zip messageYList parMessages
+                        |> List.map
+                            (\( messageY, ( t, _ ) ) ->
+                                fragmentTextiew settings ( fromX + settings.size.width // 2 + 4, messageY + 16 ) t
+                            )
+            in
+            g []
+                (mesageViewList settings level y messages
+                    :: fragmentView settings ( fromX, fromY ) ( toX, toY ) "transparent" (Par parMessages)
+                    :: lines
+                    ++ textList
+                )
 
         Fragment (Loop t messages) ->
             fragmentAndMessageView settings level y messages t (Loop t messages)
