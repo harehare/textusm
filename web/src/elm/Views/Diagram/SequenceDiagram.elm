@@ -209,10 +209,11 @@ sequenceItemView settings level y item =
                 messageYList =
                     scanl
                         (\( _, m ) messageY ->
-                            messageY + SequenceDiagram.messagesCount m * Constants.messageMargin - Constants.messageMargin + 16
+                            messageY + SequenceDiagram.messagesCount m * Constants.messageMargin
                         )
-                        y
+                        fromY
                         parMessages
+                        |> List.take (List.length parMessages)
 
                 lines =
                     messageYList
@@ -236,7 +237,11 @@ sequenceItemView settings level y item =
                     zip messageYList parMessages
                         |> List.map
                             (\( messageY, ( t, _ ) ) ->
-                                fragmentTextiew settings ( fromX + settings.size.width // 2 + 4, messageY + 16 ) t
+                                fragmentTextiew settings
+                                    ( fromX + settings.size.width // 2 + 4
+                                    , messageY + 16
+                                    )
+                                    t
                             )
             in
             g []
