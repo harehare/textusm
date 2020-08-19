@@ -157,7 +157,7 @@ fragmentAndMessageView settings level y messages fragmentText fragment =
     g []
         [ mesageViewList settings level y messages
         , fragmentView settings ( fromX, fromY ) ( toX, toY ) "transparent" fragment
-        , fragmentTextiew settings ( fromX + settings.size.width // 2 + 4, fromY + 16 ) fragmentText
+        , fragmentTextView settings ( fromX, fromY + 16 ) fragmentText
         ]
 
 
@@ -191,8 +191,8 @@ sequenceItemView settings level y item =
                     , strokeDasharray "3"
                     ]
                     []
-                , fragmentTextiew settings ( fromX + settings.size.width // 2 + 4, fromY + 16 ) ifText
-                , fragmentTextiew settings ( fromX + settings.size.width // 2 + 4, elseY + 16 ) elseText
+                , fragmentTextView settings ( fromX, fromY + 16 ) ifText
+                , fragmentTextView settings ( fromX, elseY + 16 ) elseText
                 ]
 
         Fragment (Opt t messages) ->
@@ -237,8 +237,8 @@ sequenceItemView settings level y item =
                     zip messageYList parMessages
                         |> List.map
                             (\( messageY, ( t, _ ) ) ->
-                                fragmentTextiew settings
-                                    ( fromX + settings.size.width // 2 + 4
+                                fragmentTextView settings
+                                    ( fromX
                                     , messageY + 16
                                     )
                                     t
@@ -396,10 +396,16 @@ fragmentView settings ( fromX, fromY ) ( toX, toY ) backgroundColor fragment =
     Lazy.lazy5 fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) backgroundColor (SequenceDiagram.fragmentToString fragment)
 
 
-fragmentTextiew : Settings -> Position -> String -> Svg Msg
-fragmentTextiew settings ( fromX, fromY ) fragmentText =
+fragmentTextView : Settings -> Position -> String -> Svg Msg
+fragmentTextView settings ( fromX, fromY ) fragmentText =
+    let
+        offset =
+            settings.size.width
+                // 2
+                + 16
+    in
     text_
-        [ x <| String.fromInt <| fromX
+        [ x <| String.fromInt <| fromX + offset
         , y <| String.fromInt <| fromY
         , fontFamily (fontStyle settings)
         , fill <| getTextColor settings.color
@@ -426,7 +432,7 @@ fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) bac
         , rect
             [ x <| String.fromInt fromX
             , y <| String.fromInt fromY
-            , width "44"
+            , width <| String.fromInt <| max 44 (String.length label * 7 + 16)
             , height "20"
             , fill settings.color.activity.backgroundColor
             , strokeWidth "2"

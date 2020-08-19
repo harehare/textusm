@@ -193,7 +193,7 @@ itemToSequenceItem participants item =
         grandChild =
             childrenHead |> .children |> Item.unwrapChildren
     in
-    case String.trim item.text of
+    case String.trim item.text |> String.toLower of
         "alt" ->
             let
                 altIf =
