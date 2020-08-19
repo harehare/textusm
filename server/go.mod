@@ -4,7 +4,7 @@ require (
 	cloud.google.com/go v0.63.0
 	cloud.google.com/go/firestore v1.3.0
 	firebase.google.com/go v3.13.0+incompatible
-	github.com/99designs/gqlgen v0.12.1
+	github.com/99designs/gqlgen v0.12.2
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/eminetto/clean-architecture-go v0.0.0-20191219160450-d9c68a5a2e98 // indirect
