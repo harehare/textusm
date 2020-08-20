@@ -1,10 +1,10 @@
 module github.com/harehare/textusm
 
 require (
-	cloud.google.com/go v0.61.0
-	cloud.google.com/go/firestore v1.2.0
+	cloud.google.com/go v0.63.0
+	cloud.google.com/go/firestore v1.3.0
 	firebase.google.com/go v3.13.0+incompatible
-	github.com/99designs/gqlgen v0.11.3
+	github.com/99designs/gqlgen v0.12.2
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/eminetto/clean-architecture-go v0.0.0-20191219160450-d9c68a5a2e98 // indirect
@@ -13,12 +13,11 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v25 v25.0.4
 	github.com/gorilla/mux v1.7.2
-	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/labstack/gommon v0.2.9 // indirect
-	github.com/lib/pq v1.7.1
+	github.com/lib/pq v1.8.0
 	github.com/meatballhat/negroni-logrus v0.0.0-20170801195057-31067281800f
 	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450
 	github.com/oxequa/interact v0.0.0-20171114182912-f8fb5795b5d7 // indirect
@@ -35,8 +34,8 @@ require (
 	github.com/vektah/gqlparser v1.3.1
 	github.com/vektah/gqlparser/v2 v2.0.1
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	google.golang.org/api v0.29.0
-	google.golang.org/grpc v1.30.0
+	google.golang.org/api v0.30.0
+	google.golang.org/grpc v1.31.0
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8 // indirect
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 )
