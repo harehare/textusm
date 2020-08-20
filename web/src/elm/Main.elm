@@ -517,6 +517,9 @@ changeRouteTo route model =
                         Diagram.Kanban ->
                             "TODO\nDOING\nDONE"
 
+                        Diagram.SequenceDiagram ->
+                            "participant\n    object1\n    object2\n    object3\nobject1 -> object2\n    Sync Message\nobject1 ->> object2\n    Async Message\nobject2 --> object1\n    Reply Message\no-> object1\n    Found Message\nobject1 ->o\n    Stop Message\nloop\n    loop message\n        object1 -> object2\n            Sync Message\n        object1 ->> object2\n            Async Message\nPar\n    par message1\n        object2 -> object3\n            Sync Message\n    par message2\n        object1 -> object2\n            Sync Message\n"
+
                         _ ->
                             ""
 
@@ -1325,7 +1328,7 @@ subscriptions model =
          , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange OnVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
-         , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
+         , onMouseUp <| D.succeed <| UpdateDiagram DiagramModel.Stop
          , Ports.onEncodeShareText OnEncodeShareText
          , Ports.onDecodeShareText OnDecodeShareText
          , Ports.shortcuts Shortcuts
@@ -1341,8 +1344,8 @@ subscriptions model =
          , Ports.gotLocalDiagramJson GotLocalDiagramJson
          ]
             ++ (if model.window.moveStart then
-                    [ onMouseUp (D.succeed Stop)
-                    , onMouseMove (D.map OnWindowResize (D.field "pageX" D.int))
+                    [ onMouseUp <| D.succeed Stop
+                    , onMouseMove <| D.map OnWindowResize (D.field "pageX" D.int)
                     ]
 
                 else

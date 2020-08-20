@@ -25,9 +25,9 @@ import Models.Views.FourLs as FourLsModel
 import Models.Views.Kanban as KanbanModel
 import Models.Views.Kpt as KptModel
 import Models.Views.OpportunityCanvas as OpportunityCanvasModel
+import Models.Views.SequenceDiagram as SequenceDiagramModel
 import Models.Views.StartStopContinue as StartStopContinueModel
 import Models.Views.Table as TableModel
-import Models.Views.SequenceDiagram as SequenceDiagramModel
 import Models.Views.UserPersona as UserPersonaModel
 import Result exposing (andThen)
 import String
@@ -812,13 +812,17 @@ update message model =
             )
 
         Stop ->
-            ( { model
-                | moveStart = False
-                , movePosition = Position.zero
-                , touchDistance = Nothing
-              }
-            , Cmd.none
-            )
+            if model.moveStart then
+                ( { model
+                    | moveStart = False
+                    , movePosition = Position.zero
+                    , touchDistance = Nothing
+                  }
+                , Cmd.none
+                )
+
+            else
+                ( model, Cmd.none )
 
         Move ( x, y ) ->
             ( if not model.moveStart || (x == Position.getX model.movePosition && y == Position.getY model.movePosition) then

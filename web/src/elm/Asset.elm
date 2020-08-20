@@ -12,6 +12,7 @@ module Asset exposing
     , markdown
     , mindMap
     , opportunityCanvas
+    , sequenceDiagram
     , siteMap
     , src
     , startStopContinue
@@ -111,6 +112,11 @@ kpt =
 table : Asset
 table =
     asset "diagram/table.svg"
+
+
+sequenceDiagram : Asset
+sequenceDiagram =
+    asset "diagram/sed.svg"
 
 
 asset : String -> Asset

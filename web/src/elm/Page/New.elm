@@ -28,6 +28,7 @@ newItems =
     , NewItem "Markdown" Asset.markdown (Route.toString <| Route.Edit <| DiagramType.toString Markdown)
     , NewItem "Gantt Chart" Asset.ganttChart (Route.toString <| Route.Edit <| DiagramType.toString GanttChart)
     , NewItem "ER Diagram" Asset.erDiagram (Route.toString <| Route.Edit <| DiagramType.toString ErDiagram)
+    , NewItem "Sequence Diagram" Asset.sequenceDiagram (Route.toString <| Route.Edit <| DiagramType.toString SequenceDiagram)
     , NewItem "Kanban" Asset.kanban (Route.toString <| Route.Edit <| DiagramType.toString Kanban)
     , NewItem "4Ls" Asset.fourLs (Route.toString <| Route.Edit <| DiagramType.toString Fourls)
     , NewItem "Start, Stop, Continue" Asset.startStopContinue (Route.toString <| Route.Edit <| DiagramType.toString StartStopContinue)
