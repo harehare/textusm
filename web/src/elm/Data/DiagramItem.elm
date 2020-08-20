@@ -3,6 +3,7 @@ module Data.DiagramItem exposing (DiagramItem, decoder, empty, encoder, getId, i
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramType as DiagramType
 import Data.Text as Text exposing (Text)
+import Data.Title as Title exposing (Title)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Iso8601
@@ -20,7 +21,7 @@ type alias DiagramItem =
     { id : Maybe DiagramId
     , text : Text
     , diagram : TextUSM.Enum.Diagram.Diagram
-    , title : String
+    , title : Title
     , thumbnail : Maybe String
     , isPublic : Bool
     , isBookmark : Bool
@@ -50,7 +51,7 @@ toInputItem item =
 
             Nothing ->
                 Absent
-    , title = item.title
+    , title = Title.toString item.title
     , text = Text.toString item.text
     , thumbnail =
         case item.thumbnail of
@@ -71,7 +72,7 @@ empty =
     { id = Nothing
     , text = Text.empty
     , diagram = TextUSM.Enum.Diagram.UserStoryMap
-    , title = ""
+    , title = Title.untitled
     , thumbnail = Nothing
     , isPublic = False
     , isBookmark = False
@@ -88,7 +89,7 @@ encoder diagram =
         [ ( "id", maybe E.string (Maybe.andThen (\id -> Just <| DiagramId.toString id) diagram.id) )
         , ( "text", E.string <| Text.toString diagram.text )
         , ( "diagram", E.string <| DiagramType.toString diagram.diagram )
-        , ( "title", E.string diagram.title )
+        , ( "title", E.string (Title.toString diagram.title) )
         , ( "thumbnail", maybe E.string diagram.thumbnail )
         , ( "isPublic", E.bool diagram.isPublic )
         , ( "isBookmark", E.bool diagram.isBookmark )
@@ -105,7 +106,7 @@ decoder =
         |> optional "id" (D.map Just DiagramId.decoder) Nothing
         |> required "text" Text.decoder
         |> required "diagram" (D.map DiagramType.fromString D.string)
-        |> required "title" D.string
+        |> required "title" (D.map Title.fromString D.string)
         |> optional "thumbnail" (D.map Just D.string) Nothing
         |> required "isPublic" D.bool
         |> required "isBookmark" D.bool

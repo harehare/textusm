@@ -32,6 +32,7 @@ import Html.Attributes
         , class
         , href
         , id
+        , placeholder
         , src
         , style
         , target
@@ -207,6 +208,7 @@ view model =
                                 [ textarea
                                     [ E.onInput EditText
                                     , style "font-size" ((defaultEditorSettings model.settingsModel.settings.editor |> .fontSize |> String.fromInt) ++ "px")
+                                    , placeholder "Enter Text"
                                     , value <| Text.toString model.diagramModel.text
                                     ]
                                     []
@@ -514,6 +516,9 @@ changeRouteTo route model =
 
                         Diagram.Kanban ->
                             "TODO\nDOING\nDONE"
+
+                        Diagram.SequenceDiagram ->
+                            "participant\n    object1\n    object2\n    object3\nobject1 -> object2\n    Sync Message\nobject1 ->> object2\n    Async Message\nobject2 --> object1\n    Reply Message\no-> object1\n    Found Message\nobject1 ->o\n    Stop Message\nloop\n    loop message\n        object1 -> object2\n            Sync Message\n        object1 ->> object2\n            Async Message\nPar\n    par message1\n        object2 -> object3\n            Sync Message\n    par message2\n        object1 -> object2\n            Sync Message\n"
 
                         _ ->
                             ""
@@ -911,7 +916,7 @@ update message model =
                     [ Ports.saveDiagram <|
                         DiagramItem.encoder
                             { id = Maybe.andThen .id model.currentDiagram
-                            , title = Title.toString model.title
+                            , title = model.title
                             , text = newDiagramModel.text
                             , thumbnail = Nothing
                             , diagram = newDiagramModel.diagramType
@@ -931,7 +936,7 @@ update message model =
                 Ok item ->
                     ( { model | currentDiagram = Just item }
                     , Cmd.batch
-                        [ showInfoMessage <| Translations.messageSuccessfullySaved model.lang item.title
+                        [ showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString item.title)
                         , Route.replaceRoute model.key
                             (Route.EditFile (DiagramType.toString item.diagram)
                                 (case item.id of
@@ -971,7 +976,7 @@ update message model =
             let
                 item =
                     { id = Nothing
-                    , title = Title.toString model.title
+                    , title = model.title
                     , text = model.diagramModel.text
                     , thumbnail = Nothing
                     , diagram = model.diagramModel.diagramType
@@ -1233,7 +1238,7 @@ update message model =
 
                         Nothing ->
                             { diagram
-                                | title = Title.toString model.title
+                                | title = model.title
                                 , text = model.diagramModel.text
                                 , diagram = model.diagramModel.diagramType
                             }
@@ -1252,7 +1257,7 @@ update message model =
             in
             ( { model
                 | progress = False
-                , title = Title.fromString newDiagram.title
+                , title = newDiagram.title
                 , currentDiagram = Just newDiagram
                 , diagramModel = model_
               }
@@ -1295,7 +1300,7 @@ update message model =
                     ( model, Cmd.none )
 
         ChangePublicStatusCompleted (Ok d) ->
-            ( { model | progress = False, currentDiagram = Just d }, showInfoMessage ("\"" ++ d.title ++ "\"" ++ " published") )
+            ( { model | progress = False, currentDiagram = Just d }, showInfoMessage ("\"" ++ Title.toString d.title ++ "\"" ++ " published") )
 
         ChangePublicStatusCompleted (Err _) ->
             ( { model | progress = False }, showErrorMessage "Failed to change publishing settings" )
@@ -1323,7 +1328,7 @@ subscriptions model =
          , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange OnVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
-         , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
+         , onMouseUp <| D.succeed <| UpdateDiagram DiagramModel.Stop
          , Ports.onEncodeShareText OnEncodeShareText
          , Ports.onDecodeShareText OnDecodeShareText
          , Ports.shortcuts Shortcuts
@@ -1339,8 +1344,8 @@ subscriptions model =
          , Ports.gotLocalDiagramJson GotLocalDiagramJson
          ]
             ++ (if model.window.moveStart then
-                    [ onMouseUp (D.succeed Stop)
-                    , onMouseMove (D.map OnWindowResize (D.field "pageX" D.int))
+                    [ onMouseUp <| D.succeed Stop
+                    , onMouseMove <| D.map OnWindowResize (D.field "pageX" D.int)
                     ]
 
                 else

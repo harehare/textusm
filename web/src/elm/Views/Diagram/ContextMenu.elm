@@ -52,7 +52,7 @@ view props =
                     [ onClickStopPropagation <| props.onMenuSelect ColorSelectMenu
                     , Attr.style "padding-top" "8px"
                     ]
-                    [ Icon.font (Color.toString <| Maybe.withDefault Color.black <| props.item.color) 20 ]
+                    [ Icon.font (Color.toString <| Maybe.withDefault Color.black <| props.item.color) 16 ]
                 ]
             , div
                 [ Attr.style "width" "50px"
@@ -79,7 +79,7 @@ view props =
                     , Attr.style "padding-top" "8px"
                     , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Bold
                     ]
-                    [ Icon.bold "#273037" 20 ]
+                    [ Icon.bold "#273037" 16 ]
                 ]
             , div
                 [ Attr.style "width" "50px"
@@ -95,7 +95,7 @@ view props =
                     , Attr.style "padding-top" "8px"
                     , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Italic
                     ]
-                    [ Icon.italic "#273037" 20 ]
+                    [ Icon.italic "#273037" 16 ]
                 ]
             , div
                 [ Attr.style "width" "50px"
@@ -111,7 +111,7 @@ view props =
                     , Attr.style "padding-top" "8px"
                     , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Strikethrough
                     ]
-                    [ Icon.strikethrough "#273037" 20 ]
+                    [ Icon.strikethrough "#273037" 16 ]
                 ]
             , case props.state of
                 ColorSelectMenu ->

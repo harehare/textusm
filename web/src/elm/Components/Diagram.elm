@@ -25,6 +25,7 @@ import Models.Views.FourLs as FourLsModel
 import Models.Views.Kanban as KanbanModel
 import Models.Views.Kpt as KptModel
 import Models.Views.OpportunityCanvas as OpportunityCanvasModel
+import Models.Views.SequenceDiagram as SequenceDiagramModel
 import Models.Views.StartStopContinue as StartStopContinueModel
 import Models.Views.Table as TableModel
 import Models.Views.UserPersona as UserPersonaModel
@@ -49,6 +50,7 @@ import Views.Diagram.Kpt as Kpt
 import Views.Diagram.Markdown as Markdown
 import Views.Diagram.MindMap as MindMap
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
+import Views.Diagram.SequenceDiagram as SequenceDiagram
 import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.Table as Table
@@ -398,6 +400,9 @@ diagramView diagramType =
         Kanban ->
             Kanban.view
 
+        SequenceDiagram ->
+            SequenceDiagram.view
+
 
 svgView : Model -> Svg Msg
 svgView model =
@@ -705,6 +710,9 @@ updateDiagram ( width, height ) base text =
                 SiteMap ->
                     Diagram.SiteMap items hierarchy
 
+                SequenceDiagram ->
+                    Diagram.SequenceDiagram <| SequenceDiagramModel.fromItems items
+
                 _ ->
                     Diagram.Items items
     in
@@ -804,13 +812,17 @@ update message model =
             )
 
         Stop ->
-            ( { model
-                | moveStart = False
-                , movePosition = Position.zero
-                , touchDistance = Nothing
-              }
-            , Cmd.none
-            )
+            if model.moveStart then
+                ( { model
+                    | moveStart = False
+                    , movePosition = Position.zero
+                    , touchDistance = Nothing
+                  }
+                , Cmd.none
+                )
+
+            else
+                ( model, Cmd.none )
 
         Move ( x, y ) ->
             ( if not model.moveStart || (x == Position.getX model.movePosition && y == Position.getY model.movePosition) then

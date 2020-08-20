@@ -8,6 +8,7 @@ import List.Extra exposing (getAt, last, scanl1, takeWhile, unique)
 import Models.Diagram as DiagramModel
 import Models.Views.ER as ER exposing (Table(..))
 import Models.Views.Kanban as Kanban
+import Models.Views.SequenceDiagram as SequenceDiagram
 import Process
 import Task
 import TextUSM.Enum.Diagram as Diagram
@@ -454,6 +455,24 @@ getCanvasSize model =
                             Kanban.fromItems model.items
                     in
                     ( Kanban.getListCount kanban * (model.settings.size.width + Constants.itemMargin * 3), Kanban.getCardCount kanban * (model.settings.size.height + Constants.itemMargin) + Constants.itemMargin * 2 )
+
+                Diagram.SequenceDiagram ->
+                    let
+                        sequenceDiagram =
+                            SequenceDiagram.fromItems model.items
+
+                        diagramWidth =
+                            SequenceDiagram.participantCount sequenceDiagram * (model.settings.size.width + Constants.participantMargin) + 8
+
+                        diagramHeight =
+                            SequenceDiagram.messageCountAll sequenceDiagram
+                                * Constants.messageMargin
+                                + model.settings.size.height
+                                * 4
+                                + Constants.messageMargin
+                                + 8
+                    in
+                    ( diagramWidth, diagramHeight )
     in
     ( width, height )
 

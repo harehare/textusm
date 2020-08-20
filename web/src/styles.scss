@@ -320,7 +320,7 @@ textarea {
         transition: box-shadow 0.1s ease-in-out 0.1s;
         will-change: box-shadow;
         background-size: cover;
-        margin: 16px;
+        margin: 8px 8px 16px 16px;
         height: 240px;
         cursor: pointer;
         position: relative;
@@ -390,7 +390,7 @@ textarea {
         }
 
         @media screen and (max-width: 480px) {
-            width: 38%;
+            width: 42%;
             height: 150px;
             align-items: flex-end;
             justify-content: flex-start;

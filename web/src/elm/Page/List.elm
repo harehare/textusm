@@ -4,6 +4,7 @@ import Asset
 import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
+import Data.Title as Title
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
@@ -374,7 +375,7 @@ diagramListView props =
                 ((props.diagrams
                     |> (case props.query of
                             Just query ->
-                                List.filter (\d -> String.contains query d.title)
+                                List.filter (\d -> String.contains query (Title.toString d.title))
 
                             Nothing ->
                                 identity
@@ -422,7 +423,7 @@ diagramView timezone diagram =
                 , style "text-overflow" "ellipsis"
                 , style "font-size" "1.05em"
                 ]
-                [ text diagram.title ]
+                [ text (Title.toString diagram.title) ]
             , div
                 [ style "display" "flex"
                 , style "align-items" "center"

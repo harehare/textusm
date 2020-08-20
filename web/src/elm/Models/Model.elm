@@ -8,8 +8,8 @@ import Data.DiagramItem exposing (DiagramItem)
 import Data.FileType exposing (FileType)
 import Data.Session exposing (Session, User)
 import Data.Title exposing (Title)
-import Graphql.Http as Http
-import Http as Http2
+import Graphql.Http as GraphQlHttp
+import Http as Http
 import Json.Decode as D
 import Models.Diagram as Diagram
 import Page.List as DiagramList
@@ -58,12 +58,12 @@ type Msg
     | OnCloseNotification
     | OnAuthStateChanged (Maybe User)
     | SwitchWindow SwitchWindow
-    | GetShortUrl (Result Http2.Error String)
+    | GetShortUrl (Result Http.Error String)
     | Shortcuts String
     | GotLocalDiagramJson D.Value
     | ChangePublicStatus Bool
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
-    | Load (Result (Http.Error DiagramItem) DiagramItem)
+    | Load (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
 
 
 type LoginProvider
