@@ -8,7 +8,6 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
-const ClosurePlugin = require("closure-webpack-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const PreloadWebpackPlugin = require("preload-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
@@ -230,18 +229,46 @@ if (mode === "production") {
             },
             minimize: true,
             minimizer: [
-                new ClosurePlugin(
-                    {
-                        mode: "STANDARD",
-                    },
-                    {}
-                ),
                 new TerserPlugin({
+                    test: /\.(js|ts)$/i,
                     parallel: true,
                     sourceMap: false,
                     terserOptions: {
                         compress: {
                             drop_console: true,
+                        },
+                    },
+                }),
+                new TerserPlugin({
+                    test: /elm\.js$/,
+                    parallel: true,
+                    sourceMap: false,
+                    terserOptions: {
+                        compress: {
+                            pure_funcs: [
+                                "F2",
+                                "F3",
+                                "F4",
+                                "F5",
+                                "F6",
+                                "F7",
+                                "F8",
+                                "F9",
+                                "A2",
+                                "A3",
+                                "A4",
+                                "A5",
+                                "A6",
+                                "A7",
+                                "A8",
+                                "A9",
+                            ],
+                            pure_getters: true,
+                            keep_fargs: false,
+                            unsafe_comps: true,
+                            drop_console: true,
+                            unsafe: true,
+                            passes: 3,
                         },
                     },
                 }),
