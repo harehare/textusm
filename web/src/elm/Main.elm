@@ -1328,7 +1328,14 @@ subscriptions model =
          , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange OnVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
-         , onMouseUp <| D.succeed <| UpdateDiagram DiagramModel.Stop
+         , onMouseUp <|
+            D.succeed <|
+                UpdateDiagram <|
+                    if model.window.moveStart then
+                        DiagramModel.Stop
+
+                    else
+                        DiagramModel.NoOp
          , Ports.onEncodeShareText OnEncodeShareText
          , Ports.onDecodeShareText OnDecodeShareText
          , Ports.shortcuts Shortcuts

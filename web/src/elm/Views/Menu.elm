@@ -189,7 +189,7 @@ exportMenu route =
                 }
                 :: baseExportMenu
 
-        Route.EditFile "cjm" _ ->
+        Route.EditFile "table" _ ->
             Item
                 { e = Download <| FileType.markdown
                 , title = "MARKDOWN"
