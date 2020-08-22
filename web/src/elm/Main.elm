@@ -482,46 +482,7 @@ changeRouteTo route model =
                 diagramType =
                     DiagramType.fromString type_
 
-                defaultText =
-                    case diagramType of
-                        Diagram.BusinessModelCanvas ->
-                            "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships"
-
-                        Diagram.OpportunityCanvas ->
-                            "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget"
-
-                        Diagram.Fourls ->
-                            "Liked\nLearned\nLacked\nLonged for"
-
-                        Diagram.StartStopContinue ->
-                            "Start\nStop\nContinue"
-
-                        Diagram.Kpt ->
-                            "K\nP\nT"
-
-                        Diagram.UserPersona ->
-                            "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology"
-
-                        Diagram.EmpathyMap ->
-                            "SAYS\nTHINKS\nDOES\nFEELS"
-
-                        Diagram.Table ->
-                            "Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\n    Column7\nRow1\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\nRow2\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6"
-
-                        Diagram.GanttChart ->
-                            "2019-12-26 2020-01-31\n    title1\n        subtitle1\n            2019-12-26 2019-12-31\n    title2\n        subtitle2\n            2019-12-31 2020-01-04\n"
-
-                        Diagram.ErDiagram ->
-                            "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n"
-
-                        Diagram.Kanban ->
-                            "TODO\nDOING\nDONE"
-
-                        Diagram.SequenceDiagram ->
-                            "participant\n    object1\n    object2\n    object3\nobject1 -> object2\n    Sync Message\nobject1 ->> object2\n    Async Message\nobject2 --> object1\n    Reply Message\no-> object1\n    Found Message\nobject1 ->o\n    Stop Message\nloop\n    loop message\n        object1 -> object2\n            Sync Message\n        object1 ->> object2\n            Async Message\nPar\n    par message1\n        object2 -> object3\n            Sync Message\n    par message2\n        object1 -> object2\n            Sync Message\n"
-
-                        _ ->
-                            ""
+                defaultText = DiagramType.defaultText diagramType
 
                 diagramModel =
                     model.diagramModel
@@ -1057,18 +1018,10 @@ update message model =
                         newSettings =
                             { position = Just model.window.position
                             , font = model.settingsModel.settings.font
-                            , diagramId =
-                                Just <|
-                                    case Maybe.andThen .id model.currentDiagram of
-                                        Just diagramId ->
-                                            DiagramId.toString diagramId
-
-                                        Nothing ->
-                                            ""
+                            , diagramId = Maybe.andThen (\d -> Maybe.andThen (\i -> Just <| DiagramId.toString i) d.id) model.currentDiagram
                             , storyMap = newStoryMap.storyMap
                             , text = Just (Text.toString model.diagramModel.text)
-                            , title =
-                                Just <| Title.toString model.title
+                            , title = Just <| Title.toString model.title
                             , editor = model.settingsModel.settings.editor
                             , diagram = model.currentDiagram
                             }
@@ -1328,14 +1281,7 @@ subscriptions model =
          , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange OnVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
-         , onMouseUp <|
-            D.succeed <|
-                UpdateDiagram <|
-                    if model.window.moveStart then
-                        DiagramModel.Stop
-
-                    else
-                        DiagramModel.NoOp
+         , onMouseUp <| D.succeed <| UpdateDiagram DiagramModel.Stop
          , Ports.onEncodeShareText OnEncodeShareText
          , Ports.onDecodeShareText OnDecodeShareText
          , Ports.shortcuts Shortcuts

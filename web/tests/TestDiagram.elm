@@ -1,7 +1,8 @@
-module TestDiagram exposing (businessModelCanvasRenderTest, changeTextTest, empathyMapRenderTest, erDiagramRenderTest, fourlsRenderTest, ganttChartRenderTest, kanbanRenderTest, kptRenderTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, opportunityCanvasRenderTest, startStopContinueRenderTest, tableRenderTest, toggleFullscreenText, userPersonaRenderTest, userStoryMapRenderTest)
+module TestDiagram exposing (businessModelCanvasRenderTest, changeTextTest, empathyMapRenderTest, erDiagramRenderTest, fourlsRenderTest, ganttChartRenderTest, kanbanRenderTest, kptRenderTest, moveStartTest, moveStopTest, moveTest, moveToTest, noOpTest, opportunityCanvasRenderTest, sequenceDiagramRenderTest, startStopContinueRenderTest, tableRenderTest, toggleFullscreenText, userPersonaRenderTest, userStoryMapRenderTest)
 
 import Browser.Dom exposing (Viewport)
 import Components.Diagram exposing (init, update, view)
+import Data.DiagramType as DiagramType
 import Data.Item as Item exposing (ItemType(..))
 import Data.Position as Position
 import Expect
@@ -633,4 +634,23 @@ erDiagramRenderTest =
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 15)
+        ]
+
+
+sequenceDiagramRenderTest : Test
+sequenceDiagramRenderTest =
+    let
+        ( initModel, _ ) =
+            init defaultSettings
+
+        ( model_, _ ) =
+            update (Init defaultSettings defViewport <| DiagramType.defaultText SequenceDiagram) { initModel | diagramType = SequenceDiagram }
+    in
+    describe "SequenceDiagram Rendering"
+        [ test "SequenceDiagram rect count" <|
+            \() ->
+                view model_
+                    |> Query.fromHtml
+                    |> Query.findAll [ tag "rect" ]
+                    |> Query.count (Expect.equal 10)
         ]
