@@ -312,6 +312,40 @@ DONE
 
 ![image](./img/kanban.png)
 
+### Sequence Diagram
+
+```
+participant
+    object1
+    object2
+    object3
+object1 -> object2
+    Sync Message
+object1 ->> object2
+    Async Message
+object2 --> object1
+    Reply Message
+o-> object1
+    Found Message
+object1 ->o
+    Stop Message
+loop
+    loop message
+        object1 -> object2
+            Sync Message
+        object1 ->> object2
+            Async Message
+Par
+    par message1
+        object2 -> object3
+            Sync Message
+    par message2
+        object1 -> object2
+            Sync Message
+```
+
+![image](./img/sed.png)
+
 ## Installation
 
 ## Example JSON configuration file

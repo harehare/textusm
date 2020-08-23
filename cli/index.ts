@@ -1,10 +1,29 @@
 #!/usr/bin/env node
-import * as commander from "commander";
+import { createCommand } from "commander";
 import * as fs from "fs";
 import * as puppeteer from "puppeteer";
 
-const defaultWidth = 1280;
-const defaultHeight = 1280;
+const diagramMap = {
+  user_story_map: "usm",
+  opportunity_canvas: "opc",
+  business_model_canvas: "bmc",
+  "4ls": "4ls",
+  start_stop_continue: "ssc",
+  kpt: "kpt",
+  userpersona: "persona",
+  mind_map: "mmp",
+  empathy_map: "emm",
+  table: "table",
+  site_map: "smp",
+  gantt_chart: "gct",
+  impact_map: "imm",
+  er_diagram: "erd",
+  kanban: "kanban",
+  sequence_diagram: "sed",
+};
+
+const defaultWidth: number = 1280;
+const defaultHeight: number = 1280;
 const defaultSettings = {
   diagramId: null,
   editor: {
@@ -12,13 +31,13 @@ const defaultSettings = {
     showLineNumber: true,
     wordWrap: false,
   },
-  font: "Open Sans",
+  font: "Nunito Sans",
   position: 0,
   text: "",
   title: "TestUSM",
   miniMap: false,
   storyMap: {
-    font: "Open Sans",
+    font: "Nunito Sans",
     size: {
       width: 140,
       height: 65,
@@ -49,75 +68,47 @@ const defaultSettings = {
   },
 };
 
-const readConfigFile = (file: string) => {
+const readConfigFile = (file: string | undefined) => {
+  if (!file) {
+    return defaultSettings;
+  }
   try {
-    const settings = JSON.parse(fs.readFileSync(file).toString());
-    settings.miniMap = false;
-    return settings;
+    return JSON.parse(fs.readFileSync(file).toString());
   } catch {
     return defaultSettings;
   }
 };
 
-const {
-  configFile,
-  input,
-  width,
-  height,
-  output,
-  diagramType,
-} = commander
-  .version("0.1.0")
+interface CommandOptions {
+  input: string;
+  width: number;
+  height: number;
+  output: string;
+  diagramType: keyof typeof diagramMap;
+}
+
+const program = createCommand();
+const { configFile, input, width, height, output, diagramType } = program
+  .version("0.6.2")
   .option("-c, --configFile [configFile]", "Config file.")
-  .option("-i, --input <input>", "Input text file. Required.")
+  .requiredOption("-i, --input <input>", "Input text file. Required.")
   .option("-w, --width <width>", "Width of the page. Optional. Default: 1024.")
   .option(
     "-H, --height <height>",
     "Height of the page. Optional. Default: 1024."
   )
-  .option(
+  .requiredOption(
     "-o, --output [output]",
     "Output file. It should be svg, png, pdf or html."
   )
   .option(
     "-d, --diagramType [diagramType]",
-    "Diagram type. It should be one of userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, mind_map, empathy_map, customer_journey_map, site_map, gantt_chart."
+    `Diagram type. It should be one of ${Object.keys(diagramMap).join(", ")}`
   )
-  .parse(process.argv);
+  .parse();
 
-if (!input) {
-  console.error("Input file is required.  -i <input>");
-  process.exit(1);
-}
-
-if (!output) {
-  console.error("Output file is required.  -o <output>");
-  process.exit(1);
-}
-
-const validDiagramType = [
-  "user_story_map",
-  "opportunity_canvas",
-  "business_model_canvas",
-  "4ls",
-  "start_stop_continue",
-  "kpt",
-  "userpersona",
-  "mind_map",
-  "empathy_map",
-  "table",
-  "site_map",
-  "gantt_chart",
-  "impact_map",
-  "er_diagram",
-  "kanban",
-  "",
-];
-
-if (diagramType && validDiagramType.indexOf(diagramType) === -1) {
-  console.error(
-    `Output file must be userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt, userpersona, empathy_map, table, gantt_chart.`
-  );
+if (diagramType && Object.keys(diagramMap).indexOf(diagramType) === -1) {
+  console.error(`Output file must be ${Object.keys(diagramMap).join(", ")}`);
   process.exit(1);
 }
 
@@ -130,6 +121,14 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
   console.error(`Output file must be svg, png, html or pdf.`);
   process.exit(1);
 }
+
+const options: CommandOptions = {
+  input,
+  width: width ? parseInt(width) : defaultWidth,
+  height: height ? parseInt(height) : defaultHeight,
+  output,
+  diagramType: (diagramType ? diagramType : "usm") as keyof typeof diagramMap,
+};
 
 (async () => {
   const browser = await puppeteer.launch();
@@ -144,53 +143,21 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
   try {
     const page = await browser.newPage();
     page.setViewport({
-      width: width ? parseInt(width) : defaultWidth,
-      height: height ? parseInt(height) : defaultHeight,
+      width: options.width,
+      height: options.height,
     });
-    const type =
-      diagramType === "user_story_map"
-        ? "usm"
-        : diagramType === "opportunity_canvas"
-        ? "opc"
-        : diagramType === "business_model_canvas"
-        ? "bmc"
-        : diagramType === "4ls"
-        ? "4ls"
-        : diagramType === "start_stop_continue"
-        ? "ssc"
-        : diagramType === "kpt"
-        ? "kpt"
-        : diagramType === "userpersona"
-        ? "persona"
-        : diagramType === "mind_map"
-        ? "mmp"
-        : diagramType === "empathy_map"
-        ? "emm"
-        : diagramType === "table"
-        ? "table"
-        : diagramType === "site_map"
-        ? "smp"
-        : diagramType === "gantt_chart"
-        ? "gct"
-        : diagramType === "impact_map"
-        ? "imm"
-        : diagramType === "er_diagram"
-        ? "erd"
-        : diagramType === "kanban"
-        ? "kanban"
-        : "usm";
     await page.goto(
-      `https://app.textusm.com/view/${type}/${encodeURIComponent(
-        JSON.stringify(configJson)
-      )}`
+      `https://app.textusm.com/view/${
+        diagramMap[options.diagramType]
+      }/${encodeURIComponent(JSON.stringify(configJson))}`
     );
 
     await page.waitForSelector("#usm", {
-      timeout: 10000,
+      timeout: 1000,
       visible: true,
     });
 
-    if (output.endsWith("svg")) {
+    if (output.endsWith(".svg")) {
       const svg = await page.$eval("#usm-area", (item) => {
         return item.innerHTML;
       });
@@ -208,7 +175,7 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
                   .split("<img")
                   .join('<img xmlns="http://www.w3.org/1999/xhtml"')}`
       );
-    } else if (output.endsWith("png")) {
+    } else if (output.endsWith(".png")) {
       const clip = await page.$eval("#usm", (svg) => {
         const rect = svg.getBoundingClientRect();
         return {
@@ -223,13 +190,13 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
         clip,
         omitBackground: true,
       });
-    } else if (output.endsWith("pdf")) {
+    } else if (output.endsWith(".pdf")) {
       await page.pdf({
         path: output,
         landscape: true,
         printBackground: false,
       });
-    } else if (output.endsWith("html")) {
+    } else if (output.endsWith(".html")) {
       const html = await page.evaluate(() => {
         const doc = document.documentElement;
         doc.querySelectorAll("script").forEach((e) => {
