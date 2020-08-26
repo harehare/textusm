@@ -113,3 +113,14 @@ if (
 ) {
     navigator.serviceWorker.register("/sw.js");
 }
+
+const loadSentry = async () => {
+    if (process.env.SENTRY_ENABLE === "1") {
+        const sentry = await import("@sentry/browser");
+        sentry.init({
+            dsn: process.env.SENTRY_DSN,
+        });
+    }
+};
+
+loadSentry();

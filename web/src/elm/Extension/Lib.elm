@@ -103,6 +103,9 @@ init flags =
                 else if flags.diagramType == "Kanban" then
                     Diagram.Kanban
 
+                else if flags.diagramType == "SequenceDiagram" then
+                    Diagram.SequenceDiagram
+
                 else
                     Diagram.UserStoryMap
             , settings = flags.settings
