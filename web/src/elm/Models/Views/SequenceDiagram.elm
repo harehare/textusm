@@ -252,8 +252,7 @@ isFragmentText : String -> Bool
 isFragmentText text =
     List.member
         (String.toLower text |> String.trim)
-        [ "ref"
-        , "alt"
+        [ "alt"
         , "opt"
         , "par"
         , "loop"

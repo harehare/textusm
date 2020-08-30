@@ -12,4 +12,15 @@ type KanbanCard = {
   text: string;
 };
 
-export { Kanban, KanbanList, KanbanCard };
+function toString(kanban: Kanban): string {
+  return kanban.lists
+    .map((list) => {
+      return (
+        `${list.name}\n` +
+        list.cards.map((card) => `    ${card.text}`).join("\n")
+      );
+    })
+    .join("\n");
+}
+
+export { Kanban, KanbanList, KanbanCard, toString };

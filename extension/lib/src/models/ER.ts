@@ -1,4 +1,4 @@
-export type ERDiagram = {
+type ERDiagram = {
   name: "ER";
   relations: (ManyToMany | OneToMany | ManyToOne | OneToOne)[];
   tables: Table[];
@@ -161,3 +161,30 @@ type Index = ColumnAttributeBase & {
 type None = ColumnAttributeBase & {
   name: "none";
 };
+
+function toString(er: ERDiagram): string {
+  const relations = ["relations"].concat(
+    er.relations.map((e) => {
+      return `    ${e.table1} ${e.relation} ${e.table2}`;
+    })
+  );
+
+  const tables = ["tables"].concat(
+    er.tables.map((table) => {
+      const columns = table.columns.map((column) => {
+        const columnText = `${column.name}`;
+        const columnLength =
+          column.type.columnLength > 0 ? `(${column.type.columnLength})` : "";
+        const columnAttribute = `${column.attribute.name}${
+          column.attribute.value ? ` ${column.attribute.value}` : ""
+        }`;
+        return `        ${columnText} ${column.type.name}${columnLength} ${columnAttribute}`;
+      });
+      return `    ${table.name}\n${columns.join("\n")}`;
+    })
+  );
+
+  return `${relations.join("\n")}\n${tables.join("\n")}`;
+}
+
+export { ERDiagram, toString };

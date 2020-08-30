@@ -914,3 +914,154 @@ test("Kanban type to string.", () => {
     })
   ).toBe("TODO\n    TODO CARD\nDOING\n    DOING CARD\nDONE\n    DONE CARD");
 });
+
+test("SequenceDiagram type to string.", () => {
+  expect(
+    toString({
+      name: "SequenceDiagram",
+      participants: ["test1", "test2"],
+      items: [
+        {
+          kind: "messages",
+          messages: [
+            {
+              kind: "->",
+              from: "test1",
+              to: "test2",
+              text: "test",
+            },
+          ],
+        },
+        {
+          kind: "alt",
+          ifMessage: {
+            text: "altIf",
+            items: [
+              {
+                kind: "messages",
+                messages: [
+                  {
+                    kind: "->",
+                    from: "test1",
+                    to: "test2",
+                    text: "test",
+                  },
+                  {
+                    kind: "->",
+                    from: "test1",
+                    to: "test2",
+                    text: "test",
+                  },
+                ],
+              },
+            ],
+          },
+          elseMessage: {
+            text: "altElse",
+            items: [
+              {
+                kind: "messages",
+                messages: [
+                  {
+                    kind: "->",
+                    from: "test1",
+                    to: "test2",
+                    text: "test",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        {
+          kind: "par",
+          messages: [
+            {
+              text: "parText",
+              items: [
+                {
+                  kind: "messages",
+                  messages: [
+                    {
+                      kind: "->",
+                      from: "test1",
+                      to: "test2",
+                      text: "test",
+                    },
+                    {
+                      kind: "->",
+                      from: "test1",
+                      to: "test2",
+                      text: "test",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          kind: "opt",
+          text: "optText",
+          items: [
+            {
+              kind: "messages",
+              messages: [
+                {
+                  kind: "->",
+                  from: "test1",
+                  to: "test2",
+                  text: "test",
+                },
+              ],
+            },
+            {
+              kind: "loop",
+              text: "loopText",
+              items: [
+                {
+                  kind: "messages",
+                  messages: [
+                    {
+                      kind: "->",
+                      from: "test1",
+                      to: "test2",
+                      text: "test",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+  ).toBe(`participants
+    test1
+    test2
+test1 -> test2
+    test
+alt
+    altIf
+        test1 -> test2
+            test
+        test1 -> test2
+            test
+    altElse
+        test1 -> test2
+            test
+par
+    parText
+        test1 -> test2
+            test
+        test1 -> test2
+            test
+opt
+    optText
+        test1 -> test2
+            test
+        loop
+            loopText
+                test1 -> test2
+                    test`);
+});

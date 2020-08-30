@@ -1,20 +1,5 @@
 import { Elm } from "./js/elm";
-import {
-  BusinessModelCanvas,
-  OpportunityCanvas,
-  FourLs,
-  StartStopContinue,
-  Kpt,
-  toString,
-  toTypeString,
-  EmpathyMap,
-  Table,
-  GanttChart,
-} from "./model";
-import { UserStoryMap } from "./models/UserStoryMap";
-import { MindMap, SiteMap, ImpactMap } from "./models/MindMap";
-import { ERDiagram } from "./models/ER";
-import { Kanban } from "./models/Kanban";
+import { Diagram, toString, toTypeString } from "./model";
 
 interface Config {
   font?: string;
@@ -77,22 +62,7 @@ const defaultConfig: Config = {
 
 function render(
   idOrElm: string | HTMLElement,
-  definition:
-    | string
-    | UserStoryMap
-    | BusinessModelCanvas
-    | OpportunityCanvas
-    | FourLs
-    | StartStopContinue
-    | Kpt
-    | MindMap
-    | EmpathyMap
-    | Table
-    | SiteMap
-    | GanttChart
-    | ImpactMap
-    | ERDiagram
-    | Kanban,
+  definition: string | Diagram,
   options?: {
     diagramType?:
       | "UserStoryMap"
@@ -108,7 +78,8 @@ function render(
       | "EmpathyMap"
       | "GanttChart"
       | "ImpactMap"
-      | "ERDiagram";
+      | "ERDiagram"
+      | "SequenceDiagram";
     size?: Size;
     showZoomControl?: boolean;
     scale?:
@@ -168,8 +139,7 @@ function render(
       settings: Object.assign(defaultConfig, config),
       showZoomControl:
         options.showZoomControl !== undefined ? options.showZoomControl : true,
-      scale:
-        options.scale && 2.0 - options.scale > 0 ? 2.0 - options.scale : 1.0,
+      scale: options.scale ? options.scale : 1.0,
     },
   });
 }

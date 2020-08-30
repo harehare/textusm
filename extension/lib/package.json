@@ -29,18 +29,18 @@
   "author": "harehare",
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^26.0.4",
+    "@types/jest": "^26.0.10",
     "clean-webpack-plugin": "^3.0.0",
-    "jest": "^26.1.0",
+    "jest": "^26.4.2",
     "module": "^1.2.5",
-    "terser-webpack-plugin": "^3.0.6",
-    "ts-jest": "^26.1.2",
-    "ts-loader": "^8.0.0",
-    "tslint": "^6.1.2",
-    "typescript": "^3.9.6",
-    "webpack": "^4.43.0",
+    "terser-webpack-plugin": "^4.1.0",
+    "ts-jest": "^26.3.0",
+    "ts-loader": "^8.0.3",
+    "tslint": "^6.1.3",
+    "typescript": "^4.0.2",
+    "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",
-    "webpack-merge": "^5.0.9"
+    "webpack-merge": "^5.1.2"
   },
   "jest": {
     "moduleFileExtensions": [

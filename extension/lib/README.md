@@ -18,6 +18,7 @@ Generate a Diagram from indented text.
 - Impact Map
 - ER Diagram
 - Kanban
+- Sequence Diagram
 
 ## Installation
 
@@ -555,7 +556,124 @@ textusm.render(
 );
 ```
 
-![image](./img/kanban.png)
+### Sequence Diagram
+
+```js
+const textusm = require("textusm");
+const elm = document.getElementById("id");
+
+textusm.render(
+  elm || "id",
+  {
+    name: "SequenceDiagram",
+    participants: ["object1", "object2", "object3"],
+    items: [
+      {
+        kind: "messages",
+        messages: [
+          {
+            kind: "->",
+            from: "object1",
+            to: "object2",
+            text: "Sync Message",
+          },
+          {
+            kind: "->>",
+            from: "object1",
+            to: "object2",
+            text: "Async Message",
+          },
+          {
+            kind: "-->",
+            from: "object1",
+            to: "object2",
+            text: "Reply Message",
+          },
+          {
+            kind: "o->",
+            from: "",
+            to: "object1",
+            text: "Found Message",
+          },
+          {
+            kind: "->o",
+            from: "object1",
+            to: "",
+            text: "Stop Message",
+          },
+        ],
+      },
+      {
+        kind: "loop",
+        text: "loop message",
+        items: [
+          {
+            kind: "messages",
+            messages: [
+              {
+                kind: "->",
+                from: "object1",
+                to: "object2",
+                text: "Sync Message",
+              },
+              {
+                kind: "->>",
+                from: "object1",
+                to: "object2",
+                text: "Async Message",
+              },
+            ],
+          },
+      },
+      {
+        kind: "par",
+        messages: [
+          {
+            text: "par message1",
+            items: [
+              {
+                kind: "messages",
+                messages: [
+                  {
+                    kind: "->",
+                    from: "object2",
+                    to: "object3",
+                    text: "Sync Message",
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            text: "par message2",
+            items: [
+              {
+                kind: "messages",
+                messages: [
+                  {
+                    kind: "->",
+                    from: "object1",
+                    to: "object2",
+                    text: "Sync Message",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    size: { width: 1024, height: 1024 },
+    diagramType: "SequenceDiagram",
+    showZoomControl: true,
+  },
+  {}
+);
+```
+
+![image](./img/sed.png)
 
 ### Configuration
 
