@@ -59,10 +59,13 @@ jobs:
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           PROJECT_ID: textusm
-      # - name: Run e2e tests
-      #   uses: cypress-io/github-action@v1
-      #   with:
-      #     working-directory: e2e
+      - name: Add server remote origin
+        run: git remote add heroku https://heroku:${{ secrets.HEROKU_API_TOKEN }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+        env:
+          HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+      - name: Deploy server to Heroku
+        run: git subtree push --prefix server/ heroku master -f
   audit:
     runs-on: ubuntu-latest
     name: audit
