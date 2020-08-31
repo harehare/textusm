@@ -65,7 +65,7 @@ jobs:
           HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
       - name: Deploy server to Heroku
-        run: git subtree push --prefix server/ heroku master -f
+        run: git push heroku `git subtree split --prefix server master`:refs/heads/master --force
   audit:
     runs-on: ubuntu-latest
     name: audit
