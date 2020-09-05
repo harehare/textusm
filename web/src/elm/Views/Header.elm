@@ -3,6 +3,7 @@ module Views.Header exposing (view)
 import Asset
 import Avatar exposing (Avatar(..))
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
+import Data.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Data.Session as Session exposing (Session)
 import Data.Text as Text exposing (Text)
 import Data.Title as Title exposing (Title)
@@ -12,7 +13,7 @@ import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, 
 import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
-import Models.Model as Page exposing (LoginProvider(..), Menu(..), Msg(..), Page(..))
+import Models.Model as Page exposing (Menu(..), Msg(..), Page(..))
 import Route exposing (Route(..))
 import Translations exposing (Lang)
 import Views.Empty as Empty
@@ -252,11 +253,11 @@ view props =
                                 (Just "5px")
                                 [ Menu.Item
                                     { e = SignIn Google
-                                    , title = "Google"
+                                    , title = LoginProvider.toString Google
                                     }
                                 , Menu.Item
                                     { e = SignIn Github
-                                    , title = "Github"
+                                    , title = LoginProvider.toString Github
                                     }
                                 ]
 

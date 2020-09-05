@@ -1,4 +1,4 @@
-module Models.Model exposing (DownloadFileInfo, DownloadInfo, LoginProvider(..), Menu(..), Model, Msg(..), Notification(..), Page(..), ShareInfo, SwitchWindow(..), Window)
+module Models.Model exposing (DownloadFileInfo, DownloadInfo, Menu(..), Model, Msg(..), Notification(..), Page(..), ShareInfo, SwitchWindow(..), Window)
 
 import Browser
 import Browser.Dom exposing (Viewport)
@@ -6,6 +6,7 @@ import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
 import Data.DiagramItem exposing (DiagramItem)
 import Data.FileType exposing (FileType)
+import Data.LoginProvider exposing (LoginProvider)
 import Data.Session exposing (Session, User)
 import Data.Title exposing (Title)
 import Graphql.Http as GraphQlHttp
@@ -64,11 +65,6 @@ type Msg
     | ChangePublicStatus Bool
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
     | Load (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
-
-
-type LoginProvider
-    = Google
-    | Github
 
 
 type Notification

@@ -17,6 +17,7 @@ import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem
 import Data.DiagramType as DiagramType
 import Data.FileType as FileType
+import Data.LoginProvider as LoginProdiver
 import Data.Session as Session
 import Data.Size as Size
 import Data.Text as Text
@@ -43,7 +44,7 @@ import Html.Lazy as Lazy
 import Json.Decode as D
 import List.Extra exposing (find)
 import Models.Diagram as DiagramModel
-import Models.Model as Page exposing (LoginProvider(..), Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
+import Models.Model as Page exposing (Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
 import Models.Views.ER as ER
 import Models.Views.Table as Table
 import Page.Help as Help
@@ -482,7 +483,8 @@ changeRouteTo route model =
                 diagramType =
                     DiagramType.fromString type_
 
-                defaultText = DiagramType.defaultText diagramType
+                defaultText =
+                    DiagramType.defaultText diagramType
 
                 diagramModel =
                     model.diagramModel
@@ -931,7 +933,7 @@ update message model =
                     ( { model | progress = True }, Task.attempt SaveToRemoteCompleted saveTask )
 
                 Err _ ->
-                    ( { model | progress = True }, showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.") )
+                    ( { model | progress = False }, showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.") )
 
         SaveToRemoteCompleted (Err _) ->
             let
@@ -1134,15 +1136,7 @@ update message model =
             changeRouteTo (toRoute url) { model | url = url }
 
         SignIn provider ->
-            ( { model | progress = True }
-            , Ports.signIn <|
-                case provider of
-                    Google ->
-                        "Google"
-
-                    Github ->
-                        "Github"
-            )
+            ( { model | progress = True }, Ports.signIn <| LoginProdiver.toString provider )
 
         SignOut ->
             ( { model | session = Session.guest, currentDiagram = Nothing }, Ports.signOut () )
