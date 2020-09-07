@@ -831,8 +831,8 @@ update message model =
               else
                 { model
                     | position =
-                        ( Position.getX model.position + round (toFloat (x - Position.getX model.movePosition) * model.svg.scale)
-                        , Position.getY model.position + round (toFloat (y - Position.getY model.movePosition) * model.svg.scale)
+                        ( Position.getX model.position + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                        , Position.getY model.position + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
                         )
                     , movePosition = ( x, y )
                 }
