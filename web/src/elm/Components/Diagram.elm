@@ -174,27 +174,10 @@ load text =
 
                         ( otherIndents, otherItems ) =
                             loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
-
-                        ( displayText, color, backgroundColor ) =
-                            case String.split "," x of
-                                [ t, c, b ] ->
-                                    ( t, Just c, Just b )
-
-                                [ t, c ] ->
-                                    ( t, Just c, Nothing )
-
-                                _ ->
-                                    ( x, Nothing, Nothing )
                     in
                     ( indent :: xsIndent ++ otherIndents
                     , Item.cons
-                        { lineNo = lineNo
-                        , text = displayText
-                        , color = Maybe.andThen (\c -> Just <| Color.fromString c) color
-                        , backgroundColor = Maybe.andThen (\c -> Just <| Color.fromString c) backgroundColor
-                        , itemType = getItemType x indent
-                        , children = Item.childrenFromItems xsItems
-                        }
+                        (Item.create lineNo x (getItemType x indent) (Item.childrenFromItems xsItems))
                         (Item.filter (\item -> item.itemType /= Comments) otherItems)
                     )
 

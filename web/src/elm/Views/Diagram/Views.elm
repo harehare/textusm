@@ -184,7 +184,7 @@ inputView settings fontSize ( posX, posY ) ( svgWidth, svgHeight ) ( colour, bac
 
 textView : Settings -> Position -> Size -> RgbColor -> String -> Svg Msg
 textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
-    if (String.trim cardText |> String.left 3 |> String.toUpper) == "MD:" then
+    if Item.isMarkdown cardText then
         foreignObject
             [ x <| String.fromInt posX
             , y <| String.fromInt posY
@@ -202,6 +202,9 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
                     |> String.trim
                 )
             ]
+
+    else if Item.isImage cardText then
+        imageView ( svgWidth, svgHeight ) ( posX, posY ) <| String.trim cardText
 
     else if String.length cardText > 20 then
         foreignObject
@@ -353,24 +356,19 @@ canvasImageView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
 
 imageView : Size -> Position -> String -> Svg msg
 imageView ( imageWidth, imageHeight ) ( posX, posY ) url =
-    svg
-        [ width <| String.fromInt imageWidth
+    foreignObject
+        [ x <| String.fromInt posX
+        , y <| String.fromInt posY
+        , width <| String.fromInt imageWidth
         , height <| String.fromInt imageHeight
         ]
-        [ foreignObject
-            [ x <| String.fromInt posX
-            , y <| String.fromInt posY
-            , width <| String.fromInt imageWidth
-            , height <| String.fromInt imageHeight
+        [ img
+            [ Attr.src url
+            , Attr.style "width" <| String.fromInt imageWidth ++ "px"
+            , Attr.style "height" <| String.fromInt imageHeight ++ "px"
+            , Attr.style "object-fit" "cover"
             ]
-            [ img
-                [ Attr.src url
-                , Attr.style "width" <| String.fromInt imageWidth ++ "px"
-                , Attr.style "height" <| String.fromInt imageHeight ++ "px"
-                , Attr.style "object-fit" "contain"
-                ]
-                []
-            ]
+            []
         ]
 
 

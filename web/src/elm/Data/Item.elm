@@ -1,6 +1,6 @@
-module Data.Item exposing (Item, ItemType(..), Items(..), childrenFromItems, cons, empty, emptyChildren, emptyItem, filter, fromList, getAt, getChildrenCount, getHierarchyCount, getLeafCount, head, indexedMap, isEmpty, length, map, splitAt, tail, toString, unwrap, unwrapChildren)
+module Data.Item exposing (create, isMarkdown, isImage, Item, ItemType(..), Items(..), childrenFromItems, cons, empty, emptyChildren, emptyItem, filter, fromList, getAt, getChildrenCount, getHierarchyCount, getLeafCount, head, indexedMap, isEmpty, length, map, splitAt, tail, toString, unwrap, unwrapChildren)
 
-import Data.Color exposing (Color)
+import Data.Color as Color exposing (Color)
 import List.Extra as ListEx
 
 
@@ -27,6 +27,43 @@ type ItemType
     | Tasks
     | Stories Int
     | Comments
+
+
+create : Int -> String -> ItemType -> Children -> Item
+create lineNo text itemType children =
+    let
+        ( displayText, color, backgroundColor ) =
+            if isImage text then
+                ( text, Nothing, Nothing )
+
+            else
+                case String.split "," text of
+                    [ t, c, b ] ->
+                        ( t, Just c, Just b )
+
+                    [ t, c ] ->
+                        ( t, Just c, Nothing )
+
+                    _ ->
+                        ( text, Nothing, Nothing )
+    in
+    { lineNo = lineNo
+    , text = displayText
+    , color = Maybe.andThen (\c -> Just <| Color.fromString c) color
+    , backgroundColor = Maybe.andThen (\c -> Just <| Color.fromString c) backgroundColor
+    , itemType = itemType
+    , children = children
+    }
+
+
+isImage : String -> Bool
+isImage text =
+    String.trim text |> String.toLower |> String.startsWith "data:image/"
+
+
+isMarkdown : String -> Bool
+isMarkdown text =
+    String.trim text |> String.toLower |> String.startsWith "md:"
 
 
 getAt : Int -> Items -> Maybe Item
