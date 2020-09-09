@@ -61,7 +61,7 @@
         "webpack-cli": "^3.3.12",
         "webpack-dev-server": "^3.11.0",
         "webpack-merge": "^5.1.3",
-        "workbox-sw": "^5.1.3",
+        "workbox-sw": "^5.1.4",
         "workbox-webpack-plugin": "^5.1.3"
     },
     "homepage": "https://github.com/harehare/textusm",
