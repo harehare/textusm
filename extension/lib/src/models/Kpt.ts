@@ -1,4 +1,4 @@
-import { CanvasItem, toString as canvasItemToString } from "./CancasItem";
+import { CanvasItem } from "./CanvasItem";
 
 type Kpt = {
   name: "Kpt";
@@ -7,14 +7,16 @@ type Kpt = {
   try: CanvasItem;
 };
 
-function toString(kpt: Kpt): string {
-  const items = ["keep", "problem", "try"];
+let Kpt = {
+  toString: (kpt: Kpt): string => {
+    const items = ["keep", "problem", "try"];
 
-  return items
-    .map((item) => {
-      return canvasItemToString(kpt[item]);
-    })
-    .join("");
-}
+    return items
+      .map((item) => {
+        return CanvasItem.toString(kpt[item]);
+      })
+      .join("");
+  },
+};
 
-export { Kpt, toString };
+export { Kpt };

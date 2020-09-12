@@ -1,4 +1,4 @@
-import { CanvasItem, toString as canvasItemToString } from "./CancasItem";
+import { CanvasItem } from "./CanvasItem";
 
 type BusinessModelCanvas = {
   name: "BusinessModelCanvas";
@@ -13,24 +13,26 @@ type BusinessModelCanvas = {
   customerRelationships: CanvasItem;
 };
 
-function toString(businessModelCanvas: BusinessModelCanvas): string {
-  const items = [
-    "keyPartners",
-    "customerSegments",
-    "valueProposition",
-    "keyActivities",
-    "channels",
-    "revenueStreams",
-    "costStructure",
-    "keyResources",
-    "customerRelationships",
-  ];
+let BusinessModelCanvas = {
+  toString: (businessModelCanvas: BusinessModelCanvas): string => {
+    const items = [
+      "keyPartners",
+      "customerSegments",
+      "valueProposition",
+      "keyActivities",
+      "channels",
+      "revenueStreams",
+      "costStructure",
+      "keyResources",
+      "customerRelationships",
+    ];
 
-  return items
-    .map((item) => {
-      return canvasItemToString(businessModelCanvas[item]);
-    })
-    .join("");
-}
+    return items
+      .map((item) => {
+        return CanvasItem.toString(businessModelCanvas[item]);
+      })
+      .join("");
+  },
+};
 
-export { BusinessModelCanvas, toString };
+export { BusinessModelCanvas };

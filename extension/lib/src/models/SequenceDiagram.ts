@@ -101,16 +101,18 @@ type Reply = "-->";
 type Found = "o->";
 type Lost = "->o";
 
-function toString(sequenceDiagram: SequenceDiagram) {
-  const participants = `participants\n${sequenceDiagram.participants
-    .map((name) => `    ${name}`)
-    .join("\n")}`;
-  const messages = sequenceDiagram.items
-    .map(sequenceItemToString(0))
-    .join("\n");
+let SequenceDiagram = {
+  toString: (sequenceDiagram: SequenceDiagram) => {
+    const participants = `participants\n${sequenceDiagram.participants
+      .map((name) => `    ${name}`)
+      .join("\n")}`;
+    const messages = sequenceDiagram.items
+      .map(sequenceItemToString(0))
+      .join("\n");
 
-  return `${participants}\n${messages}`;
-}
+    return `${participants}\n${messages}`;
+  },
+};
 
 const messageToString = (indent: number) => (message: Message) => {
   return `${"    ".repeat(indent)}${message.from} ${message.kind} ${
@@ -210,4 +212,4 @@ const sequenceItemToString = (indent: number) => (
   }
 };
 
-export { SequenceDiagram, toString };
+export { SequenceDiagram };

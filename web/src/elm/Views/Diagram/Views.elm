@@ -1,4 +1,4 @@
-module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, gridView, rectView, startTextNodeView, textNodeView, textView)
+module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasView, cardView, gridView, startTextNodeView, textNodeView, textView)
 
 import Constants
 import Data.Color as Color
@@ -64,12 +64,19 @@ cardView settings ( posX, posY ) selectedItem item =
     in
     if isJust selectedItem && ((selectedItem |> Maybe.withDefault Item.emptyItem |> .lineNo) == item.lineNo) then
         g []
-            [ selectedRectView
-                ( posX, posY )
-                ( settings.size.width
-                , settings.size.height - 1
-                )
-                backgroundColor
+            [ rect
+                [ width <| String.fromInt <| settings.size.width + 4
+                , height <| String.fromInt <| settings.size.height + 4
+                , x (String.fromInt <| posX - 2)
+                , y (String.fromInt <| posY - 2)
+                , strokeWidth "3"
+                , stroke "#1d2f4b"
+                , rx "1"
+                , ry "1"
+                , fill backgroundColor
+                , style "filter:url(#shadow)"
+                ]
+                []
             , inputView settings Nothing ( posX, posY ) ( settings.size.width, settings.size.height ) ( color, backgroundColor ) (Maybe.withDefault Item.emptyItem selectedItem)
             ]
 
@@ -77,12 +84,17 @@ cardView settings ( posX, posY ) selectedItem item =
         g
             [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
             ]
-            [ rectView
-                ( posX, posY )
-                ( settings.size.width
-                , settings.size.height - 1
-                )
-                backgroundColor
+            [ rect
+                [ width <| String.fromInt settings.size.width
+                , height <| String.fromInt <| settings.size.height - 1
+                , x (String.fromInt posX)
+                , y (String.fromInt posY)
+                , fill backgroundColor
+                , rx "1"
+                , ry "1"
+                , style "filter:url(#shadow)"
+                ]
+                []
             , textView settings ( posX, posY ) ( settings.size.width, settings.size.height ) color item.text
             , if isJust selectedItem then
                 dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
@@ -90,38 +102,6 @@ cardView settings ( posX, posY ) selectedItem item =
               else
                 g [] []
             ]
-
-
-rectView : Position -> Size -> RgbColor -> Svg Msg
-rectView ( posX, posY ) ( svgWidth, svgHeight ) color =
-    rect
-        [ width <| String.fromInt svgWidth
-        , height <| String.fromInt svgHeight
-        , x (String.fromInt posX)
-        , y (String.fromInt posY)
-        , fill color
-        , rx "1"
-        , ry "1"
-        , style "filter:url(#shadow)"
-        ]
-        []
-
-
-selectedRectView : Position -> Size -> RgbColor -> Svg Msg
-selectedRectView ( posX, posY ) ( svgWidth, svgHeight ) color =
-    rect
-        [ width <| String.fromInt <| svgWidth + 4
-        , height <| String.fromInt <| svgHeight + 4
-        , x (String.fromInt <| posX - 2)
-        , y (String.fromInt <| posY - 2)
-        , strokeWidth "3"
-        , stroke "#1d2f4b"
-        , rx "1"
-        , ry "1"
-        , fill color
-        , style "filter:url(#shadow)"
-        ]
-        []
 
 
 dropArea : Position -> Size -> Item -> Svg Msg

@@ -1,4 +1,4 @@
-import { CanvasItem, toString as canvasItemToString } from "./CancasItem";
+import { CanvasItem } from "./CanvasItem";
 
 type UserPersona = {
   name: "UserPersona";
@@ -18,23 +18,25 @@ type UrlItem = {
   url: string;
 };
 
-function toString(userPersona: UserPersona): string {
-  const items = [
-    "whoAmI",
-    "item1",
-    "item2",
-    "item3",
-    "item4",
-    "item5",
-    "item6",
-    "item7",
-  ];
+let UserPersona = {
+  toString: (userPersona: UserPersona): string => {
+    const items = [
+      "whoAmI",
+      "item1",
+      "item2",
+      "item3",
+      "item4",
+      "item5",
+      "item6",
+      "item7",
+    ];
 
-  return `${userPersona.url.title}\n    ${userPersona.url.url}\n${items
-    .map((item) => {
-      return canvasItemToString(userPersona[item]);
-    })
-    .join("")}`;
-}
+    return `${userPersona.url.title}\n    ${userPersona.url.url}\n${items
+      .map((item) => {
+        return CanvasItem.toString(userPersona[item]);
+      })
+      .join("")}`;
+  },
+};
 
-export { UserPersona, toString };
+export { UserPersona };
