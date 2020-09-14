@@ -607,7 +607,7 @@ update message model =
                                 | tags = Just (List.map Just model_.tags)
                             }
                     in
-                    ( { model | page = Page.Tags model_ , currentDiagram = Just newDiagram , diagramModel = DiagramModel.updatedText model.diagramModel (Text.change diagram.text) } , cmd_ |> Cmd.map UpdateTags )
+                    ( { model | page = Page.Tags model_, currentDiagram = Just newDiagram, diagramModel = DiagramModel.updatedText model.diagramModel (Text.change diagram.text) }, cmd_ |> Cmd.map UpdateTags )
 
                 _ ->
                     ( model, Cmd.none )
@@ -623,7 +623,7 @@ update message model =
                 newDiagramModel =
                     { diagramModel | settings = model_.settings.storyMap }
             in
-            ( { model | page = Page.Settings , diagramModel = newDiagramModel , settingsModel = model_ } , cmd_ )
+            ( { model | page = Page.Settings, diagramModel = newDiagramModel, settingsModel = model_ }, cmd_ )
 
         UpdateDiagram msg ->
             let
@@ -1047,7 +1047,7 @@ update message model =
             ( { model | window = newWindow }, Cmd.none )
 
         OnWindowResize x ->
-            ( { model | window = { position = model.window.position + x - model.window.moveX, moveStart = True, moveX = x, fullscreen = model.window.fullscreen} } , Ports.layoutEditor 0 )
+            ( { model | window = { position = model.window.position + x - model.window.moveX, moveStart = True, moveX = x, fullscreen = model.window.fullscreen } }, Ports.layoutEditor 0 )
 
         GetShortUrl (Err e) ->
             ( { model | progress = False }, showErrorMessage ("Error. " ++ Utils.httpErrorToString e) )
@@ -1137,14 +1137,7 @@ update message model =
                     ( newModel, Nav.pushUrl model.key (Route.toString <| Route.EditFile type_ id_) )
 
                 ( Route.List, _ ) ->
-                    let
-                        diagramListModel =
-                            model.diagramListModel
-
-                        newDiagramListModel =
-                            { diagramListModel | diagramList = DiagramList.notAsked }
-                    in
-                    ( { newModel | diagramListModel = newDiagramListModel }, Nav.pushUrl model.key (Route.toString <| Route.List) )
+                    ( newModel, Nav.pushUrl model.key <| Route.toString <| Route.Home )
 
                 _ ->
                     ( newModel, Cmd.none )

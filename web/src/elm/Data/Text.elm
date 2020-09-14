@@ -72,7 +72,7 @@ saved text =
             Saved t
 
         Empty ->
-            Saved ""
+            Empty
 
 
 change : Text -> Text
@@ -85,7 +85,7 @@ change text =
             Changed t
 
         Empty ->
-            Changed ""
+            Empty
 
 
 edit : Text -> String -> Text
