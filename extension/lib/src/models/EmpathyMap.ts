@@ -1,4 +1,4 @@
-import { CanvasItem, toString as canvasItemToString } from "./CancasItem";
+import { CanvasItem } from "./CanvasItem";
 
 type EmpathyMap = {
   name: "EmpathyMap";
@@ -9,14 +9,16 @@ type EmpathyMap = {
   feels: CanvasItem;
 };
 
-function toString(empathyMap: EmpathyMap): string {
-  const items = ["says", "thinks", "does", "feels"];
+let EmpathyMap = {
+  toString: (empathyMap: EmpathyMap): string => {
+    const items = ["says", "thinks", "does", "feels"];
 
-  return `${empathyMap.imageUrl}\n${items
-    .map((item) => {
-      return canvasItemToString(empathyMap[item]);
-    })
-    .join("")}`;
-}
+    return `${empathyMap.imageUrl}\n${items
+      .map((item) => {
+        return CanvasItem.toString(empathyMap[item]);
+      })
+      .join("")}`;
+  },
+};
 
-export { EmpathyMap, toString };
+export { EmpathyMap };

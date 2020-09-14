@@ -1,38 +1,17 @@
-import {
-  UserStoryMap,
-  toString as userStoryMapToString,
-} from "./models/UserStoryMap";
+import { UserStoryMap } from "./models/UserStoryMap";
 import { MindMap, SiteMap, ImpactMap, MapNode } from "./models/MindMap";
-import { ERDiagram, toString as erToString } from "./models/ER";
-import { Kanban, toString as kanbanToString } from "./models/Kanban";
-import {
-  BusinessModelCanvas,
-  toString as businessModelCanvasToString,
-} from "./models/BusinessModelCanvas";
-import {
-  OpportunityCanvas,
-  toString as opportunityCanvasToString,
-} from "./models/OpportunityCanvas";
-import { FourLs, toString as fourLsToString } from "./models/FourLs";
-import {
-  StartStopContinue,
-  toString as startStopContinueToString,
-} from "./models/StartStopContinue";
-import { Kpt, toString as kptToString } from "./models/Kpt";
-import {
-  UserPersona,
-  toString as userPersonaToString,
-} from "./models/UserPersona";
-import {
-  EmpathyMap,
-  toString as empathyMapToString,
-} from "./models/EmpathyMap";
-import { GanttChart, toString as ganttToString } from "./models/GanttChart";
-import { Table, toString as tableToString } from "./models/Table";
-import {
-  SequenceDiagram,
-  toString as sequenceDiagramToString,
-} from "./models/SequenceDiagram";
+import { ERDiagram } from "./models/ER";
+import { Kanban } from "./models/Kanban";
+import { BusinessModelCanvas } from "./models/BusinessModelCanvas";
+import { OpportunityCanvas } from "./models/OpportunityCanvas";
+import { FourLs } from "./models/FourLs";
+import { StartStopContinue } from "./models/StartStopContinue";
+import { Kpt } from "./models/Kpt";
+import { UserPersona } from "./models/UserPersona";
+import { EmpathyMap } from "./models/EmpathyMap";
+import { GanttChart } from "./models/GanttChart";
+import { Table } from "./models/Table";
+import { SequenceDiagram } from "./models/SequenceDiagram";
 
 type Diagram =
   | UserStoryMap
@@ -55,33 +34,33 @@ type Diagram =
 function toString(definition: Diagram): string {
   switch (definition.name) {
     case "UserStoryMap":
-      return userStoryMapToString(definition);
+      return UserStoryMap.toString(definition);
     case "BusinessModelCanvas":
-      return businessModelCanvasToString(definition);
+      return BusinessModelCanvas.toString(definition);
     case "OpportunityCanvas":
-      return opportunityCanvasToString(definition);
+      return OpportunityCanvas.toString(definition);
     case "4Ls":
-      return fourLsToString(definition);
+      return FourLs.toString(definition);
     case "StartStopContinue":
-      return startStopContinueToString(definition);
+      return StartStopContinue.toString(definition);
     case "Kpt":
-      return kptToString(definition);
+      return Kpt.toString(definition);
     case "UserPersona":
-      return userPersonaToString(definition);
+      return UserPersona.toString(definition);
     case "MindMap":
       return node2Text(definition);
     case "EmpathyMap":
-      return empathyMapToString(definition);
+      return EmpathyMap.toString(definition);
     case "Table":
-      return tableToString(definition);
+      return Table.toString(definition);
     case "GanttChart":
-      return ganttToString(definition);
+      return GanttChart.toString(definition);
     case "ER":
-      return erToString(definition);
+      return ERDiagram.toString(definition);
     case "Kanban":
-      return kanbanToString(definition);
+      return Kanban.toString(definition);
     case "SequenceDiagram":
-      return sequenceDiagramToString(definition);
+      return SequenceDiagram.toString(definition);
     default:
       const _exhaustiveCheck: never = definition;
       return _exhaustiveCheck;

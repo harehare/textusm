@@ -1,4 +1,4 @@
-import { CanvasItem, toString as canvasItemToString } from "./CancasItem";
+import { CanvasItem } from "./CanvasItem";
 
 type OpportunityCanvas = {
   name: "OpportunityCanvas";
@@ -14,25 +14,27 @@ type OpportunityCanvas = {
   budget: CanvasItem;
 };
 
-function toString(opportunityCanvas: OpportunityCanvas): string {
-  const items = [
-    "problems",
-    "solutionIdeas",
-    "usersAndCustomers",
-    "solutionsToday",
-    "businessChallenges",
-    "howWillUsersUseSolution",
-    "userMetrics",
-    "adoptionStrategy",
-    "businessBenefitsAndMetrics",
-    "budget",
-  ];
+let OpportunityCanvas = {
+  toString: (opportunityCanvas: OpportunityCanvas): string => {
+    const items = [
+      "problems",
+      "solutionIdeas",
+      "usersAndCustomers",
+      "solutionsToday",
+      "businessChallenges",
+      "howWillUsersUseSolution",
+      "userMetrics",
+      "adoptionStrategy",
+      "businessBenefitsAndMetrics",
+      "budget",
+    ];
 
-  return items
-    .map((item) => {
-      return canvasItemToString(opportunityCanvas[item]);
-    })
-    .join("");
-}
+    return items
+      .map((item) => {
+        return CanvasItem.toString(opportunityCanvas[item]);
+      })
+      .join("");
+  },
+};
 
-export { OpportunityCanvas, toString };
+export { OpportunityCanvas };

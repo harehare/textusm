@@ -16,16 +16,18 @@ type Schedule = {
   title: string;
 };
 
-function toString(ganttChart: GanttChart): string {
-  return `${ganttChart.from} ${ganttChart.to}\n${ganttChart.chartItems
-    .map((item) => {
-      return `    ${item.title}\n${item.schedules
-        .map((schedule) => {
-          return `        ${schedule.title}\n            ${schedule.from} ${schedule.to}`;
-        })
-        .join("\n")}`;
-    })
-    .join("\n")}`;
-}
+let GanttChart = {
+  toString: (ganttChart: GanttChart): string => {
+    return `${ganttChart.from} ${ganttChart.to}\n${ganttChart.chartItems
+      .map((item) => {
+        return `    ${item.title}\n${item.schedules
+          .map((schedule) => {
+            return `        ${schedule.title}\n            ${schedule.from} ${schedule.to}`;
+          })
+          .join("\n")}`;
+      })
+      .join("\n")}`;
+  },
+};
 
-export { GanttChart, toString };
+export { GanttChart };

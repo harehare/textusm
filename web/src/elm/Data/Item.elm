@@ -1,4 +1,4 @@
-module Data.Item exposing (create, isMarkdown, isImage, Item, ItemType(..), Items(..), childrenFromItems, cons, empty, emptyChildren, emptyItem, filter, fromList, getAt, getChildrenCount, getHierarchyCount, getLeafCount, head, indexedMap, isEmpty, length, map, splitAt, tail, toString, unwrap, unwrapChildren)
+module Data.Item exposing (Item, ItemType(..), Items(..), childrenFromItems, cons, create, empty, emptyChildren, emptyItem, filter, fromList, getAt, getChildrenCount, getHierarchyCount, getLeafCount, head, indexedMap, isEmpty, isImage, isMarkdown, length, map, splitAt, tail, toString, unwrap, unwrapChildren)
 
 import Data.Color as Color exposing (Color)
 import List.Extra as ListEx
@@ -33,10 +33,7 @@ create : Int -> String -> ItemType -> Children -> Item
 create lineNo text itemType children =
     let
         ( displayText, color, backgroundColor ) =
-            if isImage text then
-                ( text, Nothing, Nothing )
-
-            else
+            if isMarkdown text then
                 case String.split "," text of
                     [ t, c, b ] ->
                         ( t, Just c, Just b )
@@ -46,6 +43,9 @@ create lineNo text itemType children =
 
                     _ ->
                         ( text, Nothing, Nothing )
+
+            else
+                ( text, Nothing, Nothing )
     in
     { lineNo = lineNo
     , text = displayText

@@ -1,4 +1,4 @@
-import { CanvasItem, toString as canvasItemToString } from "./CancasItem";
+import { CanvasItem } from "./CanvasItem";
 
 type StartStopContinue = {
   name: "StartStopContinue";
@@ -7,14 +7,16 @@ type StartStopContinue = {
   continue: CanvasItem;
 };
 
-function toString(startStopContinue: StartStopContinue): string {
-  const items = ["start", "stop", "continue"];
+let StartStopContinue = {
+  toString: (startStopContinue: StartStopContinue): string => {
+    const items = ["start", "stop", "continue"];
 
-  return items
-    .map((item) => {
-      return canvasItemToString(startStopContinue[item]);
-    })
-    .join("");
-}
+    return items
+      .map((item) => {
+        return CanvasItem.toString(startStopContinue[item]);
+      })
+      .join("");
+  },
+};
 
-export { StartStopContinue, toString };
+export { StartStopContinue };
