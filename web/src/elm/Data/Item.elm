@@ -33,7 +33,10 @@ create : Int -> String -> ItemType -> Children -> Item
 create lineNo text itemType children =
     let
         ( displayText, color, backgroundColor ) =
-            if isMarkdown text then
+            if isImage text then
+                ( text, Nothing, Nothing )
+
+            else
                 case String.split "," text of
                     [ t, c, b ] ->
                         ( t, Just c, Just b )
@@ -43,9 +46,6 @@ create lineNo text itemType children =
 
                     _ ->
                         ( text, Nothing, Nothing )
-
-            else
-                ( text, Nothing, Nothing )
     in
     { lineNo = lineNo
     , text = displayText

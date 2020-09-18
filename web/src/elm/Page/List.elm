@@ -422,6 +422,7 @@ diagramView timezone diagram =
                 [ style "overflow" "hidden"
                 , style "text-overflow" "ellipsis"
                 , style "font-size" "1.05em"
+                , style "font-weight" "600"
                 ]
                 [ text (Title.toString diagram.title) ]
             , div

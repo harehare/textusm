@@ -20,48 +20,6 @@ const app: ElmApp = Elm.Main.init({
     flags: [[process.env.API_ROOT, lang], loadSettings()],
 });
 
-const openFullscreen = () => {
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-    } else if (elem.mozRequestFullScreen) {
-        elem.mozRequestFullScreen();
-    } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
-    }
-};
-const closeFullscreen = () => {
-    if (document.exitFullscreen) {
-        document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-        document.msExitFullscreen();
-    }
-};
-
-app.ports.saveSettings.subscribe((settings: Settings) => {
-    saveSettings(settings);
-});
-
-app.ports.loadEditor.subscribe(([text, option]: [string, EditorOption]) => {
-    loadEditor(app, text, option);
-});
-
-app.ports.signIn.subscribe((provider: string) => {
-    signIn(provider === "Google" ? providers.google : providers.github);
-});
-
-app.ports.signOut.subscribe(async () => {
-    await signOut().catch(() => {
-        app.ports.onErrorNotification.send("Failed sign out.");
-    });
-});
-
 authStateChanged(
     () => {
         app.ports.progress.send(true);
@@ -82,6 +40,24 @@ authStateChanged(
     }
 );
 
+app.ports.saveSettings.subscribe((settings: Settings) => {
+    saveSettings(settings);
+});
+
+app.ports.loadEditor.subscribe(([text, option]: [string, EditorOption]) => {
+    loadEditor(app, text, option);
+});
+
+app.ports.signIn.subscribe((provider: string) => {
+    signIn(provider === "Google" ? providers.google : providers.github);
+});
+
+app.ports.signOut.subscribe(async () => {
+    await signOut().catch(() => {
+        app.ports.onErrorNotification.send("Failed sign out.");
+    });
+});
+
 app.ports.selectTextById.subscribe(async (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -94,11 +70,28 @@ app.ports.selectTextById.subscribe(async (id: string) => {
 });
 
 app.ports.openFullscreen.subscribe(() => {
-    openFullscreen();
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+    }
 });
 
 app.ports.closeFullscreen.subscribe(() => {
-    closeFullscreen();
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+    } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+    }
 });
 
 const attachApp = (a: ElmApp, list: ((a: ElmApp) => void)[]) => {
