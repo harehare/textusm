@@ -92,16 +92,11 @@ export const loadEditor = async (
         ],
     });
 
-    let editor: HTMLElement | null = null;
-    for (let i = 0; i < 10; i += 1) {
-        editor = document.getElementById("editor") as HTMLElement | null;
-        if (editor) break;
-        // eslint-disable-line no-await-in-loop
-        await sleep(2000);
-    }
+    let editor = document.getElementById("editor") as HTMLElement | null;
 
     if (monacoEditor) {
         monacoEditor.dispose();
+        monacoEditor = null;
     }
 
     if (editor) {
