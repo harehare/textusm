@@ -8,7 +8,7 @@ import Html exposing (div)
 import Html.Attributes as Attr
 import List
 import List.Extra exposing (zip)
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle)
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle)
 import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
 import Svg.Attributes exposing (class, color, fontSize, fontWeight, height, stroke, strokeWidth, style, width, x, x1, x2, y, y1, y2)
@@ -41,7 +41,7 @@ view model =
             Empty.view
 
 
-mainView : Settings -> Maybe Item -> Items -> List Int -> List Int -> Svg Msg
+mainView : Settings -> SelectedItem -> Items -> List Int -> List Int -> Svg Msg
 mainView settings selectedItem items countByTasks countByHierarchy =
     Keyed.node "g"
         []
@@ -132,7 +132,7 @@ labelView settings hierarchy width countByHierarchy =
         )
 
 
-activityView : Settings -> List Int -> Position -> Maybe Item -> Item -> Svg Msg
+activityView : Settings -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
 activityView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
@@ -164,7 +164,7 @@ activityView settings verticalCount ( posX, posY ) selectedItem item =
         )
 
 
-taskView : Settings -> List Int -> Position -> Maybe Item -> Item -> Svg Msg
+taskView : Settings -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
 taskView settings verticalCount ( posX, posY ) selectedItem item =
     let
         children =
@@ -201,7 +201,7 @@ taskView settings verticalCount ( posX, posY ) selectedItem item =
         )
 
 
-storyView : Settings -> List Int -> Int -> Position -> Maybe Item -> Item -> Svg Msg
+storyView : Settings -> List Int -> Int -> Position -> SelectedItem -> Item -> Svg Msg
 storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
     let
         itemCount =

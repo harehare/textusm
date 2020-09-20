@@ -1,4 +1,4 @@
-module Models.Diagram exposing (Color, ColorSettings, ContextMenu(..), Data(..), Model, Msg(..), Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
+module Models.Diagram exposing (Color, ColorSettings, ContextMenu(..), Data(..), Model, Msg(..), SelectedItem, Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
 
 import Browser.Dom exposing (Viewport)
 import Data.Color as Color
@@ -15,14 +15,22 @@ import Models.Views.FourLs exposing (FourLs)
 import Models.Views.Kanban exposing (Kanban)
 import Models.Views.Kpt exposing (Kpt)
 import Models.Views.OpportunityCanvas exposing (OpportunityCanvas)
+import Models.Views.SequenceDiagram exposing (SequenceDiagram)
 import Models.Views.StartStopContinue exposing (StartStopContinue)
 import Models.Views.Table exposing (Table)
-import Models.Views.SequenceDiagram exposing (SequenceDiagram)
 import Models.Views.UserPersona exposing (UserPersona)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
 import TextUSM.Enum.Diagram exposing (Diagram)
+
+
+type alias IsDragging =
+    Bool
+
+
+type alias SelectedItem =
+    Maybe ( Item, IsDragging )
 
 
 type alias Model =
@@ -44,7 +52,7 @@ type alias Model =
     , diagramType : Diagram
     , text : Text
     , matchParent : Bool
-    , selectedItem : Maybe Item
+    , selectedItem : SelectedItem
     , dragDrop : DragDrop.Model Int Int
     , contextMenu : Maybe ( ContextMenu, Position )
     }

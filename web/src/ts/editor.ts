@@ -92,7 +92,7 @@ export const loadEditor = async (
         ],
     });
 
-    let editor = document.getElementById("editor") as HTMLElement | null;
+    const editor = document.getElementById("editor") as HTMLElement | null;
 
     if (monacoEditor) {
         monacoEditor.dispose();

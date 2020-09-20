@@ -1,10 +1,10 @@
 module Views.Diagram.SiteMap exposing (view)
 
 import Constants
-import Data.Item as Item exposing (Item, Items)
+import Data.Item as Item exposing (Items)
 import Data.Position exposing (Position)
 import List.Extra exposing (scanl1, zip)
-import Models.Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram exposing (Model, Msg(..), SelectedItem, Settings)
 import Svg exposing (Svg, g, line)
 import Svg.Attributes exposing (stroke, strokeWidth, x1, x2, y1, y2)
 import Views.Diagram.Views as Views
@@ -32,7 +32,7 @@ view model =
             g [] []
 
 
-siteView : Settings -> ( Int, Int ) -> Maybe Item -> Items -> Svg Msg
+siteView : Settings -> ( Int, Int ) -> SelectedItem -> Items -> Svg Msg
 siteView settings ( posX, posY ) selectedItem items =
     let
         hierarchyCountList =
@@ -77,7 +77,7 @@ siteView settings ( posX, posY ) selectedItem items =
         )
 
 
-siteTreeView : Settings -> Position -> Maybe Item -> Items -> Svg Msg
+siteTreeView : Settings -> Position -> SelectedItem -> Items -> Svg Msg
 siteTreeView settings ( posX, posY ) selectedItem items =
     let
         childrenCountList =

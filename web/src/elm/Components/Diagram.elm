@@ -17,7 +17,7 @@ import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
 import List
 import List.Extra exposing (findIndex, getAt, removeAt, scanl, setAt, splitAt)
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Views.ER as ErDiagramModel
 import Models.Views.EmpathyMap as EmpathyMapModel
@@ -491,7 +491,7 @@ svgView model =
             ]
             [ mainSvg ]
         , case ( model.selectedItem, model.contextMenu ) of
-            ( Just item, Just ( contextMenu, position ) ) ->
+            ( Just ( item_, _ ), Just ( contextMenu, position ) ) ->
                 let
                     ( posX, posY ) =
                         position
@@ -501,7 +501,7 @@ svgView model =
                 in
                 ContextMenu.view
                     { state = contextMenu
-                    , item = item
+                    , item = item_
                     , position =
                         ( floor <| toFloat (posX + offsetX) * model.svg.scale
                         , floor <| toFloat (posY + offsetY) * model.svg.scale
@@ -517,7 +517,7 @@ svgView model =
         ]
 
 
-onDragStart : Maybe Item -> Bool -> Svg.Attribute Msg
+onDragStart : SelectedItem -> Bool -> Svg.Attribute Msg
 onDragStart item isPhone =
     case ( item, isPhone ) of
         ( Nothing, True ) ->
@@ -850,7 +850,7 @@ update message model =
             ( { model | touchDistance = Just distance }, Cmd.none )
 
         EditSelectedItem text ->
-            ( { model | selectedItem = Maybe.andThen (\i -> Just { i | text = " " ++ String.trimLeft text }) model.selectedItem }
+            ( { model | selectedItem = Maybe.andThen (\( i, _ ) -> Just ( { i | text = " " ++ String.trimLeft text }, False )) model.selectedItem }
             , Cmd.none
             )
 
@@ -862,12 +862,24 @@ update message model =
                 move =
                     Maybe.map (\( fromNo, toNo, _ ) -> ( fromNo, toNo )) result
             in
-            case move of
-                Just ( fromNo, toNo ) ->
+            case ( move, model.selectedItem ) of
+                ( Just ( fromNo, toNo ), _ ) ->
                     ( { model | dragDrop = model_ }, Task.perform MoveItem (Task.succeed ( fromNo, toNo )) )
 
-                Nothing ->
-                    ( { model | dragDrop = model_ }, Cmd.none )
+                ( Nothing, Just ( item, _ ) ) ->
+                    case DragDrop.getDragId model.dragDrop of
+                        Just id_ ->
+                            if item.lineNo == id_ then
+                                ( { model | dragDrop = model_, selectedItem = Just ( item, True ) }, Cmd.none )
+
+                            else
+                                ( { model | dragDrop = model_, selectedItem = Just ( item, False ) }, Cmd.none )
+
+                        Nothing ->
+                            ( { model | dragDrop = model_, selectedItem = Just ( item, False ) }, Cmd.none )
+
+                ( Nothing, _ ) ->
+                    ( { model | dragDrop = model_, selectedItem = Maybe.andThen (\( item_, _ ) -> Just ( item_, False )) model.selectedItem }, Cmd.none )
 
         FitToWindow ->
             let
@@ -892,7 +904,7 @@ update message model =
             ( { model | svg = newSvgModel, position = position }, Cmd.none )
 
         Select (Just ( item, position )) ->
-            ( { model | selectedItem = Just item, contextMenu = Just ( Diagram.CloseMenu, position ) }
+            ( { model | selectedItem = Just ( item, False ), contextMenu = Just ( Diagram.CloseMenu, position ) }
             , Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
             )
 
@@ -901,7 +913,7 @@ update message model =
 
         EndEditSelectedItem item code isComposing ->
             case ( model.selectedItem, code, isComposing ) of
-                ( Just selectedItem, 13, False ) ->
+                ( Just ( selectedItem, _ ), 13, False ) ->
                     let
                         lines =
                             Text.lines model.text
@@ -928,7 +940,7 @@ update message model =
 
         OnColorChanged menu color ->
             case model.selectedItem of
-                Just item ->
+                Just ( item, _ ) ->
                     let
                         lines =
                             Text.lines model.text
@@ -978,11 +990,11 @@ update message model =
                                 |> String.join "\n"
                     in
                     case ( model.selectedItem, menu ) of
-                        ( Just i, Diagram.ColorSelectMenu ) ->
-                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just { i | color = Just color }, contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+                        ( Just ( i, _ ), Diagram.ColorSelectMenu ) ->
+                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just ( { i | color = Just color }, False ), contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
 
-                        ( Just i, Diagram.BackgroundColorSelectMenu ) ->
-                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just { i | backgroundColor = Just color }, contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+                        ( Just ( i, _ ), Diagram.BackgroundColorSelectMenu ) ->
+                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just ( { i | backgroundColor = Just color }, False ), contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
@@ -992,7 +1004,7 @@ update message model =
 
         OnFontStyleChanged style ->
             case model.selectedItem of
-                Just item ->
+                Just ( item, _ ) ->
                     let
                         lines =
                             Text.lines model.text
@@ -1025,10 +1037,17 @@ update message model =
                 lines =
                     Text.lines model.text
 
-                toPrefix =
+                prefix =
                     getAt toNo lines
                         |> Maybe.withDefault ""
                         |> Utils.getSpacePrefix
+
+                toPrefix =
+                    if String.length (prefix ++ inputPrefix) > 8 then
+                        String.repeat 2 inputPrefix
+
+                    else
+                        prefix ++ inputPrefix
 
                 from =
                     toPrefix

@@ -1,9 +1,8 @@
 module Views.Diagram.Kanban exposing (view)
 
 import Constants
-import Data.Item exposing (Item)
 import Data.Position exposing (Position)
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle)
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle)
 import Models.Views.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import String
 import Svg exposing (Svg, g, line, text, text_)
@@ -30,7 +29,7 @@ view model =
             Empty.view
 
 
-kanbanView : Settings -> Maybe Item -> Kanban -> Svg Msg
+kanbanView : Settings -> SelectedItem -> Kanban -> Svg Msg
 kanbanView settings selectedItem kanban =
     let
         (Kanban lists) =
@@ -51,7 +50,7 @@ kanbanView settings selectedItem kanban =
         )
 
 
-listView : Settings -> Int -> Position -> Maybe Item -> KanbanList -> Svg Msg
+listView : Settings -> Int -> Position -> SelectedItem -> KanbanList -> Svg Msg
 listView settings height ( posX, posY ) selectedItem (KanbanList name cards) =
     g []
         (text_

@@ -115,7 +115,7 @@ view model =
                     , textarea
                         [ class "input"
                         , style "color" "#555"
-                        , style "height" "40px"
+                        , style "height" "80px"
                         , style "font-size" "0.95rem"
                         , style "width" "calc(100% - 40px)"
                         , style "border" "1px solid #8C9FAE"

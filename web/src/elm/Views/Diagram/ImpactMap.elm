@@ -1,10 +1,10 @@
 module Views.Diagram.ImpactMap exposing (view)
 
-import Data.Item as Item exposing (Item, ItemType(..), Items)
+import Data.Item as Item exposing (ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size exposing (Size)
 import List.Extra exposing (getAt, scanl1, zip3)
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
 import Svg exposing (Svg, g)
 import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views
@@ -51,7 +51,7 @@ view model =
             Empty.view
 
 
-nodesView : Settings -> Int -> Position -> Maybe Item -> Items -> Svg Msg
+nodesView : Settings -> Int -> Position -> SelectedItem -> Items -> Svg Msg
 nodesView settings hierarchy ( x, y ) selectedItem items =
     let
         svgWidth =

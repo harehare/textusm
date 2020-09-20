@@ -1,7 +1,7 @@
 module Views.Diagram.Table exposing (view)
 
 import Data.Item as Item exposing (Item, ItemType(..))
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
 import Models.Views.Table exposing (Header(..), Row(..), Table(..))
 import String
 import Svg exposing (Svg, g)
@@ -44,7 +44,7 @@ view model =
             Empty.view
 
 
-headerView : Settings -> Maybe Item -> Item -> Svg Msg
+headerView : Settings -> SelectedItem -> Item -> Svg Msg
 headerView settings selectedItem item =
     g []
         (Item.indexedMap
@@ -55,7 +55,7 @@ headerView settings selectedItem item =
         )
 
 
-rowView : Settings -> Maybe Item -> Int -> Item -> Svg Msg
+rowView : Settings -> SelectedItem -> Int -> Item -> Svg Msg
 rowView settings selectedItem rowNo item =
     Keyed.node "g"
         []

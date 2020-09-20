@@ -1,11 +1,10 @@
 module Views.Diagram.SequenceDiagram exposing (view)
 
 import Constants
-import Data.Item exposing (Item)
 import Data.Position as Position exposing (Position)
 import Data.Size exposing (Size)
 import List.Extra exposing (scanl, zip)
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle, getTextColor)
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle, getTextColor)
 import Models.Views.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
 import Svg exposing (Svg, circle, g, line, marker, polygon, polyline, rect, text, text_)
 import Svg.Attributes exposing (class, cx, cy, fill, fontFamily, fontSize, fontWeight, height, id, markerEnd, markerHeight, markerStart, markerWidth, orient, points, r, refX, refY, stroke, strokeDasharray, strokeWidth, viewBox, width, x, x1, x2, y, y1, y2)
@@ -57,7 +56,7 @@ messageX width order =
     width // 2 + (width + Constants.participantMargin) * order + 8
 
 
-participantView : Settings -> Maybe Item -> Position -> Participant -> Int -> Svg Msg
+participantView : Settings -> SelectedItem -> Position -> Participant -> Int -> Svg Msg
 participantView settings selectedItem pos (Participant item _) messageHeight =
     let
         lineX =
