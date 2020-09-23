@@ -11,8 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
       - uses: harehare/elm-analyse-action@v1
         with:
           working_directory: ./web
           ignore_error: true
+      - uses: actions/labeler@main
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"

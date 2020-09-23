@@ -13,7 +13,7 @@ import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
 import Svg.Attributes exposing (class, color, fontSize, fontWeight, height, stroke, strokeWidth, style, width, x, x1, x2, y, y1, y2)
 import Svg.Keyed as Keyed
-import Svg.Lazy exposing (lazy4, lazy5)
+import Svg.Lazy exposing (lazy, lazy4, lazy5)
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
@@ -137,7 +137,7 @@ activityView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "activity-" ++ item.text
-         , lazy4 Views.cardView settings ( posX, posY ) selectedItem item
+         , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
             :: (Item.unwrapChildren item.children
                     |> Item.indexedMap
@@ -173,7 +173,7 @@ taskView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "task-" ++ item.text
-         , lazy4 Views.cardView settings ( posX, posY ) selectedItem item
+         , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
             :: (children
                     |> Item.indexedMap
@@ -219,7 +219,7 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "story-" ++ item.text
-         , lazy4 Views.cardView settings ( posX, posY ) selectedItem item
+         , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
             :: (children
                     |> Item.indexedMap

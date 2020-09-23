@@ -69,9 +69,9 @@ participantView settings selectedItem pos (Participant item _) messageHeight =
             fromY + messageHeight + settings.size.height + Constants.messageMargin
     in
     g []
-        [ Lazy.lazy4 Views.cardView settings ( Position.getX pos, toY ) selectedItem item
+        [ Lazy.lazy Views.cardView { settings = settings, position = ( Position.getX pos, toY ), selectedItem = selectedItem, item = item }
         , Lazy.lazy3 lineView settings ( lineX, fromY ) ( lineX, toY )
-        , Lazy.lazy4 Views.cardView settings pos selectedItem item
+        , Lazy.lazy Views.cardView { settings = settings, position = pos, selectedItem = selectedItem, item = item }
         ]
 
 

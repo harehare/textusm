@@ -73,12 +73,15 @@ listView settings height ( posX, posY ) selectedItem (KanbanList name cards) =
                 []
             :: List.indexedMap
                 (\i (Card item) ->
-                    Views.cardView settings
-                        ( posX
-                        , posY + kanbanMargin + Constants.itemMargin + (settings.size.height + Constants.itemMargin) * i
-                        )
-                        selectedItem
-                        item
+                    Views.cardView
+                        { settings = settings
+                        , position =
+                            ( posX
+                            , posY + kanbanMargin + Constants.itemMargin + (settings.size.height + Constants.itemMargin) * i
+                            )
+                        , selectedItem = selectedItem
+                        , item = item
+                        }
                 )
                 cards
         )

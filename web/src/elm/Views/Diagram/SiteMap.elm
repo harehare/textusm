@@ -25,7 +25,12 @@ view model =
             g
                 []
                 [ siteView model.settings ( 0, Constants.itemSpan + model.settings.size.height ) model.selectedItem items
-                , Views.cardView model.settings ( 0, 0 ) model.selectedItem root
+                , Views.cardView
+                    { settings = model.settings
+                    , position = ( 0, 0 )
+                    , selectedItem = model.selectedItem
+                    , item = root
+                    }
                 ]
 
         Nothing ->
@@ -58,12 +63,12 @@ siteView settings ( posX, posY ) selectedItem items =
                                 + hierarchyCount
                                 * Constants.itemSpan
                     in
-                    [ Views.cardView settings
-                        ( x
-                        , posY
-                        )
-                        selectedItem
-                        item
+                    [ Views.cardView
+                        { settings = settings
+                        , position = ( x, posY )
+                        , selectedItem = selectedItem
+                        , item = item
+                        }
                     , siteLineView settings ( 0, 0 ) ( x, posY )
                     , siteTreeView settings
                         ( x
@@ -109,12 +114,12 @@ siteTreeView settings ( posX, posY ) selectedItem items =
                             posY + i * (settings.size.height + Constants.itemSpan) + childrenCount * (settings.size.height + Constants.itemSpan)
                     in
                     [ siteTreeLineView settings ( posX, posY - Constants.itemSpan ) ( posX, y )
-                    , Views.cardView settings
-                        ( x
-                        , y
-                        )
-                        selectedItem
-                        item
+                    , Views.cardView
+                        { settings = settings
+                        , position = ( x, y )
+                        , selectedItem = selectedItem
+                        , item = item
+                        }
                     , siteTreeView settings
                         ( x
                         , y + (settings.size.height + Constants.itemSpan)

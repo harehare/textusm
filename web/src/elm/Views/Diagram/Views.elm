@@ -3,8 +3,8 @@ module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasVi
 import Constants
 import Data.Color as Color
 import Data.Item as Item exposing (Item, ItemType(..), Items)
-import Data.Position exposing (Position)
-import Data.Size exposing (Size)
+import Data.Position as Position exposing (Position)
+import Data.Size as Size exposing (Size)
 import Events exposing (onClickStopPropagation, onKeyDown)
 import Html as Html exposing (Html, div, img, input)
 import Html.Attributes as Attr
@@ -74,11 +74,14 @@ getItemColor settings item =
             ( settings.color.story.color, settings.color.story.backgroundColor )
 
 
-cardView : Settings -> Position -> SelectedItem -> Item -> Svg Msg
-cardView settings ( posX, posY ) selectedItem item =
+cardView : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
+cardView { settings, position, selectedItem, item } =
     let
         ( color, backgroundColor ) =
             getItemColor settings item
+
+        ( posX, posY ) =
+            position
 
         view_ =
             g
@@ -121,7 +124,16 @@ cardView settings ( posX, posY ) selectedItem item =
                         , draggingStyle isDragging
                         ]
                         []
-                    , inputView settings Nothing (draggingHtmlStyle isDragging) ( posX, posY ) ( settings.size.width, settings.size.height ) ( color, backgroundColor ) item_
+                    , inputView
+                        { settings = settings
+                        , fontSize = Nothing
+                        , inputStyle = draggingHtmlStyle isDragging
+                        , position = ( posX, posY )
+                        , size = ( settings.size.width, settings.size.height )
+                        , color = color
+                        , backgroundColor = backgroundColor
+                        , item = item_
+                        }
                     ]
 
             else
@@ -151,25 +163,27 @@ dropArea ( posX, posY ) ( svgWidth, svgHeight ) item =
 
 
 inputView :
-    Settings
-    -> Maybe String
-    -> Html.Attribute Msg
-    -> Position
-    -> Size
-    -> ( RgbColor, RgbColor )
-    -> Item
+    { settings : Settings
+    , fontSize : Maybe String
+    , inputStyle : Html.Attribute Msg
+    , position : Position
+    , size : Size
+    , color : RgbColor
+    , backgroundColor : RgbColor
+    , item : Item
+    }
     -> Svg Msg
-inputView settings fontSize inputStyle ( posX, posY ) ( svgWidth, svgHeight ) ( colour, backgroundColor ) item =
+inputView { settings, fontSize, inputStyle, position, size, color, backgroundColor, item } =
     foreignObject
-        [ x <| String.fromInt posX
-        , y <| String.fromInt posY
-        , width <| String.fromInt svgWidth
-        , height <| String.fromInt svgHeight
+        [ x <| String.fromInt <| Position.getX position
+        , y <| String.fromInt <| Position.getY position
+        , width <| String.fromInt <| Size.getWidth size
+        , height <| String.fromInt <| Size.getHeight size
         ]
         [ div
             ([ Attr.style "background-color" backgroundColor
-             , Attr.style "width" (String.fromInt svgWidth ++ "px")
-             , Attr.style "height" (String.fromInt svgHeight ++ "px")
+             , Attr.style "width" (String.fromInt (Size.getWidth size) ++ "px")
+             , Attr.style "height" (String.fromInt (Size.getHeight size) ++ "px")
              , inputStyle
              ]
                 ++ DragDrop.draggable DragDropMsg item.lineNo
@@ -181,11 +195,11 @@ inputView settings fontSize inputStyle ( posX, posY ) ( svgWidth, svgHeight ) ( 
                 , Attr.autocomplete False
                 , Attr.style "padding" "8px 8px 8px 0"
                 , Attr.style "font-family" (fontStyle settings)
-                , Attr.style "color" colour
+                , Attr.style "color" color
                 , Attr.style "background-color" "transparent"
                 , Attr.style "border" "none"
                 , Attr.style "outline" "none"
-                , Attr.style "width" (String.fromInt (svgWidth - 20) ++ "px")
+                , Attr.style "width" (String.fromInt (Size.getWidth size - 20) ++ "px")
                 , Attr.style "font-size" <| Constants.fontSize ++ "px"
                 , Attr.style "margin-left" "2px"
                 , Attr.style "margin-top" "2px"
@@ -278,13 +292,16 @@ canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
             Just ( item_, isDragging ) ->
                 if item_.lineNo == item.lineNo then
                     [ canvasRectView settings (draggingStyle isDragging) ( svgWidth, svgHeight )
-                    , inputView settings
-                        (Just "20")
-                        (draggingHtmlStyle isDragging)
-                        ( 0, 0 )
-                        ( svgWidth, settings.size.height )
-                        ( item.color |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.label, "transparent" )
-                        item_
+                    , inputView
+                        { settings = settings
+                        , fontSize = Just "20"
+                        , inputStyle = draggingHtmlStyle isDragging
+                        , position = ( 0, 0 )
+                        , size = ( svgWidth, settings.size.height )
+                        , color = item.color |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.label
+                        , backgroundColor = "transparent"
+                        , item = item_
+                        }
                     , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren item.children
                     ]
 
@@ -315,7 +332,16 @@ canvasBottomView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem it
             Just ( item_, isDragging ) ->
                 if item_.lineNo == item.lineNo then
                     [ canvasRectView settings (draggingStyle isDragging) ( svgWidth, svgHeight )
-                    , inputView settings (Just <| String.fromInt <| svgHeight - 25) (draggingHtmlStyle isDragging) ( 0, 0 ) ( svgWidth, settings.size.height ) ( settings.color.label, "transparent" ) item_
+                    , inputView
+                        { settings = settings
+                        , fontSize = Just <| String.fromInt <| svgHeight - 25
+                        , inputStyle = draggingHtmlStyle isDragging
+                        , position = ( 0, 0 )
+                        , size = ( svgWidth, settings.size.height )
+                        , color = settings.color.label
+                        , backgroundColor = "transparent"
+                        , item = item_
+                        }
                     , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren item.children
                     ]
 
@@ -369,7 +395,12 @@ canvasTextView settings svgWidth ( posX, posY ) selectedItem items =
     g []
         (Item.indexedMap
             (\i item ->
-                cardView newSettings ( posX, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin ) selectedItem item
+                cardView
+                    { settings = newSettings
+                    , position = ( posX, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin )
+                    , selectedItem = selectedItem
+                    , item = item
+                    }
             )
             items
         )
@@ -650,7 +681,16 @@ gridView settings ( posX, posY ) selectedItem item =
                         , draggingStyle isDragging
                         ]
                         []
-                    , inputView settings Nothing (draggingHtmlStyle isDragging) ( posX, posY ) ( settings.size.width, settings.size.height ) ( Diagram.getTextColor settings.color, "transparent" ) item_
+                    , inputView
+                        { settings = settings
+                        , fontSize = Nothing
+                        , inputStyle = draggingHtmlStyle isDragging
+                        , position = ( posX, posY )
+                        , size = ( settings.size.width, settings.size.height )
+                        , color = Diagram.getTextColor settings.color
+                        , backgroundColor = "transparent"
+                        , item = item_
+                        }
                     ]
 
             else

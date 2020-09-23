@@ -1,0 +1,5 @@
+frontend: web/src/*
+backend: server/*
+vscode: extension/vscode/*
+npm: extension/lib/*
+cli: cli/*
