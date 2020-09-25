@@ -185,14 +185,14 @@ exportMenu route =
         Route.Edit "table" ->
             Item
                 { e = Download <| FileType.markdown
-                , title = "MARKDOWN"
+                , title = "Markdown"
                 }
                 :: baseExportMenu
 
         Route.EditFile "table" _ ->
             Item
                 { e = Download <| FileType.markdown
-                , title = "MARKDOWN"
+                , title = "Markdown"
                 }
                 :: baseExportMenu
 

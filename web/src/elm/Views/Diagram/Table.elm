@@ -49,9 +49,9 @@ headerView settings selectedItem item =
     g []
         (Item.indexedMap
             (\i ii ->
-                lazy4 Views.gridView settings ( settings.size.width * i, 0 ) selectedItem { ii | itemType = Activities }
+                lazy4 Views.gridView settings ( settings.size.width * i, 0 ) selectedItem (Item.withItemType Activities ii)
             )
-            (Item.cons item (Item.unwrapChildren item.children))
+            (Item.cons item (Item.unwrapChildren <| Item.getChildren item))
         )
 
 
@@ -64,17 +64,17 @@ rowView settings selectedItem rowNo item =
             settings
             ( 0, settings.size.height * rowNo )
             selectedItem
-            { item | itemType = Tasks }
+            (Item.withItemType Tasks item)
          )
             :: Item.indexedMap
                 (\i childItem ->
-                    ( "row" ++ String.fromInt childItem.lineNo
+                    ( "row" ++ String.fromInt (Item.getLineNo childItem)
                     , lazy4 Views.gridView
                         settings
                         ( settings.size.width * (i + 1), settings.size.height * rowNo )
                         selectedItem
-                        { childItem | itemType = Stories 1 }
+                        (Item.withItemType (Stories 1) childItem)
                     )
                 )
-                (item.children |> Item.unwrapChildren)
+                (Item.getChildren item |> Item.unwrapChildren)
         )

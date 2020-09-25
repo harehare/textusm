@@ -136,13 +136,13 @@ activityView : Settings -> List Int -> Position -> SelectedItem -> Item -> Svg M
 activityView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
-        (( "activity-" ++ item.text
+        (( "activity-" ++ Item.getText item
          , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
-            :: (Item.unwrapChildren item.children
+            :: (Item.unwrapChildren (Item.getChildren item)
                     |> Item.indexedMap
                         (\i it ->
-                            ( "task-" ++ it.text
+                            ( "task-" ++ Item.getText it
                             , taskView
                                 settings
                                 verticalCount
@@ -168,17 +168,17 @@ taskView : Settings -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
 taskView settings verticalCount ( posX, posY ) selectedItem item =
     let
         children =
-            Item.unwrapChildren item.children
+            Item.unwrapChildren <| Item.getChildren item
     in
     Keyed.node "g"
         []
-        (( "task-" ++ item.text
+        (( "task-" ++ Item.getText item
          , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
             :: (children
                     |> Item.indexedMap
                         (\i it ->
-                            ( "story-" ++ it.text
+                            ( "story-" ++ Item.getText it
                             , storyView settings
                                 verticalCount
                                 (Item.length children)
@@ -208,7 +208,7 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
             List.head verticalCount |> Maybe.withDefault 1
 
         children =
-            Item.unwrapChildren item.children
+            Item.unwrapChildren <| Item.getChildren item
 
         childrenLength =
             Item.length children
@@ -218,13 +218,13 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
     in
     Keyed.node "g"
         []
-        (( "story-" ++ item.text
+        (( "story-" ++ Item.getText item
          , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
             :: (children
                     |> Item.indexedMap
                         (\i it ->
-                            ( "story-" ++ item.text
+                            ( "story-" ++ Item.getText item
                             , storyView
                                 settings
                                 tail

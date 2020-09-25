@@ -184,13 +184,7 @@ changeTextTest =
                     |> .items
                     |> Expect.equal
                         (Item.fromList
-                            [ { text = "test1"
-                              , itemType = Activities
-                              , lineNo = 0
-                              , color = Nothing
-                              , backgroundColor = Nothing
-                              , children = Item.emptyChildren
-                              }
+                            [ Item.new |> Item.withText "test1"
                             ]
                         )
         , test "load activity items" <|
@@ -200,20 +194,8 @@ changeTextTest =
                     |> .items
                     |> Expect.equal
                         (Item.fromList
-                            [ { text = "test1"
-                              , itemType = Activities
-                              , lineNo = 0
-                              , color = Nothing
-                              , backgroundColor = Nothing
-                              , children = Item.emptyChildren
-                              }
-                            , { text = "test2"
-                              , itemType = Activities
-                              , lineNo = 1
-                              , color = Nothing
-                              , backgroundColor = Nothing
-                              , children = Item.emptyChildren
-                              }
+                            [ Item.new |> Item.withText "test1"
+                            , Item.new |> Item.withText "test2" |> Item.withLineNo 1
                             ]
                         )
         , test "load task item" <|
@@ -223,24 +205,18 @@ changeTextTest =
                     |> .items
                     |> Expect.equal
                         (Item.fromList
-                            [ { text = "test1"
-                              , itemType = Activities
-                              , lineNo = 0
-                              , color = Nothing
-                              , backgroundColor = Nothing
-                              , children =
-                                    Item.childrenFromItems
+                            [ Item.new
+                                |> Item.withText "test1"
+                                |> Item.withChildren
+                                    (Item.childrenFromItems
                                         (Item.fromList
-                                            [ { text = "    test2"
-                                              , itemType = Tasks
-                                              , children = Item.emptyChildren
-                                              , color = Nothing
-                                              , backgroundColor = Nothing
-                                              , lineNo = 1
-                                              }
+                                            [ Item.new
+                                                |> Item.withText "    test2"
+                                                |> Item.withItemType Tasks
+                                                |> Item.withLineNo 1
                                             ]
                                         )
-                              }
+                                    )
                             ]
                         )
         , test "load task items" <|
@@ -250,31 +226,22 @@ changeTextTest =
                     |> .items
                     |> Expect.equal
                         (Item.fromList
-                            [ { text = "test1"
-                              , itemType = Activities
-                              , lineNo = 0
-                              , color = Nothing
-                              , backgroundColor = Nothing
-                              , children =
-                                    Item.childrenFromItems
+                            [ Item.new
+                                |> Item.withText "test1"
+                                |> Item.withChildren
+                                    (Item.childrenFromItems
                                         (Item.fromList
-                                            [ { text = "    test2"
-                                              , itemType = Tasks
-                                              , lineNo = 1
-                                              , color = Nothing
-                                              , backgroundColor = Nothing
-                                              , children = Item.emptyChildren
-                                              }
-                                            , { text = "    test3"
-                                              , itemType = Tasks
-                                              , lineNo = 2
-                                              , color = Nothing
-                                              , backgroundColor = Nothing
-                                              , children = Item.emptyChildren
-                                              }
+                                            [ Item.new
+                                                |> Item.withText "    test2"
+                                                |> Item.withItemType Tasks
+                                                |> Item.withLineNo 1
+                                            , Item.new
+                                                |> Item.withText "    test3"
+                                                |> Item.withItemType Tasks
+                                                |> Item.withLineNo 2
                                             ]
                                         )
-                              }
+                                    )
                             ]
                         )
         , test "load story item" <|
@@ -284,35 +251,28 @@ changeTextTest =
                     |> .items
                     |> Expect.equal
                         (Item.fromList
-                            [ { text = "test1"
-                              , itemType = Activities
-                              , lineNo = 0
-                              , color = Nothing
-                              , backgroundColor = Nothing
-                              , children =
-                                    Item.childrenFromItems
+                            [ Item.new
+                                |> Item.withText "test1"
+                                |> Item.withChildren
+                                    (Item.childrenFromItems
                                         (Item.fromList
-                                            [ { text = "    test2"
-                                              , itemType = Tasks
-                                              , lineNo = 1
-                                              , color = Nothing
-                                              , backgroundColor = Nothing
-                                              , children =
-                                                    Item.childrenFromItems
+                                            [ Item.new
+                                                |> Item.withText "    test2"
+                                                |> Item.withItemType Tasks
+                                                |> Item.withLineNo 1
+                                                |> Item.withChildren
+                                                    (Item.childrenFromItems
                                                         (Item.fromList
-                                                            [ { text = "        test3"
-                                                              , itemType = Stories 1
-                                                              , children = Item.emptyChildren
-                                                              , color = Nothing
-                                                              , backgroundColor = Nothing
-                                                              , lineNo = 2
-                                                              }
+                                                            [ Item.new
+                                                                |> Item.withText "        test3"
+                                                                |> Item.withItemType (Stories 1)
+                                                                |> Item.withLineNo 2
                                                             ]
                                                         )
-                                              }
+                                                    )
                                             ]
                                         )
-                              }
+                                    )
                             ]
                         )
         , test "load story items" <|
@@ -322,42 +282,32 @@ changeTextTest =
                     |> .items
                     |> Expect.equal
                         (Item.fromList
-                            [ { text = "test1"
-                              , itemType = Activities
-                              , lineNo = 0
-                              , color = Nothing
-                              , backgroundColor = Nothing
-                              , children =
-                                    Item.childrenFromItems
+                            [ Item.new
+                                |> Item.withText "test1"
+                                |> Item.withChildren
+                                    (Item.childrenFromItems
                                         (Item.fromList
-                                            [ { text = "    test2"
-                                              , itemType = Tasks
-                                              , lineNo = 1
-                                              , color = Nothing
-                                              , backgroundColor = Nothing
-                                              , children =
-                                                    Item.childrenFromItems
+                                            [ Item.new
+                                                |> Item.withText "    test2"
+                                                |> Item.withItemType Tasks
+                                                |> Item.withLineNo 1
+                                                |> Item.withChildren
+                                                    (Item.childrenFromItems
                                                         (Item.fromList
-                                                            [ { text = "        test3"
-                                                              , itemType = Stories 1
-                                                              , lineNo = 2
-                                                              , color = Nothing
-                                                              , backgroundColor = Nothing
-                                                              , children = Item.emptyChildren
-                                                              }
-                                                            , { text = "        test4"
-                                                              , itemType = Stories 1
-                                                              , lineNo = 3
-                                                              , color = Nothing
-                                                              , backgroundColor = Nothing
-                                                              , children = Item.emptyChildren
-                                                              }
+                                                            [ Item.new
+                                                                |> Item.withText "        test3"
+                                                                |> Item.withItemType (Stories 1)
+                                                                |> Item.withLineNo 2
+                                                            , Item.new
+                                                                |> Item.withText "        test4"
+                                                                |> Item.withItemType (Stories 1)
+                                                                |> Item.withLineNo 3
                                                             ]
                                                         )
-                                              }
+                                                    )
                                             ]
                                         )
-                              }
+                                    )
                             ]
                         )
         ]

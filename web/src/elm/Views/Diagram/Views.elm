@@ -42,7 +42,7 @@ draggingHtmlStyle isDragging =
 
 getItemColor : Settings -> Item -> ( RgbColor, RgbColor )
 getItemColor settings item =
-    case ( item.itemType, item.color, item.backgroundColor ) of
+    case ( Item.getItemType item, Item.getColor item, Item.getBackgroundColor item ) of
         ( _, Just c, Just b ) ->
             ( Color.toString c, Color.toString b )
 
@@ -98,7 +98,7 @@ cardView { settings, position, selectedItem, item } =
                     , style "filter:url(#shadow)"
                     ]
                     []
-                , textView settings ( posX, posY ) ( settings.size.width, settings.size.height ) color item.text
+                , textView settings ( posX, posY ) ( settings.size.width, settings.size.height ) color (Item.getText item)
                 , if isJust selectedItem then
                     dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
 
@@ -108,7 +108,7 @@ cardView { settings, position, selectedItem, item } =
     in
     case selectedItem of
         Just ( item_, isDragging ) ->
-            if item_.lineNo == item.lineNo then
+            if Item.getLineNo item_ == Item.getLineNo item then
                 g []
                     [ rect
                         [ width <| String.fromInt <| settings.size.width + 4
@@ -156,7 +156,7 @@ dropArea ( posX, posY ) ( svgWidth, svgHeight ) item =
              , Attr.style "width" (String.fromInt svgWidth ++ "px")
              , Attr.style "height" (String.fromInt svgHeight ++ "px")
              ]
-                ++ DragDrop.droppable DragDropMsg item.lineNo
+                ++ DragDrop.droppable DragDropMsg (Item.getLineNo item)
             )
             []
         ]
@@ -186,7 +186,7 @@ inputView { settings, fontSize, inputStyle, position, size, color, backgroundCol
              , Attr.style "height" (String.fromInt (Size.getHeight size) ++ "px")
              , inputStyle
              ]
-                ++ DragDrop.draggable DragDropMsg item.lineNo
+                ++ DragDrop.draggable DragDropMsg (Item.getLineNo item)
             )
             [ input
                 [ Attr.id "edit-item"
@@ -203,7 +203,7 @@ inputView { settings, fontSize, inputStyle, position, size, color, backgroundCol
                 , Attr.style "font-size" <| Constants.fontSize ++ "px"
                 , Attr.style "margin-left" "2px"
                 , Attr.style "margin-top" "2px"
-                , Attr.value <| " " ++ String.trimLeft item.text
+                , Attr.value <| " " ++ String.trimLeft (Item.getText item)
                 , onInput EditSelectedItem
                 , onKeyDown <| EndEditSelectedItem item
                 ]
@@ -290,7 +290,7 @@ canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
         ]
         (case selectedItem of
             Just ( item_, isDragging ) ->
-                if item_.lineNo == item.lineNo then
+                if Item.getLineNo item_ == Item.getLineNo item then
                     [ canvasRectView settings (draggingStyle isDragging) ( svgWidth, svgHeight )
                     , inputView
                         { settings = settings
@@ -298,23 +298,23 @@ canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                         , inputStyle = draggingHtmlStyle isDragging
                         , position = ( 0, 0 )
                         , size = ( svgWidth, settings.size.height )
-                        , color = item.color |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.label
+                        , color = Item.getColor item |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.label
                         , backgroundColor = "transparent"
                         , item = item_
                         }
-                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren item.children
+                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
                     ]
 
                 else
                     [ canvasRectView settings (draggingStyle isDragging) ( svgWidth, svgHeight )
                     , titleView settings ( 20, 20 ) item
-                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren item.children
+                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
                     ]
 
             Nothing ->
                 [ canvasRectView settings (draggingStyle False) ( svgWidth, svgHeight )
                 , titleView settings ( 20, 20 ) item
-                , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren item.children
+                , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
                 ]
         )
 
@@ -330,7 +330,7 @@ canvasBottomView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem it
         ]
         (case selectedItem of
             Just ( item_, isDragging ) ->
-                if item_.lineNo == item.lineNo then
+                if Item.getLineNo item_ == Item.getLineNo item then
                     [ canvasRectView settings (draggingStyle isDragging) ( svgWidth, svgHeight )
                     , inputView
                         { settings = settings
@@ -342,19 +342,19 @@ canvasBottomView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem it
                         , backgroundColor = "transparent"
                         , item = item_
                         }
-                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren item.children
+                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
                     ]
 
                 else
                     [ canvasRectView settings (draggingStyle isDragging) ( svgWidth, svgHeight )
                     , titleView settings ( 20, svgHeight - 25 ) item
-                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren item.children
+                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
                     ]
 
             Nothing ->
                 [ canvasRectView settings (draggingStyle False) ( svgWidth, svgHeight )
                 , titleView settings ( 20, svgHeight - 25 ) item
-                , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren item.children
+                , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
                 ]
         )
 
@@ -377,13 +377,13 @@ titleView settings ( posX, posY ) item =
         [ x <| String.fromInt posX
         , y <| String.fromInt <| posY + 14
         , fontFamily (fontStyle settings)
-        , fill (item.color |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.label)
+        , fill (Item.getColor item |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.label)
         , fontSize "20"
         , fontWeight "bold"
         , class ".select-none"
         , onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
         ]
-        [ text item.text ]
+        [ text <| Item.getText item ]
 
 
 canvasTextView : Settings -> Int -> Position -> SelectedItem -> Items -> Svg Msg
@@ -410,8 +410,9 @@ canvasImageView : Settings -> Size -> Position -> Item -> Svg Msg
 canvasImageView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
     let
         lines =
-            Item.unwrapChildren item.children
-                |> Item.map (\i -> i.text)
+            Item.getChildren item
+                |> Item.unwrapChildren
+                |> Item.map Item.getText
     in
     svg
         [ width <| String.fromInt svgWidth
@@ -474,7 +475,7 @@ textNodeView settings ( posX, posY ) selectedItem item =
     in
     case selectedItem of
         Just ( item_, isDragging ) ->
-            if item_.lineNo == item.lineNo then
+            if Item.getLineNo item_ == Item.getLineNo item then
                 g []
                     [ rect
                         [ width <| String.fromInt nodeWidth
@@ -501,10 +502,10 @@ startTextNodeView : Settings -> Position -> SelectedItem -> Item -> Svg Msg
 startTextNodeView settings ( posX, posY ) selectedItem item =
     let
         borderColor =
-            item.backgroundColor |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.activity.backgroundColor
+            Item.getBackgroundColor item |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.activity.backgroundColor
 
         textColor =
-            item.color |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.activity.color
+            Item.getColor item |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.activity.color
 
         view_ =
             g
@@ -527,7 +528,7 @@ startTextNodeView settings ( posX, posY ) selectedItem item =
     in
     case selectedItem of
         Just ( item_, isDragging ) ->
-            if item_.lineNo == item.lineNo then
+            if Item.getLineNo item_ == Item.getLineNo item then
                 g []
                     [ startTextNodeRect
                         (draggingStyle isDragging)
@@ -550,7 +551,7 @@ textNode : Settings -> Position -> Size -> RgbColor -> Item -> Svg Msg
 textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
     let
         textColor =
-            item.color |> Maybe.withDefault Color.black |> Color.toString
+            Item.getColor item |> Maybe.withDefault Color.black |> Color.toString
     in
     foreignObject
         [ x <| String.fromInt posX
@@ -571,7 +572,7 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
             , Attr.style "align-items" "center"
             , Attr.style "justify-content" "center"
             ]
-            [ div [ Attr.style "font-size" "14px" ] [ Html.text item.text ]
+            [ div [ Attr.style "font-size" "14px" ] [ Html.text <| Item.getText item ]
             ]
         ]
 
@@ -580,7 +581,7 @@ textNodeInput : Settings -> Position -> Size -> Item -> Svg Msg
 textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
     let
         textColor =
-            item.color |> Maybe.withDefault Color.black |> Color.toString
+            Item.getColor item |> Maybe.withDefault Color.black |> Color.toString
     in
     foreignObject
         [ x <| String.fromInt posX
@@ -596,7 +597,7 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
              , Attr.style "align-items" "center"
              , Attr.style "justify-content" "center"
              ]
-                ++ DragDrop.draggable DragDropMsg item.lineNo
+                ++ DragDrop.draggable DragDropMsg (Item.getLineNo item)
             )
             [ input
                 [ Attr.id "edit-item"
@@ -613,7 +614,7 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
                 , Attr.style "font-size" "14px"
                 , Attr.style "margin-left" "2px"
                 , Attr.style "margin-top" "2px"
-                , Attr.value <| " " ++ String.trimLeft item.text
+                , Attr.value <| " " ++ String.trimLeft (Item.getText item)
                 , onInput EditSelectedItem
                 , onKeyDown <| EndEditSelectedItem item
                 ]
@@ -656,7 +657,7 @@ gridView settings ( posX, posY ) selectedItem item =
                     , strokeWidth "3"
                     ]
                     []
-                , textView settings ( posX, posY ) ( settings.size.width, settings.size.height ) (Diagram.getTextColor settings.color) item.text
+                , textView settings ( posX, posY ) ( settings.size.width, settings.size.height ) (Diagram.getTextColor settings.color) (Item.getText item)
                 , if isJust selectedItem then
                     dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
 
@@ -666,7 +667,7 @@ gridView settings ( posX, posY ) selectedItem item =
     in
     case selectedItem of
         Just ( item_, isDragging ) ->
-            if item_.lineNo == item.lineNo then
+            if Item.getLineNo item_ == Item.getLineNo item then
                 g []
                     [ rect
                         [ width <| String.fromInt settings.size.width

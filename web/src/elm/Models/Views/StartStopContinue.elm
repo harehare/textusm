@@ -16,6 +16,6 @@ type StartStopContinueItem
 
 fromItems : Items -> StartStopContinue
 fromItems items =
-    StartStopContinue (items |> Item.getAt 0 |> Maybe.withDefault Item.emptyItem |> StartStopContinueItem)
-        (items |> Item.getAt 1 |> Maybe.withDefault Item.emptyItem |> StartStopContinueItem)
-        (items |> Item.getAt 2 |> Maybe.withDefault Item.emptyItem |> StartStopContinueItem)
+    StartStopContinue (items |> Item.getAt 0 |> Maybe.withDefault Item.new |> StartStopContinueItem)
+        (items |> Item.getAt 1 |> Maybe.withDefault Item.new |> StartStopContinueItem)
+        (items |> Item.getAt 2 |> Maybe.withDefault Item.new |> StartStopContinueItem)

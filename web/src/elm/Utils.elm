@@ -261,7 +261,7 @@ getCanvasHeight : DiagramModel.Settings -> Items -> Int
 getCanvasHeight settings items =
     let
         taskCount =
-            Item.map (\i -> Item.unwrapChildren i.children |> Item.length) items
+            Item.map (\i -> Item.getChildren i |> Item.unwrapChildren |> Item.length) items
                 |> List.maximum
     in
     (settings.size.height + Constants.itemMargin) * (taskCount |> Maybe.withDefault 1) + 50
@@ -338,7 +338,7 @@ getCanvasSize model =
                             ( 0, 0 )
 
                 Diagram.Table ->
-                    ( model.settings.size.width * ((model.items |> Item.head |> Maybe.withDefault Item.emptyItem |> .children |> Item.unwrapChildren |> Item.length) + 1)
+                    ( model.settings.size.width * ((model.items |> Item.head |> Maybe.withDefault Item.new |> Item.getChildren |> Item.unwrapChildren |> Item.length) + 1)
                     , model.settings.size.height * Item.length model.items + Constants.itemMargin
                     )
 
@@ -349,8 +349,8 @@ getCanvasSize model =
                                 items =
                                     siteMapitems
                                         |> Item.head
-                                        |> Maybe.withDefault Item.emptyItem
-                                        |> .children
+                                        |> Maybe.withDefault Item.new
+                                        |> Item.getChildren
                                         |> Item.unwrapChildren
 
                                 svgWidth =
@@ -365,7 +365,7 @@ getCanvasSize model =
                                     items
                                         |> Item.map
                                             (\i ->
-                                                if Item.isEmpty (Item.unwrapChildren i.children) then
+                                                if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i) then
                                                     0
 
                                                 else
@@ -414,11 +414,11 @@ getCanvasSize model =
                     let
                         rootItem =
                             Item.head model.items
-                                |> Maybe.withDefault Item.emptyItem
+                                |> Maybe.withDefault Item.new
 
                         children =
                             rootItem
-                                |> .children
+                                |> Item.getChildren
                                 |> Item.unwrapChildren
 
                         nodeCounts =
@@ -426,7 +426,7 @@ getCanvasSize model =
                                 :: (children
                                         |> Item.map
                                             (\i ->
-                                                if Item.isEmpty (Item.unwrapChildren i.children) then
+                                                if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i) then
                                                     0
 
                                                 else
@@ -438,7 +438,7 @@ getCanvasSize model =
                         svgHeight =
                             (last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + Item.length children * 2
                     in
-                    case extractDateValues rootItem.text of
+                    case extractDateValues <| Item.getText rootItem of
                         Just ( from, to ) ->
                             let
                                 interval =

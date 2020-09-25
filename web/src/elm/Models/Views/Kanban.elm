@@ -39,7 +39,7 @@ fromItems items =
 
 fromItemsList : Item -> KanbanList
 fromItemsList item =
-    KanbanList item.text (Item.map itemToCard (Item.unwrapChildren item.children))
+    KanbanList (Item.getText item) (Item.map itemToCard (Item.unwrapChildren <| Item.getChildren item))
 
 
 itemToCard : Item -> Card

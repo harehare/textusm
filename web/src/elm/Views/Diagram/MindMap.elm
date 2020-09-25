@@ -38,7 +38,7 @@ view model =
                 Just root ->
                     let
                         mindMapItems =
-                            Item.unwrapChildren root.children
+                            Item.unwrapChildren <| Item.getChildren root
 
                         itemsCount =
                             Item.length mindMapItems
@@ -76,7 +76,7 @@ nodesView settings hierarchy ( x, y ) direction selectedItem items =
             items
                 |> Item.map
                     (\i ->
-                        if Item.isEmpty (Item.unwrapChildren i.children) then
+                        if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i) then
                             0
 
                         else
@@ -133,7 +133,7 @@ nodesView settings hierarchy ( x, y ) direction selectedItem items =
                         )
                         direction
                         selectedItem
-                        (Item.unwrapChildren item.children)
+                        (Item.unwrapChildren <| Item.getChildren item)
                     , Views.textNodeView settings
                         ( itemX, itemY )
                         selectedItem

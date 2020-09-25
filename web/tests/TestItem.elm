@@ -12,90 +12,60 @@ all =
         [ describe "getAt test"
             [ test "get the item at index 0" <|
                 \() ->
-                    Expect.equal (Item.getAt 0 (Items [ Item.emptyItem ])) (Just Item.emptyItem)
+                    Expect.equal (Item.getAt 0 (Item.fromList [ Item.new ])) (Just Item.new)
             , test "get the item at index 1 return Nothing " <|
                 \() ->
-                    Expect.equal (Item.getAt 1 (Items [ Item.emptyItem ])) Nothing
+                    Expect.equal (Item.getAt 1 (Item.fromList [ Item.new ])) Nothing
             ]
         , describe "head test"
             [ test "get head item" <|
                 \() ->
-                    Expect.equal (Item.head (Items [ Item.emptyItem ])) (Just Item.emptyItem)
+                    Expect.equal (Item.head (Item.fromList [ Item.new ])) (Just Item.new)
             , test "get head item from items" <|
                 \() ->
                     Expect.equal
                         (Item.head
-                            (Items
-                                [ Item.emptyItem
-                                , { lineNo = 0
-                                  , text = ""
-                                  , itemType = Activities
-                                  , color = Nothing
-                                  , backgroundColor = Nothing
-                                  , children = Item.emptyChildren
-                                  }
-                                ]
-                            )
+                            (Item.fromList [ Item.new ])
                         )
-                        (Just Item.emptyItem)
+                        (Just Item.new)
             , test "get head item return Nothing" <|
                 \() ->
-                    Expect.equal (Item.head (Items [])) Nothing
+                    Expect.equal (Item.head (Item.fromList [])) Nothing
             ]
         , describe "tail test"
             [ test "get tail item" <|
                 \() ->
-                    Expect.equal (Item.tail (Items [ Item.emptyItem ])) (Just (Items []))
+                    Expect.equal (Item.tail (Item.fromList [ Item.new ])) (Just (Item.fromList []))
             , test "get tail item from items" <|
                 \() ->
                     Expect.equal
                         (Item.tail
-                            (Items
-                                [ { lineNo = 0
-                                  , text = ""
-                                  , itemType = Activities
-                                  , color = Nothing
-                                  , backgroundColor = Nothing
-                                  , children = Item.emptyChildren
-                                  }
-                                , Item.emptyItem
-                                ]
-                            )
+                            (Item.fromList [ Item.new, Item.new ])
                         )
-                        (Just (Items [ Item.emptyItem ]))
+                        (Just (Item.fromList [ Item.new ]))
             , test "get tail item return Nothing" <|
                 \() ->
-                    Expect.equal (Item.tail (Items [])) Nothing
+                    Expect.equal (Item.tail (Item.fromList [])) Nothing
             ]
         , describe "map test"
             [ test "map item" <|
                 \() ->
-                    Expect.equal (Item.map .text (Items [ Item.emptyItem ])) [ "" ]
+                    Expect.equal (Item.map Item.getText (Item.fromList [ Item.new ])) [ "" ]
             ]
         , describe "cons test"
             [ test "1 item" <|
                 \() ->
-                    Expect.equal (Item.cons Item.emptyItem Item.empty) (Items [ Item.emptyItem ])
+                    Expect.equal (Item.cons Item.new Item.empty) (Item.fromList [ Item.new ])
             , test "2 item" <|
                 \() ->
-                    Expect.equal (Item.cons Item.emptyItem (Items [ Item.emptyItem ])) (Items [ Item.emptyItem, Item.emptyItem ])
+                    Expect.equal (Item.cons Item.new (Item.fromList [ Item.new ])) (Item.fromList [ Item.new, Item.new ])
             ]
         , describe "indexed map test"
             [ test "indexed map item" <|
                 \() ->
                     Expect.equal
-                        (Item.indexedMap (\i item -> ( i, item.text ))
-                            (Items
-                                [ Item.emptyItem
-                                , { lineNo = 0
-                                  , text = "test"
-                                  , itemType = Activities
-                                  , color = Nothing
-                                  , backgroundColor = Nothing
-                                  , children = Item.emptyChildren
-                                  }
-                                ]
-                            )
+                        (Item.indexedMap (\i item -> ( i, Item.getText item ))
+                            (Item.fromList [Item.new,  Item.new |> Item.withText "test" |> Item.withLineNo 1 ])
                         )
                         [ ( 0, "" ), ( 1, "test" ) ]
             ]
@@ -105,7 +75,7 @@ all =
                     Expect.equal (Item.length Item.empty) 0
             , test "1 item" <|
                 \() ->
-                    Expect.equal (Item.length <| Items [ Item.emptyItem ]) 1
+                    Expect.equal (Item.length <| Item.fromList [ Item.new ]) 1
             ]
         , describe "isEmpty test"
             [ test "empty item" <|
@@ -113,7 +83,7 @@ all =
                     Expect.equal (Item.isEmpty Item.empty) True
             , test "1 item" <|
                 \() ->
-                    Expect.equal (Item.isEmpty <| Items [ Item.emptyItem ]) False
+                    Expect.equal (Item.isEmpty <| Item.fromList [ Item.new ]) False
             ]
         , describe "unwrap test"
             [ test "unwrap empty item" <|
@@ -121,7 +91,7 @@ all =
                     Expect.equal (Item.unwrap Item.empty) []
             , test "unwrap 1 item" <|
                 \() ->
-                    Expect.equal (Item.unwrap <| Items [ Item.emptyItem ]) [ Item.emptyItem ]
+                    Expect.equal (Item.unwrap <| Item.fromList [ Item.new ]) [ Item.new ]
             ]
         , describe "splitAt test"
             [ test "splitAt empty item" <|
@@ -132,28 +102,25 @@ all =
                 "splitAt 1 item"
               <|
                 \() ->
-                    Expect.equal (Item.splitAt 1 (Items [ Item.emptyItem ])) ( Items [ Item.emptyItem ], Item.empty )
+                    Expect.equal (Item.splitAt 1 (Item.fromList [ Item.new ])) ( Item.fromList [ Item.new ], Item.empty )
             , test
                 "splitAt 2 item"
               <|
                 \() ->
-                    Expect.equal (Item.splitAt 1 (Items [ Item.emptyItem, Item.emptyItem ])) ( Items [ Item.emptyItem ], Items [ Item.emptyItem ] )
+                    Expect.equal (Item.splitAt 1 (Item.fromList [ Item.new, Item.new ])) ( Item.fromList [ Item.new ], Item.fromList [ Item.new ] )
             ]
         , describe "getChildrenCount test"
             [ test "empty item" <|
                 \() ->
-                    Expect.equal (Item.getChildrenCount Item.emptyItem) 0
+                    Expect.equal (Item.getChildrenCount Item.new) 0
             , test "1 children" <|
                 \() ->
                     Expect.equal
                         (Item.getChildrenCount
-                            { lineNo = 0
-                            , text = "test"
-                            , itemType = Activities
-                            , color = Nothing
-                            , backgroundColor = Nothing
-                            , children = Item.childrenFromItems (Items [ Item.emptyItem ])
-                            }
+                            (Item.new
+                                |> Item.withText "test"
+                                |> Item.withChildren (Item.childrenFromItems (Item.fromList [ Item.new ]))
+                            )
                         )
                         2
             ]
@@ -161,18 +128,15 @@ all =
             "getHierarchyCount test"
             [ test "empty item" <|
                 \() ->
-                    Expect.equal (Item.getHierarchyCount Item.emptyItem) 0
+                    Expect.equal (Item.getHierarchyCount Item.new) 0
             , test "1 children" <|
                 \() ->
                     Expect.equal
                         (Item.getHierarchyCount
-                            { lineNo = 0
-                            , text = "test"
-                            , itemType = Activities
-                            , color = Nothing
-                            , backgroundColor = Nothing
-                            , children = Item.childrenFromItems (Items [ Item.emptyItem ])
-                            }
+                            (Item.new
+                                |> Item.withText "test"
+                                |> Item.withChildren (Item.childrenFromItems (Item.fromList [ Item.new ]))
+                            )
                         )
                         1
             ]

@@ -33,7 +33,7 @@ view model =
                 Just root ->
                     let
                         impactMapItems =
-                            Item.unwrapChildren root.children
+                            Item.unwrapChildren <| Item.getChildren root
                     in
                     g
                         []
@@ -64,7 +64,7 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
             items
                 |> Item.map
                     (\i ->
-                        if Item.isEmpty (Item.unwrapChildren i.children) then
+                        if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i) then
                             0
 
                         else
@@ -116,7 +116,7 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
                         , itemY
                         )
                         selectedItem
-                        (Item.unwrapChildren item.children)
+                        (Item.unwrapChildren <| Item.getChildren item)
                     , Views.textNodeView settings
                         ( itemX, itemY )
                         selectedItem

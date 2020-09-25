@@ -2,7 +2,7 @@ module Views.Diagram.ContextMenu exposing (view)
 
 import Data.Color as Color exposing (Color)
 import Data.FontStyle as FontStyle exposing (FontStyle)
-import Data.Item exposing (Item)
+import Data.Item as Item exposing (Item)
 import Data.Position as Position exposing (Position)
 import Events exposing (onClickStopPropagation)
 import Html exposing (Html, div)
@@ -52,7 +52,7 @@ view props =
                     [ onClickStopPropagation <| props.onMenuSelect ColorSelectMenu
                     , Attr.style "padding-top" "8px"
                     ]
-                    [ Icon.font (Color.toString <| Maybe.withDefault Color.black <| props.item.color) 16 ]
+                    [ Icon.font (Color.toString <| Maybe.withDefault Color.black <| Item.getColor props.item) 16 ]
                 ]
             , div
                 [ Attr.style "width" "50px"
@@ -63,7 +63,7 @@ view props =
                 , Attr.style "justify-content" "center"
                 , Attr.style "border-right" "1px solid #CCC"
                 ]
-                [ colorCircle (props.item.backgroundColor |> Maybe.withDefault Color.black) <| props.onMenuSelect BackgroundColorSelectMenu
+                [ colorCircle (Item.getBackgroundColor props.item |> Maybe.withDefault Color.black) <| props.onMenuSelect BackgroundColorSelectMenu
                 ]
             , div
                 [ Attr.style "width" "50px"
@@ -75,7 +75,7 @@ view props =
                 , Attr.style "cursor" "pointer"
                 ]
                 [ div
-                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color
+                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| Item.getColor props.item
                     , Attr.style "padding-top" "8px"
                     , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Bold
                     ]
@@ -91,7 +91,7 @@ view props =
                 , Attr.style "cursor" "pointer"
                 ]
                 [ div
-                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color
+                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| Item.getColor props.item
                     , Attr.style "padding-top" "8px"
                     , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Italic
                     ]
@@ -107,7 +107,7 @@ view props =
                 , Attr.style "cursor" "pointer"
                 ]
                 [ div
-                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| props.item.color
+                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| Item.getColor props.item
                     , Attr.style "padding-top" "8px"
                     , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Strikethrough
                     ]

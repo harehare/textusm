@@ -17,7 +17,7 @@ type FourLsItem
 
 fromItems : Items -> FourLs
 fromItems items =
-    FourLs (items |> Item.getAt 0 |> Maybe.withDefault Item.emptyItem |> FourLsItem)
-        (items |> Item.getAt 1 |> Maybe.withDefault Item.emptyItem |> FourLsItem)
-        (items |> Item.getAt 2 |> Maybe.withDefault Item.emptyItem |> FourLsItem)
-        (items |> Item.getAt 3 |> Maybe.withDefault Item.emptyItem |> FourLsItem)
+    FourLs (items |> Item.getAt 0 |> Maybe.withDefault Item.new |> FourLsItem)
+        (items |> Item.getAt 1 |> Maybe.withDefault Item.new |> FourLsItem)
+        (items |> Item.getAt 2 |> Maybe.withDefault Item.new |> FourLsItem)
+        (items |> Item.getAt 3 |> Maybe.withDefault Item.new |> FourLsItem)

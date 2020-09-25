@@ -63,7 +63,7 @@ emptySequenceItem =
 
 emptyParticipant : Participant
 emptyParticipant =
-    Participant Item.emptyItem 0
+    Participant Item.new 0
 
 
 emptyMessage : Message
@@ -166,9 +166,9 @@ messageCount message =
 
 itemToParticipant : Maybe Item -> Dict String Participant
 itemToParticipant maybeItem =
-    case ( maybeItem, maybeItem |> Maybe.map .text |> Maybe.withDefault "" |> String.toLower ) of
+    case ( maybeItem, maybeItem |> Maybe.map Item.getText |> Maybe.withDefault "" |> String.toLower ) of
         ( Just item, "participant" ) ->
-            item.children |> Item.unwrapChildren |> Item.indexedMap (\i childItem -> ( String.trim childItem.text, Participant childItem i )) |> Dict.fromList
+            Item.getChildren item |> Item.unwrapChildren |> Item.indexedMap (\i childItem -> ( Item.getText childItem |> String.trim, Participant childItem i )) |> Dict.fromList
 
         _ ->
             Dict.empty
@@ -178,66 +178,66 @@ itemsToMessages : Dict String Participant -> Items -> List Message
 itemsToMessages participantDict items =
     Item.map (\item -> itemToMessage item participantDict) items
         |> List.filter isJust
-        |> List.map (\item -> Maybe.withDefault (Message (Sync "") (Participant Item.emptyItem 0) (Participant Item.emptyItem 0)) item)
+        |> List.map (\item -> Maybe.withDefault (Message (Sync "") (Participant Item.new 0) (Participant Item.new 0)) item)
 
 
 itemToSequenceItem : Dict String Participant -> Item -> Maybe SequenceItem
 itemToSequenceItem participants item =
     let
         children =
-            Item.unwrapChildren item.children
+            Item.getChildren item |> Item.unwrapChildren
 
         childrenHead =
-            Item.unwrapChildren item.children |> Item.head |> Maybe.withDefault Item.emptyItem
+            Item.getChildren item |> Item.unwrapChildren |> Item.head |> Maybe.withDefault Item.new
 
         grandChild =
-            childrenHead |> .children |> Item.unwrapChildren
+            childrenHead |> Item.getChildren |> Item.unwrapChildren
     in
-    case String.trim item.text |> String.toLower of
+    case Item.getText item |> String.trim |> String.toLower of
         "alt" ->
             let
                 altIf =
                     Item.head children
-                        |> Maybe.withDefault Item.emptyItem
+                        |> Maybe.withDefault Item.new
 
                 altElse =
                     Item.getAt 1 children
-                        |> Maybe.withDefault Item.emptyItem
+                        |> Maybe.withDefault Item.new
             in
             Just <|
                 Fragment <|
-                    Alt ( altIf.text, itemsToMessages participants <| Item.unwrapChildren altIf.children ) ( altElse.text, itemsToMessages participants <| Item.unwrapChildren altElse.children )
+                    Alt ( Item.getText altIf, itemsToMessages participants <| Item.unwrapChildren <| Item.getChildren altIf ) ( Item.getText altElse, itemsToMessages participants <| Item.unwrapChildren <| Item.getChildren altElse )
 
         "opt" ->
-            Just <| Fragment <| Opt childrenHead.text <| itemsToMessages participants <| grandChild
+            Just <| Fragment <| Opt (Item.getText childrenHead) <| itemsToMessages participants <| grandChild
 
         "par" ->
             let
                 parMesssages =
-                    Item.map (\child -> ( child.text, itemsToMessages participants <| Item.unwrapChildren <| child.children )) children
+                    Item.map (\child -> ( Item.getText child, itemsToMessages participants <| Item.unwrapChildren <| Item.getChildren child )) children
             in
             Just <| Fragment <| Par parMesssages
 
         "loop" ->
-            Just <| Fragment <| Loop childrenHead.text <| itemsToMessages participants <| grandChild
+            Just <| Fragment <| Loop (Item.getText childrenHead) <| itemsToMessages participants <| grandChild
 
         "break" ->
-            Just <| Fragment <| Break childrenHead.text <| itemsToMessages participants <| grandChild
+            Just <| Fragment <| Break (Item.getText childrenHead) <| itemsToMessages participants <| grandChild
 
         "critical" ->
-            Just <| Fragment <| Critical childrenHead.text <| itemsToMessages participants <| grandChild
+            Just <| Fragment <| Critical (Item.getText childrenHead) <| itemsToMessages participants <| grandChild
 
         "assert" ->
-            Just <| Fragment <| Assert childrenHead.text <| itemsToMessages participants <| grandChild
+            Just <| Fragment <| Assert (Item.getText childrenHead) <| itemsToMessages participants <| grandChild
 
         "neg" ->
-            Just <| Fragment <| Neg childrenHead.text <| itemsToMessages participants <| grandChild
+            Just <| Fragment <| Neg (Item.getText childrenHead) <| itemsToMessages participants <| grandChild
 
         "ignore" ->
-            Just <| Fragment <| Ignore childrenHead.text <| itemsToMessages participants <| grandChild
+            Just <| Fragment <| Ignore (Item.getText childrenHead) <| itemsToMessages participants <| grandChild
 
         "consider" ->
-            Just <| Fragment <| Consider childrenHead.text <| itemsToMessages participants <| grandChild
+            Just <| Fragment <| Consider (Item.getText childrenHead) <| itemsToMessages participants <| grandChild
 
         _ ->
             case itemToMessage item participants of
@@ -267,21 +267,21 @@ isFragmentText text =
 
 itemToMessage : Item -> Dict String Participant -> Maybe Message
 itemToMessage item participantDict =
-    if isFragmentText item.text then
+    if isFragmentText <| Item.getText item then
         itemToSequenceItem participantDict item
             |> Maybe.andThen (\m -> Just <| SubMessage m)
 
     else
         let
             text =
-                item.children
+                Item.getChildren item
                     |> Item.unwrapChildren
                     |> Item.head
-                    |> Maybe.withDefault Item.emptyItem
-                    |> .text
+                    |> Maybe.withDefault Item.new
+                    |> Item.getText
                     |> String.trim
         in
-        case String.split " " (String.trim item.text) of
+        case String.split " " (String.trim <| Item.getText item) of
             [ c1, "->o" ] ->
                 let
                     participant1 =
@@ -292,7 +292,7 @@ itemToMessage item participantDict =
                 in
                 case participant1 of
                     Just participantFrom ->
-                        Just <| Message (Lost text) participantFrom (Participant Item.emptyItem (order + 1))
+                        Just <| Message (Lost text) participantFrom (Participant Item.new (order + 1))
 
                     _ ->
                         Nothing
@@ -307,7 +307,7 @@ itemToMessage item participantDict =
                 in
                 case participant1 of
                     Just participantTo ->
-                        Just <| Message (Found text) (Participant Item.emptyItem (order + 1)) participantTo
+                        Just <| Message (Found text) (Participant Item.new (order + 1)) participantTo
 
                     _ ->
                         Nothing

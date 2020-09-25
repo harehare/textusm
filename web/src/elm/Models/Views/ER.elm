@@ -92,14 +92,14 @@ fromItems items =
     let
         relationships =
             Item.getAt 0 items
-                |> Maybe.withDefault Item.emptyItem
-                |> .children
+                |> Maybe.withDefault Item.new
+                |> Item.getChildren
                 |> Item.unwrapChildren
 
         tables =
             Item.getAt 1 items
-                |> Maybe.withDefault Item.emptyItem
-                |> .children
+                |> Maybe.withDefault Item.new
+                |> Item.getChildren
                 |> Item.unwrapChildren
     in
     ( itemsToRelationships relationships, itemsToTables tables )
@@ -114,7 +114,7 @@ itemToRelationship : Item -> Relationship
 itemToRelationship item =
     let
         text =
-            String.trim item.text
+            Item.getText item |> String.trim
     in
     if String.contains " < " text then
         case String.split " < " text of
@@ -161,10 +161,10 @@ itemToTable : Item -> Table
 itemToTable item =
     let
         tableName =
-            String.trim item.text
+            Item.getText item |> String.trim
 
         items =
-            Item.unwrapChildren item.children
+            Item.getChildren item |> Item.unwrapChildren
 
         columns =
             Item.map itemToColumn items
@@ -176,7 +176,7 @@ itemToColumn : Item -> Column
 itemToColumn item =
     let
         tokens =
-            item.text
+            Item.getText item
                 |> String.trim
                 |> String.split " "
                 |> List.map (\i -> String.trim i)

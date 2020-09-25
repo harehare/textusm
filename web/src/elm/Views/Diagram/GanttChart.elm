@@ -27,17 +27,17 @@ view : Model -> Svg Msg
 view model =
     let
         rootItem =
-            Item.head model.items |> Maybe.withDefault Item.emptyItem
+            Item.head model.items |> Maybe.withDefault Item.new
 
         items =
-            Item.unwrapChildren rootItem.children
+            Item.unwrapChildren <| Item.getChildren rootItem
 
         nodeCounts =
             0
                 :: (items
                         |> Item.map
                             (\i ->
-                                if Item.isEmpty (Item.unwrapChildren i.children) then
+                                if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i) then
                                     0
 
                                 else
@@ -49,7 +49,7 @@ view model =
         svgHeight =
             (last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + Item.length items * 2
     in
-    case Utils.extractDateValues rootItem.text of
+    case Utils.extractDateValues <| Item.getText rootItem of
         Just ( from, to ) ->
             let
                 interval =
@@ -72,7 +72,7 @@ view model =
                                 (\( count, sectionItem ) ->
                                     let
                                         taskItems =
-                                            Item.unwrapChildren sectionItem.children
+                                            Item.unwrapChildren <| Item.getChildren sectionItem
 
                                         posY =
                                             count * Constants.ganttItemSize
@@ -208,10 +208,11 @@ headerSectionView : Settings -> Size -> Position -> Posix -> Item -> Svg Msg
 headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from item =
     let
         text =
-            Item.unwrapChildren item.children
+            Item.getChildren item
+                |> Item.unwrapChildren
                 |> Item.map
                     (\childItem ->
-                        Item.unwrapChildren childItem.children |> Item.head |> Maybe.withDefault Item.emptyItem |> .text
+                        Item.getChildren childItem |> Item.unwrapChildren |> Item.head |> Maybe.withDefault Item.new |> Item.getText
                     )
                 |> List.maximum
     in
@@ -240,7 +241,7 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from i
                 , Attr.style "font-size" "11px"
                 , Attr.style "font-weight" "bold"
                 ]
-                [ Html.text item.text ]
+                [ Html.text <| Item.getText item ]
             ]
         , headerItemView settings
             ( settings.color.activity.backgroundColor
@@ -250,8 +251,8 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from i
             , posY
             )
             from
-            item.text
-            { item | text = text |> Maybe.withDefault "" }
+            (Item.getText item)
+            (Item.withText (text |> Maybe.withDefault "") item)
         ]
 
 
@@ -259,7 +260,7 @@ sectionView : Settings -> Size -> Position -> Posix -> Item -> Svg Msg
 sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from item =
     let
         childItem =
-            Item.unwrapChildren item.children |> Item.head |> Maybe.withDefault Item.emptyItem
+            Item.getChildren item |> Item.unwrapChildren |> Item.head |> Maybe.withDefault Item.new
     in
     g []
         [ line
@@ -286,7 +287,7 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from item =
                 , Attr.style "font-size" "11px"
                 , Attr.style "font-weight" "bold"
                 ]
-                [ Html.text item.text ]
+                [ Html.text <| Item.getText item ]
             ]
         , itemView settings
             ( settings.color.task.backgroundColor
@@ -296,7 +297,7 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from item =
             , posY
             )
             from
-            item.text
+            (Item.getText item)
             childItem
         ]
 
@@ -305,7 +306,7 @@ itemView : Settings -> ( String, String ) -> Position -> Posix -> String -> Item
 itemView settings colour ( posX, posY ) baseFrom text item =
     let
         values =
-            Utils.extractDateValues item.text
+            Utils.extractDateValues <| Item.getText item
     in
     case values of
         Just ( from, to ) ->
@@ -323,7 +324,7 @@ headerItemView : Settings -> ( String, String ) -> Position -> Posix -> String -
 headerItemView settings colour ( posX, posY ) baseFrom text item =
     let
         values =
-            Utils.extractDateValues item.text
+            Utils.extractDateValues <| Item.getText item
     in
     case values of
         Just ( from, to ) ->

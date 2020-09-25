@@ -21,7 +21,7 @@ fromItems items =
         (Header
             (items
                 |> Item.head
-                |> Maybe.withDefault Item.emptyItem
+                |> Maybe.withDefault Item.new
             )
         )
         (items
@@ -42,10 +42,10 @@ toString table =
 
         header =
             "|"
-                ++ ((headerItem.text
-                        :: (headerItem.children
+                ++ ((Item.getText headerItem
+                        :: (Item.getChildren headerItem
                                 |> Item.unwrapChildren
-                                |> Item.map (\i -> String.trim i.text)
+                                |> Item.map (\i -> String.trim <| Item.getText i)
                            )
                     )
                         |> String.join "|"
@@ -54,12 +54,12 @@ toString table =
 
         section =
             "|"
-                ++ ((" " ++ String.repeat (String.trim headerItem.text |> String.length) "-" ++ " ")
-                        :: (headerItem.children
+                ++ ((" " ++ String.repeat (Item.getText headerItem |> String.trim |> String.length) "-" ++ " ")
+                        :: (Item.getChildren headerItem
                                 |> Item.unwrapChildren
                                 |> Item.map
                                     (\item ->
-                                        " " ++ String.repeat (String.trim item.text |> String.length) "-" ++ " "
+                                        " " ++ String.repeat (Item.getText item |> String.trim |> String.length) "-" ++ " "
                                     )
                            )
                         |> String.join "|"
@@ -71,11 +71,11 @@ toString table =
                 |> List.map
                     (\(Row item) ->
                         "|"
-                            ++ (item.text
+                            ++ (Item.getText item
                                     :: (item
-                                            |> .children
+                                            |> Item.getChildren
                                             |> Item.unwrapChildren
-                                            |> Item.map (\i -> String.trim i.text)
+                                            |> Item.map (\i -> String.trim <| Item.getText i)
                                        )
                                     |> String.join "|"
                                )

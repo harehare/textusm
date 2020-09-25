@@ -1,4 +1,4 @@
-module Data.Item exposing (Item, ItemType(..), Items(..), childrenFromItems, cons, create, empty, emptyChildren, emptyItem, filter, fromList, getAt, getChildrenCount, getHierarchyCount, getLeafCount, head, indexedMap, isEmpty, isImage, isMarkdown, length, map, splitAt, tail, toString, unwrap, unwrapChildren)
+module Data.Item exposing (getLineNo, getBackgroundColor, getColor, getItemType, Item, ItemType(..), Items, childrenFromItems, cons, empty, emptyChildren, filter, fromList, getAt, getChildren, getChildrenCount, getHierarchyCount, getLeafCount, getText, head, indexedMap, isEmpty, isImage, isMarkdown, length, map, new, splitAt, tail, toString, unwrap, unwrapChildren, withBackgroundColor, withChildren, withColor, withItemType, withLineNo, withText)
 
 import Data.Color as Color exposing (Color)
 import List.Extra as ListEx
@@ -12,14 +12,15 @@ type Items
     = Items (List Item)
 
 
-type alias Item =
-    { lineNo : Int
-    , text : String
-    , color : Maybe Color
-    , backgroundColor : Maybe Color
-    , itemType : ItemType
-    , children : Children
-    }
+type Item
+    = Item
+        { lineNo : Int
+        , text : String
+        , color : Maybe Color
+        , backgroundColor : Maybe Color
+        , itemType : ItemType
+        , children : Children
+        }
 
 
 type ItemType
@@ -29,8 +30,25 @@ type ItemType
     | Comments
 
 
-create : Int -> String -> ItemType -> Children -> Item
-create lineNo text itemType children =
+new : Item
+new =
+    Item
+        { lineNo = 0
+        , text = ""
+        , color = Nothing
+        , backgroundColor = Nothing
+        , itemType = Activities
+        , children = emptyChildren
+        }
+
+
+withLineNo : Int -> Item -> Item
+withLineNo lineNo (Item item) =
+    Item { item | lineNo = lineNo }
+
+
+withText : String -> Item -> Item
+withText text (Item item) =
     let
         ( displayText, color, backgroundColor ) =
             if isImage text then
@@ -47,13 +65,60 @@ create lineNo text itemType children =
                     _ ->
                         ( text, Nothing, Nothing )
     in
-    { lineNo = lineNo
-    , text = displayText
-    , color = Maybe.andThen (\c -> Just <| Color.fromString c) color
-    , backgroundColor = Maybe.andThen (\c -> Just <| Color.fromString c) backgroundColor
-    , itemType = itemType
-    , children = children
-    }
+    Item
+        { item
+            | text = displayText
+            , color = Maybe.andThen (\c -> Just <| Color.fromString c) color
+            , backgroundColor = Maybe.andThen (\c -> Just <| Color.fromString c) backgroundColor
+        }
+
+
+withColor : Maybe Color -> Item -> Item
+withColor color (Item item) =
+    Item { item | color = color }
+
+
+withBackgroundColor : Maybe Color -> Item -> Item
+withBackgroundColor color (Item item) =
+    Item { item | backgroundColor = color }
+
+
+withItemType : ItemType -> Item -> Item
+withItemType itemType (Item item) =
+    Item { item | itemType = itemType }
+
+
+withChildren : Children -> Item -> Item
+withChildren children (Item item) =
+    Item { item | children = children }
+
+
+getChildren : Item -> Children
+getChildren (Item i) =
+    i.children
+
+
+getText : Item -> String
+getText (Item i) =
+    i.text
+
+getItemType: Item -> ItemType
+getItemType (Item i) =
+    i.itemType
+
+
+getColor : Item -> Maybe Color
+getColor (Item i) =
+    i.color
+
+getBackgroundColor : Item -> Maybe Color
+getBackgroundColor (Item i) =
+    i.backgroundColor
+
+
+getLineNo: Item -> Int
+getLineNo (Item i) =
+    i.lineNo
 
 
 isImage : String -> Bool
@@ -146,24 +211,13 @@ emptyChildren =
     Children empty
 
 
-emptyItem : Item
-emptyItem =
-    { lineNo = 0
-    , text = ""
-    , color = Nothing
-    , backgroundColor = Nothing
-    , itemType = Activities
-    , children = emptyChildren
-    }
-
-
 unwrapChildren : Children -> Items
 unwrapChildren (Children (Items items)) =
-    Items (items |> List.filter (\i -> i.itemType /= Comments))
+    Items (items |> List.filter (\(Item i) -> i.itemType /= Comments))
 
 
 getChildrenCount : Item -> Int
-getChildrenCount item =
+getChildrenCount (Item item) =
     childrenCount <| unwrapChildren item.children
 
 
@@ -173,11 +227,11 @@ childrenCount (Items items) =
         0
 
     else
-        List.length items + (items |> List.map (\i -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
+        List.length items + (items |> List.map (\(Item i) -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
 
 
 getHierarchyCount : Item -> Int
-getHierarchyCount item =
+getHierarchyCount (Item item) =
     unwrapChildren item.children
         |> hierarchyCount
         |> List.length
@@ -189,11 +243,11 @@ hierarchyCount (Items items) =
         []
 
     else
-        1 :: List.concatMap (\i -> hierarchyCount <| unwrapChildren i.children) items
+        1 :: List.concatMap (\(Item i) -> hierarchyCount <| unwrapChildren i.children) items
 
 
 getLeafCount : Item -> Int
-getLeafCount item =
+getLeafCount (Item item) =
     leafCount <| unwrapChildren item.children
 
 
@@ -203,7 +257,7 @@ leafCount (Items items) =
         1
 
     else
-        items |> List.map (\i -> leafCount <| unwrapChildren i.children) |> List.sum
+        items |> List.map (\(Item i) -> leafCount <| unwrapChildren i.children) |> List.sum
 
 
 toString : Items -> String
@@ -213,15 +267,15 @@ toString =
         itemsToString hierarcy items =
             let
                 itemToString : Item -> Int -> String
-                itemToString i hi =
+                itemToString (Item i) hi =
                     String.repeat hi "    " ++ i.text
             in
             items
                 |> map
-                    (\item ->
+                    (\(Item item) ->
                         case item.children of
                             Children c ->
-                                itemToString item hierarcy ++ "\n" ++ itemsToString (hierarcy + 1) c
+                                itemToString (Item item) hierarcy ++ "\n" ++ itemsToString (hierarcy + 1) c
                     )
                 |> String.join "\n"
     in

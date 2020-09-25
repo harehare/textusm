@@ -17,7 +17,7 @@ type EmpathyMapItem
 
 fromItems : Items -> EmpathyMap
 fromItems items =
-    EmpathyMap (items |> Item.getAt 0 |> Maybe.withDefault Item.emptyItem |> EmpathyMapItem)
-        (items |> Item.getAt 1 |> Maybe.withDefault Item.emptyItem |> EmpathyMapItem)
-        (items |> Item.getAt 2 |> Maybe.withDefault Item.emptyItem |> EmpathyMapItem)
-        (items |> Item.getAt 3 |> Maybe.withDefault Item.emptyItem |> EmpathyMapItem)
+    EmpathyMap (items |> Item.getAt 0 |> Maybe.withDefault Item.new |> EmpathyMapItem)
+        (items |> Item.getAt 1 |> Maybe.withDefault Item.new |> EmpathyMapItem)
+        (items |> Item.getAt 2 |> Maybe.withDefault Item.new |> EmpathyMapItem)
+        (items |> Item.getAt 3 |> Maybe.withDefault Item.new |> EmpathyMapItem)

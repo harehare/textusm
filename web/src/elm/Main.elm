@@ -566,14 +566,12 @@ changeRouteTo route model =
 
         Route.SharingDiagram ->
             ( { model | page = Page.Share, progress = True }
-            , Cmd.batch
-                [ Ports.encodeShareText
-                    { diagramType =
-                        DiagramType.toString model.diagramModel.diagramType
-                    , title = Just <| Title.toString model.title
-                    , text = Text.toString model.diagramModel.text
-                    }
-                ]
+            , Ports.encodeShareText
+                { diagramType =
+                    DiagramType.toString model.diagramModel.diagramType
+                , title = Just <| Title.toString model.title
+                , text = Text.toString model.diagramModel.text
+                }
             )
 
 

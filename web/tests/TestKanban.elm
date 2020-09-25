@@ -15,6 +15,6 @@ all =
                     Expect.equal (Kanban.getListCount <| Kanban.fromItems Item.empty) 0
             , test "2 item" <|
                 \() ->
-                    Expect.equal (Kanban.getListCount <| Kanban.fromItems (Item.fromList [ Item.emptyItem, Item.emptyItem ])) 2
+                    Expect.equal (Kanban.getListCount <| Kanban.fromItems (Item.fromList [ Item.new, Item.new ])) 2
             ]
         ]

@@ -16,6 +16,6 @@ type KptItem
 
 fromItems : Items -> Kpt
 fromItems items =
-    Kpt (items |> Item.getAt 0 |> Maybe.withDefault Item.emptyItem |> KptItem)
-        (items |> Item.getAt 1 |> Maybe.withDefault Item.emptyItem |> KptItem)
-        (items |> Item.getAt 2 |> Maybe.withDefault Item.emptyItem |> KptItem)
+    Kpt (items |> Item.getAt 0 |> Maybe.withDefault Item.new |> KptItem)
+        (items |> Item.getAt 1 |> Maybe.withDefault Item.new |> KptItem)
+        (items |> Item.getAt 2 |> Maybe.withDefault Item.new |> KptItem)

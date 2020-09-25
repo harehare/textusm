@@ -20,7 +20,7 @@ view model =
         Just root ->
             let
                 items =
-                    Item.unwrapChildren root.children
+                    Item.unwrapChildren <| Item.getChildren root
             in
             g
                 []
@@ -51,7 +51,7 @@ siteView settings ( posX, posY ) selectedItem items =
                 (\i ( hierarchyCount, item ) ->
                     let
                         children =
-                            Item.unwrapChildren item.children
+                            Item.unwrapChildren <| Item.getChildren item
 
                         cardWidth =
                             settings.size.width + Constants.itemSpan
@@ -90,7 +90,7 @@ siteTreeView settings ( posX, posY ) selectedItem items =
                 :: (items
                         |> Item.map
                             (\i ->
-                                if Item.isEmpty (Item.unwrapChildren i.children) then
+                                if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i ) then
                                     0
 
                                 else
@@ -105,7 +105,7 @@ siteTreeView settings ( posX, posY ) selectedItem items =
                 (\i ( childrenCount, item ) ->
                     let
                         children =
-                            Item.unwrapChildren item.children
+                            Item.unwrapChildren <| Item.getChildren item
 
                         x =
                             posX + Constants.itemSpan

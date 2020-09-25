@@ -177,8 +177,13 @@ load text =
                     in
                     ( indent :: xsIndent ++ otherIndents
                     , Item.cons
-                        (Item.create lineNo x (getItemType x indent) (Item.childrenFromItems xsItems))
-                        (Item.filter (\item -> item.itemType /= Comments) otherItems)
+                        (Item.new
+                            |> Item.withLineNo lineNo
+                            |> Item.withText x
+                            |> Item.withItemType (getItemType x indent)
+                            |> Item.withChildren (Item.childrenFromItems xsItems)
+                        )
+                        (Item.filter (\item -> Item.getItemType item /= Comments) otherItems)
                     )
 
                 ( [], _ ) ->
@@ -206,7 +211,7 @@ countUpToHierarchy hierarchy items =
         countUp : Items -> List (List Int)
         countUp countItems =
             [ countItems
-                |> Item.filter (\x -> x.itemType /= Tasks && x.itemType /= Activities)
+                |> Item.filter (\x -> Item.getItemType x /= Tasks && Item.getItemType x /= Activities)
                 |> Item.length
             ]
                 :: (countItems
@@ -214,7 +219,7 @@ countUpToHierarchy hierarchy items =
                             (\it ->
                                 let
                                     results =
-                                        countUp (Item.unwrapChildren it.children)
+                                        countUp (Item.unwrapChildren <| Item.getChildren it)
                                             |> Utils.transpose
                                 in
                                 if List.length results > hierarchy then
@@ -652,7 +657,10 @@ updateDiagram ( width, height ) base text =
         data =
             case base.diagramType of
                 UserStoryMap ->
-                    Diagram.UserStoryMap items hierarchy (countUpToHierarchy (hierarchy - 2) items) (scanl (\it v -> v + Item.length (Item.unwrapChildren it.children)) 0 (Item.unwrap items))
+                    Diagram.UserStoryMap items
+                        hierarchy
+                        (countUpToHierarchy (hierarchy - 2) items)
+                        (scanl (\it v -> v + Item.length (Item.unwrapChildren <| Item.getChildren it)) 0 (Item.unwrap items))
 
                 Table ->
                     Diagram.Table <| TableModel.fromItems items
@@ -714,7 +722,7 @@ updateDiagram ( width, height ) base text =
 
 itemToColorText : Item -> String
 itemToColorText item =
-    case ( item.color, item.backgroundColor ) of
+    case ( Item.getColor item, Item.getBackgroundColor item ) of
         ( Just color, Just backgroundColor ) ->
             "," ++ Color.toString color ++ "," ++ Color.toString backgroundColor
 
@@ -850,7 +858,7 @@ update message model =
             ( { model | touchDistance = Just distance }, Cmd.none )
 
         EditSelectedItem text ->
-            ( { model | selectedItem = Maybe.andThen (\( i, _ ) -> Just ( { i | text = " " ++ String.trimLeft text }, False )) model.selectedItem }
+            ( { model | selectedItem = Maybe.andThen (\( i, _ ) -> Just ( i |> Item.withText (" " ++ String.trimLeft text), False )) model.selectedItem }
             , Cmd.none
             )
 
@@ -869,7 +877,7 @@ update message model =
                 ( Nothing, Just ( item, _ ) ) ->
                     case DragDrop.getDragId model.dragDrop of
                         Just id_ ->
-                            if item.lineNo == id_ then
+                            if Item.getLineNo item == id_ then
                                 ( { model | dragDrop = model_, selectedItem = Just ( item, True ) }, Cmd.none )
 
                             else
@@ -919,7 +927,7 @@ update message model =
                             Text.lines model.text
 
                         currentText =
-                            getAt item.lineNo lines
+                            getAt (Item.getLineNo item) lines
 
                         prefix =
                             currentText
@@ -927,7 +935,7 @@ update message model =
                                 |> Utils.getSpacePrefix
 
                         text =
-                            setAt item.lineNo (prefix ++ String.trimLeft (item.text ++ itemToColorText selectedItem)) lines
+                            setAt (Item.getLineNo item) (prefix ++ String.trimLeft (Item.getText item ++ itemToColorText selectedItem)) lines
                                 |> String.join "\n"
                     in
                     ( { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }, Cmd.none )
@@ -946,7 +954,7 @@ update message model =
                             Text.lines model.text
 
                         currentText =
-                            getAt item.lineNo lines
+                            getAt (Item.getLineNo item) lines
 
                         tokens =
                             Maybe.map (String.split ",") currentText
@@ -986,15 +994,15 @@ update message model =
                                 |> Utils.getSpacePrefix
 
                         updateText =
-                            setAt item.lineNo (prefix ++ String.trimLeft text) lines
+                            setAt (Item.getLineNo item) (prefix ++ String.trimLeft text) lines
                                 |> String.join "\n"
                     in
                     case ( model.selectedItem, menu ) of
                         ( Just ( i, _ ), Diagram.ColorSelectMenu ) ->
-                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just ( { i | color = Just color }, False ), contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just ( Item.withColor (Just color) i, False ), contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
 
                         ( Just ( i, _ ), Diagram.BackgroundColorSelectMenu ) ->
-                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just ( { i | backgroundColor = Just color }, False ), contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just ( Item.withBackgroundColor (Just color) i, False ), contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
 
                         _ ->
                             ( model, Cmd.none )
@@ -1010,7 +1018,7 @@ update message model =
                             Text.lines model.text
 
                         currentText =
-                            getAt item.lineNo lines
+                            getAt (Item.getLineNo item) lines
                                 |> Maybe.withDefault ""
 
                         prefix =
@@ -1024,7 +1032,7 @@ update message model =
                                 |> Maybe.withDefault ""
 
                         updateText =
-                            setAt item.lineNo (prefix ++ (String.trimLeft text |> FontStyle.apply style) ++ itemToColorText item) lines
+                            setAt (Item.getLineNo item) (prefix ++ (String.trimLeft text |> FontStyle.apply style) ++ itemToColorText item) lines
                                 |> String.join "\n"
                     in
                     ( { model | text = Text.change <| Text.fromString updateText }, Cmd.none )
