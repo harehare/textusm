@@ -340,7 +340,7 @@ changeRouteTo route model =
             Cmd.batch <| Task.perform Init Dom.getViewport :: c
     in
     case route of
-        Route.List ->
+        Route.DiagramList ->
             if DiagramList.isNotAsked model.diagramListModel.diagramList then
                 let
                     ( model_, cmd_ ) =
@@ -386,14 +386,12 @@ changeRouteTo route model =
                             DiagramType.fromString diagram
                         , showZoomControl = False
                     }
+
+                window_ =
+                    model.window
             in
             ( { model
-                | window =
-                    { position = model.window.position
-                    , moveStart = model.window.moveStart
-                    , moveX = model.window.moveX
-                    , fullscreen = True
-                    }
+                | window = { window_ | fullscreen = True }
                 , diagramModel = newDiagramModel
                 , title = Title.fromString title
                 , page = Page.Embed diagram title path
@@ -1134,7 +1132,7 @@ update message model =
                 ( Route.EditFile type_ id_, _ ) ->
                     ( newModel, Nav.pushUrl model.key (Route.toString <| Route.EditFile type_ id_) )
 
-                ( Route.List, _ ) ->
+                ( Route.DiagramList, _ ) ->
                     ( newModel, Nav.pushUrl model.key <| Route.toString <| Route.Home )
 
                 _ ->

@@ -39,10 +39,6 @@ TextUSM is a simple tool. Help you draw user story map using indented text.
 ### User Story Map
 
 ```
-# labels: USER ACTIVITIES, USER TASKS, USER STORIES, RELEASE1, RELEASE2, RELEASE3
-# release1: 2019-06-01
-# release2: 2019-06-30
-# release2: 2019-07-31
 TextUSM
     Online tool for making user story mapping
         Press Tab to indent lines

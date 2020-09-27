@@ -89,7 +89,7 @@ view props =
             , div
                 [ class "menu-button list-button" ]
                 [ a
-                    [ href <| Route.toString Route.List
+                    [ href <| Route.toString Route.DiagramList
                     ]
                     [ Icon.folderOpen
                         (if isNothing props.openMenu && props.page == List then

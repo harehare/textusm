@@ -1,4 +1,4 @@
-module Data.Item exposing (getLineNo, getBackgroundColor, getColor, getItemType, Item, ItemType(..), Items, childrenFromItems, cons, empty, emptyChildren, filter, fromList, getAt, getChildren, getChildrenCount, getHierarchyCount, getLeafCount, getText, head, indexedMap, isEmpty, isImage, isMarkdown, length, map, new, splitAt, tail, toString, unwrap, unwrapChildren, withBackgroundColor, withChildren, withColor, withItemType, withLineNo, withText)
+module Data.Item exposing (Children, Item, ItemType(..), Items, childrenFromItems, cons, empty, emptyChildren, filter, fromList, getAt, getBackgroundColor, getChildren, getChildrenCount, getColor, getHierarchyCount, getItemType, getLeafCount, getLineNo, getText, head, indexedMap, isEmpty, isImage, isMarkdown, length, map, new, splitAt, tail, toString, unwrap, unwrapChildren, withBackgroundColor, withChildren, withColor, withItemType, withLineNo, withText)
 
 import Data.Color as Color exposing (Color)
 import List.Extra as ListEx
@@ -102,7 +102,8 @@ getText : Item -> String
 getText (Item i) =
     i.text
 
-getItemType: Item -> ItemType
+
+getItemType : Item -> ItemType
 getItemType (Item i) =
     i.itemType
 
@@ -111,12 +112,13 @@ getColor : Item -> Maybe Color
 getColor (Item i) =
     i.color
 
+
 getBackgroundColor : Item -> Maybe Color
 getBackgroundColor (Item i) =
     i.backgroundColor
 
 
-getLineNo: Item -> Int
+getLineNo : Item -> Int
 getLineNo (Item i) =
     i.lineNo
 

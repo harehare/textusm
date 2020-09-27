@@ -30,7 +30,7 @@ type Route
     | New
     | Edit DiagramPath
     | EditFile DiagramPath DiagramId
-    | List
+    | DiagramList
     | Settings
     | Help
     | Tag
@@ -50,7 +50,7 @@ parser =
         , map Embed (s "embed" </> diagramType </> string </> string)
         , map UsmView (s "view" </> string)
         , map View (s "view" </> string </> string)
-        , map List (s "list")
+        , map DiagramList (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
         , map Tag (s "tag")
@@ -105,7 +105,7 @@ toString route =
         EditFile type_ id_ ->
             absolute [ "edit", type_, DiagramId.toString id_ ] []
 
-        List ->
+        DiagramList ->
             absolute [ "list" ] []
 
         Settings ->
