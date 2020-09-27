@@ -44,7 +44,12 @@ view props =
 
     else
         header
-            [ class "main-header" ]
+            [ style "display" "flex"
+            , style "align-items" "center"
+            , style "background-color" "var(--main-color)"
+            , style "width" "100vw"
+            , style "height" "40px"
+            ]
             [ div
                 [ style "width" "100%"
                 , style "height" "40px"

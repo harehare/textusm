@@ -64,7 +64,7 @@ view onResize backgroundColor window left right =
             , div
                 [ style "width" "6px"
                 , style "cursor" "col-resize"
-                , class "separator"
+                , style "background-color" "var(--main-color)"
                 , onStartWindowResize onResize
                 ]
                 []

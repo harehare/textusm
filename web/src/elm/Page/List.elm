@@ -391,7 +391,10 @@ diagramListView props =
                                 , style "justify-content" "center"
                                 ]
                                 [ div
-                                    [ class "primary-button button"
+                                    [ class "button"
+                                    , style "background-color" "var(--activity-color)"
+                                    , style "width" "100px"
+                                    , style "text-align" "center"
                                     , style "padding" "16px"
                                     , style "margin" "8px"
                                     , onClick <| LoadNextPage props.publicStatus <| props.pageNo + 1
@@ -459,7 +462,16 @@ diagramView timezone diagram =
 
                     _ ->
                         Empty.view
-                , div [ class "diagram-tags" ] (List.map tagView (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
+                , div
+                    [ style "position" "absolute"
+                    , style "bottom" "60px"
+                    , style "width" "100%"
+                    , style "display" "flex"
+                    , style "justify-content" "flex-end"
+                    , style "flex-wrap" "wrap"
+                    , style "transform" "scale(0.9)"
+                    ]
+                    (List.map tagView (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
                 ]
             ]
         ]
@@ -489,7 +501,18 @@ errorView e =
 
 tagView : String -> Html Msg
 tagView tag =
-    div [ class "diagram-tag" ] [ text tag ]
+    div
+        [ style "border-radius" "8px"
+        , style "color" "var(--text-color)"
+        , style "background-color" "var(--activity-color)"
+        , style "padding" "8px"
+        , style "margin" "2px"
+        , style "text-align" "center"
+        , style "display" "flex"
+        , style "align-items" "center"
+        , style "font-size" "0.8rem"
+        ]
+        [ text tag ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

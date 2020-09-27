@@ -116,7 +116,12 @@ view model =
         , style "background-color" model.backgroundColor
         ]
         [ div
-            [ class "main" ]
+            [ style "display" "flex"
+            , style "overflow" "hidden"
+            , style "position" "relative"
+            , style "width" "100%"
+            , style "height" "100%"
+            ]
             [ lazy Diagram.view model.diagramModel
                 |> Html.map UpdateDiagram
             ]

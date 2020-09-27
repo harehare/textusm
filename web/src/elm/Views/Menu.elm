@@ -63,7 +63,14 @@ view props =
 
     else
         nav
-            [ class "menu-bar"
+            [ style "display" "flex"
+            , style "flex-direction" "column"
+            , style "align-items" "center"
+            , style "justify-content" "flex-start"
+            , style "width" "56px"
+            , style "min-width" "56px"
+            , style "background-color" "var(--main-color)"
+            , style "box-shadow" "0 2px 4px -1px rgba(0, 0, 0, 0.2) 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)"
             ]
             [ if Text.isChanged props.text then
                 div
@@ -232,7 +239,16 @@ menu top left bottom right items =
         , style "left" (left |> Maybe.withDefault "none")
         , style "right" (right |> Maybe.withDefault "none")
         , style "bottom" (bottom |> Maybe.withDefault "none")
-        , class "menu"
+        , style "min-width" "120px"
+        , style "position" "absolute"
+        , style "z-index" "10"
+        , style "max-height" "calc(100vh - 40px)"
+        , style "background-color" "var(--main-color)"
+        , style "border-radius" "8px"
+        , style "box-shadow" "0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)"
+        , style "transition" "all 0.2s ease-out"
+        , style "margin" "4px"
+        , style "overflow-y" "auto"
         ]
         (items
             |> List.map

@@ -75,11 +75,23 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ class "tags" ]
-        [ div [ class "tag-list" ] <|
+        [ div
+            [ style "border-bottom" "1px solid var(--main-color)"
+            , style "width" "100%"
+            , style "display" "flex"
+            , style "align-items" "center"
+            , style "flex-wrap" "wrap"
+            , style "padding" "8px"
+            ]
+          <|
             List.map (tagView model.deleteTag) (List.filter (String.isEmpty >> not) model.tags)
                 ++ [ input
                         [ class "input"
                         , id "edit-tag"
+                        , style "background-color" "transparent"
+                        , style "color" "var(--text-color)"
+                        , style "width" "150px"
+                        , style "font-size" "1rem"
                         , placeholder "ADD TAG"
                         , Events.onKeyDown AddOrDeleteTag
                         , onInput EditTag

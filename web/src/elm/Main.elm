@@ -136,36 +136,6 @@ init flags url key =
     ( model, cmds )
 
 
-bottomNavigationBar : Settings -> String -> String -> String -> Html Msg
-bottomNavigationBar settings diagram title path =
-    div
-        [ class "bottom-nav-bar"
-        , style "background-color" settings.storyMap.backgroundColor
-        ]
-        [ div
-            [ style "display" "flex"
-            , style "align-items" "center"
-            ]
-            [ div
-                [ style "width" "40px"
-                , style "height" "40px"
-                , style "display" "flex"
-                , style "justify-content" "center"
-                , style "align-items" "center"
-                ]
-                [ a [ href "https://app.textusm.com", target "blank_", style "display" "flex", style "align-items" "center" ]
-                    [ img [ src "/images/logo.svg", style "width" "32px", alt "logo" ] [] ]
-                ]
-            , a [ href <| "https://app.textusm.com/share/" ++ diagram ++ "/" ++ title ++ "/" ++ path, target "blank_", style "color" settings.storyMap.color.label ]
-                [ text title ]
-            ]
-        , div [ class "buttons" ]
-            [ div [ class "button", E.onClick <| UpdateDiagram DiagramModel.ZoomIn ] [ Icon.add 24 ]
-            , div [ class "button", E.onClick <| UpdateDiagram DiagramModel.ZoomOut ] [ Icon.remove 24 ]
-            ]
-        ]
-
-
 showWarningMessage : String -> Cmd Msg
 showWarningMessage msg =
     Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Warning msg))), Utils.delay 3000 OnCloseNotification ]
@@ -192,7 +162,12 @@ view model =
         , Lazy.lazy showNotification model.notification
         , Lazy.lazy2 showProgressbar model.progress model.window.fullscreen
         , div
-            [ class "main", style "height" "100vh" ]
+            [ style "display" "flex"
+            , style "overflow" "hidden"
+            , style "position" "relative"
+            , style "width" "100%"
+            , style "height" "100vh"
+            ]
             [ Lazy.lazy Menu.view { page = model.page, route = toRoute model.url, text = model.diagramModel.text, width = Size.getWidth model.diagramModel.size, fullscreen = model.window.fullscreen, openMenu = model.openMenu, lang = model.lang }
             , let
                 mainWindow =
@@ -251,15 +226,10 @@ view model =
                 Page.Tags m ->
                     Lazy.lazy Tags.view m |> Html.map UpdateTags
 
-                Page.Embed diagram title path ->
+                Page.Embed _  _ _ ->
                     div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
-                        [ let
-                            diagramModel =
-                                model.diagramModel
-                          in
-                          Lazy.lazy Diagram.view diagramModel
+                        [ Lazy.lazy Diagram.view model.diagramModel
                             |> Html.map UpdateDiagram
-                        , Lazy.lazy4 bottomNavigationBar model.settingsModel.settings diagram title path
                         ]
 
                 Page.New ->

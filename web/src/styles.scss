@@ -92,18 +92,6 @@ textarea {
     tab-size: 4;
 }
 
-.main-header {
-    display: flex;
-    align-items: center;
-    background-color: var(--main-color);
-    width: 100vw;
-    height: 40px;
-}
-
-.separator {
-    background-color: var(--main-color);
-}
-
 .select-none {
     pointer-events: none;
     -webkit-user-select: none;
@@ -141,12 +129,6 @@ textarea {
     padding: 0px 8px;
     font-size: 0.9rem;
     font-weight: 600;
-}
-
-.primary-button {
-    background-color: var(--activity-color);
-    width: 100px;
-    text-align: center;
 }
 
 .button {
@@ -273,27 +255,6 @@ textarea {
         .selected {
             background-color: var(--background-color);
         }
-    }
-    .diagram-tags {
-        position: absolute;
-        bottom: 60px;
-        width: 100%;
-        display: flex;
-        justify-content: flex-end;
-        flex-wrap: wrap;
-        transform: scale(0.9);
-    }
-
-    .diagram-tag {
-        border-radius: 8px;
-        color: var(--text-color);
-        background-color: var(--activity-color);
-        padding: 8px;
-        margin: 2px;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        font-size: 0.8rem;
     }
 
     .diagram-text {
@@ -468,21 +429,6 @@ textarea {
         background-color: var(--accent-color);
         color: #fff;
     }
-
-    .disabled-button {
-        width: 100px;
-        font-weight: 600;
-        background-color: #eee;
-        color: #ccc;
-    }
-
-    .cancel-button {
-        width: 100px;
-        font-weight: 600;
-        background-color: #eee;
-        color: #111;
-    }
-
     @media screen and (max-width: 480px) {
         position: absolute;
         background-color: #f7f7f7;
@@ -562,50 +508,9 @@ textarea {
     border: none;
 }
 
-.error {
-    background-color: var(--error-color);
-    width: 35px !important;
-    margin-top: 2px !important;
-    height: 14px !important;
-}
-
-.menu-bar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    width: 56px;
-    min-width: 56px;
-    background-color: var(--main-color);
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
-}
-
 .menu-item {
     cursor: pointer;
     font-weight: 400;
-}
-
-.main {
-    display: flex;
-    overflow: hidden;
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.menu {
-    min-width: 120px;
-    position: absolute;
-    z-index: 10;
-    max-height: calc(100vh - 40px);
-    background-color: var(--main-color);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
-    transition: all 0.2s ease-out;
-    margin: 4px;
-    overflow-y: auto;
 }
 
 .share {
@@ -719,18 +624,6 @@ textarea {
     display: none !important;
 }
 
-.notfound {
-    height: calc(100vh - 40px);
-    width: 100vw;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-color);
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 8px;
-}
-
 .notification {
     opacity: 0;
     position: fixed;
@@ -755,6 +648,7 @@ textarea {
         right: 0;
         bottom: 55px;
         z-index: 200;
+        box-shadow: none;
     }
 }
 
@@ -1016,42 +910,8 @@ textarea {
     }
 }
 
-.facet-count {
-    color: var(--dark-text-color);
-    padding: 8px;
-    font-family: apple-system, BlinkMacSystemFont, Helvetica Neue,
-        Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,
-        メイリオ, Meiryo, sans-serif;
-}
-
 .md-content {
     padding: 8px;
-}
-
-.bottom-nav-bar {
-    width: 100%;
-    height: 48px;
-    position: absolute;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    border: 1px solid var(--border-color);
-    justify-content: space-between;
-
-    .buttons {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .button {
-        width: 48px;
-        height: 48px;
-        border-right: 1px solid var(--border-color);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
 }
 
 .tags {
@@ -1059,20 +919,6 @@ textarea {
     width: 100%;
     height: calc(100vh - 35px);
     color: var(--text-color);
-    .tag-list {
-        border-bottom: 1px solid var(--main-color);
-        width: 100%;
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        padding: 8px;
-    }
-    .input {
-        background-color: transparent;
-        color: var(--text-color);
-        width: 150px;
-        font-size: 1rem;
-    }
     .tag {
         border-radius: 8px;
         color: var(--text-color);
