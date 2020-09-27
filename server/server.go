@@ -72,8 +72,8 @@ func Run() int {
 	service := service.NewService(repo)
 	r := mux.NewRouter()
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "DELETE"},
+		AllowedOrigins: []string{"https://app.textusm.com", "http://localhost:3000"},
+		AllowedMethods: []string{"GET", "POST"},
 		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
 
