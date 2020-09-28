@@ -27,7 +27,7 @@ view :
 view props =
     foreignObject
         [ x <| String.fromInt <| Position.getX props.position
-        , y <| String.fromInt <| Position.getY props.position
+        , y <| String.fromInt <| (Position.getY props.position + 8)
         , width "262"
         , height "205"
         ]
