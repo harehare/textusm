@@ -1,7 +1,7 @@
 module github.com/harehare/textusm
 
 require (
-	cloud.google.com/go v0.66.0
+	cloud.google.com/go v0.67.0
 	cloud.google.com/go/firestore v1.3.0
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.13.0
@@ -26,7 +26,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
 	github.com/satori/go.uuid v1.2.0
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
 	github.com/urfave/cli v1.22.2 // indirect
 	github.com/urfave/negroni v1.0.0
