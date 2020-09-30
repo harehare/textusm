@@ -1,9 +1,12 @@
 {
     "type": "application",
-    "source-directories": ["src/elm"],
+    "source-directories": [
+        "src/elm"
+    ],
     "elm-version": "0.19.1",
     "dependencies": {
         "direct": {
+            "Fresheyeball/elm-return": "7.1.0",
             "NoRedInk/elm-json-decode-pipeline": "1.0.0",
             "arturopala/elm-monocle": "2.2.0",
             "dillonkearns/elm-graphql": "5.0.2",
