@@ -53,15 +53,16 @@ func Run() int {
 		return 1
 	}
 
+	ctx := context.Background()
 	opt := option.WithCredentialsJSON(b)
-	app, err = firebase.NewApp(context.Background(), nil, opt)
+	app, err = firebase.NewApp(ctx, nil, opt)
 
 	if err != nil {
 		log.Fatalf("error initializing app: %v\n", err)
 		return 1
 	}
 
-	firestore, err := app.Firestore(context.Background())
+	firestore, err := app.Firestore(ctx)
 
 	if err != nil {
 		log.Fatalf("error initializing firestore: %v\n", err)
