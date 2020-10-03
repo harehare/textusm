@@ -1,4 +1,4 @@
-port module Ports exposing (changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, encodeShareText, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, layoutEditor, loadEditor, loadText, onAuthStateChanged, onDecodeShareText, onEncodeShareText, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, reload, removeRemoteDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, setEditorLanguage, shortcuts, signIn, signOut, startDownload)
+port module Ports exposing (changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, encodeShareText, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, insertTextLines, layoutEditor, loadEditor, loadText, onAuthStateChanged, onDecodeShareText, onEncodeShareText, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, reload, removeRemoteDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, setEditorLanguage, shortcuts, signIn, signOut, startDownload)
 
 import Data.Session exposing (User)
 import Json.Decode as D
@@ -113,3 +113,6 @@ port saveToRemote : (D.Value -> msg) -> Sub msg
 
 
 port saveToLocalCompleted : (D.Value -> msg) -> Sub msg
+
+
+port insertTextLines : List String -> Cmd msg

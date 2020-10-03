@@ -1,7 +1,8 @@
-module Events exposing (keyBackspace, keyEnter, onClickStopPropagation, onKeyDown)
+module Events exposing (keyBackspace, keyEnter, onClickStopPropagation, onDrop, onKeyDown)
 
+import File exposing (File)
 import Html exposing (Attribute)
-import Html.Events exposing (keyCode, on, stopPropagationOn)
+import Html.Events exposing (keyCode, on, preventDefaultOn, stopPropagationOn)
 import Json.Decode as D
 
 
@@ -29,6 +30,11 @@ alwaysStopPropagation msg =
     ( msg, True )
 
 
+alwaysPreventDefaultOn : msg -> ( msg, Bool )
+alwaysPreventDefaultOn msg =
+    alwaysStopPropagation msg
+
+
 onKeyDown : (Int -> Bool -> msg) -> Attribute msg
 onKeyDown tagger =
     on "keydown" (D.map2 tagger keyCode isComposing)
@@ -37,3 +43,13 @@ onKeyDown tagger =
 isComposing : D.Decoder Bool
 isComposing =
     D.field "isComposing" D.bool
+
+
+onDrop : (List File -> msg) -> Attribute msg
+onDrop msg =
+    preventDefaultOn "drop" (D.map alwaysPreventDefaultOn (D.map msg filesDecoder))
+
+
+filesDecoder : D.Decoder (List File)
+filesDecoder =
+    D.field "dataTransfer" (D.field "files" (D.list File.decoder))

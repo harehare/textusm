@@ -9,15 +9,19 @@ import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position as Position
 import Data.Size as Size exposing (Size)
 import Data.Text as Text
+import Events
+import File
 import Html exposing (Html, div)
 import Html.Attributes as Attr
+import Html.Events as E
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
+import Json.Decode as D
 import List
 import List.Extra exposing (findIndex, getAt, removeAt, scanl, setAt, splitAt)
-import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
+import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Views.ER as ErDiagramModel
 import Models.Views.EmpathyMap as EmpathyMapModel
@@ -29,7 +33,9 @@ import Models.Views.SequenceDiagram as SequenceDiagramModel
 import Models.Views.StartStopContinue as StartStopContinueModel
 import Models.Views.Table as TableModel
 import Models.Views.UserPersona as UserPersonaModel
+import Ports
 import Result exposing (andThen)
+import Return as Return exposing (Return)
 import String
 import Svg exposing (Svg, defs, feComponentTransfer, feFuncA, feGaussianBlur, feMerge, feMergeNode, feOffset, filter, g, svg, text)
 import Svg.Attributes exposing (class, dx, dy, fill, height, id, in_, result, slope, stdDeviation, style, transform, type_, viewBox, width)
@@ -92,6 +98,7 @@ init settings =
       , selectedItem = Nothing
       , dragDrop = DragDrop.init
       , contextMenu = Nothing
+      , dragStatus = NoDrag
       }
     , Cmd.none
     )
@@ -327,6 +334,17 @@ view model =
 
           else
             Attr.style "cursor" "grab"
+        , Events.onDrop OnDropFiles
+        , E.preventDefaultOn "dragover" <|
+            D.succeed ( ChangeDragStatus DragOver, True )
+        , E.preventDefaultOn "dragleave" <|
+            D.succeed ( ChangeDragStatus NoDrag, True )
+        , case model.dragStatus of
+            DragOver ->
+                Attr.class "drag-over"
+
+            NoDrag ->
+                Attr.class ""
         ]
         [ if model.settings.zoomControl |> Maybe.withDefault model.showZoomControl then
             lazy2 zoomControl model.fullscreen model.svg.scale
@@ -736,11 +754,16 @@ itemToColorText item =
             ""
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+clearPosition : Model -> Return Msg Model
+clearPosition model =
+    ( { model | movePosition = ( 0, 0 ) }, Cmd.none )
+
+
+update : Msg -> Model -> Return Msg Model
 update message model =
     case message of
         NoOp ->
-            ( model, Cmd.none )
+            Return.singleton model
 
         Init settings window text ->
             let
@@ -756,34 +779,34 @@ update message model =
             ( { model_ | settings = settings }, Cmd.none )
 
         ZoomIn ->
-            ( if model.svg.scale <= 5.0 then
-                { model
+            if model.svg.scale <= 5.0 then
+                ( { model
                     | svg =
                         { width = model.svg.width
                         , height = model.svg.height
                         , scale = model.svg.scale + 0.05
                         }
-                }
+                  }
+                , Cmd.none
+                )
 
-              else
-                model
-            , Cmd.none
-            )
+            else
+                Return.singleton model
 
         ZoomOut ->
-            ( if model.svg.scale > 0.05 then
-                { model
+            if model.svg.scale > 0.05 then
+                ( { model
                     | svg =
                         { width = model.svg.width
                         , height = model.svg.height
                         , scale = model.svg.scale - 0.05
                         }
-                }
+                  }
+                , Cmd.none
+                )
 
-              else
-                model
-            , Cmd.none
-            )
+            else
+                Return.singleton model
 
         PinchIn distance ->
             ( { model | touchDistance = Just distance }, Task.perform identity (Task.succeed ZoomIn) )
@@ -831,28 +854,16 @@ update message model =
             )
 
         MoveTo position ->
-            ( { model
-                | position = position
-                , movePosition = ( 0, 0 )
-              }
-            , Cmd.none
-            )
+            ( { model | position = position }, Cmd.none )
+                |> Return.andThen clearPosition
 
         ToggleFullscreen ->
-            ( { model
-                | movePosition = ( 0, 0 )
-                , fullscreen = not model.fullscreen
-              }
-            , Cmd.none
-            )
+            ( { model | fullscreen = not model.fullscreen }, Cmd.none )
+                |> Return.andThen clearPosition
 
         OnResize width height ->
-            ( { model
-                | size = ( width, height - 56 )
-                , movePosition = ( 0, 0 )
-              }
-            , Cmd.none
-            )
+            ( { model | size = ( width, height - 56 ) }, Cmd.none )
+                |> Return.andThen clearPosition
 
         StartPinch distance ->
             ( { model | touchDistance = Just distance }, Cmd.none )
@@ -912,9 +923,13 @@ update message model =
             ( { model | svg = newSvgModel, position = position }, Cmd.none )
 
         Select (Just ( item, position )) ->
-            ( { model | selectedItem = Just ( item, False ), contextMenu = Just ( Diagram.CloseMenu, position ) }
-            , Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
-            )
+            if Item.isImage <| Item.getText item then
+                Return.singleton model
+
+            else
+                ( { model | selectedItem = Just ( item, False ), contextMenu = Just ( Diagram.CloseMenu, position ) }
+                , Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
+                )
 
         Select Nothing ->
             ( { model | selectedItem = Nothing }, Cmd.none )
@@ -941,7 +956,7 @@ update message model =
                     ( { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }, Cmd.none )
 
                 _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         OnSelectContextMenu menu ->
             ( { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
@@ -1005,10 +1020,10 @@ update message model =
                             ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just ( Item.withBackgroundColor (Just color) i, False ), contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
 
                         _ ->
-                            ( model, Cmd.none )
+                            Return.singleton model
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         OnFontStyleChanged style ->
             case model.selectedItem of
@@ -1038,7 +1053,7 @@ update message model =
                     ( { model | text = Text.change <| Text.fromString updateText }, Cmd.none )
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         MoveItem ( fromNo, toNo ) ->
             let
@@ -1085,5 +1100,16 @@ update message model =
             in
             ( { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }, Cmd.none )
 
-        _ ->
-            ( model, Cmd.none )
+        OnDropFiles files ->
+            ( { model | dragStatus = NoDrag }
+            , List.filter (\file -> File.mime file |> String.startsWith "image/") files
+                |> List.map File.toUrl
+                |> Task.sequence
+                |> Task.perform OnLoadFiles
+            )
+
+        OnLoadFiles files ->
+            ( model, Ports.insertTextLines files )
+
+        ChangeDragStatus status ->
+            ( { model | dragStatus = status }, Cmd.none )

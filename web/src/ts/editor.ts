@@ -1,6 +1,5 @@
 import * as monaco from "monaco-editor"; // eslint-disable-line import/no-unresolved
 import { ElmApp, EditorOption } from "./elm";
-import { sleep } from "./utils";
 
 let monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;
 let updateTextInterval: number | null = null;
@@ -9,6 +8,29 @@ const loadText = (text: string) => {
     if (monacoEditor) {
         monacoEditor.setValue(text);
     }
+};
+
+const insertTextLines = (lines: string[]) => {
+    if (!monacoEditor) {
+        return;
+    }
+    const selection = monacoEditor.getSelection();
+
+    if (!selection) {
+        return;
+    }
+    monacoEditor.executeEdits("", [
+        {
+            range: new monaco.Range(
+                selection.startLineNumber,
+                1,
+                selection.endLineNumber,
+                1
+            ),
+            text: `${lines.join("\n")}\n`,
+            forceMoveMarkers: true,
+        },
+    ]);
 };
 
 const focusEditor = () => {
@@ -165,6 +187,9 @@ export const loadEditor = async (
 
     app.ports.loadText.unsubscribe(loadText);
     app.ports.loadText.subscribe(loadText);
+
+    app.ports.insertTextLines.unsubscribe(insertTextLines);
+    app.ports.insertTextLines.subscribe(insertTextLines);
 
     app.ports.focusEditor.unsubscribe(focusEditor);
     app.ports.focusEditor.subscribe(focusEditor);

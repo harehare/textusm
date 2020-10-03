@@ -28,6 +28,7 @@ export type ElmApp = {
         loadText: Subscribe<(text: string) => void>;
         setEditorLanguage: Subscribe<(languageId: string) => void>;
         layoutEditor: Subscribe<(delay: number) => void>;
+        insertTextLines: Subscribe<(lines: string[]) => void>;
         downloadSvg: Subscribe<(download: DownloadInfo) => void>;
         downloadPdf: Subscribe<(download: DownloadInfo) => void>;
         downloadPng: Subscribe<(download: DownloadInfo) => void>;

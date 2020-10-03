@@ -6,3 +6,5 @@ generate:
 
 test:
 	go test ./...
+
+.PHONY: run generate test

@@ -1,4 +1,4 @@
-module Models.Diagram exposing (Color, ColorSettings, ContextMenu(..), Data(..), Model, Msg(..), SelectedItem, Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
+module Models.Diagram exposing (Color, ColorSettings, ContextMenu(..), Data(..), DragStatus(..), Model, Msg(..), SelectedItem, Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
 
 import Browser.Dom exposing (Viewport)
 import Data.Color as Color
@@ -7,6 +7,7 @@ import Data.Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size as Size
 import Data.Text exposing (Text)
+import File exposing (File)
 import Html5.DragDrop as DragDrop
 import Models.Views.BusinessModelCanvas exposing (BusinessModelCanvas)
 import Models.Views.ER exposing (ErDiagram)
@@ -55,6 +56,7 @@ type alias Model =
     , selectedItem : SelectedItem
     , dragDrop : DragDrop.Model Int Int
     , contextMenu : Maybe ( ContextMenu, Position )
+    , dragStatus : DragStatus
     }
 
 
@@ -100,6 +102,11 @@ type ContextMenu
     | BackgroundColorSelectMenu
     | FontBoldMenu
     | FontItalicMenu
+
+
+type DragStatus
+    = NoDrag
+    | DragOver
 
 
 type alias Settings =
@@ -158,7 +165,6 @@ type Msg
     | ToggleFullscreen
     | OnResize Int Int
     | StartPinch Distance
-    | ItemDblClick Item
     | EditSelectedItem String
     | EndEditSelectedItem Item Int Bool
     | DragDropMsg (DragDrop.Msg Int Int)
@@ -168,6 +174,9 @@ type Msg
     | OnColorChanged ContextMenu Color.Color
     | OnSelectContextMenu ContextMenu
     | OnFontStyleChanged FontStyle
+    | OnDropFiles (List File)
+    | OnLoadFiles (List String)
+    | ChangeDragStatus DragStatus
 
 
 getTextColor : ColorSettings -> String
