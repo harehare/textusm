@@ -1060,17 +1060,10 @@ update message model =
                 lines =
                     Text.lines model.text
 
-                prefix =
+                toPrefix =
                     getAt toNo lines
                         |> Maybe.withDefault ""
                         |> Utils.getSpacePrefix
-
-                toPrefix =
-                    if String.length (prefix ++ inputPrefix) > 8 then
-                        String.repeat 2 inputPrefix
-
-                    else
-                        prefix ++ inputPrefix
 
                 from =
                     toPrefix

@@ -742,16 +742,7 @@ textarea {
 }
 
 .drag-over {
-    &:after {
-        position: absolute;
-        content: "";
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        transition: all 0.5s ease;
-        background-color: rgba(0, 0, 0, 0.3);
-    }
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 @media screen and (max-width: 480px) {
