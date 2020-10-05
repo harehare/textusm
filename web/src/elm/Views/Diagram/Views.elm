@@ -14,7 +14,7 @@ import Markdown
 import Maybe.Extra exposing (isJust)
 import Models.Diagram as Diagram exposing (Msg(..), SelectedItem, Settings, fontStyle, getTextColor, settingsOfWidth)
 import String
-import Svg exposing (Attribute, Svg, foreignObject, g, rect, svg, text, text_)
+import Svg exposing (Attribute, Svg, foreignObject, g, rect, text, text_)
 import Svg.Attributes exposing (class, color, fill, fillOpacity, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x, y)
 
 
@@ -85,7 +85,7 @@ cardView { settings, position, selectedItem, item } =
 
         view_ =
             g
-                [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
+                [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height + 8 ) )
                 ]
                 [ rect
                     [ width <| String.fromInt settings.size.width
@@ -281,92 +281,84 @@ markdownView settings colour text =
 
 canvasView : Settings -> Size -> Position -> SelectedItem -> Item -> Svg Msg
 canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
-    svg
-        [ width <| String.fromInt svgWidth
-        , height <| String.fromInt svgHeight
-        , x <| String.fromInt posX
-        , y <| String.fromInt posY
-        , fill "transparent"
-        ]
+    g
+        []
         (case selectedItem of
             Just ( item_, isDragging ) ->
                 if Item.getLineNo item_ == Item.getLineNo item then
-                    [ canvasRectView settings (draggingStyle isDragging) ( svgWidth, svgHeight )
+                    [ canvasRectView settings (draggingStyle isDragging) ( posX, posY ) ( svgWidth, svgHeight )
                     , inputView
                         { settings = settings
                         , fontSize = Just "20"
                         , inputStyle = draggingHtmlStyle isDragging
-                        , position = ( 0, 0 )
+                        , position = ( posX, posY )
                         , size = ( svgWidth, settings.size.height )
                         , color = Item.getColor item |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.label
                         , backgroundColor = "transparent"
                         , item = item_
                         }
-                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
+                    , canvasTextView { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                     ]
 
                 else
-                    [ canvasRectView settings (draggingStyle isDragging) ( svgWidth, svgHeight )
-                    , titleView settings ( 20, 20 ) item
-                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
+                    [ canvasRectView settings (draggingStyle isDragging) ( posX, posY ) ( svgWidth, svgHeight )
+                    , titleView settings ( posX + 20, posY + 20 ) item
+                    , canvasTextView { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                     ]
 
             Nothing ->
-                [ canvasRectView settings (draggingStyle False) ( svgWidth, svgHeight )
-                , titleView settings ( 20, 20 ) item
-                , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
+                [ canvasRectView settings (draggingStyle False) ( posX, posY ) ( svgWidth, svgHeight )
+                , titleView settings ( posX + 20, posY + 20 ) item
+                , canvasTextView { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                 ]
         )
 
 
 canvasBottomView : Settings -> Size -> Position -> SelectedItem -> Item -> Svg Msg
 canvasBottomView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
-    svg
-        [ width <| String.fromInt svgWidth
-        , height <| String.fromInt svgHeight
-        , x <| String.fromInt posX
-        , y <| String.fromInt posY
-        , fill "transparent"
-        ]
+    g
+        []
         (case selectedItem of
             Just ( item_, isDragging ) ->
                 if Item.getLineNo item_ == Item.getLineNo item then
-                    [ canvasRectView settings (draggingStyle isDragging) ( svgWidth, svgHeight )
+                    [ canvasRectView settings (draggingStyle isDragging) ( posX, posY ) ( svgWidth, svgHeight )
                     , inputView
                         { settings = settings
                         , fontSize = Just <| String.fromInt <| svgHeight - 25
                         , inputStyle = draggingHtmlStyle isDragging
-                        , position = ( 0, 0 )
+                        , position = ( posX, posY )
                         , size = ( svgWidth, settings.size.height )
                         , color = settings.color.label
                         , backgroundColor = "transparent"
                         , item = item_
                         }
-                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
+                    , canvasTextView { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                     ]
 
                 else
-                    [ canvasRectView settings (draggingStyle isDragging) ( svgWidth, svgHeight )
-                    , titleView settings ( 20, svgHeight - 25 ) item
-                    , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
+                    [ canvasRectView settings (draggingStyle isDragging) ( posX, posY ) ( svgWidth, svgHeight )
+                    , titleView settings ( posX + 20, posY + svgHeight - 25 ) item
+                    , canvasTextView { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                     ]
 
             Nothing ->
-                [ canvasRectView settings (draggingStyle False) ( svgWidth, svgHeight )
-                , titleView settings ( 20, svgHeight - 25 ) item
-                , canvasTextView settings svgWidth ( 20, 35 ) selectedItem <| Item.unwrapChildren <| Item.getChildren item
+                [ canvasRectView settings (draggingStyle False) ( posX, posY ) ( svgWidth, svgHeight )
+                , titleView settings ( posX + 20, posY + svgHeight - 25 ) item
+                , canvasTextView { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                 ]
         )
 
 
-canvasRectView : Settings -> Attribute msg -> Size -> Svg msg
-canvasRectView settings rectStyle ( rectWidth, rectHeight ) =
+canvasRectView : Settings -> Attribute msg -> Position -> Size -> Svg msg
+canvasRectView settings rectStyle ( posX, posY ) ( rectWidth, rectHeight ) =
     rect
         [ width <| String.fromInt rectWidth
         , height <| String.fromInt rectHeight
         , stroke settings.color.line
         , strokeWidth "10"
         , rectStyle
+        , x <| String.fromInt posX
+        , y <| String.fromInt posY
         ]
         []
 
@@ -386,9 +378,12 @@ titleView settings ( posX, posY ) item =
         [ text <| Item.getText item ]
 
 
-canvasTextView : Settings -> Int -> Position -> SelectedItem -> Items -> Svg Msg
-canvasTextView settings svgWidth ( posX, posY ) selectedItem items =
+canvasTextView : { settings : Settings, svgWidth : Int, position : Position, selectedItem : SelectedItem, items : Items } -> Svg Msg
+canvasTextView { settings, svgWidth, position, selectedItem, items } =
     let
+        ( posX, posY ) =
+            position
+
         newSettings =
             settings |> settingsOfWidth.set (svgWidth - Constants.itemMargin * 2)
     in
@@ -397,7 +392,7 @@ canvasTextView settings svgWidth ( posX, posY ) selectedItem items =
             (\i item ->
                 cardView
                     { settings = newSettings
-                    , position = ( posX, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin )
+                    , position = ( posX + 16, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin + 35 )
                     , selectedItem = selectedItem
                     , item = item
                     }
@@ -414,15 +409,11 @@ canvasImageView settings ( svgWidth, svgHeight ) ( posX, posY ) item =
                 |> Item.unwrapChildren
                 |> Item.map Item.getText
     in
-    svg
-        [ width <| String.fromInt svgWidth
-        , height <| String.fromInt svgHeight
-        , x <| String.fromInt posX
-        , y <| String.fromInt posY
-        ]
-        [ canvasRectView settings (draggingStyle False) ( svgWidth, svgHeight )
-        , imageView ( Constants.itemWidth - 5, svgHeight ) ( 5, 5 ) (lines |> List.head |> Maybe.withDefault "")
-        , titleView settings ( 10, 10 ) item
+    g
+        []
+        [ canvasRectView settings (draggingStyle False) ( posX, posY ) ( svgWidth, svgHeight )
+        , imageView ( Constants.itemWidth - 5, svgHeight ) ( posX + 5, posY + 5 ) (lines |> List.head |> Maybe.withDefault "")
+        , titleView settings ( posX + 10, posY + 10 ) item
         ]
 
 
