@@ -41,6 +41,8 @@ type alias InitData =
     , textColor : String
     , labelColor : String
     , diagramType : String
+    , cardWidth : Int
+    , cardHeight : Int
     }
 
 
@@ -56,8 +58,8 @@ init flags =
             , data = DiagramModel.Empty
             , size = ( 1024, 1024 )
             , svg =
-                { width = 140
-                , height = 65
+                { width = 0
+                , height = 0
                 , scale = 1.0
                 }
             , moveStart = False
@@ -72,8 +74,8 @@ init flags =
             , settings =
                 { font = flags.fontName
                 , size =
-                    { width = 140
-                    , height = 65
+                    { width = flags.cardWidth
+                    , height = flags.cardHeight
                     }
                 , backgroundColor = flags.backgroundColor
                 , zoomControl = Just True
@@ -98,6 +100,7 @@ init flags =
             , touchDistance = Nothing
             , text = Text.empty
             , matchParent = False
+            , dragStatus = DiagramModel.NoDrag
             }
       , text = flags.text
       , backgroundColor = flags.backgroundColor

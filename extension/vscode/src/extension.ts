@@ -179,7 +179,10 @@ export function activate(context: vscode.ExtensionContext) {
                 newTextOpen("TODO\nDOING\nDONE", values[0].value);
                 break;
               case "sed":
-                newTextOpen("participant\n    object1\n    object2\n    object3\nobject1 -> object2\n    Sync Message\nobject1 ->> object2\n    Async Message\nobject2 --> object1\n    Reply Message\no-> object1\n    Found Message\nobject1 ->o\n    Stop Message\nloop\n    loop message\n        object1 -> object2\n            Sync Message\n        object1 ->> object2\n            Async Message\nPar\n    par message1\n        object2 -> object3\n            Sync Message\n    par message2\n        object1 -> object2\n            Sync Message\n", values[0].value);
+                newTextOpen(
+                  "participant\n    object1\n    object2\n    object3\nobject1 -> object2\n    Sync Message\nobject1 ->> object2\n    Async Message\nobject2 --> object1\n    Reply Message\no-> object1\n    Found Message\nobject1 ->o\n    Stop Message\nloop\n    loop message\n        object1 -> object2\n            Sync Message\n        object1 ->> object2\n            Async Message\nPar\n    par message1\n        object2 -> object3\n            Sync Message\n    par message2\n        object1 -> object2\n            Sync Message\n",
+                  values[0].value
+                );
                 break;
             }
           }
@@ -447,6 +450,13 @@ class DiagramPanel {
       .getConfiguration()
       .get("textusm.line.color");
 
+    const cardWidth = vscode.workspace
+      .getConfiguration()
+      .get("textusm.card.width");
+    const cardHeight = vscode.workspace
+      .getConfiguration()
+      .get("textusm.card.height");
+
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -464,29 +474,34 @@ class DiagramPanel {
         const vscode = acquireVsCodeApi();
         const app = Elm.Extension.VSCode.init({
             node: document.getElementById("svg"),
-            flags: {text: \`${text}\`, fontName: "${fontName}",
-            backgroundColor: "${
-              backgroundColor && backgroundColor !== "transparent"
-                ? backgroundColor
-                : "#F4F4F5"
-            }",
-            activityBackgroundColor: "${
-              activityBackground ? activityBackground : "#266B9A"
-            }",
-            activityColor: "${activityColor ? activityColor : "#FFFFFF"}",
-            taskColor: "${taskColor ? taskColor : "#FFFFFF"}",
-            taskBackgroundColor: "${
-              taskBackground ? taskBackground : "#3E9BCD"
-            }",
-            storyColor: "${storyColor ? storyColor : "#000000"}",
-            storyBackgroundColor: "${
-              storyBackground ? storyBackground : "#FFFFFF"
-            }",
-            textColor: "${textColor ? textColor : "#111111"}",
-            labelColor: "${labelColor ? labelColor : "#8C9FAE"}",
-            lineColor: "${lineColor ? lineColor : "#434343"}",
-            diagramType: "${diagramType}"
-        }});
+            flags: {
+              text: \`${text}\`,
+              fontName: "${fontName}",
+              backgroundColor: "${
+                backgroundColor && backgroundColor !== "transparent"
+                  ? backgroundColor
+                  : "#F4F4F5"
+              }",
+              activityBackgroundColor: "${
+                activityBackground ? activityBackground : "#266B9A"
+              }",
+              activityColor: "${activityColor ? activityColor : "#FFFFFF"}",
+              taskColor: "${taskColor ? taskColor : "#FFFFFF"}",
+              taskBackgroundColor: "${
+                taskBackground ? taskBackground : "#3E9BCD"
+              }",
+              storyColor: "${storyColor ? storyColor : "#000000"}",
+              storyBackgroundColor: "${
+                storyBackground ? storyBackground : "#FFFFFF"
+              }",
+              textColor: "${textColor ? textColor : "#111111"}",
+              labelColor: "${labelColor ? labelColor : "#8C9FAE"}",
+              lineColor: "${lineColor ? lineColor : "#434343"}",
+              diagramType: "${diagramType}",
+              cardWidth: ${cardWidth},
+              cardHeight: ${cardHeight},
+          }
+        });
 
         app.ports.setText.subscribe(text => {
           vscode.postMessage({

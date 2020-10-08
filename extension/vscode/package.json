@@ -6,7 +6,7 @@
     "name": "harehare"
   },
   "publisher": "harehare",
-  "version": "0.6.3",
+  "version": "0.6.31",
   "engines": {
     "vscode": "^1.33.0"
   },
@@ -120,6 +120,16 @@
           "type": "string",
           "default": "#111111",
           "markdownDescription": "Text color."
+        },
+        "textusm.card.width": {
+          "type": "number",
+          "default": 140,
+          "markdownDescription": "Card width."
+        },
+        "textusm.card.height": {
+          "type": "number",
+          "default": 65,
+          "markdownDescription": "Card height."
         }
       }
     }
