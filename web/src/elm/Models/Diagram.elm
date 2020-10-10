@@ -20,6 +20,7 @@ import Models.Views.SequenceDiagram exposing (SequenceDiagram)
 import Models.Views.StartStopContinue exposing (StartStopContinue)
 import Models.Views.Table exposing (Table)
 import Models.Views.UserPersona exposing (UserPersona)
+import Models.Views.UserStoryMap exposing (UserStoryMap)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
@@ -79,7 +80,7 @@ type alias Distance =
 type Data
     = Empty
     | Items Items
-    | UserStoryMap Items Hierarchy CountByHierarchy CountByTasks
+    | UserStoryMap UserStoryMap
     | MindMap Items Hierarchy
     | ImpactMap Items Hierarchy
     | SiteMap Items Hierarchy

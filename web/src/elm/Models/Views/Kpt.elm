@@ -1,4 +1,4 @@
-module Models.Views.Kpt exposing (Kpt, KptItem(..), fromItems)
+module Models.Views.Kpt exposing (Kpt, KptItem(..), from)
 
 import Data.Item as Item exposing (Item, Items)
 
@@ -14,8 +14,8 @@ type KptItem
     = KptItem Item
 
 
-fromItems : Items -> Kpt
-fromItems items =
+from : Items -> Kpt
+from items =
     Kpt (items |> Item.getAt 0 |> Maybe.withDefault Item.new |> KptItem)
         (items |> Item.getAt 1 |> Maybe.withDefault Item.new |> KptItem)
         (items |> Item.getAt 2 |> Maybe.withDefault Item.new |> KptItem)

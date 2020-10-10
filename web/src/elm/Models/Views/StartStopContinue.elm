@@ -1,4 +1,4 @@
-module Models.Views.StartStopContinue exposing (StartStopContinue, StartStopContinueItem(..), fromItems)
+module Models.Views.StartStopContinue exposing (StartStopContinue, StartStopContinueItem(..), from)
 
 import Data.Item as Item exposing (Item, Items)
 
@@ -14,8 +14,8 @@ type StartStopContinueItem
     = StartStopContinueItem Item
 
 
-fromItems : Items -> StartStopContinue
-fromItems items =
+from : Items -> StartStopContinue
+from items =
     StartStopContinue (items |> Item.getAt 0 |> Maybe.withDefault Item.new |> StartStopContinueItem)
         (items |> Item.getAt 1 |> Maybe.withDefault Item.new |> StartStopContinueItem)
         (items |> Item.getAt 2 |> Maybe.withDefault Item.new |> StartStopContinueItem)

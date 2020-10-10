@@ -1,4 +1,4 @@
-module Models.Views.Table exposing (Header(..), Row(..), Table(..), fromItems, toString)
+module Models.Views.Table exposing (Header(..), Row(..), Table(..), from, toString)
 
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 
@@ -15,8 +15,8 @@ type Row
     = Row Item
 
 
-fromItems : Items -> Table
-fromItems items =
+from : Items -> Table
+from items =
     Table
         (Header
             (items

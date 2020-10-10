@@ -19,11 +19,12 @@ view =
             , style "justify-content" "flex-start"
             ]
             [ span [ style "margin-right" "2px" ] [ text "ABOUT" ]
+            , span [ style "margin-left" "2px" ] [ text "Text" ]
             , img [ Asset.src Asset.logo, style "width" "32px", alt "logo" ] []
-            , span [ style "margin-left" "2px" ] [ text "TextUSM" ]
+            , span [ style "margin-left" "2px" ] [ text "USM" ]
             ]
         , div [ class "text", style "padding" "0 16px 16px" ]
-            [ text "TextISM is a simple tool. Help you draw user story map using indented text."
+            [ text "TextUSM is a simple tool. Help you draw user story map using indented text."
             ]
         , section (Just "Text Syntax")
         , div [ class "text activity", style "padding" "0 16px 16px" ]
@@ -57,6 +58,19 @@ view =
         , section (Just "Comment Syntax")
         , div [ class "text comment", style "padding" "0 16px 16px" ]
             [ text "# Comment..."
+            ]
+        , section (Just "User Story Map Syntax")
+        , div [ class "text comment", style "padding" "0 16px 8px" ]
+            [ text "# user_activities: Changed text"
+            ]
+        , div [ class "text comment", style "padding" "0 16px 8px" ]
+            [ text "# user_tasks: Changed text"
+            ]
+        , div [ class "text comment", style "padding" "0 16px 8px" ]
+            [ text "# user_stories: Changed text"
+            ]
+        , div [ class "text comment", style "padding" "0 16px 8px" ]
+            [ text "# release1: Changed text"
             ]
         , section (Just "Hotkeys")
         , div [ class "rows" ]

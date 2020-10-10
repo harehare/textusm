@@ -1,4 +1,4 @@
-module Models.Views.FourLs exposing (FourLs, FourLsItem(..), fromItems)
+module Models.Views.FourLs exposing (FourLs, FourLsItem(..), from)
 
 import Data.Item as Item exposing (Item, Items)
 
@@ -15,8 +15,8 @@ type FourLsItem
     = FourLsItem Item
 
 
-fromItems : Items -> FourLs
-fromItems items =
+from : Items -> FourLs
+from items =
     FourLs (items |> Item.getAt 0 |> Maybe.withDefault Item.new |> FourLsItem)
         (items |> Item.getAt 1 |> Maybe.withDefault Item.new |> FourLsItem)
         (items |> Item.getAt 2 |> Maybe.withDefault Item.new |> FourLsItem)

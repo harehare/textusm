@@ -1,4 +1,4 @@
-module Models.Views.EmpathyMap exposing (EmpathyMap, EmpathyMapItem(..), fromItems)
+module Models.Views.EmpathyMap exposing (EmpathyMap, EmpathyMapItem(..), from)
 
 import Data.Item as Item exposing (Item, Items)
 
@@ -15,8 +15,8 @@ type EmpathyMapItem
     = EmpathyMapItem Item
 
 
-fromItems : Items -> EmpathyMap
-fromItems items =
+from : Items -> EmpathyMap
+from items =
     EmpathyMap (items |> Item.getAt 0 |> Maybe.withDefault Item.new |> EmpathyMapItem)
         (items |> Item.getAt 1 |> Maybe.withDefault Item.new |> EmpathyMapItem)
         (items |> Item.getAt 2 |> Maybe.withDefault Item.new |> EmpathyMapItem)

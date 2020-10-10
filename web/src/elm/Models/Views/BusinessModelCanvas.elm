@@ -1,4 +1,4 @@
-module Models.Views.BusinessModelCanvas exposing (BusinessModelCanvas, BusinessModelCanvasItem(..), fromItems)
+module Models.Views.BusinessModelCanvas exposing (BusinessModelCanvas, BusinessModelCanvasItem(..), from)
 
 import Data.Item as Item exposing (Item, Items)
 
@@ -20,8 +20,8 @@ type BusinessModelCanvasItem
     = BusinessModelCanvasItem Item
 
 
-fromItems : Items -> BusinessModelCanvas
-fromItems items =
+from : Items -> BusinessModelCanvas
+from items =
     BusinessModelCanvas (items |> Item.getAt 0 |> Maybe.withDefault Item.new |> BusinessModelCanvasItem)
         (items |> Item.getAt 3 |> Maybe.withDefault Item.new |> BusinessModelCanvasItem)
         (items |> Item.getAt 7 |> Maybe.withDefault Item.new |> BusinessModelCanvasItem)

@@ -1,5 +1,6 @@
 module Views.Diagram.UserStoryMap exposing (view)
 
+import Asset exposing (userStoryMap)
 import Basics exposing (max)
 import Constants
 import Data.Item as Item exposing (Item, ItemType(..), Items)
@@ -9,6 +10,7 @@ import Html.Attributes as Attr
 import List
 import List.Extra exposing (zip)
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle)
+import Models.Views.UserStoryMap as UserStoryMap exposing (UserStoryMap)
 import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
 import Svg.Attributes exposing (class, color, fontSize, fontWeight, height, stroke, strokeWidth, style, width, x, x1, x2, y, y1, y2)
@@ -21,20 +23,20 @@ import Views.Empty as Empty
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.UserStoryMap items hierarchy countByHierarchy countByTasks ->
+        Diagram.UserStoryMap userStoryMap ->
             g
                 []
-                [ lazy4 labelView
-                    model.settings
-                    hierarchy
-                    model.svg.width
-                    countByHierarchy
+                [ lazy labelView
+                    { settings = model.settings
+                    , width = model.svg.width
+                    , userStoryMap = userStoryMap
+                    }
                 , lazy5 mainView
                     model.settings
                     model.selectedItem
-                    items
-                    countByTasks
-                    countByHierarchy
+                    (UserStoryMap.getItems userStoryMap)
+                    (UserStoryMap.countPerTasks userStoryMap)
+                    (UserStoryMap.countPerStories userStoryMap)
                 ]
 
         _ ->
@@ -55,11 +57,17 @@ mainView settings selectedItem items countByTasks countByHierarchy =
         )
 
 
-labelView : Settings -> Int -> Int -> List Int -> Svg Msg
-labelView settings hierarchy width countByHierarchy =
+labelView : { settings : Settings, width : Int, userStoryMap : UserStoryMap } -> Svg Msg
+labelView { settings, width, userStoryMap } =
     let
         posX =
             16
+
+        hierarchy =
+            UserStoryMap.getHierarchy userStoryMap
+
+        countPerStories =
+            UserStoryMap.countPerStories userStoryMap
     in
     g []
         (([ if hierarchy > 0 then
@@ -76,19 +84,19 @@ labelView settings hierarchy width countByHierarchy =
             else
                 line [] []
           , if hierarchy > 0 then
-                labelTextView settings ( posX, 10 ) "USER ACTIVITIES"
+                labelTextView settings ( posX, 10 ) (UserStoryMap.getReleaseLevel userStoryMap "user_activities" "USER ACTIVITIES")
 
             else
                 text_ [] []
           , if hierarchy > 0 then
-                labelTextView settings ( posX, settings.size.height + 25 ) "USER TASKS"
+                labelTextView settings ( posX, settings.size.height + 25 ) (UserStoryMap.getReleaseLevel userStoryMap "user_tasks" "USER TASKS")
 
             else
                 text_ [] []
           ]
             ++ (if hierarchy > 1 then
-                    [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) "USER STORIES"
-                    , labelTextView settings ( posX, settings.size.height * 2 + 80 ) "RELEASE 1"
+                    [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) (UserStoryMap.getReleaseLevel userStoryMap "user_stories" "USER STORIES")
+                    , labelTextView settings ( posX, settings.size.height * 2 + 80 ) (UserStoryMap.getReleaseLevel userStoryMap "release1" "RELEASE 1")
                     ]
 
                 else
@@ -98,14 +106,14 @@ labelView settings hierarchy width countByHierarchy =
             ++ (List.range 1 (hierarchy - 2)
                     |> List.map
                         (\xx ->
-                            if List.length countByHierarchy - 2 > xx then
+                            if List.length countPerStories - 2 > xx then
                                 let
                                     releaseY =
                                         Constants.itemMargin
                                             // 2
                                             + Constants.itemMargin
                                             + ((settings.size.height + Constants.itemMargin)
-                                                * (countByHierarchy
+                                                * (countPerStories
                                                     |> List.take (xx + 2)
                                                     |> List.sum
                                                   )
@@ -121,7 +129,7 @@ labelView settings hierarchy width countByHierarchy =
                                     , strokeWidth "2"
                                     ]
                                     []
-                                , labelTextView settings ( posX, releaseY + Constants.itemMargin ) ("RELEASE " ++ String.fromInt (xx + 1))
+                                , labelTextView settings ( posX, releaseY + Constants.itemMargin ) (UserStoryMap.getReleaseLevel userStoryMap ("release" ++ String.fromInt (xx + 1)) ("RELEASE " ++ String.fromInt (xx + 1)))
                                 ]
 
                             else

@@ -33,6 +33,7 @@ import Models.Views.SequenceDiagram as SequenceDiagramModel
 import Models.Views.StartStopContinue as StartStopContinueModel
 import Models.Views.Table as TableModel
 import Models.Views.UserPersona as UserPersonaModel
+import Models.Views.UserStoryMap as UserStoryMapModel
 import Ports
 import Result exposing (andThen)
 import Return as Return exposing (Return)
@@ -75,33 +76,32 @@ indentSpace =
     4
 
 
-init : Settings -> ( Model, Cmd Msg )
+init : Settings -> Return Msg Model
 init settings =
-    ( { items = Item.empty
-      , data = Diagram.Empty
-      , size = ( 0, 0 )
-      , svg =
+    Return.singleton
+        { items = Item.empty
+        , data = Diagram.Empty
+        , size = ( 0, 0 )
+        , svg =
             { width = 0
             , height = 0
             , scale = 1.0
             }
-      , moveStart = False
-      , position = ( 0, 20 )
-      , movePosition = ( 0, 0 )
-      , fullscreen = False
-      , showZoomControl = True
-      , touchDistance = Nothing
-      , settings = settings
-      , diagramType = UserStoryMap
-      , text = Text.empty
-      , matchParent = False
-      , selectedItem = Nothing
-      , dragDrop = DragDrop.init
-      , contextMenu = Nothing
-      , dragStatus = NoDrag
-      }
-    , Cmd.none
-    )
+        , moveStart = False
+        , position = ( 0, 20 )
+        , movePosition = ( 0, 0 )
+        , fullscreen = False
+        , showZoomControl = True
+        , touchDistance = Nothing
+        , settings = settings
+        , diagramType = UserStoryMap
+        , text = Text.empty
+        , matchParent = False
+        , selectedItem = Nothing
+        , dragDrop = DragDrop.init
+        , contextMenu = Nothing
+        , dragStatus = NoDrag
+        }
 
 
 getItemType : String -> Int -> ItemType
@@ -210,48 +210,6 @@ load text =
             |> Maybe.withDefault 0
         , loadedItems
         )
-
-
-countUpToHierarchy : Int -> Items -> List Int
-countUpToHierarchy hierarchy items =
-    let
-        countUp : Items -> List (List Int)
-        countUp countItems =
-            [ countItems
-                |> Item.filter (\x -> Item.getItemType x /= Tasks && Item.getItemType x /= Activities)
-                |> Item.length
-            ]
-                :: (countItems
-                        |> Item.map
-                            (\it ->
-                                let
-                                    results =
-                                        countUp (Item.unwrapChildren <| Item.getChildren it)
-                                            |> Utils.transpose
-                                in
-                                if List.length results > hierarchy then
-                                    List.map
-                                        (\it2 ->
-                                            List.maximum it2 |> Maybe.withDefault 0
-                                        )
-                                        results
-
-                                else
-                                    results
-                                        |> List.concat
-                                        |> List.filter (\x -> x /= 0)
-                            )
-                   )
-    in
-    1
-        :: 1
-        :: (countUp items
-                |> Utils.transpose
-                |> List.map
-                    (\it ->
-                        List.maximum it |> Maybe.withDefault 0
-                    )
-           )
 
 
 zoomControl : Bool -> Float -> Html Msg
@@ -675,40 +633,37 @@ updateDiagram ( width, height ) base text =
         data =
             case base.diagramType of
                 UserStoryMap ->
-                    Diagram.UserStoryMap items
-                        hierarchy
-                        (countUpToHierarchy (hierarchy - 2) items)
-                        (scanl (\it v -> v + Item.length (Item.unwrapChildren <| Item.getChildren it)) 0 (Item.unwrap items))
+                    Diagram.UserStoryMap <| UserStoryMapModel.from hierarchy text items
 
                 Table ->
-                    Diagram.Table <| TableModel.fromItems items
+                    Diagram.Table <| TableModel.from items
 
                 Kpt ->
-                    Diagram.Kpt <| KptModel.fromItems items
+                    Diagram.Kpt <| KptModel.from items
 
                 BusinessModelCanvas ->
-                    Diagram.BusinessModelCanvas <| BusinessModelCanvasModel.fromItems items
+                    Diagram.BusinessModelCanvas <| BusinessModelCanvasModel.from items
 
                 EmpathyMap ->
-                    Diagram.EmpathyMap <| EmpathyMapModel.fromItems items
+                    Diagram.EmpathyMap <| EmpathyMapModel.from items
 
                 Fourls ->
-                    Diagram.FourLs <| FourLsModel.fromItems items
+                    Diagram.FourLs <| FourLsModel.from items
 
                 Kanban ->
-                    Diagram.Kanban <| KanbanModel.fromItems items
+                    Diagram.Kanban <| KanbanModel.from items
 
                 OpportunityCanvas ->
-                    Diagram.OpportunityCanvas <| OpportunityCanvasModel.fromItems items
+                    Diagram.OpportunityCanvas <| OpportunityCanvasModel.from items
 
                 StartStopContinue ->
-                    Diagram.StartStopContinue <| StartStopContinueModel.fromItems items
+                    Diagram.StartStopContinue <| StartStopContinueModel.from items
 
                 UserPersona ->
-                    Diagram.UserPersona <| UserPersonaModel.fromItems items
+                    Diagram.UserPersona <| UserPersonaModel.from items
 
                 ErDiagram ->
-                    Diagram.ErDiagram <| ErDiagramModel.fromItems items
+                    Diagram.ErDiagram <| ErDiagramModel.from items
 
                 MindMap ->
                     Diagram.MindMap items hierarchy
@@ -720,7 +675,7 @@ updateDiagram ( width, height ) base text =
                     Diagram.SiteMap items hierarchy
 
                 SequenceDiagram ->
-                    Diagram.SequenceDiagram <| SequenceDiagramModel.fromItems items
+                    Diagram.SequenceDiagram <| SequenceDiagramModel.from items
 
                 _ ->
                     Diagram.Items items

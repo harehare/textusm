@@ -1,4 +1,4 @@
-module Models.Views.UserPersona exposing (UserPersona, UserPersonaItem(..), fromItems)
+module Models.Views.UserPersona exposing (UserPersona, UserPersonaItem(..), from)
 
 import Data.Item as Item exposing (Item, Items)
 
@@ -20,8 +20,8 @@ type UserPersonaItem
     = UserPersonaItem Item
 
 
-fromItems : Items -> UserPersona
-fromItems items =
+from : Items -> UserPersona
+from items =
     UserPersona (items |> Item.getAt 0 |> Maybe.withDefault Item.new |> UserPersonaItem)
         (items |> Item.getAt 1 |> Maybe.withDefault Item.new |> UserPersonaItem)
         (items |> Item.getAt 2 |> Maybe.withDefault Item.new |> UserPersonaItem)

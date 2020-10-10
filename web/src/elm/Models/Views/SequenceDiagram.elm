@@ -1,4 +1,4 @@
-module Models.Views.SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..), emptyMessage, fragmentToString, fromItems, messageCountAll, messagesCount, participantCount, sequenceItemCount, sequenceItemMessages, unwrapMessageType)
+module Models.Views.SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..), emptyMessage, fragmentToString, from, messageCountAll, messagesCount, participantCount, sequenceItemCount, sequenceItemMessages, unwrapMessageType)
 
 import Data.Item as Item exposing (Item, Items)
 import Dict exposing (Dict)
@@ -71,8 +71,8 @@ emptyMessage =
     Message (Sync "") emptyParticipant emptyParticipant
 
 
-fromItems : Items -> SequenceDiagram
-fromItems items =
+from : Items -> SequenceDiagram
+from items =
     let
         participants =
             itemToParticipant <| Item.head items

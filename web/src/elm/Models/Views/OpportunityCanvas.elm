@@ -1,4 +1,4 @@
-module Models.Views.OpportunityCanvas exposing (OpportunityCanvas, OpportunityCanvasItem(..), fromItems)
+module Models.Views.OpportunityCanvas exposing (OpportunityCanvas, OpportunityCanvasItem(..), from)
 
 import Data.Item as Item exposing (Item, Items)
 
@@ -21,8 +21,8 @@ type OpportunityCanvasItem
     = OpportunityCanvasItem Item
 
 
-fromItems : Items -> OpportunityCanvas
-fromItems items =
+from : Items -> OpportunityCanvas
+from items =
     OpportunityCanvas (items |> Item.getAt 2 |> Maybe.withDefault Item.new |> OpportunityCanvasItem)
         (items |> Item.getAt 0 |> Maybe.withDefault Item.new |> OpportunityCanvasItem)
         (items |> Item.getAt 3 |> Maybe.withDefault Item.new |> OpportunityCanvasItem)

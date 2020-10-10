@@ -1,4 +1,4 @@
-module Utils exposing (calcDistance, delay, extractDateValues, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isPhone, millisToString, monthToInt, stringToPosix, transpose)
+module Utils exposing (calcDistance, delay, extractDateValues, getCanvasHeight, getCanvasSize, getMarkdownHeight, getSpacePrefix, httpErrorToString, intToMonth, isPhone, millisToString, monthToInt, stringToPosix)
 
 import Constants
 import Data.Item as Item exposing (Items)
@@ -9,6 +9,7 @@ import Models.Diagram as DiagramModel
 import Models.Views.ER as ER exposing (Table(..))
 import Models.Views.Kanban as Kanban
 import Models.Views.SequenceDiagram as SequenceDiagram
+import Models.Views.UserStoryMap as UserStoryMap
 import Process
 import Task
 import TextUSM.Enum.Diagram as Diagram
@@ -299,7 +300,7 @@ getCanvasSize model =
                 Diagram.ErDiagram ->
                     let
                         ( _, tables ) =
-                            ER.fromItems model.items
+                            ER.from model.items
 
                         sizeList =
                             List.map
@@ -389,8 +390,8 @@ getCanvasSize model =
 
                 Diagram.UserStoryMap ->
                     case model.data of
-                        DiagramModel.UserStoryMap _ _ countByHierarchy countByTasks ->
-                            ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * (List.maximum countByTasks |> Maybe.withDefault 1), (model.settings.size.height + Constants.itemMargin) * (List.sum countByHierarchy + 2) )
+                        DiagramModel.UserStoryMap userStoryMap ->
+                            ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * UserStoryMap.taskCount userStoryMap, (model.settings.size.height + Constants.itemMargin) * (UserStoryMap.storyCount userStoryMap  + 2) )
 
                         _ ->
                             ( 0, 0 )
@@ -452,14 +453,14 @@ getCanvasSize model =
                 Diagram.Kanban ->
                     let
                         kanban =
-                            Kanban.fromItems model.items
+                            Kanban.from model.items
                     in
                     ( Kanban.getListCount kanban * (model.settings.size.width + Constants.itemMargin * 3), Kanban.getCardCount kanban * (model.settings.size.height + Constants.itemMargin) + Constants.itemMargin * 2 )
 
                 Diagram.SequenceDiagram ->
                     let
                         sequenceDiagram =
-                            SequenceDiagram.fromItems model.items
+                            SequenceDiagram.from model.items
 
                         diagramWidth =
                             SequenceDiagram.participantCount sequenceDiagram * (model.settings.size.width + Constants.participantMargin) + 8
@@ -491,25 +492,3 @@ getSpacePrefix text =
         |> String.repeat
     )
         " "
-
-
-transpose : List (List comparable) -> List (List comparable)
-transpose ll =
-    case ll of
-        [] ->
-            []
-
-        [] :: xss ->
-            transpose xss
-
-        (x :: xs) :: xss ->
-            let
-                heads =
-                    List.filterMap List.head xss
-                        |> unique
-
-                tails =
-                    List.filterMap List.tail xss
-                        |> unique
-            in
-            (x :: heads) :: transpose (xs :: tails)

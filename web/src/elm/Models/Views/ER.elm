@@ -1,4 +1,4 @@
-module Models.Views.ER exposing (Attribute(..), Column(..), ColumnType(..), ErDiagram, Relationship(..), Table(..), columnTypeToString, fromItems, relationshipToString, tableToString, tableWidth)
+module Models.Views.ER exposing (Attribute(..), Column(..), ColumnType(..), ErDiagram, Relationship(..), Table(..), columnTypeToString, from, relationshipToString, tableToString, tableWidth)
 
 import Data.Item as Item exposing (Item, Items)
 import Dict exposing (Dict)
@@ -87,8 +87,8 @@ tableWidth (Table name columns) =
         |> max 160
 
 
-fromItems : Items -> ErDiagram
-fromItems items =
+from : Items -> ErDiagram
+from items =
     let
         relationships =
             Item.getAt 0 items

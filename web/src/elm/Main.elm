@@ -761,7 +761,7 @@ update message model =
                 FileType.Ddl ex ->
                     let
                         ( _, tables ) =
-                            ER.fromItems model.diagramModel.items
+                            ER.from model.diagramModel.items
 
                         ddl =
                             List.map ER.tableToString tables
@@ -770,7 +770,7 @@ update message model =
                     ( model, Download.string (Title.toString model.title ++ ex) "text/plain" ddl )
 
                 FileType.Markdown ex ->
-                    ( model, Download.string (Title.toString model.title ++ ex) "text/plain" (Table.toString (Table.fromItems model.diagramModel.items)) )
+                    ( model, Download.string (Title.toString model.title ++ ex) "text/plain" (Table.toString (Table.from model.diagramModel.items)) )
 
                 FileType.PlainText ex ->
                     ( model, Download.string (Title.toString model.title ++ ex) "text/plain" (Text.toString model.diagramModel.text) )
