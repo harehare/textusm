@@ -38,7 +38,7 @@ from hierarchy text items =
         , hierarchy = hierarchy
         , countPerTasks = countByTasks items
         , countPerStories = countByStories hierarchy items
-        , releaseLevel = parse text
+        , releaseLevel = parseComment text
         }
 
 
@@ -77,8 +77,8 @@ storyCount (UserStoryMap userStoryMap) =
     List.sum userStoryMap.countPerStories
 
 
-parse : String -> ReleaseLevel
-parse text =
+parseComment : String -> ReleaseLevel
+parseComment text =
     String.lines text
         |> List.filter (\t -> String.trim t |> String.startsWith "#")
         |> List.map

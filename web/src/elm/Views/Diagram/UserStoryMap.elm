@@ -260,7 +260,7 @@ labelTextView settings ( posX, posY ) t =
         , width "100"
         , height "30"
         , color settings.color.label
-        , fontSize "11"
+        , fontSize "12"
         , fontWeight "bold"
         , class ".select-none"
         ]
