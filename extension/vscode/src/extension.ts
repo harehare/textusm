@@ -109,7 +109,7 @@ export function activate(context: vscode.ExtensionContext) {
             switch (values[0].value) {
               case "usm":
                 newTextOpen(
-                  "# labels: USER ACTIVITIES, USER TASKS, USER STORY\nUSER ACTIVITY\n    USER TASK\n        USER STORY",
+                  "# user_activities: USER ACTIVITIES\n# user_tasks: USER TASKS\n# user_stories: USER STORIES\n# release1: RELEASE 1\n# release2: RELEASE 2\n# release3: RELEASE 3\nUSER ACTIVITY\n    USER TASK\n        USER STORY",
                   values[0].value
                 );
                 break;
