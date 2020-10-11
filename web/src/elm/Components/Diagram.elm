@@ -181,17 +181,27 @@ load text =
 
                         ( otherIndents, otherItems ) =
                             loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
+
+                        itemType =
+                            getItemType x indent
                     in
-                    ( indent :: xsIndent ++ otherIndents
-                    , Item.cons
-                        (Item.new
-                            |> Item.withLineNo lineNo
-                            |> Item.withText x
-                            |> Item.withItemType (getItemType x indent)
-                            |> Item.withChildren (Item.childrenFromItems xsItems)
-                        )
-                        (Item.filter (\item -> Item.getItemType item /= Comments) otherItems)
-                    )
+                    case itemType of
+                        Comments ->
+                            ( indent :: xsIndent ++ otherIndents
+                            , Item.filter (\item -> Item.getItemType item /= Comments) otherItems
+                            )
+
+                        _ ->
+                            ( indent :: xsIndent ++ otherIndents
+                            , Item.cons
+                                (Item.new
+                                    |> Item.withLineNo lineNo
+                                    |> Item.withText x
+                                    |> Item.withItemType itemType
+                                    |> Item.withChildren (Item.childrenFromItems xsItems)
+                                )
+                                (Item.filter (\item -> Item.getItemType item /= Comments) otherItems)
+                            )
 
                 ( [], _ ) ->
                     ( [ indent ], Item.empty )
