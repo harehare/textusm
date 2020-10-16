@@ -10,12 +10,6 @@ import (
 	"github.com/urfave/negroni"
 )
 
-type key int
-
-var (
-	UIDKey key
-)
-
 func AuthMiddleware(app *firebase.App) negroni.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		idToken := strings.SplitN(r.Header.Get("Authorization"), " ", 2)

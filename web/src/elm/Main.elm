@@ -127,21 +127,6 @@ init flags url key =
     ( model, cmds )
 
 
-showWarningMessage : String -> Cmd Msg
-showWarningMessage msg =
-    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Warning msg))), Utils.delay 3000 OnCloseNotification ]
-
-
-showInfoMessage : String -> Cmd Msg
-showInfoMessage msg =
-    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Info msg))), Utils.delay 3000 OnCloseNotification ]
-
-
-showErrorMessage : String -> Cmd Msg
-showErrorMessage msg =
-    Cmd.batch [ Task.perform identity (Task.succeed (OnNotification (Error msg))), Utils.delay 3000 OnCloseNotification ]
-
-
 view : Model -> Html Msg
 view model =
     main_
@@ -288,49 +273,88 @@ showNotification notify =
 -- Update
 
 
-loadText : DiagramItem.DiagramItem -> Cmd Msg
-loadText diagram =
-    Task.attempt Load <| Task.succeed diagram
+loadText : DiagramItem.DiagramItem -> Model -> Return Msg Model
+loadText diagram model =
+    Return.return model (Task.attempt Load <| Task.succeed diagram)
 
 
 loadTextToEditor : Model -> Return Msg Model
 loadTextToEditor model =
-    ( model, Ports.loadText <| Text.toString model.diagramModel.text )
+    Return.return model (Ports.loadText <| Text.toString model.diagramModel.text)
 
 
 loadEditor : ( String, EditorSettings ) -> Model -> Return Msg Model
 loadEditor editorSettings model =
-    ( model, Ports.loadEditor editorSettings )
+    Return.return model (Ports.loadEditor editorSettings)
 
 
 changeRouteInit : Model -> Return Msg Model
 changeRouteInit model =
-    ( model, Task.perform Init Dom.getViewport )
+    Return.return model (Task.perform Init Dom.getViewport)
 
 
 startProgress : Model -> Return Msg Model
 startProgress model =
-    ( { model | progress = True }, Cmd.none )
+    Return.singleton { model | progress = True }
 
 
 stopProgress : Model -> Return Msg Model
 stopProgress model =
-    ( { model | progress = False }, Cmd.none )
+    Return.singleton { model | progress = False }
+
+
+closeNotification : Model -> Return Msg Model
+closeNotification model =
+    Return.return model (Utils.delay 3000 OnCloseNotification)
+
+
+showWarningMessage : String -> Model -> Return Msg Model
+showWarningMessage msg model =
+    Return.return model (Task.perform identity (Task.succeed (OnNotification (Warning msg))))
+        |> Return.andThen closeNotification
+
+
+showInfoMessage : String -> Model -> Return Msg Model
+showInfoMessage msg model =
+    Return.return model (Task.perform identity (Task.succeed (OnNotification (Info msg))))
+        |> Return.andThen closeNotification
+
+
+showErrorMessage : String -> Model -> Return Msg Model
+showErrorMessage msg model =
+    Return.return model (Task.perform identity (Task.succeed (OnNotification (Error msg))))
+        |> Return.andThen closeNotification
 
 
 openFullscreen : Model -> Return Msg Model
 openFullscreen model =
-    ( model, Ports.openFullscreen () )
+    Return.return model (Ports.openFullscreen ())
 
 
 closeFullscreen : Model -> Return Msg Model
 closeFullscreen model =
-    ( model, Ports.closeFullscreen () )
+    Return.return model (Ports.closeFullscreen ())
 
 
 saveDiagram : DiagramItem -> Model -> Return Msg Model
 saveDiagram item model =
-    ( model, Ports.saveDiagram <| DiagramItem.encoder item )
+    Return.return model (Ports.saveDiagram <| DiagramItem.encoder item)
+
+
+setEditorLanguage : Diagram.Diagram -> Model -> Return Msg Model
+setEditorLanguage diagram model =
+    Return.return model
+        (if diagram == Diagram.Markdown then
+            Ports.setEditorLanguage "markdown"
+
+         else
+            Ports.setEditorLanguage "userStoryMap"
+        )
+
+
+setFocus : String -> Model -> Return Msg Model
+setFocus id model =
+    Return.return model (Task.attempt (\_ -> NoOp) <| Dom.focus id)
 
 
 changeRouteTo : Route -> Model -> Return Msg Model
@@ -488,14 +512,14 @@ changeRouteTo route model =
                 newDiagramModel =
                     { diagramModel | diagramType = diagramType }
             in
-            ( { model
-                | title = Title.untitled
-                , currentDiagram = Nothing
-                , diagramModel = DiagramModel.updatedText newDiagramModel (Text.fromString defaultText)
-                , page = Page.Main
-              }
-            , setEditorLanguage diagramType
-            )
+            Return.singleton
+                { model
+                    | title = Title.untitled
+                    , currentDiagram = Nothing
+                    , diagramModel = DiagramModel.updatedText newDiagramModel (Text.fromString defaultText)
+                    , page = Page.Main
+                }
+                |> Return.andThen (setEditorLanguage diagramType)
                 |> Return.andThen changeRouteInit
 
         Route.EditFile _ id_ ->
@@ -559,17 +583,17 @@ changeRouteTo route model =
                     loadText_
 
         Route.Home ->
-            ( { model | page = Page.Main }, Cmd.none )
+            Return.singleton { model | page = Page.Main }
                 |> Return.andThen changeRouteInit
 
         Route.Settings ->
-            ( { model | page = Page.Settings }, Cmd.none )
+            Return.singleton { model | page = Page.Settings }
 
         Route.Help ->
-            ( { model | page = Page.Help }, Cmd.none )
+            Return.singleton { model | page = Page.Help }
 
         Route.SharingDiagram ->
-            ( { model | page = Page.Share, progress = True }
+            ( { model | page = Page.Share }
             , Ports.encodeShareText
                 { diagramType =
                     DiagramType.toString model.diagramModel.diagramType
@@ -577,6 +601,7 @@ changeRouteTo route model =
                 , text = Text.toString model.diagramModel.text
                 }
             )
+                |> Return.andThen startProgress
 
 
 update : Msg -> Model -> Return Msg Model
@@ -612,7 +637,7 @@ update message model =
                     ( { model | page = Page.Tags model_, currentDiagram = Just newDiagram, diagramModel = DiagramModel.updatedText model.diagramModel (Text.change diagram.text) }, cmd_ |> Cmd.map UpdateTags )
 
                 _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         UpdateSettings msg ->
             let
@@ -644,7 +669,7 @@ update message model =
                         ( { model | diagramModel = model_ }, Ports.loadText <| Text.toString model_.text )
 
                     else
-                        ( model, Cmd.none )
+                        Return.singleton model
 
                 DiagramModel.OnFontStyleChanged _ ->
                     case model.diagramModel.selectedItem of
@@ -653,7 +678,7 @@ update message model =
                                 |> Return.andThen loadTextToEditor
 
                         Nothing ->
-                            ( model, Cmd.none )
+                            Return.singleton model
 
                 DiagramModel.OnColorChanged _ _ ->
                     case model.diagramModel.selectedItem of
@@ -662,7 +687,7 @@ update message model =
                                 |> Return.andThen loadTextToEditor
 
                         Nothing ->
-                            ( model, Cmd.none )
+                            Return.singleton model
 
                 DiagramModel.ToggleFullscreen ->
                     let
@@ -702,27 +727,28 @@ update message model =
                 DiagramList.Removed (Err e) ->
                     case e of
                         Http.GraphqlError _ _ ->
-                            ( model, showErrorMessage <| Translations.messageFailed model.lang )
+                            showErrorMessage (Translations.messageFailed model.lang) model
 
                         Http.HttpError Http.Timeout ->
-                            ( model, showErrorMessage <| Translations.messageRequestTimeout model.lang )
+                            showErrorMessage (Translations.messageRequestTimeout model.lang) model
 
                         Http.HttpError Http.NetworkError ->
-                            ( model, showErrorMessage <| Translations.messageNetworkError model.lang )
+                            showErrorMessage (Translations.messageNetworkError model.lang) model
 
                         Http.HttpError _ ->
-                            ( model, showErrorMessage <| Translations.messageFailed model.lang )
+                            showErrorMessage (Translations.messageFailed model.lang) model
 
                 DiagramList.GotDiagrams (Err _) ->
-                    ( model, showErrorMessage <| Translations.messageFailed model.lang )
+                    showErrorMessage (Translations.messageFailed model.lang) model
 
                 DiagramList.ImportComplete json ->
                     case DiagramItem.stringToList json of
                         Ok _ ->
-                            ( { model | diagramListModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagramList, showInfoMessage <| Translations.messageImportCompleted model.lang ] )
+                            ( { model | diagramListModel = model_ }, cmd_ |> Cmd.map UpdateDiagramList )
+                                |> Return.andThen (showInfoMessage (Translations.messageImportCompleted model.lang))
 
                         Err _ ->
-                            ( model, showErrorMessage <| Translations.messageFailed model.lang )
+                            showErrorMessage (Translations.messageFailed model.lang) model
 
                 _ ->
                     ( { model | diagramListModel = model_ }, cmd_ |> Cmd.map UpdateDiagramList )
@@ -733,17 +759,8 @@ update message model =
                 ( model_, cmd_ ) =
                     Diagram.update (DiagramModel.Init model.diagramModel.settings window (Text.toString model.diagramModel.text)) model.diagramModel
             in
-            ( { model | diagramModel = model_ }
-            , Cmd.batch
-                [ case model.currentDiagram of
-                    Just diagram ->
-                        loadText diagram
-
-                    Nothing ->
-                        loadText DiagramItem.empty
-                , cmd_ |> Cmd.map UpdateDiagram
-                ]
-            )
+            Return.return { model | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
+                |> Return.andThen (loadText (model.currentDiagram |> Maybe.withDefault DiagramItem.empty))
                 |> Return.andThen stopProgress
 
         DownloadCompleted ( x, y ) ->
@@ -878,23 +895,21 @@ update message model =
             case D.decodeValue DiagramItem.decoder diagramJson of
                 Ok item ->
                     ( { model | currentDiagram = Just item }
-                    , Cmd.batch
-                        [ showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString item.title)
-                        , Route.replaceRoute model.key
-                            (Route.EditFile (DiagramType.toString item.diagram)
-                                (case item.id of
-                                    Just diagramId ->
-                                        diagramId
+                    , Route.replaceRoute model.key
+                        (Route.EditFile (DiagramType.toString item.diagram)
+                            (case item.id of
+                                Just diagramId ->
+                                    diagramId
 
-                                    Nothing ->
-                                        DiagramId.fromString ""
-                                )
+                                Nothing ->
+                                    DiagramId.fromString ""
                             )
-                        ]
+                        )
                     )
+                        |> Return.andThen (showInfoMessage (Translations.messageSuccessfullySaved model.lang (Title.toString item.title)))
 
                 Err _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         SaveToRemote diagramJson ->
             let
@@ -914,7 +929,7 @@ update message model =
                         |> Return.andThen startProgress
 
                 Err _ ->
-                    ( model, showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.") )
+                    showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.") model
                         |> Return.andThen stopProgress
 
         SaveToRemoteCompleted (Err _) ->
@@ -933,28 +948,20 @@ update message model =
                     , createdAt = Time.millisToPosix 0
                     }
             in
-            ( { model | currentDiagram = Just item }
-            , showWarningMessage <| Translations.messageFailedSaved model.lang (Title.toString model.title)
-            )
+            ( { model | currentDiagram = Just item }, Cmd.none )
                 |> Return.andThen (saveDiagram item)
                 |> Return.andThen stopProgress
+                |> Return.andThen (showWarningMessage <| Translations.messageFailedSaved model.lang (Title.toString model.title))
 
         SaveToRemoteCompleted (Ok diagram) ->
-            ( { model | currentDiagram = Just diagram, progress = False }
-            , Cmd.batch
-                [ showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString model.title)
-                , Route.replaceRoute model.key
-                    (Route.EditFile (DiagramType.toString diagram.diagram)
-                        (case diagram.id of
-                            Just diagramId ->
-                                diagramId
-
-                            Nothing ->
-                                DiagramId.fromString ""
-                        )
-                    )
-                ]
+            ( { model | currentDiagram = Just diagram }
+            , Route.replaceRoute model.key
+                (Route.EditFile (DiagramType.toString diagram.diagram)
+                    (diagram.id |> Maybe.withDefault (DiagramId.fromString ""))
+                )
             )
+                |> Return.andThen stopProgress
+                |> Return.andThen (showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString model.title))
 
         Shortcuts x ->
             case x of
@@ -963,16 +970,17 @@ update message model =
                         update Save model
 
                     else
-                        ( model, Cmd.none )
+                        Return.singleton model
 
                 "open" ->
                     ( model, Nav.load <| Route.toString (toRoute model.url) )
 
                 _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         StartEditTitle ->
-            ( { model | title = Title.edit model.title }, Task.attempt (\_ -> NoOp) <| Dom.focus "title" )
+            Return.singleton { model | title = Title.edit model.title }
+                |> Return.andThen (setFocus "title")
 
         EndEditTitle code isComposing ->
             if code == Events.keyEnter && not isComposing then
@@ -986,10 +994,10 @@ update message model =
                 ( { model | title = Title.view model.title, diagramModel = newDiagramModel }, Ports.focusEditor () )
 
             else
-                ( model, Cmd.none )
+                Return.singleton model
 
         EditTitle title ->
-            ( { model | title = Title.edit <| Title.fromString title }, Cmd.none )
+            Return.singleton { model | title = Title.edit <| Title.fromString title }
 
         OnVisibilityChange visible ->
             case visible of
@@ -1017,7 +1025,7 @@ update message model =
                     )
 
                 _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         OnStartWindowResize x ->
             let
@@ -1027,7 +1035,7 @@ update message model =
                 newWindow =
                     { window | moveStart = True, moveX = x }
             in
-            ( { model | window = newWindow }, Cmd.none )
+            Return.singleton { model | window = newWindow }
 
         Stop ->
             let
@@ -1037,13 +1045,13 @@ update message model =
                 newWindow =
                     { window | moveStart = False }
             in
-            ( { model | window = newWindow }, Cmd.none )
+            Return.singleton { model | window = newWindow }
 
         OnWindowResize x ->
             ( { model | window = { position = model.window.position + x - model.window.moveX, moveStart = True, moveX = x, fullscreen = model.window.fullscreen } }, Ports.layoutEditor 0 )
 
         GetShortUrl (Err e) ->
-            ( model, showErrorMessage ("Error. " ++ Utils.httpErrorToString e) )
+            showErrorMessage ("Error. " ++ Utils.httpErrorToString e) model
                 |> Return.andThen stopProgress
 
         GetShortUrl (Ok url) ->
@@ -1054,20 +1062,21 @@ update message model =
                 newShareModel =
                     { shareModel | url = url }
             in
-            ( { model | shareModel = newShareModel }, Cmd.none )
+            Return.singleton { model | shareModel = newShareModel }
                 |> Return.andThen stopProgress
 
         OnShareUrl shareInfo ->
             ( model, Ports.encodeShareText shareInfo )
 
         OnNotification notification ->
-            ( { model | notification = Just notification }, Cmd.none )
+            Return.singleton { model | notification = Just notification }
 
         OnAutoCloseNotification notification ->
-            ( { model | notification = Just notification }, Utils.delay 3000 OnCloseNotification )
+            Return.singleton { model | notification = Just notification }
+                |> Return.andThen closeNotification
 
         OnCloseNotification ->
-            ( { model | notification = Nothing }, Cmd.none )
+            Return.singleton { model | notification = Nothing }
 
         OnEncodeShareText path ->
             let
@@ -1086,10 +1095,10 @@ update message model =
             ( { model | shareModel = newShareModel }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl) )
 
         OnDecodeShareText text ->
-            ( model, Ports.loadText text )
+            Return.return model (Ports.loadText text)
 
         SwitchWindow w ->
-            ( { model | switchWindow = w }, Cmd.none )
+            Return.singleton { model | switchWindow = w }
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -1103,7 +1112,8 @@ update message model =
             changeRouteTo (toRoute url) { model | url = url }
 
         SignIn provider ->
-            ( { model | progress = True }, Ports.signIn <| LoginProdiver.toString provider )
+            Return.return model (Ports.signIn <| LoginProdiver.toString provider)
+                |> Return.andThen startProgress
 
         SignOut ->
             ( { model | session = Session.guest, currentDiagram = Nothing }, Ports.signOut () )
@@ -1133,10 +1143,11 @@ update message model =
                 |> Return.andThen stopProgress
 
         OnAuthStateChanged Nothing ->
-            ( { model | session = Session.guest, progress = False }, Cmd.none )
+            Return.singleton { model | session = Session.guest }
+                |> Return.andThen stopProgress
 
         Progress visible ->
-            ( { model | progress = visible }, Cmd.none )
+            Return.singleton { model | progress = visible }
 
         Load (Ok diagram) ->
             let
@@ -1164,17 +1175,15 @@ update message model =
                 ( model_, cmd_ ) =
                     Diagram.update (DiagramModel.OnChangeText <| Text.toString newDiagram.text) newDiagramModel
             in
-            ( { model
-                | progress = False
-                , title = newDiagram.title
-                , currentDiagram = Just newDiagram
-                , diagramModel = model_
-              }
-            , Cmd.batch
-                [ cmd_ |> Cmd.map UpdateDiagram
-                , setEditorLanguage newDiagram.diagram
-                ]
-            )
+            Return.return
+                { model
+                    | title = newDiagram.title
+                    , currentDiagram = Just newDiagram
+                    , diagramModel = model_
+                }
+                (cmd_ |> Cmd.map UpdateDiagram)
+                |> Return.andThen stopProgress
+                |> Return.andThen (setEditorLanguage newDiagram.diagram)
                 |> Return.andThen (loadEditor ( Text.toString newDiagram.text, defaultEditorSettings model.settingsModel.settings.editor ))
 
         EditText text ->
@@ -1185,15 +1194,16 @@ update message model =
             ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
         Load (Err _) ->
-            ( { model | progress = False }, showErrorMessage "Failed load diagram." )
+            stopProgress model
+                |> Return.andThen (showErrorMessage "Failed load diagram.")
 
         GotLocalDiagramJson json ->
             case D.decodeValue DiagramItem.decoder json of
                 Ok item ->
-                    ( model, loadText item )
+                    loadText item model
 
                 Err _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         ChangePublicStatus isPublic ->
             case model.currentDiagram of
@@ -1207,24 +1217,16 @@ update message model =
                         |> Return.andThen stopProgress
 
                 _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         ChangePublicStatusCompleted (Ok d) ->
-            ( { model | currentDiagram = Just d }, showInfoMessage ("\"" ++ Title.toString d.title ++ "\"" ++ " published") )
+            Return.singleton { model | currentDiagram = Just d }
                 |> Return.andThen stopProgress
+                |> Return.andThen (showInfoMessage <| "\"" ++ Title.toString d.title ++ "\"" ++ " published")
 
         ChangePublicStatusCompleted (Err _) ->
-            ( model, showErrorMessage "Failed to change publishing settings" )
+            showErrorMessage "Failed to change publishing settings" model
                 |> Return.andThen stopProgress
-
-
-setEditorLanguage : Diagram.Diagram -> Cmd Msg
-setEditorLanguage diagram =
-    if diagram == Diagram.Markdown then
-        Ports.setEditorLanguage "markdown"
-
-    else
-        Ports.setEditorLanguage "userStoryMap"
 
 
 

@@ -3,12 +3,13 @@ package server
 import (
 	"encoding/base64"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"context"
 
@@ -58,14 +59,14 @@ func Run() int {
 	app, err = firebase.NewApp(ctx, nil, opt)
 
 	if err != nil {
-		log.Fatalf("error initializing app: %v\n", err)
+		log.Error().Msg(fmt.Sprintf("error initializing app: %v\n", err))
 		return 1
 	}
 
 	firestore, err := app.Firestore(ctx)
 
 	if err != nil {
-		log.Fatalf("error initializing firestore: %v\n", err)
+		log.Error().Msg(fmt.Sprintf("error initializing firestore: %v\n", err))
 		return 1
 	}
 
@@ -86,6 +87,7 @@ func Run() int {
 	root := mux.NewRouter()
 	r.PathPrefix("/graphql").Handler(negroni.New(
 		negroni.HandlerFunc(middleware.AuthMiddleware(app)),
+		negroni.HandlerFunc(middleware.LoggingMiddleware),
 		negroni.Wrap(root)))
 	subRouter := root.PathPrefix("/").Subrouter()
 	subRouter.Methods("POST").Path("/graphql").HandlerFunc(gqlHandler.GraphQL(NewExecutableSchema(Config{Resolvers: &Resolver{service: service}})))
@@ -121,7 +123,7 @@ func Run() int {
 
 	go gracefullShutdown(s, quit, done)
 
-	log.Printf("Start server %s", env.Port)
+	log.Info().Msg(fmt.Sprintf("Start server %s", env.Port))
 	err = s.ListenAndServe()
 
 	if err != nil {
@@ -133,11 +135,11 @@ func Run() int {
 
 func gracefullShutdown(server *http.Server, quit <-chan os.Signal, done chan<- bool) {
 	<-quit
-	log.Println("Server is shutting down...")
+	log.Info().Msg("Server is shutting down")
 
 	server.SetKeepAlivesEnabled(false)
 	if err := server.Shutdown(context.Background()); err != nil {
-		log.Fatalf("Could not gracefully shutdown the server: %v\n", err)
+		log.Error().Msg(fmt.Sprintf("Could not gracefully shutdown the server: %v\n", err))
 	}
 	close(done)
 }

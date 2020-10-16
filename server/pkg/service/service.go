@@ -2,14 +2,13 @@ package service
 
 import (
 	"context"
-	"log"
 	"os"
-	"strconv"
 
 	"github.com/harehare/textusm/api/middleware"
 	e "github.com/harehare/textusm/pkg/error"
 	"github.com/harehare/textusm/pkg/item"
 	"github.com/harehare/textusm/pkg/repository"
+	"github.com/rs/zerolog/log"
 )
 
 var encryptKey = []byte(os.Getenv("ENCRYPT_KEY"))
@@ -25,7 +24,8 @@ func NewService(r repository.Repository) *Service {
 }
 
 func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic bool) ([]*item.Item, error) {
-	log.Println("Find diagrams offset = " + strconv.Itoa(offset) + ", limit = " + strconv.Itoa(limit))
+	requestID := ctx.Value(middleware.RequestIDKey).(string)
+	log.Info().Str("request_id", requestID).Int("offset", offset).Int("limit", limit).Msg("Start find diagrams")
 	userID := ctx.Value(middleware.UIDKey).(string)
 	items, err := s.repo.Find(ctx, userID, offset, limit, isPublic)
 
@@ -47,11 +47,13 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 		resultItems[i] = item
 	}
 
+	log.Info().Str("request_id", requestID).Msg("End find diagrams")
 	return resultItems, nil
 }
 
 func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool) (*item.Item, error) {
-	log.Println("Find diagram id = " + itemID)
+	requestID := ctx.Value(middleware.RequestIDKey).(string)
+	log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Start Find diagram")
 	userID := ctx.Value(middleware.UIDKey).(string)
 	item, err := s.repo.FindByID(ctx, userID, itemID, isPublic)
 
@@ -66,11 +68,13 @@ func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool)
 	}
 
 	item.Text = text
+	log.Info().Str("request_id", requestID).Msg("End Find diagram")
 	return item, nil
 }
 
 func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic bool) (*item.Item, error) {
-	log.Println("Save diagram id = " + item.ID)
+	requestID := ctx.Value(middleware.RequestIDKey).(string)
+	log.Info().Str("request_id", requestID).Str("item_id", item.ID).Msg("Save diagram")
 	userID := ctx.Value(middleware.UIDKey).(string)
 	currentText := item.Text
 	text, err := Encrypt(encryptKey, item.Text)
@@ -94,8 +98,8 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 			return nil, err
 		}
 
-		log.Println("Save public diagram id = " + item.ID)
-	} else {
+		log.Info().Str("request_id", requestID).Str("item_id", item.ID).Msg("Save public diagram")
+	} else if item.ID != "" {
 		_, err := s.repo.FindByID(ctx, userID, item.ID, true)
 
 		if err == nil || e.GetCode(err) != e.NotFound {
@@ -104,7 +108,7 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 			if err != nil {
 				return nil, err
 			}
-			log.Println("Delete public diagram id = " + item.ID)
+			log.Info().Str("request_id", requestID).Str("item_id", item.ID).Msg("Delete public diagram")
 		}
 	}
 
@@ -112,11 +116,13 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 	item.Text = currentText
 	resultItem.IsPublic = isPublic
 
+	log.Info().Str("request_id", requestID).Msg("End save diagram")
 	return resultItem, err
 }
 
 func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic bool) error {
-	log.Println("Delete diagram id = " + itemID)
+	requestID := ctx.Value(middleware.RequestIDKey).(string)
+	log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Start delete diagram")
 	userID := ctx.Value(middleware.UIDKey).(string)
 
 	if isPublic {
@@ -133,9 +139,10 @@ func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic boo
 		if err != nil {
 			return err
 		}
-		log.Println("Delete public diagram id = " + itemID)
+		log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Delete public diagram")
 	}
 
+	log.Info().Str("request_id", requestID).Msg("End delete public diagram")
 	return s.repo.Delete(ctx, userID, itemID, false)
 }
 

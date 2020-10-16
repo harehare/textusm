@@ -12,6 +12,7 @@ require (
 	github.com/go-siris/siris v7.4.0+incompatible // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v25 v25.0.4
+	github.com/google/uuid v1.1.2
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/kelseyhightower/envconfig v1.3.0
@@ -25,6 +26,7 @@ require (
 	github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
+	github.com/rs/zerolog v1.20.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
