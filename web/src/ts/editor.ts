@@ -51,6 +51,14 @@ const setEditorLanguage = (languageId: string) => {
     }
 };
 
+const selectLine = (lineNumber: number) => {
+    if (!monacoEditor) {
+        return;
+    }
+    monacoEditor.setPosition({ column: 1, lineNumber });
+    focusEditor();
+};
+
 const layout = (delay: number) => {
     setTimeout(() => {
         if (!monacoEditor) return;
@@ -199,4 +207,7 @@ export const loadEditor = async (
 
     app.ports.layoutEditor.unsubscribe(layout);
     app.ports.layoutEditor.subscribe(layout);
+
+    app.ports.selectLine.unsubscribe(selectLine);
+    app.ports.selectLine.subscribe(selectLine);
 };

@@ -721,7 +721,49 @@ itemToColorText item =
 
 clearPosition : Model -> Return Msg Model
 clearPosition model =
-    ( { model | movePosition = ( 0, 0 ) }, Cmd.none )
+    Return.singleton { model | movePosition = ( 0, 0 ) }
+
+
+selectLine : Int -> Model -> Return Msg Model
+selectLine lineNo model =
+    Return.return model (Ports.selectLine <| lineNo + 1)
+
+
+setFocus : String -> Model -> Return Msg Model
+setFocus id model =
+    Return.return model (Task.attempt (\_ -> NoOp) <| Dom.focus id)
+
+
+zoomIn : Model -> Return Msg Model
+zoomIn model =
+    if model.svg.scale <= 5.0 then
+        Return.singleton
+            { model
+                | svg =
+                    { width = model.svg.width
+                    , height = model.svg.height
+                    , scale = model.svg.scale + 0.05
+                    }
+            }
+
+    else
+        Return.singleton model
+
+
+zoomOut : Model -> Return Msg Model
+zoomOut model =
+    if model.svg.scale > 0.05 then
+        Return.singleton
+            { model
+                | svg =
+                    { width = model.svg.width
+                    , height = model.svg.height
+                    , scale = model.svg.scale - 0.05
+                    }
+            }
+
+    else
+        Return.singleton model
 
 
 update : Msg -> Model -> Return Msg Model
@@ -741,82 +783,57 @@ update message model =
                 model_ =
                     updateDiagram ( width, height ) model text
             in
-            ( { model_ | settings = settings }, Cmd.none )
+            Return.singleton { model_ | settings = settings }
 
         ZoomIn ->
-            if model.svg.scale <= 5.0 then
-                ( { model
-                    | svg =
-                        { width = model.svg.width
-                        , height = model.svg.height
-                        , scale = model.svg.scale + 0.05
-                        }
-                  }
-                , Cmd.none
-                )
-
-            else
-                Return.singleton model
+            zoomIn model
 
         ZoomOut ->
-            if model.svg.scale > 0.05 then
-                ( { model
-                    | svg =
-                        { width = model.svg.width
-                        , height = model.svg.height
-                        , scale = model.svg.scale - 0.05
-                        }
-                  }
-                , Cmd.none
-                )
-
-            else
-                Return.singleton model
+            zoomOut model
 
         PinchIn distance ->
-            ( { model | touchDistance = Just distance }, Task.perform identity (Task.succeed ZoomIn) )
+            Return.singleton { model | touchDistance = Just distance }
+                |> Return.andThen zoomIn
 
         PinchOut distance ->
-            ( { model | touchDistance = Just distance }, Task.perform identity (Task.succeed ZoomOut) )
+            Return.singleton { model | touchDistance = Just distance }
+                |> Return.andThen zoomOut
 
         OnChangeText text ->
-            ( updateDiagram model.size model text, Cmd.none )
+            Return.singleton <| updateDiagram model.size model text
 
         Start pos ->
-            ( { model
-                | moveStart = True
-                , movePosition = pos
-              }
-            , Cmd.none
-            )
+            Return.singleton
+                { model
+                    | moveStart = True
+                    , movePosition = pos
+                }
 
         Stop ->
-            if model.moveStart then
-                ( { model
-                    | moveStart = False
-                    , movePosition = Position.zero
-                    , touchDistance = Nothing
-                  }
-                , Cmd.none
-                )
+            Return.singleton <|
+                if model.moveStart then
+                    { model
+                        | moveStart = False
+                        , movePosition = Position.zero
+                        , touchDistance = Nothing
+                    }
 
-            else
-                ( model, Cmd.none )
+                else
+                    model
 
         Move ( x, y ) ->
-            ( if not model.moveStart || (x == Position.getX model.movePosition && y == Position.getY model.movePosition) then
-                model
+            Return.singleton <|
+                if not model.moveStart || (x == Position.getX model.movePosition && y == Position.getY model.movePosition) then
+                    model
 
-              else
-                { model
-                    | position =
-                        ( Position.getX model.position + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
-                        , Position.getY model.position + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
-                        )
-                    , movePosition = ( x, y )
-                }
-            , Cmd.none
-            )
+                else
+                    { model
+                        | position =
+                            ( Position.getX model.position + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                            , Position.getY model.position + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                            )
+                        , movePosition = ( x, y )
+                    }
 
         MoveTo position ->
             ( { model | position = position }, Cmd.none )
@@ -831,12 +848,10 @@ update message model =
                 |> Return.andThen clearPosition
 
         StartPinch distance ->
-            ( { model | touchDistance = Just distance }, Cmd.none )
+            Return.singleton { model | touchDistance = Just distance }
 
         EditSelectedItem text ->
-            ( { model | selectedItem = Maybe.andThen (\( i, _ ) -> Just ( i |> Item.withText (" " ++ String.trimLeft text), False )) model.selectedItem }
-            , Cmd.none
-            )
+            Return.singleton { model | selectedItem = Maybe.andThen (\( i, _ ) -> Just ( i |> Item.withText (" " ++ String.trimLeft text), False )) model.selectedItem }
 
         DragDropMsg msg_ ->
             let
@@ -885,19 +900,19 @@ update message model =
                 position =
                     ( windowWidth // 2 - round (toFloat canvasWidth / 2 * widthRatio), windowHeight // 2 - round (toFloat canvasHeight / 2 * heightRatio) )
             in
-            ( { model | svg = newSvgModel, position = position }, Cmd.none )
+            Return.singleton { model | svg = newSvgModel, position = position }
 
         Select (Just ( item, position )) ->
             if Item.isImage <| Item.getText item then
                 Return.singleton model
 
             else
-                ( { model | selectedItem = Just ( item, False ), contextMenu = Just ( Diagram.CloseMenu, position ) }
-                , Task.attempt (\_ -> NoOp) (Dom.focus "edit-item")
-                )
+                Return.singleton { model | selectedItem = Just ( item, False ), contextMenu = Just ( Diagram.CloseMenu, position ) }
+                    |> Return.andThen (setFocus "edit-item")
+                    |> Return.andThen (selectLine <| Item.getLineNo item)
 
         Select Nothing ->
-            ( { model | selectedItem = Nothing }, Cmd.none )
+            Return.singleton { model | selectedItem = Nothing }
 
         EndEditSelectedItem item code isComposing ->
             case ( model.selectedItem, code, isComposing ) of
@@ -1015,7 +1030,7 @@ update message model =
                             setAt (Item.getLineNo item) (prefix ++ (String.trimLeft text |> FontStyle.apply style) ++ itemToColorText item) lines
                                 |> String.join "\n"
                     in
-                    ( { model | text = Text.change <| Text.fromString updateText }, Cmd.none )
+                    Return.singleton { model | text = Text.change <| Text.fromString updateText }
 
                 Nothing ->
                     Return.singleton model
@@ -1056,7 +1071,7 @@ update message model =
                         :: right
                         |> String.join "\n"
             in
-            ( { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }, Cmd.none )
+            Return.singleton { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }
 
         OnDropFiles files ->
             ( { model | dragStatus = NoDrag }
@@ -1070,4 +1085,4 @@ update message model =
             ( model, Ports.insertTextLines files )
 
         ChangeDragStatus status ->
-            ( { model | dragStatus = status }, Cmd.none )
+            Return.singleton { model | dragStatus = status }
