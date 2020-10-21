@@ -58,6 +58,7 @@ const common = {
         alias: {
             "monaco-editor": "monaco-editor/esm/vs/editor/editor.api.js",
         },
+        fallback: { stream: false },
     },
     module: {
         rules: [
@@ -76,39 +77,47 @@ const common = {
             {
                 test: /\.scss$/,
                 exclude: [/elm-stuff/, /node_modules/],
-                loaders: [
-                    "style-loader",
-                    "css-loader?url=false",
-                    "sass-loader",
-                ],
+                use: ["style-loader", "css-loader?url=false", "sass-loader"],
             },
             {
                 test: /\.css$/,
                 exclude: [/elm-stuff/],
-                loaders: ["style-loader", "css-loader?url=false"],
+                use: ["style-loader", "css-loader?url=false"],
             },
             {
                 test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
                 exclude: [/elm-stuff/, /node_modules/],
-                loader: "url-loader",
-                options: {
-                    limit: 10000,
-                    mimetype: "application/font-woff",
+                type: "asset",
+                mimetype: "application/font-woff",
+                parser: {
+                    dataUrlCondition: {
+                        maxSize: 10 * 1024,
+                    },
                 },
             },
             {
                 test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
                 exclude: [/elm-stuff/, /node_modules/],
-                loader: "file-loader",
+                type: "asset",
+                parser: {
+                    dataUrlCondition: {
+                        maxSize: 10 * 1024,
+                    },
+                },
             },
             {
                 test: /\.(jpe?g|png|gif|svg)$/i,
                 exclude: [/elm-stuff/, /node_modules/],
-                loader: "file-loader",
+                type: "asset",
+                parser: {
+                    dataUrlCondition: {
+                        maxSize: 10 * 1024,
+                    },
+                },
             },
             {
                 test: /\.svg$/,
-                loader: "svg-inline-loader",
+                use: "svg-inline-loader",
             },
         ],
     },
@@ -208,7 +217,7 @@ if (mode === "production") {
                 {
                     test: /\.scss$/,
                     exclude: [/elm-stuff/, /node_modules/],
-                    loaders: [
+                    use: [
                         MiniCssExtractPlugin.loader,
                         "css-loader?url=false",
                         "sass-loader",

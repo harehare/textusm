@@ -341,6 +341,16 @@ saveDiagram item model =
     Return.return model (Ports.saveDiagram <| DiagramItem.encoder item)
 
 
+saveRemoteDiagram : DiagramItem -> Model -> Return Msg Model
+saveRemoteDiagram diagram model =
+    let
+        saveTask =
+            Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram) diagram.isPublic
+                |> Task.mapError (\_ -> diagram)
+    in
+    Return.return model (Task.attempt SaveToRemoteCompleted saveTask)
+
+
 setEditorLanguage : Diagram.Diagram -> Model -> Return Msg Model
 setEditorLanguage diagram model =
     Return.return model
@@ -888,7 +898,7 @@ update message model =
                         , createdAt = Time.millisToPosix 0
                         }
                 in
-                ( { model | diagramListModel = newDiagramListModel, diagramModel = newDiagramModel }, Cmd.none )
+                Return.singleton { model | diagramListModel = newDiagramListModel, diagramModel = newDiagramModel }
                     |> Return.andThen (saveDiagram item)
 
         SaveToLocalCompleted diagramJson ->
@@ -915,17 +925,10 @@ update message model =
             let
                 result =
                     D.decodeValue DiagramItem.decoder diagramJson
-                        |> Result.andThen
-                            (\diagram ->
-                                Ok
-                                    (Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram) diagram.isPublic
-                                        |> Task.mapError (\_ -> diagram)
-                                    )
-                            )
             in
             case result of
-                Ok saveTask ->
-                    ( model, Task.attempt SaveToRemoteCompleted saveTask )
+                Ok diagram ->
+                    saveRemoteDiagram diagram model
                         |> Return.andThen startProgress
 
                 Err _ ->
@@ -948,7 +951,7 @@ update message model =
                     , createdAt = Time.millisToPosix 0
                     }
             in
-            ( { model | currentDiagram = Just item }, Cmd.none )
+            Return.singleton { model | currentDiagram = Just item }
                 |> Return.andThen (saveDiagram item)
                 |> Return.andThen stopProgress
                 |> Return.andThen (showWarningMessage <| Translations.messageFailedSaved model.lang (Title.toString model.title))
@@ -1048,7 +1051,7 @@ update message model =
             Return.singleton { model | window = newWindow }
 
         OnWindowResize x ->
-            ( { model | window = { position = model.window.position + x - model.window.moveX, moveStart = True, moveX = x, fullscreen = model.window.fullscreen } }, Ports.layoutEditor 0 )
+            Return.return { model | window = { position = model.window.position + x - model.window.moveX, moveStart = True, moveX = x, fullscreen = model.window.fullscreen } } (Ports.layoutEditor 0)
 
         GetShortUrl (Err e) ->
             showErrorMessage ("Error. " ++ Utils.httpErrorToString e) model
