@@ -341,8 +341,13 @@ saveDiagram item model =
     Return.return model (Ports.saveDiagram <| DiagramItem.encoder item)
 
 
-saveRemoteDiagram : DiagramItem -> Model -> Return Msg Model
-saveRemoteDiagram diagram model =
+saveToLocal : DiagramItem -> Model -> Return Msg Model
+saveToLocal item model =
+    Return.return model (Ports.saveDiagram <| DiagramItem.encoder { item | isRemote = False })
+
+
+saveToRemote : DiagramItem -> Model -> Return Msg Model
+saveToRemote diagram model =
     let
         saveTask =
             Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram) diagram.isPublic
@@ -928,7 +933,7 @@ update message model =
             in
             case result of
                 Ok diagram ->
-                    saveRemoteDiagram diagram model
+                    saveToRemote diagram model
                         |> Return.andThen startProgress
 
                 Err _ ->
@@ -952,7 +957,7 @@ update message model =
                     }
             in
             Return.singleton { model | currentDiagram = Just item }
-                |> Return.andThen (saveDiagram item)
+                |> Return.andThen (saveToLocal item)
                 |> Return.andThen stopProgress
                 |> Return.andThen (showWarningMessage <| Translations.messageFailedSaved model.lang (Title.toString model.title))
 
