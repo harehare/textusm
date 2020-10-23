@@ -105,24 +105,16 @@ export const initDB = (app: ElmApp): void => {
                     id,
                     isPublic,
                 });
-                if (id) {
-                    // @ts-ignore
-                    await (await db()).diagrams.delete(id);
-                }
             } else {
-                const newId = id ?? uuidv4();
-                // @ts-ignore
-                await (await db()).diagrams.put({
-                    ...diagramItem,
-                    id: newId,
-                    isPublic: false,
-                });
-                app.ports.saveToLocalCompleted.send({
+                const item = {
                     ...diagramItem,
                     isRemote: false,
-                    id: newId,
+                    id: id ?? uuidv4(),
                     isPublic: false,
-                });
+                };
+                // @ts-ignore
+                await (await db()).diagrams.put(item);
+                app.ports.saveToLocalCompleted.send(item);
             }
         }
     );
