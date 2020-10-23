@@ -243,7 +243,6 @@ if (mode === "production") {
                 new TerserPlugin({
                     test: /\.(js|ts)$/i,
                     parallel: true,
-                    sourceMap: false,
                     terserOptions: {
                         compress: {
                             drop_console: true,
@@ -253,7 +252,6 @@ if (mode === "production") {
                 new TerserPlugin({
                     test: /elm\.js$/,
                     parallel: true,
-                    sourceMap: false,
                     terserOptions: {
                         compress: {
                             pure_funcs: [
