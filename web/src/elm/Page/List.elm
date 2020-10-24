@@ -20,6 +20,7 @@ import Json.Encode as E
 import List.Extra exposing (unique, updateIf)
 import Maybe.Extra exposing (isJust)
 import RemoteData exposing (RemoteData(..), WebData)
+import Return as Return exposing (Return)
 import Task
 import Time exposing (Zone)
 import Translations exposing (Lang)
@@ -515,29 +516,33 @@ tagView tag =
         [ text tag ]
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+reload : Model -> Return Msg Model
+reload model =
+    Return.return { model | diagramList = notAsked } (getDiagrams ())
+
+
+update : Msg -> Model -> Return Msg Model
 update message model =
     case message of
         NoOp ->
-            ( model, Cmd.none )
+            Return.singleton model
 
         GotTimeZone zone ->
-            ( { model | timeZone = zone }, Cmd.none )
+            Return.singleton { model | timeZone = zone }
 
         Filter cond ->
-            ( { model | filterCondition = cond }, Cmd.none )
+            Return.singleton { model | filterCondition = cond }
 
         SearchInput input ->
-            ( { model
-                | searchQuery =
-                    if String.isEmpty input then
-                        Nothing
+            Return.singleton
+                { model
+                    | searchQuery =
+                        if String.isEmpty input then
+                            Nothing
 
-                    else
-                        Just input
-              }
-            , Cmd.none
-            )
+                        else
+                            Just input
+                }
 
         LoadNextPage Private pageNo ->
             let
@@ -578,15 +583,15 @@ update message model =
                         DiagramList _ p _ ->
                             ( p, Success diagrams )
             in
-            ( { model | publicDiagramList = DiagramList allDiagrams pageNo hasMorePage }, Cmd.none )
+            Return.singleton { model | publicDiagramList = DiagramList allDiagrams pageNo hasMorePage }
 
         GotPublicDiagrams (Err _) ->
-            ( model, Cmd.none )
+            Return.singleton model
 
         GotLocalDiagramsJson json ->
             case model.diagramList of
                 DiagramList Loading _ _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
                 DiagramList _ pageNo _ ->
                     let
@@ -644,29 +649,23 @@ update message model =
                         )
 
                     else
-                        ( { model
-                            | diagramList =
-                                DiagramList (Success localItems) 1 False
-                          }
-                        , Cmd.none
-                        )
+                        Return.singleton { model | diagramList = DiagramList (Success localItems) 1 False }
 
         GotDiagrams (Err ( items, _ )) ->
             let
                 hasMorePage =
                     List.length items >= pageSize
             in
-            ( { model
-                | diagramList =
-                    case model.diagramList of
-                        DiagramList (Failure _) _ _ ->
-                            DiagramList (Success items) 1 hasMorePage
+            Return.singleton
+                { model
+                    | diagramList =
+                        case model.diagramList of
+                            DiagramList (Failure _) _ _ ->
+                                DiagramList (Success items) 1 hasMorePage
 
-                        DiagramList remoteData _ _ ->
-                            DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) 1 hasMorePage
-              }
-            , Cmd.none
-            )
+                            DiagramList remoteData _ _ ->
+                                DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) 1 hasMorePage
+                }
 
         GotDiagrams (Ok items) ->
             let
@@ -676,20 +675,19 @@ update message model =
                 (DiagramList remoteData pageNo _) =
                     model.diagramList
             in
-            ( { model
-                | diagramList =
-                    if List.isEmpty <| RemoteData.withDefault [] remoteData then
-                        DiagramList (Success items) 1 hasMorePage
+            Return.singleton
+                { model
+                    | diagramList =
+                        if List.isEmpty <| RemoteData.withDefault [] remoteData then
+                            DiagramList (Success items) 1 hasMorePage
 
-                    else
-                        DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) pageNo hasMorePage
-                , tags = List.concat [ model.tags, tags items ]
-              }
-            , Cmd.none
-            )
+                        else
+                            DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) pageNo hasMorePage
+                    , tags = List.concat [ model.tags, tags items ]
+                }
 
         Remove diagram ->
-            ( model, removeDiagrams (DiagramItem.encoder diagram) )
+            Return.return model (removeDiagrams (DiagramItem.encoder diagram))
 
         RemoveRemote diagramJson ->
             case D.decodeValue DiagramItem.decoder diagramJson of
@@ -697,29 +695,23 @@ update message model =
                     ( model
                     , Task.attempt Removed
                         (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session }
-                            (case diagram.id of
-                                Just id ->
-                                    DiagramId.toString id
-
-                                Nothing ->
-                                    ""
-                            )
+                            (diagram.id |> Maybe.withDefault (DiagramId.fromString "") |> DiagramId.toString)
                             False
                             |> Task.map (\_ -> Just diagram)
                         )
                     )
 
                 Err _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         Removed (Err _) ->
-            ( model, Cmd.none )
+            Return.singleton model
 
         Removed (Ok _) ->
-            ( model, getDiagrams () )
+            reload model
 
         Reload ->
-            ( model, getDiagrams () )
+            reload model
 
         Bookmark diagram ->
             let
@@ -745,18 +737,18 @@ update message model =
             )
 
         Import ->
-            ( model, Select.file [ "application/json" ] ImportFile )
+            Return.return model (Select.file [ "application/json" ] ImportFile)
 
         ImportFile file ->
-            ( model, Task.perform ImportComplete <| File.toString file )
+            Return.return model (Task.perform ImportComplete <| File.toString file)
 
         ImportComplete json ->
             case DiagramItem.stringToList json of
                 Ok diagrams ->
-                    ( model, importDiagram <| DiagramItem.listToValue diagrams )
+                    Return.return model (importDiagram <| DiagramItem.listToValue diagrams)
 
                 Err _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         Export ->
             case model.diagramList of
@@ -764,7 +756,7 @@ update message model =
                     ( model, Download.string "textusm.json" "application/json" <| DiagramItem.listToString diagrams )
 
                 _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         _ ->
-            ( model, Cmd.none )
+            Return.singleton model

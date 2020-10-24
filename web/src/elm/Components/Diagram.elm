@@ -734,6 +734,21 @@ setFocus id model =
     Return.return model (Task.attempt (\_ -> NoOp) <| Dom.focus id)
 
 
+setText : String -> Model -> Return Msg Model
+setText text model =
+    Return.singleton { model | text = Text.change <| Text.fromString text }
+
+
+selectItem : SelectedItem -> Model -> Return Msg Model
+selectItem item model =
+    Return.singleton { model | selectedItem = item }
+
+
+clearSelectedItem : Model -> Return Msg Model
+clearSelectedItem model =
+    Return.singleton { model | selectedItem = Nothing }
+
+
 zoomIn : Model -> Return Msg Model
 zoomIn model =
     if model.svg.scale <= 5.0 then
@@ -836,15 +851,15 @@ update message model =
                     }
 
         MoveTo position ->
-            ( { model | position = position }, Cmd.none )
+            Return.singleton { model | position = position }
                 |> Return.andThen clearPosition
 
         ToggleFullscreen ->
-            ( { model | fullscreen = not model.fullscreen }, Cmd.none )
+            Return.singleton { model | fullscreen = not model.fullscreen }
                 |> Return.andThen clearPosition
 
         OnResize width height ->
-            ( { model | size = ( width, height - 56 ) }, Cmd.none )
+            Return.singleton { model | size = ( width, height - 56 ) }
                 |> Return.andThen clearPosition
 
         StartPinch distance ->
@@ -869,16 +884,16 @@ update message model =
                     case DragDrop.getDragId model.dragDrop of
                         Just id_ ->
                             if Item.getLineNo item == id_ then
-                                ( { model | dragDrop = model_, selectedItem = Just ( item, True ) }, Cmd.none )
+                                Return.singleton { model | dragDrop = model_, selectedItem = Just ( item, True ) }
 
                             else
-                                ( { model | dragDrop = model_, selectedItem = Just ( item, False ) }, Cmd.none )
+                                Return.singleton { model | dragDrop = model_, selectedItem = Just ( item, False ) }
 
                         Nothing ->
-                            ( { model | dragDrop = model_, selectedItem = Just ( item, False ) }, Cmd.none )
+                            Return.singleton { model | dragDrop = model_, selectedItem = Just ( item, False ) }
 
                 ( Nothing, _ ) ->
-                    ( { model | dragDrop = model_, selectedItem = Maybe.andThen (\( item_, _ ) -> Just ( item_, False )) model.selectedItem }, Cmd.none )
+                    Return.singleton { model | dragDrop = model_, selectedItem = Maybe.andThen (\( item_, _ ) -> Just ( item_, False )) model.selectedItem }
 
         FitToWindow ->
             let
@@ -933,13 +948,14 @@ update message model =
                             setAt (Item.getLineNo item) (prefix ++ String.trimLeft (Item.getText item ++ itemToColorText selectedItem)) lines
                                 |> String.join "\n"
                     in
-                    ( { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }, Cmd.none )
+                    setText text model
+                        |> Return.andThen clearSelectedItem
 
                 _ ->
                     Return.singleton model
 
         OnSelectContextMenu menu ->
-            ( { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+            Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }
 
         OnColorChanged menu color ->
             case model.selectedItem of
@@ -994,10 +1010,14 @@ update message model =
                     in
                     case ( model.selectedItem, menu ) of
                         ( Just ( i, _ ), Diagram.ColorSelectMenu ) ->
-                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just ( Item.withColor (Just color) i, False ), contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+                            Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }
+                                |> Return.andThen (setText updateText)
+                                |> Return.andThen (selectItem (Just ( Item.withColor (Just color) i, False )))
 
                         ( Just ( i, _ ), Diagram.BackgroundColorSelectMenu ) ->
-                            ( { model | text = Text.change <| Text.fromString updateText, selectedItem = Just ( Item.withBackgroundColor (Just color) i, False ), contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }, Cmd.none )
+                            Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }
+                                |> Return.andThen (setText updateText)
+                                |> Return.andThen (selectItem (Just ( Item.withBackgroundColor (Just color) i, False )))
 
                         _ ->
                             Return.singleton model
@@ -1030,7 +1050,7 @@ update message model =
                             setAt (Item.getLineNo item) (prefix ++ (String.trimLeft text |> FontStyle.apply style) ++ itemToColorText item) lines
                                 |> String.join "\n"
                     in
-                    Return.singleton { model | text = Text.change <| Text.fromString updateText }
+                    setText updateText model
 
                 Nothing ->
                     Return.singleton model
@@ -1071,7 +1091,8 @@ update message model =
                         :: right
                         |> String.join "\n"
             in
-            Return.singleton { model | text = Text.change <| Text.fromString text, selectedItem = Nothing }
+            setText text model
+                |> Return.andThen clearSelectedItem
 
         OnDropFiles files ->
             ( { model | dragStatus = NoDrag }
@@ -1082,7 +1103,7 @@ update message model =
             )
 
         OnLoadFiles files ->
-            ( model, Ports.insertTextLines files )
+            Return.return model (Ports.insertTextLines files)
 
         ChangeDragStatus status ->
             Return.singleton { model | dragStatus = status }

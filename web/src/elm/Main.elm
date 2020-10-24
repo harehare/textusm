@@ -372,6 +372,11 @@ setFocus id model =
     Return.return model (Task.attempt (\_ -> NoOp) <| Dom.focus id)
 
 
+pushUrl : String -> Model -> Return Msg Model
+pushUrl url model =
+    Return.return model (Nav.pushUrl model.key url)
+
+
 changeRouteTo : Route -> Model -> Return Msg Model
 changeRouteTo route model =
     case route of
@@ -632,10 +637,10 @@ update message model =
                         ( model_, cmd_ ) =
                             Share.update msg model.shareModel
                     in
-                    ( { model | shareModel = model_, page = Page.Share }, cmd_ )
+                    Return.return { model | shareModel = model_, page = Page.Share } cmd_
 
                 _ ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         UpdateTags msg ->
             case ( model.page, model.currentDiagram ) of
@@ -665,7 +670,7 @@ update message model =
                 newDiagramModel =
                     { diagramModel | settings = model_.settings.storyMap }
             in
-            ( { model | page = Page.Settings, diagramModel = newDiagramModel, settingsModel = model_ }, cmd_ )
+            Return.return { model | page = Page.Settings, diagramModel = newDiagramModel, settingsModel = model_ } cmd_
 
         UpdateDiagram msg ->
             let
@@ -722,7 +727,7 @@ update message model =
                             )
 
                 _ ->
-                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                    Return.return { model | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
 
         UpdateDiagramList subMsg ->
             let
@@ -731,12 +736,11 @@ update message model =
             in
             case subMsg of
                 DiagramList.Select diagram ->
-                    ( model
-                    , Nav.pushUrl model.key
+                    pushUrl
                         (Route.toString <|
                             EditFile (DiagramType.toString diagram.diagram) (DiagramItem.getId diagram)
                         )
-                    )
+                        model
                         |> Return.andThen startProgress
 
                 DiagramList.Removed (Err e) ->
@@ -1111,10 +1115,10 @@ update message model =
         LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
-                    ( model, Nav.pushUrl model.key (Url.toString url) )
+                    pushUrl (Url.toString url) model
 
                 Browser.External href ->
-                    ( model, Nav.load href )
+                    Return.return model (Nav.load href)
 
         UrlChanged url ->
             changeRouteTo (toRoute url) { model | url = url }
@@ -1134,19 +1138,19 @@ update message model =
             (case ( toRoute model.url, model.currentDiagram ) of
                 ( Route.EditFile type_ id_, Just diagram ) ->
                     if (DiagramItem.getId diagram |> DiagramId.toString) /= DiagramId.toString id_ then
-                        ( newModel, Nav.pushUrl model.key (Route.toString <| Route.EditFile type_ id_) )
+                        pushUrl (Route.toString <| Route.EditFile type_ id_) newModel
 
                     else
-                        ( newModel, Cmd.none )
+                        Return.singleton newModel
 
                 ( Route.EditFile type_ id_, _ ) ->
-                    ( newModel, Nav.pushUrl model.key (Route.toString <| Route.EditFile type_ id_) )
+                    pushUrl (Route.toString <| Route.EditFile type_ id_) newModel
 
                 ( Route.DiagramList, _ ) ->
-                    ( newModel, Nav.pushUrl model.key <| Route.toString <| Route.Home )
+                    pushUrl (Route.toString <| Route.Home) newModel
 
                 _ ->
-                    ( newModel, Cmd.none )
+                    Return.singleton newModel
             )
                 |> Return.andThen stopProgress
 
@@ -1199,7 +1203,7 @@ update message model =
                 ( model_, cmd_ ) =
                     Diagram.update (DiagramModel.OnChangeText text) model.diagramModel
             in
-            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+            Return.return { model | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
 
         Load (Err _) ->
             stopProgress model
