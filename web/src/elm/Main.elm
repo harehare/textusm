@@ -22,6 +22,7 @@ import Data.Session as Session
 import Data.Size as Size
 import Data.Text as Text
 import Data.Title as Title
+import Effect
 import Events
 import File.Download as Download
 import GraphQL.Request as Request
@@ -369,7 +370,7 @@ setEditorLanguage diagram model =
 
 setFocus : String -> Model -> Return Msg Model
 setFocus id model =
-    Return.return model (Task.attempt (\_ -> NoOp) <| Dom.focus id)
+    Effect.focus NoOp id model
 
 
 pushUrl : String -> Model -> Return Msg Model
@@ -637,7 +638,7 @@ update message model =
                         ( model_, cmd_ ) =
                             Share.update msg model.shareModel
                     in
-                    Return.return { model | shareModel = model_, page = Page.Share } cmd_
+                    Return.return { model | shareModel = model_, page = Page.Share } (cmd_ |> Cmd.map UpdateShare)
 
                 _ ->
                     Return.singleton model
@@ -1153,6 +1154,7 @@ update message model =
                     Return.singleton newModel
             )
                 |> Return.andThen stopProgress
+                |> Return.andThen (showInfoMessage "Signed In")
 
         OnAuthStateChanged Nothing ->
             Return.singleton { model | session = Session.guest }

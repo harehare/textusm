@@ -4,6 +4,7 @@ import Data.Size as Size exposing (Size)
 import Html exposing (Html, div, input, text, textarea)
 import Html.Attributes exposing (class, id, readonly, style, type_, value)
 import Html.Events exposing (onClick, onInput)
+import Return as Return exposing (Return)
 
 
 type alias Model =
@@ -22,34 +23,32 @@ type Msg
 port selectTextById : String -> Cmd msg
 
 
-init : String -> String -> ( Model, Cmd Msg )
+init : String -> String -> Return Msg Model
 init embedUrl url =
-    ( Model embedUrl ( 800, 600 ) url
-    , Cmd.none
-    )
+    Return.singleton (Model embedUrl ( 800, 600 ) url)
 
 
-update : Msg -> Model -> ( Model, Cmd msg )
+update : Msg -> Model -> Return Msg Model
 update msg model =
     case msg of
         SelectAll id ->
-            ( model, selectTextById id )
+            Return.return model (selectTextById id)
 
         OnInputWidth width ->
             case String.toInt width of
                 Just w ->
-                    ( { model | empbedSize = ( w, Size.getHeight model.empbedSize ) }, Cmd.none )
+                    Return.singleton { model | empbedSize = ( w, Size.getHeight model.empbedSize ) }
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
         OnInputHeight height ->
             case String.toInt height of
                 Just h ->
-                    ( { model | empbedSize = ( Size.getWidth model.empbedSize, h ) }, Cmd.none )
+                    Return.singleton { model | empbedSize = ( Size.getWidth model.empbedSize, h ) }
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
 
 view : Model -> Html Msg
