@@ -65,6 +65,7 @@ type Msg
     | ChangePublicStatus Bool
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
     | Load (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
+    | CloseFullscreen D.Value
 
 
 type Notification

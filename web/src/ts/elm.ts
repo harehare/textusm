@@ -42,6 +42,7 @@ export type ElmApp = {
         importDiagram: Subscribe<(diagrams: DiagramItem[]) => void>;
         selectLine: Subscribe<(lineNumber: number) => void>;
 
+        onCloseFullscreen: Send<{}>;
         onErrorNotification: Send<string>;
         progress: Send<boolean>;
         changeText: Send<string>;

@@ -117,3 +117,9 @@ const loadSentry = async () => {
 };
 
 loadSentry();
+
+document.addEventListener("fullscreenchange", (_) => {
+    if (!document.fullscreenElement) {
+        app.ports.onCloseFullscreen.send({});
+    }
+});

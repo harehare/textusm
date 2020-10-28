@@ -1242,6 +1242,20 @@ update message model =
             showErrorMessage "Failed to change publishing settings" model
                 |> Return.andThen stopProgress
 
+        CloseFullscreen _ ->
+            let
+                ( model_, cmd_ ) =
+                    Diagram.update DiagramModel.ToggleFullscreen model.diagramModel
+
+                window =
+                    model.window
+
+                newWindow =
+                    { window | fullscreen = False }
+            in
+            Return.return { model | window = newWindow, diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
+                |> Return.andThen (loadEditor ( Text.toString model.diagramModel.text, defaultEditorSettings model.settingsModel.settings.editor ))
+
 
 
 -- Subscriptions
@@ -1270,6 +1284,7 @@ subscriptions model =
          , Ports.progress Progress
          , Ports.saveToLocalCompleted SaveToLocalCompleted
          , Ports.gotLocalDiagramJson GotLocalDiagramJson
+         , Ports.onCloseFullscreen CloseFullscreen
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp <| D.succeed Stop
