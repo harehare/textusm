@@ -50,7 +50,7 @@
         "style-loader": "^2.0.0",
         "svg-inline-loader": "^0.8.2",
         "terser": "^5.3.8",
-        "terser-webpack-plugin": "^5.0.2",
+        "terser-webpack-plugin": "^5.0.3",
         "ts-loader": "^8.0.7",
         "typescript": "^3.9.7",
         "webpack": "^5.3.0",
