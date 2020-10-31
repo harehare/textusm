@@ -7,7 +7,7 @@
         "url": "https://github.com/harehare/textusm/issues"
     },
     "dependencies": {
-        "@sentry/browser": "^5.27.1",
+        "@sentry/browser": "^5.27.2",
         "dexie": "^3.0.2",
         "firebase": "^8.0.0",
         "html2canvas": "^1.0.0-rc.7",
@@ -53,7 +53,7 @@
         "terser-webpack-plugin": "^5.0.3",
         "ts-loader": "^8.0.7",
         "typescript": "^3.9.7",
-        "webpack": "^5.3.1",
+        "webpack": "^5.3.2",
         "webpack-cli": "^4.1.0",
         "webpack-dev-server": "^3.11.0",
         "webpack-merge": "^5.3.0",
