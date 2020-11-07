@@ -6,7 +6,7 @@ import Data.DiagramType as DiagramType
 import Data.Item as Item exposing (ItemType(..))
 import Data.Position as Position
 import Expect
-import Models.Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Test exposing (Test, describe, test)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (tag, text)
@@ -81,10 +81,10 @@ moveStartTest =
             \() ->
                 let
                     newModel =
-                        update (Start ( 10, 20 )) defInit
+                        update (Start Diagram.BoardMove ( 10, 20 )) defInit
                             |> Tuple.first
                 in
-                Expect.equal newModel { newModel | moveStart = True, movePosition = ( 10, 20 ) }
+                Expect.equal newModel { newModel | moveState = Diagram.BoardMove, movePosition = ( 10, 20 ) }
         ]
 
 
@@ -98,7 +98,7 @@ moveStopTest =
                         update Stop defInit
                             |> Tuple.first
                 in
-                Expect.equal newModel { newModel | moveStart = False, movePosition = ( 0, 0 ), touchDistance = Nothing }
+                Expect.equal newModel { newModel | moveState = Diagram.NotMove, movePosition = ( 0, 0 ), touchDistance = Nothing }
         ]
 
 
@@ -125,7 +125,7 @@ moveTest =
             \() ->
                 let
                     newModel =
-                        update (Start ( 0, 0 )) defInit
+                        update (Start Diagram.BoardMove ( 0, 0 )) defInit
                             |> Tuple.first
 
                     moveModel =
