@@ -306,7 +306,7 @@ getCanvasSize model =
                             List.map
                                 (\table ->
                                     let
-                                        (Table _ columns) =
+                                        (Table _ columns _ _) =
                                             table
                                     in
                                     ( ER.tableWidth table, (List.length columns + 1) * Constants.tableRowHeight )
@@ -391,7 +391,9 @@ getCanvasSize model =
                 Diagram.UserStoryMap ->
                     case model.data of
                         DiagramModel.UserStoryMap userStoryMap ->
-                            ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * UserStoryMap.taskCount userStoryMap, (model.settings.size.height + Constants.itemMargin) * (UserStoryMap.storyCount userStoryMap  + 2) )
+                            ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * UserStoryMap.taskCount userStoryMap
+                            , (model.settings.size.height + Constants.itemMargin) * (UserStoryMap.storyCount userStoryMap + 2)
+                            )
 
                         _ ->
                             ( 0, 0 )

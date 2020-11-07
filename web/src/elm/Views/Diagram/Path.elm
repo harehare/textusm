@@ -38,7 +38,7 @@ view colour ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( to
             , line ( toX + fromWidth / 2, fromY )
             ]
 
-    else if abs (fromY - toY) <= 10 && fromX < toX then
+    else if abs (fromY - toY) <= 15 && fromX < toX then
         let
             y =
                 fromY + fromHeight / 2
@@ -49,7 +49,7 @@ view colour ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( to
             , line ( toX, y )
             ]
 
-    else if abs (fromY - toY) <= 10 && fromX > toX then
+    else if abs (fromY - toY) <= 15 && fromX > toX then
         let
             y =
                 fromY + fromHeight / 2
@@ -107,7 +107,8 @@ drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, t
                 fromHeight / 2
 
             toMargin =
-                toHeight / 2
+                toHeight
+                    / 2
         in
         [ start ( fromX + fromWidth, fromY + fromMargin )
         , line ( fromX + fromWidth + interval - cornerSize, fromY + fromMargin )

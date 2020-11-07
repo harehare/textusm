@@ -2,7 +2,7 @@ module Components.Diagram exposing (init, update, view)
 
 import Basics exposing (max)
 import Browser.Dom as Dom
-import Constants exposing (inputPrefix)
+import Constants exposing (indentSpace, inputPrefix)
 import Data.Color as Color
 import Data.FontStyle as FontStyle
 import Data.Item as Item exposing (Item, ItemType(..), Items)
@@ -71,11 +71,6 @@ type alias Hierarchy =
     Int
 
 
-indentSpace : Int
-indentSpace =
-    4
-
-
 init : Settings -> Return Msg Model
 init settings =
     Return.singleton
@@ -87,7 +82,7 @@ init settings =
             , height = 0
             , scale = 1.0
             }
-        , moveStart = False
+        , moveState = Diagram.NotMove
         , position = ( 0, 20 )
         , movePosition = ( 0, 0 )
         , fullscreen = False
@@ -297,11 +292,12 @@ view model =
     div
         [ Attr.id "usm-area"
         , Attr.style "position" "relative"
-        , if model.moveStart then
-            Attr.style "cursor" "grabbing"
+        , case model.moveState of
+            Diagram.BoardMove ->
+                Attr.style "cursor" "grabbing"
 
-          else
-            Attr.style "cursor" "grab"
+            _ ->
+                Attr.style "cursor" "grab"
         , Events.onDrop OnDropFiles
         , E.preventDefaultOn "dragover" <|
             D.succeed ( ChangeDragStatus DragOver, True )
@@ -435,8 +431,8 @@ svgView model =
         , viewBox ("0 0 " ++ svgWidth ++ " " ++ svgHeight)
         , Attr.style "background-color" model.settings.backgroundColor
         , Wheel.onWheel chooseZoom
-        , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
-        , onDragMove model.touchDistance model.moveStart (Utils.isPhone <| Size.getWidth model.size)
+        , onDragStart Diagram.BoardMove model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
+        , onDragMove model.touchDistance model.moveState (Utils.isPhone <| Size.getWidth model.size)
         , onClick <| Select Nothing
         ]
         [ if String.isEmpty model.settings.font then
@@ -474,11 +470,12 @@ svgView model =
                     ++ ")"
                 )
             , fill model.settings.backgroundColor
-            , if model.moveStart then
-                style "will-change: transform;"
+            , case model.moveState of
+                Diagram.NotMove ->
+                    style "will-change: transform;transition: transform 0.15s ease"
 
-              else
-                style "will-change: transform;transition: transform 0.15s ease"
+                _ ->
+                    style "will-change: transform;"
             ]
             [ mainSvg ]
         , case ( model.selectedItem, model.contextMenu ) of
@@ -508,8 +505,8 @@ svgView model =
         ]
 
 
-onDragStart : SelectedItem -> Bool -> Svg.Attribute Msg
-onDragStart item isPhone =
+onDragStart : Diagram.MoveState -> SelectedItem -> Bool -> Svg.Attribute Msg
+onDragStart moveState item isPhone =
     case ( item, isPhone ) of
         ( Nothing, True ) ->
             Touch.onStart
@@ -533,7 +530,7 @@ onDragStart item isPhone =
                             ( x, y ) =
                                 touchCoordinates event
                         in
-                        Start ( round x, round y )
+                        Start Diagram.BoardMove ( round x, round y )
                 )
 
         ( Nothing, False ) ->
@@ -543,17 +540,20 @@ onDragStart item isPhone =
                         ( x, y ) =
                             event.pagePos
                     in
-                    Start ( round x, round y )
+                    Start Diagram.BoardMove ( round x, round y )
                 )
 
         _ ->
             Attr.style "" ""
 
 
-onDragMove : Maybe Float -> Bool -> Bool -> Svg.Attribute Msg
-onDragMove distance isDragStart isPhone =
-    case ( isDragStart, isPhone ) of
-        ( True, True ) ->
+onDragMove : Maybe Float -> Diagram.MoveState -> Bool -> Svg.Attribute Msg
+onDragMove distance moveState isPhone =
+    case ( moveState, isPhone ) of
+        ( Diagram.NotMove, _ ) ->
+            Attr.style "" ""
+
+        ( _, True ) ->
             Touch.onMove
                 (\event ->
                     if List.length event.changedTouches > 1 then
@@ -594,7 +594,7 @@ onDragMove distance isDragStart isPhone =
                         Move ( round x, round y )
                 )
 
-        ( True, False ) ->
+        ( _, False ) ->
             Mouse.onMove
                 (\event ->
                     let
@@ -603,9 +603,6 @@ onDragMove distance isDragStart isPhone =
                     in
                     Move ( round x, round y )
                 )
-
-        _ ->
-            Attr.style "" ""
 
 
 chooseZoom : Wheel.Event -> Msg
@@ -739,9 +736,29 @@ setText text model =
     Return.singleton { model | text = Text.change <| Text.fromString text }
 
 
+setLine : Int -> List String -> String -> Model -> Return Msg Model
+setLine lineNo lines line model =
+    let
+        text =
+            setAt lineNo line lines
+                |> String.join "\n"
+    in
+    setText text model
+
+
 selectItem : SelectedItem -> Model -> Return Msg Model
 selectItem item model =
     Return.singleton { model | selectedItem = item }
+
+
+stopMove : Model -> Return Msg Model
+stopMove model =
+    Return.singleton
+        { model
+            | moveState = Diagram.NotMove
+            , movePosition = Position.zero
+            , touchDistance = Nothing
+        }
 
 
 clearSelectedItem : Model -> Return Msg Model
@@ -781,6 +798,11 @@ zoomOut model =
         Return.singleton model
 
 
+loadTextToEditor : Model -> Return Msg Model
+loadTextToEditor model =
+    Return.return model (Ports.loadText <| Text.toString model.text)
+
+
 update : Msg -> Model -> Return Msg Model
 update message model =
     case message of
@@ -817,38 +839,80 @@ update message model =
         OnChangeText text ->
             Return.singleton <| updateDiagram model.size model text
 
-        Start pos ->
+        Start moveState pos ->
             Return.singleton
                 { model
-                    | moveStart = True
+                    | moveState = moveState
                     , movePosition = pos
                 }
 
         Stop ->
-            Return.singleton <|
-                if model.moveStart then
-                    { model
-                        | moveStart = False
-                        , movePosition = Position.zero
-                        , touchDistance = Nothing
-                    }
+            case model.moveState of
+                Diagram.ItemMove target ->
+                    case target of
+                        Diagram.TableTarget table ->
+                            let
+                                (ErDiagramModel.Table name columns position lineNo) =
+                                    table
+                            in
+                            stopMove model
+                                |> Return.andThen (setLine lineNo (Text.lines model.text) (ErDiagramModel.tableToLineString table))
+                                |> Return.andThen loadTextToEditor
 
-                else
-                    model
+                        Diagram.ItemTarget item ->
+                            stopMove model
+
+                _ ->
+                    stopMove model
 
         Move ( x, y ) ->
             Return.singleton <|
-                if not model.moveStart || (x == Position.getX model.movePosition && y == Position.getY model.movePosition) then
+                if not (Diagram.isMoving model.moveState) || (x == Position.getX model.movePosition && y == Position.getY model.movePosition) then
                     model
 
                 else
-                    { model
-                        | position =
-                            ( Position.getX model.position + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
-                            , Position.getY model.position + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
-                            )
-                        , movePosition = ( x, y )
-                    }
+                    case model.moveState of
+                        Diagram.BoardMove ->
+                            { model
+                                | position =
+                                    ( Position.getX model.position + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                                    , Position.getY model.position + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                    )
+                                , movePosition = ( x, y )
+                            }
+
+                        Diagram.ItemMove target ->
+                            case target of
+                                Diagram.TableTarget table ->
+                                    let
+                                        (ErDiagramModel.Table name columns position lineNo) =
+                                            table
+
+                                        newPosition =
+                                            position
+                                                |> Maybe.andThen
+                                                    (\p ->
+                                                        Just
+                                                            ( Position.getX p + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                                                            , Position.getY p + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                            )
+                                                    )
+                                                |> Maybe.withDefault ( x - Position.getX model.movePosition, y - Position.getY model.movePosition )
+                                                |> Just
+                                    in
+                                    { model
+                                        | moveState =
+                                            Diagram.ItemMove <|
+                                                Diagram.TableTarget (ErDiagramModel.Table name columns newPosition lineNo)
+                                        , movePosition = ( x, y )
+                                    }
+
+                                Diagram.ItemTarget item ->
+                                    -- TODO: support
+                                    model
+
+                        _ ->
+                            model
 
         MoveTo position ->
             Return.singleton { model | position = position }

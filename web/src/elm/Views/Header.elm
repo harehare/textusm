@@ -88,6 +88,7 @@ view props =
                         else
                             div
                                 [ class "title header-title"
+                                , style "cursor" "pointer"
                                 , onClick StartEditTitle
                                 ]
                                 [ text <| Title.toString props.title
@@ -102,22 +103,22 @@ view props =
                                 ]
 
                     Page.New ->
-                        div [ class "title header-title" ] [ text "NEW" ]
+                        div [ class "title header-title" ] [ text "New" ]
 
                     Page.List ->
-                        div [ class "title header-title" ] [ text "LIST" ]
+                        div [ class "title header-title" ] [ text "All" ]
 
                     Page.Settings ->
-                        div [ class "title header-title" ] [ text "SETTINGS" ]
+                        div [ class "title header-title" ] [ text "Settings" ]
 
                     Page.Help ->
-                        div [ class "title header-title" ] [ text "HELP" ]
+                        div [ class "title header-title" ] [ text "Help" ]
 
                     Page.Tags _ ->
-                        div [ class "title header-title" ] [ text "TAGS" ]
+                        div [ class "title header-title" ] [ text "Tags" ]
 
                     Page.Share ->
-                        div [ class "title header-title" ] [ text "SHARE" ]
+                        div [ class "title header-title" ] [ text "Share" ]
 
                     _ ->
                         Empty.view

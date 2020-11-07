@@ -1,4 +1,35 @@
-module Models.Diagram exposing (Color, ColorSettings, ContextMenu(..), Data(..), DragStatus(..), Model, Msg(..), SelectedItem, Settings, Size, fontStyle, getTextColor, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfZoomControl, updatedText)
+module Models.Diagram exposing
+    ( Color
+    , ColorSettings
+    , ContextMenu(..)
+    , Data(..)
+    , DragStatus(..)
+    , Model
+    , MoveState(..)
+    , MoveTarget(..)
+    , Msg(..)
+    , SelectedItem
+    , Settings
+    , Size
+    , fontStyle
+    , getTextColor
+    , isMoving
+    , settingsOfActivityBackgroundColor
+    , settingsOfActivityColor
+    , settingsOfBackgroundColor
+    , settingsOfFont
+    , settingsOfHeight
+    , settingsOfLabelColor
+    , settingsOfLineColor
+    , settingsOfStoryBackgroundColor
+    , settingsOfStoryColor
+    , settingsOfTaskBackgroundColor
+    , settingsOfTaskColor
+    , settingsOfTextColor
+    , settingsOfWidth
+    , settingsOfZoomControl
+    , updatedText
+    )
 
 import Browser.Dom exposing (Viewport)
 import Data.Color as Color
@@ -10,7 +41,7 @@ import Data.Text exposing (Text)
 import File exposing (File)
 import Html5.DragDrop as DragDrop
 import Models.Views.BusinessModelCanvas exposing (BusinessModelCanvas)
-import Models.Views.ER exposing (ErDiagram)
+import Models.Views.ER as ER exposing (ErDiagram)
 import Models.Views.EmpathyMap exposing (EmpathyMap)
 import Models.Views.FourLs exposing (FourLs)
 import Models.Views.Kanban exposing (Kanban)
@@ -44,7 +75,7 @@ type alias Model =
         , height : Int
         , scale : Float
         }
-    , moveStart : Bool
+    , moveState : MoveState
     , position : Position
     , movePosition : Position
     , fullscreen : Bool
@@ -110,6 +141,17 @@ type DragStatus
     | DragOver
 
 
+type MoveState
+    = BoardMove
+    | ItemMove MoveTarget
+    | NotMove
+
+
+type MoveTarget
+    = TableTarget ER.Table
+    | ItemTarget Item
+
+
 type alias Settings =
     { font : String
     , size : Size
@@ -117,6 +159,16 @@ type alias Settings =
     , backgroundColor : String
     , zoomControl : Maybe Bool
     }
+
+
+isMoving : MoveState -> Bool
+isMoving moveState =
+    case moveState of
+        NotMove ->
+            False
+
+        _ ->
+            True
 
 
 fontStyle : Settings -> String
@@ -160,7 +212,7 @@ type Msg
     | PinchIn Float
     | PinchOut Float
     | Stop
-    | Start Position
+    | Start MoveState Position
     | Move Position
     | MoveTo Position
     | ToggleFullscreen

@@ -1,4 +1,14 @@
-module Constants exposing (commentSize, fontSize, fragmentOffset, ganttItemSize, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, messageMargin, participantMargin, smallItemMargin, tableMargin, tableRowHeight)
+module Constants exposing (commentSize, fontSize, fragmentOffset, ganttItemSize, indentSpace, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, messageMargin, participantMargin, smallItemMargin, space, tableMargin, tableRowHeight)
+
+
+space : String
+space =
+    "    "
+
+
+indentSpace : Int
+indentSpace =
+    4
 
 
 fontSize : String

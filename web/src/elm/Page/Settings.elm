@@ -1368,5 +1368,5 @@ section title =
         , style "font-weight" "400"
         , style "margin" "0 0 16px 0px"
         ]
-        [ div [ style "font-size" "0.9rem", style "font-weight" "600" ] [ text (title |> Maybe.withDefault "") ]
+        [ div [ style "font-size" "1.2rem", style "font-weight" "600" ] [ text (title |> Maybe.withDefault "") ]
         ]

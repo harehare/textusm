@@ -1,6 +1,8 @@
-module Models.Views.ER exposing (Attribute(..), Column(..), ColumnType(..), ErDiagram, Relationship(..), Table(..), columnTypeToString, from, relationshipToString, tableToString, tableWidth)
+module Models.Views.ER exposing (Attribute(..), Column(..), ColumnType(..), ErDiagram, Relationship(..), Table(..), columnTypeToString, from, relationshipToString, tableToLineString, tableToString, tableWidth)
 
+import Constants
 import Data.Item as Item exposing (Item, Items)
+import Data.Position as Position exposing (Position)
 import Dict exposing (Dict)
 import Dict.Extra exposing (find)
 import List.Extra as ListEx exposing (getAt)
@@ -27,6 +29,10 @@ type alias Length =
     Int
 
 
+type alias LineNo =
+    Int
+
+
 type Relationship
     = ManyToMany TableName TableName
     | OneToMany TableName TableName
@@ -36,7 +42,7 @@ type Relationship
 
 
 type Table
-    = Table Name (List Column)
+    = Table Name (List Column) (Maybe Position) LineNo
 
 
 type Column
@@ -77,7 +83,7 @@ type Attribute
 
 
 tableWidth : Table -> Int
-tableWidth (Table name columns) =
+tableWidth (Table name columns _ _) =
     String.length name
         :: List.map (\(Column colName _ _) -> String.length colName)
             columns
@@ -160,8 +166,35 @@ itemsToTables items =
 itemToTable : Item -> Table
 itemToTable item =
     let
-        tableName =
-            Item.getText item |> String.trim
+        text =
+            Item.getText item
+                |> String.trim
+
+        tableInfo =
+            text
+                |> String.split "|"
+                |> List.map String.trim
+
+        ( tableName, position ) =
+            case tableInfo of
+                [ name, xString, yString ] ->
+                    let
+                        maybeX =
+                            String.toInt xString
+
+                        maybeY =
+                            String.toInt yString
+                    in
+                    ( name
+                    , String.toInt xString
+                        |> Maybe.andThen (\x -> Maybe.andThen (\y -> Just ( x, y )) (String.toInt yString))
+                    )
+
+                [ name, _ ] ->
+                    ( name, Nothing )
+
+                _ ->
+                    ( text, Nothing )
 
         items =
             Item.getChildren item |> Item.unwrapChildren
@@ -169,7 +202,7 @@ itemToTable item =
         columns =
             Item.map itemToColumn items
     in
-    Table tableName columns
+    Table tableName columns position (Item.getLineNo item)
 
 
 itemToColumn : Item -> Column
@@ -474,7 +507,7 @@ columnTypeToString type_ =
 
 
 tableToString : Table -> String
-tableToString (Table name columns) =
+tableToString (Table name columns _ _) =
     let
         columnStrings =
             List.map (\c -> columnToString c |> String.trimRight) columns
@@ -638,3 +671,12 @@ columnAttributeToString attr =
 
         _ ->
             ""
+
+
+tableToLineString : Table -> String
+tableToLineString (Table name _ position _) =
+    let
+        ( x, y ) =
+            Maybe.withDefault Position.zero position
+    in
+    Constants.space ++ name ++ "|" ++ String.fromInt x ++ "|" ++ String.fromInt y

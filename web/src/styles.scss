@@ -114,10 +114,9 @@ textarea {
     color: #f4f4f4;
     text-overflow: ellipsis;
     text-align: left;
-    cursor: pointer;
     overflow: hidden;
     white-space: nowrap;
-    font-weight: 400;
+    font-weight: 600;
     padding: 2px;
     display: flex;
     font-size: 1.1rem;
@@ -328,13 +327,13 @@ textarea {
                 position: absolute;
                 display: block;
                 top: 5px;
-                right: 10px;
+                right: 32px;
             }
             .public {
                 position: absolute;
                 display: block;
                 top: 5px;
-                right: 30px;
+                right: 8px;
             }
         }
 

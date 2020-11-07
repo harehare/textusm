@@ -31,20 +31,21 @@ view model =
                     , width = model.svg.width
                     , userStoryMap = userStoryMap
                     }
-                , lazy5 mainView
-                    model.settings
-                    model.selectedItem
-                    (UserStoryMap.getItems userStoryMap)
-                    (UserStoryMap.countPerTasks userStoryMap)
-                    (UserStoryMap.countPerStories userStoryMap)
+                , lazy mainView
+                    { settings = model.settings
+                    , selectedItem = model.selectedItem
+                    , items = UserStoryMap.getItems userStoryMap
+                    , countByTasks = UserStoryMap.countPerTasks userStoryMap
+                    , countByHierarchy = UserStoryMap.countPerStories userStoryMap
+                    }
                 ]
 
         _ ->
             Empty.view
 
 
-mainView : Settings -> SelectedItem -> Items -> List Int -> List Int -> Svg Msg
-mainView settings selectedItem items countByTasks countByHierarchy =
+mainView : { settings : Settings, selectedItem : SelectedItem, items : Items, countByTasks : List Int, countByHierarchy : List Int } -> Svg Msg
+mainView { settings, selectedItem, items, countByTasks, countByHierarchy } =
     Keyed.node "g"
         []
         (zip
