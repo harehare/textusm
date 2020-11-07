@@ -20,7 +20,7 @@ import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import List
-import List.Extra exposing (findIndex, getAt, removeAt, scanl, setAt, splitAt)
+import List.Extra exposing (findIndex, getAt, removeAt, setAt, splitAt)
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Views.ER as ErDiagramModel
@@ -431,7 +431,7 @@ svgView model =
         , viewBox ("0 0 " ++ svgWidth ++ " " ++ svgHeight)
         , Attr.style "background-color" model.settings.backgroundColor
         , Wheel.onWheel chooseZoom
-        , onDragStart Diagram.BoardMove model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
+        , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
         , onDragMove model.touchDistance model.moveState (Utils.isPhone <| Size.getWidth model.size)
         , onClick <| Select Nothing
         ]
@@ -505,8 +505,8 @@ svgView model =
         ]
 
 
-onDragStart : Diagram.MoveState -> SelectedItem -> Bool -> Svg.Attribute Msg
-onDragStart moveState item isPhone =
+onDragStart : SelectedItem -> Bool -> Svg.Attribute Msg
+onDragStart item isPhone =
     case ( item, isPhone ) of
         ( Nothing, True ) ->
             Touch.onStart
@@ -852,14 +852,14 @@ update message model =
                     case target of
                         Diagram.TableTarget table ->
                             let
-                                (ErDiagramModel.Table name columns position lineNo) =
+                                (ErDiagramModel.Table _ _  _ lineNo) =
                                     table
                             in
                             stopMove model
                                 |> Return.andThen (setLine lineNo (Text.lines model.text) (ErDiagramModel.tableToLineString table))
                                 |> Return.andThen loadTextToEditor
 
-                        Diagram.ItemTarget item ->
+                        Diagram.ItemTarget _ ->
                             stopMove model
 
                 _ ->
@@ -907,8 +907,7 @@ update message model =
                                         , movePosition = ( x, y )
                                     }
 
-                                Diagram.ItemTarget item ->
-                                    -- TODO: support
+                                Diagram.ItemTarget _ ->
                                     model
 
                         _ ->
