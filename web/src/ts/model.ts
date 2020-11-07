@@ -34,6 +34,14 @@ export type DownloadInfo = {
     diagramType: string;
 };
 
+export type ImageInfo = {
+    id: string;
+    width: number;
+    height: number;
+    scale: number;
+    callback: (url: string) => void;
+};
+
 export type Settings = {
     font: string;
     position: number;

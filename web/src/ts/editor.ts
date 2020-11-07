@@ -66,7 +66,7 @@ const layout = (delay: number) => {
     }, delay);
 };
 
-// @ts-ignore
+// @ts-except-error
 export const loadEditor = async (
     app: ElmApp,
     text: string,

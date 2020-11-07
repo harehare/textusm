@@ -1,4 +1,4 @@
-import { DownloadInfo } from "./model";
+import { DownloadInfo, ImageInfo } from "./model";
 import { ElmApp } from "./elm";
 
 export const initDownload = (app: ElmApp): void => {
@@ -20,15 +20,18 @@ export const initDownload = (app: ElmApp): void => {
         return svg;
     };
 
-    // @ts-ignore
-    const createImage = ({ id, width, height, scale = 1, callback }) => {
+    const createImage = ({
+        id,
+        width,
+        height,
+        scale = 1,
+        callback,
+    }: ImageInfo) => {
         const canvas = document.createElement("canvas");
         const svgWidth = width;
         const svgHeight = height;
-        // @ts-ignore
-        canvas.setAttribute("width", svgWidth * scale);
-        // @ts-ignore
-        canvas.setAttribute("height", svgHeight * scale);
+        canvas.setAttribute("width", (svgWidth * scale).toString());
+        canvas.setAttribute("height", (svgHeight * scale).toString());
         canvas.style.display = "none";
 
         const context = canvas.getContext("2d");

@@ -28,7 +28,7 @@ const showQuickPick = (
   const options = diagrams;
   const quickPick = vscode.window.createQuickPick();
   quickPick.items = options.map((item) => ({ label: item.label }));
-  // @ts-ignore
+  // @ts-except-error
   quickPick.onDidChangeSelection((selection) => {
     if (selection.length > 0) {
       const label = selection[0].label;

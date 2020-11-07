@@ -3,52 +3,46 @@ import Dexie from "dexie";
 import { Diagram, DiagramItem } from "./model";
 import { ElmApp } from "./elm";
 
-export const initDB = (app: ElmApp): void => {
-    const lazyDB = () => {
-        let db: Dexie | null = null;
+class LocalDatabase extends Dexie {
+    diagrams: Dexie.Table<DiagramItem, string>;
 
-        return async (): Promise<Dexie> => {
-            if (!db) {
-                db = new (await import("dexie")).default("textusm");
-                db.version(2).stores({
-                    diagrams:
-                        "++id,title,text,thumbnail,diagramPath,createdAt,updatedAt",
+    constructor() {
+        super("textusm");
+        this.version(2).stores({
+            diagrams:
+                "++id,title,text,thumbnail,diagramPath,createdAt,updatedAt",
+        });
+
+        this.version(2)
+            .stores({
+                diagrams:
+                    "++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt",
+            })
+            .upgrade((trans) => {
+                //@ts-ignore
+                return trans.diagrams.toCollection().modify((d) => {
+                    d.diagram = d.diagramPath;
+                    d.isBookmark = false;
+                    delete d.diagramPath;
                 });
-
-                db.version(2)
-                    .stores({
-                        diagrams:
-                            "++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt",
+            });
+        this.version(3).upgrade((trans) => {
+            return (
+                // @ts-ignore
+                trans.diagrams
+                    .toCollection()
+                    // @ts-ignore
+                    .modify((d) => {
+                        d.diagram = d.diagram === "cjm" ? "table" : "";
                     })
-                    .upgrade((trans) => {
-                        return (
-                            // @ts-ignore
-                            trans.diagrams
-                                .toCollection()
-                                // @ts-ignore
-                                .modify((d) => {
-                                    d.diagram = d.diagramPath;
-                                    d.isBookmark = false;
-                                    delete d.diagramPath;
-                                })
-                        );
-                    });
-                db.version(3).upgrade((trans) => {
-                    return (
-                        // @ts-ignore
-                        trans.diagrams
-                            .toCollection()
-                            // @ts-ignore
-                            .modify((d) => {
-                                d.diagram = d.diagram === "cjm" ? "table" : "";
-                            })
-                    );
-                });
-            }
-            return db;
-        };
-    };
-    const db = lazyDB();
+            );
+        });
+        this.diagrams = this.table("diagrams");
+    }
+}
+
+export const initDB = (app: ElmApp): void => {
+    const db = new LocalDatabase();
     const svg2base64 = (id: string) => {
         const svg = document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -112,16 +106,14 @@ export const initDB = (app: ElmApp): void => {
                     id: id ?? uuidv4(),
                     isPublic: false,
                 };
-                // @ts-ignore
-                await (await db()).diagrams.put(item);
+                await db.diagrams.put(item);
                 app.ports.saveToLocalCompleted.send(item);
             }
         }
     );
 
     app.ports.importDiagram.subscribe(async (diagrams: DiagramItem[]) => {
-        // @ts-ignore
-        await (await db()).diagrams.bulkPut(diagrams);
+        await db.diagrams.bulkPut(diagrams);
         app.ports.reload.send("");
     });
 
@@ -135,31 +127,31 @@ export const initDB = (app: ElmApp): void => {
             if (isRemote) {
                 app.ports.removeRemoteDiagram.send(diagram);
             } else {
-                // @ts-ignore
-                await (await db()).diagrams.delete(id);
+                await db.diagrams.delete(id);
                 app.ports.reload.send("");
             }
         }
     });
 
     app.ports.getDiagram.subscribe(async (diagramId: string) => {
-        // @ts-ignore
-        const diagram = await (await db()).diagrams.get(diagramId);
-        app.ports.gotLocalDiagramJson.send({
-            ...diagram,
-            isPublic: false,
-            isRemote: false,
-        });
+        const diagram = await db.diagrams.get(diagramId);
+
+        if (diagram) {
+            app.ports.gotLocalDiagramJson.send({
+                ...diagram,
+                isPublic: false,
+                isRemote: false,
+            });
+        }
     });
 
     app.ports.getDiagrams.subscribe(async () => {
-        // @ts-ignore
-        const diagrams = await (await db()).diagrams
+        const diagrams = await db.diagrams
             .orderBy("updatedAt")
             .reverse()
             .toArray();
         app.ports.gotLocalDiagramsJson.send(
-            diagrams.map((d: Diagram) => ({
+            diagrams.map((d: DiagramItem) => ({
                 ...d,
                 isPublic: false,
                 isRemote: false,
