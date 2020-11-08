@@ -5,13 +5,14 @@ import Browser.Events exposing (onMouseUp, onResize)
 import Components.Diagram as Diagram
 import Data.DiagramType as DiagramType
 import Data.Item as Item exposing (ItemType(..))
-import Data.Text as Text
+import Data.Text as Text exposing (Text)
 import Html exposing (Html, div)
 import Html.Attributes exposing (class, style)
 import Html.Lazy exposing (lazy)
 import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import Models.Diagram as DiagramModel
+import Return as Return exposing (Return)
 import Task
 import Utils
 
@@ -62,7 +63,7 @@ init flags =
                 , height = 0
                 , scale = 1.0
                 }
-            , moveStart = False
+            , moveState = DiagramModel.NotMove
             , position = ( 0, 0 )
             , movePosition = ( 0, 0 )
             , fullscreen = False
@@ -145,7 +146,12 @@ main =
 -- Update
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+updateText : Text -> Model -> Return Msg Model
+updateText text model =
+    ( model, setText (Text.toString text) )
+
+
+update : Msg -> Model -> Return Msg Model
 update message model =
     case message of
         UpdateDiagram subMsg ->
@@ -162,13 +168,30 @@ update message model =
                         ( model, Cmd.none )
 
                 DiagramModel.MoveItem _ ->
-                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, setText (Text.toString model_.text) ] )
+                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                        |> Return.andThen (updateText model_.text)
 
                 DiagramModel.OnFontStyleChanged _ ->
-                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, setText (Text.toString model_.text) ] )
+                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                        |> Return.andThen (updateText model_.text)
 
                 DiagramModel.OnColorChanged _ _ ->
-                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, setText (Text.toString model_.text) ] )
+                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                        |> Return.andThen (updateText model_.text)
+
+                DiagramModel.Stop ->
+                    case model.diagramModel.moveState of
+                        DiagramModel.ItemMove target ->
+                            case target of
+                                DiagramModel.TableTarget table ->
+                                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                                        |> Return.andThen (updateText model_.text)
+
+                                _ ->
+                                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+
+                        _ ->
+                            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
                 _ ->
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
