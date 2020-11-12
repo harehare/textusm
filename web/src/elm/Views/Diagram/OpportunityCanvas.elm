@@ -5,7 +5,7 @@ import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Views.OpportunityCanvas exposing (OpportunityCanvasItem(..))
 import Svg exposing (Svg, g)
 import Svg.Lazy exposing (lazy5)
-import Utils
+import Utils.Diagram as DiagramUtils
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
@@ -16,7 +16,7 @@ view model =
         Diagram.OpportunityCanvas o ->
             let
                 itemHeight =
-                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model.settings model.items
+                    Basics.max Constants.itemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
 
                 (OpportunityCanvasItem usersAndCustomers) =
                     o.usersAndCustomers

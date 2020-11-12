@@ -4,7 +4,7 @@ import Constants
 import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Views.FourLs exposing (FourLsItem(..))
 import Svg exposing (Svg, g)
-import Utils
+import Utils.Diagram as DiagramUtils
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
@@ -15,7 +15,7 @@ view model =
         Diagram.FourLs f ->
             let
                 itemHeight =
-                    Basics.max Constants.largeItemHeight <| Utils.getCanvasHeight model.settings model.items
+                    Basics.max Constants.largeItemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
 
                 (FourLsItem liked) =
                     f.liked

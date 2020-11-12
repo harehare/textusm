@@ -44,7 +44,8 @@ import Svg.Events exposing (onClick)
 import Svg.Lazy exposing (lazy, lazy2)
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram(..))
-import Utils
+import Utils.Diagram as DiagramUtils
+import Utils.Utils as Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.ContextMenu as ContextMenu
 import Views.Diagram.ER as ER
@@ -635,7 +636,7 @@ updateDiagram ( width, height ) base text =
             { base | items = items }
 
         ( svgWidth, svgHeight ) =
-            Utils.getCanvasSize newModel
+            DiagramUtils.getCanvasSize newModel
 
         data =
             case base.diagramType of
@@ -852,7 +853,7 @@ update message model =
                     case target of
                         Diagram.TableTarget table ->
                             let
-                                (ErDiagramModel.Table _ _  _ lineNo) =
+                                (ErDiagramModel.Table _ _ _ lineNo) =
                                     table
                             in
                             stopMove model
@@ -964,7 +965,7 @@ update message model =
                     model.size
 
                 ( canvasWidth, canvasHeight ) =
-                    Utils.getCanvasSize model
+                    DiagramUtils.getCanvasSize model
 
                 ( widthRatio, heightRatio ) =
                     ( toFloat (round (toFloat windowWidth / toFloat canvasWidth / 0.05)) * 0.05, toFloat (round (toFloat windowHeight / toFloat canvasHeight / 0.05)) * 0.05 )
@@ -1005,7 +1006,7 @@ update message model =
                         prefix =
                             currentText
                                 |> Maybe.withDefault ""
-                                |> Utils.getSpacePrefix
+                                |> DiagramUtils.getSpacePrefix
 
                         text =
                             setAt (Item.getLineNo item) (prefix ++ String.trimLeft (Item.getText item ++ itemToColorText selectedItem)) lines
@@ -1065,7 +1066,7 @@ update message model =
                         prefix =
                             currentText
                                 |> Maybe.withDefault ""
-                                |> Utils.getSpacePrefix
+                                |> DiagramUtils.getSpacePrefix
 
                         updateText =
                             setAt (Item.getLineNo item) (prefix ++ String.trimLeft text) lines
@@ -1101,7 +1102,7 @@ update message model =
 
                         prefix =
                             currentText
-                                |> Utils.getSpacePrefix
+                                |> DiagramUtils.getSpacePrefix
 
                         text =
                             currentText
@@ -1126,7 +1127,7 @@ update message model =
                 toPrefix =
                     getAt toNo lines
                         |> Maybe.withDefault ""
-                        |> Utils.getSpacePrefix
+                        |> DiagramUtils.getSpacePrefix
 
                 from =
                     toPrefix

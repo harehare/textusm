@@ -16,7 +16,7 @@ import State as State exposing (Step(..))
 import String
 import Svg exposing (Svg, foreignObject, g, rect, text, text_)
 import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, y)
-import Utils
+import Utils.Utils as Utils
 import Views.Diagram.Path as Path
 import Views.Empty as Empty
 import Views.Icon as Icon

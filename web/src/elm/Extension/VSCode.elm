@@ -14,7 +14,7 @@ import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Return as Return exposing (Return)
 import Task
-import Utils
+import Utils.Utils as Utils
 
 
 

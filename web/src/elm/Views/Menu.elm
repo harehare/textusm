@@ -11,7 +11,7 @@ import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Menu(..), Msg(..), Page(..))
 import Route exposing (Route)
 import Translations exposing (Lang)
-import Utils
+import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
 

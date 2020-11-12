@@ -24,7 +24,8 @@ import Return as Return exposing (Return)
 import Task
 import Time exposing (Zone)
 import Translations exposing (Lang)
-import Utils
+import Utils.Date as DateUtils
+import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
 
@@ -434,7 +435,7 @@ diagramView timezone diagram =
                 , style "align-items" "center"
                 , style "justify-content" "space-between"
                 ]
-                [ div [ class "datetime" ] [ text (Utils.millisToString timezone diagram.updatedAt) ]
+                [ div [ class "datetime" ] [ text (DateUtils.millisToString timezone diagram.updatedAt) ]
                 , if diagram.isRemote then
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOn 14 ]
 

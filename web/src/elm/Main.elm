@@ -64,7 +64,8 @@ import TextUSM.Enum.Diagram as Diagram
 import Time
 import Translations
 import Url as Url exposing (percentDecode)
-import Utils
+import Utils.Diagram as DiagramUtils
+import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Header as Header
 import Views.Menu as Menu
@@ -815,7 +816,7 @@ update message model =
                 _ ->
                     let
                         ( width, height ) =
-                            Utils.getCanvasSize model.diagramModel
+                            DiagramUtils.getCanvasSize model.diagramModel
 
                         diagramModel =
                             model.diagramModel

@@ -14,7 +14,7 @@ import Svg.Keyed as Keyed
 import Time exposing (Posix, toDay, utc)
 import Time.Extra exposing (Interval(..), add, diff)
 import Tuple exposing (first, second)
-import Utils
+import Utils.Date as DateUtils
 import Views.Diagram.Views as Views
 
 
@@ -49,7 +49,7 @@ view model =
         svgHeight =
             (last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + Item.length items * 2
     in
-    case Utils.extractDateValues <| Item.getText rootItem of
+    case DateUtils.extractDateValues <| Item.getText rootItem of
         Just ( from, to ) ->
             let
                 interval =
@@ -130,7 +130,7 @@ daysView settings svgHeight ( from, to ) =
                     in
                     Keyed.node "g"
                         []
-                        [ ( "day_" ++ Utils.millisToString utc currentDay
+                        [ ( "day_" ++ DateUtils.millisToString utc currentDay
                           , g []
                                 [ foreignObject
                                     [ x <| String.fromInt <| posX + 8
@@ -306,7 +306,7 @@ itemView : Settings -> ( String, String ) -> Position -> Posix -> String -> Item
 itemView settings colour ( posX, posY ) baseFrom text item =
     let
         values =
-            Utils.extractDateValues <| Item.getText item
+            DateUtils.extractDateValues <| Item.getText item
     in
     case values of
         Just ( from, to ) ->
@@ -324,7 +324,7 @@ headerItemView : Settings -> ( String, String ) -> Position -> Posix -> String -
 headerItemView settings colour ( posX, posY ) baseFrom text item =
     let
         values =
-            Utils.extractDateValues <| Item.getText item
+            DateUtils.extractDateValues <| Item.getText item
     in
     case values of
         Just ( from, to ) ->
