@@ -9,6 +9,13 @@
     --error-color: #ff0000;
     --comment-color: #008800;
     --activity-color: #266b9a;
+
+    --text-xs: 0.7rem;
+    --text-s: 0.8rem;
+    --text-sm: 0.85rem;
+    --text-base: 0.9rem;
+    --text-lg: 1.1rem;
+    --text-xl: 1.2rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -103,7 +110,6 @@ textarea {
 .title {
     padding: 8px 8px 16px;
     font-weight: 400;
-    font-size: 1rem;
     width: 90%;
     @media screen and (max-width: 480px) {
         width: 120px;
@@ -119,14 +125,14 @@ textarea {
     font-weight: 600;
     padding: 2px;
     display: flex;
-    font-size: 1.1rem;
+    font-size: var(--text-lg);
     align-items: center;
     justify-content: flex-start;
 }
 
 .label {
     padding: 0px 8px;
-    font-size: 0.9rem;
+    font-size: var(--text-base);
     font-weight: 600;
 }
 
@@ -184,9 +190,8 @@ textarea {
     }
 
     .label {
-        font-size: 0.9rem;
         padding: 4px 8px;
-        font-size: 0.8rem;
+        font-size: var(--text-s);
     }
 
     .input-area {
@@ -199,7 +204,7 @@ textarea {
             background-color: var(--light-background-color);
             background-image: none;
             border: 1px solid #ccc;
-            font-size: 0.9rem;
+            font-size: var(--text-base);
             padding: 0 6px;
             margin: 0 8px;
         }
@@ -226,7 +231,7 @@ textarea {
         color: var(--text-color);
         width: 250px;
         height: calc(100vh - 48px);
-        font-size: 0.9rem;
+        font-size: var(--text-base);
         background-color: var(--main-color);
         overflow-y: scroll;
         @media screen and (max-width: 480px) {
@@ -257,7 +262,7 @@ textarea {
     }
 
     .diagram-text {
-        font-size: 0.8rem;
+        font-size: var(--text-s);
         width: 100%;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -319,7 +324,7 @@ textarea {
 
             .datetime {
                 display: block;
-                font-size: 0.7rem;
+                font-size: var(--text-xs);
                 color: var(--dark-text-color);
             }
 
@@ -388,7 +393,7 @@ textarea {
             height: 100px;
         }
         .new-item-text {
-            font-size: 0.85rem;
+            font-size: var(--text-sm);
             height: 20px;
             vertical-align: middle;
             color: var(--main-color);
@@ -451,7 +456,7 @@ textarea {
             margin-top: 0;
             cursor: pointer;
             margin: 0 16px;
-            font-size: 0.9rem;
+            font-size: var(--text-base);
         }
     }
 }
@@ -537,7 +542,7 @@ textarea {
     height: calc(100vh - 35px);
     color: var(--text-color);
     overflow: auto;
-    font-size: 1.2rem;
+    font-size: var(--text-xl);
     @media screen and (max-width: 480px) {
         width: 100vw;
         height: calc(100vh - 130px);
@@ -573,7 +578,7 @@ textarea {
         display: flex;
         flex-direction: column;
         padding: 16px;
-        font-size: 0.9rem;
+        font-size: var(--text-base);
     }
 
     .row {
@@ -585,7 +590,7 @@ textarea {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: var(--text-s);
         }
     }
 }
@@ -640,7 +645,7 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.8rem;
+    font-size: var(--text-s);
 
     @media screen and (max-width: 480px) {
         min-width: 100vw;
@@ -659,7 +664,7 @@ textarea {
 
 @media screen and (min-width: 480px) {
     .menu-item-container {
-        font-size: 0.9rem;
+        font-size: var(--text-base);
         color: var(--text-color);
         cursor: pointer;
         height: 40px;
@@ -686,7 +691,7 @@ textarea {
             color: var(--text-color);
             padding: 5px 10px;
             border-radius: 2px;
-            font-size: 0.8rem;
+            font-size: var(--text-s);
             display: inline-block;
         }
     }
@@ -708,7 +713,7 @@ textarea {
             color: var(--text-color);
             padding: 5px 10px;
             border-radius: 2px;
-            font-size: 0.8rem;
+            font-size: var(--text-s);
             display: inline-block;
         }
     }
@@ -762,7 +767,7 @@ textarea {
     }
 
     .menu-item-container {
-        font-size: 0.9rem;
+        font-size: var(--text-base);
         color: var(--text-color);
         cursor: pointer;
         height: 50px;
@@ -856,7 +861,7 @@ textarea {
 }
 
 .dropdown-list {
-    font-size: 0.8rem;
+    font-size: var(--text-s);
     position: relative;
     background-color: transparent;
     color: #2e2e2e;
