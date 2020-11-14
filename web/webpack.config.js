@@ -221,6 +221,7 @@ if (mode === "production") {
                         MiniCssExtractPlugin.loader,
                         "css-loader?url=false",
                         "sass-loader",
+                        "postcss-loader",
                     ],
                 },
             ],

@@ -17,7 +17,7 @@ const lang =
     window.navigator.browserLanguage;
 
 const app: ElmApp = Elm.Main.init({
-    flags: [[process.env.API_ROOT, lang], loadSettings()],
+    flags: { apiRoot: process.env.API_ROOT, lang, settings: loadSettings() },
 });
 
 authStateChanged(

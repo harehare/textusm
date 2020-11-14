@@ -34,6 +34,13 @@ TextUSM is a simple tool. Help you draw user story map using indented text.
   - DDL(only ER Diagram)
   - Markdown(only Table)
 
+## Installation
+
+- [Web](https://textusm.com)
+- [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=harehare.textusm)
+- [cli](https://www.npmjs.com/package/textusm.cli)
+- [npm](https://www.npmjs.com/package/textusm)
+
 ## Example
 
 ### User Story Map
@@ -330,13 +337,6 @@ Par
 ```
 
 ![image](./img/sed.png)
-
-## Installation
-
-- [Web](https://textusm.com)
-- [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=harehare.textusm)
-- [cli](https://www.npmjs.com/package/textusm.cli)
-- [npm](https://www.npmjs.com/package/textusm)
 
 ## Developing
 

@@ -35,7 +35,7 @@ import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (find)
 import Models.Diagram as DiagramModel
-import Models.Model as Page exposing (Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
+import Models.Model as Page exposing (Model, Msg(..), Notification(..), Page(..), SwitchWindow(..), modelOfDiagramModel)
 import Models.Views.ER as ER
 import Models.Views.Table as Table
 import Page.Help as Help
@@ -75,21 +75,25 @@ import Views.SplitWindow as SplitWindow
 import Views.SwitchWindow as SwitchWindow
 
 
-init : ( ( String, String ), D.Value ) -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+type alias Flags =
+    { apiRoot : String
+    , lang : String
+    , settings : D.Value
+    }
+
+
+init : Flags -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
-        ( ( apiRoot, langString ), settingsJson ) =
-            flags
-
         initSettings =
-            D.decodeValue settingsDecoder settingsJson
+            D.decodeValue settingsDecoder flags.settings
                 |> Result.withDefault defaultSettings
 
         lang =
-            Translations.fromString langString
+            Translations.fromString flags.lang
 
         ( diagramListModel, _ ) =
-            DiagramList.init Session.guest lang apiRoot
+            DiagramList.init Session.guest lang flags.apiRoot
 
         ( diagramModel, _ ) =
             Diagram.init initSettings.storyMap
@@ -119,7 +123,7 @@ init flags url key =
                 , key = key
                 , switchWindow = Left
                 , progress = True
-                , apiRoot = apiRoot
+                , apiRoot = flags.apiRoot
                 , session = Session.guest
                 , currentDiagram = initSettings.diagram
                 , page = Page.Main
@@ -225,7 +229,7 @@ view model =
         ]
 
 
-main : Program ( ( String, String ), D.Value ) Model Msg
+main : Program Flags Model Msg
 main =
     Browser.application
         { init = init
@@ -416,23 +420,12 @@ changeRouteTo route model =
             ( { model | page = Page.NotFound }, Cmd.none )
 
         Route.Embed diagram title path ->
-            let
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel
-                        | diagramType =
-                            DiagramType.fromString diagram
-                        , showZoomControl = False
-                    }
-
-                window_ =
-                    model.window
-            in
             ( { model
-                | window = { window_ | fullscreen = True }
-                , diagramModel = newDiagramModel
+                | window = model.window |> Page.windowOfFullscreen.set True
+                , diagramModel =
+                    model.diagramModel
+                        |> DiagramModel.modelOfShowZoomControl.set False
+                        |> DiagramModel.modelOfDiagramType.set (DiagramType.fromString diagram)
                 , title = Title.fromString title
                 , page = Page.Embed diagram title path
               }
@@ -441,18 +434,10 @@ changeRouteTo route model =
                 |> Return.andThen changeRouteInit
 
         Route.Share diagram title path ->
-            let
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel
-                        | diagramType =
-                            DiagramType.fromString diagram
-                    }
-            in
             ( { model
-                | diagramModel = newDiagramModel
+                | diagramModel =
+                    model.diagramModel
+                        |> DiagramModel.modelOfDiagramType.set (DiagramType.fromString diagram)
                 , title = percentDecode title |> Maybe.withDefault "" |> Title.fromString
                 , page = Page.Main
               }
@@ -476,10 +461,8 @@ changeRouteTo route model =
                     model.diagramModel
 
                 newDiagramModel =
-                    { diagramModel
-                        | diagramType =
-                            DiagramType.fromString diagram
-                    }
+                    model.diagramModel
+                        |> DiagramModel.modelOfDiagramType.set (DiagramType.fromString diagram)
 
                 updatedDiagramModel =
                     case maybeSettings of
@@ -527,18 +510,17 @@ changeRouteTo route model =
 
                 defaultText =
                     DiagramType.defaultText diagramType
-
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | diagramType = diagramType }
             in
             Return.singleton
                 { model
                     | title = Title.untitled
                     , currentDiagram = Nothing
-                    , diagramModel = DiagramModel.updatedText newDiagramModel (Text.fromString defaultText)
+                    , diagramModel =
+                        DiagramModel.updatedText
+                            (model.diagramModel
+                                |> DiagramModel.modelOfDiagramType.set diagramType
+                            )
+                            (Text.fromString defaultText)
                     , page = Page.Main
                 }
                 |> Return.andThen (setEditorLanguage diagramType)
@@ -712,16 +694,16 @@ update message model =
                             Return.singleton model
 
                 DiagramModel.ToggleFullscreen ->
-                    let
-                        window =
+                    ( { model
+                        | window =
                             model.window
-
-                        newWindow =
-                            { window | fullscreen = not window.fullscreen }
-                    in
-                    ( { model | window = newWindow, diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                                |> Page.windowOfFullscreen.set (not model.window.fullscreen)
+                        , diagramModel = model_
+                      }
+                    , cmd_ |> Cmd.map UpdateDiagram
+                    )
                         |> Return.andThen
-                            (if newWindow.fullscreen then
+                            (if not model.window.fullscreen then
                                 openFullscreen
 
                              else
@@ -1042,24 +1024,16 @@ update message model =
                     Return.singleton model
 
         OnStartWindowResize x ->
-            let
-                window =
-                    model.window
-
-                newWindow =
-                    { window | moveStart = True, moveX = x }
-            in
-            Return.singleton { model | window = newWindow }
+            Return.singleton
+                { model
+                    | window =
+                        model.window
+                            |> Page.windowOfMoveStart.set True
+                            |> Page.windowOfMoveX.set x
+                }
 
         Stop ->
-            let
-                window =
-                    model.window
-
-                newWindow =
-                    { window | moveStart = False }
-            in
-            Return.singleton { model | window = newWindow }
+            Return.singleton { model | window = model.window |> Page.windowOfMoveStart.set False }
 
         OnWindowResize x ->
             Return.return { model | window = { position = model.window.position + x - model.window.moveX, moveStart = True, moveX = x, fullscreen = model.window.fullscreen } } (Ports.layoutEditor 0)
@@ -1247,14 +1221,8 @@ update message model =
             let
                 ( model_, cmd_ ) =
                     Diagram.update DiagramModel.ToggleFullscreen model.diagramModel
-
-                window =
-                    model.window
-
-                newWindow =
-                    { window | fullscreen = False }
             in
-            Return.return { model | window = newWindow, diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
+            Return.return { model | window = model.window |> Page.windowOfFullscreen.set False, diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
                 |> Return.andThen (loadEditor ( Text.toString model.diagramModel.text, defaultEditorSettings model.settingsModel.settings.editor ))
 
 

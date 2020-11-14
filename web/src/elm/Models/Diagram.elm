@@ -14,6 +14,11 @@ module Models.Diagram exposing
     , fontStyle
     , getTextColor
     , isMoving
+    , modelOfDiagramType
+    , modelOfMatchParent
+    , modelOfPosition
+    , modelOfShowZoomControl
+    , modelOfText
     , settingsOfActivityBackgroundColor
     , settingsOfActivityColor
     , settingsOfBackgroundColor
@@ -90,6 +95,31 @@ type alias Model =
     , contextMenu : Maybe ( ContextMenu, Position )
     , dragStatus : DragStatus
     }
+
+
+modelOfDiagramType : Lens Model Diagram
+modelOfDiagramType =
+    Lens .diagramType (\b a -> { a | diagramType = b })
+
+
+modelOfText : Lens Model Text
+modelOfText =
+    Lens .text (\b a -> { a | text = b })
+
+
+modelOfShowZoomControl : Lens Model Bool
+modelOfShowZoomControl =
+    Lens .showZoomControl (\b a -> { a | showZoomControl = b })
+
+
+modelOfPosition : Lens Model Position
+modelOfPosition =
+    Lens .position (\b a -> { a | position = b })
+
+
+modelOfMatchParent : Lens Model Bool
+modelOfMatchParent =
+    Lens .matchParent (\b a -> { a | matchParent = b })
 
 
 type alias Hierarchy =

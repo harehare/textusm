@@ -1,4 +1,19 @@
-module Models.Model exposing (DownloadFileInfo, DownloadInfo, Menu(..), Model, Msg(..), Notification(..), Page(..), ShareInfo, SwitchWindow(..), Window)
+module Models.Model exposing
+    ( DownloadFileInfo
+    , DownloadInfo
+    , Menu(..)
+    , Model
+    , Msg(..)
+    , Notification(..)
+    , Page(..)
+    , ShareInfo
+    , SwitchWindow(..)
+    , Window
+    , modelOfDiagramModel
+    , windowOfFullscreen
+    , windowOfMoveStart
+    , windowOfMoveX
+    )
 
 import Browser
 import Browser.Dom exposing (Viewport)
@@ -7,16 +22,21 @@ import Browser.Navigation as Nav
 import Data.DiagramItem exposing (DiagramItem)
 import Data.FileType exposing (FileType)
 import Data.LoginProvider exposing (LoginProvider)
+import Data.Position exposing (Position)
 import Data.Session exposing (Session, User)
+import Data.Text exposing (Text)
 import Data.Title exposing (Title)
 import Graphql.Http as GraphQlHttp
 import Http as Http
 import Json.Decode as D
 import Models.Diagram as Diagram
+import Monocle.Compose as Compose
+import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Share as Share
 import Page.Tags as Tags
+import TextUSM.Enum.Diagram exposing (Diagram)
 import Translations exposing (Lang)
 import Url
 
@@ -150,3 +170,23 @@ type alias ShareInfo =
     , text : String
     , diagramType : String
     }
+
+
+modelOfDiagramModel : Lens Model Diagram.Model
+modelOfDiagramModel =
+    Lens .diagramModel (\b a -> { a | diagramModel = b })
+
+
+windowOfFullscreen : Lens Window Bool
+windowOfFullscreen =
+    Lens .fullscreen (\b a -> { a | fullscreen = b })
+
+
+windowOfMoveX : Lens Window Int
+windowOfMoveX =
+    Lens .moveX (\b a -> { a | moveX = b })
+
+
+windowOfMoveStart : Lens Window Bool
+windowOfMoveStart =
+    Lens .moveStart (\b a -> { a | moveStart = b })
