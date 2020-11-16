@@ -40,7 +40,6 @@ export type ElmApp = {
         encodeShareText: Subscribe<(obj: { [s: string]: string }) => void>;
         decodeShareText: Subscribe<(text: string) => void>;
         importDiagram: Subscribe<(diagrams: DiagramItem[]) => void>;
-        selectLine: Subscribe<(lineNumber: number) => void>;
 
         onCloseFullscreen: Send<{}>;
         onErrorNotification: Send<string>;

@@ -263,6 +263,7 @@ textView settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
             , height <| String.fromInt svgHeight
             , fill colour
             , color colour
+            , fontFamily (fontStyle settings)
             , fontSize <| Constants.fontSize
             , class ".select-none"
             ]

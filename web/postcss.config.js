@@ -1,11 +1,19 @@
 const purgecss = require("@fullhuman/postcss-purgecss");
+const postcssPresetEnv = require("postcss-preset-env");
 
 const development = {
-    plugins: [],
+    plugins: [
+        postcssPresetEnv({
+            stage: 1,
+        }),
+    ],
 };
 
 const production = {
     plugins: [
+        postcssPresetEnv({
+            stage: 1,
+        }),
         purgecss({
             content: ["./src/**/*.elm", "index.ts"],
             whitelist: ["html", "body"],

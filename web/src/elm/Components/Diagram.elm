@@ -722,11 +722,6 @@ clearPosition model =
     Return.singleton { model | movePosition = ( 0, 0 ) }
 
 
-selectLine : Int -> Model -> Return Msg Model
-selectLine lineNo model =
-    Return.return model (Ports.selectLine <| lineNo + 1)
-
-
 setFocus : String -> Model -> Return Msg Model
 setFocus id model =
     Return.return model (Task.attempt (\_ -> NoOp) <| Dom.focus id)
@@ -988,7 +983,6 @@ update message model =
             else
                 Return.singleton { model | selectedItem = Just ( item, False ), contextMenu = Just ( Diagram.CloseMenu, position ) }
                     |> Return.andThen (setFocus "edit-item")
-                    |> Return.andThen (selectLine <| Item.getLineNo item)
 
         Select Nothing ->
             Return.singleton { model | selectedItem = Nothing }

@@ -1,3 +1,6 @@
+@custom-media --media-sm (width <= 480px);
+@custom-media --media-md (width > 480px);
+
 :root {
     --main-color: #273037;
     --text-color: #f5f5f6;
@@ -16,6 +19,10 @@
     --text-base: 0.9rem;
     --text-lg: 1.1rem;
     --text-xl: 1.2rem;
+
+    --font-family: "Nunito Sans", apple-system, BlinkMacSystemFont,
+        Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic,
+        YuGothicM, メイリオ, Meiryo, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,9 +49,7 @@ body {
     user-select: none;
     background-color: var(--background-color);
     overflow: hidden;
-    font-family: "Nunito Sans", apple-system, BlinkMacSystemFont, Helvetica Neue,
-        Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,
-        メイリオ, Meiryo, sans-serif;
+    font-family: var(--font-family);
     margin: 0;
     padding: 0;
     font-weight: 400;
@@ -86,9 +91,7 @@ select {
 }
 
 textarea {
-    font-family: "Nunito Sans", apple-system, BlinkMacSystemFont, Helvetica Neue,
-        Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,
-        メイリオ, Meiryo, sans-serif;
+    font-family: var(--font-family);
     width: 100%;
     height: 100%;
     padding: 16px;
@@ -111,7 +114,7 @@ textarea {
     padding: 8px 8px 16px;
     font-weight: 400;
     width: 90%;
-    @media screen and (max-width: 480px) {
+    @media (--media-sm) {
         width: 120px;
     }
 }
@@ -171,7 +174,7 @@ textarea {
     height: calc(100vh - 35px);
     color: var(--text-color);
     overflow-y: scroll;
-    @media screen and (max-width: 480px) {
+    @media (--media-sm) {
         width: 100vw;
         height: calc(100vh - 130px);
     }
@@ -222,7 +225,7 @@ textarea {
     background-color: var(--background-color);
     height: calc(100vh - 48px);
     width: 100vw;
-    @media screen and (max-width: 480px) {
+    @media (--media-sm) {
         width: 100vw;
         height: calc(100vh - 128px);
     }
@@ -271,7 +274,7 @@ textarea {
         padding: 8px;
         border-radius: 0 0 2px 2px;
         background-color: var(--light-background-color);
-        @media screen and (max-width: 480px) {
+        @media (--media-sm) {
             width: 45vw;
         }
     }
@@ -302,7 +305,7 @@ textarea {
             transition: all 0.3s ease;
             background-color: rgba(0, 0, 0, 0);
             border-radius: 4px 4px 0 0;
-            @media screen and (max-width: 480px) {
+            @media (--media-sm) {
                 height: 150px;
             }
         }
@@ -354,7 +357,7 @@ textarea {
             }
         }
 
-        @media screen and (max-width: 480px) {
+        @media (--media-sm) {
             width: 42%;
             height: 150px;
             align-items: flex-end;
@@ -372,7 +375,7 @@ textarea {
     }
     .new-item-container {
         width: 20%;
-        @media screen and (max-width: 480px) {
+        @media (--media-sm) {
             width: 49%;
         }
     }
@@ -433,7 +436,7 @@ textarea {
         background-color: var(--accent-color);
         color: #fff;
     }
-    @media screen and (max-width: 480px) {
+    @media (--media-sm) {
         position: absolute;
         background-color: #f7f7f7;
         max-width: 500px;
@@ -451,7 +454,7 @@ textarea {
 .menu {
     position: relative;
 
-    @media screen and (min-width: 480px) {
+    @media (--media-sm) {
         .menu-item {
             margin-top: 0;
             cursor: pointer;
@@ -473,7 +476,7 @@ textarea {
         }
     }
 
-    @media screen and (max-width: 480px) {
+    @media (--media-sm) {
         .bottom-tooltip {
             display: none;
         }
@@ -503,9 +506,7 @@ textarea {
     border: 1px solid transparent;
     margin: 8px;
     outline: none;
-    font-family: "Nunito Sans", apple-system, BlinkMacSystemFont, Helvetica Neue,
-        Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM,
-        メイリオ, Meiryo, sans-serif;
+    font-family: var(var(--font-family));
 }
 
 .input:focus {
@@ -530,7 +531,7 @@ textarea {
         font-size: 0.95rem;
     }
 
-    @media screen and (max-width: 480px) {
+    @media (--media-sm) {
         width: 100vw;
         height: calc(100vh - 130px);
     }
@@ -543,7 +544,7 @@ textarea {
     color: var(--text-color);
     overflow: auto;
     font-size: var(--text-xl);
-    @media screen and (max-width: 480px) {
+    @media (--media-sm) {
         width: 100vw;
         height: calc(100vh - 130px);
     }
@@ -647,7 +648,7 @@ textarea {
     justify-content: space-between;
     font-size: var(--text-s);
 
-    @media screen and (max-width: 480px) {
+    @media (--media-sm) {
         min-width: 100vw;
         width: 100vw;
         right: 0;
@@ -662,7 +663,7 @@ textarea {
     cursor: pointer;
 }
 
-@media screen and (min-width: 480px) {
+@media (--media-md) {
     .menu-item-container {
         font-size: var(--text-base);
         color: var(--text-color);
@@ -749,7 +750,7 @@ textarea {
     background-color: rgba(0, 0, 0, 0.3);
 }
 
-@media screen and (max-width: 480px) {
+@media (--media-sm) {
     .tooltip {
         display: none;
     }
