@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @custom-media --media-sm (width <= 480px);
 @custom-media --media-md (width > 480px);
 
@@ -12,13 +16,6 @@
     --error-color: #ff0000;
     --comment-color: #008800;
     --activity-color: #266b9a;
-
-    --text-xs: 0.7rem;
-    --text-s: 0.8rem;
-    --text-sm: 0.85rem;
-    --text-base: 0.9rem;
-    --text-lg: 1.1rem;
-    --text-xl: 1.2rem;
 
     --font-family: "Nunito Sans", apple-system, BlinkMacSystemFont,
         Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic,
@@ -40,19 +37,37 @@
     }
 }
 
+@layer components {
+    .label {
+        @apply fs-base text-base;
+        padding: -1px 8px;
+        font-weight: 599;
+    }
+}
+
+@layer utilities {
+    .full {
+        @apply w-full h-full;
+    }
+    .font {
+        font-family: var(--font-family);
+    }
+    .bg-default {
+        background-color: var(--background-color);
+    }
+    .bg-main {
+        background-color: var(--main-color);
+    }
+    .bg-none-all {
+        background: transparent;
+        background-image: none;
+        box-shadow: none;
+        appearance: none;
+    }
+}
+
 body {
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -khtml-user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-    user-select: none;
-    background-color: var(--background-color);
-    overflow: hidden;
-    font-family: var(--font-family);
-    margin: 0;
-    padding: 0;
-    font-weight: 400;
+    @apply select-none m-0 p-0 font overflow-hidden bg-default;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
@@ -63,56 +78,35 @@ a {
     font-weight: 600;
 }
 
+body,
 p,
 pre {
-    margin: 0;
+    @apply m-0;
 }
 
 rect {
-    cursor: pointer;
+    @apply cursor-pointer;
 }
 
 input {
-    outline: 0;
+    @apply outline-none;
 }
 
 select {
+    @apply p-base border-none outline-none bg-none-all cursor-pointer;
     padding-right: 1em;
-    padding: 8px;
-    cursor: pointer;
     text-indent: 0.01px;
     text-overflow: ellipsis;
-    border: none;
-    outline: none;
-    background: transparent;
-    background-image: none;
-    box-shadow: none;
-    appearance: none;
 }
 
 textarea {
-    font-family: var(--font-family);
-    width: 100%;
-    height: 100%;
-    padding: 16px;
-    outline: none;
-    border: none;
-    background-color: var(--main-color);
+    @apply full p-lg border-none outline-none font bg-main;
     color: var(--text-color);
     tab-size: 4;
 }
 
-.select-none {
-    pointer-events: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
 .title {
     padding: 8px 8px 16px;
-    font-weight: 400;
     width: 90%;
     @media (--media-sm) {
         width: 120px;
@@ -120,6 +114,7 @@ textarea {
 }
 
 .header-title {
+    @apply text-lg;
     color: #f4f4f4;
     text-overflow: ellipsis;
     text-align: left;
@@ -128,15 +123,8 @@ textarea {
     font-weight: 600;
     padding: 2px;
     display: flex;
-    font-size: var(--text-lg);
     align-items: center;
     justify-content: flex-start;
-}
-
-.label {
-    padding: 0px 8px;
-    font-size: var(--text-base);
-    font-weight: 600;
 }
 
 .button {
@@ -193,8 +181,8 @@ textarea {
     }
 
     .label {
+        @apply text-sm;
         padding: 4px 8px;
-        font-size: var(--text-s);
     }
 
     .input-area {
@@ -202,12 +190,12 @@ textarea {
         width: 90%;
         padding: 4px 8px;
         input {
+            @apply text-base;
             height: 34px;
             color: var(--dark-text-color);
             background-color: var(--light-background-color);
             background-image: none;
             border: 1px solid #ccc;
-            font-size: var(--text-base);
             padding: 0 6px;
             margin: 0 8px;
         }
@@ -221,7 +209,7 @@ textarea {
 }
 
 .diagram-list {
-    display: flex;
+    @apply flex;
     background-color: var(--background-color);
     height: calc(100vh - 48px);
     width: 100vw;
@@ -231,10 +219,10 @@ textarea {
     }
 
     .side-menu {
+        @apply text-base;
         color: var(--text-color);
         width: 250px;
         height: calc(100vh - 48px);
-        font-size: var(--text-base);
         background-color: var(--main-color);
         overflow-y: scroll;
         @media screen and (max-width: 480px) {
@@ -265,7 +253,7 @@ textarea {
     }
 
     .diagram-text {
-        font-size: var(--text-s);
+        @apply text-sm;
         width: 100%;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -326,8 +314,8 @@ textarea {
             }
 
             .datetime {
+                @apply text-xs;
                 display: block;
-                font-size: var(--text-xs);
                 color: var(--dark-text-color);
             }
 
@@ -396,7 +384,7 @@ textarea {
             height: 100px;
         }
         .new-item-text {
-            font-size: var(--text-sm);
+            @apply text-sm;
             height: 20px;
             vertical-align: middle;
             color: var(--main-color);
@@ -456,10 +444,10 @@ textarea {
 
     @media (--media-sm) {
         .menu-item {
+            @apply text-base;
             margin-top: 0;
             cursor: pointer;
             margin: 0 16px;
-            font-size: var(--text-base);
         }
     }
 }
@@ -475,7 +463,6 @@ textarea {
             color: var(--text-color);
         }
     }
-
     @media (--media-sm) {
         .bottom-tooltip {
             display: none;
@@ -538,12 +525,12 @@ textarea {
 }
 
 .help {
+    @apply text-xl;
     background-color: var(--background-color);
     width: 100%;
     height: calc(100vh - 35px);
     color: var(--text-color);
     overflow: auto;
-    font-size: var(--text-xl);
     @media (--media-sm) {
         width: 100vw;
         height: calc(100vh - 130px);
@@ -576,22 +563,21 @@ textarea {
     }
 
     .rows {
-        display: flex;
+        @apply flex text-base;
         flex-direction: column;
         padding: 16px;
-        font-size: var(--text-base);
     }
 
     .row {
-        display: flex;
+        @apply flex;
         .item {
+            @apply text-sm;
             border: 1px solid var(--border-color);
             width: 85px;
             height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: var(--text-s);
         }
     }
 }
@@ -631,6 +617,7 @@ textarea {
 }
 
 .notification {
+    @apply text-sm;
     opacity: 0;
     position: fixed;
     bottom: 5%;
@@ -646,7 +633,6 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: var(--text-s);
 
     @media (--media-sm) {
         min-width: 100vw;
@@ -665,7 +651,7 @@ textarea {
 
 @media (--media-md) {
     .menu-item-container {
-        font-size: var(--text-base);
+        @apply text-base;
         color: var(--text-color);
         cursor: pointer;
         height: 40px;
@@ -688,11 +674,11 @@ textarea {
         right: -40px;
 
         .text {
+            @apply text-sm;
             background-color: #333;
             color: var(--text-color);
             padding: 5px 10px;
             border-radius: 2px;
-            font-size: var(--text-s);
             display: inline-block;
         }
     }
@@ -710,11 +696,11 @@ textarea {
         margin-left: -60px;
 
         .text {
+            @apply text-sm;
             background-color: #333;
             color: var(--text-color);
             padding: 5px 10px;
             border-radius: 2px;
-            font-size: var(--text-s);
             display: inline-block;
         }
     }
@@ -768,7 +754,7 @@ textarea {
     }
 
     .menu-item-container {
-        font-size: var(--text-base);
+        @apply text-base;
         color: var(--text-color);
         cursor: pointer;
         height: 50px;
@@ -862,7 +848,7 @@ textarea {
 }
 
 .dropdown-list {
-    font-size: var(--text-s);
+    @apply text-sm;
     position: relative;
     background-color: transparent;
     color: #2e2e2e;

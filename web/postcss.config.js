@@ -1,8 +1,10 @@
 const purgecss = require("@fullhuman/postcss-purgecss");
 const postcssPresetEnv = require("postcss-preset-env");
+const tailwindcss = require("tailwindcss")("tailwind.config.js");
 
 const development = {
     plugins: [
+        tailwindcss,
         postcssPresetEnv({
             stage: 1,
         }),
@@ -11,6 +13,7 @@ const development = {
 
 const production = {
     plugins: [
+        tailwindcss,
         postcssPresetEnv({
             stage: 1,
         }),

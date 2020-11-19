@@ -268,12 +268,11 @@ showProgressbar show fullscreen =
 showNotification : Maybe Notification -> Html Msg
 showNotification notify =
     case notify of
-        Just notification ->
-            Notification.view notification
-
         Nothing ->
             Empty.view
 
+        Just notification ->
+            Notification.view notification
 
 
 -- Update
@@ -403,15 +402,15 @@ changeRouteTo route model =
 
         Route.Tag ->
             case model.currentDiagram of
+                Nothing ->
+                    ( model, Cmd.none )
+
                 Just diagram ->
                     let
                         ( model_, _ ) =
                             Tags.init (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault ""))
                     in
                     ( { model | page = Page.Tags model_ }, Cmd.none )
-
-                Nothing ->
-                    ( model, Cmd.none )
 
         Route.New ->
             ( { model | page = Page.New }, Cmd.none )
@@ -466,6 +465,9 @@ changeRouteTo route model =
 
                 updatedDiagramModel =
                     case maybeSettings of
+                        Nothing ->
+                            { newDiagramModel | showZoomControl = False, fullscreen = True }
+
                         Just settings ->
                             { newDiagramModel
                                 | settings = settings.storyMap
@@ -473,11 +475,11 @@ changeRouteTo route model =
                                 , fullscreen = True
                                 , text = Text.edit newDiagramModel.text (String.replace "\\n" "\n" (Maybe.withDefault "" settings.text))
                             }
-
-                        Nothing ->
-                            { newDiagramModel | showZoomControl = False, fullscreen = True }
             in
             (case maybeSettings of
+                Nothing ->
+                    ( model, Cmd.none )
+
                 Just settings ->
                     let
                         ( settingsModel_, cmd_ ) =
@@ -497,9 +499,6 @@ changeRouteTo route model =
                       }
                     , cmd_ |> Cmd.map UpdateSettings
                     )
-
-                Nothing ->
-                    ( model, Cmd.none )
             )
                 |> Return.andThen changeRouteInit
 
