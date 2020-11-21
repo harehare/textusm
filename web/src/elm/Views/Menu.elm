@@ -63,14 +63,8 @@ view props =
 
     else
         nav
-            [ style "display" "flex"
-            , style "flex-direction" "column"
-            , style "align-items" "center"
-            , style "justify-content" "flex-start"
-            , style "width" "56px"
+            [ class "flex flex-row items-center justify-start w-screen bg-main shadow-sm bottom-0 fixed lg:relative lg:flex-col lg:w-menu"
             , style "min-width" "56px"
-            , style "background-color" "var(--main-color)"
-            , style "box-shadow" "0 2px 4px -1px rgba(0, 0, 0, 0.2) 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)"
             ]
             [ if Text.isChanged props.text then
                 div

@@ -1,22 +1,13 @@
 const purgecss = require("@fullhuman/postcss-purgecss");
-const postcssPresetEnv = require("postcss-preset-env");
-const tailwindcss = require("tailwindcss")("tailwind.config.js");
+const tailwindcss = require("tailwindcss");
 
 const development = {
-    plugins: [
-        tailwindcss,
-        postcssPresetEnv({
-            stage: 1,
-        }),
-    ],
+    plugins: [tailwindcss],
 };
 
 const production = {
     plugins: [
         tailwindcss,
-        postcssPresetEnv({
-            stage: 1,
-        }),
         purgecss({
             content: ["./src/**/*.elm", "index.ts"],
             whitelist: ["html", "body"],

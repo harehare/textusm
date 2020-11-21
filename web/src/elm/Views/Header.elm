@@ -44,24 +44,17 @@ view props =
 
     else
         header
-            [ style "display" "flex"
-            , style "align-items" "center"
-            , style "background-color" "var(--main-color)"
-            , style "width" "100vw"
+            [ class "flex items-center w-screen bg-main"
             , style "height" "40px"
             ]
             [ div
-                [ style "width" "100%"
+                [ class "flex items-center w-full"
                 , style "height" "40px"
-                , style "display" "flex"
-                , style "align-items" "center"
                 ]
                 [ div
-                    [ style "width" "56px"
+                    [ class "flex-center"
+                    , style "width" "56px"
                     , style "height" "40px"
-                    , style "display" "flex"
-                    , style "justify-content" "center"
-                    , style "align-items" "center"
                     ]
                     [ a [ href "/", style "margin-top" "8px" ] [ img [ Asset.src Asset.logo, style "width" "32px", alt "logo" ] [] ] ]
                 , case props.page of
@@ -69,14 +62,9 @@ view props =
                         if Title.isEdit props.title then
                             input
                                 [ id "title"
-                                , class "title"
+                                , class "title bg-main border-none font text-lg"
                                 , style "padding" "2px"
                                 , style "color" "#f4f4f4"
-                                , style "background-color" "var(--main-color)"
-                                , style "border" "none"
-                                , style "font-size" "1.1rem"
-                                , style "font-weight" "400"
-                                , style "font-family" "'Nunito Sans', sans-serif"
                                 , value <| Title.toString props.title
                                 , onInput EditTitle
                                 , onBlur (EndEditTitle Events.keyEnter False)
@@ -125,12 +113,7 @@ view props =
                 ]
             , if isJust (Maybe.andThen .id props.currentDiagram) && (Maybe.map .isRemote props.currentDiagram |> Maybe.withDefault False) then
                 div
-                    [ class "button"
-                    , style "padding" "8px"
-                    , style "display" "flex"
-                    , style "align-items" "center"
-                    , onClick <| ChangePublicStatus (not isPublic)
-                    ]
+                    [ class "button", onClick <| ChangePublicStatus (not isPublic) ]
                     [ if isPublic then
                         Icon.lockOpen "#F5F5F6" 17
 
@@ -152,12 +135,7 @@ view props =
                 Empty.view
             , if isJust <| Maybe.andThen .id props.currentDiagram then
                 a [ style "display" "flex", href <| Route.toString Route.Tag ]
-                    [ div
-                        [ class "button"
-                        , style "padding" "8px"
-                        , style "display" "flex"
-                        , style "align-items" "center"
-                        ]
+                    [ div [ class "button" ]
                         [ Icon.tag 17
                         , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipTags props.lang ] ]
                         ]
@@ -166,26 +144,16 @@ view props =
               else
                 Empty.view
             , a [ style "display" "flex", href <| Route.toString Route.Help ]
-                [ div
-                    [ class "button"
-                    , style "padding" "8px"
-                    , style "display" "flex"
-                    , style "align-items" "center"
-                    ]
+                [ div [ class "button" ]
                     [ Icon.helpOutline 20
                     , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipHelp props.lang ] ]
                     ]
                 ]
             , a
-                [ style "display" "flex"
+                [ class "flex"
                 , href <| Route.toString Route.SharingDiagram
                 ]
-                [ div
-                    [ class "button"
-                    , style "padding" "8px"
-                    , style "display" "flex"
-                    , style "align-items" "center"
-                    ]
+                [ div [ class "button" ]
                     [ Icon.people 24
                     , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipShare props.lang ] ]
                     ]
@@ -198,21 +166,15 @@ view props =
                 div
                     [ class "button"
                     , stopPropagationOn "click" (D.succeed ( OpenMenu HeaderMenu, True ))
-                    , style "display" "flex"
-                    , style "align-items" "center"
                     ]
                     [ div
-                        [ style "font-size" "0.9rem"
+                        [ class "text-sm"
                         , style "padding" "0 8px"
-                        , style "font-weight" "400"
                         , style "margin-right" "4px"
                         ]
                         [ img
                             [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
-                            , style "width" "30px"
-                            , style "margin-top" "4px"
-                            , style "object-fit" "cover"
-                            , style "border-radius" "50%"
+                            , class "avatar"
                             ]
                             []
                         , case props.menu of
@@ -238,19 +200,10 @@ view props =
 
               else
                 div
-                    [ class "button"
+                    [ class "button m-2"
                     , stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
-                    , style "display" "flex"
-                    , style "align-items" "center"
                     ]
-                    [ div
-                        [ style "font-size" "0.9rem"
-                        , style "padding" "0 8px"
-                        , style "font-weight" "400"
-                        , style "margin-right" "4px"
-                        , style "width" "55px"
-                        ]
-                        [ text "SIGN IN" ]
+                    [ div [ style "width" "70px" ] [ text "SIGN IN" ]
                     , case props.menu of
                         Just LoginMenu ->
                             Menu.menu (Just "30px")

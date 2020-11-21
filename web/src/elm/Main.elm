@@ -28,7 +28,7 @@ import File.Download as Download
 import GraphQL.Request as Request
 import Graphql.Http as Http
 import Html exposing (Html, div, main_, textarea)
-import Html.Attributes exposing (id, placeholder, style, value)
+import Html.Attributes exposing (class, id, placeholder, style, value)
 import Html.Events as E
 import Html.Lazy as Lazy
 import Json.Decode as D
@@ -136,8 +136,7 @@ init flags url key =
 view : Model -> Html Msg
 view model =
     main_
-        [ style "position" "relative"
-        , style "width" "100vw"
+        [ class "relative w-screen"
         , E.onClick CloseMenu
         ]
         [ Lazy.lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.diagramModel.text, lang = model.lang }
@@ -158,11 +157,7 @@ view model =
                             SwitchWindow
                             model.diagramModel.settings.backgroundColor
                             model.switchWindow
-                            (div
-                                [ style "background-color" "#273037"
-                                , style "width" "100%"
-                                , style "height" "100%"
-                                ]
+                            (div [ class "h-main bg-main lg:h-full w-full" ]
                                 [ textarea
                                     [ E.onInput EditText
                                     , style "font-size" ((defaultEditorSettings model.settingsModel.settings.editor |> .fontSize |> String.fromInt) ++ "px")
@@ -178,16 +173,9 @@ view model =
                             OnStartWindowResize
                             model.diagramModel.settings.backgroundColor
                             model.window
-                            (div
-                                [ style "background-color" "#273037"
-                                , style "width" "100%"
-                                , style "height" "100%"
-                                ]
+                            (div [ class "bg-main w-full h-main lg:h-full" ]
                                 [ div
-                                    [ id "editor"
-                                    , style "width" "100%"
-                                    , style "height" "100%"
-                                    ]
+                                    [ id "editor" , class "full" ]
                                     []
                                 ]
                             )
@@ -273,6 +261,7 @@ showNotification notify =
 
         Just notification ->
             Notification.view notification
+
 
 
 -- Update

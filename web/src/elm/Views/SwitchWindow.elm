@@ -1,7 +1,7 @@
 module Views.SwitchWindow exposing (view)
 
 import Html exposing (Html, div)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Models.Model exposing (Msg(..), SwitchWindow(..))
 import Views.Icon as Icon
@@ -10,11 +10,8 @@ import Views.Icon as Icon
 view : (SwitchWindow -> msg) -> String -> SwitchWindow -> Html msg -> Html msg -> Html msg
 view onSwitchWindow backgroundColor window view1 view2 =
     div
-        [ style "width" "100vw"
-        , style "flex-direction" "column"
-        , style "backgrond-color" "#282C32"
-        , style "position" "relative"
-        , style "display" "flex"
+        [ style "backgrond-color" "#282C32"
+        , class "flex flex-col relative w-screen"
         ]
         [ div
             [ style "position" "fixed"
@@ -43,9 +40,7 @@ view onSwitchWindow backgroundColor window view1 view2 =
                     Icon.edit 20
             ]
         , div
-            [ style "width" "100%"
-            , style "height" "100%"
-            ]
+            [ class "h-main lg:h-full w-full" ]
             [ div
                 [ case window of
                     Left ->
@@ -53,8 +48,7 @@ view onSwitchWindow backgroundColor window view1 view2 =
 
                     Right ->
                         style "display" "none"
-                , style "width" "100%"
-                , style "height" "100%"
+                , class "full"
                 ]
                 [ view1 ]
             , div
@@ -65,8 +59,7 @@ view onSwitchWindow backgroundColor window view1 view2 =
                     Left ->
                         style "display" "none"
                 , style "background-color" backgroundColor
-                , style "width" "100%"
-                , style "height" "100%"
+                , class "full"
                 ]
                 [ view2 ]
             ]

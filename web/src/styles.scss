@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@custom-media --media-sm (width <= 480px);
-@custom-media --media-md (width > 480px);
-
 :root {
     --main-color: #273037;
     --text-color: #f5f5f6;
@@ -37,11 +34,72 @@
     }
 }
 
+@layer base {
+    body {
+        @apply select-none m-0 p-0 font overflow-hidden bg-default antialiased;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    a {
+        @apply font-semibold no-underline;
+    }
+
+    body,
+    p,
+    pre {
+        @apply m-0;
+    }
+
+    rect {
+        @apply cursor-pointer;
+    }
+
+    input {
+        @apply outline-none;
+    }
+
+    select {
+        @apply p-base border-none outline-none bg-none-all cursor-pointer overflow-ellipsis pl-4;
+        text-indent: 0.01px;
+    }
+
+    textarea {
+        @apply full p-lg border-none outline-none font bg-main;
+        color: var(--text-color);
+        tab-size: 4;
+    }
+}
+
 @layer components {
     .label {
-        @apply fs-base text-base;
-        padding: -1px 8px;
-        font-weight: 599;
+        @apply text-base font-semibold;
+        padding: 1px 8px;
+    }
+    .avatar {
+        @apply object-cover rounded-full;
+        width: 30px;
+        margin-top: 4px;
+    }
+    .button {
+        @apply cursor-pointer relative text-color flex items-center;
+        padding: 8px;
+
+        &:hover {
+            .bottom-tooltip {
+                @apply visible opacity-100 text-color;
+            }
+        }
+
+        &:active {
+            &::after {
+                background-color: rgba(0, 0, 0, 0.6);
+            }
+        }
+        @media (max-width: 480px) {
+            .bottom-tooltip {
+                @apply hidden;
+            }
+        }
     }
 }
 
@@ -52,11 +110,35 @@
     .font {
         font-family: var(--font-family);
     }
+    .text-color {
+        color: var(--text-color);
+    }
+    .text-accent {
+        color: var(--accent-color);
+    }
+    .text-dark {
+        color: var(--dark-text-color);
+    }
+    .text-main {
+        color: var(--main-color);
+    }
+    .text-comment {
+        color: var(--comment-color);
+    }
+    .text-activity {
+        color: var(--activity-color);
+    }
     .bg-default {
         background-color: var(--background-color);
     }
     .bg-main {
         background-color: var(--main-color);
+    }
+    .bg-accent {
+        background-color: var(--accent-color);
+    }
+    .bg-light {
+        background-color: var(--light-background-color);
     }
     .bg-none-all {
         background: transparent;
@@ -64,106 +146,44 @@
         box-shadow: none;
         appearance: none;
     }
-}
-
-body {
-    @apply select-none m-0 p-0 font overflow-hidden bg-default;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-text-size-adjust: 100%;
-}
-
-a {
-    text-decoration: none;
-    font-weight: 600;
-}
-
-body,
-p,
-pre {
-    @apply m-0;
-}
-
-rect {
-    @apply cursor-pointer;
-}
-
-input {
-    @apply outline-none;
-}
-
-select {
-    @apply p-base border-none outline-none bg-none-all cursor-pointer;
-    padding-right: 1em;
-    text-indent: 0.01px;
-    text-overflow: ellipsis;
-}
-
-textarea {
-    @apply full p-lg border-none outline-none font bg-main;
-    color: var(--text-color);
-    tab-size: 4;
+    .empty-content {
+        content: "";
+    }
+    .flex-center {
+        @apply flex items-center justify-center;
+    }
+    .flex-start {
+        @apply flex items-start justify-start;
+    }
+    .w-menu {
+        width: 56px;
+    }
+    .h-main {
+        height: calc(100vh - 120px);
+    }
 }
 
 .title {
     padding: 8px 8px 16px;
     width: 90%;
-    @media (--media-sm) {
+    @media (max-width: 480px) {
         width: 120px;
     }
 }
 
 .header-title {
-    @apply text-lg;
+    @apply flex text-lg font-semibold overflow-hidden items-center justify-start whitespace-nowrap;
     color: #f4f4f4;
     text-overflow: ellipsis;
     text-align: left;
-    overflow: hidden;
-    white-space: nowrap;
-    font-weight: 600;
     padding: 2px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-.button {
-    color: var(--text-color);
-    cursor: pointer;
-    position: relative;
-
-    &::after {
-        position: absolute;
-        content: "";
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        transition: all 0.5s ease;
-        background-color: transparent;
-    }
-
-    &:hover {
-        &::after {
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-    }
-
-    &:active {
-        &::after {
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-    }
 }
 
 .settings {
-    background-color: var(--background-color);
-    width: 100%;
+    @apply bg-default w-full text-color overflow-y-scroll;
     height: calc(100vh - 35px);
-    color: var(--text-color);
-    overflow-y: scroll;
-    @media (--media-sm) {
-        width: 100vw;
+    @media (max-width: 480px) {
+        @apply w-screen;
         height: calc(100vh - 130px);
     }
 
@@ -173,16 +193,8 @@ textarea {
     }
 
     .control {
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
-        flex-direction: column;
+        @apply flex-start flex-col;
         margin-bottom: 8px;
-    }
-
-    .label {
-        @apply text-sm;
-        padding: 4px 8px;
     }
 
     .input-area {
@@ -190,10 +202,9 @@ textarea {
         width: 90%;
         padding: 4px 8px;
         input {
-            @apply text-base;
+            @apply text-base bg-light;
             height: 34px;
             color: var(--dark-text-color);
-            background-color: var(--light-background-color);
             background-image: none;
             border: 1px solid #ccc;
             padding: 0 6px;
@@ -201,99 +212,72 @@ textarea {
         }
 
         label {
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
+            @apply flex justify-start items-center;
         }
     }
 }
 
 .diagram-list {
-    @apply flex;
-    background-color: var(--background-color);
+    @apply flex bg-default w-screen;
     height: calc(100vh - 48px);
-    width: 100vw;
-    @media (--media-sm) {
-        width: 100vw;
+    @media (max-width: 480px) {
         height: calc(100vh - 128px);
     }
 
     .side-menu {
-        @apply text-base;
-        color: var(--text-color);
+        @apply text-base text-dark bg-main overflow-y-scroll;
         width: 250px;
+
         height: calc(100vh - 48px);
-        background-color: var(--main-color);
-        overflow-y: scroll;
         @media screen and (max-width: 480px) {
             display: none;
         }
         .item {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            height: 30px;
+            @apply flex items-center cursor-pointer text-sm;
+            height: 50px;
             line-height: 30px;
             padding: 8px;
-            font-size: 0.95rem;
             div {
-                width: 100%;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
+                @apply w-full overflow-hidden whitespace-nowrap overflow-ellipsis;
             }
             &:hover {
-                color: var(--accent-color);
+                @apply text-accent;
             }
         }
 
         .selected {
-            background-color: var(--background-color);
+            @apply bg-default;
         }
     }
 
     .diagram-text {
-        @apply text-sm;
-        width: 100%;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        height: 42px;
+        @apply text-sm w-full overflow-ellipsis whitespace-nowrap overflow-hidden bg-light;
+        height: 58px;
         padding: 8px;
         border-radius: 0 0 2px 2px;
-        background-color: var(--light-background-color);
-        @media (--media-sm) {
+        @media (max-width: 480px) {
             width: 45vw;
         }
     }
 
     .diagram-item {
+        @apply flex items-end justify-end bg-cover cursor-pointer relative;
         width: 21%;
         border-radius: 4px;
-        display: flex;
-        align-items: flex-end;
-        justify-content: flex-end;
         transition: box-shadow 0.1s ease-in-out 0.1s;
         will-change: box-shadow;
-        background-size: cover;
         margin: 8px 8px 16px 16px;
         height: 240px;
-        cursor: pointer;
-        position: relative;
         box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3);
         border: 3px solid var(--light-background-color);
 
         &::after {
-            position: absolute;
-            content: "";
-            top: 0;
-            left: 0;
-            width: 100%;
+            @apply empty-content absolute top-0 left-0 w-full;
             height: 182px;
             transition: all 0.3s ease;
             background-color: rgba(0, 0, 0, 0);
             border-radius: 4px 4px 0 0;
-            @media (--media-sm) {
+            @media (max-width: 480px) {
                 height: 150px;
             }
         }
@@ -303,31 +287,26 @@ textarea {
                 background-color: rgba(0, 0, 0, 0.5);
             }
             .bookmark {
-                display: block;
-                position: absolute;
+                @apply block absolute;
                 bottom: 30px;
                 right: 9px;
             }
 
             .remove {
-                display: block;
+                @apply block;
             }
 
             .datetime {
-                @apply text-xs;
-                display: block;
-                color: var(--dark-text-color);
+                @apply text-xs block text-dark;
             }
 
             .cloud {
-                position: absolute;
-                display: block;
+                @apply block absolute;
                 top: 5px;
                 right: 32px;
             }
             .public {
-                position: absolute;
-                display: block;
+                @apply block absolute;
                 top: 5px;
                 right: 8px;
             }
@@ -336,7 +315,7 @@ textarea {
         .datetime,
         .bookmark,
         .remove {
-            display: none;
+            @apply hidden;
         }
 
         &:active {
@@ -345,64 +324,53 @@ textarea {
             }
         }
 
-        @media (--media-sm) {
+        @media (max-width: 480px) {
+            @apply items-end justify-end;
             width: 42%;
             height: 150px;
-            align-items: flex-end;
-            justify-content: flex-start;
             img {
-                width: 100%;
+                @apply w-full;
                 height: 125px;
             }
         }
 
         .cloud,
         .public {
-            display: none;
+            @apply hidden;
         }
     }
     .new-item-container {
         width: 20%;
-        @media (--media-sm) {
+        @media (max-width: 480px) {
             width: 49%;
         }
     }
     .new-item {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
+        @apply flex-center flex-col cursor-pointer bg-light;
         border-radius: 4px;
-        height: 140px;
+        height: 150px;
         margin: 0 8px 8px 8px;
-        cursor: pointer;
         box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3);
-        background-color: var(--light-background-color);
         .new-item-image {
-            object-fit: contain;
-            width: 100%;
+            @apply object-contain w-full;
             height: 100px;
         }
         .new-item-text {
-            @apply text-sm;
+            @apply text-sm text-main font-semibold align-middle;
             height: 20px;
-            vertical-align: middle;
-            color: var(--main-color);
-            font-weight: 600;
             padding-top: 16px;
         }
 
         &:hover {
             .new-item-text {
-                color: var(--accent-color);
-                font-weight: 600;
+                @apply text-accent font-semibold;
             }
         }
     }
 }
 
 .dialog {
-    position: absolute;
+    @apply absolute left-0 right-0;
     background-color: #f7f7f7;
     max-width: 500px;
     top: 150px;
@@ -414,77 +382,49 @@ textarea {
     z-index: 101;
 
     .button {
+        @apply border-none;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-        border: none;
     }
 
     .save-button {
+        @apply font-semibold bg-accent;
         width: 100px;
-        font-weight: 600;
-        background-color: var(--accent-color);
         color: #fff;
     }
-    @media (--media-sm) {
-        position: absolute;
+    @media (max-width: 480px) {
+        @apply absolute top-0 left-0 right-0 rounded-none h-screen;
         background-color: #f7f7f7;
         max-width: 500px;
-        top: 0;
-        left: 0;
-        right: 0;
         margin: auto;
         box-shadow: 0 4px 8px 3px rgba(60, 64, 67, 0.15);
-        border-radius: 0px;
         z-index: 100;
-        height: 100vh;
     }
 }
 
 .menu {
-    position: relative;
-
-    @media (--media-sm) {
+    @apply relative;
+    @media (max-width: 480px) {
         .menu-item {
-            @apply text-base;
-            margin-top: 0;
-            cursor: pointer;
+            @apply text-base mt-0 cursor-pointer;
             margin: 0 16px;
         }
     }
 }
 
-.button {
-    cursor: pointer;
-
-    &:hover {
-        position: relative;
-        .bottom-tooltip {
-            visibility: visible;
-            opacity: 1;
-            color: var(--text-color);
-        }
-    }
-    @media (--media-sm) {
-        .bottom-tooltip {
-            display: none;
-        }
-    }
-}
-
 .menu-button {
+    @apply cursor-pointer;
     padding-top: 16px;
-    cursor: pointer;
 
     &:hover {
-        position: relative;
+        @apply relative;
         .tooltip {
-            visibility: visible;
-            opacity: 1;
-            color: var(--text-color);
+            @apply visible opacity-100 text-color;
         }
     }
 }
 
 .input {
+    @apply font outline-none;
     background-color: #fff;
     border-radius: 2px;
     padding: 8px;
@@ -492,66 +432,53 @@ textarea {
     width: 200px;
     border: 1px solid transparent;
     margin: 8px;
-    outline: none;
-    font-family: var(var(--font-family));
-}
 
-.input:focus {
-    border: none;
+    &:focus {
+        @apply hidden;
+    }
 }
 
 .menu-item {
-    cursor: pointer;
-    font-weight: 400;
+    @apply cursor-pointer;
     padding: 16px;
 }
 
 .share {
-    background-color: var(--background-color);
-    width: 100%;
+    @apply w-full bg-default text-color;
     height: calc(100vh - 35px);
-    color: var(--text-color);
-
     .text {
+        @apply text-sm;
         padding: 16px;
         line-height: 1.2;
-        font-size: 0.95rem;
     }
 
-    @media (--media-sm) {
-        width: 100vw;
+    @media (max-width: 480px) {
+        @apply w-screen;
         height: calc(100vh - 130px);
     }
 }
 
 .help {
-    @apply text-xl;
-    background-color: var(--background-color);
-    width: 100%;
+    @apply text-xl bg-default w-full text-color overflow-auto;
     height: calc(100vh - 35px);
-    color: var(--text-color);
-    overflow: auto;
-    @media (--media-sm) {
-        width: 100vw;
+    @media (max-width: 480px) {
+        @apply w-screen;
         height: calc(100vh - 130px);
     }
 
     .text {
+        @apply text-sm;
         padding: 16px;
-        line-height: 1.2;
-        font-size: 0.95rem;
     }
-
     .comment {
-        color: var(--comment-color);
+        @apply text-comment;
     }
-
     .activity {
-        color: var(--activity-color);
+        @apply text-activity;
     }
 
     .task {
-        color: var(--accent-color);
+        @apply text-accent;
     }
 
     .story {
@@ -559,50 +486,39 @@ textarea {
     }
 
     .header {
-        font-weight: 600;
+        @apply font-semibold;
     }
 
     .rows {
-        @apply flex text-base;
-        flex-direction: column;
+        @apply flex text-base flex-col;
         padding: 16px;
     }
 
     .row {
         @apply flex;
         .item {
-            @apply text-sm;
+            @apply text-sm flex-center;
             border: 1px solid var(--border-color);
             width: 85px;
             height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
     }
 }
 
 .progress {
-    position: relative;
+    @apply relative block w-full overflow-hidden;
     height: 4px;
-    display: block;
-    width: 100%;
     background-color: rgba(62, 155, 205, 0.1);
     border-radius: 2px;
     background-clip: padding-box;
-    overflow: hidden;
 
     .indeterminate {
-        background-color: var(--accent-color);
+        @apply bg-accent;
     }
 
     .indeterminate:before {
-        content: "";
-        position: absolute;
+        @apply empty-content absolute top-0 left-0 bottom-0;
         background-color: inherit;
-        top: 0;
-        left: 0;
-        bottom: 0;
         will-change: left, right;
         -webkit-animation: indeterminate 2.1s
             cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
@@ -617,78 +533,55 @@ textarea {
 }
 
 .notification {
-    @apply text-sm;
-    opacity: 0;
-    position: fixed;
+    @apply text-sm opacity-0 fixed cursor-pointer bg-main text-color flex items-center justify-between;
     bottom: 5%;
     right: 10px;
     min-width: 300px;
     height: 40px;
-    cursor: pointer;
-    background-color: var(--main-color);
     box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
         0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
-    color: var(--text-color);
     z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
 
-    @media (--media-sm) {
-        min-width: 100vw;
-        width: 100vw;
-        right: 0;
+    @media (max-width: 480px) {
+        @apply w-screen right-0 shadow-none;
         bottom: 55px;
         z-index: 200;
-        box-shadow: none;
     }
 }
 
 .close {
+    @apply cursor-pointer;
     margin-right: 16px;
-    cursor: pointer;
 }
 
-@media (--media-md) {
+@media (min-width: 480px) {
     .menu-item-container {
-        @apply text-base;
-        color: var(--text-color);
-        cursor: pointer;
+        @apply text-base text-color cursor-pointer flex items-center;
         height: 40px;
-        display: flex;
-        align-items: center;
         &:hover {
             background-color: rgba(0, 0, 0, 0.3);
         }
     }
 
     .bottom-tooltip {
-        visibility: hidden;
-        text-align: center;
-        position: absolute;
+        @apply invisible text-center absolute opacity-0;
         z-index: 1;
-        opacity: 0;
         transition: opacity 500ms;
         width: 120px;
         top: 40px;
         right: -40px;
 
         .text {
-            @apply text-sm;
+            @apply text-sm text-color inline-block;
             background-color: #333;
-            color: var(--text-color);
             padding: 5px 10px;
             border-radius: 2px;
-            display: inline-block;
         }
     }
 
     .tooltip {
-        visibility: hidden;
-        text-align: center;
-        position: absolute;
+        @apply invisible text-center absolute opacity-0;
         z-index: 1;
-        opacity: 0;
         transition: opacity 500ms;
         width: 120px;
         bottom: 10%;
@@ -696,9 +589,8 @@ textarea {
         margin-left: -60px;
 
         .text {
-            @apply text-sm;
+            @apply text-sm text-color inline-block;
             background-color: #333;
-            color: var(--text-color);
             padding: 5px 10px;
             border-radius: 2px;
             display: inline-block;
@@ -706,12 +598,11 @@ textarea {
     }
 
     .close {
+        @apply relative opacity-80;
         width: 16px;
         height: 16px;
-        position: relative;
-        opacity: 0.8;
         &:hover {
-            opacity: 1;
+            @apply opacity-100;
         }
         &:before {
             transform: rotate(45deg);
@@ -722,9 +613,8 @@ textarea {
 
         &:before,
         &:after {
-            position: absolute;
+            @apply absolute empty-content;
             left: 15px;
-            content: " ";
             height: 16px;
             width: 2px;
             background-color: #fff;
@@ -736,35 +626,23 @@ textarea {
     background-color: rgba(0, 0, 0, 0.3);
 }
 
-@media (--media-sm) {
+@media (max-width: 480px) {
     .tooltip {
-        display: none;
+        @apply hidden;
     }
     .menu-bar {
-        display: flex;
-        align-items: center;
-        width: 100vw;
+        @apply flex items-center justify-between w-screen bottom-0 fixed bg-main;
         height: 57px;
-        background-color: var(--main-color);
-        position: fixed;
-        bottom: 0;
-        flex-direction: row;
-        justify-content: space-between;
         z-index: 100;
     }
 
     .menu-item-container {
-        @apply text-base;
-        color: var(--text-color);
-        cursor: pointer;
+        @apply text-base text-color cursor-pointer flex items-center;
         height: 50px;
-        display: flex;
-        align-items: center;
     }
 
     .menu-item {
-        margin-top: 0;
-        cursor: pointer;
+        @apply mt-0 cursor-pointer;
         margin: 0 16px;
     }
 
@@ -773,20 +651,17 @@ textarea {
     }
 
     .main {
-        display: flex;
-        overflow: hidden;
-        position: relative;
+        @apply flex overflow-hidden relative;
     }
 
     .close {
-        position: absolute;
+        @apply absolute opacity-80;
         right: 32px;
         top: 32px;
         width: 32px;
         height: 32px;
-        opacity: 0.8;
         &:hover {
-            opacity: 1;
+            @apply opacity-100;
         }
         &:before {
             transform: rotate(45deg);
@@ -797,9 +672,8 @@ textarea {
 
         &:before,
         &:after {
-            position: absolute;
+            @apply absolute empty-content;
             left: 15px;
-            content: " ";
             height: 33px;
             width: 2px;
             background-color: #333;
@@ -842,60 +716,44 @@ textarea {
 }
 
 .monaco-editor.vs-dark .current-line {
-    background: none;
+    @apply bg-none box-border;
     border: none !important;
-    box-sizing: border-box;
 }
 
 .dropdown-list {
-    @apply text-sm;
-    position: relative;
-    background-color: transparent;
+    @apply text-sm relative bg-transparent select-none cursor-pointer outline-none;
     color: #2e2e2e;
-    outline: none;
-    user-select: none;
-    cursor: pointer;
 
     .list {
-        position: absolute;
+        @apply absolute bg-transparent m-0 overflow-y-scroll overflow-x-hidden right-0;
         z-index: 10;
         top: 33px;
         left: 1px;
-        right: 0;
-        background-color: transparent;
         padding-left: 0;
-        margin: 0;
         border-top: 0;
-        overflow-y: scroll;
-        overflow-x: hidden;
         height: 200px;
         width: 100%;
         -webkit-overflow-scrolling: touch;
     }
 
     .item {
-        display: block;
+        @apply block;
         padding: 8px;
         border: 1px solid var(--border-color);
         background-color: var(--light-background-color);
 
         &::after {
-            content: "";
-            width: 0;
-            height: 0;
-            position: absolute;
+            @apply empty-content w-0 h-0 absolute border-solid;
             right: 8px;
             top: calc(50%);
             margin-top: -4px;
             border-width: 6px 6px 0 6px;
-            border-style: solid;
             border-color: #2e2e2e transparent;
         }
     }
 
     .dropdown-item {
-        width: 100%;
-        display: block;
+        @apply w-full block;
         padding: 8px;
         border-bottom: 1px solid var(--border-color);
         background-color: var(--light-background-color);
@@ -939,10 +797,10 @@ textarea {
 
 @keyframes fade-in {
     0% {
-        opacity: 0;
+        @apply opacity-0;
     }
     100% {
-        opacity: 1;
+        @apply opacity-100;
     }
 }
 
