@@ -187,7 +187,7 @@ sideMenu session filter tagItems =
                 ]
                 [ Icon.bookmark "#F5F5F6" 16, div [ style "padding" "8px" ] [ text "Bookmarks" ] ]
             :: div
-                [ style "width" "100%"
+                [ class "w-full"
                 , style "height" "2px"
                 , style "border-bottom" "2px solid rgba(0, 0, 0, 0.1)"
                 ]
@@ -276,19 +276,12 @@ view model =
 
         _ ->
             div
-                [ class "diagram-list"
-                , style "align-items" "center"
-                , style "justify-content" "center"
-                , style "width" "100vw"
+                [ class "diagram-list flex-center w-screen"
                 ]
                 [ div
-                    [ style "display" "flex"
-                    , style "align-items" "center"
-                    , style "justify-content" "center"
-                    , style "height" "100%"
+                    [ class "flex-center w-full text-2xl"
                     , style "padding-bottom" "32px"
                     , style "color" "#8C9FAE"
-                    , style "font-size" "1.5rem"
                     ]
                     [ div [ style "margin-bottom" "8px" ]
                         [ img [ class "keyframe anim", Asset.src Asset.logo, style "width" "64px", alt "LOADING..." ] []
@@ -302,32 +295,22 @@ diagramListView props =
     div
         [ style "width" "100%" ]
         [ div
-            [ style "padding" "16px"
-            , style "display" "flex"
-            , style "align-items" "center"
-            , style "justify-content" "flex-end"
-            , style "font-weight" "400"
+            [ class "flex items-center justify-end"
+            , style "padding" "16px"
             , style "color" "#FEFEFE"
             ]
-            [ div
-                [ style "display" "flex"
-                , style "align-items" "center"
-                , style "width" "100%"
-                , style "position" "relative"
-                ]
+            [ div [ class "flex items-center w-full relative" ]
                 [ div
-                    [ style "position" "absolute"
+                    [ class "absolute"
                     , style "left" "3px"
                     , style "top" "5px"
                     ]
                     [ Icon.search "#8C9FAE" 24 ]
                 , input
                     [ placeholder "Search"
+                    , class "w-full text-sm border-none"
                     , style "border-radius" "16px"
                     , style "padding" "8px"
-                    , style "border" "none"
-                    , style "width" "100%"
-                    , style "font-size" "0.9rem"
                     , style "padding-left" "32px"
                     , onInput SearchInput
                     ]
@@ -335,26 +318,20 @@ diagramListView props =
                 ]
             , div
                 [ class "button"
-                , style "padding" "8px"
                 , style "margin-left" "8px"
                 , onClick Export
                 ]
                 [ Icon.cloudDownload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport props.lang ] ] ]
             , div
                 [ class "button"
-                , style "padding" "8px"
                 , onClick Import
                 ]
                 [ Icon.cloudUpload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipImport props.lang ] ] ]
             ]
         , if List.isEmpty props.diagrams then
             div
-                [ style "display" "flex"
-                , style "align-items" "center"
-                , style "justify-content" "center"
-                , style "height" "100%"
+                [ class "flex-center h-full text-2xl"
                 , style "color" "#8C9FAE"
-                , style "font-size" "1.5rem"
                 , style "padding-bottom" "32px"
                 ]
                 [ div [ style "margin-bottom" "8px" ] [ text "NOTHING" ]
@@ -362,14 +339,9 @@ diagramListView props =
 
           else
             div
-                [ style "display" "flex"
-                , style "align-items" "flex-start"
-                , style "justify-content" "flex-start"
+                [ class "flex-start flex-wrap content-start overflow-y-scroll"
                 , style "height" "calc(100% - 70px)"
-                , style "flex-wrap" "wrap"
                 , style "margin-bottom" "8px"
-                , style "align-content" "flex-start"
-                , style "overflow-y" "scroll"
                 , style "will-change" "transform"
                 , style "border-top" "1px solid #323B46"
                 , style "padding" "8px"
@@ -386,17 +358,10 @@ diagramListView props =
                         (\d -> Lazy.lazy2 diagramView props.timeZone d)
                  )
                     ++ [ if props.hasMorePage then
-                            div
-                                [ style "width" "100%"
-                                , style "display" "flex"
-                                , style "align-items" "center"
-                                , style "justify-content" "center"
-                                ]
+                            div [ class "w-full flex-center" ]
                                 [ div
-                                    [ class "button"
-                                    , style "background-color" "var(--activity-color)"
+                                    [ class "button bg-activity text-center"
                                     , style "width" "100px"
-                                    , style "text-align" "center"
                                     , style "padding" "16px"
                                     , style "margin" "8px"
                                     , onClick <| LoadNextPage props.publicStatus <| props.pageNo + 1
@@ -414,27 +379,17 @@ diagramListView props =
 diagramView : Zone -> DiagramItem -> Html Msg
 diagramView timezone diagram =
     div
-        [ class "diagram-item"
+        [ class "diagram-item bg-contain bg-no-repeat"
         , style "background-image" ("url(\"" ++ (diagram.thumbnail |> Maybe.withDefault "") ++ "\")")
-        , style "background-size" "contain"
-        , style "background-repeat" "no-repeat"
         , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
         ]
         [ div
             [ class "diagram-text"
             ]
-            [ div
-                [ style "overflow" "hidden"
-                , style "text-overflow" "ellipsis"
-                , style "font-size" "1.05em"
-                , style "font-weight" "600"
-                ]
+            [ div [ class "overflow-hidden overflow-ellipsis text-base font-semibold" ]
                 [ text (Title.toString diagram.title) ]
             , div
-                [ style "display" "flex"
-                , style "align-items" "center"
-                , style "justify-content" "space-between"
-                ]
+                [ class "flex items-center justify-between" ]
                 [ div [ class "datetime" ] [ text (DateUtils.millisToString timezone diagram.updatedAt) ]
                 , if diagram.isRemote then
                     div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOn 14 ]
@@ -465,12 +420,8 @@ diagramView timezone diagram =
                     _ ->
                         Empty.view
                 , div
-                    [ style "position" "absolute"
+                    [ class "absolute flex justify-end flex-wrap w-full"
                     , style "bottom" "60px"
-                    , style "width" "100%"
-                    , style "display" "flex"
-                    , style "justify-content" "flex-end"
-                    , style "flex-wrap" "wrap"
                     , style "transform" "scale(0.9)"
                     ]
                     (List.map tagView (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
@@ -486,13 +437,9 @@ errorView e =
         , style "width" "100vw"
         ]
         [ div
-            [ style "display" "flex"
-            , style "align-items" "center"
-            , style "justify-content" "center"
-            , style "height" "100%"
+            [ class "flex-center h-full text-2xl"
             , style "padding-bottom" "32px"
             , style "color" "#8C9FAE"
-            , style "font-size" "1.5rem"
             ]
             [ div [ style "margin-bottom" "8px" ]
                 [ text ("Failed " ++ Utils.httpErrorToString e)
@@ -504,15 +451,10 @@ errorView e =
 tagView : String -> Html Msg
 tagView tag =
     div
-        [ style "border-radius" "8px"
-        , style "color" "var(--text-color)"
-        , style "background-color" "var(--activity-color)"
+        [ class "flex items-center text-center text-sm text-color bg-activity"
+        , style "border-radius" "8px"
         , style "padding" "8px"
         , style "margin" "2px"
-        , style "text-align" "center"
-        , style "display" "flex"
-        , style "align-items" "center"
-        , style "font-size" "0.8rem"
         ]
         [ text tag ]
 

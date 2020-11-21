@@ -40,11 +40,8 @@ newItems =
 view : Html msg
 view =
     div
-        [ class "diagram-list"
+        [ class "diagram-list flex-wrap overflow-y-scroll"
         , style "margin" "16px"
-        , style "display" "flex"
-        , style "flex-wrap" "wrap"
-        , style "overflow-y" "scroll"
         ]
     <|
         List.map

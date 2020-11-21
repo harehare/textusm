@@ -33,7 +33,6 @@ type Msg
 init : List Tag -> ( Model, Cmd Msg )
 init tags =
     Return.singleton (Model tags "" Nothing)
-        |> Return.andThen focusInput
 
 
 focusInput : Model -> Return Msg Model
@@ -41,14 +40,14 @@ focusInput model =
     Effect.focus NoOp "edit-tag" model
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Return Msg Model
 update msg model =
     case msg of
         NoOp ->
-            ( model, Cmd.none )
+            Return.singleton model
 
         EditTag tag ->
-            ( { model | deleteTag = Nothing, editTag = tag }, Cmd.none )
+            Return.singleton { model | deleteTag = Nothing, editTag = tag }
 
         AddOrDeleteTag 13 False ->
             if not <| List.member model.editTag model.tags then
@@ -81,11 +80,7 @@ view : Model -> Html Msg
 view model =
     div [ class "tags" ]
         [ div
-            [ style "border-bottom" "1px solid var(--main-color)"
-            , style "width" "100%"
-            , style "display" "flex"
-            , style "align-items" "center"
-            , style "flex-wrap" "wrap"
+            [ class "flex items-center flex-wrap w-full border-main"
             , style "padding" "8px"
             ]
           <|
@@ -93,10 +88,8 @@ view model =
                 ++ [ input
                         [ class "input"
                         , id "edit-tag"
-                        , style "background-color" "transparent"
-                        , style "color" "var(--text-color)"
                         , style "width" "150px"
-                        , style "font-size" "1rem"
+                        , style "background-color" "transparent"
                         , placeholder "ADD TAG"
                         , Events.onKeyDown AddOrDeleteTag
                         , onInput EditTag
@@ -113,9 +106,8 @@ tagView deleteTag tag =
         deleteButton =
             div
                 [ onClick (DeleteTag tag)
+                , class "flex items-center"
                 , style "cursor" "pointer"
-                , style "display" "flex"
-                , style "align-items" "center"
                 ]
                 [ Icon.clear 20 ]
     in

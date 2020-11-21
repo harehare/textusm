@@ -55,20 +55,16 @@ view : Model -> Html Msg
 view model =
     div [ class "share" ]
         [ div
-            [ style "font-weight" "600"
+            [ class "flex items-center justify-start font-semibold"
             , style "padding" "16px"
-            , style "display" "flex"
-            , style "align-items" "center"
-            , style "justify-content" "flex-start"
             ]
-            [ div [ style "width" "100%" ]
+            [ div [ class "w-full" ]
                 [ div [ style "padding" "16px" ]
                     [ div [ class "label" ] [ text "Link to share" ]
                     , input
-                        [ class "input"
+                        [ class "input text-sm"
                         , style "color" "#555"
-                        , style "height" "20px"
-                        , style "font-size" "0.95rem"
+                        , style "height" "32px"
                         , style "width" "calc(100% - 40px)"
                         , style "border" "1px solid #8C9FAE"
                         , readonly True
@@ -84,12 +80,11 @@ view model =
                         , div [ style "display" "flex", style "align-items" "center", style "padding" "0 24px" ]
                             [ div [] [ text "Size:" ]
                             , input
-                                [ class "input"
+                                [ class "input text-sm"
                                 , type_ "number"
                                 , style "color" "#555"
                                 , style "width" "50px"
-                                , style "height" "20px"
-                                , style "font-size" "0.95rem"
+                                , style "height" "32px"
                                 , style "border" "1px solid #8C9FAE"
                                 , value <| String.fromInt (Size.getWidth model.empbedSize)
                                 , onInput OnInputWidth
@@ -97,12 +92,11 @@ view model =
                                 []
                             , div [] [ text "x" ]
                             , input
-                                [ class "input"
+                                [ class "input text-sm"
                                 , type_ "number"
                                 , style "color" "#555"
                                 , style "width" "50px"
-                                , style "height" "20px"
-                                , style "font-size" "0.95rem"
+                                , style "height" "32px"
                                 , style "border" "1px solid #8C9FAE"
                                 , value <| String.fromInt (Size.getHeight model.empbedSize)
                                 , onInput OnInputHeight
@@ -112,10 +106,9 @@ view model =
                             ]
                         ]
                     , textarea
-                        [ class "input"
+                        [ class "input text-sm"
                         , style "color" "#555"
                         , style "height" "80px"
-                        , style "font-size" "0.95rem"
                         , style "width" "calc(100% - 40px)"
                         , style "border" "1px solid #8C9FAE"
                         , readonly True

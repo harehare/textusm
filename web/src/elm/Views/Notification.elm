@@ -23,17 +23,10 @@ view notification =
     div
         [ class "notification fade-in" ]
         [ div
-            [ style "display" "flex"
-            , style "align-items" "center"
+            [ class "flex items-center"
             , style "margin-right" "16px"
             ]
-            [ div
-                [ style "margin-left" "8px"
-                ]
-                [ icon ]
-            , div
-                [ style "margin-left" "8px"
-                ]
-                [ text t ]
+            [ div [ style "margin-left" "8px" ] [ icon ]
+            , div [ style "margin-left" "8px" ] [ text t ]
             ]
         ]

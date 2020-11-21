@@ -34,24 +34,14 @@ view onResize backgroundColor window left right =
     in
     if window.fullscreen then
         div
-            [ style "display" "flex", style "background-color" backgroundColor ]
-            [ div
-                [ style "display" "none"
-                ]
-                [ left ]
-            , div
-                [ style "width"
-                    "100vw"
-                , style
-                    "height"
-                    "100vh"
-                ]
-                [ right ]
+            [ class "flex", style "background-color" backgroundColor ]
+            [ div [ class "hidden" ] [ left ]
+            , div [ class "full-screen" ] [ right ]
             ]
 
     else
         div
-            [ style "display" "flex" ]
+            [ class "flex" ]
             [ div
                 [ style "width"
                     leftPos
@@ -62,9 +52,9 @@ view onResize backgroundColor window left right =
                 ]
                 [ left ]
             , div
-                [ style "width" "6px"
+                [ class "bg-main"
+                , style "width" "6px"
                 , style "cursor" "col-resize"
-                , style "background-color" "var(--main-color)"
                 , onStartWindowResize onResize
                 ]
                 []

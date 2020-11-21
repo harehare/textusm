@@ -55,16 +55,18 @@
     }
 
     input {
-        @apply outline-none;
+        outline: none;
     }
 
     select {
-        @apply p-base border-none outline-none bg-none-all cursor-pointer overflow-ellipsis pl-4;
+        @apply p-base border-none bg-none-all cursor-pointer overflow-ellipsis pl-4;
+        outline: none;
         text-indent: 0.01px;
     }
 
     textarea {
-        @apply full p-lg border-none outline-none font bg-main;
+        @apply full p-lg border-none font bg-main;
+        outline: none;
         color: var(--text-color);
         tab-size: 4;
     }
@@ -107,6 +109,9 @@
     .full {
         @apply w-full h-full;
     }
+    .full-screen {
+        @apply w-screen h-screen;
+    }
     .font {
         font-family: var(--font-family);
     }
@@ -140,6 +145,9 @@
     .bg-light {
         background-color: var(--light-background-color);
     }
+    .bg-activity {
+        background-color: var(--activity-color);
+    }
     .bg-none-all {
         background: transparent;
         background-image: none;
@@ -155,11 +163,14 @@
     .flex-start {
         @apply flex items-start justify-start;
     }
-    .w-menu {
+    .w-menu 2 {
         width: 56px;
     }
     .h-main {
-        height: calc(100vh - 120px);
+        height: calc(100vh - 90px);
+    }
+    .border-main {
+        border: 1px solid var(--main-color);
     }
 }
 
@@ -234,6 +245,7 @@
         }
         .item {
             @apply flex items-center cursor-pointer text-sm;
+            color: #fefefe;
             height: 50px;
             line-height: 30px;
             padding: 8px;
@@ -252,7 +264,7 @@
 
     .diagram-text {
         @apply text-sm w-full overflow-ellipsis whitespace-nowrap overflow-hidden bg-light;
-        height: 58px;
+        height: 64px;
         padding: 8px;
         border-radius: 0 0 2px 2px;
         @media (max-width: 480px) {
@@ -267,7 +279,7 @@
         transition: box-shadow 0.1s ease-in-out 0.1s;
         will-change: box-shadow;
         margin: 8px 8px 16px 16px;
-        height: 240px;
+        height: 250px;
         box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3);
         border: 3px solid var(--light-background-color);
 
@@ -414,6 +426,7 @@
 .menu-button {
     @apply cursor-pointer;
     padding-top: 16px;
+    margin-bottom: 8px;
 
     &:hover {
         @apply relative;
@@ -424,7 +437,8 @@
 }
 
 .input {
-    @apply font outline-none;
+    @apply font text-color;
+    outline: none;
     background-color: #fff;
     border-radius: 2px;
     padding: 8px;
@@ -432,10 +446,6 @@
     width: 200px;
     border: 1px solid transparent;
     margin: 8px;
-
-    &:focus {
-        @apply hidden;
-    }
 }
 
 .menu-item {
@@ -721,7 +731,8 @@
 }
 
 .dropdown-list {
-    @apply text-sm relative bg-transparent select-none cursor-pointer outline-none;
+    @apply text-sm relative bg-transparent select-none cursor-pointer;
+    outline: none;
     color: #2e2e2e;
 
     .list {
@@ -737,10 +748,9 @@
     }
 
     .item {
-        @apply block;
+        @apply block bg-light;
         padding: 8px;
         border: 1px solid var(--border-color);
-        background-color: var(--light-background-color);
 
         &::after {
             @apply empty-content w-0 h-0 absolute border-solid;

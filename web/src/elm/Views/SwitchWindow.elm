@@ -9,21 +9,13 @@ import Views.Icon as Icon
 
 view : (SwitchWindow -> msg) -> String -> SwitchWindow -> Html msg -> Html msg -> Html msg
 view onSwitchWindow backgroundColor window view1 view2 =
-    div
-        [ style "backgrond-color" "#282C32"
-        , class "flex flex-col relative w-screen"
-        ]
+    div [ class "flex flex-col relative w-screen bg-main" ]
         [ div
-            [ style "position" "fixed"
+            [ class "fixed flex-center rounded-full bg-accent"
             , style "bottom" "72px"
             , style "z-index" "101"
-            , style "background-color" "var(--accent-color)"
-            , style "display" "flex"
-            , style "align-items" "center"
-            , style "justify-content" "center"
             , style "right" "16px"
             , style "padding" "12px"
-            , style "border-radius" "100%"
             , style "box-shadow" "0 1px 4px rgba(0, 0, 0, .6)"
             , case window of
                 Left ->
