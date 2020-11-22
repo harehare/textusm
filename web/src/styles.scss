@@ -59,13 +59,13 @@
     }
 
     select {
-        @apply p-base border-none bg-none-all cursor-pointer overflow-ellipsis pl-4;
+        @apply p-3 border-none bg-none-all cursor-pointer overflow-ellipsis pl-4;
         outline: none;
         text-indent: 0.01px;
     }
 
     textarea {
-        @apply full p-lg border-none font bg-main;
+        @apply full p-5 border-none font bg-main;
         outline: none;
         color: var(--text-color);
         tab-size: 4;
@@ -83,8 +83,7 @@
         margin-top: 4px;
     }
     .button {
-        @apply cursor-pointer relative text-color flex items-center;
-        padding: 8px;
+        @apply p-3 cursor-pointer relative text-color flex items-center;
 
         &:hover {
             .bottom-tooltip {
@@ -163,14 +162,16 @@
     .flex-start {
         @apply flex items-start justify-start;
     }
-    .w-menu 2 {
-        width: 56px;
-    }
-    .h-main {
-        height: calc(100vh - 90px);
-    }
     .border-main {
         border: 1px solid var(--main-color);
+    }
+    @variants responsive {
+        .h-main {
+            height: calc(100vh - 90px);
+        }
+        .w-menu {
+            width: 56px;
+        }
     }
 }
 
