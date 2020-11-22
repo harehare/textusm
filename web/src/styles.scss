@@ -78,12 +78,11 @@
         padding: 1px 8px;
     }
     .avatar {
-        @apply object-cover rounded-full;
-        width: 30px;
+        @apply w-14	object-cover rounded-full lg:w-10;
         margin-top: 4px;
     }
     .button {
-        @apply p-3 cursor-pointer relative text-color flex items-center;
+        @apply p-0.5 lg:p-3 cursor-pointer relative text-color flex items-center;
 
         &:hover {
             .bottom-tooltip {

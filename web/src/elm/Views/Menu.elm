@@ -63,7 +63,7 @@ view props =
 
     else
         nav
-            [ class "flex flex-row items-center justify-start bg-main shadow-sm bottom-0 w-screen fixed lg:h-main lg:relative lg:flex-col lg:w-menu z-10"
+            [ class "flex flex-row items-center justify-between bg-main shadow-sm bottom-0 w-screen fixed lg:justify-start lg:h-screen lg:relative lg:flex-col lg:w-menu z-10"
             , style "min-width" "56px"
             ]
             [ if Text.isChanged props.text then

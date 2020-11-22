@@ -420,7 +420,7 @@ diagramView timezone diagram =
                     _ ->
                         Empty.view
                 , div
-                    [ class "absolute flex justify-end flex-wrap w-full"
+                    [ class "absolute justify-end flex-wrap w-full hidden lg:flex"
                     , style "bottom" "60px"
                     , style "transform" "scale(0.9)"
                     ]
