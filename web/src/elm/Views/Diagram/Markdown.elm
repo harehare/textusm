@@ -21,7 +21,7 @@ view model =
             , height <| String.fromInt (Text.toString model.text |> String.lines |> DiagramUtils.getMarkdownHeight)
             ]
             [ Markdown.toHtml
-                [ Attr.class "md-content"
+                [ Attr.class "md-content prose lg:prose-xl"
                 , Attr.style "font-family" ("'" ++ model.settings.font ++ "', sans-serif")
                 , Attr.style "color" <| Diagram.getTextColor model.settings.color
                 ]

@@ -83,11 +83,11 @@ toRoute url =
 toDiagramToRoute : DiagramItem -> Route
 toDiagramToRoute diagram =
     case diagram.id of
-        Just id_ ->
-            EditFile (DiagramType.toString diagram.diagram) id_
-
         Nothing ->
             Edit <| DiagramType.toString diagram.diagram
+
+        Just id_ ->
+            EditFile (DiagramType.toString diagram.diagram) id_
 
 
 toString : Route -> String

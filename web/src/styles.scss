@@ -776,6 +776,10 @@
 
 .md-content {
     padding: 8px;
+    li {
+        @apply list-disc ml-3.5;
+        padding-left: 0 !important;
+    }
 }
 
 .tags {

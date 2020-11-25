@@ -941,15 +941,15 @@ update message model =
 
                 ( Nothing, Just ( item, _ ) ) ->
                     case DragDrop.getDragId model.dragDrop of
+                        Nothing ->
+                            Return.singleton { model | dragDrop = model_, selectedItem = Just ( item, False ) }
+
                         Just id_ ->
                             if Item.getLineNo item == id_ then
                                 Return.singleton { model | dragDrop = model_, selectedItem = Just ( item, True ) }
 
                             else
                                 Return.singleton { model | dragDrop = model_, selectedItem = Just ( item, False ) }
-
-                        Nothing ->
-                            Return.singleton { model | dragDrop = model_, selectedItem = Just ( item, False ) }
 
                 ( Nothing, _ ) ->
                     Return.singleton { model | dragDrop = model_, selectedItem = Maybe.andThen (\( item_, _ ) -> Just ( item_, False )) model.selectedItem }
@@ -1017,6 +1017,9 @@ update message model =
 
         OnColorChanged menu color ->
             case model.selectedItem of
+                Nothing ->
+                    Return.singleton model
+
                 Just ( item, _ ) ->
                     let
                         lines =
@@ -1079,9 +1082,6 @@ update message model =
 
                         _ ->
                             Return.singleton model
-
-                Nothing ->
-                    Return.singleton model
 
         OnFontStyleChanged style ->
             case model.selectedItem of

@@ -175,7 +175,7 @@ view model =
                             model.window
                             (div [ class "bg-main w-full h-main lg:h-full" ]
                                 [ div
-                                    [ id "editor" , class "full" ]
+                                    [ id "editor", class "full" ]
                                     []
                                 ]
                             )
@@ -889,11 +889,11 @@ update message model =
                     , Route.replaceRoute model.key
                         (Route.EditFile (DiagramType.toString item.diagram)
                             (case item.id of
-                                Just diagramId ->
-                                    diagramId
-
                                 Nothing ->
                                     DiagramId.fromString ""
+
+                                Just diagramId ->
+                                    diagramId
                             )
                         )
                     )
@@ -1130,15 +1130,15 @@ update message model =
             let
                 newDiagram =
                     case diagram.id of
-                        Just _ ->
-                            diagram
-
                         Nothing ->
                             { diagram
                                 | title = model.title
                                 , text = model.diagramModel.text
                                 , diagram = model.diagramModel.diagramType
                             }
+
+                        Just _ ->
+                            diagram
 
                 diagramModel =
                     model.diagramModel
