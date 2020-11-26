@@ -19,7 +19,7 @@
         "uuid": "^8.3.1"
     },
     "devDependencies": {
-        "@babel/core": "^7.12.8",
+        "@babel/core": "^7.12.9",
         "@babel/preset-env": "^7.12.7",
         "@dillonkearns/elm-graphql": "^4.0.5",
         "@tailwindcss/typography": "^0.3.1",
