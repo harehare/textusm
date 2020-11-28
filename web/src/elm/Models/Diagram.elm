@@ -15,7 +15,6 @@ module Models.Diagram exposing
     , getTextColor
     , isMoving
     , modelOfDiagramType
-    , modelOfMatchParent
     , modelOfPosition
     , modelOfShowZoomControl
     , modelOfText
@@ -89,7 +88,6 @@ type alias Model =
     , touchDistance : Maybe Float
     , diagramType : Diagram
     , text : Text
-    , matchParent : Bool
     , selectedItem : SelectedItem
     , dragDrop : DragDrop.Model Int Int
     , contextMenu : Maybe ( ContextMenu, Position )
@@ -115,11 +113,6 @@ modelOfShowZoomControl =
 modelOfPosition : Lens Model Position
 modelOfPosition =
     Lens .position (\b a -> { a | position = b })
-
-
-modelOfMatchParent : Lens Model Bool
-modelOfMatchParent =
-    Lens .matchParent (\b a -> { a | matchParent = b })
 
 
 type alias Hierarchy =

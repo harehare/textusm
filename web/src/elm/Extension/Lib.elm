@@ -110,7 +110,6 @@ init flags =
                     Diagram.UserStoryMap
             , settings = flags.settings
             , touchDistance = Nothing
-            , matchParent = False
             , text = Text.empty
             }
       , text = flags.text

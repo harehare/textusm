@@ -55,7 +55,6 @@ import Views.Diagram.GanttChart as GanttChart
 import Views.Diagram.ImpactMap as ImpactMap
 import Views.Diagram.Kanban as Kanban
 import Views.Diagram.Kpt as Kpt
-import Views.Diagram.Markdown as Markdown
 import Views.Diagram.MindMap as MindMap
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
 import Views.Diagram.SequenceDiagram as SequenceDiagram
@@ -92,7 +91,6 @@ init settings =
         , settings = settings
         , diagramType = UserStoryMap
         , text = Text.empty
-        , matchParent = False
         , selectedItem = Nothing
         , dragDrop = DragDrop.init
         , contextMenu = Nothing
@@ -344,9 +342,6 @@ diagramView diagramType =
         UserPersona ->
             UserPersona.view
 
-        Markdown ->
-            Markdown.view
-
         MindMap ->
             MindMap.view
 
@@ -383,29 +378,36 @@ svgView model =
                 Basics.toFloat
                     (Basics.max model.svg.width (Size.getWidth model.size))
                     |> round
-                    |> String.fromInt
 
             else
                 Basics.toFloat
                     (Size.getWidth model.size)
                     |> round
-                    |> String.fromInt
 
         svgHeight =
             if model.fullscreen then
                 Basics.toFloat
                     (Basics.max model.svg.height (Size.getHeight model.size))
                     |> round
-                    |> String.fromInt
 
             else
                 Basics.toFloat
                     (Size.getHeight model.size)
                     |> round
-                    |> String.fromInt
 
         mainSvg =
             lazy (diagramView model.diagramType) model
+
+        centerPosition =
+            case model.diagramType of
+                MindMap ->
+                    Tuple.mapBoth (\x -> x + (svgWidth // 3)) (\y -> y + (svgHeight // 3)) model.position
+
+                ImpactMap ->
+                    Tuple.mapBoth (\x -> x + Constants.itemMargin) (\y -> y + (svgHeight // 3)) model.position
+
+                _ ->
+                    model.position
     in
     svg
         [ Attr.id "usm"
@@ -429,7 +431,7 @@ svgView model =
                 else
                     Size.getHeight model.size
             )
-        , viewBox ("0 0 " ++ svgWidth ++ " " ++ svgHeight)
+        , viewBox ("0 0 " ++ String.fromInt svgWidth ++ " " ++ String.fromInt svgHeight)
         , Attr.style "background-color" model.settings.backgroundColor
         , Wheel.onWheel chooseZoom
         , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
@@ -461,9 +463,9 @@ svgView model =
         , g
             [ transform
                 ("translate("
-                    ++ String.fromInt (Position.getX model.position)
+                    ++ String.fromInt (Position.getX centerPosition)
                     ++ ","
-                    ++ String.fromInt (Position.getY model.position)
+                    ++ String.fromInt (Position.getY centerPosition)
                     ++ "), scale("
                     ++ String.fromFloat model.svg.scale
                     ++ ","

@@ -350,17 +350,6 @@ saveToRemote diagram model =
     Return.return model (Task.attempt SaveToRemoteCompleted saveTask)
 
 
-setEditorLanguage : Diagram.Diagram -> Model -> Return Msg Model
-setEditorLanguage diagram model =
-    Return.return model
-        (if diagram == Diagram.Markdown then
-            Ports.setEditorLanguage "markdown"
-
-         else
-            Ports.setEditorLanguage "userStoryMap"
-        )
-
-
 setFocus : String -> Model -> Return Msg Model
 setFocus id model =
     Effect.focus NoOp id model
@@ -511,7 +500,6 @@ changeRouteTo route model =
                             (Text.fromString defaultText)
                     , page = Page.Main
                 }
-                |> Return.andThen (setEditorLanguage diagramType)
                 |> Return.andThen changeRouteInit
 
         Route.EditFile _ id_ ->
@@ -760,7 +748,7 @@ update message model =
                     model.diagramModel
 
                 newDiagramModel =
-                    { diagramModel | position = ( x, y ), matchParent = False }
+                    { diagramModel | position = ( x, y ) }
             in
             ( { model | diagramModel = newDiagramModel }, Cmd.none )
 
@@ -785,14 +773,12 @@ update message model =
 
                 _ ->
                     let
+                        ( posX, posY ) =
+                            model.diagramModel.position
+
                         ( width, height ) =
                             DiagramUtils.getCanvasSize model.diagramModel
-
-                        diagramModel =
-                            model.diagramModel
-
-                        newDiagramModel =
-                            { diagramModel | position = ( 0, 0 ), matchParent = True }
+                                |> Tuple.mapBoth (\x -> x + posX) (\y -> y + posY)
 
                         ( sub, extension ) =
                             case fileType of
@@ -811,7 +797,7 @@ update message model =
                                 _ ->
                                     ( Ports.downloadSvg, "" )
                     in
-                    ( { model | diagramModel = newDiagramModel }
+                    ( model
                     , sub
                         { width = width
                         , height = height
@@ -1160,7 +1146,6 @@ update message model =
                 }
                 (cmd_ |> Cmd.map UpdateDiagram)
                 |> Return.andThen stopProgress
-                |> Return.andThen (setEditorLanguage newDiagram.diagram)
                 |> Return.andThen (loadEditor ( Text.toString newDiagram.text, defaultEditorSettings model.settingsModel.settings.editor ))
 
         EditText text ->

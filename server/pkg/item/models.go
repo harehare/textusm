@@ -43,7 +43,6 @@ const (
 	DiagramStartStopContinue   Diagram = "START_STOP_CONTINUE"
 	DiagramKpt                 Diagram = "KPT"
 	DiagramUserPersona         Diagram = "USER_PERSONA"
-	DiagramMarkdown            Diagram = "MARKDOWN"
 	DiagramMindMap             Diagram = "MIND_MAP"
 	DiagramEmpathyMap          Diagram = "EMPATHY_MAP"
 	DiagramSiteMap             Diagram = "SITE_MAP"
@@ -63,7 +62,6 @@ var AllDiagram = []Diagram{
 	DiagramStartStopContinue,
 	DiagramKpt,
 	DiagramUserPersona,
-	DiagramMarkdown,
 	DiagramMindMap,
 	DiagramEmpathyMap,
 	DiagramSiteMap,
@@ -77,7 +75,7 @@ var AllDiagram = []Diagram{
 
 func (e Diagram) IsValid() bool {
 	switch e {
-	case DiagramUserStoryMap, DiagramOpportunityCanvas, DiagramBusinessModelCanvas, DiagramFourls, DiagramStartStopContinue, DiagramKpt, DiagramUserPersona, DiagramMarkdown, DiagramMindMap, DiagramEmpathyMap, DiagramSiteMap, DiagramGanttChart, DiagramImpactMap, DiagramErDiagram, DiagramKanban, DiagramTable, DiagramSequenceDiagram:
+	case DiagramUserStoryMap, DiagramOpportunityCanvas, DiagramBusinessModelCanvas, DiagramFourls, DiagramStartStopContinue, DiagramKpt, DiagramUserPersona, DiagramMindMap, DiagramEmpathyMap, DiagramSiteMap, DiagramGanttChart, DiagramImpactMap, DiagramErDiagram, DiagramKanban, DiagramTable, DiagramSequenceDiagram:
 		return true
 	}
 	return false

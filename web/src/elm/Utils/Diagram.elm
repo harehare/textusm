@@ -1,4 +1,4 @@
-module Utils.Diagram exposing (getSpacePrefix, getCanvasHeight, getCanvasSize, getMarkdownHeight)
+module Utils.Diagram exposing (getCanvasHeight, getCanvasSize, getSpacePrefix)
 
 import Constants
 import Data.Item as Item exposing (Items)
@@ -54,9 +54,6 @@ getCanvasSize model =
                 Diagram.UserPersona ->
                     ( Constants.itemWidth * 5 + 25, Basics.max Constants.itemHeight (getCanvasHeight model.settings model.items) * 2 + 50 )
 
-                Diagram.Markdown ->
-                    ( 15 * (Maybe.withDefault 1 <| List.maximum <| List.map (\s -> String.length s) <| String.lines <| Text.toString model.text), getMarkdownHeight <| String.lines <| Text.toString model.text )
-
                 Diagram.ErDiagram ->
                     let
                         ( _, tables ) =
@@ -86,7 +83,7 @@ getCanvasSize model =
                 Diagram.MindMap ->
                     case model.data of
                         DiagramModel.MindMap items hierarchy ->
-                            ( (model.settings.size.width + 100) * (hierarchy * 2) + (model.settings.size.width * 2)
+                            ( (model.settings.size.width * 2) * (hierarchy * 2) + (model.settings.size.width * 2)
                             , case Item.head items of
                                 Just head ->
                                     Item.getLeafCount head * (model.settings.size.height + 24)
@@ -238,33 +235,6 @@ getCanvasSize model =
                     ( diagramWidth, diagramHeight )
     in
     ( width, height )
-
-
-getMarkdownHeight : List String -> Int
-getMarkdownHeight lines =
-    let
-        getHeight : String -> Int
-        getHeight line =
-            case String.toList line of
-                '#' :: '#' :: '#' :: '#' :: '#' :: _ ->
-                    24
-
-                '#' :: '#' :: '#' :: '#' :: _ ->
-                    32
-
-                '#' :: '#' :: '#' :: _ ->
-                    40
-
-                '#' :: '#' :: _ ->
-                    48
-
-                '#' :: _ ->
-                    56
-
-                _ ->
-                    24
-    in
-    lines |> List.map (\l -> getHeight l) |> List.sum
 
 
 getSpacePrefix : String -> String
