@@ -31,9 +31,6 @@ all =
             , test "persona test" <|
                 \() ->
                     Expect.equal (toString UserPersona) "persona"
-            , test "md test" <|
-                \() ->
-                    Expect.equal (toString Markdown) "md"
             , test "mmp test" <|
                 \() ->
                     Expect.equal (toString MindMap) "mmp"
@@ -78,9 +75,6 @@ all =
             , test "persona test" <|
                 \() ->
                     Expect.equal (toLongString UserPersona) "User Persona"
-            , test "md test" <|
-                \() ->
-                    Expect.equal (toLongString Markdown) "Markdown"
             , test "mmp test" <|
                 \() ->
                     Expect.equal (toLongString MindMap) "Mind Map"
