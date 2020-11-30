@@ -1,4 +1,4 @@
-module TestItem exposing (all)
+module Data.ItemTests exposing (all)
 
 import Data.Item as Item exposing (ItemType(..), Items(..))
 import Expect
@@ -65,7 +65,7 @@ all =
                 \() ->
                     Expect.equal
                         (Item.indexedMap (\i item -> ( i, Item.getText item ))
-                            (Item.fromList [Item.new,  Item.new |> Item.withText "test" |> Item.withLineNo 1 ])
+                            (Item.fromList [ Item.new, Item.new |> Item.withText "test" |> Item.withLineNo 1 ])
                         )
                         [ ( 0, "" ), ( 1, "test" ) ]
             ]

@@ -1,4 +1,4 @@
-module TestDiagramType exposing (all)
+module Data.DiagramTypeTests exposing (all)
 
 import Data.DiagramType exposing (toLongString, toString)
 import Expect

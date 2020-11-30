@@ -1,4 +1,4 @@
-module TestText exposing (all)
+module Data.TextTests exposing (all)
 
 import Data.Text as Text
 import Expect

@@ -1,4 +1,4 @@
-module TestTranslations exposing (all)
+module TranslationsTests exposing (all)
 
 import Expect
 import Test exposing (Test, describe, test)
