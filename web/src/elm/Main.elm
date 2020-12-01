@@ -82,7 +82,7 @@ type alias Flags =
     }
 
 
-init : Flags -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init : Flags -> Url.Url -> Nav.Key -> Return Msg Model
 init flags url key =
     let
         initSettings =
@@ -330,6 +330,11 @@ closeFullscreen model =
     Return.return model (Ports.closeFullscreen ())
 
 
+closeMenu : Model -> Return Msg Model
+closeMenu model =
+    Return.singleton { model | openMenu = Nothing }
+
+
 saveDiagram : DiagramItem -> Model -> Return Msg Model
 saveDiagram item model =
     Return.return model (Ports.saveDiagram <| DiagramItem.encoder item)
@@ -381,20 +386,20 @@ changeRouteTo route model =
         Route.Tag ->
             case model.currentDiagram of
                 Nothing ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
                 Just diagram ->
                     let
                         ( model_, _ ) =
                             Tags.init (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault ""))
                     in
-                    ( { model | page = Page.Tags model_ }, Cmd.none )
+                    Return.singleton { model | page = Page.Tags model_ }
 
         Route.New ->
-            ( { model | page = Page.New }, Cmd.none )
+            Return.singleton { model | page = Page.New }
 
         Route.NotFound ->
-            ( { model | page = Page.NotFound }, Cmd.none )
+            Return.singleton { model | page = Page.NotFound }
 
         Route.Embed diagram title path ->
             ( { model
@@ -456,7 +461,7 @@ changeRouteTo route model =
             in
             (case maybeSettings of
                 Nothing ->
-                    ( model, Cmd.none )
+                    Return.singleton model
 
                 Just settings ->
                     let
@@ -743,14 +748,7 @@ update message model =
                 |> Return.andThen stopProgress
 
         DownloadCompleted ( x, y ) ->
-            let
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | position = ( x, y ) }
-            in
-            ( { model | diagramModel = newDiagramModel }, Cmd.none )
+            ( { model | diagramModel = model.diagramModel |> DiagramModel.modelOfPosition.set ( x, y ) }, Cmd.none )
 
         Download fileType ->
             case fileType of
@@ -811,13 +809,14 @@ update message model =
                     )
 
         StartDownload info ->
-            ( model, Cmd.batch [ Download.string (Title.toString model.title ++ info.extension) info.mimeType info.content, Task.perform identity (Task.succeed CloseMenu) ] )
+            Return.return model (Download.string (Title.toString model.title ++ info.extension) info.mimeType info.content)
+                |> Return.andThen closeMenu
 
         OpenMenu menu ->
-            ( { model | openMenu = Just menu }, Cmd.none )
+            Return.singleton { model | openMenu = Just menu }
 
         CloseMenu ->
-            ( { model | openMenu = Nothing }, Cmd.none )
+            closeMenu model
 
         Save ->
             let
@@ -836,12 +835,6 @@ update message model =
                         )
                         model.currentDiagram
                         |> Maybe.withDefault (Session.isSignedIn model.session)
-
-                diagramListModel =
-                    model.diagramListModel
-
-                newDiagramListModel =
-                    { diagramListModel | diagramList = DiagramList.notAsked }
             in
             if Title.isUntitled model.title then
                 update StartEditTitle model
@@ -865,7 +858,11 @@ update message model =
                         , createdAt = Time.millisToPosix 0
                         }
                 in
-                Return.singleton { model | diagramListModel = newDiagramListModel, diagramModel = newDiagramModel }
+                Return.singleton
+                    { model
+                        | diagramListModel = model.diagramListModel |> DiagramList.modelOfDiagramList.set DiagramList.notAsked
+                        , diagramModel = newDiagramModel
+                    }
                     |> Return.andThen (saveDiagram item)
 
         SaveToLocalCompleted diagramJson ->

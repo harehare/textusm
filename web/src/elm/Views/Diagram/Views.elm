@@ -200,7 +200,7 @@ inputView { settings, fontSize, inputStyle, position, size, color, backgroundCol
                 , Attr.style "border" "none"
                 , Attr.style "outline" "none"
                 , Attr.style "width" (String.fromInt (Size.getWidth size - 20) ++ "px")
-                , Attr.style "font-size" <| Constants.fontSize ++ "px"
+                , Attr.style "font-size" <| Maybe.withDefault Constants.fontSize fontSize ++ "px"
                 , Attr.style "margin-left" "2px"
                 , Attr.style "margin-top" "2px"
                 , Attr.value <| " " ++ String.trimLeft (Item.getText item)
