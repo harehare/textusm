@@ -56,7 +56,7 @@ view props =
                     , style "width" "56px"
                     , style "height" "40px"
                     ]
-                    [ a [ href "/", style "margin-top" "8px" ] [ img [ Asset.src Asset.logo, style "width" "32px", alt "logo" ] [] ] ]
+                    [ a [ href "/", style "margin-top" "8px" ] [ img [ Asset.src Asset.logo, style "width" "32px", style "height" "32px", alt "logo" ] [] ] ]
                 , case props.page of
                     Page.Main ->
                         if Title.isEdit props.title then
@@ -175,6 +175,7 @@ view props =
                         [ img
                             [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
                             , class "avatar"
+                            , alt "avatar"
                             ]
                             []
                         , case props.menu of

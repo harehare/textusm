@@ -48,7 +48,7 @@ const common = {
             include: ["runtime", "vendors"],
         }),
         new MonacoWebpackPlugin({
-            languages: ["markdown"],
+            languages: [],
             features: ["folding"],
         }),
     ],
@@ -209,15 +209,7 @@ if (mode === "production") {
                 {
                     test: /\.css$/,
                     exclude: [/elm-stuff/, /node_modules/],
-                    use: [
-                        {
-                            loader: MiniCssExtractPlugin.loader,
-                            options: {
-                                esModule: true,
-                            },
-                        },
-                        "css-loader?url=false",
-                    ],
+                    use: [MiniCssExtractPlugin.loader, "css-loader?url=false"],
                 },
                 {
                     test: /\.scss$/,
@@ -238,6 +230,16 @@ if (mode === "production") {
                     vendors: {
                         test: /[\\/]node_modules[\\/]/i,
                         chunks: "all",
+                    },
+                    editor: {
+                        test: /[\\/]node_modules\/(monaco-editor\/esm\/vs\/(nls\.js|editor|platform|base|basic-languages|language\/(css|html|json|typescript)\/monaco\.contribution\.js)|style-loader\/lib|css-loader\/lib\/css-base\.js)/,
+                        name: "monaco-editor",
+                        chunks: "async",
+                    },
+                    languages: {
+                        test: /[\\/]node_modules\/monaco-editor\/esm\/vs\/language\/(css|html|json|typescript)\/(_deps|lib|fillers|languageFeatures\.js|workerManager\.js|tokenization\.js|(tsMode|jsonMode|htmlMode|cssMode)\.js|(tsWorker|jsonWorker|htmlWorker|cssWorker)\.js)/,
+                        name: "monaco-languages",
+                        chunks: "async",
                     },
                 },
             },
