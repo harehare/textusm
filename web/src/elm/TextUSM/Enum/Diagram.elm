@@ -25,6 +25,7 @@ import Json.Decode as Decode exposing (Decoder)
   - Kanban -
   - Table -
   - SequenceDiagram -
+  - Freeform -
 
 -}
 type Diagram
@@ -44,11 +45,12 @@ type Diagram
     | Kanban
     | Table
     | SequenceDiagram
+    | Freeform
 
 
 list : List Diagram
 list =
-    [ UserStoryMap, OpportunityCanvas, BusinessModelCanvas, Fourls, StartStopContinue, Kpt, UserPersona, MindMap, EmpathyMap, SiteMap, GanttChart, ImpactMap, ErDiagram, Kanban, Table, SequenceDiagram ]
+    [ UserStoryMap, OpportunityCanvas, BusinessModelCanvas, Fourls, StartStopContinue, Kpt, UserPersona, MindMap, EmpathyMap, SiteMap, GanttChart, ImpactMap, ErDiagram, Kanban, Table, SequenceDiagram, Freeform ]
 
 
 decoder : Decoder Diagram
@@ -104,6 +106,9 @@ decoder =
 
                     "SEQUENCE_DIAGRAM" ->
                         Decode.succeed SequenceDiagram
+
+                    "FREEFORM" ->
+                        Decode.succeed Freeform
 
                     _ ->
                         Decode.fail ("Invalid Diagram type, " ++ string ++ " try re-running the @dillonkearns/elm-graphql CLI ")
@@ -162,6 +167,9 @@ toString enum =
 
         SequenceDiagram ->
             "SEQUENCE_DIAGRAM"
+
+        Freeform ->
+            "FREEFORM"
 
 
 {-| Convert from a String representation to an elm representation enum.
@@ -225,6 +233,9 @@ fromString enumString =
 
         "SEQUENCE_DIAGRAM" ->
             Just SequenceDiagram
+
+        "FREEFORM" ->
+            Just Freeform
 
         _ ->
             Nothing

@@ -233,6 +233,9 @@ getCanvasSize model =
                                 + 8
                     in
                     ( diagramWidth, diagramHeight )
+
+                Diagram.Freeform ->
+                    Debug.todo "not implemented"
     in
     ( width, height )
 

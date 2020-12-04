@@ -369,6 +369,9 @@ diagramView diagramType =
         SequenceDiagram ->
             SequenceDiagram.view
 
+        Freeform ->
+            Debug.todo "not implemented"
+
 
 svgView : Model -> Svg Msg
 svgView model =
