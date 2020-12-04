@@ -3,7 +3,7 @@ module Views.Menu exposing (MenuItem(..), menu, view)
 import Data.FileType as FileType
 import Data.Text as Text exposing (Text)
 import Html exposing (Html, a, div, nav, span, text)
-import Html.Attributes exposing (class, href, style)
+import Html.Attributes exposing (attribute, class, href, style)
 import Html.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List
@@ -78,6 +78,7 @@ view props =
               else
                 a
                     [ href <| Route.toString <| Route.New
+                    , attribute "aria-label" "New"
                     ]
                     [ div
                         [ style "margin-left" "4px"
@@ -91,6 +92,7 @@ view props =
                 [ class "menu-button list-button" ]
                 [ a
                     [ href <| Route.toString Route.DiagramList
+                    , attribute "aria-label" "List"
                     ]
                     [ Icon.folderOpen
                         (if isNothing props.openMenu && props.page == List then
@@ -136,7 +138,7 @@ view props =
                 ]
             , div
                 [ class "menu-button" ]
-                [ a [ href <| Route.toString Route.Settings ]
+                [ a [ href <| Route.toString Route.Settings, attribute "aria-label" "Settings" ]
                     [ Icon.settings
                         (if isNothing props.openMenu && props.page == Settings then
                             selectedColor

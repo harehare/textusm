@@ -9,7 +9,7 @@ import Data.Text as Text exposing (Text)
 import Data.Title as Title exposing (Title)
 import Events exposing (onKeyDown)
 import Html exposing (Html, a, div, header, img, input, span, text)
-import Html.Attributes exposing (alt, class, href, id, placeholder, src, style, value)
+import Html.Attributes exposing (alt, attribute, class, href, id, placeholder, src, style, value)
 import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
@@ -56,7 +56,7 @@ view props =
                     , style "width" "56px"
                     , style "height" "40px"
                     ]
-                    [ a [ href "/", style "margin-top" "8px" ] [ img [ Asset.src Asset.logo, style "width" "32px", style "height" "32px", alt "logo" ] [] ] ]
+                    [ a [ href "/", attribute "aria-label" "Top", style "margin-top" "8px" ] [ img [ Asset.src Asset.logo, style "width" "32px", style "height" "32px", alt "logo" ] [] ] ]
                 , case props.page of
                     Page.Main ->
                         if Title.isEdit props.title then
@@ -134,7 +134,7 @@ view props =
               else
                 Empty.view
             , if isJust <| Maybe.andThen .id props.currentDiagram then
-                a [ style "display" "flex", href <| Route.toString Route.Tag ]
+                a [ attribute "aria-label" "Tag", style "display" "flex", href <| Route.toString Route.Tag ]
                     [ div [ class "button" ]
                         [ Icon.tag 17
                         , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipTags props.lang ] ]
@@ -143,7 +143,7 @@ view props =
 
               else
                 Empty.view
-            , a [ style "display" "flex", href <| Route.toString Route.Help ]
+            , a [ attribute "aria-label" "Help", style "display" "flex", href <| Route.toString Route.Help ]
                 [ div [ class "button" ]
                     [ Icon.helpOutline 20
                     , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipHelp props.lang ] ]
@@ -152,6 +152,7 @@ view props =
             , a
                 [ class "flex"
                 , href <| Route.toString Route.SharingDiagram
+                , attribute "aria-label" "Share"
                 ]
                 [ div [ class "button" ]
                     [ Icon.people 24

@@ -3,7 +3,7 @@ module Page.New exposing (view)
 import Asset exposing (Asset)
 import Data.DiagramType as DiagramType
 import Html exposing (Html, a, div, img, text)
-import Html.Attributes exposing (class, href, src, style)
+import Html.Attributes exposing (attribute, class, href, src, style)
 import Route
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 
@@ -45,7 +45,7 @@ view =
     <|
         List.map
             (\item ->
-                a [ href item.url, class "new-item-container" ]
+                a [ href item.url, class "new-item-container", attribute "aria-label" item.name ]
                     [ div [ class "new-item" ]
                         [ img [ Asset.src item.image, class "new-item-image" ] []
                         , div
