@@ -1,8 +1,6 @@
 {
     "type": "application",
-    "source-directories": [
-        "src/elm"
-    ],
+    "source-directories": ["src/elm"],
     "elm-version": "0.19.1",
     "dependencies": {
         "direct": {

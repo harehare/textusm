@@ -7,7 +7,12 @@
         "lib": ["es6", "dom"],
         "rootDir": "src/ts",
         "strict": true,
-        "importHelpers": true
+        "importHelpers": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "noUncheckedIndexedAccess": true,
+        "noUnusedLocals": true,
+        "noImplicitReturns": true
     },
     "exclude": ["node_modules", "**/*.spec.ts"]
 }

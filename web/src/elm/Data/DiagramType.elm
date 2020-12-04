@@ -28,9 +28,6 @@ toString diagramType =
         UserPersona ->
             "persona"
 
-        Markdown ->
-            "md"
-
         MindMap ->
             "mmp"
 
@@ -83,9 +80,6 @@ toLongString diagramType =
         UserPersona ->
             "User Persona"
 
-        Markdown ->
-            "Markdown"
-
         MindMap ->
             "Mind Map"
 
@@ -137,9 +131,6 @@ fromString s =
 
         "persona" ->
             UserPersona
-
-        "md" ->
-            Markdown
 
         "mmp" ->
             MindMap

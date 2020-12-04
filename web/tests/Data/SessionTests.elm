@@ -1,4 +1,4 @@
-module TestSession exposing (all)
+module Data.SessionTests exposing (all)
 
 import Data.IdToken as IdToken
 import Data.Session as Session

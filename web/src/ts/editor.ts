@@ -39,18 +39,6 @@ const focusEditor = () => {
     }, 100);
 };
 
-const setEditorLanguage = (languageId: string) => {
-    if (!monacoEditor) {
-        return;
-    }
-
-    const model = monacoEditor.getModel();
-
-    if (model) {
-        monaco.editor.setModelLanguage(model, languageId);
-    }
-};
-
 const layout = (delay: number) => {
     setTimeout(() => {
         if (!monacoEditor) return;
@@ -124,9 +112,7 @@ export const loadEditor = async (
     if (editor) {
         monacoEditor = monaco.editor.create(editor, {
             value: text,
-            language: window.location.pathname.startsWith("/md")
-                ? "markdown"
-                : "userStoryMap",
+            language: "userStoryMap",
             theme: "usmTheme",
             lineNumbers: showLineNumber ? "on" : "off",
             wordWrap: wordWrap ? "on" : "off",
@@ -193,9 +179,6 @@ export const loadEditor = async (
 
     app.ports.focusEditor.unsubscribe(focusEditor);
     app.ports.focusEditor.subscribe(focusEditor);
-
-    app.ports.setEditorLanguage.unsubscribe(setEditorLanguage);
-    app.ports.setEditorLanguage.subscribe(setEditorLanguage);
 
     app.ports.layoutEditor.unsubscribe(layout);
     app.ports.layoutEditor.subscribe(layout);

@@ -25,7 +25,6 @@ newItems =
     , NewItem "Business Model Canvas" Asset.businessModelCanvas (Route.toString <| Route.Edit <| DiagramType.toString BusinessModelCanvas)
     , NewItem "Opportunity Canvas" Asset.opportunityCanvas (Route.toString <| Route.Edit <| DiagramType.toString OpportunityCanvas)
     , NewItem "User Persona" Asset.userPersona (Route.toString <| Route.Edit <| DiagramType.toString UserPersona)
-    , NewItem "Markdown" Asset.markdown (Route.toString <| Route.Edit <| DiagramType.toString Markdown)
     , NewItem "Gantt Chart" Asset.ganttChart (Route.toString <| Route.Edit <| DiagramType.toString GanttChart)
     , NewItem "ER Diagram" Asset.erDiagram (Route.toString <| Route.Edit <| DiagramType.toString ErDiagram)
     , NewItem "Sequence Diagram" Asset.sequenceDiagram (Route.toString <| Route.Edit <| DiagramType.toString SequenceDiagram)

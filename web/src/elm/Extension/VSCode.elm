@@ -100,7 +100,6 @@ init flags =
                 }
             , touchDistance = Nothing
             , text = Text.empty
-            , matchParent = False
             , dragStatus = DiagramModel.NoDrag
             }
       , text = flags.text

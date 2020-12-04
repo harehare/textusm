@@ -1,4 +1,4 @@
-module TestTitle exposing (all)
+module Data.TitleTests exposing (all)
 
 import Data.Title as Title
 import Expect

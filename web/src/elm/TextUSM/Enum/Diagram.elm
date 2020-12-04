@@ -16,7 +16,6 @@ import Json.Decode as Decode exposing (Decoder)
   - StartStopContinue -
   - Kpt -
   - UserPersona -
-  - Markdown -
   - MindMap -
   - EmpathyMap -
   - SiteMap -
@@ -36,7 +35,6 @@ type Diagram
     | StartStopContinue
     | Kpt
     | UserPersona
-    | Markdown
     | MindMap
     | EmpathyMap
     | SiteMap
@@ -50,7 +48,7 @@ type Diagram
 
 list : List Diagram
 list =
-    [ UserStoryMap, OpportunityCanvas, BusinessModelCanvas, Fourls, StartStopContinue, Kpt, UserPersona, Markdown, MindMap, EmpathyMap, SiteMap, GanttChart, ImpactMap, ErDiagram, Kanban, Table, SequenceDiagram ]
+    [ UserStoryMap, OpportunityCanvas, BusinessModelCanvas, Fourls, StartStopContinue, Kpt, UserPersona, MindMap, EmpathyMap, SiteMap, GanttChart, ImpactMap, ErDiagram, Kanban, Table, SequenceDiagram ]
 
 
 decoder : Decoder Diagram
@@ -79,9 +77,6 @@ decoder =
 
                     "USER_PERSONA" ->
                         Decode.succeed UserPersona
-
-                    "MARKDOWN" ->
-                        Decode.succeed Markdown
 
                     "MIND_MAP" ->
                         Decode.succeed MindMap
@@ -140,9 +135,6 @@ toString enum =
 
         UserPersona ->
             "USER_PERSONA"
-
-        Markdown ->
-            "MARKDOWN"
 
         MindMap ->
             "MIND_MAP"
@@ -206,9 +198,6 @@ fromString enumString =
 
         "USER_PERSONA" ->
             Just UserPersona
-
-        "MARKDOWN" ->
-            Just Markdown
 
         "MIND_MAP" ->
             Just MindMap

@@ -9,7 +9,6 @@ module Asset exposing
     , kanban
     , kpt
     , logo
-    , markdown
     , mindMap
     , opportunityCanvas
     , sequenceDiagram
@@ -72,11 +71,6 @@ opportunityCanvas =
 userPersona : Asset
 userPersona =
     asset "diagram/persona.svg"
-
-
-markdown : Asset
-markdown =
-    asset "diagram/md.svg"
 
 
 ganttChart : Asset

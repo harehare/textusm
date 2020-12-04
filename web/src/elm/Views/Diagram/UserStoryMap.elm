@@ -259,7 +259,7 @@ labelTextView settings ( posX, posY ) t =
         [ x <| String.fromInt posX
         , y <| String.fromInt posY
         , width "100"
-        , height "30"
+        , height "40"
         , color settings.color.label
         , fontSize "12"
         , fontWeight "bold"

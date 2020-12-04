@@ -26,7 +26,6 @@ export type ElmApp = {
         closeFullscreen: Subscribe<() => void>;
         focusEditor: Subscribe<() => void>;
         loadText: Subscribe<(text: string) => void>;
-        setEditorLanguage: Subscribe<(languageId: string) => void>;
         layoutEditor: Subscribe<(delay: number) => void>;
         insertTextLines: Subscribe<(lines: string[]) => void>;
         downloadSvg: Subscribe<(download: DownloadInfo) => void>;

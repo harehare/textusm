@@ -1,4 +1,4 @@
-port module Page.List exposing (DiagramList(..), Model, Msg(..), init, isNotAsked, notAsked, update, view)
+port module Page.List exposing (DiagramList(..), Model, Msg(..), init, isNotAsked, modelOfDiagramList, notAsked, update, view)
 
 import Asset
 import Data.DiagramId as DiagramId
@@ -19,6 +19,7 @@ import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (unique, updateIf)
 import Maybe.Extra exposing (isJust)
+import Monocle.Lens exposing (Lens)
 import RemoteData exposing (RemoteData(..), WebData)
 import Return as Return exposing (Return)
 import Task
@@ -84,6 +85,11 @@ type alias Model =
     , lang : Lang
     , tags : List String
     }
+
+
+modelOfDiagramList : Lens Model DiagramList
+modelOfDiagramList =
+    Lens .diagramList (\b a -> { a | diagramList = b })
 
 
 notAsked : DiagramList
