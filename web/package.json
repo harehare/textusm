@@ -12,7 +12,7 @@
         "firebase": "^8.1.2",
         "html2canvas": "^1.0.0-rc.7",
         "imagemin-webpack-plugin": "^2.4.2",
-        "jspdf": "^2.1.1",
+        "jspdf": "^2.2.0",
         "lzutf8": "^0.5.6",
         "monaco-editor": "^0.20.0",
         "tslib": "^2.0.3",
