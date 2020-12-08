@@ -6,7 +6,7 @@ import { initDB } from "./ts/db";
 import { signOut, signIn, authStateChanged, providers } from "./ts/auth";
 import { loadSettings, saveSettings } from "./ts/settings";
 import { Settings } from "./ts/model";
-import { ElmApp, EditorOption } from "./ts/elm";
+import { ElmApp, EditorOption, Provider } from "./ts/elm";
 // @ts-ignore
 import { Elm } from "./elm/Main.elm";
 
@@ -48,7 +48,7 @@ app.ports.loadEditor.subscribe(([text, option]: [string, EditorOption]) => {
     loadEditor(app, text, option);
 });
 
-app.ports.signIn.subscribe((provider: string) => {
+app.ports.signIn.subscribe((provider: Provider) => {
     signIn(provider === "Google" ? providers.google : providers.github);
 });
 
