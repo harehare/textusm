@@ -6,6 +6,7 @@ import Constants exposing (indentSpace, inputPrefix)
 import Data.Color as Color
 import Data.FontStyle as FontStyle
 import Data.Item as Item exposing (Item, ItemType(..), Items)
+import Data.ItemSettings as ItemSettings
 import Data.Position as Position
 import Data.Size as Size exposing (Size)
 import Data.Text as Text
@@ -13,12 +14,13 @@ import Events
 import File
 import Html exposing (Html, div)
 import Html.Attributes as Attr
-import Html.Events as E
+import Html.Events as Event
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
 import Json.Decode as D
+import Json.Encode as E
 import List
 import List.Extra exposing (findIndex, getAt, removeAt, setAt, splitAt)
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, Settings)
@@ -298,9 +300,9 @@ view model =
             _ ->
                 Attr.style "cursor" "grab"
         , Events.onDrop OnDropFiles
-        , E.preventDefaultOn "dragover" <|
+        , Event.preventDefaultOn "dragover" <|
             D.succeed ( ChangeDragStatus DragOver, True )
-        , E.preventDefaultOn "dragleave" <|
+        , Event.preventDefaultOn "dragleave" <|
             D.succeed ( ChangeDragStatus NoDrag, True )
         , case model.dragStatus of
             DragOver ->
@@ -708,18 +710,12 @@ updateDiagram ( width, height ) base text =
 
 itemToColorText : Item -> String
 itemToColorText item =
-    case ( Item.getColor item, Item.getBackgroundColor item ) of
-        ( Just color, Just backgroundColor ) ->
-            "," ++ Color.toString color ++ "," ++ Color.toString backgroundColor
-
-        ( Just color, Nothing ) ->
-            "," ++ Color.toString color
-
-        ( Nothing, Just backgroundColor ) ->
-            "," ++ "," ++ Color.toString backgroundColor
-
-        _ ->
+    case Item.getItemSettings item of
+        Nothing ->
             ""
+
+        Just settings ->
+            E.encode 0 (ItemSettings.encoder settings)
 
 
 clearPosition : Model -> Return Msg Model
@@ -1034,33 +1030,31 @@ update message model =
                             getAt (Item.getLineNo item) lines
 
                         tokens =
-                            Maybe.map (String.split ",") currentText
+                            Maybe.map (String.split "|") currentText
 
                         text =
                             case ( menu, tokens ) of
-                                ( Diagram.ColorSelectMenu, Just [ t, _, b ] ) ->
-                                    t ++ "," ++ Color.toString color ++ "," ++ b
+                                ( Diagram.ColorSelectMenu, Just [ t, settingsString ] ) ->
+                                    case D.decodeString ItemSettings.decoder settingsString of
+                                        Ok settings ->
+                                            Item.createText t (settings |> ItemSettings.withForegroundColor (Just color))
 
-                                ( Diagram.ColorSelectMenu, Just [ t, _ ] ) ->
-                                    t ++ "," ++ Color.toString color
+                                        Err _ ->
+                                            Item.createText t (ItemSettings.new |> ItemSettings.withForegroundColor (Just color))
 
                                 ( Diagram.ColorSelectMenu, Just [ t ] ) ->
-                                    t ++ "," ++ Color.toString color
+                                    t ++ E.encode 0 (ItemSettings.encoder (ItemSettings.new |> ItemSettings.withForegroundColor (Just color)))
 
-                                ( Diagram.ColorSelectMenu, Nothing ) ->
-                                    currentText |> Maybe.withDefault ""
+                                ( Diagram.BackgroundColorSelectMenu, Just [ t, settingsString ] ) ->
+                                    case D.decodeString ItemSettings.decoder settingsString of
+                                        Ok settings ->
+                                            Item.createText t (ItemSettings.withBackgroundColor (Just color) settings)
 
-                                ( Diagram.BackgroundColorSelectMenu, Just [ t, c, _ ] ) ->
-                                    t ++ "," ++ c ++ "," ++ Color.toString color
-
-                                ( Diagram.BackgroundColorSelectMenu, Just [ t, c ] ) ->
-                                    t ++ "," ++ c ++ "," ++ Color.toString color
+                                        Err _ ->
+                                            Item.createText t (ItemSettings.new |> ItemSettings.withBackgroundColor (Just color))
 
                                 ( Diagram.BackgroundColorSelectMenu, Just [ t ] ) ->
-                                    t ++ "," ++ "," ++ Color.toString color
-
-                                ( Diagram.BackgroundColorSelectMenu, Nothing ) ->
-                                    currentText |> Maybe.withDefault ""
+                                    Item.createText (currentText |> Maybe.withDefault "") (ItemSettings.new |> ItemSettings.withBackgroundColor (Just color))
 
                                 _ ->
                                     currentText |> Maybe.withDefault ""
@@ -1078,12 +1072,34 @@ update message model =
                         ( Just ( i, _ ), Diagram.ColorSelectMenu ) ->
                             Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }
                                 |> Return.andThen (setText updateText)
-                                |> Return.andThen (selectItem (Just ( Item.withColor (Just color) i, False )))
+                                |> Return.andThen
+                                    (selectItem
+                                        (Just
+                                            ( i
+                                                |> Item.withItemSettings
+                                                    (Item.getItemSettings i
+                                                        |> Maybe.andThen (\s -> Just (ItemSettings.withForegroundColor (Just color) s))
+                                                    )
+                                            , False
+                                            )
+                                        )
+                                    )
 
                         ( Just ( i, _ ), Diagram.BackgroundColorSelectMenu ) ->
                             Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }
                                 |> Return.andThen (setText updateText)
-                                |> Return.andThen (selectItem (Just ( Item.withBackgroundColor (Just color) i, False )))
+                                |> Return.andThen
+                                    (selectItem
+                                        (Just
+                                            ( i
+                                                |> Item.withItemSettings
+                                                    (Item.getItemSettings i
+                                                        |> Maybe.andThen (\s -> Just (ItemSettings.withForegroundColor (Just color) s))
+                                                    )
+                                            , False
+                                            )
+                                        )
+                                    )
 
                         _ ->
                             Return.singleton model

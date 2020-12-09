@@ -11,13 +11,33 @@ all : Test
 all =
     describe "ItemSettings test"
         [ describe "encoder test"
-            [ test "encode test" <|
+            [ test "encode null test" <|
                 \() ->
                     Expect.equal (ItemSettings.encoder ItemSettings.new |> E.encode 0) "{\"bg\":null,\"fg\":null,\"offset\":[0,0]}"
+            , test "encode test" <|
+                \() ->
+                    Expect.equal
+                        (ItemSettings.encoder
+                            (ItemSettings.new
+                                |> ItemSettings.withBackgroundColor (Just "#FFFFFF")
+                                |> ItemSettings.withForegroundColor (Just "#000000")
+                            )
+                            |> E.encode 0
+                        )
+                        "{\"bg\":\"#FFFFFF\",\"fg\":\"#000000\",\"offset\":[0,0]}"
             ]
         , describe "decoder test"
-            [ test "decode test" <|
+            [ test "decode null test" <|
                 \() ->
                     Expect.equal (D.decodeString ItemSettings.decoder "{\"bg\":null,\"fg\":null,\"offset\":[0,0]}") (Ok ItemSettings.new)
+            , test "decode test" <|
+                \() ->
+                    Expect.equal (D.decodeString ItemSettings.decoder "{\"bg\":\"#FFFFFF\",\"fg\":\"#000000\",\"offset\":[0,0]}")
+                        (Ok
+                            (ItemSettings.new
+                                |> ItemSettings.withBackgroundColor (Just "#FFFFFF")
+                                |> ItemSettings.withForegroundColor (Just "#000000")
+                            )
+                        )
             ]
         ]

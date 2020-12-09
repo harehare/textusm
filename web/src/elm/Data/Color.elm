@@ -1,4 +1,30 @@
-module Data.Color exposing (Color, background1Defalut, background2Defalut, backgroundDefalut, black, blue, colors, fromString, gray, green, labelDefalut, lightGray, lineDefalut, name, orange, pink, purple, red, textDefalut, toString, white, yellow)
+module Data.Color exposing
+    ( Color
+    , background1Defalut
+    , background2Defalut
+    , backgroundDefalut
+    , black
+    , blue
+    , colors
+    , decoder
+    , fromString
+    , gray
+    , green
+    , labelDefalut
+    , lightGray
+    , lineDefalut
+    , name
+    , orange
+    , pink
+    , purple
+    , red
+    , textDefalut
+    , toString
+    , white
+    , yellow
+    )
+
+import Json.Decode as D
 
 
 type alias Name =
@@ -182,3 +208,8 @@ fromString rgb =
 
         _ ->
             background1Defalut
+
+
+decoder : D.Decoder Color
+decoder =
+    D.map fromString D.string

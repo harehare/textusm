@@ -1,5 +1,17 @@
-module Data.ItemSettings exposing (ItemSettings, decoder, encoder, new)
+module Data.ItemSettings exposing
+    ( ItemSettings
+    , decoder
+    , encoder
+    , getBackgroundColor
+    , getForegroundColor
+    , getOffset
+    , new
+    , withBackgroundColor
+    , withForegroundColor
+    , withPosition
+    )
 
+import Data.Color as Color exposing (Color)
 import Data.Position as Position exposing (Position)
 import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional, required)
@@ -12,8 +24,8 @@ type ItemSettings
 
 
 type alias Settings =
-    { backgroundColor : Maybe String
-    , foregroundColor : Maybe String
+    { backgroundColor : Maybe Color
+    , foregroundColor : Maybe Color
     , offset : Position
     }
 
@@ -27,11 +39,41 @@ new =
         }
 
 
+getBackgroundColor : ItemSettings -> Maybe Color
+getBackgroundColor (ItemSettings settings) =
+    settings.backgroundColor
+
+
+getForegroundColor : ItemSettings -> Maybe Color
+getForegroundColor (ItemSettings settings) =
+    settings.foregroundColor
+
+
+getOffset : ItemSettings -> Position
+getOffset (ItemSettings settings) =
+    settings.offset
+
+
+withBackgroundColor : Maybe Color -> ItemSettings -> ItemSettings
+withBackgroundColor bg (ItemSettings settings) =
+    ItemSettings { settings | backgroundColor = bg }
+
+
+withForegroundColor : Maybe Color -> ItemSettings -> ItemSettings
+withForegroundColor fg (ItemSettings settings) =
+    ItemSettings { settings | foregroundColor = fg }
+
+
+withPosition : Position -> ItemSettings -> ItemSettings
+withPosition position (ItemSettings settings) =
+    ItemSettings { settings | offset = position }
+
+
 encoder : ItemSettings -> E.Value
 encoder (ItemSettings settings) =
     E.object
-        [ ( "bg", maybe E.string settings.backgroundColor )
-        , ( "fg", maybe E.string settings.foregroundColor )
+        [ ( "bg", maybe E.string (Maybe.andThen (\c -> Just <| Color.toString c) settings.backgroundColor) )
+        , ( "fg", maybe E.string (Maybe.andThen (\c -> Just <| Color.toString c) settings.foregroundColor) )
         , ( "offset", E.list E.int [ Position.getX settings.offset, Position.getY settings.offset ] )
         ]
 
@@ -41,7 +83,7 @@ decoder =
     D.map ItemSettings
         (D.succeed
             Settings
-            |> optional "bg" (D.map Just D.string) Nothing
-            |> optional "fg" (D.map Just D.string) Nothing
+            |> optional "bg" (D.map Just Color.decoder) Nothing
+            |> optional "fg" (D.map Just Color.decoder) Nothing
             |> required "offset" Position.decoder
         )

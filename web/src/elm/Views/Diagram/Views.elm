@@ -3,6 +3,7 @@ module Views.Diagram.Views exposing (canvasBottomView, canvasImageView, canvasVi
 import Constants
 import Data.Color as Color
 import Data.Item as Item exposing (Item, ItemType(..), Items)
+import Data.ItemSettings as ItemSettings
 import Data.Position as Position exposing (Position)
 import Data.Size as Size exposing (Size)
 import Events exposing (onClickStopPropagation, onKeyDown)
@@ -42,7 +43,12 @@ draggingHtmlStyle isDragging =
 
 getItemColor : Settings -> Item -> ( RgbColor, RgbColor )
 getItemColor settings item =
-    case ( Item.getItemType item, Item.getColor item, Item.getBackgroundColor item ) of
+    case
+        ( Item.getItemType item
+        , Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getForegroundColor
+        , Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getBackgroundColor
+        )
+    of
         ( _, Just c, Just b ) ->
             ( Color.toString c, Color.toString b )
 
@@ -294,7 +300,12 @@ canvasView settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                         , inputStyle = draggingHtmlStyle isDragging
                         , position = ( posX, posY )
                         , size = ( svgWidth, settings.size.height )
-                        , color = Item.getColor item |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.label
+                        , color =
+                            Item.getItemSettings item
+                                |> Maybe.withDefault ItemSettings.new
+                                |> ItemSettings.getForegroundColor
+                                |> Maybe.andThen (\c -> Just <| Color.toString c)
+                                |> Maybe.withDefault settings.color.label
                         , backgroundColor = "transparent"
                         , item = item_
                         }
@@ -370,7 +381,13 @@ titleView settings ( posX, posY ) item =
         [ x <| String.fromInt posX
         , y <| String.fromInt <| posY + 14
         , fontFamily (fontStyle settings)
-        , fill (Item.getColor item |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.label)
+        , fill
+            (Item.getItemSettings item
+                |> Maybe.withDefault ItemSettings.new
+                |> ItemSettings.getForegroundColor
+                |> Maybe.andThen (\c -> Just <| Color.toString c)
+                |> Maybe.withDefault settings.color.label
+            )
         , fontSize "20"
         , fontWeight "bold"
         , class ".select-none"
@@ -494,10 +511,18 @@ startTextNodeView : Settings -> Position -> SelectedItem -> Item -> Svg Msg
 startTextNodeView settings ( posX, posY ) selectedItem item =
     let
         borderColor =
-            Item.getBackgroundColor item |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.activity.backgroundColor
+            Item.getItemSettings item
+                |> Maybe.withDefault ItemSettings.new
+                |> ItemSettings.getBackgroundColor
+                |> Maybe.andThen (\c -> Just <| Color.toString c)
+                |> Maybe.withDefault settings.color.activity.backgroundColor
 
         textColor =
-            Item.getColor item |> Maybe.andThen (\color -> Just <| Color.toString color) |> Maybe.withDefault settings.color.activity.color
+            Item.getItemSettings item
+                |> Maybe.withDefault ItemSettings.new
+                |> ItemSettings.getForegroundColor
+                |> Maybe.andThen (\c -> Just <| Color.toString c)
+                |> Maybe.withDefault settings.color.activity.color
 
         view_ =
             g
@@ -543,7 +568,11 @@ textNode : Settings -> Position -> Size -> RgbColor -> Item -> Svg Msg
 textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
     let
         textColor =
-            Item.getColor item |> Maybe.withDefault Color.black |> Color.toString
+            Item.getItemSettings item
+                |> Maybe.withDefault ItemSettings.new
+                |> ItemSettings.getForegroundColor
+                |> Maybe.withDefault Color.black
+                |> Color.toString
     in
     foreignObject
         [ x <| String.fromInt posX
@@ -573,7 +602,11 @@ textNodeInput : Settings -> Position -> Size -> Item -> Svg Msg
 textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
     let
         textColor =
-            Item.getColor item |> Maybe.withDefault Color.black |> Color.toString
+            Item.getItemSettings item
+                |> Maybe.withDefault ItemSettings.new
+                |> ItemSettings.getForegroundColor
+                |> Maybe.withDefault Color.black
+                |> Color.toString
     in
     foreignObject
         [ x <| String.fromInt posX

@@ -1,6 +1,49 @@
-module Data.Item exposing (Children, Item, ItemType(..), Items, childrenFromItems, cons, empty, emptyChildren, filter, fromList, getAt, getBackgroundColor, getChildren, getChildrenCount, getColor, getHierarchyCount, getItemType, getLeafCount, getLineNo, getText, head, indexedMap, isEmpty, isImage, isMarkdown, length, map, new, splitAt, tail, toString, unwrap, unwrapChildren, withBackgroundColor, withChildren, withColor, withItemType, withLineNo, withText)
+module Data.Item exposing
+    ( Children
+    , Item
+    , ItemType(..)
+    , Items
+    , childrenFromItems
+    , cons
+    , createText
+    , empty
+    , emptyChildren
+    , filter
+    , fromList
+    , getAt
+    , getChildren
+    , getChildrenCount
+    , getHierarchyCount
+    , getItemSettings
+    , getItemType
+    , getLeafCount
+    , getLineNo
+    , getText
+    , head
+    , indexedMap
+    , isEmpty
+    , isImage
+    , isMarkdown
+    , length
+    , map
+    , new
+    , splitAt
+    , tail
+    , toString
+    , unwrap
+    , unwrapChildren
+    , withChildren
+    , withItemSettings
+    , withItemType
+    , withLineNo
+    , withText
+    )
 
 import Data.Color as Color exposing (Color)
+import Data.ItemSettings as ItemSettings exposing (ItemSettings)
+import Data.Position as Position exposing (Position)
+import Json.Decode as D
+import Json.Encode as E
 import List.Extra as ListEx
 
 
@@ -16,9 +59,8 @@ type Item
     = Item
         { lineNo : Int
         , text : String
-        , color : Maybe Color
-        , backgroundColor : Maybe Color
         , itemType : ItemType
+        , itemSettings : Maybe ItemSettings
         , children : Children
         }
 
@@ -35,9 +77,8 @@ new =
     Item
         { lineNo = 0
         , text = ""
-        , color = Nothing
-        , backgroundColor = Nothing
         , itemType = Activities
+        , itemSettings = Nothing
         , children = emptyChildren
         }
 
@@ -50,37 +91,33 @@ withLineNo lineNo (Item item) =
 withText : String -> Item -> Item
 withText text (Item item) =
     let
-        ( displayText, color, backgroundColor ) =
+        ( displayText, settings ) =
             if isImage text then
-                ( text, Nothing, Nothing )
+                ( text, Nothing )
 
             else
-                case String.split "," text of
-                    [ t, c, b ] ->
-                        ( t, Just c, Just b )
+                case String.split "|" text of
+                    [ t, st ] ->
+                        case D.decodeString ItemSettings.decoder st of
+                            Ok s ->
+                                ( t, Just s )
 
-                    [ t, c ] ->
-                        ( t, Just c, Nothing )
+                            Err _ ->
+                                ( t, Nothing )
 
                     _ ->
-                        ( text, Nothing, Nothing )
+                        ( text, Nothing )
     in
     Item
         { item
             | text = displayText
-            , color = Maybe.andThen (\c -> Just <| Color.fromString c) color
-            , backgroundColor = Maybe.andThen (\c -> Just <| Color.fromString c) backgroundColor
+            , itemSettings = settings
         }
 
 
-withColor : Maybe Color -> Item -> Item
-withColor color (Item item) =
-    Item { item | color = color }
-
-
-withBackgroundColor : Maybe Color -> Item -> Item
-withBackgroundColor color (Item item) =
-    Item { item | backgroundColor = color }
+withItemSettings : Maybe ItemSettings -> Item -> Item
+withItemSettings itemSettings (Item item) =
+    Item { item | itemSettings = itemSettings }
 
 
 withItemType : ItemType -> Item -> Item
@@ -108,14 +145,9 @@ getItemType (Item i) =
     i.itemType
 
 
-getColor : Item -> Maybe Color
-getColor (Item i) =
-    i.color
-
-
-getBackgroundColor : Item -> Maybe Color
-getBackgroundColor (Item i) =
-    i.backgroundColor
+getItemSettings : Item -> Maybe ItemSettings
+getItemSettings (Item i) =
+    i.itemSettings
 
 
 getLineNo : Item -> Int
@@ -260,6 +292,11 @@ leafCount (Items items) =
 
     else
         items |> List.map (\(Item i) -> leafCount <| unwrapChildren i.children) |> List.sum
+
+
+createText : String -> ItemSettings -> String
+createText text settings =
+    text ++ "|" ++ E.encode 0 (ItemSettings.encoder settings)
 
 
 toString : Items -> String
