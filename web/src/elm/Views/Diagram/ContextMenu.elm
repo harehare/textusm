@@ -111,11 +111,12 @@ view props =
                 ]
                 [ div
                     [ Attr.style "color" <|
-                        Color.toString <|
-                            Maybe.withDefault Color.black <|
-                                ItemSettings.getForegroundColor <|
-                                    Maybe.withDefault ItemSettings.new <|
-                                        Item.getItemSettings props.item
+                        (Item.getItemSettings props.item
+                            |> Maybe.withDefault ItemSettings.new
+                            |> ItemSettings.getForegroundColor
+                            |> Maybe.withDefault Color.black
+                            |> Color.toString
+                        )
                     , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Italic
                     ]
                     [ Icon.italic "#273037" 16 ]
@@ -131,11 +132,12 @@ view props =
                 ]
                 [ div
                     [ Attr.style "color" <|
-                        Color.toString <|
-                            Maybe.withDefault Color.black <|
-                                ItemSettings.getBackgroundColor <|
-                                    Maybe.withDefault ItemSettings.new <|
-                                        Item.getItemSettings props.item
+                        (Item.getItemSettings props.item
+                            |> Maybe.withDefault ItemSettings.new
+                            |> ItemSettings.getBackgroundColor
+                            |> Maybe.withDefault Color.black
+                            |> Color.toString
+                        )
                     , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Strikethrough
                     ]
                     [ Icon.strikethrough "#273037" 16 ]

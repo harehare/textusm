@@ -27,6 +27,7 @@ module Data.Item exposing
     , length
     , map
     , new
+    , spiltText
     , splitAt
     , tail
     , toString
@@ -42,6 +43,7 @@ module Data.Item exposing
 import Data.Color as Color exposing (Color)
 import Data.ItemSettings as ItemSettings exposing (ItemSettings)
 import Data.Position as Position exposing (Position)
+import Data.Text as Text exposing (Text)
 import Json.Decode as D
 import Json.Encode as E
 import List.Extra as ListEx
@@ -58,7 +60,7 @@ type Items
 type Item
     = Item
         { lineNo : Int
-        , text : String
+        , text : Text
         , itemType : ItemType
         , itemSettings : Maybe ItemSettings
         , children : Children
@@ -76,7 +78,7 @@ new : Item
 new =
     Item
         { lineNo = 0
-        , text = ""
+        , text = Text.empty
         , itemType = Activities
         , itemSettings = Nothing
         , children = emptyChildren
@@ -110,7 +112,7 @@ withText text (Item item) =
     in
     Item
         { item
-            | text = displayText
+            | text = Text.fromString displayText
             , itemSettings = settings
         }
 
@@ -137,7 +139,7 @@ getChildren (Item i) =
 
 getText : Item -> String
 getText (Item i) =
-    i.text
+    Text.toString i.text
 
 
 getItemType : Item -> ItemType
@@ -299,6 +301,28 @@ createText text settings =
     text ++ "|" ++ E.encode 0 (ItemSettings.encoder settings)
 
 
+spiltText : String -> ( String, ItemSettings )
+spiltText text =
+    let
+        tokens =
+            String.split "|" text
+    in
+    case tokens of
+        [ t ] ->
+            ( t, ItemSettings.new )
+
+        [ t, settingsString ] ->
+            case D.decodeString ItemSettings.decoder settingsString of
+                Ok settings ->
+                    ( t, settings )
+
+                Err _ ->
+                    ( t, ItemSettings.new )
+
+        _ ->
+            ( text, ItemSettings.new )
+
+
 toString : Items -> String
 toString =
     let
@@ -307,7 +331,7 @@ toString =
             let
                 itemToString : Item -> Int -> String
                 itemToString (Item i) hi =
-                    String.repeat hi "    " ++ i.text
+                    String.repeat hi "    " ++ Text.toString i.text
             in
             items
                 |> map

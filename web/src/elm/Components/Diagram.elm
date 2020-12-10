@@ -1029,32 +1029,18 @@ update message model =
                         currentText =
                             getAt (Item.getLineNo item) lines
 
-                        tokens =
-                            Maybe.map (String.split "|") currentText
+                        ( mainText, settings ) =
+                            currentText
+                                |> Maybe.withDefault ""
+                                |> Item.spiltText
 
                         text =
-                            case ( menu, tokens ) of
-                                ( Diagram.ColorSelectMenu, Just [ t, settingsString ] ) ->
-                                    case D.decodeString ItemSettings.decoder settingsString of
-                                        Ok settings ->
-                                            Item.createText t (settings |> ItemSettings.withForegroundColor (Just color))
+                            case menu of
+                                Diagram.ColorSelectMenu ->
+                                    Item.createText mainText (settings |> ItemSettings.withForegroundColor (Just color))
 
-                                        Err _ ->
-                                            Item.createText t (ItemSettings.new |> ItemSettings.withForegroundColor (Just color))
-
-                                ( Diagram.ColorSelectMenu, Just [ t ] ) ->
-                                    t ++ E.encode 0 (ItemSettings.encoder (ItemSettings.new |> ItemSettings.withForegroundColor (Just color)))
-
-                                ( Diagram.BackgroundColorSelectMenu, Just [ t, settingsString ] ) ->
-                                    case D.decodeString ItemSettings.decoder settingsString of
-                                        Ok settings ->
-                                            Item.createText t (ItemSettings.withBackgroundColor (Just color) settings)
-
-                                        Err _ ->
-                                            Item.createText t (ItemSettings.new |> ItemSettings.withBackgroundColor (Just color))
-
-                                ( Diagram.BackgroundColorSelectMenu, Just [ t ] ) ->
-                                    Item.createText (currentText |> Maybe.withDefault "") (ItemSettings.new |> ItemSettings.withBackgroundColor (Just color))
+                                Diagram.BackgroundColorSelectMenu ->
+                                    Item.createText mainText (ItemSettings.withBackgroundColor (Just color) settings)
 
                                 _ ->
                                     currentText |> Maybe.withDefault ""

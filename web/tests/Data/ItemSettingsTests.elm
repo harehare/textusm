@@ -1,5 +1,6 @@
 module Data.ItemSettingsTests exposing (all)
 
+import Data.Color as Color
 import Data.ItemSettings as ItemSettings
 import Expect
 import Json.Decode as D
@@ -19,8 +20,8 @@ all =
                     Expect.equal
                         (ItemSettings.encoder
                             (ItemSettings.new
-                                |> ItemSettings.withBackgroundColor (Just "#FFFFFF")
-                                |> ItemSettings.withForegroundColor (Just "#000000")
+                                |> ItemSettings.withBackgroundColor (Just Color.white)
+                                |> ItemSettings.withForegroundColor (Just Color.black)
                             )
                             |> E.encode 0
                         )
@@ -35,8 +36,8 @@ all =
                     Expect.equal (D.decodeString ItemSettings.decoder "{\"bg\":\"#FFFFFF\",\"fg\":\"#000000\",\"offset\":[0,0]}")
                         (Ok
                             (ItemSettings.new
-                                |> ItemSettings.withBackgroundColor (Just "#FFFFFF")
-                                |> ItemSettings.withForegroundColor (Just "#000000")
+                                |> ItemSettings.withBackgroundColor (Just Color.white)
+                                |> ItemSettings.withForegroundColor (Just Color.black)
                             )
                         )
             ]
