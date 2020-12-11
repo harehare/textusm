@@ -9,7 +9,7 @@
     "dependencies": {
         "@sentry/browser": "^5.29.0",
         "dexie": "^3.0.3",
-        "firebase": "^8.1.2",
+        "firebase": "^8.2.0",
         "html2canvas": "^1.0.0-rc.7",
         "imagemin-webpack-plugin": "^2.4.2",
         "jspdf": "^2.2.0",
