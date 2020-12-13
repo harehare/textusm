@@ -298,7 +298,7 @@ leafCount (Items items) =
 
 createText : String -> ItemSettings -> String
 createText text settings =
-    text ++ "|" ++ E.encode 0 (ItemSettings.encoder settings)
+    text ++ "|" ++ ItemSettings.toString settings
 
 
 spiltText : String -> ( String, ItemSettings )

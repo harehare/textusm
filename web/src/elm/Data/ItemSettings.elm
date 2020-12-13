@@ -9,6 +9,7 @@ module Data.ItemSettings exposing
     , withBackgroundColor
     , withForegroundColor
     , withPosition
+    , toString
     )
 
 import Data.Color as Color exposing (Color)
@@ -87,3 +88,8 @@ decoder =
             |> optional "fg" (D.map Just Color.decoder) Nothing
             |> required "offset" Position.decoder
         )
+
+
+toString : ItemSettings -> String
+toString settings =
+    E.encode 0 (encoder settings)

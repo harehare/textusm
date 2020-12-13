@@ -48,16 +48,15 @@ view props =
                 , Attr.style "justify-content" "center"
                 , Attr.style "border-right" "1px solid #CCC"
                 , Attr.style "cursor" "pointer"
+                , onClickStopPropagation <| props.onMenuSelect ColorSelectMenu
                 ]
-                [ div
-                    [ onClickStopPropagation <| props.onMenuSelect ColorSelectMenu
-                    ]
+                [ div []
                     [ Icon.font
-                        (Color.toString <|
-                            Maybe.withDefault Color.black <|
-                                ItemSettings.getForegroundColor <|
-                                    Maybe.withDefault ItemSettings.new <|
-                                        Item.getItemSettings props.item
+                        (Item.getItemSettings props.item
+                            |> Maybe.withDefault ItemSettings.new
+                            |> ItemSettings.getForegroundColor
+                            |> Maybe.withDefault Color.black
+                            |> Color.toString
                         )
                         16
                     ]
@@ -77,8 +76,7 @@ view props =
                         |> ItemSettings.getBackgroundColor
                         |> Maybe.withDefault Color.black
                     )
-                  <|
-                    props.onMenuSelect BackgroundColorSelectMenu
+                    (props.onMenuSelect BackgroundColorSelectMenu)
                 ]
             , div
                 [ Attr.style "width" "50px"
@@ -88,15 +86,16 @@ view props =
                 , Attr.style "align-items" "center"
                 , Attr.style "justify-content" "center"
                 , Attr.style "cursor" "pointer"
+                , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Bold
                 ]
                 [ div
-                    [ Attr.style "color" <|
-                        Color.toString <|
-                            Maybe.withDefault Color.black <|
-                                ItemSettings.getForegroundColor <|
-                                    Maybe.withDefault ItemSettings.new <|
-                                        Item.getItemSettings props.item
-                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Bold
+                    [ Attr.style "color"
+                        (Item.getItemSettings props.item
+                            |> Maybe.withDefault ItemSettings.new
+                            |> ItemSettings.getForegroundColor
+                            |> Maybe.withDefault Color.black
+                            |> Color.toString
+                        )
                     ]
                     [ Icon.bold "#273037" 16 ]
                 ]
@@ -108,6 +107,7 @@ view props =
                 , Attr.style "align-items" "center"
                 , Attr.style "justify-content" "center"
                 , Attr.style "cursor" "pointer"
+                , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Italic
                 ]
                 [ div
                     [ Attr.style "color" <|
@@ -117,7 +117,6 @@ view props =
                             |> Maybe.withDefault Color.black
                             |> Color.toString
                         )
-                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Italic
                     ]
                     [ Icon.italic "#273037" 16 ]
                 ]
@@ -129,6 +128,7 @@ view props =
                 , Attr.style "align-items" "center"
                 , Attr.style "justify-content" "center"
                 , Attr.style "cursor" "pointer"
+                , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Strikethrough
                 ]
                 [ div
                     [ Attr.style "color" <|
@@ -138,7 +138,6 @@ view props =
                             |> Maybe.withDefault Color.black
                             |> Color.toString
                         )
-                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Strikethrough
                     ]
                     [ Icon.strikethrough "#273037" 16 ]
                 ]

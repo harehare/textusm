@@ -715,7 +715,7 @@ itemToColorText item =
             ""
 
         Just settings ->
-            E.encode 0 (ItemSettings.encoder settings)
+            ItemSettings.toString settings
 
 
 clearPosition : Model -> Return Msg Model
@@ -1105,14 +1105,12 @@ update message model =
                             currentText
                                 |> DiagramUtils.getSpacePrefix
 
-                        text =
+                        ( text, settings ) =
                             currentText
-                                |> String.split ","
-                                |> List.head
-                                |> Maybe.withDefault ""
+                                |> Item.spiltText
 
                         updateText =
-                            setAt (Item.getLineNo item) (prefix ++ (String.trimLeft text |> FontStyle.apply style) ++ itemToColorText item) lines
+                            setAt (Item.getLineNo item) (Item.createText (prefix ++ (String.trimLeft text |> FontStyle.apply style)) settings) lines
                                 |> String.join "\n"
                     in
                     setText updateText model
