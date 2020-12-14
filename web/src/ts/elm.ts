@@ -23,6 +23,7 @@ type ElmApp = {
         loadEditor: Subscribe<([text, option]: [string, EditorOption]) => void>;
         signIn: Subscribe<(provider: Provider) => void>;
         signOut: Subscribe<() => Promise<void>>;
+        refreshToken: Subscribe<() => Promise<void>>;
         selectTextById: Subscribe<(id: string) => void>;
         openFullscreen: Subscribe<() => void>;
         closeFullscreen: Subscribe<() => void>;
@@ -42,7 +43,7 @@ type ElmApp = {
         decodeShareText: Subscribe<(text: string) => void>;
         importDiagram: Subscribe<(diagrams: DiagramItem[]) => void>;
 
-        onCloseFullscreen: Send<{}>;
+        onCloseFullscreen: Send<Record<string, unknown>>;
         onErrorNotification: Send<string>;
         progress: Send<boolean>;
         changeText: Send<string>;
@@ -61,6 +62,7 @@ type ElmApp = {
         gotLocalDiagramsJson: Send<DiagramItem[]>;
         onEncodeShareText: Send<string>;
         onDecodeShareText: Send<string>;
+        updateIdToken: Send<string>;
         onAuthStateChanged: Send<{
             idToken: string;
             id: string;

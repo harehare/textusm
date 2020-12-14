@@ -17,6 +17,7 @@ import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
 import Data.FileType as FileType
+import Data.IdToken as IdToken
 import Data.LoginProvider as LoginProdiver
 import Data.Session as Session
 import Data.Size as Size
@@ -365,6 +366,11 @@ pushUrl url model =
     Return.return model (Nav.pushUrl model.key url)
 
 
+updateIdToken : Model -> Return Msg Model
+updateIdToken model =
+    Return.return model (Ports.refreshToken ())
+
+
 changeRouteTo : Route -> Model -> Return Msg Model
 changeRouteTo route model =
     case route of
@@ -511,9 +517,13 @@ changeRouteTo route model =
             let
                 loadText_ =
                     (if Session.isSignedIn model.session then
-                        ( { model | page = Page.Main }
-                        , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_)
-                        )
+                        updateIdToken model
+                            |> Return.andThen
+                                (\m ->
+                                    ( { m | page = Page.Main }
+                                    , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_)
+                                    )
+                                )
 
                      else
                         ( { model | page = Page.Main }
@@ -531,9 +541,13 @@ changeRouteTo route model =
                     case loadItem of
                         Just item ->
                             if item.isRemote then
-                                ( { model | page = Page.Main }
-                                , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_)
-                                )
+                                updateIdToken model
+                                    |> Return.andThen
+                                        (\m ->
+                                            ( { m | page = Page.Main }
+                                            , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_)
+                                            )
+                                        )
 
                             else
                                 ( { model | page = Page.Main }
@@ -1172,7 +1186,8 @@ update message model =
                             Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram) isPublic
                                 |> Task.mapError (\_ -> diagram)
                     in
-                    ( model, Task.attempt ChangePublicStatusCompleted saveTask )
+                    updateIdToken model
+                        |> Return.andThen (\m -> ( m, Task.attempt ChangePublicStatusCompleted saveTask ))
                         |> Return.andThen stopProgress
 
                 _ ->
@@ -1194,6 +1209,9 @@ update message model =
             in
             Return.return { model | window = model.window |> Page.windowOfFullscreen.set False, diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
                 |> Return.andThen (loadEditor ( Text.toString model.diagramModel.text, defaultEditorSettings model.settingsModel.settings.editor ))
+
+        UpdateIdToken token ->
+            Return.singleton { model | session = Session.updateIdToken model.session (IdToken.fromString token) }
 
 
 
@@ -1224,6 +1242,7 @@ subscriptions model =
          , Ports.saveToLocalCompleted SaveToLocalCompleted
          , Ports.gotLocalDiagramJson GotLocalDiagramJson
          , Ports.onCloseFullscreen CloseFullscreen
+         , Ports.updateIdToken UpdateIdToken
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp <| D.succeed Stop

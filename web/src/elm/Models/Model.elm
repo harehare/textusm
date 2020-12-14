@@ -86,6 +86,7 @@ type Msg
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
     | Load (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
     | CloseFullscreen D.Value
+    | UpdateIdToken String
 
 
 type Notification
