@@ -1,12 +1,9 @@
 module Models.Model exposing
-    ( DownloadFileInfo
-    , DownloadInfo
-    , Menu(..)
+    ( Menu(..)
     , Model
     , Msg(..)
     , Notification(..)
     , Page(..)
-    , ShareInfo
     , SwitchWindow(..)
     , Window
     , modelOfDiagramModel
@@ -54,7 +51,7 @@ type Msg
     | CloseMenu
     | Download FileType
     | DownloadCompleted ( Int, Int )
-    | StartDownload DownloadFileInfo
+    | StartDownload { extension : String, mimeType : String, content : String }
     | Save
     | SaveToRemoteCompleted (Result DiagramItem DiagramItem)
     | SaveToLocalCompleted D.Value
@@ -64,7 +61,7 @@ type Msg
     | EndEditTitle Int Bool
     | EditTitle String
     | EditText String
-    | OnShareUrl ShareInfo
+    | ShareUrl { title : Maybe String, text : String, diagramType : String }
     | SignIn LoginProvider
     | SignOut
     | OnVisibilityChange Visibility
@@ -144,32 +141,6 @@ type alias Window =
     , moveStart : Bool
     , moveX : Int
     , fullscreen : Bool
-    }
-
-
-type alias DownloadFileInfo =
-    { extension : String
-    , mimeType : String
-    , content : String
-    }
-
-
-type alias DownloadInfo =
-    { width : Int
-    , height : Int
-    , id : String
-    , title : String
-    , text : String
-    , x : Float
-    , y : Float
-    , diagramType : String
-    }
-
-
-type alias ShareInfo =
-    { title : Maybe String
-    , text : String
-    , diagramType : String
     }
 
 

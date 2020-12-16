@@ -1038,7 +1038,7 @@ update message model =
             Return.singleton { model | shareModel = newShareModel }
                 |> Return.andThen stopProgress
 
-        OnShareUrl shareInfo ->
+        ShareUrl shareInfo ->
             ( model, Ports.encodeShareText shareInfo )
 
         OnNotification notification ->

@@ -3,8 +3,19 @@ port module Ports exposing (changeText, closeFullscreen, copyClipboard, decodeSh
 import Data.Session exposing (User)
 import Json.Decode as D
 import Json.Encode as E
-import Models.Model exposing (DownloadFileInfo, DownloadInfo, Msg(..), Notification(..), ShareInfo)
 import Settings exposing (EditorSettings)
+
+
+type alias DownloadInfo =
+    { width : Int
+    , height : Int
+    , id : String
+    , title : String
+    , text : String
+    , x : Float
+    , y : Float
+    , diagramType : String
+    }
 
 
 port changeText : (String -> msg) -> Sub msg
@@ -16,7 +27,7 @@ port progress : (Bool -> msg) -> Sub msg
 port onAuthStateChanged : (Maybe User -> msg) -> Sub msg
 
 
-port startDownload : (DownloadFileInfo -> msg) -> Sub msg
+port startDownload : ({ extension : String, mimeType : String, content : String } -> msg) -> Sub msg
 
 
 port onDecodeShareText : (String -> msg) -> Sub msg
@@ -76,7 +87,7 @@ port saveSettings : E.Value -> Cmd msg
 port decodeShareText : String -> Cmd msg
 
 
-port encodeShareText : ShareInfo -> Cmd msg
+port encodeShareText : { title : Maybe String, text : String, diagramType : String } -> Cmd msg
 
 
 port copyClipboard : String -> Cmd msg
