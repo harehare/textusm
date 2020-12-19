@@ -38,7 +38,7 @@ view model =
                     g
                         []
                         [ nodesView model.settings 2 ( 0, 0 ) model.selectedItem impactMapItems
-                        , Views.startTextNodeView model.settings
+                        , Views.rootTextNode model.settings
                             ( 0, 0 )
                             model.selectedItem
                             root
@@ -117,7 +117,7 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
                         )
                         selectedItem
                         (Item.unwrapChildren <| Item.getChildren item)
-                    , Views.textNodeView settings
+                    , Views.node settings
                         ( itemX, itemY )
                         selectedItem
                         item

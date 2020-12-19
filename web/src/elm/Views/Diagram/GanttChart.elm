@@ -366,7 +366,7 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
             , ry "3"
             ]
             []
-        , Views.textView settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour text
+        , Views.text settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour text
         ]
 
 
@@ -434,5 +434,5 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
             , fill backgroundColor
             ]
             []
-        , Views.textView settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour text
+        , Views.text settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour text
         ]

@@ -146,7 +146,7 @@ activityView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "activity-" ++ Item.getText item
-         , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
+         , lazy Views.card { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
             :: (Item.unwrapChildren (Item.getChildren item)
                     |> Item.indexedMap
@@ -182,7 +182,7 @@ taskView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "task-" ++ Item.getText item
-         , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
+         , lazy Views.card { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
             :: (children
                     |> Item.indexedMap
@@ -228,7 +228,7 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "story-" ++ Item.getText item
-         , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
+         , lazy Views.card { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
             :: (children
                     |> Item.indexedMap

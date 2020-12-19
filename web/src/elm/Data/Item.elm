@@ -11,8 +11,10 @@ module Data.Item exposing
     , filter
     , fromList
     , getAt
+    , getBackgroundColor
     , getChildren
     , getChildrenCount
+    , getForegroundColor
     , getHierarchyCount
     , getItemSettings
     , getItemType
@@ -150,6 +152,22 @@ getItemType (Item i) =
 getItemSettings : Item -> Maybe ItemSettings
 getItemSettings (Item i) =
     i.itemSettings
+
+
+getForegroundColor : Item -> Maybe Color
+getForegroundColor item =
+    item
+        |> getItemSettings
+        |> Maybe.withDefault ItemSettings.new
+        |> ItemSettings.getForegroundColor
+
+
+getBackgroundColor : Item -> Maybe Color
+getBackgroundColor item =
+    item
+        |> getItemSettings
+        |> Maybe.withDefault ItemSettings.new
+        |> ItemSettings.getForegroundColor
 
 
 getLineNo : Item -> Int

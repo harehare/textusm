@@ -31,22 +31,22 @@ view model =
             in
             g
                 []
-                [ Views.canvasView model.settings
+                [ Views.canvas model.settings
                     ( Constants.largeItemWidth, itemHeight )
                     ( 0, 0 )
                     model.selectedItem
                     liked
-                , Views.canvasView model.settings
+                , Views.canvas model.settings
                     ( Constants.largeItemWidth, itemHeight )
                     ( Constants.largeItemWidth - 5, 0 )
                     model.selectedItem
                     learned
-                , Views.canvasView model.settings
+                , Views.canvas model.settings
                     ( Constants.largeItemWidth, itemHeight + 5 )
                     ( 0, itemHeight - 5 )
                     model.selectedItem
                     lacked
-                , Views.canvasView model.settings
+                , Views.canvas model.settings
                     ( Constants.largeItemWidth, itemHeight + 5 )
                     ( Constants.largeItemWidth - 5, itemHeight - 5 )
                     model.selectedItem

@@ -52,9 +52,7 @@ view props =
                 ]
                 [ div []
                     [ Icon.font
-                        (Item.getItemSettings props.item
-                            |> Maybe.withDefault ItemSettings.new
-                            |> ItemSettings.getForegroundColor
+                        (Item.getForegroundColor props.item
                             |> Maybe.withDefault Color.black
                             |> Color.toString
                         )
@@ -71,9 +69,7 @@ view props =
                 , Attr.style "border-right" "1px solid #CCC"
                 ]
                 [ colorCircle
-                    (Item.getItemSettings props.item
-                        |> Maybe.withDefault ItemSettings.new
-                        |> ItemSettings.getBackgroundColor
+                    (Item.getBackgroundColor props.item
                         |> Maybe.withDefault Color.black
                     )
                     (props.onMenuSelect BackgroundColorSelectMenu)
@@ -90,9 +86,7 @@ view props =
                 ]
                 [ div
                     [ Attr.style "color"
-                        (Item.getItemSettings props.item
-                            |> Maybe.withDefault ItemSettings.new
-                            |> ItemSettings.getForegroundColor
+                        (Item.getForegroundColor props.item
                             |> Maybe.withDefault Color.black
                             |> Color.toString
                         )
@@ -111,9 +105,7 @@ view props =
                 ]
                 [ div
                     [ Attr.style "color" <|
-                        (Item.getItemSettings props.item
-                            |> Maybe.withDefault ItemSettings.new
-                            |> ItemSettings.getForegroundColor
+                        (Item.getForegroundColor props.item
                             |> Maybe.withDefault Color.black
                             |> Color.toString
                         )
