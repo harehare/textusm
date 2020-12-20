@@ -4,10 +4,10 @@ import (
 	"context"
 	"os"
 
-	"github.com/harehare/textusm/api/middleware"
 	e "github.com/harehare/textusm/pkg/error"
 	"github.com/harehare/textusm/pkg/item"
 	"github.com/harehare/textusm/pkg/repository"
+	"github.com/harehare/textusm/pkg/values"
 	"github.com/rs/zerolog/log"
 )
 
@@ -24,9 +24,9 @@ func NewService(r repository.Repository) *Service {
 }
 
 func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic bool) ([]*item.Item, error) {
-	requestID := ctx.Value(middleware.RequestIDKey).(string)
+	requestID := values.GetRequestID(ctx)
 	log.Info().Str("request_id", requestID).Int("offset", offset).Int("limit", limit).Msg("Start find diagrams")
-	userID := ctx.Value(middleware.UIDKey).(string)
+	userID := values.GetUID(ctx)
 	items, err := s.repo.Find(ctx, userID, offset, limit, isPublic)
 
 	if err != nil {
@@ -52,9 +52,9 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 }
 
 func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool) (*item.Item, error) {
-	requestID := ctx.Value(middleware.RequestIDKey).(string)
+	requestID := values.GetRequestID(ctx)
 	log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Start Find diagram")
-	userID := ctx.Value(middleware.UIDKey).(string)
+	userID := values.GetUID(ctx)
 	item, err := s.repo.FindByID(ctx, userID, itemID, isPublic)
 
 	if err != nil {
@@ -73,9 +73,9 @@ func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool)
 }
 
 func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic bool) (*item.Item, error) {
-	requestID := ctx.Value(middleware.RequestIDKey).(string)
+	requestID := values.GetRequestID(ctx)
 	log.Info().Str("request_id", requestID).Str("item_id", item.ID).Msg("Save diagram")
-	userID := ctx.Value(middleware.UIDKey).(string)
+	userID := values.GetUID(ctx)
 	currentText := item.Text
 	text, err := Encrypt(encryptKey, item.Text)
 
@@ -121,9 +121,9 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 }
 
 func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic bool) error {
-	requestID := ctx.Value(middleware.RequestIDKey).(string)
+	requestID := values.GetRequestID(ctx)
 	log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Start delete diagram")
-	userID := ctx.Value(middleware.UIDKey).(string)
+	userID := values.GetUID(ctx)
 
 	if isPublic {
 		isOwner, err := s.isPublicDiagramOwner(ctx, itemID, userID)

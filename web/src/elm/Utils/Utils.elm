@@ -1,21 +1,8 @@
 module Utils.Utils exposing (calcDistance, delay, httpErrorToString, isPhone)
 
-import Constants
-import Data.Item as Item exposing (Items)
-import Data.Text as Text
 import Http exposing (Error(..))
-import List.Extra exposing (getAt, last, scanl1, takeWhile, unique)
-import Models.Diagram as DiagramModel
-import Models.Views.ER as ER exposing (Table(..))
-import Models.Views.Kanban as Kanban
-import Models.Views.SequenceDiagram as SequenceDiagram
-import Models.Views.UserStoryMap as UserStoryMap
 import Process
 import Task
-import TextUSM.Enum.Diagram as Diagram
-import Time exposing (Month(..), Posix, Zone, toDay, toHour, toMinute, toMonth, toSecond, toYear, utc)
-import Time.Extra exposing (Interval(..), Parts, diff, partsToPosix)
-import Utils.Date as DateUtils
 
 
 isPhone : Int -> Bool

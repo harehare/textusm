@@ -3,7 +3,6 @@ module Components.Diagram exposing (init, update, view)
 import Basics exposing (max)
 import Browser.Dom as Dom
 import Constants exposing (indentSpace, inputPrefix)
-import Data.Color as Color
 import Data.FontStyle as FontStyle
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.ItemSettings as ItemSettings
@@ -20,7 +19,6 @@ import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
 import Json.Decode as D
-import Json.Encode as E
 import List
 import List.Extra exposing (findIndex, getAt, removeAt, setAt, splitAt)
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, Settings)

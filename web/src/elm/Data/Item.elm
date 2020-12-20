@@ -42,12 +42,10 @@ module Data.Item exposing
     , withText
     )
 
-import Data.Color as Color exposing (Color)
+import Data.Color exposing (Color)
 import Data.ItemSettings as ItemSettings exposing (ItemSettings)
-import Data.Position as Position exposing (Position)
 import Data.Text as Text exposing (Text)
 import Json.Decode as D
-import Json.Encode as E
 import List.Extra as ListEx
 
 
