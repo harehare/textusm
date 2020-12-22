@@ -51,6 +51,7 @@ import Views.Diagram.ContextMenu as ContextMenu
 import Views.Diagram.ER as ER
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
+import Views.Diagram.FreeForm as FreeForm
 import Views.Diagram.GanttChart as GanttChart
 import Views.Diagram.ImpactMap as ImpactMap
 import Views.Diagram.Kanban as Kanban
@@ -370,7 +371,8 @@ diagramView diagramType =
             SequenceDiagram.view
 
         Freeform ->
-            Debug.todo "not implemented"
+            -- not implemented
+            FreeForm.view
 
 
 svgView : Model -> Svg Msg
