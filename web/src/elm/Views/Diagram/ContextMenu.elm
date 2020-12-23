@@ -124,9 +124,7 @@ view props =
                 ]
                 [ div
                     [ Attr.style "color" <|
-                        (Item.getItemSettings props.item
-                            |> Maybe.withDefault ItemSettings.new
-                            |> ItemSettings.getBackgroundColor
+                        (Item.getBackgroundColor props.item
                             |> Maybe.withDefault Color.black
                             |> Color.toString
                         )

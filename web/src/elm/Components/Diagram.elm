@@ -1080,7 +1080,7 @@ update message model =
                                             ( i
                                                 |> Item.withItemSettings
                                                     (Item.getItemSettings i
-                                                        |> Maybe.andThen (\s -> Just (ItemSettings.withForegroundColor (Just color) s))
+                                                        |> Maybe.andThen (\s -> Just (ItemSettings.withBackgroundColor (Just color) s))
                                                     )
                                             , False
                                             )

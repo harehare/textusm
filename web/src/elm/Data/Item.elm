@@ -42,7 +42,7 @@ module Data.Item exposing
     , withText
     )
 
-import Data.Color exposing (Color)
+import Data.Color as Color exposing (Color)
 import Data.ItemSettings as ItemSettings exposing (ItemSettings)
 import Data.Text as Text exposing (Text)
 import Json.Decode as D
@@ -108,7 +108,24 @@ withText text (Item item) =
                                 ( t, Nothing )
 
                     _ ->
-                        ( text, Nothing )
+                        case String.split "," text of
+                            [ t, bg, fg ] ->
+                                ( t
+                                , ItemSettings.new
+                                    |> ItemSettings.withBackgroundColor (Just (Color.fromString bg))
+                                    |> ItemSettings.withForegroundColor (Just (Color.fromString fg))
+                                    |> Just
+                                )
+
+                            [ t, bg ] ->
+                                ( t
+                                , ItemSettings.new
+                                    |> ItemSettings.withBackgroundColor (Just (Color.fromString bg))
+                                    |> Just
+                                )
+
+                            _ ->
+                                ( text, Nothing )
     in
     Item
         { item
@@ -165,7 +182,7 @@ getBackgroundColor item =
     item
         |> getItemSettings
         |> Maybe.withDefault ItemSettings.new
-        |> ItemSettings.getForegroundColor
+        |> ItemSettings.getBackgroundColor
 
 
 getLineNo : Item -> Int

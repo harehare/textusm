@@ -1,4 +1,4 @@
-module Update exposing (..)
+module Action exposing (..)
 
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
