@@ -3,10 +3,16 @@ import { loadEditor } from "./ts/editor";
 import { initDownload } from "./ts/download";
 import { initShare } from "./ts/share";
 import { initDB } from "./ts/db";
-import { signOut, signIn, authStateChanged, providers } from "./ts/auth";
+import {
+    signOut,
+    signIn,
+    authStateChanged,
+    providers,
+    refreshToken,
+} from "./ts/auth";
 import { loadSettings, saveSettings } from "./ts/settings";
 import { Settings } from "./ts/model";
-import { ElmApp, EditorOption } from "./ts/elm";
+import { ElmApp, EditorOption, Provider } from "./ts/elm";
 // @ts-ignore
 import { Elm } from "./elm/Main.elm";
 
@@ -48,7 +54,7 @@ app.ports.loadEditor.subscribe(([text, option]: [string, EditorOption]) => {
     loadEditor(app, text, option);
 });
 
-app.ports.signIn.subscribe((provider: string) => {
+app.ports.signIn.subscribe((provider: Provider) => {
     signIn(provider === "Google" ? providers.google : providers.github);
 });
 
@@ -56,6 +62,13 @@ app.ports.signOut.subscribe(async () => {
     await signOut().catch(() => {
         app.ports.onErrorNotification.send("Failed sign out.");
     });
+});
+
+app.ports.refreshToken.subscribe(async () => {
+    const idToken = await refreshToken();
+    if (idToken) {
+        app.ports.updateIdToken.send(idToken);
+    }
 });
 
 app.ports.selectTextById.subscribe(async (id: string) => {
@@ -118,7 +131,7 @@ const loadSentry = async () => {
 
 loadSentry();
 
-document.addEventListener("fullscreenchange", (_) => {
+document.addEventListener("fullscreenchange", () => {
     if (!document.fullscreenElement) {
         app.ports.onCloseFullscreen.send({});
     }

@@ -50,3 +50,5 @@ screenshots
 videos
 migration
 server/cmd/__debug_bin
+
+js/**

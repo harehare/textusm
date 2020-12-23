@@ -307,6 +307,7 @@ enum Diagram {
   KANBAN
   TABLE
   SEQUENCE_DIAGRAM
+  FREEFORM
 }
 
 type Item {

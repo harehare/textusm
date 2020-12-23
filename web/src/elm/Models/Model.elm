@@ -1,12 +1,9 @@
 module Models.Model exposing
-    ( DownloadFileInfo
-    , DownloadInfo
-    , Menu(..)
+    ( Menu(..)
     , Model
     , Msg(..)
     , Notification(..)
     , Page(..)
-    , ShareInfo
     , SwitchWindow(..)
     , Window
     , modelOfDiagramModel
@@ -22,21 +19,17 @@ import Browser.Navigation as Nav
 import Data.DiagramItem exposing (DiagramItem)
 import Data.FileType exposing (FileType)
 import Data.LoginProvider exposing (LoginProvider)
-import Data.Position exposing (Position)
 import Data.Session exposing (Session, User)
-import Data.Text exposing (Text)
 import Data.Title exposing (Title)
 import Graphql.Http as GraphQlHttp
 import Http as Http
 import Json.Decode as D
 import Models.Diagram as Diagram
-import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Share as Share
 import Page.Tags as Tags
-import TextUSM.Enum.Diagram exposing (Diagram)
 import Translations exposing (Lang)
 import Url
 
@@ -54,7 +47,7 @@ type Msg
     | CloseMenu
     | Download FileType
     | DownloadCompleted ( Int, Int )
-    | StartDownload DownloadFileInfo
+    | StartDownload { extension : String, mimeType : String, content : String }
     | Save
     | SaveToRemoteCompleted (Result DiagramItem DiagramItem)
     | SaveToLocalCompleted D.Value
@@ -64,7 +57,7 @@ type Msg
     | EndEditTitle Int Bool
     | EditTitle String
     | EditText String
-    | OnShareUrl ShareInfo
+    | ShareUrl { title : Maybe String, text : String, diagramType : String }
     | SignIn LoginProvider
     | SignOut
     | OnVisibilityChange Visibility
@@ -86,6 +79,7 @@ type Msg
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
     | Load (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
     | CloseFullscreen D.Value
+    | UpdateIdToken String
 
 
 type Notification
@@ -143,32 +137,6 @@ type alias Window =
     , moveStart : Bool
     , moveX : Int
     , fullscreen : Bool
-    }
-
-
-type alias DownloadFileInfo =
-    { extension : String
-    , mimeType : String
-    , content : String
-    }
-
-
-type alias DownloadInfo =
-    { width : Int
-    , height : Int
-    , id : String
-    , title : String
-    , text : String
-    , x : Float
-    , y : Float
-    , diagramType : String
-    }
-
-
-type alias ShareInfo =
-    { title : Maybe String
-    , text : String
-    , diagramType : String
     }
 
 

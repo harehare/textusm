@@ -57,7 +57,7 @@ const defaultConfig: Config = {
     text: "#111111",
   },
   backgroundColor: "#F5F5F6",
-  zoomControl: true,
+  zoomControl: false,
 };
 
 function render(
@@ -137,8 +137,9 @@ function render(
       width: options.size ? options.size.width : 1024,
       height: options.size ? options.size.height : 1024,
       settings: Object.assign(defaultConfig, config),
-      showZoomControl:
-        options.showZoomControl !== undefined ? options.showZoomControl : true,
+      showZoomControl: options.showZoomControl
+        ? options.showZoomControl
+        : false,
       scale: options.scale ? options.scale : 1.0,
     },
   });

@@ -4,9 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"context"
-
 	firebase "firebase.google.com/go"
+	"github.com/harehare/textusm/pkg/values"
 	"github.com/urfave/negroni"
 )
 
@@ -30,7 +29,6 @@ func AuthMiddleware(app *firebase.App) negroni.HandlerFunc {
 			http.Error(w, "{\"error\": \"authorization failed\"}", http.StatusForbidden)
 			return
 		}
-		ctx := context.WithValue(r.Context(), UIDKey, token.UID)
-		next(w, r.WithContext(ctx))
+		next(w, r.WithContext(values.WithUID(r.Context(), token.UID)))
 	}
 }

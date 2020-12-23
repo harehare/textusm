@@ -38,6 +38,10 @@ const signOut = (): Promise<void> => {
     });
 };
 
+const refreshToken = (): Promise<string> | undefined => {
+    return firebase.auth().currentUser?.getIdToken(true);
+};
+
 const authStateChanged = (
     onBeforeAuth: () => void,
     onAfterAuth: () => void,
@@ -65,4 +69,4 @@ const providers = {
     github: new firebase.auth.GithubAuthProvider(),
 };
 
-export { providers, signIn, signOut, authStateChanged };
+export { providers, signIn, signOut, authStateChanged, refreshToken };

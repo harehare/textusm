@@ -3,6 +3,7 @@ module Views.Diagram.ContextMenu exposing (view)
 import Data.Color as Color exposing (Color)
 import Data.FontStyle as FontStyle exposing (FontStyle)
 import Data.Item as Item exposing (Item)
+import Data.ItemSettings as ItemSettings
 import Data.Position as Position exposing (Position)
 import Events exposing (onClickStopPropagation)
 import Html exposing (Html, div)
@@ -47,11 +48,16 @@ view props =
                 , Attr.style "justify-content" "center"
                 , Attr.style "border-right" "1px solid #CCC"
                 , Attr.style "cursor" "pointer"
+                , onClickStopPropagation <| props.onMenuSelect ColorSelectMenu
                 ]
-                [ div
-                    [ onClickStopPropagation <| props.onMenuSelect ColorSelectMenu
+                [ div []
+                    [ Icon.font
+                        (Item.getForegroundColor props.item
+                            |> Maybe.withDefault Color.black
+                            |> Color.toString
+                        )
+                        16
                     ]
-                    [ Icon.font (Color.toString <| Maybe.withDefault Color.black <| Item.getColor props.item) 16 ]
                 ]
             , div
                 [ Attr.style "width" "50px"
@@ -62,7 +68,11 @@ view props =
                 , Attr.style "justify-content" "center"
                 , Attr.style "border-right" "1px solid #CCC"
                 ]
-                [ colorCircle (Item.getBackgroundColor props.item |> Maybe.withDefault Color.black) <| props.onMenuSelect BackgroundColorSelectMenu
+                [ colorCircle
+                    (Item.getBackgroundColor props.item
+                        |> Maybe.withDefault Color.black
+                    )
+                    (props.onMenuSelect BackgroundColorSelectMenu)
                 ]
             , div
                 [ Attr.style "width" "50px"
@@ -72,10 +82,14 @@ view props =
                 , Attr.style "align-items" "center"
                 , Attr.style "justify-content" "center"
                 , Attr.style "cursor" "pointer"
+                , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Bold
                 ]
                 [ div
-                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| Item.getColor props.item
-                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Bold
+                    [ Attr.style "color"
+                        (Item.getForegroundColor props.item
+                            |> Maybe.withDefault Color.black
+                            |> Color.toString
+                        )
                     ]
                     [ Icon.bold "#273037" 16 ]
                 ]
@@ -87,10 +101,14 @@ view props =
                 , Attr.style "align-items" "center"
                 , Attr.style "justify-content" "center"
                 , Attr.style "cursor" "pointer"
+                , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Italic
                 ]
                 [ div
-                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| Item.getColor props.item
-                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Italic
+                    [ Attr.style "color" <|
+                        (Item.getForegroundColor props.item
+                            |> Maybe.withDefault Color.black
+                            |> Color.toString
+                        )
                     ]
                     [ Icon.italic "#273037" 16 ]
                 ]
@@ -102,10 +120,14 @@ view props =
                 , Attr.style "align-items" "center"
                 , Attr.style "justify-content" "center"
                 , Attr.style "cursor" "pointer"
+                , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Strikethrough
                 ]
                 [ div
-                    [ Attr.style "color" <| Color.toString <| Maybe.withDefault Color.black <| Item.getColor props.item
-                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Strikethrough
+                    [ Attr.style "color" <|
+                        (Item.getBackgroundColor props.item
+                            |> Maybe.withDefault Color.black
+                            |> Color.toString
+                        )
                     ]
                     [ Icon.strikethrough "#273037" 16 ]
                 ]

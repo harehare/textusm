@@ -54,14 +54,14 @@ view model =
                             case target of
                                 Diagram.TableTarget table ->
                                     let
-                                        (Table name columns position _) =
+                                        (Table name _ position _) =
                                             table
 
                                         currentTable =
                                             Dict.get name baseDict
                                     in
                                     Dict.update name
-                                        (\v ->
+                                        (\_ ->
                                             currentTable
                                                 |> Maybe.andThen (\t -> Just { t | table = table, offset = position |> Maybe.withDefault Position.zero })
                                         )

@@ -15,23 +15,31 @@ $ npm i -g textusm.cli
 ## Examples
 
 ```sh
-textusm -i input.txt -o output.svg
+$ cat input.txt | textusm -o output.svg
 ```
 
 ```sh
-textusm -i input.txt -o output.png
+$ textusm -i input.txt -o output.svg
 ```
 
 ```sh
-textusm -i input.txt -o output.pdf
+$ textusm -i input.txt -o output.svg
 ```
 
 ```sh
-textusm -i input.txt -o output.html
+$ textusm -i input.txt -o output.png
 ```
 
 ```sh
-textusm -i input.txt -o output.html -d businessmodelcanvas
+$ textusm -i input.txt -o output.pdf
+```
+
+```sh
+$ textusm -i input.txt -o output.html
+```
+
+```sh
+$ textusm -i input.txt -o output.html -d businessmodelcanvas
 ```
 
 ## Options
@@ -42,13 +50,13 @@ Usage: textusm [options]
 Options:
   -V, --version                    output the version number
   -c, --configFile [configFile]    Config file.
-  -i, --input <input>              Input text file. Required.
+  -i, --input <input>              Input text file.
   -w, --width <width>              Width of the page. Optional. Default: 1024.
   -H, --height <height>            Height of the page. Optional. Default: 1024.
   -o, --output [output]            Output file. It should be svg, png, pdf or html.
-  -d, --diagramType [diagramType]  Diagram type. It should be one of userstorymap, opportunitycanvas, businessmodelcanvas, 4ls, start_stop_continue, kpt,
-                                   userpersona, mind_map, empathy_map, table, site_map, gantt_chart.
-  -h, --help                       output usage information
+  -d, --diagramType [diagramType]  Diagram type. It should be one of user_story_map, opportunity_canvas, business_model_canvas, 4ls, start_stop_continue, kpt, userpersona, mind_map,
+                                   empathy_map, table, site_map, gantt_chart, impact_map, er_diagram, kanban, sequence_diagram
+  -h, --help                       display help for command
 ```
 
 ## Example Input file
@@ -352,35 +360,35 @@ Par
 
 ```json
 {
-  "font": "Open Sans",
-  "storyMap": {
-    "font": "Open Sans",
-    "size": {
-      "width": 140,
-      "height": 65
+  "font": "Nunito Sans",
+  "showZoomControl": false,
+  "scale": 1.0,
+  "size": {
+    "width": 1024,
+    "height": 1024
+  },
+  "backgroundColor": "#F5F5F6",
+  "color": {
+    "activity": {
+      "color": "#FFFFFF",
+      "backgroundColor": "#266B9A"
     },
-    "backgroundColor": "#F5F5F6",
-    "color": {
-      "activity": {
-        "color": "#FFFFFF",
-        "backgroundColor": "#266B9A"
-      },
-      "task": {
-        "color": "#FFFFFF",
-        "backgroundColor": "#3E9BCD"
-      },
-      "story": {
-        "color": "#000000",
-        "backgroundColor": "#FFFFFF"
-      },
-      "comment": {
-        "color": "#000000",
-        "backgroundColor": "#F1B090"
-      },
-      "line": "#434343",
-      "label": "#8C9FAE",
-      "text": "#111111"
-    }
-  }
+    "task": {
+      "color": "#FFFFFF",
+      "backgroundColor": "#3E9BCD"
+    },
+    "story": {
+      "color": "#000000",
+      "backgroundColor": "#FFFFFF"
+    },
+    "comment": {
+      "color": "#000000",
+      "backgroundColor": "#F1B090"
+    },
+    "line": "#434343",
+    "label": "#8C9FAE",
+    "text": "#111111"
+  },
+  "diagramType": "UserStoryMap"
 }
 ```

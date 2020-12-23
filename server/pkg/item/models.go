@@ -52,6 +52,7 @@ const (
 	DiagramKanban              Diagram = "KANBAN"
 	DiagramTable               Diagram = "TABLE"
 	DiagramSequenceDiagram     Diagram = "SEQUENCE_DIAGRAM"
+	DiagramFreeform            Diagram = "FREEFORM"
 )
 
 var AllDiagram = []Diagram{
@@ -71,11 +72,12 @@ var AllDiagram = []Diagram{
 	DiagramKanban,
 	DiagramTable,
 	DiagramSequenceDiagram,
+	DiagramFreeform,
 }
 
 func (e Diagram) IsValid() bool {
 	switch e {
-	case DiagramUserStoryMap, DiagramOpportunityCanvas, DiagramBusinessModelCanvas, DiagramFourls, DiagramStartStopContinue, DiagramKpt, DiagramUserPersona, DiagramMindMap, DiagramEmpathyMap, DiagramSiteMap, DiagramGanttChart, DiagramImpactMap, DiagramErDiagram, DiagramKanban, DiagramTable, DiagramSequenceDiagram:
+	case DiagramUserStoryMap, DiagramOpportunityCanvas, DiagramBusinessModelCanvas, DiagramFourls, DiagramStartStopContinue, DiagramKpt, DiagramUserPersona, DiagramMindMap, DiagramEmpathyMap, DiagramSiteMap, DiagramGanttChart, DiagramImpactMap, DiagramErDiagram, DiagramKanban, DiagramTable, DiagramSequenceDiagram, DiagramFreeform:
 		return true
 	}
 	return false

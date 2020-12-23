@@ -64,10 +64,11 @@ export const loadEditor = async (
         tokenizer: {
             root: [
                 [/^#.+/, "comment"],
+                [/^[^ ][^#:|\|]+/, "activity"],
+                [/^ {8}[^#:|\|]+/, "story"],
+                [/^ {4}[^#:|\|]+/, "task"],
                 [/#.+/, "color"],
-                [/^[^ ][^#:]+/, "activity"],
-                [/^ {8}[^#:]+/, "story"],
-                [/^ {4}[^#:]+/, "task"],
+                [/\|[^\|]+/, "color"],
             ],
         },
     });

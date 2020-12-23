@@ -29,19 +29,19 @@ view model =
             in
             g
                 []
-                [ lazy5 Views.canvasView
+                [ lazy5 Views.canvas
                     model.settings
                     ( Constants.itemWidth, itemHeight )
                     ( 0, 0 )
                     model.selectedItem
                     start
-                , lazy5 Views.canvasView
+                , lazy5 Views.canvas
                     model.settings
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth - 5, 0 )
                     model.selectedItem
                     stop
-                , lazy5 Views.canvasView
+                , lazy5 Views.canvas
                     model.settings
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth * 2 - 10, 0 )

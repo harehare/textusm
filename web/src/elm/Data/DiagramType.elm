@@ -55,6 +55,9 @@ toString diagramType =
         SequenceDiagram ->
             "sed"
 
+        Freeform ->
+            "free"
+
 
 toLongString : Diagram -> String
 toLongString diagramType =
@@ -107,6 +110,9 @@ toLongString diagramType =
         SequenceDiagram ->
             "Sequence Diagram"
 
+        Freeform ->
+            "Freeform"
+
 
 fromString : String -> Diagram
 fromString s =
@@ -158,6 +164,9 @@ fromString s =
 
         "sed" ->
             SequenceDiagram
+
+        "free" ->
+            Freeform
 
         _ ->
             UserStoryMap

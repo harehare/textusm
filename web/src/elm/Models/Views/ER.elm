@@ -178,13 +178,6 @@ itemToTable item =
         ( tableName, position ) =
             case tableInfo of
                 [ name, xString, yString ] ->
-                    let
-                        maybeX =
-                            String.toInt xString
-
-                        maybeY =
-                            String.toInt yString
-                    in
                     ( name
                     , String.toInt xString
                         |> Maybe.andThen (\x -> Maybe.andThen (\y -> Just ( x, y )) (String.toInt yString))

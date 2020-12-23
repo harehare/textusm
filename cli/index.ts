@@ -2,73 +2,61 @@
 import { createCommand } from "commander";
 import * as fs from "fs";
 import * as puppeteer from "puppeteer";
+import { html, DiagramType, Settings } from "./html";
 
-const diagramMap = {
-  user_story_map: "usm",
-  opportunity_canvas: "opc",
-  business_model_canvas: "bmc",
-  "4ls": "4ls",
-  start_stop_continue: "ssc",
-  kpt: "kpt",
-  userpersona: "persona",
-  mind_map: "mmp",
-  empathy_map: "emm",
-  table: "table",
-  site_map: "smp",
-  gantt_chart: "gct",
-  impact_map: "imm",
-  er_diagram: "erd",
-  kanban: "kanban",
-  sequence_diagram: "sed",
+const diagramMap: { [type: string]: DiagramType } = {
+  user_story_map: "UserStoryMap",
+  opportunity_canvas: "OpportunityCanvas",
+  business_model_canvas: "BusinessModelCanvas",
+  "4ls": "4Ls",
+  start_stop_continue: "StartStopContinue",
+  kpt: "Kpt",
+  userpersona: "UserPersona",
+  mind_map: "MindMap",
+  empathy_map: "EmpathyMap",
+  table: "Table",
+  site_map: "SiteMap",
+  gantt_chart: "GanttChart",
+  impact_map: "ImpactMap",
+  er_diagram: "ERDiagram",
+  kanban: "Kanban",
+  sequence_diagram: "SequenceDiagram",
 };
 
-const defaultWidth: number = 1280;
-const defaultHeight: number = 1280;
-const defaultSettings = {
-  diagramId: null,
-  editor: {
-    fontSize: 12,
-    showLineNumber: true,
-    wordWrap: false,
-  },
+const defaultSettings: Settings = {
   font: "Nunito Sans",
-  position: 0,
-  text: "",
-  title: "TestUSM",
-  miniMap: false,
-  storyMap: {
-    font: "Nunito Sans",
-    size: {
-      width: 140,
-      height: 65,
-    },
-    backgroundColor: "#F5F5F6",
-    color: {
-      activity: {
-        color: "#FFFFFF",
-        backgroundColor: "#266B9A",
-      },
-      task: {
-        color: "#FFFFFF",
-        backgroundColor: "#3E9BCD",
-      },
-      story: {
-        color: "#000000",
-        backgroundColor: "#FFFFFF",
-      },
-      comment: {
-        color: "#000000",
-        backgroundColor: "#F1B090",
-      },
-      backgroundColor: "F5F6F6",
-      line: "#434343",
-      label: "#8C9FAE",
-    },
-    title: null,
+  showZoomControl: false,
+  scale: 1.0,
+  size: {
+    width: 1024,
+    height: 1024,
   },
+  backgroundColor: "#F5F5F6",
+  color: {
+    activity: {
+      color: "#FFFFFF",
+      backgroundColor: "#266B9A",
+    },
+    task: {
+      color: "#FFFFFF",
+      backgroundColor: "#3E9BCD",
+    },
+    story: {
+      color: "#000000",
+      backgroundColor: "#FFFFFF",
+    },
+    comment: {
+      color: "#000000",
+      backgroundColor: "#F1B090",
+    },
+    line: "#434343",
+    label: "#8C9FAE",
+    text: "#111111",
+  },
+  diagramType: "UserStoryMap",
 };
 
-const readConfigFile = (file: string | undefined) => {
+const readConfigFile = (file: string | undefined): Settings => {
   if (!file) {
     return defaultSettings;
   }
@@ -79,19 +67,18 @@ const readConfigFile = (file: string | undefined) => {
   }
 };
 
-interface CommandOptions {
-  input: string;
-  width: number;
-  height: number;
-  output: string;
-  diagramType: keyof typeof diagramMap;
-}
+const readStdin = async (): Promise<string> => {
+  process.stdin.setEncoding("utf8");
+  let text = "";
+  for await (const chunk of process.stdin) text += chunk;
+  return text;
+};
 
 const program = createCommand();
 const { configFile, input, width, height, output, diagramType } = program
-  .version("0.6.2")
+  .version("0.6.4")
   .option("-c, --configFile [configFile]", "Config file.")
-  .requiredOption("-i, --input <input>", "Input text file. Required.")
+  .option("-i, --input <input>", "Input text file.")
   .option("-w, --width <width>", "Width of the page. Optional. Default: 1024.")
   .option(
     "-H, --height <height>",
@@ -112,7 +99,7 @@ if (diagramType && Object.keys(diagramMap).indexOf(diagramType) === -1) {
   process.exit(1);
 }
 
-if (!fs.existsSync(input)) {
+if (input && !fs.existsSync(input)) {
   console.error(`${input} is not exists.  -i <input>`);
   process.exit(1);
 }
@@ -122,20 +109,21 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
   process.exit(1);
 }
 
-const options: CommandOptions = {
-  input,
-  width: width ? parseInt(width) : defaultWidth,
-  height: height ? parseInt(height) : defaultHeight,
-  output,
-  diagramType: (diagramType ? diagramType : "usm") as keyof typeof diagramMap,
+const writeResult = (output: string | undefined, result: string): void => {
+  if (output) {
+    fs.writeFileSync(output, result);
+  } else {
+    console.log(result);
+  }
 };
 
 (async () => {
   const browser = await puppeteer.launch();
-  const configJson = readConfigFile(configFile);
-  configJson.text = fs.readFileSync(input, "utf-8");
+  const config = readConfigFile(configFile);
+  const text = input ? fs.readFileSync(input, "utf-8") : await readStdin();
+  const js = fs.readFileSync("./js/textusm.js", "utf-8");
 
-  if (configJson.text === "") {
+  if (text === "") {
     console.error(`${input} is empty file.`);
     process.exit(1);
   }
@@ -143,25 +131,19 @@ const options: CommandOptions = {
   try {
     const page = await browser.newPage();
     page.setViewport({
-      width: options.width,
-      height: options.height,
+      width: parseInt(width ?? config.size.width),
+      height: parseInt(height ?? config.size.height),
     });
-    await page.goto(
-      `https://app.textusm.com/view/${
-        diagramMap[options.diagramType]
-      }/${encodeURIComponent(JSON.stringify(configJson))}`
-    );
+    config.diagramType = diagramType
+      ? diagramMap[diagramType as string]
+      : "UserStoryMap";
+    await page.setContent(html(text, js, config), { waitUntil: "load" });
 
-    await page.waitForSelector("#usm", {
-      timeout: 1000,
-      visible: true,
-    });
-
-    if (output.endsWith(".svg")) {
-      const svg = await page.$eval("#usm-area", (item) => {
-        return item.innerHTML;
+    if (!output || output.endsWith(".svg")) {
+      const svg = await page.$eval("#usm", (items) => {
+        return items.outerHTML;
       });
-      fs.writeFileSync(
+      writeResult(
         output,
         `<?xml version="1.0"?>
                 ${svg

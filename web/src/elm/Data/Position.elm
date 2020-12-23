@@ -1,4 +1,6 @@
-module Data.Position exposing (Position, X, Y, getX, getY, zero)
+module Data.Position exposing (Position, X, Y, decoder, getX, getY, zero)
+
+import Json.Decode as D
 
 
 type alias X =
@@ -26,3 +28,10 @@ getY ( _, y ) =
 zero : Position
 zero =
     ( 0, 0 )
+
+
+decoder : D.Decoder Position
+decoder =
+    D.map2 Tuple.pair
+        (D.index 0 D.int)
+        (D.index 1 D.int)

@@ -1,6 +1,6 @@
 module Models.Views.UserStoryMap exposing (UserStoryMap, countPerStories, countPerTasks, from, getHierarchy, getItems, getReleaseLevel, storyCount, taskCount)
 
-import Data.Item as Item exposing (Item, ItemType(..), Items)
+import Data.Item as Item exposing (ItemType(..), Items)
 import Dict exposing (Dict)
 import List.Extra exposing (scanl, unique)
 

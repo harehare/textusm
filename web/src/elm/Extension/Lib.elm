@@ -47,13 +47,12 @@ init flags =
             { items = Item.empty
             , data = DiagramModel.Empty
             , size = ( flags.width, flags.height )
-            , selectedItem = Nothing
             , svg =
                 { width = flags.settings.size.width
                 , height = flags.settings.size.height
                 , scale = flags.scale
                 }
-            , moveStart = False
+            , moveState = DiagramModel.NotMove
             , dragDrop = DragDrop.init
             , position = ( 0, 0 )
             , movePosition = ( 0, 0 )
@@ -108,9 +107,11 @@ init flags =
 
                 else
                     Diagram.UserStoryMap
+            , text = Text.empty
+            , selectedItem = Nothing
             , settings = flags.settings
             , touchDistance = Nothing
-            , text = Text.empty
+            , dragStatus = DiagramModel.NoDrag
             }
       , text = flags.text
       , backgroundColor = flags.settings.backgroundColor
