@@ -76,7 +76,7 @@ const readStdin = async (): Promise<string> => {
 
 const program = createCommand();
 const { configFile, input, width, height, output, diagramType } = program
-  .version("0.6.4")
+  .version("0.6.5")
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file.")
   .option("-w, --width <width>", "Width of the page. Optional. Default: 1024.")
