@@ -3,9 +3,9 @@ module Components.Diagram exposing (init, update, view)
 import Basics exposing (max)
 import Browser.Dom as Dom
 import Constants exposing (indentSpace, inputPrefix)
-import Data.Color as Color
 import Data.FontStyle as FontStyle
 import Data.Item as Item exposing (Item, ItemType(..), Items)
+import Data.ItemSettings as ItemSettings
 import Data.Position as Position
 import Data.Size as Size exposing (Size)
 import Data.Text as Text
@@ -13,7 +13,7 @@ import Events
 import File
 import Html exposing (Html, div)
 import Html.Attributes as Attr
-import Html.Events as E
+import Html.Events as Event
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
@@ -51,6 +51,7 @@ import Views.Diagram.ContextMenu as ContextMenu
 import Views.Diagram.ER as ER
 import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
+import Views.Diagram.FreeForm as FreeForm
 import Views.Diagram.GanttChart as GanttChart
 import Views.Diagram.ImpactMap as ImpactMap
 import Views.Diagram.Kanban as Kanban
@@ -298,9 +299,9 @@ view model =
             _ ->
                 Attr.style "cursor" "grab"
         , Events.onDrop OnDropFiles
-        , E.preventDefaultOn "dragover" <|
+        , Event.preventDefaultOn "dragover" <|
             D.succeed ( ChangeDragStatus DragOver, True )
-        , E.preventDefaultOn "dragleave" <|
+        , Event.preventDefaultOn "dragleave" <|
             D.succeed ( ChangeDragStatus NoDrag, True )
         , case model.dragStatus of
             DragOver ->
@@ -368,6 +369,10 @@ diagramView diagramType =
 
         SequenceDiagram ->
             SequenceDiagram.view
+
+        Freeform ->
+            -- not implemented
+            FreeForm.view
 
 
 svgView : Model -> Svg Msg
@@ -705,18 +710,12 @@ updateDiagram ( width, height ) base text =
 
 itemToColorText : Item -> String
 itemToColorText item =
-    case ( Item.getColor item, Item.getBackgroundColor item ) of
-        ( Just color, Just backgroundColor ) ->
-            "," ++ Color.toString color ++ "," ++ Color.toString backgroundColor
-
-        ( Just color, Nothing ) ->
-            "," ++ Color.toString color
-
-        ( Nothing, Just backgroundColor ) ->
-            "," ++ "," ++ Color.toString backgroundColor
-
-        _ ->
+    case Item.getItemSettings item of
+        Nothing ->
             ""
+
+        Just settings ->
+            ItemSettings.toString settings
 
 
 clearPosition : Model -> Return Msg Model
@@ -1030,34 +1029,18 @@ update message model =
                         currentText =
                             getAt (Item.getLineNo item) lines
 
-                        tokens =
-                            Maybe.map (String.split ",") currentText
+                        ( mainText, settings ) =
+                            currentText
+                                |> Maybe.withDefault ""
+                                |> Item.spiltText
 
                         text =
-                            case ( menu, tokens ) of
-                                ( Diagram.ColorSelectMenu, Just [ t, _, b ] ) ->
-                                    t ++ "," ++ Color.toString color ++ "," ++ b
+                            case menu of
+                                Diagram.ColorSelectMenu ->
+                                    Item.createText mainText (settings |> ItemSettings.withForegroundColor (Just color))
 
-                                ( Diagram.ColorSelectMenu, Just [ t, _ ] ) ->
-                                    t ++ "," ++ Color.toString color
-
-                                ( Diagram.ColorSelectMenu, Just [ t ] ) ->
-                                    t ++ "," ++ Color.toString color
-
-                                ( Diagram.ColorSelectMenu, Nothing ) ->
-                                    currentText |> Maybe.withDefault ""
-
-                                ( Diagram.BackgroundColorSelectMenu, Just [ t, c, _ ] ) ->
-                                    t ++ "," ++ c ++ "," ++ Color.toString color
-
-                                ( Diagram.BackgroundColorSelectMenu, Just [ t, c ] ) ->
-                                    t ++ "," ++ c ++ "," ++ Color.toString color
-
-                                ( Diagram.BackgroundColorSelectMenu, Just [ t ] ) ->
-                                    t ++ "," ++ "," ++ Color.toString color
-
-                                ( Diagram.BackgroundColorSelectMenu, Nothing ) ->
-                                    currentText |> Maybe.withDefault ""
+                                Diagram.BackgroundColorSelectMenu ->
+                                    Item.createText mainText (ItemSettings.withBackgroundColor (Just color) settings)
 
                                 _ ->
                                     currentText |> Maybe.withDefault ""
@@ -1075,12 +1058,34 @@ update message model =
                         ( Just ( i, _ ), Diagram.ColorSelectMenu ) ->
                             Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }
                                 |> Return.andThen (setText updateText)
-                                |> Return.andThen (selectItem (Just ( Item.withColor (Just color) i, False )))
+                                |> Return.andThen
+                                    (selectItem
+                                        (Just
+                                            ( i
+                                                |> Item.withItemSettings
+                                                    (Item.getItemSettings i
+                                                        |> Maybe.andThen (\s -> Just (ItemSettings.withForegroundColor (Just color) s))
+                                                    )
+                                            , False
+                                            )
+                                        )
+                                    )
 
                         ( Just ( i, _ ), Diagram.BackgroundColorSelectMenu ) ->
                             Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }
                                 |> Return.andThen (setText updateText)
-                                |> Return.andThen (selectItem (Just ( Item.withBackgroundColor (Just color) i, False )))
+                                |> Return.andThen
+                                    (selectItem
+                                        (Just
+                                            ( i
+                                                |> Item.withItemSettings
+                                                    (Item.getItemSettings i
+                                                        |> Maybe.andThen (\s -> Just (ItemSettings.withBackgroundColor (Just color) s))
+                                                    )
+                                            , False
+                                            )
+                                        )
+                                    )
 
                         _ ->
                             Return.singleton model
@@ -1100,14 +1105,12 @@ update message model =
                             currentText
                                 |> DiagramUtils.getSpacePrefix
 
-                        text =
+                        ( text, settings ) =
                             currentText
-                                |> String.split ","
-                                |> List.head
-                                |> Maybe.withDefault ""
+                                |> Item.spiltText
 
                         updateText =
-                            setAt (Item.getLineNo item) (prefix ++ (String.trimLeft text |> FontStyle.apply style) ++ itemToColorText item) lines
+                            setAt (Item.getLineNo item) (Item.createText (prefix ++ (String.trimLeft text |> FontStyle.apply style)) settings) lines
                                 |> String.join "\n"
                     in
                     setText updateText model

@@ -62,3 +62,7 @@ func GetCode(err error) Code {
 func (e *RepositoryError) Unwrap() error {
 	return e.err
 }
+
+func (e *ServiceError) Unwrap() error {
+	return e.err
+}

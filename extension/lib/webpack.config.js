@@ -27,7 +27,6 @@ const common = {
 
 if (process.env.NODE_ENV === "production") {
   module.exports = merge(common, {
-    devtool: "none",
     plugins: [
       new CleanWebpackPlugin({
         root: `${__dirname}/dist`,
@@ -39,9 +38,13 @@ if (process.env.NODE_ENV === "production") {
     optimization: {
       minimizer: [
         new TerserPlugin({
-          cache: false,
+          test: /\.(js|ts)$/i,
           parallel: true,
-          sourceMap: false,
+          terserOptions: {
+            compress: {
+              drop_console: true,
+            },
+          },
         }),
       ],
     },

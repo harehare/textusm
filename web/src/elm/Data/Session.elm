@@ -1,4 +1,4 @@
-module Data.Session exposing (Session, User, getIdToken, getUser, guest, isGuest, isSignedIn, signIn)
+module Data.Session exposing (Session, User, getIdToken, getUser, guest, isGuest, isSignedIn, signIn, updateIdToken)
 
 import Data.IdToken as IdToken exposing (IdToken)
 
@@ -65,3 +65,13 @@ getIdToken session =
 
         Guest ->
             Nothing
+
+
+updateIdToken : Session -> IdToken -> Session
+updateIdToken session idToken =
+    case session of
+        SignedIn user ->
+            SignedIn { user | idToken = IdToken.unwrap idToken }
+
+        Guest ->
+            Guest

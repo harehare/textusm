@@ -1,6 +1,5 @@
 module Page.Tags exposing (Model, Msg(..), init, update, view)
 
-import Browser.Dom as Dom
 import Effect
 import Events
 import Html exposing (Html, div, input, text)
@@ -8,7 +7,6 @@ import Html.Attributes exposing (autofocus, class, id, placeholder, style)
 import Html.Events exposing (onClick, onInput)
 import List.Extra exposing (last)
 import Return as Return exposing (Return)
-import Task
 import Views.Icon as Icon
 
 

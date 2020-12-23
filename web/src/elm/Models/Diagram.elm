@@ -15,7 +15,9 @@ module Models.Diagram exposing
     , getTextColor
     , isMoving
     , modelOfDiagramType
+    , modelOfFullscreen
     , modelOfPosition
+    , modelOfSettings
     , modelOfShowZoomControl
     , modelOfText
     , settingsOfActivityBackgroundColor
@@ -110,21 +112,23 @@ modelOfShowZoomControl =
     Lens .showZoomControl (\b a -> { a | showZoomControl = b })
 
 
+modelOfFullscreen : Lens Model Bool
+modelOfFullscreen =
+    Lens .fullscreen (\b a -> { a | fullscreen = b })
+
+
 modelOfPosition : Lens Model Position
 modelOfPosition =
     Lens .position (\b a -> { a | position = b })
 
 
+modelOfSettings : Lens Model Settings
+modelOfSettings =
+    Lens .settings (\b a -> { a | settings = b })
+
+
 type alias Hierarchy =
     Int
-
-
-type alias CountByHierarchy =
-    List Int
-
-
-type alias CountByTasks =
-    List Int
 
 
 type alias Distance =

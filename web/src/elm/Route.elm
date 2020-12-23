@@ -37,7 +37,6 @@ type Route
     | SharingDiagram
     | Share DiagramPath Title Path
     | Embed DiagramPath Title Path
-    | UsmView SettingsJson
     | View DiagramPath SettingsJson
     | NotFound
 
@@ -48,7 +47,6 @@ parser =
         [ map Home Parser.top
         , map Share (s "share" </> diagramType </> string </> string)
         , map Embed (s "embed" </> diagramType </> string </> string)
-        , map UsmView (s "view" </> string)
         , map View (s "view" </> string </> string)
         , map DiagramList (s "list")
         , map Settings (s "settings")
@@ -128,9 +126,6 @@ toString route =
 
         Embed diagramPath title path ->
             absolute [ "Embed", diagramPath, title, path ] []
-
-        UsmView settingsJson ->
-            absolute [ "view", settingsJson ] []
 
         View diagramPath settingsJson ->
             absolute [ "view", diagramPath, settingsJson ] []

@@ -25,7 +25,7 @@ view model =
             g
                 []
                 [ siteView model.settings ( 0, Constants.itemSpan + model.settings.size.height ) model.selectedItem items
-                , Views.cardView
+                , Views.card
                     { settings = model.settings
                     , position = ( 0, 0 )
                     , selectedItem = model.selectedItem
@@ -63,7 +63,7 @@ siteView settings ( posX, posY ) selectedItem items =
                                 + hierarchyCount
                                 * Constants.itemSpan
                     in
-                    [ Views.cardView
+                    [ Views.card
                         { settings = settings
                         , position = ( x, posY )
                         , selectedItem = selectedItem
@@ -90,7 +90,7 @@ siteTreeView settings ( posX, posY ) selectedItem items =
                 :: (items
                         |> Item.map
                             (\i ->
-                                if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i ) then
+                                if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i) then
                                     0
 
                                 else
@@ -114,7 +114,7 @@ siteTreeView settings ( posX, posY ) selectedItem items =
                             posY + i * (settings.size.height + Constants.itemSpan) + childrenCount * (settings.size.height + Constants.itemSpan)
                     in
                     [ siteTreeLineView settings ( posX, posY - Constants.itemSpan ) ( posX, y )
-                    , Views.cardView
+                    , Views.card
                         { settings = settings
                         , position = ( x, y )
                         , selectedItem = selectedItem

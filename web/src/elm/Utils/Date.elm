@@ -2,7 +2,7 @@ module Utils.Date exposing (extractDateValues, intToMonth, millisToString, month
 
 import List.Extra exposing (getAt)
 import Time exposing (Month(..), Posix, Zone, toDay, toHour, toMinute, toMonth, toSecond, toYear, utc)
-import Time.Extra exposing (Interval(..), Parts, diff, partsToPosix)
+import Time.Extra exposing (Interval(..), Parts, partsToPosix)
 
 
 millisToString : Zone -> Posix -> String

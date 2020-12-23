@@ -1,6 +1,51 @@
-module Data.Item exposing (Children, Item, ItemType(..), Items, childrenFromItems, cons, empty, emptyChildren, filter, fromList, getAt, getBackgroundColor, getChildren, getChildrenCount, getColor, getHierarchyCount, getItemType, getLeafCount, getLineNo, getText, head, indexedMap, isEmpty, isImage, isMarkdown, length, map, new, splitAt, tail, toString, unwrap, unwrapChildren, withBackgroundColor, withChildren, withColor, withItemType, withLineNo, withText)
+module Data.Item exposing
+    ( Children
+    , Item
+    , ItemType(..)
+    , Items
+    , childrenFromItems
+    , cons
+    , createText
+    , empty
+    , emptyChildren
+    , filter
+    , fromList
+    , getAt
+    , getBackgroundColor
+    , getChildren
+    , getChildrenCount
+    , getForegroundColor
+    , getHierarchyCount
+    , getItemSettings
+    , getItemType
+    , getLeafCount
+    , getLineNo
+    , getText
+    , head
+    , indexedMap
+    , isEmpty
+    , isImage
+    , isMarkdown
+    , length
+    , map
+    , new
+    , spiltText
+    , splitAt
+    , tail
+    , toString
+    , unwrap
+    , unwrapChildren
+    , withChildren
+    , withItemSettings
+    , withItemType
+    , withLineNo
+    , withText
+    )
 
 import Data.Color as Color exposing (Color)
+import Data.ItemSettings as ItemSettings exposing (ItemSettings)
+import Data.Text as Text exposing (Text)
+import Json.Decode as D
 import List.Extra as ListEx
 
 
@@ -15,10 +60,9 @@ type Items
 type Item
     = Item
         { lineNo : Int
-        , text : String
-        , color : Maybe Color
-        , backgroundColor : Maybe Color
+        , text : Text
         , itemType : ItemType
+        , itemSettings : Maybe ItemSettings
         , children : Children
         }
 
@@ -34,10 +78,9 @@ new : Item
 new =
     Item
         { lineNo = 0
-        , text = ""
-        , color = Nothing
-        , backgroundColor = Nothing
+        , text = Text.empty
         , itemType = Activities
+        , itemSettings = Nothing
         , children = emptyChildren
         }
 
@@ -50,37 +93,50 @@ withLineNo lineNo (Item item) =
 withText : String -> Item -> Item
 withText text (Item item) =
     let
-        ( displayText, color, backgroundColor ) =
+        ( displayText, settings ) =
             if isImage text then
-                ( text, Nothing, Nothing )
+                ( text, Nothing )
 
             else
-                case String.split "," text of
-                    [ t, c, b ] ->
-                        ( t, Just c, Just b )
+                case String.split "|" text of
+                    [ t, st ] ->
+                        case D.decodeString ItemSettings.decoder st of
+                            Ok s ->
+                                ( t, Just s )
 
-                    [ t, c ] ->
-                        ( t, Just c, Nothing )
+                            Err _ ->
+                                ( t, Nothing )
 
                     _ ->
-                        ( text, Nothing, Nothing )
+                        case String.split "," text of
+                            [ t, bg, fg ] ->
+                                ( t
+                                , ItemSettings.new
+                                    |> ItemSettings.withBackgroundColor (Just (Color.fromString bg))
+                                    |> ItemSettings.withForegroundColor (Just (Color.fromString fg))
+                                    |> Just
+                                )
+
+                            [ t, bg ] ->
+                                ( t
+                                , ItemSettings.new
+                                    |> ItemSettings.withBackgroundColor (Just (Color.fromString bg))
+                                    |> Just
+                                )
+
+                            _ ->
+                                ( text, Nothing )
     in
     Item
         { item
-            | text = displayText
-            , color = Maybe.andThen (\c -> Just <| Color.fromString c) color
-            , backgroundColor = Maybe.andThen (\c -> Just <| Color.fromString c) backgroundColor
+            | text = Text.fromString displayText
+            , itemSettings = settings
         }
 
 
-withColor : Maybe Color -> Item -> Item
-withColor color (Item item) =
-    Item { item | color = color }
-
-
-withBackgroundColor : Maybe Color -> Item -> Item
-withBackgroundColor color (Item item) =
-    Item { item | backgroundColor = color }
+withItemSettings : Maybe ItemSettings -> Item -> Item
+withItemSettings itemSettings (Item item) =
+    Item { item | itemSettings = itemSettings }
 
 
 withItemType : ItemType -> Item -> Item
@@ -100,7 +156,7 @@ getChildren (Item i) =
 
 getText : Item -> String
 getText (Item i) =
-    i.text
+    Text.toString i.text
 
 
 getItemType : Item -> ItemType
@@ -108,14 +164,25 @@ getItemType (Item i) =
     i.itemType
 
 
-getColor : Item -> Maybe Color
-getColor (Item i) =
-    i.color
+getItemSettings : Item -> Maybe ItemSettings
+getItemSettings (Item i) =
+    i.itemSettings
+
+
+getForegroundColor : Item -> Maybe Color
+getForegroundColor item =
+    item
+        |> getItemSettings
+        |> Maybe.withDefault ItemSettings.new
+        |> ItemSettings.getForegroundColor
 
 
 getBackgroundColor : Item -> Maybe Color
-getBackgroundColor (Item i) =
-    i.backgroundColor
+getBackgroundColor item =
+    item
+        |> getItemSettings
+        |> Maybe.withDefault ItemSettings.new
+        |> ItemSettings.getBackgroundColor
 
 
 getLineNo : Item -> Int
@@ -262,6 +329,33 @@ leafCount (Items items) =
         items |> List.map (\(Item i) -> leafCount <| unwrapChildren i.children) |> List.sum
 
 
+createText : String -> ItemSettings -> String
+createText text settings =
+    text ++ "|" ++ ItemSettings.toString settings
+
+
+spiltText : String -> ( String, ItemSettings )
+spiltText text =
+    let
+        tokens =
+            String.split "|" text
+    in
+    case tokens of
+        [ t ] ->
+            ( t, ItemSettings.new )
+
+        [ t, settingsString ] ->
+            case D.decodeString ItemSettings.decoder settingsString of
+                Ok settings ->
+                    ( t, settings )
+
+                Err _ ->
+                    ( t, ItemSettings.new )
+
+        _ ->
+            ( text, ItemSettings.new )
+
+
 toString : Items -> String
 toString =
     let
@@ -270,7 +364,7 @@ toString =
             let
                 itemToString : Item -> Int -> String
                 itemToString (Item i) hi =
-                    String.repeat hi "    " ++ i.text
+                    String.repeat hi "    " ++ Text.toString i.text
             in
             items
                 |> map

@@ -1,26 +1,29 @@
 import { Settings, DownloadInfo, Diagram, DiagramItem } from "./model";
 
-export interface EditorOption {
+interface EditorOption {
     fontSize: number;
     wordWrap: boolean;
     showLineNumber: boolean;
 }
 
-export interface Send<T> {
+type Provider = "Google" | "Github";
+
+interface Send<T> {
     send: (params: T) => void;
 }
 
-export interface Subscribe<T> {
+interface Subscribe<T> {
     subscribe: (callback: T) => void;
     unsubscribe: (callback: T) => void;
 }
 
-export type ElmApp = {
+type ElmApp = {
     ports: {
         saveSettings: Subscribe<(settings: Settings) => void>;
         loadEditor: Subscribe<([text, option]: [string, EditorOption]) => void>;
-        signIn: Subscribe<(provider: string) => void>;
+        signIn: Subscribe<(provider: Provider) => void>;
         signOut: Subscribe<() => Promise<void>>;
+        refreshToken: Subscribe<() => Promise<void>>;
         selectTextById: Subscribe<(id: string) => void>;
         openFullscreen: Subscribe<() => void>;
         closeFullscreen: Subscribe<() => void>;
@@ -40,7 +43,7 @@ export type ElmApp = {
         decodeShareText: Subscribe<(text: string) => void>;
         importDiagram: Subscribe<(diagrams: DiagramItem[]) => void>;
 
-        onCloseFullscreen: Send<{}>;
+        onCloseFullscreen: Send<Record<string, unknown>>;
         onErrorNotification: Send<string>;
         progress: Send<boolean>;
         changeText: Send<string>;
@@ -59,6 +62,7 @@ export type ElmApp = {
         gotLocalDiagramsJson: Send<DiagramItem[]>;
         onEncodeShareText: Send<string>;
         onDecodeShareText: Send<string>;
+        updateIdToken: Send<string>;
         onAuthStateChanged: Send<{
             idToken: string;
             id: string;
@@ -68,3 +72,5 @@ export type ElmApp = {
         }>;
     };
 };
+
+export { EditorOption, Provider, ElmApp };

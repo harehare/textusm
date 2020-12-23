@@ -1,4 +1,4 @@
-export type DiagramItem = {
+type DiagramItem = {
     id: string;
     title: string;
     text: string;
@@ -12,7 +12,7 @@ export type DiagramItem = {
     updatedAt: number;
 };
 
-export type Diagram = {
+type Diagram = {
     id: string;
     title: string;
     text: string;
@@ -23,7 +23,7 @@ export type Diagram = {
     tags: string[] | null;
 };
 
-export type DownloadInfo = {
+type DownloadInfo = {
     width: number;
     height: number;
     id: string;
@@ -34,7 +34,7 @@ export type DownloadInfo = {
     diagramType: string;
 };
 
-export type ImageInfo = {
+type ImageInfo = {
     id: string;
     width: number;
     height: number;
@@ -42,7 +42,7 @@ export type ImageInfo = {
     callback: (url: string) => void;
 };
 
-export type Settings = {
+type Settings = {
     font: string;
     position: number;
     text: string;
@@ -52,19 +52,19 @@ export type Settings = {
     diagram: Diagram | null;
 };
 
-export type DiagramSettings = {
+type DiagramSettings = {
     font: string;
     size: Size;
     color: ColorSettings;
     backgroundColor: string;
 };
 
-export type Size = {
+type Size = {
     width: number;
     height: number;
 };
 
-export type ColorSettings = {
+type ColorSettings = {
     activity: Color;
     task: Color;
     story: Color;
@@ -73,7 +73,19 @@ export type ColorSettings = {
     text: string;
 };
 
-export type Color = {
+type Color = {
     color: string;
     backgroundColor: string;
+};
+
+export {
+    ImageInfo,
+    Settings,
+    Diagram,
+    DownloadInfo,
+    Color,
+    ColorSettings,
+    Size,
+    DiagramSettings,
+    DiagramItem,
 };

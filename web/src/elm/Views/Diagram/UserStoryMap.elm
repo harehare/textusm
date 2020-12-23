@@ -1,6 +1,5 @@
 module Views.Diagram.UserStoryMap exposing (view)
 
-import Asset exposing (userStoryMap)
 import Basics exposing (max)
 import Constants
 import Data.Item as Item exposing (Item, ItemType(..), Items)
@@ -15,7 +14,7 @@ import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
 import Svg.Attributes exposing (class, color, fontSize, fontWeight, height, stroke, strokeWidth, style, width, x, x1, x2, y, y1, y2)
 import Svg.Keyed as Keyed
-import Svg.Lazy exposing (lazy, lazy4, lazy5)
+import Svg.Lazy as Lazy
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
@@ -26,12 +25,12 @@ view model =
         Diagram.UserStoryMap userStoryMap ->
             g
                 []
-                [ lazy labelView
+                [ Lazy.lazy labelView
                     { settings = model.settings
                     , width = model.svg.width
                     , userStoryMap = userStoryMap
                     }
-                , lazy mainView
+                , Lazy.lazy mainView
                     { settings = model.settings
                     , selectedItem = model.selectedItem
                     , items = UserStoryMap.getItems userStoryMap
@@ -146,7 +145,7 @@ activityView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "activity-" ++ Item.getText item
-         , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
+         , Lazy.lazy Views.card { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
             :: (Item.unwrapChildren (Item.getChildren item)
                     |> Item.indexedMap
@@ -182,7 +181,7 @@ taskView settings verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "task-" ++ Item.getText item
-         , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
+         , Lazy.lazy Views.card { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
             :: (children
                     |> Item.indexedMap
@@ -228,7 +227,7 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "story-" ++ Item.getText item
-         , lazy Views.cardView { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
+         , Lazy.lazy Views.card { settings = settings, position = ( posX, posY ), selectedItem = selectedItem, item = item }
          )
             :: (children
                     |> Item.indexedMap

@@ -49,7 +49,7 @@ headerView settings selectedItem item =
     g []
         (Item.indexedMap
             (\i ii ->
-                lazy4 Views.gridView settings ( settings.size.width * i, 0 ) selectedItem (Item.withItemType Activities ii)
+                lazy4 Views.grid settings ( settings.size.width * i, 0 ) selectedItem (Item.withItemType Activities ii)
             )
             (Item.cons item (Item.unwrapChildren <| Item.getChildren item))
         )
@@ -60,7 +60,7 @@ rowView settings selectedItem rowNo item =
     Keyed.node "g"
         []
         (( "row" ++ String.fromInt rowNo
-         , lazy4 Views.gridView
+         , lazy4 Views.grid
             settings
             ( 0, settings.size.height * rowNo )
             selectedItem
@@ -69,7 +69,7 @@ rowView settings selectedItem rowNo item =
             :: Item.indexedMap
                 (\i childItem ->
                     ( "row" ++ String.fromInt (Item.getLineNo childItem)
-                    , lazy4 Views.gridView
+                    , lazy4 Views.grid
                         settings
                         ( settings.size.width * (i + 1), settings.size.height * rowNo )
                         selectedItem
