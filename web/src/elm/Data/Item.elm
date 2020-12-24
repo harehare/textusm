@@ -9,6 +9,7 @@ module Data.Item exposing
     , empty
     , emptyChildren
     , filter
+    , flatten
     , fromList
     , getAt
     , getBackgroundColor
@@ -354,6 +355,16 @@ spiltText text =
 
         _ ->
             ( text, ItemSettings.new )
+
+
+flatten : Items -> Items
+flatten (Items items) =
+    case items of
+        [] ->
+            Items items
+
+        _ ->
+            Items (items ++ List.concatMap (\(Item item) -> unwrap <| flatten <| unwrapChildren item.children) items)
 
 
 toString : Items -> String

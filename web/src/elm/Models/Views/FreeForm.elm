@@ -1,12 +1,18 @@
 module Models.Views.FreeForm exposing (..)
 
 import Data.Color as Color exposing (Color)
-import Data.Item as Item exposing (Item)
-
-
-type CardGroup
-    = CardGroup Color (List Item)
+import Data.Item as Item exposing (Items)
 
 
 type FreeForm
-    = FreeForm CardGroup
+    = FreeForm Items
+
+
+getItems : FreeForm -> Items
+getItems (FreeForm items) =
+    items
+
+
+from : Items -> FreeForm
+from items =
+    FreeForm <| Item.flatten items
