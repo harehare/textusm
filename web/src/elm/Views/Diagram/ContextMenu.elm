@@ -1,6 +1,7 @@
 module Views.Diagram.ContextMenu exposing (view)
 
 import Data.Color as Color exposing (Color)
+import Data.FontSize as FontSize exposing (FontSize)
 import Data.FontStyle as FontStyle exposing (FontStyle)
 import Data.Item as Item exposing (Item)
 import Data.ItemSettings as ItemSettings
@@ -11,33 +12,50 @@ import Html.Attributes as Attr
 import Models.Diagram exposing (ContextMenu(..))
 import Svg exposing (Svg, foreignObject)
 import Svg.Attributes exposing (height, style, width, x, y)
+import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Empty as Empty
 import Views.Icon as Icon
+
+
+fontSizeItems : List { name : String, value : DropDownValue }
+fontSizeItems =
+    List.map
+        (\f ->
+            let
+                size =
+                    FontSize.unwrap f
+            in
+            { name = String.fromInt size, value = DropDownList.stringValue <| String.fromInt size }
+        )
+        FontSize.list
 
 
 view :
     { state : ContextMenu
     , item : Item
     , position : Position
+    , dropDownIndex : Maybe String
     , onMenuSelect : ContextMenu -> msg
     , onColorChanged : Color -> msg
     , onBackgroundColorChanged : Color -> msg
     , onFontStyleChanged : FontStyle -> msg
+    , onFontSizeChanged : FontSize -> msg
+    , onToggleDropDownList : String -> msg
     }
     -> Svg msg
 view props =
     foreignObject
         [ x <| String.fromInt <| Position.getX props.position
         , y <| String.fromInt <| (Position.getY props.position + 8)
-        , width "262"
+        , width "320"
         , height "205"
         ]
         [ div
-            [ Attr.style "background-color" "#FEFEFE"
+            [ Attr.style "background-color" "var(--light-background-color)"
             , Attr.style "box-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)"
             , Attr.style "border-radius" "2px"
             , Attr.style "display" "flex"
-            , Attr.style "width" "250px"
+            , Attr.style "width" "320px"
             ]
             [ div
                 [ Attr.style "width" "50px"
@@ -73,6 +91,24 @@ view props =
                         |> Maybe.withDefault Color.black
                     )
                     (props.onMenuSelect BackgroundColorSelectMenu)
+                ]
+            , div
+                [ Attr.style "width" "72px"
+                , Attr.style "height" "48px"
+                , Attr.style "font-size" "1.2rem"
+                , Attr.style "display" "flex"
+                , Attr.style "align-items" "center"
+                , Attr.style "justify-content" "center"
+                , Attr.style "cursor" "pointer"
+                , Attr.style "border-right" "1px solid #CCC"
+                , onClickStopPropagation <| props.onMenuSelect CloseMenu
+                ]
+                [ DropDownList.view props.onToggleDropDownList
+                    "fontSize"
+                    props.dropDownIndex
+                    (\s -> props.onFontSizeChanged <| FontSize.fromInt (String.toInt s |> Maybe.withDefault (FontSize.unwrap FontSize.default)))
+                    fontSizeItems
+                    (Item.getFontSize props.item |> FontSize.unwrap |> String.fromInt)
                 ]
             , div
                 [ Attr.style "width" "50px"

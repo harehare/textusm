@@ -1,4 +1,5 @@
 @tailwind base;
+
 @tailwind components;
 @tailwind utilities;
 
@@ -731,26 +732,29 @@
 }
 
 .dropdown-list {
-    @apply text-sm relative bg-transparent select-none cursor-pointer;
+    @apply w-full text-sm relative bg-transparent select-none cursor-pointer;
     outline: none;
     color: #2e2e2e;
 
     .list {
-        @apply absolute bg-transparent m-0 overflow-y-scroll overflow-x-hidden right-0;
+        @apply absolute bg-transparent m-0 overflow-y-scroll overflow-x-hidden;
         z-index: 10;
         top: 33px;
-        left: 1px;
-        padding-left: 0;
+        padding-left: 0px;
         border-top: 0;
-        height: 200px;
+        height: 150px;
         width: 100%;
         -webkit-overflow-scrolling: touch;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        &::-webkit-scrollbar {
+            display: none;
+        }
     }
 
     .item {
         @apply block bg-light;
         padding: 8px;
-        border: 1px solid var(--border-color);
 
         &::after {
             @apply empty-content w-0 h-0 absolute border-solid;
@@ -765,7 +769,7 @@
     .dropdown-item {
         @apply w-full block;
         padding: 8px;
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.4);
         background-color: var(--light-background-color);
 
         &:hover {

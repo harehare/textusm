@@ -1,6 +1,7 @@
 module Views.Diagram.GanttChart exposing (view)
 
 import Constants
+import Data.FontSize as FontSize
 import Data.Item as Item exposing (Item)
 import Data.Position exposing (Position)
 import Data.Size exposing (Size)
@@ -366,7 +367,7 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
             , ry "3"
             ]
             []
-        , Views.text settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour text
+        , Views.text settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour FontSize.default text
         ]
 
 
@@ -434,5 +435,5 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
             , fill backgroundColor
             ]
             []
-        , Views.text settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour text
+        , Views.text settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour FontSize.default text
         ]

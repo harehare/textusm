@@ -15,6 +15,7 @@ module Data.Item exposing
     , getBackgroundColor
     , getChildren
     , getChildrenCount
+    , getFontSize
     , getForegroundColor
     , getHierarchyCount
     , getItemSettings
@@ -44,6 +45,7 @@ module Data.Item exposing
     )
 
 import Data.Color as Color exposing (Color)
+import Data.FontSize exposing (FontSize)
 import Data.ItemSettings as ItemSettings exposing (ItemSettings)
 import Data.Text as Text exposing (Text)
 import Json.Decode as D
@@ -184,6 +186,14 @@ getBackgroundColor item =
         |> getItemSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getBackgroundColor
+
+
+getFontSize : Item -> FontSize
+getFontSize item =
+    item
+        |> getItemSettings
+        |> Maybe.withDefault ItemSettings.new
+        |> ItemSettings.getFontSize
 
 
 getLineNo : Item -> Int

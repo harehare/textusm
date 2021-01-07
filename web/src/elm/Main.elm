@@ -557,7 +557,7 @@ update message model =
                     else
                         Return.singleton model
 
-                DiagramModel.OnFontStyleChanged _ ->
+                DiagramModel.FontStyleChanged _ ->
                     case model.diagramModel.selectedItem of
                         Just _ ->
                             ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
@@ -566,7 +566,16 @@ update message model =
                         Nothing ->
                             Return.singleton model
 
-                DiagramModel.OnColorChanged _ _ ->
+                DiagramModel.ColorChanged _ _ ->
+                    case model.diagramModel.selectedItem of
+                        Just _ ->
+                            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                                |> Return.andThen Action.loadTextToEditor
+
+                        Nothing ->
+                            Return.singleton model
+
+                DiagramModel.FontSizeChanged _ ->
                     case model.diagramModel.selectedItem of
                         Just _ ->
                             ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )

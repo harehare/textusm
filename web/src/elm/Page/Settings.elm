@@ -1,6 +1,7 @@
 module Page.Settings exposing (Model, Msg, init, update, view)
 
 import Data.Color as Color exposing (colors)
+import Data.FontSize as FontSize
 import Html exposing (Html, div, input, label, text)
 import Html.Attributes exposing (checked, class, style, type_)
 import Html.Events exposing (onClick)
@@ -29,17 +30,15 @@ baseSizeItems =
 
 fontSizeItems : List { name : String, value : DropDownValue }
 fontSizeItems =
-    [ { name = "8", value = DropDownList.stringValue "8" }
-    , { name = "9", value = DropDownList.stringValue "9" }
-    , { name = "10", value = DropDownList.stringValue "10" }
-    , { name = "11", value = DropDownList.stringValue "11" }
-    , { name = "12", value = DropDownList.stringValue "12" }
-    , { name = "14", value = DropDownList.stringValue "14" }
-    , { name = "18", value = DropDownList.stringValue "18" }
-    , { name = "24", value = DropDownList.stringValue "24" }
-    , { name = "32", value = DropDownList.stringValue "32" }
-    , { name = "40", value = DropDownList.stringValue "40" }
-    ]
+    List.map
+        (\f ->
+            let
+                size =
+                    FontSize.unwrap f
+            in
+            { name = String.fromInt size, value = DropDownList.stringValue <| String.fromInt size }
+        )
+        FontSize.list
 
 
 fontFamilyItems : List { name : String, value : DropDownValue }

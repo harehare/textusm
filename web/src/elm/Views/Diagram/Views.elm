@@ -2,6 +2,7 @@ module Views.Diagram.Views exposing (canvas, canvasBottom, canvasImage, card, gr
 
 import Constants
 import Data.Color as Color
+import Data.FontSize as FontSize exposing (FontSize)
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.ItemSettings as ItemSettings
 import Data.Position as Position exposing (Position)
@@ -102,7 +103,12 @@ card { settings, position, selectedItem, item } =
                     , style "filter:url(#shadow)"
                     ]
                     []
-                , text settings ( posX, posY ) ( settings.size.width, settings.size.height ) color (Item.getText item)
+                , text settings
+                    ( posX, posY )
+                    ( settings.size.width, settings.size.height )
+                    color
+                    (Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize)
+                    (Item.getText item)
                 , if isJust selectedItem then
                     dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
 
@@ -130,7 +136,7 @@ card { settings, position, selectedItem, item } =
                         []
                     , inputView
                         { settings = settings
-                        , fontSize = Nothing
+                        , fontSize = Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize
                         , inputStyle = draggingHtmlStyle isDragging
                         , position = ( posX, posY )
                         , size = ( settings.size.width, settings.size.height )
@@ -168,7 +174,7 @@ dropArea ( posX, posY ) ( svgWidth, svgHeight ) item =
 
 inputView :
     { settings : Settings
-    , fontSize : Maybe String
+    , fontSize : FontSize
     , inputStyle : Html.Attribute Msg
     , position : Position
     , size : Size
@@ -204,7 +210,7 @@ inputView { settings, fontSize, inputStyle, position, size, color, backgroundCol
                 , Attr.style "border" "none"
                 , Attr.style "outline" "none"
                 , Attr.style "width" (String.fromInt (Size.getWidth size - 20) ++ "px")
-                , Attr.style "font-size" <| Maybe.withDefault Constants.fontSize fontSize ++ "px"
+                , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
                 , Attr.style "margin-left" "2px"
                 , Attr.style "margin-top" "2px"
                 , Attr.value <| " " ++ String.trimLeft (Item.getText item)
@@ -216,8 +222,8 @@ inputView { settings, fontSize, inputStyle, position, size, color, backgroundCol
         ]
 
 
-text : Settings -> Position -> Size -> RgbColor -> String -> Svg Msg
-text settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
+text : Settings -> Position -> Size -> RgbColor -> FontSize -> String -> Svg Msg
+text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs cardText =
     if Item.isMarkdown cardText then
         Svg.foreignObject
             [ x <| String.fromInt posX
@@ -226,7 +232,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
             , height <| String.fromInt svgHeight
             , fill colour
             , color colour
-            , fontSize Constants.fontSize
+            , FontSize.svgFontSize fs
             , class ".select-none"
             ]
             [ markdown settings
@@ -248,7 +254,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
             , height <| String.fromInt svgHeight
             , fill colour
             , color colour
-            , fontSize Constants.fontSize
+            , FontSize.svgFontSize fs
             , class ".select-none"
             ]
             [ div
@@ -268,7 +274,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour cardText =
             , fill colour
             , color colour
             , fontFamily (fontStyle settings)
-            , fontSize <| Constants.fontSize
+            , FontSize.svgFontSize fs
             , class ".select-none"
             ]
             [ Svg.text cardText ]
@@ -294,7 +300,9 @@ canvas settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                     [ canvasRect settings (draggingStyle isDragging) ( posX, posY ) ( svgWidth, svgHeight )
                     , inputView
                         { settings = settings
-                        , fontSize = Just "20"
+                        , fontSize =
+                            Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
+                                |> Maybe.withDefault FontSize.fontSize20
                         , inputStyle = draggingHtmlStyle isDragging
                         , position = ( posX, posY )
                         , size = ( svgWidth, settings.size.height )
@@ -334,7 +342,9 @@ canvasBottom settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                     [ canvasRect settings (draggingStyle isDragging) ( posX, posY ) ( svgWidth, svgHeight )
                     , inputView
                         { settings = settings
-                        , fontSize = Just <| String.fromInt <| svgHeight - 25
+                        , fontSize =
+                            Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
+                                |> Maybe.withDefault FontSize.fontSize20
                         , inputStyle = draggingHtmlStyle isDragging
                         , position = ( posX, posY )
                         , size = ( svgWidth, settings.size.height )
@@ -386,7 +396,7 @@ title settings ( posX, posY ) item =
                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                 |> Maybe.withDefault settings.color.label
             )
-        , fontSize "20"
+        , FontSize.svgFontSize FontSize.fontSize20
         , fontWeight "bold"
         , class ".select-none"
         , onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
@@ -580,7 +590,7 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
                 |> Maybe.withDefault Color.black
                 |> Color.toString
             )
-        , fontSize Constants.fontSize
+        , FontSize.svgFontSize FontSize.default
         , class ".select-none"
         ]
         [ div
@@ -657,7 +667,12 @@ grid settings ( posX, posY ) selectedItem item =
                     , strokeWidth "3"
                     ]
                     []
-                , text settings ( posX, posY ) ( settings.size.width, settings.size.height ) (Diagram.getTextColor settings.color) (Item.getText item)
+                , text settings
+                    ( posX, posY )
+                    ( settings.size.width, settings.size.height )
+                    (Diagram.getTextColor settings.color)
+                    (Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize)
+                    (Item.getText item)
                 , if isJust selectedItem then
                     dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
 
@@ -684,7 +699,7 @@ grid settings ( posX, posY ) selectedItem item =
                         []
                     , inputView
                         { settings = settings
-                        , fontSize = Nothing
+                        , fontSize = Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize
                         , inputStyle = draggingHtmlStyle isDragging
                         , position = ( posX, posY )
                         , size = ( settings.size.width, settings.size.height )

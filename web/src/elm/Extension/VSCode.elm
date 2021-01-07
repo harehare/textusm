@@ -170,11 +170,11 @@ update message model =
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
                         |> Return.andThen (updateText model_.text)
 
-                DiagramModel.OnFontStyleChanged _ ->
+                DiagramModel.FontStyleChanged _ ->
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
                         |> Return.andThen (updateText model_.text)
 
-                DiagramModel.OnColorChanged _ _ ->
+                DiagramModel.ColorChanged _ _ ->
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
                         |> Return.andThen (updateText model_.text)
 

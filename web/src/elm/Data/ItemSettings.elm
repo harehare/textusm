@@ -3,16 +3,19 @@ module Data.ItemSettings exposing
     , decoder
     , encoder
     , getBackgroundColor
+    , getFontSize
     , getForegroundColor
     , getOffset
     , new
+    , toString
     , withBackgroundColor
+    , withFontSize
     , withForegroundColor
     , withPosition
-    , toString
     )
 
 import Data.Color as Color exposing (Color)
+import Data.FontSize as FontSize exposing (FontSize)
 import Data.Position as Position exposing (Position)
 import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional, required)
@@ -28,6 +31,7 @@ type alias Settings =
     { backgroundColor : Maybe Color
     , foregroundColor : Maybe Color
     , offset : Position
+    , fontSize : FontSize
     }
 
 
@@ -37,6 +41,7 @@ new =
         { backgroundColor = Nothing
         , foregroundColor = Nothing
         , offset = Position.zero
+        , fontSize = FontSize.default
         }
 
 
@@ -55,6 +60,11 @@ getOffset (ItemSettings settings) =
     settings.offset
 
 
+getFontSize : ItemSettings -> FontSize
+getFontSize (ItemSettings settings) =
+    settings.fontSize
+
+
 withBackgroundColor : Maybe Color -> ItemSettings -> ItemSettings
 withBackgroundColor bg (ItemSettings settings) =
     ItemSettings { settings | backgroundColor = bg }
@@ -70,12 +80,18 @@ withPosition position (ItemSettings settings) =
     ItemSettings { settings | offset = position }
 
 
+withFontSize : FontSize -> ItemSettings -> ItemSettings
+withFontSize fontSize (ItemSettings settings) =
+    ItemSettings { settings | fontSize = fontSize }
+
+
 encoder : ItemSettings -> E.Value
 encoder (ItemSettings settings) =
     E.object
-        [ ( "bg", maybe E.string (Maybe.andThen (\c -> Just <| Color.toString c) settings.backgroundColor) )
-        , ( "fg", maybe E.string (Maybe.andThen (\c -> Just <| Color.toString c) settings.foregroundColor) )
-        , ( "offset", E.list E.int [ Position.getX settings.offset, Position.getY settings.offset ] )
+        [ ( "b", maybe E.string (Maybe.andThen (\c -> Just <| Color.toString c) settings.backgroundColor) )
+        , ( "f", maybe E.string (Maybe.andThen (\c -> Just <| Color.toString c) settings.foregroundColor) )
+        , ( "o", E.list E.int [ Position.getX settings.offset, Position.getY settings.offset ] )
+        , ( "s", E.int <| FontSize.unwrap settings.fontSize )
         ]
 
 
@@ -84,9 +100,10 @@ decoder =
     D.map ItemSettings
         (D.succeed
             Settings
-            |> optional "bg" (D.map Just Color.decoder) Nothing
-            |> optional "fg" (D.map Just Color.decoder) Nothing
-            |> required "offset" Position.decoder
+            |> optional "b" (D.map Just Color.decoder) Nothing
+            |> optional "f" (D.map Just Color.decoder) Nothing
+            |> required "o" Position.decoder
+            |> required "s" FontSize.decoder
         )
 
 

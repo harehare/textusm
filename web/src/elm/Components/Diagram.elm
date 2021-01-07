@@ -96,6 +96,7 @@ init settings =
         , dragDrop = DragDrop.init
         , contextMenu = Nothing
         , dragStatus = NoDrag
+        , dropDownIndex = Nothing
         }
 
 
@@ -298,7 +299,7 @@ view model =
 
             _ ->
                 Attr.style "cursor" "grab"
-        , Events.onDrop OnDropFiles
+        , Events.onDrop DropFiles
         , Event.preventDefaultOn "dragover" <|
             D.succeed ( ChangeDragStatus DragOver, True )
         , Event.preventDefaultOn "dragleave" <|
@@ -438,7 +439,12 @@ svgView model =
             )
         , viewBox ("0 0 " ++ String.fromInt svgWidth ++ " " ++ String.fromInt svgHeight)
         , Attr.style "background-color" model.settings.backgroundColor
-        , Wheel.onWheel chooseZoom
+        , case model.selectedItem of
+            Just _ ->
+                Attr.style "" ""
+
+            Nothing ->
+                Events.onWheel chooseZoom
         , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
         , onDragMove model.touchDistance model.moveState (Utils.isPhone <| Size.getWidth model.size)
         , onClick <| Select Nothing
@@ -502,10 +508,13 @@ svgView model =
                         ( floor <| toFloat (posX + offsetX) * model.svg.scale
                         , floor <| toFloat (posY + offsetY) * model.svg.scale
                         )
-                    , onMenuSelect = OnSelectContextMenu
-                    , onColorChanged = OnColorChanged Diagram.ColorSelectMenu
-                    , onBackgroundColorChanged = OnColorChanged Diagram.BackgroundColorSelectMenu
-                    , onFontStyleChanged = OnFontStyleChanged
+                    , dropDownIndex = model.dropDownIndex
+                    , onMenuSelect = SelectContextMenu
+                    , onColorChanged = ColorChanged Diagram.ColorSelectMenu
+                    , onBackgroundColorChanged = ColorChanged Diagram.BackgroundColorSelectMenu
+                    , onFontStyleChanged = FontStyleChanged
+                    , onFontSizeChanged = FontSizeChanged
+                    , onToggleDropDownList = ToggleDropDownList
                     }
 
             _ ->
@@ -731,6 +740,11 @@ setFocus id model =
 setText : String -> Model -> Return Msg Model
 setText text model =
     Return.singleton { model | text = Text.change <| Text.fromString text }
+
+
+closeDropDown : Model -> Return Msg Model
+closeDropDown model =
+    Return.singleton { model | dropDownIndex = Nothing }
 
 
 setLine : Int -> List String -> String -> Model -> Return Msg Model
@@ -1013,10 +1027,61 @@ update message model =
                 _ ->
                     Return.singleton model
 
-        OnSelectContextMenu menu ->
+        SelectContextMenu menu ->
             Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }
 
-        OnColorChanged menu color ->
+        FontSizeChanged size ->
+            case model.selectedItem of
+                Nothing ->
+                    Return.singleton model
+
+                Just ( item, _ ) ->
+                    let
+                        lines =
+                            Text.lines model.text
+
+                        currentText =
+                            getAt (Item.getLineNo item) lines
+
+                        ( mainText, settings ) =
+                            currentText
+                                |> Maybe.withDefault ""
+                                |> Item.spiltText
+
+                        text =
+                            Item.createText mainText (settings |> ItemSettings.withFontSize size)
+
+                        prefix =
+                            currentText
+                                |> Maybe.withDefault ""
+                                |> DiagramUtils.getSpacePrefix
+
+                        updateText =
+                            setAt (Item.getLineNo item) (prefix ++ String.trimLeft text) lines
+                                |> String.join "\n"
+                    in
+                    case model.selectedItem of
+                        Just ( i, _ ) ->
+                            Return.singleton model
+                                |> Return.andThen closeDropDown
+                                |> Return.andThen (setText updateText)
+                                |> Return.andThen
+                                    (selectItem
+                                        (Just
+                                            ( i
+                                                |> Item.withItemSettings
+                                                    (Item.getItemSettings i
+                                                        |> Maybe.andThen (\s -> Just (ItemSettings.withFontSize size <| s))
+                                                    )
+                                            , False
+                                            )
+                                        )
+                                    )
+
+                        _ ->
+                            Return.singleton model
+
+        ColorChanged menu color ->
             case model.selectedItem of
                 Nothing ->
                     Return.singleton model
@@ -1056,7 +1121,7 @@ update message model =
                     in
                     case ( model.selectedItem, menu ) of
                         ( Just ( i, _ ), Diagram.ColorSelectMenu ) ->
-                            Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }
+                            Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> Diagram.CloseMenu) c) model.contextMenu }
                                 |> Return.andThen (setText updateText)
                                 |> Return.andThen
                                     (selectItem
@@ -1072,7 +1137,7 @@ update message model =
                                     )
 
                         ( Just ( i, _ ), Diagram.BackgroundColorSelectMenu ) ->
-                            Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) model.contextMenu }
+                            Return.singleton { model | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> Diagram.CloseMenu) c) model.contextMenu }
                                 |> Return.andThen (setText updateText)
                                 |> Return.andThen
                                     (selectItem
@@ -1090,7 +1155,7 @@ update message model =
                         _ ->
                             Return.singleton model
 
-        OnFontStyleChanged style ->
+        FontStyleChanged style ->
             case model.selectedItem of
                 Just ( item, _ ) ->
                     let
@@ -1157,16 +1222,27 @@ update message model =
             setText text model
                 |> Return.andThen clearSelectedItem
 
-        OnDropFiles files ->
+        DropFiles files ->
             ( { model | dragStatus = NoDrag }
             , List.filter (\file -> File.mime file |> String.startsWith "image/") files
                 |> List.map File.toUrl
                 |> Task.sequence
-                |> Task.perform OnLoadFiles
+                |> Task.perform LoadFiles
             )
 
-        OnLoadFiles files ->
+        LoadFiles files ->
             Return.return model (Ports.insertTextLines files)
 
         ChangeDragStatus status ->
             Return.singleton { model | dragStatus = status }
+
+        ToggleDropDownList id ->
+            let
+                activeIndex =
+                    if (model.dropDownIndex |> Maybe.withDefault "") == id then
+                        Nothing
+
+                    else
+                        Just id
+            in
+            Return.singleton { model | dropDownIndex = activeIndex }

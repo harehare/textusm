@@ -39,6 +39,7 @@ module Models.Diagram exposing
 
 import Browser.Dom exposing (Viewport)
 import Data.Color as Color
+import Data.FontSize exposing (FontSize)
 import Data.FontStyle exposing (FontStyle)
 import Data.Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
@@ -94,6 +95,7 @@ type alias Model =
     , dragDrop : DragDrop.Model Int Int
     , contextMenu : Maybe ( ContextMenu, Position )
     , dragStatus : DragStatus
+    , dropDownIndex : Maybe String
     }
 
 
@@ -251,12 +253,14 @@ type Msg
     | MoveItem ( Int, Int )
     | FitToWindow
     | Select (Maybe ( Item, Position ))
-    | OnColorChanged ContextMenu Color.Color
-    | OnSelectContextMenu ContextMenu
-    | OnFontStyleChanged FontStyle
-    | OnDropFiles (List File)
-    | OnLoadFiles (List String)
+    | ColorChanged ContextMenu Color.Color
+    | SelectContextMenu ContextMenu
+    | FontStyleChanged FontStyle
+    | DropFiles (List File)
+    | LoadFiles (List String)
     | ChangeDragStatus DragStatus
+    | FontSizeChanged FontSize
+    | ToggleDropDownList String
 
 
 getTextColor : ColorSettings -> String

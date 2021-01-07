@@ -1,10 +1,11 @@
-module Events exposing (keyBackspace, keyEnter, onClickStopPropagation, onDrop, onKeyDown, onMouseDown, onTouchStart, touchCoordinates)
+module Events exposing (keyBackspace, keyEnter, onClickStopPropagation, onDrop, onKeyDown, onMouseDown, onTouchStart, onWheel, touchCoordinates)
 
 import File exposing (File)
 import Html exposing (Attribute)
 import Html.Events exposing (keyCode, on, preventDefaultOn, stopPropagationOn)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Touch as Touch
+import Html.Events.Extra.Wheel as Wheel
 import Json.Decode as D
 
 
@@ -74,3 +75,9 @@ touchCoordinates touchEvent =
     List.head touchEvent.changedTouches
         |> Maybe.map .clientPos
         |> Maybe.withDefault ( 0, 0 )
+
+
+onWheel : (Wheel.Event -> msg) -> Html.Attribute msg
+onWheel =
+    { stopPropagation = True, preventDefault = False }
+        |> Wheel.onWithOptions
