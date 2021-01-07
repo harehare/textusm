@@ -1,6 +1,7 @@
 module Data.ItemSettingsTests exposing (all)
 
 import Data.Color as Color
+import Data.FontSize as FontSize
 import Data.ItemSettings as ItemSettings
 import Expect
 import Json.Decode as D
@@ -14,7 +15,7 @@ all =
         [ describe "encoder test"
             [ test "encode null test" <|
                 \() ->
-                    Expect.equal (ItemSettings.encoder ItemSettings.new |> E.encode 0) "{\"bg\":null,\"fg\":null,\"offset\":[0,0]}"
+                    Expect.equal (ItemSettings.encoder ItemSettings.new |> E.encode 0) "{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":20}"
             , test "encode test" <|
                 \() ->
                     Expect.equal
@@ -22,18 +23,19 @@ all =
                             (ItemSettings.new
                                 |> ItemSettings.withBackgroundColor (Just Color.white)
                                 |> ItemSettings.withForegroundColor (Just Color.black)
+                                |> ItemSettings.withFontSize FontSize.fontSize20
                             )
                             |> E.encode 0
                         )
-                        "{\"bg\":\"#FFFFFF\",\"fg\":\"#000000\",\"offset\":[0,0]}"
+                        "{\"b\":\"#FFFFFF\",\"f\":\"#000000\",\"o\":[0,0],\"s\":14}"
             ]
         , describe "decoder test"
             [ test "decode null test" <|
                 \() ->
-                    Expect.equal (D.decodeString ItemSettings.decoder "{\"bg\":null,\"fg\":null,\"offset\":[0,0]}") (Ok ItemSettings.new)
+                    Expect.equal (D.decodeString ItemSettings.decoder "{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":14}") (Ok ItemSettings.new)
             , test "decode test" <|
                 \() ->
-                    Expect.equal (D.decodeString ItemSettings.decoder "{\"bg\":\"#FFFFFF\",\"fg\":\"#000000\",\"offset\":[0,0]}")
+                    Expect.equal (D.decodeString ItemSettings.decoder "{\"b\":\"#FFFFFF\",\"f\":\"#000000\",\"o\":[0,0],\"s\":14}")
                         (Ok
                             (ItemSettings.new
                                 |> ItemSettings.withBackgroundColor (Just Color.white)
