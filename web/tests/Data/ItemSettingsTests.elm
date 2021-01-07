@@ -15,7 +15,7 @@ all =
         [ describe "encoder test"
             [ test "encode null test" <|
                 \() ->
-                    Expect.equal (ItemSettings.encoder ItemSettings.new |> E.encode 0) "{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":20}"
+                    Expect.equal (ItemSettings.encoder ItemSettings.new |> E.encode 0) "{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":14}"
             , test "encode test" <|
                 \() ->
                     Expect.equal
@@ -27,7 +27,7 @@ all =
                             )
                             |> E.encode 0
                         )
-                        "{\"b\":\"#FFFFFF\",\"f\":\"#000000\",\"o\":[0,0],\"s\":14}"
+                        "{\"b\":\"#FFFFFF\",\"f\":\"#000000\",\"o\":[0,0],\"s\":20}"
             ]
         , describe "decoder test"
             [ test "decode null test" <|
