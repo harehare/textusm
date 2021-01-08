@@ -14,6 +14,7 @@ import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Return as Return exposing (Return)
 import Task
+import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils
 
 
@@ -101,6 +102,7 @@ init flags =
             , touchDistance = Nothing
             , text = Text.empty
             , dragStatus = DiagramModel.NoDrag
+            , dropDownIndex = Nothing
             }
       , text = flags.text
       , backgroundColor = flags.backgroundColor
@@ -178,6 +180,10 @@ update message model =
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
                         |> Return.andThen (updateText model_.text)
 
+                DiagramModel.FontSizeChanged _ ->
+                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                        |> Return.andThen (updateText model_.text)
+
                 DiagramModel.Stop ->
                     case model.diagramModel.moveState of
                         DiagramModel.ItemMove target ->
@@ -204,7 +210,7 @@ update message model =
                     { diagramModel | diagramType = DiagramType.fromString diagramType }
 
                 size =
-                    Utils.getCanvasSize newDiagramModel
+                    DiagramUtils.getCanvasSize newDiagramModel
             in
             ( model, onGetCanvasSize size )
 

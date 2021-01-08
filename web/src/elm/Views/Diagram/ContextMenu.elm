@@ -51,7 +51,7 @@ view props =
         , height "205"
         ]
         [ div
-            [ Attr.style "background-color" "var(--light-background-color)"
+            [ Attr.style "background-color" "#fefefe"
             , Attr.style "box-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)"
             , Attr.style "border-radius" "2px"
             , Attr.style "display" "flex"

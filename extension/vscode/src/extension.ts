@@ -467,6 +467,69 @@ class DiagramPanel {
     <script>
         document.getElementById("svg").innerHTML = 'Load SVG...';
     </script>
+    <style>
+    .dropdown-list {
+        text-sm	font-size: 0.875rem;
+        line-height: 1.25rem;
+        position: relative;
+        width: 100%;
+        background-color: #fefefe;
+        cursor: pointer;
+        outline: none;
+        color: #2e2e2e;
+    }
+
+    .list {
+      position: absolute;
+      background-color: #fefefe;
+      margin: l0;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      z-index: 10;
+      top: 33px;
+      padding-left: 0px;
+      border-top: 0;
+      height: 150px;
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .item {
+        display: block;
+        background-color: #fefefe;
+        padding: 8px;
+    }
+
+    .item::after {
+      content: "";
+      width: 0px;
+      height: 0px;
+      position: absolute;
+      right: 8px;
+      top: calc(50%);
+      margin-top: -4px;
+      border-width: 6px 6px 0 6px;
+      border-style: solid;
+      border-color: #2e2e2e transparent;
+    }
+
+    .dropdown-item {
+        width: 100%;
+        display: block;
+        padding: 8px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+        background-color: #fefefe;
+    }
+    .dropdown-item:hover {
+      background-color: #ddd;
+    }
+    </style>
 </head>
 <body>
     <div id="svg"></div>
