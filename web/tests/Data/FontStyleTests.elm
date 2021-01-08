@@ -1,12 +1,12 @@
-module Data.FontStyleTests exposing (all)
+module Data.FontStyleTests exposing (suite)
 
 import Data.FontStyle as FontStyle
 import Expect
 import Test exposing (Test, describe, test)
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "FontStyle test"
         [ describe "apply test"
             [ test "bold test" <|

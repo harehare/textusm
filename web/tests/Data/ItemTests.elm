@@ -1,4 +1,4 @@
-module Data.ItemTests exposing (all)
+module Data.ItemTests exposing (suite)
 
 import Data.Item as Item exposing (ItemType(..), Items(..))
 import Expect
@@ -6,8 +6,8 @@ import Test exposing (Test, describe, test)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "Item test"
         [ describe "getAt test"
             [ test "get the item at index 0" <|

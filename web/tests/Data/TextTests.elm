@@ -1,12 +1,12 @@
-module Data.TextTests exposing (all)
+module Data.TextTests exposing (suite)
 
 import Data.Text as Text
 import Expect
 import Test exposing (Test, describe, test)
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "Text test"
         [ describe "isEmpty test"
             [ test "empty" <|

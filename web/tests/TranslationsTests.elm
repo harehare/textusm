@@ -1,12 +1,12 @@
-module TranslationsTests exposing (all)
+module TranslationsTests exposing (suite)
 
 import Expect
 import Test exposing (Test, describe, test)
 import Translations
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "Translations test"
         [ describe "fromString test"
             [ test "ja" <|

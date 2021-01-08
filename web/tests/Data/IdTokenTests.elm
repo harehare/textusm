@@ -5,8 +5,8 @@ import Expect
 import Test exposing (Test, describe, test)
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "IdToken test"
         [ describe "fromString test"
             [ test "bearer test" <|

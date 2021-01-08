@@ -6,8 +6,8 @@ import MD5
 import Test exposing (Test, describe, test)
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "Avatar test"
         [ describe "toString test"
             [ test "url and imageurl test" <|

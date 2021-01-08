@@ -1,4 +1,4 @@
-module Data.SessionTests exposing (all)
+module Data.SessionTests exposing (suite)
 
 import Data.IdToken as IdToken
 import Data.Session as Session
@@ -6,8 +6,8 @@ import Expect
 import Test exposing (Test, describe, test)
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "Session test"
         [ describe "isGuest test"
             [ test "guest" <|

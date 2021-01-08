@@ -1,12 +1,12 @@
-module Data.TitleTests exposing (all)
+module Data.TitleTests exposing (suite)
 
 import Data.Title as Title
 import Expect
 import Test exposing (Test, describe, test)
 
 
-all : Test
-all =
+suite : Test
+suite =
     describe "Title test"
         [ describe "isUntitled test"
             [ test "untitled" <|
