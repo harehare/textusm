@@ -104,7 +104,7 @@ toString title =
 
 fromString : String -> Title
 fromString title =
-    if String.isEmpty title then
+    if String.isEmpty title || title == "UNTITLED" then
         UnTitled
 
     else

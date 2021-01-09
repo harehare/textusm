@@ -20,7 +20,7 @@ import Html.Events.Extra.Wheel as Wheel
 import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import List
-import List.Extra exposing (findIndex, getAt, removeAt, setAt, splitAt)
+import List.Extra exposing (getAt, removeAt, setAt, splitAt)
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Views.ER as ErDiagramModel
@@ -68,10 +68,6 @@ import Views.Empty as Empty
 import Views.Icon as Icon
 
 
-type alias Hierarchy =
-    Int
-
-
 init : Settings -> Return Msg Model
 init settings =
     Return.singleton
@@ -98,124 +94,6 @@ init settings =
         , dragStatus = NoDrag
         , dropDownIndex = Nothing
         }
-
-
-getItemType : String -> Int -> ItemType
-getItemType text indent =
-    if text |> String.trim |> String.startsWith "#" then
-        Comments
-
-    else
-        case indent of
-            0 ->
-                Activities
-
-            1 ->
-                Tasks
-
-            _ ->
-                Stories (indent - 1)
-
-
-hasIndent : Int -> String -> Bool
-hasIndent indent text =
-    let
-        lineinputPrefix =
-            String.repeat indent inputPrefix
-    in
-    if indent == 0 then
-        String.left 1 text /= " "
-
-    else
-        String.startsWith lineinputPrefix text
-            && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
-
-
-parse : Int -> String -> ( List String, List String )
-parse indent text =
-    let
-        line =
-            String.lines text
-                |> List.filter
-                    (\x ->
-                        let
-                            str =
-                                x |> String.trim
-                        in
-                        not (String.isEmpty str)
-                    )
-
-        tail =
-            List.tail line
-    in
-    case tail of
-        Just t ->
-            case
-                t
-                    |> findIndex (hasIndent indent)
-            of
-                Just xs ->
-                    splitAt (xs + 1) line
-
-                Nothing ->
-                    ( line, [] )
-
-        Nothing ->
-            ( [], [] )
-
-
-load : String -> ( Hierarchy, Items )
-load text =
-    let
-        loadText : Int -> Int -> String -> ( List Hierarchy, Items )
-        loadText lineNo indent input =
-            case parse indent input of
-                ( x :: xs, other ) ->
-                    let
-                        ( xsIndent, xsItems ) =
-                            loadText (lineNo + 1) (indent + 1) (String.join "\n" xs)
-
-                        ( otherIndents, otherItems ) =
-                            loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
-
-                        itemType =
-                            getItemType x indent
-                    in
-                    case itemType of
-                        Comments ->
-                            ( indent :: xsIndent ++ otherIndents
-                            , Item.filter (\item -> Item.getItemType item /= Comments) otherItems
-                            )
-
-                        _ ->
-                            ( indent :: xsIndent ++ otherIndents
-                            , Item.cons
-                                (Item.new
-                                    |> Item.withLineNo lineNo
-                                    |> Item.withText x
-                                    |> Item.withItemType itemType
-                                    |> Item.withChildren (Item.childrenFromItems xsItems)
-                                )
-                                (Item.filter (\item -> Item.getItemType item /= Comments) otherItems)
-                            )
-
-                ( [], _ ) ->
-                    ( [ indent ], Item.empty )
-    in
-    if String.isEmpty text then
-        ( 0, Item.empty )
-
-    else
-        let
-            ( indentList, loadedItems ) =
-                loadText 0 0 text
-        in
-        ( indentList
-            |> List.maximum
-            |> Maybe.map (\x -> x - 1)
-            |> Maybe.withDefault 0
-        , loadedItems
-        )
 
 
 zoomControl : Bool -> Float -> Html Msg
@@ -646,7 +524,7 @@ updateDiagram : Size -> Model -> String -> Model
 updateDiagram ( width, height ) base text =
     let
         ( hierarchy, items ) =
-            load text
+            Item.fromString text
 
         newModel =
             { base | items = items }

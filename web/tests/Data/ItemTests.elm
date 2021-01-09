@@ -1,8 +1,9 @@
 module Data.ItemTests exposing (suite)
 
+import Data.Fuzzer exposing (itemsFuzzer)
 import Data.Item as Item exposing (ItemType(..), Items(..))
 import Expect
-import Test exposing (Test, describe, test)
+import Test exposing (Test, describe, fuzz, test)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 
 

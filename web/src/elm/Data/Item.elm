@@ -11,6 +11,7 @@ module Data.Item exposing
     , filter
     , flatten
     , fromList
+    , fromString
     , getAt
     , getBackgroundColor
     , getChildren
@@ -44,12 +45,17 @@ module Data.Item exposing
     , withText
     )
 
+import Constants exposing (indentSpace, inputPrefix)
 import Data.Color as Color exposing (Color)
 import Data.FontSize exposing (FontSize)
 import Data.ItemSettings as ItemSettings exposing (ItemSettings)
 import Data.Text as Text exposing (Text)
 import Json.Decode as D
 import List.Extra as ListEx
+
+
+type alias Hierarchy =
+    Int
 
 
 type Children
@@ -397,3 +403,118 @@ toString =
                 |> String.join "\n"
     in
     itemsToString 0
+
+
+hasIndent : Int -> String -> Bool
+hasIndent indent text =
+    let
+        lineinputPrefix =
+            String.repeat indent inputPrefix
+    in
+    if indent == 0 then
+        String.left 1 text /= " "
+
+    else
+        String.startsWith lineinputPrefix text
+            && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
+
+
+createItemType : String -> Int -> ItemType
+createItemType text indent =
+    if text |> String.trim |> String.startsWith "#" then
+        Comments
+
+    else
+        case indent of
+            0 ->
+                Activities
+
+            1 ->
+                Tasks
+
+            _ ->
+                Stories (indent - 1)
+
+
+parse : Int -> String -> ( List String, List String )
+parse indent text =
+    let
+        line =
+            String.lines text
+                |> List.filter
+                    (\x ->
+                        let
+                            str =
+                                x |> String.trim
+                        in
+                        not (String.isEmpty str)
+                    )
+    in
+    case List.tail line of
+        Just t ->
+            case
+                t
+                    |> ListEx.findIndex (hasIndent indent)
+            of
+                Just xs ->
+                    ListEx.splitAt (xs + 1) line
+
+                Nothing ->
+                    ( line, [] )
+
+        Nothing ->
+            ( [], [] )
+
+
+fromString : String -> ( Hierarchy, Items )
+fromString text =
+    let
+        loadText : Int -> Int -> String -> ( List Hierarchy, Items )
+        loadText lineNo indent input =
+            case parse indent input of
+                ( x :: xs, other ) ->
+                    let
+                        ( xsIndent, xsItems ) =
+                            loadText (lineNo + 1) (indent + 1) (String.join "\n" xs)
+
+                        ( otherIndents, otherItems ) =
+                            loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
+
+                        itemType =
+                            createItemType x indent
+                    in
+                    case itemType of
+                        Comments ->
+                            ( indent :: xsIndent ++ otherIndents
+                            , filter (\item -> getItemType item /= Comments) otherItems
+                            )
+
+                        _ ->
+                            ( indent :: xsIndent ++ otherIndents
+                            , cons
+                                (new
+                                    |> withLineNo lineNo
+                                    |> withText x
+                                    |> withItemType itemType
+                                    |> withChildren (childrenFromItems xsItems)
+                                )
+                                (filter (\item -> getItemType item /= Comments) otherItems)
+                            )
+
+                ( [], _ ) ->
+                    ( [ indent ], empty )
+    in
+    if String.isEmpty text then
+        ( 0, empty )
+
+    else
+        let
+            ( indentList, loadedItems ) =
+                loadText 0 0 text
+        in
+        ( indentList
+            |> List.maximum
+            |> Maybe.map (\x -> x - 1)
+            |> Maybe.withDefault 0
+        , loadedItems
+        )

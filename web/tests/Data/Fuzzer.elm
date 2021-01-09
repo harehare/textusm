@@ -1,11 +1,17 @@
 module Data.Fuzzer exposing (..)
 
 import Data.Color as Color exposing (Color)
+import Data.DiagramId as DiagramId exposing (DiagramId)
+import Data.DiagramItem exposing (DiagramItem)
 import Data.FontSize as FontSize exposing (FontSize)
+import Data.Item as Item exposing (Children, Item, ItemType(..), Items)
 import Data.ItemSettings as ItemSettings exposing (ItemSettings)
 import Data.Position exposing (Position)
+import Data.Text as Text exposing (Text)
+import Data.Title as Title exposing (Title)
 import Fuzz exposing (Fuzzer)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
+import Time exposing (Posix)
 
 
 itemSettingsFuzzer : Fuzzer ItemSettings
@@ -18,10 +24,65 @@ itemSettingsFuzzer =
                 |> ItemSettings.withPosition offset
                 |> ItemSettings.withFontSize fontSize
         )
-        maybeColorFuzzer
-        maybeColorFuzzer
+        (Fuzz.maybe colorFuzzer)
+        (Fuzz.maybe colorFuzzer)
         positionFuzzer
         fontSizeFuzzer
+
+
+itemTypeFuzzer : Fuzzer ItemType
+itemTypeFuzzer =
+    Fuzz.oneOf
+        [ Fuzz.constant Activities
+        , Fuzz.constant Tasks
+        , Fuzz.map Stories (Fuzz.intRange 0 3)
+        , Fuzz.constant Comments
+        ]
+
+
+itemFuzzer : Fuzzer Item
+itemFuzzer =
+    Fuzz.map5
+        (\lineNo text itemType itemSettings children ->
+            Item.new
+                |> Item.withLineNo lineNo
+                |> Item.withText text
+                |> Item.withItemType itemType
+                |> Item.withItemSettings itemSettings
+                |> Item.withChildren children
+        )
+        Fuzz.int
+        Fuzz.string
+        itemTypeFuzzer
+        (Fuzz.maybe itemSettingsFuzzer)
+        childrenFuzzer
+
+
+itemsFuzzer : Fuzzer Items
+itemsFuzzer =
+    Fuzz.map Item.fromList (Fuzz.list itemFuzzer)
+
+
+childrenFuzzer : Fuzzer Children
+childrenFuzzer =
+    Fuzz.oneOf
+        [ Fuzz.constant Item.emptyChildren
+        ]
+
+
+diagramItemFuzzer : Fuzzer DiagramItem
+diagramItemFuzzer =
+    Fuzz.map DiagramItem (Fuzz.maybe diagramIdFuzzer)
+        |> Fuzz.andMap textFuzzer
+        |> Fuzz.andMap diagramTypeFuzzer
+        |> Fuzz.andMap titleFuzzer
+        |> Fuzz.andMap (Fuzz.maybe Fuzz.string)
+        |> Fuzz.andMap Fuzz.bool
+        |> Fuzz.andMap Fuzz.bool
+        |> Fuzz.andMap Fuzz.bool
+        |> Fuzz.andMap tagFuzzer
+        |> Fuzz.andMap posixFuzzer
+        |> Fuzz.andMap posixFuzzer
 
 
 diagramTypeFuzzer : Fuzzer Diagram
@@ -45,11 +106,6 @@ diagramTypeFuzzer =
         , Fuzz.constant SequenceDiagram
         , Fuzz.constant Freeform
         ]
-
-
-maybeColorFuzzer : Fuzzer (Maybe Color)
-maybeColorFuzzer =
-    Fuzz.maybe colorFuzzer
 
 
 positionFuzzer : Fuzzer Position
@@ -85,3 +141,30 @@ colorFuzzer =
         , Fuzz.constant Color.labelDefalut
         , Fuzz.constant Color.backgroundDefalut
         ]
+
+
+diagramIdFuzzer : Fuzzer DiagramId
+diagramIdFuzzer =
+    Fuzz.map DiagramId.fromString Fuzz.string
+
+
+textFuzzer : Fuzzer Text
+textFuzzer =
+    Fuzz.map Text.fromString Fuzz.string
+
+
+titleFuzzer : Fuzzer Title
+titleFuzzer =
+    Fuzz.map Title.fromString Fuzz.string
+
+
+tagFuzzer : Fuzzer (Maybe (List (Maybe String)))
+tagFuzzer =
+    Fuzz.maybe Fuzz.string
+        |> Fuzz.list
+        |> Fuzz.maybe
+
+
+posixFuzzer : Fuzzer Posix
+posixFuzzer =
+    Fuzz.map Time.millisToPosix (Fuzz.intRange 0 100000)
