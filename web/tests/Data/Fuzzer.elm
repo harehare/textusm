@@ -32,12 +32,7 @@ itemSettingsFuzzer =
 
 itemTypeFuzzer : Fuzzer ItemType
 itemTypeFuzzer =
-    Fuzz.oneOf
-        [ Fuzz.constant Activities
-        , Fuzz.constant Tasks
-        , Fuzz.map Stories (Fuzz.intRange 0 3)
-        , Fuzz.constant Comments
-        ]
+    Fuzz.constant Activities
 
 
 itemFuzzer : Fuzzer Item
@@ -51,7 +46,7 @@ itemFuzzer =
                 |> Item.withItemSettings itemSettings
                 |> Item.withChildren children
         )
-        Fuzz.int
+        (Fuzz.intRange 0 100)
         Fuzz.string
         itemTypeFuzzer
         (Fuzz.maybe itemSettingsFuzzer)
