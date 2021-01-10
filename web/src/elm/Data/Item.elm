@@ -35,7 +35,6 @@ module Data.Item exposing
     , spiltText
     , splitAt
     , tail
-    , toString
     , unwrap
     , unwrapChildren
     , withChildren
@@ -52,6 +51,7 @@ import Data.ItemSettings as ItemSettings exposing (ItemSettings)
 import Data.Text as Text exposing (Text)
 import Json.Decode as D
 import List.Extra as ListEx
+import Maybe
 
 
 type alias Hierarchy =
@@ -108,13 +108,41 @@ withText text (Item item) =
 
             else
                 case String.split "|" text of
-                    [ t, st ] ->
-                        case D.decodeString ItemSettings.decoder st of
+                    [ x, xs ] ->
+                        case D.decodeString ItemSettings.decoder xs of
                             Ok s ->
-                                ( t, Just s )
+                                ( x, Just s )
 
                             Err _ ->
-                                ( t, Nothing )
+                                ( x, Nothing )
+
+                    x :: xs ->
+                        let
+                            maybeSettings =
+                                ListEx.last xs
+                                    |> Maybe.andThen
+                                        (\lt ->
+                                            case D.decodeString ItemSettings.decoder lt of
+                                                Ok s ->
+                                                    Just s
+
+                                                Err _ ->
+                                                    Nothing
+                                        )
+
+                            maybeText =
+                                ListEx.init xs
+                                    |> Maybe.map (\v -> String.join "|" v)
+                        in
+                        case ( maybeText, maybeSettings ) of
+                            ( Just t, Just st ) ->
+                                ( x ++ "|" ++ t, Just st )
+
+                            ( Just t, Nothing ) ->
+                                ( x ++ "|" ++ t, Nothing )
+
+                            ( Nothing, _ ) ->
+                                ( x, Nothing )
 
                     _ ->
                         case String.split "," text of
@@ -346,9 +374,14 @@ leafCount (Items items) =
         items |> List.map (\(Item i) -> leafCount <| unwrapChildren i.children) |> List.sum
 
 
-createText : String -> ItemSettings -> String
+createText : String -> Maybe ItemSettings -> String
 createText text settings =
-    text ++ "|" ++ ItemSettings.toString settings
+    case settings of
+        Just s ->
+            text ++ "|" ++ ItemSettings.toString s
+
+        Nothing ->
+            text
 
 
 spiltText : String -> ( String, ItemSettings )
@@ -381,28 +414,6 @@ flatten (Items items) =
 
         _ ->
             Items (items ++ List.concatMap (\(Item item) -> unwrap <| flatten <| unwrapChildren item.children) items)
-
-
-toString : Items -> String
-toString =
-    let
-        itemsToString : Int -> Items -> String
-        itemsToString hierarcy items =
-            let
-                itemToString : Item -> Int -> String
-                itemToString (Item i) hi =
-                    String.repeat hi "    " ++ Text.toString i.text
-            in
-            items
-                |> map
-                    (\(Item item) ->
-                        case item.children of
-                            Children c ->
-                                itemToString (Item item) hierarcy ++ "\n" ++ itemsToString (hierarcy + 1) c
-                    )
-                |> String.join "\n"
-    in
-    itemsToString 0
 
 
 hasIndent : Int -> String -> Bool
@@ -468,53 +479,57 @@ parse indent text =
 
 fromString : String -> ( Hierarchy, Items )
 fromString text =
-    let
-        loadText : Int -> Int -> String -> ( List Hierarchy, Items )
-        loadText lineNo indent input =
-            case parse indent input of
-                ( x :: xs, other ) ->
-                    let
-                        ( xsIndent, xsItems ) =
-                            loadText (lineNo + 1) (indent + 1) (String.join "\n" xs)
-
-                        ( otherIndents, otherItems ) =
-                            loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
-
-                        itemType =
-                            createItemType x indent
-                    in
-                    case itemType of
-                        Comments ->
-                            ( indent :: xsIndent ++ otherIndents
-                            , filter (\item -> getItemType item /= Comments) otherItems
-                            )
-
-                        _ ->
-                            ( indent :: xsIndent ++ otherIndents
-                            , cons
-                                (new
-                                    |> withLineNo lineNo
-                                    |> withText x
-                                    |> withItemType itemType
-                                    |> withChildren (childrenFromItems xsItems)
-                                )
-                                (filter (\item -> getItemType item /= Comments) otherItems)
-                            )
-
-                ( [], _ ) ->
-                    ( [ indent ], empty )
-    in
-    if String.isEmpty text then
+    if text == "" then
         ( 0, empty )
 
     else
         let
-            ( indentList, loadedItems ) =
-                loadText 0 0 text
+            loadText : Int -> Int -> String -> ( List Hierarchy, Items )
+            loadText lineNo indent input =
+                case parse indent input of
+                    ( x :: xs, other ) ->
+                        let
+                            ( xsIndent, xsItems ) =
+                                loadText (lineNo + 1) (indent + 1) (String.join "\n" xs)
+
+                            ( otherIndents, otherItems ) =
+                                loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
+
+                            itemType =
+                                createItemType x indent
+                        in
+                        case itemType of
+                            Comments ->
+                                ( indent :: xsIndent ++ otherIndents
+                                , filter (\item -> getItemType item /= Comments) otherItems
+                                )
+
+                            _ ->
+                                ( indent :: xsIndent ++ otherIndents
+                                , cons
+                                    (new
+                                        |> withLineNo lineNo
+                                        |> withText x
+                                        |> withItemType itemType
+                                        |> withChildren (childrenFromItems xsItems)
+                                    )
+                                    (filter (\item -> getItemType item /= Comments) otherItems)
+                                )
+
+                    ( [], _ ) ->
+                        ( [ indent ], empty )
         in
-        ( indentList
-            |> List.maximum
-            |> Maybe.map (\x -> x - 1)
-            |> Maybe.withDefault 0
-        , loadedItems
-        )
+        if String.isEmpty text then
+            ( 0, empty )
+
+        else
+            let
+                ( indentList, loadedItems ) =
+                    loadText 0 0 text
+            in
+            ( indentList
+                |> List.maximum
+                |> Maybe.map (\x -> x - 1)
+                |> Maybe.withDefault 0
+            , loadedItems
+            )

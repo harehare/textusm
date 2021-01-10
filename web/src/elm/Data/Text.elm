@@ -49,7 +49,11 @@ toString text =
 
 fromString : String -> Text
 fromString text =
-    Saved text
+    if text == "" then
+        Empty
+
+    else
+        Saved text
 
 
 lines : Text -> List String
@@ -118,4 +122,12 @@ edit currentText newText =
 
 decoder : Decoder Text
 decoder =
-    D.map Saved D.string
+    D.map
+        (\t ->
+            if t == "" then
+                Empty
+
+            else
+                Saved t
+        )
+        D.string

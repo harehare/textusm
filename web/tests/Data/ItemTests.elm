@@ -2,6 +2,7 @@ module Data.ItemTests exposing (suite)
 
 import Data.Fuzzer exposing (itemsFuzzer)
 import Data.Item as Item exposing (ItemType(..), Items(..))
+import Data.Text as Text
 import Expect
 import Test exposing (Test, describe, fuzz, test)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
@@ -11,40 +12,40 @@ suite : Test
 suite =
     describe "Item test"
         [ describe "getAt test"
-            [ test "get the item at index 0" <|
+            [ test "got the item at index 0" <|
                 \() ->
                     Expect.equal (Item.getAt 0 (Item.fromList [ Item.new ])) (Just Item.new)
-            , test "get the item at index 1 return Nothing " <|
+            , test "got the item at index 1 return Nothing " <|
                 \() ->
                     Expect.equal (Item.getAt 1 (Item.fromList [ Item.new ])) Nothing
             ]
         , describe "head test"
-            [ test "get head item" <|
+            [ test "got head item" <|
                 \() ->
                     Expect.equal (Item.head (Item.fromList [ Item.new ])) (Just Item.new)
-            , test "get head item from items" <|
+            , test "got head item from items" <|
                 \() ->
                     Expect.equal
                         (Item.head
                             (Item.fromList [ Item.new ])
                         )
                         (Just Item.new)
-            , test "get head item return Nothing" <|
+            , test "got head item return Nothing" <|
                 \() ->
                     Expect.equal (Item.head (Item.fromList [])) Nothing
             ]
         , describe "tail test"
-            [ test "get tail item" <|
+            [ test "got tail item" <|
                 \() ->
                     Expect.equal (Item.tail (Item.fromList [ Item.new ])) (Just (Item.fromList []))
-            , test "get tail item from items" <|
+            , test "got tail item from items" <|
                 \() ->
                     Expect.equal
                         (Item.tail
                             (Item.fromList [ Item.new, Item.new ])
                         )
                         (Just (Item.fromList [ Item.new ]))
-            , test "get tail item return Nothing" <|
+            , test "got tail item return Nothing" <|
                 \() ->
                     Expect.equal (Item.tail (Item.fromList [])) Nothing
             ]
@@ -54,10 +55,10 @@ suite =
                     Expect.equal (Item.map Item.getText (Item.fromList [ Item.new ])) [ "" ]
             ]
         , describe "cons test"
-            [ test "1 item" <|
+            [ test "got 1 item" <|
                 \() ->
                     Expect.equal (Item.cons Item.new Item.empty) (Item.fromList [ Item.new ])
-            , test "2 item" <|
+            , test "got 2 item" <|
                 \() ->
                     Expect.equal (Item.cons Item.new (Item.fromList [ Item.new ])) (Item.fromList [ Item.new, Item.new ])
             ]
@@ -71,18 +72,18 @@ suite =
                         [ ( 0, "" ), ( 1, "test" ) ]
             ]
         , describe "length test"
-            [ test "empty item" <|
+            [ test "got empty item" <|
                 \() ->
                     Expect.equal (Item.length Item.empty) 0
-            , test "1 item" <|
+            , test "got 1 item" <|
                 \() ->
                     Expect.equal (Item.length <| Item.fromList [ Item.new ]) 1
             ]
         , describe "isEmpty test"
-            [ test "empty item" <|
+            [ test "got empty item" <|
                 \() ->
                     Expect.equal (Item.isEmpty Item.empty) True
-            , test "1 item" <|
+            , test "got 1 item" <|
                 \() ->
                     Expect.equal (Item.isEmpty <| Item.fromList [ Item.new ]) False
             ]
@@ -111,10 +112,10 @@ suite =
                     Expect.equal (Item.splitAt 1 (Item.fromList [ Item.new, Item.new ])) ( Item.fromList [ Item.new ], Item.fromList [ Item.new ] )
             ]
         , describe "getChildrenCount test"
-            [ test "empty item" <|
+            [ test "got empty item" <|
                 \() ->
                     Expect.equal (Item.getChildrenCount Item.new) 0
-            , test "1 children" <|
+            , test "got 1 children" <|
                 \() ->
                     Expect.equal
                         (Item.getChildrenCount
@@ -140,5 +141,24 @@ suite =
                             )
                         )
                         1
+            ]
+        , describe
+            "withText test"
+            [ test "when multiple |" <|
+                \() ->
+                    Expect.equal
+                        (Item.new
+                            |> Item.withText "test|test2|"
+                            |> Item.getText
+                        )
+                        "test|test2"
+            , test "when multiple | and item settings json" <|
+                \() ->
+                    Expect.equal
+                        (Item.new
+                            |> Item.withText "test|test2|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
+                            |> Item.getText
+                        )
+                        "test|test2"
             ]
         ]

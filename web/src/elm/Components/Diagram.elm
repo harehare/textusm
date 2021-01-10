@@ -927,7 +927,7 @@ update message model =
                                 |> Item.spiltText
 
                         text =
-                            Item.createText mainText (settings |> ItemSettings.withFontSize size)
+                            Item.createText mainText <| Just (settings |> ItemSettings.withFontSize size)
 
                         prefix =
                             currentText
@@ -980,10 +980,10 @@ update message model =
                         text =
                             case menu of
                                 Diagram.ColorSelectMenu ->
-                                    Item.createText mainText (settings |> ItemSettings.withForegroundColor (Just color))
+                                    Item.createText mainText <| Just (settings |> ItemSettings.withForegroundColor (Just color))
 
                                 Diagram.BackgroundColorSelectMenu ->
-                                    Item.createText mainText (ItemSettings.withBackgroundColor (Just color) settings)
+                                    Item.createText mainText <| Just (ItemSettings.withBackgroundColor (Just color) settings)
 
                                 _ ->
                                     currentText |> Maybe.withDefault ""
@@ -1053,7 +1053,7 @@ update message model =
                                 |> Item.spiltText
 
                         updateText =
-                            setAt (Item.getLineNo item) (Item.createText (prefix ++ (String.trimLeft text |> FontStyle.apply style)) settings) lines
+                            setAt (Item.getLineNo item) (Item.createText (prefix ++ (String.trimLeft text |> FontStyle.apply style)) (Just settings)) lines
                                 |> String.join "\n"
                     in
                     setText updateText model
