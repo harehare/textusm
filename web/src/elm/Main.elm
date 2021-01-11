@@ -396,8 +396,8 @@ changeRouteTo route model =
                                 |> DiagramModel.modelOfDiagramType.set diagramType
                             )
                             (Text.fromString defaultText)
-                    , page = Page.Main
                 }
+                |> Return.andThen (Action.switchPage Page.Main)
                 |> Return.andThen Action.changeRouteInit
 
         Route.EditFile _ id_ ->
@@ -428,21 +428,20 @@ changeRouteTo route model =
                     case loadItem of
                         Just item ->
                             if item.isRemote then
-                                Action.updateIdToken model
-                                    |> Return.andThen
-                                        (\m ->
-                                            ( { m | page = Page.Main }
-                                            , Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_)
-                                            )
-                                        )
+                                Return.singleton model
+                                    |> Return.andThen Action.updateIdToken
+                                    |> Return.andThen (Action.switchPage Page.Main)
+                                    |> Return.command (Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_))
 
                             else
-                                ( { model | page = Page.Main }
-                                , Task.attempt Load <| Task.succeed item
-                                )
+                                Return.singleton model
+                                    |> Return.andThen (Action.switchPage Page.Main)
+                                    |> Return.command (Task.attempt Load <| Task.succeed item)
 
                         Nothing ->
-                            ( { model | page = Page.NotFound }, Cmd.none )
+                            Return.singleton model
+                                |> Return.andThen (Action.switchPage Page.NotFound)
+                                |> Return.andThen Action.stopProgress
 
                 ( _, Just diagram ) ->
                     let
@@ -450,17 +449,19 @@ changeRouteTo route model =
                             Action.changeRouteInit model
                     in
                     if (DiagramItem.getId diagram |> DiagramId.toString) == DiagramId.toString id_ then
-                        ( { model | page = Page.Main }
-                        , case ( model.page, Size.isZero model.diagramModel.size ) of
-                            ( Page.Main, True ) ->
-                                cmd_
+                        Return.singleton model
+                            |> Return.andThen (Action.switchPage Page.Main)
+                            |> Return.command
+                                (case ( model.page, Size.isZero model.diagramModel.size ) of
+                                    ( Page.Main, True ) ->
+                                        cmd_
 
-                            ( Page.Main, False ) ->
-                                Cmd.none
+                                    ( Page.Main, False ) ->
+                                        Cmd.none
 
-                            _ ->
-                                cmd_
-                        )
+                                    _ ->
+                                        cmd_
+                                )
 
                     else
                         loadText_
@@ -469,14 +470,15 @@ changeRouteTo route model =
                     loadText_
 
         Route.Home ->
-            Return.singleton { model | page = Page.Main }
+            Return.singleton model
+                |> Return.andThen (Action.switchPage Page.Main)
                 |> Return.andThen Action.changeRouteInit
 
         Route.Settings ->
-            Return.singleton { model | page = Page.Settings }
+            Action.switchPage Page.Settings model
 
         Route.Help ->
-            Return.singleton { model | page = Page.Help }
+            Action.switchPage Page.Help model
 
         Route.SharingDiagram ->
             ( { model | page = Page.Share }
@@ -494,7 +496,7 @@ update : Msg -> Model -> Return Msg Model
 update message model =
     case message of
         NoOp ->
-            ( model, Cmd.none )
+            Return.singleton model
 
         UpdateShare msg ->
             case model.page of
@@ -611,12 +613,26 @@ update message model =
             in
             case subMsg of
                 DiagramList.Select diagram ->
-                    Action.pushUrl
-                        (Route.toString <|
-                            EditFile (DiagramType.toString diagram.diagram) (DiagramItem.getId diagram)
-                        )
-                        model
-                        |> Return.andThen Action.startProgress
+                    case diagram.id of
+                        Just id ->
+                            if diagram.isRemote && diagram.isPublic then
+                                Return.singleton model
+                                    |> Return.andThen Action.updateIdToken
+                                    |> Return.andThen (Action.switchPage Page.Main)
+                                    |> Return.command (Task.attempt Load <| Request.publicItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id))
+
+                            else
+                                Return.singleton model
+                                    |> Return.andThen
+                                        (Action.pushUrl
+                                            (Route.toString <|
+                                                EditFile (DiagramType.toString diagram.diagram) (DiagramItem.getId diagram)
+                                            )
+                                        )
+                                    |> Return.andThen Action.startProgress
+
+                        Nothing ->
+                            Return.singleton model
 
                 DiagramList.Removed (Err e) ->
                     case e of
@@ -825,18 +841,21 @@ update message model =
                     , createdAt = Time.millisToPosix 0
                     }
             in
-            Return.singleton { model | currentDiagram = Just item }
+            Return.singleton model
+                |> Return.andThen (Action.setCurrentDiagram <| Just item)
                 |> Return.andThen (Action.saveToLocal item)
                 |> Return.andThen Action.stopProgress
                 |> Return.andThen (Action.showWarningMessage <| Translations.messageFailedSaved model.lang (Title.toString model.title))
 
         SaveToRemoteCompleted (Ok diagram) ->
-            ( { model | currentDiagram = Just diagram }
-            , Route.replaceRoute model.key
-                (Route.EditFile (DiagramType.toString diagram.diagram)
-                    (diagram.id |> Maybe.withDefault (DiagramId.fromString ""))
-                )
-            )
+            Return.singleton model
+                |> Return.andThen (Action.setCurrentDiagram <| Just diagram)
+                |> Return.command
+                    (Route.replaceRoute model.key
+                        (Route.EditFile (DiagramType.toString diagram.diagram)
+                            (diagram.id |> Maybe.withDefault (DiagramId.fromString ""))
+                        )
+                    )
                 |> Return.andThen Action.stopProgress
                 |> Return.andThen (Action.showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString model.title))
 
@@ -897,9 +916,8 @@ update message model =
                         ( newSettingsModel, _ ) =
                             Settings.init newSettings
                     in
-                    ( { model | settingsModel = newSettingsModel }
-                    , Ports.saveSettings (settingsEncoder newSettings)
-                    )
+                    Return.singleton { model | settingsModel = newSettingsModel }
+                        |> Return.command (Ports.saveSettings (settingsEncoder newSettings))
 
                 _ ->
                     Return.singleton model
@@ -935,7 +953,7 @@ update message model =
                 |> Return.andThen Action.stopProgress
 
         ShareUrl shareInfo ->
-            ( model, Ports.encodeShareText shareInfo )
+            Return.return model (Ports.encodeShareText shareInfo)
 
         OnNotification notification ->
             Return.singleton { model | notification = Just notification }
@@ -961,7 +979,7 @@ update message model =
                 newShareModel =
                     { shareModel | embedUrl = embedUrl }
             in
-            ( { model | shareModel = newShareModel }, Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl) )
+            Return.return { model | shareModel = newShareModel } (Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl))
 
         OnDecodeShareText text ->
             Return.return model (Ports.loadText text)

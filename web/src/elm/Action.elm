@@ -6,7 +6,6 @@ import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Session as Session
 import Data.Text as Text
 import Data.Title as Title
-import Effect
 import GraphQL.Request as Request
 import Models.Diagram as DiagramModel
 import Models.Model exposing (Model, Msg(..), Notification(..), Page, SwitchWindow(..))
@@ -110,7 +109,10 @@ saveToRemote diagram model =
 
 setFocus : String -> Model -> Return Msg Model
 setFocus id model =
-    Effect.focus NoOp id model
+    Return.return model
+        (Task.attempt (\_ -> NoOp)
+            (Dom.focus id)
+        )
 
 
 pushUrl : String -> Model -> Return Msg Model
@@ -171,6 +173,11 @@ setText text model =
 setTitle : String -> Model -> Return Msg Model
 setTitle title model =
     Return.singleton { model | title = Title.fromString <| title }
+
+
+setCurrentDiagram : Maybe DiagramItem -> Model -> Return Msg Model
+setCurrentDiagram currentDiagram model =
+    Return.singleton { model | currentDiagram = currentDiagram }
 
 
 setDiagramSettings : DiagramModel.Settings -> Model -> Return Msg Model

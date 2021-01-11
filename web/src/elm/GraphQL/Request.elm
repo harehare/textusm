@@ -1,4 +1,4 @@
-module GraphQL.Request exposing (bookmark, delete, item, items, save)
+module GraphQL.Request exposing (bookmark, delete, item, items, publicItem, save)
 
 import Data.DiagramItem exposing (DiagramItem)
 import Data.IdToken as IdToken exposing (IdToken)
@@ -24,7 +24,15 @@ graphQLUrl req =
 
 item : RequestInfo -> String -> Task (Http.Error DiagramItem) DiagramItem
 item req id =
-    Query.item id
+    Query.item id False
+        |> Http.queryRequest (graphQLUrl req)
+        |> headers req.idToken
+        |> Http.toTask
+
+
+publicItem : RequestInfo -> String -> Task (Http.Error DiagramItem) DiagramItem
+publicItem req id =
+    Query.item id True
         |> Http.queryRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask

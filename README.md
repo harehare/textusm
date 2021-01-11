@@ -1,6 +1,6 @@
 # TextUSM
 
-[![Build Status](https://travis-ci.com/harehare/textusm.svg?branch=master)](https://travis-ci.com/harehare/textusm) [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 ![](https://github.com/harehare/textusm/workflows/build/badge.svg?branch=master)
 
 TextUSM is a simple tool. Help you draw user story map using indented text.

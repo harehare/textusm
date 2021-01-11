@@ -1,12 +1,13 @@
 module Page.Tags exposing (Model, Msg(..), init, update, view)
 
-import Effect
+import Browser.Dom as Dom
 import Events
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (autofocus, class, id, placeholder, style)
 import Html.Events exposing (onClick, onInput)
 import List.Extra exposing (last)
 import Return as Return exposing (Return)
+import Task
 import Views.Icon as Icon
 
 
@@ -35,7 +36,10 @@ init tags =
 
 focusInput : Model -> Return Msg Model
 focusInput model =
-    Effect.focus NoOp "edit-tag" model
+    Return.return model
+        (Task.attempt (\_ -> NoOp)
+            (Dom.focus "edit-tag")
+        )
 
 
 update : Msg -> Model -> Return Msg Model

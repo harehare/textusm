@@ -367,7 +367,6 @@ diagramListView props =
                             div [ class "w-full flex-center" ]
                                 [ div
                                     [ class "button bg-activity text-center"
-                                    , style "width" "100px"
                                     , style "padding" "16px"
                                     , style "margin" "8px"
                                     , onClick <| LoadNextPage props.publicStatus <| props.pageNo + 1
@@ -385,7 +384,7 @@ diagramListView props =
 diagramView : Zone -> DiagramItem -> Html Msg
 diagramView timezone diagram =
     div
-        [ class "diagram-item bg-contain bg-no-repeat"
+        [ class "diagram-item bg-contain bg-no-repeat relative"
         , style "background-image" ("url(\"" ++ (diagram.thumbnail |> Maybe.withDefault "") ++ "\")")
         , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
         ]
@@ -397,34 +396,6 @@ diagramView timezone diagram =
             , div
                 [ class "flex items-center justify-between" ]
                 [ div [ class "datetime" ] [ text (DateUtils.millisToString timezone diagram.updatedAt) ]
-                , if diagram.isRemote then
-                    div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOn 14 ]
-
-                  else
-                    div [ style "margin-left" "16px", class "cloud" ] [ Icon.cloudOff 14 ]
-                , if diagram.isPublic then
-                    div [ style "margin-left" "16px", class "public" ] [ Icon.lockOpen "rgba(51, 51, 51, 0.7)" 14 ]
-
-                  else
-                    div [ style "margin-left" "16px", class "public" ] [ Icon.lock "rgba(51, 51, 51, 0.7)" 14 ]
-                , div [ style "margin-left" "16px", class "remove button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
-                , case ( diagram.isBookmark, diagram.isRemote ) of
-                    ( True, True ) ->
-                        div
-                            [ class "bookmark"
-                            , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
-                            ]
-                            [ Icon.bookmark "#3e9bcd" 16 ]
-
-                    ( False, True ) ->
-                        div
-                            [ class "bookmark"
-                            , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
-                            ]
-                            [ Icon.unbookmark "#3e9bcd" 16 ]
-
-                    _ ->
-                        Empty.view
                 , div
                     [ class "absolute justify-end flex-wrap w-full hidden lg:flex"
                     , style "bottom" "60px"
@@ -433,6 +404,38 @@ diagramView timezone diagram =
                     (List.map tagView (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
                 ]
             ]
+        , if diagram.isRemote then
+            div [ class "cloud" ] [ Icon.cloudOn 14 ]
+
+          else
+            div [ class "cloud" ] [ Icon.cloudOff 14 ]
+        , if diagram.isPublic then
+            div [ class "public" ] [ Icon.lockOpen "rgba(51, 51, 51, 0.7)" 14 ]
+
+          else
+            div [ class "public" ] [ Icon.lock "rgba(51, 51, 51, 0.7)" 14 ]
+        , if diagram.isPublic then
+            Empty.view
+
+          else
+            div [ class "remove button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
+        , case ( diagram.isBookmark, diagram.isRemote ) of
+            ( True, True ) ->
+                div
+                    [ class "bookmark"
+                    , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
+                    ]
+                    [ Icon.bookmark "#3e9bcd" 16 ]
+
+            ( False, True ) ->
+                div
+                    [ class "bookmark"
+                    , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
+                    ]
+                    [ Icon.unbookmark "#3e9bcd" 16 ]
+
+            _ ->
+                Empty.view
         ]
 
 

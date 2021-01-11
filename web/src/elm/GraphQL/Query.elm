@@ -11,9 +11,9 @@ import TextUSM.Query as Query
 import TextUSM.Scalar exposing (Id(..))
 
 
-item : String -> SelectionSet DiagramItem RootQuery
-item id =
-    Query.item (\optionals -> { optionals | isPublic = Present False }) { id = id } <|
+item : String -> Bool -> SelectionSet DiagramItem RootQuery
+item id isPublic =
+    Query.item (\optionals -> { optionals | isPublic = Present isPublic }) { id = id } <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
             |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))

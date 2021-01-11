@@ -294,6 +294,27 @@
                 height: 150px;
             }
         }
+        .remove {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+        .cloud {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        .public {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        .bookmark {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            margin: 4px;
+        }
 
         &:hover {
             &::after {
