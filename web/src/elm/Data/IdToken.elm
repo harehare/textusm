@@ -11,7 +11,11 @@ type IdToken
 
 fromString : String -> IdToken
 fromString string =
-    IdToken ("Bearer " ++ string)
+    if String.startsWith "Bearer " string then
+        IdToken string
+
+    else
+        IdToken ("Bearer " ++ string)
 
 
 unwrap : IdToken -> String
