@@ -2,6 +2,7 @@ module Action exposing (..)
 
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
+import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Session as Session
 import Data.Text as Text
@@ -22,6 +23,11 @@ import Utils.Utils as Utils
 loadText : DiagramItem.DiagramItem -> Model -> Return Msg Model
 loadText diagram model =
     Return.return model (Task.attempt Load <| Task.succeed diagram)
+
+
+loadLocalDiagram : DiagramId -> Model -> Return Msg Model
+loadLocalDiagram diagramId model =
+    Return.return model <| Ports.getDiagram (DiagramId.toString diagramId)
 
 
 loadTextToEditor : Model -> Return Msg Model

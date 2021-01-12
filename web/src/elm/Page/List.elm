@@ -501,7 +501,7 @@ update message model =
                 (DiagramList remoteData _ hasMorePage) =
                     model.diagramList
             in
-            ( { model | diagramList = DiagramList remoteData pageNo hasMorePage }, getDiagrams () )
+            Return.return { model | diagramList = DiagramList remoteData pageNo hasMorePage } (getDiagrams ())
 
         LoadNextPage Public pageNo ->
             ( { model | publicDiagramList = DiagramList Loading pageNo True }, Task.perform identity (Task.succeed GetPublicDiagrams) )

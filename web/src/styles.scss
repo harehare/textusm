@@ -184,7 +184,7 @@
 }
 
 .header-title {
-    @apply flex text-lg font-semibold overflow-hidden items-center justify-start whitespace-nowrap;
+    @apply flex text-lg font-medium overflow-hidden items-center justify-start whitespace-nowrap;
     color: #f4f4f4;
     text-overflow: ellipsis;
     text-align: left;

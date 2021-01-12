@@ -4,6 +4,7 @@ import Browser.Navigation as Nav
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
+import UUID
 import Url exposing (Url)
 import Url.Builder exposing (absolute)
 import Url.Parser as Parser exposing ((</>), Parser, custom, map, oneOf, parse, s, string)
@@ -30,6 +31,7 @@ type Route
     | New
     | Edit DiagramPath
     | EditFile DiagramPath DiagramId
+    | ViewPublic DiagramPath DiagramId
     | DiagramList
     | Settings
     | Help
@@ -47,7 +49,7 @@ parser =
         [ map Home Parser.top
         , map Share (s "share" </> diagramType </> string </> string)
         , map Embed (s "embed" </> diagramType </> string </> string)
-        , map View (s "view" </> string </> string)
+        , map View (s "view" </> diagramType </> string)
         , map DiagramList (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
@@ -56,6 +58,7 @@ parser =
         , map SharingDiagram (s "sharing")
         , map Edit (s "edit" </> diagramType)
         , map EditFile (s "edit" </> diagramType </> diagramId)
+        , map ViewPublic (s "public" </> diagramType </> diagramId)
         ]
 
 
@@ -70,7 +73,9 @@ diagramId : Parser (DiagramId -> a) a
 diagramId =
     custom "DIAGRAM_ID" <|
         \segment ->
-            Just <| DiagramId.fromString segment
+            UUID.fromString segment
+                |> Result.toMaybe
+                |> Maybe.map (\_ -> DiagramId.fromString segment)
 
 
 toRoute : Url -> Route
@@ -85,7 +90,11 @@ toDiagramToRoute diagram =
             Edit <| DiagramType.toString diagram.diagram
 
         Just id_ ->
-            EditFile (DiagramType.toString diagram.diagram) id_
+            if diagram.isPublic then
+                ViewPublic (DiagramType.toString diagram.diagram) id_
+
+            else
+                EditFile (DiagramType.toString diagram.diagram) id_
 
 
 toString : Route -> String
@@ -102,6 +111,9 @@ toString route =
 
         EditFile type_ id_ ->
             absolute [ "edit", type_, DiagramId.toString id_ ] []
+
+        ViewPublic type_ id_ ->
+            absolute [ "pubilc", type_, DiagramId.toString id_ ] []
 
         DiagramList ->
             absolute [ "list" ] []
