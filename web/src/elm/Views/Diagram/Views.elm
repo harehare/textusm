@@ -11,13 +11,14 @@ import Events exposing (onClickStopPropagation, onKeyDown)
 import Html as Html exposing (Html, div, img, input)
 import Html.Attributes as Attr
 import Html.Events exposing (onInput)
-import Html5.DragDrop as DragDrop
+import List.Extra exposing (getAt)
 import Markdown
 import Maybe.Extra exposing (isJust)
 import Models.Diagram as Diagram exposing (Msg(..), SelectedItem, Settings, fontStyle, getTextColor, settingsOfWidth)
 import String
 import Svg exposing (Svg)
 import Svg.Attributes exposing (class, color, fill, fillOpacity, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x, y)
+import Utils.Utils as Utils
 
 
 type alias RgbColor =
@@ -57,7 +58,7 @@ getItemColor settings item =
             ( Color.toString c, settings.color.activity.backgroundColor )
 
         ( Activities, Nothing, Just b ) ->
-            ( settings.color.activity.backgroundColor, Color.toString b )
+            ( settings.color.activity.color, Color.toString b )
 
         ( Activities, Nothing, Nothing ) ->
             ( settings.color.activity.color, settings.color.activity.backgroundColor )
@@ -81,17 +82,33 @@ getItemColor settings item =
             ( settings.color.story.color, settings.color.story.backgroundColor )
 
 
-card : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
-card { settings, position, selectedItem, item } =
+card : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item, canMove : Bool } -> Svg Msg
+card { settings, position, selectedItem, item, canMove } =
     let
         ( color, backgroundColor ) =
             getItemColor settings item
 
+        ( offsetX, offsetY ) =
+            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
+
         ( posX, posY ) =
-            position
+            if ( offsetX, offsetY ) == Position.zero then
+                position
+
+            else
+                position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
 
         view_ =
-            Svg.g [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height + 8 ) ) ]
+            Svg.g
+                [ onClickStopPropagation <|
+                    Select <|
+                        Just ( item, ( posX, posY + settings.size.height + 8 ) )
+                , if canMove then
+                    Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
+
+                  else
+                    style ""
+                ]
                 [ Svg.rect
                     [ width <| String.fromInt settings.size.width
                     , height <| String.fromInt <| settings.size.height - 1
@@ -162,12 +179,10 @@ dropArea ( posX, posY ) ( svgWidth, svgHeight ) item =
         , height <| String.fromInt svgHeight
         ]
         [ div
-            ([ Attr.style "background-color" "transparent"
-             , Attr.style "width" (String.fromInt svgWidth ++ "px")
-             , Attr.style "height" (String.fromInt svgHeight ++ "px")
-             ]
-                ++ DragDrop.droppable DragDropMsg (Item.getLineNo item)
-            )
+            [ Attr.style "background-color" "transparent"
+            , Attr.style "width" (String.fromInt svgWidth ++ "px")
+            , Attr.style "height" (String.fromInt svgHeight ++ "px")
+            ]
             []
         ]
 
@@ -191,13 +206,11 @@ inputView { settings, fontSize, inputStyle, position, size, color, backgroundCol
         , height <| String.fromInt <| Size.getHeight size
         ]
         [ div
-            ([ Attr.style "background-color" backgroundColor
-             , Attr.style "width" (String.fromInt (Size.getWidth size) ++ "px")
-             , Attr.style "height" (String.fromInt (Size.getHeight size) ++ "px")
-             , inputStyle
-             ]
-                ++ DragDrop.draggable DragDropMsg (Item.getLineNo item)
-            )
+            [ Attr.style "background-color" backgroundColor
+            , Attr.style "width" (String.fromInt (Size.getWidth size) ++ "px")
+            , Attr.style "height" (String.fromInt (Size.getHeight size) ++ "px")
+            , inputStyle
+            ]
             [ input
                 [ Attr.id "edit-item"
                 , Attr.type_ "text"
@@ -421,6 +434,7 @@ canvasText { settings, svgWidth, position, selectedItem, items } =
                     , position = ( posX + 16, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin + 35 )
                     , selectedItem = selectedItem
                     , item = item
+                    , canMove = False
                     }
             )
             items
@@ -482,11 +496,6 @@ node settings ( posX, posY ) selectedItem item =
                     ]
                     []
                 , textNode settings ( posX, posY ) ( nodeWidth, settings.size.height ) color item
-                , if isJust selectedItem then
-                    dropArea ( posX, posY ) ( nodeWidth, settings.size.height ) item
-
-                  else
-                    Svg.g [] []
                 ]
     in
     case selectedItem of
@@ -615,15 +624,13 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
         , height <| String.fromInt svgHeight
         ]
         [ div
-            ([ Attr.style "background-color" "transparent"
-             , Attr.style "width" (String.fromInt svgWidth ++ "px")
-             , Attr.style "height" (String.fromInt svgHeight ++ "px")
-             , Attr.style "display" "flex"
-             , Attr.style "align-items" "center"
-             , Attr.style "justify-content" "center"
-             ]
-                ++ DragDrop.draggable DragDropMsg (Item.getLineNo item)
-            )
+            [ Attr.style "background-color" "transparent"
+            , Attr.style "width" (String.fromInt svgWidth ++ "px")
+            , Attr.style "height" (String.fromInt svgHeight ++ "px")
+            , Attr.style "display" "flex"
+            , Attr.style "align-items" "center"
+            , Attr.style "justify-content" "center"
+            ]
             [ input
                 [ Attr.id "edit-item"
                 , Attr.type_ "text"

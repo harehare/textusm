@@ -1,7 +1,8 @@
-module Models.Views.FreeForm exposing (..)
+module Models.Views.FreeForm exposing (FreeForm, from, getItems, unwrap)
 
 import Data.Color as Color exposing (Color)
 import Data.Item as Item exposing (Items)
+import Data.Size exposing (Size)
 
 
 type FreeForm
@@ -16,3 +17,8 @@ getItems (FreeForm items) =
 from : Items -> FreeForm
 from items =
     FreeForm <| Item.flatten items
+
+
+unwrap : FreeForm -> Items
+unwrap (FreeForm items) =
+    items

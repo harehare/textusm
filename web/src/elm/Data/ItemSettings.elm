@@ -11,7 +11,7 @@ module Data.ItemSettings exposing
     , withBackgroundColor
     , withFontSize
     , withForegroundColor
-    , withPosition
+    , withOffset
     )
 
 import Data.Color as Color exposing (Color)
@@ -75,8 +75,8 @@ withForegroundColor fg (ItemSettings settings) =
     ItemSettings { settings | foregroundColor = fg }
 
 
-withPosition : Position -> ItemSettings -> ItemSettings
-withPosition position (ItemSettings settings) =
+withOffset : Position -> ItemSettings -> ItemSettings
+withOffset position (ItemSettings settings) =
     ItemSettings { settings | offset = position }
 
 

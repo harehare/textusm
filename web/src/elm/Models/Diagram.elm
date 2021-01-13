@@ -11,6 +11,7 @@ module Models.Diagram exposing
     , SelectedItem
     , Settings
     , Size
+    , dragStart
     , fontStyle
     , getTextColor
     , isMoving
@@ -45,12 +46,14 @@ import Data.Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size as Size
 import Data.Text exposing (Text)
+import Events
 import File exposing (File)
-import Html5.DragDrop as DragDrop
+import List.Extra exposing (getAt)
 import Models.Views.BusinessModelCanvas exposing (BusinessModelCanvas)
 import Models.Views.ER as ER exposing (ErDiagram)
 import Models.Views.EmpathyMap exposing (EmpathyMap)
 import Models.Views.FourLs exposing (FourLs)
+import Models.Views.FreeForm exposing (FreeForm)
 import Models.Views.Kanban exposing (Kanban)
 import Models.Views.Kpt exposing (Kpt)
 import Models.Views.OpportunityCanvas exposing (OpportunityCanvas)
@@ -62,7 +65,9 @@ import Models.Views.UserStoryMap exposing (UserStoryMap)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
+import Svg
 import TextUSM.Enum.Diagram exposing (Diagram)
+import Utils.Utils as Utils
 
 
 type alias IsDragging =
@@ -92,7 +97,6 @@ type alias Model =
     , diagramType : Diagram
     , text : Text
     , selectedItem : SelectedItem
-    , dragDrop : DragDrop.Model Int Int
     , contextMenu : Maybe ( ContextMenu, Position )
     , dragStatus : DragStatus
     , dropDownIndex : Maybe String
@@ -155,6 +159,7 @@ type Data
     | StartStopContinue StartStopContinue
     | ErDiagram ErDiagram
     | SequenceDiagram SequenceDiagram
+    | FreeForm FreeForm
 
 
 type ContextMenu
@@ -249,7 +254,6 @@ type Msg
     | StartPinch Distance
     | EditSelectedItem String
     | EndEditSelectedItem Item Int Bool
-    | DragDropMsg (DragDrop.Msg Int Int)
     | MoveItem ( Int, Int )
     | FitToWindow
     | Select (Maybe ( Item, Position ))
@@ -411,3 +415,41 @@ sizeOfWidth =
 sizeOfHeight : Lens Size Int
 sizeOfHeight =
     Lens .height (\b a -> { a | height = b })
+
+
+dragStart : MoveState -> Bool -> Svg.Attribute Msg
+dragStart state isPhone =
+    if isPhone then
+        Events.onTouchStart
+            (\event ->
+                if List.length event.changedTouches > 1 then
+                    let
+                        p1 =
+                            getAt 0 event.changedTouches
+                                |> Maybe.map .pagePos
+                                |> Maybe.withDefault ( 0, 0 )
+
+                        p2 =
+                            getAt 1 event.changedTouches
+                                |> Maybe.map .pagePos
+                                |> Maybe.withDefault ( 0, 0 )
+                    in
+                    StartPinch (Utils.calcDistance p1 p2)
+
+                else
+                    let
+                        ( x, y ) =
+                            Events.touchCoordinates event
+                    in
+                    Start state ( round x, round y )
+            )
+
+    else
+        Events.onMouseDown
+            (\event ->
+                let
+                    ( x, y ) =
+                        event.pagePos
+                in
+                Start state ( round x, round y )
+            )

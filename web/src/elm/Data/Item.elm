@@ -5,7 +5,6 @@ module Data.Item exposing
     , Items
     , childrenFromItems
     , cons
-    , createText
     , empty
     , emptyChildren
     , filter
@@ -23,6 +22,7 @@ module Data.Item exposing
     , getItemType
     , getLeafCount
     , getLineNo
+    , getOffset
     , getText
     , head
     , indexedMap
@@ -35,6 +35,7 @@ module Data.Item exposing
     , spiltText
     , splitAt
     , tail
+    , toLineString
     , unwrap
     , unwrapChildren
     , withChildren
@@ -48,6 +49,7 @@ import Constants exposing (indentSpace, inputPrefix)
 import Data.Color as Color exposing (Color)
 import Data.FontSize exposing (FontSize)
 import Data.ItemSettings as ItemSettings exposing (ItemSettings)
+import Data.Position exposing (Position)
 import Data.Text as Text exposing (Text)
 import Json.Decode as D
 import List.Extra as ListEx
@@ -230,6 +232,14 @@ getFontSize item =
         |> ItemSettings.getFontSize
 
 
+getOffset : Item -> Position
+getOffset item =
+    item
+        |> getItemSettings
+        |> Maybe.withDefault ItemSettings.new
+        |> ItemSettings.getOffset
+
+
 getLineNo : Item -> Int
 getLineNo (Item i) =
     i.lineNo
@@ -374,14 +384,14 @@ leafCount (Items items) =
         items |> List.map (\(Item i) -> leafCount <| unwrapChildren i.children) |> List.sum
 
 
-createText : String -> Maybe ItemSettings -> String
-createText text settings =
-    case settings of
+toLineString : Item -> String
+toLineString item =
+    case getItemSettings item of
         Just s ->
-            text ++ "|" ++ ItemSettings.toString s
+            getText item ++ "|" ++ ItemSettings.toString s
 
         Nothing ->
-            text
+            getText item
 
 
 spiltText : String -> ( String, ItemSettings )
@@ -450,7 +460,7 @@ createItemType text indent =
 parse : Int -> String -> ( List String, List String )
 parse indent text =
     let
-        line =
+        l =
             String.lines text
                 |> List.filter
                     (\x ->
@@ -461,17 +471,17 @@ parse indent text =
                         not (String.isEmpty str)
                     )
     in
-    case List.tail line of
+    case List.tail l of
         Just t ->
             case
                 t
                     |> ListEx.findIndex (hasIndent indent)
             of
                 Just xs ->
-                    ListEx.splitAt (xs + 1) line
+                    ListEx.splitAt (xs + 1) l
 
                 Nothing ->
-                    ( line, [] )
+                    ( l, [] )
 
         Nothing ->
             ( [], [] )

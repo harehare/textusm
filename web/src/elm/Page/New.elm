@@ -33,6 +33,7 @@ newItems =
     , NewItem "Start, Stop, Continue" Asset.startStopContinue (Route.toString <| Route.Edit <| DiagramType.toString StartStopContinue)
     , NewItem "KPT" Asset.kpt (Route.toString <| Route.Edit <| DiagramType.toString Kpt)
     , NewItem "Table" Asset.table (Route.toString <| Route.Edit <| DiagramType.toString Table)
+    , NewItem "Freeform" Asset.freeform (Route.toString <| Route.Edit <| DiagramType.toString Freeform)
     ]
 
 

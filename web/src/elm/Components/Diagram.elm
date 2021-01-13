@@ -21,11 +21,13 @@ import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import List
 import List.Extra exposing (getAt, removeAt, setAt, splitAt)
+import Maybe
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Views.ER as ErDiagramModel
 import Models.Views.EmpathyMap as EmpathyMapModel
 import Models.Views.FourLs as FourLsModel
+import Models.Views.FreeForm as FreeFormModel
 import Models.Views.Kanban as KanbanModel
 import Models.Views.Kpt as KptModel
 import Models.Views.OpportunityCanvas as OpportunityCanvasModel
@@ -89,7 +91,6 @@ init settings =
         , diagramType = UserStoryMap
         , text = Text.empty
         , selectedItem = Nothing
-        , dragDrop = DragDrop.init
         , contextMenu = Nothing
         , dragStatus = NoDrag
         , dropDownIndex = Nothing
@@ -250,7 +251,6 @@ diagramView diagramType =
             SequenceDiagram.view
 
         Freeform ->
-            -- not implemented
             FreeForm.view
 
 
@@ -579,6 +579,9 @@ updateDiagram ( width, height ) base text =
                 SequenceDiagram ->
                     Diagram.SequenceDiagram <| SequenceDiagramModel.from items
 
+                Freeform ->
+                    Diagram.FreeForm <| FreeFormModel.from items
+
                 _ ->
                     Diagram.Items items
     in
@@ -633,6 +636,24 @@ setLine lineNo lines line model =
                 |> String.join "\n"
     in
     setText text model
+
+
+setItem : Int -> Item -> Items -> Model -> Return Msg Model
+setItem lineNo item items model =
+    Return.singleton
+        { model
+            | items =
+                Item.map
+                    (\i ->
+                        if Item.getLineNo i == Item.getLineNo item then
+                            item
+
+                        else
+                            i
+                    )
+                    items
+                    |> Item.fromList
+        }
 
 
 selectItem : SelectedItem -> Model -> Return Msg Model
@@ -736,23 +757,28 @@ update message model =
                 }
 
         Stop ->
-            case model.moveState of
-                Diagram.ItemMove target ->
-                    case target of
-                        Diagram.TableTarget table ->
-                            let
-                                (ErDiagramModel.Table _ _ _ lineNo) =
-                                    table
-                            in
-                            stopMove model
-                                |> Return.andThen (setLine lineNo (Text.lines model.text) (ErDiagramModel.tableToLineString table))
-                                |> Return.andThen loadTextToEditor
+            Return.singleton model
+                |> (case model.moveState of
+                        Diagram.ItemMove target ->
+                            (case target of
+                                Diagram.TableTarget table ->
+                                    let
+                                        (ErDiagramModel.Table _ _ _ lineNo) =
+                                            table
+                                    in
+                                    Return.andThen (setLine lineNo (Text.lines model.text) (ErDiagramModel.tableToLineString table))
 
-                        Diagram.ItemTarget _ ->
-                            stopMove model
+                                Diagram.ItemTarget item ->
+                                    Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
+                                        >> Return.andThen (setItem (Item.getLineNo item) item model.items)
+                            )
+                                >> Return.andThen loadTextToEditor
+                                >> Return.andThen stopMove
 
-                _ ->
-                    stopMove model
+                        _ ->
+                            Return.zero
+                   )
+                |> Return.andThen stopMove
 
         Move ( x, y ) ->
             Return.singleton <|
@@ -778,16 +804,17 @@ update message model =
                                             table
 
                                         newPosition =
-                                            position
-                                                |> Maybe.andThen
-                                                    (\p ->
-                                                        Just
-                                                            ( Position.getX p + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
-                                                            , Position.getY p + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
-                                                            )
-                                                    )
-                                                |> Maybe.withDefault ( x - Position.getX model.movePosition, y - Position.getY model.movePosition )
-                                                |> Just
+                                            Just
+                                                (position
+                                                    |> Maybe.andThen
+                                                        (\p ->
+                                                            Just
+                                                                ( Position.getX p + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                                                                , Position.getY p + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                                )
+                                                        )
+                                                    |> Maybe.withDefault ( x - Position.getX model.movePosition, y - Position.getY model.movePosition )
+                                                )
                                     in
                                     { model
                                         | moveState =
@@ -796,8 +823,26 @@ update message model =
                                         , movePosition = ( x, y )
                                     }
 
-                                Diagram.ItemTarget _ ->
-                                    model
+                                Diagram.ItemTarget item ->
+                                    let
+                                        offset =
+                                            Item.getOffset item
+
+                                        newPosition =
+                                            ( Position.getX offset + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                                            , Position.getY offset + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                            )
+                                    in
+                                    { model
+                                        | moveState =
+                                            Diagram.ItemMove
+                                                (Diagram.ItemTarget <|
+                                                    Item.withItemSettings
+                                                        (Just (Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffset newPosition))
+                                                        item
+                                                )
+                                        , movePosition = ( x, y )
+                                    }
 
                         _ ->
                             model
@@ -819,33 +864,6 @@ update message model =
 
         EditSelectedItem text ->
             Return.singleton { model | selectedItem = Maybe.andThen (\( i, _ ) -> Just ( i |> Item.withText (" " ++ String.trimLeft text), False )) model.selectedItem }
-
-        DragDropMsg msg_ ->
-            let
-                ( model_, result ) =
-                    DragDrop.update msg_ model.dragDrop
-
-                move =
-                    Maybe.map (\( fromNo, toNo, _ ) -> ( fromNo, toNo )) result
-            in
-            case ( move, model.selectedItem ) of
-                ( Just ( fromNo, toNo ), _ ) ->
-                    ( { model | dragDrop = model_ }, Task.perform MoveItem (Task.succeed ( fromNo, toNo )) )
-
-                ( Nothing, Just ( item, _ ) ) ->
-                    case DragDrop.getDragId model.dragDrop of
-                        Nothing ->
-                            Return.singleton { model | dragDrop = model_, selectedItem = Just ( item, False ) }
-
-                        Just id_ ->
-                            if Item.getLineNo item == id_ then
-                                Return.singleton { model | dragDrop = model_, selectedItem = Just ( item, True ) }
-
-                            else
-                                Return.singleton { model | dragDrop = model_, selectedItem = Just ( item, False ) }
-
-                ( Nothing, _ ) ->
-                    Return.singleton { model | dragDrop = model_, selectedItem = Maybe.andThen (\( item_, _ ) -> Just ( item_, False )) model.selectedItem }
 
         FitToWindow ->
             let
@@ -927,7 +945,10 @@ update message model =
                                 |> Item.spiltText
 
                         text =
-                            Item.createText mainText <| Just (settings |> ItemSettings.withFontSize size)
+                            Item.new
+                                |> Item.withText mainText
+                                |> Item.withItemSettings (Just (settings |> ItemSettings.withFontSize size))
+                                |> Item.toLineString
 
                         prefix =
                             currentText
@@ -980,10 +1001,16 @@ update message model =
                         text =
                             case menu of
                                 Diagram.ColorSelectMenu ->
-                                    Item.createText mainText <| Just (settings |> ItemSettings.withForegroundColor (Just color))
+                                    Item.new
+                                        |> Item.withText mainText
+                                        |> Item.withItemSettings (Just (settings |> ItemSettings.withForegroundColor (Just color)))
+                                        |> Item.toLineString
 
                                 Diagram.BackgroundColorSelectMenu ->
-                                    Item.createText mainText <| Just (ItemSettings.withBackgroundColor (Just color) settings)
+                                    Item.new
+                                        |> Item.withText mainText
+                                        |> Item.withItemSettings (Just (ItemSettings.withBackgroundColor (Just color) settings))
+                                        |> Item.toLineString
 
                                 _ ->
                                     currentText |> Maybe.withDefault ""
@@ -1052,8 +1079,14 @@ update message model =
                             currentText
                                 |> Item.spiltText
 
+                        updateLine =
+                            Item.new
+                                |> Item.withText (prefix ++ (String.trimLeft text |> FontStyle.apply style))
+                                |> Item.withItemSettings (Just settings)
+                                |> Item.toLineString
+
                         updateText =
-                            setAt (Item.getLineNo item) (Item.createText (prefix ++ (String.trimLeft text |> FontStyle.apply style)) (Just settings)) lines
+                            setAt (Item.getLineNo item) updateLine lines
                                 |> String.join "\n"
                     in
                     setText updateText model

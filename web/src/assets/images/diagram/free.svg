@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 659 345" width="659" height="345" style="background-color: transform;">
+    <defs>
+        <style>@import url('https://fonts.googleapis.com/css?family=Nunito Sans&amp;display=swap');</style>
+    </defs>
+    <defs>
+        <filter id="shadow" height="130%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+            <feOffset dx="2" dy="2" result="offsetblur"/>
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.5"/>
+            </feComponentTransfer>
+            <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+    <g transform="translate(0,20), scale(1,1)" fill="#D3D3D3" style="will-change: transform;transition: transform 0.15s ease">
+        <g>
+            <g>
+                <rect width="140" height="64" x="259" y="95" fill="#266B9A" rx="1" ry="1" style="filter:url(#shadow)"/>
+                <text x="265" y="119" width="140" height="65" fill="#FFFFFF" color="#FFFFFF" font-family="'Nunito Sans', sans-serif" font-size="14" class=".select-none">Freeform</text>
+                <g/></g>
+            <g>
+                <rect width="140" height="64" x="93" y="42" fill="#FFF9B2" rx="1" ry="1" style="filter:url(#shadow)"/>
+                <text x="99" y="66" width="140" height="65" fill="#000000" color="#000000" font-family="'Nunito Sans', sans-serif" font-size="14" class=".select-none">Freeform</text>
+                <g/></g>
+            <g>
+                <rect width="140" height="64" x="439" y="60" fill="#EE8A8B" rx="1" ry="1" style="filter:url(#shadow)"/>
+                <text x="445" y="84" width="140" height="65" fill="#000000" color="#000000" font-family="'Nunito Sans', sans-serif" font-size="14" class=".select-none">Freeform</text>
+                <g/></g>
+            <g>
+                <rect width="140" height="64" x="503" y="139" fill="#CD89F7" rx="1" ry="1" style="filter:url(#shadow)"/>
+                <text x="509" y="163" width="140" height="65" fill="#FFFFFF" color="#FFFFFF" font-family="'Nunito Sans', sans-serif" font-size="14" class=".select-none">Freeform</text>
+                <g/></g>
+            <g>
+                <rect width="140" height="64" x="66" y="136" fill="#F6CFE6" rx="1" ry="1" style="filter:url(#shadow)"/>
+                <text x="72" y="160" width="140" height="65" fill="#000000" color="#000000" font-family="'Nunito Sans', sans-serif" font-size="14" class=".select-none">Freeform</text>
+                <g/></g>
+            <g>
+                <rect width="140" height="64" x="80" y="244" fill="#D3F8E2" rx="1" ry="1" style="filter:url(#shadow)"/>
+                <text x="86" y="268" width="140" height="65" fill="#000000" color="#000000" font-family="'Nunito Sans', sans-serif" font-size="14" class=".select-none">Freeform</text>
+                <g/></g>
+            <g>
+                <rect width="140" height="64" x="277" y="212" fill="#434343" rx="1" ry="1" style="filter:url(#shadow)"/>
+                <text x="283" y="236" width="140" height="65" fill="#FFFFFF" color="#FFFFFF" font-family="'Nunito Sans', sans-serif" font-size="14" class=".select-none">Freeform</text>
+                <g/></g>
+            <g>
+                <rect width="140" height="64" x="463" y="238" fill="#CEE5F2" rx="1" ry="1" style="filter:url(#shadow)"/>
+                <text x="469" y="262" width="140" height="65" fill="#000000" color="#000000" font-family="'Nunito Sans', sans-serif" font-size="14" class=".select-none">Freeform</text>
+                <g/></g>
+        </g>
+    </g>
+</svg>

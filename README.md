@@ -26,6 +26,7 @@ TextUSM is a simple tool. Help you draw user story map using indented text.
   - ER Diagram
   - Kanban
   - Sequence Diagram
+  - Freeform
 - Export a Diagram
   - SVG
   - PNG

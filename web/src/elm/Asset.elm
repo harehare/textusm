@@ -4,6 +4,7 @@ module Asset exposing
     , empathyMap
     , erDiagram
     , fourLs
+    , freeform
     , ganttChart
     , impactMap
     , kanban
@@ -111,6 +112,11 @@ table =
 sequenceDiagram : Asset
 sequenceDiagram =
     asset "diagram/sed.svg"
+
+
+freeform : Asset
+freeform =
+    asset "diagram/free.svg"
 
 
 asset : String -> Asset

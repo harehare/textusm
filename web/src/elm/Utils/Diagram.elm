@@ -6,12 +6,14 @@ import Http exposing (Error(..))
 import List.Extra exposing (last, scanl1, takeWhile)
 import Models.Diagram as DiagramModel
 import Models.Views.ER as ER exposing (Table(..))
+import Models.Views.FreeForm as FreeForm
 import Models.Views.Kanban as Kanban
 import Models.Views.SequenceDiagram as SequenceDiagram
 import Models.Views.UserStoryMap as UserStoryMap
 import TextUSM.Enum.Diagram as Diagram
 import Time exposing (Month(..), utc)
 import Time.Extra exposing (Interval(..), diff)
+import Tuple
 import Utils.Date as DateUtils
 
 
@@ -232,8 +234,44 @@ getCanvasSize model =
                     ( diagramWidth, diagramHeight )
 
                 Diagram.Freeform ->
-                    -- not implemented
-                    ( 0, 0 )
+                    let
+                        items =
+                            FreeForm.from model.items
+                                |> FreeForm.unwrap
+
+                        positionList =
+                            Item.indexedMap
+                                (\i item ->
+                                    let
+                                        ( offsetX, offsetY ) =
+                                            Item.getOffset item
+                                    in
+                                    ( 16 + (modBy 4 i + 1) * (model.settings.size.width + 32)
+                                    , (i // 4 + 1) * (model.settings.size.height + 32)
+                                    )
+                                        |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+                                )
+                                items
+
+                        freeFormWidth =
+                            List.map
+                                (\( w, h ) ->
+                                    w
+                                )
+                                positionList
+                                |> List.maximum
+                                |> Maybe.withDefault 0
+
+                        freeFormHeight =
+                            List.map
+                                (\( w, h ) ->
+                                    h
+                                )
+                                positionList
+                                |> List.maximum
+                                |> Maybe.withDefault 0
+                    in
+                    ( freeFormWidth, freeFormHeight )
     in
     ( width, height )
 

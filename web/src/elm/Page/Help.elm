@@ -54,6 +54,16 @@ view =
                     (String.fromChar '\u{00A0}' |> String.repeat 20)
                         ++ "https://app.textusm.com/images/logo.svg"
                 ]
+            , div [ class "story" ]
+                [ text <|
+                    (String.fromChar '\u{00A0}' |> String.repeat 4)
+                        ++ "Change font size, font color or background color."
+                ]
+            , div [ class "story" ]
+                [ text <|
+                    (String.fromChar '\u{00A0}' |> String.repeat 8)
+                        ++ "test|{\"b\":\"#CEE5F2\",\"f\":\"#EE8A8B\",\"o\":[0,0],\"s\":9}"
+                ]
             ]
         , section (Just "Comment Syntax")
         , div [ class "text comment", style "padding" "0 16px 16px" ]
