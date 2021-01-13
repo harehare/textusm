@@ -21,7 +21,7 @@ itemSettingsFuzzer =
             ItemSettings.new
                 |> ItemSettings.withBackgroundColor bg
                 |> ItemSettings.withForegroundColor fg
-                |> ItemSettings.withPosition offset
+                |> ItemSettings.withOffset offset
                 |> ItemSettings.withFontSize fontSize
         )
         (Fuzz.maybe colorFuzzer)
