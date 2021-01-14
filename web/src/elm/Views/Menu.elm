@@ -72,7 +72,7 @@ view props =
                     , class "menu-button"
                     ]
                     [ Icon.file newMenuColor 20
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text "New File" ] ]
+                    , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipNewFile props.lang ] ]
                     ]
 
               else

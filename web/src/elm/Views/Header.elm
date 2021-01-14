@@ -56,13 +56,13 @@ view props =
                     , style "width" "56px"
                     , style "height" "40px"
                     ]
-                    [ a [ href "/", attribute "aria-label" "Top", style "margin-top" "8px" ] [ img [ Asset.src Asset.logo, style "width" "32px", style "height" "32px", alt "logo" ] [] ] ]
+                    [ a [ href "/", attribute "aria-label" "Top" ] [ img [ Asset.src Asset.logo, style "width" "32px", style "height" "32px", alt "logo" ] [] ] ]
                 , case props.page of
                     Page.Main ->
                         if Title.isEdit props.title then
                             input
                                 [ id "title"
-                                , class "title bg-main border-none font text-lg"
+                                , class "title bg-main border-none font text-base font-bold"
                                 , style "padding" "2px"
                                 , style "color" "#f4f4f4"
                                 , value <| Title.toString props.title
@@ -91,10 +91,10 @@ view props =
                                 ]
 
                     Page.New ->
-                        div [ class "title header-title" ] [ text "New" ]
+                        div [ class "title header-title" ] [ text "New Diagram" ]
 
                     Page.List ->
-                        div [ class "title header-title" ] [ text "All" ]
+                        div [ class "title header-title" ] [ text "All Diagrams" ]
 
                     Page.Settings ->
                         div [ class "title header-title" ] [ text "Settings" ]
@@ -205,7 +205,7 @@ view props =
                     [ class "button m-2"
                     , stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
                     ]
-                    [ div [ style "width" "70px" ] [ text "SIGN IN" ]
+                    [ div [ style "width" "70px", class "text-base font-bold" ] [ text "SIGN IN" ]
                     , case props.menu of
                         Just LoginMenu ->
                             Menu.menu (Just "30px")

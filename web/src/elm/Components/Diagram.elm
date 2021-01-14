@@ -678,13 +678,13 @@ clearSelectedItem model =
 
 zoomIn : Model -> Return Msg Model
 zoomIn model =
-    if model.svg.scale <= 5.0 then
+    if model.svg.scale <= 10.0 then
         Return.singleton
             { model
                 | svg =
                     { width = model.svg.width
                     , height = model.svg.height
-                    , scale = model.svg.scale + 0.05
+                    , scale = model.svg.scale + 0.01
                     }
             }
 
@@ -694,13 +694,13 @@ zoomIn model =
 
 zoomOut : Model -> Return Msg Model
 zoomOut model =
-    if model.svg.scale > 0.05 then
+    if model.svg.scale > 0.01 then
         Return.singleton
             { model
                 | svg =
                     { width = model.svg.width
                     , height = model.svg.height
-                    , scale = model.svg.scale - 0.05
+                    , scale = model.svg.scale - 0.01
                     }
             }
 
