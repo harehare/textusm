@@ -36,7 +36,8 @@ type DiagramType =
   | "ImpactMap"
   | "ERDiagram"
   | "Kanban"
-  | "SequenceDiagram";
+  | "SequenceDiagram"
+  | "Freeform";
 
 interface Settings {
   diagramType: DiagramType;

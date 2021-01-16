@@ -72,7 +72,6 @@ init flags =
             , selectedItem = Nothing
             , contextMenu = Nothing
             , diagramType = DiagramType.fromString flags.diagramType
-            , dragDrop = DragDrop.init
             , settings =
                 { font = flags.fontName
                 , size =
@@ -188,12 +187,13 @@ update message model =
                     case model.diagramModel.moveState of
                         DiagramModel.ItemMove target ->
                             case target of
-                                DiagramModel.TableTarget table ->
+                                DiagramModel.TableTarget _ ->
                                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
                                         |> Return.andThen (updateText model_.text)
 
-                                _ ->
+                                DiagramModel.ItemTarget _ ->
                                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                                        |> Return.andThen (updateText model_.text)
 
                         _ ->
                             ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )

@@ -115,13 +115,15 @@ func Run() int {
 	s := &http.Server{
 		Addr:              fmt.Sprintf(":%s", env.Port),
 		Handler:           n,
-		ReadTimeout:       8 * time.Second,
-		WriteTimeout:      8 * time.Second,
+		ReadTimeout:       16 * time.Second,
+		WriteTimeout:      16 * time.Second,
 		MaxHeaderBytes:    1 << 20,
 		ReadHeaderTimeout: 8 * time.Second,
 	}
 
-	go gracefullShutdown(s, quit, done)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	go gracefullShutdown(ctx, s, quit, done)
 
 	log.Info().Msg(fmt.Sprintf("Start server %s", env.Port))
 	err = s.ListenAndServe()
@@ -133,12 +135,12 @@ func Run() int {
 	return 0
 }
 
-func gracefullShutdown(server *http.Server, quit <-chan os.Signal, done chan<- bool) {
+func gracefullShutdown(ctx context.Context, server *http.Server, quit <-chan os.Signal, done chan<- bool) {
 	<-quit
 	log.Info().Msg("Server is shutting down")
 
 	server.SetKeepAlivesEnabled(false)
-	if err := server.Shutdown(context.Background()); err != nil {
+	if err := server.Shutdown(ctx); err != nil {
 		log.Error().Msg(fmt.Sprintf("Could not gracefully shutdown the server: %v\n", err))
 	}
 	close(done)

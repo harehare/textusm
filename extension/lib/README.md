@@ -28,20 +28,13 @@ $ npm i -S textusm
 
 ## How to use
 
-### Text
-
-```javascript
+```js
 const textusm = require("textusm");
 const elm = document.getElementById("id");
 
 textusm.render(
   elm || "id",
-  `
-# labels: USER ACTIVITIES, USER TASKS, USER STORIES, RELEASE1, RELEASE2, RELEASE3
-# release1: 2019-06-01
-# release2: 2019-06-30
-# release2: 2019-07-31
-TextUSM
+  `TextUSM
     Online tool for making user story mapping
         Press Tab to indent lines
         Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.`,
@@ -49,635 +42,327 @@ TextUSM
   {
     size: { width: 1024, height: 1024 },
     showZoomControl: true,
+    // "UserStoryMap"
+    // | "BusinessModelCanvas"
+    // | "OpportunityCanvas"
+    // | "4Ls"
+    // | "StartStopContinue"
+    // | "Kpt"
+    // | "UserPersona"
+    // | "MindMap"
+    // | "Table"
+    // | "SiteMap"
+    // | "EmpathyMap"
+    // | "GanttChart"
+    // | "ImpactMap"
+    // | "ERDiagram"
+    // | "SequenceDiagram"
+    // | "Freeform"
+    diagramType: "UserStoryMap",
   },
   // user story map configuration
   {}
 );
 ```
 
-### Object
+## Example
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
+### User Story Map
 
-textusm.render(
-  elm || "id",
-  {
-    name: "UserStoryMap",
-    activities: [
-      {
-        name: "TextUSM",
-        tasks: [
-          {
-            name: "Online tool for making user story mapping",
-            stories: [
-              {
-                name: "Press Tab to indent lines",
-                release: 1,
-              },
-              {
-                name:
-                  "Press Shift + Tab to unindent lines: Online tool for Generate a User Story Mapping from indented text.",
-                release: 1,
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  // user story map size
-  {
-    size: { width: 1024, height: 1024 },
-    showZoomControl: true,
-  },
-  // user story map configuration
-  {}
-);
+```
+# Comment
+TextUSM
+    Online tool for making user story mapping
+        Press Tab to indent lines
+        Press Shift + Tab to unindent lines: Note
 ```
 
 ![image](./img/usm.png)
 
 ### Business Model Canvas
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  {
-    name: "BusinessModelCanvas",
-    keyPartners: {
-      title: "👥 Key Partners",
-      text: ["Key Partners"],
-    },
-    customerSegments: {
-      title: "📊 Customer Segments",
-      text: ["Customer Segments"],
-    },
-    valueProposition: {
-      title: "🎁 Value Proposition",
-      text: ["Value Proposition"],
-    },
-    keyActivities: {
-      title: "✅ Key Activities",
-      text: ["Key Activities"],
-    },
-    channels: {
-      title: "🚚 Channels",
-      text: ["Channels"],
-    },
-    revenueStreams: {
-      title: "💰 Revenue Streams",
-      text: ["Revenue Streams"],
-    },
-    costStructure: {
-      title: "🏷️ Cost Structure",
-      text: ["Cost Structure"],
-    },
-    keyResources: {
-      title: "💪 Key Resources",
-      text: ["Key Resources"],
-    },
-    customerRelationships: {
-      title: "💙 Customer Relationships",
-      text: ["Customer Relationships"],
-    },
-  },
-  {
-    size: { width: 1024, height: 1024 },
-    showZoomControl: true,
-  },
-  {}
-);
+```
+👥 Key Partners
+    Key Partners
+📊 Customer Segments
+    Customer Segments
+🎁 Value Proposition
+    Value Proposition
+✅ Key Activities
+    Key Activities
+🚚 Channels
+    Channels
+💰 Revenue Streams
+    Revenue Streams
+🏷️ Cost Structure
+    Cost Structure
+💪 Key Resources
+    Key Resources
+💙 Customer Relationships
+    Customer Relationships
 ```
 
 ![image](./img/bmc.png)
 
 ### Opportunity Canvas
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  {
-    name: "OpportunityCanvas",
-    problems: {
-      title: "Problems",
-      text: ["Problems"],
-    },
-    solutionIdeas: {
-      title: "Solution Ideas",
-      text: ["Solution Ideas"],
-    },
-    usersAndCustomers: {
-      title: "Users and Customers",
-      text: ["Users and Customers"],
-    },
-    solutionsToday: {
-      title: "Solutions Today",
-      text: ["Solutions Today"],
-    },
-    businessChallenges: {
-      title: "Business Challenges",
-      text: ["Business Challenges"],
-    },
-    howWillUsersUseSolution: {
-      title: "How will Users use Solution?",
-      text: ["How will Users use Solution?"],
-    },
-    userMetrics: {
-      title: "User Metrics",
-      text: ["User Metrics"],
-    },
-    adoptionStrategy: {
-      title: "Adoption Strategy",
-      text: ["Adoption Strategy"],
-    },
-    businessBenefitsAndMetrics: {
-      title: "Business Benefits and Metrics",
-      text: ["Business Benefits and Metrics"],
-    },
-    budget: {
-      title: "Budget",
-      text: ["Budget"],
-    },
-  },
-  {
-    size: { width: 1024, height: 1024 },
-    showZoomControl: true,
-  },
-  {}
-);
+```
+Problems
+    Problems
+Solution Ideas
+    Solution Ideas
+Users and Customers
+    Users and Customers
+Solutions Today
+    Solutions Today
+Business Challenges
+    Business Challenges
+How will Users use Solution?
+    How will Users use Solution?
+User Metrics
+    User Metrics
+Adoption Strategy
+    Adoption Strategy
+Business Benefits and Metrics
+    Business Benefits and Metrics
+Budget
+    Budget
 ```
 
 ![image](./img/opc.png)
 
 ### 4Ls Retrospective
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  {
-    name: "4Ls",
-    liked: { title: "liked", text: ["liked"] },
-    learned: { title: "learned", text: ["learned"] },
-    lacked: { title: "lacked", text: ["lacked"] },
-    longedFor: { title: "longedFor", text: ["longedFor"] },
-  },
-  {
-    size: { width: 1024, height: 1024 },
-    showZoomControl: true,
-  },
-  {}
-);
+```
+Liked
+  liked
+Learned
+  learned
+Lacked
+  lacked
+Longed For
+  longedFor
 ```
 
 ![image](./img/4ls.png)
 
 ### Start, Stop, Continue Retrospective
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  {
-    name: "StartStopContinue",
-    start: { title: "start", text: ["start"] },
-    stop: { title: "stop", text: ["stop"] },
-    continue: { title: "continue", text: ["continue"] },
-  },
-  {
-    size: { width: 1024, height: 1024 },
-    showZoomControl: true,
-  },
-  {}
-);
+```
+Start
+  Start
+Stop
+  stop
+Continue
+  continue
 ```
 
 ![image](./img/ssc.png)
 
 ### KPT Retrospective
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  {
-    name: "Kpt",
-    keep: { title: "keep", text: ["keep"] },
-    problem: { title: "problem", text: ["problem"] },
-    try: { title: "try", text: ["try"] },
-  },
-  {
-    size: { width: 1024, height: 1024 },
-    showZoomControl: true,
-  },
-  {}
-);
+```
+Keep
+  keep
+Problem
+  problem
+Try
+  try
 ```
 
 ![image](./img/kpt.png)
 
 ### MindMap
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  `TextUSM
-WORK QUICKLY
-    Draw diagrams without leaving the keyboard.
-SAVE TIME
-    Instantly visualize your ideas.
-EXPORT TO IMAGES
-    Images can be exported as png or svg.
-SHARING
-    Share your diagrams online with your colleagues.`,
-  {
-    size: { width: 1024, height: 1024 },
-    diagramType: "MindMap",
-    showZoomControl: true,
-  },
-  {}
-);
+```
+TextUSM
+    WORK QUICKLY
+        Draw diagrams without leaving the keyboard.
+    SAVE TIME
+        Instantly visualize your ideas.
+    EXPORT TO IMAGES
+        Images can be exported as png or svg.
+    SHARING
+        Share your diagrams online with your colleagues.
 ```
 
 ![image](./img/mmp.png)
 
 ### Empathy Map
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  {
-    name: "EmpathyMap",
-    imageUrl: "test",
-    says: { title: "test", text: ["test"] },
-    thinks: { title: "test", text: ["test"] },
-    does: { title: "test", text: ["test"] },
-    feels: { title: "test", text: ["test"] },
-  },
-  { diagramType: "EmpathyMap", size: { width: 2048, height: 1024 } }
-);
+```
+https://app.textusm.com/images/logo.svg
+SAYS
+THINKS
+DOES
+FEELS
 ```
 
 ![image](./img/emm.png)
 
 ### Table
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  {
-    name: "Table",
-    header: [
-        "Task",
-        "Questions",
-        "Touchpoints",
-        "Emotions",
-        "Influences",
-        "Weaknesses",
-      ],
-    items: [
-        [
-          "Task",
-          "Questions",
-          "Touchpoints",
-          "Emotions",
-          "Influences",
-          "Weaknesses",
-        ],
-        [
-          "Task",
-          "Questions",
-          "Touchpoints",
-          "Emotions",
-          "Influences",
-          "Weaknesses",
-        ],
-        [
-          "Task",
-          "Questions",
-          "Touchpoints",
-          "Emotions",
-          "Influences",
-          "Weaknesses",
-        ],
-        [
-          "Task",
-          "Questions",
-          "Touchpoints",
-          "Emotions",
-          "Influences",
-          "Weaknesses",
-        ],
-        [
-          "Task",
-          "Questions",
-          "Touchpoints",
-          "Emotions",
-          "Influences",
-          "Weaknesses",
-        ],
-      },
-    ],
-  },
-  { diagramType: "Table", size: { width: 2048, height: 1024 } }
-);
+```
+Column1
+    Column2
+    Column3
+    Column4
+    Column5
+    Column6
+    Column7
+Row1
+    Column1
+    Column2
+    Column3
+    Column4
+    Column5
+    Column6
+Row2
+    Column1
+    Column2
+    Column3
+    Column4
+    Column5
+    Column6
 ```
 
 ![image](./img/table.png)
 
 ### Site Map
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  `TextUSM
-WORK QUICKLY
-    Draw diagrams without leaving the keyboard.
-SAVE TIME
-    Instantly visualize your ideas.
-EXPORT TO IMAGES
-    Images can be exported as png or svg.
-SHARING
-    Share your diagrams online with your colleagues.`,
-  {
-    size: { width: 1024, height: 1024 },
-    diagramType: "SiteMap",
-    showZoomControl: true,
-  },
-  {}
-);
+```
+Home
+    Download
+        TextUSM
+        Help you draw user story map using indented text.
+        WORK QUICKLY
+        SAVE TIME
+    Privacy Policy
+        Test
+    Terms
+        Test
+    Contacts
+        harehare1110@gmail.com
 ```
 
 ![image](./img/smp.png)
 
 ### Gantt Chart
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  {
-    name: "GanttChart",
-    from: "2019-12-26",
-    to: "2020-01-31",
-    title: "Test",
-    chartitems: [
-      {
-        title: "subtitle1",
-        schedules: [{ from: "2019-12-26", to: "2019-12-31", title: "task1" }],
-      },
-    ],
-  },
-  {
-    size: { width: 1024, height: 1024 },
-    diagramType: "GanttChart",
-    showZoomControl: true,
-  },
-  {}
-);
+```
+2019-12-26,2020-01-31: title
+    subtitle1
+        2019-12-26, 2019-12-31: task1
+        2019-12-31, 2020-01-04: task2
 ```
 
 ![image](./img/gct.png)
 
 ### Impact Map
 
-```javascript
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  `TextUSM
-WORK QUICKLY
-    Draw diagrams without leaving the keyboard.
-SAVE TIME
-    Instantly visualize your ideas.
-EXPORT TO IMAGES
-    Images can be exported as png or svg.
-SHARING
-    Share your diagrams online with your colleagues.`,
-  {
-    size: { width: 1024, height: 1024 },
-    diagramType: "ImpactMap",
-    showZoomControl: true,
-  },
-  {}
-);
+```
+TextUSM
+    WORK QUICKLY
+        Draw diagrams without leaving the keyboard.
+    SAVE TIME
+        Instantly visualize your ideas.
+    EXPORT TO IMAGES
+        Images can be exported as png or svg.
+    SHARING
+        Share your diagrams online with your colleagues.
 ```
 
 ![image](./img/imm.png)
 
 ### ER Diagram
 
-```javascript
-{
-      name: "ER",
-      relations: [
-        {
-          table1: "table1",
-          table2: "table2",
-          relation: "="
-        },
-        {
-          table1: "table1",
-          table2: "table2",
-          relation: "-"
-        }
-      ],
-      tables: [
-        {
-          name: "table1",
-          columns: [
-            {
-              name: "column1",
-              type: {
-                name: "int"
-              },
-              attribute: { name: "pk" }
-            }
-          ]
-        }
-      ]
-    }
+```
+relations
+    DiagramDetail - Diagram
+    # One To Many
+    User < Comment
+    Diagram < Comment
+    User < Diagram
+    User < DiagramUser
+    Diagram < DiagramUser
+tables
+    Diagram
+        diagram_id int pk
+        name varchar(255) not null
+        type enum(userstorymap,mindmap)
+        is_bookmark boolean default false
+    DiagramDetail
+        diagram_id int pk
+        is_bookmark boolean default false
+        is_public boolean default false
+    Comment
+        comment_id int pk
+        comment text not null
+        diagram_id int not null
+        user_id int not null
+    User
+        user_id int pk
+        name varchar(255)
+    DiagramUser
+        diagram_id int pk
+        user_id int pk
 ```
 
 ![image](./img/erd.png)
 
 ### Kanban
 
-```js
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  {
-    name: "Kanban",
-    lists: [
-      { name: "Todo", cards: [{ text: "Todo text" }] },
-      { name: "Doing", cards: [{ text: "Doing text" }] },
-      { name: "Done", cards: [{ text: "Done text" }] },
-    ],
-  },
-  {
-    size: { width: 1024, height: 1024 },
-    diagramType: "Kanban",
-    showZoomControl: true,
-  },
-  {}
-);
 ```
+TODO
+    task1
+    task1
+DOING
+    task2
+    task2
+DONE
+    task3
+    task3
+```
+
+![image](./img/kanban.png)
 
 ### Sequence Diagram
 
-```js
-const textusm = require("textusm");
-const elm = document.getElementById("id");
-
-textusm.render(
-  elm || "id",
-  {
-    name: "SequenceDiagram",
-    participants: ["object1", "object2", "object3"],
-    items: [
-      {
-        kind: "messages",
-        messages: [
-          {
-            kind: "->",
-            from: "object1",
-            to: "object2",
-            text: "Sync Message",
-          },
-          {
-            kind: "->>",
-            from: "object1",
-            to: "object2",
-            text: "Async Message",
-          },
-          {
-            kind: "-->",
-            from: "object1",
-            to: "object2",
-            text: "Reply Message",
-          },
-          {
-            kind: "o->",
-            from: "",
-            to: "object1",
-            text: "Found Message",
-          },
-          {
-            kind: "->o",
-            from: "object1",
-            to: "",
-            text: "Stop Message",
-          },
-        ],
-      },
-      {
-        kind: "loop",
-        text: "loop message",
-        items: [
-          {
-            kind: "messages",
-            messages: [
-              {
-                kind: "->",
-                from: "object1",
-                to: "object2",
-                text: "Sync Message",
-              },
-              {
-                kind: "->>",
-                from: "object1",
-                to: "object2",
-                text: "Async Message",
-              },
-            ],
-          },
-      },
-      {
-        kind: "par",
-        messages: [
-          {
-            text: "par message1",
-            items: [
-              {
-                kind: "messages",
-                messages: [
-                  {
-                    kind: "->",
-                    from: "object2",
-                    to: "object3",
-                    text: "Sync Message",
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            text: "par message2",
-            items: [
-              {
-                kind: "messages",
-                messages: [
-                  {
-                    kind: "->",
-                    from: "object1",
-                    to: "object2",
-                    text: "Sync Message",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    size: { width: 1024, height: 1024 },
-    diagramType: "SequenceDiagram",
-    showZoomControl: true,
-  },
-  {}
-);
+```
+participant
+    object1
+    object2
+    object3
+object1 -> object2
+    Sync Message
+object1 ->> object2
+    Async Message
+object2 --> object1
+    Reply Message
+o-> object1
+    Found Message
+object1 ->o
+    Stop Message
+loop
+    loop message
+        object1 -> object2
+            Sync Message
+        object1 ->> object2
+            Async Message
+Par
+    par message1
+        object2 -> object3
+            Sync Message
+    par message2
+        object1 -> object2
+            Sync Message
 ```
 
 ![image](./img/sed.png)
 
 ### Configuration
 
-```javascript
+```js
 {
     font: "Open Sans",
     size: {

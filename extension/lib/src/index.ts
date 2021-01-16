@@ -1,5 +1,4 @@
 import { Elm } from "./js/elm";
-import { Diagram, toString, toTypeString } from "./model";
 
 interface Config {
   font?: string;
@@ -62,7 +61,7 @@ const defaultConfig: Config = {
 
 function render(
   idOrElm: string | HTMLElement,
-  definition: string | Diagram,
+  definition: string,
   options?: {
     diagramType?:
       | "UserStoryMap"
@@ -79,7 +78,8 @@ function render(
       | "GanttChart"
       | "ImpactMap"
       | "ERDiagram"
-      | "SequenceDiagram";
+      | "SequenceDiagram"
+      | "Freeform";
     size?: Size;
     showZoomControl?: boolean;
     scale?:
@@ -122,18 +122,11 @@ function render(
   config.color = Object.assign(defaultConfig.color, config.color);
   config.size = Object.assign(defaultConfig.size, config.size);
 
-  const text =
-    typeof definition === "string" ? definition : toString(definition);
-
   Elm.Extension.Lib.init({
     node: elm,
     flags: {
-      text,
-      diagramType: options.diagramType
-        ? options.diagramType
-        : typeof definition === "string"
-        ? "UserStoryMap"
-        : toTypeString(definition),
+      text: definition,
+      diagramType: options.diagramType ? options.diagramType : "UserStoryMap",
       width: options.size ? options.size.width : 1024,
       height: options.size ? options.size.height : 1024,
       settings: Object.assign(defaultConfig, config),

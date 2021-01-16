@@ -19,6 +19,7 @@ const diagrams = [
   { label: "KPT Retrospective", value: "kpt" },
   { label: "Start, Stop, Continue Retrospective", value: "ssc" },
   { label: "4Ls Retrospective", value: "4ls" },
+  { label: "Freeform", value: "free" },
 ];
 
 const showQuickPick = (
@@ -143,9 +144,6 @@ export function activate(context: vscode.ExtensionContext) {
                   values[0].value
                 );
                 break;
-              case "mmp":
-                newTextOpen("", values[0].value);
-                break;
               case "emm":
                 newTextOpen(
                   "https://app.textusm.com/images/logo.svg\nSAYS\nTHINKS\nDOES\nFEELS",
@@ -157,9 +155,6 @@ export function activate(context: vscode.ExtensionContext) {
                   "Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\n    Column7\nRow1\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\nRow2\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6",
                   values[0].value
                 );
-                break;
-              case "smp":
-                newTextOpen("", values[0].value);
                 break;
               case "gct":
                 newTextOpen(
@@ -183,6 +178,9 @@ export function activate(context: vscode.ExtensionContext) {
                   "participant\n    object1\n    object2\n    object3\nobject1 -> object2\n    Sync Message\nobject1 ->> object2\n    Async Message\nobject2 --> object1\n    Reply Message\no-> object1\n    Found Message\nobject1 ->o\n    Stop Message\nloop\n    loop message\n        object1 -> object2\n            Sync Message\n        object1 ->> object2\n            Async Message\nPar\n    par message1\n        object2 -> object3\n            Sync Message\n    par message2\n        object1 -> object2\n            Sync Message\n",
                   values[0].value
                 );
+                break;
+              default:
+                newTextOpen("", values[0].value);
                 break;
             }
           }
@@ -467,68 +465,68 @@ class DiagramPanel {
     <script>
         document.getElementById("svg").innerHTML = 'Load SVG...';
     </script>
-    <style>
-    .dropdown-list {
-        text-sm	font-size: 0.875rem;
-        line-height: 1.25rem;
-        position: relative;
-        width: 100%;
-        background-color: #fefefe;
-        cursor: pointer;
-        outline: none;
-        color: #2e2e2e;
-    }
+    <style type="text/css">
+      .dropdown-list {
+          text-sm	font-size: 0.875rem;
+          line-height: 1.25rem;
+          position: relative;
+          width: 100%;
+          background-color: #fefefe;
+          cursor: pointer;
+          outline: none;
+          color: #2e2e2e;
+      }
 
-    .list {
-      position: absolute;
-      background-color: #fefefe;
-      margin: l0;
-      overflow-y: scroll;
-      overflow-x: hidden;
-      z-index: 10;
-      top: 33px;
-      padding-left: 0px;
-      border-top: 0;
-      height: 150px;
-      width: 100%;
-      -webkit-overflow-scrolling: touch;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+      .list {
+          position: absolute;
+          background-color: #fefefe;
+          margin: l0;
+          overflow-y: scroll;
+          overflow-x: hidden;
+          z-index: 10;
+          top: 33px;
+          padding-left: 0px;
+          border-top: 0;
+          height: 150px;
+          width: 100%;
+          -webkit-overflow-scrolling: touch;
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
 
-    .list::-webkit-scrollbar {
-      display: none;
-    }
+      .list::-webkit-scrollbar {
+          display: none;
+      }
 
-    .item {
-        display: block;
-        background-color: #fefefe;
-        padding: 8px;
-    }
+      .item {
+          display: block;
+          background-color: #fefefe;
+          padding: 8px;
+      }
 
-    .item::after {
-      content: "";
-      width: 0px;
-      height: 0px;
-      position: absolute;
-      right: 8px;
-      top: calc(50%);
-      margin-top: -4px;
-      border-width: 6px 6px 0 6px;
-      border-style: solid;
-      border-color: #2e2e2e transparent;
-    }
+      .item::after {
+          content: "";
+          width: 0px;
+          height: 0px;
+          position: absolute;
+          right: 8px;
+          top: calc(50%);
+          margin-top: -4px;
+          border-width: 6px 6px 0 6px;
+          border-style: solid;
+          border-color: #2e2e2e transparent;
+      }
 
-    .dropdown-item {
-        width: 100%;
-        display: block;
-        padding: 8px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.4);
-        background-color: #fefefe;
-    }
-    .dropdown-item:hover {
-      background-color: #ddd;
-    }
+      .dropdown-item {
+          width: 100%;
+          display: block;
+          padding: 8px;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+          background-color: #fefefe;
+      }
+      .dropdown-item:hover {
+          background-color: #ddd;
+      }
     </style>
 </head>
 <body>

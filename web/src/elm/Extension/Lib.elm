@@ -53,7 +53,6 @@ init flags =
                 , scale = flags.scale
                 }
             , moveState = DiagramModel.NotMove
-            , dragDrop = DragDrop.init
             , position = ( 0, 0 )
             , movePosition = ( 0, 0 )
             , fullscreen = False
@@ -105,6 +104,9 @@ init flags =
                 else if flags.diagramType == "SequenceDiagram" then
                     Diagram.SequenceDiagram
 
+                else if flags.diagramType == "Freeform" then
+                    Diagram.Freeform
+
                 else
                     Diagram.UserStoryMap
             , text = Text.empty
@@ -112,6 +114,7 @@ init flags =
             , settings = flags.settings
             , touchDistance = Nothing
             , dragStatus = DiagramModel.NoDrag
+            , dropDownIndex = Nothing
             }
       , text = flags.text
       , backgroundColor = flags.settings.backgroundColor

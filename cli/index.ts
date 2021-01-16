@@ -21,6 +21,7 @@ const diagramMap: { [type: string]: DiagramType } = {
   er_diagram: "ERDiagram",
   kanban: "Kanban",
   sequence_diagram: "SequenceDiagram",
+  free_form: "Freeform",
 };
 
 const defaultSettings: Settings = {
@@ -76,6 +77,7 @@ const readStdin = async (): Promise<string> => {
 
 const program = createCommand();
 const { configFile, input, width, height, output, diagramType } = program
+  // @ts-ignore
   .version("0.6.5")
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file.")
