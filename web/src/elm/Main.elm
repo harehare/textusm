@@ -14,7 +14,7 @@ import Browser.Events
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Data.DiagramId as DiagramId
-import Data.DiagramItem as DiagramItem
+import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
 import Data.FileType as FileType
 import Data.IdToken as IdToken
@@ -541,9 +541,6 @@ update message model =
                 DiagramModel.OnResize _ _ ->
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
-                DiagramModel.MoveItem ( _, _ ) ->
-                    ( { model | diagramModel = model_ }, Ports.loadText <| Text.toString model_.text )
-
                 DiagramModel.EndEditSelectedItem _ code isComposing ->
                     if code == 13 && not isComposing then
                         ( { model | diagramModel = model_ }, Ports.loadText <| Text.toString model_.text )
@@ -872,20 +869,15 @@ update message model =
 
         EndEditTitle code isComposing ->
             if code == Events.keyEnter && not isComposing then
-                let
-                    diagramModel =
-                        model.diagramModel
-
-                    newDiagramModel =
-                        { diagramModel | text = Text.change diagramModel.text }
-                in
-                ( { model | title = Title.view model.title, diagramModel = newDiagramModel }, Ports.focusEditor () )
+                Return.singleton { model | title = Title.view model.title }
+                    |> Return.andThen Action.setFocusEditor
 
             else
                 Return.singleton model
 
         EditTitle title ->
             Return.singleton { model | title = Title.edit <| Title.fromString title }
+                |> Return.andThen Action.needSaved
 
         OnVisibilityChange visible ->
             case visible of

@@ -790,8 +790,8 @@ update message model =
                         Diagram.BoardMove ->
                             { model
                                 | position =
-                                    ( Position.getX model.position + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
-                                    , Position.getY model.position + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                    ( Position.getX model.position + round (toFloat (x - Position.getX model.movePosition) * model.svg.scale)
+                                    , Position.getY model.position + round (toFloat (y - Position.getY model.movePosition) * model.svg.scale)
                                     )
                                 , movePosition = ( x, y )
                             }
@@ -1093,45 +1093,6 @@ update message model =
 
                 Nothing ->
                     Return.singleton model
-
-        MoveItem ( fromNo, toNo ) ->
-            let
-                lines =
-                    Text.lines model.text
-
-                toPrefix =
-                    getAt toNo lines
-                        |> Maybe.withDefault ""
-                        |> DiagramUtils.getSpacePrefix
-
-                from =
-                    toPrefix
-                        ++ (getAt fromNo lines
-                                |> Maybe.withDefault ""
-                                |> String.trimLeft
-                           )
-
-                newLines =
-                    removeAt fromNo lines
-
-                ( left, right ) =
-                    splitAt
-                        (if fromNo < toNo then
-                            toNo - 1
-
-                         else
-                            toNo
-                        )
-                        newLines
-
-                text =
-                    left
-                        ++ from
-                        :: right
-                        |> String.join "\n"
-            in
-            setText text model
-                |> Return.andThen clearSelectedItem
 
         DropFiles files ->
             ( { model | dragStatus = NoDrag }

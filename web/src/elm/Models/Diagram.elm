@@ -254,7 +254,6 @@ type Msg
     | StartPinch Distance
     | EditSelectedItem String
     | EndEditSelectedItem Item Int Bool
-    | MoveItem ( Int, Int )
     | FitToWindow
     | Select (Maybe ( Item, Position ))
     | ColorChanged ContextMenu Color.Color

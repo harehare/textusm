@@ -36,6 +36,9 @@
 }
 
 @layer base {
+    html:focus-within {
+        scroll-behavior: smooth;
+    }
     body {
         @apply select-none m-0 p-0 font overflow-hidden bg-default antialiased;
         -webkit-text-size-adjust: 100%;

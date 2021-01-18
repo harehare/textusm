@@ -121,6 +121,11 @@ setFocus id model =
         )
 
 
+setFocusEditor : Model -> Return Msg Model
+setFocusEditor model =
+    Return.return model (Ports.focusEditor ())
+
+
 pushUrl : String -> Model -> Return Msg Model
 pushUrl url model =
     Return.return model (Nav.pushUrl model.key url)
@@ -173,6 +178,16 @@ setText text model =
             | diagramModel =
                 model.diagramModel
                     |> DiagramModel.modelOfText.set (Text.edit model.diagramModel.text text)
+        }
+
+
+needSaved : Model -> Return Msg Model
+needSaved model =
+    Return.singleton
+        { model
+            | diagramModel =
+                model.diagramModel
+                    |> DiagramModel.modelOfText.set (Text.change model.diagramModel.text)
         }
 
 

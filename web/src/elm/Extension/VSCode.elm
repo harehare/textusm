@@ -167,10 +167,6 @@ update message model =
                     else
                         ( model, Cmd.none )
 
-                DiagramModel.MoveItem _ ->
-                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-                        |> Return.andThen (updateText model_.text)
-
                 DiagramModel.FontStyleChanged _ ->
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
                         |> Return.andThen (updateText model_.text)
