@@ -4,7 +4,6 @@ import Data.Color as Color exposing (Color)
 import Data.FontSize as FontSize exposing (FontSize)
 import Data.FontStyle as FontStyle exposing (FontStyle)
 import Data.Item as Item exposing (Item)
-import Data.ItemSettings as ItemSettings
 import Data.Position as Position exposing (Position)
 import Events exposing (onClickStopPropagation)
 import Html exposing (Html, div)

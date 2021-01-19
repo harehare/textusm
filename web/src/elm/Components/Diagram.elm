@@ -2,7 +2,7 @@ module Components.Diagram exposing (init, update, view)
 
 import Basics exposing (max)
 import Browser.Dom as Dom
-import Constants exposing (indentSpace, inputPrefix)
+import Constants
 import Data.FontStyle as FontStyle
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.ItemSettings as ItemSettings
@@ -17,10 +17,9 @@ import Html.Events as Event
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
-import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import List
-import List.Extra exposing (getAt, removeAt, setAt, splitAt)
+import List.Extra exposing (getAt, setAt)
 import Maybe
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, Settings)
 import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
@@ -377,7 +376,7 @@ svgView model =
                         position
 
                     ( offsetX, offsetY ) =
-                        model.position
+                        centerPosition
                 in
                 ContextMenu.view
                     { state = contextMenu
@@ -638,8 +637,8 @@ setLine lineNo lines line model =
     setText text model
 
 
-setItem : Int -> Item -> Items -> Model -> Return Msg Model
-setItem lineNo item items model =
+setItem : Item -> Items -> Model -> Return Msg Model
+setItem item items model =
     Return.singleton
         { model
             | items =
@@ -770,7 +769,7 @@ update message model =
 
                                 Diagram.ItemTarget item ->
                                     Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
-                                        >> Return.andThen (setItem (Item.getLineNo item) item model.items)
+                                        >> Return.andThen (setItem item model.items)
                             )
                                 >> Return.andThen loadTextToEditor
                                 >> Return.andThen stopMove

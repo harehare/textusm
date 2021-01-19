@@ -1,5 +1,6 @@
-module Data.FontSize exposing (FontSize, decoder, default, fontSize20, fromInt, list, svgFontSize, unwrap)
+module Data.FontSize exposing (FontSize, decoder, default, fontSize20, fromInt, htmlFontSize, list, svgFontSize, unwrap)
 
+import Html.Attributes as HtmlAttr
 import Json.Decode as D
 import Svg
 import Svg.Attributes as SvgAttr
@@ -50,3 +51,8 @@ decoder =
 svgFontSize : FontSize -> Svg.Attribute msg
 svgFontSize fontSize =
     SvgAttr.fontSize <| String.fromInt <| unwrap <| fontSize
+
+
+htmlFontSize : FontSize -> Svg.Attribute msg
+htmlFontSize fontSize =
+    HtmlAttr.style "font-size" <| (fontSize |> unwrap |> String.fromInt) ++ "px"

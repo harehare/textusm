@@ -1,8 +1,6 @@
 module Models.Views.FreeForm exposing (FreeForm, from, getItems, unwrap)
 
-import Data.Color as Color exposing (Color)
 import Data.Item as Item exposing (Items)
-import Data.Size exposing (Size)
 
 
 type FreeForm

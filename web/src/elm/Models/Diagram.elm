@@ -18,6 +18,7 @@ module Models.Diagram exposing
     , modelOfDiagramType
     , modelOfFullscreen
     , modelOfPosition
+    , modelOfSelectedItem
     , modelOfSettings
     , modelOfShowZoomControl
     , modelOfText
@@ -131,6 +132,11 @@ modelOfPosition =
 modelOfSettings : Lens Model Settings
 modelOfSettings =
     Lens .settings (\b a -> { a | settings = b })
+
+
+modelOfSelectedItem : Lens Model SelectedItem
+modelOfSelectedItem =
+    Lens .selectedItem (\b a -> { a | selectedItem = b })
 
 
 type alias Hierarchy =

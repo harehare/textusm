@@ -255,7 +255,7 @@ getCanvasSize model =
 
                         freeFormWidth =
                             List.map
-                                (\( w, h ) ->
+                                (\( w, _ ) ->
                                     w
                                 )
                                 positionList
@@ -264,7 +264,7 @@ getCanvasSize model =
 
                         freeFormHeight =
                             List.map
-                                (\( w, h ) ->
+                                (\( _, h ) ->
                                     h
                                 )
                                 positionList

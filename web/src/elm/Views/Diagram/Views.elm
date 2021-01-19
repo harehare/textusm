@@ -11,14 +11,11 @@ import Events exposing (onClickStopPropagation, onKeyDown)
 import Html as Html exposing (Html, div, img, input)
 import Html.Attributes as Attr
 import Html.Events exposing (onInput)
-import List.Extra exposing (getAt)
 import Markdown
-import Maybe.Extra exposing (isJust)
 import Models.Diagram as Diagram exposing (Msg(..), SelectedItem, Settings, fontStyle, getTextColor, settingsOfWidth)
 import String
 import Svg exposing (Svg)
-import Svg.Attributes exposing (class, color, fill, fillOpacity, fontFamily, fontSize, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x, y)
-import Utils.Utils as Utils
+import Svg.Attributes exposing (class, color, fill, fillOpacity, fontFamily, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x, y)
 
 
 type alias RgbColor =
@@ -126,11 +123,6 @@ card { settings, position, selectedItem, item, canMove } =
                     color
                     (Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize)
                     (Item.getText item)
-                , if isJust selectedItem then
-                    dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
-
-                  else
-                    Svg.g [] []
                 ]
     in
     case selectedItem of
@@ -168,23 +160,6 @@ card { settings, position, selectedItem, item, canMove } =
 
         Nothing ->
             view_
-
-
-dropArea : Position -> Size -> Item -> Svg Msg
-dropArea ( posX, posY ) ( svgWidth, svgHeight ) item =
-    Svg.foreignObject
-        [ x <| String.fromInt posX
-        , y <| String.fromInt posY
-        , width <| String.fromInt svgWidth
-        , height <| String.fromInt svgHeight
-        ]
-        [ div
-            [ Attr.style "background-color" "transparent"
-            , Attr.style "width" (String.fromInt svgWidth ++ "px")
-            , Attr.style "height" (String.fromInt svgHeight ++ "px")
-            ]
-            []
-        ]
 
 
 inputView :
@@ -552,11 +527,6 @@ rootTextNode settings ( posX, posY ) selectedItem item =
                     ]
                     []
                 , textNode settings ( posX, posY ) ( settings.size.width, settings.size.height ) textColor item
-                , if isJust selectedItem then
-                    dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
-
-                  else
-                    Svg.g [] []
                 ]
     in
     case selectedItem of
@@ -611,7 +581,7 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
             , Attr.style "align-items" "center"
             , Attr.style "justify-content" "center"
             ]
-            [ div [ Attr.style "font-size" "14px" ] [ Html.text <| Item.getText item ] ]
+            [ div [ FontSize.htmlFontSize <| Item.getFontSize item ] [ Html.text <| Item.getText item ] ]
         ]
 
 
@@ -647,7 +617,7 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
                 , Attr.style "border" "none"
                 , Attr.style "outline" "none"
                 , Attr.style "width" (String.fromInt (svgWidth - 20) ++ "px")
-                , Attr.style "font-size" "14px"
+                , FontSize.htmlFontSize <| Item.getFontSize item
                 , Attr.style "margin-left" "2px"
                 , Attr.style "margin-top" "2px"
                 , Attr.value <| " " ++ String.trimLeft (Item.getText item)
@@ -680,11 +650,6 @@ grid settings ( posX, posY ) selectedItem item =
                     (Diagram.getTextColor settings.color)
                     (Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize)
                     (Item.getText item)
-                , if isJust selectedItem then
-                    dropArea ( posX, posY ) ( settings.size.width, settings.size.height ) item
-
-                  else
-                    Svg.g [] []
                 ]
     in
     case selectedItem of
