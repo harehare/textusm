@@ -30,6 +30,7 @@ import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Share as Share
 import Page.Tags as Tags
+import TextUSM.Enum.Diagram as DiagramType
 import Translations exposing (Lang)
 import Url
 
@@ -107,7 +108,7 @@ type Page
     | Tags Tags.Model
     | Share
     | Settings
-    | Embed String String String
+    | Embed DiagramType.Diagram String String
     | NotFound
 
 

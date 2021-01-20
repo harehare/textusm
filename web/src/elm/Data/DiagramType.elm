@@ -1,4 +1,4 @@
-module Data.DiagramType exposing (defaultText, fromString, toLongString, toString)
+module Data.DiagramType exposing (defaultText, fromString, toDiagram, toLongString, toString)
 
 import Models.Views.SequenceDiagram exposing (SequenceDiagram)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
@@ -112,6 +112,64 @@ toLongString diagramType =
 
         Freeform ->
             "Freeform"
+
+
+toDiagram : String -> Maybe Diagram
+toDiagram s =
+    case s of
+        "usm" ->
+            Just UserStoryMap
+
+        "opc" ->
+            Just OpportunityCanvas
+
+        "bmc" ->
+            Just BusinessModelCanvas
+
+        "4ls" ->
+            Just Fourls
+
+        "ssc" ->
+            Just StartStopContinue
+
+        "kpt" ->
+            Just Kpt
+
+        "persona" ->
+            Just UserPersona
+
+        "mmp" ->
+            Just MindMap
+
+        "emm" ->
+            Just EmpathyMap
+
+        "table" ->
+            Just Table
+
+        "smp" ->
+            Just SiteMap
+
+        "gct" ->
+            Just GanttChart
+
+        "imm" ->
+            Just ImpactMap
+
+        "erd" ->
+            Just ErDiagram
+
+        "kanban" ->
+            Just Kanban
+
+        "sed" ->
+            Just SequenceDiagram
+
+        "free" ->
+            Just Freeform
+
+        _ ->
+            Nothing
 
 
 fromString : String -> Diagram

@@ -2,7 +2,7 @@ module Page.Help exposing (view)
 
 import Asset
 import Html exposing (Html, div, img, span, text)
-import Html.Attributes exposing (alt, class, src, style)
+import Html.Attributes exposing (alt, class, style)
 import Maybe.Extra exposing (isNothing)
 
 

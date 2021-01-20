@@ -1,6 +1,5 @@
 module Views.Diagram.UserStoryMap exposing (view)
 
-import Basics exposing (max)
 import Constants
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
@@ -12,7 +11,7 @@ import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Setting
 import Models.Views.UserStoryMap as UserStoryMap exposing (UserStoryMap)
 import String
 import Svg exposing (Svg, foreignObject, g, line, text_)
-import Svg.Attributes exposing (class, color, fontSize, fontWeight, height, stroke, strokeWidth, style, width, x, x1, x2, y, y1, y2)
+import Svg.Attributes exposing (class, color, fontSize, fontWeight, height, stroke, strokeWidth, width, x, x1, x2, y, y1, y2)
 import Svg.Keyed as Keyed
 import Svg.Lazy as Lazy
 import Views.Diagram.Views as Views

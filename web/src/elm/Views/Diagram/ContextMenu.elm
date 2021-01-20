@@ -10,7 +10,7 @@ import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Models.Diagram exposing (ContextMenu(..))
 import Svg exposing (Svg, foreignObject)
-import Svg.Attributes exposing (height, style, width, x, y)
+import Svg.Attributes exposing (height, width, x, y)
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Empty as Empty
 import Views.Icon as Icon

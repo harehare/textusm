@@ -10,7 +10,7 @@ import Html.Attributes as Attr
 import List.Extra exposing (last, scanl1, zip)
 import Models.Diagram exposing (Model, Msg(..), Settings, fontStyle)
 import Svg exposing (Svg, foreignObject, g, line, polygon, rect, svg)
-import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, points, rx, ry, stroke, strokeWidth, style, width, x, x1, x2, y, y1, y2)
+import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, points, rx, ry, stroke, strokeWidth, width, x, x1, x2, y, y1, y2)
 import Svg.Keyed as Keyed
 import Time exposing (Posix, toDay, utc)
 import Time.Extra exposing (Interval(..), add, diff)

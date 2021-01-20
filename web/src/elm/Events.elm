@@ -23,11 +23,6 @@ keyBackspace =
     8
 
 
-keyEsc : KeyCode
-keyEsc =
-    27
-
-
 onMouseDown : (Mouse.Event -> msg) -> Html.Attribute msg
 onMouseDown =
     { stopPropagation = True, preventDefault = False }

@@ -1,6 +1,5 @@
 module Components.Diagram exposing (init, update, view)
 
-import Basics exposing (max)
 import Browser.Dom as Dom
 import Constants
 import Data.FontStyle as FontStyle
@@ -36,7 +35,6 @@ import Models.Views.Table as TableModel
 import Models.Views.UserPersona as UserPersonaModel
 import Models.Views.UserStoryMap as UserStoryMapModel
 import Ports
-import Result exposing (andThen)
 import Return as Return exposing (Return)
 import String
 import Svg exposing (Svg, defs, feComponentTransfer, feFuncA, feGaussianBlur, feMerge, feMergeNode, feOffset, filter, g, svg, text)

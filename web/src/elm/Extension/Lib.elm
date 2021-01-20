@@ -6,9 +6,8 @@ import Components.Diagram as Diagram
 import Data.Item as Item exposing (ItemType(..))
 import Data.Text as Text
 import Html exposing (Html, div)
-import Html.Attributes exposing (class, style)
+import Html.Attributes exposing (style)
 import Html.Lazy exposing (lazy)
-import Html5.DragDrop as DragDrop
 import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Task

@@ -11,7 +11,7 @@ import File.Select as Select
 import GraphQL.Request as Request
 import Graphql.Http as GraphQLHttp
 import Html exposing (Html, div, img, input, span, text)
-import Html.Attributes exposing (alt, class, placeholder, src, style)
+import Html.Attributes exposing (alt, class, placeholder, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Html.Lazy as Lazy
 import Http

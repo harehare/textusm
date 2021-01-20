@@ -14,7 +14,7 @@ import Browser.Events
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Data.DiagramId as DiagramId
-import Data.DiagramItem as DiagramItem exposing (DiagramItem)
+import Data.DiagramItem as DiagramItem
 import Data.DiagramType as DiagramType
 import Data.FileType as FileType
 import Data.IdToken as IdToken
@@ -51,8 +51,7 @@ import Return as Return exposing (Return)
 import Route exposing (Route(..), toRoute)
 import Settings
     exposing
-        ( Settings
-        , defaultEditorSettings
+        ( defaultEditorSettings
         , defaultSettings
         , settingsDecoder
         , settingsEncoder
@@ -312,7 +311,7 @@ changeRouteTo route model =
                     , diagramModel =
                         model.diagramModel
                             |> DiagramModel.modelOfShowZoomControl.set False
-                            |> DiagramModel.modelOfDiagramType.set (DiagramType.fromString diagram)
+                            |> DiagramModel.modelOfDiagramType.set diagram
                 }
                 |> Return.command (Ports.decodeShareText path)
                 |> Return.andThen (Action.setTitle title)
@@ -323,7 +322,7 @@ changeRouteTo route model =
             ( { model
                 | diagramModel =
                     model.diagramModel
-                        |> DiagramModel.modelOfDiagramType.set (DiagramType.fromString diagram)
+                        |> DiagramModel.modelOfDiagramType.set diagram
               }
             , Ports.decodeShareText path
             )
@@ -344,13 +343,13 @@ changeRouteTo route model =
                     case maybeSettings of
                         Nothing ->
                             Return.singleton model
-                                |> Return.andThen (Action.setDiagramType (DiagramType.fromString diagram))
+                                |> Return.andThen (Action.setDiagramType diagram)
                                 |> Return.andThen Action.hideZoomControl
                                 |> Return.andThen Action.fullscreenDiagram
 
                         Just settings ->
                             Return.singleton model
-                                |> Return.andThen (Action.setDiagramType (DiagramType.fromString diagram))
+                                |> Return.andThen (Action.setDiagramType diagram)
                                 |> Return.andThen (Action.setDiagramSettings settings.storyMap)
                                 |> Return.andThen (Action.setText (String.replace "\\n" "\n" (Maybe.withDefault "" settings.text)))
                                 |> Return.andThen Action.showZoomControl
@@ -381,11 +380,7 @@ changeRouteTo route model =
             )
                 |> Return.andThen Action.changeRouteInit
 
-        Route.Edit type_ ->
-            let
-                diagramType =
-                    DiagramType.fromString type_
-            in
+        Route.Edit diagramType ->
             Return.singleton
                 { model
                     | title = Title.untitled
@@ -603,19 +598,19 @@ update message model =
             case subMsg of
                 DiagramList.Select diagram ->
                     case diagram.id of
-                        Just id ->
+                        Just _ ->
                             Return.singleton model
                                 |> Return.andThen
                                     (if diagram.isRemote && diagram.isPublic then
                                         Action.pushUrl
                                             (Route.toString <|
-                                                ViewPublic (DiagramType.toString diagram.diagram) (DiagramItem.getId diagram)
+                                                ViewPublic diagram.diagram (DiagramItem.getId diagram)
                                             )
 
                                      else
                                         Action.pushUrl
                                             (Route.toString <|
-                                                EditFile (DiagramType.toString diagram.diagram) (DiagramItem.getId diagram)
+                                                EditFile diagram.diagram (DiagramItem.getId diagram)
                                             )
                                     )
                                 |> Return.andThen Action.startProgress
@@ -785,7 +780,7 @@ update message model =
                 Ok item ->
                     ( { model | currentDiagram = Just item }
                     , Route.replaceRoute model.key
-                        (Route.EditFile (DiagramType.toString item.diagram)
+                        (Route.EditFile item.diagram
                             (case item.id of
                                 Nothing ->
                                     DiagramId.fromString ""
@@ -841,7 +836,7 @@ update message model =
                 |> Return.andThen (Action.setCurrentDiagram <| Just diagram)
                 |> Return.command
                     (Route.replaceRoute model.key
-                        (Route.EditFile (DiagramType.toString diagram.diagram)
+                        (Route.EditFile diagram.diagram
                             (diagram.id |> Maybe.withDefault (DiagramId.fromString ""))
                         )
                     )

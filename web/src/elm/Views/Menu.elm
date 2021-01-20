@@ -10,6 +10,7 @@ import List
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Menu(..), Msg(..), Page(..))
 import Route exposing (Route)
+import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Translations exposing (Lang)
 import Utils.Utils as Utils
 import Views.Empty as Empty
@@ -171,28 +172,28 @@ view props =
 exportMenu : Route -> List (MenuItem Msg)
 exportMenu route =
     case route of
-        Route.Edit "erd" ->
+        Route.Edit ErDiagram ->
             Item
                 { e = Download <| FileType.ddl
                 , title = "DDL"
                 }
                 :: baseExportMenu
 
-        Route.EditFile "erd" _ ->
+        Route.EditFile ErDiagram _ ->
             Item
                 { e = Download <| FileType.ddl
                 , title = "DDL"
                 }
                 :: baseExportMenu
 
-        Route.Edit "table" ->
+        Route.Edit Table ->
             Item
                 { e = Download <| FileType.markdown
                 , title = "Markdown"
                 }
                 :: baseExportMenu
 
-        Route.EditFile "table" _ ->
+        Route.EditFile Table _ ->
             Item
                 { e = Download <| FileType.markdown
                 , title = "Markdown"

@@ -9,7 +9,7 @@ import Data.Text as Text exposing (Text)
 import Data.Title as Title exposing (Title)
 import Events exposing (onKeyDown)
 import Html exposing (Html, a, div, header, img, input, span, text)
-import Html.Attributes exposing (alt, attribute, class, href, id, placeholder, src, style, value)
+import Html.Attributes exposing (alt, attribute, class, href, id, placeholder, style, value)
 import Html.Events exposing (onBlur, onClick, onInput, stopPropagationOn)
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)

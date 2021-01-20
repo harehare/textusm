@@ -1,9 +1,8 @@
 module Page.New exposing (view)
 
 import Asset exposing (Asset)
-import Data.DiagramType as DiagramType
 import Html exposing (Html, a, div, img, text)
-import Html.Attributes exposing (attribute, class, href, src, style)
+import Html.Attributes exposing (attribute, class, href, style)
 import Route
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 
@@ -17,23 +16,23 @@ type alias NewItem =
 
 newItems : List NewItem
 newItems =
-    [ NewItem "User Story Map" Asset.userStoryMap (Route.toString <| Route.Edit <| DiagramType.toString UserStoryMap)
-    , NewItem "Mind Map" Asset.mindMap (Route.toString <| Route.Edit <| DiagramType.toString MindMap)
-    , NewItem "Impact Map" Asset.impactMap (Route.toString <| Route.Edit <| DiagramType.toString ImpactMap)
-    , NewItem "Empathy Map" Asset.empathyMap (Route.toString <| Route.Edit <| DiagramType.toString EmpathyMap)
-    , NewItem "Site Map" Asset.siteMap (Route.toString <| Route.Edit <| DiagramType.toString SiteMap)
-    , NewItem "Business Model Canvas" Asset.businessModelCanvas (Route.toString <| Route.Edit <| DiagramType.toString BusinessModelCanvas)
-    , NewItem "Opportunity Canvas" Asset.opportunityCanvas (Route.toString <| Route.Edit <| DiagramType.toString OpportunityCanvas)
-    , NewItem "User Persona" Asset.userPersona (Route.toString <| Route.Edit <| DiagramType.toString UserPersona)
-    , NewItem "Gantt Chart" Asset.ganttChart (Route.toString <| Route.Edit <| DiagramType.toString GanttChart)
-    , NewItem "ER Diagram" Asset.erDiagram (Route.toString <| Route.Edit <| DiagramType.toString ErDiagram)
-    , NewItem "Sequence Diagram" Asset.sequenceDiagram (Route.toString <| Route.Edit <| DiagramType.toString SequenceDiagram)
-    , NewItem "Kanban" Asset.kanban (Route.toString <| Route.Edit <| DiagramType.toString Kanban)
-    , NewItem "4Ls" Asset.fourLs (Route.toString <| Route.Edit <| DiagramType.toString Fourls)
-    , NewItem "Start, Stop, Continue" Asset.startStopContinue (Route.toString <| Route.Edit <| DiagramType.toString StartStopContinue)
-    , NewItem "KPT" Asset.kpt (Route.toString <| Route.Edit <| DiagramType.toString Kpt)
-    , NewItem "Table" Asset.table (Route.toString <| Route.Edit <| DiagramType.toString Table)
-    , NewItem "Freeform" Asset.freeform (Route.toString <| Route.Edit <| DiagramType.toString Freeform)
+    [ NewItem "User Story Map" Asset.userStoryMap (Route.toString <| Route.Edit UserStoryMap)
+    , NewItem "Mind Map" Asset.mindMap (Route.toString <| Route.Edit MindMap)
+    , NewItem "Impact Map" Asset.impactMap (Route.toString <| Route.Edit ImpactMap)
+    , NewItem "Empathy Map" Asset.empathyMap (Route.toString <| Route.Edit EmpathyMap)
+    , NewItem "Site Map" Asset.siteMap (Route.toString <| Route.Edit SiteMap)
+    , NewItem "Business Model Canvas" Asset.businessModelCanvas (Route.toString <| Route.Edit BusinessModelCanvas)
+    , NewItem "Opportunity Canvas" Asset.opportunityCanvas (Route.toString <| Route.Edit OpportunityCanvas)
+    , NewItem "User Persona" Asset.userPersona (Route.toString <| Route.Edit UserPersona)
+    , NewItem "Gantt Chart" Asset.ganttChart (Route.toString <| Route.Edit GanttChart)
+    , NewItem "ER Diagram" Asset.erDiagram (Route.toString <| Route.Edit ErDiagram)
+    , NewItem "Sequence Diagram" Asset.sequenceDiagram (Route.toString <| Route.Edit SequenceDiagram)
+    , NewItem "Kanban" Asset.kanban (Route.toString <| Route.Edit Kanban)
+    , NewItem "4Ls" Asset.fourLs (Route.toString <| Route.Edit Fourls)
+    , NewItem "Start, Stop, Continue" Asset.startStopContinue (Route.toString <| Route.Edit StartStopContinue)
+    , NewItem "KPT" Asset.kpt (Route.toString <| Route.Edit Kpt)
+    , NewItem "Table" Asset.table (Route.toString <| Route.Edit Table)
+    , NewItem "Freeform" Asset.freeform (Route.toString <| Route.Edit Freeform)
     ]
 
 

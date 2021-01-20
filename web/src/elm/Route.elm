@@ -4,6 +4,7 @@ import Browser.Navigation as Nav
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
+import TextUSM.Enum.Diagram exposing (Diagram(..))
 import UUID
 import Url exposing (Url)
 import Url.Builder exposing (absolute)
@@ -29,17 +30,17 @@ type alias SettingsJson =
 type Route
     = Home
     | New
-    | Edit DiagramPath
-    | EditFile DiagramPath DiagramId
-    | ViewPublic DiagramPath DiagramId
+    | Edit Diagram
+    | EditFile Diagram DiagramId
+    | ViewPublic Diagram DiagramId
     | DiagramList
     | Settings
     | Help
     | Tag
     | SharingDiagram
-    | Share DiagramPath Title Path
-    | Embed DiagramPath Title Path
-    | View DiagramPath SettingsJson
+    | Share Diagram Title Path
+    | Embed Diagram Title Path
+    | View Diagram SettingsJson
     | NotFound
 
 
@@ -62,11 +63,11 @@ parser =
         ]
 
 
-diagramType : Parser (String -> a) a
+diagramType : Parser (Diagram -> a) a
 diagramType =
     custom "DIAGRAM_TYPE" <|
         \segment ->
-            Just <| DiagramType.toString <| DiagramType.fromString segment
+            DiagramType.toDiagram segment
 
 
 diagramId : Parser (DiagramId -> a) a
@@ -87,14 +88,14 @@ toDiagramToRoute : DiagramItem -> Route
 toDiagramToRoute diagram =
     case diagram.id of
         Nothing ->
-            Edit <| DiagramType.toString diagram.diagram
+            Edit diagram.diagram
 
         Just id_ ->
             if diagram.isPublic then
-                ViewPublic (DiagramType.toString diagram.diagram) id_
+                ViewPublic diagram.diagram id_
 
             else
-                EditFile (DiagramType.toString diagram.diagram) id_
+                EditFile diagram.diagram id_
 
 
 toString : Route -> String
@@ -107,13 +108,13 @@ toString route =
             absolute [ "new" ] []
 
         Edit type_ ->
-            absolute [ "edit", type_ ] []
+            absolute [ "edit", DiagramType.toString type_ ] []
 
         EditFile type_ id_ ->
-            absolute [ "edit", type_, DiagramId.toString id_ ] []
+            absolute [ "edit", DiagramType.toString type_, DiagramId.toString id_ ] []
 
         ViewPublic type_ id_ ->
-            absolute [ "pubilc", type_, DiagramId.toString id_ ] []
+            absolute [ "pubilc", DiagramType.toString type_, DiagramId.toString id_ ] []
 
         DiagramList ->
             absolute [ "list" ] []
@@ -134,13 +135,13 @@ toString route =
             absolute [ "notfound" ] []
 
         Share diagramPath title path ->
-            absolute [ "share", diagramPath, title, path ] []
+            absolute [ "share", DiagramType.toString diagramPath, title, path ] []
 
         Embed diagramPath title path ->
-            absolute [ "Embed", diagramPath, title, path ] []
+            absolute [ "Embed", DiagramType.toString diagramPath, title, path ] []
 
         View diagramPath settingsJson ->
-            absolute [ "view", diagramPath, settingsJson ] []
+            absolute [ "view", DiagramType.toString diagramPath, settingsJson ] []
 
 
 replaceRoute : Nav.Key -> Route -> Cmd msg

@@ -12,7 +12,7 @@ import Html as Html exposing (Html, div, img, input)
 import Html.Attributes as Attr
 import Html.Events exposing (onInput)
 import Markdown
-import Models.Diagram as Diagram exposing (Msg(..), SelectedItem, Settings, fontStyle, getTextColor, settingsOfWidth)
+import Models.Diagram as Diagram exposing (Msg(..), SelectedItem, Settings, fontStyle, settingsOfWidth)
 import String
 import Svg exposing (Svg)
 import Svg.Attributes exposing (class, color, fill, fillOpacity, fontFamily, fontWeight, height, rx, ry, stroke, strokeWidth, style, width, x, y)
@@ -483,7 +483,7 @@ node settings ( posX, posY ) selectedItem item =
                         , x <| String.fromInt posX
                         , y <| String.fromInt posY
                         , strokeWidth "1"
-                        , stroke "rgba(0, 0, 0, 0.1)"
+                        , stroke "transparent"
                         , fill settings.backgroundColor
                         , draggingStyle isDragging
                         ]
@@ -604,6 +604,7 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
             [ input
                 [ Attr.id "edit-item"
                 , Attr.type_ "text"
+                , Attr.style "font-family" <| fontStyle settings
                 , Attr.autofocus True
                 , Attr.autocomplete False
                 , Attr.style "padding" "8px 8px 8px 0"
