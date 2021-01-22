@@ -57,24 +57,24 @@ stopProgress model =
 
 closeNotification : Model -> Return Msg Model
 closeNotification model =
-    Return.return model (Utils.delay 3000 OnCloseNotification)
+    Return.return model (Utils.delay 3000 HandleCloseNotification)
 
 
 showWarningMessage : String -> Model -> Return Msg Model
 showWarningMessage msg model =
-    Return.return model (Task.perform identity (Task.succeed (OnNotification (Warning msg))))
+    Return.return model (Task.perform identity (Task.succeed (ShowNotification (Warning msg))))
         |> Return.andThen closeNotification
 
 
 showInfoMessage : String -> Model -> Return Msg Model
 showInfoMessage msg model =
-    Return.return model (Task.perform identity (Task.succeed (OnNotification (Info msg))))
+    Return.return model (Task.perform identity (Task.succeed (ShowNotification (Info msg))))
         |> Return.andThen closeNotification
 
 
 showErrorMessage : String -> Model -> Return Msg Model
 showErrorMessage msg model =
-    Return.return model (Task.perform identity (Task.succeed (OnNotification (Error msg))))
+    Return.return model (Task.perform identity (Task.succeed (ShowNotification (Error msg))))
         |> Return.andThen closeNotification
 
 

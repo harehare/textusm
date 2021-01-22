@@ -168,7 +168,7 @@ view model =
 
                     else
                         Lazy.lazy5 SplitWindow.view
-                            OnStartWindowResize
+                            HandleStartWindowResize
                             model.diagramModel.settings.backgroundColor
                             model.window
                             (div [ class "bg-main w-full h-main lg:h-full" ]
@@ -874,7 +874,7 @@ update message model =
             Return.singleton { model | title = Title.edit <| Title.fromString title }
                 |> Return.andThen Action.needSaved
 
-        OnVisibilityChange visible ->
+        HandleVisibilityChange visible ->
             case visible of
                 Hidden ->
                     let
@@ -901,7 +901,7 @@ update message model =
                 _ ->
                     Return.singleton model
 
-        OnStartWindowResize x ->
+        HandleStartWindowResize x ->
             Return.singleton
                 { model
                     | window =
@@ -913,7 +913,7 @@ update message model =
         Stop ->
             Return.singleton { model | window = model.window |> Page.windowOfMoveStart.set False }
 
-        OnWindowResize x ->
+        HandleWindowResize x ->
             Return.return { model | window = { position = model.window.position + x - model.window.moveX, moveStart = True, moveX = x, fullscreen = model.window.fullscreen } } (Ports.layoutEditor 0)
 
         GetShortUrl (Err e) ->
@@ -934,17 +934,17 @@ update message model =
         ShareUrl shareInfo ->
             Return.return model (Ports.encodeShareText shareInfo)
 
-        OnNotification notification ->
+        ShowNotification notification ->
             Return.singleton { model | notification = Just notification }
 
-        OnAutoCloseNotification notification ->
+        HandleAutoCloseNotification notification ->
             Return.singleton { model | notification = Just notification }
                 |> Return.andThen Action.closeNotification
 
-        OnCloseNotification ->
+        HandleCloseNotification ->
             Return.singleton { model | notification = Nothing }
 
-        OnEncodeShareText path ->
+        HandleEncodeShareText path ->
             let
                 shareUrl =
                     "https://app.textusm.com/share" ++ path
@@ -960,7 +960,7 @@ update message model =
             in
             Return.return { model | shareModel = newShareModel } (Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl))
 
-        OnDecodeShareText text ->
+        HandleDecodeShareText text ->
             Return.return model (Ports.loadText text)
 
         SwitchWindow w ->
@@ -985,7 +985,7 @@ update message model =
             Return.return { model | session = Session.guest } (Ports.signOut ())
                 |> Return.andThen (Action.setCurrentDiagram Nothing)
 
-        OnAuthStateChanged (Just user) ->
+        HandleAuthStateChanged (Just user) ->
             let
                 newModel =
                     { model | session = Session.signIn user }
@@ -1010,7 +1010,7 @@ update message model =
                 |> Return.andThen Action.stopProgress
                 |> Return.andThen (Action.showInfoMessage "Signed In")
 
-        OnAuthStateChanged Nothing ->
+        HandleAuthStateChanged Nothing ->
             Return.singleton { model | session = Session.guest }
                 |> Return.andThen Action.stopProgress
 
@@ -1120,16 +1120,16 @@ subscriptions model =
          , Ports.startDownload StartDownload
          , Ports.gotLocalDiagramsJson (\json -> UpdateDiagramList (DiagramList.GotLocalDiagramsJson json))
          , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
-         , onVisibilityChange OnVisibilityChange
+         , onVisibilityChange HandleVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
          , onMouseUp <| D.succeed <| UpdateDiagram DiagramModel.Stop
-         , Ports.onEncodeShareText OnEncodeShareText
-         , Ports.onDecodeShareText OnDecodeShareText
+         , Ports.onEncodeShareText HandleEncodeShareText
+         , Ports.onDecodeShareText HandleDecodeShareText
          , Ports.shortcuts Shortcuts
-         , Ports.onNotification (\n -> OnAutoCloseNotification (Info n))
-         , Ports.onErrorNotification (\n -> OnAutoCloseNotification (Error n))
-         , Ports.onWarnNotification (\n -> OnAutoCloseNotification (Warning n))
-         , Ports.onAuthStateChanged OnAuthStateChanged
+         , Ports.onNotification (\n -> HandleAutoCloseNotification (Info n))
+         , Ports.onErrorNotification (\n -> HandleAutoCloseNotification (Error n))
+         , Ports.onWarnNotification (\n -> HandleAutoCloseNotification (Warning n))
+         , Ports.onAuthStateChanged HandleAuthStateChanged
          , Ports.saveToRemote SaveToRemote
          , Ports.removeRemoteDiagram (\diagram -> UpdateDiagramList <| DiagramList.RemoveRemote diagram)
          , Ports.downloadCompleted DownloadCompleted
@@ -1141,7 +1141,7 @@ subscriptions model =
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp <| D.succeed Stop
-                    , onMouseMove <| D.map OnWindowResize (D.field "pageX" D.int)
+                    , onMouseMove <| D.map HandleWindowResize (D.field "pageX" D.int)
                     ]
 
                 else

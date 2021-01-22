@@ -191,7 +191,7 @@ sideMenu session filter tagItems =
                         "item"
                 , onClick <| Filter (FilterCondition FilterBookmark (\item -> item.isBookmark))
                 ]
-                [ Icon.bookmark "#F5F5F6" 16, div [ style "padding" "8px" ] [ text "Bookmarks" ] ]
+                [ Icon.bookmark "#F5F5F6" 14, div [ style "padding" "8px" ] [ text "Bookmarks" ] ]
             :: div
                 [ class "w-full"
                 , style "height" "2px"
@@ -220,7 +220,7 @@ sideMenu session filter tagItems =
                                             )
                                         )
                                 ]
-                                [ Icon.tag 16, div [ style "padding" "8px" ] [ text tag ] ]
+                                [ Icon.tag 13, div [ style "padding" "8px" ] [ text tag ] ]
                         )
                )
         )
@@ -318,6 +318,7 @@ diagramListView props =
                     , style "border-radius" "16px"
                     , style "padding" "8px"
                     , style "padding-left" "32px"
+                    , style "color" "#000"
                     , onInput SearchInput
                     ]
                     []

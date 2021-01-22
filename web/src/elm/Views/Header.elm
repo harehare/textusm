@@ -53,7 +53,7 @@ view props =
                 ]
                 [ div
                     [ class "flex-center"
-                    , style "width" "56px"
+                    , style "width" "40px"
                     , style "height" "40px"
                     ]
                     [ a [ href "/", attribute "aria-label" "Top" ] [ img [ Asset.src Asset.logo, style "width" "32px", style "height" "32px", alt "logo" ] [] ] ]
@@ -115,10 +115,10 @@ view props =
                 div
                     [ class "button", onClick <| ChangePublicStatus (not isPublic) ]
                     [ if isPublic then
-                        Icon.lockOpen "#F5F5F6" 17
+                        Icon.lockOpen "#F5F5F6" 14
 
                       else
-                        Icon.lock "#F5F5F6" 17
+                        Icon.lock "#F5F5F6" 14
                     , span [ class "bottom-tooltip" ]
                         [ span [ class "text" ]
                             [ text <|
@@ -136,7 +136,7 @@ view props =
             , if isJust <| Maybe.andThen .id props.currentDiagram then
                 a [ attribute "aria-label" "Tag", style "display" "flex", href <| Route.toString Route.Tag ]
                     [ div [ class "button" ]
-                        [ Icon.tag 17
+                        [ Icon.tag 14
                         , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipTags props.lang ] ]
                         ]
                     ]
@@ -145,7 +145,7 @@ view props =
                 Empty.view
             , a [ attribute "aria-label" "Help", style "display" "flex", href <| Route.toString Route.Help ]
                 [ div [ class "button" ]
-                    [ Icon.helpOutline 20
+                    [ Icon.helpOutline 16
                     , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipHelp props.lang ] ]
                     ]
                 ]
@@ -155,7 +155,7 @@ view props =
                 , attribute "aria-label" "Share"
                 ]
                 [ div [ class "button" ]
-                    [ Icon.people 24
+                    [ Icon.people 20
                     , span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipShare props.lang ] ]
                     ]
                 ]

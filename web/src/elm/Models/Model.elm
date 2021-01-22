@@ -61,17 +61,17 @@ type Msg
     | ShareUrl { title : Maybe String, text : String, diagramType : String }
     | SignIn LoginProvider
     | SignOut
-    | OnVisibilityChange Visibility
-    | OnStartWindowResize Int
-    | OnWindowResize Int
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
-    | OnEncodeShareText String
-    | OnDecodeShareText String
-    | OnNotification Notification
-    | OnAutoCloseNotification Notification
-    | OnCloseNotification
-    | OnAuthStateChanged (Maybe User)
+    | HandleVisibilityChange Visibility
+    | HandleStartWindowResize Int
+    | HandleWindowResize Int
+    | HandleEncodeShareText String
+    | HandleDecodeShareText String
+    | HandleAutoCloseNotification Notification
+    | HandleCloseNotification
+    | HandleAuthStateChanged (Maybe User)
+    | ShowNotification Notification
     | SwitchWindow SwitchWindow
     | GetShortUrl (Result Http.Error String)
     | Shortcuts String

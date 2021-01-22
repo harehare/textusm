@@ -12,25 +12,25 @@ view onResize backgroundColor window left right =
     let
         ( leftPos, rightPos ) =
             if window.position > 0 then
-                ( "calc((100vw - 56px) / 2 + "
+                ( "calc((100vw - 40px) / 2 + "
                     ++ String.fromInt (abs window.position)
                     ++ "px)"
-                , "calc((100vw - 56px) / 2 - "
+                , "calc((100vw - 40px) / 2 - "
                     ++ String.fromInt (abs window.position)
                     ++ "px)"
                 )
 
             else if window.position < 0 then
-                ( "calc((100vw - 56px) / 2 - "
+                ( "calc((100vw - 40px) / 2 - "
                     ++ String.fromInt (abs window.position)
                     ++ "px)"
-                , "calc((100vw - 56px) / 2 + "
+                , "calc((100vw - 40px) / 2 + "
                     ++ String.fromInt (abs window.position)
                     ++ "px)"
                 )
 
             else
-                ( "calc((100vw - 56px) / 2)", "calc((100vw - 56px) / 2)" )
+                ( "calc((100vw - 40px) / 2)", "calc((100vw - 40px) / 2)" )
     in
     if window.fullscreen then
         div

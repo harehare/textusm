@@ -65,14 +65,14 @@ view props =
     else
         nav
             [ class "flex flex-row items-center justify-between bg-main shadow-sm bottom-0 w-screen fixed lg:justify-start lg:h-screen lg:relative lg:flex-col lg:w-menu z-10"
-            , style "min-width" "56px"
+            , style "min-width" "40px"
             ]
             [ if Text.isChanged props.text then
                 div
                     [ style "margin-left" "4px"
                     , class "menu-button"
                     ]
-                    [ Icon.file newMenuColor 20
+                    [ Icon.file newMenuColor 16
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipNewFile props.lang ] ]
                     ]
 
@@ -85,7 +85,7 @@ view props =
                         [ style "margin-left" "4px"
                         , class "menu-button"
                         ]
-                        [ Icon.file newMenuColor 20
+                        [ Icon.file newMenuColor 16
                         , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipNewFile props.lang ] ]
                         ]
                     ]
@@ -102,7 +102,7 @@ view props =
                          else
                             notSelectedColor
                         )
-                        20
+                        16
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipOpenFile props.lang ] ]
                     ]
                 ]
@@ -121,7 +121,7 @@ view props =
                      else
                         notSelectedColor
                     )
-                    26
+                    20
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipSave props.lang ] ]
                 ]
             , div
@@ -134,7 +134,7 @@ view props =
                         _ ->
                             notSelectedColor
                     )
-                    22
+                    16
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport props.lang ] ]
                 ]
             , div
@@ -147,7 +147,7 @@ view props =
                          else
                             notSelectedColor
                         )
-                        25
+                        18
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipSettings props.lang ] ]
                     ]
                 ]
@@ -162,7 +162,7 @@ view props =
               else
                 case props.openMenu of
                     Just Export ->
-                        menu (Just "125px") (Just "56px") Nothing Nothing (exportMenu props.route)
+                        menu (Just "125px") (Just "40px") Nothing Nothing (exportMenu props.route)
 
                     _ ->
                         Empty.view
