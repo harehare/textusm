@@ -76,13 +76,14 @@ init settings =
         , svg =
             { width = 0
             , height = 0
-            , scale = 1.0
+            , scale = Maybe.withDefault 1.0 settings.scale
             }
         , moveState = Diagram.NotMove
         , position = ( 0, 20 )
         , movePosition = ( 0, 0 )
         , fullscreen = False
         , showZoomControl = True
+        , showMiniMap = False
         , touchDistance = Nothing
         , settings = settings
         , diagramType = UserStoryMap
@@ -120,6 +121,16 @@ zoomControl isFullscreen scale =
             ]
             [ Icon.expandAlt 14
             ]
+        -- , div
+        --     [ Attr.style "width" "24px"
+        --     , Attr.style "height" "24px"
+        --     , Attr.style "cursor" "pointer"
+        --     , Attr.style "display" "flex"
+        --     , Attr.style "align-items" "center"
+        --     , onClick ToggleMiniMap
+        --     ]
+        --     [ Icon.map 14
+        --     ]
         , div
             [ Attr.style "width" "24px"
             , Attr.style "height" "24px"
@@ -1115,3 +1126,6 @@ update message model =
                         Just id
             in
             Return.singleton { model | dropDownIndex = activeIndex }
+
+        ToggleMiniMap ->
+            Return.singleton { model | showMiniMap = not model.showMiniMap }

@@ -56,6 +56,7 @@ init flags =
             , movePosition = ( 0, 0 )
             , fullscreen = False
             , showZoomControl = flags.showZoomControl
+            , showMiniMap = False
             , contextMenu = Nothing
             , diagramType =
                 if flags.diagramType == "BusinessModelCanvas" then

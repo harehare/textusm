@@ -57,6 +57,8 @@ type DiagramSettings = {
     size: Size;
     color: ColorSettings;
     backgroundColor: string;
+    zoomControl: boolean;
+    scale: number;
 };
 
 type Size = {

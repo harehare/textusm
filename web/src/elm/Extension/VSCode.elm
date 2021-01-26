@@ -68,6 +68,7 @@ init flags =
             , movePosition = ( 0, 0 )
             , fullscreen = False
             , showZoomControl = True
+            , showMiniMap = False
             , selectedItem = Nothing
             , contextMenu = Nothing
             , diagramType = DiagramType.fromString flags.diagramType

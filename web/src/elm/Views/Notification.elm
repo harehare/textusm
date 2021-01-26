@@ -2,26 +2,38 @@ module Views.Notification exposing (view)
 
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, style)
+import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Msg(..), Notification(..))
 import Views.Icon as Icon
 
 
-view : Notification -> Html msg
+view : Maybe Notification -> Html msg
 view notification =
     let
         ( t, icon ) =
             case notification of
-                Info text ->
+                Just (Info text) ->
                     ( text, Icon.info 22 )
 
-                Error text ->
+                Just (Error text) ->
                     ( text, Icon.error 22 )
 
-                Warning text ->
+                Just (Warning text) ->
                     ( text, Icon.warning 22 )
+
+                Nothing ->
+                    ( "", Icon.info 0 )
     in
     div
-        [ class "notification fade-in" ]
+        [ class <|
+            "notification"
+                ++ (if isNothing notification then
+                        ""
+
+                    else
+                        " show-notification"
+                   )
+        ]
         [ div
             [ class "flex items-center"
             , style "margin-right" "16px"

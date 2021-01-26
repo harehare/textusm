@@ -566,20 +566,25 @@
 }
 
 .notification {
-    @apply text-sm opacity-0 fixed cursor-pointer bg-main text-color flex items-center justify-between;
-    bottom: 5%;
-    right: 10px;
+    @apply text-sm fixed cursor-pointer bg-main text-color flex items-center justify-between;
+    bottom: 16px;
+    right: 16px;
     min-width: 300px;
     height: 40px;
     box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
         0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
     z-index: 100;
-
+    transform: translateY(100px);
+    transition: transform 0.1s ease-in-out 0.1s;
     @media (max-width: 480px) {
         @apply w-screen right-0 shadow-none;
         bottom: 55px;
         z-index: 200;
     }
+}
+
+.show-notification {
+    transform: translateY(10%);
 }
 
 .close {
@@ -827,20 +832,6 @@
     }
     .delete-tag {
         background-color: var(--error-color);
-    }
-}
-
-.fade-in {
-    animation: fade-in 0.1s ease 0.1s 1 normal;
-    animation-fill-mode: forwards;
-}
-
-@keyframes fade-in {
-    0% {
-        @apply opacity-0;
-    }
-    100% {
-        @apply opacity-100;
     }
 }
 

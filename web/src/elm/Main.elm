@@ -253,12 +253,7 @@ showProgressbar show fullscreen =
 
 showNotification : Maybe Notification -> Html Msg
 showNotification notify =
-    case notify of
-        Nothing ->
-            Empty.view
-
-        Just notification ->
-            Notification.view notification
+    Notification.view notify
 
 
 
@@ -885,7 +880,7 @@ update message model =
                             { position = Just model.window.position
                             , font = model.settingsModel.settings.font
                             , diagramId = Maybe.andThen (\d -> Maybe.andThen (\i -> Just <| DiagramId.toString i) d.id) model.currentDiagram
-                            , storyMap = newStoryMap.storyMap
+                            , storyMap = newStoryMap.storyMap |> DiagramModel.settingsOfScale.set (Just model.diagramModel.svg.scale)
                             , text = Just (Text.toString model.diagramModel.text)
                             , title = Just <| Title.toString model.title
                             , editor = model.settingsModel.settings.editor

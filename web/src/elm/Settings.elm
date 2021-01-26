@@ -1,4 +1,29 @@
-module Settings exposing (EditorSettings, Settings, defaultEditorSettings, defaultSettings, settingsDecoder, settingsEncoder, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFont, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
+module Settings exposing
+    ( EditorSettings
+    , Settings
+    , defaultEditorSettings
+    , defaultSettings
+    , settingsDecoder
+    , settingsEncoder
+    , settingsOfActivityBackgroundColor
+    , settingsOfActivityColor
+    , settingsOfBackgroundColor
+    , settingsOfFont
+    , settingsOfFontSize
+    , settingsOfHeight
+    , settingsOfLabelColor
+    , settingsOfLineColor
+    , settingsOfScale
+    , settingsOfShowLineNumber
+    , settingsOfStoryBackgroundColor
+    , settingsOfStoryColor
+    , settingsOfTaskBackgroundColor
+    , settingsOfTaskColor
+    , settingsOfTextColor
+    , settingsOfWidth
+    , settingsOfWordWrap
+    , settingsOfZoomControl
+    )
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Json.Decode as D
@@ -56,6 +81,7 @@ defaultSettings =
             }
         , backgroundColor = "#F4F4F5"
         , zoomControl = Just True
+        , scale = Just 1.0
         }
     , text = Nothing
     , title = Nothing
@@ -169,6 +195,11 @@ settingsOfFont =
     Compose.lensWithLens Diagram.settingsOfFont storyMapOfSettings
 
 
+settingsOfScale : Lens Settings (Maybe Float)
+settingsOfScale =
+    Compose.lensWithLens Diagram.settingsOfScale storyMapOfSettings
+
+
 storyMapOfSettings : Lens Settings Diagram.Settings
 storyMapOfSettings =
     Lens .storyMap (\b a -> { a | storyMap = b })
@@ -199,12 +230,13 @@ settingsDecoder =
 
 diagramDecoder : D.Decoder Diagram.Settings
 diagramDecoder =
-    D.map5 Diagram.Settings
+    D.map6 Diagram.Settings
         (D.field "font" D.string)
         (D.field "size" sizeDecoder)
         (D.field "color" colorSettingsDecoder)
         (D.field "backgroundColor" D.string)
         (D.maybe (D.field "zoomControl" D.bool))
+        (D.maybe (D.field "scale" D.float))
 
 
 editorSettingsDecoder : D.Decoder EditorSettings
@@ -262,6 +294,7 @@ diagramEncoder settings =
         , ( "color", colorSettingsEncoder settings.color )
         , ( "backgroundColor", E.string settings.backgroundColor )
         , ( "zoomControl", maybe E.bool settings.zoomControl )
+        , ( "scale", maybe E.float settings.scale )
         ]
 
 

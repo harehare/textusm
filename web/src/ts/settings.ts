@@ -29,6 +29,7 @@ const defaultSettings = {
         },
         backgroundColor: "#F4F4F5",
         zoomControl: true,
+        scale: 1.0,
     },
     position: -10,
     text: "",

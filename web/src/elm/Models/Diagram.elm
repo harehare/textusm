@@ -29,6 +29,7 @@ module Models.Diagram exposing
     , settingsOfHeight
     , settingsOfLabelColor
     , settingsOfLineColor
+    , settingsOfScale
     , settingsOfStoryBackgroundColor
     , settingsOfStoryColor
     , settingsOfTaskBackgroundColor
@@ -94,6 +95,7 @@ type alias Model =
     , fullscreen : Bool
     , settings : Settings
     , showZoomControl : Bool
+    , showMiniMap : Bool
     , touchDistance : Maybe Float
     , diagramType : Diagram
     , text : Text
@@ -198,6 +200,7 @@ type alias Settings =
     , color : ColorSettings
     , backgroundColor : String
     , zoomControl : Maybe Bool
+    , scale : Maybe Float
     }
 
 
@@ -270,6 +273,7 @@ type Msg
     | ChangeDragStatus DragStatus
     | FontSizeChanged FontSize
     | ToggleDropDownList String
+    | ToggleMiniMap
 
 
 getTextColor : ColorSettings -> String
@@ -285,6 +289,11 @@ settingsOfFont =
 settingsOfZoomControl : Lens Settings (Maybe Bool)
 settingsOfZoomControl =
     Lens .zoomControl (\b a -> { a | zoomControl = b })
+
+
+settingsOfScale : Lens Settings (Maybe Float)
+settingsOfScale =
+    Lens .scale (\b a -> { a | scale = b })
 
 
 settingsOfBackgroundColor : Lens Settings String

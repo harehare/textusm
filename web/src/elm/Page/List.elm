@@ -385,7 +385,7 @@ diagramListView props =
 diagramView : Zone -> DiagramItem -> Html Msg
 diagramView timezone diagram =
     div
-        [ class "diagram-item bg-contain bg-no-repeat relative"
+        [ class "diagram-item bg-cover bg-no-repeat relative"
         , style "background-image" ("url(\"" ++ (diagram.thumbnail |> Maybe.withDefault "") ++ "\")")
         , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
         ]

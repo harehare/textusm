@@ -72,7 +72,7 @@ view props =
                     [ style "margin-left" "4px"
                     , class "menu-button"
                     ]
-                    [ Icon.file newMenuColor 16
+                    [ Icon.file newMenuColor 18
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipNewFile props.lang ] ]
                     ]
 
@@ -85,7 +85,7 @@ view props =
                         [ style "margin-left" "4px"
                         , class "menu-button"
                         ]
-                        [ Icon.file newMenuColor 16
+                        [ Icon.file newMenuColor 18
                         , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipNewFile props.lang ] ]
                         ]
                     ]
@@ -102,7 +102,7 @@ view props =
                          else
                             notSelectedColor
                         )
-                        16
+                        18
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipOpenFile props.lang ] ]
                     ]
                 ]
@@ -121,7 +121,7 @@ view props =
                      else
                         notSelectedColor
                     )
-                    20
+                    22
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipSave props.lang ] ]
                 ]
             , div
@@ -134,7 +134,7 @@ view props =
                         _ ->
                             notSelectedColor
                     )
-                    16
+                    18
                 , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport props.lang ] ]
                 ]
             , div
@@ -147,7 +147,7 @@ view props =
                          else
                             notSelectedColor
                         )
-                        18
+                        20
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipSettings props.lang ] ]
                     ]
                 ]
