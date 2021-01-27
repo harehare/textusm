@@ -43,6 +43,7 @@ module Data.Item exposing
     , withItemType
     , withLineNo
     , withText
+    , withTextOnly
     )
 
 import Constants exposing (indentSpace, inputPrefix)
@@ -99,6 +100,11 @@ new =
 withLineNo : Int -> Item -> Item
 withLineNo lineNo (Item item) =
     Item { item | lineNo = lineNo }
+
+
+withTextOnly : String -> Item -> Item
+withTextOnly text (Item item) =
+    Item { item | text = Text.fromString text}
 
 
 withText : String -> Item -> Item

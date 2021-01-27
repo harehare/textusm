@@ -121,6 +121,7 @@ zoomControl isFullscreen scale =
             ]
             [ Icon.expandAlt 14
             ]
+
         -- , div
         --     [ Attr.style "width" "24px"
         --     , Attr.style "height" "24px"
@@ -606,16 +607,6 @@ updateDiagram ( width, height ) base text =
     }
 
 
-itemToColorText : Item -> String
-itemToColorText item =
-    case Item.getItemSettings item of
-        Nothing ->
-            ""
-
-        Just settings ->
-            ItemSettings.toString settings
-
-
 clearPosition : Model -> Return Msg Model
 clearPosition model =
     Return.singleton { model | movePosition = ( 0, 0 ) }
@@ -871,7 +862,7 @@ update message model =
             Return.singleton { model | touchDistance = Just distance }
 
         EditSelectedItem text ->
-            Return.singleton { model | selectedItem = Maybe.andThen (\( i, _ ) -> Just ( i |> Item.withText (" " ++ String.trimLeft text), False )) model.selectedItem }
+            Return.singleton { model | selectedItem = Maybe.andThen (\( i, _ ) -> Just ( i |> Item.withTextOnly (" " ++ String.trimLeft text), False )) model.selectedItem }
 
         FitToWindow ->
             let
@@ -922,7 +913,16 @@ update message model =
                                 |> DiagramUtils.getSpacePrefix
 
                         text =
-                            setAt (Item.getLineNo item) (prefix ++ String.trimLeft (Item.getText item ++ itemToColorText selectedItem)) lines
+                            setAt (Item.getLineNo item)
+                                (prefix
+                                    ++ (item
+                                            |> Item.withItemSettings
+                                                (Item.getItemSettings selectedItem)
+                                            |> Item.toLineString
+                                            |> String.trimLeft
+                                       )
+                                )
+                                lines
                                 |> String.join "\n"
                     in
                     setText text model

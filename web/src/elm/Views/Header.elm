@@ -64,6 +64,7 @@ view props =
                                 [ id "title"
                                 , class "title bg-main border-none font text-base font-bold"
                                 , style "padding" "2px"
+                                , style "margin-left" "8px"
                                 , style "color" "#f4f4f4"
                                 , value <| Title.toString props.title
                                 , onInput EditTitle
