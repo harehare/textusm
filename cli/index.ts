@@ -126,7 +126,6 @@ const writeResult = (output: string | undefined, result: string): void => {
   const text = input ? fs.readFileSync(input, "utf-8") : await readStdin();
   const js = fs.readFileSync(path.join(path.resolve(__dirname), path.sep, "..", path.sep, "js", path.sep, "textusm.js"), "utf-8");
 
-
   if (text === "") {
     console.error(`${input} is empty file.`);
     process.exit(1);
