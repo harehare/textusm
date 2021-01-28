@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { createCommand } from "commander";
 import * as fs from "fs";
+import * as path from "path";
 import * as puppeteer from "puppeteer";
 import { html, DiagramType, Settings } from "./html";
 
@@ -123,7 +124,8 @@ const writeResult = (output: string | undefined, result: string): void => {
   const browser = await puppeteer.launch();
   const config = readConfigFile(configFile);
   const text = input ? fs.readFileSync(input, "utf-8") : await readStdin();
-  const js = fs.readFileSync("./js/textusm.js", "utf-8");
+  const js = fs.readFileSync(path.join(path.resolve(__dirname), path.sep, "..", path.sep, "js", path.sep, "textusm.js"), "utf-8");
+
 
   if (text === "") {
     console.error(`${input} is empty file.`);
