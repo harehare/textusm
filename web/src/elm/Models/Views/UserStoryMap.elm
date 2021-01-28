@@ -126,7 +126,6 @@ countByStories hierarchy items =
         countUp : Items -> List (List Int)
         countUp countItems =
             [ countItems
-                |> Item.filter (\x -> Item.getItemType x /= Tasks && Item.getItemType x /= Activities)
                 |> Item.length
             ]
                 :: (countItems
@@ -137,7 +136,7 @@ countByStories hierarchy items =
                                         countUp (Item.unwrapChildren <| Item.getChildren it)
                                             |> transpose
                                 in
-                                if List.length results > hierarchy then
+                                if List.length results >= hierarchy - 1 then
                                     List.map
                                         (\it2 ->
                                             List.maximum it2 |> Maybe.withDefault 0
