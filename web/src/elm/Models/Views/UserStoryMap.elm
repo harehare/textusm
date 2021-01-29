@@ -109,6 +109,41 @@ countByStories text =
     let
         go { currentCount, currentIndent, lines, result } =
             case lines of
+                x :: [] ->
+                    let
+                        indent =
+                            getTextIndent x
+
+                        ( indentCount, nextResult ) =
+                            if indent == currentIndent then
+                                ( currentCount + 1, result )
+
+                            else
+                                ( 1
+                                , if Dict.member currentIndent result then
+                                    Dict.update currentIndent
+                                        (Maybe.map
+                                            (\v ->
+                                                if currentCount > v then
+                                                    currentCount
+
+                                                else
+                                                    v
+                                            )
+                                        )
+                                        result
+
+                                  else
+                                    Dict.insert currentIndent currentCount result
+                                )
+                    in
+                    Loop
+                        { currentCount = indentCount
+                        , currentIndent = indent
+                        , lines = []
+                        , result = nextResult
+                        }
+
                 x :: xs ->
                     let
                         indent =
@@ -145,7 +180,22 @@ countByStories text =
                         }
 
                 _ ->
-                    Done result
+                    if Dict.member currentIndent result then
+                        Done <|
+                            Dict.update currentIndent
+                                (Maybe.map
+                                    (\v ->
+                                        if currentCount > v then
+                                            currentCount
+
+                                        else
+                                            v
+                                    )
+                                )
+                                result
+
+                    else
+                        Done <| Dict.insert currentIndent currentCount result
     in
     1
         :: 1
