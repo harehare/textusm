@@ -2,7 +2,8 @@ module Models.Views.UserStoryMap exposing (UserStoryMap, countPerStories, countP
 
 import Data.Item as Item exposing (ItemType(..), Items)
 import Dict exposing (Dict)
-import List.Extra exposing (scanl, unique)
+import List.Extra exposing (scanl)
+import State as State exposing (Step(..))
 
 
 type alias Hierarchy =
@@ -37,7 +38,7 @@ from hierarchy text items =
         { items = items
         , hierarchy = hierarchy
         , countPerTasks = countByTasks items
-        , countPerStories = countByStories hierarchy items
+        , countPerStories = countByStories text
         , releaseLevel = parseComment text
         }
 
@@ -93,69 +94,62 @@ parseComment text =
         |> Dict.fromList
 
 
-transpose : List (List comparable) -> List (List comparable)
-transpose ll =
-    case ll of
-        [] ->
-            []
-
-        [] :: xss ->
-            transpose xss
-
-        (x :: xs) :: xss ->
-            let
-                heads =
-                    List.filterMap List.head xss
-                        |> unique
-
-                tails =
-                    List.filterMap List.tail xss
-                        |> unique
-            in
-            (x :: heads) :: transpose (xs :: tails)
-
-
 countByTasks : Items -> CountPerTasks
 countByTasks items =
     scanl (\it v -> v + Item.length (Item.unwrapChildren <| Item.getChildren it)) 0 (Item.unwrap items)
 
 
-countByStories : Int -> Items -> CountPerStories
-countByStories hierarchy items =
-    let
-        countUp : Items -> List (List Int)
-        countUp countItems =
-            [ countItems
-                |> Item.length
-            ]
-                :: (countItems
-                        |> Item.map
-                            (\it ->
-                                let
-                                    results =
-                                        countUp (Item.unwrapChildren <| Item.getChildren it)
-                                            |> transpose
-                                in
-                                if List.length results >= hierarchy - 1 then
-                                    List.map
-                                        (\it2 ->
-                                            List.maximum it2 |> Maybe.withDefault 0
-                                        )
-                                        results
+getTextIndent : String -> Int
+getTextIndent text =
+    (String.length text - (text |> String.trimLeft |> String.length)) // 4
 
-                                else
-                                    results
-                                        |> List.concat
-                                        |> List.filter (\x -> x /= 0)
-                            )
-                   )
+
+countByStories : String -> List Int
+countByStories text =
+    let
+        go { currentCount, currentIndent, lines, result } =
+            case lines of
+                x :: xs ->
+                    let
+                        indent =
+                            getTextIndent x
+
+                        ( indentCount, nextResult ) =
+                            if indent == currentIndent then
+                                ( currentCount + 1, result )
+
+                            else
+                                ( 1
+                                , if Dict.member currentIndent result then
+                                    Dict.update currentIndent
+                                        (Maybe.map
+                                            (\v ->
+                                                if currentCount > v then
+                                                    currentCount
+
+                                                else
+                                                    v
+                                            )
+                                        )
+                                        result
+
+                                  else
+                                    Dict.insert currentIndent currentCount result
+                                )
+                    in
+                    Loop
+                        { currentCount = indentCount
+                        , currentIndent = indent
+                        , lines = xs
+                        , result = nextResult
+                        }
+
+                _ ->
+                    Done result
     in
     1
         :: 1
-        :: (countUp items
-                |> transpose
-                |> List.map
-                    (\it ->
-                        List.maximum it |> Maybe.withDefault 0
-                    )
+        :: (State.tailRec go { currentCount = 1, currentIndent = 0, lines = String.lines text, result = Dict.empty }
+                |> Dict.values
+                |> List.drop 2
            )

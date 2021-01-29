@@ -240,12 +240,7 @@ itemToSequenceItem participants item =
             Just <| Fragment <| Consider (Item.getText childrenHead) <| itemsToMessages participants <| grandChild
 
         _ ->
-            case itemToMessage item participants of
-                Just msg ->
-                    Just <| Messages [ msg ]
-
-                Nothing ->
-                    Nothing
+            Maybe.andThen (\v -> Just <| Messages [ v ]) (itemToMessage item participants)
 
 
 isFragmentText : String -> Bool

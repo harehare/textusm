@@ -80,6 +80,7 @@ init flags =
                     }
                 , backgroundColor = flags.backgroundColor
                 , zoomControl = Just True
+                , scale = Just 1.0
                 , color =
                     { activity =
                         { color = flags.activityColor

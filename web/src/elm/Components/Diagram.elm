@@ -307,7 +307,7 @@ svgView model =
         , width
             (String.fromInt
                 (if Utils.isPhone (Size.getWidth model.size) || model.fullscreen then
-                    Size.getWidth model.size
+                    svgWidth
 
                  else if Size.getWidth model.size - 56 > 0 then
                     Size.getWidth model.size - 56
@@ -319,7 +319,7 @@ svgView model =
         , height
             (String.fromInt <|
                 if model.fullscreen then
-                    Size.getHeight model.size + 56
+                    svgHeight
 
                 else
                     Size.getHeight model.size

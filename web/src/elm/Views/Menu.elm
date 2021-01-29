@@ -51,14 +51,6 @@ notSelectedColor =
 
 view : Props -> Html Msg
 view props =
-    let
-        newMenuColor =
-            if Text.isSaved props.text || isNothing props.openMenu && props.page == New then
-                selectedColor
-
-            else
-                notSelectedColor
-    in
     if props.fullscreen then
         Empty.view
 
@@ -67,28 +59,18 @@ view props =
             [ class "flex flex-row items-center justify-between bg-main shadow-sm bottom-0 w-screen fixed lg:justify-start lg:h-screen lg:relative lg:flex-col lg:w-menu z-10"
             , style "min-width" "40px"
             ]
-            [ if Text.isChanged props.text then
-                div
+            [ a
+                [ href <| Route.toString <| Route.New
+                , attribute "aria-label" "New"
+                ]
+                [ div
                     [ style "margin-left" "4px"
                     , class "menu-button"
                     ]
-                    [ Icon.file newMenuColor 18
+                    [ Icon.file selectedColor 18
                     , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipNewFile props.lang ] ]
                     ]
-
-              else
-                a
-                    [ href <| Route.toString <| Route.New
-                    , attribute "aria-label" "New"
-                    ]
-                    [ div
-                        [ style "margin-left" "4px"
-                        , class "menu-button"
-                        ]
-                        [ Icon.file newMenuColor 18
-                        , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipNewFile props.lang ] ]
-                        ]
-                    ]
+                ]
             , div
                 [ class "menu-button list-button" ]
                 [ a
