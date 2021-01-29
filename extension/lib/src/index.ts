@@ -6,6 +6,7 @@ interface Config {
   color?: ColorConfig;
   backgroundColor?: string;
   zoomControl?: boolean;
+  scale?: number;
 }
 
 interface ColorConfig {
@@ -57,6 +58,7 @@ const defaultConfig: Config = {
   },
   backgroundColor: "#F5F5F6",
   zoomControl: false,
+  scale: 1.0,
 };
 
 function render(
