@@ -81,7 +81,7 @@ const html = (text: string, javaScript: string, settings: Settings) => `<html>
   <script type="text/javascript">
       textusm.render(
         "target",
-\`${escape(text)}\`,
+\`${escape(text.replace(/`/g, "\\`"))}\`,
         {
           diagramType: "${escape(settings.diagramType)}",
           size: { width: ${settings.size.width}, height: ${
