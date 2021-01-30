@@ -1,10 +1,9 @@
 module Data.DiagramTypeTests exposing (suite)
 
-import Data.DiagramType exposing (fromString, toLongString, toString)
+import Data.DiagramType exposing (fromString, toString)
 import Data.Fuzzer exposing (diagramTypeFuzzer)
 import Expect
-import Fuzz exposing (Fuzzer)
-import Test exposing (Test, describe, fuzz, test)
+import Test exposing (Test, describe, fuzz)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 
 

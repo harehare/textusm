@@ -11,10 +11,6 @@ import Url.Builder exposing (absolute)
 import Url.Parser as Parser exposing ((</>), Parser, custom, map, oneOf, parse, s, string)
 
 
-type alias DiagramPath =
-    String
-
-
 type alias Title =
     String
 

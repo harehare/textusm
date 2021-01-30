@@ -2,7 +2,6 @@ module AvatarTests exposing (..)
 
 import Avatar
 import Expect
-import MD5
 import Test exposing (Test, describe, test)
 
 

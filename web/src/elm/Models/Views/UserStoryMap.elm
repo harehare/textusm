@@ -107,77 +107,48 @@ getTextIndent text =
 countByStories : String -> List Int
 countByStories text =
     let
+        loop { currentCount, currentIndent, result, head, tail } =
+            let
+                indent =
+                    getTextIndent head
+
+                ( indentCount, nextResult ) =
+                    if indent == currentIndent then
+                        ( currentCount + 1, result )
+
+                    else
+                        ( 1
+                        , if Dict.member currentIndent result then
+                            Dict.update currentIndent
+                                (Maybe.map
+                                    (\v ->
+                                        if currentCount > v then
+                                            currentCount
+
+                                        else
+                                            v
+                                    )
+                                )
+                                result
+
+                          else
+                            Dict.insert currentIndent currentCount result
+                        )
+            in
+            Loop
+                { currentCount = indentCount
+                , currentIndent = indent
+                , lines = tail
+                , result = nextResult
+                }
+
         go { currentCount, currentIndent, lines, result } =
             case lines of
                 x :: [] ->
-                    let
-                        indent =
-                            getTextIndent x
-
-                        ( indentCount, nextResult ) =
-                            if indent == currentIndent then
-                                ( currentCount + 1, result )
-
-                            else
-                                ( 1
-                                , if Dict.member currentIndent result then
-                                    Dict.update currentIndent
-                                        (Maybe.map
-                                            (\v ->
-                                                if currentCount > v then
-                                                    currentCount
-
-                                                else
-                                                    v
-                                            )
-                                        )
-                                        result
-
-                                  else
-                                    Dict.insert currentIndent currentCount result
-                                )
-                    in
-                    Loop
-                        { currentCount = indentCount
-                        , currentIndent = indent
-                        , lines = []
-                        , result = nextResult
-                        }
+                    loop { currentCount = currentCount, currentIndent = currentIndent, result = result, head = x, tail = [] }
 
                 x :: xs ->
-                    let
-                        indent =
-                            getTextIndent x
-
-                        ( indentCount, nextResult ) =
-                            if indent == currentIndent then
-                                ( currentCount + 1, result )
-
-                            else
-                                ( 1
-                                , if Dict.member currentIndent result then
-                                    Dict.update currentIndent
-                                        (Maybe.map
-                                            (\v ->
-                                                if currentCount > v then
-                                                    currentCount
-
-                                                else
-                                                    v
-                                            )
-                                        )
-                                        result
-
-                                  else
-                                    Dict.insert currentIndent currentCount result
-                                )
-                    in
-                    Loop
-                        { currentCount = indentCount
-                        , currentIndent = indent
-                        , lines = xs
-                        , result = nextResult
-                        }
+                    loop { currentCount = currentCount, currentIndent = currentIndent, result = result, head = x, tail = xs }
 
                 _ ->
                     if Dict.member currentIndent result then

@@ -371,12 +371,7 @@ svgView model =
                     ++ ")"
                 )
             , fill model.settings.backgroundColor
-            , case model.moveState of
-                Diagram.NotMove ->
-                    style "will-change: transform;transition: transform 0.15s ease"
-
-                _ ->
-                    style "will-change: transform;"
+            , style "will-change: transform;"
             ]
             [ mainSvg ]
         , case ( model.selectedItem, model.contextMenu ) of
