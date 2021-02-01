@@ -144,7 +144,6 @@ if (mode === "development") {
                             loader: "elm-webpack-loader",
                             options: {
                                 debug: withDebug,
-                                forceWatch: true,
                             },
                         },
                     ],
