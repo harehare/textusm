@@ -7,7 +7,7 @@
         "url": "https://github.com/harehare/textusm/issues"
     },
     "dependencies": {
-        "@sentry/browser": "^6.0.3",
+        "@sentry/browser": "^6.0.4",
         "dexie": "^3.0.3",
         "firebase": "^8.2.5",
         "html2canvas": "^1.0.0-rc.7",
@@ -36,7 +36,7 @@
         "elm-test": "^0.19.1",
         "elm-verify-examples": "^5.0.0",
         "elm-webpack-loader": "^7.0.1",
-        "eslint": "^7.18.0",
+        "eslint": "^7.19.0",
         "eslint-config-airbnb-typescript-prettier": "^4.1.0",
         "html-inline-css-webpack-plugin": "^1.10.0",
         "html-webpack-plugin": "^4.5.1",
@@ -64,7 +64,7 @@
         "webpack-dev-server": "^3.11.2",
         "webpack-merge": "^5.7.3",
         "workbox-sw": "^6.1.0",
-        "workbox-webpack-plugin": "^6.0.2"
+        "workbox-webpack-plugin": "^6.1.0"
     },
     "homepage": "https://github.com/harehare/textusm",
     "license": "MIT",
