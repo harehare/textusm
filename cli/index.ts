@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { createCommand } from "commander";
+import { OptionValues, createCommand, parse } from "commander";
 import * as fs from "fs";
 import * as path from "path";
 import * as puppeteer from "puppeteer";
@@ -76,10 +76,20 @@ const readStdin = async (): Promise<string> => {
   return text;
 };
 
+interface Options extends OptionValues {
+  configFile: string | undefined;
+  input: string | undefined;
+  width: number | undefined;
+  height: number | undefined;
+  output: string;
+  diagramType: DiagramType | undefined;
+}
+
 const program = createCommand();
-const { configFile, input, width, height, output, diagramType } = program
+// @ts-ignore
+const options = program
   // @ts-ignore
-  .version("0.6.5")
+  .version("0.6.9")
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file.")
   .option("-w, --width <width>", "Width of the page. Optional. Default: 1024.")
@@ -95,7 +105,17 @@ const { configFile, input, width, height, output, diagramType } = program
     "-d, --diagramType [diagramType]",
     `Diagram type. It should be one of ${Object.keys(diagramMap).join(", ")}`
   )
-  .parse();
+  .parse()
+  .opts();
+
+const {
+  configFile,
+  input,
+  width,
+  height,
+  output,
+  diagramType,
+} = options as Options;
 
 if (diagramType && Object.keys(diagramMap).indexOf(diagramType) === -1) {
   console.error(`Output file must be ${Object.keys(diagramMap).join(", ")}`);
@@ -124,7 +144,18 @@ const writeResult = (output: string | undefined, result: string): void => {
   const browser = await puppeteer.launch();
   const config = readConfigFile(configFile);
   const text = input ? fs.readFileSync(input, "utf-8") : await readStdin();
-  const js = fs.readFileSync(path.join(path.resolve(__dirname), path.sep, "..", path.sep, "js", path.sep, "textusm.js"), "utf-8");
+  const js = fs.readFileSync(
+    path.join(
+      path.resolve(__dirname),
+      path.sep,
+      "..",
+      path.sep,
+      "js",
+      path.sep,
+      "textusm.js"
+    ),
+    "utf-8"
+  );
 
   if (text === "") {
     console.error(`${input} is empty file.`);
@@ -134,8 +165,8 @@ const writeResult = (output: string | undefined, result: string): void => {
   try {
     const page = await browser.newPage();
     page.setViewport({
-      width: parseInt(width ?? config.size.width),
-      height: parseInt(height ?? config.size.height),
+      width: width ?? config.size.width,
+      height: height ?? config.size.height,
     });
     config.diagramType = diagramType
       ? diagramMap[diagramType as string]
