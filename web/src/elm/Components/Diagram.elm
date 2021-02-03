@@ -530,16 +530,11 @@ updateDiagram ( width, height ) base text =
         ( hierarchy, items ) =
             Item.fromString text
 
-        newModel =
-            { base | items = items }
-
-        ( svgWidth, svgHeight ) =
-            DiagramUtils.getCanvasSize newModel
 
         data =
             case base.diagramType of
                 UserStoryMap ->
-                    Diagram.UserStoryMap <| UserStoryMapModel.from hierarchy text items
+                    Diagram.UserStoryMap <| UserStoryMapModel.from text items
 
                 Table ->
                     Diagram.Table <| TableModel.from items
@@ -588,10 +583,14 @@ updateDiagram ( width, height ) base text =
 
                 _ ->
                     Diagram.Items items
+
+        newModel =
+            { base | items = items,  data = data }
+        ( svgWidth, svgHeight ) =
+            DiagramUtils.getCanvasSize newModel
     in
     { newModel
         | size = ( width, height )
-        , data = data
         , svg =
             { width = svgWidth
             , height = svgHeight

@@ -1,13 +1,9 @@
-module Models.Views.UserStoryMap exposing (UserStoryMap, countPerStories, countPerTasks, from, getHierarchy, getItems, getReleaseLevel, storyCount, taskCount)
+module Models.Views.UserStoryMap exposing (UserStoryMap, countPerReleaseLevel, countPerTasks, from, getItems, getReleaseLevel, storyCount, taskCount)
 
 import Data.Item as Item exposing (ItemType(..), Items)
 import Dict exposing (Dict)
 import List.Extra exposing (scanl)
 import State as State exposing (Step(..))
-
-
-type alias Hierarchy =
-    Int
 
 
 type alias CountPerStories =
@@ -25,20 +21,18 @@ type alias ReleaseLevel =
 type UserStoryMap
     = UserStoryMap
         { items : Items
-        , hierarchy : Hierarchy
-        , countPerStories : CountPerStories
+        , countPerReleaseLevel : CountPerStories
         , countPerTasks : CountPerTasks
         , releaseLevel : ReleaseLevel
         }
 
 
-from : Hierarchy -> String -> Items -> UserStoryMap
-from hierarchy text items =
+from : String -> Items -> UserStoryMap
+from text items =
     UserStoryMap
         { items = items
-        , hierarchy = hierarchy
         , countPerTasks = countByTasks items
-        , countPerStories = countByStories text
+        , countPerReleaseLevel = countByStories text
         , releaseLevel = parseComment text
         }
 
@@ -53,29 +47,25 @@ getItems (UserStoryMap userStoryMap) =
     userStoryMap.items
 
 
-getHierarchy : UserStoryMap -> Hierarchy
-getHierarchy (UserStoryMap userStoryMap) =
-    userStoryMap.hierarchy
-
-
 countPerTasks : UserStoryMap -> CountPerTasks
 countPerTasks (UserStoryMap userStoryMap) =
     userStoryMap.countPerTasks
 
 
-countPerStories : UserStoryMap -> CountPerTasks
-countPerStories (UserStoryMap userStoryMap) =
-    userStoryMap.countPerStories
+countPerReleaseLevel : UserStoryMap -> CountPerTasks
+countPerReleaseLevel (UserStoryMap userStoryMap) =
+    userStoryMap.countPerReleaseLevel
 
 
 taskCount : UserStoryMap -> Int
 taskCount (UserStoryMap userStoryMap) =
-    List.maximum userStoryMap.countPerTasks |> Maybe.withDefault 1
+    List.maximum userStoryMap.countPerTasks
+        |> Maybe.withDefault 1
 
 
 storyCount : UserStoryMap -> Int
 storyCount (UserStoryMap userStoryMap) =
-    List.sum userStoryMap.countPerStories
+    List.sum userStoryMap.countPerReleaseLevel
 
 
 parseComment : String -> ReleaseLevel

@@ -341,7 +341,7 @@ userStoryMapRenderTest =
                 view model_
                     |> Query.fromHtml
                     |> Query.findAll [ tag "line" ]
-                    |> Query.count (Expect.equal 2)
+                    |> Query.count (Expect.equal 3)
         ]
 
 

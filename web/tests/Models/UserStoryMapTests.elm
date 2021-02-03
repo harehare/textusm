@@ -12,14 +12,14 @@ suite =
         [ describe "countByStories"
             [ test "Activitites and tasks counted shoud be always 1" <|
                 \() ->
-                    Expect.equal (UserStoryMap.from 1 "test\ntest\n    test\n    test" Item.empty |> UserStoryMap.countPerStories) [ 1, 1 ]
+                    Expect.equal (UserStoryMap.from "test\ntest\n    test\n    test" Item.empty |> UserStoryMap.countPerReleaseLevel) [ 1, 1 ]
             , test "User stories counted shoud be maximum number within a release level." <|
                 \() ->
                     Expect.equal
-                        (UserStoryMap.from 1
+                        (UserStoryMap.from
                             "test\n    test\n    test\n        test\n        test\n            test\n            test\n            test\n            test\n            test\n            test\ntest\n    test\n    test\n        test\n        test\n        test\n        test"
                             Item.empty
-                            |> UserStoryMap.countPerStories
+                            |> UserStoryMap.countPerReleaseLevel
                         )
                         [ 1, 1, 4, 6 ]
             ]

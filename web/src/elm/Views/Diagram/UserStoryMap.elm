@@ -34,7 +34,7 @@ view model =
                     , selectedItem = model.selectedItem
                     , items = UserStoryMap.getItems userStoryMap
                     , countByTasks = UserStoryMap.countPerTasks userStoryMap
-                    , countByHierarchy = UserStoryMap.countPerStories userStoryMap
+                    , countByReleaseLevel = UserStoryMap.countPerReleaseLevel userStoryMap
                     }
                 ]
 
@@ -42,8 +42,8 @@ view model =
             Empty.view
 
 
-mainView : { settings : Settings, selectedItem : SelectedItem, items : Items, countByTasks : List Int, countByHierarchy : List Int } -> Svg Msg
-mainView { settings, selectedItem, items, countByTasks, countByHierarchy } =
+mainView : { settings : Settings, selectedItem : SelectedItem, items : Items, countByTasks : List Int, countByReleaseLevel : List Int } -> Svg Msg
+mainView { settings, selectedItem, items, countByTasks, countByReleaseLevel } =
     Keyed.node "g"
         []
         (zip
@@ -51,7 +51,7 @@ mainView { settings, selectedItem, items, countByTasks, countByHierarchy } =
             (Item.unwrap items)
             |> List.indexedMap
                 (\i ( count, item ) ->
-                    ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByHierarchy) ( Constants.leftMargin + count * (settings.size.width + Constants.itemMargin), 10 ) selectedItem item )
+                    ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByReleaseLevel) ( Constants.leftMargin + count * (settings.size.width + Constants.itemMargin), 10 ) selectedItem item )
                 )
         )
 
@@ -63,10 +63,10 @@ labelView { settings, width, userStoryMap } =
             16
 
         hierarchy =
-            UserStoryMap.getHierarchy userStoryMap
+            UserStoryMap.countPerReleaseLevel userStoryMap |> List.length
 
-        countPerStories =
-            UserStoryMap.countPerStories userStoryMap
+        countPerReleaseLevel =
+            UserStoryMap.countPerReleaseLevel userStoryMap
     in
     g []
         (([ if hierarchy > 0 then
@@ -105,14 +105,14 @@ labelView { settings, width, userStoryMap } =
             ++ (List.range 1 (hierarchy - 2)
                     |> List.map
                         (\xx ->
-                            if List.length countPerStories - 2 > xx then
+                            if List.length countPerReleaseLevel - 2 > xx then
                                 let
                                     releaseY =
                                         Constants.itemMargin
                                             // 2
                                             + Constants.itemMargin
                                             + ((settings.size.height + Constants.itemMargin)
-                                                * (countPerStories
+                                                * (countPerReleaseLevel
                                                     |> List.take (xx + 2)
                                                     |> List.sum
                                                   )
