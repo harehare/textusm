@@ -18,7 +18,7 @@
         "uuid": "^8.3.2"
     },
     "devDependencies": {
-        "@babel/core": "^7.12.10",
+        "@babel/core": "^7.12.13",
         "@babel/preset-env": "^7.12.11",
         "@dillonkearns/elm-graphql": "^4.0.5",
         "@types/jspdf": "^1.3.3",
