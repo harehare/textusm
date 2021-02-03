@@ -79,8 +79,8 @@ const readStdin = async (): Promise<string> => {
 interface Options extends OptionValues {
   configFile: string | undefined;
   input: string | undefined;
-  width: number | undefined;
-  height: number | undefined;
+  width: string | undefined;
+  height: string | undefined;
   output: string;
   diagramType: DiagramType | undefined;
 }
@@ -165,8 +165,8 @@ const writeResult = (output: string | undefined, result: string): void => {
   try {
     const page = await browser.newPage();
     page.setViewport({
-      width: width ?? config.size.width,
-      height: height ?? config.size.height,
+      width: width ? parseInt(width) : config.size.width,
+      height: height ? parseInt(height) : config.size.height,
     });
     config.diagramType = diagramType
       ? diagramMap[diagramType as string]
