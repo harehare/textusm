@@ -7,7 +7,7 @@
         "url": "https://github.com/harehare/textusm/issues"
     },
     "dependencies": {
-        "@sentry/browser": "^6.0.4",
+        "@sentry/browser": "^6.1.0",
         "dexie": "^3.0.3",
         "firebase": "^8.2.5",
         "html2canvas": "^1.0.0-rc.7",
