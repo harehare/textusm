@@ -156,7 +156,7 @@ if (mode === "development") {
             stats: "errors-only",
             contentBase: path.join(__dirname, "src/assets"),
             historyApiFallback: true,
-            compress: true,
+            compress: false,
             before(app) {
                 app.get("/test", function (_, res) {
                     res.json({

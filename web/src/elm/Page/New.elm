@@ -39,13 +39,13 @@ newItems =
 view : Html msg
 view =
     div
-        [ class "diagram-list flex-wrap overflow-y-scroll"
+        [ class "grid"
         , style "margin" "16px"
         ]
     <|
         List.map
             (\item ->
-                a [ href item.url, class "new-item-container", attribute "aria-label" item.name ]
+                a [ href item.url, attribute "aria-label" item.name ]
                     [ div [ class "new-item" ]
                         [ img [ Asset.src item.image, class "new-item-image" ] []
                         , div
