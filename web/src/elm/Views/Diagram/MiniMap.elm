@@ -7,4 +7,4 @@ import Svg exposing (Svg, g)
 
 view : Model -> Svg Msg
 view model =
-    g [] []
+    g [] [ g [] [] ]

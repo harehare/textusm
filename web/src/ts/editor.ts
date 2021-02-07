@@ -134,11 +134,6 @@ export const loadEditor = async (
         }
 
         if (monacoEditor) {
-            // @ts-ignore
-            // eslint-disable-line no-underscore-dangle
-            monacoEditor._standaloneKeybindingService.addDynamicKeybinding(
-                "-actions.find"
-            );
             monacoEditor.addAction({
                 id: "open",
                 label: "open",
