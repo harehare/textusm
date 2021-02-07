@@ -39,7 +39,7 @@ newItems =
 view : Html msg
 view =
     div
-        [ class "grid"
+        [ class "grid new"
         , style "margin" "16px"
         ]
     <|

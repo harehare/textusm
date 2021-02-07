@@ -346,7 +346,7 @@ diagramListView props =
 
           else
             div
-                [ class "flex-start flex-wrap content-start overflow-y-scroll"
+                [ class "grid list"
                 , style "height" "calc(100% - 70px)"
                 , style "margin-bottom" "8px"
                 , style "will-change" "transform"
