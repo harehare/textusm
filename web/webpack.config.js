@@ -8,7 +8,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const WorkboxWebpackPlugin = require("workbox-webpack-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const PreloadWebpackPlugin = require("preload-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin")
@@ -16,7 +16,6 @@ const HTMLInlineCSSWebpackPlugin = require("html-inline-css-webpack-plugin")
 const ImageminPlugin = require("imagemin-webpack-plugin").default;
 const mode =
     process.env.NODE_ENV === "production" ? "production" : "development";
-const withDebug = !process.env.NODE_ENV;
 const dist = path.join(__dirname, "dist");
 
 const common = {
@@ -153,6 +152,7 @@ if (mode === "development") {
         },
         devServer: {
             inline: true,
+            hot: true,
             stats: "errors-only",
             contentBase: path.join(__dirname, "src/assets"),
             historyApiFallback: true,
@@ -290,18 +290,15 @@ if (mode === "production") {
                         },
                     },
                 }),
-                new OptimizeCSSAssetsPlugin({
-                    cssProcessor: require("cssnano"),
-                    cssProcessorPluginOptions: {
+                new CssMinimizerPlugin({
+                    minimizerOptions: {
                         preset: [
                             "advanced",
                             {
                                 discardComments: { removeAll: true },
-                                cssDeclarationSorter: { order: "smacss" },
                             },
                         ],
                     },
-                    canPrint: true,
                 }),
             ],
         },
