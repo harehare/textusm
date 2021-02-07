@@ -56,6 +56,7 @@ import Views.Diagram.ImpactMap as ImpactMap
 import Views.Diagram.Kanban as Kanban
 import Views.Diagram.Kpt as Kpt
 import Views.Diagram.MindMap as MindMap
+import Views.Diagram.MiniMap as MiniMap
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
 import Views.Diagram.SequenceDiagram as SequenceDiagram
 import Views.Diagram.SiteMap as SiteMap
@@ -121,17 +122,16 @@ zoomControl isFullscreen scale =
             ]
             [ Icon.expandAlt 14
             ]
-
-        -- , div
-        --     [ Attr.style "width" "24px"
-        --     , Attr.style "height" "24px"
-        --     , Attr.style "cursor" "pointer"
-        --     , Attr.style "display" "flex"
-        --     , Attr.style "align-items" "center"
-        --     , onClick ToggleMiniMap
-        --     ]
-        --     [ Icon.map 14
-        --     ]
+        , div
+            [ Attr.style "width" "24px"
+            , Attr.style "height" "24px"
+            , Attr.style "cursor" "pointer"
+            , Attr.style "display" "flex"
+            , Attr.style "align-items" "center"
+            , onClick ToggleMiniMap
+            ]
+            [ Icon.map 14
+            ]
         , div
             [ Attr.style "width" "24px"
             , Attr.style "height" "24px"
@@ -204,6 +204,7 @@ view model =
 
           else
             Empty.view
+        , lazy MiniMap.view model
         , lazy svgView model
         ]
 
@@ -530,7 +531,6 @@ updateDiagram ( width, height ) base text =
         ( hierarchy, items ) =
             Item.fromString text
 
-
         data =
             case base.diagramType of
                 UserStoryMap ->
@@ -585,7 +585,8 @@ updateDiagram ( width, height ) base text =
                     Diagram.Items items
 
         newModel =
-            { base | items = items,  data = data }
+            { base | items = items, data = data }
+
         ( svgWidth, svgHeight ) =
             DiagramUtils.getCanvasSize newModel
     in
