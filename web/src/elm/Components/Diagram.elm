@@ -40,7 +40,7 @@ import String
 import Svg exposing (Svg, defs, feComponentTransfer, feFuncA, feGaussianBlur, feMerge, feMergeNode, feOffset, filter, g, svg, text)
 import Svg.Attributes exposing (class, dx, dy, fill, height, id, in_, result, slope, stdDeviation, style, transform, type_, viewBox, width)
 import Svg.Events exposing (onClick)
-import Svg.Lazy exposing (lazy, lazy2)
+import Svg.Lazy as Lazy
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils.Diagram as DiagramUtils
@@ -178,6 +178,32 @@ zoomControl isFullscreen scale =
 
 view : Model -> Html Msg
 view model =
+    let
+        svgWidth =
+            if model.fullscreen then
+                Basics.toFloat
+                    (Basics.max model.svg.width (Size.getWidth model.size))
+                    |> round
+
+            else
+                Basics.toFloat
+                    (Size.getWidth model.size)
+                    |> round
+
+        svgHeight =
+            if model.fullscreen then
+                Basics.toFloat
+                    (Basics.max model.svg.height (Size.getHeight model.size))
+                    |> round
+
+            else
+                Basics.toFloat
+                    (Size.getHeight model.size)
+                    |> round
+
+        mainSvg =
+            Lazy.lazy (diagramView model.diagramType) model
+    in
     div
         [ Attr.id "usm-area"
         , Attr.style "position" "relative"
@@ -200,12 +226,12 @@ view model =
                 Attr.class ""
         ]
         [ if model.settings.zoomControl |> Maybe.withDefault model.showZoomControl then
-            lazy2 zoomControl model.fullscreen model.svg.scale
+            Lazy.lazy2 zoomControl model.fullscreen model.svg.scale
 
           else
             Empty.view
-        , lazy MiniMap.view model
-        , lazy svgView model
+        , Lazy.lazy3 MiniMap.view model ( svgWidth, svgHeight ) mainSvg
+        , Lazy.lazy3 svgView model ( svgWidth, svgHeight ) mainSvg
         ]
 
 
@@ -264,34 +290,9 @@ diagramView diagramType =
             FreeForm.view
 
 
-svgView : Model -> Svg Msg
-svgView model =
+svgView : Model -> Size -> Svg Msg -> Svg Msg
+svgView model ( svgWidth, svgHeight ) mainSvg =
     let
-        svgWidth =
-            if model.fullscreen then
-                Basics.toFloat
-                    (Basics.max model.svg.width (Size.getWidth model.size))
-                    |> round
-
-            else
-                Basics.toFloat
-                    (Size.getWidth model.size)
-                    |> round
-
-        svgHeight =
-            if model.fullscreen then
-                Basics.toFloat
-                    (Basics.max model.svg.height (Size.getHeight model.size))
-                    |> round
-
-            else
-                Basics.toFloat
-                    (Size.getHeight model.size)
-                    |> round
-
-        mainSvg =
-            lazy (diagramView model.diagramType) model
-
         centerPosition =
             case model.diagramType of
                 MindMap ->
@@ -341,11 +342,7 @@ svgView model =
             g [] []
 
           else
-            defs []
-                [ Svg.style
-                    []
-                    [ text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ]
-                ]
+            defs [] [ Svg.style [] [ text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ] ]
         , defs []
             [ filter [ id "shadow", height "130%" ]
                 [ feGaussianBlur [ in_ "SourceAlpha", stdDeviation "3" ] []
@@ -377,19 +374,12 @@ svgView model =
             [ mainSvg ]
         , case ( model.selectedItem, model.contextMenu ) of
             ( Just ( item_, _ ), Just ( contextMenu, position ) ) ->
-                let
-                    ( posX, posY ) =
-                        position
-
-                    ( offsetX, offsetY ) =
-                        centerPosition
-                in
                 ContextMenu.view
                     { state = contextMenu
                     , item = item_
                     , position =
-                        ( floor <| toFloat (posX + offsetX) * model.svg.scale
-                        , floor <| toFloat (posY + offsetY) * model.svg.scale
+                        ( floor <| toFloat (Position.getX position + Position.getX centerPosition) * model.svg.scale
+                        , floor <| toFloat (Position.getY position + Position.getY centerPosition) * model.svg.scale
                         )
                     , dropDownIndex = model.dropDownIndex
                     , onMenuSelect = SelectContextMenu
