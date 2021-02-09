@@ -5,7 +5,7 @@ import Constants
 import Data.FontStyle as FontStyle
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.ItemSettings as ItemSettings
-import Data.Position as Position
+import Data.Position as Position exposing (Position)
 import Data.Size as Size exposing (Size)
 import Data.Text as Text
 import Events
@@ -201,6 +201,17 @@ view model =
                     (Size.getHeight model.size)
                     |> round
 
+        centerPosition =
+            case model.diagramType of
+                MindMap ->
+                    Tuple.mapBoth (\x -> x + (svgWidth // 3)) (\y -> y + (svgHeight // 3)) model.position
+
+                ImpactMap ->
+                    Tuple.mapBoth (\x -> x + Constants.itemMargin) (\y -> y + (svgHeight // 3)) model.position
+
+                _ ->
+                    model.position
+
         mainSvg =
             Lazy.lazy (diagramView model.diagramType) model
     in
@@ -230,8 +241,8 @@ view model =
 
           else
             Empty.view
-        , Lazy.lazy3 MiniMap.view model ( svgWidth, svgHeight ) mainSvg
-        , Lazy.lazy3 svgView model ( svgWidth, svgHeight ) mainSvg
+        , Lazy.lazy4 MiniMap.view model centerPosition model.size mainSvg
+        , Lazy.lazy4 svgView model centerPosition ( svgWidth, svgHeight ) mainSvg
         ]
 
 
@@ -290,20 +301,8 @@ diagramView diagramType =
             FreeForm.view
 
 
-svgView : Model -> Size -> Svg Msg -> Svg Msg
-svgView model ( svgWidth, svgHeight ) mainSvg =
-    let
-        centerPosition =
-            case model.diagramType of
-                MindMap ->
-                    Tuple.mapBoth (\x -> x + (svgWidth // 3)) (\y -> y + (svgHeight // 3)) model.position
-
-                ImpactMap ->
-                    Tuple.mapBoth (\x -> x + Constants.itemMargin) (\y -> y + (svgHeight // 3)) model.position
-
-                _ ->
-                    model.position
-    in
+svgView : Model -> Position -> Size -> Svg Msg -> Svg Msg
+svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
     svg
         [ Attr.id "usm"
         , width
