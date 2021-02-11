@@ -115,6 +115,7 @@ card { settings, position, selectedItem, item, canMove } =
                     , rx "1"
                     , ry "1"
                     , style "filter:url(#shadow)"
+                    , class "ts-card"
                     ]
                     []
                 , text settings
@@ -221,7 +222,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs cardText =
             , fill colour
             , color colour
             , FontSize.svgFontSize fs
-            , class ".select-none"
+            , class "select-none ts-text"
             ]
             [ markdown settings
                 colour
@@ -243,7 +244,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs cardText =
             , fill colour
             , color colour
             , FontSize.svgFontSize fs
-            , class ".select-none"
+            , class "select-none ts-text"
             ]
             [ div
                 [ Attr.style "padding" "8px"
@@ -367,6 +368,7 @@ canvasRect settings rectStyle ( posX, posY ) ( rectWidth, rectHeight ) =
         , rectStyle
         , x <| String.fromInt posX
         , y <| String.fromInt posY
+        , class "ts-canvas"
         ]
         []
 
@@ -386,7 +388,7 @@ title settings ( posX, posY ) item =
             )
         , FontSize.svgFontSize FontSize.fontSize20
         , fontWeight "bold"
-        , class ".select-none"
+        , class "select-none ts-title"
         , onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
         ]
         [ Svg.text <| Item.getText item ]
@@ -446,6 +448,7 @@ image ( imageWidth, imageHeight ) ( posX, posY ) url =
             , Attr.style "width" <| String.fromInt imageWidth ++ "px"
             , Attr.style "height" <| String.fromInt imageHeight ++ "px"
             , Attr.style "object-fit" "cover"
+            , class "ts-image"
             ]
             []
         ]
@@ -486,6 +489,7 @@ node settings ( posX, posY ) selectedItem item =
                         , stroke "transparent"
                         , fill settings.backgroundColor
                         , draggingStyle isDragging
+                        , class "ts-node"
                         ]
                         []
                     , textNodeInput settings ( posX, posY ) ( nodeWidth, settings.size.height ) item_
@@ -524,6 +528,7 @@ rootTextNode settings ( posX, posY ) selectedItem item =
                     , ry "32"
                     , fill settings.backgroundColor
                     , draggingStyle False
+                    , class "ts-node"
                     ]
                     []
                 , textNode settings ( posX, posY ) ( settings.size.width, settings.size.height ) textColor item
@@ -544,6 +549,7 @@ rootTextNode settings ( posX, posY ) selectedItem item =
                         , ry "32"
                         , fill settings.backgroundColor
                         , draggingStyle isDragging
+                        , class "ts-node"
                         ]
                         []
                     , textNodeInput settings ( posX, posY ) ( settings.size.width, settings.size.height ) item_
@@ -580,6 +586,7 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
             , Attr.style "display" "flex"
             , Attr.style "align-items" "center"
             , Attr.style "justify-content" "center"
+            , class "ts-node"
             ]
             [ div [ FontSize.htmlFontSize <| Item.getFontSize item ] [ Html.text <| Item.getText item ] ]
         ]
@@ -668,6 +675,7 @@ grid settings ( posX, posY ) selectedItem item =
                         , stroke settings.color.line
                         , strokeWidth "3"
                         , draggingStyle isDragging
+                        , class "ts-grid"
                         ]
                         []
                     , inputView

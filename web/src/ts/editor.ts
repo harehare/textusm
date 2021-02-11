@@ -1,37 +1,9 @@
 import * as monaco from "monaco-editor"; // eslint-disable-line import/no-unresolved
-import { ElmApp, EditorOption } from "./elm";
+import { ElmApp } from "./elm";
 
 let monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;
 let updateTextInterval: number | null = null;
-
-const loadText = (text: string) => {
-    if (monacoEditor) {
-        monacoEditor.setValue(text);
-    }
-};
-
-const insertTextLines = (lines: string[]) => {
-    if (!monacoEditor) {
-        return;
-    }
-    const selection = monacoEditor.getSelection();
-
-    if (!selection) {
-        return;
-    }
-    monacoEditor.executeEdits("", [
-        {
-            range: new monaco.Range(
-                selection.startLineNumber,
-                1,
-                selection.endLineNumber,
-                1
-            ),
-            text: `${lines.join("\n")}\n`,
-            forceMoveMarkers: true,
-        },
-    ]);
-};
+let _app: ElmApp | null;
 
 const focusEditor = () => {
     setTimeout(() => {
@@ -39,11 +11,10 @@ const focusEditor = () => {
     }, 100);
 };
 
-const layout = (delay: number) => {
-    setTimeout(() => {
-        if (!monacoEditor) return;
-        monacoEditor.layout();
-    }, delay);
+export const setElmApp = (app: ElmApp): void => {
+    _app = app;
+    _app.ports.focusEditor.unsubscribe(focusEditor);
+    _app.ports.focusEditor.subscribe(focusEditor);
 };
 
 monaco.languages.register({
@@ -93,37 +64,95 @@ monaco.editor.defineTheme("usmTheme", {
     ],
 });
 
-// @ts-except-error
-export const loadEditor = async (
-    app: ElmApp,
-    text: string,
-    { fontSize, wordWrap, showLineNumber }: EditorOption = {
-        fontSize: 14,
-        wordWrap: false,
-        showLineNumber: true,
+export class MonacoEditor extends HTMLElement {
+    init: boolean;
+
+    editor: monaco.editor.IStandaloneCodeEditor | null;
+
+    constructor() {
+        super();
+        this.init = false;
+        this.editor = null;
     }
-): Promise<void> => {
-    const timer = setInterval(() => {
-        const editor = document.getElementById("editor") as HTMLElement | null;
 
-        if (!editor) return;
+    static get observedAttributes(): string[] {
+        return ["value", "fontSize", "wordWrap", "showLineNumber"];
+    }
 
-        if (monacoEditor) {
-            monacoEditor.dispose();
-            monacoEditor = null;
+    attributeChangedCallback(
+        name: string,
+        oldValue: string | boolean | number,
+        newValue: string | boolean | number
+    ): void {
+        if (!this.init) {
+            return;
         }
+        switch (name) {
+            case "value":
+                if (oldValue !== newValue) {
+                    this.value = newValue as string;
+                }
+                break;
+            case "fontSize":
+                if (oldValue !== newValue) {
+                    this.fontSize = newValue as number;
+                }
+                break;
+            case "wordWrap":
+                if (oldValue !== newValue) {
+                    this.wordWrap = newValue as boolean;
+                }
+                break;
+            case "showLineNumber":
+                if (oldValue !== newValue) {
+                    this.showLineNumber = newValue as boolean;
+                }
+                break;
+            default:
+                throw new Error(`Unknown attribute ${name}`);
+        }
+    }
 
+    set value(value: string) {
+        if (this.editor) {
+            this.editor.setValue(value);
+        }
+    }
+
+    set fontSize(value: number) {
+        if (this.editor) {
+            this.editor.updateOptions({ fontSize: value });
+        }
+    }
+
+    set wordWrap(value: boolean) {
+        if (this.editor) {
+            this.editor.updateOptions({ wordWrap: value ? "on" : "off" });
+        }
+    }
+
+    set showLineNumber(value: boolean) {
+        if (this.editor) {
+            this.editor.updateOptions({ lineNumbers: value ? "on" : "off" });
+        }
+    }
+
+    async connectedCallback(): Promise<void> {
+        const editor = document.getElementById("editor") as HTMLElement | null;
         if (editor) {
-            monacoEditor = monaco.editor.create(editor, {
-                value: text,
+            this.editor = monaco.editor.create(editor, {
                 language: "userStoryMap",
                 theme: "usmTheme",
-                lineNumbers: showLineNumber ? "on" : "off",
-                wordWrap: wordWrap ? "on" : "off",
+                lineNumbers:
+                    this.getAttribute("showLineNumber") === "true"
+                        ? "on"
+                        : "off",
+                wordWrap:
+                    this.getAttribute("wordWrap") === "true" ? "on" : "off",
                 minimap: {
                     enabled: false,
                 },
-                fontSize,
+                fontSize: 14,
                 mouseWheelZoom: true,
                 automaticLayout: true,
                 scrollbar: {
@@ -131,30 +160,32 @@ export const loadEditor = async (
                     horizontalScrollbarSize: 6,
                 },
             });
-        }
 
-        if (monacoEditor) {
-            monacoEditor.addAction({
+            this.editor.addAction({
                 id: "open",
                 label: "open",
                 keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
                 contextMenuOrder: 1,
                 run: () => {
-                    app.ports.shortcuts.send("open");
+                    if (_app) {
+                        _app.ports.shortcuts.send("open");
+                    }
                 },
             });
 
-            monacoEditor.addAction({
+            this.editor.addAction({
                 id: "save-to-local",
                 label: "save",
                 keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
                 contextMenuOrder: 2,
                 run: () => {
-                    app.ports.shortcuts.send("save");
+                    if (_app) {
+                        _app.ports.shortcuts.send("save");
+                    }
                 },
             });
 
-            monacoEditor.onDidChangeModelContent((e) => {
+            this.editor.onDidChangeModelContent((e) => {
                 if (e.changes.length > 0) {
                     if (updateTextInterval) {
                         window.clearTimeout(updateTextInterval);
@@ -164,23 +195,31 @@ export const loadEditor = async (
                         if (!monacoEditor) {
                             return;
                         }
-                        app.ports.changeText.send(monacoEditor.getValue());
+                        if (_app) {
+                            _app.ports.changeText.send(monacoEditor.getValue());
+                        }
                     }, 300);
                 }
             });
+
+            if (this.hasAttribute("value")) {
+                const value = this.getAttribute("value");
+                if (value) {
+                    this.value = value;
+                }
+            }
+
+            if (this.hasAttribute("fontSize")) {
+                const fontSize = this.getAttribute("fontSize");
+                if (fontSize) {
+                    this.fontSize = parseInt(fontSize, 10);
+                }
+            }
+
+            this.init = true;
+            monacoEditor = this.editor;
         }
+    }
+}
 
-        app.ports.loadText.unsubscribe(loadText);
-        app.ports.loadText.subscribe(loadText);
-
-        app.ports.insertTextLines.unsubscribe(insertTextLines);
-        app.ports.insertTextLines.subscribe(insertTextLines);
-
-        app.ports.focusEditor.unsubscribe(focusEditor);
-        app.ports.focusEditor.subscribe(focusEditor);
-
-        app.ports.layoutEditor.unsubscribe(layout);
-        app.ports.layoutEditor.subscribe(layout);
-        clearInterval(timer);
-    }, 100);
-};
+customElements.define("monaco-editor", MonacoEditor);

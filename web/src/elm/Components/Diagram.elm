@@ -5,7 +5,7 @@ import Constants
 import Data.FontStyle as FontStyle
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.ItemSettings as ItemSettings
-import Data.Position as Position
+import Data.Position as Position exposing (Position)
 import Data.Size as Size exposing (Size)
 import Data.Text as Text
 import Events
@@ -40,7 +40,7 @@ import String
 import Svg exposing (Svg, defs, feComponentTransfer, feFuncA, feGaussianBlur, feMerge, feMergeNode, feOffset, filter, g, svg, text)
 import Svg.Attributes exposing (class, dx, dy, fill, height, id, in_, result, slope, stdDeviation, style, transform, type_, viewBox, width)
 import Svg.Events exposing (onClick)
-import Svg.Lazy exposing (lazy, lazy2)
+import Svg.Lazy as Lazy
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Utils.Diagram as DiagramUtils
@@ -56,6 +56,7 @@ import Views.Diagram.ImpactMap as ImpactMap
 import Views.Diagram.Kanban as Kanban
 import Views.Diagram.Kpt as Kpt
 import Views.Diagram.MindMap as MindMap
+import Views.Diagram.MiniMap as MiniMap
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
 import Views.Diagram.SequenceDiagram as SequenceDiagram
 import Views.Diagram.SiteMap as SiteMap
@@ -121,17 +122,16 @@ zoomControl isFullscreen scale =
             ]
             [ Icon.expandAlt 14
             ]
-
-        -- , div
-        --     [ Attr.style "width" "24px"
-        --     , Attr.style "height" "24px"
-        --     , Attr.style "cursor" "pointer"
-        --     , Attr.style "display" "flex"
-        --     , Attr.style "align-items" "center"
-        --     , onClick ToggleMiniMap
-        --     ]
-        --     [ Icon.map 14
-        --     ]
+        , div
+            [ Attr.style "width" "24px"
+            , Attr.style "height" "24px"
+            , Attr.style "cursor" "pointer"
+            , Attr.style "display" "flex"
+            , Attr.style "align-items" "center"
+            , onClick ToggleMiniMap
+            ]
+            [ Icon.map 14
+            ]
         , div
             [ Attr.style "width" "24px"
             , Attr.style "height" "24px"
@@ -178,6 +178,43 @@ zoomControl isFullscreen scale =
 
 view : Model -> Html Msg
 view model =
+    let
+        svgWidth =
+            if model.fullscreen then
+                Basics.toFloat
+                    (Basics.max model.svg.width (Size.getWidth model.size))
+                    |> round
+
+            else
+                Basics.toFloat
+                    (Size.getWidth model.size)
+                    |> round
+
+        svgHeight =
+            if model.fullscreen then
+                Basics.toFloat
+                    (Basics.max model.svg.height (Size.getHeight model.size))
+                    |> round
+
+            else
+                Basics.toFloat
+                    (Size.getHeight model.size)
+                    |> round
+
+        centerPosition =
+            case model.diagramType of
+                MindMap ->
+                    Tuple.mapBoth (\x -> x + (svgWidth // 3)) (\y -> y + (svgHeight // 3)) model.position
+
+                ImpactMap ->
+                    Tuple.mapBoth (\x -> x + Constants.itemMargin) (\y -> y + (svgHeight // 3)) model.position
+
+                _ ->
+                    model.position
+
+        mainSvg =
+            Lazy.lazy (diagramView model.diagramType) model
+    in
     div
         [ Attr.id "usm-area"
         , Attr.style "position" "relative"
@@ -200,11 +237,20 @@ view model =
                 Attr.class ""
         ]
         [ if model.settings.zoomControl |> Maybe.withDefault model.showZoomControl then
-            lazy2 zoomControl model.fullscreen model.svg.scale
+            Lazy.lazy2 zoomControl model.fullscreen model.svg.scale
 
           else
             Empty.view
-        , lazy svgView model
+        , Lazy.lazy MiniMap.view
+            { showMiniMap = model.showMiniMap
+            , diagramType = model.diagramType
+            , scale = model.svg.scale
+            , svgSize = ( svgWidth, svgHeight )
+            , viewport = model.size
+            , position = centerPosition
+            , diagramSvg = mainSvg
+            }
+        , Lazy.lazy4 svgView model centerPosition ( svgWidth, svgHeight ) mainSvg
         ]
 
 
@@ -263,45 +309,8 @@ diagramView diagramType =
             FreeForm.view
 
 
-svgView : Model -> Svg Msg
-svgView model =
-    let
-        svgWidth =
-            if model.fullscreen then
-                Basics.toFloat
-                    (Basics.max model.svg.width (Size.getWidth model.size))
-                    |> round
-
-            else
-                Basics.toFloat
-                    (Size.getWidth model.size)
-                    |> round
-
-        svgHeight =
-            if model.fullscreen then
-                Basics.toFloat
-                    (Basics.max model.svg.height (Size.getHeight model.size))
-                    |> round
-
-            else
-                Basics.toFloat
-                    (Size.getHeight model.size)
-                    |> round
-
-        mainSvg =
-            lazy (diagramView model.diagramType) model
-
-        centerPosition =
-            case model.diagramType of
-                MindMap ->
-                    Tuple.mapBoth (\x -> x + (svgWidth // 3)) (\y -> y + (svgHeight // 3)) model.position
-
-                ImpactMap ->
-                    Tuple.mapBoth (\x -> x + Constants.itemMargin) (\y -> y + (svgHeight // 3)) model.position
-
-                _ ->
-                    model.position
-    in
+svgView : Model -> Position -> Size -> Svg Msg -> Svg Msg
+svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
     svg
         [ Attr.id "usm"
         , width
@@ -340,11 +349,7 @@ svgView model =
             g [] []
 
           else
-            defs []
-                [ Svg.style
-                    []
-                    [ text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ]
-                ]
+            defs [] [ Svg.style [] [ text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ] ]
         , defs []
             [ filter [ id "shadow", height "130%" ]
                 [ feGaussianBlur [ in_ "SourceAlpha", stdDeviation "3" ] []
@@ -359,8 +364,8 @@ svgView model =
                 ]
             ]
         , g
-            [ transform
-                ("translate("
+            [ transform <|
+                "translate("
                     ++ String.fromInt (Position.getX centerPosition)
                     ++ ","
                     ++ String.fromInt (Position.getY centerPosition)
@@ -369,26 +374,18 @@ svgView model =
                     ++ ","
                     ++ String.fromFloat model.svg.scale
                     ++ ")"
-                )
             , fill model.settings.backgroundColor
             , style "will-change: transform;"
             ]
             [ mainSvg ]
         , case ( model.selectedItem, model.contextMenu ) of
             ( Just ( item_, _ ), Just ( contextMenu, position ) ) ->
-                let
-                    ( posX, posY ) =
-                        position
-
-                    ( offsetX, offsetY ) =
-                        centerPosition
-                in
                 ContextMenu.view
                     { state = contextMenu
                     , item = item_
                     , position =
-                        ( floor <| toFloat (posX + offsetX) * model.svg.scale
-                        , floor <| toFloat (posY + offsetY) * model.svg.scale
+                        ( floor <| toFloat (Position.getX position + Position.getX centerPosition) * model.svg.scale
+                        , floor <| toFloat (Position.getY position + Position.getY centerPosition) * model.svg.scale
                         )
                     , dropDownIndex = model.dropDownIndex
                     , onMenuSelect = SelectContextMenu
@@ -408,8 +405,8 @@ onDragStart : SelectedItem -> Bool -> Svg.Attribute Msg
 onDragStart item isPhone =
     case ( item, isPhone ) of
         ( Nothing, True ) ->
-            Touch.onStart
-                (\event ->
+            Touch.onStart <|
+                \event ->
                     if List.length event.changedTouches > 1 then
                         let
                             p1 =
@@ -430,17 +427,15 @@ onDragStart item isPhone =
                                 touchCoordinates event
                         in
                         Start Diagram.BoardMove ( round x, round y )
-                )
 
         ( Nothing, False ) ->
-            Mouse.onDown
-                (\event ->
+            Mouse.onDown <|
+                \event ->
                     let
                         ( x, y ) =
                             event.pagePos
                     in
                     Start Diagram.BoardMove ( round x, round y )
-                )
 
         _ ->
             Attr.style "" ""
@@ -453,8 +448,8 @@ onDragMove distance moveState isPhone =
             Attr.style "" ""
 
         ( _, True ) ->
-            Touch.onMove
-                (\event ->
+            Touch.onMove <|
+                \event ->
                     if List.length event.changedTouches > 1 then
                         let
                             p1 =
@@ -491,17 +486,15 @@ onDragMove distance moveState isPhone =
                                 touchCoordinates event
                         in
                         Move ( round x, round y )
-                )
 
         ( _, False ) ->
-            Mouse.onMove
-                (\event ->
+            Mouse.onMove <|
+                \event ->
                     let
                         ( x, y ) =
                             event.pagePos
                     in
                     Move ( round x, round y )
-                )
 
 
 chooseZoom : Wheel.Event -> Msg
@@ -529,7 +522,6 @@ updateDiagram ( width, height ) base text =
     let
         ( hierarchy, items ) =
             Item.fromString text
-
 
         data =
             case base.diagramType of
@@ -585,7 +577,8 @@ updateDiagram ( width, height ) base text =
                     Diagram.Items items
 
         newModel =
-            { base | items = items,  data = data }
+            { base | items = items, data = data }
+
         ( svgWidth, svgHeight ) =
             DiagramUtils.getCanvasSize newModel
     in
@@ -623,12 +616,11 @@ closeDropDown model =
 
 setLine : Int -> List String -> String -> Model -> Return Msg Model
 setLine lineNo lines line model =
-    let
-        text =
-            setAt lineNo line lines
-                |> String.join "\n"
-    in
-    setText text model
+    setText
+        (setAt lineNo line lines
+            |> String.join "\n"
+        )
+        model
 
 
 setItem : Item -> Items -> Model -> Return Msg Model
@@ -701,11 +693,6 @@ zoomOut model =
         Return.singleton model
 
 
-loadTextToEditor : Model -> Return Msg Model
-loadTextToEditor model =
-    Return.return model (Ports.loadText <| Text.toString model.text)
-
-
 update : Msg -> Model -> Return Msg Model
 update message model =
     case message of
@@ -765,7 +752,6 @@ update message model =
                                     Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
                                         >> Return.andThen (setItem item model.items)
                             )
-                                >> Return.andThen loadTextToEditor
                                 >> Return.andThen stopMove
 
                         _ ->
@@ -1098,14 +1084,19 @@ update message model =
 
         DropFiles files ->
             ( { model | dragStatus = NoDrag }
-            , List.filter (\file -> File.mime file |> String.startsWith "image/") files
-                |> List.map File.toUrl
-                |> Task.sequence
-                |> Task.perform LoadFiles
+            , List.filter (\file -> File.mime file |> String.startsWith "text/") files
+                |> List.head
+                |> Maybe.map File.toString
+                |> Maybe.withDefault (Task.succeed "")
+                |> Task.perform LoadFile
             )
 
-        LoadFiles files ->
-            Return.return model (Ports.insertTextLines files)
+        LoadFile file ->
+            if String.isEmpty file then
+                Return.singleton model
+
+            else
+                Return.singleton { model | text = Text.fromString file }
 
         ChangeDragStatus status ->
             Return.singleton { model | dragStatus = status }

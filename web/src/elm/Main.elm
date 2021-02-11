@@ -28,7 +28,7 @@ import File.Download as Download
 import GraphQL.Request as Request
 import Graphql.Http as Http
 import Html exposing (Html, div, main_, textarea)
-import Html.Attributes exposing (class, id, placeholder, style, value)
+import Html.Attributes exposing (attribute, class, id, placeholder, style, value)
 import Html.Events as E
 import Html.Lazy as Lazy
 import Json.Decode as D
@@ -174,7 +174,24 @@ view model =
                             (div [ class "bg-main w-full h-main lg:h-full" ]
                                 [ div
                                     [ id "editor", class "full" ]
-                                    []
+                                    [ Html.node "monaco-editor"
+                                        [ attribute "value" <| Text.toString model.diagramModel.text
+                                        , attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
+                                        , attribute "wordWrap" <|
+                                            if .wordWrap <| defaultEditorSettings model.settingsModel.settings.editor then
+                                                "true"
+
+                                            else
+                                                "false"
+                                        , attribute "showLineNumber" <|
+                                            if .showLineNumber <| defaultEditorSettings model.settingsModel.settings.editor then
+                                                "true"
+
+                                            else
+                                                "false"
+                                        ]
+                                        []
+                                    ]
                                 ]
                             )
               in
@@ -533,7 +550,7 @@ update message model =
 
                 DiagramModel.EndEditSelectedItem _ code isComposing ->
                     if code == 13 && not isComposing then
-                        ( { model | diagramModel = model_ }, Ports.loadText <| Text.toString model_.text )
+                        Return.singleton { model | diagramModel = model_ }
 
                     else
                         Return.singleton model
@@ -542,7 +559,6 @@ update message model =
                     case model.diagramModel.selectedItem of
                         Just _ ->
                             ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-                                |> Return.andThen Action.loadTextToEditor
 
                         Nothing ->
                             Return.singleton model
@@ -551,7 +567,6 @@ update message model =
                     case model.diagramModel.selectedItem of
                         Just _ ->
                             ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-                                |> Return.andThen Action.loadTextToEditor
 
                         Nothing ->
                             Return.singleton model
@@ -560,7 +575,6 @@ update message model =
                     case model.diagramModel.selectedItem of
                         Just _ ->
                             ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-                                |> Return.andThen Action.loadTextToEditor
 
                         Nothing ->
                             Return.singleton model
@@ -909,7 +923,7 @@ update message model =
             Return.singleton { model | window = model.window |> Page.windowOfMoveStart.set False }
 
         HandleWindowResize x ->
-            Return.return { model | window = { position = model.window.position + x - model.window.moveX, moveStart = True, moveX = x, fullscreen = model.window.fullscreen } } (Ports.layoutEditor 0)
+            Return.singleton { model | window = { position = model.window.position + x - model.window.moveX, moveStart = True, moveX = x, fullscreen = model.window.fullscreen } }
 
         GetShortUrl (Err e) ->
             Action.showErrorMessage ("Error. " ++ Utils.httpErrorToString e) model
@@ -956,7 +970,8 @@ update message model =
             Return.return { model | shareModel = newShareModel } (Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken model.session) model.apiRoot shareUrl))
 
         HandleDecodeShareText text ->
-            Return.return model (Ports.loadText text)
+            Return.singleton model
+                |> Return.andThen (Action.setText text)
 
         SwitchWindow w ->
             Return.singleton { model | switchWindow = w }
@@ -1046,7 +1061,6 @@ update message model =
                 }
                 (cmd_ |> Cmd.map UpdateDiagram)
                 |> Return.andThen Action.stopProgress
-                |> Return.andThen (Action.loadEditor ( Text.toString newDiagram.text, defaultEditorSettings model.settingsModel.settings.editor ))
 
         EditText text ->
             let
@@ -1098,7 +1112,6 @@ update message model =
                     Diagram.update DiagramModel.ToggleFullscreen model.diagramModel
             in
             Return.return { model | window = model.window |> Page.windowOfFullscreen.set False, diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
-                |> Return.andThen (Action.loadEditor ( Text.toString model.diagramModel.text, defaultEditorSettings model.settingsModel.settings.editor ))
 
         UpdateIdToken token ->
             Return.singleton { model | session = Session.updateIdToken model.session (IdToken.fromString token) }

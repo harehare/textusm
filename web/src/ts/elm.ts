@@ -1,11 +1,5 @@
 import { Settings, DownloadInfo, Diagram, DiagramItem } from "./model";
 
-interface EditorOption {
-    fontSize: number;
-    wordWrap: boolean;
-    showLineNumber: boolean;
-}
-
 type Provider = "Google" | "Github";
 
 interface Send<T> {
@@ -20,7 +14,6 @@ interface Subscribe<T> {
 type ElmApp = {
     ports: {
         saveSettings: Subscribe<(settings: Settings) => void>;
-        loadEditor: Subscribe<([text, option]: [string, EditorOption]) => void>;
         signIn: Subscribe<(provider: Provider) => void>;
         signOut: Subscribe<() => Promise<void>>;
         refreshToken: Subscribe<() => Promise<void>>;
@@ -28,9 +21,6 @@ type ElmApp = {
         openFullscreen: Subscribe<() => void>;
         closeFullscreen: Subscribe<() => void>;
         focusEditor: Subscribe<() => void>;
-        loadText: Subscribe<(text: string) => void>;
-        layoutEditor: Subscribe<(delay: number) => void>;
-        insertTextLines: Subscribe<(lines: string[]) => void>;
         downloadSvg: Subscribe<(download: DownloadInfo) => void>;
         downloadPdf: Subscribe<(download: DownloadInfo) => void>;
         downloadPng: Subscribe<(download: DownloadInfo) => void>;
@@ -73,4 +63,4 @@ type ElmApp = {
     };
 };
 
-export { EditorOption, Provider, ElmApp };
+export { Provider, ElmApp };

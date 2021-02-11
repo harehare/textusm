@@ -14,7 +14,6 @@ import Ports
 import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
 import Route exposing (Route(..))
-import Settings exposing (EditorSettings)
 import Task
 import TextUSM.Enum.Diagram exposing (Diagram)
 import Utils.Utils as Utils
@@ -28,16 +27,6 @@ loadText diagram model =
 loadLocalDiagram : DiagramId -> Model -> Return Msg Model
 loadLocalDiagram diagramId model =
     Return.return model <| Ports.getDiagram (DiagramId.toString diagramId)
-
-
-loadTextToEditor : Model -> Return Msg Model
-loadTextToEditor model =
-    Return.return model (Ports.loadText <| Text.toString model.diagramModel.text)
-
-
-loadEditor : ( String, EditorSettings ) -> Model -> Return Msg Model
-loadEditor editorSettings model =
-    Return.return model (Ports.loadEditor editorSettings)
 
 
 changeRouteInit : Model -> Return Msg Model
