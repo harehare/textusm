@@ -1,5 +1,5 @@
 import "./styles.scss";
-import { loadEditor } from "./ts/editor";
+import { setElmApp } from "./ts/editor";
 import { initDownload } from "./ts/download";
 import { initShare } from "./ts/share";
 import { initDB } from "./ts/db";
@@ -12,7 +12,7 @@ import {
 } from "./ts/auth";
 import { loadSettings, saveSettings } from "./ts/settings";
 import { Settings } from "./ts/model";
-import { ElmApp, EditorOption, Provider } from "./ts/elm";
+import { ElmApp, Provider } from "./ts/elm";
 // @ts-ignore
 import { Elm } from "./elm/Main.elm";
 
@@ -30,6 +30,7 @@ const app: ElmApp = Elm.Main.init({
     },
 });
 
+setElmApp(app);
 authStateChanged(
     () => {
         app.ports.progress.send(true);
@@ -52,10 +53,6 @@ authStateChanged(
 
 app.ports.saveSettings.subscribe((settings: Settings) => {
     saveSettings(settings);
-});
-
-app.ports.loadEditor.subscribe(([text, option]: [string, EditorOption]) => {
-    loadEditor(app, text, option);
 });
 
 app.ports.signIn.subscribe((provider: Provider) => {

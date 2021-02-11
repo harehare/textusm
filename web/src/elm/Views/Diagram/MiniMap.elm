@@ -1,22 +1,45 @@
 module Views.Diagram.MiniMap exposing (..)
 
-import Data.Position exposing (Position)
-import Data.Size exposing (Size)
+import Constants
+import Data.Position as Position exposing (Position)
+import Data.Size as Size exposing (Size)
 import Html exposing (Html, div)
 import Html.Attributes as Attr
-import Models.Diagram exposing (Model, Msg(..))
+import Models.Diagram exposing (Msg(..))
 import Models.Views.FourLs exposing (FourLsItem(..))
 import Svg exposing (Svg, svg)
 import Svg.Attributes exposing (class, fill, height, stroke, strokeWidth, transform, viewBox, width, x, y)
+import TextUSM.Enum.Diagram exposing (Diagram(..))
 
 
-view : Model -> Position -> Size -> Svg Msg -> Html Msg
-view model ( centerX, centerY ) ( w, h ) mainSvg =
+view :
+    { showMiniMap : Bool
+    , diagramType : Diagram
+    , scale : Float
+    , position : Position
+    , svgSize : Size
+    , viewport : Size
+    , diagramSvg : Svg Msg
+    }
+    -> Html Msg
+view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg } =
+    let
+        startPosition =
+            case diagramType of
+                MindMap ->
+                    ( Size.getWidth svgSize // 3, Size.getHeight svgSize // 3 )
+
+                ImpactMap ->
+                    ( Constants.itemMargin, Size.getHeight svgSize // 3 )
+
+                _ ->
+                    Size.zero
+    in
     div
         [ Attr.class "mini-map"
         , Attr.style "position" "absolute"
         , Attr.style "width" "260px"
-        , if model.showMiniMap then
+        , if showMiniMap then
             Attr.style "height" "150px"
 
           else
@@ -29,20 +52,28 @@ view model ( centerX, centerY ) ( w, h ) mainSvg =
         , Attr.style "bottom" "16px"
         , Attr.style "right" "16px"
         , Attr.style "transition" "height 0.15s ease-out"
+        , Attr.style "pointer-events" "none"
         ]
-        [ if model.showMiniMap then
+        [ if showMiniMap then
             svg
                 [ width "270"
                 , height "150"
                 , viewBox "0 0 2880 1620"
                 ]
-                [ Svg.g [ transform "scale(0.4)" ]
-                    [ mainSvg
+                [ Svg.g
+                    [ transform <|
+                        "translate("
+                            ++ String.fromInt (Position.getX startPosition)
+                            ++ ","
+                            ++ String.fromInt (Position.getY startPosition)
+                            ++ "), scale(0.5)"
+                    ]
+                    [ diagramSvg
                     , Svg.rect
-                        [ width <| String.fromInt <| round <| toFloat w / model.svg.scale
-                        , height <| String.fromInt <| round <| toFloat h / model.svg.scale
-                        , x <| String.fromInt (0 - centerX)
-                        , y <| String.fromInt (0 - centerY)
+                        [ width <| String.fromInt <| round <| (toFloat <| Size.getWidth viewport) / scale
+                        , height <| String.fromInt <| round <| (toFloat <| Size.getHeight viewport) / scale
+                        , x <| String.fromInt <| 0 - Position.getX position
+                        , y <| String.fromInt <| 0 - Position.getY position
                         , stroke "#333333"
                         , strokeWidth "40"
                         , fill "transparent"

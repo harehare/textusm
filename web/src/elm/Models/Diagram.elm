@@ -269,7 +269,7 @@ type Msg
     | SelectContextMenu ContextMenu
     | FontStyleChanged FontStyle
     | DropFiles (List File)
-    | LoadFiles (List String)
+    | LoadFile String
     | ChangeDragStatus DragStatus
     | FontSizeChanged FontSize
     | ToggleDropDownList String

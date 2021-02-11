@@ -832,16 +832,14 @@
 }
 
 .mini-map {
-    pointer-events: none;
-    rect {
+    .ts-card,
+    .ts-text,
+    .ts-canvas,
+    .ts-node,
+    .ts-grid {
         fill: rgba(72, 169, 221, 0.2) !important;
         stroke: #48a9dd !important;
         stroke-width: 8px !important;
-    }
-    .display-rect {
-        stroke: #000000 !important;
-        stroke-width: 48 !important;
-        fill: transparent !important;
     }
     line,
     text {

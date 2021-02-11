@@ -241,7 +241,15 @@ view model =
 
           else
             Empty.view
-        , Lazy.lazy4 MiniMap.view model centerPosition model.size mainSvg
+        , Lazy.lazy MiniMap.view
+            { showMiniMap = model.showMiniMap
+            , diagramType = model.diagramType
+            , scale = model.svg.scale
+            , svgSize = ( svgWidth, svgHeight )
+            , viewport = model.size
+            , position = centerPosition
+            , diagramSvg = mainSvg
+            }
         , Lazy.lazy4 svgView model centerPosition ( svgWidth, svgHeight ) mainSvg
         ]
 
@@ -356,8 +364,8 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 ]
             ]
         , g
-            [ transform
-                ("translate("
+            [ transform <|
+                "translate("
                     ++ String.fromInt (Position.getX centerPosition)
                     ++ ","
                     ++ String.fromInt (Position.getY centerPosition)
@@ -366,7 +374,6 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     ++ ","
                     ++ String.fromFloat model.svg.scale
                     ++ ")"
-                )
             , fill model.settings.backgroundColor
             , style "will-change: transform;"
             ]
@@ -398,8 +405,8 @@ onDragStart : SelectedItem -> Bool -> Svg.Attribute Msg
 onDragStart item isPhone =
     case ( item, isPhone ) of
         ( Nothing, True ) ->
-            Touch.onStart
-                (\event ->
+            Touch.onStart <|
+                \event ->
                     if List.length event.changedTouches > 1 then
                         let
                             p1 =
@@ -420,17 +427,15 @@ onDragStart item isPhone =
                                 touchCoordinates event
                         in
                         Start Diagram.BoardMove ( round x, round y )
-                )
 
         ( Nothing, False ) ->
-            Mouse.onDown
-                (\event ->
+            Mouse.onDown <|
+                \event ->
                     let
                         ( x, y ) =
                             event.pagePos
                     in
                     Start Diagram.BoardMove ( round x, round y )
-                )
 
         _ ->
             Attr.style "" ""
@@ -443,8 +448,8 @@ onDragMove distance moveState isPhone =
             Attr.style "" ""
 
         ( _, True ) ->
-            Touch.onMove
-                (\event ->
+            Touch.onMove <|
+                \event ->
                     if List.length event.changedTouches > 1 then
                         let
                             p1 =
@@ -481,17 +486,15 @@ onDragMove distance moveState isPhone =
                                 touchCoordinates event
                         in
                         Move ( round x, round y )
-                )
 
         ( _, False ) ->
-            Mouse.onMove
-                (\event ->
+            Mouse.onMove <|
+                \event ->
                     let
                         ( x, y ) =
                             event.pagePos
                     in
                     Move ( round x, round y )
-                )
 
 
 chooseZoom : Wheel.Event -> Msg
@@ -613,12 +616,11 @@ closeDropDown model =
 
 setLine : Int -> List String -> String -> Model -> Return Msg Model
 setLine lineNo lines line model =
-    let
-        text =
-            setAt lineNo line lines
-                |> String.join "\n"
-    in
-    setText text model
+    setText
+        (setAt lineNo line lines
+            |> String.join "\n"
+        )
+        model
 
 
 setItem : Item -> Items -> Model -> Return Msg Model
@@ -691,11 +693,6 @@ zoomOut model =
         Return.singleton model
 
 
-loadTextToEditor : Model -> Return Msg Model
-loadTextToEditor model =
-    Return.return model (Ports.loadText <| Text.toString model.text)
-
-
 update : Msg -> Model -> Return Msg Model
 update message model =
     case message of
@@ -755,7 +752,6 @@ update message model =
                                     Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
                                         >> Return.andThen (setItem item model.items)
                             )
-                                >> Return.andThen loadTextToEditor
                                 >> Return.andThen stopMove
 
                         _ ->
@@ -1088,14 +1084,19 @@ update message model =
 
         DropFiles files ->
             ( { model | dragStatus = NoDrag }
-            , List.filter (\file -> File.mime file |> String.startsWith "image/") files
-                |> List.map File.toUrl
-                |> Task.sequence
-                |> Task.perform LoadFiles
+            , List.filter (\file -> File.mime file |> String.startsWith "text/") files
+                |> List.head
+                |> Maybe.map File.toString
+                |> Maybe.withDefault (Task.succeed "")
+                |> Task.perform LoadFile
             )
 
-        LoadFiles files ->
-            Return.return model (Ports.insertTextLines files)
+        LoadFile file ->
+            if String.isEmpty file then
+                Return.singleton model
+
+            else
+                Return.singleton { model | text = Text.fromString file }
 
         ChangeDragStatus status ->
             Return.singleton { model | dragStatus = status }

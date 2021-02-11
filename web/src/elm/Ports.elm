@@ -1,9 +1,8 @@
-port module Ports exposing (changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, encodeShareText, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, insertTextLines, layoutEditor, loadEditor, loadText, onAuthStateChanged, onCloseFullscreen, onDecodeShareText, onEncodeShareText, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, refreshToken, reload, removeRemoteDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, shortcuts, signIn, signOut, startDownload, updateIdToken)
+port module Ports exposing (changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, encodeShareText, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, onAuthStateChanged, onCloseFullscreen, onDecodeShareText, onEncodeShareText, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, refreshToken, reload, removeRemoteDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, shortcuts, signIn, signOut, startDownload, updateIdToken)
 
 import Data.Session exposing (User)
 import Json.Decode as D
 import Json.Encode as E
-import Settings exposing (EditorSettings)
 
 
 type alias DownloadInfo =
@@ -63,9 +62,6 @@ port downloadPdf : DownloadInfo -> Cmd msg
 port downloadHtml : DownloadInfo -> Cmd msg
 
 
-port loadEditor : ( String, EditorSettings ) -> Cmd msg
-
-
 port signIn : String -> Cmd msg
 
 
@@ -73,12 +69,6 @@ port signOut : () -> Cmd msg
 
 
 port focusEditor : () -> Cmd msg
-
-
-port loadText : String -> Cmd msg
-
-
-port layoutEditor : Int -> Cmd msg
 
 
 port saveSettings : E.Value -> Cmd msg
@@ -121,9 +111,6 @@ port saveToRemote : (D.Value -> msg) -> Sub msg
 
 
 port saveToLocalCompleted : (D.Value -> msg) -> Sub msg
-
-
-port insertTextLines : List String -> Cmd msg
 
 
 port onCloseFullscreen : (D.Value -> msg) -> Sub msg
