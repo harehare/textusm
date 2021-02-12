@@ -7,7 +7,7 @@ let _app: ElmApp | null;
 
 const focusEditor = () => {
     setTimeout(() => {
-        if (monacoEditor) monacoEditor.focus();
+        monacoEditor?.focus();
     }, 100);
 };
 
@@ -69,13 +69,10 @@ export class MonacoEditor extends HTMLElement {
 
     editor: monaco.editor.IStandaloneCodeEditor | null;
 
-    suspendChangeText: boolean;
-
     constructor() {
         super();
         this.init = false;
         this.editor = null;
-        this.suspendChangeText = false;
     }
 
     static get observedAttributes(): string[] {
@@ -117,27 +114,19 @@ export class MonacoEditor extends HTMLElement {
     }
 
     set value(value: string) {
-        if (this.editor) {
-            this.editor.setValue(value);
-        }
+        this.editor?.setValue(value);
     }
 
     set fontSize(value: number) {
-        if (this.editor) {
-            this.editor.updateOptions({ fontSize: value });
-        }
+        this.editor?.updateOptions({ fontSize: value });
     }
 
     set wordWrap(value: boolean) {
-        if (this.editor) {
-            this.editor.updateOptions({ wordWrap: value ? "on" : "off" });
-        }
+        this.editor?.updateOptions({ wordWrap: value ? "on" : "off" });
     }
 
     set showLineNumber(value: boolean) {
-        if (this.editor) {
-            this.editor.updateOptions({ lineNumbers: value ? "on" : "off" });
-        }
+        this.editor?.updateOptions({ lineNumbers: value ? "on" : "off" });
     }
 
     async connectedCallback(): Promise<void> {
@@ -170,9 +159,7 @@ export class MonacoEditor extends HTMLElement {
                 keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
                 contextMenuOrder: 1,
                 run: () => {
-                    if (_app) {
-                        _app.ports.shortcuts.send("open");
-                    }
+                    _app?.ports.shortcuts.send("open");
                 },
             });
 
@@ -182,9 +169,7 @@ export class MonacoEditor extends HTMLElement {
                 keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
                 contextMenuOrder: 2,
                 run: () => {
-                    if (_app) {
-                        _app.ports.shortcuts.send("save");
-                    }
+                    _app?.ports.shortcuts.send("save");
                 },
             });
 
@@ -195,10 +180,8 @@ export class MonacoEditor extends HTMLElement {
                         updateTextInterval = null;
                     }
                     updateTextInterval = window.setTimeout(() => {
-                        if (_app && this.editor) {
-                            this.suspendChangeText = true;
-                            _app.ports.changeText.send(this.editor.getValue());
-                            this.suspendChangeText = false;
+                        if (this.editor) {
+                            _app?.ports.changeText.send(this.editor.getValue());
                         }
                     }, 300);
                 }
