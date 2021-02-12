@@ -90,7 +90,7 @@ export class MonacoEditor extends HTMLElement {
         switch (name) {
             case "value":
                 if (oldValue !== newValue) {
-                    this.value = newValue as string;
+                    // this.value = newValue as string;
                 }
                 break;
             case "fontSize":
@@ -192,11 +192,8 @@ export class MonacoEditor extends HTMLElement {
                         updateTextInterval = null;
                     }
                     updateTextInterval = window.setTimeout(() => {
-                        if (!monacoEditor) {
-                            return;
-                        }
-                        if (_app) {
-                            _app.ports.changeText.send(monacoEditor.getValue());
+                        if (_app && this.editor) {
+                            _app.ports.changeText.send(this.editor.getValue());
                         }
                     }, 300);
                 }

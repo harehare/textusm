@@ -1,4 +1,4 @@
-module Data.FontSize exposing (FontSize, decoder, default, fontSize20, fromInt, htmlFontSize, list, svgFontSize, unwrap)
+module Data.FontSize exposing (FontSize, decoder, default, fontSize20, fromInt, htmlFontSize, list, svgFontSize, toInt, unwrap)
 
 import Html.Attributes as HtmlAttr
 import Json.Decode as D
@@ -41,6 +41,11 @@ unwrap (FontSize fontSize) =
 fromInt : Int -> FontSize
 fromInt fontSize =
     FontSize fontSize
+
+
+toInt : FontSize -> Int
+toInt (FontSize fontSize) =
+    fontSize
 
 
 decoder : D.Decoder FontSize
