@@ -69,10 +69,13 @@ export class MonacoEditor extends HTMLElement {
 
     editor: monaco.editor.IStandaloneCodeEditor | null;
 
+    suspendChangeText: boolean;
+
     constructor() {
         super();
         this.init = false;
         this.editor = null;
+        this.suspendChangeText = false;
     }
 
     static get observedAttributes(): string[] {
@@ -89,8 +92,8 @@ export class MonacoEditor extends HTMLElement {
         }
         switch (name) {
             case "value":
-                if (oldValue !== newValue) {
-                    // this.value = newValue as string;
+                if (newValue !== this.editor?.getValue()) {
+                    this.value = newValue as string;
                 }
                 break;
             case "fontSize":
@@ -193,7 +196,9 @@ export class MonacoEditor extends HTMLElement {
                     }
                     updateTextInterval = window.setTimeout(() => {
                         if (_app && this.editor) {
+                            this.suspendChangeText = true;
                             _app.ports.changeText.send(this.editor.getValue());
+                            this.suspendChangeText = false;
                         }
                     }, 300);
                 }
