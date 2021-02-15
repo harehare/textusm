@@ -264,7 +264,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs cardText =
             , color colour
             , fontFamily (fontStyle settings)
             , FontSize.svgFontSize fs
-            , class ".select-none"
+            , class "select-none"
             ]
             [ Svg.text cardText ]
 

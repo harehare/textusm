@@ -61,6 +61,10 @@ const setText = (editor: vscode.TextEditor, text: string) => {
   });
 };
 
+const setPreviewActiveContext = (value: boolean) => {
+  vscode.commands.executeCommand("setContext", "textUsmPreviewFocus", value);
+};
+
 export function activate(context: vscode.ExtensionContext) {
   const newTextOpen = async (text: string, diagramType: string) => {
     const doc = await vscode.workspace.openTextDocument({
@@ -93,6 +97,20 @@ export function activate(context: vscode.ExtensionContext) {
           DiagramPanel.currentPanel.exportPng();
         }
       });
+    })
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand("extension.zoomIn", () => {
+      if (DiagramPanel.currentPanel) {
+        DiagramPanel.currentPanel.zoomIn();
+      }
+    })
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand("extension.zoomOut", () => {
+      if (DiagramPanel.currentPanel) {
+        DiagramPanel.currentPanel.zoomOut();
+      }
     })
   );
   context.subscriptions.push(
@@ -158,7 +176,7 @@ export function activate(context: vscode.ExtensionContext) {
                 break;
               case "gct":
                 newTextOpen(
-                  "2019-12-26,2020-01-31\n    title1\n        subtitle1\n            2019-12-26, 2019-12-31\n    title2\n        subtitle2\n            2019-12-31, 2020-01-04\n",
+                  "2019-12-26 2020-01-31\n    title1\n        subtitle1\n            2019-12-26 2019-12-31\n    title2\n        subtitle2\n            2019-12-31 2020-01-04\n",
                   values[0].value
                 );
               case "imm":
@@ -236,6 +254,7 @@ class DiagramPanel {
         column ? column + 1 : vscode.ViewColumn.Two
       );
       DiagramPanel.currentPanel._addTextChangedEvent(editor);
+      setPreviewActiveContext(true);
       return;
     }
 
@@ -281,14 +300,24 @@ class DiagramPanel {
             ? dir.endsWith("/")
               ? dir.toString()
               : `${dir.toString()}/`
-            : `${vscode.workspace.rootPath}/`
+            : `${
+                vscode.workspace.workspaceFolders
+                  ? vscode.workspace.workspaceFolders[0]
+                  : ""
+              }/`
         }${title}.png`;
         const base64Data = message.text.replace(/^data:image\/png;base64,/, "");
 
-        fs.writeFileSync(filePath, base64Data, "base64");
-        vscode.window.showInformationMessage(`Exported: ${filePath}`, {
-          modal: false,
-        });
+        try {
+          fs.writeFileSync(filePath, base64Data, "base64");
+          vscode.window.showInformationMessage(`Exported: ${filePath}`, {
+            modal: false,
+          });
+        } catch {
+          vscode.window.showErrorMessage(`Export failed: ${filePath}`, {
+            modal: false,
+          });
+        }
       } else if (message.command === "exportSvg") {
         const backgroundColor = vscode.workspace
           .getConfiguration()
@@ -308,26 +337,33 @@ class DiagramPanel {
             : `${vscode.workspace.rootPath}/`
         }${title}.svg`;
 
-        fs.writeFileSync(
-          filePath,
-          `<?xml version="1.0"?>
+        try {
+          fs.writeFileSync(
+            filePath,
+            `<?xml version="1.0"?>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${
                       message.width
                     } ${message.height}" width="${message.width}" height="${
-            message.height
-          }" style="background-color: ${backgroundColor};">
+              message.height
+            }" style="background-color: ${backgroundColor};">
                     ${message.text
                       .split("<div")
                       .join('<div xmlns="http://www.w3.org/1999/xhtml"')
                       .split("<img")
                       .join('<img xmlns="http://www.w3.org/1999/xhtml"')}
                     </svg>`
-        );
-        vscode.window.showInformationMessage(`Exported: ${filePath}`, {
-          modal: false,
-        });
+          );
+          vscode.window.showInformationMessage(`Exported: ${filePath}`, {
+            modal: false,
+          });
+        } catch {
+          vscode.window.showErrorMessage(`Export failed: ${filePath}`, {
+            modal: false,
+          });
+        }
       }
     });
+    setPreviewActiveContext(true);
   }
 
   private constructor(
@@ -340,12 +376,14 @@ class DiagramPanel {
   ) {
     this._panel = panel;
     this._update(iconPath, scriptSrc, title, text, diagramType);
-    this._panel.onDidDispose(() => this.dispose());
-  }
-
-  public dispose() {
-    DiagramPanel.currentPanel = undefined;
-    this._panel.dispose();
+    this._panel.onDidDispose(() => () => {
+      DiagramPanel.currentPanel = undefined;
+      setPreviewActiveContext(false);
+      this._panel.dispose();
+    });
+    this._panel.onDidChangeViewState(({ webviewPanel }) => {
+      setPreviewActiveContext(webviewPanel.active);
+    });
   }
 
   public exportPng() {
@@ -361,6 +399,18 @@ class DiagramPanel {
   public exportSvg() {
     this._panel.webview.postMessage({
       command: "exportSvg",
+    });
+  }
+
+  public zoomIn() {
+    this._panel.webview.postMessage({
+      command: "zoomIn",
+    });
+  }
+
+  public zoomOut() {
+    this._panel.webview.postMessage({
+      command: "zoomOut",
     });
   }
 
@@ -585,15 +635,13 @@ class DiagramPanel {
 
             if (message.command === 'textChanged') {
                 app.ports.onTextChanged.send(message.text);
+            } else if (message.command === 'zoomIn') {
+                app.ports.zoom.send(true);
+            } else if (message.command === 'zoomOut') {
+                app.ports.zoom.send(false);
             } else if (message.command === 'exportSvg') {
                 const usm = document.querySelector('#usm-area').cloneNode(true);
                 const usmSvg = usm.querySelector('#usm');
-                const zoomControl = usm.querySelector('#zoom-control');
-
-                try {
-                    usm.removeChild(zoomControl);
-                } catch {}
-
                 app.ports.onGetCanvasSize.subscribe(([width, height]) => {
                   vscode.postMessage({
                       command: 'exportSvg',
@@ -606,12 +654,6 @@ class DiagramPanel {
             } else if (message.command === 'exportPng') {
                 const usm = document.querySelector('#usm-area').cloneNode(true);
                 const usmSvg = usm.querySelector('#usm');
-                const zoomControl = usm.querySelector('#zoom-control');
-
-                try {
-                    usm.removeChild(zoomControl);
-                } catch {}
-
                 const canvas = document.createElement('canvas');
                 canvas.style.display = 'none';
 

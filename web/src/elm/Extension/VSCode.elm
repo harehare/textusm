@@ -67,7 +67,7 @@ init flags =
             , position = ( 0, 0 )
             , movePosition = ( 0, 0 )
             , fullscreen = False
-            , showZoomControl = True
+            , showZoomControl = False
             , showMiniMap = False
             , selectedItem = Nothing
             , contextMenu = Nothing
@@ -79,7 +79,7 @@ init flags =
                     , height = flags.cardHeight
                     }
                 , backgroundColor = flags.backgroundColor
-                , zoomControl = Just True
+                , zoomControl = Just False
                 , scale = Just 1.0
                 , color =
                     { activity =
@@ -228,6 +228,9 @@ port onTextChanged : (String -> msg) -> Sub msg
 port getCanvasSize : (String -> msg) -> Sub msg
 
 
+port zoom : (Bool -> msg) -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
@@ -235,4 +238,11 @@ subscriptions _ =
         , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
         , onTextChanged (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
         , getCanvasSize GetCanvasSize
+        , zoom <|
+            \z ->
+                if z then
+                    UpdateDiagram DiagramModel.ZoomIn
+
+                else
+                    UpdateDiagram DiagramModel.ZoomOut
         ]
