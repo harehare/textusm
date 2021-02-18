@@ -48,7 +48,7 @@ const common = {
         }),
         new MonacoWebpackPlugin({
             languages: [],
-            features: ["folding"],
+            features: ["clipboard"],
         }),
     ],
     resolve: {
@@ -108,6 +108,10 @@ const common = {
                         maxSize: 10 * 1024,
                     },
                 },
+            },
+            {
+                test: /\.ttf$/,
+                use: ["file-loader"],
             },
             {
                 test: /\.(jpe?g|png|gif|svg)$/i,
