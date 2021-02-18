@@ -1,28 +1,122 @@
 #!/usr/bin/env node
-import { OptionValues, createCommand, parse } from "commander";
+import { OptionValues, createCommand, option } from "commander";
 import * as fs from "fs";
 import * as path from "path";
-import * as puppeteer from "puppeteer";
+// import * as puppeteer from "puppeteer";
+import * as puppeteer from "puppeteer-core";
 import { html, DiagramType, Settings } from "./html";
 
-const diagramMap: { [type: string]: DiagramType } = {
-  user_story_map: "UserStoryMap",
-  opportunity_canvas: "OpportunityCanvas",
-  business_model_canvas: "BusinessModelCanvas",
-  "4ls": "4Ls",
-  start_stop_continue: "StartStopContinue",
-  kpt: "Kpt",
-  userpersona: "UserPersona",
-  mind_map: "MindMap",
-  empathy_map: "EmpathyMap",
-  table: "Table",
-  site_map: "SiteMap",
-  gantt_chart: "GanttChart",
-  impact_map: "ImpactMap",
-  er_diagram: "ERDiagram",
-  kanban: "Kanban",
-  sequence_diagram: "SequenceDiagram",
-  free_form: "Freeform",
+type DiagramSettings = {
+  width: number;
+  height: number;
+  diagramType: DiagramType;
+};
+
+type DiagramKey =
+  | "user_story_map"
+  | "opportunity_canvas"
+  | "business_model_canvas"
+  | "4ls"
+  | "start_stop_continue"
+  | "kpt"
+  | "userpersona"
+  | "mind_map"
+  | "empathy_map"
+  | "table"
+  | "site_map"
+  | "gantt_chart"
+  | "impact_map"
+  | "er_diagram"
+  | "kanban"
+  | "sequence_diagram"
+  | "free_form";
+
+const diagramMap: { readonly [T in DiagramKey]: DiagramSettings } = {
+  user_story_map: {
+    width: 1024,
+    height: 1024,
+    diagramType: "UserStoryMap",
+  },
+  opportunity_canvas: {
+    width: 1500,
+    height: 940,
+    diagramType: "OpportunityCanvas",
+  },
+  business_model_canvas: {
+    width: 1500,
+    height: 940,
+    diagramType: "BusinessModelCanvas",
+  },
+  "4ls": {
+    width: 1250,
+    height: 1250,
+    diagramType: "4Ls",
+  },
+  start_stop_continue: {
+    width: 900,
+    height: 350,
+    diagramType: "StartStopContinue",
+  },
+  kpt: {
+    width: 1200,
+    height: 640,
+    diagramType: "Kpt",
+  },
+  userpersona: {
+    width: 1500,
+    height: 640,
+    diagramType: "UserPersona",
+  },
+  mind_map: {
+    width: 1024,
+    height: 1024,
+    diagramType: "MindMap",
+  },
+  empathy_map: {
+    width: 1200,
+    height: 640,
+    diagramType: "EmpathyMap",
+  },
+  table: {
+    width: 1024,
+    height: 1024,
+    diagramType: "Table",
+  },
+  site_map: {
+    width: 1024,
+    height: 1024,
+    diagramType: "SiteMap",
+  },
+  gantt_chart: {
+    width: 1024,
+    height: 1024,
+    diagramType: "GanttChart",
+  },
+  impact_map: {
+    width: 1024,
+    height: 1024,
+    diagramType: "ImpactMap",
+  },
+  er_diagram: {
+    width: 1024,
+    height: 1024,
+    diagramType: "ERDiagram",
+  },
+  kanban: {
+    width: 1024,
+    height: 1024,
+    diagramType: "Kanban",
+  },
+  sequence_diagram: {
+    width: 1024,
+    height: 1024,
+    diagramType: "SequenceDiagram",
+  },
+  free_form: {
+    width: 1024,
+    height: 1024,
+    diagramType: "Freeform",
+  },
 };
 
 const defaultSettings: Settings = {
@@ -82,14 +176,14 @@ interface Options extends OptionValues {
   width: string | undefined;
   height: string | undefined;
   output: string;
-  diagramType: DiagramType | undefined;
+  diagramType: DiagramKey | undefined;
 }
 
 const program = createCommand();
 // @ts-ignore
 const options = program
   // @ts-ignore
-  .version("0.6.9")
+  .version("0.6.11")
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file.")
   .option("-w, --width <width>", "Width of the page. Optional. Default: 1024.")
@@ -164,12 +258,24 @@ const writeResult = (output: string | undefined, result: string): void => {
 
   try {
     const page = await browser.newPage();
+    const svgWidth = width
+      ? parseInt(width)
+      : diagramType
+      ? diagramMap[diagramType].width
+      : config.size.width;
+    const svgHeight = height
+      ? parseInt(height)
+      : diagramType
+      ? diagramMap[diagramType].height
+      : config.size.height;
     page.setViewport({
-      width: width ? parseInt(width) : config.size.width,
-      height: height ? parseInt(height) : config.size.height,
+      width: svgWidth,
+      height: svgHeight,
     });
+    config.size.width = svgWidth;
+    config.size.height = svgHeight;
     config.diagramType = diagramType
-      ? diagramMap[diagramType as string]
+      ? diagramMap[diagramType].diagramType
       : "UserStoryMap";
     await page.setContent(html(text, js, config), { waitUntil: "load" });
 
