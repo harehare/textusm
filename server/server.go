@@ -75,7 +75,7 @@ func Run() int {
 	r := mux.NewRouter()
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"https://app.textusm.com", "http://localhost:3000"},
-		AllowedMethods: []string{"GET", "POST"},
+		AllowedMethods: []string{"POST"},
 		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
 
