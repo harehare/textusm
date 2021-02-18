@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-import { OptionValues, createCommand, option } from "commander";
+import { OptionValues, createCommand } from "commander";
 import * as fs from "fs";
 import * as path from "path";
-// import * as puppeteer from "puppeteer";
-import * as puppeteer from "puppeteer-core";
+import * as puppeteer from "puppeteer";
 import { html, DiagramType, Settings } from "./html";
 
 type DiagramSettings = {
