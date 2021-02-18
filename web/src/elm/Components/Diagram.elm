@@ -36,8 +36,8 @@ import Models.Views.UserPersona as UserPersonaModel
 import Models.Views.UserStoryMap as UserStoryMapModel
 import Return as Return exposing (Return)
 import String
-import Svg exposing (Svg, defs, feComponentTransfer, feFuncA, feGaussianBlur, feMerge, feMergeNode, feOffset, filter, g, svg, text)
-import Svg.Attributes exposing (class, dx, dy, fill, height, id, in_, result, slope, stdDeviation, style, transform, type_, viewBox, width)
+import Svg exposing (Svg)
+import Svg.Attributes as SvgAttr
 import Svg.Events exposing (onClick)
 import Svg.Lazy as Lazy
 import Task
@@ -102,7 +102,7 @@ zoomControl isFullscreen scale =
             round <| scale * 100.0
     in
     div
-        [ id "zoom-control"
+        [ Attr.id "zoom-control"
         , Attr.style "position" "absolute"
         , Attr.style "align-items" "center"
         , Attr.style "right" "35px"
@@ -144,9 +144,9 @@ zoomControl isFullscreen scale =
             , Attr.style "color" "#8C9FAE"
             , Attr.style "cursor" "pointer"
             , Attr.style "font-weight" "600"
-            , class ".select-none"
+            , Attr.class ".select-none"
             ]
-            [ text (String.fromInt s ++ "%")
+            [ Html.text (String.fromInt s ++ "%")
             ]
         , div
             [ Attr.style "width" "24px"
@@ -310,9 +310,9 @@ diagramView diagramType =
 
 svgView : Model -> Position -> Size -> Svg Msg -> Svg Msg
 svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
-    svg
+    Svg.svg
         [ Attr.id "usm"
-        , width
+        , SvgAttr.width
             (String.fromInt
                 (if Utils.isPhone (Size.getWidth model.size) || model.fullscreen then
                     svgWidth
@@ -324,7 +324,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     0
                 )
             )
-        , height
+        , SvgAttr.height
             (String.fromInt <|
                 if model.fullscreen then
                     svgHeight
@@ -332,7 +332,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 else
                     Size.getHeight model.size
             )
-        , viewBox ("0 0 " ++ String.fromInt svgWidth ++ " " ++ String.fromInt svgHeight)
+        , SvgAttr.viewBox ("0 0 " ++ String.fromInt svgWidth ++ " " ++ String.fromInt svgHeight)
         , Attr.style "background-color" model.settings.backgroundColor
         , case model.selectedItem of
             Just _ ->
@@ -345,25 +345,25 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
         , onClick <| Select Nothing
         ]
         [ if String.isEmpty model.settings.font then
-            g [] []
+            Svg.g [] []
 
           else
-            defs [] [ Svg.style [] [ text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ] ]
-        , defs []
-            [ filter [ id "shadow", height "130%" ]
-                [ feGaussianBlur [ in_ "SourceAlpha", stdDeviation "3" ] []
-                , feOffset [ dx "2", dy "2", result "offsetblur" ] []
-                , feComponentTransfer []
-                    [ feFuncA [ type_ "linear", slope "0.5" ] []
+            Svg.defs [] [ Svg.style [] [ Svg.text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ] ]
+        , Svg.defs []
+            [ Svg.filter [ SvgAttr.id "shadow", SvgAttr.height "130%" ]
+                [ Svg.feGaussianBlur [ SvgAttr.in_ "SourceAlpha", SvgAttr.stdDeviation "3" ] []
+                , Svg.feOffset [ SvgAttr.dx "2", SvgAttr.dy "2", SvgAttr.result "offsetblur" ] []
+                , Svg.feComponentTransfer []
+                    [ Svg.feFuncA [ SvgAttr.type_ "linear", SvgAttr.slope "0.5" ] []
                     ]
-                , feMerge []
-                    [ feMergeNode [] []
-                    , feMergeNode [ in_ "SourceGraphic" ] []
+                , Svg.feMerge []
+                    [ Svg.feMergeNode [] []
+                    , Svg.feMergeNode [ SvgAttr.in_ "SourceGraphic" ] []
                     ]
                 ]
             ]
-        , g
-            [ transform <|
+        , Svg.g
+            [ SvgAttr.transform <|
                 "translate("
                     ++ String.fromInt (Position.getX centerPosition)
                     ++ ","
@@ -373,8 +373,8 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     ++ ","
                     ++ String.fromFloat model.svg.scale
                     ++ ")"
-            , fill model.settings.backgroundColor
-            , style "will-change: transform;"
+            , SvgAttr.fill model.settings.backgroundColor
+            , SvgAttr.style "will-change: transform;"
             ]
             [ mainSvg ]
         , case ( model.selectedItem, model.contextMenu ) of
