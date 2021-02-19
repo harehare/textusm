@@ -67,16 +67,19 @@ monaco.editor.defineTheme("usmTheme", {
 export class MonacoEditor extends HTMLElement {
     init: boolean;
 
+    textChanged: boolean;
+
     editor: monaco.editor.IStandaloneCodeEditor | null;
 
     constructor() {
         super();
         this.init = false;
         this.editor = null;
+        this.textChanged = false;
     }
 
     static get observedAttributes(): string[] {
-        return ["value", "fontSize", "wordWrap", "showLineNumber"];
+        return ["value", "fontSize", "wordWrap", "showLineNumber", "changed"];
     }
 
     attributeChangedCallback(
@@ -100,12 +103,17 @@ export class MonacoEditor extends HTMLElement {
                 break;
             case "wordWrap":
                 if (oldValue !== newValue) {
-                    this.wordWrap = newValue as boolean;
+                    this.wordWrap = newValue === "true";
                 }
                 break;
             case "showLineNumber":
                 if (oldValue !== newValue) {
-                    this.showLineNumber = newValue as boolean;
+                    this.showLineNumber = newValue === "true";
+                }
+                break;
+            case "changed":
+                if (oldValue !== newValue) {
+                    this.changed = newValue === "true";
                 }
                 break;
             default:
@@ -127,6 +135,15 @@ export class MonacoEditor extends HTMLElement {
 
     set showLineNumber(value: boolean) {
         this.editor?.updateOptions({ lineNumbers: value ? "on" : "off" });
+    }
+
+    set changed(value: boolean) {
+        this.textChanged = value;
+        window.onbeforeunload = this.textChanged
+            ? () => {
+                  return true;
+              }
+            : null;
     }
 
     async connectedCallback(): Promise<void> {

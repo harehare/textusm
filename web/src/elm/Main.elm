@@ -189,6 +189,12 @@ view model =
 
                                             else
                                                 "false"
+                                        , attribute "changed" <|
+                                            if Text.isChanged model.diagramModel.text then
+                                                "true"
+
+                                            else
+                                                "false"
                                         ]
                                         []
                                     ]
