@@ -1,4 +1,14 @@
-module Models.Views.UserStoryMap exposing (UserStoryMap, countPerReleaseLevel, countPerTasks, from, getItems, getReleaseLevel, storyCount, taskCount)
+module Models.Views.UserStoryMap exposing
+    ( UserStoryMap
+    , countPerReleaseLevel
+    , countPerTasks
+    , from
+    , getHierarchy
+    , getItems
+    , getReleaseLevel
+    , storyCount
+    , taskCount
+    )
 
 import Data.Item as Item exposing (ItemType(..), Items)
 import Dict exposing (Dict)
@@ -8,6 +18,10 @@ import State as State exposing (Step(..))
 
 type alias CountPerStories =
     List Int
+
+
+type alias Hierarchy =
+    Int
 
 
 type alias CountPerTasks =
@@ -24,16 +38,18 @@ type UserStoryMap
         , countPerReleaseLevel : CountPerStories
         , countPerTasks : CountPerTasks
         , releaseLevel : ReleaseLevel
+        , hierarchy : Int
         }
 
 
-from : String -> Items -> UserStoryMap
-from text items =
+from : String -> Hierarchy -> Items -> UserStoryMap
+from text hierarchy items =
     UserStoryMap
         { items = items
         , countPerTasks = countByTasks items
         , countPerReleaseLevel = countByStories text
         , releaseLevel = parseComment text
+        , hierarchy = hierarchy
         }
 
 
@@ -45,6 +61,11 @@ getReleaseLevel (UserStoryMap userStoryMap) key default =
 getItems : UserStoryMap -> Items
 getItems (UserStoryMap userStoryMap) =
     userStoryMap.items
+
+
+getHierarchy : UserStoryMap -> Int
+getHierarchy (UserStoryMap userStoryMap) =
+    userStoryMap.hierarchy
 
 
 countPerTasks : UserStoryMap -> CountPerTasks

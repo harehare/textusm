@@ -57,7 +57,11 @@ const common = {
         alias: {
             "monaco-editor": "monaco-editor/esm/vs/editor/editor.api.js",
         },
-        fallback: { stream: false, buffer: false },
+        fallback: {
+            path: false,
+            stream: false,
+            buffer: false,
+        },
     },
     module: {
         rules: [

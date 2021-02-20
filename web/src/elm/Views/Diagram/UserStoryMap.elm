@@ -10,8 +10,8 @@ import List.Extra exposing (zip)
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle)
 import Models.Views.UserStoryMap as UserStoryMap exposing (UserStoryMap)
 import String
-import Svg exposing (Svg, foreignObject, g, line, text_)
-import Svg.Attributes exposing (class, color, fontSize, fontWeight, height, stroke, strokeWidth, width, x, x1, x2, y, y1, y2)
+import Svg exposing (Svg)
+import Svg.Attributes as SvgAttr
 import Svg.Keyed as Keyed
 import Svg.Lazy as Lazy
 import Views.Diagram.Views as Views
@@ -22,7 +22,7 @@ view : Model -> Svg Msg
 view model =
     case model.data of
         Diagram.UserStoryMap userStoryMap ->
-            g
+            Svg.g
                 []
                 [ Lazy.lazy labelView
                     { settings = model.settings
@@ -63,35 +63,35 @@ labelView { settings, width, userStoryMap } =
             16
 
         hierarchy =
-            UserStoryMap.countPerReleaseLevel userStoryMap |> List.length
+            UserStoryMap.getHierarchy userStoryMap
 
         countPerReleaseLevel =
             UserStoryMap.countPerReleaseLevel userStoryMap
     in
-    g []
+    Svg.g []
         (([ if hierarchy > 0 then
-                line
-                    [ x1 <| String.fromInt posX
-                    , y1 <| String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2)
-                    , x2 <| String.fromInt width
-                    , y2 <| String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2)
-                    , stroke settings.color.line
-                    , strokeWidth "2"
+                Svg.line
+                    [ SvgAttr.x1 <| String.fromInt posX
+                    , SvgAttr.y1 <| String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2)
+                    , SvgAttr.x2 <| String.fromInt width
+                    , SvgAttr.y2 <| String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2)
+                    , SvgAttr.stroke settings.color.line
+                    , SvgAttr.strokeWidth "2"
                     ]
                     []
 
             else
-                line [] []
+                Svg.line [] []
           , if hierarchy > 0 then
                 labelTextView settings ( posX, 10 ) (UserStoryMap.getReleaseLevel userStoryMap "user_activities" "USER ACTIVITIES")
 
             else
-                text_ [] []
+                Svg.g [] []
           , if hierarchy > 0 then
                 labelTextView settings ( posX, settings.size.height + 25 ) (UserStoryMap.getReleaseLevel userStoryMap "user_tasks" "USER TASKS")
 
             else
-                text_ [] []
+                Svg.g [] []
           ]
             ++ (if hierarchy > 1 then
                     [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) (UserStoryMap.getReleaseLevel userStoryMap "user_stories" "USER STORIES")
@@ -99,7 +99,7 @@ labelView { settings, width, userStoryMap } =
                     ]
 
                 else
-                    [ text_ [] [] ]
+                    [ Svg.g [] [] ]
                )
          )
             ++ (List.range 1 (hierarchy - 2)
@@ -119,20 +119,20 @@ labelView { settings, width, userStoryMap } =
                                               )
                                             + ((xx - 1) * Constants.itemMargin)
                                 in
-                                [ line
-                                    [ x1 <| String.fromInt posX
-                                    , y1 <| String.fromInt releaseY
-                                    , x2 <| String.fromInt width
-                                    , y2 <| String.fromInt releaseY
-                                    , stroke settings.color.line
-                                    , strokeWidth "2"
+                                [ Svg.line
+                                    [ SvgAttr.x1 <| String.fromInt posX
+                                    , SvgAttr.y1 <| String.fromInt releaseY
+                                    , SvgAttr.x2 <| String.fromInt width
+                                    , SvgAttr.y2 <| String.fromInt releaseY
+                                    , SvgAttr.stroke settings.color.line
+                                    , SvgAttr.strokeWidth "2"
                                     ]
                                     []
                                 , labelTextView settings ( posX, releaseY + Constants.itemMargin ) (UserStoryMap.getReleaseLevel userStoryMap ("release" ++ String.fromInt (xx + 1)) ("RELEASE " ++ String.fromInt (xx + 1)))
                                 ]
 
                             else
-                                [ line [] [] ]
+                                [ Svg.line [] [] ]
                         )
                     |> List.concat
                )
@@ -253,15 +253,15 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
 
 labelTextView : Settings -> Position -> String -> Svg Msg
 labelTextView settings ( posX, posY ) t =
-    foreignObject
-        [ x <| String.fromInt posX
-        , y <| String.fromInt posY
-        , width "100"
-        , height "40"
-        , color settings.color.label
-        , fontSize "12"
-        , fontWeight "bold"
-        , class ".select-none"
+    Svg.foreignObject
+        [ SvgAttr.x <| String.fromInt posX
+        , SvgAttr.y <| String.fromInt posY
+        , SvgAttr.width "100"
+        , SvgAttr.height "40"
+        , SvgAttr.color settings.color.label
+        , SvgAttr.fontSize "12"
+        , SvgAttr.fontWeight "bold"
+        , SvgAttr.class "select-none"
         ]
         [ div
             [ Attr.style "font-family" (fontStyle settings)
