@@ -3,12 +3,12 @@ module Views.Diagram.MiniMap exposing (..)
 import Constants
 import Data.Position as Position exposing (Position)
 import Data.Size as Size exposing (Size)
-import Html exposing (Html, div)
+import Html exposing (Html)
 import Html.Attributes as Attr
 import Models.Diagram exposing (Msg(..))
 import Models.Views.FourLs exposing (FourLsItem(..))
-import Svg exposing (Svg, svg)
-import Svg.Attributes exposing (class, fill, height, stroke, strokeWidth, transform, viewBox, width, x, y)
+import Svg exposing (Svg)
+import Svg.Attributes as SvgAttr
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 
 
@@ -35,7 +35,7 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg 
                 _ ->
                     Size.zero
     in
-    div
+    Html.div
         [ Attr.class "mini-map"
         , Attr.style "position" "absolute"
         , Attr.style "width" "260px"
@@ -55,13 +55,13 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg 
         , Attr.style "pointer-events" "none"
         ]
         [ if showMiniMap then
-            svg
-                [ width "270"
-                , height "150"
-                , viewBox "0 0 2880 1620"
+            Svg.svg
+                [ SvgAttr.width "270"
+                , SvgAttr.height "150"
+                , SvgAttr.viewBox "0 0 2880 1620"
                 ]
                 [ Svg.g
-                    [ transform <|
+                    [ SvgAttr.transform <|
                         "translate("
                             ++ String.fromInt (Position.getX startPosition)
                             ++ ","
@@ -70,19 +70,19 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg 
                     ]
                     [ diagramSvg
                     , Svg.rect
-                        [ width <| String.fromInt <| round <| (toFloat <| Size.getWidth viewport) / scale
-                        , height <| String.fromInt <| round <| (toFloat <| Size.getHeight viewport) / scale
-                        , x <| String.fromInt <| 0 - Position.getX position
-                        , y <| String.fromInt <| 0 - Position.getY position
-                        , stroke "#333333"
-                        , strokeWidth "40"
-                        , fill "transparent"
-                        , class "display-rect"
+                        [ SvgAttr.width <| String.fromInt <| round <| (toFloat <| Size.getWidth viewport) / scale
+                        , SvgAttr.height <| String.fromInt <| round <| (toFloat <| Size.getHeight viewport) / scale
+                        , SvgAttr.x <| String.fromInt <| 0 - Position.getX position
+                        , SvgAttr.y <| String.fromInt <| 0 - Position.getY position
+                        , SvgAttr.stroke "#333333"
+                        , SvgAttr.strokeWidth "40"
+                        , SvgAttr.fill "transparent"
+                        , SvgAttr.class "display-rect"
                         ]
                         []
                     ]
                 ]
 
           else
-            svg [] []
+            Svg.svg [] []
         ]

@@ -208,3 +208,8 @@ setDiagramType type_ model =
                 model.diagramModel
                     |> DiagramModel.modelOfDiagramType.set type_
         }
+
+
+historyBack : Model -> Return Msg Model
+historyBack model =
+    Return.return model <| Nav.back model.key 1

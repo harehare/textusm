@@ -1,8 +1,8 @@
 module Views.Diagram.Path exposing (view)
 
 import Models.Diagram exposing (Msg(..))
-import Svg exposing (Svg, line, path)
-import Svg.Attributes exposing (d, fill, stroke, strokeWidth)
+import Svg exposing (Svg)
+import Svg.Attributes as SvgAttr
 
 
 type alias Path =
@@ -121,11 +121,11 @@ drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, t
 
 draw : String -> List Path -> Svg Msg
 draw colour pathList =
-    path
-        [ strokeWidth "2"
-        , stroke colour
-        , d <| String.join " " pathList
-        , fill "transparent"
+    Svg.path
+        [ SvgAttr.strokeWidth "2"
+        , SvgAttr.stroke colour
+        , SvgAttr.d <| String.join " " pathList
+        , SvgAttr.fill "transparent"
         ]
         []
 

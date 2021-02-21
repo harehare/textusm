@@ -1,9 +1,9 @@
 module Views.ProgressBar exposing (view)
 
-import Html exposing (Html, div)
-import Html.Attributes exposing (class)
+import Html exposing (Html)
+import Html.Attributes as Attr
 
 
 view : Html msg
 view =
-    div [ class "progress" ] [ div [ class "indeterminate" ] [] ]
+    Html.div [ Attr.class "progress" ] [ Html.div [ Attr.class "indeterminate" ] [] ]

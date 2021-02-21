@@ -1,7 +1,7 @@
 module Views.SplitWindow exposing (view)
 
-import Html exposing (Attribute, Html, div)
-import Html.Attributes exposing (class, style)
+import Html exposing (Attribute, Html)
+import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as D
 import Models.Model exposing (Window)
@@ -33,38 +33,38 @@ view onResize backgroundColor window left right =
                 ( "calc((100vw - 40px) / 2)", "calc((100vw - 40px) / 2)" )
     in
     if window.fullscreen then
-        div
-            [ class "flex", style "background-color" backgroundColor ]
-            [ div [ class "hidden" ] [ left ]
-            , div [ class "full-screen" ] [ right ]
+        Html.div
+            [ Attr.class "flex", Attr.style "background-color" backgroundColor ]
+            [ Html.div [ Attr.class "hidden" ] [ left ]
+            , Html.div [ Attr.class "full-screen" ] [ right ]
             ]
 
     else
-        div
-            [ class "flex" ]
-            [ div
-                [ style "width"
+        Html.div
+            [ Attr.class "flex" ]
+            [ Html.div
+                [ Attr.style "width"
                     leftPos
-                , style
+                , Attr.style
                     "height"
                     "calc(100vh - 40px)"
-                , style "background-color" "#273037"
+                , Attr.style "background-color" "#273037"
                 ]
                 [ left ]
-            , div
-                [ class "bg-main"
-                , style "width" "6px"
-                , style "cursor" "col-resize"
+            , Html.div
+                [ Attr.class "bg-main"
+                , Attr.style "width" "6px"
+                , Attr.style "cursor" "col-resize"
                 , onStartWindowResize onResize
                 ]
                 []
-            , div
-                [ style "width"
+            , Html.div
+                [ Attr.style "width"
                     rightPos
-                , style
+                , Attr.style
                     "height"
                     "calc(100vh - 40px)"
-                , style "background-color" backgroundColor
+                , Attr.style "background-color" backgroundColor
                 ]
                 [ right ]
             ]

@@ -1,10 +1,10 @@
 module Views.DropDownList exposing (DropDownItem, DropDownValue, colorValue, stringValue, view)
 
 import Events
-import Html exposing (Html, div, span, text)
-import Html.Attributes exposing (class, style)
-import Html.Events exposing (onClick)
-import List.Extra exposing (find)
+import Html exposing (Html)
+import Html.Attributes as Attr
+import Html.Events as Events
+import List.Extra as ListEx
 
 
 type alias DropDownItem =
@@ -53,68 +53,68 @@ view onToggleDropDownList dropDownId currentId onChange items selectedValue =
     let
         selectedItem =
             items
-                |> find (\item -> unwrapValue item.value == selectedValue)
+                |> ListEx.find (\item -> unwrapValue item.value == selectedValue)
                 |> Maybe.withDefault { name = "", value = stringValue selectedValue }
     in
-    div
-        [ class "dropdown-list"
+    Html.div
+        [ Attr.class "dropdown-list"
         ]
         [ itemView selectedItem (onToggleDropDownList dropDownId)
         , if dropDownId == Maybe.withDefault "" currentId then
             dropdownView items onChange
 
           else
-            text ""
+            Html.text ""
         ]
 
 
 dropdownView : List DropDownItem -> (String -> msg) -> Html msg
 dropdownView items onChange =
-    div [ class "list" ] <|
+    Html.div [ Attr.class "list" ] <|
         List.map (\item -> dropDownItemView item onChange) items
 
 
 itemView : DropDownItem -> msg -> Html msg
 itemView item onActive =
-    div
-        [ class
+    Html.div
+        [ Attr.class
             "item"
         , Events.onClickStopPropagation onActive
         ]
         [ case getColor item.value of
             Just rgb ->
-                span
-                    [ style "padding" "0 12px"
-                    , style "margin-right" "5px"
-                    , style "background-color" rgb
-                    , style "border" "1px solid #ccc"
+                Html.span
+                    [ Attr.style "padding" "0 12px"
+                    , Attr.style "margin-right" "5px"
+                    , Attr.style "background-color" rgb
+                    , Attr.style "border" "1px solid #ccc"
                     ]
                     []
 
             Nothing ->
-                span [] []
-        , span [ style "padding" "8px" ] [ text item.name ]
+                Html.span [] []
+        , Html.span [ Attr.style "padding" "8px" ] [ Html.text item.name ]
         ]
 
 
 dropDownItemView : DropDownItem -> (String -> msg) -> Html msg
 dropDownItemView item onChange =
-    div
-        [ class
+    Html.div
+        [ Attr.class
             "dropdown-item"
-        , onClick (onChange <| unwrapValue item.value)
+        , Events.onClick (onChange <| unwrapValue item.value)
         ]
         [ case getColor item.value of
             Just rgb ->
-                span
-                    [ style "padding" "0 12px"
-                    , style "margin-right" "5px"
-                    , style "background-color" rgb
-                    , style "border" "1px solid #ccc"
+                Html.span
+                    [ Attr.style "padding" "0 12px"
+                    , Attr.style "margin-right" "5px"
+                    , Attr.style "background-color" rgb
+                    , Attr.style "border" "1px solid #ccc"
                     ]
                     []
 
             Nothing ->
-                span [] []
-        , span [ style "padding" "8px" ] [ text item.name ]
+                Html.span [] []
+        , Html.span [ Attr.style "padding" "8px" ] [ Html.text item.name ]
         ]

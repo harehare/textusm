@@ -1,11 +1,54 @@
 module Views.Icon exposing
-    ( bold, bookmark, circle, download, edit, expandAlt, file, folderOpen, font, globe, indent, info, italic, key, link, lock, lockOpen, map, save, search, share, strikethrough, tag
-    , add, clear, cloudDownload, cloudOff, cloudOn, cloudUpload, error, export, fullscreen, fullscreenExit, helpOutline, markdown, openInNew, people, remove, settings, unbookmark, viewComfy, viewModule, visibility, warning
+    ( add
+    , arrowLeft
+    , bold
+    , bookmark
+    , circle
+    , clear
+    , cloudDownload
+    , cloudOff
+    , cloudOn
+    , cloudUpload
+    , download
+    , edit
+    , error
+    , expandAlt
+    , export
+    , file
+    , folderOpen
+    , font
+    , fullscreen
+    , fullscreenExit
+    , globe
+    , helpOutline
+    , indent
+    , info
+    , italic
+    , key
+    , link
+    , lock
+    , lockOpen
+    , map
+    , markdown
+    , openInNew
+    , people
+    , remove
+    , save
+    , search
+    , settings
+    , share
+    , strikethrough
+    , tag
+    , unbookmark
+    , viewComfy
+    , viewModule
+    , visibility
+    , warning
     )
 
 {-| FontAwesome
-https://fontawesome.com/license/free
-https://creativecommons.org/licenses/by/4.0/
+<https://fontawesome.com/license/free>
+<https://creativecommons.org/licenses/by/4.0/>
 -}
 
 import Svg exposing (Svg)
@@ -229,7 +272,12 @@ globe color size =
 
 map : Int -> Svg msg
 map size =
-    icon "#848a90" size size "0 0  576 512" [ Svg.path [ d "M0 117.66v346.32c0 11.32 11.43 19.06 21.94 14.86L160 416V32L20.12 87.95A32.006 32.006 0 0 0 0 117.66zM192 416l192 64V96L192 32v384zM554.06 33.16L416 96v384l139.88-55.95A31.996 31.996 0 0 0 576 394.34V48.02c0-11.32-11.43-19.06-21.94-14.86z" ] [] ]
+    icon "#848a90" size size "0 0 576 512" [ Svg.path [ d "M0 117.66v346.32c0 11.32 11.43 19.06 21.94 14.86L160 416V32L20.12 87.95A32.006 32.006 0 0 0 0 117.66zM192 416l192 64V96L192 32v384zM554.06 33.16L416 96v384l139.88-55.95A31.996 31.996 0 0 0 576 394.34V48.02c0-11.32-11.43-19.06-21.94-14.86z" ] [] ]
+
+
+arrowLeft : String -> Int -> Svg msg
+arrowLeft color size =
+    icon color size size "0 0 448 512" [ Svg.path [ d "M257.5 445.1l-22.2 22.2c-9.4 9.4-24.6 9.4-33.9 0L7 273c-9.4-9.4-9.4-24.6 0-33.9L201.4 44.7c9.4-9.4 24.6-9.4 33.9 0l22.2 22.2c9.5 9.5 9.3 25-.4 34.3L136.6 216H424c13.3 0 24 10.7 24 24v32c0 13.3-10.7 24-24 24H136.6l120.5 114.8c9.8 9.3 10 24.8.4 34.3z" ] [] ]
 
 
 icon : String -> Int -> Int -> String -> List (Svg msg) -> Svg msg

@@ -6,11 +6,11 @@ import Data.FontStyle as FontStyle exposing (FontStyle)
 import Data.Item as Item exposing (Item)
 import Data.Position as Position exposing (Position)
 import Events exposing (onClickStopPropagation)
-import Html exposing (Html, div)
+import Html exposing (Html)
 import Html.Attributes as Attr
 import Models.Diagram exposing (ContextMenu(..))
-import Svg exposing (Svg, foreignObject)
-import Svg.Attributes exposing (height, width, x, y)
+import Svg exposing (Svg)
+import Svg.Attributes as SvgAttr
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -43,20 +43,20 @@ view :
     }
     -> Svg msg
 view props =
-    foreignObject
-        [ x <| String.fromInt <| Position.getX props.position
-        , y <| String.fromInt <| (Position.getY props.position + 8)
-        , width "320"
-        , height "205"
+    Svg.foreignObject
+        [ SvgAttr.x <| String.fromInt <| Position.getX props.position
+        , SvgAttr.y <| String.fromInt <| (Position.getY props.position + 8)
+        , SvgAttr.width "320"
+        , SvgAttr.height "205"
         ]
-        [ div
+        [ Html.div
             [ Attr.style "background-color" "#fefefe"
             , Attr.style "box-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)"
             , Attr.style "border-radius" "2px"
             , Attr.style "display" "flex"
             , Attr.style "width" "320px"
             ]
-            [ div
+            [ Html.div
                 [ Attr.style "width" "50px"
                 , Attr.style "height" "48px"
                 , Attr.style "font-size" "1.2rem"
@@ -67,7 +67,7 @@ view props =
                 , Attr.style "cursor" "pointer"
                 , onClickStopPropagation <| props.onMenuSelect ColorSelectMenu
                 ]
-                [ div []
+                [ Html.div []
                     [ Icon.font
                         (Item.getForegroundColor props.item
                             |> Maybe.withDefault Color.black
@@ -76,7 +76,7 @@ view props =
                         16
                     ]
                 ]
-            , div
+            , Html.div
                 [ Attr.style "width" "50px"
                 , Attr.style "height" "48px"
                 , Attr.style "font-size" "1.4rem"
@@ -91,7 +91,7 @@ view props =
                     )
                     (props.onMenuSelect BackgroundColorSelectMenu)
                 ]
-            , div
+            , Html.div
                 [ Attr.style "width" "72px"
                 , Attr.style "height" "48px"
                 , Attr.style "font-size" "1.2rem"
@@ -109,7 +109,7 @@ view props =
                     fontSizeItems
                     (Item.getFontSize props.item |> FontSize.unwrap |> String.fromInt)
                 ]
-            , div
+            , Html.div
                 [ Attr.style "width" "50px"
                 , Attr.style "height" "48px"
                 , Attr.style "font-size" "1.2rem"
@@ -119,7 +119,7 @@ view props =
                 , Attr.style "cursor" "pointer"
                 , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Bold
                 ]
-                [ div
+                [ Html.div
                     [ Attr.style "color"
                         (Item.getForegroundColor props.item
                             |> Maybe.withDefault Color.black
@@ -128,7 +128,7 @@ view props =
                     ]
                     [ Icon.bold "#273037" 16 ]
                 ]
-            , div
+            , Html.div
                 [ Attr.style "width" "50px"
                 , Attr.style "height" "48px"
                 , Attr.style "font-size" "1.2rem"
@@ -138,7 +138,7 @@ view props =
                 , Attr.style "cursor" "pointer"
                 , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Italic
                 ]
-                [ div
+                [ Html.div
                     [ Attr.style "color" <|
                         (Item.getForegroundColor props.item
                             |> Maybe.withDefault Color.black
@@ -147,7 +147,7 @@ view props =
                     ]
                     [ Icon.italic "#273037" 16 ]
                 ]
-            , div
+            , Html.div
                 [ Attr.style "width" "50px"
                 , Attr.style "height" "48px"
                 , Attr.style "font-size" "1.2rem"
@@ -157,7 +157,7 @@ view props =
                 , Attr.style "cursor" "pointer"
                 , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Strikethrough
                 ]
-                [ div
+                [ Html.div
                     [ Attr.style "color" <|
                         (Item.getBackgroundColor props.item
                             |> Maybe.withDefault Color.black
@@ -181,7 +181,7 @@ view props =
 
 colorCircle : Color -> msg -> Html msg
 colorCircle color msg =
-    div
+    Html.div
         [ Attr.style "width" "24px"
         , Attr.style "height" "24px"
         , Attr.style "border-radius" "100%"
@@ -196,7 +196,7 @@ colorCircle color msg =
 
 colorPicker : Int -> List Color -> (Color -> msg) -> Html msg
 colorPicker x colors onColorChanged =
-    div
+    Html.div
         [ Attr.style "width" "140px"
         , Attr.style "height" "140px"
         , Attr.style "background-color" "#FEFEFE"

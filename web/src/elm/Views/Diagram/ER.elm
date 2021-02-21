@@ -5,16 +5,16 @@ import Data.Position as Position exposing (Position, getX, getY)
 import Data.Size as Size exposing (Size, getHeight, getWidth)
 import Dict as Dict exposing (Dict)
 import Events
-import Html exposing (div)
+import Html
 import Html.Attributes as Attr
-import Html.Lazy exposing (lazy, lazy3)
-import List.Extra exposing (find, getAt)
-import Maybe.Extra exposing (isJust, isNothing, or)
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings, fontStyle)
+import Html.Lazy as Lazy
+import List.Extra as ListEx
+import Maybe.Extra as MaybeEx
+import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Views.ER as ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..))
 import State as State exposing (Step(..))
 import String
-import Svg exposing (Svg, foreignObject, g, rect, text, text_)
+import Svg exposing (Svg)
 import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, y)
 import Utils.Utils as Utils
 import Views.Diagram.Path as Path
@@ -73,13 +73,13 @@ view model =
                         _ ->
                             baseDict
             in
-            g
+            Svg.g
                 []
-                (lazy3 relationshipView model.settings relationships tableDict
+                (Lazy.lazy3 relationshipView model.settings relationships tableDict
                     :: (Dict.toList tableDict
                             |> List.map
                                 (\( _, t ) ->
-                                    lazy tableView { settings = model.settings, svgSize = model.size, pos = getPosition t.position, tableSize = t.size, table = t.table }
+                                    Lazy.lazy tableView { settings = model.settings, svgSize = model.size, pos = getPosition t.position, tableSize = t.size, table = t.table }
                                 )
                        )
                 )
@@ -111,7 +111,7 @@ adjustTablePosition r t =
                                     ( Just t1, Just t2 ) ->
                                         let
                                             ( ( table1, name1, rel1 ), ( table2, name2, rel2 ) ) =
-                                                if t1.releationCount >= t2.releationCount && isNothing t2.position then
+                                                if t1.releationCount >= t2.releationCount && MaybeEx.isNothing t2.position then
                                                     ( ( t1, tableName1, relationString1 ), ( t2, tableName2, relationString2 ) )
 
                                                 else
@@ -156,7 +156,7 @@ adjustTablePosition r t =
                                         Loop
                                             { tablePositions = table2Updated
                                             , relationships = xs
-                                            , nextPosition = or next nextPosition
+                                            , nextPosition = MaybeEx.or next nextPosition
                                             }
 
                                     _ ->
@@ -300,9 +300,9 @@ tableView { settings, svgSize, pos, tableSize, table } =
         tableY =
             Position.getY pos + Position.getY (position |> Maybe.withDefault Position.zero)
     in
-    g
+    Svg.g
         [ onDragStart table (Utils.isPhone (Size.getWidth svgSize)) ]
-        (rect
+        (Svg.rect
             [ width <| String.fromInt <| Size.getWidth tableSize
             , height <| String.fromInt <| Size.getHeight tableSize
             , x (String.fromInt tableX)
@@ -326,12 +326,12 @@ onDragStart table isPhone =
                 if List.length event.changedTouches > 1 then
                     let
                         p1 =
-                            getAt 0 event.changedTouches
+                            ListEx.getAt 0 event.changedTouches
                                 |> Maybe.map .pagePos
                                 |> Maybe.withDefault ( 0, 0 )
 
                         p2 =
-                            getAt 1 event.changedTouches
+                            ListEx.getAt 1 event.changedTouches
                                 |> Maybe.map .pagePos
                                 |> Maybe.withDefault ( 0, 0 )
                     in
@@ -358,8 +358,8 @@ onDragStart table isPhone =
 
 tableHeaderView : Settings -> String -> Int -> Position -> Svg Msg
 tableHeaderView settings headerText headerWidth ( posX, posY ) =
-    g []
-        [ rect
+    Svg.g []
+        [ Svg.rect
             [ width <| String.fromInt headerWidth
             , height <| String.fromInt Constants.tableRowHeight
             , x (String.fromInt posX)
@@ -367,16 +367,16 @@ tableHeaderView settings headerText headerWidth ( posX, posY ) =
             , fill settings.color.activity.backgroundColor
             ]
             []
-        , text_
+        , Svg.text_
             [ x <| String.fromInt <| posX + 8
             , y <| String.fromInt <| posY + 24
-            , fontFamily (fontStyle settings)
+            , fontFamily (Diagram.fontStyle settings)
             , fill settings.color.activity.color
             , fontSize "16"
             , fontWeight "bold"
             , class ".select-none"
             ]
-            [ text headerText ]
+            [ Svg.text headerText ]
         ]
 
 
@@ -390,16 +390,16 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
             String.fromInt posY
 
         isPrimaryKey =
-            find (\i -> i == PrimaryKey) attrs |> isJust
+            ListEx.find (\i -> i == PrimaryKey) attrs |> MaybeEx.isJust
 
         isNull =
-            find (\i -> i == Null) attrs |> isJust
+            ListEx.find (\i -> i == Null) attrs |> MaybeEx.isJust
 
         isIndex =
-            find (\i -> i == Index) attrs |> isJust
+            ListEx.find (\i -> i == Index) attrs |> MaybeEx.isJust
 
         isNotNull =
-            find (\i -> i == NotNull) attrs |> isJust
+            ListEx.find (\i -> i == NotNull) attrs |> MaybeEx.isJust
 
         style =
             if isPrimaryKey then
@@ -408,8 +408,8 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
             else
                 [ Attr.style "font-weight" "400", Attr.style "color" settings.color.label ]
     in
-    g []
-        [ rect
+    Svg.g []
+        [ Svg.rect
             [ width <| String.fromInt columnWidth
             , height <| String.fromInt Constants.tableRowHeight
             , x colX
@@ -417,13 +417,13 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
             , fill settings.color.story.backgroundColor
             ]
             []
-        , foreignObject
+        , Svg.foreignObject
             [ x colX
             , y colY
             , width <| String.fromInt columnWidth
             , height <| String.fromInt Constants.tableRowHeight
             ]
-            [ div
+            [ Html.div
                 ([ Attr.style "width" (String.fromInt columnWidth ++ "px")
                  , Attr.style "display" "flex"
                  , Attr.style "align-items" "center"
@@ -434,24 +434,24 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
                  ]
                     ++ style
                 )
-                [ div
+                [ Html.div
                     [ Attr.style "margin-left" "8px"
                     ]
-                    [ text name_
+                    [ Html.text name_
                     ]
-                , div
+                , Html.div
                     [ Attr.style "margin-right" "8px"
                     , Attr.style "display" "flex"
                     , Attr.style "align-items" "center"
                     , Attr.style "font-size" "0.8rem"
                     ]
                     [ if isPrimaryKey then
-                        div [ Attr.style "margin-right" "8px" ]
+                        Html.div [ Attr.style "margin-right" "8px" ]
                             [ Icon.key settings.color.story.color 12
                             ]
 
                       else if isIndex then
-                        div
+                        Html.div
                             [ Attr.style "margin-right" "8px"
                             , Attr.style "margin-top" "5px"
                             ]
@@ -460,7 +460,7 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
 
                       else
                         Empty.view
-                    , text <|
+                    , Html.text <|
                         ER.columnTypeToString type_
                             ++ (if isNull then
                                     "?"
@@ -482,7 +482,7 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
 
 relationshipView : Settings -> List Relationship -> TableViewDict -> Svg Msg
 relationshipView settings relationships tables =
-    g [] <|
+    Svg.g [] <|
         List.map
             (\relationship ->
                 let
@@ -518,14 +518,14 @@ relationshipView settings relationships tables =
                             t2rel =
                                 Dict.get tableName1 t2.releations
                         in
-                        g []
+                        Svg.g []
                             [ pathView settings t1 t2
                             , relationLabelView settings t1 t2 (Maybe.withDefault "" t1rel)
                             , relationLabelView settings t2 t1 (Maybe.withDefault "" t2rel)
                             ]
 
                     _ ->
-                        g [] []
+                        Svg.g [] []
             )
             relationships
 
@@ -551,70 +551,70 @@ relationLabelView settings table1 table2 label =
             ( (getX <| getPosition table2.position) + table2OffsetX, (getY <| getPosition table2.position) + table2OffsetY )
     in
     if tableX1 == tableX2 && tableY1 < tableY2 then
-        text_
+        Svg.text_
             [ x <| String.fromInt <| tableX1 + getWidth table1.size // 2 + 10
             , y <| String.fromInt <| tableY1 + getHeight table1.size + 15
-            , fontFamily (fontStyle settings)
+            , fontFamily (Diagram.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
             ]
-            [ text label ]
+            [ Svg.text label ]
 
     else if tableX1 == tableX2 && tableY1 > tableY2 then
-        text_
+        Svg.text_
             [ x <| String.fromInt <| tableX1 + getWidth table1.size // 2 + 10
             , y <| String.fromInt <| tableY1 - 15
-            , fontFamily (fontStyle settings)
+            , fontFamily (Diagram.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
             ]
-            [ text label ]
+            [ Svg.text label ]
 
     else if tableX1 < tableX2 && tableY1 == tableY2 then
-        text_
+        Svg.text_
             [ x <| String.fromInt <| tableX1 + getWidth table1.size + 10
             , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 - 15
-            , fontFamily (fontStyle settings)
+            , fontFamily (Diagram.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
             ]
-            [ text label ]
+            [ Svg.text label ]
 
     else if tableX1 > tableX2 && tableY1 == tableY2 then
-        text_
+        Svg.text_
             [ x <| String.fromInt <| tableX1 - 15
             , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 + 15
-            , fontFamily (fontStyle settings)
+            , fontFamily (Diagram.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
             ]
-            [ text label ]
+            [ Svg.text label ]
 
     else if tableX1 < tableX2 then
-        text_
+        Svg.text_
             [ x <| String.fromInt <| tableX1 + getWidth table1.size + 10
             , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 + 15
-            , fontFamily (fontStyle settings)
+            , fontFamily (Diagram.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
             ]
-            [ text label ]
+            [ Svg.text label ]
 
     else
-        text_
+        Svg.text_
             [ x <| String.fromInt <| tableX1 - 15
             , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 - 10
-            , fontFamily (fontStyle settings)
+            , fontFamily (Diagram.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
             ]
-            [ text label ]
+            [ Svg.text label ]
 
 
 pathView : Settings -> TableViewInfo -> TableViewInfo -> Svg Msg

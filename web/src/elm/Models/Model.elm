@@ -81,6 +81,7 @@ type Msg
     | Load (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
     | CloseFullscreen D.Value
     | UpdateIdToken String
+    | HistoryBack
 
 
 type Notification

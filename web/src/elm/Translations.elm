@@ -9,6 +9,7 @@ module Translations exposing
     , messageSuccessfullySaved
     , toolPrivate
     , toolPublic
+    , toolTipBack
     , toolTipExport
     , toolTipHelp
     , toolTipImport
@@ -44,6 +45,16 @@ toolTipNewFile lang =
 
         _ ->
             "New File"
+
+
+toolTipBack : Lang -> String
+toolTipBack lang =
+    case lang of
+        Ja ->
+            "戻る"
+
+        _ ->
+            "Back"
 
 
 toolTipOpenFile : Lang -> String

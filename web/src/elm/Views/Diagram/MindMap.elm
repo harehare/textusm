@@ -3,9 +3,9 @@ module Views.Diagram.MindMap exposing (view)
 import Data.Item as Item exposing (ItemType(..), Items)
 import Data.Position exposing (Position)
 import Data.Size exposing (Size)
-import List.Extra exposing (getAt, scanl1, zip3)
+import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
-import Svg exposing (Svg, g)
+import Svg exposing (Svg)
 import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
@@ -46,7 +46,7 @@ view model =
                         ( right, left ) =
                             Item.splitAt (itemsCount // 2) mindMapItems
                     in
-                    g
+                    Svg.g
                         []
                         [ nodesView model.settings 2 ( 0, 0 ) Left model.selectedItem left
                         , nodesView model.settings 2 ( 0, 0 ) Right model.selectedItem right
@@ -57,7 +57,7 @@ view model =
                         ]
 
                 Nothing ->
-                    g [] []
+                    Svg.g [] []
 
         _ ->
             Empty.view
@@ -90,13 +90,13 @@ nodesView settings hierarchy ( x, y ) direction selectedItem items =
                         in
                         [ v, v ]
                     )
-                |> scanl1 (+)
+                |> ListEx.scanl1 (+)
 
         nodeCounts =
             tmpNodeCounts
                 |> List.indexedMap (\i _ -> i)
                 |> List.filter (\i -> i == 0 || modBy 2 i == 0)
-                |> List.map (\i -> getAt i tmpNodeCounts |> Maybe.withDefault 1)
+                |> List.map (\i -> ListEx.getAt i tmpNodeCounts |> Maybe.withDefault 1)
                 |> List.indexedMap (\i v -> v + i + 1)
 
         yOffset =
@@ -105,8 +105,8 @@ nodesView settings hierarchy ( x, y ) direction selectedItem items =
         range =
             List.range 0 (List.length nodeCounts)
     in
-    g []
-        (zip3 range nodeCounts (Item.unwrap items)
+    Svg.g []
+        (ListEx.zip3 range nodeCounts (Item.unwrap items)
             |> List.concatMap
                 (\( i, nodeCount, item ) ->
                     let

@@ -1,7 +1,7 @@
 module Views.Notification exposing (view)
 
-import Html exposing (Html, div, text)
-import Html.Attributes exposing (class, style)
+import Html exposing (Html)
+import Html.Attributes as Attr
 import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Msg(..), Notification(..))
 import Views.Icon as Icon
@@ -24,8 +24,8 @@ view notification =
                 Nothing ->
                     ( "", Icon.info 0 )
     in
-    div
-        [ class <|
+    Html.div
+        [ Attr.class <|
             "notification"
                 ++ (if isNothing notification then
                         ""
@@ -34,11 +34,11 @@ view notification =
                         " show-notification"
                    )
         ]
-        [ div
-            [ class "flex items-center"
-            , style "margin-right" "16px"
+        [ Html.div
+            [ Attr.class "flex items-center"
+            , Attr.style "margin-right" "16px"
             ]
-            [ div [ style "margin-left" "8px" ] [ icon ]
-            , div [ style "margin-left" "8px" ] [ text t ]
+            [ Html.div [ Attr.style "margin-left" "8px" ] [ icon ]
+            , Html.div [ Attr.style "margin-left" "8px" ] [ Html.text t ]
             ]
         ]

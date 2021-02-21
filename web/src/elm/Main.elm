@@ -1122,6 +1122,10 @@ update message model =
         UpdateIdToken token ->
             Return.singleton { model | session = Session.updateIdToken model.session (IdToken.fromString token) }
 
+        HistoryBack ->
+            Return.singleton model
+                |> Return.andThen Action.historyBack
+
 
 
 -- Subscriptions

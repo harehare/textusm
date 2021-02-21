@@ -3,11 +3,11 @@ module Views.Diagram.UserStoryMap exposing (view)
 import Constants
 import Data.Item as Item exposing (Item, ItemType(..), Items)
 import Data.Position exposing (Position)
-import Html exposing (div)
+import Html
 import Html.Attributes as Attr
 import List
-import List.Extra exposing (zip)
-import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle)
+import List.Extra as ListEx
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
 import Models.Views.UserStoryMap as UserStoryMap exposing (UserStoryMap)
 import String
 import Svg exposing (Svg)
@@ -46,7 +46,7 @@ mainView : { settings : Settings, selectedItem : SelectedItem, items : Items, co
 mainView { settings, selectedItem, items, countByTasks, countByReleaseLevel } =
     Keyed.node "g"
         []
-        (zip
+        (ListEx.zip
             countByTasks
             (Item.unwrap items)
             |> List.indexedMap
@@ -263,8 +263,8 @@ labelTextView settings ( posX, posY ) t =
         , SvgAttr.fontWeight "bold"
         , SvgAttr.class "select-none"
         ]
-        [ div
-            [ Attr.style "font-family" (fontStyle settings)
+        [ Html.div
+            [ Attr.style "font-family" (Diagram.fontStyle settings)
             , Attr.style "word-wrap" "break-word"
             ]
             [ Html.text t ]

@@ -2,9 +2,9 @@ module Views.Menu exposing (MenuItem(..), menu, view)
 
 import Data.FileType as FileType
 import Data.Text as Text exposing (Text)
-import Html exposing (Html, a, div, nav, span, text)
-import Html.Attributes exposing (attribute, class, href, style)
-import Html.Events exposing (onClick, stopPropagationOn)
+import Html exposing (Html)
+import Html.Attributes as Attr
+import Html.Events as Events
 import Json.Decode as D
 import List
 import Maybe.Extra exposing (isNothing)
@@ -55,27 +55,51 @@ view props =
         Empty.view
 
     else
-        nav
-            [ class "flex flex-row items-center justify-between bg-main shadow-sm bottom-0 w-screen fixed lg:justify-start lg:h-screen lg:relative lg:flex-col lg:w-menu z-10"
-            , style "min-width" "40px"
+        Html.nav
+            [ Attr.class "flex flex-row items-center justify-between bg-main shadow-sm bottom-0 w-screen fixed lg:justify-start lg:h-screen lg:relative lg:flex-col lg:w-menu z-10"
+            , Attr.style "min-width" "40px"
             ]
-            [ a
-                [ href <| Route.toString <| Route.New
-                , attribute "aria-label" "New"
-                ]
-                [ div
-                    [ style "margin-left" "4px"
-                    , class "menu-button"
-                    ]
-                    [ Icon.file selectedColor 18
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipNewFile props.lang ] ]
-                    ]
-                ]
-            , div
-                [ class "menu-button list-button" ]
-                [ a
-                    [ href <| Route.toString Route.DiagramList
-                    , attribute "aria-label" "List"
+            [ let
+                newMenu =
+                    Html.a
+                        [ Attr.href <| Route.toString <| Route.New
+                        , Attr.attribute "aria-label" "New"
+                        ]
+                        [ Html.div
+                            [ Attr.style "margin-left" "4px"
+                            , Attr.class "menu-button"
+                            ]
+                            [ Icon.file selectedColor 18
+                            , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipNewFile props.lang ] ]
+                            ]
+                        ]
+
+                backMenu =
+                    Html.div
+                        [ Attr.class "menu-button"
+                        , Events.onClick HistoryBack
+                        ]
+                        [ Icon.arrowLeft selectedColor 18
+                        , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipBack props.lang ] ]
+                        ]
+              in
+              case props.route of
+                Route.Home ->
+                    newMenu
+
+                Route.Edit _ ->
+                    newMenu
+
+                Route.EditFile _ _ ->
+                    newMenu
+
+                _ ->
+                    backMenu
+            , Html.div
+                [ Attr.class "menu-button list-button" ]
+                [ Html.a
+                    [ Attr.href <| Route.toString Route.DiagramList
+                    , Attr.attribute "aria-label" "List"
                     ]
                     [ Icon.folderOpen
                         (if isNothing props.openMenu && props.page == List then
@@ -85,16 +109,16 @@ view props =
                             notSelectedColor
                         )
                         18
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipOpenFile props.lang ] ]
+                    , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipOpenFile props.lang ] ]
                     ]
                 ]
-            , div
+            , Html.div
                 [ if Text.isChanged props.text then
-                    onClick Save
+                    Events.onClick Save
 
                   else
-                    style "" ""
-                , class "menu-button save-button"
+                    Attr.style "" ""
+                , Attr.class "menu-button save-button"
                 ]
                 [ Icon.save
                     (if Text.isChanged props.text then
@@ -104,10 +128,10 @@ view props =
                         notSelectedColor
                     )
                     22
-                , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipSave props.lang ] ]
+                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipSave props.lang ] ]
                 ]
-            , div
-                [ stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )), class "menu-button" ]
+            , Html.div
+                [ Events.stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )), Attr.class "menu-button" ]
                 [ Icon.download
                     (case props.openMenu of
                         Just Export ->
@@ -117,11 +141,11 @@ view props =
                             notSelectedColor
                     )
                     18
-                , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport props.lang ] ]
+                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipExport props.lang ] ]
                 ]
-            , div
-                [ class "menu-button" ]
-                [ a [ href <| Route.toString Route.Settings, attribute "aria-label" "Settings" ]
+            , Html.div
+                [ Attr.class "menu-button" ]
+                [ Html.a [ Attr.href <| Route.toString Route.Settings, Attr.attribute "aria-label" "Settings" ]
                     [ Icon.settings
                         (if isNothing props.openMenu && props.page == Settings then
                             selectedColor
@@ -130,7 +154,7 @@ view props =
                             notSelectedColor
                         )
                         20
-                    , span [ class "tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipSettings props.lang ] ]
+                    , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipSettings props.lang ] ]
                     ]
                 ]
             , if Utils.isPhone props.width then
@@ -213,41 +237,41 @@ baseExportMenu =
 
 menu : Maybe String -> Maybe String -> Maybe String -> Maybe String -> List (MenuItem msg) -> Html msg
 menu top left bottom right items =
-    div
-        [ style "top" (top |> Maybe.withDefault "none")
-        , style "left" (left |> Maybe.withDefault "none")
-        , style "right" (right |> Maybe.withDefault "none")
-        , style "bottom" (bottom |> Maybe.withDefault "none")
-        , style "min-width" "120px"
-        , style "position" "absolute"
-        , style "z-index" "10"
-        , style "max-height" "calc(100vh - 40px)"
-        , style "background-color" "var(--main-color)"
-        , style "border-radius" "8px"
-        , style "box-shadow" "0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)"
-        , style "transition" "all 0.2s ease-out"
-        , style "margin" "4px"
-        , style "overflow-y" "auto"
+    Html.div
+        [ Attr.style "top" (top |> Maybe.withDefault "none")
+        , Attr.style "left" (left |> Maybe.withDefault "none")
+        , Attr.style "right" (right |> Maybe.withDefault "none")
+        , Attr.style "bottom" (bottom |> Maybe.withDefault "none")
+        , Attr.style "min-width" "120px"
+        , Attr.style "position" "absolute"
+        , Attr.style "z-index" "10"
+        , Attr.style "max-height" "calc(100vh - 40px)"
+        , Attr.style "background-color" "var(--main-color)"
+        , Attr.style "border-radius" "8px"
+        , Attr.style "box-shadow" "0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)"
+        , Attr.style "transition" "all 0.2s ease-out"
+        , Attr.style "margin" "4px"
+        , Attr.style "overflow-y" "auto"
         ]
         (items
             |> List.map
                 (\item ->
                     case item of
                         Item menuItem ->
-                            div
-                                [ class "menu-item-container"
-                                , onClick menuItem.e
+                            Html.div
+                                [ Attr.class "menu-item-container"
+                                , Events.onClick menuItem.e
                                 ]
-                                [ div [ class "menu-item" ]
-                                    [ text menuItem.title
+                                [ Html.div [ Attr.class "menu-item" ]
+                                    [ Html.text menuItem.title
                                     ]
                                 ]
 
                         Separator ->
-                            div
-                                [ style "width" "100%"
-                                , style "height" "2px"
-                                , style "border-bottom" "2px solid rgba(0, 0, 0, 0.1)"
+                            Html.div
+                                [ Attr.style "width" "100%"
+                                , Attr.style "height" "2px"
+                                , Attr.style "border-bottom" "2px solid rgba(0, 0, 0, 0.1)"
                                 ]
                                 []
                 )

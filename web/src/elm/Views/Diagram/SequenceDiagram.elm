@@ -3,11 +3,11 @@ module Views.Diagram.SequenceDiagram exposing (view)
 import Constants
 import Data.Position as Position exposing (Position)
 import Data.Size exposing (Size)
-import List.Extra exposing (scanl, zip)
+import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle, getTextColor)
 import Models.Views.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
-import Svg exposing (Svg, circle, g, line, marker, polygon, polyline, rect, text, text_)
-import Svg.Attributes exposing (class, cx, cy, fill, fontFamily, fontSize, fontWeight, height, id, markerEnd, markerHeight, markerStart, markerWidth, orient, points, r, refX, refY, stroke, strokeDasharray, strokeWidth, viewBox, width, x, x1, x2, y, y1, y2)
+import Svg exposing (Svg)
+import Svg.Attributes as SvgAttr
 import Svg.Lazy as Lazy
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
@@ -23,18 +23,18 @@ view model =
                         * Constants.messageMargin
 
                 messageYList =
-                    scanl
+                    ListEx.scanl
                         (\item y ->
                             y + List.length (SequenceDiagram.sequenceItemMessages item) * Constants.messageMargin
                         )
                         (model.settings.size.height + Constants.messageMargin)
                         items
             in
-            g []
+            Svg.g []
                 [ markerView model.settings
-                , g [] (List.indexedMap (\i item -> participantView model.settings model.selectedItem ( participantX model.settings i, 8 ) item messageHeight) participants)
-                , g []
-                    (zip items messageYList
+                , Svg.g [] (List.indexedMap (\i item -> participantView model.settings model.selectedItem ( participantX model.settings i, 8 ) item messageHeight) participants)
+                , Svg.g []
+                    (ListEx.zip items messageYList
                         |> List.map
                             (\( item, y ) ->
                                 sequenceItemView model.settings 0 y item
@@ -68,7 +68,7 @@ participantView settings selectedItem pos (Participant item _) messageHeight =
         toY =
             fromY + messageHeight + settings.size.height + Constants.messageMargin
     in
-    g []
+    Svg.g []
         [ Lazy.lazy Views.card { settings = settings, position = ( Position.getX pos, toY ), selectedItem = selectedItem, item = item, canMove = False }
         , Lazy.lazy3 lineView settings ( lineX, fromY ) ( lineX, toY )
         , Lazy.lazy Views.card { settings = settings, position = pos, selectedItem = selectedItem, item = item, canMove = False }
@@ -125,7 +125,7 @@ fragmentRect ( itemWidth, itemHeight ) baseY level messages =
 
 mesageViewList : Settings -> Int -> Int -> List Message -> Svg Msg
 mesageViewList settings level y messages =
-    g []
+    Svg.g []
         (List.indexedMap
             (\i message ->
                 let
@@ -153,7 +153,7 @@ fragmentAndMessageView settings level y messages fragmentText fragment =
         ( ( fromX, fromY ), ( toX, toY ) ) =
             fragmentRect ( settings.size.width, settings.size.height ) y level messages
     in
-    g []
+    Svg.g []
         [ mesageViewList settings level y messages
         , fragmentView settings ( fromX, fromY ) ( toX, toY ) "transparent" fragment
         , fragmentTextView settings ( fromX, fromY + 16 ) fragmentText
@@ -177,17 +177,17 @@ sequenceItemView settings level y item =
                 ( ( fromX, fromY ), ( toX, toY ) ) =
                     fragmentRect ( settings.size.width, settings.size.height ) y level messages
             in
-            g []
+            Svg.g []
                 [ mesageViewList settings level y messages
                 , fragmentView settings ( fromX, fromY ) ( toX, toY ) "transparent" (Alt ( ifText, ifMessages ) ( elseText, elseMessages ))
-                , line
-                    [ x1 <| String.fromInt <| fromX
-                    , y1 <| String.fromInt elseY
-                    , x2 <| String.fromInt <| toX
-                    , y2 <| String.fromInt elseY
-                    , stroke settings.color.line
-                    , strokeWidth "2"
-                    , strokeDasharray "3"
+                , Svg.line
+                    [ SvgAttr.x1 <| String.fromInt <| fromX
+                    , SvgAttr.y1 <| String.fromInt elseY
+                    , SvgAttr.x2 <| String.fromInt <| toX
+                    , SvgAttr.y2 <| String.fromInt elseY
+                    , SvgAttr.stroke settings.color.line
+                    , SvgAttr.strokeWidth "2"
+                    , SvgAttr.strokeDasharray "3"
                     ]
                     []
                 , fragmentTextView settings ( fromX, fromY + 16 ) ifText
@@ -206,7 +206,7 @@ sequenceItemView settings level y item =
                     fragmentRect ( settings.size.width, settings.size.height ) y level messages
 
                 messageYList =
-                    scanl
+                    ListEx.scanl
                         (\( _, m ) messageY ->
                             messageY + SequenceDiagram.messagesCount m * Constants.messageMargin
                         )
@@ -220,20 +220,20 @@ sequenceItemView settings level y item =
                         |> Maybe.withDefault []
                         |> List.map
                             (\messageY ->
-                                line
-                                    [ x1 <| String.fromInt <| fromX
-                                    , y1 <| String.fromInt messageY
-                                    , x2 <| String.fromInt <| toX
-                                    , y2 <| String.fromInt messageY
-                                    , stroke settings.color.line
-                                    , strokeWidth "2"
-                                    , strokeDasharray "3"
+                                Svg.line
+                                    [ SvgAttr.x1 <| String.fromInt <| fromX
+                                    , SvgAttr.y1 <| String.fromInt messageY
+                                    , SvgAttr.x2 <| String.fromInt <| toX
+                                    , SvgAttr.y2 <| String.fromInt messageY
+                                    , SvgAttr.stroke settings.color.line
+                                    , SvgAttr.strokeWidth "2"
+                                    , SvgAttr.strokeDasharray "3"
                                     ]
                                     []
                             )
 
                 textList =
-                    zip messageYList parMessages
+                    ListEx.zip messageYList parMessages
                         |> List.map
                             (\( messageY, ( t, _ ) ) ->
                                 fragmentTextView settings
@@ -243,7 +243,7 @@ sequenceItemView settings level y item =
                                     t
                             )
             in
-            g []
+            Svg.g []
                 (mesageViewList settings level y messages
                     :: fragmentView settings ( fromX, fromY ) ( toX, toY ) "transparent" (Par parMessages)
                     :: lines
@@ -274,16 +274,79 @@ sequenceItemView settings level y item =
 
 markerView : Settings -> Svg Msg
 markerView settings =
-    g []
-        [ marker [ id "sync", viewBox "0 0 10 10", markerWidth "5", markerHeight "5", refX "5", refY "5", orient "auto-start-reverse" ]
-            [ polygon [ points "0,0 0,10 10,5", fill settings.color.line ] [] ]
-        , marker [ id "async", viewBox "0 0 10 10", markerWidth "5", markerHeight "5", refX "7", refY "5", orient "auto-start-reverse" ]
-            [ polyline [ points "0,0 10,5 0,10", fill "none", stroke settings.color.line, strokeWidth "2" ] [] ]
-        , marker [ id "found", viewBox "0 0 10 10", markerWidth "10", markerHeight "5", refX "5", refY "5", orient "auto-start-reverse" ]
-            [ circle [ cx "10", cy "5", r "5", fill settings.color.line ] [] ]
-        , marker [ id "lost", viewBox "0 0 10 10", markerWidth "14", markerHeight "5", refX "7", refY "5", orient "auto-start-reverse" ]
-            [ polyline [ points "0,0 10,5 0,10", fill "none", stroke settings.color.line, strokeWidth "2" ] []
-            , circle [ cx "12", cy "5", r "5", fill settings.color.line ] []
+    Svg.g []
+        [ Svg.marker
+            [ SvgAttr.id "sync"
+            , SvgAttr.viewBox "0 0 10 10"
+            , SvgAttr.markerWidth "5"
+            , SvgAttr.markerHeight "5"
+            , SvgAttr.refX "5"
+            , SvgAttr.refY "5"
+            , SvgAttr.orient "auto-start-reverse"
+            ]
+            [ Svg.polygon
+                [ SvgAttr.points "0,0 0,10 10,5"
+                , SvgAttr.fill settings.color.line
+                ]
+                []
+            ]
+        , Svg.marker
+            [ SvgAttr.id "async"
+            , SvgAttr.viewBox "0 0 10 10"
+            , SvgAttr.markerWidth "5"
+            , SvgAttr.markerHeight "5"
+            , SvgAttr.refX "7"
+            , SvgAttr.refY "5"
+            , SvgAttr.orient "auto-start-reverse"
+            ]
+            [ Svg.polyline
+                [ SvgAttr.points "0,0 10,5 0,10"
+                , SvgAttr.fill "none"
+                , SvgAttr.stroke settings.color.line
+                , SvgAttr.strokeWidth "2"
+                ]
+                []
+            ]
+        , Svg.marker
+            [ SvgAttr.id "found"
+            , SvgAttr.viewBox "0 0 10 10"
+            , SvgAttr.markerWidth "10"
+            , SvgAttr.markerHeight "5"
+            , SvgAttr.refX "5"
+            , SvgAttr.refY "5"
+            , SvgAttr.orient "auto-start-reverse"
+            ]
+            [ Svg.circle
+                [ SvgAttr.cx "10"
+                , SvgAttr.cy "5"
+                , SvgAttr.r "5"
+                , SvgAttr.fill settings.color.line
+                ]
+                []
+            ]
+        , Svg.marker
+            [ SvgAttr.id "lost"
+            , SvgAttr.viewBox "0 0 10 10"
+            , SvgAttr.markerWidth "14"
+            , SvgAttr.markerHeight "5"
+            , SvgAttr.refX "7"
+            , SvgAttr.refY "5"
+            , SvgAttr.orient "auto-start-reverse"
+            ]
+            [ Svg.polyline
+                [ SvgAttr.points "0,0 10,5 0,10"
+                , SvgAttr.fill "none"
+                , SvgAttr.stroke settings.color.line
+                , SvgAttr.strokeWidth "2"
+                ]
+                []
+            , Svg.circle
+                [ SvgAttr.cx "12"
+                , SvgAttr.cy "5"
+                , SvgAttr.r "5"
+                , SvgAttr.fill settings.color.line
+                ]
+                []
             ]
         ]
 
@@ -299,8 +362,15 @@ selfMessageView settings ( posX, posY ) messageType =
             ]
                 |> String.join " "
     in
-    g []
-        [ polyline [ points messagePoints, markerEnd "url(#sync)", fill "none", stroke settings.color.line, strokeWidth "2" ] []
+    Svg.g []
+        [ Svg.polyline
+            [ SvgAttr.points messagePoints
+            , SvgAttr.markerEnd "url(#sync)"
+            , SvgAttr.fill "none"
+            , SvgAttr.stroke settings.color.line
+            , SvgAttr.strokeWidth "2"
+            ]
+            []
         , textView settings ( posX + 8, posY - 8 ) ( Constants.participantMargin, 8 ) (SequenceDiagram.unwrapMessageType messageType)
         ]
 
@@ -343,21 +413,21 @@ messageView settings ( fromX, fromY ) ( toX, toY ) messageType =
                 ( False, Lost _ ) ->
                     ( ( False, "", "lost" ), ( -Constants.participantMargin, -10 ) )
     in
-    g []
-        [ line
-            [ x1 <| String.fromInt <| fromX + fromOffset
-            , y1 <| String.fromInt fromY
-            , x2 <| String.fromInt <| toX - toOffset
-            , y2 <| String.fromInt toY
-            , stroke settings.color.line
-            , strokeWidth "2"
+    Svg.g []
+        [ Svg.line
+            [ SvgAttr.x1 <| String.fromInt <| fromX + fromOffset
+            , SvgAttr.y1 <| String.fromInt fromY
+            , SvgAttr.x2 <| String.fromInt <| toX - toOffset
+            , SvgAttr.y2 <| String.fromInt toY
+            , SvgAttr.stroke settings.color.line
+            , SvgAttr.strokeWidth "2"
             , if isDot then
-                strokeDasharray "3"
+                SvgAttr.strokeDasharray "3"
 
               else
-                class ""
-            , markerStart <| "url(#" ++ markerStartId ++ ")"
-            , markerEnd ("url(#" ++ markerEndId ++ ")")
+                SvgAttr.class ""
+            , SvgAttr.markerStart <| "url(#" ++ markerStartId ++ ")"
+            , SvgAttr.markerEnd ("url(#" ++ markerEndId ++ ")")
             ]
             []
         , if isReverse then
@@ -370,17 +440,17 @@ messageView settings ( fromX, fromY ) ( toX, toY ) messageType =
 
 textView : Settings -> Position -> Size -> String -> Svg Msg
 textView settings ( posX, posY ) ( textWidth, textHeight ) message =
-    text_
-        [ x <| String.fromInt <| posX
-        , y <| String.fromInt <| posY
-        , fontFamily (fontStyle settings)
-        , width <| String.fromInt textWidth
-        , height <| String.fromInt textHeight
-        , fill <| getTextColor settings.color
-        , fontSize Constants.fontSize
-        , class ".select-none"
+    Svg.text_
+        [ SvgAttr.x <| String.fromInt <| posX
+        , SvgAttr.y <| String.fromInt <| posY
+        , SvgAttr.fontFamily (fontStyle settings)
+        , SvgAttr.width <| String.fromInt textWidth
+        , SvgAttr.height <| String.fromInt textHeight
+        , SvgAttr.fill <| getTextColor settings.color
+        , SvgAttr.fontSize Constants.fontSize
+        , SvgAttr.class ".select-none"
         ]
-        [ text message ]
+        [ Svg.text message ]
 
 
 fragmentView : Settings -> Position -> Position -> String -> Fragment -> Svg Msg
@@ -403,61 +473,61 @@ fragmentTextView settings ( fromX, fromY ) fragmentText =
                 // 2
                 + 16
     in
-    text_
-        [ x <| String.fromInt <| fromX + offset
-        , y <| String.fromInt <| fromY
-        , fontFamily (fontStyle settings)
-        , fill <| getTextColor settings.color
-        , fontSize Constants.fontSize
-        , fontWeight "bold"
-        , class ".select-none"
+    Svg.text_
+        [ SvgAttr.x <| String.fromInt <| fromX + offset
+        , SvgAttr.y <| String.fromInt <| fromY
+        , SvgAttr.fontFamily (fontStyle settings)
+        , SvgAttr.fill <| getTextColor settings.color
+        , SvgAttr.fontSize Constants.fontSize
+        , SvgAttr.fontWeight "bold"
+        , SvgAttr.class ".select-none"
         ]
-        [ text <| "[" ++ fragmentText ++ "]" ]
+        [ Svg.text <| "[" ++ fragmentText ++ "]" ]
 
 
 fragmentRectView : Settings -> Position -> Size -> String -> String -> Svg Msg
 fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) backgroundColor label =
-    g []
-        [ rect
-            [ x <| String.fromInt fromX
-            , y <| String.fromInt fromY
-            , width <| String.fromInt fragmentWidth
-            , height <| String.fromInt fragmentHeight
-            , stroke settings.color.activity.backgroundColor
-            , strokeWidth "2"
-            , fill backgroundColor
+    Svg.g []
+        [ Svg.rect
+            [ SvgAttr.x <| String.fromInt fromX
+            , SvgAttr.y <| String.fromInt fromY
+            , SvgAttr.width <| String.fromInt fragmentWidth
+            , SvgAttr.height <| String.fromInt fragmentHeight
+            , SvgAttr.stroke settings.color.activity.backgroundColor
+            , SvgAttr.strokeWidth "2"
+            , SvgAttr.fill backgroundColor
             ]
             []
-        , rect
-            [ x <| String.fromInt fromX
-            , y <| String.fromInt fromY
-            , width <| String.fromInt <| max 44 (String.length label * 7 + 16)
-            , height "20"
-            , fill settings.color.activity.backgroundColor
-            , strokeWidth "2"
+        , Svg.rect
+            [ SvgAttr.x <| String.fromInt fromX
+            , SvgAttr.y <| String.fromInt fromY
+            , SvgAttr.width <| String.fromInt <| max 44 (String.length label * 7 + 16)
+            , SvgAttr.height "20"
+            , SvgAttr.fill settings.color.activity.backgroundColor
+            , SvgAttr.strokeWidth "2"
             ]
             []
-        , text_
-            [ x <| String.fromInt <| fromX + 8
-            , y <| String.fromInt <| fromY + 14
-            , fontFamily (fontStyle settings)
-            , fill settings.color.task.color
-            , fontSize Constants.fontSize
-            , fontWeight "bold"
-            , class ".select-none"
+        , Svg.text_
+            [ SvgAttr.x <| String.fromInt <| fromX + 8
+            , SvgAttr.y <| String.fromInt <| fromY + 14
+            , SvgAttr.fontFamily (fontStyle settings)
+            , SvgAttr.fill settings.color.task.color
+            , SvgAttr.fontSize Constants.fontSize
+            , SvgAttr.fontWeight "bold"
+            , SvgAttr.class ".select-none"
             ]
-            [ text label ]
+            [ Svg.text label ]
         ]
 
 
 lineView : Settings -> Position -> Position -> Svg Msg
 lineView settings ( fromX, fromY ) ( toX, toY ) =
-    line
-        [ x1 <| String.fromInt fromX
-        , y1 <| String.fromInt fromY
-        , x2 <| String.fromInt toX
-        , y2 <| String.fromInt toY
-        , stroke settings.color.line
-        , strokeWidth "2"
+    Svg.line
+        [ SvgAttr.x1 <| String.fromInt fromX
+        , SvgAttr.y1 <| String.fromInt fromY
+        , SvgAttr.x2 <| String.fromInt toX
+        , SvgAttr.y2 <| String.fromInt toY
+        , SvgAttr.stroke settings.color.line
+        , SvgAttr.strokeWidth "2"
         ]
         []
