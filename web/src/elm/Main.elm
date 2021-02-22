@@ -285,216 +285,220 @@ showNotification notify =
 
 changeRouteTo : Route -> Model -> Return Msg Model
 changeRouteTo route model =
-    case route of
-        Route.DiagramList ->
-            (if DiagramList.isNotAsked model.diagramListModel.diagramList then
-                let
-                    ( model_, cmd_ ) =
-                        DiagramList.init model.session model.lang model.diagramListModel.apiRoot
-                in
-                Return.singleton { model | diagramListModel = model_ }
-                    |> Return.andThen (Action.switchPage Page.List)
-                    |> Return.command (cmd_ |> Cmd.map UpdateDiagramList)
-                    |> Return.andThen Action.startProgress
+    if Text.isChanged model.diagramModel.text then
+        Action.startEditTitle model
 
-             else
-                Return.singleton model
-                    |> Return.andThen (Action.switchPage Page.List)
-                    |> Return.andThen Action.stopProgress
-            )
-                |> Return.andThen Action.changeRouteInit
-
-        Route.Tag ->
-            case model.currentDiagram of
-                Nothing ->
-                    Return.singleton model
-
-                Just diagram ->
+    else
+        case route of
+            Route.DiagramList ->
+                (if DiagramList.isNotAsked model.diagramListModel.diagramList then
                     let
-                        ( model_, _ ) =
-                            Tags.init (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault ""))
+                        ( model_, cmd_ ) =
+                            DiagramList.init model.session model.lang model.diagramListModel.apiRoot
                     in
-                    Action.switchPage (Page.Tags model_) model
+                    Return.singleton { model | diagramListModel = model_ }
+                        |> Return.andThen (Action.switchPage Page.List)
+                        |> Return.command (cmd_ |> Cmd.map UpdateDiagramList)
+                        |> Return.andThen Action.startProgress
 
-        Route.New ->
-            Action.switchPage Page.New model
+                 else
+                    Return.singleton model
+                        |> Return.andThen (Action.switchPage Page.List)
+                        |> Return.andThen Action.stopProgress
+                )
+                    |> Return.andThen Action.changeRouteInit
 
-        Route.NotFound ->
-            Action.switchPage Page.NotFound model
+            Route.Tag ->
+                case model.currentDiagram of
+                    Nothing ->
+                        Return.singleton model
 
-        Route.Embed diagram title path ->
-            Return.singleton
-                { model
-                    | window = model.window |> Page.windowOfFullscreen.set True
-                    , diagramModel =
+                    Just diagram ->
+                        let
+                            ( model_, _ ) =
+                                Tags.init (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault ""))
+                        in
+                        Action.switchPage (Page.Tags model_) model
+
+            Route.New ->
+                Action.switchPage Page.New model
+
+            Route.NotFound ->
+                Action.switchPage Page.NotFound model
+
+            Route.Embed diagram title path ->
+                Return.singleton
+                    { model
+                        | window = model.window |> Page.windowOfFullscreen.set True
+                        , diagramModel =
+                            model.diagramModel
+                                |> DiagramModel.modelOfShowZoomControl.set False
+                                |> DiagramModel.modelOfDiagramType.set diagram
+                    }
+                    |> Return.command (Ports.decodeShareText path)
+                    |> Return.andThen (Action.setTitle title)
+                    |> Return.andThen (Action.switchPage (Page.Embed diagram title path))
+                    |> Return.andThen Action.changeRouteInit
+
+            Route.Share diagram title path ->
+                ( { model
+                    | diagramModel =
                         model.diagramModel
-                            |> DiagramModel.modelOfShowZoomControl.set False
                             |> DiagramModel.modelOfDiagramType.set diagram
-                }
-                |> Return.command (Ports.decodeShareText path)
-                |> Return.andThen (Action.setTitle title)
-                |> Return.andThen (Action.switchPage (Page.Embed diagram title path))
-                |> Return.andThen Action.changeRouteInit
+                  }
+                , Ports.decodeShareText path
+                )
+                    |> Return.andThen (Action.switchPage Page.Main)
+                    |> Return.andThen (Action.setTitle (percentDecode title |> Maybe.withDefault ""))
+                    |> Return.andThen Action.changeRouteInit
 
-        Route.Share diagram title path ->
-            ( { model
-                | diagramModel =
-                    model.diagramModel
-                        |> DiagramModel.modelOfDiagramType.set diagram
-              }
-            , Ports.decodeShareText path
-            )
-                |> Return.andThen (Action.switchPage Page.Main)
-                |> Return.andThen (Action.setTitle (percentDecode title |> Maybe.withDefault ""))
-                |> Return.andThen Action.changeRouteInit
+            Route.View diagram settingsJson ->
+                let
+                    maybeSettings =
+                        percentDecode settingsJson
+                            |> Maybe.andThen
+                                (\x ->
+                                    D.decodeString settingsDecoder x |> Result.toMaybe
+                                )
 
-        Route.View diagram settingsJson ->
-            let
-                maybeSettings =
-                    percentDecode settingsJson
-                        |> Maybe.andThen
-                            (\x ->
-                                D.decodeString settingsDecoder x |> Result.toMaybe
-                            )
-
-                ( updatedModel, _ ) =
-                    case maybeSettings of
-                        Nothing ->
-                            Return.singleton model
-                                |> Return.andThen (Action.setDiagramType diagram)
-                                |> Return.andThen Action.hideZoomControl
-                                |> Return.andThen Action.fullscreenDiagram
-
-                        Just settings ->
-                            Return.singleton model
-                                |> Return.andThen (Action.setDiagramType diagram)
-                                |> Return.andThen (Action.setDiagramSettings settings.storyMap)
-                                |> Return.andThen (Action.setText (String.replace "\\n" "\n" (Maybe.withDefault "" settings.text)))
-                                |> Return.andThen Action.showZoomControl
-                                |> Return.andThen Action.fullscreenDiagram
-            in
-            (case maybeSettings of
-                Nothing ->
-                    Return.singleton model
-
-                Just settings ->
-                    let
-                        ( settingsModel_, cmd_ ) =
-                            Settings.init settings
-                    in
-                    ( { updatedModel
-                        | settingsModel = settingsModel_
-                        , window =
-                            { position = model.window.position
-                            , moveStart = model.window.moveStart
-                            , moveX = model.window.moveX
-                            , fullscreen = True
-                            }
-                      }
-                    , cmd_ |> Cmd.map UpdateSettings
-                    )
-                        |> Return.andThen (Action.setTitle <| Maybe.withDefault "" settings.title)
-                        |> Return.andThen (Action.switchPage Page.Main)
-            )
-                |> Return.andThen Action.changeRouteInit
-
-        Route.Edit diagramType ->
-            Return.singleton
-                { model
-                    | title = Title.untitled
-                    , diagramModel =
-                        DiagramModel.updatedText
-                            (model.diagramModel
-                                |> DiagramModel.modelOfDiagramType.set diagramType
-                            )
-                            (Text.fromString <| DiagramType.defaultText diagramType)
-                }
-                |> Return.andThen (Action.setCurrentDiagram Nothing)
-                |> Return.andThen (Action.switchPage Page.Main)
-                |> Return.andThen Action.changeRouteInit
-
-        Route.EditFile _ id_ ->
-            let
-                loadText_ =
-                    if Session.isSignedIn model.session then
-                        Return.singleton model
-                            |> Return.andThen Action.updateIdToken
-                            |> Return.andThen (Action.switchPage Page.Main)
-                            |> Return.command (Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_))
-
-                    else
-                        Return.singleton model
-                            |> Return.andThen (Action.switchPage Page.Main)
-                            |> Return.andThen (Action.loadLocalDiagram id_)
-                            |> Return.andThen Action.changeRouteInit
-            in
-            case ( model.diagramListModel.diagramList, model.currentDiagram ) of
-                ( DiagramList.DiagramList (Success d) _ _, _ ) ->
-                    case find (\diagram -> (DiagramItem.getId diagram |> DiagramId.toString) == DiagramId.toString id_) d of
-                        Just item ->
-                            if item.isRemote then
+                    ( updatedModel, _ ) =
+                        case maybeSettings of
+                            Nothing ->
                                 Return.singleton model
-                                    |> Return.andThen Action.updateIdToken
-                                    |> Return.andThen (Action.switchPage Page.Main)
-                                    |> Return.command (Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_))
+                                    |> Return.andThen (Action.setDiagramType diagram)
+                                    |> Return.andThen Action.hideZoomControl
+                                    |> Return.andThen Action.fullscreenDiagram
 
-                            else
+                            Just settings ->
                                 Return.singleton model
-                                    |> Return.andThen (Action.switchPage Page.Main)
-                                    |> Return.command (Task.attempt Load <| Task.succeed item)
-
-                        Nothing ->
-                            Return.singleton model
-                                |> Return.andThen (Action.switchPage Page.NotFound)
-                                |> Return.andThen Action.stopProgress
-
-                ( _, Just diagram ) ->
-                    if (DiagramItem.getId diagram |> DiagramId.toString) == DiagramId.toString id_ then
+                                    |> Return.andThen (Action.setDiagramType diagram)
+                                    |> Return.andThen (Action.setDiagramSettings settings.storyMap)
+                                    |> Return.andThen (Action.setText (String.replace "\\n" "\n" (Maybe.withDefault "" settings.text)))
+                                    |> Return.andThen Action.showZoomControl
+                                    |> Return.andThen Action.fullscreenDiagram
+                in
+                (case maybeSettings of
+                    Nothing ->
                         Return.singleton model
+
+                    Just settings ->
+                        let
+                            ( settingsModel_, cmd_ ) =
+                                Settings.init settings
+                        in
+                        ( { updatedModel
+                            | settingsModel = settingsModel_
+                            , window =
+                                { position = model.window.position
+                                , moveStart = model.window.moveStart
+                                , moveX = model.window.moveX
+                                , fullscreen = True
+                                }
+                          }
+                        , cmd_ |> Cmd.map UpdateSettings
+                        )
+                            |> Return.andThen (Action.setTitle <| Maybe.withDefault "" settings.title)
                             |> Return.andThen (Action.switchPage Page.Main)
-                            |> (case ( model.page, Size.isZero model.diagramModel.size ) of
-                                    ( Page.Main, False ) ->
-                                        Return.zero
+                )
+                    |> Return.andThen Action.changeRouteInit
 
-                                    _ ->
-                                        Return.andThen Action.changeRouteInit
-                               )
+            Route.Edit diagramType ->
+                Return.singleton
+                    { model
+                        | title = Title.untitled
+                        , diagramModel =
+                            DiagramModel.updatedText
+                                (model.diagramModel
+                                    |> DiagramModel.modelOfDiagramType.set diagramType
+                                )
+                                (Text.fromString <| DiagramType.defaultText diagramType)
+                    }
+                    |> Return.andThen (Action.setCurrentDiagram Nothing)
+                    |> Return.andThen (Action.switchPage Page.Main)
+                    |> Return.andThen Action.changeRouteInit
 
-                    else
+            Route.EditFile _ id_ ->
+                let
+                    loadText_ =
+                        if Session.isSignedIn model.session then
+                            Return.singleton model
+                                |> Return.andThen Action.updateIdToken
+                                |> Return.andThen (Action.switchPage Page.Main)
+                                |> Return.command (Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_))
+
+                        else
+                            Return.singleton model
+                                |> Return.andThen (Action.switchPage Page.Main)
+                                |> Return.andThen (Action.loadLocalDiagram id_)
+                                |> Return.andThen Action.changeRouteInit
+                in
+                case ( model.diagramListModel.diagramList, model.currentDiagram ) of
+                    ( DiagramList.DiagramList (Success d) _ _, _ ) ->
+                        case find (\diagram -> (DiagramItem.getId diagram |> DiagramId.toString) == DiagramId.toString id_) d of
+                            Just item ->
+                                if item.isRemote then
+                                    Return.singleton model
+                                        |> Return.andThen Action.updateIdToken
+                                        |> Return.andThen (Action.switchPage Page.Main)
+                                        |> Return.command (Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_))
+
+                                else
+                                    Return.singleton model
+                                        |> Return.andThen (Action.switchPage Page.Main)
+                                        |> Return.command (Task.attempt Load <| Task.succeed item)
+
+                            Nothing ->
+                                Return.singleton model
+                                    |> Return.andThen (Action.switchPage Page.NotFound)
+                                    |> Return.andThen Action.stopProgress
+
+                    ( _, Just diagram ) ->
+                        if (DiagramItem.getId diagram |> DiagramId.toString) == DiagramId.toString id_ then
+                            Return.singleton model
+                                |> Return.andThen (Action.switchPage Page.Main)
+                                |> (case ( model.page, Size.isZero model.diagramModel.size ) of
+                                        ( Page.Main, False ) ->
+                                            Return.zero
+
+                                        _ ->
+                                            Return.andThen Action.changeRouteInit
+                                   )
+
+                        else
+                            loadText_
+
+                    _ ->
                         loadText_
 
-                _ ->
-                    loadText_
+            Route.ViewPublic _ id_ ->
+                Return.singleton model
+                    |> Return.andThen Action.updateIdToken
+                    |> Return.andThen (Action.switchPage Page.Main)
+                    |> Return.command (Task.attempt Load <| Request.publicItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_))
 
-        Route.ViewPublic _ id_ ->
-            Return.singleton model
-                |> Return.andThen Action.updateIdToken
-                |> Return.andThen (Action.switchPage Page.Main)
-                |> Return.command (Task.attempt Load <| Request.publicItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_))
+            Route.Home ->
+                Return.singleton model
+                    |> Return.andThen (Action.switchPage Page.Main)
+                    |> Return.andThen Action.changeRouteInit
 
-        Route.Home ->
-            Return.singleton model
-                |> Return.andThen (Action.switchPage Page.Main)
-                |> Return.andThen Action.changeRouteInit
+            Route.Settings ->
+                Action.switchPage Page.Settings model
 
-        Route.Settings ->
-            Action.switchPage Page.Settings model
+            Route.Help ->
+                Action.switchPage Page.Help model
 
-        Route.Help ->
-            Action.switchPage Page.Help model
-
-        Route.SharingDiagram ->
-            Return.singleton model
-                |> Return.andThen (Action.switchPage Page.Share)
-                |> Return.command
-                    (Ports.encodeShareText
-                        { diagramType =
-                            DiagramType.toString model.diagramModel.diagramType
-                        , title = Just <| Title.toString model.title
-                        , text = Text.toString model.diagramModel.text
-                        }
-                    )
-                |> Return.andThen Action.startProgress
+            Route.SharingDiagram ->
+                Return.singleton model
+                    |> Return.andThen (Action.switchPage Page.Share)
+                    |> Return.command
+                        (Ports.encodeShareText
+                            { diagramType =
+                                DiagramType.toString model.diagramModel.diagramType
+                            , title = Just <| Title.toString model.title
+                            , text = Text.toString model.diagramModel.text
+                            }
+                        )
+                    |> Return.andThen Action.startProgress
 
 
 update : Msg -> Model -> Return Msg Model
@@ -762,7 +766,7 @@ update message model =
                         |> Maybe.withDefault (Session.isSignedIn model.session)
             in
             if Title.isUntitled model.title then
-                update StartEditTitle model
+                Action.startEditTitle model
 
             else
                 let

@@ -51,19 +51,19 @@ closeNotification model =
 
 showWarningMessage : String -> Model -> Return Msg Model
 showWarningMessage msg model =
-    Return.return model (Task.perform identity (Task.succeed (ShowNotification (Warning msg))))
+    Return.return model (Task.perform identity <| Task.succeed <| ShowNotification <| Warning msg)
         |> Return.andThen closeNotification
 
 
 showInfoMessage : String -> Model -> Return Msg Model
 showInfoMessage msg model =
-    Return.return model (Task.perform identity (Task.succeed (ShowNotification (Info msg))))
+    Return.return model (Task.perform identity <| Task.succeed <| ShowNotification <| Info msg)
         |> Return.andThen closeNotification
 
 
 showErrorMessage : String -> Model -> Return Msg Model
 showErrorMessage msg model =
-    Return.return model (Task.perform identity (Task.succeed (ShowNotification (Error msg))))
+    Return.return model (Task.perform identity <| Task.succeed <| ShowNotification <| Error msg)
         |> Return.andThen closeNotification
 
 
@@ -183,6 +183,11 @@ needSaved model =
 setTitle : String -> Model -> Return Msg Model
 setTitle title model =
     Return.singleton { model | title = Title.fromString <| title }
+
+
+startEditTitle : Model -> Return Msg Model
+startEditTitle model =
+    Return.return model <| Task.perform identity <| Task.succeed StartEditTitle
 
 
 setCurrentDiagram : Maybe DiagramItem -> Model -> Return Msg Model

@@ -1,8 +1,9 @@
 import { DownloadInfo, ImageInfo } from "./model";
 import { ElmApp } from "./elm";
+import SVGO from "svgo";
 
 export const initDownload = (app: ElmApp): void => {
-    const createSvg = (id: string, width: number, height: number) => {
+    const createSvg = async (id: string, width: number, height: number) => {
         const svg = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "svg"
@@ -17,10 +18,25 @@ export const initDownload = (app: ElmApp): void => {
             svg.innerHTML = element.innerHTML;
         }
 
-        return svg;
+        // @ts-expect-error
+        const svgo: SVGO = (await import("svgo/dist/svgo.browser.js")).default;
+        const optimizedSvg = await svgo.optimize(
+            new XMLSerializer().serializeToString(svg),
+            {
+                // @ts-expect-error
+                plugins: svgo.extendDefaultPlugins([
+                    {
+                        name: "convertStyleToAttrs",
+                        active: false,
+                    },
+                ]),
+            }
+        );
+
+        return optimizedSvg.data;
     };
 
-    const createImage = ({
+    const createImage = async ({
         id,
         width,
         height,
@@ -49,19 +65,15 @@ export const initDownload = (app: ElmApp): void => {
                 false
             );
             img.src = `data:image/svg+xml;utf8,${encodeURIComponent(
-                new XMLSerializer().serializeToString(
-                    createSvg(id, width, height)
-                )
+                await createSvg(id, width, height)
             )}`;
         }
     };
 
     app.ports.downloadSvg.subscribe(
-        ({ id, width, height, x, y }: DownloadInfo) => {
+        async ({ id, width, height, x, y }: DownloadInfo) => {
             app.ports.startDownload.send({
-                content: new XMLSerializer().serializeToString(
-                    createSvg(id, width, height)
-                ),
+                content: await createSvg(id, width, height),
                 extension: ".svg",
                 mimeType: "image/svg+xml",
             });
