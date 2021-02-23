@@ -337,22 +337,34 @@ class DiagramPanel {
             : `${vscode.workspace.rootPath}/`
         }${title}.svg`;
 
+        const svgo = await import("svgo");
+        // @ts-expect-error
+        const optimizedSvg = svgo.optimize(
+          `<?xml version="1.0"?>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${message.width} ${
+            message.height
+          }" width="${message.width}" height="${
+            message.height
+          }" style="background-color: ${backgroundColor};">
+        ${message.text
+          .split("<div")
+          .join('<div xmlns="http://www.w3.org/1999/xhtml"')
+          .split("<img")
+          .join('<img xmlns="1http://www.w3.org/1999/xhtml"')}
+        </svg>`,
+          {
+            // @ts-expect-error
+            plugins: svgo.extendDefaultPlugins([
+              {
+                name: "convertStyleToAttrs",
+                active: false,
+              },
+            ]),
+          }
+        );
+
         try {
-          fs.writeFileSync(
-            filePath,
-            `<?xml version="1.0"?>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${
-                      message.width
-                    } ${message.height}" width="${message.width}" height="${
-              message.height
-            }" style="background-color: ${backgroundColor};">
-                    ${message.text
-                      .split("<div")
-                      .join('<div xmlns="http://www.w3.org/1999/xhtml"')
-                      .split("<img")
-                      .join('<img xmlns="http://www.w3.org/1999/xhtml"')}
-                    </svg>`
-          );
+          fs.writeFileSync(filePath, optimizedSvg.data);
           vscode.window.showInformationMessage(`Exported: ${filePath}`, {
             modal: false,
           });

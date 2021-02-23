@@ -6,7 +6,7 @@
     "name": "harehare"
   },
   "publisher": "harehare",
-  "version": "0.6.72",
+  "version": "0.6.73",
   "engines": {
     "vscode": "^1.33.0"
   },
@@ -192,5 +192,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/harehare/textusm.git"
+  },
+  "dependencies": {
+    "svgo": "^2.0.3"
   }
 }
