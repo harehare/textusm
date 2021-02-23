@@ -4,6 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as puppeteer from "puppeteer";
 import { html, DiagramType, Settings } from "./html";
+import { optimize, extendDefaultPlugins } from "svgo";
 
 type DiagramSettings = {
   width: number;
@@ -284,7 +285,8 @@ const writeResult = (output: string | undefined, result: string): void => {
       });
       writeResult(
         output,
-        `<?xml version="1.0"?>
+        optimize(
+          `<?xml version="1.0"?>
                 ${svg
                   .replace("<div></div>", "")
                   .replace(
@@ -294,7 +296,16 @@ const writeResult = (output: string | undefined, result: string): void => {
                   .split("<div")
                   .join('<div xmlns="http://www.w3.org/1999/xhtml"')
                   .split("<img")
-                  .join('<img xmlns="http://www.w3.org/1999/xhtml"')}`
+                  .join('<img xmlns="http://www.w3.org/1999/xhtml"')}`,
+          {
+            plugins: extendDefaultPlugins([
+              {
+                name: "convertStyleToAttrs",
+                active: false,
+              },
+            ]),
+          }
+        ).data
       );
     } else if (output.endsWith(".png")) {
       const clip = await page.$eval("#usm", (svg) => {
