@@ -149,7 +149,7 @@ suite =
                             |> Item.withText "test|test2|"
                             |> Item.getText
                         )
-                        "test|test2"
+                        "test|test2|"
             , test "when multiple | and item settings json" <|
                 \() ->
                     Expect.equal
@@ -157,6 +157,6 @@ suite =
                             |> Item.withText "test|test2|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
                             |> Item.getText
                         )
-                        "test|test2"
+                        "test|test2|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
             ]
         ]
