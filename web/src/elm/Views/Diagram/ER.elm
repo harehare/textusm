@@ -374,7 +374,7 @@ tableHeaderView settings headerText headerWidth ( posX, posY ) =
             , fill settings.color.activity.color
             , fontSize "16"
             , fontWeight "bold"
-            , class ".select-none"
+            , class "select-none"
             ]
             [ Svg.text headerText ]
         ]

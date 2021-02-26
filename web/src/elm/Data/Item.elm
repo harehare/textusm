@@ -104,7 +104,7 @@ withLineNo lineNo (Item item) =
 
 withTextOnly : String -> Item -> Item
 withTextOnly text (Item item) =
-    Item { item | text = Text.fromString text}
+    Item { item | text = Text.fromString text }
 
 
 withText : String -> Item -> Item
@@ -116,6 +116,9 @@ withText text (Item item) =
 
             else
                 case String.split "|" text of
+                    [ _, _, _ ] ->
+                        ( text, Nothing )
+
                     [ x, xs ] ->
                         case D.decodeString ItemSettings.decoder xs of
                             Ok s ->
