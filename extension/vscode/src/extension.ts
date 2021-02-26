@@ -84,8 +84,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.exportSvg", () => {
       showQuickPick(context, () => {
-        if (DiagramPanel.currentPanel) {
-          DiagramPanel.currentPanel.exportSvg();
+        if (DiagramPanel.activePanel) {
+          DiagramPanel.activePanel.exportSvg();
         }
       });
     })
@@ -93,23 +93,23 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.exportPng", () => {
       showQuickPick(context, () => {
-        if (DiagramPanel.currentPanel) {
-          DiagramPanel.currentPanel.exportPng();
+        if (DiagramPanel.activePanel) {
+          DiagramPanel.activePanel.exportPng();
         }
       });
     })
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.zoomIn", () => {
-      if (DiagramPanel.currentPanel) {
-        DiagramPanel.currentPanel.zoomIn();
+      if (DiagramPanel.activePanel) {
+        DiagramPanel.activePanel.zoomIn();
       }
     })
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.zoomOut", () => {
-      if (DiagramPanel.currentPanel) {
-        DiagramPanel.currentPanel.zoomOut();
+      if (DiagramPanel.activePanel) {
+        DiagramPanel.activePanel.zoomOut();
       }
     })
   );
@@ -214,7 +214,7 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 class DiagramPanel {
-  public static currentPanel: DiagramPanel | undefined;
+  public static activePanel: DiagramPanel | null;
   public static readonly viewType = "textUSM";
 
   private readonly _panel: vscode.WebviewPanel;
@@ -228,7 +228,7 @@ class DiagramPanel {
       : vscode.ViewColumn.Two;
     const editor = vscode.window.activeTextEditor;
     const text = editor ? editor.document.getText() : "";
-    const title = "TextUSM";
+    const title = `TextUSM ${editor?.document.fileName}`;
     const scriptSrc = vscode.Uri.file(
       path.join(context.extensionPath, "js", "elm.js")
     ).with({
@@ -239,50 +239,8 @@ class DiagramPanel {
       path.join(context.extensionPath, "images", "icon.png")
     );
 
-    if (DiagramPanel.currentPanel) {
-      DiagramPanel.currentPanel._update(
-        iconPath,
-        scriptSrc,
-        title,
-        text,
-        diagramType
-      );
-      DiagramPanel.currentPanel._panel.webview.postMessage({
-        text,
-      });
-      DiagramPanel.currentPanel._panel.reveal(
-        column ? column + 1 : vscode.ViewColumn.Two
-      );
-      DiagramPanel.currentPanel._addTextChangedEvent(editor);
-      setPreviewActiveContext(true);
-      return;
-    }
-
-    const panel = vscode.window.createWebviewPanel(
-      DiagramPanel.viewType,
-      "TextUSM",
-      column ? column + 1 : vscode.ViewColumn.Two,
-      {
-        enableScripts: true,
-        localResourceRoots: [
-          vscode.Uri.file(path.join(context.extensionPath, "js")),
-        ],
-      }
-    );
-
-    const figurePanel = new DiagramPanel(
-      panel,
-      iconPath,
-      scriptSrc,
-      title,
-      text,
-      diagramType
-    );
-
-    DiagramPanel.currentPanel = figurePanel;
-    DiagramPanel.currentPanel._addTextChangedEvent(editor);
-
-    figurePanel._panel.webview.onDidReceiveMessage(async (message) => {
+    // @ts-expect-error
+    const onReceiveMessage = async (message) => {
       if (message.command === "setText") {
         if (editor) {
           await setText(editor, message.text);
@@ -374,8 +332,81 @@ class DiagramPanel {
           });
         }
       }
-    });
+    };
+
+    if (DiagramPanel.activePanel) {
+      DiagramPanel.activePanel._update(
+        iconPath,
+        scriptSrc,
+        title,
+        text,
+        diagramType
+      );
+      DiagramPanel.activePanel._panel.webview.postMessage({
+        text,
+      });
+      DiagramPanel.activePanel._panel.reveal(
+        column ? column + 1 : vscode.ViewColumn.Two
+      );
+      DiagramPanel.addTextChangedEvent(editor);
+      DiagramPanel.activePanel._panel.webview.onDidReceiveMessage(
+        onReceiveMessage
+      );
+      setPreviewActiveContext(true);
+      return;
+    }
+
+    const panel = vscode.window.createWebviewPanel(
+      DiagramPanel.viewType,
+      "TextUSM",
+      column ? column + 1 : vscode.ViewColumn.Two,
+      {
+        enableScripts: true,
+        localResourceRoots: [
+          vscode.Uri.file(path.join(context.extensionPath, "js")),
+        ],
+      }
+    );
+
+    const figurePanel = new DiagramPanel(
+      panel,
+      iconPath,
+      scriptSrc,
+      title,
+      text,
+      diagramType
+    );
+
+    DiagramPanel.activePanel = figurePanel;
+    DiagramPanel.addTextChangedEvent(editor);
+
+    figurePanel._panel.webview.onDidReceiveMessage(onReceiveMessage);
     setPreviewActiveContext(true);
+  }
+
+  private static addTextChangedEvent(editor: vscode.TextEditor | undefined) {
+    let updated: null | NodeJS.Timeout = null;
+    vscode.workspace.onDidChangeTextDocument((e) => {
+      if (editor) {
+        if (
+          e &&
+          e.document &&
+          editor &&
+          editor.document &&
+          e?.document?.uri === editor?.document?.uri
+        ) {
+          if (updated) {
+            clearTimeout(updated);
+          }
+          updated = setTimeout(() => {
+            DiagramPanel.activePanel?._panel.webview.postMessage({
+              command: "textChanged",
+              text: e.document.getText(),
+            });
+          }, 300);
+        }
+      }
+    });
   }
 
   private constructor(
@@ -388,10 +419,10 @@ class DiagramPanel {
   ) {
     this._panel = panel;
     this._update(iconPath, scriptSrc, title, text, diagramType);
-    this._panel.onDidDispose(() => () => {
-      DiagramPanel.currentPanel = undefined;
-      setPreviewActiveContext(false);
+    this._panel.onDidDispose(() => {
       this._panel.dispose();
+      setPreviewActiveContext(false);
+      DiagramPanel.activePanel = null;
     });
     this._panel.onDidChangeViewState(({ webviewPanel }) => {
       setPreviewActiveContext(webviewPanel.active);
@@ -440,31 +471,6 @@ class DiagramPanel {
       text,
       diagramType
     );
-  }
-
-  private _addTextChangedEvent(editor: vscode.TextEditor | undefined) {
-    let updated: null | NodeJS.Timeout = null;
-    vscode.workspace.onDidChangeTextDocument((e) => {
-      if (editor) {
-        if (
-          e &&
-          e.document &&
-          editor &&
-          editor.document &&
-          e.document.uri === editor.document.uri
-        ) {
-          if (updated) {
-            clearTimeout(updated);
-          }
-          updated = setTimeout(() => {
-            this._panel.webview.postMessage({
-              command: "textChanged",
-              text: e.document.getText(),
-            });
-          }, 300);
-        }
-      }
-    });
   }
 
   private getWebviewContent(
