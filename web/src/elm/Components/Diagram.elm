@@ -26,6 +26,7 @@ import Models.Views.ER as ErDiagramModel
 import Models.Views.EmpathyMap as EmpathyMapModel
 import Models.Views.FourLs as FourLsModel
 import Models.Views.FreeForm as FreeFormModel
+import Models.Views.GanttChart as GanttChartModel
 import Models.Views.Kanban as KanbanModel
 import Models.Views.Kpt as KptModel
 import Models.Views.OpportunityCanvas as OpportunityCanvasModel
@@ -585,8 +586,8 @@ updateDiagram ( width, height ) base text =
                 Freeform ->
                     Diagram.FreeForm <| FreeFormModel.from items
 
-                _ ->
-                    Diagram.Items items
+                GanttChart ->
+                    Diagram.GanttChart <| GanttChartModel.from items
 
         newModel =
             { base | items = items, data = data }

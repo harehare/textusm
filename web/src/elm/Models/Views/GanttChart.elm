@@ -1,6 +1,8 @@
-module Models.Views.GanttChart exposing (GanttChart, from)
+module Models.Views.GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..), from, sectionSchedule)
 
+import Basics.Extra as BasicEx
 import Data.Item as Item exposing (Item, Items)
+import List
 import Maybe.Extra as MaybeEx
 import Time exposing (Posix)
 import Time.Extra as TimeEx exposing (Interval(..))
@@ -40,6 +42,36 @@ diff fromDate toDate =
     TimeEx.diff Day Time.utc fromDate toDate
 
 
+sectionSchedule : Section -> Schedule
+sectionSchedule (Section _ tasks) =
+    let
+        ( sectionFrom, sectionTo ) =
+            tasks
+                |> List.foldl
+                    (\task ( sf, st ) ->
+                        case task of
+                            Nothing ->
+                                ( sf, st )
+
+                            Just (Task _ (Schedule f t _)) ->
+                                ( if sf > Time.posixToMillis f then
+                                    Time.posixToMillis <| f
+
+                                  else
+                                    sf
+                                , if st < Time.posixToMillis t then
+                                    Time.posixToMillis <| t
+
+                                  else
+                                    st
+                                )
+                    )
+                    ( BasicEx.maxSafeInteger, 0 )
+                |> Tuple.mapBoth Time.millisToPosix Time.millisToPosix
+    in
+    Schedule sectionFrom sectionTo (diff sectionFrom sectionTo)
+
+
 from : Items -> Maybe GanttChart
 from items =
     let
@@ -67,7 +99,7 @@ sectionFromItems items =
                         |> Item.map taskFromItem
                         |> List.filter MaybeEx.isJust
             in
-            Section (Item.getText item) taskItems
+            Section (String.trim <| Item.getText item) taskItems
         )
         items
 
@@ -83,4 +115,4 @@ taskFromItem item =
                 |> Item.getText
                 |> DateUtils.extractDateValues
     in
-    Maybe.map (\( f, t ) -> Task (Item.getText item) (Schedule f t (diff f t))) schedule
+    Maybe.map (\( f, t ) -> Task (String.trim <| Item.getText item) (Schedule f t (diff f t))) schedule

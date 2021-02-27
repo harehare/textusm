@@ -2,13 +2,13 @@ module Views.Diagram.GanttChart exposing (view)
 
 import Constants
 import Data.FontSize as FontSize
-import Data.Item as Item exposing (Item)
 import Data.Position exposing (Position)
 import Data.Size exposing (Size)
 import Html
 import Html.Attributes as Attr
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
+import Models.Views.GanttChart as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Svg.Keyed as Keyed
@@ -26,35 +26,28 @@ sectionMargin =
 
 view : Model -> Svg Msg
 view model =
-    let
-        rootItem =
-            Item.head model.items |> Maybe.withDefault Item.new
-
-        items =
-            Item.unwrapChildren <| Item.getChildren rootItem
-
-        nodeCounts =
-            0
-                :: (items
-                        |> Item.map
-                            (\i ->
-                                if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i) then
-                                    0
-
-                                else
-                                    Item.getChildrenCount i // 2
-                            )
-                        |> ListEx.scanl1 (+)
-                   )
-
-        svgHeight =
-            (ListEx.last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + Item.length items * 2
-    in
-    case DateUtils.extractDateValues <| Item.getText rootItem of
-        Just ( from, to ) ->
+    case model.data of
+        Diagram.GanttChart (Just gantt) ->
             let
-                interval =
-                    TimeEx.diff Day Time.utc from to
+                (GanttChart (Schedule scheduleFrom scheduleTo interval) sections) =
+                    gantt
+
+                nodeCounts =
+                    0
+                        :: (sections
+                                |> List.map
+                                    (\(Section _ tasks) ->
+                                        if List.isEmpty tasks then
+                                            0
+
+                                        else
+                                            List.length tasks + 1
+                                    )
+                                |> ListEx.scanl1 (+)
+                           )
+
+                svgHeight =
+                    (ListEx.last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length sections
 
                 lineWidth =
                     Constants.itemMargin
@@ -63,20 +56,17 @@ view model =
             in
             Svg.g
                 []
-                (weekView model.settings
-                    ( from, to )
-                    :: daysView model.settings
-                        svgHeight
-                        ( from, to )
-                    :: (ListEx.zip nodeCounts (Item.unwrap items)
+                (weekView model.settings ( scheduleFrom, scheduleTo )
+                    :: daysView model.settings svgHeight ( scheduleFrom, scheduleTo )
+                    :: (ListEx.zip nodeCounts sections
                             |> List.concatMap
-                                (\( count, sectionItem ) ->
+                                (\( count, section ) ->
                                     let
-                                        taskItems =
-                                            Item.unwrapChildren <| Item.getChildren sectionItem
-
                                         posY =
                                             count * Constants.ganttItemSize
+
+                                        (Section _ tasks) =
+                                            section
                                     in
                                     headerSectionView
                                         model.settings
@@ -84,20 +74,25 @@ view model =
                                         ( 0
                                         , posY + Constants.ganttItemSize
                                         )
-                                        from
-                                        sectionItem
-                                        :: (taskItems
-                                                |> Item.indexedMap
-                                                    (\i taskItem ->
-                                                        [ sectionView
-                                                            model.settings
-                                                            ( lineWidth, Constants.ganttItemSize )
-                                                            ( 20
-                                                            , posY + ((i + 2) * Constants.ganttItemSize)
-                                                            )
-                                                            from
-                                                            taskItem
-                                                        ]
+                                        scheduleFrom
+                                        section
+                                        :: (tasks
+                                                |> List.indexedMap
+                                                    (\i task ->
+                                                        case task of
+                                                            Nothing ->
+                                                                []
+
+                                                            Just t ->
+                                                                [ sectionView
+                                                                    model.settings
+                                                                    ( lineWidth, Constants.ganttItemSize )
+                                                                    ( 20
+                                                                    , posY + ((i + 2) * Constants.ganttItemSize)
+                                                                    )
+                                                                    scheduleFrom
+                                                                    t
+                                                                ]
                                                     )
                                                 |> List.concat
                                            )
@@ -105,7 +100,7 @@ view model =
                        )
                 )
 
-        Nothing ->
+        _ ->
             Svg.g [] []
 
 
@@ -205,17 +200,11 @@ weekView settings ( from, to ) =
         )
 
 
-headerSectionView : Settings -> Size -> Position -> Posix -> Item -> Svg Msg
-headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from item =
+headerSectionView : Settings -> Size -> Position -> Posix -> Section -> Svg Msg
+headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from section =
     let
-        text =
-            Item.getChildren item
-                |> Item.unwrapChildren
-                |> Item.map
-                    (\childItem ->
-                        Item.getChildren childItem |> Item.unwrapChildren |> Item.head |> Maybe.withDefault Item.new |> Item.getText
-                    )
-                |> List.maximum
+        (Section title _) =
+            section
     in
     Svg.g []
         [ Svg.line
@@ -242,7 +231,7 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from i
                 , Attr.style "font-size" "11px"
                 , Attr.style "font-weight" "bold"
                 ]
-                [ Html.text <| Item.getText item ]
+                [ Html.text title ]
             ]
         , headerItemView settings
             ( settings.color.activity.backgroundColor
@@ -252,17 +241,14 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from i
             , posY
             )
             from
-            (Item.getText item)
-            (Item.withText (text |> Maybe.withDefault "") item)
+            title
+          <|
+            GanttChart.sectionSchedule section
         ]
 
 
-sectionView : Settings -> Size -> Position -> Posix -> Item -> Svg Msg
-sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from item =
-    let
-        childItem =
-            Item.getChildren item |> Item.unwrapChildren |> Item.head |> Maybe.withDefault Item.new
-    in
+sectionView : Settings -> Size -> Position -> Posix -> Task -> Svg Msg
+sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task title schedule) =
     Svg.g []
         [ Svg.line
             [ SvgAttr.x1 "0"
@@ -288,7 +274,7 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from item =
                 , Attr.style "font-size" "11px"
                 , Attr.style "font-weight" "bold"
                 ]
-                [ Html.text <| Item.getText item ]
+                [ Html.text title ]
             ]
         , itemView settings
             ( settings.color.task.backgroundColor
@@ -298,45 +284,27 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from item =
             , posY
             )
             from
-            (Item.getText item)
-            childItem
+            title
+            schedule
         ]
 
 
-itemView : Settings -> ( String, String ) -> Position -> Posix -> String -> Item -> Svg Msg
-itemView settings colour ( posX, posY ) baseFrom text item =
+itemView : Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
+itemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     let
-        values =
-            DateUtils.extractDateValues <| Item.getText item
+        interval =
+            TimeEx.diff Day Time.utc baseFrom from
     in
-    case values of
-        Just ( from, to ) ->
-            let
-                interval =
-                    TimeEx.diff Day Time.utc baseFrom from
-            in
-            taskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
-
-        Nothing ->
-            Svg.g [] []
+    taskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
 
 
-headerItemView : Settings -> ( String, String ) -> Position -> Posix -> String -> Item -> Svg Msg
-headerItemView settings colour ( posX, posY ) baseFrom text item =
+headerItemView : Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
+headerItemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     let
-        values =
-            DateUtils.extractDateValues <| Item.getText item
+        interval =
+            TimeEx.diff Day Time.utc baseFrom from
     in
-    case values of
-        Just ( from, to ) ->
-            let
-                interval =
-                    TimeEx.diff Day Time.utc baseFrom from
-            in
-            headerTaskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
-
-        Nothing ->
-            Svg.g [] []
+    headerTaskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
 
 
 taskView : Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
@@ -361,13 +329,13 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
             [ SvgAttr.width <| String.fromInt <| svgWidth
             , SvgAttr.height <| String.fromInt <| Constants.ganttItemSize - 6
             , SvgAttr.x "0"
-            , SvgAttr.y "5"
+            , SvgAttr.y "3"
             , SvgAttr.fill backgroundColor
             , SvgAttr.rx "3"
             , SvgAttr.ry "3"
             ]
             []
-        , Views.text settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour FontSize.default text
+        , Views.text settings ( svgWidth, -3 ) ( textWidth, Constants.ganttItemSize ) colour FontSize.default text
         ]
 
 
@@ -435,5 +403,5 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
             , SvgAttr.fill backgroundColor
             ]
             []
-        , Views.text settings ( svgWidth, 0 ) ( textWidth, Constants.ganttItemSize ) colour FontSize.default text
+        , Views.text settings ( svgWidth, -3 ) ( textWidth, Constants.ganttItemSize ) colour FontSize.default text
         ]

@@ -56,6 +56,7 @@ import Models.Views.ER as ER exposing (ErDiagram)
 import Models.Views.EmpathyMap exposing (EmpathyMap)
 import Models.Views.FourLs exposing (FourLs)
 import Models.Views.FreeForm exposing (FreeForm)
+import Models.Views.GanttChart exposing (GanttChart)
 import Models.Views.Kanban exposing (Kanban)
 import Models.Views.Kpt exposing (Kpt)
 import Models.Views.OpportunityCanvas exposing (OpportunityCanvas)
@@ -168,6 +169,7 @@ type Data
     | ErDiagram ErDiagram
     | SequenceDiagram SequenceDiagram
     | FreeForm FreeForm
+    | GanttChart (Maybe GanttChart)
 
 
 type ContextMenu
