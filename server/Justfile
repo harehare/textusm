@@ -8,3 +8,6 @@ generate:
 
 test:
 	go test ./...
+
+lint:
+	staticcheck github.com/harehare/textusm
