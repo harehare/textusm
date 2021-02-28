@@ -3,18 +3,17 @@ module Utils.Diagram exposing (getCanvasHeight, getCanvasSize, getSpacePrefix)
 import Constants
 import Data.Item as Item exposing (Items)
 import Http exposing (Error(..))
-import List.Extra exposing (last, scanl1, takeWhile)
+import List.Extra as ListEx
 import Models.Diagram as DiagramModel
 import Models.Views.ER as ER exposing (Table(..))
 import Models.Views.FreeForm as FreeForm
+import Models.Views.GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
 import Models.Views.Kanban as Kanban
 import Models.Views.SequenceDiagram as SequenceDiagram
 import Models.Views.UserStoryMap as UserStoryMap
 import TextUSM.Enum.Diagram as Diagram
-import Time exposing (Month(..), utc)
-import Time.Extra exposing (Interval(..), diff)
+import Time exposing (Month(..))
 import Tuple
-import Utils.Date as DateUtils
 
 
 getCanvasHeight : DiagramModel.Settings -> Items -> Int
@@ -170,42 +169,32 @@ getCanvasSize model =
                             ( 0, 0 )
 
                 Diagram.GanttChart ->
-                    let
-                        rootItem =
-                            Item.head model.items
-                                |> Maybe.withDefault Item.new
-
-                        children =
-                            rootItem
-                                |> Item.getChildren
-                                |> Item.unwrapChildren
-
-                        nodeCounts =
-                            0
-                                :: (children
-                                        |> Item.map
-                                            (\i ->
-                                                if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i) then
-                                                    0
-
-                                                else
-                                                    Item.getChildrenCount i // 2
-                                            )
-                                        |> scanl1 (+)
-                                   )
-
-                        svgHeight =
-                            (last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + Item.length children * 2
-                    in
-                    case DateUtils.extractDateValues <| Item.getText rootItem of
-                        Just ( from, to ) ->
+                    case model.data of
+                        DiagramModel.GanttChart (Just gantt) ->
                             let
-                                interval =
-                                    diff Day utc from to
+                                (GanttChart (Schedule _ _ interval) sections) =
+                                    gantt
+
+                                nodeCounts =
+                                    0
+                                        :: (sections
+                                                |> List.map
+                                                    (\(Section _ tasks) ->
+                                                        if List.isEmpty tasks then
+                                                            0
+
+                                                        else
+                                                            List.length tasks + 1
+                                                    )
+                                                |> ListEx.scanl1 (+)
+                                           )
+
+                                svgHeight =
+                                    (ListEx.last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length sections
                             in
                             ( Constants.leftMargin + 20 + Constants.ganttItemSize + interval * Constants.ganttItemSize, svgHeight + Constants.ganttItemSize )
 
-                        Nothing ->
+                        _ ->
                             ( 0, 0 )
 
                 Diagram.Kanban ->
@@ -280,7 +269,7 @@ getSpacePrefix : String -> String
 getSpacePrefix text =
     (text
         |> String.toList
-        |> takeWhile (\c -> c == ' ')
+        |> ListEx.takeWhile (\c -> c == ' ')
         |> List.length
         |> String.repeat
     )

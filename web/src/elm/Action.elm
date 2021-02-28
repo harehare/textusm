@@ -4,7 +4,7 @@ import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
-import Data.Session as Session
+import Data.Session as Session exposing (Session)
 import Data.Text as Text
 import Data.Title as Title
 import GraphQL.Request as Request
@@ -44,37 +44,37 @@ stopProgress model =
     Return.singleton { model | progress = False }
 
 
-closeNotification : Model -> Return Msg Model
-closeNotification model =
-    Return.return model (Utils.delay 3000 HandleCloseNotification)
+closeNotification : Return.ReturnF Msg Model
+closeNotification =
+    Return.command (Utils.delay 3000 HandleCloseNotification)
 
 
-showWarningMessage : String -> Model -> Return Msg Model
-showWarningMessage msg model =
-    Return.return model (Task.perform identity <| Task.succeed <| ShowNotification <| Warning msg)
-        |> Return.andThen closeNotification
+showWarningMessage : String -> Return.ReturnF Msg Model
+showWarningMessage msg =
+    Return.command (Task.perform identity <| Task.succeed <| ShowNotification <| Warning msg)
+        >> closeNotification
 
 
 showInfoMessage : String -> Model -> Return Msg Model
 showInfoMessage msg model =
     Return.return model (Task.perform identity <| Task.succeed <| ShowNotification <| Info msg)
-        |> Return.andThen closeNotification
+        |> closeNotification
 
 
-showErrorMessage : String -> Model -> Return Msg Model
-showErrorMessage msg model =
-    Return.return model (Task.perform identity <| Task.succeed <| ShowNotification <| Error msg)
-        |> Return.andThen closeNotification
+showErrorMessage : String -> Return.ReturnF Msg Model
+showErrorMessage msg =
+    Return.command (Task.perform identity <| Task.succeed <| ShowNotification <| Error msg)
+        >> closeNotification
 
 
-openFullscreen : Model -> Return Msg Model
-openFullscreen model =
-    Return.return model (Ports.openFullscreen ())
+openFullscreen : Return.ReturnF Msg Model
+openFullscreen =
+    Return.command <| Ports.openFullscreen ()
 
 
-closeFullscreen : Model -> Return Msg Model
-closeFullscreen model =
-    Return.return model (Ports.closeFullscreen ())
+closeFullscreen : Return.ReturnF Msg Model
+closeFullscreen =
+    Return.command <| Ports.closeFullscreen ()
 
 
 closeMenu : Model -> Return Msg Model
@@ -82,24 +82,24 @@ closeMenu model =
     Return.singleton { model | openMenu = Nothing }
 
 
-saveDiagram : DiagramItem -> Model -> Return Msg Model
-saveDiagram item model =
-    Return.return model (Ports.saveDiagram <| DiagramItem.encoder item)
+saveDiagram : DiagramItem -> Return.ReturnF Msg Model
+saveDiagram item =
+    Return.command <| (Ports.saveDiagram <| DiagramItem.encoder item)
 
 
-saveToLocal : DiagramItem -> Model -> Return Msg Model
-saveToLocal item model =
-    Return.return model (Ports.saveDiagram <| DiagramItem.encoder { item | isRemote = False })
+saveToLocal : DiagramItem -> Return.ReturnF Msg Model
+saveToLocal item =
+    Return.command <| (Ports.saveDiagram <| DiagramItem.encoder { item | isRemote = False })
 
 
-saveToRemote : DiagramItem -> Model -> Return Msg Model
-saveToRemote diagram model =
+saveToRemote : DiagramItem -> String -> Session -> Return.ReturnF Msg Model
+saveToRemote diagram apiRoot session =
     let
         saveTask =
-            Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram) diagram.isPublic
+            Request.save { url = apiRoot, idToken = Session.getIdToken session } (DiagramItem.toInputItem diagram) diagram.isPublic
                 |> Task.mapError (\_ -> diagram)
     in
-    Return.return model (Task.attempt SaveToRemoteCompleted saveTask)
+    Return.command <| Task.attempt SaveToRemoteCompleted saveTask
 
 
 setFocus : String -> Model -> Return Msg Model
@@ -110,19 +110,19 @@ setFocus id model =
         )
 
 
-setFocusEditor : Model -> Return Msg Model
-setFocusEditor model =
-    Return.return model (Ports.focusEditor ())
+setFocusEditor : Return.ReturnF Msg Model
+setFocusEditor =
+    Return.command <| Ports.focusEditor ()
 
 
-pushUrl : String -> Model -> Return Msg Model
+pushUrl : String -> Model -> Return.ReturnF Msg Model
 pushUrl url model =
-    Return.return model (Nav.pushUrl model.key url)
+    Return.command <| Nav.pushUrl model.key url
 
 
-updateIdToken : Model -> Return Msg Model
-updateIdToken model =
-    Return.return model (Ports.refreshToken ())
+updateIdToken : Return.ReturnF Msg Model
+updateIdToken =
+    Return.command <| Ports.refreshToken ()
 
 
 switchPage : Page -> Model -> Return Msg Model
@@ -185,9 +185,9 @@ setTitle title model =
     Return.singleton { model | title = Title.fromString <| title }
 
 
-startEditTitle : Model -> Return Msg Model
-startEditTitle model =
-    Return.return model <| Task.perform identity <| Task.succeed StartEditTitle
+startEditTitle : Return.ReturnF Msg Model
+startEditTitle =
+    Return.command <| Task.perform identity <| Task.succeed StartEditTitle
 
 
 setCurrentDiagram : Maybe DiagramItem -> Model -> Return Msg Model
@@ -215,6 +215,6 @@ setDiagramType type_ model =
         }
 
 
-historyBack : Model -> Return Msg Model
-historyBack model =
-    Return.return model <| Nav.back model.key 1
+historyBack : Nav.Key -> Return.ReturnF Msg Model
+historyBack key =
+    Return.command <| Nav.back key 1
