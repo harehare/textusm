@@ -29,6 +29,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	gqlHandler "github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"google.golang.org/api/option"
 )
 
@@ -90,7 +91,10 @@ func Run() int {
 		negroni.HandlerFunc(middleware.LoggingMiddleware),
 		negroni.Wrap(root)))
 	subRouter := root.PathPrefix("/").Subrouter()
-	subRouter.Methods("POST").Path("/graphql").Handler(gqlHandler.New(NewExecutableSchema(Config{Resolvers: &Resolver{service: service}})))
+	g := gqlHandler.New(NewExecutableSchema(Config{Resolvers: &Resolver{service: service}}))
+	g.AddTransport(transport.Options{})
+	g.AddTransport(transport.POST{})
+	subRouter.Methods("POST").Path("/graphql").Handler(g)
 
 	apiBase := mux.NewRouter()
 	r.PathPrefix("/api").Handler(negroni.New(
