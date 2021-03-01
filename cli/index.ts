@@ -183,7 +183,7 @@ const program = createCommand();
 // @ts-ignore
 const options = program
   // @ts-ignore
-  .version("0.6.11")
+  .version("0.6.13")
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file.")
   .option("-w, --width <width>", "Width of the page. Optional. Default: 1024.")
@@ -268,7 +268,7 @@ const writeResult = (output: string | undefined, result: string): void => {
       : diagramType
       ? diagramMap[diagramType].height
       : config.size.height;
-    page.setViewport({
+    await page.setViewport({
       width: svgWidth,
       height: svgHeight,
     });
