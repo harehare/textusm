@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	shareCollection = "items"
+	shareCollection = "share"
 )
 
 type FirestoreShareRepository struct {
