@@ -1,13 +1,29 @@
 alias g := generate
 
+go := "go"
+module := "github.com/harehare/textusm"
+run := go + " run"
+fmt := go + " fmt"
+test := go + " test"
+generate := go + " generate"
+lint := "staticcheck"
+main := "cmd/main.go"
+target := "./..."
+
+setup:
+  {{ go }} get honnef.co/go/tools/cmd/staticcheck
+
 run:
-	go run cmd/main.go
+	{{ run }} {{ main }}
 
 generate:
-	go generate ./...
+	{{ generate }} {{ target }}
 
 test:
-	go test ./...
+	{{ test }} {{ target }}
+
+fmt:
+  {{ fmt }}
 
 lint:
-	staticcheck github.com/harehare/textusm
+	{{ lint }} {{ module }}

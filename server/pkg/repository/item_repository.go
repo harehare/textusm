@@ -6,7 +6,7 @@ import (
 	"github.com/harehare/textusm/pkg/item"
 )
 
-type Repository interface {
+type ItemRepository interface {
 	FindByID(ctx context.Context, userID, itemID string, isPublic bool) (*item.Item, error)
 	Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*item.Item, error)
 	Save(ctx context.Context, userID string, item *item.Item, isPublic bool) (*item.Item, error)

@@ -18,15 +18,15 @@ const (
 	usersCollection  = "users"
 )
 
-type FirestoreRepository struct {
+type FirestoreItemRepository struct {
 	client *firestore.Client
 }
 
-func NewFirestoreRepository(client *firestore.Client) Repository {
-	return &FirestoreRepository{client: client}
+func NewFirestoreItemRepository(client *firestore.Client) ItemRepository {
+	return &FirestoreItemRepository{client: client}
 }
 
-func (r *FirestoreRepository) FindByID(ctx context.Context, userID, itemID string, isPublic bool) (*item.Item, error) {
+func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID, itemID string, isPublic bool) (*item.Item, error) {
 	var (
 		fields *firestore.DocumentSnapshot
 		err    error
@@ -51,7 +51,7 @@ func (r *FirestoreRepository) FindByID(ctx context.Context, userID, itemID strin
 	return &i, nil
 }
 
-func (r *FirestoreRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*item.Item, error) {
+func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*item.Item, error) {
 	var (
 		items []*item.Item
 		iter  *firestore.DocumentIterator
@@ -81,7 +81,7 @@ func (r *FirestoreRepository) Find(ctx context.Context, userID string, offset, l
 	return items, nil
 }
 
-func (r *FirestoreRepository) Save(ctx context.Context, userID string, item *item.Item, isPublic bool) (*item.Item, error) {
+func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item *item.Item, isPublic bool) (*item.Item, error) {
 	if item.ID == "" {
 		uuidv4 := uuid.NewV4()
 		item.ID = uuidv4.String()
@@ -102,7 +102,7 @@ func (r *FirestoreRepository) Save(ctx context.Context, userID string, item *ite
 	return item, nil
 }
 
-func (r *FirestoreRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) (err error) {
+func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) (err error) {
 	if isPublic {
 		_, err = r.client.Collection(publicCollection).Doc(itemID).Delete(ctx)
 	} else {

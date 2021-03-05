@@ -71,8 +71,9 @@ func Run() int {
 		return 1
 	}
 
-	repo := repository.NewFirestoreRepository(firestore)
-	service := service.NewService(repo)
+	repo := repository.NewFirestoreItemRepository(firestore)
+	shareRepo := repository.NewFirestoreShareRepository(firestore)
+	service := service.NewService(repo, shareRepo)
 	r := mux.NewRouter()
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"https://app.textusm.com", "http://localhost:3000"},

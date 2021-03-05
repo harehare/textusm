@@ -6,7 +6,7 @@ type Code string
 
 const (
 	NotFound        Code = "NotFound"
-	NoAuthorization      = "NoAuthorization"
+	NoAuthorization Code = "NoAuthorization"
 	UnKnown         Code = "UnKnown"
 )
 

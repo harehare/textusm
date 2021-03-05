@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"errors"
 	"os"
 
 	e "github.com/harehare/textusm/pkg/error"
@@ -12,14 +15,17 @@ import (
 )
 
 var encryptKey = []byte(os.Getenv("ENCRYPT_KEY"))
+var shareEncryptKey = []byte(os.Getenv("SHARE_ENCRYPT_KEY"))
 
 type Service struct {
-	repo repository.Repository
+	repo      repository.ItemRepository
+	shareRepo repository.ShareRepository
 }
 
-func NewService(r repository.Repository) *Service {
+func NewService(r repository.ItemRepository, s repository.ShareRepository) *Service {
 	return &Service{
-		repo: r,
+		repo:      r,
+		shareRepo: s,
 	}
 }
 
@@ -47,7 +53,6 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 		resultItems[i] = item
 	}
 
-	log.Info().Str("request_id", requestID).Msg("End find diagrams")
 	return resultItems, nil
 }
 
@@ -68,7 +73,6 @@ func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool)
 	}
 
 	item.Text = text
-	log.Info().Str("request_id", requestID).Msg("End Find diagram")
 	return item, nil
 }
 
@@ -116,7 +120,6 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 	item.Text = currentText
 	resultItem.IsPublic = isPublic
 
-	log.Info().Str("request_id", requestID).Msg("End save diagram")
 	return resultItem, err
 }
 
@@ -139,11 +142,71 @@ func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic boo
 		if err != nil {
 			return err
 		}
-		log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Delete public diagram")
 	}
 
-	log.Info().Str("request_id", requestID).Msg("End delete public diagram")
 	return s.repo.Delete(ctx, userID, itemID, false)
+}
+
+func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error) {
+	requestID := values.GetRequestID(ctx)
+	log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Start bookmark")
+	diagramItem, err := s.FindDiagram(ctx, itemID, false)
+
+	if err != nil {
+		return nil, err
+	}
+	diagramItem.IsBookmark = isBookmark
+	return s.SaveDiagram(ctx, diagramItem, false)
+}
+
+func (s *Service) FindShareItem(ctx context.Context, hashKey string) (*item.Item, error) {
+	requestID := values.GetRequestID(ctx)
+	log.Info().Str("request_id", requestID).Str("hash_key", hashKey).Msg("Start share diagram")
+	userID := values.GetUID(ctx)
+
+	if userID == "" {
+		return nil, e.NoAuthorizationError(errors.New("Not Authorization"))
+	}
+
+	item, err := s.shareRepo.FindByID(ctx, hashKey)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return item, nil
+}
+
+func (s *Service) Share(ctx context.Context, itemID string) (*string, error) {
+	requestID := values.GetRequestID(ctx)
+	log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Start share diagram")
+	userID := values.GetUID(ctx)
+
+	if userID == "" {
+		return nil, e.NoAuthorizationError(errors.New("Not Authorization"))
+	}
+
+	hash := sha256.Sum256([]byte(itemID))
+	mac := hmac.New(sha256.New, hash[:])
+	_, err := mac.Write([]byte(shareEncryptKey))
+
+	if err != nil {
+		return nil, err
+	}
+
+	item, err := s.repo.FindByID(ctx, userID, itemID, false)
+
+	if err != nil {
+		return nil, err
+	}
+
+	hashKey := string(mac.Sum(nil))
+
+	if err := s.shareRepo.Save(ctx, hashKey, item); err != nil {
+		return nil, err
+	}
+
+	return &hashKey, nil
 }
 
 func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID, ownerUserID string) (bool, error) {

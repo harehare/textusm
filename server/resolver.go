@@ -70,13 +70,7 @@ func (r *mutationResolver) Delete(ctx context.Context, itemID string, isPublic *
 }
 
 func (r *mutationResolver) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error) {
-	diagramItem, err := r.service.FindDiagram(ctx, itemID, false)
-
-	if err != nil {
-		return nil, err
-	}
-	diagramItem.IsBookmark = isBookmark
-	return r.service.SaveDiagram(ctx, diagramItem, false)
+	return r.service.Bookmark(ctx, itemID, isBookmark)
 }
 
 func (r *queryResolver) Item(ctx context.Context, id string, isPublic *bool) (*item.Item, error) {

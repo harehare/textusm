@@ -9,32 +9,47 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type MockRepository struct {
+type MockItemRepository struct {
 	mock.Mock
 }
 
-func (m *MockRepository) FindByID(ctx context.Context, userID, itemID string, isPublic bool) (*item.Item, error) {
+type MockShareRepository struct {
+	mock.Mock
+}
+
+func (m *MockItemRepository) FindByID(ctx context.Context, userID, itemID string, isPublic bool) (*item.Item, error) {
 	ret := m.Called(ctx, userID, itemID, isPublic)
 	return ret.Get(0).(*item.Item), ret.Error(1)
 }
 
-func (m *MockRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*item.Item, error) {
+func (m *MockItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*item.Item, error) {
 	ret := m.Called(ctx, userID, offset, limit, isPublic)
 	return ret.Get(0).([]*item.Item), ret.Error(1)
 }
 
-func (m *MockRepository) Save(ctx context.Context, userID string, i *item.Item, isPublic bool) (*item.Item, error) {
+func (m *MockItemRepository) Save(ctx context.Context, userID string, i *item.Item, isPublic bool) (*item.Item, error) {
 	ret := m.Called(ctx, userID, i, isPublic)
 	return ret.Get(0).(*item.Item), ret.Error(1)
 }
 
-func (m *MockRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) error {
+func (m *MockItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) error {
 	ret := m.Called(ctx, userID, itemID, isPublic)
 	return ret.Error(0)
 }
 
+func (m *MockShareRepository) FindByID(ctx context.Context, hashKey string) (*item.Item, error) {
+	ret := m.Called(ctx, hashKey)
+	return ret.Get(0).(*item.Item), ret.Error(1)
+}
+
+func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *item.Item) error {
+	ret := m.Called(ctx, hashKey, item)
+	return ret.Error(0)
+}
+
 func TestFindDiagrams(t *testing.T) {
-	mockRepo := new(MockRepository)
+	mockItemRepo := new(MockItemRepository)
+	mockShareRepo := new(MockShareRepository)
 	ctx := context.Background()
 	ctx = values.WithUID(ctx, "userID")
 
@@ -49,9 +64,9 @@ func TestFindDiagrams(t *testing.T) {
 	i := item.Item{ID: "id", Text: text}
 	items := []*item.Item{&i}
 
-	mockRepo.On("Find", ctx, "userID", 0, 10, false).Return(items, nil)
+	mockItemRepo.On("Find", ctx, "userID", 0, 10, false).Return(items, nil)
 
-	service := NewService(mockRepo)
+	service := NewService(mockItemRepo, mockShareRepo)
 	diagrams, err := service.FindDiagrams(ctx, 0, 10, false)
 
 	if err != nil {
@@ -66,7 +81,8 @@ func TestFindDiagrams(t *testing.T) {
 }
 
 func TestFindDiagram(t *testing.T) {
-	mockRepo := new(MockRepository)
+	mockItemRepo := new(MockItemRepository)
+	mockShareRepo := new(MockShareRepository)
 	ctx := context.Background()
 	ctx = values.WithUID(ctx, "userID")
 
@@ -80,9 +96,9 @@ func TestFindDiagram(t *testing.T) {
 
 	item := item.Item{ID: "id", Text: text}
 
-	mockRepo.On("FindByID", ctx, "userID", "testID", false).Return(&item, nil)
+	mockItemRepo.On("FindByID", ctx, "userID", "testID", false).Return(&item, nil)
 
-	service := NewService(mockRepo)
+	service := NewService(mockItemRepo, mockShareRepo)
 	diagram, err := service.FindDiagram(ctx, "testID", false)
 
 	if err != nil || diagram == nil || diagram.Text != baseText {
@@ -91,16 +107,17 @@ func TestFindDiagram(t *testing.T) {
 }
 
 func TestSaveDiagram(t *testing.T) {
-	mockRepo := new(MockRepository)
+	mockItemRepo := new(MockItemRepository)
+	mockShareRepo := new(MockShareRepository)
 	ctx := context.Background()
 	ctx = values.WithUID(ctx, "userID")
 
 	baseText := "test"
 	item := item.Item{ID: "", Text: baseText}
 
-	mockRepo.On("Save", ctx, "userID", &item, false).Return(&item, nil)
+	mockItemRepo.On("Save", ctx, "userID", &item, false).Return(&item, nil)
 
-	service := NewService(mockRepo)
+	service := NewService(mockItemRepo, mockShareRepo)
 	diagram, err := service.SaveDiagram(ctx, &item, false)
 
 	if err != nil || diagram == nil || diagram.Text != baseText {
@@ -109,13 +126,14 @@ func TestSaveDiagram(t *testing.T) {
 }
 
 func TestDeleteDiagram(t *testing.T) {
-	mockRepo := new(MockRepository)
+	mockItemRepo := new(MockItemRepository)
+	mockShareRepo := new(MockShareRepository)
 	ctx := context.Background()
 	ctx = values.WithUID(ctx, "userID")
 
-	mockRepo.On("Delete", ctx, "userID", "testID", false).Return(nil)
+	mockItemRepo.On("Delete", ctx, "userID", "testID", false).Return(nil)
 
-	service := NewService(mockRepo)
+	service := NewService(mockItemRepo, mockShareRepo)
 	err := service.DeleteDiagram(ctx, "testID", false)
 
 	if err != nil {
