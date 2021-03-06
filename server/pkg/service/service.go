@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"os"
 
@@ -14,8 +15,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var encryptKey = []byte(os.Getenv("ENCRYPT_KEY"))
-var shareEncryptKey = []byte(os.Getenv("SHARE_ENCRYPT_KEY"))
+var (
+	encryptKey      = []byte(os.Getenv("ENCRYPT_KEY"))
+	shareEncryptKey = []byte(os.Getenv("SHARE_ENCRYPT_KEY"))
+)
 
 type Service struct {
 	repo      repository.ItemRepository
@@ -186,9 +189,8 @@ func (s *Service) Share(ctx context.Context, itemID string) (*string, error) {
 		return nil, e.NoAuthorizationError(errors.New("Not Authorization"))
 	}
 
-	hash := sha256.Sum256([]byte(itemID))
-	mac := hmac.New(sha256.New, hash[:])
-	_, err := mac.Write([]byte(shareEncryptKey))
+	mac := hmac.New(sha256.New, shareEncryptKey)
+	_, err := mac.Write([]byte(itemID))
 
 	if err != nil {
 		return nil, err
@@ -200,7 +202,7 @@ func (s *Service) Share(ctx context.Context, itemID string) (*string, error) {
 		return nil, err
 	}
 
-	hashKey := string(mac.Sum(nil))
+	hashKey := hex.EncodeToString(mac.Sum(nil))
 
 	if err := s.shareRepo.Save(ctx, hashKey, item); err != nil {
 		return nil, err

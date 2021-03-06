@@ -81,6 +81,11 @@ func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBo
 	return r.service.FindDiagrams(ctx, *offset, *limit, *isPublic)
 }
 
+func (r *queryResolver) Share(ctx context.Context, id string) (string, error) {
+	hashKey, err := r.service.Share(ctx, id)
+	return *hashKey, err
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 

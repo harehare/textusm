@@ -41,6 +41,7 @@ type Query {
     isBookmark: Boolean = False
     isPublic: Boolean = False
   ): [Item]!
+  share(id: String!): String!
 }
 
 input InputItem {

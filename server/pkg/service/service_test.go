@@ -130,7 +130,6 @@ func TestDeleteDiagram(t *testing.T) {
 	mockShareRepo := new(MockShareRepository)
 	ctx := context.Background()
 	ctx = values.WithUID(ctx, "userID")
-
 	mockItemRepo.On("Delete", ctx, "userID", "testID", false).Return(nil)
 
 	service := NewService(mockItemRepo, mockShareRepo)
@@ -138,5 +137,43 @@ func TestDeleteDiagram(t *testing.T) {
 
 	if err != nil {
 		t.Fatal("failed DeleteDiagram")
+	}
+}
+
+func TestShare(t *testing.T) {
+	mockItemRepo := new(MockItemRepository)
+	mockShareRepo := new(MockShareRepository)
+	ctx := context.Background()
+	ctx = values.WithUID(ctx, "userID")
+
+	tests := []struct {
+		key     string
+		id      string
+		hashKey string
+	}{
+		{
+			key:     "9cbe21a8914986ffd301e3403e14b61b52f7c348b0e3c65b762ae79118b4a4bc",
+			id:      "testID",
+			hashKey: "39fec4b1b30fc71f52616e4120ee953cff68fd0d0a4d37560a0567ae2941916b",
+		},
+		{
+			key:     "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+			id:      "testID2",
+			hashKey: "1cbe80c449480735b0073dd20c435f8c6eb9950ae5c2d4fb7267c1b0ab5ad072",
+		},
+	}
+
+	for _, test := range tests {
+		shareEncryptKey = []byte(test.key)
+		item := item.Item{ID: test.id, Text: ""}
+		mockItemRepo.On("FindByID", ctx, "userID", test.id, false).Return(&item, nil)
+		mockShareRepo.On("Save", ctx, test.hashKey, &item).Return(nil)
+
+		service := NewService(mockItemRepo, mockShareRepo)
+		hashKey, err := service.Share(ctx, test.id)
+
+		if err != nil || *hashKey != test.hashKey {
+			t.Fatal("failed FindDiagram")
+		}
 	}
 }

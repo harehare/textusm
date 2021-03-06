@@ -78,7 +78,7 @@ func Run() int {
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"https://app.textusm.com", "http://localhost:3000"},
 		AllowedMethods: []string{"POST"},
-		AllowedHeaders: []string{"Content-Type", "Authorization"},
+		AllowedHeaders: []string{"content-type", "Authorization"},
 	})
 
 	r.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {

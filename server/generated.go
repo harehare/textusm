@@ -66,6 +66,7 @@ type ComplexityRoot struct {
 	Query struct {
 		Item  func(childComplexity int, id string, isPublic *bool) int
 		Items func(childComplexity int, offset *int, limit *int, isBookmark *bool, isPublic *bool) int
+		Share func(childComplexity int, id string) int
 	}
 }
 
@@ -77,6 +78,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Item(ctx context.Context, id string, isPublic *bool) (*item.Item, error)
 	Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*item.Item, error)
+	Share(ctx context.Context, id string) (string, error)
 }
 
 type executableSchema struct {
@@ -224,6 +226,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Items(childComplexity, args["offset"].(*int), args["limit"].(*int), args["isBookmark"].(*bool), args["isPublic"].(*bool)), true
 
+	case "Query.share":
+		if e.complexity.Query.Share == nil {
+			break
+		}
+
+		args, err := ec.field_Query_share_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Share(childComplexity, args["id"].(string)), true
+
 	}
 	return 0, false
 }
@@ -331,6 +345,7 @@ type Query {
     isBookmark: Boolean = False
     isPublic: Boolean = False
   ): [Item]!
+  share(id: String!): String!
 }
 
 input InputItem {
@@ -507,6 +522,21 @@ func (ec *executionContext) field_Query_items_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["isPublic"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_share_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1094,6 +1124,48 @@ func (ec *executionContext) _Query_items(ctx context.Context, field graphql.Coll
 	res := resTmp.([]*item.Item)
 	fc.Result = res
 	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_share(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_share_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Share(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2477,6 +2549,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_items(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "share":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_share(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
