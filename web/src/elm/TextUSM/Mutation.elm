@@ -38,16 +38,16 @@ save :
     -> SaveRequiredArguments
     -> SelectionSet decodesTo TextUSM.Object.Item
     -> SelectionSet decodesTo RootMutation
-save fillInOptionals requiredArgs object_ =
+save fillInOptionals____ requiredArgs____ object____ =
     let
-        filledInOptionals =
-            fillInOptionals { isPublic = Absent }
+        filledInOptionals____ =
+            fillInOptionals____ { isPublic = Absent }
 
-        optionalArgs =
-            [ Argument.optional "isPublic" filledInOptionals.isPublic Encode.bool ]
+        optionalArgs____ =
+            [ Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
                 |> List.filterMap identity
     in
-    Object.selectionForCompositeField "save" (optionalArgs ++ [ Argument.required "input" requiredArgs.input TextUSM.InputObject.encodeInputItem ]) object_ identity
+    Object.selectionForCompositeField "save" (optionalArgs____ ++ [ Argument.required "input" requiredArgs____.input TextUSM.InputObject.encodeInputItem ]) object____ identity
 
 
 type alias DeleteOptionalArguments =
@@ -69,16 +69,16 @@ delete :
     -> DeleteRequiredArguments
     -> SelectionSet decodesTo TextUSM.Object.Item
     -> SelectionSet (Maybe decodesTo) RootMutation
-delete fillInOptionals requiredArgs object_ =
+delete fillInOptionals____ requiredArgs____ object____ =
     let
-        filledInOptionals =
-            fillInOptionals { isPublic = Absent }
+        filledInOptionals____ =
+            fillInOptionals____ { isPublic = Absent }
 
-        optionalArgs =
-            [ Argument.optional "isPublic" filledInOptionals.isPublic Encode.bool ]
+        optionalArgs____ =
+            [ Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
                 |> List.filterMap identity
     in
-    Object.selectionForCompositeField "delete" (optionalArgs ++ [ Argument.required "itemID" requiredArgs.itemID Encode.string ]) object_ (identity >> Decode.nullable)
+    Object.selectionForCompositeField "delete" (optionalArgs____ ++ [ Argument.required "itemID" requiredArgs____.itemID Encode.string ]) object____ (identity >> Decode.nullable)
 
 
 type alias BookmarkRequiredArguments =
@@ -97,5 +97,5 @@ bookmark :
     BookmarkRequiredArguments
     -> SelectionSet decodesTo TextUSM.Object.Item
     -> SelectionSet (Maybe decodesTo) RootMutation
-bookmark requiredArgs object_ =
-    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs.itemID Encode.string, Argument.required "isBookmark" requiredArgs.isBookmark Encode.bool ] object_ (identity >> Decode.nullable)
+bookmark requiredArgs____ object____ =
+    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID Encode.string, Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ (identity >> Decode.nullable)

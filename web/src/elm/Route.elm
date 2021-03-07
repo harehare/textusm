@@ -4,6 +4,7 @@ import Browser.Navigation as Nav
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
+import Data.ShareId as ShareId exposing (ShareId)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import UUID
 import Url exposing (Url)
@@ -37,6 +38,7 @@ type Route
     | Share Diagram Title Path
     | Embed Diagram Title Path
     | View Diagram SettingsJson
+    | ViewFile Diagram ShareId
     | NotFound
 
 
@@ -55,6 +57,7 @@ parser =
         , map SharingDiagram (s "sharing")
         , map Edit (s "edit" </> diagramType)
         , map EditFile (s "edit" </> diagramType </> diagramId)
+        , map ViewFile (s "view" </> diagramType </> shareId)
         , map ViewPublic (s "public" </> diagramType </> diagramId)
         ]
 
@@ -73,6 +76,13 @@ diagramId =
             UUID.fromString segment
                 |> Result.toMaybe
                 |> Maybe.map (\_ -> DiagramId.fromString segment)
+
+
+shareId : Parser (ShareId -> a) a
+shareId =
+    custom "SHARE_ID" <|
+        \segment ->
+            ShareId.fromString segment
 
 
 toRoute : Url -> Route
@@ -108,6 +118,9 @@ toString route =
 
         EditFile type_ id_ ->
             absolute [ "edit", DiagramType.toString type_, DiagramId.toString id_ ] []
+
+        ViewFile type_ id_ ->
+            absolute [ "view", DiagramType.toString type_, ShareId.toString id_ ] []
 
         ViewPublic type_ id_ ->
             absolute [ "pubilc", DiagramType.toString type_, DiagramId.toString id_ ] []

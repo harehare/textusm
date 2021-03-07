@@ -61,12 +61,13 @@ type ComplexityRoot struct {
 		Bookmark func(childComplexity int, itemID string, isBookmark bool) int
 		Delete   func(childComplexity int, itemID string, isPublic *bool) int
 		Save     func(childComplexity int, input item.InputItem, isPublic *bool) int
+		Share    func(childComplexity int, id string) int
 	}
 
 	Query struct {
-		Item  func(childComplexity int, id string, isPublic *bool) int
-		Items func(childComplexity int, offset *int, limit *int, isBookmark *bool, isPublic *bool) int
-		Share func(childComplexity int, id string) int
+		Item      func(childComplexity int, id string, isPublic *bool) int
+		Items     func(childComplexity int, offset *int, limit *int, isBookmark *bool, isPublic *bool) int
+		ShareItem func(childComplexity int, id string) int
 	}
 }
 
@@ -74,11 +75,12 @@ type MutationResolver interface {
 	Save(ctx context.Context, input item.InputItem, isPublic *bool) (*item.Item, error)
 	Delete(ctx context.Context, itemID string, isPublic *bool) (*item.Item, error)
 	Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error)
+	Share(ctx context.Context, id string) (string, error)
 }
 type QueryResolver interface {
 	Item(ctx context.Context, id string, isPublic *bool) (*item.Item, error)
 	Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*item.Item, error)
-	Share(ctx context.Context, id string) (string, error)
+	ShareItem(ctx context.Context, id string) (*item.Item, error)
 }
 
 type executableSchema struct {
@@ -202,6 +204,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Save(childComplexity, args["input"].(item.InputItem), args["isPublic"].(*bool)), true
 
+	case "Mutation.share":
+		if e.complexity.Mutation.Share == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_share_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Share(childComplexity, args["id"].(string)), true
+
 	case "Query.item":
 		if e.complexity.Query.Item == nil {
 			break
@@ -226,17 +240,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Items(childComplexity, args["offset"].(*int), args["limit"].(*int), args["isBookmark"].(*bool), args["isPublic"].(*bool)), true
 
-	case "Query.share":
-		if e.complexity.Query.Share == nil {
+	case "Query.shareItem":
+		if e.complexity.Query.ShareItem == nil {
 			break
 		}
 
-		args, err := ec.field_Query_share_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_shareItem_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Share(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.ShareItem(childComplexity, args["id"].(string)), true
 
 	}
 	return 0, false
@@ -345,7 +359,7 @@ type Query {
     isBookmark: Boolean = False
     isPublic: Boolean = False
   ): [Item]!
-  share(id: String!): String!
+  shareItem(id: String!): Item!
 }
 
 input InputItem {
@@ -363,6 +377,7 @@ type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
   delete(itemID: String!, isPublic: Boolean = False): Item
   bookmark(itemID: String!, isBookmark: Boolean!): Item
+  share(id: String!): String!
 }
 `, BuiltIn: false},
 }
@@ -441,6 +456,21 @@ func (ec *executionContext) field_Mutation_save_args(ctx context.Context, rawArg
 		}
 	}
 	args["isPublic"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_share_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -525,7 +555,7 @@ func (ec *executionContext) field_Query_items_args(ctx context.Context, rawArgs 
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_share_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_shareItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -1042,6 +1072,48 @@ func (ec *executionContext) _Mutation_bookmark(ctx context.Context, field graphq
 	return ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_share(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_share_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Share(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_item(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1126,7 +1198,7 @@ func (ec *executionContext) _Query_items(ctx context.Context, field graphql.Coll
 	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_share(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_shareItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1143,7 +1215,7 @@ func (ec *executionContext) _Query_share(ctx context.Context, field graphql.Coll
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_share_args(ctx, rawArgs)
+	args, err := ec.field_Query_shareItem_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1151,7 +1223,7 @@ func (ec *executionContext) _Query_share(ctx context.Context, field graphql.Coll
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Share(rctx, args["id"].(string))
+		return ec.resolvers.Query().ShareItem(rctx, args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1163,9 +1235,9 @@ func (ec *executionContext) _Query_share(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*item.Item)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2500,6 +2572,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec._Mutation_delete(ctx, field)
 		case "bookmark":
 			out.Values[i] = ec._Mutation_bookmark(ctx, field)
+		case "share":
+			out.Values[i] = ec._Mutation_share(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2554,7 +2631,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
-		case "share":
+		case "shareItem":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -2562,7 +2639,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_share(ctx, field)
+				res = ec._Query_shareItem(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

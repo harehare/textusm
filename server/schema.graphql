@@ -41,7 +41,7 @@ type Query {
     isBookmark: Boolean = False
     isPublic: Boolean = False
   ): [Item]!
-  share(id: String!): String!
+  shareItem(id: String!): Item!
 }
 
 input InputItem {
@@ -59,4 +59,5 @@ type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
   delete(itemID: String!, isPublic: Boolean = False): Item
   bookmark(itemID: String!, isBookmark: Boolean!): Item
+  share(id: String!): String!
 }

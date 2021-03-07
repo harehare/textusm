@@ -499,6 +499,10 @@ changeRouteTo route model =
                                     }
                                 )
                             >> Return.andThen Action.startProgress
+
+                    Route.ViewFile diagram id_ ->
+                        -- TODO:
+                        Return.zero
            )
 
 

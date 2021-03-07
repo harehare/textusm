@@ -81,7 +81,11 @@ func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBo
 	return r.service.FindDiagrams(ctx, *offset, *limit, *isPublic)
 }
 
-func (r *queryResolver) Share(ctx context.Context, id string) (string, error) {
+func (r *queryResolver) ShareItem(ctx context.Context, id string) (*item.Item, error) {
+	return r.service.FindShareItem(ctx, id)
+}
+
+func (r *mutationResolver) Share(ctx context.Context, id string) (string, error) {
 	hashKey, err := r.service.Share(ctx, id)
 	return *hashKey, err
 }

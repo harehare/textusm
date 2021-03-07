@@ -29,6 +29,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	gqlHandler "github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"google.golang.org/api/option"
 )
@@ -95,6 +96,9 @@ func Run() int {
 	g := gqlHandler.New(NewExecutableSchema(Config{Resolvers: &Resolver{service: service}}))
 	g.AddTransport(transport.Options{})
 	g.AddTransport(transport.POST{})
+	if os.Getenv("GO_ENV") != "production" {
+		g.Use(extension.Introspection{})
+	}
 	subRouter.Methods("POST").Path("/graphql").Handler(g)
 
 	apiBase := mux.NewRouter()

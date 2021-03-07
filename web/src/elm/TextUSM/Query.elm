@@ -38,16 +38,16 @@ item :
     -> ItemRequiredArguments
     -> SelectionSet decodesTo TextUSM.Object.Item
     -> SelectionSet decodesTo RootQuery
-item fillInOptionals requiredArgs object_ =
+item fillInOptionals____ requiredArgs____ object____ =
     let
-        filledInOptionals =
-            fillInOptionals { isPublic = Absent }
+        filledInOptionals____ =
+            fillInOptionals____ { isPublic = Absent }
 
-        optionalArgs =
-            [ Argument.optional "isPublic" filledInOptionals.isPublic Encode.bool ]
+        optionalArgs____ =
+            [ Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
                 |> List.filterMap identity
     in
-    Object.selectionForCompositeField "item" (optionalArgs ++ [ Argument.required "id" requiredArgs.id Encode.string ]) object_ identity
+    Object.selectionForCompositeField "item" (optionalArgs____ ++ [ Argument.required "id" requiredArgs____.id Encode.string ]) object____ identity
 
 
 type alias ItemsOptionalArguments =
@@ -70,13 +70,29 @@ items :
     (ItemsOptionalArguments -> ItemsOptionalArguments)
     -> SelectionSet decodesTo TextUSM.Object.Item
     -> SelectionSet (List (Maybe decodesTo)) RootQuery
-items fillInOptionals object_ =
+items fillInOptionals____ object____ =
     let
-        filledInOptionals =
-            fillInOptionals { offset = Absent, limit = Absent, isBookmark = Absent, isPublic = Absent }
+        filledInOptionals____ =
+            fillInOptionals____ { offset = Absent, limit = Absent, isBookmark = Absent, isPublic = Absent }
 
-        optionalArgs =
-            [ Argument.optional "offset" filledInOptionals.offset Encode.int, Argument.optional "limit" filledInOptionals.limit Encode.int, Argument.optional "isBookmark" filledInOptionals.isBookmark Encode.bool, Argument.optional "isPublic" filledInOptionals.isPublic Encode.bool ]
+        optionalArgs____ =
+            [ Argument.optional "offset" filledInOptionals____.offset Encode.int, Argument.optional "limit" filledInOptionals____.limit Encode.int, Argument.optional "isBookmark" filledInOptionals____.isBookmark Encode.bool, Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
                 |> List.filterMap identity
     in
-    Object.selectionForCompositeField "items" optionalArgs object_ (identity >> Decode.nullable >> Decode.list)
+    Object.selectionForCompositeField "items" optionalArgs____ object____ (identity >> Decode.nullable >> Decode.list)
+
+
+type alias ShareRequiredArguments =
+    { id : String }
+
+
+{-|
+
+  - id -
+
+-}
+share :
+    ShareRequiredArguments
+    -> SelectionSet String RootQuery
+share requiredArgs____ =
+    Object.selectionForField "String" "share" [ Argument.required "id" requiredArgs____.id Encode.string ] Decode.string

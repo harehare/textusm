@@ -22,13 +22,13 @@ buildInputItem :
     InputItemRequiredFields
     -> (InputItemOptionalFields -> InputItemOptionalFields)
     -> InputItem
-buildInputItem required fillOptionals =
+buildInputItem required____ fillOptionals____ =
     let
-        optionals =
-            fillOptionals
+        optionals____ =
+            fillOptionals____
                 { id = Absent, thumbnail = Absent, tags = Absent }
     in
-    { id = optionals.id, title = required.title, text = required.text, thumbnail = optionals.thumbnail, diagram = required.diagram, isPublic = required.isPublic, isBookmark = required.isBookmark, tags = optionals.tags }
+    { id = optionals____.id, title = required____.title, text = required____.text, thumbnail = optionals____.thumbnail, diagram = required____.diagram, isPublic = required____.isPublic, isBookmark = required____.isBookmark, tags = optionals____.tags }
 
 
 type alias InputItemRequiredFields =
@@ -64,6 +64,6 @@ type alias InputItem =
 {-| Encode a InputItem into a value that can be used as an argument.
 -}
 encodeInputItem : InputItem -> Value
-encodeInputItem input =
+encodeInputItem input____ =
     Encode.maybeObject
-        [ ( "id", (TextUSM.ScalarCodecs.codecs |> TextUSM.Scalar.unwrapEncoder .codecId) |> Encode.optional input.id ), ( "title", Encode.string input.title |> Just ), ( "text", Encode.string input.text |> Just ), ( "thumbnail", Encode.string |> Encode.optional input.thumbnail ), ( "diagram", Encode.enum TextUSM.Enum.Diagram.toString input.diagram |> Just ), ( "isPublic", Encode.bool input.isPublic |> Just ), ( "isBookmark", Encode.bool input.isBookmark |> Just ), ( "tags", (Encode.string |> Encode.maybe |> Encode.list) |> Encode.optional input.tags ) ]
+        [ ( "id", (TextUSM.ScalarCodecs.codecs |> TextUSM.Scalar.unwrapEncoder .codecId) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "text", Encode.string input____.text |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum TextUSM.Enum.Diagram.toString input____.diagram |> Just ), ( "isPublic", Encode.bool input____.isPublic |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ), ( "tags", (Encode.string |> Encode.maybe |> Encode.list) |> Encode.optional input____.tags ) ]
