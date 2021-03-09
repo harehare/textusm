@@ -1,6 +1,5 @@
 module Data.ShareId exposing (ShareId, fromString, toString)
 
-import Json.Decode as D exposing (Decoder)
 import Regex
 
 

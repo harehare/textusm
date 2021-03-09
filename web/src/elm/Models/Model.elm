@@ -58,7 +58,6 @@ type Msg
     | EndEditTitle Int Bool
     | EditTitle String
     | EditText String
-    | ShareUrl { title : Maybe String, text : String, diagramType : String }
     | SignIn LoginProvider
     | SignOut
     | LinkClicked Browser.UrlRequest
@@ -66,14 +65,11 @@ type Msg
     | HandleVisibilityChange Visibility
     | HandleStartWindowResize Int
     | HandleWindowResize Int
-    | HandleEncodeShareText String
-    | HandleDecodeShareText String
     | HandleAutoCloseNotification Notification
     | HandleCloseNotification
     | HandleAuthStateChanged (Maybe User)
     | ShowNotification Notification
     | SwitchWindow SwitchWindow
-    | GetShortUrl (Result Http.Error String)
     | Shortcuts String
     | GotLocalDiagramJson D.Value
     | ChangePublicStatus Bool

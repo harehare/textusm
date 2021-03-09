@@ -1,6 +1,5 @@
 import { DownloadInfo, ImageInfo } from "./model";
 import { ElmApp } from "./elm";
-import SVGO from "svgo";
 
 export const initDownload = (app: ElmApp): void => {
     const createSvg = async (id: string, width: number, height: number) => {
@@ -19,11 +18,10 @@ export const initDownload = (app: ElmApp): void => {
         }
 
         // @ts-expect-error
-        const svgo: SVGO = (await import("svgo/dist/svgo.browser.js")).default;
+        const svgo = (await import("svgo/dist/svgo.browser.js")).default;
         const optimizedSvg = await svgo.optimize(
             new XMLSerializer().serializeToString(svg),
             {
-                // @ts-expect-error
                 plugins: svgo.extendDefaultPlugins([
                     {
                         name: "convertStyleToAttrs",

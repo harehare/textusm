@@ -29,8 +29,6 @@ type ElmApp = {
         removeDiagrams: Subscribe<(diagram: Diagram) => Promise<void>>;
         getDiagram: Subscribe<(diagramId: string) => Promise<void>>;
         getDiagrams: Subscribe<() => Promise<void>>;
-        encodeShareText: Subscribe<(obj: { [s: string]: string }) => void>;
-        decodeShareText: Subscribe<(text: string) => void>;
         importDiagram: Subscribe<(diagrams: DiagramItem[]) => void>;
 
         onCloseFullscreen: Send<Record<string, unknown>>;

@@ -20,10 +20,6 @@ type alias Path =
     String
 
 
-type alias SettingsJson =
-    String
-
-
 type Route
     = Home
     | New
@@ -34,10 +30,8 @@ type Route
     | Settings
     | Help
     | Tag
-    | SharingDiagram
-    | Share Diagram Title Path
+    | Share
     | Embed Diagram Title Path
-    | View Diagram SettingsJson
     | ViewFile Diagram ShareId
     | NotFound
 
@@ -46,15 +40,13 @@ parser : Parser (Route -> a) a
 parser =
     oneOf
         [ map Home Parser.top
-        , map Share (s "share" </> diagramType </> string </> string)
         , map Embed (s "embed" </> diagramType </> string </> string)
-        , map View (s "view" </> diagramType </> string)
         , map DiagramList (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
         , map Tag (s "tag")
         , map New (s "new")
-        , map SharingDiagram (s "sharing")
+        , map Share (s "share")
         , map Edit (s "edit" </> diagramType)
         , map EditFile (s "edit" </> diagramType </> diagramId)
         , map ViewFile (s "view" </> diagramType </> shareId)
@@ -137,20 +129,14 @@ toString route =
         Tag ->
             absolute [ "tag" ] []
 
-        SharingDiagram ->
-            absolute [ "sharing" ] []
+        Share ->
+            absolute [ "share" ] []
 
         NotFound ->
             absolute [ "notfound" ] []
 
-        Share diagramPath title path ->
-            absolute [ "share", DiagramType.toString diagramPath, title, path ] []
-
         Embed diagramPath title path ->
             absolute [ "Embed", DiagramType.toString diagramPath, title, path ] []
-
-        View diagramPath settingsJson ->
-            absolute [ "view", DiagramType.toString diagramPath, settingsJson ] []
 
 
 replaceRoute : Nav.Key -> Route -> Cmd msg

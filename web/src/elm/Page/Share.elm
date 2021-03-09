@@ -1,16 +1,23 @@
-port module Page.Share exposing (Model, Msg, init, update, view)
+port module Page.Share exposing (Model, Msg(..), init, update, view)
 
+import Data.DiagramId as DiagramId exposing (DiagramId)
+import Data.DiagramType as DiagramType
+import Data.Session as Session exposing (Session)
 import Data.Size as Size exposing (Size)
+import GraphQL.Request as Request
 import Html exposing (Html, div, input, text, textarea)
 import Html.Attributes exposing (class, id, readonly, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Return as Return exposing (Return)
+import Task
+import TextUSM.Enum.Diagram exposing (Diagram(..))
+import Url.Builder exposing (crossOrigin)
 
 
 type alias Model =
-    { embedUrl : String
-    , empbedSize : Size
-    , url : String
+    { empbedSize : Size
+    , diagramType : Maybe Diagram
+    , hashKey : Maybe String
     }
 
 
@@ -18,37 +25,86 @@ type Msg
     = SelectAll String
     | OnInputWidth String
     | OnInputHeight String
+    | Shared (Result String String)
 
 
 port selectTextById : String -> Cmd msg
 
 
-init : String -> String -> Return Msg Model
-init embedUrl url =
-    Return.singleton (Model embedUrl ( 800, 600 ) url)
+sharUrl : Model -> String
+sharUrl { hashKey, diagramType } =
+    case hashKey of
+        Just h ->
+            crossOrigin "https://app.textusm.com" [ "view", Maybe.map (\d -> DiagramType.toString d) diagramType |> Maybe.withDefault "", h ] []
+
+        Nothing ->
+            ""
+
+
+embedUrl : Model -> String
+embedUrl { hashKey, diagramType } =
+    case hashKey of
+        Just h ->
+            crossOrigin "https://app.textusm.com" [ "embed", "view", Maybe.map (\d -> DiagramType.toString d) diagramType |> Maybe.withDefault "", h ] []
+
+        Nothing ->
+            ""
+
+
+share : Maybe DiagramId -> String -> Session -> Return.ReturnF Msg Model
+share diagramId apiRoot session =
+    case diagramId of
+        Just id ->
+            let
+                shareTask =
+                    Request.share { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString id)
+                        |> Task.mapError (\_ -> "Failed to generate URL for sharing.")
+            in
+            Return.command <| Task.attempt Shared shareTask
+
+        Nothing ->
+            Return.zero
+
+
+init : { diagram : Maybe Diagram, diagramId : Maybe DiagramId, apiRoot : String, session : Session } -> Return Msg Model
+init { diagram, diagramId, apiRoot, session } =
+    Return.singleton
+        { empbedSize = ( 800, 600 )
+        , diagramType = diagram
+        , hashKey = Nothing
+        }
+        |> share diagramId apiRoot session
 
 
 update : Msg -> Model -> Return Msg Model
 update msg model =
-    case msg of
-        SelectAll id ->
-            Return.return model (selectTextById id)
+    Return.singleton model
+        |> (case msg of
+                SelectAll id ->
+                    Return.command (selectTextById id)
 
-        OnInputWidth width ->
-            case String.toInt width of
-                Just w ->
-                    Return.singleton { model | empbedSize = ( w, Size.getHeight model.empbedSize ) }
+                OnInputWidth width ->
+                    case String.toInt width of
+                        Just w ->
+                            Return.andThen <| \m -> Return.singleton { m | empbedSize = ( w, Size.getHeight model.empbedSize ) }
 
-                Nothing ->
-                    Return.singleton model
+                        Nothing ->
+                            Return.zero
 
-        OnInputHeight height ->
-            case String.toInt height of
-                Just h ->
-                    Return.singleton { model | empbedSize = ( Size.getWidth model.empbedSize, h ) }
+                OnInputHeight height ->
+                    case String.toInt height of
+                        Just h ->
+                            Return.andThen <| \m -> Return.singleton { m | empbedSize = ( Size.getWidth model.empbedSize, h ) }
 
-                Nothing ->
-                    Return.singleton model
+                        Nothing ->
+                            Return.zero
+
+                Shared (Ok hashKey) ->
+                    Return.andThen (\m -> Return.singleton { m | hashKey = Just hashKey })
+
+                Shared (Err _) ->
+                    Return.zero
+           )
 
 
 view : Model -> Html Msg
@@ -68,7 +124,7 @@ view model =
                         , style "width" "calc(100% - 40px)"
                         , style "border" "1px solid #8C9FAE"
                         , readonly True
-                        , value model.url
+                        , value <| sharUrl model
                         , id "share-url"
                         , onClick <| SelectAll "share-url"
                         ]
@@ -112,7 +168,7 @@ view model =
                         , style "width" "calc(100% - 40px)"
                         , style "border" "1px solid #8C9FAE"
                         , readonly True
-                        , value <| "<iframe src=\"" ++ model.embedUrl ++ "\"  width=\"" ++ String.fromInt (Size.getWidth model.empbedSize) ++ "\" height=\"" ++ String.fromInt (Size.getHeight model.empbedSize) ++ "\" frameborder=\"0\" style=\"border:0\" allowfullscreen></iframe>"
+                        , value <| embedUrl model
                         , id "embed"
                         , onClick <| SelectAll "embed"
                         ]

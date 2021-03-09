@@ -99,3 +99,19 @@ bookmark :
     -> SelectionSet (Maybe decodesTo) RootMutation
 bookmark requiredArgs____ object____ =
     Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID Encode.string, Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ (identity >> Decode.nullable)
+
+
+type alias ShareRequiredArguments =
+    { id : String }
+
+
+{-|
+
+  - id -
+
+-}
+share :
+    ShareRequiredArguments
+    -> SelectionSet String RootMutation
+share requiredArgs____ =
+    Object.selectionForField "String" "share" [ Argument.required "id" requiredArgs____.id Encode.string ] Decode.string

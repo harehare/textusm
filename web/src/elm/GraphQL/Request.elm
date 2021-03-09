@@ -1,4 +1,4 @@
-module GraphQL.Request exposing (bookmark, delete, item, items, publicItem, save)
+module GraphQL.Request exposing (bookmark, delete, item, items, publicItem, save, share, shareItem)
 
 import Data.DiagramItem exposing (DiagramItem)
 import Data.IdToken as IdToken exposing (IdToken)
@@ -46,6 +46,14 @@ items req ( offset, limit ) params =
         |> Http.toTask
 
 
+shareItem : RequestInfo -> String -> Task (Http.Error DiagramItem) DiagramItem
+shareItem req id =
+    Query.shareItem id
+        |> Http.queryRequest (graphQLUrl req)
+        |> headers req.idToken
+        |> Http.toTask
+
+
 save : RequestInfo -> InputItem -> Bool -> Task (Http.Error DiagramItem) DiagramItem
 save req input isPublic =
     Mutation.save input isPublic
@@ -65,6 +73,14 @@ delete req itemID isPublic =
 bookmark : RequestInfo -> String -> Bool -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
 bookmark req itemID isBookmark =
     Mutation.bookmark itemID isBookmark
+        |> Http.mutationRequest (graphQLUrl req)
+        |> headers req.idToken
+        |> Http.toTask
+
+
+share : RequestInfo -> String -> Task (Http.Error String) String
+share req itemID =
+    Mutation.share itemID
         |> Http.mutationRequest (graphQLUrl req)
         |> headers req.idToken
         |> Http.toTask

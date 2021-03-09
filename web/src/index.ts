@@ -1,7 +1,6 @@
 import "./styles.scss";
 import { setElmApp } from "./ts/editor";
 import { initDownload } from "./ts/download";
-import { initShare } from "./ts/share";
 import { initDB } from "./ts/db";
 import {
     signOut,
@@ -112,7 +111,7 @@ const attachApp = (a: ElmApp, list: ((a: ElmApp) => void)[]) => {
     list.forEach((l) => l(a));
 };
 
-attachApp(app, [initDownload, initShare, initDB]);
+attachApp(app, [initDownload, initDB]);
 
 document.addEventListener("fullscreenchange", () => {
     if (!document.fullscreenElement) {

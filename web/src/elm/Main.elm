@@ -1,7 +1,6 @@
 module Main exposing (init, main, view)
 
 import Action
-import Api.UrlShorter as UrlShorterApi
 import Browser
 import Browser.Events
     exposing
@@ -20,6 +19,7 @@ import Data.FileType as FileType
 import Data.IdToken as IdToken
 import Data.LoginProvider as LoginProdiver
 import Data.Session as Session
+import Data.ShareId as ShareId
 import Data.Size as Size
 import Data.Text as Text
 import Data.Title as Title
@@ -61,7 +61,7 @@ import Task
 import TextUSM.Enum.Diagram as Diagram
 import Time
 import Translations
-import Url as Url exposing (percentDecode)
+import Url
 import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils
 import Views.Empty as Empty
@@ -97,7 +97,12 @@ init flags url key =
             Diagram.init initSettings.storyMap
 
         ( shareModel, _ ) =
-            Share.init "" ""
+            Share.init
+                { diagram = Nothing
+                , diagramId = Nothing
+                , apiRoot = flags.apiRoot
+                , session = Session.guest
+                }
 
         ( settingsModel, _ ) =
             Settings.init initSettings
@@ -327,6 +332,7 @@ changeRouteTo route model =
                         Return.andThen <| Action.switchPage Page.NotFound
 
                     Route.Embed diagram title path ->
+                        -- TODO:
                         Return.andThen
                             (\m ->
                                 Return.singleton
@@ -338,74 +344,8 @@ changeRouteTo route model =
                                                 |> DiagramModel.modelOfDiagramType.set diagram
                                     }
                             )
-                            >> Return.command (Ports.decodeShareText path)
                             >> Return.andThen (Action.setTitle title)
                             >> Return.andThen (Action.switchPage (Page.Embed diagram title path))
-                            >> Return.andThen Action.changeRouteInit
-
-                    Route.Share diagram title path ->
-                        Return.andThen
-                            (\m ->
-                                Return.return
-                                    { m
-                                        | diagramModel =
-                                            model.diagramModel
-                                                |> DiagramModel.modelOfDiagramType.set diagram
-                                    }
-                                    (Ports.decodeShareText path)
-                            )
-                            >> Return.andThen (Action.switchPage Page.Main)
-                            >> Return.andThen (Action.setTitle (percentDecode title |> Maybe.withDefault ""))
-                            >> Return.andThen Action.changeRouteInit
-
-                    Route.View diagram settingsJson ->
-                        let
-                            maybeSettings =
-                                percentDecode settingsJson
-                                    |> Maybe.andThen
-                                        (\x ->
-                                            D.decodeString settingsDecoder x |> Result.toMaybe
-                                        )
-                        in
-                        (case maybeSettings of
-                            Nothing ->
-                                Return.andThen (Action.setDiagramType diagram)
-                                    >> Return.andThen Action.hideZoomControl
-                                    >> Return.andThen Action.fullscreenDiagram
-
-                            Just settings ->
-                                Return.andThen (Action.setDiagramType diagram)
-                                    >> Return.andThen (Action.setDiagramSettings settings.storyMap)
-                                    >> Return.andThen (Action.setText (String.replace "\\n" "\n" (Maybe.withDefault "" settings.text)))
-                                    >> Return.andThen Action.showZoomControl
-                                    >> Return.andThen Action.fullscreenDiagram
-                        )
-                            >> (case maybeSettings of
-                                    Nothing ->
-                                        Return.zero
-
-                                    Just settings ->
-                                        let
-                                            ( settingsModel_, cmd_ ) =
-                                                Settings.init settings
-                                        in
-                                        Return.andThen
-                                            (\m ->
-                                                Return.return
-                                                    { m
-                                                        | settingsModel = settingsModel_
-                                                        , window =
-                                                            { position = m.window.position
-                                                            , moveStart = m.window.moveStart
-                                                            , moveX = m.window.moveX
-                                                            , fullscreen = True
-                                                            }
-                                                    }
-                                                    (cmd_ |> Cmd.map UpdateSettings)
-                                            )
-                                            >> Return.andThen (Action.setTitle <| Maybe.withDefault "" settings.title)
-                                            >> Return.andThen (Action.switchPage Page.Main)
-                               )
                             >> Return.andThen Action.changeRouteInit
 
                     Route.Edit diagramType ->
@@ -488,21 +428,27 @@ changeRouteTo route model =
                     Route.Help ->
                         Return.andThen <| Action.switchPage Page.Help
 
-                    Route.SharingDiagram ->
-                        Return.andThen (Action.switchPage Page.Share)
-                            >> Return.command
-                                (Ports.encodeShareText
-                                    { diagramType =
-                                        DiagramType.toString model.diagramModel.diagramType
-                                    , title = Just <| Title.toString model.title
-                                    , text = Text.toString model.diagramModel.text
+                    Route.Share ->
+                        let
+                            ( shareModel, cmd_ ) =
+                                Share.init
+                                    { diagram = Maybe.map (\m -> m.diagram) model.currentDiagram
+                                    , diagramId = Maybe.andThen (\m -> m.id) model.currentDiagram
+                                    , apiRoot = model.apiRoot
+                                    , session = model.session
                                     }
-                                )
+                        in
+                        Return.andThen (\m -> Return.return { m | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare))
+                            >> Return.andThen (Action.switchPage Page.Share)
                             >> Return.andThen Action.startProgress
 
-                    Route.ViewFile diagram id_ ->
-                        -- TODO:
-                        Return.zero
+                    Route.ViewFile _ id_ ->
+                        if Session.isSignedIn model.session then
+                            Return.andThen (Action.switchPage Page.Main)
+                                >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareId.toString id_)
+
+                        else
+                            Return.andThen (Action.switchPage Page.NotFound)
            )
 
 
@@ -520,7 +466,18 @@ update message model =
                                 ( model_, cmd_ ) =
                                     Share.update msg model.shareModel
                             in
-                            Return.andThen <| \m -> Return.return { m | shareModel = model_, page = Page.Share } (cmd_ |> Cmd.map UpdateShare)
+                            Return.andThen <|
+                                (\m ->
+                                    Return.return { m | shareModel = model_, page = Page.Share } (cmd_ |> Cmd.map UpdateShare)
+                                )
+                                    >> (case msg of
+                                            Share.Shared (Err errMsg) ->
+                                                Action.showErrorMessage errMsg
+
+                                            _ ->
+                                                Return.zero
+                                       )
+                                    >> Return.andThen Action.stopProgress
 
                         _ ->
                             Return.zero
@@ -947,24 +904,6 @@ update message model =
                 HandleWindowResize x ->
                     Return.andThen <| \m -> Return.singleton { m | window = { position = m.window.position + x - m.window.moveX, moveStart = True, moveX = x, fullscreen = m.window.fullscreen } }
 
-                GetShortUrl (Err e) ->
-                    Action.showErrorMessage ("Error. " ++ Utils.httpErrorToString e)
-                        >> Return.andThen Action.stopProgress
-
-                GetShortUrl (Ok url) ->
-                    let
-                        shareModel =
-                            model.shareModel
-
-                        newShareModel =
-                            { shareModel | url = url }
-                    in
-                    Return.andThen (\m -> Return.singleton { m | shareModel = newShareModel })
-                        >> Return.andThen Action.stopProgress
-
-                ShareUrl shareInfo ->
-                    Return.command (Ports.encodeShareText shareInfo)
-
                 ShowNotification notification ->
                     Return.andThen <| \m -> Return.singleton { m | notification = Just notification }
 
@@ -974,25 +913,6 @@ update message model =
 
                 HandleCloseNotification ->
                     Return.andThen <| \m -> Return.singleton { m | notification = Nothing }
-
-                HandleEncodeShareText path ->
-                    let
-                        shareUrl =
-                            "https://app.textusm.com/share" ++ path
-
-                        embedUrl =
-                            "https://app.textusm.com/embed" ++ path
-
-                        shareModel =
-                            model.shareModel
-
-                        newShareModel =
-                            { shareModel | embedUrl = embedUrl }
-                    in
-                    Return.andThen <| \m -> Return.return { m | shareModel = newShareModel } (Task.attempt GetShortUrl (UrlShorterApi.urlShorter (Session.getIdToken m.session) m.apiRoot shareUrl))
-
-                HandleDecodeShareText text ->
-                    Return.andThen (Action.setText text)
 
                 SwitchWindow w ->
                     Return.andThen <| \m -> Return.singleton { m | switchWindow = w }
@@ -1155,8 +1075,6 @@ subscriptions model =
          , onVisibilityChange HandleVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
          , onMouseUp <| D.succeed <| UpdateDiagram DiagramModel.Stop
-         , Ports.onEncodeShareText HandleEncodeShareText
-         , Ports.onDecodeShareText HandleDecodeShareText
          , Ports.shortcuts Shortcuts
          , Ports.onNotification (\n -> HandleAutoCloseNotification (Info n))
          , Ports.onErrorNotification (\n -> HandleAutoCloseNotification (Error n))

@@ -1,4 +1,4 @@
-module GraphQL.Query exposing (item, items)
+module GraphQL.Query exposing (item, items, shareItem)
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Text as Text
@@ -42,6 +42,24 @@ items ( offset, limit ) params =
             |> with TextUSM.Object.Item.isBookmark
             |> hardcoded True
             |> with TextUSM.Object.Item.tags
+            |> with (TextUSM.Object.Item.createdAt |> DiagramItem.mapToDateTime)
+            |> with (TextUSM.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
+        )
+
+
+shareItem : String -> SelectionSet DiagramItem RootQuery
+shareItem id =
+    Query.shareItem { id = id } <|
+        (SelectionSet.succeed DiagramItem
+            |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
+            |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
+            |> with TextUSM.Object.Item.diagram
+            |> with (TextUSM.Object.Item.title |> SelectionSet.map (\value -> Title.fromString value))
+            |> hardcoded Nothing
+            |> with TextUSM.Object.Item.isPublic
+            |> with TextUSM.Object.Item.isBookmark
+            |> hardcoded True
+            |> hardcoded Nothing
             |> with (TextUSM.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (TextUSM.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
         )

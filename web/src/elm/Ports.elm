@@ -1,4 +1,4 @@
-port module Ports exposing (changeText, closeFullscreen, copyClipboard, decodeShareText, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, encodeShareText, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, onAuthStateChanged, onCloseFullscreen, onDecodeShareText, onEncodeShareText, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, refreshToken, reload, removeRemoteDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, shortcuts, signIn, signOut, startDownload, updateIdToken)
+port module Ports exposing (changeText, closeFullscreen, copyClipboard, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, onAuthStateChanged, onCloseFullscreen, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, refreshToken, reload, removeRemoteDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, shortcuts, signIn, signOut, startDownload, updateIdToken)
 
 import Data.Session exposing (User)
 import Json.Decode as D
@@ -27,12 +27,6 @@ port onAuthStateChanged : (Maybe User -> msg) -> Sub msg
 
 
 port startDownload : ({ extension : String, mimeType : String, content : String } -> msg) -> Sub msg
-
-
-port onDecodeShareText : (String -> msg) -> Sub msg
-
-
-port onEncodeShareText : (String -> msg) -> Sub msg
 
 
 port onNotification : (String -> msg) -> Sub msg
@@ -72,12 +66,6 @@ port focusEditor : () -> Cmd msg
 
 
 port saveSettings : E.Value -> Cmd msg
-
-
-port decodeShareText : String -> Cmd msg
-
-
-port encodeShareText : { title : Maybe String, text : String, diagramType : String } -> Cmd msg
 
 
 port copyClipboard : String -> Cmd msg

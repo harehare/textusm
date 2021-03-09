@@ -1,4 +1,4 @@
-module GraphQL.Mutation exposing (bookmark, delete, save)
+module GraphQL.Mutation exposing (bookmark, delete, save, share)
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Text as Text
@@ -8,6 +8,7 @@ import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import TextUSM.InputObject exposing (InputItem)
 import TextUSM.Mutation as Mutation
+import TextUSM.Object
 import TextUSM.Object.Item
 import TextUSM.Scalar exposing (Id(..))
 
@@ -64,3 +65,9 @@ bookmark itemID isBookmark =
             |> with (TextUSM.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (TextUSM.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
         )
+
+
+share : String -> SelectionSet String RootMutation
+share id =
+    Mutation.share { id = id }
+        |> SelectionSet.map String.toLower

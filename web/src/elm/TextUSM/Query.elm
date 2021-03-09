@@ -82,7 +82,7 @@ items fillInOptionals____ object____ =
     Object.selectionForCompositeField "items" optionalArgs____ object____ (identity >> Decode.nullable >> Decode.list)
 
 
-type alias ShareRequiredArguments =
+type alias ShareItemRequiredArguments =
     { id : String }
 
 
@@ -91,8 +91,9 @@ type alias ShareRequiredArguments =
   - id -
 
 -}
-share :
-    ShareRequiredArguments
-    -> SelectionSet String RootQuery
-share requiredArgs____ =
-    Object.selectionForField "String" "share" [ Argument.required "id" requiredArgs____.id Encode.string ] Decode.string
+shareItem :
+    ShareItemRequiredArguments
+    -> SelectionSet decodesTo TextUSM.Object.Item
+    -> SelectionSet decodesTo RootQuery
+shareItem requiredArgs____ object____ =
+    Object.selectionForCompositeField "shareItem" [ Argument.required "id" requiredArgs____.id Encode.string ] object____ identity

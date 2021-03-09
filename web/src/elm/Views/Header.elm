@@ -150,16 +150,20 @@ view props =
                     , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipHelp props.lang ] ]
                     ]
                 ]
-            , Html.a
-                [ Attr.class "flex"
-                , Attr.href <| Route.toString Route.SharingDiagram
-                , Attr.attribute "aria-label" "Share"
-                ]
-                [ Html.div [ Attr.class "button" ]
-                    [ Icon.people 20
-                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipShare props.lang ] ]
+            , if Session.isSignedIn props.session then
+                Html.a
+                    [ Attr.class "flex"
+                    , Attr.href <| Route.toString Route.Share
+                    , Attr.attribute "aria-label" "Share"
                     ]
-                ]
+                    [ Html.div [ Attr.class "button" ]
+                        [ Icon.people 20
+                        , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipShare props.lang ] ]
+                        ]
+                    ]
+
+              else
+                Empty.view
             , if Session.isSignedIn props.session then
                 let
                     user =
