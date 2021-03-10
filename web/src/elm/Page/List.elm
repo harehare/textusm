@@ -1,6 +1,7 @@
 port module Page.List exposing (DiagramList(..), Model, Msg(..), init, isNotAsked, modelOfDiagramList, notAsked, update, view)
 
 import Asset
+import Constants
 import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
@@ -220,7 +221,7 @@ sideMenu session filter tagItems =
                                             )
                                         )
                                 ]
-                                [ Icon.tag 13, div [ style "padding" "8px" ] [ text tag ] ]
+                                [ Icon.tag Constants.iconColor 13, div [ style "padding" "8px" ] [ text tag ] ]
                         )
                )
         )

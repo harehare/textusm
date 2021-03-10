@@ -142,7 +142,17 @@ view model =
         [ class "relative w-screen"
         , E.onClick CloseMenu
         ]
-        [ Lazy.lazy Header.view { session = model.session, page = model.page, title = model.title, isFullscreen = model.window.fullscreen, currentDiagram = model.currentDiagram, menu = model.openMenu, currentText = model.diagramModel.text, lang = model.lang }
+        [ Lazy.lazy Header.view
+            { session = model.session
+            , page = model.page
+            , title = model.title
+            , isFullscreen = model.window.fullscreen
+            , currentDiagram = model.currentDiagram
+            , menu = model.openMenu
+            , currentText = model.diagramModel.text
+            , lang = model.lang
+            , route = toRoute model.url
+            }
         , Lazy.lazy showNotification model.notification
         , Lazy.lazy2 showProgressbar model.progress model.window.fullscreen
         , div
@@ -235,10 +245,18 @@ view model =
                     NotFound.view
 
                 _ ->
-                    mainWindow
-                        (Lazy.lazy Diagram.view model.diagramModel
-                            |> Html.map UpdateDiagram
-                        )
+                    case toRoute model.url of
+                        ViewFile _ _ ->
+                            div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
+                                [ Lazy.lazy Diagram.view model.diagramModel
+                                    |> Html.map UpdateDiagram
+                                ]
+
+                        _ ->
+                            mainWindow
+                                (Lazy.lazy Diagram.view model.diagramModel
+                                    |> Html.map UpdateDiagram
+                                )
             ]
         ]
 
@@ -446,6 +464,7 @@ changeRouteTo route model =
                         if Session.isSignedIn model.session then
                             Return.andThen (Action.switchPage Page.Main)
                                 >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareId.toString id_)
+                                >> Return.andThen Action.changeRouteInit
 
                         else
                             Return.andThen (Action.switchPage Page.NotFound)
@@ -948,6 +967,9 @@ update message model =
 
                                 ( Route.EditFile type_ id_, _ ) ->
                                     Action.pushUrl (Route.toString <| Route.EditFile type_ id_) model
+
+                                ( Route.ViewFile type_ id_, _ ) ->
+                                    Action.pushUrl (Route.toString <| Route.ViewFile type_ id_) model
 
                                 ( Route.DiagramList, _ ) ->
                                     Action.pushUrl (Route.toString <| Route.Home) model

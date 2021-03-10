@@ -2,6 +2,7 @@ module Views.Header exposing (view)
 
 import Asset
 import Avatar exposing (Avatar(..))
+import Constants
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Data.Session as Session exposing (Session)
@@ -30,6 +31,7 @@ type alias Props =
     , menu : Maybe Menu
     , currentText : Text
     , lang : Lang
+    , route : Route
     }
 
 
@@ -38,6 +40,14 @@ view props =
     let
         isPublic =
             props.currentDiagram |> Maybe.withDefault DiagramItem.empty |> .isPublic
+
+        canEdit =
+            case props.route of
+                ViewFile _ _ ->
+                    False
+
+                _ ->
+                    True
     in
     if props.isFullscreen then
         Html.header [] []
@@ -59,7 +69,7 @@ view props =
                     [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ] [ Html.img [ Asset.src Asset.logo, Attr.style "width" "32px", Attr.style "height" "32px", Attr.alt "logo" ] [] ] ]
                 , case props.page of
                     Page.Main ->
-                        if Title.isEdit props.title then
+                        if canEdit && Title.isEdit props.title then
                             Html.input
                                 [ Attr.id "title"
                                 , Attr.class "title bg-main border-none font text-base font-bold"
@@ -83,7 +93,7 @@ view props =
                                 [ Html.text <| Title.toString props.title
                                 , Html.div
                                     [ Attr.style "margin-left" "8px" ]
-                                    [ if Text.isChanged props.currentText then
+                                    [ if canEdit && Text.isChanged props.currentText then
                                         Icon.circle "#FEFEFE" 10
 
                                       else
@@ -112,7 +122,7 @@ view props =
                     _ ->
                         Empty.view
                 ]
-            , if isJust (Maybe.andThen .id props.currentDiagram) && (Maybe.map .isRemote props.currentDiagram |> Maybe.withDefault False) then
+            , if (isJust (Maybe.andThen .id props.currentDiagram) && (Maybe.map .isRemote props.currentDiagram |> Maybe.withDefault False)) && canEdit then
                 Html.div
                     [ Attr.class "button", Events.onClick <| ChangePublicStatus (not isPublic) ]
                     [ if isPublic then
@@ -133,37 +143,46 @@ view props =
                     ]
 
               else
-                Empty.view
-            , if isJust <| Maybe.andThen .id props.currentDiagram then
+                Html.div [ Attr.class "button" ]
+                    [ Icon.lock Constants.disabledIconColor 14
+                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolPrivate props.lang ] ]
+                    ]
+            , if (isJust <| Maybe.andThen .id props.currentDiagram) && canEdit then
                 Html.a [ Attr.attribute "aria-label" "Tag", Attr.style "display" "flex", Attr.href <| Route.toString Route.Tag ]
                     [ Html.div [ Attr.class "button" ]
-                        [ Icon.tag 14
+                        [ Icon.tag Constants.iconColor 14
                         , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipTags props.lang ] ]
                         ]
                     ]
 
               else
-                Empty.view
+                Html.div [ Attr.class "button" ]
+                    [ Icon.tag Constants.disabledIconColor 14
+                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipTags props.lang ] ]
+                    ]
             , Html.a [ Attr.attribute "aria-label" "Help", Attr.style "display" "flex", Attr.href <| Route.toString Route.Help ]
                 [ Html.div [ Attr.class "button" ]
                     [ Icon.helpOutline 16
                     , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipHelp props.lang ] ]
                     ]
                 ]
-            , if Session.isSignedIn props.session then
+            , if Session.isSignedIn props.session && canEdit then
                 Html.a
                     [ Attr.class "flex"
                     , Attr.href <| Route.toString Route.Share
                     , Attr.attribute "aria-label" "Share"
                     ]
                     [ Html.div [ Attr.class "button" ]
-                        [ Icon.people 20
+                        [ Icon.people Constants.iconColor 20
                         , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipShare props.lang ] ]
                         ]
                     ]
 
               else
-                Empty.view
+                Html.div [ Attr.class "button" ]
+                    [ Icon.people Constants.disabledIconColor 20
+                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipShare props.lang ] ]
+                    ]
             , if Session.isSignedIn props.session then
                 let
                     user =

@@ -171,7 +171,20 @@ func (s *Service) FindShareItem(ctx context.Context, hashKey string) (*item.Item
 		return nil, e.NoAuthorizationError(errors.New("Not Authorization"))
 	}
 
-	return s.shareRepo.FindByID(ctx, hashKey)
+	item, err := s.shareRepo.FindByID(ctx, hashKey)
+
+	if err != nil {
+		return nil, err
+	}
+
+	text, err := Decrypt(encryptKey, item.Text)
+
+	if err != nil {
+		return nil, err
+	}
+
+	item.Text = text
+	return item, nil
 }
 
 func (s *Service) Share(ctx context.Context, itemID string) (*string, error) {

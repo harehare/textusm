@@ -43,7 +43,9 @@ class LocalDatabase extends Dexie {
 
 export const initDB = (app: ElmApp): void => {
     const db = new LocalDatabase();
-    const svg2base64 = (id: string) => {
+    const svg2base64 = async (id: string) => {
+        // @ts-expect-error
+        const svgo = (await import("svgo/dist/svgo.browser.js")).default;
         const svg = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "svg"
@@ -60,7 +62,19 @@ export const initDB = (app: ElmApp): void => {
 
         return `data:image/svg+xml;base64,${window.btoa(
             unescape(
-                encodeURIComponent(new XMLSerializer().serializeToString(svg))
+                encodeURIComponent(
+                    await svgo.optimize(
+                        new XMLSerializer().serializeToString(svg),
+                        {
+                            plugins: svgo.extendDefaultPlugins([
+                                {
+                                    name: "convertStyleToAttrs",
+                                    active: false,
+                                },
+                            ]),
+                        }
+                    ).data
+                )
             )
         )}`;
     };
@@ -76,7 +90,7 @@ export const initDB = (app: ElmApp): void => {
             isRemote,
             tags,
         }: Diagram) => {
-            const thumbnail = svg2base64("usm");
+            const thumbnail = await svg2base64("usm");
             const createdAt = new Date().getTime();
             const diagramItem: DiagramItem = {
                 id,

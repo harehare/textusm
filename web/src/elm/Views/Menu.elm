@@ -51,7 +51,16 @@ notSelectedColor =
 
 view : Props -> Html Msg
 view props =
-    if props.fullscreen then
+    let
+        isReadOnly =
+            case props.route of
+                Route.ViewFile _ _ ->
+                    True
+
+                _ ->
+                    False
+    in
+    if isReadOnly || props.fullscreen then
         Empty.view
 
     else
@@ -93,6 +102,9 @@ view props =
                 Route.EditFile _ _ ->
                     newMenu
 
+                Route.ViewFile _ _ ->
+                    newMenu
+
                 _ ->
                     backMenu
             , Html.div
@@ -112,8 +124,12 @@ view props =
                     , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipOpenFile props.lang ] ]
                     ]
                 ]
-            , Html.div
-                [ if Text.isChanged props.text then
+            , let
+                canSave =
+                    Text.isChanged props.text
+              in
+              Html.div
+                [ if canSave then
                     Events.onClick Save
 
                   else
@@ -121,7 +137,7 @@ view props =
                 , Attr.class "menu-button save-button"
                 ]
                 [ Icon.save
-                    (if Text.isChanged props.text then
+                    (if canSave then
                         selectedColor
 
                      else

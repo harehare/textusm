@@ -1,4 +1,26 @@
-module Constants exposing (commentSize, fontSize, fragmentOffset, ganttItemSize, indentSpace, inputPrefix, itemHeight, itemMargin, itemSpan, itemWidth, largeItemHeight, largeItemWidth, leftMargin, messageMargin, participantMargin, smallItemMargin, space, tableMargin, tableRowHeight)
+module Constants exposing
+    ( commentSize
+    , disabledIconColor
+    , fontSize
+    , fragmentOffset
+    , ganttItemSize
+    , iconColor
+    , indentSpace
+    , inputPrefix
+    , itemHeight
+    , itemMargin
+    , itemSpan
+    , itemWidth
+    , largeItemHeight
+    , largeItemWidth
+    , leftMargin
+    , messageMargin
+    , participantMargin
+    , smallItemMargin
+    , space
+    , tableMargin
+    , tableRowHeight
+    )
 
 
 space : String
@@ -14,6 +36,16 @@ indentSpace =
 fontSize : String
 fontSize =
     "14"
+
+
+iconColor : String
+iconColor =
+    "#F5F5F6"
+
+
+disabledIconColor : String
+disabledIconColor =
+    "#848A90"
 
 
 itemSpan : Int
