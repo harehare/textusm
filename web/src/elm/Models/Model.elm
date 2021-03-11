@@ -22,7 +22,6 @@ import Data.LoginProvider exposing (LoginProvider)
 import Data.Session exposing (Session, User)
 import Data.Title exposing (Title)
 import Graphql.Http as GraphQlHttp
-import Http as Http
 import Json.Decode as D
 import Models.Diagram as Diagram
 import Monocle.Lens exposing (Lens)
@@ -105,7 +104,7 @@ type Page
     | Tags Tags.Model
     | Share
     | Settings
-    | Embed DiagramType.Diagram String String
+    | Embed DiagramType.Diagram String
     | NotFound
 
 

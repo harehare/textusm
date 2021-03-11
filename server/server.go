@@ -14,24 +14,22 @@ import (
 	"context"
 
 	firebase "firebase.google.com/go"
-	"github.com/gorilla/mux"
 	"github.com/kelseyhightower/envconfig"
-	"github.com/urfave/negroni"
 
 	"github.com/harehare/textusm/api/handler"
 	"github.com/harehare/textusm/api/middleware"
 	"github.com/harehare/textusm/pkg/repository"
 	"github.com/harehare/textusm/pkg/service"
-	"github.com/phyber/negroni-gzip/gzip"
-
-	negronilogrus "github.com/meatballhat/negroni-logrus"
-	"github.com/rs/cors"
-	"github.com/sirupsen/logrus"
 
 	gqlHandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"google.golang.org/api/option"
+
+	"github.com/go-chi/chi/v5"
+	chiMiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
+	"github.com/go-chi/httprate"
 )
 
 type Env struct {
@@ -75,45 +73,35 @@ func Run() int {
 	repo := repository.NewFirestoreItemRepository(firestore)
 	shareRepo := repository.NewFirestoreShareRepository(firestore)
 	service := service.NewService(repo, shareRepo)
-	r := mux.NewRouter()
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"https://app.textusm.com", "http://localhost:3000"},
-		AllowedMethods: []string{"POST"},
-		AllowedHeaders: []string{"content-type", "Authorization"},
+
+	r := chi.NewRouter()
+	r.Use(chiMiddleware.Compress(5))
+	r.Use(chiMiddleware.RequestID)
+	r.Use(chiMiddleware.RealIP)
+	r.Use(chiMiddleware.Logger)
+	r.Use(chiMiddleware.Recoverer)
+	r.Use(chiMiddleware.Heartbeat("/healthcheck"))
+	r.Route("/graphql", func(r chi.Router) {
+		r.Use(chiMiddleware.AllowContentType("application/json"))
+		r.Use(middleware.AuthMiddleware(app))
+		r.Use(cors.Handler(cors.Options{
+			AllowedOrigins:   []string{"https://app.textusm.com", "http://localhost:3000"},
+			AllowedMethods:   []string{"POST", "OPTIONS"},
+			AllowedHeaders:   []string{"accept", "authorization", "content-type"},
+			AllowCredentials: false,
+		}))
+		r.Use(httprate.LimitByIP(100, 1*time.Minute))
+		graphql := gqlHandler.New(NewExecutableSchema(Config{Resolvers: &Resolver{service: service}}))
+		graphql.AddTransport(transport.Options{})
+		graphql.AddTransport(transport.POST{})
+		if os.Getenv("GO_ENV") != "production" {
+			graphql.Use(extension.Introspection{})
+		}
+		r.Handle("/", graphql)
 	})
-
-	r.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "{\"status\": \"OK\"}")
+	r.Route("/api", func(r chi.Router) {
+		r.Post("/urlshorter", handler.Shorter)
 	})
-
-	root := mux.NewRouter()
-	r.PathPrefix("/graphql").Handler(negroni.New(
-		negroni.HandlerFunc(middleware.AuthMiddleware(app)),
-		negroni.HandlerFunc(middleware.LoggingMiddleware),
-		negroni.Wrap(root)))
-	subRouter := root.PathPrefix("/").Subrouter()
-	g := gqlHandler.New(NewExecutableSchema(Config{Resolvers: &Resolver{service: service}}))
-	g.AddTransport(transport.Options{})
-	g.AddTransport(transport.POST{})
-	if os.Getenv("GO_ENV") != "production" {
-		g.Use(extension.Introspection{})
-	}
-	subRouter.Methods("POST").Path("/graphql").Handler(g)
-
-	apiBase := mux.NewRouter()
-	r.PathPrefix("/api").Handler(negroni.New(
-		negroni.Wrap(apiBase)))
-	share := apiBase.PathPrefix("/api").Subrouter()
-	share.Methods("POST").Path("/urlshorter").HandlerFunc(handler.Shorter)
-
-	n := negroni.New()
-	n.Use(negroni.NewRecovery())
-	n.Use(negroni.HandlerFunc(middleware.ApiMiddleware))
-	n.Use(c)
-	n.Use(negronilogrus.NewCustomMiddleware(logrus.InfoLevel, &logrus.JSONFormatter{}, "textusm"))
-	n.Use(gzip.Gzip(gzip.BestSpeed))
-	n.UseHandler(r)
 
 	done := make(chan bool, 1)
 	quit := make(chan os.Signal, 1)
@@ -123,7 +111,7 @@ func Run() int {
 
 	s := &http.Server{
 		Addr:              fmt.Sprintf(":%s", env.Port),
-		Handler:           n,
+		Handler:           r,
 		ReadTimeout:       16 * time.Second,
 		WriteTimeout:      16 * time.Second,
 		MaxHeaderBytes:    1 << 20,

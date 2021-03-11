@@ -102,6 +102,7 @@ init flags url key =
                 , diagramId = Nothing
                 , apiRoot = flags.apiRoot
                 , session = Session.guest
+                , title = Title.untitled
                 }
 
         ( settingsModel, _ ) =
@@ -232,7 +233,7 @@ view model =
                 Page.Tags m ->
                     Lazy.lazy Tags.view m |> Html.map UpdateTags
 
-                Page.Embed _ _ _ ->
+                Page.Embed _ _ ->
                     div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
                         [ Lazy.lazy Diagram.view model.diagramModel
                             |> Html.map UpdateDiagram
@@ -349,8 +350,7 @@ changeRouteTo route model =
                     Route.NotFound ->
                         Return.andThen <| Action.switchPage Page.NotFound
 
-                    Route.Embed diagram title path ->
-                        -- TODO:
+                    Route.Embed diagram title id_ ->
                         Return.andThen
                             (\m ->
                                 Return.singleton
@@ -363,7 +363,8 @@ changeRouteTo route model =
                                     }
                             )
                             >> Return.andThen (Action.setTitle title)
-                            >> Return.andThen (Action.switchPage (Page.Embed diagram title path))
+                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareId.toString id_)
+                            >> Return.andThen (Action.switchPage (Page.Embed diagram title))
                             >> Return.andThen Action.changeRouteInit
 
                     Route.Edit diagramType ->
@@ -454,6 +455,7 @@ changeRouteTo route model =
                                     , diagramId = Maybe.andThen (\m -> m.id) model.currentDiagram
                                     , apiRoot = model.apiRoot
                                     , session = model.session
+                                    , title = model.title
                                     }
                         in
                         Return.andThen (\m -> Return.return { m | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare))
@@ -461,13 +463,9 @@ changeRouteTo route model =
                             >> Return.andThen Action.startProgress
 
                     Route.ViewFile _ id_ ->
-                        if Session.isSignedIn model.session then
-                            Return.andThen (Action.switchPage Page.Main)
-                                >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareId.toString id_)
-                                >> Return.andThen Action.changeRouteInit
-
-                        else
-                            Return.andThen (Action.switchPage Page.NotFound)
+                        Return.andThen (Action.switchPage Page.Main)
+                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareId.toString id_)
+                            >> Return.andThen Action.changeRouteInit
            )
 
 

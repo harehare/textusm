@@ -3,6 +3,7 @@ module Views.Header exposing (view)
 import Asset
 import Avatar exposing (Avatar(..))
 import Constants
+import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Data.Session as Session exposing (Session)
@@ -48,6 +49,18 @@ view props =
 
                 _ ->
                     True
+
+        isOpenDiagram =
+            (props.currentDiagram
+                |> Maybe.withDefault DiagramItem.empty
+                |> .id
+                |> Maybe.withDefault (DiagramId.fromString "")
+                |> DiagramId.toString
+            )
+                /= ""
+
+        canShare =
+            Session.isSignedIn props.session && isOpenDiagram && canEdit
     in
     if props.isFullscreen then
         Html.header [] []
@@ -166,7 +179,7 @@ view props =
                     , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipHelp props.lang ] ]
                     ]
                 ]
-            , if Session.isSignedIn props.session && canEdit then
+            , if canShare then
                 Html.a
                     [ Attr.class "flex"
                     , Attr.href <| Route.toString Route.Share

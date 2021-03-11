@@ -26,7 +26,7 @@ item : RequestInfo -> String -> Task (Http.Error DiagramItem) DiagramItem
 item req id =
     Query.item id False
         |> Http.queryRequest (graphQLUrl req)
-        |> headers req.idToken
+        |> authHeaders req.idToken
         |> Http.toTask
 
 
@@ -34,7 +34,7 @@ publicItem : RequestInfo -> String -> Task (Http.Error DiagramItem) DiagramItem
 publicItem req id =
     Query.item id True
         |> Http.queryRequest (graphQLUrl req)
-        |> headers req.idToken
+        |> authHeaders req.idToken
         |> Http.toTask
 
 
@@ -42,7 +42,7 @@ items : RequestInfo -> ( Int, Int ) -> { isPublic : Bool, isBookmark : Bool } ->
 items req ( offset, limit ) params =
     Query.items ( offset, limit ) params
         |> Http.queryRequest (graphQLUrl req)
-        |> headers req.idToken
+        |> authHeaders req.idToken
         |> Http.toTask
 
 
@@ -50,7 +50,6 @@ shareItem : RequestInfo -> String -> Task (Http.Error DiagramItem) DiagramItem
 shareItem req id =
     Query.shareItem id
         |> Http.queryRequest (graphQLUrl req)
-        |> headers req.idToken
         |> Http.toTask
 
 
@@ -58,7 +57,7 @@ save : RequestInfo -> InputItem -> Bool -> Task (Http.Error DiagramItem) Diagram
 save req input isPublic =
     Mutation.save input isPublic
         |> Http.mutationRequest (graphQLUrl req)
-        |> headers req.idToken
+        |> authHeaders req.idToken
         |> Http.toTask
 
 
@@ -66,7 +65,7 @@ delete : RequestInfo -> String -> Bool -> Task (Http.Error (Maybe DiagramItem)) 
 delete req itemID isPublic =
     Mutation.delete itemID isPublic
         |> Http.mutationRequest (graphQLUrl req)
-        |> headers req.idToken
+        |> authHeaders req.idToken
         |> Http.toTask
 
 
@@ -74,7 +73,7 @@ bookmark : RequestInfo -> String -> Bool -> Task (Http.Error (Maybe DiagramItem)
 bookmark req itemID isBookmark =
     Mutation.bookmark itemID isBookmark
         |> Http.mutationRequest (graphQLUrl req)
-        |> headers req.idToken
+        |> authHeaders req.idToken
         |> Http.toTask
 
 
@@ -82,10 +81,10 @@ share : RequestInfo -> String -> Task (Http.Error String) String
 share req itemID =
     Mutation.share itemID
         |> Http.mutationRequest (graphQLUrl req)
-        |> headers req.idToken
+        |> authHeaders req.idToken
         |> Http.toTask
 
 
-headers : Maybe IdToken -> Http.Request decodesTo -> Http.Request decodesTo
-headers idToken =
+authHeaders : Maybe IdToken -> Http.Request decodesTo -> Http.Request decodesTo
+authHeaders idToken =
     Http.withHeader "Authorization" (idToken |> Maybe.withDefault (IdToken.fromString "dummy") |> IdToken.unwrap)

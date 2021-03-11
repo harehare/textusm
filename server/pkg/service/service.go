@@ -12,7 +12,6 @@ import (
 	"github.com/harehare/textusm/pkg/item"
 	"github.com/harehare/textusm/pkg/repository"
 	"github.com/harehare/textusm/pkg/values"
-	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -32,9 +31,21 @@ func NewService(r repository.ItemRepository, s repository.ShareRepository) *Serv
 	}
 }
 
+func isAuthenticated(ctx context.Context) error {
+	userID := values.GetUID(ctx)
+
+	if userID == "" {
+		return e.NoAuthorizationError(errors.New("Not Authorization"))
+	}
+
+	return nil
+}
+
 func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic bool) ([]*item.Item, error) {
-	requestID := values.GetRequestID(ctx)
-	log.Info().Str("request_id", requestID).Int("offset", offset).Int("limit", limit).Msg("Start find diagrams")
+	if err := isAuthenticated(ctx); err != nil {
+		return nil, err
+	}
+
 	userID := values.GetUID(ctx)
 	items, err := s.repo.Find(ctx, userID, offset, limit, isPublic)
 
@@ -60,8 +71,10 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 }
 
 func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool) (*item.Item, error) {
-	requestID := values.GetRequestID(ctx)
-	log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Start Find diagram")
+	if err := isAuthenticated(ctx); err != nil {
+		return nil, err
+	}
+
 	userID := values.GetUID(ctx)
 	item, err := s.repo.FindByID(ctx, userID, itemID, isPublic)
 
@@ -80,8 +93,10 @@ func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool)
 }
 
 func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic bool) (*item.Item, error) {
-	requestID := values.GetRequestID(ctx)
-	log.Info().Str("request_id", requestID).Str("item_id", item.ID).Msg("Save diagram")
+	if err := isAuthenticated(ctx); err != nil {
+		return nil, err
+	}
+
 	userID := values.GetUID(ctx)
 	currentText := item.Text
 	text, err := Encrypt(encryptKey, item.Text)
@@ -105,7 +120,6 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 			return nil, err
 		}
 
-		log.Info().Str("request_id", requestID).Str("item_id", item.ID).Msg("Save public diagram")
 	} else if item.ID != "" {
 		_, err := s.repo.FindByID(ctx, userID, item.ID, true)
 
@@ -115,7 +129,6 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 			if err != nil {
 				return nil, err
 			}
-			log.Info().Str("request_id", requestID).Str("item_id", item.ID).Msg("Delete public diagram")
 		}
 	}
 
@@ -127,8 +140,10 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 }
 
 func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic bool) error {
-	requestID := values.GetRequestID(ctx)
-	log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Start delete diagram")
+	if err := isAuthenticated(ctx); err != nil {
+		return err
+	}
+
 	userID := values.GetUID(ctx)
 
 	if isPublic {
@@ -151,8 +166,10 @@ func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic boo
 }
 
 func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error) {
-	requestID := values.GetRequestID(ctx)
-	log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Start bookmark")
+	if err := isAuthenticated(ctx); err != nil {
+		return nil, err
+	}
+
 	diagramItem, err := s.FindDiagram(ctx, itemID, false)
 
 	if err != nil {
@@ -163,14 +180,6 @@ func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) 
 }
 
 func (s *Service) FindShareItem(ctx context.Context, hashKey string) (*item.Item, error) {
-	requestID := values.GetRequestID(ctx)
-	log.Info().Str("request_id", requestID).Str("hash_key", hashKey).Msg("Start share diagram")
-	userID := values.GetUID(ctx)
-
-	if userID == "" {
-		return nil, e.NoAuthorizationError(errors.New("Not Authorization"))
-	}
-
 	item, err := s.shareRepo.FindByID(ctx, hashKey)
 
 	if err != nil {
@@ -188,8 +197,6 @@ func (s *Service) FindShareItem(ctx context.Context, hashKey string) (*item.Item
 }
 
 func (s *Service) Share(ctx context.Context, itemID string) (*string, error) {
-	requestID := values.GetRequestID(ctx)
-	log.Info().Str("request_id", requestID).Str("item_id", itemID).Msg("Start share diagram")
 	userID := values.GetUID(ctx)
 
 	if userID == "" {
@@ -219,7 +226,6 @@ func (s *Service) Share(ctx context.Context, itemID string) (*string, error) {
 }
 
 func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID, ownerUserID string) (bool, error) {
-
 	if itemID == "" {
 		return true, nil
 	}

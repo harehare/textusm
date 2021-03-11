@@ -4,6 +4,7 @@ import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramType as DiagramType
 import Data.Session as Session exposing (Session)
 import Data.Size as Size exposing (Size)
+import Data.Title as Title exposing (Title)
 import GraphQL.Request as Request
 import Html exposing (Html, div, input, text, textarea)
 import Html.Attributes exposing (class, id, readonly, style, type_, value)
@@ -18,6 +19,7 @@ type alias Model =
     { empbedSize : Size
     , diagramType : Maybe Diagram
     , hashKey : Maybe String
+    , title : Title
     }
 
 
@@ -35,17 +37,32 @@ sharUrl : Model -> String
 sharUrl { hashKey, diagramType } =
     case hashKey of
         Just h ->
-            crossOrigin "https://app.textusm.com" [ "view", Maybe.map (\d -> DiagramType.toString d) diagramType |> Maybe.withDefault "", h ] []
+            crossOrigin "https://app.textusm.com"
+                [ "view"
+                , Maybe.map (\d -> DiagramType.toString d) diagramType |> Maybe.withDefault ""
+                , h
+                ]
+                []
 
         Nothing ->
             ""
 
 
 embedUrl : Model -> String
-embedUrl { hashKey, diagramType } =
+embedUrl { hashKey, diagramType, title, empbedSize } =
     case hashKey of
         Just h ->
-            crossOrigin "https://app.textusm.com" [ "embed", "view", Maybe.map (\d -> DiagramType.toString d) diagramType |> Maybe.withDefault "", h ] []
+            let
+                embed =
+                    crossOrigin "https://app.textusm.com"
+                        [ "embed"
+                        , Maybe.map (\d -> DiagramType.toString d) diagramType |> Maybe.withDefault ""
+                        , Title.toString title
+                        , h
+                        ]
+                        []
+            in
+            "<iframe src=\"" ++ embed ++ "\"  width=\"" ++ String.fromInt (Size.getWidth empbedSize) ++ "\" height=\"" ++ String.fromInt (Size.getHeight empbedSize) ++ "\" frameborder=\"0\" style=\"border:0\" allowfullscreen></iframe>"
 
         Nothing ->
             ""
@@ -66,12 +83,20 @@ share diagramId apiRoot session =
             Return.zero
 
 
-init : { diagram : Maybe Diagram, diagramId : Maybe DiagramId, apiRoot : String, session : Session } -> Return Msg Model
-init { diagram, diagramId, apiRoot, session } =
+init :
+    { diagram : Maybe Diagram
+    , diagramId : Maybe DiagramId
+    , apiRoot : String
+    , session : Session
+    , title : Title
+    }
+    -> Return Msg Model
+init { diagram, diagramId, apiRoot, session, title } =
     Return.singleton
         { empbedSize = ( 800, 600 )
         , diagramType = diagram
         , hashKey = Nothing
+        , title = title
         }
         |> share diagramId apiRoot session
 
@@ -139,7 +164,7 @@ view model =
                                 [ class "input text-sm"
                                 , type_ "number"
                                 , style "color" "#555"
-                                , style "width" "50px"
+                                , style "width" "60px"
                                 , style "height" "32px"
                                 , style "border" "1px solid #8C9FAE"
                                 , value <| String.fromInt (Size.getWidth model.empbedSize)
@@ -151,7 +176,7 @@ view model =
                                 [ class "input text-sm"
                                 , type_ "number"
                                 , style "color" "#555"
-                                , style "width" "50px"
+                                , style "width" "60px"
                                 , style "height" "32px"
                                 , style "border" "1px solid #8C9FAE"
                                 , value <| String.fromInt (Size.getHeight model.empbedSize)

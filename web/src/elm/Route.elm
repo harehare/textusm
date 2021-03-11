@@ -16,10 +16,6 @@ type alias Title =
     String
 
 
-type alias Path =
-    String
-
-
 type Route
     = Home
     | New
@@ -31,7 +27,7 @@ type Route
     | Help
     | Tag
     | Share
-    | Embed Diagram Title Path
+    | Embed Diagram Title ShareId
     | ViewFile Diagram ShareId
     | NotFound
 
@@ -40,7 +36,7 @@ parser : Parser (Route -> a) a
 parser =
     oneOf
         [ map Home Parser.top
-        , map Embed (s "embed" </> diagramType </> string </> string)
+        , map Embed (s "embed" </> diagramType </> string </> shareId)
         , map DiagramList (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
@@ -135,8 +131,8 @@ toString route =
         NotFound ->
             absolute [ "notfound" ] []
 
-        Embed diagramPath title path ->
-            absolute [ "Embed", DiagramType.toString diagramPath, title, path ] []
+        Embed diagramPath title id_ ->
+            absolute [ "Embed", DiagramType.toString diagramPath, title, ShareId.toString id_ ] []
 
 
 replaceRoute : Nav.Key -> Route -> Cmd msg
