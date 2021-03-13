@@ -640,6 +640,9 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
 grid : Settings -> Position -> SelectedItem -> Item -> Svg Msg
 grid settings ( posX, posY ) selectedItem item =
     let
+        ( forgroundColor, backgroundColor ) =
+            getItemColor settings item
+
         view_ =
             Svg.g [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) ) ]
                 [ Svg.rect
@@ -647,15 +650,15 @@ grid settings ( posX, posY ) selectedItem item =
                     , SvgAttr.height <| String.fromInt <| settings.size.height - 1
                     , SvgAttr.x (String.fromInt posX)
                     , SvgAttr.y (String.fromInt posY)
-                    , SvgAttr.fill "transparent"
+                    , SvgAttr.fill backgroundColor
                     , SvgAttr.stroke settings.color.line
-                    , SvgAttr.strokeWidth "3"
+                    , SvgAttr.strokeWidth "1"
                     ]
                     []
                 , text settings
                     ( posX, posY )
                     ( settings.size.width, settings.size.height )
-                    (Diagram.getTextColor settings.color)
+                    forgroundColor
                     (Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize)
                     (Item.getText item)
                 ]
@@ -669,11 +672,10 @@ grid settings ( posX, posY ) selectedItem item =
                         , SvgAttr.height <| String.fromInt <| settings.size.height - 1
                         , SvgAttr.x (String.fromInt posX)
                         , SvgAttr.y (String.fromInt posY)
-                        , SvgAttr.strokeWidth "3"
                         , SvgAttr.stroke "rgba(0, 0, 0, 0.1)"
-                        , SvgAttr.fill "transparent"
+                        , SvgAttr.fill backgroundColor
                         , SvgAttr.stroke settings.color.line
-                        , SvgAttr.strokeWidth "3"
+                        , SvgAttr.strokeWidth "1"
                         , draggingStyle isDragging
                         , SvgAttr.class "ts-grid"
                         ]
@@ -684,7 +686,7 @@ grid settings ( posX, posY ) selectedItem item =
                         , inputStyle = draggingHtmlStyle isDragging
                         , position = ( posX, posY )
                         , size = ( settings.size.width, settings.size.height )
-                        , color = Diagram.getTextColor settings.color
+                        , color = forgroundColor
                         , backgroundColor = "transparent"
                         , item = item_
                         }

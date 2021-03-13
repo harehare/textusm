@@ -50,17 +50,13 @@ view props =
                 _ ->
                     True
 
-        isOpenDiagram =
-            (props.currentDiagram
+        isRemoteDiagram =
+            props.currentDiagram
                 |> Maybe.withDefault DiagramItem.empty
-                |> .id
-                |> Maybe.withDefault (DiagramId.fromString "")
-                |> DiagramId.toString
-            )
-                /= ""
+                |> .isRemote
 
         canShare =
-            Session.isSignedIn props.session && isOpenDiagram && canEdit
+            Session.isSignedIn props.session && isRemoteDiagram && canEdit
     in
     if props.isFullscreen then
         Html.header [] []

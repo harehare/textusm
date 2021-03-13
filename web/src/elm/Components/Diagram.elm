@@ -767,8 +767,8 @@ update message model =
                                     Return.andThen (setLine lineNo (Text.lines model.text) (ErDiagramModel.tableToLineString table))
 
                                 Diagram.ItemTarget item ->
-                                    Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
-                                        >> Return.andThen (setItem item model.items)
+                                    Return.andThen (setItem item model.items)
+                                        >> Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
 
                         _ ->
                             Return.zero
