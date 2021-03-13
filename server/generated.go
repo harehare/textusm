@@ -73,7 +73,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	Save(ctx context.Context, input item.InputItem, isPublic *bool) (*item.Item, error)
-	Delete(ctx context.Context, itemID string, isPublic *bool) (*item.Item, error)
+	Delete(ctx context.Context, itemID string, isPublic *bool) (string, error)
 	Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error)
 	Share(ctx context.Context, id string) (string, error)
 }
@@ -375,7 +375,7 @@ input InputItem {
 
 type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
-  delete(itemID: String!, isPublic: Boolean = False): Item
+  delete(itemID: String!, isPublic: Boolean = False): String!
   bookmark(itemID: String!, isBookmark: Boolean!): Item
   share(id: String!): String!
 }
@@ -1026,11 +1026,14 @@ func (ec *executionContext) _Mutation_delete(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*item.Item)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_bookmark(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2570,6 +2573,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "delete":
 			out.Values[i] = ec._Mutation_delete(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "bookmark":
 			out.Values[i] = ec._Mutation_bookmark(ctx, field)
 		case "share":

@@ -31,22 +31,10 @@ save input isPublic =
         )
 
 
-delete : String -> Bool -> SelectionSet (Maybe DiagramItem) RootMutation
+delete : String -> Bool -> SelectionSet String RootMutation
 delete itemID isPublic =
-    Mutation.delete (\optionals -> { optionals | isPublic = Present isPublic }) { itemID = itemID } <|
-        (SelectionSet.succeed DiagramItem
-            |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
-            |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
-            |> with TextUSM.Object.Item.diagram
-            |> with (TextUSM.Object.Item.title |> SelectionSet.map (\value -> Title.fromString value))
-            |> with TextUSM.Object.Item.thumbnail
-            |> with TextUSM.Object.Item.isPublic
-            |> with TextUSM.Object.Item.isBookmark
-            |> hardcoded True
-            |> with TextUSM.Object.Item.tags
-            |> with (TextUSM.Object.Item.createdAt |> DiagramItem.mapToDateTime)
-            |> with (TextUSM.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
-        )
+    Mutation.delete (\optionals -> { optionals | isPublic = Present isPublic }) { itemID = itemID }
+        |> SelectionSet.map String.toLower
 
 
 bookmark : String -> Bool -> SelectionSet (Maybe DiagramItem) RootMutation

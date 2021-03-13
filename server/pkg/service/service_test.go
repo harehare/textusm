@@ -47,6 +47,11 @@ func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *it
 	return ret.Error(0)
 }
 
+func (m *MockShareRepository) Delete(ctx context.Context, hashKey string) error {
+	ret := m.Called(ctx, hashKey)
+	return ret.Error(0)
+}
+
 func TestFindDiagrams(t *testing.T) {
 	mockItemRepo := new(MockItemRepository)
 	mockShareRepo := new(MockShareRepository)

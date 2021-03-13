@@ -24,6 +24,7 @@ import (
 	gqlHandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"google.golang.org/api/option"
 
 	"github.com/go-chi/chi/v5"
@@ -91,9 +92,10 @@ func Run() int {
 			AllowCredentials: false,
 		}))
 		r.Use(httprate.LimitByIP(100, 1*time.Minute))
-		graphql := gqlHandler.New(NewExecutableSchema(Config{Resolvers: &Resolver{service: service}}))
+		graphql := gqlHandler.New(NewExecutableSchema(Config{Resolvers: &Resolver{service: service, client: firestore}}))
 		graphql.AddTransport(transport.Options{})
 		graphql.AddTransport(transport.POST{})
+		graphql.SetQueryCache(lru.New(100))
 		if os.Getenv("GO_ENV") != "production" {
 			graphql.Use(extension.Introspection{})
 		}

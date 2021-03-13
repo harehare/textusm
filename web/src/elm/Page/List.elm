@@ -41,7 +41,7 @@ type Msg
     | Remove DiagramItem
     | Bookmark DiagramItem
     | RemoveRemote D.Value
-    | Removed (Result (GraphQLHttp.Error (Maybe DiagramItem)) (Maybe DiagramItem))
+    | Removed (Result (GraphQLHttp.Error String) String)
     | Bookmarked (Result (GraphQLHttp.Error (Maybe DiagramItem)) (Maybe DiagramItem))
     | GotTimeZone Zone
     | GotLocalDiagramsJson D.Value
@@ -651,7 +651,7 @@ update message model =
                         (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session }
                             (diagram.id |> Maybe.withDefault (DiagramId.fromString "") |> DiagramId.toString)
                             False
-                            |> Task.map (\_ -> Just diagram)
+                            |> Task.map (\id -> id)
                         )
                     )
 

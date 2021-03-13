@@ -5,9 +5,11 @@ import "fmt"
 type Code string
 
 const (
-	NotFound        Code = "NotFound"
-	NoAuthorization Code = "NoAuthorization"
-	UnKnown         Code = "UnKnown"
+	NotFound         Code = "NotFound"
+	NoAuthorization  Code = "NoAuthorization"
+	DecryptionFailed Code = "DecryptionFailed"
+	EncryptionFailed Code = "EncryptionFailed"
+	UnKnown          Code = "UnKnown"
 )
 
 type RepositoryError struct {
@@ -38,6 +40,14 @@ func UnKnownError(err error) RepositoryError {
 
 func NoAuthorizationError(err error) ServiceError {
 	return ServiceError{code: NoAuthorization, err: err}
+}
+
+func DecryptionFailedError(err error) ServiceError {
+	return ServiceError{code: DecryptionFailed, err: err}
+}
+
+func EncryptionFailedError(err error) ServiceError {
+	return ServiceError{code: EncryptionFailed, err: err}
 }
 
 func GetCode(err error) Code {

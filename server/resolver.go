@@ -7,12 +7,15 @@ import (
 	"context"
 	"time"
 
+	"cloud.google.com/go/firestore"
 	"github.com/harehare/textusm/pkg/item"
 	"github.com/harehare/textusm/pkg/service"
+	"github.com/harehare/textusm/pkg/values"
 )
 
 type Resolver struct {
 	service *service.Service
+	client *firestore.Client
 }
 
 func (r *mutationResolver) Save(ctx context.Context, input item.InputItem, isPublic *bool) (*item.Item, error) {
@@ -53,20 +56,17 @@ func (r *mutationResolver) Save(ctx context.Context, input item.InputItem, isPub
 	return r.service.SaveDiagram(ctx, &saveItem, *isPublic)
 }
 
-func (r *mutationResolver) Delete(ctx context.Context, itemID string, isPublic *bool) (*item.Item, error) {
-	diagramItem, err := r.service.FindDiagram(ctx, itemID, *isPublic)
+func (r *mutationResolver) Delete(ctx context.Context, itemID string, isPublic *bool) (string, error) {
+	err := r.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		ctx = values.WithTx(ctx, tx)
+		return r.service.DeleteDiagram(ctx, itemID, *isPublic)
+	})
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	err = r.service.DeleteDiagram(ctx, itemID, *isPublic)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return diagramItem, nil
+	return itemID, nil
 }
 
 func (r *mutationResolver) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error) {

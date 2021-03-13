@@ -8,8 +8,9 @@ import (
 	"github.com/harehare/textusm/pkg/item"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/api/iterator"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"github.com/harehare/textusm/pkg/values"
 )
 
 const (
@@ -37,7 +38,7 @@ func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID, itemID s
 		fields, err = r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID).Get(ctx)
 	}
 
-	if grpc.Code(err) == codes.NotFound {
+	if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
 		return nil, e.NotFoundError(err)
 	}
 
@@ -102,12 +103,26 @@ func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item 
 	return item, nil
 }
 
-func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) (err error) {
-	if isPublic {
-		_, err = r.client.Collection(publicCollection).Doc(itemID).Delete(ctx)
-	} else {
-		_, err = r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID).Delete(ctx)
+func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) error {
+	tx := values.GetTx(ctx)
+
+	if tx == nil {
+		if isPublic {
+			_, err := r.client.Collection(publicCollection).Doc(itemID).Delete(ctx)
+			return err
+		} else {
+			_, err := r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID).Delete(ctx)
+			return err
+		}
 	}
 
-	return
+	if isPublic {
+		ref := r.client.Collection(publicCollection).Doc(itemID)
+		return tx.Delete(ref)
+	} else {
+		ref := r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID)
+		return tx.Delete(ref)
+	}
+
+	return nil
 }

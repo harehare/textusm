@@ -67,9 +67,8 @@ type alias DeleteRequiredArguments =
 delete :
     (DeleteOptionalArguments -> DeleteOptionalArguments)
     -> DeleteRequiredArguments
-    -> SelectionSet decodesTo TextUSM.Object.Item
-    -> SelectionSet (Maybe decodesTo) RootMutation
-delete fillInOptionals____ requiredArgs____ object____ =
+    -> SelectionSet String RootMutation
+delete fillInOptionals____ requiredArgs____ =
     let
         filledInOptionals____ =
             fillInOptionals____ { isPublic = Absent }
@@ -78,7 +77,7 @@ delete fillInOptionals____ requiredArgs____ object____ =
             [ Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
                 |> List.filterMap identity
     in
-    Object.selectionForCompositeField "delete" (optionalArgs____ ++ [ Argument.required "itemID" requiredArgs____.itemID Encode.string ]) object____ (identity >> Decode.nullable)
+    Object.selectionForField "String" "delete" (optionalArgs____ ++ [ Argument.required "itemID" requiredArgs____.itemID Encode.string ]) Decode.string
 
 
 type alias BookmarkRequiredArguments =

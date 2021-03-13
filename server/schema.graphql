@@ -57,7 +57,7 @@ input InputItem {
 
 type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
-  delete(itemID: String!, isPublic: Boolean = False): Item
+  delete(itemID: String!, isPublic: Boolean = False): String!
   bookmark(itemID: String!, isBookmark: Boolean!): Item
   share(id: String!): String!
 }

@@ -9,4 +9,5 @@ import (
 type ShareRepository interface {
 	FindByID(ctx context.Context, hashKey string) (*item.Item, error)
 	Save(ctx context.Context, hashKey string, item *item.Item) error
+	Delete(ctx context.Context, hashKey string) error
 }

@@ -61,7 +61,7 @@ save req input isPublic =
         |> Http.toTask
 
 
-delete : RequestInfo -> String -> Bool -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
+delete : RequestInfo -> String -> Bool -> Task (Http.Error String) String
 delete req itemID isPublic =
     Mutation.delete itemID isPublic
         |> Http.mutationRequest (graphQLUrl req)

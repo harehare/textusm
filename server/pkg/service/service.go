@@ -59,7 +59,7 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 		if item.Text != "" {
 			text, err := Decrypt(encryptKey, item.Text)
 			if err != nil {
-				return nil, err
+				return nil, e.DecryptionFailedError(err)
 			}
 			item.Text = text
 		}
@@ -85,7 +85,7 @@ func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool)
 	text, err := Decrypt(encryptKey, item.Text)
 
 	if err != nil {
-		return nil, err
+		return nil, e.DecryptionFailedError(err)
 	}
 
 	item.Text = text
@@ -102,7 +102,7 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 	text, err := Encrypt(encryptKey, item.Text)
 
 	if err != nil {
-		return nil, err
+		return nil, e.EncryptionFailedError(err)
 	}
 
 	item.Text = text
@@ -145,6 +145,11 @@ func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic boo
 	}
 
 	userID := values.GetUID(ctx)
+	shareID, err := itemIDToShareID(itemID)
+
+	if err != nil {
+		return err
+	}
 
 	if isPublic {
 		isOwner, err := s.isPublicDiagramOwner(ctx, itemID, userID)
@@ -155,11 +160,13 @@ func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic boo
 	}
 
 	if isPublic {
-		err := s.repo.Delete(ctx, userID, itemID, true)
-
-		if err != nil {
+		if err := s.repo.Delete(ctx, userID, itemID, true); err != nil {
 			return err
 		}
+	}
+
+	if err := s.shareRepo.Delete(ctx, *shareID); err != nil {
+		return err
 	}
 
 	return s.repo.Delete(ctx, userID, itemID, false)
@@ -203,26 +210,23 @@ func (s *Service) Share(ctx context.Context, itemID string) (*string, error) {
 		return nil, e.NoAuthorizationError(errors.New("Not Authorization"))
 	}
 
-	mac := hmac.New(sha256.New, shareEncryptKey)
-	_, err := mac.Write([]byte(itemID))
-
-	if err != nil {
-		return nil, err
-	}
-
 	item, err := s.repo.FindByID(ctx, userID, itemID, false)
 
 	if err != nil {
 		return nil, err
 	}
 
-	hashKey := hex.EncodeToString(mac.Sum(nil))
+	shareID, err := itemIDToShareID(item.ID)
 
-	if err := s.shareRepo.Save(ctx, hashKey, item); err != nil {
+	if err != nil {
 		return nil, err
 	}
 
-	return &hashKey, nil
+	if err := s.shareRepo.Save(ctx, *shareID, item); err != nil {
+		return nil, err
+	}
+
+	return shareID, nil
 }
 
 func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID, ownerUserID string) (bool, error) {
@@ -238,4 +242,16 @@ func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID, ownerUserID 
 	}
 
 	return isOwner, err
+}
+
+func itemIDToShareID(itemID string) (*string, error) {
+	mac := hmac.New(sha256.New, shareEncryptKey)
+	_, err := mac.Write([]byte(itemID))
+
+	if err != nil {
+		return nil, err
+	}
+
+	hashKey := hex.EncodeToString(mac.Sum(nil))
+	return &hashKey, nil
 }
