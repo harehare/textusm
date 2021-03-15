@@ -84,7 +84,12 @@ const common = {
                 use: [
                     "style-loader",
                     "css-loader?url=false",
-                    "sass-loader",
+                    {
+                        loader: "sass-loader",
+                        options: {
+                            implementation: require("sass"),
+                        },
+                    },
                     "postcss-loader",
                 ],
             },
@@ -227,7 +232,12 @@ if (mode === "production") {
                     use: [
                         MiniCssExtractPlugin.loader,
                         "css-loader?url=false",
-                        "sass-loader",
+                        {
+                            loader: "sass-loader",
+                            options: {
+                                implementation: require("sass"),
+                            },
+                        },
                         "postcss-loader",
                     ],
                 },
