@@ -16,7 +16,6 @@ import (
 	firebase "firebase.google.com/go"
 	"github.com/kelseyhightower/envconfig"
 
-	"github.com/harehare/textusm/api/handler"
 	"github.com/harehare/textusm/api/middleware"
 	"github.com/harehare/textusm/pkg/repository"
 	"github.com/harehare/textusm/pkg/service"
@@ -102,9 +101,6 @@ func Run() int {
 			graphql.Use(extension.Introspection{})
 		}
 		r.Handle("/", graphql)
-	})
-	r.Route("/api", func(r chi.Router) {
-		r.Post("/urlshorter", handler.Shorter)
 	})
 
 	done := make(chan bool, 1)

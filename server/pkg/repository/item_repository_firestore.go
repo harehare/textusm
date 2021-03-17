@@ -127,6 +127,4 @@ func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, ite
 		ref := r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID)
 		return tx.Delete(ref)
 	}
-
-	return nil
 }
