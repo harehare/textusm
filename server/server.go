@@ -23,8 +23,8 @@ import (
 
 	gqlHandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
-	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"google.golang.org/api/option"
 
 	"github.com/go-chi/chi/v5"
@@ -45,9 +45,11 @@ var (
 )
 
 func Run() int {
-	envconfig.Process("TextUSM", &env)
+	err := envconfig.Process("TextUSM", &env)
 
-	var err error
+	if err != nil {
+		return 1
+	}
 
 	b, err := base64.StdEncoding.DecodeString(env.Credentials)
 

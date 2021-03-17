@@ -6,11 +6,11 @@ import (
 	"cloud.google.com/go/firestore"
 	e "github.com/harehare/textusm/pkg/error"
 	"github.com/harehare/textusm/pkg/item"
+	"github.com/harehare/textusm/pkg/values"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"github.com/harehare/textusm/pkg/values"
 )
 
 const (
@@ -47,7 +47,9 @@ func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID, itemID s
 	}
 
 	var i item.Item
-	fields.DataTo(&i)
+	if err := fields.DataTo(&i); err != nil {
+		return nil, err
+	}
 
 	return &i, nil
 }
@@ -74,7 +76,9 @@ func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offse
 		}
 
 		var i item.Item
-		doc.DataTo(&i)
+		if err := doc.DataTo(&i); err != nil {
+			return nil, err
+		}
 
 		items = append(items, &i)
 	}

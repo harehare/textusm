@@ -28,7 +28,11 @@ func (r *FirestoreShareRepository) FindByID(ctx context.Context, hashKey string)
 	}
 
 	var i item.Item
-	fields.DataTo(&i)
+
+	if err := fields.DataTo(&i); err != nil {
+		return nil, err
+	}
+
 	return &i, nil
 }
 
