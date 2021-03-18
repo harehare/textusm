@@ -22,6 +22,7 @@ module Models.Diagram exposing
     , modelOfSettings
     , modelOfShowZoomControl
     , modelOfText
+    , moveingItem
     , settingsOfActivityBackgroundColor
     , settingsOfActivityColor
     , settingsOfBackgroundColor
@@ -214,6 +215,21 @@ isMoving moveState =
 
         _ ->
             True
+
+
+moveingItem : Model -> Maybe Item
+moveingItem model =
+    case model.moveState of
+        ItemMove target ->
+            case target of
+                ItemTarget item ->
+                    Just item
+
+                _ ->
+                    Nothing
+
+        _ ->
+            Nothing
 
 
 fontStyle : Settings -> String

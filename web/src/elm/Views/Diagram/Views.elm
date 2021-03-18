@@ -464,7 +464,10 @@ node settings ( posX, posY ) selectedItem item =
             settings.size.width
 
         view_ =
-            Svg.g [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) ) ]
+            Svg.g
+                [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
+                , Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
+                ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt nodeWidth
                     , SvgAttr.height <| String.fromInt <| settings.size.height - 1
@@ -502,9 +505,12 @@ node settings ( posX, posY ) selectedItem item =
             view_
 
 
-rootTextNode : Settings -> Position -> SelectedItem -> Item -> Svg Msg
-rootTextNode settings ( posX, posY ) selectedItem item =
+rootTextNode : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
+rootTextNode { settings, position, selectedItem, item } =
     let
+        ( posX, posY ) =
+            position
+
         borderColor =
             Item.getBackgroundColor item
                 |> Maybe.andThen (\c -> Just <| Color.toString c)
@@ -516,7 +522,10 @@ rootTextNode settings ( posX, posY ) selectedItem item =
                 |> Maybe.withDefault settings.color.activity.color
 
         view_ =
-            Svg.g [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) ) ]
+            Svg.g
+                [ onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
+                , Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
+                ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt settings.size.width
                     , SvgAttr.height <| String.fromInt <| settings.size.height - 1

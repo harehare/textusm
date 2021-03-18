@@ -1,7 +1,8 @@
 module Views.Diagram.ImpactMap exposing (view)
 
-import Data.Item as Item exposing (ItemType(..), Items)
-import Data.Position exposing (Position)
+import Data.Item as Item exposing (Item, ItemType(..), Items)
+import Data.ItemSettings as ItemSettings
+import Data.Position as Position exposing (Position)
 import Data.Size exposing (Size)
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
@@ -28,6 +29,9 @@ view model =
             let
                 rootItem =
                     Item.head items
+
+                moveingItem =
+                    Diagram.moveingItem model
             in
             case rootItem of
                 Just root ->
@@ -37,11 +41,20 @@ view model =
                     in
                     Svg.g
                         []
-                        [ nodesView model.settings 2 ( 0, 0 ) model.selectedItem impactMapItems
-                        , Views.rootTextNode model.settings
-                            ( 0, 0 )
-                            model.selectedItem
-                            root
+                        [ nodesView
+                            { settings = model.settings
+                            , hierarchy = 2
+                            , position = Position.zero
+                            , selectedItem = model.selectedItem
+                            , moveingItem = moveingItem
+                            , items = impactMapItems
+                            }
+                        , Views.rootTextNode
+                            { settings = model.settings
+                            , position = Position.zero
+                            , selectedItem = model.selectedItem
+                            , item = root
+                            }
                         ]
 
                 Nothing ->
@@ -51,14 +64,25 @@ view model =
             Empty.view
 
 
-nodesView : Settings -> Int -> Position -> SelectedItem -> Items -> Svg Msg
-nodesView settings hierarchy ( x, y ) selectedItem items =
+nodesView :
+    { settings : Settings
+    , hierarchy : Int
+    , position : Position
+    , selectedItem : SelectedItem
+    , moveingItem : Maybe Item
+    , items : Items
+    }
+    -> Svg Msg
+nodesView { settings, hierarchy, position, selectedItem, items, moveingItem } =
     let
         svgWidth =
             settings.size.width
 
         svgHeight =
             settings.size.height
+
+        ( x, y ) =
+            position
 
         tmpNodeCounts =
             items
@@ -98,11 +122,26 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
             |> List.concatMap
                 (\( i, nodeCount, item ) ->
                     let
+                        offset =
+                            Maybe.map
+                                (\m ->
+                                    if Item.getLineNo m == Item.getLineNo item then
+                                        m
+
+                                    else
+                                        item
+                                )
+                                moveingItem
+                                |> Maybe.withDefault item
+                                |> Item.getItemSettings
+                                |> Maybe.map ItemSettings.getOffset
+                                |> Maybe.withDefault Position.zero
+
                         itemX =
-                            x + (svgWidth + xMargin)
+                            x + (svgWidth + xMargin) + Position.getX offset
 
                         itemY =
-                            y + (nodeCount * svgHeight - yOffset) + (i * yMargin)
+                            y + (nodeCount * svgHeight - yOffset) + (i * yMargin) + Position.getY offset
                     in
                     [ nodeLineView
                         ( settings.size.width, settings.size.height )
@@ -110,13 +149,16 @@ nodesView settings hierarchy ( x, y ) selectedItem items =
                         ( x, y )
                         ( itemX, itemY )
                     , nodesView
-                        settings
-                        (hierarchy + 1)
-                        ( itemX
-                        , itemY
-                        )
-                        selectedItem
-                        (Item.unwrapChildren <| Item.getChildren item)
+                        { settings = settings
+                        , hierarchy = hierarchy + 1
+                        , position =
+                            ( itemX
+                            , itemY
+                            )
+                        , selectedItem = selectedItem
+                        , moveingItem = moveingItem
+                        , items = Item.unwrapChildren <| Item.getChildren item
+                        }
                     , Views.node settings
                         ( itemX, itemY )
                         selectedItem
