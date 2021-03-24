@@ -35,7 +35,7 @@
         "elm": "^0.19.1-5",
         "elm-hot-webpack-loader": "^1.1.8",
         "elm-test": "^0.19.1-revision6",
-        "elm-webpack-loader": "^6.0.0",
+        "elm-webpack-loader": "^7.0.1",
         "eslint": "^7.22.0",
         "eslint-config-airbnb-typescript-prettier": "^4.2.0",
         "html-inline-css-webpack-plugin": "^1.11.0",
