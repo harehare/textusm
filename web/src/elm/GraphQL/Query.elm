@@ -48,8 +48,8 @@ items ( offset, limit ) params =
 
 
 shareItem : String -> SelectionSet DiagramItem RootQuery
-shareItem id =
-    Query.shareItem { id = id } <|
+shareItem token =
+    Query.shareItem { token = token } <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
             |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))

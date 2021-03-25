@@ -4,19 +4,26 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"os"
+	"time"
 
+	jwt "github.com/form3tech-oss/jwt-go"
 	e "github.com/harehare/textusm/pkg/error"
 	"github.com/harehare/textusm/pkg/item"
 	"github.com/harehare/textusm/pkg/repository"
 	"github.com/harehare/textusm/pkg/values"
+	uuid "github.com/satori/go.uuid"
 )
 
 var (
 	encryptKey      = []byte(os.Getenv("ENCRYPT_KEY"))
 	shareEncryptKey = []byte(os.Getenv("SHARE_ENCRYPT_KEY"))
+	pubKey          = os.Getenv("ENCRYPT_PUBLIC_KEY")
+	priKey          = os.Getenv("ENCRYPT_PRIVATE_KEY")
 )
 
 type Service struct {
@@ -35,7 +42,7 @@ func isAuthenticated(ctx context.Context) error {
 	userID := values.GetUID(ctx)
 
 	if userID == "" {
-		return e.NoAuthorizationError(errors.New("Not Authorization"))
+		return e.NoAuthorizationError(errors.New("not authorization"))
 	}
 
 	return nil
@@ -186,8 +193,21 @@ func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) 
 	return s.SaveDiagram(ctx, diagramItem, false)
 }
 
-func (s *Service) FindShareItem(ctx context.Context, hashKey string) (*item.Item, error) {
-	item, err := s.shareRepo.FindByID(ctx, hashKey)
+func (s *Service) FindShareItem(ctx context.Context, token string) (*item.Item, error) {
+	t, err := base64.URLEncoding.DecodeString(token)
+
+	if err != nil {
+		return nil, err
+	}
+
+	jwtToken, err := verifyToken(ctx, string(t))
+
+	if err != nil {
+		return nil, err
+	}
+
+	claims := jwtToken.Claims.(jwt.MapClaims)
+	item, err := s.shareRepo.FindByID(ctx, claims["sub"].(string))
 
 	if err != nil {
 		return nil, err
@@ -203,11 +223,11 @@ func (s *Service) FindShareItem(ctx context.Context, hashKey string) (*item.Item
 	return item, nil
 }
 
-func (s *Service) Share(ctx context.Context, itemID string) (*string, error) {
+func (s *Service) Share(ctx context.Context, itemID string, expSecond int) (*string, error) {
 	userID := values.GetUID(ctx)
 
 	if userID == "" {
-		return nil, e.NoAuthorizationError(errors.New("Not Authorization"))
+		return nil, e.NoAuthorizationError(errors.New("not authorization"))
 	}
 
 	item, err := s.repo.FindByID(ctx, userID, itemID, false)
@@ -226,7 +246,61 @@ func (s *Service) Share(ctx context.Context, itemID string) (*string, error) {
 		return nil, err
 	}
 
-	return shareID, nil
+	privateKey, err := base64.StdEncoding.DecodeString(priKey)
+
+	if err != nil {
+		return nil, err
+	}
+
+	signKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKey)
+
+	if err != nil {
+		return nil, err
+	}
+
+	token := jwt.New(jwt.SigningMethodRS512)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["jti"] = uuid.NewV4().String()
+	claims["sub"] = shareID
+	claims["iat"] = time.Now().Unix()
+	claims["exp"] = time.Now().Add(time.Second * time.Duration(expSecond)).Unix()
+
+	tokenString, err := token.SignedString(signKey)
+
+	if err != nil {
+		return nil, err
+	}
+
+	base64Token := base64.URLEncoding.EncodeToString([]byte(tokenString))
+
+	return &base64Token, nil
+}
+
+func verifyToken(ctx context.Context, token string) (*jwt.Token, error) {
+	publicKey, err := base64.StdEncoding.DecodeString(pubKey)
+
+	if err != nil {
+		return nil, e.ForbiddenError(err)
+	}
+
+	jwtPublicKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKey)
+	if err != nil {
+		return nil, e.ForbiddenError(err)
+	}
+
+	verifiedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, err
+		}
+		return jwtPublicKey, nil
+	})
+
+	if err != nil || !verifiedToken.Valid {
+		fmt.Println(err.Error())
+		return nil, e.ForbiddenError(err)
+	}
+
+	return verifiedToken, nil
 }
 
 func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID, ownerUserID string) (bool, error) {

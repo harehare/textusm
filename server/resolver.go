@@ -15,7 +15,7 @@ import (
 
 type Resolver struct {
 	service *service.Service
-	client *firestore.Client
+	client  *firestore.Client
 }
 
 func (r *mutationResolver) Save(ctx context.Context, input item.InputItem, isPublic *bool) (*item.Item, error) {
@@ -81,13 +81,13 @@ func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBo
 	return r.service.FindDiagrams(ctx, *offset, *limit, *isPublic)
 }
 
-func (r *queryResolver) ShareItem(ctx context.Context, id string) (*item.Item, error) {
-	return r.service.FindShareItem(ctx, id)
+func (r *queryResolver) ShareItem(ctx context.Context, token string) (*item.Item, error) {
+	return r.service.FindShareItem(ctx, token)
 }
 
-func (r *mutationResolver) Share(ctx context.Context, id string) (string, error) {
-	hashKey, err := r.service.Share(ctx, id)
-	return *hashKey, err
+func (r *mutationResolver) Share(ctx context.Context, token string, expSecond *int) (string, error) {
+	jwtToken, err := r.service.Share(ctx, token, *expSecond)
+	return *jwtToken, err
 }
 
 // Mutation returns MutationResolver implementation.

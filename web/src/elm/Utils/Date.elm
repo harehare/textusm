@@ -1,4 +1,4 @@
-module Utils.Date exposing (millisToString, monthToInt)
+module Utils.Date exposing (millisToDateString, millisToString, millisToTimeString, monthToInt)
 
 import Time exposing (Month(..), Posix, Zone)
 import Time.Extra exposing (Interval(..))
@@ -17,6 +17,22 @@ millisToString timezone posix =
         ++ (Time.toMinute timezone posix |> String.fromInt |> String.padLeft 2 '0')
         ++ ":"
         ++ (Time.toSecond timezone posix |> String.fromInt |> String.padLeft 2 '0')
+
+
+millisToDateString : Zone -> Posix -> String
+millisToDateString timezone posix =
+    String.fromInt (Time.toYear timezone posix)
+        ++ "-"
+        ++ (monthToInt (Time.toMonth timezone posix) |> String.fromInt |> String.padLeft 2 '0')
+        ++ "-"
+        ++ (Time.toDay timezone posix |> String.fromInt |> String.padLeft 2 '0')
+
+
+millisToTimeString : Zone -> Posix -> String
+millisToTimeString timezone posix =
+    (Time.toHour timezone posix |> String.fromInt |> String.padLeft 2 '0')
+        ++ ":"
+        ++ (Time.toMinute timezone posix |> String.fromInt |> String.padLeft 2 '0')
 
 
 monthToInt : Month -> Int

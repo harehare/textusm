@@ -100,17 +100,31 @@ bookmark requiredArgs____ object____ =
     Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID Encode.string, Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ (identity >> Decode.nullable)
 
 
+type alias ShareOptionalArguments =
+    { expSecond : OptionalArgument Int }
+
+
 type alias ShareRequiredArguments =
-    { id : String }
+    { itemID : String }
 
 
 {-|
 
-  - id -
+  - itemID -
+  - expSecond -
 
 -}
 share :
-    ShareRequiredArguments
+    (ShareOptionalArguments -> ShareOptionalArguments)
+    -> ShareRequiredArguments
     -> SelectionSet String RootMutation
-share requiredArgs____ =
-    Object.selectionForField "String" "share" [ Argument.required "id" requiredArgs____.id Encode.string ] Decode.string
+share fillInOptionals____ requiredArgs____ =
+    let
+        filledInOptionals____ =
+            fillInOptionals____ { expSecond = Absent }
+
+        optionalArgs____ =
+            [ Argument.optional "expSecond" filledInOptionals____.expSecond Encode.int ]
+                |> List.filterMap identity
+    in
+    Object.selectionForField "String" "share" (optionalArgs____ ++ [ Argument.required "itemID" requiredArgs____.itemID Encode.string ]) Decode.string

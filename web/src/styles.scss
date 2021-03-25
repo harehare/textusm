@@ -78,7 +78,7 @@
 
 @layer components {
     .label {
-        @apply text-base font-semibold;
+        @apply text-lg font-semibold;
         padding: 1px 8px;
     }
     .avatar {
@@ -161,6 +161,9 @@
     }
     .flex-center {
         @apply flex items-center justify-center;
+    }
+    .flex-h-center {
+        @apply flex items-center;
     }
     .flex-start {
         @apply flex items-start justify-start;
@@ -467,14 +470,29 @@
     margin: 8px;
 }
 
+.input-light {
+    @apply font text-dark;
+    outline: none;
+    background-color: #fff;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    padding: 8px;
+    height: 32px;
+    border: 1px solid #8c9fae;
+    box-sizing: border-box;
+}
+
 .menu-item {
     @apply cursor-pointer text-base font-bold;
     padding: 16px;
 }
 
 .share {
-    @apply w-full bg-default text-color;
-    height: calc(100vh - 35px);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    @apply bg-default text-color;
     .text {
         @apply text-sm;
         padding: 16px;
@@ -484,6 +502,13 @@
     @media (max-width: 480px) {
         @apply w-screen;
         height: calc(100vh - 130px);
+    }
+    .copy-button {
+        @apply flex-center cursor-pointer absolute;
+        top: 8px;
+        right: 8px;
+        height: 32px;
+        background-color: var(--activity-color);
     }
 }
 

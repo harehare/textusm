@@ -83,12 +83,12 @@ items fillInOptionals____ object____ =
 
 
 type alias ShareItemRequiredArguments =
-    { id : String }
+    { token : String }
 
 
 {-|
 
-  - id -
+  - token -
 
 -}
 shareItem :
@@ -96,4 +96,4 @@ shareItem :
     -> SelectionSet decodesTo TextUSM.Object.Item
     -> SelectionSet decodesTo RootQuery
 shareItem requiredArgs____ object____ =
-    Object.selectionForCompositeField "shareItem" [ Argument.required "id" requiredArgs____.id Encode.string ] object____ identity
+    Object.selectionForCompositeField "shareItem" [ Argument.required "token" requiredArgs____.token Encode.string ] object____ identity

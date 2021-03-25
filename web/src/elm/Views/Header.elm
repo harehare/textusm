@@ -3,7 +3,6 @@ module Views.Header exposing (view)
 import Asset
 import Avatar exposing (Avatar(..))
 import Constants
-import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Data.Session as Session exposing (Session)

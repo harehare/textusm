@@ -3,7 +3,7 @@ module Components.Diagram exposing (init, update, view)
 import Browser.Dom as Dom
 import Constants
 import Data.FontStyle as FontStyle
-import Data.Item as Item exposing (Item, ItemType(..), Items)
+import Data.Item as Item exposing (ItemType(..))
 import Data.ItemSettings as ItemSettings
 import Data.Position as Position exposing (Position)
 import Data.Size as Size exposing (Size)
@@ -13,7 +13,6 @@ import File
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Html.Events as Event
-import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
 import Json.Decode as D
@@ -225,6 +224,7 @@ view model =
             _ ->
                 Attr.style "cursor" "grab"
         , Events.onDrop DropFiles
+        , Events.onMouseUp <| \_ -> Stop
         , Event.preventDefaultOn "dragover" <|
             D.succeed ( ChangeDragStatus DragOver, True )
         , Event.preventDefaultOn "dragleave" <|
@@ -392,7 +392,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
             ]
             [ mainSvg ]
         , case ( model.selectedItem, model.contextMenu ) of
-            ( Just ( item_, _ ), Just ( contextMenu, position ) ) ->
+            ( Just item_, Just ( contextMenu, position ) ) ->
                 ContextMenu.view
                     { state = contextMenu
                     , item = item_
@@ -442,7 +442,7 @@ onDragStart item isPhone =
                         Start Diagram.BoardMove ( round x, round y )
 
         ( Nothing, False ) ->
-            Mouse.onDown <|
+            Events.onMouseDown <|
                 \event ->
                     let
                         ( x, y ) =
@@ -501,7 +501,7 @@ onDragMove distance moveState isPhone =
                         Move ( round x, round y )
 
         ( _, False ) ->
-            Mouse.onMove <|
+            Events.onMouseMove <|
                 \event ->
                     let
                         ( x, y ) =
@@ -602,14 +602,14 @@ updateDiagram ( width, height ) base text =
             , height = svgHeight
             , scale = base.svg.scale
             }
-        , movePosition = ( 0, 0 )
+        , movePosition = Position.zero
         , text = Text.edit base.text text
     }
 
 
 clearPosition : Model -> Return Msg Model
 clearPosition model =
-    Return.singleton { model | movePosition = ( 0, 0 ) }
+    Return.singleton { model | movePosition = Position.zero }
 
 
 setFocus : String -> Model -> Return Msg Model
@@ -634,24 +634,6 @@ setLine lineNo lines line model =
             |> String.join "\n"
         )
         model
-
-
-setItem : Item -> Items -> Model -> Return Msg Model
-setItem item items model =
-    Return.singleton
-        { model
-            | items =
-                Item.map
-                    (\i ->
-                        if Item.getLineNo i == Item.getLineNo item then
-                            item
-
-                        else
-                            i
-                    )
-                    items
-                    |> Item.fromList
-        }
 
 
 selectItem : SelectedItem -> Model -> Return Msg Model
@@ -767,8 +749,7 @@ update message model =
                                     Return.andThen (setLine lineNo (Text.lines model.text) (ErDiagramModel.tableToLineString table))
 
                                 Diagram.ItemTarget item ->
-                                    Return.andThen (setItem item model.items)
-                                        >> Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
+                                    Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
 
                         _ ->
                             Return.zero
@@ -866,7 +847,7 @@ update message model =
                     Return.andThen <| \m -> Return.singleton { m | touchDistance = Just distance }
 
                 EditSelectedItem text ->
-                    Return.andThen <| \m -> Return.singleton { m | selectedItem = Maybe.andThen (\( i, _ ) -> Just ( i |> Item.withTextOnly (" " ++ String.trimLeft text), False )) m.selectedItem }
+                    Return.andThen <| \m -> Return.singleton { m | selectedItem = Maybe.andThen (\item_ -> Just (item_ |> Item.withTextOnly (" " ++ String.trimLeft text))) m.selectedItem }
 
                 FitToWindow ->
                     let
@@ -895,7 +876,7 @@ update message model =
                         Return.zero
 
                     else
-                        Return.andThen (\m -> Return.singleton { m | selectedItem = Just ( item, False ), contextMenu = Just ( Diagram.CloseMenu, position ) })
+                        Return.andThen (\m -> Return.singleton { m | selectedItem = Just item, contextMenu = Just ( Diagram.CloseMenu, position ) })
                             >> Return.andThen (setFocus "edit-item")
 
                 Select Nothing ->
@@ -903,7 +884,7 @@ update message model =
 
                 EndEditSelectedItem item code isComposing ->
                     case ( model.selectedItem, code, isComposing ) of
-                        ( Just ( selectedItem, _ ), 13, False ) ->
+                        ( Just selectedItem, 13, False ) ->
                             let
                                 lines =
                                     Text.lines model.text
@@ -943,7 +924,7 @@ update message model =
                         Nothing ->
                             Return.zero
 
-                        Just ( item, _ ) ->
+                        Just item ->
                             let
                                 lines =
                                     Text.lines model.text
@@ -972,18 +953,17 @@ update message model =
                                         |> String.join "\n"
                             in
                             case model.selectedItem of
-                                Just ( i, _ ) ->
+                                Just item_ ->
                                     Return.andThen closeDropDown
                                         >> Return.andThen (setText updateText)
                                         >> Return.andThen
                                             (selectItem
                                                 (Just
-                                                    ( i
+                                                    (item_
                                                         |> Item.withItemSettings
-                                                            (Item.getItemSettings i
+                                                            (Item.getItemSettings item_
                                                                 |> Maybe.andThen (\s -> Just (ItemSettings.withFontSize size <| s))
                                                             )
-                                                    , False
                                                     )
                                                 )
                                             )
@@ -996,7 +976,7 @@ update message model =
                         Nothing ->
                             Return.zero
 
-                        Just ( item, _ ) ->
+                        Just item ->
                             let
                                 lines =
                                     Text.lines model.text
@@ -1036,34 +1016,32 @@ update message model =
                                         |> String.join "\n"
                             in
                             case ( model.selectedItem, menu ) of
-                                ( Just ( i, _ ), Diagram.ColorSelectMenu ) ->
+                                ( Just item_, Diagram.ColorSelectMenu ) ->
                                     Return.andThen (\m -> Return.singleton { m | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> Diagram.CloseMenu) c) m.contextMenu })
                                         >> Return.andThen (setText updateText)
                                         >> Return.andThen
                                             (selectItem
                                                 (Just
-                                                    ( i
+                                                    (item_
                                                         |> Item.withItemSettings
-                                                            (Item.getItemSettings i
+                                                            (Item.getItemSettings item_
                                                                 |> Maybe.andThen (\s -> Just (ItemSettings.withForegroundColor (Just color) s))
                                                             )
-                                                    , False
                                                     )
                                                 )
                                             )
 
-                                ( Just ( i, _ ), Diagram.BackgroundColorSelectMenu ) ->
+                                ( Just item_, Diagram.BackgroundColorSelectMenu ) ->
                                     Return.andThen (\m -> Return.singleton { m | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> Diagram.CloseMenu) c) m.contextMenu })
                                         >> Return.andThen (setText updateText)
                                         >> Return.andThen
                                             (selectItem
                                                 (Just
-                                                    ( i
+                                                    (item_
                                                         |> Item.withItemSettings
-                                                            (Item.getItemSettings i
+                                                            (Item.getItemSettings item_
                                                                 |> Maybe.andThen (\s -> Just (ItemSettings.withBackgroundColor (Just color) s))
                                                             )
-                                                    , False
                                                     )
                                                 )
                                             )
@@ -1073,7 +1051,7 @@ update message model =
 
                 FontStyleChanged style ->
                     case model.selectedItem of
-                        Just ( item, _ ) ->
+                        Just item ->
                             let
                                 lines =
                                     Text.lines model.text

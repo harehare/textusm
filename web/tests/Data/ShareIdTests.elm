@@ -1,6 +1,6 @@
 module Data.ShareIdTests exposing (..)
 
-import Data.ShareId as ShareId
+import Data.ShareToken as ShareId
 import Expect
 import Maybe.Extra as MaybeEx
 import Test exposing (Test, describe, test)

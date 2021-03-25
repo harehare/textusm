@@ -1,4 +1,4 @@
-module Events exposing (keyBackspace, keyEnter, onClickStopPropagation, onDrop, onKeyDown, onMouseDown, onTouchStart, onWheel, touchCoordinates)
+module Events exposing (keyBackspace, keyEnter, onClickStopPropagation, onDblclickstoppropagation, onDrop, onKeyDown, onMouseDown, onMouseMove, onMouseUp, onTouchStart, onWheel, touchCoordinates)
 
 import File exposing (File)
 import Html exposing (Attribute)
@@ -29,6 +29,18 @@ onMouseDown =
         |> Mouse.onWithOptions "mousedown"
 
 
+onMouseMove : (Mouse.Event -> msg) -> Html.Attribute msg
+onMouseMove =
+    { stopPropagation = True, preventDefault = False }
+        |> Mouse.onWithOptions "mousemove"
+
+
+onMouseUp : (Mouse.Event -> msg) -> Html.Attribute msg
+onMouseUp =
+    { stopPropagation = True, preventDefault = False }
+        |> Mouse.onWithOptions "mouseup"
+
+
 onTouchStart : (Touch.Event -> msg) -> Html.Attribute msg
 onTouchStart =
     { stopPropagation = True, preventDefault = False }
@@ -38,6 +50,11 @@ onTouchStart =
 onClickStopPropagation : msg -> Html.Attribute msg
 onClickStopPropagation msg =
     stopPropagationOn "click" (D.map alwaysStopPropagation (D.succeed msg))
+
+
+onDblclickstoppropagation : msg -> Html.Attribute msg
+onDblclickstoppropagation msg =
+    stopPropagationOn "dblclick" (D.map alwaysStopPropagation (D.succeed msg))
 
 
 alwaysStopPropagation : msg -> ( msg, Bool )

@@ -8,7 +8,6 @@ import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import TextUSM.InputObject exposing (InputItem)
 import TextUSM.Mutation as Mutation
-import TextUSM.Object
 import TextUSM.Object.Item
 import TextUSM.Scalar exposing (Id(..))
 
@@ -34,7 +33,6 @@ save input isPublic =
 delete : String -> Bool -> SelectionSet String RootMutation
 delete itemID isPublic =
     Mutation.delete (\optionals -> { optionals | isPublic = Present isPublic }) { itemID = itemID }
-        |> SelectionSet.map String.toLower
 
 
 bookmark : String -> Bool -> SelectionSet (Maybe DiagramItem) RootMutation
@@ -55,7 +53,6 @@ bookmark itemID isBookmark =
         )
 
 
-share : String -> SelectionSet String RootMutation
-share id =
-    Mutation.share { id = id }
-        |> SelectionSet.map String.toLower
+share : String -> Int -> SelectionSet String RootMutation
+share itemID expSecond =
+    Mutation.share (\optionals -> { optionals | expSecond = Present expSecond }) { itemID = itemID }

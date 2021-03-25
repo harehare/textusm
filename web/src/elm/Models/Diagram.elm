@@ -74,12 +74,8 @@ import TextUSM.Enum.Diagram exposing (Diagram)
 import Utils.Utils as Utils
 
 
-type alias IsDragging =
-    Bool
-
-
 type alias SelectedItem =
-    Maybe ( Item, IsDragging )
+    Maybe Item
 
 
 type alias Model =

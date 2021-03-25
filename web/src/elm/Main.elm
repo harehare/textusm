@@ -19,7 +19,7 @@ import Data.FileType as FileType
 import Data.IdToken as IdToken
 import Data.LoginProvider as LoginProdiver
 import Data.Session as Session
-import Data.ShareId as ShareId
+import Data.ShareToken as ShareToken
 import Data.Size as Size
 import Data.Text as Text
 import Data.Title as Title
@@ -363,7 +363,7 @@ changeRouteTo route model =
                                     }
                             )
                             >> Return.andThen (Action.setTitle title)
-                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareId.toString id_)
+                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareToken.toString id_)
                             >> Return.andThen (Action.switchPage (Page.Embed diagram title))
                             >> Return.andThen Action.changeRouteInit
 
@@ -464,7 +464,7 @@ changeRouteTo route model =
 
                     Route.ViewFile _ id_ ->
                         Return.andThen (Action.switchPage Page.Main)
-                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareId.toString id_)
+                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareToken.toString id_)
                             >> Return.andThen Action.changeRouteInit
            )
 
@@ -1094,7 +1094,6 @@ subscriptions model =
          , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange HandleVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
-         , onMouseUp <| D.succeed <| UpdateDiagram DiagramModel.Stop
          , Ports.shortcuts Shortcuts
          , Ports.onNotification (\n -> HandleAutoCloseNotification (Info n))
          , Ports.onErrorNotification (\n -> HandleAutoCloseNotification (Error n))
