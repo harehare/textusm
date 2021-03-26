@@ -403,38 +403,6 @@
     }
 }
 
-.dialog {
-    @apply absolute left-0 right-0;
-    background-color: #f7f7f7;
-    max-width: 500px;
-    top: 150px;
-    left: 0;
-    right: 0;
-    margin: auto;
-    box-shadow: 0 4px 8px 3px rgba(60, 64, 67, 0.15);
-    border-radius: 8px;
-    z-index: 101;
-
-    .button {
-        @apply border-none;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-    }
-
-    .save-button {
-        @apply font-semibold bg-accent;
-        width: 100px;
-        color: #fff;
-    }
-    @media (max-width: 480px) {
-        @apply absolute top-0 left-0 right-0 rounded-none h-screen;
-        background-color: #f7f7f7;
-        max-width: 500px;
-        margin: auto;
-        box-shadow: 0 4px 8px 3px rgba(60, 64, 67, 0.15);
-        z-index: 100;
-    }
-}
-
 .menu {
     @apply relative;
     @media (max-width: 480px) {
@@ -487,11 +455,24 @@
     padding: 16px;
 }
 
+.dialog {
+    @apply full-screen;
+    background-color: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+}
+
 .share {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translateY(-50%) translateX(-50%);
+    padding: 32px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
+        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
     @apply bg-default text-color;
     .text {
         @apply text-sm;

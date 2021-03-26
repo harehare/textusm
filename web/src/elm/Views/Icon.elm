@@ -1,6 +1,5 @@
 module Views.Icon exposing
     ( add
-    , copy
     , arrowLeft
     , bold
     , bookmark
@@ -10,6 +9,7 @@ module Views.Icon exposing
     , cloudOff
     , cloudOn
     , cloudUpload
+    , copy
     , download
     , edit
     , error
@@ -106,9 +106,9 @@ folderOpen color size =
     icon color size size "0 0 512 512" [ Svg.path [ d "M572.694 292.093L500.27 416.248A63.997 63.997 0 0 1 444.989 448H45.025c-18.523 0-30.064-20.093-20.731-36.093l72.424-124.155A64 64 0 0 1 152 256h399.964c18.523 0 30.064 20.093 20.73 36.093zM152 224h328v-48c0-26.51-21.49-48-48-48H272l-64-64H48C21.49 64 0 85.49 0 112v278.046l69.077-118.418C86.214 242.25 117.989 224 152 224z" ] [] ]
 
 
-clear : Int -> Svg msg
-clear size =
-    icon "#333" size size "0 0 48 48" [ Svg.path [ d "M38 12.83L35.17 10 24 21.17 12.83 10 10 12.83 21.17 24 10 35.17 12.83 38 24 26.83 35.17 38 38 35.17 26.83 24z" ] [] ]
+clear : String -> Int -> Svg msg
+clear color size =
+    icon color size size "0 0 48 48" [ Svg.path [ d "M38 12.83L35.17 10 24 21.17 12.83 10 10 12.83 21.17 24 10 35.17 12.83 38 24 26.83 35.17 38 38 35.17 26.83 24z" ] [] ]
 
 
 save : String -> Int -> Svg msg

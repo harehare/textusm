@@ -23,6 +23,7 @@ import Data.ShareToken as ShareToken
 import Data.Size as Size
 import Data.Text as Text
 import Data.Title as Title
+import Dialog.Share as Share
 import Events
 import File.Download as Download
 import GraphQL.Request as Request
@@ -43,7 +44,6 @@ import Page.List as DiagramList
 import Page.New as New
 import Page.NotFound as NotFound
 import Page.Settings as Settings
-import Page.Share as Share
 import Page.Tags as Tags
 import Ports
 import RemoteData exposing (RemoteData(..))
@@ -98,8 +98,8 @@ init flags url key =
 
         ( shareModel, _ ) =
             Share.init
-                { diagram = Nothing
-                , diagramId = Nothing
+                { diagram = Diagram.UserStoryMap
+                , diagramId = DiagramId.fromString ""
                 , apiRoot = flags.apiRoot
                 , session = Session.guest
                 , title = Title.untitled
@@ -224,9 +224,6 @@ view model =
                 Page.Help ->
                     Help.view
 
-                Page.Share ->
-                    Lazy.lazy Share.view model.shareModel |> Html.map UpdateShare
-
                 Page.Settings ->
                     Lazy.lazy Settings.view model.settingsModel |> Html.map UpdateSettings
 
@@ -259,6 +256,12 @@ view model =
                                     |> Html.map UpdateDiagram
                                 )
             ]
+        , case toRoute model.url of
+            Share ->
+                Lazy.lazy Share.view model.shareModel |> Html.map UpdateShare
+
+            _ ->
+                Empty.view
         ]
 
 
@@ -448,19 +451,23 @@ changeRouteTo route model =
                         Return.andThen <| Action.switchPage Page.Help
 
                     Route.Share ->
-                        let
-                            ( shareModel, cmd_ ) =
-                                Share.init
-                                    { diagram = Maybe.map (\m -> m.diagram) model.currentDiagram
-                                    , diagramId = Maybe.andThen (\m -> m.id) model.currentDiagram
-                                    , apiRoot = model.apiRoot
-                                    , session = model.session
-                                    , title = model.title
-                                    }
-                        in
-                        Return.andThen (\m -> Return.return { m | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare))
-                            >> Return.andThen (Action.switchPage Page.Share)
-                            >> Return.andThen Action.startProgress
+                        case ( model.currentDiagram, Session.isSignedIn model.session ) of
+                            ( Just diagram, True ) ->
+                                let
+                                    ( shareModel, cmd_ ) =
+                                        Share.init
+                                            { diagram = diagram.diagram
+                                            , diagramId = diagram.id |> Maybe.withDefault (DiagramId.fromString "")
+                                            , apiRoot = model.apiRoot
+                                            , session = model.session
+                                            , title = model.title
+                                            }
+                                in
+                                Return.andThen (\m -> Return.return { m | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare))
+                                    >> Return.andThen Action.startProgress
+
+                            _ ->
+                                Return.andThen <| Action.switchPage Page.Main
 
                     Route.ViewFile _ id_ ->
                         Return.andThen (Action.switchPage Page.Main)
@@ -477,19 +484,22 @@ update message model =
                     Return.zero
 
                 UpdateShare msg ->
-                    case model.page of
-                        Page.Share ->
+                    case toRoute model.url of
+                        Share ->
                             let
                                 ( model_, cmd_ ) =
                                     Share.update msg model.shareModel
                             in
                             Return.andThen <|
                                 (\m ->
-                                    Return.return { m | shareModel = model_, page = Page.Share } (cmd_ |> Cmd.map UpdateShare)
+                                    Return.return { m | shareModel = model_ } (cmd_ |> Cmd.map UpdateShare)
                                 )
                                     >> (case msg of
                                             Share.Shared (Err errMsg) ->
                                                 Action.showErrorMessage errMsg
+
+                                            Share.Close ->
+                                                Action.historyBack model.key
 
                                             _ ->
                                                 Return.zero

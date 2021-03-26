@@ -1,4 +1,4 @@
-module Events exposing (keyBackspace, keyEnter, onClickStopPropagation, onDblclickstoppropagation, onDrop, onKeyDown, onMouseDown, onMouseMove, onMouseUp, onTouchStart, onWheel, touchCoordinates)
+module Events exposing (keyBackspace, keyEnter, onChange, onClickStopPropagation, onDblclickstoppropagation, onDrop, onKeyDown, onMouseDown, onMouseMove, onMouseUp, onTouchStart, onWheel, touchCoordinates)
 
 import File exposing (File)
 import Html exposing (Attribute)
@@ -98,3 +98,8 @@ onWheel : (Wheel.Event -> msg) -> Html.Attribute msg
 onWheel =
     { stopPropagation = True, preventDefault = False }
         |> Wheel.onWithOptions
+
+
+onChange : (String -> msg) -> Attribute msg
+onChange handler =
+    on "change" <| D.map handler <| D.at [ "target", "value" ] D.string

@@ -30,6 +30,7 @@ type ElmApp = {
         getDiagram: Subscribe<(diagramId: string) => Promise<void>>;
         getDiagrams: Subscribe<() => Promise<void>>;
         importDiagram: Subscribe<(diagrams: DiagramItem[]) => void>;
+        copyText: Subscribe<(text: string) => void>;
 
         onCloseFullscreen: Send<Record<string, unknown>>;
         onErrorNotification: Send<string>;

@@ -21,13 +21,13 @@ import Data.FileType exposing (FileType)
 import Data.LoginProvider exposing (LoginProvider)
 import Data.Session exposing (Session, User)
 import Data.Title exposing (Title)
+import Dialog.Share as Share
 import Graphql.Http as GraphQlHttp
 import Json.Decode as D
 import Models.Diagram as Diagram
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
-import Page.Share as Share
 import Page.Tags as Tags
 import TextUSM.Enum.Diagram as DiagramType
 import Translations exposing (Lang)
@@ -102,7 +102,6 @@ type Page
     | Help
     | List
     | Tags Tags.Model
-    | Share
     | Settings
     | Embed DiagramType.Diagram String
     | NotFound

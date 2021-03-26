@@ -111,7 +111,7 @@ tagView deleteTag tag =
                 , class "flex items-center"
                 , style "cursor" "pointer"
                 ]
-                [ Icon.clear 20 ]
+                [ Icon.clear "#333" 20 ]
     in
     case deleteTag of
         Just t ->

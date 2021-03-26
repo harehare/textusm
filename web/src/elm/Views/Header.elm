@@ -124,9 +124,6 @@ view props =
                     Page.Tags _ ->
                         Html.div [ Attr.class "title header-title" ] [ Html.text "Tags" ]
 
-                    Page.Share ->
-                        Html.div [ Attr.class "title header-title" ] [ Html.text "Share" ]
-
                     _ ->
                         Empty.view
                 ]
