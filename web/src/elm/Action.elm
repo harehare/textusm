@@ -218,3 +218,8 @@ setDiagramType type_ model =
 historyBack : Nav.Key -> Return.ReturnF Msg Model
 historyBack key =
     Return.command <| Nav.back key 1
+
+
+moveTo : Nav.Key -> Route -> Return.ReturnF Msg Model
+moveTo key route =
+    Return.command <| Route.moveTo key route

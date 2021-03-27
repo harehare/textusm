@@ -1,4 +1,4 @@
-module Route exposing (Route(..), replaceRoute, toDiagramToRoute, toRoute, toString)
+module Route exposing (Route(..), moveTo, replaceRoute, toDiagramToRoute, toRoute, toString)
 
 import Browser.Navigation as Nav
 import Data.DiagramId as DiagramId exposing (DiagramId)
@@ -138,3 +138,8 @@ toString route =
 replaceRoute : Nav.Key -> Route -> Cmd msg
 replaceRoute key route =
     Nav.replaceUrl key (toString route)
+
+
+moveTo : Nav.Key -> Route -> Cmd msg
+moveTo key route =
+    Nav.pushUrl key (toString route)

@@ -27,6 +27,7 @@ import Dialog.Share as Share
 import Events
 import File.Download as Download
 import GraphQL.Request as Request
+import GraphQL.RequestError as RequestError
 import Graphql.Http as Http
 import Html exposing (Html, div, main_, textarea)
 import Html.Attributes exposing (attribute, class, id, placeholder, style, value)
@@ -453,21 +454,25 @@ changeRouteTo route model =
                     Route.Share ->
                         case ( model.currentDiagram, Session.isSignedIn model.session ) of
                             ( Just diagram, True ) ->
-                                let
-                                    ( shareModel, cmd_ ) =
-                                        Share.init
-                                            { diagram = diagram.diagram
-                                            , diagramId = diagram.id |> Maybe.withDefault (DiagramId.fromString "")
-                                            , apiRoot = model.apiRoot
-                                            , session = model.session
-                                            , title = model.title
-                                            }
-                                in
-                                Return.andThen (\m -> Return.return { m | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare))
-                                    >> Return.andThen Action.startProgress
+                                if diagram.isRemote then
+                                    let
+                                        ( shareModel, cmd_ ) =
+                                            Share.init
+                                                { diagram = diagram.diagram
+                                                , diagramId = diagram.id |> Maybe.withDefault (DiagramId.fromString "")
+                                                , apiRoot = model.apiRoot
+                                                , session = model.session
+                                                , title = model.title
+                                                }
+                                    in
+                                    Return.andThen (\m -> Return.return { m | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare))
+                                        >> Return.andThen Action.startProgress
+
+                                else
+                                    Action.moveTo model.key Route.Home
 
                             _ ->
-                                Return.andThen <| Action.switchPage Page.Main
+                                Action.moveTo model.key Route.Home
 
                     Route.ViewFile _ id_ ->
                         Return.andThen (Action.switchPage Page.Main)
@@ -986,7 +991,6 @@ update message model =
                                     Return.zero
                            )
                         >> Return.andThen Action.stopProgress
-                        >> Return.andThen (Action.showInfoMessage "Signed In")
 
                 HandleAuthStateChanged Nothing ->
                     Return.andThen (\m -> Return.singleton { m | session = Session.guest })
@@ -1040,9 +1044,31 @@ update message model =
                     in
                     Return.andThen (\m -> Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram))
 
-                Load (Err _) ->
-                    Return.andThen Action.stopProgress
-                        >> Action.showErrorMessage "Failed load diagram."
+                Load (Err e) ->
+                    (case RequestError.toError e of
+                        RequestError.NotFound ->
+                            Action.moveTo model.key Route.NotFound
+
+                        RequestError.Forbidden ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.NoAuthorization ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.DecryptionFailed ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.EncryptionFailed ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.Unknown ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.Http _ ->
+                            Action.moveTo model.key Route.Home
+                    )
+                        >> Return.andThen Action.stopProgress
+                        >> Action.showErrorMessage (RequestError.toMessage <| RequestError.toError e)
 
                 GotLocalDiagramJson json ->
                     case D.decodeValue DiagramItem.decoder json of

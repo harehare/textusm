@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"os"
 	"time"
 
@@ -296,7 +295,6 @@ func verifyToken(ctx context.Context, token string) (*jwt.Token, error) {
 	})
 
 	if err != nil || !verifiedToken.Valid {
-		fmt.Println(err.Error())
 		return nil, e.ForbiddenError(err)
 	}
 
