@@ -192,7 +192,7 @@ inputView { settings, fontSize, position, size, color, backgroundColor, item } =
                 , Attr.style "margin-top" "2px"
                 , Attr.value <| " " ++ String.trimLeft (Item.getText item)
                 , onInput EditSelectedItem
-                , Events.onKeyDown <| EndEditSelectedItem item
+                , Events.onEnter <| EndEditSelectedItem item
                 ]
                 []
             ]
@@ -621,7 +621,7 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
                 , Attr.style "margin-top" "2px"
                 , Attr.value <| " " ++ String.trimLeft (Item.getText item)
                 , onInput EditSelectedItem
-                , Events.onKeyDown <| EndEditSelectedItem item
+                , Events.onEnter <| EndEditSelectedItem item
                 ]
                 []
             ]

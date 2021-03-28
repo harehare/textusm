@@ -82,6 +82,10 @@ items fillInOptionals____ object____ =
     Object.selectionForCompositeField "items" optionalArgs____ object____ (identity >> Decode.nullable >> Decode.list)
 
 
+type alias ShareItemOptionalArguments =
+    { password : OptionalArgument String }
+
+
 type alias ShareItemRequiredArguments =
     { token : String }
 
@@ -89,11 +93,21 @@ type alias ShareItemRequiredArguments =
 {-|
 
   - token -
+  - password -
 
 -}
 shareItem :
-    ShareItemRequiredArguments
+    (ShareItemOptionalArguments -> ShareItemOptionalArguments)
+    -> ShareItemRequiredArguments
     -> SelectionSet decodesTo TextUSM.Object.Item
     -> SelectionSet decodesTo RootQuery
-shareItem requiredArgs____ object____ =
-    Object.selectionForCompositeField "shareItem" [ Argument.required "token" requiredArgs____.token Encode.string ] object____ identity
+shareItem fillInOptionals____ requiredArgs____ object____ =
+    let
+        filledInOptionals____ =
+            fillInOptionals____ { password = Absent }
+
+        optionalArgs____ =
+            [ Argument.optional "password" filledInOptionals____.password Encode.string ]
+                |> List.filterMap identity
+    in
+    Object.selectionForCompositeField "shareItem" (optionalArgs____ ++ [ Argument.required "token" requiredArgs____.token Encode.string ]) object____ identity

@@ -23,6 +23,7 @@ import Utils.Date as DateUtils
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
+import Views.Switch as Switch
 
 
 type alias Model =
@@ -349,10 +350,7 @@ view model =
                             ]
                         , div [ class "flex-space", style "padding" "8px" ]
                             [ div [ class "text-xs" ] [ text "Password protection" ]
-                            , div [ class "switch" ]
-                                [ input [ type_ "checkbox", class "switch-input", onCheck UsePassword ] []
-                                , label [ class "switch-label" ] []
-                                ]
+                            , Switch.view UsePassword
                             ]
                         , case model.password of
                             Just p ->

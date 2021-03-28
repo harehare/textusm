@@ -6,6 +6,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/harehare/textusm/pkg/item"
 	"github.com/harehare/textusm/pkg/values"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -20,24 +21,50 @@ func NewFirestoreShareRepository(client *firestore.Client) ShareRepository {
 	return &FirestoreShareRepository{client: client}
 }
 
-func (r *FirestoreShareRepository) FindByID(ctx context.Context, hashKey string) (*item.Item, error) {
+func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *string, error) {
 	fields, err := r.client.Collection(shareCollection).Doc(hashKey).Get(ctx)
 
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var i item.Item
 
 	if err := fields.DataTo(&i); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return &i, nil
+	p := fields.Data()["password"].(string)
+	return &i, &p, nil
 }
 
-func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.Item) error {
-	_, err := r.client.Collection(shareCollection).Doc(hashKey).Set(ctx, item)
+func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, password *string) error {
+	var savePassword string
+
+	if password != nil {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*password), 10)
+
+		if err != nil {
+			return err
+		}
+		savePassword = string(hashedPassword)
+	} else {
+		savePassword = ""
+	}
+
+	v := map[string]interface{}{
+		"id":         item.ID,
+		"title":      item.Title,
+		"text":       item.Text,
+		"thumbnail":  item.Thumbnail,
+		"diagram":    item.Diagram,
+		"isPublic":   item.IsPublic,
+		"isBookmark": item.IsBookmark,
+		"tags":       item.Tags,
+		"createdAt":  item.CreatedAt,
+		"updatedAt":  item.UpdatedAt,
+		"password":   savePassword}
+	_, err := r.client.Collection(shareCollection).Doc(hashKey).Set(ctx, v)
 	return err
 }
 

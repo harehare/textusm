@@ -23,8 +23,8 @@ import Data.ShareToken as ShareToken
 import Data.Size as Size
 import Data.Text as Text
 import Data.Title as Title
+import Dialog.Input as InputDialog
 import Dialog.Share as Share
-import Events
 import File.Download as Download
 import GraphQL.Request as Request
 import GraphQL.RequestError as RequestError
@@ -133,6 +133,7 @@ init flags url key =
                 , currentDiagram = initSettings.diagram
                 , page = Page.Main
                 , lang = lang
+                , viewPassword = Nothing
                 }
     in
     ( model, cmds )
@@ -263,6 +264,14 @@ view model =
 
             _ ->
                 Empty.view
+
+        -- TODO: jwt check
+        , Lazy.lazy InputDialog.view
+            { title = "Enter password"
+            , value = model.viewPassword |> Maybe.withDefault ""
+            , onInput = EditPassword
+            , onEnter = EndEditPassword
+            }
         ]
 
 
@@ -367,7 +376,15 @@ changeRouteTo route model =
                                     }
                             )
                             >> Return.andThen (Action.setTitle title)
-                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareToken.toString id_)
+                            >> Return.command
+                                (Task.attempt Load <|
+                                    Request.shareItem
+                                        { url = model.apiRoot
+                                        , idToken = Session.getIdToken model.session
+                                        }
+                                        (ShareToken.toString id_)
+                                        Nothing
+                                )
                             >> Return.andThen (Action.switchPage (Page.Embed diagram title))
                             >> Return.andThen Action.changeRouteInit
 
@@ -475,8 +492,9 @@ changeRouteTo route model =
                                 Action.moveTo model.key Route.Home
 
                     Route.ViewFile _ id_ ->
+                        -- TODO: jwt check
                         Return.andThen (Action.switchPage Page.Main)
-                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareToken.toString id_)
+                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (ShareToken.toString id_) Nothing)
                             >> Return.andThen Action.changeRouteInit
            )
 
@@ -553,12 +571,8 @@ update message model =
                         DiagramModel.OnResize _ _ ->
                             Return.andThen <| \m -> Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
 
-                        DiagramModel.EndEditSelectedItem _ code isComposing ->
-                            if code == 13 && not isComposing then
-                                Return.andThen <| \m -> Return.singleton { m | diagramModel = model_ }
-
-                            else
-                                Return.zero
+                        DiagramModel.EndEditSelectedItem _ ->
+                            Return.andThen <| \m -> Return.singleton { m | diagramModel = model_ }
 
                         DiagramModel.FontStyleChanged _ ->
                             case model.diagramModel.selectedItem of
@@ -880,13 +894,9 @@ update message model =
                     Return.andThen (\m -> Return.singleton { m | title = Title.edit m.title })
                         >> Return.andThen (Action.setFocus "title")
 
-                EndEditTitle code isComposing ->
-                    if code == Events.keyEnter && not isComposing then
-                        Return.andThen (\m -> Return.singleton { m | title = Title.view m.title })
-                            >> Action.setFocusEditor
-
-                    else
-                        Return.zero
+                EndEditTitle ->
+                    Return.andThen (\m -> Return.singleton { m | title = Title.view m.title })
+                        >> Action.setFocusEditor
 
                 EditTitle title ->
                     Return.andThen (\m -> Return.singleton { m | title = Title.edit <| Title.fromString title })
@@ -1114,6 +1124,12 @@ update message model =
 
                 HistoryBack ->
                     Action.historyBack model.key
+
+                EditPassword password ->
+                    Return.zero
+
+                EndEditPassword ->
+                    Return.zero
            )
 
 

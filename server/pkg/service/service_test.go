@@ -39,13 +39,13 @@ func (m *MockItemRepository) Delete(ctx context.Context, userID string, itemID s
 	return ret.Error(0)
 }
 
-func (m *MockShareRepository) FindByID(ctx context.Context, hashKey string) (*item.Item, error) {
+func (m *MockShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *string, error) {
 	ret := m.Called(ctx, hashKey)
-	return ret.Get(0).(*item.Item), ret.Error(1)
+	return ret.Get(0).(*item.Item), ret.Get(1).(*string), ret.Error(2)
 }
 
-func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *item.Item) error {
-	ret := m.Called(ctx, hashKey, item)
+func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, password *string) error {
+	ret := m.Called(ctx, hashKey, item, password)
 	return ret.Error(0)
 }
 
@@ -177,11 +177,12 @@ func TestShare(t *testing.T) {
 	for _, test := range tests {
 		shareEncryptKey = []byte(test.key)
 		item := item.Item{ID: test.id, Text: ""}
+		p := "password"
 		mockItemRepo.On("FindByID", ctx, "userID", test.id, false).Return(&item, nil)
-		mockShareRepo.On("Save", ctx, test.hashKey, &item).Return(nil)
+		mockShareRepo.On("Save", ctx, test.hashKey, &item, &p).Return(nil)
 
 		service := NewService(mockItemRepo, mockShareRepo)
-		shareToken, err := service.Share(ctx, test.id, 1)
+		shareToken, err := service.Share(ctx, test.id, 1, &p)
 
 		if err != nil {
 			t.Fatal("failed ShareDiagram")

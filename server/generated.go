@@ -61,13 +61,13 @@ type ComplexityRoot struct {
 		Bookmark func(childComplexity int, itemID string, isBookmark bool) int
 		Delete   func(childComplexity int, itemID string, isPublic *bool) int
 		Save     func(childComplexity int, input item.InputItem, isPublic *bool) int
-		Share    func(childComplexity int, itemID string, expSecond *int) int
+		Share    func(childComplexity int, itemID string, expSecond *int, password *string) int
 	}
 
 	Query struct {
 		Item      func(childComplexity int, id string, isPublic *bool) int
 		Items     func(childComplexity int, offset *int, limit *int, isBookmark *bool, isPublic *bool) int
-		ShareItem func(childComplexity int, token string) int
+		ShareItem func(childComplexity int, token string, password *string) int
 	}
 }
 
@@ -75,12 +75,12 @@ type MutationResolver interface {
 	Save(ctx context.Context, input item.InputItem, isPublic *bool) (*item.Item, error)
 	Delete(ctx context.Context, itemID string, isPublic *bool) (string, error)
 	Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error)
-	Share(ctx context.Context, itemID string, expSecond *int) (string, error)
+	Share(ctx context.Context, itemID string, expSecond *int, password *string) (string, error)
 }
 type QueryResolver interface {
 	Item(ctx context.Context, id string, isPublic *bool) (*item.Item, error)
 	Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*item.Item, error)
-	ShareItem(ctx context.Context, token string) (*item.Item, error)
+	ShareItem(ctx context.Context, token string, password *string) (*item.Item, error)
 }
 
 type executableSchema struct {
@@ -214,7 +214,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Share(childComplexity, args["itemID"].(string), args["expSecond"].(*int)), true
+		return e.complexity.Mutation.Share(childComplexity, args["itemID"].(string), args["expSecond"].(*int), args["password"].(*string)), true
 
 	case "Query.item":
 		if e.complexity.Query.Item == nil {
@@ -250,7 +250,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ShareItem(childComplexity, args["token"].(string)), true
+		return e.complexity.Query.ShareItem(childComplexity, args["token"].(string), args["password"].(*string)), true
 
 	}
 	return 0, false
@@ -359,7 +359,7 @@ type Query {
     isBookmark: Boolean = False
     isPublic: Boolean = False
   ): [Item]!
-  shareItem(token: String!): Item!
+  shareItem(token: String!, password: String = ""): Item!
 }
 
 input InputItem {
@@ -377,7 +377,7 @@ type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
   delete(itemID: String!, isPublic: Boolean = False): String!
   bookmark(itemID: String!, isBookmark: Boolean!): Item
-  share(itemID: String!, expSecond: Int = 300): String!
+  share(itemID: String!, expSecond: Int = 300, password: String = ""): String!
 }
 `, BuiltIn: false},
 }
@@ -480,6 +480,15 @@ func (ec *executionContext) field_Mutation_share_args(ctx context.Context, rawAr
 		}
 	}
 	args["expSecond"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["password"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["password"] = arg2
 	return args, nil
 }
 
@@ -576,6 +585,15 @@ func (ec *executionContext) field_Query_shareItem_args(ctx context.Context, rawA
 		}
 	}
 	args["token"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["password"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["password"] = arg1
 	return args, nil
 }
 
@@ -1109,7 +1127,7 @@ func (ec *executionContext) _Mutation_share(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Share(rctx, args["itemID"].(string), args["expSecond"].(*int))
+		return ec.resolvers.Mutation().Share(rctx, args["itemID"].(string), args["expSecond"].(*int), args["password"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1235,7 +1253,7 @@ func (ec *executionContext) _Query_shareItem(ctx context.Context, field graphql.
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ShareItem(rctx, args["token"].(string))
+		return ec.resolvers.Query().ShareItem(rctx, args["token"].(string), args["password"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

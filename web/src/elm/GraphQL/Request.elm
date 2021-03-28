@@ -46,9 +46,9 @@ items req ( offset, limit ) params =
         |> Http.toTask
 
 
-shareItem : RequestInfo -> String -> Task (Http.Error DiagramItem) DiagramItem
-shareItem req id =
-    Query.shareItem id
+shareItem : RequestInfo -> String -> Maybe String -> Task (Http.Error DiagramItem) DiagramItem
+shareItem req id password =
+    Query.shareItem id password
         |> Http.queryRequest (graphQLUrl req)
         |> Http.toTask
 

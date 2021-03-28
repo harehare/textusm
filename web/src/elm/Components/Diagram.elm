@@ -882,9 +882,9 @@ update message model =
                 Select Nothing ->
                     Return.andThen <| \m -> Return.singleton { m | selectedItem = Nothing }
 
-                EndEditSelectedItem item code isComposing ->
-                    case ( model.selectedItem, code, isComposing ) of
-                        ( Just selectedItem, 13, False ) ->
+                EndEditSelectedItem item ->
+                    case model.selectedItem of
+                        Just selectedItem ->
                             let
                                 lines =
                                     Text.lines model.text
@@ -913,7 +913,7 @@ update message model =
                             Return.andThen (setText text)
                                 >> Return.andThen clearSelectedItem
 
-                        _ ->
+                        Nothing ->
                             Return.zero
 
                 SelectContextMenu menu ->

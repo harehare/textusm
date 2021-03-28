@@ -81,12 +81,12 @@ func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBo
 	return r.service.FindDiagrams(ctx, *offset, *limit, *isPublic)
 }
 
-func (r *queryResolver) ShareItem(ctx context.Context, token string) (*item.Item, error) {
-	return r.service.FindShareItem(ctx, token)
+func (r *queryResolver) ShareItem(ctx context.Context, token string, password *string) (*item.Item, error) {
+	return r.service.FindShareItem(ctx, token, *password)
 }
 
-func (r *mutationResolver) Share(ctx context.Context, token string, expSecond *int) (string, error) {
-	jwtToken, err := r.service.Share(ctx, token, *expSecond)
+func (r *mutationResolver) Share(ctx context.Context, token string, expSecond *int, password *string) (string, error) {
+	jwtToken, err := r.service.Share(ctx, token, *expSecond, password)
 	return *jwtToken, err
 }
 

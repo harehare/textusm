@@ -1,4 +1,4 @@
-module Events exposing (keyBackspace, keyEnter, onChange, onClickStopPropagation, onDblclickstoppropagation, onDrop, onKeyDown, onMouseDown, onMouseMove, onMouseUp, onTouchStart, onWheel, touchCoordinates)
+module Events exposing (keyBackspace, keyEnter, onBackspace, onChange, onClickStopPropagation, onDblclickstoppropagation, onDrop, onEnter, onKeyDown, onMouseDown, onMouseMove, onMouseUp, onTouchStart, onWheel, touchCoordinates)
 
 import File exposing (File)
 import Html exposing (Attribute)
@@ -70,6 +70,39 @@ alwaysPreventDefaultOn msg =
 onKeyDown : (Int -> Bool -> msg) -> Attribute msg
 onKeyDown tagger =
     on "keydown" (D.map2 tagger keyCode isComposing)
+
+
+onEnter : msg -> Attribute msg
+onEnter msg =
+    onKeyCodeDown keyEnter msg
+
+
+onBackspace : msg -> Attribute msg
+onBackspace msg =
+    onKeyCodeDown keyBackspace msg
+
+
+onKeyCodeDown : Int -> msg -> Attribute msg
+onKeyCodeDown code msg =
+    let
+        input inputCode currentComposing =
+            if inputCode == code && not currentComposing then
+                D.succeed msg
+
+            else
+                D.fail "other key"
+    in
+    on "keydown"
+        (D.andThen
+            (\k ->
+                D.andThen
+                    (\c ->
+                        input k c
+                    )
+                    isComposing
+            )
+            keyCode
+        )
 
 
 isComposing : D.Decoder Bool

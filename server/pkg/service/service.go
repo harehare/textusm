@@ -16,6 +16,7 @@ import (
 	"github.com/harehare/textusm/pkg/repository"
 	"github.com/harehare/textusm/pkg/values"
 	uuid "github.com/satori/go.uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -192,7 +193,7 @@ func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) 
 	return s.SaveDiagram(ctx, diagramItem, false)
 }
 
-func (s *Service) FindShareItem(ctx context.Context, token string) (*item.Item, error) {
+func (s *Service) FindShareItem(ctx context.Context, token string, password string) (*item.Item, error) {
 	t, err := base64.URLEncoding.DecodeString(token)
 
 	if err != nil {
@@ -206,10 +207,14 @@ func (s *Service) FindShareItem(ctx context.Context, token string) (*item.Item, 
 	}
 
 	claims := jwtToken.Claims.(jwt.MapClaims)
-	item, err := s.shareRepo.FindByID(ctx, claims["sub"].(string))
+	item, p, err := s.shareRepo.Find(ctx, claims["sub"].(string))
 
 	if err != nil {
 		return nil, err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(*p), []byte(password)); err != nil {
+		return nil, e.ForbiddenError(err)
 	}
 
 	text, err := Decrypt(encryptKey, item.Text)
@@ -222,7 +227,7 @@ func (s *Service) FindShareItem(ctx context.Context, token string) (*item.Item, 
 	return item, nil
 }
 
-func (s *Service) Share(ctx context.Context, itemID string, expSecond int) (*string, error) {
+func (s *Service) Share(ctx context.Context, itemID string, expSecond int, password *string) (*string, error) {
 	userID := values.GetUID(ctx)
 
 	if userID == "" {
@@ -241,7 +246,7 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int) (*str
 		return nil, err
 	}
 
-	if err := s.shareRepo.Save(ctx, *shareID, item); err != nil {
+	if err := s.shareRepo.Save(ctx, *shareID, item, password); err != nil {
 		return nil, err
 	}
 
@@ -263,6 +268,7 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int) (*str
 	claims["sub"] = shareID
 	claims["iat"] = time.Now().Unix()
 	claims["exp"] = time.Now().Add(time.Second * time.Duration(expSecond)).Unix()
+	claims["pas"] = password != nil
 
 	tokenString, err := token.SignedString(signKey)
 

@@ -1,6 +1,7 @@
 module GraphQL.Query exposing (item, items, shareItem)
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
+import Data.Position exposing (X)
 import Data.Text as Text
 import Data.Title as Title
 import Graphql.Operation exposing (RootQuery)
@@ -47,9 +48,22 @@ items ( offset, limit ) params =
         )
 
 
-shareItem : String -> SelectionSet DiagramItem RootQuery
-shareItem token =
-    Query.shareItem { token = token } <|
+shareItem : String -> Maybe String -> SelectionSet DiagramItem RootQuery
+shareItem token password =
+    Query.shareItem
+        (\optionals ->
+            { optionals
+                | password =
+                    case password of
+                        Just p ->
+                            Present p
+
+                        Nothing ->
+                            Null
+            }
+        )
+        { token = token }
+    <|
         (SelectionSet.succeed DiagramItem
             |> with (TextUSM.Object.Item.id |> DiagramItem.idToString)
             |> with (TextUSM.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))

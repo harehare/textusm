@@ -276,7 +276,7 @@ type Msg
     | OnResize Int Int
     | StartPinch Distance
     | EditSelectedItem String
-    | EndEditSelectedItem Item Int Bool
+    | EndEditSelectedItem Item
     | FitToWindow
     | Select (Maybe ( Item, Position ))
     | ColorChanged ContextMenu Color.Color

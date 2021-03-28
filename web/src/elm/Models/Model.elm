@@ -54,7 +54,7 @@ type Msg
     | SaveToRemote D.Value
     | StartEditTitle
     | Progress Bool
-    | EndEditTitle Int Bool
+    | EndEditTitle
     | EditTitle String
     | EditText String
     | SignIn LoginProvider
@@ -77,6 +77,8 @@ type Msg
     | CloseFullscreen D.Value
     | UpdateIdToken String
     | HistoryBack
+    | EditPassword String
+    | EndEditPassword
 
 
 type Notification
@@ -125,6 +127,7 @@ type alias Model =
     , progress : Bool
     , apiRoot : String
     , lang : Lang
+    , viewPassword : Maybe String
     }
 
 
