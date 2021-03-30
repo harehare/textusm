@@ -46,9 +46,9 @@ items req ( offset, limit ) params =
         |> Http.toTask
 
 
-shareItem : RequestInfo -> String -> Task (Http.Error DiagramItem) DiagramItem
-shareItem req id =
-    Query.shareItem id
+shareItem : RequestInfo -> String -> Maybe String -> Task (Http.Error DiagramItem) DiagramItem
+shareItem req id password =
+    Query.shareItem id password
         |> Http.queryRequest (graphQLUrl req)
         |> Http.toTask
 
@@ -77,9 +77,9 @@ bookmark req itemID isBookmark =
         |> Http.toTask
 
 
-share : RequestInfo -> String -> Task (Http.Error String) String
-share req itemID =
-    Mutation.share itemID
+share : RequestInfo -> String -> Int -> Maybe String -> Task (Http.Error String) String
+share req itemID expSecond password =
+    Mutation.share itemID expSecond password
         |> Http.mutationRequest (graphQLUrl req)
         |> authHeaders req.idToken
         |> Http.toTask

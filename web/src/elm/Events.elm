@@ -1,4 +1,4 @@
-module Events exposing (keyBackspace, keyEnter, onClickStopPropagation, onDrop, onKeyDown, onMouseDown, onTouchStart, onWheel, touchCoordinates)
+module Events exposing (keyBackspace, keyEnter, onBackspace, onChange, onClickStopPropagation, onDblclickstoppropagation, onDrop, onEnter, onKeyDown, onMouseDown, onMouseMove, onMouseUp, onTouchStart, onWheel, touchCoordinates)
 
 import File exposing (File)
 import Html exposing (Attribute)
@@ -29,6 +29,18 @@ onMouseDown =
         |> Mouse.onWithOptions "mousedown"
 
 
+onMouseMove : (Mouse.Event -> msg) -> Html.Attribute msg
+onMouseMove =
+    { stopPropagation = True, preventDefault = False }
+        |> Mouse.onWithOptions "mousemove"
+
+
+onMouseUp : (Mouse.Event -> msg) -> Html.Attribute msg
+onMouseUp =
+    { stopPropagation = True, preventDefault = False }
+        |> Mouse.onWithOptions "mouseup"
+
+
 onTouchStart : (Touch.Event -> msg) -> Html.Attribute msg
 onTouchStart =
     { stopPropagation = True, preventDefault = False }
@@ -38,6 +50,11 @@ onTouchStart =
 onClickStopPropagation : msg -> Html.Attribute msg
 onClickStopPropagation msg =
     stopPropagationOn "click" (D.map alwaysStopPropagation (D.succeed msg))
+
+
+onDblclickstoppropagation : msg -> Html.Attribute msg
+onDblclickstoppropagation msg =
+    stopPropagationOn "dblclick" (D.map alwaysStopPropagation (D.succeed msg))
 
 
 alwaysStopPropagation : msg -> ( msg, Bool )
@@ -53,6 +70,39 @@ alwaysPreventDefaultOn msg =
 onKeyDown : (Int -> Bool -> msg) -> Attribute msg
 onKeyDown tagger =
     on "keydown" (D.map2 tagger keyCode isComposing)
+
+
+onEnter : msg -> Attribute msg
+onEnter msg =
+    onKeyCodeDown keyEnter msg
+
+
+onBackspace : msg -> Attribute msg
+onBackspace msg =
+    onKeyCodeDown keyBackspace msg
+
+
+onKeyCodeDown : Int -> msg -> Attribute msg
+onKeyCodeDown code msg =
+    let
+        input inputCode currentComposing =
+            if inputCode == code && not currentComposing then
+                D.succeed msg
+
+            else
+                D.fail "other key"
+    in
+    on "keydown"
+        (D.andThen
+            (\k ->
+                D.andThen
+                    (\c ->
+                        input k c
+                    )
+                    isComposing
+            )
+            keyCode
+        )
 
 
 isComposing : D.Decoder Bool
@@ -81,3 +131,8 @@ onWheel : (Wheel.Event -> msg) -> Html.Attribute msg
 onWheel =
     { stopPropagation = True, preventDefault = False }
         |> Wheel.onWithOptions
+
+
+onChange : (String -> msg) -> Attribute msg
+onChange handler =
+    on "change" <| D.map handler <| D.at [ "target", "value" ] D.string

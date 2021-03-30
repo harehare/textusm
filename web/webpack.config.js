@@ -157,7 +157,6 @@ if (mode === "development") {
                             loader: "elm-webpack-loader",
                             options: {
                                 debug: true,
-                                forceWatch: true,
                             },
                         },
                     ],
@@ -167,17 +166,10 @@ if (mode === "development") {
         devServer: {
             inline: true,
             hot: true,
+            index: "/",
             stats: "errors-only",
             contentBase: path.join(__dirname, "src/assets"),
             historyApiFallback: true,
-            compress: false,
-            before(app) {
-                app.get("/test", function (_, res) {
-                    res.json({
-                        result: "OK",
-                    });
-                });
-            },
         },
     });
 }

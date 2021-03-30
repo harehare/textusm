@@ -6,6 +6,8 @@ type Code string
 
 const (
 	NotFound         Code = "NotFound"
+	Forbidden        Code = "Forbidden"
+	URLExpired       Code = "URLExpired"
 	NoAuthorization  Code = "NoAuthorization"
 	DecryptionFailed Code = "DecryptionFailed"
 	EncryptionFailed Code = "EncryptionFailed"
@@ -36,6 +38,14 @@ func NotFoundError(err error) RepositoryError {
 
 func UnKnownError(err error) RepositoryError {
 	return RepositoryError{code: UnKnown, err: err}
+}
+
+func ForbiddenError(err error) ServiceError {
+	return ServiceError{code: Forbidden, err: err}
+}
+
+func URLExpiredError(err error) ServiceError {
+	return ServiceError{code: URLExpired, err: err}
 }
 
 func NoAuthorizationError(err error) ServiceError {

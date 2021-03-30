@@ -420,7 +420,7 @@ diagramView timezone diagram =
             Empty.view
 
           else
-            div [ class "remove button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear 18 ]
+            div [ class "remove button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear "#333" 18 ]
         , case ( diagram.isBookmark, diagram.isRemote ) of
             ( True, True ) ->
                 div

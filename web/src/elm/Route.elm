@@ -1,10 +1,10 @@
-module Route exposing (Route(..), replaceRoute, toDiagramToRoute, toRoute, toString)
+module Route exposing (Route(..), moveTo, replaceRoute, toDiagramToRoute, toRoute, toString)
 
 import Browser.Navigation as Nav
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
-import Data.ShareId as ShareId exposing (ShareId)
+import Data.ShareToken as ShareToken exposing (ShareToken)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import UUID
 import Url exposing (Url)
@@ -27,8 +27,8 @@ type Route
     | Help
     | Tag
     | Share
-    | Embed Diagram Title ShareId
-    | ViewFile Diagram ShareId
+    | Embed Diagram Title ShareToken
+    | ViewFile Diagram ShareToken
     | NotFound
 
 
@@ -66,11 +66,11 @@ diagramId =
                 |> Maybe.map (\_ -> DiagramId.fromString segment)
 
 
-shareId : Parser (ShareId -> a) a
+shareId : Parser (ShareToken -> a) a
 shareId =
-    custom "SHARE_ID" <|
+    custom "SHARE_TOKEN" <|
         \segment ->
-            ShareId.fromString segment
+            ShareToken.fromString segment
 
 
 toRoute : Url -> Route
@@ -107,8 +107,8 @@ toString route =
         EditFile type_ id_ ->
             absolute [ "edit", DiagramType.toString type_, DiagramId.toString id_ ] []
 
-        ViewFile type_ id_ ->
-            absolute [ "view", DiagramType.toString type_, ShareId.toString id_ ] []
+        ViewFile type_ token_ ->
+            absolute [ "view", DiagramType.toString type_, ShareToken.toString token_ ] []
 
         ViewPublic type_ id_ ->
             absolute [ "pubilc", DiagramType.toString type_, DiagramId.toString id_ ] []
@@ -131,10 +131,15 @@ toString route =
         NotFound ->
             absolute [ "notfound" ] []
 
-        Embed diagramPath title id_ ->
-            absolute [ "Embed", DiagramType.toString diagramPath, title, ShareId.toString id_ ] []
+        Embed diagramPath title token ->
+            absolute [ "Embed", DiagramType.toString diagramPath, title, ShareToken.toString token ] []
 
 
 replaceRoute : Nav.Key -> Route -> Cmd msg
 replaceRoute key route =
     Nav.replaceUrl key (toString route)
+
+
+moveTo : Nav.Key -> Route -> Cmd msg
+moveTo key route =
+    Nav.pushUrl key (toString route)

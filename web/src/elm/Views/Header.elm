@@ -3,13 +3,12 @@ module Views.Header exposing (view)
 import Asset
 import Avatar exposing (Avatar(..))
 import Constants
-import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Data.Session as Session exposing (Session)
 import Data.Text as Text exposing (Text)
 import Data.Title as Title exposing (Title)
-import Events exposing (onKeyDown)
+import Events as E
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events as Events
@@ -87,8 +86,8 @@ view props =
                                 , Attr.style "color" "#f4f4f4"
                                 , Attr.value <| Title.toString props.title
                                 , Events.onInput EditTitle
-                                , Events.onBlur (EndEditTitle Events.keyEnter False)
-                                , onKeyDown EndEditTitle
+                                , Events.onBlur EndEditTitle
+                                , E.onEnter EndEditTitle
                                 , Attr.placeholder "UNTITLED"
                                 ]
                                 []
@@ -124,9 +123,6 @@ view props =
 
                     Page.Tags _ ->
                         Html.div [ Attr.class "title header-title" ] [ Html.text "Tags" ]
-
-                    Page.Share ->
-                        Html.div [ Attr.class "title header-title" ] [ Html.text "Share" ]
 
                     _ ->
                         Empty.view

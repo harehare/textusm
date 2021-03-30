@@ -13,19 +13,22 @@ import Browser.Events
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Data.DiagramId as DiagramId
-import Data.DiagramItem as DiagramItem
+import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
 import Data.FileType as FileType
 import Data.IdToken as IdToken
+import Data.Jwt as Jwt
 import Data.LoginProvider as LoginProdiver
 import Data.Session as Session
-import Data.ShareId as ShareId
+import Data.ShareToken as ShareToken
 import Data.Size as Size
 import Data.Text as Text
 import Data.Title as Title
-import Events
+import Dialog.Input as InputDialog
+import Dialog.Share as Share
 import File.Download as Download
 import GraphQL.Request as Request
+import GraphQL.RequestError as RequestError
 import Graphql.Http as Http
 import Html exposing (Html, div, main_, textarea)
 import Html.Attributes exposing (attribute, class, id, placeholder, style, value)
@@ -43,7 +46,6 @@ import Page.List as DiagramList
 import Page.New as New
 import Page.NotFound as NotFound
 import Page.Settings as Settings
-import Page.Share as Share
 import Page.Tags as Tags
 import Ports
 import RemoteData exposing (RemoteData(..))
@@ -98,8 +100,8 @@ init flags url key =
 
         ( shareModel, _ ) =
             Share.init
-                { diagram = Nothing
-                , diagramId = Nothing
+                { diagram = Diagram.UserStoryMap
+                , diagramId = DiagramId.fromString ""
                 , apiRoot = flags.apiRoot
                 , session = Session.guest
                 , title = Title.untitled
@@ -132,6 +134,11 @@ init flags url key =
                 , currentDiagram = initSettings.diagram
                 , page = Page.Main
                 , lang = lang
+                , view =
+                    { password = Nothing
+                    , authenticated = False
+                    , token = Nothing
+                    }
                 }
     in
     ( model, cmds )
@@ -224,9 +231,6 @@ view model =
                 Page.Help ->
                     Help.view
 
-                Page.Share ->
-                    Lazy.lazy Share.view model.shareModel |> Html.map UpdateShare
-
                 Page.Settings ->
                     Lazy.lazy Settings.view model.settingsModel |> Html.map UpdateSettings
 
@@ -259,6 +263,29 @@ view model =
                                     |> Html.map UpdateDiagram
                                 )
             ]
+        , case toRoute model.url of
+            Share ->
+                Lazy.lazy Share.view model.shareModel |> Html.map UpdateShare
+
+            ViewFile _ id_ ->
+                case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
+                    Just jwt ->
+                        if jwt.pas && not model.view.authenticated then
+                            Lazy.lazy InputDialog.view
+                                { title = "Enter password"
+                                , value = model.view.password |> Maybe.withDefault ""
+                                , onInput = EditPassword
+                                , onEnter = EndEditPassword
+                                }
+
+                        else
+                            Empty.view
+
+                    Nothing ->
+                        Empty.view
+
+            _ ->
+                Empty.view
         ]
 
 
@@ -363,7 +390,15 @@ changeRouteTo route model =
                                     }
                             )
                             >> Return.andThen (Action.setTitle title)
-                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareId.toString id_)
+                            >> Return.command
+                                (Task.attempt Load <|
+                                    Request.shareItem
+                                        { url = model.apiRoot
+                                        , idToken = Session.getIdToken model.session
+                                        }
+                                        (ShareToken.toString id_)
+                                        Nothing
+                                )
                             >> Return.andThen (Action.switchPage (Page.Embed diagram title))
                             >> Return.andThen Action.changeRouteInit
 
@@ -448,25 +483,85 @@ changeRouteTo route model =
                         Return.andThen <| Action.switchPage Page.Help
 
                     Route.Share ->
-                        let
-                            ( shareModel, cmd_ ) =
-                                Share.init
-                                    { diagram = Maybe.map (\m -> m.diagram) model.currentDiagram
-                                    , diagramId = Maybe.andThen (\m -> m.id) model.currentDiagram
-                                    , apiRoot = model.apiRoot
-                                    , session = model.session
-                                    , title = model.title
-                                    }
-                        in
-                        Return.andThen (\m -> Return.return { m | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare))
-                            >> Return.andThen (Action.switchPage Page.Share)
-                            >> Return.andThen Action.startProgress
+                        case ( model.currentDiagram, Session.isSignedIn model.session ) of
+                            ( Just diagram, True ) ->
+                                if diagram.isRemote then
+                                    let
+                                        ( shareModel, cmd_ ) =
+                                            Share.init
+                                                { diagram = diagram.diagram
+                                                , diagramId = diagram.id |> Maybe.withDefault (DiagramId.fromString "")
+                                                , apiRoot = model.apiRoot
+                                                , session = model.session
+                                                , title = model.title
+                                                }
+                                    in
+                                    Return.andThen (\m -> Return.return { m | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare))
+                                        >> Return.andThen Action.startProgress
+
+                                else
+                                    Action.moveTo model.key Route.Home
+
+                            _ ->
+                                Action.moveTo model.key Route.Home
 
                     Route.ViewFile _ id_ ->
-                        Return.andThen (Action.switchPage Page.Main)
-                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } <| ShareId.toString id_)
-                            >> Return.andThen Action.changeRouteInit
+                        case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
+                            Just jwt ->
+                                Return.andThen (\m -> Return.singleton { m | view = { password = m.view.password, authenticated = m.view.authenticated, token = Just id_ } })
+                                    >> (if jwt.pas then
+                                            Return.andThen (Action.switchPage Page.Main)
+                                                >> Return.andThen Action.changeRouteInit
+
+                                        else
+                                            Return.andThen (Action.switchPage Page.Main)
+                                                >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (ShareToken.toString id_) Nothing)
+                                                >> Return.andThen Action.changeRouteInit
+                                       )
+
+                            Nothing ->
+                                Return.andThen <| Action.switchPage Page.NotFound
            )
+
+
+loadDiagram : Model -> DiagramItem -> Return.ReturnF Msg Model
+loadDiagram model diagram =
+    let
+        newDiagram =
+            case diagram.id of
+                Nothing ->
+                    { diagram
+                        | title = model.title
+                        , text = model.diagramModel.text
+                        , diagram = model.diagramModel.diagramType
+                    }
+
+                Just _ ->
+                    diagram
+
+        diagramModel =
+            model.diagramModel
+
+        newDiagramModel =
+            { diagramModel
+                | diagramType = newDiagram.diagram
+                , text = newDiagram.text
+            }
+
+        ( model_, cmd_ ) =
+            Diagram.update (DiagramModel.OnChangeText <| Text.toString newDiagram.text) newDiagramModel
+    in
+    Return.andThen
+        (\m ->
+            Return.return
+                { m
+                    | title = newDiagram.title
+                    , currentDiagram = Just newDiagram
+                    , diagramModel = model_
+                }
+                (cmd_ |> Cmd.map UpdateDiagram)
+        )
+        >> Return.andThen Action.stopProgress
 
 
 update : Msg -> Model -> Return Msg Model
@@ -477,19 +572,22 @@ update message model =
                     Return.zero
 
                 UpdateShare msg ->
-                    case model.page of
-                        Page.Share ->
+                    case toRoute model.url of
+                        Share ->
                             let
                                 ( model_, cmd_ ) =
                                     Share.update msg model.shareModel
                             in
                             Return.andThen <|
                                 (\m ->
-                                    Return.return { m | shareModel = model_, page = Page.Share } (cmd_ |> Cmd.map UpdateShare)
+                                    Return.return { m | shareModel = model_ } (cmd_ |> Cmd.map UpdateShare)
                                 )
                                     >> (case msg of
                                             Share.Shared (Err errMsg) ->
                                                 Action.showErrorMessage errMsg
+
+                                            Share.Close ->
+                                                Action.historyBack model.key
 
                                             _ ->
                                                 Return.zero
@@ -538,12 +636,8 @@ update message model =
                         DiagramModel.OnResize _ _ ->
                             Return.andThen <| \m -> Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
 
-                        DiagramModel.EndEditSelectedItem _ code isComposing ->
-                            if code == 13 && not isComposing then
-                                Return.andThen <| \m -> Return.singleton { m | diagramModel = model_ }
-
-                            else
-                                Return.zero
+                        DiagramModel.EndEditSelectedItem _ ->
+                            Return.andThen <| \m -> Return.singleton { m | diagramModel = model_ }
 
                         DiagramModel.FontStyleChanged _ ->
                             case model.diagramModel.selectedItem of
@@ -865,13 +959,9 @@ update message model =
                     Return.andThen (\m -> Return.singleton { m | title = Title.edit m.title })
                         >> Return.andThen (Action.setFocus "title")
 
-                EndEditTitle code isComposing ->
-                    if code == Events.keyEnter && not isComposing then
-                        Return.andThen (\m -> Return.singleton { m | title = Title.view m.title })
-                            >> Action.setFocusEditor
-
-                    else
-                        Return.zero
+                EndEditTitle ->
+                    Return.andThen (\m -> Return.singleton { m | title = Title.view m.title })
+                        >> Action.setFocusEditor
 
                 EditTitle title ->
                     Return.andThen (\m -> Return.singleton { m | title = Title.edit <| Title.fromString title })
@@ -976,7 +1066,6 @@ update message model =
                                     Return.zero
                            )
                         >> Return.andThen Action.stopProgress
-                        >> Return.andThen (Action.showInfoMessage "Signed In")
 
                 HandleAuthStateChanged Nothing ->
                     Return.andThen (\m -> Return.singleton { m | session = Session.guest })
@@ -986,42 +1075,7 @@ update message model =
                     Return.andThen (\m -> Return.singleton { m | progress = visible })
 
                 Load (Ok diagram) ->
-                    let
-                        newDiagram =
-                            case diagram.id of
-                                Nothing ->
-                                    { diagram
-                                        | title = model.title
-                                        , text = model.diagramModel.text
-                                        , diagram = model.diagramModel.diagramType
-                                    }
-
-                                Just _ ->
-                                    diagram
-
-                        diagramModel =
-                            model.diagramModel
-
-                        newDiagramModel =
-                            { diagramModel
-                                | diagramType = newDiagram.diagram
-                                , text = newDiagram.text
-                            }
-
-                        ( model_, cmd_ ) =
-                            Diagram.update (DiagramModel.OnChangeText <| Text.toString newDiagram.text) newDiagramModel
-                    in
-                    Return.andThen
-                        (\m ->
-                            Return.return
-                                { m
-                                    | title = newDiagram.title
-                                    , currentDiagram = Just newDiagram
-                                    , diagramModel = model_
-                                }
-                                (cmd_ |> Cmd.map UpdateDiagram)
-                        )
-                        >> Return.andThen Action.stopProgress
+                    loadDiagram model diagram
 
                 EditText text ->
                     let
@@ -1030,9 +1084,34 @@ update message model =
                     in
                     Return.andThen (\m -> Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram))
 
-                Load (Err _) ->
-                    Return.andThen Action.stopProgress
-                        >> Action.showErrorMessage "Failed load diagram."
+                Load (Err e) ->
+                    (case RequestError.toError e of
+                        RequestError.NotFound ->
+                            Action.moveTo model.key Route.NotFound
+
+                        RequestError.Forbidden ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.NoAuthorization ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.DecryptionFailed ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.EncryptionFailed ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.URLExpired ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.Unknown ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.Http _ ->
+                            Action.moveTo model.key Route.Home
+                    )
+                        >> Return.andThen Action.stopProgress
+                        >> Action.showErrorMessage (RequestError.toMessage <| RequestError.toError e)
 
                 GotLocalDiagramJson json ->
                     case D.decodeValue DiagramItem.decoder json of
@@ -1078,6 +1157,28 @@ update message model =
 
                 HistoryBack ->
                     Action.historyBack model.key
+
+                EditPassword password ->
+                    Return.andThen <|
+                        \m ->
+                            Return.singleton { m | view = { password = Just password, authenticated = False, token = m.view.token } }
+
+                EndEditPassword ->
+                    case model.view.token of
+                        Just token ->
+                            Return.andThen (Action.switchPage Page.Main)
+                                >> Return.command (Task.attempt LoadWithPassword <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (ShareToken.toString token) model.view.password)
+                                >> Return.andThen Action.changeRouteInit
+
+                        Nothing ->
+                            Return.zero
+
+                LoadWithPassword (Ok diagram) ->
+                    Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = Nothing, authenticated = True } })
+                        >> loadDiagram model diagram
+
+                LoadWithPassword (Err _) ->
+                    Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = m.view.token, authenticated = False } })
            )
 
 
@@ -1094,7 +1195,6 @@ subscriptions model =
          , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange HandleVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
-         , onMouseUp <| D.succeed <| UpdateDiagram DiagramModel.Stop
          , Ports.shortcuts Shortcuts
          , Ports.onNotification (\n -> HandleAutoCloseNotification (Info n))
          , Ports.onErrorNotification (\n -> HandleAutoCloseNotification (Error n))

@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "@sentry/browser": "^6.2.3",
+        "clipboard-copy": "^4.0.1",
         "dexie": "^3.0.3",
         "firebase": "^8.3.1",
         "html2canvas": "^1.0.0-rc.7",
@@ -35,7 +36,7 @@
         "elm": "^0.19.1-5",
         "elm-hot-webpack-loader": "^1.1.8",
         "elm-test": "^0.19.1-revision6",
-        "elm-webpack-loader": "^7.0.1",
+        "elm-webpack-loader": "^8.0.0",
         "eslint": "^7.23.0",
         "eslint-config-airbnb-typescript-prettier": "^4.2.0",
         "html-inline-css-webpack-plugin": "^1.11.0",

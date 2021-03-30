@@ -8,6 +8,7 @@ import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
 import Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
 import Views.DropDownList as DropDownList exposing (DropDownValue)
+import Views.Switch as Switch
 
 
 baseColorItems : List { name : String, value : DropDownValue }
@@ -1061,7 +1062,7 @@ view_ dropDownIndex settings =
         [ section (Just "Basic")
         , div [ class "controls" ]
             [ div [ class "control" ]
-                [ div [ class "label" ] [ text "Font Family" ]
+                [ div [ class "name" ] [ text "Font Family" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "font-family"
@@ -1076,7 +1077,7 @@ view_ dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "Background color" ]
+                [ div [ class "name" ] [ text "Background color" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "background-color"
@@ -1090,69 +1091,40 @@ view_ dropDownIndex settings =
                         settings.storyMap.backgroundColor
                     ]
                 ]
-            , div [ class "control" ]
-                [ div [ class "label" ] [ text "Zoom Control" ]
-                , div [ class "input-area" ]
-                    [ label []
-                        [ input
-                            [ type_ "checkbox"
-                            , checked (Maybe.withDefault True settings.storyMap.zoomControl)
-                            , onClick
-                                (UpdateSettings
-                                    (\_ -> settings |> settingsOfZoomControl.set (Maybe.map not settings.storyMap.zoomControl))
-                                    ""
-                                )
-                            ]
-                            []
-                        , text "Enabled"
-                        ]
-                    ]
+            , div [ class "control-row" ]
+                [ div [ class "name" ] [ text "Zoom Control" ]
+                , Switch.view (Maybe.withDefault True settings.storyMap.zoomControl)
+                    (\v ->
+                        UpdateSettings
+                            (\_ -> settings |> settingsOfZoomControl.set (Just v))
+                            ""
+                    )
                 ]
             ]
         , section (Just "Editor")
         , div [ class "controls" ]
-            [ div [ class "control" ]
-                [ div [ class "label" ] [ text "Show Line Number" ]
-                , div [ class "input-area" ]
-                    [ label []
-                        [ input
-                            [ type_ "checkbox"
-                            , checked
-                                (settings.editor |> defaultEditorSettings |> .showLineNumber)
-                            , onClick
-                                (UpdateSettings
-                                    (\_ -> settings |> settingsOfShowLineNumber.set (not (settings.editor |> defaultEditorSettings |> .showLineNumber)))
-                                    ""
-                                )
-                            ]
-                            []
-                        , text "Enabled"
-                        ]
-                    ]
+            [ div [ class "control-row" ]
+                [ div [ class "name" ] [ text "Show Line Number" ]
+                , Switch.view (settings.editor |> defaultEditorSettings |> .showLineNumber)
+                    (\v ->
+                        UpdateSettings
+                            (\_ -> settings |> settingsOfShowLineNumber.set v)
+                            ""
+                    )
+                ]
+            , div [ class "control-row" ]
+                [ div [ class "name" ] [ text "Word Wrap" ]
+                , Switch.view (settings.editor |> defaultEditorSettings |> .wordWrap)
+                    (\v ->
+                        UpdateSettings
+                            (\_ ->
+                                settings |> settingsOfWordWrap.set v
+                            )
+                            ""
+                    )
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "Word Wrap" ]
-                , div [ class "input-area" ]
-                    [ label []
-                        [ input
-                            [ type_ "checkbox"
-                            , checked
-                                (settings.editor |> defaultEditorSettings |> .wordWrap)
-                            , onClick
-                                (UpdateSettings
-                                    (\_ ->
-                                        settings |> settingsOfWordWrap.set (not (settings.editor |> defaultEditorSettings |> .wordWrap))
-                                    )
-                                    ""
-                                )
-                            ]
-                            []
-                        , text "Enabled"
-                        ]
-                    ]
-                ]
-            , div [ class "control" ]
-                [ div [ class "label" ] [ text "Font Size" ]
+                [ div [ class "name" ] [ text "Font Size" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "editor-font-size"
@@ -1170,7 +1142,7 @@ view_ dropDownIndex settings =
         , section (Just "Card Size")
         , div [ class "controls" ]
             [ div [ class "control" ]
-                [ div [ class "label" ] [ text "Card Width" ]
+                [ div [ class "name" ] [ text "Card Width" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "card-width"
@@ -1185,7 +1157,7 @@ view_ dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "Card Height" ]
+                [ div [ class "name" ] [ text "Card Height" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "card-height"
@@ -1203,7 +1175,7 @@ view_ dropDownIndex settings =
         , section (Just "Color")
         , div [ class "controls" ]
             [ div [ class "control" ]
-                [ div [ class "label" ] [ text "Background Color1" ]
+                [ div [ class "name" ] [ text "Background Color1" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "activity-background-color"
@@ -1218,7 +1190,7 @@ view_ dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "Foreground Color1" ]
+                [ div [ class "name" ] [ text "Foreground Color1" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "activity-foreground-color"
@@ -1236,7 +1208,7 @@ view_ dropDownIndex settings =
         , section Nothing
         , div [ class "controls" ]
             [ div [ class "control" ]
-                [ div [ class "label" ] [ text "Background Color2" ]
+                [ div [ class "name" ] [ text "Background Color2" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "task-background-color"
@@ -1251,7 +1223,7 @@ view_ dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "Foreground Color2" ]
+                [ div [ class "name" ] [ text "Foreground Color2" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "task-foreground-color"
@@ -1269,7 +1241,7 @@ view_ dropDownIndex settings =
         , section Nothing
         , div [ class "controls" ]
             [ div [ class "control" ]
-                [ div [ class "label" ] [ text "Background Color3" ]
+                [ div [ class "name" ] [ text "Background Color3" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "story-background-color"
@@ -1284,7 +1256,7 @@ view_ dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "Foreground Color3" ]
+                [ div [ class "name" ] [ text "Foreground Color3" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "story-foreground-color"
@@ -1303,7 +1275,7 @@ view_ dropDownIndex settings =
         , section Nothing
         , div [ class "controls" ]
             [ div [ class "control" ]
-                [ div [ class "label" ] [ text "Line Color" ]
+                [ div [ class "name" ] [ text "Line Color" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "line-color"
@@ -1318,7 +1290,7 @@ view_ dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "Label Color" ]
+                [ div [ class "name" ] [ text "Label Color" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "label-color"
@@ -1333,7 +1305,7 @@ view_ dropDownIndex settings =
                     ]
                 ]
             , div [ class "control" ]
-                [ div [ class "label" ] [ text "Text Color" ]
+                [ div [ class "name" ] [ text "Text Color" ]
                 , div [ class "input-area" ]
                     [ DropDownList.view ToggleDropDownList
                         "text-color"

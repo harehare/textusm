@@ -88,8 +88,7 @@ func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offse
 
 func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item *item.Item, isPublic bool) (*item.Item, error) {
 	if item.ID == "" {
-		uuidv4 := uuid.NewV4()
-		item.ID = uuidv4.String()
+		item.ID = uuid.NewV4().String()
 	}
 
 	var err error

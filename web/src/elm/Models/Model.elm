@@ -20,14 +20,15 @@ import Data.DiagramItem exposing (DiagramItem)
 import Data.FileType exposing (FileType)
 import Data.LoginProvider exposing (LoginProvider)
 import Data.Session exposing (Session, User)
+import Data.ShareToken exposing (ShareToken)
 import Data.Title exposing (Title)
+import Dialog.Share as Share
 import Graphql.Http as GraphQlHttp
 import Json.Decode as D
 import Models.Diagram as Diagram
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
-import Page.Share as Share
 import Page.Tags as Tags
 import TextUSM.Enum.Diagram as DiagramType
 import Translations exposing (Lang)
@@ -54,7 +55,7 @@ type Msg
     | SaveToRemote D.Value
     | StartEditTitle
     | Progress Bool
-    | EndEditTitle Int Bool
+    | EndEditTitle
     | EditTitle String
     | EditText String
     | SignIn LoginProvider
@@ -77,6 +78,9 @@ type Msg
     | CloseFullscreen D.Value
     | UpdateIdToken String
     | HistoryBack
+    | EditPassword String
+    | EndEditPassword
+    | LoadWithPassword (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
 
 
 type Notification
@@ -102,7 +106,6 @@ type Page
     | Help
     | List
     | Tags Tags.Model
-    | Share
     | Settings
     | Embed DiagramType.Diagram String
     | NotFound
@@ -126,6 +129,11 @@ type alias Model =
     , progress : Bool
     , apiRoot : String
     , lang : Lang
+    , view :
+        { password : Maybe String
+        , authenticated : Bool
+        , token : Maybe ShareToken
+        }
     }
 
 

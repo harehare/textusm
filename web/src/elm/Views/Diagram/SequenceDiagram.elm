@@ -69,9 +69,21 @@ participantView settings selectedItem pos (Participant item _) messageHeight =
             fromY + messageHeight + settings.size.height + Constants.messageMargin
     in
     Svg.g []
-        [ Lazy.lazy Views.card { settings = settings, position = ( Position.getX pos, toY ), selectedItem = selectedItem, item = item, canMove = False }
+        [ Lazy.lazy Views.card
+            { settings = settings
+            , position = ( Position.getX pos, toY )
+            , selectedItem = selectedItem
+            , item = item
+            , canMove = False
+            }
         , Lazy.lazy3 lineView settings ( lineX, fromY ) ( lineX, toY )
-        , Lazy.lazy Views.card { settings = settings, position = pos, selectedItem = selectedItem, item = item, canMove = False }
+        , Lazy.lazy Views.card
+            { settings = settings
+            , position = pos
+            , selectedItem = selectedItem
+            , item = item
+            , canMove = False
+            }
         ]
 
 

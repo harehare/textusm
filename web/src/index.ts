@@ -14,6 +14,7 @@ import { Settings } from "./ts/model";
 import { ElmApp, Provider } from "./ts/elm";
 // @ts-ignore
 import { Elm } from "./elm/Main.elm";
+import copy from "clipboard-copy";
 
 const lang =
     (window.navigator.languages && window.navigator.languages[0]) ||
@@ -105,6 +106,10 @@ app.ports.closeFullscreen.subscribe(() => {
     } else if (document.msExitFullscreen) {
         document.msExitFullscreen();
     }
+});
+
+app.ports.copyText.subscribe((text: string) => {
+    copy(text);
 });
 
 const attachApp = (a: ElmApp, list: ((a: ElmApp) => void)[]) => {

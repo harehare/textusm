@@ -74,12 +74,8 @@ import TextUSM.Enum.Diagram exposing (Diagram)
 import Utils.Utils as Utils
 
 
-type alias IsDragging =
-    Bool
-
-
 type alias SelectedItem =
-    Maybe ( Item, IsDragging )
+    Maybe Item
 
 
 type alias Model =
@@ -280,7 +276,7 @@ type Msg
     | OnResize Int Int
     | StartPinch Distance
     | EditSelectedItem String
-    | EndEditSelectedItem Item Int Bool
+    | EndEditSelectedItem Item
     | FitToWindow
     | Select (Maybe ( Item, Position ))
     | ColorChanged ContextMenu Color.Color
