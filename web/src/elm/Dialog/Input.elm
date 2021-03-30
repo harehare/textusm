@@ -2,7 +2,7 @@ module Dialog.Input exposing (view)
 
 import Events
 import Html exposing (Html, div, input, text)
-import Html.Attributes exposing (class, placeholder, style, type_, value)
+import Html.Attributes exposing (class, maxlength, placeholder, style, type_, value)
 import Html.Events exposing (onInput)
 
 
@@ -26,6 +26,7 @@ view props =
                     , placeholder "Password"
                     , style "color" "#555"
                     , style "width" "305px"
+                    , maxlength 72
                     , value props.value
                     , onInput props.onInput
                     , Events.onEnter props.onEnter

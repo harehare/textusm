@@ -1,6 +1,8 @@
-module Data.ShareToken exposing (ShareToken, fromString, toString)
+module Data.ShareToken exposing (ShareToken, fromString, toString, unwrap)
 
+import Base64
 import Regex
+import UrlBase64
 
 
 type ShareToken
@@ -27,6 +29,11 @@ fromString token =
                 Nothing
         )
         match
+
+
+unwrap : ShareToken -> Maybe String
+unwrap (ShareToken token) =
+    UrlBase64.decode Base64.decode token |> Result.toMaybe
 
 
 toString : ShareToken -> String

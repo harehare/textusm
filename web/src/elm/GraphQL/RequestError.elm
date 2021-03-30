@@ -9,6 +9,7 @@ type RequestError
     | NoAuthorization
     | DecryptionFailed
     | EncryptionFailed
+    | URLExpired
     | Unknown
     | Http HttpError
 
@@ -31,6 +32,9 @@ fromString s =
         "ServiceError: EncryptionFailed" ->
             EncryptionFailed
 
+        "ServiceError: URLExpired" ->
+            URLExpired
+
         _ ->
             Unknown
 
@@ -52,6 +56,9 @@ toMessage e =
 
         EncryptionFailed ->
             "Internal server error has occurred"
+
+        URLExpired ->
+            "URL has expired"
 
         Unknown ->
             "Unknown error has occurred"

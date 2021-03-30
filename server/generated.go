@@ -377,7 +377,7 @@ type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
   delete(itemID: String!, isPublic: Boolean = False): String!
   bookmark(itemID: String!, isBookmark: Boolean!): Item
-  share(itemID: String!, expSecond: Int = 300, password: String = ""): String!
+  share(itemID: String!, expSecond: Int = 300, password: String): String!
 }
 `, BuiltIn: false},
 }

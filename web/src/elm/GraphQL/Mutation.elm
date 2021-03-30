@@ -53,6 +53,19 @@ bookmark itemID isBookmark =
         )
 
 
-share : String -> Int -> SelectionSet String RootMutation
-share itemID expSecond =
-    Mutation.share (\optionals -> { optionals | expSecond = Present expSecond }) { itemID = itemID }
+share : String -> Int -> Maybe String -> SelectionSet String RootMutation
+share itemID expSecond password =
+    Mutation.share
+        (\optionals ->
+            { optionals
+                | expSecond = Present expSecond
+                , password =
+                    case password of
+                        Just p ->
+                            Present p
+
+                        Nothing ->
+                            Null
+            }
+        )
+        { itemID = itemID }

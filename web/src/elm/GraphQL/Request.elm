@@ -77,9 +77,9 @@ bookmark req itemID isBookmark =
         |> Http.toTask
 
 
-share : RequestInfo -> String -> Int -> Task (Http.Error String) String
-share req itemID expSecond =
-    Mutation.share itemID expSecond
+share : RequestInfo -> String -> Int -> Maybe String -> Task (Http.Error String) String
+share req itemID expSecond password =
+    Mutation.share itemID expSecond password
         |> Http.mutationRequest (graphQLUrl req)
         |> authHeaders req.idToken
         |> Http.toTask

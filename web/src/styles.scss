@@ -219,6 +219,17 @@
         margin-bottom: 8px;
     }
 
+    .control-row {
+        @apply flex items-center justify-between;
+        width: 300px;
+        padding: 8px 0;
+    }
+
+    .name {
+        @apply text-sm font-bold;
+        padding: 1px 8px;
+    }
+
     .input-area {
         max-width: 300px;
         width: 90%;
@@ -474,7 +485,7 @@
         top: 50%;
         left: 50%;
         transform: translateY(-50%) translateX(-50%);
-        padding: 32px;
+        padding: 16px;
         border-radius: 8px;
         box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
             0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);

@@ -14,7 +14,6 @@ import Models.Diagram as DiagramModel
 import Return as Return exposing (Return)
 import Task
 import Utils.Diagram as DiagramUtils
-import Utils.Utils as Utils
 
 
 
@@ -161,12 +160,8 @@ update message model =
                     Diagram.update subMsg model.diagramModel
             in
             case subMsg of
-                DiagramModel.EndEditSelectedItem _ code isComposing ->
-                    if code == 13 && not isComposing then
-                        ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, setText (Text.toString model_.text) ] )
-
-                    else
-                        ( model, Cmd.none )
+                DiagramModel.EndEditSelectedItem _ ->
+                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, setText (Text.toString model_.text) ] )
 
                 DiagramModel.FontStyleChanged _ ->
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )

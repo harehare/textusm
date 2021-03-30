@@ -13,10 +13,11 @@ import Browser.Events
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Data.DiagramId as DiagramId
-import Data.DiagramItem as DiagramItem
+import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.DiagramType as DiagramType
 import Data.FileType as FileType
 import Data.IdToken as IdToken
+import Data.Jwt as Jwt
 import Data.LoginProvider as LoginProdiver
 import Data.Session as Session
 import Data.ShareToken as ShareToken
@@ -133,7 +134,11 @@ init flags url key =
                 , currentDiagram = initSettings.diagram
                 , page = Page.Main
                 , lang = lang
-                , viewPassword = Nothing
+                , view =
+                    { password = Nothing
+                    , authenticated = False
+                    , token = Nothing
+                    }
                 }
     in
     ( model, cmds )
@@ -262,16 +267,25 @@ view model =
             Share ->
                 Lazy.lazy Share.view model.shareModel |> Html.map UpdateShare
 
+            ViewFile _ id_ ->
+                case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
+                    Just jwt ->
+                        if jwt.pas && not model.view.authenticated then
+                            Lazy.lazy InputDialog.view
+                                { title = "Enter password"
+                                , value = model.view.password |> Maybe.withDefault ""
+                                , onInput = EditPassword
+                                , onEnter = EndEditPassword
+                                }
+
+                        else
+                            Empty.view
+
+                    Nothing ->
+                        Empty.view
+
             _ ->
                 Empty.view
-
-        -- TODO: jwt check
-        , Lazy.lazy InputDialog.view
-            { title = "Enter password"
-            , value = model.viewPassword |> Maybe.withDefault ""
-            , onInput = EditPassword
-            , onEnter = EndEditPassword
-            }
         ]
 
 
@@ -492,11 +506,62 @@ changeRouteTo route model =
                                 Action.moveTo model.key Route.Home
 
                     Route.ViewFile _ id_ ->
-                        -- TODO: jwt check
-                        Return.andThen (Action.switchPage Page.Main)
-                            >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (ShareToken.toString id_) Nothing)
-                            >> Return.andThen Action.changeRouteInit
+                        case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
+                            Just jwt ->
+                                Return.andThen (\m -> Return.singleton { m | view = { password = m.view.password, authenticated = m.view.authenticated, token = Just id_ } })
+                                    >> (if jwt.pas then
+                                            Return.andThen (Action.switchPage Page.Main)
+                                                >> Return.andThen Action.changeRouteInit
+
+                                        else
+                                            Return.andThen (Action.switchPage Page.Main)
+                                                >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (ShareToken.toString id_) Nothing)
+                                                >> Return.andThen Action.changeRouteInit
+                                       )
+
+                            Nothing ->
+                                Return.andThen <| Action.switchPage Page.NotFound
            )
+
+
+loadDiagram : Model -> DiagramItem -> Return.ReturnF Msg Model
+loadDiagram model diagram =
+    let
+        newDiagram =
+            case diagram.id of
+                Nothing ->
+                    { diagram
+                        | title = model.title
+                        , text = model.diagramModel.text
+                        , diagram = model.diagramModel.diagramType
+                    }
+
+                Just _ ->
+                    diagram
+
+        diagramModel =
+            model.diagramModel
+
+        newDiagramModel =
+            { diagramModel
+                | diagramType = newDiagram.diagram
+                , text = newDiagram.text
+            }
+
+        ( model_, cmd_ ) =
+            Diagram.update (DiagramModel.OnChangeText <| Text.toString newDiagram.text) newDiagramModel
+    in
+    Return.andThen
+        (\m ->
+            Return.return
+                { m
+                    | title = newDiagram.title
+                    , currentDiagram = Just newDiagram
+                    , diagramModel = model_
+                }
+                (cmd_ |> Cmd.map UpdateDiagram)
+        )
+        >> Return.andThen Action.stopProgress
 
 
 update : Msg -> Model -> Return Msg Model
@@ -1010,42 +1075,7 @@ update message model =
                     Return.andThen (\m -> Return.singleton { m | progress = visible })
 
                 Load (Ok diagram) ->
-                    let
-                        newDiagram =
-                            case diagram.id of
-                                Nothing ->
-                                    { diagram
-                                        | title = model.title
-                                        , text = model.diagramModel.text
-                                        , diagram = model.diagramModel.diagramType
-                                    }
-
-                                Just _ ->
-                                    diagram
-
-                        diagramModel =
-                            model.diagramModel
-
-                        newDiagramModel =
-                            { diagramModel
-                                | diagramType = newDiagram.diagram
-                                , text = newDiagram.text
-                            }
-
-                        ( model_, cmd_ ) =
-                            Diagram.update (DiagramModel.OnChangeText <| Text.toString newDiagram.text) newDiagramModel
-                    in
-                    Return.andThen
-                        (\m ->
-                            Return.return
-                                { m
-                                    | title = newDiagram.title
-                                    , currentDiagram = Just newDiagram
-                                    , diagramModel = model_
-                                }
-                                (cmd_ |> Cmd.map UpdateDiagram)
-                        )
-                        >> Return.andThen Action.stopProgress
+                    loadDiagram model diagram
 
                 EditText text ->
                     let
@@ -1069,6 +1099,9 @@ update message model =
                             Action.moveTo model.key Route.Home
 
                         RequestError.EncryptionFailed ->
+                            Action.moveTo model.key Route.Home
+
+                        RequestError.URLExpired ->
                             Action.moveTo model.key Route.Home
 
                         RequestError.Unknown ->
@@ -1126,10 +1159,26 @@ update message model =
                     Action.historyBack model.key
 
                 EditPassword password ->
-                    Return.zero
+                    Return.andThen <|
+                        \m ->
+                            Return.singleton { m | view = { password = Just password, authenticated = False, token = m.view.token } }
 
                 EndEditPassword ->
-                    Return.zero
+                    case model.view.token of
+                        Just token ->
+                            Return.andThen (Action.switchPage Page.Main)
+                                >> Return.command (Task.attempt LoadWithPassword <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (ShareToken.toString token) model.view.password)
+                                >> Return.andThen Action.changeRouteInit
+
+                        Nothing ->
+                            Return.zero
+
+                LoadWithPassword (Ok diagram) ->
+                    Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = Nothing, authenticated = True } })
+                        >> loadDiagram model diagram
+
+                LoadWithPassword (Err _) ->
+                    Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = m.view.token, authenticated = False } })
            )
 
 

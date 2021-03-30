@@ -20,6 +20,7 @@ import Data.DiagramItem exposing (DiagramItem)
 import Data.FileType exposing (FileType)
 import Data.LoginProvider exposing (LoginProvider)
 import Data.Session exposing (Session, User)
+import Data.ShareToken exposing (ShareToken)
 import Data.Title exposing (Title)
 import Dialog.Share as Share
 import Graphql.Http as GraphQlHttp
@@ -79,6 +80,7 @@ type Msg
     | HistoryBack
     | EditPassword String
     | EndEditPassword
+    | LoadWithPassword (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
 
 
 type Notification
@@ -127,7 +129,11 @@ type alias Model =
     , progress : Bool
     , apiRoot : String
     , lang : Lang
-    , viewPassword : Maybe String
+    , view :
+        { password : Maybe String
+        , authenticated : Bool
+        , token : Maybe ShareToken
+        }
     }
 
 

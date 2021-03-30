@@ -82,7 +82,7 @@ func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBo
 }
 
 func (r *queryResolver) ShareItem(ctx context.Context, token string, password *string) (*item.Item, error) {
-	return r.service.FindShareItem(ctx, token, *password)
+	return r.service.FindShareItem(ctx, token, password)
 }
 
 func (r *mutationResolver) Share(ctx context.Context, token string, expSecond *int, password *string) (string, error) {

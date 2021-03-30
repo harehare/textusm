@@ -7,10 +7,11 @@ import Data.Size as Size exposing (Size)
 import Data.Title as Title exposing (Title)
 import Events
 import GraphQL.Request as Request
-import Html exposing (Html, div, input, label, text)
-import Html.Attributes as Attr exposing (class, id, placeholder, readonly, style, type_, value)
-import Html.Events exposing (onCheck, onClick, onInput)
+import Html exposing (Html, div, input, text)
+import Html.Attributes as Attr exposing (maxlength, class, id, placeholder, readonly, style, type_, value)
+import Html.Events exposing (onClick, onFocus, onInput)
 import Html.Lazy as Lazy
+import Maybe.Extra as MaybeEx
 import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
 import Route exposing (Route(..))
@@ -116,11 +117,11 @@ embedUrl { token, diagramType, title, embedSize } =
             ""
 
 
-share : DiagramId -> Int -> String -> Session -> Return.ReturnF Msg Model
-share diagramId expireSecond apiRoot session =
+share : DiagramId -> Int -> Maybe String -> String -> Session -> Return.ReturnF Msg Model
+share diagramId expireSecond password apiRoot session =
     let
         shareTask =
-            Request.share { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString diagramId) expireSecond
+            Request.share { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString diagramId) expireSecond password
                 |> Task.mapError (\_ -> "Failed to generate URL for sharing.")
     in
     Return.command <| Task.attempt Shared shareTask
@@ -152,7 +153,7 @@ init { diagram, diagramId, apiRoot, session, title } =
         , session = session
         , password = Nothing
         }
-        |> share diagramId 300 apiRoot session
+        |> share diagramId 300 Nothing apiRoot session
         |> Return.command (Task.perform GotTimeZone Time.here)
         |> Return.command (Task.perform GotNow Time.now)
 
@@ -220,14 +221,14 @@ update msg model =
 
                 UrlCopy ->
                     Return.andThen (\m -> Return.singleton { m | urlCopyState = Copying })
-                        >> share model.diagramId model.expireSecond model.apiRoot model.session
+                        >> share model.diagramId model.expireSecond model.password model.apiRoot model.session
 
                 UrlCopied ->
                     Return.andThen (\m -> Return.singleton { m | urlCopyState = NotCopy })
 
                 EmbedCopy ->
                     Return.andThen (\m -> Return.singleton { m | embedCopyState = Copying })
-                        >> share model.diagramId model.expireSecond model.apiRoot model.session
+                        >> share model.diagramId model.expireSecond model.password model.apiRoot model.session
 
                 EmbedCopied ->
                     Return.andThen (\m -> Return.singleton { m | embedCopyState = NotCopy })
@@ -245,7 +246,6 @@ update msg model =
                                         { m
                                             | expireDate = date
                                             , expireSecond = diffSecond
-                                            , token = Loading
                                         }
                                 )
 
@@ -265,7 +265,6 @@ update msg model =
                                         { m
                                             | expireTime = time
                                             , expireSecond = diffSecond
-                                            , token = Loading
                                         }
                                 )
 
@@ -350,7 +349,7 @@ view model =
                             ]
                         , div [ class "flex-space", style "padding" "8px" ]
                             [ div [ class "text-xs" ] [ text "Password protection" ]
-                            , Switch.view UsePassword
+                            , Switch.view (MaybeEx.isJust model.password) UsePassword
                             ]
                         , case model.password of
                             Just p ->
@@ -362,6 +361,7 @@ view model =
                                         , style "color" "#555"
                                         , style "width" "305px"
                                         , value p
+                                        , maxlength 72
                                         , onInput EditPassword
                                         ]
                                         []
@@ -378,13 +378,7 @@ view model =
                                 , value <| sharUrl model.token model.diagramType
                                 , id "share-url"
                                 , onClick <| SelectAll "share-url"
-                                , Attr.disabled <|
-                                    case model.token of
-                                        Success _ ->
-                                            False
-
-                                        _ ->
-                                            True
+                                , onFocus UrlCopy
                                 ]
                                 []
                             , Lazy.lazy2 copyButton model.urlCopyState UrlCopy
@@ -428,13 +422,7 @@ view model =
                                 , value <| embedUrl { token = model.token, diagramType = model.diagramType, title = model.title, embedSize = model.embedSize }
                                 , id "embed"
                                 , onClick <| SelectAll "embed"
-                                , Attr.disabled <|
-                                    case model.token of
-                                        Success _ ->
-                                            False
-
-                                        _ ->
-                                            True
+                                , onFocus EmbedCopy
                                 ]
                                 []
                             , Lazy.lazy2 copyButton model.embedCopyState EmbedCopy

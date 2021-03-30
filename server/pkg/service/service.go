@@ -193,8 +193,8 @@ func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) 
 	return s.SaveDiagram(ctx, diagramItem, false)
 }
 
-func (s *Service) FindShareItem(ctx context.Context, token string, password string) (*item.Item, error) {
-	t, err := base64.URLEncoding.DecodeString(token)
+func (s *Service) FindShareItem(ctx context.Context, token string, password *string) (*item.Item, error) {
+	t, err := base64.RawURLEncoding.DecodeString(token)
 
 	if err != nil {
 		return nil, err
@@ -213,8 +213,14 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password stri
 		return nil, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(*p), []byte(password)); err != nil {
-		return nil, e.ForbiddenError(err)
+	if claims["pas"].(bool) {
+		if password == nil {
+			return nil, e.ForbiddenError(errors.New("password is required"))
+		}
+
+		if err := bcrypt.CompareHashAndPassword([]byte(*p), []byte(*password)); err != nil {
+			return nil, e.ForbiddenError(err)
+		}
 	}
 
 	text, err := Decrypt(encryptKey, item.Text)
@@ -276,7 +282,7 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 		return nil, err
 	}
 
-	base64Token := base64.URLEncoding.EncodeToString([]byte(tokenString))
+	base64Token := base64.RawURLEncoding.EncodeToString([]byte(tokenString))
 
 	return &base64Token, nil
 }
@@ -301,7 +307,7 @@ func verifyToken(ctx context.Context, token string) (*jwt.Token, error) {
 	})
 
 	if err != nil || !verifiedToken.Valid {
-		return nil, e.ForbiddenError(err)
+		return nil, e.URLExpiredError(err)
 	}
 
 	return verifiedToken, nil

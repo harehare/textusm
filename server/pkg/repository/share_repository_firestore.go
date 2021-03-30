@@ -41,8 +41,8 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, password *string) error {
 	var savePassword string
 
-	if password != nil {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*password), 10)
+	if password != nil && *password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*password), bcrypt.DefaultCost)
 
 		if err != nil {
 			return err
