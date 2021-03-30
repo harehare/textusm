@@ -41,7 +41,7 @@ type Query {
     isBookmark: Boolean = False
     isPublic: Boolean = False
   ): [Item]!
-  shareItem(token: String!, password: String = ""): Item!
+  shareItem(token: String!, password: String): Item!
 }
 
 input InputItem {
