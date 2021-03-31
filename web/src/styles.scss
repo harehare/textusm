@@ -103,6 +103,7 @@
             .bottom-tooltip {
                 @apply hidden;
             }
+            padding-left: 16px;
         }
     }
 }
@@ -509,8 +510,8 @@
     }
 
     @media (max-width: 480px) {
-        @apply w-screen;
-        height: calc(100vh - 130px);
+        @apply full-screen;
+        border-radius: 0;
     }
     .copy-button {
         @apply flex-center cursor-pointer absolute;

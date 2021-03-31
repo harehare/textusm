@@ -8,7 +8,7 @@ import Data.Title as Title exposing (Title)
 import Events
 import GraphQL.Request as Request
 import Html exposing (Html, div, input, text)
-import Html.Attributes as Attr exposing (maxlength, class, id, placeholder, readonly, style, type_, value)
+import Html.Attributes as Attr exposing (class, id, maxlength, placeholder, readonly, style, type_, value)
 import Html.Events exposing (onClick, onFocus, onInput)
 import Html.Lazy as Lazy
 import Maybe.Extra as MaybeEx
@@ -88,10 +88,10 @@ sharUrl token diagramType =
                 []
 
         Loading ->
-            "Loading"
+            "Loading..."
 
         _ ->
-            ""
+            "Loading..."
 
 
 embedUrl : { token : RemoteData String String, diagramType : Diagram, title : Title, embedSize : Size } -> String
@@ -111,10 +111,10 @@ embedUrl { token, diagramType, title, embedSize } =
             "<iframe src=\"" ++ embed ++ "\"  width=\"" ++ String.fromInt (Size.getWidth embedSize) ++ "\" height=\"" ++ String.fromInt (Size.getHeight embedSize) ++ "\" frameborder=\"0\" style=\"border:0\" allowfullscreen></iframe>"
 
         Loading ->
-            "Loading"
+            "Loading..."
 
         _ ->
-            ""
+            "Loading..."
 
 
 share : DiagramId -> Int -> Maybe String -> String -> Session -> Return.ReturnF Msg Model

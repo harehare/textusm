@@ -179,13 +179,31 @@ view model =
                             model.diagramModel.settings.backgroundColor
                             model.switchWindow
                             (div [ class "h-main bg-main lg:h-full w-full" ]
-                                [ textarea
-                                    [ E.onInput EditText
-                                    , style "font-size" ((defaultEditorSettings model.settingsModel.settings.editor |> .fontSize |> String.fromInt) ++ "px")
-                                    , placeholder "Enter Text"
-                                    , value <| Text.toString model.diagramModel.text
+                                [ div [ id "editor", class "full" ]
+                                    [ Html.node "monaco-editor"
+                                        [ attribute "value" <| Text.toString model.diagramModel.text
+                                        , attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
+                                        , attribute "wordWrap" <|
+                                            if .wordWrap <| defaultEditorSettings model.settingsModel.settings.editor then
+                                                "true"
+
+                                            else
+                                                "false"
+                                        , attribute "showLineNumber" <|
+                                            if .showLineNumber <| defaultEditorSettings model.settingsModel.settings.editor then
+                                                "true"
+
+                                            else
+                                                "false"
+                                        , attribute "changed" <|
+                                            if Text.isChanged model.diagramModel.text then
+                                                "true"
+
+                                            else
+                                                "false"
+                                        ]
+                                        []
                                     ]
-                                    []
                                 ]
                             )
 
@@ -516,6 +534,7 @@ changeRouteTo route model =
                                         else
                                             Return.andThen (Action.switchPage Page.Main)
                                                 >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (ShareToken.toString id_) Nothing)
+                                                >> Return.andThen Action.startProgress
                                                 >> Return.andThen Action.changeRouteInit
                                        )
 
@@ -1175,6 +1194,7 @@ update message model =
 
                 LoadWithPassword (Ok diagram) ->
                     Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = Nothing, authenticated = True } })
+                        >> Return.andThen Action.startProgress
                         >> loadDiagram model diagram
 
                 LoadWithPassword (Err _) ->
