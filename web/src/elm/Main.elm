@@ -144,6 +144,35 @@ init flags url key =
     ( model, cmds )
 
 
+editor : Model -> Html Msg
+editor model =
+    div [ id "editor", class "full" ]
+        [ Html.node "monaco-editor"
+            [ attribute "value" <| Text.toString model.diagramModel.text
+            , attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
+            , attribute "wordWrap" <|
+                if .wordWrap <| defaultEditorSettings model.settingsModel.settings.editor then
+                    "true"
+
+                else
+                    "false"
+            , attribute "showLineNumber" <|
+                if .showLineNumber <| defaultEditorSettings model.settingsModel.settings.editor then
+                    "true"
+
+                else
+                    "false"
+            , attribute "changed" <|
+                if Text.isChanged model.diagramModel.text then
+                    "true"
+
+                else
+                    "false"
+            ]
+            []
+        ]
+
+
 view : Model -> Html Msg
 view model =
     main_
@@ -179,31 +208,7 @@ view model =
                             model.diagramModel.settings.backgroundColor
                             model.switchWindow
                             (div [ class "h-main bg-main lg:h-full w-full" ]
-                                [ div [ id "editor", class "full" ]
-                                    [ Html.node "monaco-editor"
-                                        [ attribute "value" <| Text.toString model.diagramModel.text
-                                        , attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
-                                        , attribute "wordWrap" <|
-                                            if .wordWrap <| defaultEditorSettings model.settingsModel.settings.editor then
-                                                "true"
-
-                                            else
-                                                "false"
-                                        , attribute "showLineNumber" <|
-                                            if .showLineNumber <| defaultEditorSettings model.settingsModel.settings.editor then
-                                                "true"
-
-                                            else
-                                                "false"
-                                        , attribute "changed" <|
-                                            if Text.isChanged model.diagramModel.text then
-                                                "true"
-
-                                            else
-                                                "false"
-                                        ]
-                                        []
-                                    ]
+                                [ editor model
                                 ]
                             )
 
@@ -213,32 +218,7 @@ view model =
                             model.diagramModel.settings.backgroundColor
                             model.window
                             (div [ class "bg-main w-full h-main lg:h-full" ]
-                                [ div
-                                    [ id "editor", class "full" ]
-                                    [ Html.node "monaco-editor"
-                                        [ attribute "value" <| Text.toString model.diagramModel.text
-                                        , attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
-                                        , attribute "wordWrap" <|
-                                            if .wordWrap <| defaultEditorSettings model.settingsModel.settings.editor then
-                                                "true"
-
-                                            else
-                                                "false"
-                                        , attribute "showLineNumber" <|
-                                            if .showLineNumber <| defaultEditorSettings model.settingsModel.settings.editor then
-                                                "true"
-
-                                            else
-                                                "false"
-                                        , attribute "changed" <|
-                                            if Text.isChanged model.diagramModel.text then
-                                                "true"
-
-                                            else
-                                                "false"
-                                        ]
-                                        []
-                                    ]
+                                [ editor model
                                 ]
                             )
               in
