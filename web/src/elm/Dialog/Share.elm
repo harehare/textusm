@@ -326,9 +326,9 @@ view model =
                 ]
                 [ div [ class "w-full" ]
                     [ div []
-                        [ div [ class "label", style "padding-bottom" "16px" ] [ text "Link to share" ]
+                        [ div [ class "label", style "padding" "8px 8px 16px" ] [ text "Link to share" ]
                         , div [ class "flex-h-center", style "padding" "8px" ]
-                            [ div [ class "text-xs", style "margin-right" "8px" ] [ text "Expire in" ]
+                            [ div [ class "text-sm", style "margin-right" "8px" ] [ text "Expire in" ]
                             , input
                                 [ class "input-light text-sm"
                                 , style "padding" "4px"
@@ -348,7 +348,7 @@ view model =
                                 []
                             ]
                         , div [ class "flex-space", style "padding" "8px" ]
-                            [ div [ class "text-xs" ] [ text "Password protection" ]
+                            [ div [ class "text-sm" ] [ text "Password protection" ]
                             , Switch.view (MaybeEx.isJust model.password) UsePassword
                             ]
                         , case model.password of
@@ -385,11 +385,11 @@ view model =
                             ]
                         ]
                     , div [ style "padding-top" "24px" ]
-                        [ div [ class "label", style "display" "flex", style "align-items" "center" ]
+                        [ div [ class "label", style "padding" "8px 8px 16px", style "display" "flex", style "align-items" "center" ]
                             [ text "Embed"
                             ]
                         , div [ style "display" "flex", style "align-items" "center", style "padding" "8px" ]
-                            [ div [ class "text-xs", style "margin-right" "8px" ] [ text "Embed size" ]
+                            [ div [ class "text-sm", style "margin-right" "8px" ] [ text "Embed size" ]
                             , input
                                 [ class "input-light text-sm"
                                 , type_ "number"
@@ -437,6 +437,6 @@ view model =
                 , style "cursor" "pointer"
                 , onClick Close
                 ]
-                [ Icon.clear "#FEFEFE" 24 ]
+                [ Icon.times "#FEFEFE" 24 ]
             ]
         ]

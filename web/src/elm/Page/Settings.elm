@@ -1059,264 +1059,272 @@ view_ dropDownIndex settings =
         , style "user-select" "none"
         , onClick DropDownClose
         ]
-        [ section (Just "Basic")
-        , div [ class "controls" ]
-            [ div [ class "control" ]
-                [ div [ class "name" ] [ text "Font Family" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "font-family"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                { settings | font = x }
+        [ div [ class "column" ]
+            [ section (Just "Basic")
+            , div [ class "controls" ]
+                [ div [ class "control" ]
+                    [ div [ class "name" ] [ text "Font Family" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "font-family"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    { settings | font = x }
+                                )
                             )
-                        )
-                        fontFamilyItems
-                        settings.font
+                            fontFamilyItems
+                            settings.font
+                        ]
                     ]
-                ]
-            , div [ class "control" ]
-                [ div [ class "name" ] [ text "Background color" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "background-color"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfBackgroundColor.set x
+                , div [ class "control" ]
+                    [ div [ class "name" ] [ text "Background color" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "background-color"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfBackgroundColor.set x
+                                )
                             )
-                        )
-                        baseColorItems
-                        settings.storyMap.backgroundColor
+                            baseColorItems
+                            settings.storyMap.backgroundColor
+                        ]
                     ]
-                ]
-            , div [ class "control-row" ]
-                [ div [ class "name" ] [ text "Zoom Control" ]
-                , Switch.view (Maybe.withDefault True settings.storyMap.zoomControl)
-                    (\v ->
-                        UpdateSettings
-                            (\_ -> settings |> settingsOfZoomControl.set (Just v))
-                            ""
-                    )
-                ]
-            ]
-        , section (Just "Editor")
-        , div [ class "controls" ]
-            [ div [ class "control-row" ]
-                [ div [ class "name" ] [ text "Show Line Number" ]
-                , Switch.view (settings.editor |> defaultEditorSettings |> .showLineNumber)
-                    (\v ->
-                        UpdateSettings
-                            (\_ -> settings |> settingsOfShowLineNumber.set v)
-                            ""
-                    )
-                ]
-            , div [ class "control-row" ]
-                [ div [ class "name" ] [ text "Word Wrap" ]
-                , Switch.view (settings.editor |> defaultEditorSettings |> .wordWrap)
-                    (\v ->
-                        UpdateSettings
-                            (\_ ->
-                                settings |> settingsOfWordWrap.set v
-                            )
-                            ""
-                    )
-                ]
-            , div [ class "control" ]
-                [ div [ class "name" ] [ text "Font Size" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "editor-font-size"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfFontSize.set (Maybe.withDefault 0 <| String.toInt x)
-                            )
+                , div [ class "control-row" ]
+                    [ div [ class "name" ] [ text "Zoom Control" ]
+                    , Switch.view (Maybe.withDefault True settings.storyMap.zoomControl)
+                        (\v ->
+                            UpdateSettings
+                                (\_ -> settings |> settingsOfZoomControl.set (Just v))
+                                ""
                         )
-                        fontSizeItems
-                        (String.fromInt <| (settings.editor |> defaultEditorSettings |> .fontSize))
                     ]
                 ]
             ]
-        , section (Just "Card Size")
-        , div [ class "controls" ]
-            [ div [ class "control" ]
-                [ div [ class "name" ] [ text "Card Width" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "card-width"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfWidth.set (String.toInt x |> Maybe.withDefault 150)
-                            )
+        , div [ class "column" ]
+            [ section (Just "Editor")
+            , div [ class "controls" ]
+                [ div [ class "control-row" ]
+                    [ div [ class "name" ] [ text "Show Line Number" ]
+                    , Switch.view (settings.editor |> defaultEditorSettings |> .showLineNumber)
+                        (\v ->
+                            UpdateSettings
+                                (\_ -> settings |> settingsOfShowLineNumber.set v)
+                                ""
                         )
-                        baseSizeItems
-                        (String.fromInt settings.storyMap.size.width)
                     ]
-                ]
-            , div [ class "control" ]
-                [ div [ class "name" ] [ text "Card Height" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "card-height"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfHeight.set (String.toInt x |> Maybe.withDefault 45)
-                            )
+                , div [ class "control-row" ]
+                    [ div [ class "name" ] [ text "Word Wrap" ]
+                    , Switch.view (settings.editor |> defaultEditorSettings |> .wordWrap)
+                        (\v ->
+                            UpdateSettings
+                                (\_ ->
+                                    settings |> settingsOfWordWrap.set v
+                                )
+                                ""
                         )
-                        baseSizeItems
-                        (String.fromInt settings.storyMap.size.height)
                     ]
-                ]
-            ]
-        , section (Just "Color")
-        , div [ class "controls" ]
-            [ div [ class "control" ]
-                [ div [ class "name" ] [ text "Background Color1" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "activity-background-color"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfActivityBackgroundColor.set x
+                , div [ class "control" ]
+                    [ div [ class "name" ] [ text "Font Size" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "editor-font-size"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfFontSize.set (Maybe.withDefault 0 <| String.toInt x)
+                                )
                             )
-                        )
-                        baseColorItems
-                        settings.storyMap.color.activity.backgroundColor
-                    ]
-                ]
-            , div [ class "control" ]
-                [ div [ class "name" ] [ text "Foreground Color1" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "activity-foreground-color"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfActivityColor.set x
-                            )
-                        )
-                        baseColorItems
-                        settings.storyMap.color.activity.color
+                            fontSizeItems
+                            (String.fromInt <| (settings.editor |> defaultEditorSettings |> .fontSize))
+                        ]
                     ]
                 ]
             ]
-        , section Nothing
-        , div [ class "controls" ]
-            [ div [ class "control" ]
-                [ div [ class "name" ] [ text "Background Color2" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "task-background-color"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfTaskBackgroundColor.set x
+        , div [ class "column" ]
+            [ section (Just "Card Size")
+            , div [ class "controls" ]
+                [ div [ class "control" ]
+                    [ div [ class "name" ] [ text "Card Width" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "card-width"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfWidth.set (String.toInt x |> Maybe.withDefault 150)
+                                )
                             )
-                        )
-                        baseColorItems
-                        settings.storyMap.color.task.backgroundColor
+                            baseSizeItems
+                            (String.fromInt settings.storyMap.size.width)
+                        ]
                     ]
-                ]
-            , div [ class "control" ]
-                [ div [ class "name" ] [ text "Foreground Color2" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "task-foreground-color"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfTaskColor.set x
+                , div [ class "control" ]
+                    [ div [ class "name" ] [ text "Card Height" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "card-height"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfHeight.set (String.toInt x |> Maybe.withDefault 45)
+                                )
                             )
-                        )
-                        baseColorItems
-                        settings.storyMap.color.task.color
-                    ]
-                ]
-            ]
-        , section Nothing
-        , div [ class "controls" ]
-            [ div [ class "control" ]
-                [ div [ class "name" ] [ text "Background Color3" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "story-background-color"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfStoryBackgroundColor.set x
-                            )
-                        )
-                        baseColorItems
-                        settings.storyMap.color.story.backgroundColor
-                    ]
-                ]
-            , div [ class "control" ]
-                [ div [ class "name" ] [ text "Foreground Color3" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "story-foreground-color"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfStoryColor.set x
-                            )
-                        )
-                        baseColorItems
-                        settings.storyMap.color.story.color
+                            baseSizeItems
+                            (String.fromInt settings.storyMap.size.height)
+                        ]
                     ]
                 ]
             ]
-        , section Nothing
-        , section Nothing
-        , div [ class "controls" ]
-            [ div [ class "control" ]
-                [ div [ class "name" ] [ text "Line Color" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "line-color"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfLineColor.set x
+        , div [ class "column" ]
+            [ section (Just "Color")
+            , div [ class "controls" ]
+                [ div [ class "control" ]
+                    [ div [ class "name" ] [ text "Background Color1" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "activity-background-color"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfActivityBackgroundColor.set x
+                                )
                             )
-                        )
-                        baseColorItems
-                        settings.storyMap.color.line
+                            baseColorItems
+                            settings.storyMap.color.activity.backgroundColor
+                        ]
+                    ]
+                , div [ class "control" ]
+                    [ div [ class "name" ] [ text "Foreground Color1" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "activity-foreground-color"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfActivityColor.set x
+                                )
+                            )
+                            baseColorItems
+                            settings.storyMap.color.activity.color
+                        ]
                     ]
                 ]
-            , div [ class "control" ]
-                [ div [ class "name" ] [ text "Label Color" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "label-color"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfLabelColor.set x
+            , section Nothing
+            , div [ class "controls" ]
+                [ div [ class "control" ]
+                    [ div [ class "name" ] [ text "Background Color2" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "task-background-color"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfTaskBackgroundColor.set x
+                                )
                             )
-                        )
-                        baseColorItems
-                        settings.storyMap.color.label
+                            baseColorItems
+                            settings.storyMap.color.task.backgroundColor
+                        ]
+                    ]
+                , div [ class "control" ]
+                    [ div [ class "name" ] [ text "Foreground Color2" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "task-foreground-color"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfTaskColor.set x
+                                )
+                            )
+                            baseColorItems
+                            settings.storyMap.color.task.color
+                        ]
                     ]
                 ]
-            , div [ class "control" ]
-                [ div [ class "name" ] [ text "Text Color" ]
-                , div [ class "input-area" ]
-                    [ DropDownList.view ToggleDropDownList
-                        "text-color"
-                        dropDownIndex
-                        (UpdateSettings
-                            (\x ->
-                                settings |> settingsOfTextColor.set x
+            , section Nothing
+            , div [ class "controls" ]
+                [ div [ class "control" ]
+                    [ div [ class "name" ] [ text "Background Color3" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "story-background-color"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfStoryBackgroundColor.set x
+                                )
                             )
-                        )
-                        baseColorItems
-                        (settings.storyMap.color.text |> Maybe.withDefault "#111111")
+                            baseColorItems
+                            settings.storyMap.color.story.backgroundColor
+                        ]
+                    ]
+                , div [ class "control" ]
+                    [ div [ class "name" ] [ text "Foreground Color3" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "story-foreground-color"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfStoryColor.set x
+                                )
+                            )
+                            baseColorItems
+                            settings.storyMap.color.story.color
+                        ]
+                    ]
+                ]
+            , section Nothing
+            , section Nothing
+            , div [ class "controls" ]
+                [ div [ class "control" ]
+                    [ div [ class "name" ] [ text "Line Color" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "line-color"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfLineColor.set x
+                                )
+                            )
+                            baseColorItems
+                            settings.storyMap.color.line
+                        ]
+                    ]
+                , div [ class "control" ]
+                    [ div [ class "name" ] [ text "Label Color" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "label-color"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfLabelColor.set x
+                                )
+                            )
+                            baseColorItems
+                            settings.storyMap.color.label
+                        ]
+                    ]
+                , div [ class "control" ]
+                    [ div [ class "name" ] [ text "Text Color" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "text-color"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfTextColor.set x
+                                )
+                            )
+                            baseColorItems
+                            (settings.storyMap.color.text |> Maybe.withDefault "#111111")
+                        ]
                     ]
                 ]
             ]
@@ -1339,5 +1347,5 @@ section title =
         , style "font-weight" "400"
         , style "margin" "0 0 16px 0px"
         ]
-        [ div [ style "font-size" "1.2rem", style "font-weight" "600" ] [ text (title |> Maybe.withDefault "") ]
+        [ div [ class "label" ] [ text (title |> Maybe.withDefault "") ]
         ]

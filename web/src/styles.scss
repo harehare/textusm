@@ -78,8 +78,7 @@
 
 @layer components {
     .label {
-        @apply text-lg font-semibold;
-        padding: 1px 8px;
+        @apply text-xl font-semibold;
     }
     .avatar {
         @apply w-12 object-cover rounded-full lg:w-8;
@@ -203,11 +202,15 @@
 }
 
 .settings {
-    @apply bg-default w-full text-color overflow-y-scroll;
+    @apply bg-default w-full text-color overflow-y-scroll flex flex-wrap;
     height: calc(100vh - 35px);
     @media (max-width: 480px) {
         @apply w-screen;
         height: calc(100vh - 130px);
+    }
+
+    .column {
+        width: 300px;
     }
 
     .controls {
@@ -222,7 +225,7 @@
 
     .control-row {
         @apply flex items-center justify-between;
-        width: 300px;
+        width: 250px;
         padding: 8px 0;
     }
 
@@ -498,7 +501,7 @@
     top: 50%;
     left: 50%;
     transform: translateY(-50%) translateX(-50%);
-    padding: 32px;
+    padding: 24px;
     border-radius: 8px;
     box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
         0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
