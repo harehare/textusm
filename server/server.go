@@ -33,14 +33,14 @@ import (
 )
 
 type Env struct {
-	Host        string `envconfig:"API_HOST"`
-	Port        string `envconfig:"PORT"`
-	Credentials string `envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`
+	Host                string `envconfig:"API_HOST"`
+	Port                string `envconfig:"PORT"`
+	Credentials         string `envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`
+	DatabaseCredentials string `envconfig:"DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON"`
 }
 
 var (
 	env Env
-	app *firebase.App
 )
 
 func Run() int {
@@ -50,22 +50,36 @@ func Run() int {
 		return 1
 	}
 
-	b, err := base64.StdEncoding.DecodeString(env.Credentials)
+	cred, err := base64.StdEncoding.DecodeString(env.Credentials)
+
+	if err != nil {
+		return 1
+	}
+
+	dbCred, err := base64.StdEncoding.DecodeString(env.DatabaseCredentials)
 
 	if err != nil {
 		return 1
 	}
 
 	ctx := context.Background()
-	opt := option.WithCredentialsJSON(b)
-	app, err = firebase.NewApp(ctx, nil, opt)
+	opt := option.WithCredentialsJSON(cred)
+	dbOpt := option.WithCredentialsJSON(dbCred)
+	app, err := firebase.NewApp(ctx, nil, opt)
 
 	if err != nil {
 		log.Error().Msg(fmt.Sprintf("error initializing app: %v\n", err))
 		return 1
 	}
 
-	firestore, err := app.Firestore(ctx)
+	fbApp, err := firebase.NewApp(ctx, nil, dbOpt)
+
+	if err != nil {
+		log.Error().Msg(fmt.Sprintf("error initializing db app: %v\n", err))
+		return 1
+	}
+
+	firestore, err := fbApp.Firestore(ctx)
 
 	if err != nil {
 		log.Error().Msg(fmt.Sprintf("error initializing firestore: %v\n", err))
