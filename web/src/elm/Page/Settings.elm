@@ -1106,7 +1106,22 @@ view_ dropDownIndex settings =
         , div [ class "column" ]
             [ section (Just "Editor")
             , div [ class "controls" ]
-                [ div [ class "control-row" ]
+                [ div [ class "control" ]
+                    [ div [ class "name" ] [ text "Font Size" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "editor-font-size"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    settings |> settingsOfFontSize.set (Maybe.withDefault 0 <| String.toInt x)
+                                )
+                            )
+                            fontSizeItems
+                            (String.fromInt <| (settings.editor |> defaultEditorSettings |> .fontSize))
+                        ]
+                    ]
+                , div [ class "control-row" ]
                     [ div [ class "name" ] [ text "Show Line Number" ]
                     , Switch.view (settings.editor |> defaultEditorSettings |> .showLineNumber)
                         (\v ->
@@ -1125,21 +1140,6 @@ view_ dropDownIndex settings =
                                 )
                                 ""
                         )
-                    ]
-                , div [ class "control" ]
-                    [ div [ class "name" ] [ text "Font Size" ]
-                    , div [ class "input-area" ]
-                        [ DropDownList.view ToggleDropDownList
-                            "editor-font-size"
-                            dropDownIndex
-                            (UpdateSettings
-                                (\x ->
-                                    settings |> settingsOfFontSize.set (Maybe.withDefault 0 <| String.toInt x)
-                                )
-                            )
-                            fontSizeItems
-                            (String.fromInt <| (settings.editor |> defaultEditorSettings |> .fontSize))
-                        ]
                     ]
                 ]
             ]
@@ -1343,7 +1343,7 @@ section title =
             style "padding" "0px"
 
           else
-            style "padding" "16px"
+            style "padding" "16px 0 0 16px"
         , style "font-weight" "400"
         , style "margin" "0 0 16px 0px"
         ]

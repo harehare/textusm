@@ -8,6 +8,7 @@ import {
     authStateChanged,
     providers,
     refreshToken,
+    pollRefreshToken,
 } from "./ts/auth";
 import { loadSettings, saveSettings } from "./ts/settings";
 import { Settings } from "./ts/model";
@@ -50,6 +51,7 @@ authStateChanged(
         }
     }
 );
+pollRefreshToken(app.ports.updateIdToken.send);
 
 app.ports.saveSettings.subscribe((settings: Settings) => {
     saveSettings(settings);

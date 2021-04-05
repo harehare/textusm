@@ -10,7 +10,7 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
-const signIn = (provider: firebase.auth.AuthProvider): Promise<void> => {
+export const signIn = (provider: firebase.auth.AuthProvider): Promise<void> => {
     return new Promise((resolve, reject) => {
         firebase
             .auth()
@@ -24,7 +24,7 @@ const signIn = (provider: firebase.auth.AuthProvider): Promise<void> => {
     });
 };
 
-const signOut = (): Promise<void> => {
+export const signOut = (): Promise<void> => {
     return new Promise((resolve, reject) => {
         firebase
             .auth()
@@ -38,11 +38,24 @@ const signOut = (): Promise<void> => {
     });
 };
 
-const refreshToken = (): Promise<string> | undefined => {
+export const pollRefreshToken = (callback: (idToken: string) => void) => {
+    setInterval(async () => {
+        const user = firebase.auth().currentUser;
+        if (user) {
+            const idToken = await user.getIdToken(true);
+            if (idToken) {
+                callback(idToken);
+                console.log("refresh token");
+            }
+        }
+    }, 10 * 60 * 1000);
+};
+
+export const refreshToken = (): Promise<string> | undefined => {
     return firebase.auth().currentUser?.getIdToken(true);
 };
 
-const authStateChanged = (
+export const authStateChanged = (
     onBeforeAuth: () => void,
     onAfterAuth: () => void,
     onAuthStateChanged: (
@@ -64,9 +77,7 @@ const authStateChanged = (
     });
 };
 
-const providers = {
+export const providers = {
     google: new firebase.auth.GoogleAuthProvider(),
     github: new firebase.auth.GithubAuthProvider(),
 };
-
-export { providers, signIn, signOut, authStateChanged, refreshToken };
