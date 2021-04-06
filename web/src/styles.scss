@@ -105,6 +105,30 @@
             padding-left: 16px;
         }
     }
+    .grid {
+        @apply w-full bg-default overflow-y-scroll;
+        display: grid;
+        grid-column-gap: 16px;
+        grid-row-gap: 16px;
+        &.new {
+            grid-template-columns: repeat(auto-fit, minmax(45%, 1fr));
+            grid-auto-rows: 150px;
+        }
+        &.list {
+            grid-template-columns: repeat(auto-fit, 47%);
+            grid-auto-rows: 200px;
+        }
+        @media (min-width: 768px) {
+            &.new {
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                grid-auto-rows: 150px;
+            }
+            &.list {
+                grid-template-columns: repeat(auto-fit, 240px);
+                grid-auto-rows: 200px;
+            }
+        }
+    }
 }
 
 @layer utilities {
@@ -254,21 +278,6 @@
     }
 }
 
-.grid {
-    @apply w-full bg-default overflow-y-scroll;
-    display: grid;
-    grid-column-gap: 16px;
-    grid-row-gap: 16px;
-    &.new {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        grid-auto-rows: 150px;
-    }
-    &.list {
-        grid-template-columns: repeat(auto-fit, 200px);
-        grid-auto-rows: 200px;
-    }
-}
-
 .diagram-list {
     @apply flex bg-default w-screen;
     height: calc(100vh - 48px);
@@ -307,9 +316,6 @@
         height: 64px;
         padding: 8px;
         border-radius: 0 0 2px 2px;
-        @media (max-width: 480px) {
-            width: 45vw;
-        }
     }
 
     .diagram-item {

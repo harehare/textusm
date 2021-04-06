@@ -45,7 +45,6 @@ export const pollRefreshToken = (callback: (idToken: string) => void) => {
             const idToken = await user.getIdToken(true);
             if (idToken) {
                 callback(idToken);
-                console.log("refresh token");
             }
         }
     }, 10 * 60 * 1000);

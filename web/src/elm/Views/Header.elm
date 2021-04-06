@@ -69,12 +69,23 @@ view props =
                 [ Attr.class "flex items-center w-full"
                 , Attr.style "height" "40px"
                 ]
-                [ Html.div
-                    [ Attr.class "flex-center"
-                    , Attr.style "width" "40px"
-                    , Attr.style "height" "40px"
-                    ]
-                    [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ] [ Html.img [ Asset.src Asset.logo, Attr.style "width" "32px", Attr.style "height" "32px", Attr.alt "logo" ] [] ] ]
+                [ case props.page of
+                    Page.Main ->
+                        Html.div
+                            [ Attr.class "flex-center"
+                            , Attr.style "width" "40px"
+                            , Attr.style "height" "40px"
+                            ]
+                            [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ] [ Html.img [ Asset.src Asset.logo, Attr.style "width" "32px", Attr.style "height" "32px", Attr.alt "logo" ] [] ] ]
+
+                    _ ->
+                        Html.div
+                            [ Attr.class "flex-center"
+                            , Attr.style "padding" "8px 8px 8px 12px"
+                            , Attr.style "cursor" "pointer"
+                            , Events.onClick HistoryBack
+                            ]
+                            [ Icon.arrowLeft "#F5F5F6" 18 ]
                 , case props.page of
                     Page.Main ->
                         if canEdit && Title.isEdit props.title then

@@ -68,45 +68,18 @@ view props =
             [ Attr.class "flex flex-row items-center justify-between bg-main shadow-sm bottom-0 w-screen fixed lg:justify-start lg:h-screen lg:relative lg:flex-col lg:w-menu z-10"
             , Attr.style "min-width" "40px"
             ]
-            [ let
-                newMenu =
-                    Html.a
-                        [ Attr.href <| Route.toString <| Route.New
-                        , Attr.attribute "aria-label" "New"
-                        ]
-                        [ Html.div
-                            [ Attr.style "margin-left" "4px"
-                            , Attr.class "menu-button"
-                            ]
-                            [ Icon.file selectedColor 18
-                            , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipNewFile props.lang ] ]
-                            ]
-                        ]
-
-                backMenu =
-                    Html.div
-                        [ Attr.class "menu-button"
-                        , Events.onClick HistoryBack
-                        ]
-                        [ Icon.arrowLeft selectedColor 18
-                        , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipBack props.lang ] ]
-                        ]
-              in
-              case props.route of
-                Route.Home ->
-                    newMenu
-
-                Route.Edit _ ->
-                    newMenu
-
-                Route.EditFile _ _ ->
-                    newMenu
-
-                Route.ViewFile _ _ ->
-                    newMenu
-
-                _ ->
-                    backMenu
+            [ Html.a
+                [ Attr.href <| Route.toString <| Route.New
+                , Attr.attribute "aria-label" "New"
+                ]
+                [ Html.div
+                    [ Attr.style "margin-left" "4px"
+                    , Attr.class "menu-button"
+                    ]
+                    [ Icon.file selectedColor 18
+                    , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipNewFile props.lang ] ]
+                    ]
+                ]
             , Html.div
                 [ Attr.class "menu-button list-button" ]
                 [ Html.a
