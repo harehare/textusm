@@ -30,8 +30,8 @@ import File.Download as Download
 import GraphQL.Request as Request
 import GraphQL.RequestError as RequestError
 import Graphql.Http as Http
-import Html exposing (Html, div, main_, textarea)
-import Html.Attributes exposing (attribute, class, id, placeholder, style, value)
+import Html exposing (Html, div, main_)
+import Html.Attributes exposing (attribute, class, id, style)
 import Html.Events as E
 import Html.Lazy as Lazy
 import Json.Decode as D
@@ -138,6 +138,7 @@ init flags url key =
                     { password = Nothing
                     , authenticated = False
                     , token = Nothing
+                    , error = Nothing
                     }
                 }
     in
@@ -270,7 +271,8 @@ view model =
                     Just jwt ->
                         if jwt.pas && not model.view.authenticated then
                             Lazy.lazy InputDialog.view
-                                { title = "Enter password"
+                                { title = "Protedted diagram"
+                                , errorMessage = Maybe.map RequestError.toMessage model.view.error
                                 , value = model.view.password |> Maybe.withDefault ""
                                 , onInput = EditPassword
                                 , onEnter = EndEditPassword
@@ -506,7 +508,7 @@ changeRouteTo route model =
                     Route.ViewFile _ id_ ->
                         case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
                             Just jwt ->
-                                Return.andThen (\m -> Return.singleton { m | view = { password = m.view.password, authenticated = m.view.authenticated, token = Just id_ } })
+                                Return.andThen (\m -> Return.singleton { m | view = { password = m.view.password, authenticated = m.view.authenticated, token = Just id_, error = Nothing } })
                                     >> (if jwt.pas then
                                             Return.andThen (Action.switchPage Page.Main)
                                                 >> Return.andThen Action.changeRouteInit
@@ -1160,7 +1162,7 @@ update message model =
                 EditPassword password ->
                     Return.andThen <|
                         \m ->
-                            Return.singleton { m | view = { password = Just password, authenticated = False, token = m.view.token } }
+                            Return.singleton { m | view = { password = Just password, authenticated = False, token = m.view.token, error = Nothing } }
 
                 EndEditPassword ->
                     case model.view.token of
@@ -1173,12 +1175,12 @@ update message model =
                             Return.zero
 
                 LoadWithPassword (Ok diagram) ->
-                    Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = Nothing, authenticated = True } })
+                    Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = Nothing, authenticated = True, error = Nothing } })
                         >> Return.andThen Action.startProgress
                         >> loadDiagram model diagram
 
-                LoadWithPassword (Err _) ->
-                    Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = m.view.token, authenticated = False } })
+                LoadWithPassword (Err e) ->
+                    Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = m.view.token, authenticated = False, error = Just <| RequestError.toError e } })
            )
 
 

@@ -23,6 +23,7 @@ import Data.Session exposing (Session, User)
 import Data.ShareToken exposing (ShareToken)
 import Data.Title exposing (Title)
 import Dialog.Share as Share
+import GraphQL.RequestError exposing (RequestError)
 import Graphql.Http as GraphQlHttp
 import Json.Decode as D
 import Models.Diagram as Diagram
@@ -133,6 +134,7 @@ type alias Model =
         { password : Maybe String
         , authenticated : Bool
         , token : Maybe ShareToken
+        , error : Maybe RequestError
         }
     }
 

@@ -11,7 +11,7 @@
     --light-background-color: #fefefe;
     --accent-color: #3e9bcd;
     --border-color: #fefefe;
-    --error-color: #ff0000;
+    --error-color: #f55c64;
     --comment-color: #008800;
     --activity-color: #266b9a;
 
@@ -104,6 +104,13 @@
             }
             padding-left: 16px;
         }
+    }
+    .submit {
+        background-color: var(--accent-color);
+        padding: 8px;
+        width: 80px;
+        display: inline-block;
+        text-align: center;
     }
     .grid {
         @apply w-full bg-default overflow-y-scroll;
