@@ -21,6 +21,7 @@ import Data.FileType exposing (FileType)
 import Data.LoginProvider exposing (LoginProvider)
 import Data.Session exposing (Session, User)
 import Data.ShareToken exposing (ShareToken)
+import Data.Size exposing (Size)
 import Data.Title exposing (Title)
 import Dialog.Share as Share
 import GraphQL.RequestError exposing (RequestError)
@@ -108,7 +109,7 @@ type Page
     | List
     | Tags Tags.Model
     | Settings
-    | Embed DiagramType.Diagram String
+    | Embed DiagramType.Diagram String (Maybe Size)
     | NotFound
 
 

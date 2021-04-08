@@ -5,12 +5,14 @@ import Html exposing (Html, button, div, input, text)
 import Html.Attributes exposing (class, maxlength, placeholder, style, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Views.Empty as Empty
+import Views.Spinner as Spinner
 
 
 type alias Props msg =
     { title : String
     , errorMessage : Maybe String
     , value : String
+    , inProcess : Bool
     , onInput : String -> msg
     , onEnter : msg
     }
@@ -37,7 +39,11 @@ view props =
                     , maxlength 72
                     , value props.value
                     , onInput props.onInput
-                    , Events.onEnter props.onEnter
+                    , if props.inProcess then
+                        style "" ""
+
+                      else
+                        Events.onEnter props.onEnter
                     ]
                     []
                 , case props.errorMessage of
@@ -51,9 +57,18 @@ view props =
                     , class "button submit"
                     , style "margin-top" "8px"
                     , style "border-radius" "8px"
-                    , onClick props.onEnter
+                    , if props.inProcess then
+                        style "" ""
+
+                      else
+                        onClick props.onEnter
                     ]
-                    [ text "submit" ]
+                    [ if props.inProcess then
+                        div [ class "w-full flex-center" ] [ Spinner.small ]
+
+                      else
+                        text "Submit"
+                    ]
                 ]
             ]
         ]

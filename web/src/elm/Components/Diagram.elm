@@ -382,10 +382,22 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     ++ String.fromInt (Position.getX centerPosition)
                     ++ ","
                     ++ String.fromInt (Position.getY centerPosition)
-                    ++ "), scale("
-                    ++ String.fromFloat model.svg.scale
+                    ++ ") scale("
+                    ++ String.fromFloat
+                        (if isInfinite model.svg.scale then
+                            1.0
+
+                         else
+                            model.svg.scale
+                        )
                     ++ ","
-                    ++ String.fromFloat model.svg.scale
+                    ++ String.fromFloat
+                        (if isInfinite model.svg.scale then
+                            1.0
+
+                         else
+                            model.svg.scale
+                        )
                     ++ ")"
             , SvgAttr.fill model.settings.backgroundColor
             , SvgAttr.style "will-change: transform;"

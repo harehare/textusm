@@ -1,7 +1,5 @@
 module Data.IpAddress exposing (IpAddress, fromString, localhost, toString)
 
-import List.Extra as ListEx
-
 
 type IpAddress
     = IpAddress Int Int Int Int (Maybe Int)

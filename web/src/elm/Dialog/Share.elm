@@ -19,11 +19,12 @@ import Task
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Time exposing (Posix, Zone)
 import Time.Extra as TimeEx
-import Url.Builder exposing (crossOrigin)
+import Url.Builder as Builder exposing (crossOrigin)
 import Utils.Date as DateUtils
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
+import Views.Spinner as Spinner
 import Views.Switch as Switch
 
 
@@ -99,6 +100,12 @@ embedUrl { token, diagramType, title, embedSize } =
     case token of
         Success t ->
             let
+                w =
+                    Size.getWidth embedSize
+
+                h =
+                    Size.getHeight embedSize
+
                 embed =
                     crossOrigin "https://app.textusm.com"
                         [ "embed"
@@ -106,9 +113,9 @@ embedUrl { token, diagramType, title, embedSize } =
                         , Title.toString title
                         , t
                         ]
-                        []
+                        [ Builder.int "w" w, Builder.int "h" h ]
             in
-            "<iframe src=\"" ++ embed ++ "\"  width=\"" ++ String.fromInt (Size.getWidth embedSize) ++ "\" height=\"" ++ String.fromInt (Size.getHeight embedSize) ++ "\" frameborder=\"0\" style=\"border:0\" allowfullscreen></iframe>"
+            "<iframe src=\"" ++ embed ++ "\"  width=\"" ++ String.fromInt w ++ "\" height=\"" ++ String.fromInt h ++ "\" frameborder=\"0\" style=\"border:0\" allowfullscreen></iframe>"
 
         Loading ->
             "Loading..."
@@ -310,7 +317,7 @@ copyButton copy msg =
                 Icon.copy "#FEFEFE" 16
 
             Copying ->
-                div [ class "loader" ] []
+                Spinner.small
 
             Copied ->
                 text "Copied"

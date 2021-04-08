@@ -41,6 +41,7 @@ import Models.Diagram as DiagramModel
 import Models.Model as Page exposing (Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
 import Models.Views.ER as ER
 import Models.Views.Table as Table
+import Page.Embed as Embed
 import Page.Help as Help
 import Page.List as DiagramList
 import Page.New as New
@@ -236,11 +237,8 @@ view model =
                 Page.Tags m ->
                     Lazy.lazy Tags.view m |> Html.map UpdateTags
 
-                Page.Embed _ _ ->
-                    div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
-                        [ Lazy.lazy Diagram.view model.diagramModel
-                            |> Html.map UpdateDiagram
-                        ]
+                Page.Embed _ _ _ ->
+                    Embed.view model
 
                 Page.New ->
                     New.view
@@ -274,6 +272,7 @@ view model =
                                 { title = "Protedted diagram"
                                 , errorMessage = Maybe.map RequestError.toMessage model.view.error
                                 , value = model.view.password |> Maybe.withDefault ""
+                                , inProcess = model.progress
                                 , onInput = EditPassword
                                 , onEnter = EndEditPassword
                                 }
@@ -377,7 +376,7 @@ changeRouteTo route model =
                     Route.NotFound ->
                         Return.andThen <| Action.switchPage Page.NotFound
 
-                    Route.Embed diagram title id_ ->
+                    Route.Embed diagram title id_ width height ->
                         Return.andThen
                             (\m ->
                                 Return.singleton
@@ -387,6 +386,7 @@ changeRouteTo route model =
                                             model.diagramModel
                                                 |> DiagramModel.modelOfShowZoomControl.set False
                                                 |> DiagramModel.modelOfDiagramType.set diagram
+                                                |> DiagramModel.modelOfScale.set 1.0
                                     }
                             )
                             >> Return.andThen (Action.setTitle title)
@@ -399,7 +399,13 @@ changeRouteTo route model =
                                         (ShareToken.toString id_)
                                         Nothing
                                 )
-                            >> Return.andThen (Action.switchPage (Page.Embed diagram title))
+                            >> Return.andThen
+                                (Action.switchPage
+                                    (Page.Embed diagram
+                                        title
+                                        (Maybe.andThen (\w -> Maybe.andThen (\h -> Just ( w, h )) height) width)
+                                    )
+                                )
                             >> Return.andThen Action.changeRouteInit
 
                     Route.Edit diagramType ->
@@ -748,8 +754,21 @@ update message model =
                     let
                         ( model_, cmd_ ) =
                             Diagram.update (DiagramModel.Init model.diagramModel.settings window (Text.toString model.diagramModel.text)) model.diagramModel
+
+                        model__ =
+                            case toRoute model.url of
+                                Route.Embed _ _ _ (Just w) (Just h) ->
+                                    let
+                                        scale =
+                                            toFloat w
+                                                / toFloat model_.svg.width
+                                    in
+                                    { model_ | size = ( w, h ), svg = { width = w, height = h, scale = scale } }
+
+                                _ ->
+                                    model_
                     in
-                    Return.andThen (\m -> Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram))
+                    Return.andThen (\m -> Return.return { m | diagramModel = model__ } (cmd_ |> Cmd.map UpdateDiagram))
                         >> Return.andThen (Action.loadText (model.currentDiagram |> Maybe.withDefault DiagramItem.empty))
                         >> Return.andThen Action.stopProgress
 
@@ -1169,18 +1188,18 @@ update message model =
                         Just token ->
                             Return.andThen (Action.switchPage Page.Main)
                                 >> Return.command (Task.attempt LoadWithPassword <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (ShareToken.toString token) model.view.password)
-                                >> Return.andThen Action.changeRouteInit
+                                >> Return.andThen Action.startProgress
 
                         Nothing ->
                             Return.zero
 
                 LoadWithPassword (Ok diagram) ->
                     Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = Nothing, authenticated = True, error = Nothing } })
-                        >> Return.andThen Action.startProgress
                         >> loadDiagram model diagram
 
                 LoadWithPassword (Err e) ->
                     Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = m.view.token, authenticated = False, error = Just <| RequestError.toError e } })
+                        >> Return.andThen Action.stopProgress
            )
 
 

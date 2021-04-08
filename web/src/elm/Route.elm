@@ -8,8 +8,9 @@ import Data.ShareToken as ShareToken exposing (ShareToken)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import UUID
 import Url exposing (Url)
-import Url.Builder exposing (absolute)
-import Url.Parser as Parser exposing ((</>), Parser, custom, map, oneOf, parse, s, string)
+import Url.Builder as Builder exposing (absolute)
+import Url.Parser as Parser exposing ((</>), (<?>), Parser, custom, map, oneOf, parse, s, string)
+import Url.Parser.Query as Query
 
 
 type alias Title =
@@ -27,7 +28,7 @@ type Route
     | Help
     | Tag
     | Share
-    | Embed Diagram Title ShareToken
+    | Embed Diagram Title ShareToken (Maybe Int) (Maybe Int)
     | ViewFile Diagram ShareToken
     | NotFound
 
@@ -36,7 +37,7 @@ parser : Parser (Route -> a) a
 parser =
     oneOf
         [ map Home Parser.top
-        , map Embed (s "embed" </> diagramType </> string </> shareId)
+        , map Embed (s "embed" </> diagramType </> string </> shareId <?> Query.int "w" <?> Query.int "h")
         , map DiagramList (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
@@ -131,7 +132,10 @@ toString route =
         NotFound ->
             absolute [ "notfound" ] []
 
-        Embed diagramPath title token ->
+        Embed diagramPath title token (Just width) (Just height) ->
+            absolute [ "Embed", DiagramType.toString diagramPath, title, ShareToken.toString token ] [ Builder.int "w" width, Builder.int "w" height ]
+
+        Embed diagramPath title token _ _ ->
             absolute [ "Embed", DiagramType.toString diagramPath, title, ShareToken.toString token ] []
 
 

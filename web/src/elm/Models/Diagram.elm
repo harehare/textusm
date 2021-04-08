@@ -18,6 +18,7 @@ module Models.Diagram exposing
     , modelOfDiagramType
     , modelOfFullscreen
     , modelOfPosition
+    , modelOfScale
     , modelOfSelectedItem
     , modelOfSettings
     , modelOfShowZoomControl
@@ -82,11 +83,7 @@ type alias Model =
     { items : Items
     , data : Data
     , size : Size.Size
-    , svg :
-        { width : Int
-        , height : Int
-        , scale : Float
-        }
+    , svg : SvgInfo
     , moveState : MoveState
     , position : Position
     , movePosition : Position
@@ -137,6 +134,22 @@ modelOfSettings =
 modelOfSelectedItem : Lens Model SelectedItem
 modelOfSelectedItem =
     Lens .selectedItem (\b a -> { a | selectedItem = b })
+
+
+modelOfSvg : Lens Model SvgInfo
+modelOfSvg =
+    Lens .svg (\b a -> { a | svg = b })
+
+
+svgOfScale : Lens SvgInfo Float
+svgOfScale =
+    Lens .scale (\b a -> { a | scale = b })
+
+
+modelOfScale : Lens Model Float
+modelOfScale =
+    modelOfSvg
+        |> Compose.lensWithLens svgOfScale
 
 
 type alias Hierarchy =
@@ -257,6 +270,13 @@ type alias Color =
 type alias Size =
     { width : Int
     , height : Int
+    }
+
+
+type alias SvgInfo =
+    { width : Int
+    , height : Int
+    , scale : Float
     }
 
 
