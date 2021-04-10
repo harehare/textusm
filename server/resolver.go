@@ -85,8 +85,8 @@ func (r *queryResolver) ShareItem(ctx context.Context, token string, password *s
 	return r.service.FindShareItem(ctx, token, password)
 }
 
-func (r *mutationResolver) Share(ctx context.Context, token string, expSecond *int, password *string) (string, error) {
-	jwtToken, err := r.service.Share(ctx, token, *expSecond, password)
+func (r *mutationResolver) Share(ctx context.Context, token string, expSecond *int, password *string, allowIPList []string) (string, error) {
+	jwtToken, err := r.service.Share(ctx, token, *expSecond, password, allowIPList)
 	return *jwtToken, err
 }
 

@@ -7,6 +7,7 @@ import (
 
 	jwt "github.com/form3tech-oss/jwt-go"
 	"github.com/harehare/textusm/pkg/item"
+	"github.com/harehare/textusm/pkg/model"
 	"github.com/harehare/textusm/pkg/values"
 	"github.com/stretchr/testify/mock"
 )
@@ -39,13 +40,13 @@ func (m *MockItemRepository) Delete(ctx context.Context, userID string, itemID s
 	return ret.Error(0)
 }
 
-func (m *MockShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *string, error) {
+func (m *MockShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *model.ShareInfo, error) {
 	ret := m.Called(ctx, hashKey)
-	return ret.Get(0).(*item.Item), ret.Get(1).(*string), ret.Error(2)
+	return ret.Get(0).(*item.Item), ret.Get(1).(*model.ShareInfo), ret.Error(3)
 }
 
-func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, password *string) error {
-	ret := m.Called(ctx, hashKey, item, password)
+func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, shareInfo *model.ShareInfo) error {
+	ret := m.Called(ctx, hashKey, item, shareInfo)
 	return ret.Error(0)
 }
 
@@ -178,17 +179,23 @@ func TestShare(t *testing.T) {
 		shareEncryptKey = []byte(test.key)
 		item := item.Item{ID: test.id, Text: ""}
 		p := "password"
+		a := []string{}
+		shareInfo := model.ShareInfo{
+			Password:    &p,
+			AllowIPList: a,
+		}
 		mockItemRepo.On("FindByID", ctx, "userID", test.id, false).Return(&item, nil)
-		mockShareRepo.On("Save", ctx, test.hashKey, &item, &p).Return(nil)
+		mockShareRepo.On("Save", ctx, test.hashKey, &item, &shareInfo).Return(nil)
 
 		service := NewService(mockItemRepo, mockShareRepo)
-		shareToken, err := service.Share(ctx, test.id, 1, &p)
+		// TODO:
+		shareToken, err := service.Share(ctx, test.id, 1, &p, a)
 
 		if err != nil {
 			t.Fatal("failed ShareDiagram")
 		}
 
-		decoded, err := base64.StdEncoding.DecodeString(*shareToken)
+		decoded, err := base64.RawURLEncoding.DecodeString(*shareToken)
 
 		if err != nil {
 			t.Fatal("decode failed")

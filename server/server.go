@@ -100,6 +100,7 @@ func Run() int {
 	r.Route("/graphql", func(r chi.Router) {
 		r.Use(chiMiddleware.AllowContentType("application/json"))
 		r.Use(middleware.AuthMiddleware(app))
+		r.Use(middleware.IPMiddleware())
 		r.Use(cors.Handler(cors.Options{
 			AllowedOrigins:   []string{"https://app.textusm.com", "http://localhost:3000"},
 			AllowedMethods:   []string{"POST", "OPTIONS"},

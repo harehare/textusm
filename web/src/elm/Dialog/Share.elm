@@ -2,12 +2,13 @@ port module Dialog.Share exposing (Model, Msg(..), init, update, view)
 
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramType as DiagramType
+import Data.IPAddress as IPAddress exposing (IPAddress)
 import Data.Session as Session exposing (Session)
 import Data.Size as Size exposing (Size)
 import Data.Title as Title exposing (Title)
 import Events
 import GraphQL.Request as Request
-import Html exposing (Html, div, input, text)
+import Html exposing (Html, div, input, text, textarea)
 import Html.Attributes as Attr exposing (class, id, maxlength, placeholder, readonly, style, type_, value)
 import Html.Events exposing (onClick, onFocus, onInput)
 import Html.Lazy as Lazy
@@ -44,6 +45,7 @@ type alias Model =
     , apiRoot : String
     , session : Session
     , password : Maybe String
+    , allowIP : Maybe String
     }
 
 
@@ -63,6 +65,8 @@ type Msg
     | Close
     | UsePassword Bool
     | EditPassword String
+    | UseLimitByIP Bool
+    | EditIP String
 
 
 type CopyState
@@ -124,11 +128,11 @@ embedUrl { token, diagramType, title, embedSize } =
             "Loading..."
 
 
-share : DiagramId -> Int -> Maybe String -> String -> Session -> Return.ReturnF Msg Model
-share diagramId expireSecond password apiRoot session =
+share : { diagramId : DiagramId, expireSecond : Int, password : Maybe String, allowIPList : List IPAddress } -> String -> Session -> Return.ReturnF Msg Model
+share { diagramId, expireSecond, password, allowIPList } apiRoot session =
     let
         shareTask =
-            Request.share { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString diagramId) expireSecond password
+            Request.share { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString diagramId) expireSecond password allowIPList
                 |> Task.mapError (\_ -> "Failed to generate URL for sharing.")
     in
     Return.command <| Task.attempt Shared shareTask
@@ -159,10 +163,31 @@ init { diagram, diagramId, apiRoot, session, title } =
         , apiRoot = apiRoot
         , session = session
         , password = Nothing
+        , allowIP = Nothing
         }
-        |> share diagramId 300 Nothing apiRoot session
+        |> share { diagramId = diagramId, expireSecond = 300, password = Nothing, allowIPList = [] } apiRoot session
         |> Return.command (Task.perform GotTimeZone Time.here)
         |> Return.command (Task.perform GotNow Time.now)
+
+
+validIPList : Maybe String -> List IPAddress
+validIPList ipList =
+    case
+        Maybe.andThen
+            (\i ->
+                String.lines i
+                    |> List.map IPAddress.fromString
+                    |> List.filter MaybeEx.isJust
+                    |> List.map (Maybe.withDefault IPAddress.localhost)
+                    |> Just
+            )
+            ipList
+    of
+        Just ip ->
+            ip
+
+        Nothing ->
+            []
 
 
 update : Msg -> Model -> Return Msg Model
@@ -227,15 +252,52 @@ update msg model =
                         )
 
                 UrlCopy ->
-                    Return.andThen (\m -> Return.singleton { m | urlCopyState = Copying })
-                        >> share model.diagramId model.expireSecond model.password model.apiRoot model.session
+                    let
+                        validIP =
+                            validIPList model.allowIP
+
+                        ipList =
+                            List.map IPAddress.toString validIP
+                                |> String.join "\n"
+                    in
+                    Return.andThen
+                        (\m ->
+                            Return.singleton
+                                { m
+                                    | urlCopyState = Copying
+                                    , allowIP = Maybe.andThen (\_ -> Just ipList) m.allowIP
+                                }
+                        )
+                        >> share
+                            { diagramId = model.diagramId
+                            , expireSecond = model.expireSecond
+                            , password = model.password
+                            , allowIPList = validIP
+                            }
+                            model.apiRoot
+                            model.session
 
                 UrlCopied ->
                     Return.andThen (\m -> Return.singleton { m | urlCopyState = NotCopy })
 
                 EmbedCopy ->
-                    Return.andThen (\m -> Return.singleton { m | embedCopyState = Copying })
-                        >> share model.diagramId model.expireSecond model.password model.apiRoot model.session
+                    let
+                        validIP =
+                            validIPList model.allowIP
+
+                        ipList =
+                            List.map IPAddress.toString validIP
+                                |> String.join "\n"
+                    in
+                    Return.andThen
+                        (\m ->
+                            Return.singleton
+                                { m
+                                    | embedCopyState = Copying
+                                    , allowIP = Maybe.andThen (\_ -> Just ipList) m.allowIP
+                                }
+                        )
+                        >> share { diagramId = model.diagramId, expireSecond = model.expireSecond, password = model.password, allowIPList = validIP } model.apiRoot model.session
 
                 EmbedCopied ->
                     Return.andThen (\m -> Return.singleton { m | embedCopyState = NotCopy })
@@ -297,6 +359,23 @@ update msg model =
                                             Nothing
                                 }
                         )
+
+                UseLimitByIP f ->
+                    Return.andThen
+                        (\m ->
+                            Return.singleton
+                                { m
+                                    | allowIP =
+                                        if f then
+                                            Just ""
+
+                                        else
+                                            Nothing
+                                }
+                        )
+
+                EditIP i ->
+                    Return.andThen (\m -> Return.singleton { m | allowIP = Just i })
            )
 
 
@@ -372,6 +451,28 @@ view model =
                                         , onInput EditPassword
                                         ]
                                         []
+                                    ]
+
+                            Nothing ->
+                                Empty.view
+                        , div [ class "flex-space", style "padding" "8px" ]
+                            [ div [ class "text-sm" ] [ text "Limit Access By IP Address" ]
+                            , Switch.view (MaybeEx.isJust model.allowIP) UseLimitByIP
+                            ]
+                        , case model.allowIP of
+                            Just i ->
+                                div [ style "padding" "8px" ]
+                                    [ textarea
+                                        [ class "input-light text-sm"
+                                        , placeholder "127.0.0.1"
+                                        , style "resize" "none"
+                                        , style "color" "#555"
+                                        , style "width" "305px"
+                                        , style "height" "100px"
+                                        , maxlength 150
+                                        , onInput EditIP
+                                        ]
+                                        [ text i ]
                                     ]
 
                             Nothing ->

@@ -103,6 +103,7 @@ bookmark requiredArgs____ object____ =
 type alias ShareOptionalArguments =
     { expSecond : OptionalArgument Int
     , password : OptionalArgument String
+    , allowIPList : OptionalArgument (List String)
     }
 
 
@@ -115,6 +116,7 @@ type alias ShareRequiredArguments =
   - itemID -
   - expSecond -
   - password -
+  - allowIPList -
 
 -}
 share :
@@ -124,10 +126,10 @@ share :
 share fillInOptionals____ requiredArgs____ =
     let
         filledInOptionals____ =
-            fillInOptionals____ { expSecond = Absent, password = Absent }
+            fillInOptionals____ { expSecond = Absent, password = Absent, allowIPList = Absent }
 
         optionalArgs____ =
-            [ Argument.optional "expSecond" filledInOptionals____.expSecond Encode.int, Argument.optional "password" filledInOptionals____.password Encode.string ]
+            [ Argument.optional "expSecond" filledInOptionals____.expSecond Encode.int, Argument.optional "password" filledInOptionals____.password Encode.string, Argument.optional "allowIPList" filledInOptionals____.allowIPList (Encode.string |> Encode.list) ]
                 |> List.filterMap identity
     in
     Object.selectionForField "String" "share" (optionalArgs____ ++ [ Argument.required "itemID" requiredArgs____.itemID Encode.string ]) Decode.string

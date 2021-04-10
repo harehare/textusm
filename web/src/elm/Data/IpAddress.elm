@@ -1,35 +1,35 @@
-module Data.IpAddress exposing (IpAddress, fromString, localhost, toString)
+module Data.IPAddress exposing (IPAddress, fromString, localhost, toString)
 
 
-type IpAddress
-    = IpAddress Int Int Int Int (Maybe Int)
+type IPAddress
+    = IPAddress Int Int Int Int (Maybe Int)
 
 
-localhost : IpAddress
+localhost : IPAddress
 localhost =
-    IpAddress 127 0 0 1 Nothing
+    IPAddress 127 0 0 1 Nothing
 
 
-fromString : String -> Maybe IpAddress
+fromString : String -> Maybe IPAddress
 fromString s =
     case ipParts s of
         ( [ Just p1, Just p2, Just p3, Just p4 ], Just cidr ) ->
-            Just <| IpAddress p1 p2 p3 p4 (Just cidr)
+            Just <| IPAddress p1 p2 p3 p4 (Just cidr)
 
         ( [ Just p1, Just p2, Just p3, Just p4 ], Nothing ) ->
-            Just <| IpAddress p1 p2 p3 p4 Nothing
+            Just <| IPAddress p1 p2 p3 p4 Nothing
 
         _ ->
             Nothing
 
 
-toString : IpAddress -> String
+toString : IPAddress -> String
 toString ip =
     case ip of
-        IpAddress p1 p2 p3 p4 (Just cidr) ->
+        IPAddress p1 p2 p3 p4 (Just cidr) ->
             String.fromInt p1 ++ "." ++ String.fromInt p2 ++ "." ++ String.fromInt p3 ++ "." ++ String.fromInt p4 ++ "/" ++ String.fromInt cidr
 
-        IpAddress p1 p2 p3 p4 Nothing ->
+        IPAddress p1 p2 p3 p4 Nothing ->
             String.fromInt p1 ++ "." ++ String.fromInt p2 ++ "." ++ String.fromInt p3 ++ "." ++ String.fromInt p4
 
 

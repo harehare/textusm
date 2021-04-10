@@ -5,6 +5,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/harehare/textusm/pkg/item"
+	"github.com/harehare/textusm/pkg/model"
 	"github.com/harehare/textusm/pkg/values"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -21,7 +22,7 @@ func NewFirestoreShareRepository(client *firestore.Client) ShareRepository {
 	return &FirestoreShareRepository{client: client}
 }
 
-func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *string, error) {
+func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *model.ShareInfo, error) {
 	fields, err := r.client.Collection(shareCollection).Doc(hashKey).Get(ctx)
 
 	if err != nil {
@@ -34,15 +35,28 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 		return nil, nil, err
 	}
 
-	p := fields.Data()["password"].(string)
-	return &i, &p, nil
+	var allowIPList []string
+	data := fields.Data()
+	p := data["password"].(string)
+
+	if v, ok := data["allowIPList"]; ok {
+		for _, ip := range v.([]interface{}) {
+			allowIPList = append(allowIPList, ip.(string))
+		}
+	}
+
+	shareInfo := model.ShareInfo{
+		Password:    &p,
+		AllowIPList: allowIPList,
+	}
+	return &i, &shareInfo, nil
 }
 
-func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, password *string) error {
+func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, shareInfo *model.ShareInfo) error {
 	var savePassword string
 
-	if password != nil && *password != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*password), bcrypt.DefaultCost)
+	if shareInfo.Password != nil && *shareInfo.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*shareInfo.Password), bcrypt.DefaultCost)
 
 		if err != nil {
 			return err
@@ -53,17 +67,18 @@ func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, ite
 	}
 
 	v := map[string]interface{}{
-		"id":         item.ID,
-		"title":      item.Title,
-		"text":       item.Text,
-		"thumbnail":  item.Thumbnail,
-		"diagram":    item.Diagram,
-		"isPublic":   item.IsPublic,
-		"isBookmark": item.IsBookmark,
-		"tags":       item.Tags,
-		"createdAt":  item.CreatedAt,
-		"updatedAt":  item.UpdatedAt,
-		"password":   savePassword}
+		"id":          item.ID,
+		"title":       item.Title,
+		"text":        item.Text,
+		"thumbnail":   item.Thumbnail,
+		"diagram":     item.Diagram,
+		"isPublic":    item.IsPublic,
+		"isBookmark":  item.IsBookmark,
+		"tags":        item.Tags,
+		"createdAt":   item.CreatedAt,
+		"updatedAt":   item.UpdatedAt,
+		"password":    savePassword,
+		"allowIPList": shareInfo.AllowIPList}
 	_, err := r.client.Collection(shareCollection).Doc(hashKey).Set(ctx, v)
 	return err
 }

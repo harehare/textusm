@@ -7,16 +7,18 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"net"
 	"os"
+	"strings"
 	"time"
 
 	jwt "github.com/form3tech-oss/jwt-go"
 	e "github.com/harehare/textusm/pkg/error"
 	"github.com/harehare/textusm/pkg/item"
+	"github.com/harehare/textusm/pkg/model"
 	"github.com/harehare/textusm/pkg/repository"
 	"github.com/harehare/textusm/pkg/values"
 	uuid "github.com/satori/go.uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -207,10 +209,16 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password *str
 	}
 
 	claims := jwtToken.Claims.(jwt.MapClaims)
-	item, p, err := s.shareRepo.Find(ctx, claims["sub"].(string))
+	item, shareInfo, err := s.shareRepo.Find(ctx, claims["sub"].(string))
 
 	if err != nil {
 		return nil, err
+	}
+
+	ip := values.GetIP(ctx)
+
+	if ip != "" && !checkIPWithinRange(ip, shareInfo.AllowIPList) {
+		return nil, e.ForbiddenError(errors.New("not allow ip address"))
 	}
 
 	if claims["pas"].(bool) {
@@ -218,7 +226,7 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password *str
 			return nil, e.ForbiddenError(errors.New("password is required"))
 		}
 
-		if err := bcrypt.CompareHashAndPassword([]byte(*p), []byte(*password)); err != nil {
+		if err := shareInfo.ComparePassword(*password); err != nil {
 			return nil, e.ForbiddenError(err)
 		}
 	}
@@ -233,7 +241,7 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password *str
 	return item, nil
 }
 
-func (s *Service) Share(ctx context.Context, itemID string, expSecond int, password *string) (*string, error) {
+func (s *Service) Share(ctx context.Context, itemID string, expSecond int, password *string, allowIPList []string) (*string, error) {
 	userID := values.GetUID(ctx)
 
 	if userID == "" {
@@ -252,7 +260,12 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 		return nil, err
 	}
 
-	if err := s.shareRepo.Save(ctx, *shareID, item, password); err != nil {
+	shareInfo := model.ShareInfo{
+		Password:    password,
+		AllowIPList: validIpList(allowIPList),
+	}
+
+	if err := s.shareRepo.Save(ctx, *shareID, item, &shareInfo); err != nil {
 		return nil, err
 	}
 
@@ -338,4 +351,56 @@ func itemIDToShareID(itemID string) (*string, error) {
 
 	hashKey := hex.EncodeToString(mac.Sum(nil))
 	return &hashKey, nil
+}
+
+func validIpList(ipList []string) []string {
+	allowIpList := []string{}
+	for _, ip := range ipList {
+		p := net.ParseIP(ip)
+		if p != nil {
+			allowIpList = append(allowIpList, ip)
+			continue
+		}
+
+		_, _, err := net.ParseCIDR(ip)
+
+		if err != nil {
+			continue
+		}
+
+		allowIpList = append(allowIpList, ip)
+	}
+	return allowIpList
+}
+
+func checkIPWithinRange(remoteIP string, allowIPList []string) bool {
+	if len(allowIPList) == 0 {
+		return true
+	}
+
+	for _, ip := range allowIPList {
+		if remoteIP == ip {
+			return true
+		}
+		if !strings.Contains(ip, "/") {
+			continue
+		}
+
+		_, subnet, err := net.ParseCIDR(ip)
+
+		if err != nil {
+			continue
+		}
+
+		parsedIP := net.ParseIP(ip)
+
+		if parsedIP == nil {
+			continue
+		}
+
+		if subnet.Contains(parsedIP) {
+			return true
+		}
+	}
+	return false
 }

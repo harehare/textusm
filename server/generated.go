@@ -61,7 +61,7 @@ type ComplexityRoot struct {
 		Bookmark func(childComplexity int, itemID string, isBookmark bool) int
 		Delete   func(childComplexity int, itemID string, isPublic *bool) int
 		Save     func(childComplexity int, input item.InputItem, isPublic *bool) int
-		Share    func(childComplexity int, itemID string, expSecond *int, password *string) int
+		Share    func(childComplexity int, itemID string, expSecond *int, password *string, allowIPList []string) int
 	}
 
 	Query struct {
@@ -75,7 +75,7 @@ type MutationResolver interface {
 	Save(ctx context.Context, input item.InputItem, isPublic *bool) (*item.Item, error)
 	Delete(ctx context.Context, itemID string, isPublic *bool) (string, error)
 	Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error)
-	Share(ctx context.Context, itemID string, expSecond *int, password *string) (string, error)
+	Share(ctx context.Context, itemID string, expSecond *int, password *string, allowIPList []string) (string, error)
 }
 type QueryResolver interface {
 	Item(ctx context.Context, id string, isPublic *bool) (*item.Item, error)
@@ -214,7 +214,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Share(childComplexity, args["itemID"].(string), args["expSecond"].(*int), args["password"].(*string)), true
+		return e.complexity.Mutation.Share(childComplexity, args["itemID"].(string), args["expSecond"].(*int), args["password"].(*string), args["allowIPList"].([]string)), true
 
 	case "Query.item":
 		if e.complexity.Query.Item == nil {
@@ -377,7 +377,12 @@ type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
   delete(itemID: String!, isPublic: Boolean = False): String!
   bookmark(itemID: String!, isBookmark: Boolean!): Item
-  share(itemID: String!, expSecond: Int = 300, password: String): String!
+  share(
+    itemID: String!
+    expSecond: Int = 300
+    password: String
+    allowIPList: [String!] = []
+  ): String!
 }
 `, BuiltIn: false},
 }
@@ -489,6 +494,15 @@ func (ec *executionContext) field_Mutation_share_args(ctx context.Context, rawAr
 		}
 	}
 	args["password"] = arg2
+	var arg3 []string
+	if tmp, ok := rawArgs["allowIPList"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowIPList"))
+		arg3, err = ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["allowIPList"] = arg3
 	return args, nil
 }
 
@@ -1127,7 +1141,7 @@ func (ec *executionContext) _Mutation_share(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Share(rctx, args["itemID"].(string), args["expSecond"].(*int), args["password"].(*string))
+		return ec.resolvers.Mutation().Share(rctx, args["itemID"].(string), args["expSecond"].(*int), args["password"].(*string), args["allowIPList"].([]string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3361,6 +3375,42 @@ func (ec *executionContext) unmarshalOString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	return graphql.MarshalString(v)
+}
+
+func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
