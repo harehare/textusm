@@ -1,7 +1,7 @@
 module GraphQL.Mutation exposing (bookmark, delete, save, share)
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
-import Data.IPAddress as IPAddress exposing (IPAddress)
+import Data.IpAddress as IpAddress exposing (IpAddress)
 import Data.Text as Text
 import Data.Title as Title
 import Graphql.Operation exposing (RootMutation)
@@ -54,7 +54,7 @@ bookmark itemID isBookmark =
         )
 
 
-share : String -> Int -> Maybe String -> List IPAddress -> SelectionSet String RootMutation
+share : String -> Int -> Maybe String -> List IpAddress -> SelectionSet String RootMutation
 share itemID expSecond password allowIPList =
     Mutation.share
         (\optionals ->
@@ -67,7 +67,7 @@ share itemID expSecond password allowIPList =
 
                         Nothing ->
                             Null
-                , allowIPList = Present <| List.map IPAddress.toString allowIPList
+                , allowIPList = Present <| List.map IpAddress.toString allowIPList
             }
         )
         { itemID = itemID }

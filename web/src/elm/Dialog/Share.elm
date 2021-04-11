@@ -2,7 +2,7 @@ port module Dialog.Share exposing (Model, Msg(..), init, update, view)
 
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramType as DiagramType
-import Data.IPAddress as IPAddress exposing (IPAddress)
+import Data.IpAddress as IpAddress exposing (IpAddress)
 import Data.Session as Session exposing (Session)
 import Data.Size as Size exposing (Size)
 import Data.Title as Title exposing (Title)
@@ -131,7 +131,7 @@ embedUrl { token, diagramType, title, embedSize } =
             "Loading..."
 
 
-share : { diagramId : DiagramId, expireSecond : Int, password : Maybe String, allowIPList : List IPAddress } -> String -> Session -> Return.ReturnF Msg Model
+share : { diagramId : DiagramId, expireSecond : Int, password : Maybe String, allowIPList : List IpAddress } -> String -> Session -> Return.ReturnF Msg Model
 share { diagramId, expireSecond, password, allowIPList } apiRoot session =
     let
         shareTask =
@@ -176,15 +176,15 @@ init { diagram, diagramId, apiRoot, session, title } =
         |> Return.command (Task.perform GotNow Time.now)
 
 
-validIPList : Maybe String -> List IPAddress
+validIPList : Maybe String -> List IpAddress
 validIPList ipList =
     case
         Maybe.andThen
             (\i ->
                 String.lines i
-                    |> List.map IPAddress.fromString
+                    |> List.map IpAddress.fromString
                     |> List.filter MaybeEx.isJust
-                    |> List.map (Maybe.withDefault IPAddress.localhost)
+                    |> List.map (Maybe.withDefault IpAddress.localhost)
                     |> Just
             )
             ipList
@@ -267,7 +267,7 @@ update msg model =
                                 validIPList model.ip.input
 
                             ipList =
-                                List.map IPAddress.toString validIP
+                                List.map IpAddress.toString validIP
                                     |> String.join "\n"
                         in
                         Return.andThen
@@ -303,7 +303,7 @@ update msg model =
                                 validIPList model.ip.input
 
                             ipList =
-                                List.map IPAddress.toString validIP
+                                List.map IpAddress.toString validIP
                                     |> String.join "\n"
                         in
                         Return.andThen

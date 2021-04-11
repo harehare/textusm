@@ -1,8 +1,8 @@
 module GraphQL.Request exposing (bookmark, delete, item, items, publicItem, save, share, shareItem)
 
 import Data.DiagramItem exposing (DiagramItem)
-import Data.IPAddress exposing (IPAddress)
 import Data.IdToken as IdToken exposing (IdToken)
+import Data.IpAddress exposing (IpAddress)
 import GraphQL.Mutation as Mutation
 import GraphQL.Query as Query
 import Graphql.Http as Http
@@ -78,7 +78,7 @@ bookmark req itemID isBookmark =
         |> Http.toTask
 
 
-share : RequestInfo -> String -> Int -> Maybe String -> List IPAddress -> Task (Http.Error String) String
+share : RequestInfo -> String -> Int -> Maybe String -> List IpAddress -> Task (Http.Error String) String
 share req itemID expSecond password allowIPList =
     Mutation.share itemID expSecond password allowIPList
         |> Http.mutationRequest (graphQLUrl req)
