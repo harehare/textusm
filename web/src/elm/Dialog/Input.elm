@@ -32,7 +32,7 @@ view props =
                     , style "width" "305px"
                     , case props.errorMessage of
                         Just _ ->
-                            style "border" "1px solid var(--error-color)"
+                            style "border" "3px solid var(--error-color)"
 
                         Nothing ->
                             style "" ""

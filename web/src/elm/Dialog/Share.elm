@@ -45,7 +45,10 @@ type alias Model =
     , apiRoot : String
     , session : Session
     , password : Maybe String
-    , allowIP : Maybe String
+    , ip :
+        { input : Maybe String
+        , error : Bool
+        }
     }
 
 
@@ -163,7 +166,10 @@ init { diagram, diagramId, apiRoot, session, title } =
         , apiRoot = apiRoot
         , session = session
         , password = Nothing
-        , allowIP = Nothing
+        , ip =
+            { input = Nothing
+            , error = False
+            }
         }
         |> share { diagramId = diagramId, expireSecond = 300, password = Nothing, allowIPList = [] } apiRoot session
         |> Return.command (Task.perform GotTimeZone Time.here)
@@ -252,52 +258,66 @@ update msg model =
                         )
 
                 UrlCopy ->
-                    let
-                        validIP =
-                            validIPList model.allowIP
+                    if model.ip.error then
+                        Return.zero
 
-                        ipList =
-                            List.map IPAddress.toString validIP
-                                |> String.join "\n"
-                    in
-                    Return.andThen
-                        (\m ->
-                            Return.singleton
-                                { m
-                                    | urlCopyState = Copying
-                                    , allowIP = Maybe.andThen (\_ -> Just ipList) m.allowIP
+                    else
+                        let
+                            validIP =
+                                validIPList model.ip.input
+
+                            ipList =
+                                List.map IPAddress.toString validIP
+                                    |> String.join "\n"
+                        in
+                        Return.andThen
+                            (\m ->
+                                Return.singleton
+                                    { m
+                                        | urlCopyState = Copying
+                                        , ip =
+                                            { input = Maybe.andThen (\_ -> Just ipList) m.ip.input
+                                            , error = False
+                                            }
+                                    }
+                            )
+                            >> share
+                                { diagramId = model.diagramId
+                                , expireSecond = model.expireSecond
+                                , password = model.password
+                                , allowIPList = validIP
                                 }
-                        )
-                        >> share
-                            { diagramId = model.diagramId
-                            , expireSecond = model.expireSecond
-                            , password = model.password
-                            , allowIPList = validIP
-                            }
-                            model.apiRoot
-                            model.session
+                                model.apiRoot
+                                model.session
 
                 UrlCopied ->
                     Return.andThen (\m -> Return.singleton { m | urlCopyState = NotCopy })
 
                 EmbedCopy ->
-                    let
-                        validIP =
-                            validIPList model.allowIP
+                    if model.ip.error then
+                        Return.zero
 
-                        ipList =
-                            List.map IPAddress.toString validIP
-                                |> String.join "\n"
-                    in
-                    Return.andThen
-                        (\m ->
-                            Return.singleton
-                                { m
-                                    | embedCopyState = Copying
-                                    , allowIP = Maybe.andThen (\_ -> Just ipList) m.allowIP
-                                }
-                        )
-                        >> share { diagramId = model.diagramId, expireSecond = model.expireSecond, password = model.password, allowIPList = validIP } model.apiRoot model.session
+                    else
+                        let
+                            validIP =
+                                validIPList model.ip.input
+
+                            ipList =
+                                List.map IPAddress.toString validIP
+                                    |> String.join "\n"
+                        in
+                        Return.andThen
+                            (\m ->
+                                Return.singleton
+                                    { m
+                                        | embedCopyState = Copying
+                                        , ip =
+                                            { input = Maybe.andThen (\_ -> Just ipList) m.ip.input
+                                            , error = False
+                                            }
+                                    }
+                            )
+                            >> share { diagramId = model.diagramId, expireSecond = model.expireSecond, password = model.password, allowIPList = validIP } model.apiRoot model.session
 
                 EmbedCopied ->
                     Return.andThen (\m -> Return.singleton { m | embedCopyState = NotCopy })
@@ -365,17 +385,24 @@ update msg model =
                         (\m ->
                             Return.singleton
                                 { m
-                                    | allowIP =
-                                        if f then
-                                            Just ""
+                                    | ip =
+                                        { input =
+                                            if f then
+                                                Just ""
 
-                                        else
-                                            Nothing
+                                            else
+                                                Nothing
+                                        , error = False
+                                        }
                                 }
                         )
 
                 EditIP i ->
-                    Return.andThen (\m -> Return.singleton { m | allowIP = Just i })
+                    if (List.length <| validIPList (Just i)) /= (List.length <| String.lines i) then
+                        Return.andThen (\m -> Return.singleton { m | ip = { input = Just i, error = True } })
+
+                    else
+                        Return.andThen (\m -> Return.singleton { m | ip = { input = Just i, error = False } })
            )
 
 
@@ -457,9 +484,9 @@ view model =
                                 Empty.view
                         , div [ class "flex-space", style "padding" "8px" ]
                             [ div [ class "text-sm" ] [ text "Limit Access By IP Address" ]
-                            , Switch.view (MaybeEx.isJust model.allowIP) UseLimitByIP
+                            , Switch.view (MaybeEx.isJust model.ip.input) UseLimitByIP
                             ]
-                        , case model.allowIP of
+                        , case model.ip.input of
                             Just i ->
                                 div [ style "padding" "8px" ]
                                     [ textarea
@@ -469,10 +496,24 @@ view model =
                                         , style "color" "#555"
                                         , style "width" "305px"
                                         , style "height" "100px"
+                                        , if model.ip.error then
+                                            style "border" "3px solid var(--error-color)"
+
+                                          else
+                                            style "" ""
                                         , maxlength 150
                                         , onInput EditIP
                                         ]
                                         [ text i ]
+                                    , if model.ip.error then
+                                        div
+                                            [ class "w-full text-sm font-bold text-right"
+                                            , style "color" "var(--error-color)"
+                                            ]
+                                            [ text "Invalid ip address entered" ]
+
+                                      else
+                                        Empty.view
                                     ]
 
                             Nothing ->
