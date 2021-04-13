@@ -1,15 +1,25 @@
-module GraphQL.Query exposing (item, items, shareItem)
+module GraphQL.Query exposing (ShareCondition, item, items, shareCondition, shareItem)
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
-import Data.Position exposing (X)
+import Data.IpAddress as IpAddress exposing (IpAddress)
 import Data.Text as Text
 import Data.Title as Title
 import Graphql.Operation exposing (RootQuery)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
+import Maybe.Extra as MaybeEx
+import Route exposing (Route(..))
 import TextUSM.Object.Item
+import TextUSM.Object.ShareCondition
 import TextUSM.Query as Query
 import TextUSM.Scalar exposing (Id(..))
+
+
+type alias ShareCondition =
+    { allowIPList : List IpAddress
+    , token : String
+    , expireTime : Int
+    }
 
 
 item : String -> Bool -> SelectionSet DiagramItem RootQuery
@@ -76,4 +86,23 @@ shareItem token password =
             |> hardcoded Nothing
             |> with (TextUSM.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (TextUSM.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
+        )
+
+
+shareCondition : String -> SelectionSet (Maybe ShareCondition) RootQuery
+shareCondition id =
+    Query.shareCondition { id = Id id } <|
+        (SelectionSet.succeed ShareCondition
+            |> with
+                (TextUSM.Object.ShareCondition.allowIPList
+                    |> SelectionSet.map
+                        (\v ->
+                            Maybe.withDefault [] v
+                                |> List.map IpAddress.fromString
+                                |> List.filter MaybeEx.isJust
+                                |> List.map (Maybe.withDefault IpAddress.localhost)
+                        )
+                )
+            |> with TextUSM.Object.ShareCondition.token
+            |> with TextUSM.Object.ShareCondition.expireTime
         )

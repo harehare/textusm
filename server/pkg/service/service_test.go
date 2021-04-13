@@ -40,12 +40,12 @@ func (m *MockItemRepository) Delete(ctx context.Context, userID string, itemID s
 	return ret.Error(0)
 }
 
-func (m *MockShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *model.ShareInfo, error) {
+func (m *MockShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *model.Share, error) {
 	ret := m.Called(ctx, hashKey)
-	return ret.Get(0).(*item.Item), ret.Get(1).(*model.ShareInfo), ret.Error(3)
+	return ret.Get(0).(*item.Item), ret.Get(1).(*model.Share), ret.Error(3)
 }
 
-func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, shareInfo *model.ShareInfo) error {
+func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, shareInfo *model.Share) error {
 	ret := m.Called(ctx, hashKey, item, shareInfo)
 	return ret.Error(0)
 }
@@ -180,12 +180,8 @@ func TestShare(t *testing.T) {
 		item := item.Item{ID: test.id, Text: ""}
 		p := "password"
 		a := []string{}
-		shareInfo := model.ShareInfo{
-			Password:    &p,
-			AllowIPList: a,
-		}
 		mockItemRepo.On("FindByID", ctx, "userID", test.id, false).Return(&item, nil)
-		mockShareRepo.On("Save", ctx, test.hashKey, &item, &shareInfo).Return(nil)
+		mockShareRepo.On("Save", ctx, test.hashKey, &item, mock.Anything).Return(nil)
 
 		service := NewService(mockItemRepo, mockShareRepo)
 		// TODO:

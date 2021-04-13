@@ -111,3 +111,20 @@ shareItem fillInOptionals____ requiredArgs____ object____ =
                 |> List.filterMap identity
     in
     Object.selectionForCompositeField "shareItem" (optionalArgs____ ++ [ Argument.required "token" requiredArgs____.token Encode.string ]) object____ identity
+
+
+type alias ShareConditionRequiredArguments =
+    { id : TextUSM.ScalarCodecs.Id }
+
+
+{-|
+
+  - id -
+
+-}
+shareCondition :
+    ShareConditionRequiredArguments
+    -> SelectionSet decodesTo TextUSM.Object.ShareCondition
+    -> SelectionSet (Maybe decodesTo) RootQuery
+shareCondition requiredArgs____ object____ =
+    Object.selectionForCompositeField "ShareCondition" [ Argument.required "id" requiredArgs____.id (TextUSM.ScalarCodecs.codecs |> TextUSM.Scalar.unwrapEncoder .codecId) ] object____ (identity >> Decode.nullable)

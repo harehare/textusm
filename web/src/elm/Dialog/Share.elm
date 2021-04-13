@@ -7,6 +7,7 @@ import Data.Session as Session exposing (Session)
 import Data.Size as Size exposing (Size)
 import Data.Title as Title exposing (Title)
 import Events
+import GraphQL.Query exposing (ShareCondition)
 import GraphQL.Request as Request
 import Html exposing (Html, div, input, text, textarea)
 import Html.Attributes as Attr exposing (class, id, maxlength, placeholder, readonly, style, type_, value)
@@ -16,7 +17,7 @@ import Maybe.Extra as MaybeEx
 import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
 import Route exposing (Route(..))
-import Task
+import Task exposing (Task)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Time exposing (Posix, Zone)
 import Time.Extra as TimeEx
@@ -70,6 +71,7 @@ type Msg
     | EditPassword String
     | UseLimitByIP Bool
     | EditIP String
+    | LoadShareCondition (Result String ShareCondition)
 
 
 type CopyState
@@ -131,14 +133,16 @@ embedUrl { token, diagramType, title, embedSize } =
             "Loading..."
 
 
-share : { diagramId : DiagramId, expireSecond : Int, password : Maybe String, allowIPList : List IpAddress } -> String -> Session -> Return.ReturnF Msg Model
+share : { diagramId : DiagramId, expireSecond : Int, password : Maybe String, allowIPList : List IpAddress } -> String -> Session -> Task String String
 share { diagramId, expireSecond, password, allowIPList } apiRoot session =
-    let
-        shareTask =
-            Request.share { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString diagramId) expireSecond password allowIPList
-                |> Task.mapError (\_ -> "Failed to generate URL for sharing.")
-    in
-    Return.command <| Task.attempt Shared shareTask
+    Request.share { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString diagramId) expireSecond password allowIPList
+        |> Task.mapError (\_ -> "Failed to generate URL for sharing.")
+
+
+shareCondition : DiagramId -> String -> Session -> Task String (Maybe ShareCondition)
+shareCondition diagramId apiRoot session =
+    Request.shareCondition { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString diagramId)
+        |> Task.mapError (\_ -> "Failed to generate URL for sharing.")
 
 
 init :
@@ -150,6 +154,41 @@ init :
     }
     -> Return Msg Model
 init { diagram, diagramId, apiRoot, session, title } =
+    let
+        initTask =
+            Task.andThen
+                (\cond ->
+                    let
+                        shareReqTask =
+                            Task.andThen
+                                (\s ->
+                                    Task.andThen
+                                        (\now ->
+                                            Task.succeed
+                                                { allowIPList = []
+                                                , token = s
+                                                , expireTime = Time.posixToMillis now + 300 * 1000
+                                                }
+                                        )
+                                        Time.now
+                                )
+                            <|
+                                share { diagramId = diagramId, expireSecond = 300, password = Nothing, allowIPList = [] } apiRoot session
+                    in
+                    case cond of
+                        Just c ->
+                            if String.isEmpty c.token then
+                                shareReqTask
+
+                            else
+                                Task.succeed c
+
+                        Nothing ->
+                            shareReqTask
+                )
+            <|
+                shareCondition diagramId apiRoot session
+    in
     Return.singleton
         { embedSize = ( 800, 600 )
         , diagramType = diagram
@@ -171,7 +210,7 @@ init { diagram, diagramId, apiRoot, session, title } =
             , error = False
             }
         }
-        |> share { diagramId = diagramId, expireSecond = 300, password = Nothing, allowIPList = [] } apiRoot session
+        |> (Return.command <| Task.attempt LoadShareCondition initTask)
         |> Return.command (Task.perform GotTimeZone Time.here)
         |> Return.command (Task.perform GotNow Time.now)
 
@@ -281,14 +320,17 @@ update msg model =
                                             }
                                     }
                             )
-                            >> share
-                                { diagramId = model.diagramId
-                                , expireSecond = model.expireSecond
-                                , password = model.password
-                                , allowIPList = validIP
-                                }
-                                model.apiRoot
-                                model.session
+                            >> (Return.command <|
+                                    Task.attempt Shared <|
+                                        share
+                                            { diagramId = model.diagramId
+                                            , expireSecond = model.expireSecond
+                                            , password = model.password
+                                            , allowIPList = validIP
+                                            }
+                                            model.apiRoot
+                                            model.session
+                               )
 
                 UrlCopied ->
                     Return.andThen (\m -> Return.singleton { m | urlCopyState = NotCopy })
@@ -317,7 +359,10 @@ update msg model =
                                             }
                                     }
                             )
-                            >> share { diagramId = model.diagramId, expireSecond = model.expireSecond, password = model.password, allowIPList = validIP } model.apiRoot model.session
+                            >> (Return.command <|
+                                    Task.attempt Shared <|
+                                        share { diagramId = model.diagramId, expireSecond = model.expireSecond, password = model.password, allowIPList = validIP } model.apiRoot model.session
+                               )
 
                 EmbedCopied ->
                     Return.andThen (\m -> Return.singleton { m | embedCopyState = NotCopy })
@@ -398,11 +443,39 @@ update msg model =
                         )
 
                 EditIP i ->
-                    if (List.length <| validIPList (Just i)) /= (List.length <| String.lines i) then
+                    if String.isEmpty i then
+                        Return.andThen (\m -> Return.singleton { m | ip = { input = Just i, error = False } })
+
+                    else if (List.length <| validIPList (Just i)) /= (List.length <| String.lines i) then
                         Return.andThen (\m -> Return.singleton { m | ip = { input = Just i, error = True } })
 
                     else
                         Return.andThen (\m -> Return.singleton { m | ip = { input = Just i, error = False } })
+
+                LoadShareCondition (Ok cond) ->
+                    Return.andThen
+                        (\m ->
+                            Return.singleton
+                                { m
+                                    | ip =
+                                        { input =
+                                            if List.isEmpty cond.allowIPList then
+                                                Nothing
+
+                                            else
+                                                List.map IpAddress.toString cond.allowIPList
+                                                    |> String.join "\n"
+                                                    |> Just
+                                        , error = False
+                                        }
+                                    , token = RemoteData.succeed cond.token
+                                    , expireDate = DateUtils.millisToDateString m.timeZone (Time.millisToPosix <| cond.expireTime)
+                                    , expireTime = DateUtils.millisToTimeString m.timeZone (Time.millisToPosix <| cond.expireTime)
+                                }
+                        )
+
+                LoadShareCondition (Err _) ->
+                    Return.zero
            )
 
 

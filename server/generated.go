@@ -65,9 +65,17 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Item      func(childComplexity int, id string, isPublic *bool) int
-		Items     func(childComplexity int, offset *int, limit *int, isBookmark *bool, isPublic *bool) int
-		ShareItem func(childComplexity int, token string, password *string) int
+		Item           func(childComplexity int, id string, isPublic *bool) int
+		Items          func(childComplexity int, offset *int, limit *int, isBookmark *bool, isPublic *bool) int
+		ShareCondition func(childComplexity int, id string) int
+		ShareItem      func(childComplexity int, token string, password *string) int
+	}
+
+	ShareCondition struct {
+		AllowIPList func(childComplexity int) int
+		ExpireTime  func(childComplexity int) int
+		Token       func(childComplexity int) int
+		UsePassword func(childComplexity int) int
 	}
 }
 
@@ -81,6 +89,7 @@ type QueryResolver interface {
 	Item(ctx context.Context, id string, isPublic *bool) (*item.Item, error)
 	Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*item.Item, error)
 	ShareItem(ctx context.Context, token string, password *string) (*item.Item, error)
+	ShareCondition(ctx context.Context, id string) (*item.ShareCondition, error)
 }
 
 type executableSchema struct {
@@ -240,6 +249,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Items(childComplexity, args["offset"].(*int), args["limit"].(*int), args["isBookmark"].(*bool), args["isPublic"].(*bool)), true
 
+	case "Query.ShareCondition":
+		if e.complexity.Query.ShareCondition == nil {
+			break
+		}
+
+		args, err := ec.field_Query_ShareCondition_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ShareCondition(childComplexity, args["id"].(string)), true
+
 	case "Query.shareItem":
 		if e.complexity.Query.ShareItem == nil {
 			break
@@ -251,6 +272,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.ShareItem(childComplexity, args["token"].(string), args["password"].(*string)), true
+
+	case "ShareCondition.allowIPList":
+		if e.complexity.ShareCondition.AllowIPList == nil {
+			break
+		}
+
+		return e.complexity.ShareCondition.AllowIPList(childComplexity), true
+
+	case "ShareCondition.expireTime":
+		if e.complexity.ShareCondition.ExpireTime == nil {
+			break
+		}
+
+		return e.complexity.ShareCondition.ExpireTime(childComplexity), true
+
+	case "ShareCondition.token":
+		if e.complexity.ShareCondition.Token == nil {
+			break
+		}
+
+		return e.complexity.ShareCondition.Token(childComplexity), true
+
+	case "ShareCondition.usePassword":
+		if e.complexity.ShareCondition.UsePassword == nil {
+			break
+		}
+
+		return e.complexity.ShareCondition.UsePassword(childComplexity), true
 
 	}
 	return 0, false
@@ -351,6 +400,13 @@ type Item {
   updatedAt: Time!
 }
 
+type ShareCondition {
+  token: String!
+  usePassword: Boolean!
+  expireTime: Int!
+  allowIPList: [String!]
+}
+
 type Query {
   item(id: String!, isPublic: Boolean = False): Item!
   items(
@@ -360,6 +416,7 @@ type Query {
     isPublic: Boolean = False
   ): [Item]!
   shareItem(token: String!, password: String): Item!
+  ShareCondition(id: ID!): ShareCondition
 }
 
 input InputItem {
@@ -503,6 +560,21 @@ func (ec *executionContext) field_Mutation_share_args(ctx context.Context, rawAr
 		}
 	}
 	args["allowIPList"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_ShareCondition_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1284,6 +1356,45 @@ func (ec *executionContext) _Query_shareItem(ctx context.Context, field graphql.
 	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_ShareCondition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_ShareCondition_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ShareCondition(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*item.ShareCondition)
+	fc.Result = res
+	return ec.marshalOShareCondition2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐShareCondition(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1353,6 +1464,143 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ShareCondition_token(ctx context.Context, field graphql.CollectedField, obj *item.ShareCondition) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ShareCondition",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Token, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ShareCondition_usePassword(ctx context.Context, field graphql.CollectedField, obj *item.ShareCondition) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ShareCondition",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UsePassword, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ShareCondition_expireTime(ctx context.Context, field graphql.CollectedField, obj *item.ShareCondition) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ShareCondition",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpireTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ShareCondition_allowIPList(ctx context.Context, field graphql.CollectedField, obj *item.ShareCondition) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ShareCondition",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AllowIPList, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2692,10 +2940,60 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "ShareCondition":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_ShareCondition(ctx, field)
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var shareConditionImplementors = []string{"ShareCondition"}
+
+func (ec *executionContext) _ShareCondition(ctx context.Context, sel ast.SelectionSet, obj *item.ShareCondition) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, shareConditionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ShareCondition")
+		case "token":
+			out.Values[i] = ec._ShareCondition_token(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "usePassword":
+			out.Values[i] = ec._ShareCondition_usePassword(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "expireTime":
+			out.Values[i] = ec._ShareCondition_expireTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "allowIPList":
+			out.Values[i] = ec._ShareCondition_allowIPList(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2995,6 +3293,21 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 func (ec *executionContext) unmarshalNInputItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐInputItem(ctx context.Context, v interface{}) (item.InputItem, error) {
 	res, err := ec.unmarshalInputInputItem(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalNItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx context.Context, sel ast.SelectionSet, v item.Item) graphql.Marshaler {
@@ -3366,6 +3679,13 @@ func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋ
 		return graphql.Null
 	}
 	return ec._Item(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOShareCondition2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐShareCondition(ctx context.Context, sel ast.SelectionSet, v *item.ShareCondition) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ShareCondition(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

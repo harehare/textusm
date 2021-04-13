@@ -7,9 +7,11 @@ import (
 
 func TestGetUid(t *testing.T) {
 	ctx := context.Background()
-	ctx = WithUID(ctx, "test")
+	v := "test"
+	ctx = WithUID(ctx, v)
+	r := GetUID(ctx)
 
-	if GetUID(ctx) != "test" {
+	if *r != v {
 		t.Fatal("Failed GetUid")
 	}
 }

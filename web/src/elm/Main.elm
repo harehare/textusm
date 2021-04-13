@@ -596,6 +596,9 @@ update message model =
                                             Share.Close ->
                                                 Action.historyBack model.key
 
+                                            Share.LoadShareCondition (Err errMsg) ->
+                                                Action.showErrorMessage errMsg
+
                                             _ ->
                                                 Return.zero
                                        )

@@ -4,10 +4,13 @@ import (
 	"context"
 
 	"cloud.google.com/go/firestore"
+	e "github.com/harehare/textusm/pkg/error"
 	"github.com/harehare/textusm/pkg/item"
 	"github.com/harehare/textusm/pkg/model"
 	"github.com/harehare/textusm/pkg/values"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -22,8 +25,12 @@ func NewFirestoreShareRepository(client *firestore.Client) ShareRepository {
 	return &FirestoreShareRepository{client: client}
 }
 
-func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *model.ShareInfo, error) {
+func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *model.Share, error) {
 	fields, err := r.client.Collection(shareCollection).Doc(hashKey).Get(ctx)
+
+	if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
+		return nil, nil, e.NotFoundError(err)
+	}
 
 	if err != nil {
 		return nil, nil, err
@@ -35,7 +42,11 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 		return nil, nil, err
 	}
 
-	var allowIPList []string
+	var (
+		allowIPList []string
+		token       string
+		expireTime  int64
+	)
 	data := fields.Data()
 	p := data["password"].(string)
 
@@ -45,14 +56,24 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 		}
 	}
 
-	shareInfo := model.ShareInfo{
+	if v, ok := data["token"]; ok {
+		token = v.(string)
+	}
+
+	if v, ok := data["expireTime"]; ok {
+		expireTime = v.(int64)
+	}
+
+	shareInfo := model.Share{
+		Token:       &token,
+		ExpireTime:  &expireTime,
 		Password:    &p,
 		AllowIPList: allowIPList,
 	}
 	return &i, &shareInfo, nil
 }
 
-func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, shareInfo *model.ShareInfo) error {
+func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, shareInfo *model.Share) error {
 	var savePassword string
 
 	if shareInfo.Password != nil && *shareInfo.Password != "" {
@@ -78,7 +99,9 @@ func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, ite
 		"createdAt":   item.CreatedAt,
 		"updatedAt":   item.UpdatedAt,
 		"password":    savePassword,
-		"allowIPList": shareInfo.AllowIPList}
+		"allowIPList": shareInfo.AllowIPList,
+		"token":       *shareInfo.Token,
+		"expireTime":  *shareInfo.ExpireTime}
 	_, err := r.client.Collection(shareCollection).Doc(hashKey).Set(ctx, v)
 	return err
 }

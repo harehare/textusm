@@ -9,7 +9,6 @@ import (
 	"errors"
 	"net"
 	"os"
-	"strings"
 	"time"
 
 	jwt "github.com/form3tech-oss/jwt-go"
@@ -43,7 +42,7 @@ func NewService(r repository.ItemRepository, s repository.ShareRepository) *Serv
 func isAuthenticated(ctx context.Context) error {
 	userID := values.GetUID(ctx)
 
-	if userID == "" {
+	if userID == nil {
 		return e.NoAuthorizationError(errors.New("not authorization"))
 	}
 
@@ -56,7 +55,7 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 	}
 
 	userID := values.GetUID(ctx)
-	items, err := s.repo.Find(ctx, userID, offset, limit, isPublic)
+	items, err := s.repo.Find(ctx, *userID, offset, limit, isPublic)
 
 	if err != nil {
 		return nil, err
@@ -85,7 +84,7 @@ func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool)
 	}
 
 	userID := values.GetUID(ctx)
-	item, err := s.repo.FindByID(ctx, userID, itemID, isPublic)
+	item, err := s.repo.FindByID(ctx, *userID, itemID, isPublic)
 
 	if err != nil {
 		return nil, err
@@ -118,22 +117,22 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 	item.IsPublic = isPublic
 
 	if isPublic {
-		isOwner, err := s.isPublicDiagramOwner(ctx, item.ID, userID)
+		isOwner, err := s.isPublicDiagramOwner(ctx, item.ID, *userID)
 
 		if !isOwner {
 			return nil, e.NoAuthorizationError(err)
 		}
-		_, err = s.repo.Save(ctx, userID, item, true)
+		_, err = s.repo.Save(ctx, *userID, item, true)
 
 		if err != nil {
 			return nil, err
 		}
 
 	} else if item.ID != "" {
-		_, err := s.repo.FindByID(ctx, userID, item.ID, true)
+		_, err := s.repo.FindByID(ctx, *userID, item.ID, true)
 
 		if err == nil || e.GetCode(err) != e.NotFound {
-			err := s.repo.Delete(ctx, userID, item.ID, true)
+			err := s.repo.Delete(ctx, *userID, item.ID, true)
 
 			if err != nil {
 				return nil, err
@@ -141,7 +140,7 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 		}
 	}
 
-	resultItem, err := s.repo.Save(ctx, userID, item, false)
+	resultItem, err := s.repo.Save(ctx, *userID, item, false)
 	item.Text = currentText
 	resultItem.IsPublic = isPublic
 
@@ -161,7 +160,7 @@ func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic boo
 	}
 
 	if isPublic {
-		isOwner, err := s.isPublicDiagramOwner(ctx, itemID, userID)
+		isOwner, err := s.isPublicDiagramOwner(ctx, itemID, *userID)
 
 		if !isOwner {
 			return e.NoAuthorizationError(err)
@@ -169,7 +168,7 @@ func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic boo
 	}
 
 	if isPublic {
-		if err := s.repo.Delete(ctx, userID, itemID, true); err != nil {
+		if err := s.repo.Delete(ctx, *userID, itemID, true); err != nil {
 			return err
 		}
 	}
@@ -178,7 +177,7 @@ func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic boo
 		return err
 	}
 
-	return s.repo.Delete(ctx, userID, itemID, false)
+	return s.repo.Delete(ctx, *userID, itemID, false)
 }
 
 func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error) {
@@ -217,7 +216,7 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password *str
 
 	ip := values.GetIP(ctx)
 
-	if ip != "" && !checkIPWithinRange(ip, shareInfo.AllowIPList) {
+	if ip != "" && !shareInfo.CheckIPWithinRange(ip) {
 		return nil, e.ForbiddenError(errors.New("not allow ip address"))
 	}
 
@@ -241,14 +240,51 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password *str
 	return item, nil
 }
 
-func (s *Service) Share(ctx context.Context, itemID string, expSecond int, password *string, allowIPList []string) (*string, error) {
+func (s *Service) FindShareCondition(ctx context.Context, itemID string) (*item.ShareCondition, error) {
+	if err := isAuthenticated(ctx); err != nil {
+		return nil, err
+	}
+
 	userID := values.GetUID(ctx)
 
-	if userID == "" {
+	if userID == nil {
 		return nil, e.NoAuthorizationError(errors.New("not authorization"))
 	}
 
-	item, err := s.repo.FindByID(ctx, userID, itemID, false)
+	_, err := s.repo.FindByID(ctx, *userID, itemID, false)
+
+	if err != nil {
+		return nil, err
+	}
+
+	shareID, err := itemIDToShareID(itemID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	_, share, err := s.shareRepo.Find(ctx, *shareID)
+
+	if err != nil {
+		return nil, nil
+	}
+
+	return &item.ShareCondition{
+		Token:       *share.Token,
+		UsePassword: share.Password != nil,
+		ExpireTime:  int(*share.ExpireTime),
+		AllowIPList: share.AllowIPList,
+	}, nil
+}
+
+func (s *Service) Share(ctx context.Context, itemID string, expSecond int, password *string, allowIPList []string) (*string, error) {
+	userID := values.GetUID(ctx)
+
+	if userID == nil {
+		return nil, e.NoAuthorizationError(errors.New("not authorization"))
+	}
+
+	item, err := s.repo.FindByID(ctx, *userID, itemID, false)
 
 	if err != nil {
 		return nil, err
@@ -257,15 +293,6 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 	shareID, err := itemIDToShareID(item.ID)
 
 	if err != nil {
-		return nil, err
-	}
-
-	shareInfo := model.ShareInfo{
-		Password:    password,
-		AllowIPList: validIpList(allowIPList),
-	}
-
-	if err := s.shareRepo.Save(ctx, *shareID, item, &shareInfo); err != nil {
 		return nil, err
 	}
 
@@ -281,17 +308,31 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 		return nil, err
 	}
 
+	now := time.Now()
+	expireTime := now.Add(time.Second * time.Duration(expSecond)).Unix()
 	token := jwt.New(jwt.SigningMethodRS512)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["jti"] = uuid.NewV4().String()
 	claims["sub"] = shareID
-	claims["iat"] = time.Now().Unix()
-	claims["exp"] = time.Now().Add(time.Second * time.Duration(expSecond)).Unix()
+	claims["iat"] = now.Unix()
+	claims["exp"] = expireTime
 	claims["pas"] = password != nil
 
 	tokenString, err := token.SignedString(signKey)
 
 	if err != nil {
+		return nil, err
+	}
+
+	et := expireTime * int64(1000)
+	shareInfo := model.Share{
+		Token:       &tokenString,
+		Password:    password,
+		AllowIPList: validIpList(allowIPList),
+		ExpireTime:  &et,
+	}
+
+	if err := s.shareRepo.Save(ctx, *shareID, item, &shareInfo); err != nil {
 		return nil, err
 	}
 
@@ -371,36 +412,4 @@ func validIpList(ipList []string) []string {
 		allowIpList = append(allowIpList, ip)
 	}
 	return allowIpList
-}
-
-func checkIPWithinRange(remoteIP string, allowIPList []string) bool {
-	if len(allowIPList) == 0 {
-		return true
-	}
-
-	for _, ip := range allowIPList {
-		if remoteIP == ip {
-			return true
-		}
-		if !strings.Contains(ip, "/") {
-			continue
-		}
-
-		_, subnet, err := net.ParseCIDR(ip)
-
-		if err != nil {
-			continue
-		}
-
-		parsedIP := net.ParseIP(ip)
-
-		if parsedIP == nil {
-			continue
-		}
-
-		if subnet.Contains(parsedIP) {
-			return true
-		}
-	}
-	return false
 }

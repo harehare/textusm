@@ -7,3 +7,7 @@ module TextUSM.Object exposing (..)
 
 type Item
     = Item
+
+
+type ShareCondition
+    = ShareCondition

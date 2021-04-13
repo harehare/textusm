@@ -1,4 +1,4 @@
-module GraphQL.Request exposing (bookmark, delete, item, items, publicItem, save, share, shareItem)
+module GraphQL.Request exposing (bookmark, delete, item, items, publicItem, save, share, shareCondition, shareItem)
 
 import Data.DiagramItem exposing (DiagramItem)
 import Data.IdToken as IdToken exposing (IdToken)
@@ -51,6 +51,14 @@ shareItem : RequestInfo -> String -> Maybe String -> Task (Http.Error DiagramIte
 shareItem req id password =
     Query.shareItem id password
         |> Http.queryRequest (graphQLUrl req)
+        |> Http.toTask
+
+
+shareCondition : RequestInfo -> String -> Task (Http.Error (Maybe Query.ShareCondition)) (Maybe Query.ShareCondition)
+shareCondition req id =
+    Query.shareCondition id
+        |> Http.queryRequest (graphQLUrl req)
+        |> authHeaders req.idToken
         |> Http.toTask
 
 

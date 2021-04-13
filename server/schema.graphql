@@ -33,6 +33,13 @@ type Item {
   updatedAt: Time!
 }
 
+type ShareCondition {
+  token: String!
+  usePassword: Boolean!
+  expireTime: Int!
+  allowIPList: [String!]
+}
+
 type Query {
   item(id: String!, isPublic: Boolean = False): Item!
   items(
@@ -42,6 +49,7 @@ type Query {
     isPublic: Boolean = False
   ): [Item]!
   shareItem(token: String!, password: String): Item!
+  ShareCondition(id: ID!): ShareCondition
 }
 
 input InputItem {

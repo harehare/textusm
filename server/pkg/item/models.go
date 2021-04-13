@@ -33,6 +33,13 @@ type Item struct {
 	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
+type ShareCondition struct {
+	Token       string   `json:"token"`
+	UsePassword bool     `json:"usePassword"`
+	ExpireTime  int      `json:"expireTime"`
+	AllowIPList []string `json:"allowIPList"`
+}
+
 type Diagram string
 
 const (
