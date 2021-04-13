@@ -65,7 +65,7 @@
         "webpack-dev-server": "^3.11.2",
         "webpack-merge": "^5.7.3",
         "workbox-sw": "^6.1.4",
-        "workbox-webpack-plugin": "^6.1.2"
+        "workbox-webpack-plugin": "^6.1.5"
     },
     "homepage": "https://github.com/harehare/textusm",
     "license": "MIT",
