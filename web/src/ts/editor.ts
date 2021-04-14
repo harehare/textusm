@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor"; // eslint-disable-line import/no-unresolved
+import * as monaco from "monaco-editor";
 import { ElmApp } from "./elm";
 
 let monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;

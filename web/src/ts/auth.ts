@@ -38,7 +38,7 @@ export const signOut = (): Promise<void> => {
     });
 };
 
-export const pollRefreshToken = (callback: (idToken: string) => void) => {
+export const pollRefreshToken = (callback: (idToken: string) => void): void => {
     setInterval(async () => {
         const user = firebase.auth().currentUser;
         if (user) {

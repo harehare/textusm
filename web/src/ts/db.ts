@@ -19,9 +19,11 @@ class LocalDatabase extends Dexie {
                     "++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt",
             })
             .upgrade((trans) => {
-                //@ts-ignore
+                // @ts-ignore
                 return trans.diagrams.toCollection().modify((d) => {
+                    /* eslint no-param-reassign: 0 */
                     d.diagram = d.diagramPath;
+                    /* eslint no-param-reassign: 0 */
                     d.isBookmark = false;
                     delete d.diagramPath;
                 });
@@ -134,6 +136,7 @@ export const initDB = (app: ElmApp): void => {
     app.ports.removeDiagrams.subscribe(async (diagram: Diagram) => {
         const { id, title, isRemote } = diagram;
         if (
+            /* eslint no-alert: 0 */
             window.confirm(
                 `Are you sure you want to delete "${title}" diagram?`
             )
