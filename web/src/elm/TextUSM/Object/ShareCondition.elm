@@ -41,3 +41,9 @@ expireTime =
 allowIPList : SelectionSet (Maybe (List String)) TextUSM.Object.ShareCondition
 allowIPList =
     Object.selectionForField "(Maybe (List String))" "allowIPList" [] (Decode.string |> Decode.list |> Decode.nullable)
+
+
+{-| -}
+allowEmailList : SelectionSet (Maybe (List String)) TextUSM.Object.ShareCondition
+allowEmailList =
+    Object.selectionForField "(Maybe (List String))" "allowEmailList" [] (Decode.string |> Decode.list |> Decode.nullable)

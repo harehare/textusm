@@ -20,6 +20,10 @@ type MockShareRepository struct {
 	mock.Mock
 }
 
+type MockUserRepository struct {
+	mock.Mock
+}
+
 func (m *MockItemRepository) FindByID(ctx context.Context, userID, itemID string, isPublic bool) (*item.Item, error) {
 	ret := m.Called(ctx, userID, itemID, isPublic)
 	return ret.Get(0).(*item.Item), ret.Error(1)
@@ -55,9 +59,15 @@ func (m *MockShareRepository) Delete(ctx context.Context, hashKey string) error 
 	return ret.Error(0)
 }
 
+func (m *MockUserRepository) Find(ctx context.Context, uid string) (*model.User, error) {
+	ret := m.Called(ctx, uid)
+	return ret.Get(0).(*model.User), ret.Error(1)
+}
+
 func TestFindDiagrams(t *testing.T) {
 	mockItemRepo := new(MockItemRepository)
 	mockShareRepo := new(MockShareRepository)
+	mockUserRepo := new(MockUserRepository)
 	ctx := context.Background()
 	ctx = values.WithUID(ctx, "userID")
 
@@ -74,7 +84,7 @@ func TestFindDiagrams(t *testing.T) {
 
 	mockItemRepo.On("Find", ctx, "userID", 0, 10, false).Return(items, nil)
 
-	service := NewService(mockItemRepo, mockShareRepo)
+	service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
 	diagrams, err := service.FindDiagrams(ctx, 0, 10, false)
 
 	if err != nil {
@@ -91,6 +101,7 @@ func TestFindDiagrams(t *testing.T) {
 func TestFindDiagram(t *testing.T) {
 	mockItemRepo := new(MockItemRepository)
 	mockShareRepo := new(MockShareRepository)
+	mockUserRepo := new(MockUserRepository)
 	ctx := context.Background()
 	ctx = values.WithUID(ctx, "userID")
 
@@ -106,7 +117,7 @@ func TestFindDiagram(t *testing.T) {
 
 	mockItemRepo.On("FindByID", ctx, "userID", "testID", false).Return(&item, nil)
 
-	service := NewService(mockItemRepo, mockShareRepo)
+	service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
 	diagram, err := service.FindDiagram(ctx, "testID", false)
 
 	if err != nil || diagram == nil || diagram.Text != baseText {
@@ -117,6 +128,7 @@ func TestFindDiagram(t *testing.T) {
 func TestSaveDiagram(t *testing.T) {
 	mockItemRepo := new(MockItemRepository)
 	mockShareRepo := new(MockShareRepository)
+	mockUserRepo := new(MockUserRepository)
 	ctx := context.Background()
 	ctx = values.WithUID(ctx, "userID")
 
@@ -125,7 +137,7 @@ func TestSaveDiagram(t *testing.T) {
 
 	mockItemRepo.On("Save", ctx, "userID", &item, false).Return(&item, nil)
 
-	service := NewService(mockItemRepo, mockShareRepo)
+	service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
 	diagram, err := service.SaveDiagram(ctx, &item, false)
 
 	if err != nil || diagram == nil || diagram.Text != baseText {
@@ -136,13 +148,14 @@ func TestSaveDiagram(t *testing.T) {
 func TestDeleteDiagram(t *testing.T) {
 	mockItemRepo := new(MockItemRepository)
 	mockShareRepo := new(MockShareRepository)
+	mockUserRepo := new(MockUserRepository)
 	ctx := context.Background()
 	ctx = values.WithUID(ctx, "userID")
 	shareEncryptKey = []byte("9cbe21a8914986ffd301e3403e14b61b52f7c348b0e3c65b762ae79118b4a4bc")
 	mockItemRepo.On("Delete", ctx, "userID", "testID", false).Return(nil)
 	mockShareRepo.On("Delete", ctx, "39fec4b1b30fc71f52616e4120ee953cff68fd0d0a4d37560a0567ae2941916b").Return(nil)
 
-	service := NewService(mockItemRepo, mockShareRepo)
+	service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
 
 	if err := service.DeleteDiagram(ctx, "testID", false); err != nil {
 		t.Fatal("failed DeleteDiagram")
@@ -152,6 +165,7 @@ func TestDeleteDiagram(t *testing.T) {
 func TestShare(t *testing.T) {
 	mockItemRepo := new(MockItemRepository)
 	mockShareRepo := new(MockShareRepository)
+	mockUserRepo := new(MockUserRepository)
 	ctx := context.Background()
 	ctx = values.WithUID(ctx, "userID")
 
@@ -183,9 +197,8 @@ func TestShare(t *testing.T) {
 		mockItemRepo.On("FindByID", ctx, "userID", test.id, false).Return(&item, nil)
 		mockShareRepo.On("Save", ctx, test.hashKey, &item, mock.Anything).Return(nil)
 
-		service := NewService(mockItemRepo, mockShareRepo)
-		// TODO:
-		shareToken, err := service.Share(ctx, test.id, 1, &p, a)
+		service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
+		shareToken, err := service.Share(ctx, test.id, 1, &p, a, a)
 
 		if err != nil {
 			t.Fatal("failed ShareDiagram")

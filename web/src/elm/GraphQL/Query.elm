@@ -1,6 +1,7 @@
 module GraphQL.Query exposing (ShareCondition, item, items, shareCondition, shareItem)
 
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
+import Data.Email as Email exposing (Email)
 import Data.IpAddress as IpAddress exposing (IpAddress)
 import Data.Text as Text
 import Data.Title as Title
@@ -17,6 +18,7 @@ import TextUSM.Scalar exposing (Id(..))
 
 type alias ShareCondition =
     { allowIPList : List IpAddress
+    , allowEmail : List Email
     , token : String
     , expireTime : Int
     }
@@ -101,6 +103,16 @@ shareCondition id =
                                 |> List.map IpAddress.fromString
                                 |> List.filter MaybeEx.isJust
                                 |> List.map (Maybe.withDefault IpAddress.localhost)
+                        )
+                )
+            |> with
+                (TextUSM.Object.ShareCondition.allowEmailList
+                    |> SelectionSet.map
+                        (\v ->
+                            Maybe.withDefault [] v
+                                |> List.map Email.fromString
+                                |> List.filter MaybeEx.isJust
+                                |> List.map (Maybe.withDefault Email.empty)
                         )
                 )
             |> with TextUSM.Object.ShareCondition.token

@@ -43,9 +43,10 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 	}
 
 	var (
-		allowIPList []string
-		token       string
-		expireTime  int64
+		allowIPList    []string
+		allowEmailList []string
+		token          string
+		expireTime     int64
 	)
 	data := fields.Data()
 	p := data["password"].(string)
@@ -53,6 +54,12 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 	if v, ok := data["allowIPList"]; ok {
 		for _, ip := range v.([]interface{}) {
 			allowIPList = append(allowIPList, ip.(string))
+		}
+	}
+
+	if v, ok := data["allowEmailList"]; ok {
+		for _, e := range v.([]interface{}) {
+			allowEmailList = append(allowEmailList, e.(string))
 		}
 	}
 
@@ -65,10 +72,11 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 	}
 
 	shareInfo := model.Share{
-		Token:       &token,
-		ExpireTime:  &expireTime,
-		Password:    &p,
-		AllowIPList: allowIPList,
+		Token:          &token,
+		ExpireTime:     &expireTime,
+		Password:       &p,
+		AllowIPList:    allowIPList,
+		AllowEmailList: allowEmailList,
 	}
 	return &i, &shareInfo, nil
 }
@@ -88,20 +96,21 @@ func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, ite
 	}
 
 	v := map[string]interface{}{
-		"id":          item.ID,
-		"title":       item.Title,
-		"text":        item.Text,
-		"thumbnail":   item.Thumbnail,
-		"diagram":     item.Diagram,
-		"isPublic":    item.IsPublic,
-		"isBookmark":  item.IsBookmark,
-		"tags":        item.Tags,
-		"createdAt":   item.CreatedAt,
-		"updatedAt":   item.UpdatedAt,
-		"password":    savePassword,
-		"allowIPList": shareInfo.AllowIPList,
-		"token":       *shareInfo.Token,
-		"expireTime":  *shareInfo.ExpireTime}
+		"id":             item.ID,
+		"title":          item.Title,
+		"text":           item.Text,
+		"thumbnail":      item.Thumbnail,
+		"diagram":        item.Diagram,
+		"isPublic":       item.IsPublic,
+		"isBookmark":     item.IsBookmark,
+		"tags":           item.Tags,
+		"createdAt":      item.CreatedAt,
+		"updatedAt":      item.UpdatedAt,
+		"password":       savePassword,
+		"allowIPList":    shareInfo.AllowIPList,
+		"token":          *shareInfo.Token,
+		"expireTime":     *shareInfo.ExpireTime,
+		"allowEmailList": shareInfo.AllowEmailList}
 	_, err := r.client.Collection(shareCollection).Doc(hashKey).Set(ctx, v)
 	return err
 }

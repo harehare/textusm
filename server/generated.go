@@ -61,7 +61,7 @@ type ComplexityRoot struct {
 		Bookmark func(childComplexity int, itemID string, isBookmark bool) int
 		Delete   func(childComplexity int, itemID string, isPublic *bool) int
 		Save     func(childComplexity int, input item.InputItem, isPublic *bool) int
-		Share    func(childComplexity int, itemID string, expSecond *int, password *string, allowIPList []string) int
+		Share    func(childComplexity int, input item.InputShareItem) int
 	}
 
 	Query struct {
@@ -72,10 +72,11 @@ type ComplexityRoot struct {
 	}
 
 	ShareCondition struct {
-		AllowIPList func(childComplexity int) int
-		ExpireTime  func(childComplexity int) int
-		Token       func(childComplexity int) int
-		UsePassword func(childComplexity int) int
+		AllowEmailList func(childComplexity int) int
+		AllowIPList    func(childComplexity int) int
+		ExpireTime     func(childComplexity int) int
+		Token          func(childComplexity int) int
+		UsePassword    func(childComplexity int) int
 	}
 }
 
@@ -83,7 +84,7 @@ type MutationResolver interface {
 	Save(ctx context.Context, input item.InputItem, isPublic *bool) (*item.Item, error)
 	Delete(ctx context.Context, itemID string, isPublic *bool) (string, error)
 	Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error)
-	Share(ctx context.Context, itemID string, expSecond *int, password *string, allowIPList []string) (string, error)
+	Share(ctx context.Context, input item.InputShareItem) (string, error)
 }
 type QueryResolver interface {
 	Item(ctx context.Context, id string, isPublic *bool) (*item.Item, error)
@@ -223,7 +224,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Share(childComplexity, args["itemID"].(string), args["expSecond"].(*int), args["password"].(*string), args["allowIPList"].([]string)), true
+		return e.complexity.Mutation.Share(childComplexity, args["input"].(item.InputShareItem)), true
 
 	case "Query.item":
 		if e.complexity.Query.Item == nil {
@@ -272,6 +273,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.ShareItem(childComplexity, args["token"].(string), args["password"].(*string)), true
+
+	case "ShareCondition.allowEmailList":
+		if e.complexity.ShareCondition.AllowEmailList == nil {
+			break
+		}
+
+		return e.complexity.ShareCondition.AllowEmailList(childComplexity), true
 
 	case "ShareCondition.allowIPList":
 		if e.complexity.ShareCondition.AllowIPList == nil {
@@ -405,6 +413,7 @@ type ShareCondition {
   usePassword: Boolean!
   expireTime: Int!
   allowIPList: [String!]
+  allowEmailList: [String!]
 }
 
 type Query {
@@ -430,16 +439,19 @@ input InputItem {
   tags: [String]
 }
 
+input InputShareItem {
+  itemID: String!
+  expSecond: Int = 300
+  password: String
+  allowIPList: [String!] = []
+  allowEmailList: [String!] = []
+}
+
 type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
   delete(itemID: String!, isPublic: Boolean = False): String!
   bookmark(itemID: String!, isBookmark: Boolean!): Item
-  share(
-    itemID: String!
-    expSecond: Int = 300
-    password: String
-    allowIPList: [String!] = []
-  ): String!
+  share(input: InputShareItem!): String!
 }
 `, BuiltIn: false},
 }
@@ -524,42 +536,15 @@ func (ec *executionContext) field_Mutation_save_args(ctx context.Context, rawArg
 func (ec *executionContext) field_Mutation_share_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["itemID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 item.InputShareItem
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNInputShareItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐInputShareItem(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["itemID"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["expSecond"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expSecond"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["expSecond"] = arg1
-	var arg2 *string
-	if tmp, ok := rawArgs["password"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["password"] = arg2
-	var arg3 []string
-	if tmp, ok := rawArgs["allowIPList"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowIPList"))
-		arg3, err = ec.unmarshalOString2ᚕstringᚄ(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["allowIPList"] = arg3
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -1213,7 +1198,7 @@ func (ec *executionContext) _Mutation_share(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Share(rctx, args["itemID"].(string), args["expSecond"].(*int), args["password"].(*string), args["allowIPList"].([]string))
+		return ec.resolvers.Mutation().Share(rctx, args["input"].(item.InputShareItem))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1590,6 +1575,38 @@ func (ec *executionContext) _ShareCondition_allowIPList(ctx context.Context, fie
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.AllowIPList, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _ShareCondition_allowEmailList(ctx context.Context, field graphql.CollectedField, obj *item.ShareCondition) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "ShareCondition",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AllowEmailList, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2766,6 +2783,62 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, obj interface{}) (item.InputShareItem, error) {
+	var it item.InputShareItem
+	var asMap = obj.(map[string]interface{})
+
+	if _, present := asMap["expSecond"]; !present {
+		asMap["expSecond"] = 300
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "itemID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
+			it.ItemID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "expSecond":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expSecond"))
+			it.ExpSecond, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			it.Password, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "allowIPList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowIPList"))
+			it.AllowIPList, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "allowEmailList":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowEmailList"))
+			it.AllowEmailList, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2994,6 +3067,8 @@ func (ec *executionContext) _ShareCondition(ctx context.Context, sel ast.Selecti
 			}
 		case "allowIPList":
 			out.Values[i] = ec._ShareCondition_allowIPList(ctx, field, obj)
+		case "allowEmailList":
+			out.Values[i] = ec._ShareCondition_allowEmailList(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3292,6 +3367,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 
 func (ec *executionContext) unmarshalNInputItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐInputItem(ctx context.Context, v interface{}) (item.InputItem, error) {
 	res, err := ec.unmarshalInputInputItem(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNInputShareItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐInputShareItem(ctx context.Context, v interface{}) (item.InputShareItem, error) {
+	res, err := ec.unmarshalInputInputShareItem(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

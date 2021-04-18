@@ -7,7 +7,7 @@ import Data.Title as Title
 import Graphql.Operation exposing (RootMutation)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
-import TextUSM.InputObject exposing (InputItem)
+import TextUSM.InputObject exposing (InputItem, InputShareItem)
 import TextUSM.Mutation as Mutation
 import TextUSM.Object.Item
 import TextUSM.Scalar exposing (Id(..))
@@ -54,20 +54,6 @@ bookmark itemID isBookmark =
         )
 
 
-share : String -> Int -> Maybe String -> List IpAddress -> SelectionSet String RootMutation
-share itemID expSecond password allowIPList =
-    Mutation.share
-        (\optionals ->
-            { optionals
-                | expSecond = Present expSecond
-                , password =
-                    case password of
-                        Just p ->
-                            Present p
-
-                        Nothing ->
-                            Null
-                , allowIPList = Present <| List.map IpAddress.toString allowIPList
-            }
-        )
-        { itemID = itemID }
+share : InputShareItem -> SelectionSet String RootMutation
+share input =
+    Mutation.share { input = input }

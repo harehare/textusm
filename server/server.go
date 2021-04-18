@@ -88,7 +88,8 @@ func Run() int {
 
 	repo := repository.NewFirestoreItemRepository(firestore)
 	shareRepo := repository.NewFirestoreShareRepository(firestore)
-	service := service.NewService(repo, shareRepo)
+	userRepo := repository.NewFirebaseUserRepository(app)
+	service := service.NewService(repo, shareRepo, userRepo)
 
 	r := chi.NewRouter()
 	r.Use(chiMiddleware.Compress(5))

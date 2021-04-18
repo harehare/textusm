@@ -10,7 +10,8 @@ type alias Jwt =
     , iat : Int
     , jti : String
     , sub : String
-    , pas : Bool
+    , checkPassword : Bool
+    , checkEmail : Bool
     }
 
 
@@ -28,9 +29,10 @@ fromString text =
 
 decoder : D.Decoder Jwt
 decoder =
-    D.map5 Jwt
+    D.map6 Jwt
         (D.field "exp" D.int)
         (D.field "iat" D.int)
         (D.field "jti" D.string)
         (D.field "sub" D.string)
-        (D.field "pas" D.bool)
+        (D.field "check_password" D.bool)
+        (D.field "check_email" D.bool)

@@ -13,6 +13,6 @@ view =
         , style "margin" "8px"
         , style "font-size" "0.9rem"
         ]
-        [ img [ class "keyframe anim", Asset.src Asset.logo, style "width" "32px", alt "NOT FOUND" ] []
-        , div [ style "padding" "8px" ] [ text "NOT FOUND" ]
+        [ img [ class "keyframe anim", Asset.src Asset.logo, style "width" "32px", alt "Not found" ] []
+        , div [ style "padding" "8px" ] [ text "Not found" ]
         ]

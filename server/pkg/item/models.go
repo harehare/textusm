@@ -20,6 +20,14 @@ type InputItem struct {
 	Tags       []*string `json:"tags"`
 }
 
+type InputShareItem struct {
+	ItemID         string   `json:"itemID"`
+	ExpSecond      *int     `json:"expSecond"`
+	Password       *string  `json:"password"`
+	AllowIPList    []string `json:"allowIPList"`
+	AllowEmailList []string `json:"allowEmailList"`
+}
+
 type Item struct {
 	ID         string    `json:"id"`
 	Title      string    `json:"title"`
@@ -34,10 +42,11 @@ type Item struct {
 }
 
 type ShareCondition struct {
-	Token       string   `json:"token"`
-	UsePassword bool     `json:"usePassword"`
-	ExpireTime  int      `json:"expireTime"`
-	AllowIPList []string `json:"allowIPList"`
+	Token          string   `json:"token"`
+	UsePassword    bool     `json:"usePassword"`
+	ExpireTime     int      `json:"expireTime"`
+	AllowIPList    []string `json:"allowIPList"`
+	AllowEmailList []string `json:"allowEmailList"`
 }
 
 type Diagram string

@@ -1,6 +1,7 @@
 module Main exposing (init, main, view)
 
 import Action
+import Asset
 import Browser
 import Browser.Events
     exposing
@@ -30,8 +31,8 @@ import File.Download as Download
 import GraphQL.Request as Request
 import GraphQL.RequestError as RequestError
 import Graphql.Http as Http
-import Html exposing (Html, div, main_)
-import Html.Attributes exposing (attribute, class, id, style)
+import Html exposing (Html, div, img, main_, text)
+import Html.Attributes exposing (alt, attribute, class, id, style)
 import Html.Events as E
 import Html.Lazy as Lazy
 import Json.Decode as D
@@ -248,11 +249,28 @@ view model =
 
                 _ ->
                     case toRoute model.url of
-                        ViewFile _ _ ->
-                            div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
-                                [ Lazy.lazy Diagram.view model.diagramModel
-                                    |> Html.map UpdateDiagram
-                                ]
+                        ViewFile _ id_ ->
+                            case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
+                                Just jwt ->
+                                    if jwt.checkEmail && Session.isGuest model.session then
+                                        div
+                                            [ class "flex-center text-xl font-semibold w-screen text-color"
+                                            , style "height" "calc(100vh - 40px)"
+                                            , style "margin" "8px"
+                                            , style "font-size" "0.9rem"
+                                            ]
+                                            [ img [ class "keyframe anim", Asset.src Asset.logo, style "width" "32px", alt "NOT FOUND" ] []
+                                            , div [ style "padding" "8px" ] [ text "Sign in required" ]
+                                            ]
+
+                                    else
+                                        div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
+                                            [ Lazy.lazy Diagram.view model.diagramModel
+                                                |> Html.map UpdateDiagram
+                                            ]
+
+                                Nothing ->
+                                    NotFound.view
 
                         _ ->
                             mainWindow
@@ -267,7 +285,7 @@ view model =
             ViewFile _ id_ ->
                 case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
                     Just jwt ->
-                        if jwt.pas && not model.view.authenticated then
+                        if jwt.checkPassword && not model.view.authenticated then
                             Lazy.lazy InputDialog.view
                                 { title = "Protedted diagram"
                                 , errorMessage = Maybe.map RequestError.toMessage model.view.error
@@ -515,7 +533,7 @@ changeRouteTo route model =
                         case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
                             Just jwt ->
                                 Return.andThen (\m -> Return.singleton { m | view = { password = m.view.password, authenticated = m.view.authenticated, token = Just id_, error = Nothing } })
-                                    >> (if jwt.pas then
+                                    >> (if jwt.checkPassword || jwt.checkEmail then
                                             Return.andThen (Action.switchPage Page.Main)
                                                 >> Return.andThen Action.changeRouteInit
 
@@ -1079,8 +1097,21 @@ update message model =
                                 ( Route.EditFile type_ id_, _ ) ->
                                     Action.pushUrl (Route.toString <| Route.EditFile type_ id_) model
 
-                                ( Route.ViewFile type_ id_, _ ) ->
-                                    Action.pushUrl (Route.toString <| Route.ViewFile type_ id_) model
+                                ( Route.ViewFile _ id_, _ ) ->
+                                    case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
+                                        Just jwt ->
+                                            if jwt.checkPassword then
+                                                Return.andThen (Action.switchPage Page.Main)
+                                                    >> Return.andThen Action.changeRouteInit
+
+                                            else
+                                                Return.andThen (Action.switchPage Page.Main)
+                                                    >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken <| Session.signIn user } (ShareToken.toString id_) Nothing)
+                                                    >> Return.andThen Action.startProgress
+                                                    >> Return.andThen Action.changeRouteInit
+
+                                        Nothing ->
+                                            Return.andThen <| Action.switchPage Page.NotFound
 
                                 ( Route.DiagramList, _ ) ->
                                     Action.pushUrl (Route.toString <| Route.Home) model

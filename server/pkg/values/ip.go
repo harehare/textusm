@@ -4,8 +4,13 @@ import "context"
 
 type ipKey struct{}
 
-func GetIP(ctx context.Context) string {
-	return ctx.Value(ipKey{}).(string)
+func GetIP(ctx context.Context) *string {
+	v := ctx.Value(ipKey{})
+	if v == nil {
+		return nil
+	}
+	r := v.(string)
+	return &r
 }
 
 func WithIP(ctx context.Context, ip string) context.Context {

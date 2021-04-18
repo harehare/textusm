@@ -1,8 +1,9 @@
 module GraphQL.Request exposing (bookmark, delete, item, items, publicItem, save, share, shareCondition, shareItem)
 
 import Data.DiagramItem exposing (DiagramItem)
+import Data.Email as Email exposing (Email)
 import Data.IdToken as IdToken exposing (IdToken)
-import Data.IpAddress exposing (IpAddress)
+import Data.IpAddress as IpAddress exposing (IpAddress)
 import GraphQL.Mutation as Mutation
 import GraphQL.Query as Query
 import Graphql.Http as Http
@@ -51,6 +52,7 @@ shareItem : RequestInfo -> String -> Maybe String -> Task (Http.Error DiagramIte
 shareItem req id password =
     Query.shareItem id password
         |> Http.queryRequest (graphQLUrl req)
+        |> authHeaders req.idToken
         |> Http.toTask
 
 
@@ -86,9 +88,21 @@ bookmark req itemID isBookmark =
         |> Http.toTask
 
 
-share : RequestInfo -> String -> Int -> Maybe String -> List IpAddress -> Task (Http.Error String) String
-share req itemID expSecond password allowIPList =
-    Mutation.share itemID expSecond password allowIPList
+share : RequestInfo -> String -> Int -> Maybe String -> List IpAddress -> List Email -> Task (Http.Error String) String
+share req itemID expSecond password allowIPList allowEmailList =
+    Mutation.share
+        { itemID = itemID
+        , expSecond = Present expSecond
+        , password =
+            case password of
+                Just p ->
+                    Present p
+
+                Nothing ->
+                    Null
+        , allowIPList = Present <| List.map IpAddress.toString allowIPList
+        , allowEmailList = Present <| List.map Email.toString allowEmailList
+        }
         |> Http.mutationRequest (graphQLUrl req)
         |> authHeaders req.idToken
         |> Http.toTask
@@ -96,4 +110,9 @@ share req itemID expSecond password allowIPList =
 
 authHeaders : Maybe IdToken -> Http.Request decodesTo -> Http.Request decodesTo
 authHeaders idToken =
-    Http.withHeader "Authorization" (idToken |> Maybe.withDefault (IdToken.fromString "dummy") |> IdToken.unwrap)
+    case idToken of
+        Just t ->
+            Http.withHeader "Authorization" <| IdToken.unwrap t
+
+        Nothing ->
+            Http.withOperationName ""

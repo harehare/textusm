@@ -67,3 +67,47 @@ encodeInputItem : InputItem -> Value
 encodeInputItem input____ =
     Encode.maybeObject
         [ ( "id", (TextUSM.ScalarCodecs.codecs |> TextUSM.Scalar.unwrapEncoder .codecId) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "text", Encode.string input____.text |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum TextUSM.Enum.Diagram.toString input____.diagram |> Just ), ( "isPublic", Encode.bool input____.isPublic |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ), ( "tags", (Encode.string |> Encode.maybe |> Encode.list) |> Encode.optional input____.tags ) ]
+
+
+buildInputShareItem :
+    InputShareItemRequiredFields
+    -> (InputShareItemOptionalFields -> InputShareItemOptionalFields)
+    -> InputShareItem
+buildInputShareItem required____ fillOptionals____ =
+    let
+        optionals____ =
+            fillOptionals____
+                { expSecond = Absent, password = Absent, allowIPList = Absent, allowEmailList = Absent }
+    in
+    { itemID = required____.itemID, expSecond = optionals____.expSecond, password = optionals____.password, allowIPList = optionals____.allowIPList, allowEmailList = optionals____.allowEmailList }
+
+
+type alias InputShareItemRequiredFields =
+    { itemID : String }
+
+
+type alias InputShareItemOptionalFields =
+    { expSecond : OptionalArgument Int
+    , password : OptionalArgument String
+    , allowIPList : OptionalArgument (List String)
+    , allowEmailList : OptionalArgument (List String)
+    }
+
+
+{-| Type for the InputShareItem input object.
+-}
+type alias InputShareItem =
+    { itemID : String
+    , expSecond : OptionalArgument Int
+    , password : OptionalArgument String
+    , allowIPList : OptionalArgument (List String)
+    , allowEmailList : OptionalArgument (List String)
+    }
+
+
+{-| Encode a InputShareItem into a value that can be used as an argument.
+-}
+encodeInputShareItem : InputShareItem -> Value
+encodeInputShareItem input____ =
+    Encode.maybeObject
+        [ ( "itemID", Encode.string input____.itemID |> Just ), ( "expSecond", Encode.int |> Encode.optional input____.expSecond ), ( "password", Encode.string |> Encode.optional input____.password ), ( "allowIPList", (Encode.string |> Encode.list) |> Encode.optional input____.allowIPList ), ( "allowEmailList", (Encode.string |> Encode.list) |> Encode.optional input____.allowEmailList ) ]

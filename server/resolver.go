@@ -89,8 +89,8 @@ func (r *queryResolver) ShareCondition(ctx context.Context, itemID string) (*ite
 	return r.service.FindShareCondition(ctx, itemID)
 }
 
-func (r *mutationResolver) Share(ctx context.Context, token string, expSecond *int, password *string, allowIPList []string) (string, error) {
-	jwtToken, err := r.service.Share(ctx, token, *expSecond, password, allowIPList)
+func (r *mutationResolver) Share(ctx context.Context, input item.InputShareItem) (string, error) {
+	jwtToken, err := r.service.Share(ctx, input.ItemID, *input.ExpSecond, input.Password, input.AllowIPList, input.AllowEmailList)
 	return *jwtToken, err
 }
 

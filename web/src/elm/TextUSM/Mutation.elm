@@ -100,36 +100,17 @@ bookmark requiredArgs____ object____ =
     Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID Encode.string, Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ (identity >> Decode.nullable)
 
 
-type alias ShareOptionalArguments =
-    { expSecond : OptionalArgument Int
-    , password : OptionalArgument String
-    , allowIPList : OptionalArgument (List String)
-    }
-
-
 type alias ShareRequiredArguments =
-    { itemID : String }
+    { input : TextUSM.InputObject.InputShareItem }
 
 
 {-|
 
-  - itemID -
-  - expSecond -
-  - password -
-  - allowIPList -
+  - input -
 
 -}
 share :
-    (ShareOptionalArguments -> ShareOptionalArguments)
-    -> ShareRequiredArguments
+    ShareRequiredArguments
     -> SelectionSet String RootMutation
-share fillInOptionals____ requiredArgs____ =
-    let
-        filledInOptionals____ =
-            fillInOptionals____ { expSecond = Absent, password = Absent, allowIPList = Absent }
-
-        optionalArgs____ =
-            [ Argument.optional "expSecond" filledInOptionals____.expSecond Encode.int, Argument.optional "password" filledInOptionals____.password Encode.string, Argument.optional "allowIPList" filledInOptionals____.allowIPList (Encode.string |> Encode.list) ]
-                |> List.filterMap identity
-    in
-    Object.selectionForField "String" "share" (optionalArgs____ ++ [ Argument.required "itemID" requiredArgs____.itemID Encode.string ]) Decode.string
+share requiredArgs____ =
+    Object.selectionForField "String" "share" [ Argument.required "input" requiredArgs____.input TextUSM.InputObject.encodeInputShareItem ] Decode.string

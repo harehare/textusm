@@ -2,6 +2,7 @@ port module Dialog.Share exposing (Model, Msg(..), init, update, view)
 
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramType as DiagramType
+import Data.Email as Email exposing (Email)
 import Data.IpAddress as IpAddress exposing (IpAddress)
 import Data.Session as Session exposing (Session)
 import Data.Size as Size exposing (Size)
@@ -30,6 +31,12 @@ import Views.Spinner as Spinner
 import Views.Switch as Switch
 
 
+type alias InputCondition =
+    { input : Maybe String
+    , error : Bool
+    }
+
+
 type alias Model =
     { embedSize : Size
     , diagramType : Diagram
@@ -46,10 +53,8 @@ type alias Model =
     , apiRoot : String
     , session : Session
     , password : Maybe String
-    , ip :
-        { input : Maybe String
-        , error : Bool
-        }
+    , ip : InputCondition
+    , email : InputCondition
     }
 
 
@@ -70,7 +75,9 @@ type Msg
     | UsePassword Bool
     | EditPassword String
     | UseLimitByIP Bool
+    | UseLimitByEmail Bool
     | EditIP String
+    | EditEmail String
     | LoadShareCondition (Result String ShareCondition)
 
 
@@ -133,9 +140,9 @@ embedUrl { token, diagramType, title, embedSize } =
             "Loading..."
 
 
-share : { diagramId : DiagramId, expireSecond : Int, password : Maybe String, allowIPList : List IpAddress } -> String -> Session -> Task String String
-share { diagramId, expireSecond, password, allowIPList } apiRoot session =
-    Request.share { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString diagramId) expireSecond password allowIPList
+share : { diagramId : DiagramId, expireSecond : Int, password : Maybe String, allowIPList : List IpAddress, allowEmail : List Email } -> String -> Session -> Task String String
+share { diagramId, expireSecond, password, allowIPList, allowEmail } apiRoot session =
+    Request.share { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString diagramId) expireSecond password allowIPList allowEmail
         |> Task.mapError (\_ -> "Failed to generate URL for sharing.")
 
 
@@ -168,12 +175,21 @@ init { diagram, diagramId, apiRoot, session, title } =
                                                 { allowIPList = []
                                                 , token = s
                                                 , expireTime = Time.posixToMillis now + 300 * 1000
+                                                , allowEmail = []
                                                 }
                                         )
                                         Time.now
                                 )
                             <|
-                                share { diagramId = diagramId, expireSecond = 300, password = Nothing, allowIPList = [] } apiRoot session
+                                share
+                                    { diagramId = diagramId
+                                    , expireSecond = 300
+                                    , password = Nothing
+                                    , allowIPList = []
+                                    , allowEmail = []
+                                    }
+                                    apiRoot
+                                    session
                     in
                     case cond of
                         Just c ->
@@ -209,6 +225,10 @@ init { diagram, diagramId, apiRoot, session, title } =
             { input = Nothing
             , error = False
             }
+        , email =
+            { input = Nothing
+            , error = False
+            }
         }
         |> (Return.command <| Task.attempt LoadShareCondition initTask)
         |> Return.command (Task.perform GotTimeZone Time.here)
@@ -230,6 +250,26 @@ validIPList ipList =
     of
         Just ip ->
             ip
+
+        Nothing ->
+            []
+
+
+validEmail : Maybe String -> List Email
+validEmail email =
+    case
+        Maybe.andThen
+            (\i ->
+                String.lines i
+                    |> List.map Email.fromString
+                    |> List.filter MaybeEx.isJust
+                    |> List.map (Maybe.withDefault Email.empty)
+                    |> Just
+            )
+            email
+    of
+        Just m ->
+            m
 
         Nothing ->
             []
@@ -308,6 +348,13 @@ update msg model =
                             ipList =
                                 List.map IpAddress.toString validIP
                                     |> String.join "\n"
+
+                            validMail =
+                                validEmail model.email.input
+
+                            email =
+                                List.map Email.toString validMail
+                                    |> String.join "\n"
                         in
                         Return.andThen
                             (\m ->
@@ -316,6 +363,10 @@ update msg model =
                                         | urlCopyState = Copying
                                         , ip =
                                             { input = Maybe.andThen (\_ -> Just ipList) m.ip.input
+                                            , error = False
+                                            }
+                                        , email =
+                                            { input = Maybe.andThen (\_ -> Just email) m.email.input
                                             , error = False
                                             }
                                     }
@@ -327,6 +378,7 @@ update msg model =
                                             , expireSecond = model.expireSecond
                                             , password = model.password
                                             , allowIPList = validIP
+                                            , allowEmail = validMail
                                             }
                                             model.apiRoot
                                             model.session
@@ -347,6 +399,13 @@ update msg model =
                             ipList =
                                 List.map IpAddress.toString validIP
                                     |> String.join "\n"
+
+                            validMail =
+                                validEmail model.email.input
+
+                            email =
+                                List.map Email.toString validMail
+                                    |> String.join "\n"
                         in
                         Return.andThen
                             (\m ->
@@ -357,11 +416,23 @@ update msg model =
                                             { input = Maybe.andThen (\_ -> Just ipList) m.ip.input
                                             , error = False
                                             }
+                                        , email =
+                                            { input = Maybe.andThen (\_ -> Just email) m.email.input
+                                            , error = False
+                                            }
                                     }
                             )
                             >> (Return.command <|
                                     Task.attempt Shared <|
-                                        share { diagramId = model.diagramId, expireSecond = model.expireSecond, password = model.password, allowIPList = validIP } model.apiRoot model.session
+                                        share
+                                            { diagramId = model.diagramId
+                                            , expireSecond = model.expireSecond
+                                            , password = model.password
+                                            , allowIPList = validIP
+                                            , allowEmail = validMail
+                                            }
+                                            model.apiRoot
+                                            model.session
                                )
 
                 EmbedCopied ->
@@ -442,6 +513,23 @@ update msg model =
                                 }
                         )
 
+                UseLimitByEmail f ->
+                    Return.andThen
+                        (\m ->
+                            Return.singleton
+                                { m
+                                    | email =
+                                        { input =
+                                            if f then
+                                                Just ""
+
+                                            else
+                                                Nothing
+                                        , error = False
+                                        }
+                                }
+                        )
+
                 EditIP i ->
                     if String.isEmpty i then
                         Return.andThen (\m -> Return.singleton { m | ip = { input = Just i, error = False } })
@@ -451,6 +539,16 @@ update msg model =
 
                     else
                         Return.andThen (\m -> Return.singleton { m | ip = { input = Just i, error = False } })
+
+                EditEmail a ->
+                    if String.isEmpty a then
+                        Return.andThen (\m -> Return.singleton { m | email = { input = Just a, error = False } })
+
+                    else if (List.length <| validEmail (Just a)) /= (List.length <| String.lines a) then
+                        Return.andThen (\m -> Return.singleton { m | email = { input = Just a, error = True } })
+
+                    else
+                        Return.andThen (\m -> Return.singleton { m | email = { input = Just a, error = False } })
 
                 LoadShareCondition (Ok cond) ->
                     Return.andThen
@@ -464,6 +562,17 @@ update msg model =
 
                                             else
                                                 List.map IpAddress.toString cond.allowIPList
+                                                    |> String.join "\n"
+                                                    |> Just
+                                        , error = False
+                                        }
+                                    , email =
+                                        { input =
+                                            if List.isEmpty cond.allowEmail then
+                                                Nothing
+
+                                            else
+                                                List.map Email.toString cond.allowEmail
                                                     |> String.join "\n"
                                                     |> Just
                                         , error = False
@@ -556,7 +665,7 @@ view model =
                             Nothing ->
                                 Empty.view
                         , div [ class "flex-space", style "padding" "8px" ]
-                            [ div [ class "text-sm" ] [ text "Limit Access By IP Address" ]
+                            [ div [ class "text-sm" ] [ text "Limit access by ip address" ]
                             , Switch.view (MaybeEx.isJust model.ip.input) UseLimitByIP
                             ]
                         , case model.ip.input of
@@ -584,6 +693,42 @@ view model =
                                             , style "color" "var(--error-color)"
                                             ]
                                             [ text "Invalid ip address entered" ]
+
+                                      else
+                                        Empty.view
+                                    ]
+
+                            Nothing ->
+                                Empty.view
+                        , div [ class "flex-space", style "padding" "8px" ]
+                            [ div [ class "text-sm" ] [ text "Limit access by mail address" ]
+                            , Switch.view (MaybeEx.isJust model.email.input) UseLimitByEmail
+                            ]
+                        , case model.email.input of
+                            Just m ->
+                                div [ style "padding" "8px" ]
+                                    [ textarea
+                                        [ class "input-light text-sm"
+                                        , placeholder "textusm@textusm.com"
+                                        , style "resize" "none"
+                                        , style "color" "#555"
+                                        , style "width" "305px"
+                                        , style "height" "100px"
+                                        , if model.email.error then
+                                            style "border" "3px solid var(--error-color)"
+
+                                          else
+                                            style "" ""
+                                        , maxlength 150
+                                        , onInput EditEmail
+                                        ]
+                                        [ text m ]
+                                    , if model.email.error then
+                                        div
+                                            [ class "w-full text-sm font-bold text-right"
+                                            , style "color" "var(--error-color)"
+                                            ]
+                                            [ text "Invalid mail address entered" ]
 
                                       else
                                         Empty.view

@@ -35,6 +35,7 @@ func AuthMiddleware(app *firebase.App) func(http.Handler) http.Handler {
 				http.Error(w, "{\"error\": \"authorization failed\"}", http.StatusForbidden)
 				return
 			}
+
 			next.ServeHTTP(w, r.WithContext(values.WithUID(r.Context(), token.UID)))
 		})
 	}

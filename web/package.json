@@ -95,6 +95,6 @@
         "generate-elm-types": "elm-graphql http://localhost:8081/graphql --base TextUSM --output src/elm",
         "format": "prettier --write src/**/*.{js,jsx,ts,tsx}",
         "lint": "eslint --fix src/ts/*.ts",
-        "prepare": "husky install"
+        "prepare": "cd .. && husky install"
     }
 }

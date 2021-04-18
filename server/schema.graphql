@@ -38,6 +38,7 @@ type ShareCondition {
   usePassword: Boolean!
   expireTime: Int!
   allowIPList: [String!]
+  allowEmailList: [String!]
 }
 
 type Query {
@@ -63,14 +64,17 @@ input InputItem {
   tags: [String]
 }
 
+input InputShareItem {
+  itemID: String!
+  expSecond: Int = 300
+  password: String
+  allowIPList: [String!] = []
+  allowEmailList: [String!] = []
+}
+
 type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
   delete(itemID: String!, isPublic: Boolean = False): String!
   bookmark(itemID: String!, isBookmark: Boolean!): Item
-  share(
-    itemID: String!
-    expSecond: Int = 300
-    password: String
-    allowIPList: [String!] = []
-  ): String!
+  share(input: InputShareItem!): String!
 }
