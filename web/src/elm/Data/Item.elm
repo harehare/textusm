@@ -15,6 +15,7 @@ module Data.Item exposing
     , getBackgroundColor
     , getChildren
     , getChildrenCount
+    , getChildrenItems
     , getFontSize
     , getForegroundColor
     , getHierarchyCount
@@ -48,7 +49,7 @@ module Data.Item exposing
 
 import Constants exposing (indentSpace, inputPrefix)
 import Data.Color as Color exposing (Color)
-import Data.FontSize exposing (FontSize)
+import Data.FontSize exposing (FontSize, unwrap)
 import Data.ItemSettings as ItemSettings exposing (ItemSettings)
 import Data.Position exposing (Position)
 import Data.Text as Text exposing (Text)
@@ -200,6 +201,11 @@ withChildren children (Item item) =
 getChildren : Item -> Children
 getChildren (Item i) =
     i.children
+
+
+getChildrenItems : Item -> Items
+getChildrenItems (Item i) =
+    i.children |> unwrapChildren
 
 
 getText : Item -> String

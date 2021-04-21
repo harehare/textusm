@@ -11,19 +11,13 @@ view =
     div
         [ class "help"
         ]
-        [ div
-            [ style "font-weight" "600"
-            , style "padding" "16px"
-            , style "display" "flex"
-            , style "align-items" "center"
-            , style "justify-content" "flex-start"
+        [ div [ class "font-semibold flex items-center p-3 justify-start" ]
+            [ span [ class "text-2xl mr-2" ] [ text "ABOUT" ]
+            , span [ class "text-2xl ml-2" ] [ text "Text" ]
+            , img [ Asset.src Asset.logo, class "ml-2", style "width" "32px", alt "logo" ] []
+            , span [ class "text-2xl ml-2" ] [ text "USM" ]
             ]
-            [ span [ style "margin-right" "2px" ] [ text "ABOUT" ]
-            , span [ style "margin-left" "2px" ] [ text "Text" ]
-            , img [ Asset.src Asset.logo, style "width" "32px", alt "logo" ] []
-            , span [ style "margin-left" "2px" ] [ text "USM" ]
-            ]
-        , div [ class "text", style "padding" "0 16px 16px" ]
+        , div [ class "text" ]
             [ text "TextUSM is a simple tool. Help you draw user story map using indented text."
             ]
         , section (Just "Text Syntax")
@@ -70,16 +64,16 @@ view =
             [ text "# Comment..."
             ]
         , section (Just "User Story Map Syntax")
-        , div [ class "text comment", style "padding" "0 16px 8px" ]
+        , div [ class "text comment", style "padding" "0 16px 0px" ]
             [ text "# user_activities: Changed text"
             ]
-        , div [ class "text comment", style "padding" "0 16px 8px" ]
+        , div [ class "text comment", style "padding" "0 16px 0px" ]
             [ text "# user_tasks: Changed text"
             ]
-        , div [ class "text comment", style "padding" "0 16px 8px" ]
+        , div [ class "text comment", style "padding" "0 16px 0px" ]
             [ text "# user_stories: Changed text"
             ]
-        , div [ class "text comment", style "padding" "0 16px 8px" ]
+        , div [ class "text comment", style "padding" "0 16px 0px" ]
             [ text "# release1: Changed text"
             ]
         , section (Just "Hotkeys")
@@ -116,7 +110,7 @@ section title =
 
           else
             style "padding" "16px"
-        , style "font-weight" "400"
+        , class "font-semibold"
         ]
         [ div [] [ text (title |> Maybe.withDefault "") ]
         ]

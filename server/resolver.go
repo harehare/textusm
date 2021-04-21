@@ -82,7 +82,13 @@ func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBo
 }
 
 func (r *queryResolver) ShareItem(ctx context.Context, token string, password *string) (*item.Item, error) {
-	return r.service.FindShareItem(ctx, token, password)
+	var p string
+	if password == nil {
+		p = ""
+	} else {
+		p = *password
+	}
+	return r.service.FindShareItem(ctx, token, p)
 }
 
 func (r *queryResolver) ShareCondition(ctx context.Context, itemID string) (*item.ShareCondition, error) {
@@ -90,7 +96,13 @@ func (r *queryResolver) ShareCondition(ctx context.Context, itemID string) (*ite
 }
 
 func (r *mutationResolver) Share(ctx context.Context, input item.InputShareItem) (string, error) {
-	jwtToken, err := r.service.Share(ctx, input.ItemID, *input.ExpSecond, input.Password, input.AllowIPList, input.AllowEmailList)
+	var p string
+	if input.Password == nil {
+		p = ""
+	} else {
+		p = *input.Password
+	}
+	jwtToken, err := r.service.Share(ctx, input.ItemID, *input.ExpSecond, p, input.AllowIPList, input.AllowEmailList)
 	return *jwtToken, err
 }
 

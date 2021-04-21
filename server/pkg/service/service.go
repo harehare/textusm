@@ -196,7 +196,7 @@ func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) 
 	return s.SaveDiagram(ctx, diagramItem, false)
 }
 
-func (s *Service) FindShareItem(ctx context.Context, token string, password *string) (*item.Item, error) {
+func (s *Service) FindShareItem(ctx context.Context, token string, password string) (*item.Item, error) {
 	t, err := base64.RawURLEncoding.DecodeString(token)
 
 	if err != nil {
@@ -218,7 +218,7 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password *str
 
 	ip := values.GetIP(ctx)
 
-	if ip == nil || !shareInfo.CheckIPWithinRange(*ip) {
+	if ip == nil || !shareInfo.CheckIpWithinRange(*ip) {
 		return nil, e.ForbiddenError(errors.New("not allow ip address"))
 	}
 
@@ -233,16 +233,16 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password *str
 		email = u.Email
 	}
 
-	if !shareInfo.CheckEmail(email) {
+	if !shareInfo.ValidEmail(email) {
 		return nil, e.ForbiddenError(errors.New("not allow email"))
 	}
 
 	if claims["check_password"].(bool) {
-		if password == nil {
+		if password == "" {
 			return nil, e.ForbiddenError(errors.New("password is required"))
 		}
 
-		if err := shareInfo.ComparePassword(*password); err != nil {
+		if err := shareInfo.ComparePassword(password); err != nil {
 			return nil, e.ForbiddenError(err)
 		}
 	}
@@ -287,15 +287,15 @@ func (s *Service) FindShareCondition(ctx context.Context, itemID string) (*item.
 	}
 
 	return &item.ShareCondition{
-		Token:          *share.Token,
-		UsePassword:    share.Password != nil,
-		ExpireTime:     int(*share.ExpireTime),
+		Token:          share.Token,
+		UsePassword:    share.Password != "",
+		ExpireTime:     int(share.ExpireTime),
 		AllowIPList:    share.AllowIPList,
 		AllowEmailList: share.AllowEmailList,
 	}, nil
 }
 
-func (s *Service) Share(ctx context.Context, itemID string, expSecond int, password *string, allowIPList []string, allowEmailList []string) (*string, error) {
+func (s *Service) Share(ctx context.Context, itemID string, expSecond int, password string, allowIPList []string, allowEmailList []string) (*string, error) {
 	userID := values.GetUID(ctx)
 
 	if userID == nil {
@@ -334,7 +334,7 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 	claims["sub"] = shareID
 	claims["iat"] = now.Unix()
 	claims["exp"] = expireTime
-	claims["check_password"] = password != nil
+	claims["check_password"] = password != ""
 	claims["check_email"] = len(allowEmailList) > 0
 
 	tokenString, err := token.SignedString(signKey)
@@ -343,13 +343,12 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 		return nil, err
 	}
 
-	et := expireTime * int64(1000)
 	shareInfo := model.Share{
-		Token:          &tokenString,
+		Token:          tokenString,
 		Password:       password,
 		AllowIPList:    validIpList(allowIPList),
 		AllowEmailList: allowEmailList,
-		ExpireTime:     &et,
+		ExpireTime:     expireTime * int64(1000),
 	}
 
 	if err := s.shareRepo.Save(ctx, *shareID, item, &shareInfo); err != nil {

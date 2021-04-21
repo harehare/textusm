@@ -83,7 +83,7 @@ view model =
     div [ class "tags" ]
         [ div
             [ class "flex items-center flex-wrap w-full border-main"
-            , style "padding" "8px"
+            , style "adding" "8px"
             ]
           <|
             List.map (tagView model.deleteTag) (List.filter (String.isEmpty >> not) model.tags)

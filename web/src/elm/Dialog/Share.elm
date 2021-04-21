@@ -615,7 +615,7 @@ copyButton copy msg =
 view : Model -> Html Msg
 view model =
     div [ class "dialog" ]
-        [ div [ class "share" ]
+        [ div [ class "share p-4 fixed bg-default text-color full-screen rounded-none md:w-auto md:h-auto md:rounded" ]
             [ div
                 [ class "flex items-center justify-start font-semibold"
                 ]

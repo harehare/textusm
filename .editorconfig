@@ -23,3 +23,7 @@ indent_size = 4
 [Makefile]
 indent_style = tab
 indent_size = 4
+
+[Justfile]
+indent_style = tab
+indent_size = 4

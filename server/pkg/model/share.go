@@ -8,18 +8,18 @@ import (
 )
 
 type Share struct {
-	Token          *string
-	Password       *string
+	Token          string
+	Password       string
 	AllowIPList    []string
-	ExpireTime     *int64
+	ExpireTime     int64
 	AllowEmailList []string
 }
 
 func (s *Share) ComparePassword(password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(*s.Password), []byte(password))
+	return bcrypt.CompareHashAndPassword([]byte(s.Password), []byte(password))
 }
 
-func (s *Share) CheckEmail(email string) bool {
+func (s *Share) ValidEmail(email string) bool {
 	if len(s.AllowEmailList) == 0 {
 		return true
 	}
@@ -33,7 +33,7 @@ func (s *Share) CheckEmail(email string) bool {
 	return false
 }
 
-func (s *Share) CheckIPWithinRange(remoteIP string) bool {
+func (s *Share) CheckIpWithinRange(remoteIP string) bool {
 	if len(s.AllowIPList) == 0 {
 		return true
 	}

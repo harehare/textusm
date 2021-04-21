@@ -510,25 +510,11 @@
 }
 
 .share {
-    position: fixed;
     top: 50%;
     left: 50%;
     transform: translateY(-50%) translateX(-50%);
-    padding: 24px;
-    border-radius: 8px;
     box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
         0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
-    @apply bg-default text-color;
-    .text {
-        @apply text-sm;
-        padding: 16px;
-        line-height: 1.2;
-    }
-
-    @media (max-width: 480px) {
-        @apply full-screen;
-        border-radius: 0;
-    }
     .copy-button {
         @apply flex-center cursor-pointer absolute;
         top: 8px;
@@ -547,8 +533,7 @@
     }
 
     .text {
-        @apply text-sm;
-        padding: 16px;
+        @apply text-base p-3;
     }
     .comment {
         @apply text-comment;

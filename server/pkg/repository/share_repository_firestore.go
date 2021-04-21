@@ -72,9 +72,9 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 	}
 
 	shareInfo := model.Share{
-		Token:          &token,
-		ExpireTime:     &expireTime,
-		Password:       &p,
+		Token:          token,
+		ExpireTime:     expireTime,
+		Password:       p,
 		AllowIPList:    allowIPList,
 		AllowEmailList: allowEmailList,
 	}
@@ -84,8 +84,8 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, shareInfo *model.Share) error {
 	var savePassword string
 
-	if shareInfo.Password != nil && *shareInfo.Password != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*shareInfo.Password), bcrypt.DefaultCost)
+	if shareInfo.Password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(shareInfo.Password), bcrypt.DefaultCost)
 
 		if err != nil {
 			return err
@@ -108,8 +108,8 @@ func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, ite
 		"updatedAt":      item.UpdatedAt,
 		"password":       savePassword,
 		"allowIPList":    shareInfo.AllowIPList,
-		"token":          *shareInfo.Token,
-		"expireTime":     *shareInfo.ExpireTime,
+		"token":          shareInfo.Token,
+		"expireTime":     shareInfo.ExpireTime,
 		"allowEmailList": shareInfo.AllowEmailList}
 	_, err := r.client.Collection(shareCollection).Doc(hashKey).Set(ctx, v)
 	return err
