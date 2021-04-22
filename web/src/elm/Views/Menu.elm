@@ -232,15 +232,10 @@ menu top left bottom right items =
         , Attr.style "right" (right |> Maybe.withDefault "none")
         , Attr.style "bottom" (bottom |> Maybe.withDefault "none")
         , Attr.style "min-width" "120px"
-        , Attr.style "position" "absolute"
-        , Attr.style "z-index" "10"
         , Attr.style "max-height" "calc(100vh - 40px)"
-        , Attr.style "background-color" "var(--main-color)"
-        , Attr.style "border-radius" "8px"
         , Attr.style "box-shadow" "0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)"
         , Attr.style "transition" "all 0.2s ease-out"
-        , Attr.style "margin" "4px"
-        , Attr.style "overflow-y" "auto"
+        , Attr.class "m-1 overflow-hidden bg-main absolute rounded z-10"
         ]
         (items
             |> List.map

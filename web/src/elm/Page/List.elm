@@ -23,6 +23,7 @@ import Maybe.Extra exposing (isJust)
 import Monocle.Lens exposing (Lens)
 import RemoteData exposing (RemoteData(..), WebData)
 import Return as Return exposing (Return)
+import Simple.Fuzzy as Fuzzy
 import Task
 import Time exposing (Zone)
 import Translations exposing (Lang)
@@ -297,7 +298,16 @@ view model =
                 ]
 
 
-diagramListView : { publicStatus : PublicStatus, timeZone : Zone, pageNo : Int, hasMorePage : Bool, query : Maybe String, lang : Lang, diagrams : List DiagramItem } -> Html Msg
+diagramListView :
+    { publicStatus : PublicStatus
+    , timeZone : Zone
+    , pageNo : Int
+    , hasMorePage : Bool
+    , query : Maybe String
+    , lang : Lang
+    , diagrams : List DiagramItem
+    }
+    -> Html Msg
 diagramListView props =
     div
         [ style "width" "100%" ]
@@ -357,7 +367,7 @@ diagramListView props =
                 ((props.diagrams
                     |> (case props.query of
                             Just query ->
-                                List.filter (\d -> String.contains query (Title.toString d.title))
+                                List.filter (\d -> Fuzzy.match query (Title.toString d.title))
 
                             Nothing ->
                                 identity

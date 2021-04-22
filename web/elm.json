@@ -8,6 +8,7 @@
         "direct": {
             "Fresheyeball/elm-return": "7.1.0",
             "NoRedInk/elm-json-decode-pipeline": "1.0.0",
+            "NoRedInk/elm-simple-fuzzy": "1.0.3",
             "TSFoster/elm-uuid": "2.2.1",
             "arturopala/elm-monocle": "2.2.0",
             "dillonkearns/elm-graphql": "5.0.3",
