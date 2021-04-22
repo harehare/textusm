@@ -83,34 +83,22 @@ export function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.exportSvg", () => {
-      showQuickPick(context, () => {
-        if (DiagramPanel.activePanel) {
-          DiagramPanel.activePanel.exportSvg();
-        }
-      });
+      DiagramPanel.activePanel?.exportSvg();
     })
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.exportPng", () => {
-      showQuickPick(context, () => {
-        if (DiagramPanel.activePanel) {
-          DiagramPanel.activePanel.exportPng();
-        }
-      });
+      DiagramPanel.activePanel?.exportPng();
     })
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.zoomIn", () => {
-      if (DiagramPanel.activePanel) {
-        DiagramPanel.activePanel.zoomIn();
-      }
+      DiagramPanel.activePanel?.zoomIn();
     })
   );
   context.subscriptions.push(
     vscode.commands.registerCommand("extension.zoomOut", () => {
-      if (DiagramPanel.activePanel) {
-        DiagramPanel.activePanel.zoomOut();
-      }
+      DiagramPanel.activePanel?.zoomOut();
     })
   );
   context.subscriptions.push(
@@ -228,7 +216,7 @@ class DiagramPanel {
       : vscode.ViewColumn.Two;
     const editor = vscode.window.activeTextEditor;
     const text = editor ? editor.document.getText() : "";
-    const title = `TextUSM ${editor?.document.fileName}`;
+    const title = editor ? path.basename(editor.document.fileName) : "untitled";
     const scriptSrc = vscode.Uri.file(
       path.join(context.extensionPath, "js", "elm.js")
     ).with({
@@ -249,21 +237,16 @@ class DiagramPanel {
         const dir: string | undefined = vscode.workspace
           .getConfiguration()
           .get("textusm.exportDir");
-        const editor = vscode.window.activeTextEditor;
-        const title = editor
-          ? path.basename(editor.document.fileName)
-          : "untitled";
-        const filePath = `${
-          dir
-            ? dir.endsWith("/")
-              ? dir.toString()
-              : `${dir.toString()}/`
-            : `${
-                vscode.workspace.workspaceFolders
-                  ? vscode.workspace.workspaceFolders[0]
-                  : ""
-              }/`
-        }${title}.png`;
+        const title = DiagramPanel.activePanel?._panel.title;
+        const filePath = path.join(
+          dir ??
+            `${
+              vscode.workspace.workspaceFolders
+                ? vscode.workspace.workspaceFolders[0]
+                : ""
+            }/`,
+          `${title}.png`
+        );
         const base64Data = message.text.replace(/^data:image\/png;base64,/, "");
 
         try {
@@ -280,20 +263,19 @@ class DiagramPanel {
         const backgroundColor = vscode.workspace
           .getConfiguration()
           .get("textusm.backgroundColor");
-        const editor = vscode.window.activeTextEditor;
-        const title = editor
-          ? path.basename(editor.document.fileName)
-          : "untitled";
+        const title = DiagramPanel.activePanel?._panel.title;
         const dir: string | undefined = vscode.workspace
           .getConfiguration()
           .get("textusm.exportDir");
-        const filePath = `${
-          dir
-            ? dir.endsWith("/")
-              ? dir.toString()
-              : `${dir.toString()}/`
-            : `${vscode.workspace.rootPath}/`
-        }${title}.svg`;
+        const filePath = path.join(
+          dir ??
+            `${
+              vscode.workspace.workspaceFolders
+                ? vscode.workspace.workspaceFolders[0]
+                : ""
+            }/`,
+          `${title}.svg`
+        );
 
         const svgo = await import("svgo");
         // @ts-expect-error
@@ -658,8 +640,7 @@ class DiagramPanel {
             } else if (message.command === 'zoomOut') {
                 app.ports.zoom.send(false);
             } else if (message.command === 'exportSvg') {
-                const usm = document.querySelector('#usm-area').cloneNode(true);
-                const usmSvg = usm.querySelector('#usm');
+                const usmSvg = document.querySelector('#usm');
                 app.ports.onGetCanvasSize.subscribe(([width, height]) => {
                   vscode.postMessage({
                       command: 'exportSvg',
@@ -670,8 +651,7 @@ class DiagramPanel {
                 });
                 app.ports.getCanvasSize.send("${diagramType}");
             } else if (message.command === 'exportPng') {
-                const usm = document.querySelector('#usm-area').cloneNode(true);
-                const usmSvg = usm.querySelector('#usm');
+                const usmSvg = document.querySelector('#usm');
                 const canvas = document.createElement('canvas');
                 canvas.style.display = 'none';
 
