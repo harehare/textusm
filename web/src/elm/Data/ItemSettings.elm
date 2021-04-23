@@ -18,9 +18,8 @@ import Data.Color as Color exposing (Color)
 import Data.FontSize as FontSize exposing (FontSize)
 import Data.Position as Position exposing (Position)
 import Json.Decode as D
-import Json.Decode.Pipeline exposing (optional, required)
+import Json.Decode.Pipeline exposing (optional)
 import Json.Encode as E
-import Json.Encode.Extra exposing (maybe)
 
 
 type ItemSettings
@@ -87,12 +86,33 @@ withFontSize fontSize (ItemSettings settings) =
 
 encoder : ItemSettings -> E.Value
 encoder (ItemSettings settings) =
-    E.object
-        [ ( "b", maybe E.string (Maybe.andThen (\c -> Just <| Color.toString c) settings.backgroundColor) )
-        , ( "f", maybe E.string (Maybe.andThen (\c -> Just <| Color.toString c) settings.foregroundColor) )
-        , ( "o", E.list E.int [ Position.getX settings.offset, Position.getY settings.offset ] )
-        , ( "s", E.int <| FontSize.unwrap settings.fontSize )
-        ]
+    E.object <|
+        (case settings.backgroundColor of
+            Just color ->
+                [ ( "b", E.string <| Color.toString color ) ]
+
+            Nothing ->
+                []
+        )
+            ++ (case settings.foregroundColor of
+                    Just color ->
+                        [ ( "f", E.string <| Color.toString color ) ]
+
+                    Nothing ->
+                        []
+               )
+            ++ (if settings.offset == Position.zero then
+                    []
+
+                else
+                    [ ( "o", E.list E.int [ Position.getX settings.offset, Position.getY settings.offset ] ) ]
+               )
+            ++ (if FontSize.unwrap settings.fontSize == FontSize.unwrap FontSize.default then
+                    []
+
+                else
+                    [ ( "s", E.int <| FontSize.unwrap settings.fontSize ) ]
+               )
 
 
 decoder : D.Decoder ItemSettings
@@ -102,8 +122,8 @@ decoder =
             Settings
             |> optional "b" (D.map Just Color.decoder) Nothing
             |> optional "f" (D.map Just Color.decoder) Nothing
-            |> required "o" Position.decoder
-            |> required "s" FontSize.decoder
+            |> optional "o" Position.decoder Position.zero
+            |> optional "s" FontSize.decoder FontSize.default
         )
 
 
