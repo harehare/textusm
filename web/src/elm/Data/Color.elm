@@ -25,6 +25,7 @@ module Data.Color exposing
     )
 
 import Json.Decode as D
+import Regex
 
 
 type alias Name =
@@ -207,7 +208,23 @@ fromString rgb =
             backgroundDefalut
 
         _ ->
-            background1Defalut
+            case
+                Regex.find
+                    (Maybe.withDefault Regex.never <|
+                        Regex.fromString "^#[a-fA-F0-9]{6}$"
+                    )
+                    rgb
+                    |> List.head
+            of
+                Just c ->
+                    if c.match == rgb then
+                        Color "custom" rgb
+
+                    else
+                        background1Defalut
+
+                Nothing ->
+                    background1Defalut
 
 
 decoder : D.Decoder Color
