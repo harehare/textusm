@@ -383,10 +383,6 @@ Par
       color: "#000000",
       backgroundColor: "#FFFFFF"
     },
-    comment: {
-      color: "#000000",
-      backgroundColor: "#F1B090"
-    },
     line: "#434343",
     label: "#8C9FAE",
     text: "#111111"

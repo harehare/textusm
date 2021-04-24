@@ -48,10 +48,6 @@ const defaultConfig: Config = {
       color: "#000000",
       backgroundColor: "#FFFFFF",
     },
-    comment: {
-      color: "#000000",
-      backgroundColor: "#F1B090",
-    },
     line: "#434343",
     label: "#8C9FAE",
     text: "#111111",
@@ -119,23 +115,22 @@ function render(
     );
   }
 
-  options = options ? options : {};
-  config = config ? config : {};
-  config.color = Object.assign(defaultConfig.color, config.color);
-  config.size = Object.assign(defaultConfig.size, config.size);
+  options = options ?? {};
+  config = config ?? {};
+  config.color = { ...defaultConfig.color, ...config.color };
+  config.size = { ...defaultConfig.size, ...config.size };
 
+  console.log({ ...defaultConfig, ...config });
   Elm.Extension.Lib.init({
     node: elm,
     flags: {
       text: definition,
-      diagramType: options.diagramType ? options.diagramType : "UserStoryMap",
-      width: options.size ? options.size.width : 1024,
-      height: options.size ? options.size.height : 1024,
-      settings: Object.assign(defaultConfig, config),
-      showZoomControl: options.showZoomControl
-        ? options.showZoomControl
-        : false,
-      scale: options.scale ? options.scale : 1.0,
+      diagramType: options.diagramType ?? "UserStoryMap",
+      width: options.size?.width ?? 1024,
+      height: options.size?.height ?? 1024,
+      settings: { ...defaultConfig, ...config },
+      showZoomControl: options.showZoomControl ?? false,
+      scale: options.scale ?? 1.0,
     },
   });
 }

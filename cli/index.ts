@@ -121,11 +121,10 @@ const diagramMap: { readonly [T in DiagramKey]: DiagramSettings } = {
 
 const defaultSettings: Settings = {
   font: "Nunito Sans",
-  showZoomControl: false,
   scale: 1.0,
   size: {
-    width: 1024,
-    height: 1024,
+    width: 140,
+    height: 65,
   },
   backgroundColor: "#F5F5F6",
   color: {
@@ -140,10 +139,6 @@ const defaultSettings: Settings = {
     story: {
       color: "#000000",
       backgroundColor: "#FFFFFF",
-    },
-    comment: {
-      color: "#000000",
-      backgroundColor: "#F1B090",
     },
     line: "#434343",
     label: "#8C9FAE",
@@ -262,22 +257,22 @@ const writeResult = (output: string | undefined, result: string): void => {
       ? parseInt(width)
       : diagramType
       ? diagramMap[diagramType].width
-      : config.size.width;
+      : 1024;
     const svgHeight = height
       ? parseInt(height)
       : diagramType
       ? diagramMap[diagramType].height
-      : config.size.height;
+      : 1024;
     await page.setViewport({
       width: svgWidth,
       height: svgHeight,
     });
-    config.size.width = svgWidth;
-    config.size.height = svgHeight;
     config.diagramType = diagramType
       ? diagramMap[diagramType].diagramType
       : "UserStoryMap";
-    await page.setContent(html(text, js, config), { waitUntil: "load" });
+    await page.setContent(html(text, js, svgWidth, svgHeight, config), {
+      waitUntil: "load",
+    });
 
     if (!output || output.endsWith(".svg")) {
       const svg = await page.$eval("#usm", (items) => {
@@ -286,17 +281,16 @@ const writeResult = (output: string | undefined, result: string): void => {
       writeResult(
         output,
         optimize(
-          `<?xml version="1.0"?>
-                ${svg
-                  .replace("<div></div>", "")
-                  .replace(
-                    "<svg",
-                    '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
-                  )
-                  .split("<div")
-                  .join('<div xmlns="http://www.w3.org/1999/xhtml"')
-                  .split("<img")
-                  .join('<img xmlns="http://www.w3.org/1999/xhtml"')}`,
+          svg
+            .replace("<div></div>", "")
+            .replace(
+              "<svg",
+              '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+            )
+            .split("<div")
+            .join('<div xmlns="http://www.w3.org/1999/xhtml"')
+            .split("<img")
+            .join('<img xmlns="http://www.w3.org/1999/xhtml"'),
           {
             plugins: extendDefaultPlugins([
               {
@@ -305,7 +299,9 @@ const writeResult = (output: string | undefined, result: string): void => {
               },
             ]),
           }
-        ).data
+        )
+          .data.split("&quot;")
+          .join("'")
       );
     } else if (output.endsWith(".png")) {
       const clip = await page.$eval("#usm", (svg) => {

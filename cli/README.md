@@ -360,18 +360,16 @@ Par
 
 ```json
 {
-  "font": "Nunito Sans",
-  "showZoomControl": false,
-  "scale": 1.0,
+  "font": "Open Sans",
   "size": {
-    "width": 1024,
-    "height": 1024
+    "width": 140,
+    "height": 65
   },
   "backgroundColor": "#F5F5F6",
   "color": {
     "activity": {
-      "color": "#FFFFFF",
-      "backgroundColor": "#266B9A"
+      "color": "#000000",
+      "backgroundColor": "#FFFFFF"
     },
     "task": {
       "color": "#FFFFFF",
@@ -381,14 +379,10 @@ Par
       "color": "#000000",
       "backgroundColor": "#FFFFFF"
     },
-    "comment": {
-      "color": "#000000",
-      "backgroundColor": "#F1B090"
-    },
     "line": "#434343",
     "label": "#8C9FAE",
     "text": "#111111"
   },
-  "diagramType": "UserStoryMap"
+  "scale": 1.0
 }
 ```

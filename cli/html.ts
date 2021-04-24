@@ -9,7 +9,6 @@ interface ColorConfig {
   activity: Color;
   task: Color;
   story: Color;
-  comment: Color;
   line: string;
   label: string;
   text: string;
@@ -45,7 +44,6 @@ interface Settings {
   size: Size;
   color: ColorConfig;
   backgroundColor: string;
-  showZoomControl: boolean;
   scale:
     | 0.1
     | 0.2
@@ -69,7 +67,13 @@ interface Settings {
     | 2.0;
 }
 
-const html = (text: string, javaScript: string, settings: Settings) => `<html>
+const html = (
+  text: string,
+  javaScript: string,
+  width: number,
+  height: number,
+  settings: Settings
+) => `<html>
   <head>
     <script>${javaScript}</script>
   </head>
@@ -84,14 +88,12 @@ const html = (text: string, javaScript: string, settings: Settings) => `<html>
 \`${text.replace(/(`|\/)/g, "\\$1")}\`,
         {
           diagramType: "${escape(settings.diagramType)}",
-          size: { width: ${settings.size.width}, height: ${
-  settings.size.height
-},
-          showZoomControl: ${settings.showZoomControl},
+          size: { width: ${width}, height: ${height},
+          showZoomControl: false,
           scale: ${settings.scale},
-        },
-        config: ${JSON.stringify(settings)}
-      }
+        }
+      },
+      ${JSON.stringify(settings)}
       );
     </script>
 </html>
