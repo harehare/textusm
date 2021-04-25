@@ -157,6 +157,6 @@ suite =
                             |> Item.withText "test|test2|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
                             |> Item.getText
                         )
-                        "test|test2|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
+                        "test|test2"
             ]
         ]

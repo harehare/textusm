@@ -116,71 +116,34 @@ withText text (Item item) =
                 ( text, Nothing )
 
             else
-                case String.split "|" text of
-                    [ _, _, _ ] ->
-                        ( text, Nothing )
+                let
+                    tokens =
+                        String.split "|" text
 
-                    [ x, xs ] ->
-                        case D.decodeString ItemSettings.decoder xs of
-                            Ok s ->
-                                ( x, Just s )
+                    textTuple =
+                        case tokens of
+                            [ x, xs ] ->
+                                ( x, Just xs )
 
-                            Err _ ->
-                                ( x, Nothing )
-
-                    x :: xs ->
-                        let
-                            maybeSettings =
-                                ListEx.last xs
-                                    |> Maybe.andThen
-                                        (\lt ->
-                                            case D.decodeString ItemSettings.decoder lt of
-                                                Ok s ->
-                                                    Just s
-
-                                                Err _ ->
-                                                    Nothing
-                                        )
-
-                            maybeText =
-                                ListEx.init xs
-                                    |> Maybe.map (\v -> String.join "|" v)
-                        in
-                        case ( maybeText, maybeSettings ) of
-                            ( Just t, Just st ) ->
-                                ( x ++ "|" ++ t, Just st )
-
-                            ( Just t, Nothing ) ->
-                                ( x ++ "|" ++ t, Nothing )
-
-                            ( Nothing, _ ) ->
-                                ( x, Nothing )
-
-                    _ ->
-                        case String.split "," text of
-                            [ t, bg, fg ] ->
-                                ( t
-                                , ItemSettings.new
-                                    |> ItemSettings.withBackgroundColor (Just (Color.fromString bg))
-                                    |> ItemSettings.withForegroundColor (Just (Color.fromString fg))
-                                    |> Just
-                                )
-
-                            [ t, bg ] ->
-                                ( t
-                                , ItemSettings.new
-                                    |> ItemSettings.withBackgroundColor (Just (Color.fromString bg))
-                                    |> Just
-                                )
+                            _ :: _ :: _ ->
+                                ( String.join "|" <| List.take (List.length tokens - 1) tokens, ListEx.last tokens )
 
                             _ ->
                                 ( text, Nothing )
+                in
+                case textTuple of
+                    ( _, Nothing ) ->
+                        ( text, Nothing )
+
+                    ( t, Just s ) ->
+                        case D.decodeString ItemSettings.decoder s of
+                            Ok ss ->
+                                ( t, Just ss )
+
+                            Err _ ->
+                                ( t ++ "|" ++ s, Nothing )
     in
-    Item
-        { item
-            | text = Text.fromString displayText
-            , itemSettings = settings
-        }
+    Item { item | text = Text.fromString displayText, itemSettings = settings }
 
 
 withItemSettings : Maybe ItemSettings -> Item -> Item
