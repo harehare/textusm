@@ -88,9 +88,9 @@ tableWidth (Table name columns _ _) =
         :: List.map (\(Column colName _ _) -> String.length colName)
             columns
         |> List.maximum
-        |> Maybe.map (\maxLength -> 11 * maxLength + 20)
-        |> Maybe.withDefault 160
-        |> max 160
+        |> Maybe.map (\maxLength -> 14 * maxLength + 20)
+        |> Maybe.withDefault 180
+        |> max 180
 
 
 from : Items -> ErDiagram

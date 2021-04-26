@@ -48,7 +48,7 @@ module Data.Item exposing
     )
 
 import Constants exposing (indentSpace, inputPrefix)
-import Data.Color as Color exposing (Color)
+import Data.Color exposing (Color)
 import Data.FontSize exposing (FontSize, unwrap)
 import Data.ItemSettings as ItemSettings exposing (ItemSettings)
 import Data.Position exposing (Position)
@@ -136,12 +136,16 @@ withText text (Item item) =
                         ( text, Nothing )
 
                     ( t, Just s ) ->
-                        case D.decodeString ItemSettings.decoder s of
-                            Ok ss ->
-                                ( t, Just ss )
+                        if String.trim s |> String.startsWith "{" |> not then
+                            ( text, Nothing )
 
-                            Err _ ->
-                                ( t ++ "|" ++ s, Nothing )
+                        else
+                            case D.decodeString ItemSettings.decoder s of
+                                Ok ss ->
+                                    ( t, Just ss )
+
+                                Err _ ->
+                                    ( t ++ "|" ++ s, Nothing )
     in
     Item { item | text = Text.fromString displayText, itemSettings = settings }
 

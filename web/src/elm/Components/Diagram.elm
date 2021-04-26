@@ -208,6 +208,9 @@ view model =
                 ImpactMap ->
                     Tuple.mapBoth (\x -> x + Constants.itemMargin) (\y -> y + (svgHeight // 3)) model.position
 
+                ErDiagram ->
+                    Tuple.mapBoth (\x -> x + (svgWidth // 3)) (\y -> y + (svgHeight // 3)) model.position
+
                 _ ->
                     model.position
 
