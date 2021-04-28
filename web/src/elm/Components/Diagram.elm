@@ -32,6 +32,7 @@ import Models.Views.OpportunityCanvas as OpportunityCanvasModel
 import Models.Views.SequenceDiagram as SequenceDiagramModel
 import Models.Views.StartStopContinue as StartStopContinueModel
 import Models.Views.Table as TableModel
+import Models.Views.UseCaseDiagram as UseCaseDiagramModel
 import Models.Views.UserPersona as UserPersonaModel
 import Models.Views.UserStoryMap as UserStoryMapModel
 import Return as Return exposing (Return)
@@ -61,6 +62,7 @@ import Views.Diagram.SequenceDiagram as SequenceDiagram
 import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.Table as Table
+import Views.Diagram.UseCaseDiagram as UseCaseDiagram
 import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
 import Views.Empty as Empty
@@ -310,6 +312,9 @@ diagramView diagramType =
 
         Freeform ->
             FreeForm.view
+
+        UseCaseDiagram ->
+            UseCaseDiagram.view
 
 
 svgView : Model -> Position -> Size -> Svg Msg -> Svg Msg
@@ -603,6 +608,9 @@ updateDiagram ( width, height ) base text =
 
                 GanttChart ->
                     Diagram.GanttChart <| GanttChartModel.from items
+
+                UseCaseDiagram ->
+                    Diagram.UseCaseDiagram <| UseCaseDiagramModel.from items
 
         newModel =
             { base | items = items, data = data }

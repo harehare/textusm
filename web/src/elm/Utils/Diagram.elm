@@ -261,6 +261,9 @@ getCanvasSize model =
                                 |> Maybe.withDefault 0
                     in
                     ( freeFormWidth, freeFormHeight )
+
+                Diagram.UseCaseDiagram ->
+                    ( 0, 0 )
     in
     ( width, height )
 

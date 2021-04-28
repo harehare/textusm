@@ -58,6 +58,9 @@ toString diagramType =
         Freeform ->
             "free"
 
+        UseCaseDiagram ->
+            "ucd"
+
 
 toLongString : Diagram -> String
 toLongString diagramType =
@@ -113,6 +116,9 @@ toLongString diagramType =
         Freeform ->
             "Freeform"
 
+        UseCaseDiagram ->
+            "UseCaseDiagram"
+
 
 toDiagram : String -> Maybe Diagram
 toDiagram s =
@@ -167,6 +173,9 @@ toDiagram s =
 
         "free" ->
             Just Freeform
+
+        "ucd" ->
+            Just UseCaseDiagram
 
         _ ->
             Nothing
@@ -225,6 +234,9 @@ fromString s =
 
         "free" ->
             Freeform
+
+        "ucd" ->
+            UseCaseDiagram
 
         _ ->
             UserStoryMap

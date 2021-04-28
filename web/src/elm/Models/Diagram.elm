@@ -65,6 +65,7 @@ import Models.Views.OpportunityCanvas exposing (OpportunityCanvas)
 import Models.Views.SequenceDiagram exposing (SequenceDiagram)
 import Models.Views.StartStopContinue exposing (StartStopContinue)
 import Models.Views.Table exposing (Table)
+import Models.Views.UseCaseDiagram exposing (UseCaseDiagram)
 import Models.Views.UserPersona exposing (UserPersona)
 import Models.Views.UserStoryMap exposing (UserStoryMap)
 import Monocle.Compose as Compose
@@ -180,6 +181,7 @@ type Data
     | SequenceDiagram SequenceDiagram
     | FreeForm FreeForm
     | GanttChart (Maybe GanttChart)
+    | UseCaseDiagram UseCaseDiagram
 
 
 type ContextMenu

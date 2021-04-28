@@ -1,6 +1,7 @@
-module Models.Views.UseCaseDiagram exposing (UseCaseItem, from)
+module Models.Views.UseCaseDiagram exposing (UseCaseDiagram, from)
 
 import Data.Item as Item exposing (Item, Items)
+import Set exposing (Set)
 
 
 type alias Name =
@@ -12,7 +13,7 @@ type UseCaseDiagram
 
 
 type UseCaseItem
-    = Actor (List UseCase)
+    = Actor Name (Set Name)
     | Subject Name (List UseCase)
     | UseCaseItem (List UseCase)
 
@@ -27,7 +28,7 @@ itemToUseCaseItem : Item -> UseCaseItem
 itemToUseCaseItem item =
     case ( String.left 1 <| Item.getText item, String.right 1 <| Item.getText item ) of
         ( "[", "]" ) ->
-            Actor <| Item.map (\t -> UseCase <| Item.getText t) <| Item.getChildrenItems item
+            Actor (Item.getText item) <| Set.fromList (Item.map (\t -> Item.getText t) <| Item.getChildrenItems item)
 
         ( "(", ")" ) ->
             Subject (Item.getText item) (Item.map itemToUseCase <| Item.getChildrenItems item)
