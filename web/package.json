@@ -46,7 +46,7 @@
         "husky": "^6.0.0",
         "imagemin-webpack-plugin": "^2.4.2",
         "lint-staged": "^10.5.4",
-        "mini-css-extract-plugin": "^1.5.1",
+        "mini-css-extract-plugin": "^1.6.0",
         "monaco-editor-webpack-plugin": "^3.0.1",
         "node-sass": "^5.0.0",
         "postcss": "^8.2.13",
