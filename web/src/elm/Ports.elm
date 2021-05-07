@@ -1,4 +1,4 @@
-port module Ports exposing (changeText, closeFullscreen, copyClipboard, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, onAuthStateChanged, onCloseFullscreen, onErrorNotification, onNotification, onWarnNotification, openFullscreen, progress, refreshToken, reload, removeRemoteDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, shortcuts, signIn, signOut, startDownload, updateIdToken)
+port module Ports exposing (changeText, closeFullscreen, copyClipboard, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, onAuthStateChanged, onCloseFullscreen, onNotification, onWarnNotification, openFullscreen, progress, refreshToken, reload, removeRemoteDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, sendErrorNotification, shortcuts, signIn, signOut, startDownload, updateIdToken)
 
 import Data.Session exposing (User)
 import Json.Decode as D
@@ -32,7 +32,7 @@ port startDownload : ({ extension : String, mimeType : String, content : String 
 port onNotification : (String -> msg) -> Sub msg
 
 
-port onErrorNotification : (String -> msg) -> Sub msg
+port sendErrorNotification : (String -> msg) -> Sub msg
 
 
 port onWarnNotification : (String -> msg) -> Sub msg

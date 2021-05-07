@@ -1252,7 +1252,7 @@ subscriptions model =
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
          , Ports.shortcuts Shortcuts
          , Ports.onNotification (\n -> HandleAutoCloseNotification (Info n))
-         , Ports.onErrorNotification (\n -> HandleAutoCloseNotification (Error n))
+         , Ports.sendErrorNotification (\n -> HandleAutoCloseNotification (Error n))
          , Ports.onWarnNotification (\n -> HandleAutoCloseNotification (Warning n))
          , Ports.onAuthStateChanged HandleAuthStateChanged
          , Ports.saveToRemote SaveToRemote

@@ -33,7 +33,7 @@ type ElmApp = {
         copyText: Subscribe<(text: string) => void>;
 
         onCloseFullscreen: Send<Record<string, unknown>>;
-        onErrorNotification: Send<string>;
+        sendErrorNotification: Send<string>;
         progress: Send<boolean>;
         changeText: Send<string>;
         shortcuts: Send<string>;
