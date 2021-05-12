@@ -223,3 +223,14 @@ historyBack key =
 moveTo : Nav.Key -> Route -> Return.ReturnF Msg Model
 moveTo key route =
     Return.command <| Route.moveTo key route
+
+
+redirectToLastEditedFile : Model -> Return.ReturnF Msg Model
+redirectToLastEditedFile model =
+    case ( Maybe.andThen .id model.currentDiagram, Maybe.map .diagram model.currentDiagram ) of
+        ( Just id_, Just diagramType ) ->
+            moveTo model.key <|
+                Route.EditFile diagramType id_
+
+        _ ->
+            Return.zero

@@ -498,6 +498,7 @@ changeRouteTo route model =
 
                     Route.Home ->
                         Return.andThen (Action.switchPage Page.Main)
+                            >> Action.redirectToLastEditedFile model
                             >> Return.andThen Action.changeRouteInit
 
                     Route.Settings ->
