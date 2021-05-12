@@ -52,10 +52,13 @@ Options:
   -c, --configFile [configFile]    Config file.
   -i, --input <input>              Input text file.
   -w, --width <width>              Width of the page. Optional. Default: 1024.
+  -p, --cdp <chromeUrl>            connect to running chrome instance for better performance. Optional.
   -H, --height <height>            Height of the page. Optional. Default: 1024.
   -o, --output [output]            Output file. It should be svg, png, pdf or html.
-  -d, --diagramType [diagramType]  Diagram type. It should be one of user_story_map, opportunity_canvas, business_model_canvas, 4ls, start_stop_continue, kpt, userpersona, mind_map,
-                                   empathy_map, table, site_map, gantt_chart, impact_map, er_diagram, kanban, sequence_diagram
+  -d, --diagramType [diagramType]  Diagram type. It should be one of user_story_map, opportunity_canvas,
+                                   business_model_canvas, 4ls, start_stop_continue, kpt, userpersona,
+                                   mind_map, empathy_map, table, site_map, gantt_chart, impact_map,
+                                   er_diagram, kanban, sequence_diagram, free_form
   -h, --help                       display help for command
 ```
 

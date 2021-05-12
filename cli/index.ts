@@ -147,7 +147,7 @@ const defaultSettings: Settings = {
   diagramType: "UserStoryMap",
 };
 
-const readConfigFile = (file: string | undefined): Settings => {
+const readConfigFile = (file: string | null): Settings => {
   if (!file) {
     return defaultSettings;
   }
@@ -166,12 +166,13 @@ const readStdin = async (): Promise<string> => {
 };
 
 interface Options extends OptionValues {
-  configFile: string | undefined;
-  input: string | undefined;
-  width: string | undefined;
-  height: string | undefined;
+  configFile: string | null;
+  input: string | null;
+  width: string | null;
+  height: string | null;
   output: string;
-  diagramType: DiagramKey | undefined;
+  diagramType: DiagramKey | null;
+  cdp: string | null;
 }
 
 const program = createCommand();
@@ -182,6 +183,10 @@ const options = program
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file.")
   .option("-w, --width <width>", "Width of the page. Optional. Default: 1024.")
+  .option(
+    "-p, --cdp <chromeUrl>",
+    "connect to running chrome instance. Optional."
+  )
   .option(
     "-H, --height <height>",
     "Height of the page. Optional. Default: 1024."
@@ -197,14 +202,8 @@ const options = program
   .parse()
   .opts();
 
-const {
-  configFile,
-  input,
-  width,
-  height,
-  output,
-  diagramType,
-} = options as Options;
+const { configFile, input, width, height, output, diagramType, cdp } =
+  options as Options;
 
 if (diagramType && Object.keys(diagramMap).indexOf(diagramType) === -1) {
   console.error(`Output file must be ${Object.keys(diagramMap).join(", ")}`);
@@ -221,7 +220,7 @@ if (output && !/\.(?:svg|png|pdf|html)$/.test(output)) {
   process.exit(1);
 }
 
-const writeResult = (output: string | undefined, result: string): void => {
+const writeResult = (output: string | null, result: string): void => {
   if (output) {
     fs.writeFileSync(output, result);
   } else {
@@ -230,7 +229,9 @@ const writeResult = (output: string | undefined, result: string): void => {
 };
 
 (async () => {
-  const browser = await puppeteer.launch();
+  const browser = cdp
+    ? await puppeteer.connect({ browserURL: cdp })
+    : await puppeteer.launch();
   const config = readConfigFile(configFile);
   const text = input ? fs.readFileSync(input, "utf-8") : await readStdin();
   const js = fs.readFileSync(
@@ -338,7 +339,11 @@ const writeResult = (output: string | undefined, result: string): void => {
       fs.writeFileSync(output, html);
     }
 
-    browser.close();
+    if (cdp) {
+      browser.disconnect();
+    } else {
+      browser.close();
+    }
   } catch (e) {
     console.log(e);
     console.error("Internal error.");
