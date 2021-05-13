@@ -20,7 +20,7 @@
     },
     "devDependencies": {
         "@babel/core": "^7.14.0",
-        "@babel/preset-env": "^7.14.1",
+        "@babel/preset-env": "^7.14.2",
         "@commitlint/cli": "^12.1.1",
         "@commitlint/config-conventional": "^12.1.1",
         "@dillonkearns/elm-graphql": "^4.2.1",
