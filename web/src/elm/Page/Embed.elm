@@ -11,11 +11,9 @@ import Views.Logo as Logo
 view : Model -> Html Msg
 view model =
     div
-        [ style "width" "100%"
-        , style "height" "100%"
-        , style "border" "1px solid var(--dark-text-color)"
+        [ style "border" "1px solid var(--dark-text-color)"
         , style "background-color" model.settingsModel.settings.storyMap.backgroundColor
-        , class "relative"
+        , class "full relative"
         ]
         [ Lazy.lazy Diagram.view model.diagramModel
             |> Html.map UpdateDiagram

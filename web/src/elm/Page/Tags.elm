@@ -2,7 +2,7 @@ module Page.Tags exposing (Model, Msg(..), init, update, view)
 
 import Browser.Dom as Dom
 import Events
-import Html exposing (Html, div, input, text)
+import Html exposing (Attribute, Html, div, input, text)
 import Html.Attributes exposing (autofocus, class, id, placeholder, style)
 import Html.Events exposing (onClick, onInput)
 import List.Extra exposing (last)
@@ -80,9 +80,18 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div [ class "tags" ]
+    div
+        [ class "w-full"
+        , class "bg-default"
+        , class "content-height"
+        , class "text-color"
+        ]
         [ div
-            [ class "flex items-center flex-wrap w-full border-main"
+            [ class "flex"
+            , class "items-center"
+            , class "flex-wrap"
+            , class "w-full"
+            , class "border-main"
             , style "adding" "8px"
             ]
           <|
@@ -108,7 +117,8 @@ tagView deleteTag tag =
         deleteButton =
             div
                 [ onClick (DeleteTag tag)
-                , class "flex items-center"
+                , class "flex"
+                , class "items-center"
                 , style "cursor" "pointer"
                 ]
                 [ Icon.clear "#333" 20 ]
@@ -116,10 +126,25 @@ tagView deleteTag tag =
     case deleteTag of
         Just t ->
             if t == tag then
-                div [ class "tag delete-tag" ] [ div [ style "padding-right" "8px" ] [ text tag ], deleteButton ]
+                viewTag "bg-error" [ div [ style "padding-right" "8px" ] [ text tag ], deleteButton ]
 
             else
-                div [ class "tag normal-tag" ] [ div [ style "padding-right" "8px" ] [ text tag ], deleteButton ]
+                viewTag "bg-activity" [ div [ style "padding-right" "8px" ] [ text tag ], deleteButton ]
 
         Nothing ->
-            div [ class "tag normal-tag" ] [ div [ style "padding-right" "8px" ] [ text tag ], deleteButton ]
+            viewTag "bg-activity" [ div [ style "padding-right" "8px" ] [ text tag ], deleteButton ]
+
+
+viewTag : String -> List (Html msg) -> Html msg
+viewTag css children =
+    div
+        [ class "flex"
+        , class "text-center"
+        , class "text-color"
+        , class "m-sm"
+        , class "rounded-sm"
+        , class css
+        , class "items-center"
+        , style "padding" "8px 16px"
+        ]
+        children

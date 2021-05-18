@@ -234,7 +234,7 @@ view model =
             D.succeed ( ChangeDragStatus NoDrag, True )
         , case model.dragStatus of
             DragOver ->
-                Attr.class "drag-over"
+                Attr.style "background-color" "rgba(0, 0, 0, 0.3)"
 
             NoDrag ->
                 Attr.class ""

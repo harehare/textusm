@@ -168,6 +168,7 @@ export class MonacoEditor extends HTMLElement {
                     verticalScrollbarSize: 6,
                     horizontalScrollbarSize: 6,
                 },
+                renderLineHighlight: "none",
             });
 
             this.editor.addAction({

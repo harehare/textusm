@@ -404,7 +404,7 @@ textToColumnType text =
         [ ( "date", False ) ] ->
             Date
 
-        [ ( "datetime", False ) ] ->
+        [ ( "date-time", False ) ] ->
             DateTime
 
         [ ( "enum", False ), ( values, True ) ] ->
@@ -497,7 +497,7 @@ columnTypeToString type_ =
             "date"
 
         DateTime ->
-            "datetime"
+            "date-time"
 
         Enum _ ->
             "enum"
@@ -645,7 +645,7 @@ columnTypeToFullString type_ =
             "date"
 
         DateTime ->
-            "datetime"
+            "date-time"
 
         Enum values ->
             "enum(" ++ String.join "," values ++ ")"

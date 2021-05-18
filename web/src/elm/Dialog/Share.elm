@@ -622,11 +622,10 @@ view model =
                 [ div [ class "w-full" ]
                     [ div []
                         [ div [ class "label", style "padding" "8px 8px 16px" ] [ text "Link to share" ]
-                        , div [ class "flex-h-center", style "padding" "8px" ]
-                            [ div [ class "text-sm", style "margin-right" "8px" ] [ text "Expire in" ]
+                        , div [ class "flex-h-center p-sm" ]
+                            [ div [ class "text-sm mr-sm" ] [ text "Expire in" ]
                             , input
-                                [ class "input-light text-sm"
-                                , style "padding" "4px"
+                                [ class "input-light text-sm p-xs"
                                 , type_ "date"
                                 , Attr.min <| DateUtils.millisToDateString model.timeZone model.now
                                 , value <| model.expireDate
@@ -634,21 +633,20 @@ view model =
                                 ]
                                 []
                             , input
-                                [ class "input-light text-sm"
-                                , style "padding" "4px"
+                                [ class "input-light text-sm p-xs"
                                 , type_ "time"
                                 , value <| model.expireTime
                                 , Events.onChange TimeChange
                                 ]
                                 []
                             ]
-                        , div [ class "flex-space", style "padding" "8px" ]
+                        , div [ class "flex-space p-sm" ]
                             [ div [ class "text-sm" ] [ text "Password protection" ]
                             , Switch.view (MaybeEx.isJust model.password) UsePassword
                             ]
                         , case model.password of
                             Just p ->
-                                div [ style "padding" "8px" ]
+                                div [ class "p-sm" ]
                                     [ input
                                         [ class "input-light text-sm"
                                         , type_ "password"
@@ -664,17 +662,16 @@ view model =
 
                             Nothing ->
                                 Empty.view
-                        , div [ class "flex-space", style "padding" "8px" ]
+                        , div [ class "flex-space p-sm" ]
                             [ div [ class "text-sm" ] [ text "Limit access by ip address" ]
                             , Switch.view (MaybeEx.isJust model.ip.input) UseLimitByIP
                             ]
                         , case model.ip.input of
                             Just i ->
-                                div [ style "padding" "8px" ]
+                                div [ class "p-sm" ]
                                     [ textarea
-                                        [ class "input-light text-sm"
+                                        [ class "input-light text-sm resize-none"
                                         , placeholder "127.0.0.1"
-                                        , style "resize" "none"
                                         , style "color" "#555"
                                         , style "width" "305px"
                                         , style "height" "100px"
@@ -688,11 +685,7 @@ view model =
                                         ]
                                         [ text i ]
                                     , if model.ip.error then
-                                        div
-                                            [ class "w-full text-sm font-bold text-right"
-                                            , style "color" "var(--error-color)"
-                                            ]
-                                            [ text "Invalid ip address entered" ]
+                                        div [ class "w-full text-sm font-bold text-right text-error" ] [ text "Invalid ip address entered" ]
 
                                       else
                                         Empty.view
@@ -700,17 +693,16 @@ view model =
 
                             Nothing ->
                                 Empty.view
-                        , div [ class "flex-space", style "padding" "8px" ]
+                        , div [ class "flex-space p-sm" ]
                             [ div [ class "text-sm" ] [ text "Limit access by mail address" ]
                             , Switch.view (MaybeEx.isJust model.email.input) UseLimitByEmail
                             ]
                         , case model.email.input of
                             Just m ->
-                                div [ style "padding" "8px" ]
+                                div [ class "p-sm" ]
                                     [ textarea
-                                        [ class "input-light text-sm"
+                                        [ class "input-light text-sm resize-none"
                                         , placeholder "textusm@textusm.com"
-                                        , style "resize" "none"
                                         , style "color" "#555"
                                         , style "width" "305px"
                                         , style "height" "100px"
@@ -724,11 +716,7 @@ view model =
                                         ]
                                         [ text m ]
                                     , if model.email.error then
-                                        div
-                                            [ class "w-full text-sm font-bold text-right"
-                                            , style "color" "var(--error-color)"
-                                            ]
-                                            [ text "Invalid mail address entered" ]
+                                        div [ class "w-full text-sm font-bold text-right text-error" ] [ text "Invalid mail address entered" ]
 
                                       else
                                         Empty.view
@@ -736,7 +724,7 @@ view model =
 
                             Nothing ->
                                 Empty.view
-                        , div [ style "position" "relative", style "padding" "8px" ]
+                        , div [ class "relative p-sm" ]
                             [ input
                                 [ class "input-light text-sm"
                                 , style "color" "#555"
@@ -752,11 +740,11 @@ view model =
                             ]
                         ]
                     , div [ style "padding-top" "24px" ]
-                        [ div [ class "label", style "padding" "8px 8px 16px", style "display" "flex", style "align-items" "center" ]
+                        [ div [ class "label flex items-center", style "padding" "8px 8px 16px" ]
                             [ text "Embed"
                             ]
-                        , div [ style "display" "flex", style "align-items" "center", style "padding" "8px" ]
-                            [ div [ class "text-sm", style "margin-right" "8px" ] [ text "Embed size" ]
+                        , div [ class "flex items-center p-sm" ]
+                            [ div [ class "text-sm mr-sm" ] [ text "Embed size" ]
                             , input
                                 [ class "input-light text-sm"
                                 , type_ "number"
@@ -780,7 +768,7 @@ view model =
                                 []
                             , div [] [ text "px" ]
                             ]
-                        , div [ style "position" "relative", style "padding" "8px" ]
+                        , div [ class "relative p-sm" ]
                             [ input
                                 [ class "input-light text-sm"
                                 , style "color" "#555"
@@ -798,10 +786,7 @@ view model =
                     ]
                 ]
             , div
-                [ style "position" "absolute"
-                , style "top" "8px"
-                , style "right" "8px"
-                , style "cursor" "pointer"
+                [ class "absolute cursor-pointer top-4 right-4"
                 , onClick Close
                 ]
                 [ Icon.times "#FEFEFE" 24 ]

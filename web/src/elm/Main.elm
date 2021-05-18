@@ -254,17 +254,15 @@ view model =
                                 Just jwt ->
                                     if jwt.checkEmail && Session.isGuest model.session then
                                         div
-                                            [ class "flex-center text-xl font-semibold w-screen text-color"
+                                            [ class "flex-center text-xl font-semibold w-screen text-color m-sm text-sm"
                                             , style "height" "calc(100vh - 40px)"
-                                            , style "margin" "8px"
-                                            , style "font-size" "0.9rem"
                                             ]
                                             [ img [ class "keyframe anim", Asset.src Asset.logo, style "width" "32px", alt "NOT FOUND" ] []
-                                            , div [ style "padding" "8px" ] [ text "Sign in required" ]
+                                            , div [ class "m-sm" ] [ text "Sign in required" ]
                                             ]
 
                                     else
-                                        div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
+                                        div [ class "full", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
                                             [ Lazy.lazy Diagram.view model.diagramModel
                                                 |> Html.map UpdateDiagram
                                             ]

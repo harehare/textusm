@@ -179,7 +179,7 @@ sideMenu session filter tagItems =
                                 "item"
                         , onClick GetPublicDiagrams
                         ]
-                        [ Icon.globe "#F5F5F6" 16, div [ style "padding" "8px" ] [ text "Public" ] ]
+                        [ Icon.globe "#F5F5F6" 16, div [ class "p-sm" ] [ text "Public" ] ]
 
                 else
                     div [] []
@@ -193,7 +193,7 @@ sideMenu session filter tagItems =
                         "item"
                 , onClick <| Filter (FilterCondition FilterBookmark (\item -> item.isBookmark))
                 ]
-                [ Icon.bookmark "#F5F5F6" 14, div [ style "padding" "8px" ] [ text "Bookmarks" ] ]
+                [ Icon.bookmark "#F5F5F6" 14, div [ class "p-sm" ] [ text "Bookmarks" ] ]
             :: div
                 [ class "w-full"
                 , style "height" "2px"
@@ -222,7 +222,7 @@ sideMenu session filter tagItems =
                                             )
                                         )
                                 ]
-                                [ Icon.tag Constants.iconColor 13, div [ style "padding" "8px" ] [ text tag ] ]
+                                [ Icon.tag Constants.iconColor 13, div [ class "p-sm" ] [ text tag ] ]
                         )
                )
         )
@@ -312,8 +312,7 @@ diagramListView props =
     div
         [ style "width" "100%" ]
         [ div
-            [ class "flex items-center justify-end"
-            , style "padding" "16px"
+            [ class "flex items-center justify-end p-md"
             , style "color" "#FEFEFE"
             ]
             [ div [ class "flex items-center w-full relative" ]
@@ -325,9 +324,8 @@ diagramListView props =
                     [ Icon.search "#8C9FAE" 24 ]
                 , input
                     [ placeholder "Search"
-                    , class "w-full text-sm border-none"
+                    , class "w-full text-sm border-none p-sm"
                     , style "border-radius" "16px"
-                    , style "padding" "8px"
                     , style "padding-left" "32px"
                     , style "color" "#000"
                     , onInput SearchInput
@@ -357,12 +355,10 @@ diagramListView props =
 
           else
             div
-                [ class "grid list"
+                [ class "grid list p-sm mb-sm"
                 , style "height" "calc(100% - 70px)"
-                , style "margin-bottom" "8px"
                 , style "will-change" "transform"
                 , style "border-top" "1px solid #323B46"
-                , style "padding" "8px"
                 ]
                 ((props.diagrams
                     |> (case props.query of
@@ -378,9 +374,7 @@ diagramListView props =
                     ++ [ if props.hasMorePage then
                             div [ class "w-full flex-center" ]
                                 [ div
-                                    [ class "button bg-activity text-center"
-                                    , style "padding" "16px"
-                                    , style "margin" "8px"
+                                    [ class "button bg-activity text-center p-md m-sm"
                                     , onClick <| LoadNextPage props.publicStatus <| props.pageNo + 1
                                     ]
                                     [ text "Load more" ]
@@ -396,24 +390,40 @@ diagramListView props =
 diagramView : Zone -> DiagramItem -> Html Msg
 diagramView timezone diagram =
     div
-        [ class "diagram-item bg-cover bg-no-repeat relative"
+        [ class "diagram-item"
+        , class "bg-cover"
+        , class "bg-no-repeat"
+        , class "relative"
         , style "background-image" ("url(\"" ++ (diagram.thumbnail |> Maybe.withDefault "") ++ "\")")
         , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
         ]
         [ div
             [ class "diagram-text"
             ]
-            [ div [ class "overflow-hidden overflow-ellipsis text-base font-semibold" ]
+            [ div
+                [ class "overflow-hidden"
+                , class "overflow-ellipsis"
+                , class "text-base"
+                , class "font-semibold"
+                ]
                 [ text (Title.toString diagram.title) ]
             , div
-                [ class "flex items-center justify-between" ]
-                [ div [ class "datetime" ] [ text (DateUtils.millisToString timezone diagram.updatedAt) ]
+                [ class "flex"
+                , class "items-center"
+                , class "justify-between"
+                ]
+                [ div [ class "date-time" ] [ text (DateUtils.millisToString timezone diagram.updatedAt) ]
                 , div
-                    [ class "absolute justify-end flex-wrap w-full hidden lg:flex"
+                    [ class "absolute"
+                    , class "justify-end"
+                    , class "flex-wrap"
+                    , class "w-full"
+                    , class "hidden"
+                    , class "lg:flex"
                     , style "bottom" "60px"
                     , style "transform" "scale(0.9)"
                     ]
-                    (List.map tagView (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
+                    (List.map viewTag (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
                 ]
             ]
         , if diagram.isRemote then
@@ -455,27 +465,34 @@ errorView : Http.Error -> Html Msg
 errorView e =
     div
         [ class "diagram-list"
-        , style "width" "100vw"
+        , class "w-screen"
         ]
         [ div
-            [ class "flex-center h-full text-2xl"
+            [ class "flex-center"
+            , class "h-full"
+            , class "text-2xl"
             , style "padding-bottom" "32px"
             , style "color" "#8C9FAE"
             ]
-            [ div [ style "margin-bottom" "8px" ]
+            [ div [ class "mb-sm" ]
                 [ text ("Failed " ++ Utils.httpErrorToString e)
                 ]
             ]
         ]
 
 
-tagView : String -> Html Msg
-tagView tag =
+viewTag : String -> Html Msg
+viewTag tag =
     div
-        [ class "flex items-center text-center text-sm text-color bg-activity"
-        , style "border-radius" "8px"
-        , style "padding" "8px"
-        , style "margin" "2px"
+        [ class "flex"
+        , class "items-center"
+        , class "text-center"
+        , class "text-sm"
+        , class "text-color"
+        , class "bg-activity"
+        , class "p-sm"
+        , class "rounded-sm"
+        , class "m-xs"
         ]
         [ text tag ]
 
