@@ -37,7 +37,7 @@
         "cssnano-preset-advanced": "^5.0.1",
         "elm": "^0.19.1-5",
         "elm-hot-webpack-loader": "^1.1.8",
-        "elm-test": "^0.19.1-revision6",
+        "elm-test": "^0.19.1-revision7",
         "elm-webpack-loader": "^8.0.0",
         "eslint": "^7.26.0",
         "eslint-config-airbnb-typescript-prettier": "^4.2.0",
