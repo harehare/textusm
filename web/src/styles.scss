@@ -42,7 +42,13 @@
         scroll-behavior: smooth;
     }
     body {
-        @apply select-none m-0 p-0 font overflow-hidden bg-default antialiased;
+        @apply select-none;
+        @apply m-0;
+        @apply p-0;
+        @apply font;
+        @apply overflow-hidden;
+        @apply bg-default;
+        @apply antialiased;
         -webkit-text-size-adjust: 100%;
     }
 
@@ -81,10 +87,6 @@
 @layer components {
     .label {
         @apply text-xl font-semibold;
-    }
-    .avatar {
-        @apply w-12 object-cover rounded-full lg:w-8;
-        margin-top: 4px;
     }
     .button {
         @apply p-0.5 lg:p-3 cursor-pointer relative text-color flex items-center;
@@ -330,11 +332,11 @@
 
     .diagram-item {
         @apply flex items-end justify-end bg-contain cursor-pointer relative;
+        @apply shadow-md;
         border-radius: 8px;
         transition: box-shadow 0.1s ease-in-out 0.1s;
         will-change: box-shadow;
         height: 200px;
-        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3);
         border: 3px solid var(--light-background-color);
 
         &::after {
@@ -500,24 +502,23 @@
     left: 0;
     z-index: 100;
     .input-dialog {
-        @apply bg-default text-color;
-        position: fixed;
+        @apply bg-default;
+        @apply text-color;
+        @apply shadow-md;
+        @apply fixed;
         top: 50%;
         left: 50%;
         transform: translateY(-50%) translateX(-50%);
         padding: 16px;
         border-radius: 8px;
-        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-            0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
     }
 }
 
 .share {
+    @apply shadow-md;
     top: 50%;
     left: 50%;
     transform: translateY(-50%) translateX(-50%);
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
     .copy-button {
         @apply flex-center cursor-pointer absolute;
         top: 8px;
@@ -602,13 +603,12 @@
 
 .notification {
     @apply text-sm fixed cursor-pointer bg-main text-color flex items-center justify-between;
+    @apply shadow-md;
+    @apply z-50;
     bottom: 16px;
     right: 16px;
     min-width: 300px;
     height: 40px;
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
-    z-index: 100;
     transform: translateY(100px);
     transition: transform 0.1s ease-in-out 0.1s;
     @media (max-width: 480px) {
@@ -619,8 +619,7 @@
 }
 
 .close {
-    @apply cursor-pointer;
-    margin-right: 16px;
+    @apply cursor-pointer mr-md;
 }
 
 @media (min-width: 480px) {
@@ -634,7 +633,7 @@
 
     .bottom-tooltip {
         @apply invisible text-center absolute opacity-0;
-        z-index: 1;
+        @apply z-10;
         transition: opacity 500ms;
         width: 120px;
         top: 40px;

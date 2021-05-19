@@ -214,7 +214,7 @@ view props =
                         ]
                         [ Html.img
                             [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
-                            , Attr.class "avatar"
+                            , Attr.class "w-20 object-cover rounded-full lg:w-8 h-full mt-xs"
                             , Attr.alt "avatar"
                             ]
                             []

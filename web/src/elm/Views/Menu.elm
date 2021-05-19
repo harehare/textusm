@@ -65,7 +65,21 @@ view props =
 
     else
         Html.nav
-            [ Attr.class "flex flex-row items-center justify-between bg-main shadow-sm bottom-0 w-screen fixed lg:justify-start lg:h-screen lg:relative lg:flex-col lg:w-menu z-10"
+            [ Attr.class "flex"
+            , Attr.class "flex-row"
+            , Attr.class "items-center"
+            , Attr.class "justify-between"
+            , Attr.class "bg-main"
+            , Attr.class "shadow-sm"
+            , Attr.class "bottom-0"
+            , Attr.class "w-screen"
+            , Attr.class "fixed"
+            , Attr.class "lg:justify-start"
+            , Attr.class "lg:h-screen"
+            , Attr.class "lg:relative"
+            , Attr.class "lg:flex-col"
+            , Attr.class "lg:w-menu"
+            , Attr.class "z-10"
             , Attr.style "min-width" "40px"
             ]
             [ Html.a
@@ -73,7 +87,7 @@ view props =
                 , Attr.attribute "aria-label" "New"
                 ]
                 [ Html.div
-                    [ Attr.style "margin-left" "4px"
+                    [ Attr.class "ml-xs"
                     , Attr.class "menu-button"
                     ]
                     [ Icon.file selectedColor 18
@@ -233,9 +247,14 @@ menu top left bottom right items =
         , Attr.style "bottom" (bottom |> Maybe.withDefault "none")
         , Attr.style "min-width" "120px"
         , Attr.style "max-height" "calc(100vh - 40px)"
-        , Attr.style "box-shadow" "0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12)"
         , Attr.style "transition" "all 0.2s ease-out"
-        , Attr.class "m-1 overflow-hidden bg-main absolute rounded z-10"
+        , Attr.class "m-1"
+        , Attr.class "overflow-hidden"
+        , Attr.class "bg-main"
+        , Attr.class "absolute"
+        , Attr.class "rounded"
+        , Attr.class "z-10"
+        , Attr.class "shadow-md"
         ]
         (items
             |> List.map
@@ -253,7 +272,7 @@ menu top left bottom right items =
 
                         Separator ->
                             Html.div
-                                [ Attr.style "width" "100%"
+                                [ Attr.class "w-full"
                                 , Attr.style "height" "2px"
                                 , Attr.style "border-bottom" "2px solid rgba(0, 0, 0, 0.1)"
                                 ]

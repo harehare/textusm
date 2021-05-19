@@ -48,7 +48,7 @@ view onResize backgroundColor window left right =
                 , Attr.style
                     "height"
                     "calc(100vh - 40px)"
-                , Attr.style "background-color" "#273037"
+                , Attr.class "bg-main"
                 ]
                 [ left ]
             , Html.div
