@@ -47,7 +47,12 @@ export const initDB = (app: ElmApp): void => {
     const db = new LocalDatabase();
     const svg2base64 = async (id: string) => {
         // @ts-expect-error
-        const svgo = (await import("svgo/dist/svgo.browser.js")).default;
+        const svgoImport = await import("svgo/dist/svgo.browser.js").catch(() =>
+            app.ports.sendErrorNotification.send(
+                "Failed to load chunks. Please reload."
+            )
+        );
+        const svgo = svgoImport.default;
         const svg = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "svg"

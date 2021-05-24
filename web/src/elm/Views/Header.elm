@@ -91,8 +91,8 @@ view props =
                         if canEdit && Title.isEdit props.title then
                             Html.input
                                 [ Attr.id "title"
-                                , Attr.class "title bg-main border-none font text-base font-bold"
-                                , Attr.style "padding" "2px"
+                                , Attr.class "w-full bg-main border-none font text-base font-bold"
+                                , Attr.style "padding" "8px"
                                 , Attr.style "margin-left" "8px"
                                 , Attr.style "color" "#f4f4f4"
                                 , Attr.value <| Title.toString props.title
@@ -104,9 +104,8 @@ view props =
                                 []
 
                         else
-                            Html.div
-                                [ Attr.class "title header-title"
-                                , Attr.style "cursor" "pointer"
+                            viewTitle
+                                [ Attr.style "cursor" "pointer"
                                 , Events.onClick StartEditTitle
                                 ]
                                 [ Html.text <| Title.toString props.title
@@ -121,19 +120,19 @@ view props =
                                 ]
 
                     Page.New ->
-                        Html.div [ Attr.class "title header-title" ] [ Html.text "New Diagram" ]
+                        viewTitle [] [ Html.text "New Diagram" ]
 
                     Page.List ->
-                        Html.div [ Attr.class "title header-title" ] [ Html.text "All Diagrams" ]
+                        viewTitle [] [ Html.text "All Diagrams" ]
 
                     Page.Settings ->
-                        Html.div [ Attr.class "title header-title" ] [ Html.text "Settings" ]
+                        viewTitle [] [ Html.text "Settings" ]
 
                     Page.Help ->
-                        Html.div [ Attr.class "title header-title" ] [ Html.text "Help" ]
+                        viewTitle [] [ Html.text "Help" ]
 
                     Page.Tags _ ->
-                        Html.div [ Attr.class "title header-title" ] [ Html.text "Tags" ]
+                        viewTitle [] [ Html.text "Tags" ]
 
                     _ ->
                         Empty.view
@@ -215,7 +214,7 @@ view props =
                         ]
                         [ Html.img
                             [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
-                            , Attr.class "avatar"
+                            , Attr.class "w-20 object-cover rounded-full lg:w-8 h-full mt-xs"
                             , Attr.alt "avatar"
                             ]
                             []
@@ -266,3 +265,8 @@ view props =
                             Empty.view
                     ]
             ]
+
+
+viewTitle : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+viewTitle attrs children =
+    Html.div ([ Attr.class "w-full header-title", Attr.style "padding" "8px" ] ++ attrs) children

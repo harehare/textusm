@@ -64,6 +64,7 @@ type ColumnType
     | Date
     | DateTime
     | Enum (List String)
+    | Json
 
 
 type ColumnLength
@@ -403,11 +404,14 @@ textToColumnType text =
         [ ( "date", False ) ] ->
             Date
 
-        [ ( "datetime", False ) ] ->
+        [ ( "date-time", False ) ] ->
             DateTime
 
         [ ( "enum", False ), ( values, True ) ] ->
             Enum (String.split "," values |> List.map String.trim)
+
+        [ ( "json", False ) ] ->
+            Json
 
         _ ->
             Int NoLimit
@@ -493,10 +497,13 @@ columnTypeToString type_ =
             "date"
 
         DateTime ->
-            "datetime"
+            "date-time"
 
         Enum _ ->
             "enum"
+
+        Json ->
+            "json"
 
 
 tableToString : Table -> String
@@ -638,10 +645,13 @@ columnTypeToFullString type_ =
             "date"
 
         DateTime ->
-            "datetime"
+            "date-time"
 
         Enum values ->
             "enum(" ++ String.join "," values ++ ")"
+
+        Json ->
+            "json"
 
 
 columnAttributeToString : Attribute -> String

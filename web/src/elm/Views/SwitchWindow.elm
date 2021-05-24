@@ -9,14 +9,23 @@ import Views.Icon as Icon
 
 view : (SwitchWindow -> msg) -> String -> SwitchWindow -> Html msg -> Html msg -> Html msg
 view onSwitchWindow backgroundColor window view1 view2 =
-    Html.div [ Attr.class "flex flex-col relative w-screen bg-main" ]
+    Html.div
+        [ Attr.class "flex"
+        , Attr.class "flex-col"
+        , Attr.class "relative"
+        , Attr.class "w-screen"
+        , Attr.class "bg-main"
+        ]
         [ Html.div
-            [ Attr.class "fixed flex-center rounded-full bg-accent"
+            [ Attr.class "fixed"
+            , Attr.class "flex-center"
+            , Attr.class "rounded-full"
+            , Attr.class "bg-accent"
+            , Attr.class "z-50"
+            , Attr.class "p-sm"
+            , Attr.class "shadow-md"
             , Attr.style "bottom" "72px"
-            , Attr.style "z-index" "101"
             , Attr.style "right" "16px"
-            , Attr.style "padding" "12px"
-            , Attr.style "box-shadow" "0 1px 4px rgba(0, 0, 0, .6)"
             , case window of
                 Left ->
                     onClick (onSwitchWindow Right)
@@ -36,20 +45,20 @@ view onSwitchWindow backgroundColor window view1 view2 =
             [ Html.div
                 [ case window of
                     Left ->
-                        Attr.style "display" "block"
+                        Attr.class "block"
 
                     Right ->
-                        Attr.style "display" "none"
+                        Attr.class "hidden"
                 , Attr.class "full"
                 ]
                 [ view1 ]
             , Html.div
                 [ case window of
                     Right ->
-                        Attr.style "display" "block"
+                        Attr.class "block"
 
                     Left ->
-                        Attr.style "display" "none"
+                        Attr.class "hidden"
                 , Attr.style "background-color" backgroundColor
                 , Attr.class "full"
                 ]

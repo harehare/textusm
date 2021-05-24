@@ -14,7 +14,6 @@
     --error-color: #f55c64;
     --comment-color: #008800;
     --activity-color: #266b9a;
-
     --font-family: "Nunito Sans", apple-system, BlinkMacSystemFont,
         Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic,
         YuGothicM, メイリオ, Meiryo, sans-serif;
@@ -32,6 +31,9 @@
         --error-color: #ff0000;
         --comment-color: #008800;
         --activity-color: #266b9a;
+        --font-family: "Nunito Sans", apple-system, BlinkMacSystemFont,
+            Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium,
+            YuGothic, YuGothicM, メイリオ, Meiryo, sans-serif;
     }
 }
 
@@ -40,7 +42,13 @@
         scroll-behavior: smooth;
     }
     body {
-        @apply select-none m-0 p-0 font overflow-hidden bg-default antialiased;
+        @apply select-none;
+        @apply m-0;
+        @apply p-0;
+        @apply font;
+        @apply overflow-hidden;
+        @apply bg-default;
+        @apply antialiased;
         -webkit-text-size-adjust: 100%;
     }
 
@@ -79,10 +87,6 @@
 @layer components {
     .label {
         @apply text-xl font-semibold;
-    }
-    .avatar {
-        @apply w-12 object-cover rounded-full lg:w-8;
-        margin-top: 4px;
     }
     .button {
         @apply p-0.5 lg:p-3 cursor-pointer relative text-color flex items-center;
@@ -145,6 +149,9 @@
     .full-screen {
         @apply w-screen h-screen;
     }
+    .content-height {
+        height: calc(100vh - 35px);
+    }
     .font {
         font-family: var(--font-family);
     }
@@ -166,6 +173,9 @@
     .text-activity {
         color: var(--activity-color);
     }
+    .text-error {
+        color: var(--error-color);
+    }
     .bg-default {
         background-color: var(--background-color);
     }
@@ -180,6 +190,9 @@
     }
     .bg-activity {
         background-color: var(--activity-color);
+    }
+    .bg-error {
+        background-color: var(--error-color);
     }
     .bg-none-all {
         background: transparent;
@@ -212,14 +225,6 @@
         .w-menu {
             width: 40px;
         }
-    }
-}
-
-.title {
-    padding: 8px 8px 16px;
-    width: 90%;
-    @media (max-width: 480px) {
-        width: 120px;
     }
 }
 
@@ -327,11 +332,11 @@
 
     .diagram-item {
         @apply flex items-end justify-end bg-contain cursor-pointer relative;
+        @apply shadow-md;
         border-radius: 8px;
         transition: box-shadow 0.1s ease-in-out 0.1s;
         will-change: box-shadow;
         height: 200px;
-        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.3);
         border: 3px solid var(--light-background-color);
 
         &::after {
@@ -380,7 +385,7 @@
                 @apply block;
             }
 
-            .datetime {
+            .date-time {
                 @apply text-xs block text-dark;
             }
 
@@ -396,7 +401,7 @@
             }
         }
 
-        .datetime,
+        .date-time,
         .bookmark,
         .remove {
             @apply hidden;
@@ -497,24 +502,23 @@
     left: 0;
     z-index: 100;
     .input-dialog {
-        @apply bg-default text-color;
-        position: fixed;
+        @apply bg-default;
+        @apply text-color;
+        @apply shadow-md;
+        @apply fixed;
         top: 50%;
         left: 50%;
         transform: translateY(-50%) translateX(-50%);
         padding: 16px;
         border-radius: 8px;
-        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-            0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
     }
 }
 
 .share {
+    @apply shadow-md;
     top: 50%;
     left: 50%;
     transform: translateY(-50%) translateX(-50%);
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
     .copy-button {
         @apply flex-center cursor-pointer absolute;
         top: 8px;
@@ -599,13 +603,12 @@
 
 .notification {
     @apply text-sm fixed cursor-pointer bg-main text-color flex items-center justify-between;
+    @apply shadow-md;
+    @apply z-50;
     bottom: 16px;
     right: 16px;
     min-width: 300px;
     height: 40px;
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2),
-        0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
-    z-index: 100;
     transform: translateY(100px);
     transition: transform 0.1s ease-in-out 0.1s;
     @media (max-width: 480px) {
@@ -615,13 +618,8 @@
     }
 }
 
-.show-notification {
-    transform: translateY(10%);
-}
-
 .close {
-    @apply cursor-pointer;
-    margin-right: 16px;
+    @apply cursor-pointer mr-md;
 }
 
 @media (min-width: 480px) {
@@ -635,7 +633,7 @@
 
     .bottom-tooltip {
         @apply invisible text-center absolute opacity-0;
-        z-index: 1;
+        @apply z-10;
         transition: opacity 500ms;
         width: 120px;
         top: 40px;
@@ -690,10 +688,6 @@
             background-color: #fff;
         }
     }
-}
-
-.drag-over {
-    background-color: rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 480px) {
@@ -785,11 +779,6 @@
     }
 }
 
-.monaco-editor.vs-dark .current-line {
-    @apply bg-none box-border;
-    border: none !important;
-}
-
 .dropdown-list {
     @apply w-full text-sm relative bg-transparent select-none cursor-pointer;
     outline: none;
@@ -842,28 +831,6 @@
     li {
         @apply list-disc ml-3.5;
         padding-left: 0 !important;
-    }
-}
-
-.tags {
-    background-color: var(--background-color);
-    width: 100%;
-    height: calc(100vh - 35px);
-    color: var(--text-color);
-    .tag {
-        border-radius: 8px;
-        color: var(--text-color);
-        padding: 8px 16px;
-        margin: 8px;
-        text-align: center;
-        display: flex;
-        align-items: center;
-    }
-    .normal-tag {
-        background-color: var(--activity-color);
-    }
-    .delete-tag {
-        background-color: var(--error-color);
     }
 }
 

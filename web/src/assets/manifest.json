@@ -10,37 +10,44 @@
         {
             "src": "images/icon_72x72.png",
             "type": "image/png",
-            "sizes": "72x72"
+            "sizes": "72x72",
+            "purpose": "any maskable"
         },
         {
             "src": "images/icon_96x96.png",
             "type": "image/png",
-            "sizes": "96x96"
+            "sizes": "96x96",
+            "purpose": "any maskable"
         },
         {
             "src": "images/icon_128x128.png",
             "type": "image/png",
-            "sizes": "128x128"
+            "sizes": "128x128",
+            "purpose": "any maskable"
         },
         {
             "src": "images/icon_152x152.png",
             "type": "image/png",
-            "sizes": "152x152"
+            "sizes": "152x152",
+            "purpose": "any maskable"
         },
         {
             "src": "images/icon_192x192.png",
             "type": "image/png",
-            "sizes": "192x192"
+            "sizes": "192x192",
+            "purpose": "any maskable"
         },
         {
             "src": "images/icon_384x384.png",
             "type": "image/png",
-            "sizes": "384x384"
+            "sizes": "384x384",
+            "purpose": "any maskable"
         },
         {
             "src": "images/icon_512x512.png",
             "type": "image/png",
-            "sizes": "512x512"
+            "sizes": "512x512",
+            "purpose": "any maskable"
         }
     ],
     "shortcuts": [

@@ -25,20 +25,17 @@ view notification =
                     ( "", Icon.info 0 )
     in
     Html.div
-        [ Attr.class <|
-            "notification"
-                ++ (if isNothing notification then
-                        ""
+        [ Attr.class "notification"
+        , if isNothing notification then
+            Attr.class ""
 
-                    else
-                        " show-notification"
-                   )
+          else
+            Attr.style "transform" "translateY(10%)"
         ]
         [ Html.div
-            [ Attr.class "flex items-center"
-            , Attr.style "margin-right" "16px"
+            [ Attr.class "flex items-center mr-md"
             ]
-            [ Html.div [ Attr.style "margin-left" "8px" ] [ icon ]
-            , Html.div [ Attr.style "margin-left" "8px" ] [ Html.text t ]
+            [ Html.div [ Attr.class "ml-sm" ] [ icon ]
+            , Html.div [ Attr.class "ml-sm" ] [ Html.text t ]
             ]
         ]

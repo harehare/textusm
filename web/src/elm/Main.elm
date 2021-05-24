@@ -196,11 +196,11 @@ view model =
         , Lazy.lazy showNotification model.notification
         , Lazy.lazy2 showProgressbar model.progress model.window.fullscreen
         , div
-            [ style "display" "flex"
-            , style "overflow" "hidden"
-            , style "position" "relative"
-            , style "width" "100%"
-            , style "height" "100vh"
+            [ class "flex"
+            , class "overflow-hidden"
+            , class "relative"
+            , class "w-full"
+            , class "h-screen"
             ]
             [ Lazy.lazy Menu.view { page = model.page, route = toRoute model.url, text = model.diagramModel.text, width = Size.getWidth model.diagramModel.size, fullscreen = model.window.fullscreen, openMenu = model.openMenu, lang = model.lang }
             , let
@@ -210,7 +210,12 @@ view model =
                             SwitchWindow
                             model.diagramModel.settings.backgroundColor
                             model.switchWindow
-                            (div [ class "h-main bg-main lg:h-full w-full" ]
+                            (div
+                                [ class "h-main"
+                                , class "bg-main"
+                                , class "lg:h-full"
+                                , class "w-full"
+                                ]
                                 [ editor model
                                 ]
                             )
@@ -220,7 +225,12 @@ view model =
                             HandleStartWindowResize
                             model.diagramModel.settings.backgroundColor
                             model.window
-                            (div [ class "bg-main w-full h-main lg:h-full" ]
+                            (div
+                                [ class "bg-main"
+                                , class "w-full"
+                                , class "h-main"
+                                , class "lg:h-full"
+                                ]
                                 [ editor model
                                 ]
                             )
@@ -254,17 +264,21 @@ view model =
                                 Just jwt ->
                                     if jwt.checkEmail && Session.isGuest model.session then
                                         div
-                                            [ class "flex-center text-xl font-semibold w-screen text-color"
+                                            [ class "flex-center"
+                                            , class "text-xl"
+                                            , class "font-semibold"
+                                            , class "w-screen"
+                                            , class "text-color"
+                                            , class "m-sm"
+                                            , class "text-sm"
                                             , style "height" "calc(100vh - 40px)"
-                                            , style "margin" "8px"
-                                            , style "font-size" "0.9rem"
                                             ]
                                             [ img [ class "keyframe anim", Asset.src Asset.logo, style "width" "32px", alt "NOT FOUND" ] []
-                                            , div [ style "padding" "8px" ] [ text "Sign in required" ]
+                                            , div [ class "m-sm" ] [ text "Sign in required" ]
                                             ]
 
                                     else
-                                        div [ style "width" "100%", style "height" "100%", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
+                                        div [ class "full", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
                                             [ Lazy.lazy Diagram.view model.diagramModel
                                                 |> Html.map UpdateDiagram
                                             ]
@@ -336,7 +350,7 @@ showProgressbar show fullscreen =
         ProgressBar.view
 
     else if not fullscreen then
-        div [ style "height" "4px", style "background" "#273037" ] []
+        div [ style "height" "4px", class "bg-main" ] []
 
     else
         Empty.view
@@ -498,6 +512,7 @@ changeRouteTo route model =
 
                     Route.Home ->
                         Return.andThen (Action.switchPage Page.Main)
+                            >> Action.redirectToLastEditedFile model
                             >> Return.andThen Action.changeRouteInit
 
                     Route.Settings ->
@@ -1252,7 +1267,7 @@ subscriptions model =
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
          , Ports.shortcuts Shortcuts
          , Ports.onNotification (\n -> HandleAutoCloseNotification (Info n))
-         , Ports.onErrorNotification (\n -> HandleAutoCloseNotification (Error n))
+         , Ports.sendErrorNotification (\n -> HandleAutoCloseNotification (Error n))
          , Ports.onWarnNotification (\n -> HandleAutoCloseNotification (Warning n))
          , Ports.onAuthStateChanged HandleAuthStateChanged
          , Ports.saveToRemote SaveToRemote

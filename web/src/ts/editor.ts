@@ -24,7 +24,7 @@ monaco.languages.register({
 monaco.languages.setMonarchTokensProvider("userStoryMap", {
     tokenizer: {
         root: [
-            [/^#.+/, "comment"],
+            [/^.*#.+/, "comment"],
             [/^[^ ][^#:||]+/, "activity"],
             [/^ {8}[^#:||]+/, "story"],
             [/^ {4}[^#:||]+/, "task"],
@@ -168,6 +168,7 @@ export class MonacoEditor extends HTMLElement {
                     verticalScrollbarSize: 6,
                     horizontalScrollbarSize: 6,
                 },
+                renderLineHighlight: "none",
             });
 
             this.editor.addAction({

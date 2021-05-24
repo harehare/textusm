@@ -63,7 +63,7 @@ app.ports.signIn.subscribe((provider: Provider) => {
 
 app.ports.signOut.subscribe(async () => {
     await signOut().catch(() => {
-        app.ports.onErrorNotification.send("Failed sign out.");
+        app.ports.sendErrorNotification.send("Failed sign out.");
     });
 });
 
