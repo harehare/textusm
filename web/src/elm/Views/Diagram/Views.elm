@@ -12,7 +12,7 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events exposing (onInput)
 import Markdown
-import Models.Diagram as Diagram exposing (Msg(..), SelectedItem, Settings, fontStyle, settingsOfWidth)
+import Models.Diagram as Diagram exposing (Msg(..), SelectedItem, Settings, settingsOfWidth)
 import String
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
@@ -181,7 +181,7 @@ inputView { settings, fontSize, position, size, color, backgroundColor, item } =
                 , Attr.autofocus True
                 , Attr.autocomplete False
                 , Attr.style "padding" "8px 8px 8px 0"
-                , Attr.style "font-family" (fontStyle settings)
+                , Attr.style "font-family" <| Diagram.fontStyle settings
                 , Attr.style "color" color
                 , Attr.style "background-color" "transparent"
                 , Attr.style "border" "none"
@@ -236,7 +236,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs cardText =
             ]
             [ Html.div
                 [ Attr.style "padding" "8px"
-                , Attr.style "font-family" (fontStyle settings)
+                , Attr.style "font-family" <| Diagram.fontStyle settings
                 , Attr.style "word-wrap" "break-word"
                 ]
                 [ Html.text cardText ]
@@ -250,7 +250,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs cardText =
             , SvgAttr.height <| String.fromInt svgHeight
             , SvgAttr.fill colour
             , SvgAttr.color colour
-            , SvgAttr.fontFamily (fontStyle settings)
+            , SvgAttr.fontFamily <| Diagram.fontStyle settings
             , FontSize.svgFontSize fs
             , SvgAttr.class "select-none"
             ]
@@ -363,7 +363,7 @@ title settings ( posX, posY ) item =
     Svg.text_
         [ SvgAttr.x <| String.fromInt posX
         , SvgAttr.y <| String.fromInt <| posY + 14
-        , SvgAttr.fontFamily <| fontStyle settings
+        , SvgAttr.fontFamily <| Diagram.fontStyle settings
         , SvgAttr.fill
             (Item.getItemSettings item
                 |> Maybe.withDefault ItemSettings.new
@@ -572,7 +572,7 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
         [ Html.div
             [ Attr.style "width" <| String.fromInt svgWidth ++ "px"
             , Attr.style "height" <| String.fromInt svgHeight ++ "px"
-            , Attr.style "font-family" <| fontStyle settings
+            , Attr.style "font-family" <| Diagram.fontStyle settings
             , Attr.style "word-wrap" "break-word"
             , Attr.style "display" "flex"
             , Attr.style "align-items" "center"
@@ -602,11 +602,11 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
             [ Html.input
                 [ Attr.id "edit-item"
                 , Attr.type_ "text"
-                , Attr.style "font-family" <| fontStyle settings
+                , Attr.style "font-family" <| Diagram.fontStyle settings
                 , Attr.autofocus True
                 , Attr.autocomplete False
                 , Attr.style "padding" "8px 8px 8px 0"
-                , Attr.style "font-family" (fontStyle settings)
+                , Attr.style "font-family" <| Diagram.fontStyle settings
                 , Attr.style "color"
                     (Item.getForegroundColor item
                         |> Maybe.withDefault Color.black

@@ -1,4 +1,4 @@
-module Models.Views.UseCaseDiagram exposing (UseCaseDiagram, from)
+module Models.Views.UseCaseDiagram exposing (UseCaseDiagram(..), UseCaseItem(..), from)
 
 import Data.Item as Item exposing (Item, Items)
 import Set exposing (Set)
@@ -26,12 +26,19 @@ type UseCase
 
 itemToUseCaseItem : Item -> UseCaseItem
 itemToUseCaseItem item =
-    case ( String.left 1 <| Item.getText item, String.right 1 <| Item.getText item ) of
+    let
+        text =
+            Item.getText item
+
+        dropChar =
+            String.dropLeft 1 >> String.dropRight 1
+    in
+    case ( String.left 1 <| text, String.right 1 <| text ) of
         ( "[", "]" ) ->
-            Actor (Item.getText item) <| Set.fromList (Item.map (\t -> Item.getText t) <| Item.getChildrenItems item)
+            Actor (dropChar text) <| Set.fromList (Item.map (\t -> Item.getText t) <| Item.getChildrenItems item)
 
         ( "(", ")" ) ->
-            Subject (Item.getText item) (Item.map itemToUseCase <| Item.getChildrenItems item)
+            Subject (dropChar text) (Item.map itemToUseCase <| Item.getChildrenItems item)
 
         _ ->
             UseCaseItem (Item.map itemToUseCase <| Item.getChildrenItems item)
