@@ -1,6 +1,5 @@
 module Views.Diagram.UseCaseDiagram exposing (view)
 
-import Data.FontSize as FontSize
 import Data.Position exposing (Position)
 import Html
 import Html.Attributes as Attr

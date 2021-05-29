@@ -69,6 +69,7 @@ import Url
 import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils
 import Views.Empty as Empty
+import Views.Footer as Footer
 import Views.Header as Header
 import Views.Menu as Menu
 import Views.Notification as Notification
@@ -149,7 +150,7 @@ init flags url key =
 
 editor : Model -> Html Msg
 editor model =
-    div [ id "editor", class "full" ]
+    div [ id "editor", class "full p-sm" ]
         [ Html.node "monaco-editor"
             [ attribute "value" <| Text.toString model.diagramModel.text
             , attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
@@ -200,7 +201,7 @@ view model =
             , class "overflow-hidden"
             , class "relative"
             , class "w-full"
-            , class "h-screen"
+            , class "h-content"
             ]
             [ Lazy.lazy Menu.view { page = model.page, route = toRoute model.url, text = model.diagramModel.text, width = Size.getWidth model.diagramModel.size, fullscreen = model.window.fullscreen, openMenu = model.openMenu, lang = model.lang }
             , let
@@ -317,6 +318,7 @@ view model =
 
             _ ->
                 Empty.view
+        , Footer.view
         ]
 
 

@@ -41,13 +41,11 @@ view onResize backgroundColor window left right =
 
     else
         Html.div
-            [ Attr.class "flex" ]
+            [ Attr.class "flex p-xxs border-content" ]
             [ Html.div
                 [ Attr.style "width"
                     leftPos
-                , Attr.style
-                    "height"
-                    "calc(100vh - 40px)"
+                , Attr.class "h-content"
                 , Attr.class "bg-main"
                 ]
                 [ left ]
@@ -61,9 +59,7 @@ view onResize backgroundColor window left right =
             , Html.div
                 [ Attr.style "width"
                     rightPos
-                , Attr.style
-                    "height"
-                    "calc(100vh - 40px)"
+                , Attr.class "h-content"
                 , Attr.style "background-color" backgroundColor
                 ]
                 [ right ]

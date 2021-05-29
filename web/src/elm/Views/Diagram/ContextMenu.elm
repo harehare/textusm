@@ -51,8 +51,8 @@ view props =
         ]
         [ Html.div
             [ Attr.style "background-color" "#fefefe"
-            , Attr.style "box-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)"
-            , Attr.style "border-radius" "2px"
+            , Attr.style "border-radius" "4px"
+            , Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)"
             , Attr.style "display" "flex"
             , Attr.style "width" "320px"
             ]
@@ -63,7 +63,7 @@ view props =
                 , Attr.style "display" "flex"
                 , Attr.style "align-items" "center"
                 , Attr.style "justify-content" "center"
-                , Attr.style "border-right" "1px solid #CCC"
+                , Attr.style "border-right" "1px solid rgba(0, 0, 0, 0.1)"
                 , Attr.style "cursor" "pointer"
                 , onClickStopPropagation <| props.onMenuSelect ColorSelectMenu
                 ]
@@ -83,7 +83,7 @@ view props =
                 , Attr.style "display" "flex"
                 , Attr.style "align-items" "center"
                 , Attr.style "justify-content" "center"
-                , Attr.style "border-right" "1px solid #CCC"
+                , Attr.style "border-right" "1px solid rgba(0, 0, 0, 0.1)"
                 ]
                 [ colorCircle
                     (Item.getBackgroundColor props.item
@@ -99,7 +99,7 @@ view props =
                 , Attr.style "align-items" "center"
                 , Attr.style "justify-content" "center"
                 , Attr.style "cursor" "pointer"
-                , Attr.style "border-right" "1px solid #CCC"
+                , Attr.style "border-right" "1px solid rgba(0, 0, 0, 0.1)"
                 , onClickStopPropagation <| props.onMenuSelect CloseMenu
                 ]
                 [ DropDownList.view props.onToggleDropDownList

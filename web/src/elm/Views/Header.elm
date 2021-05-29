@@ -66,7 +66,7 @@ view props =
             , Attr.style "height" "40px"
             ]
             [ Html.div
-                [ Attr.class "flex items-center w-full"
+                [ Attr.class "flex items-center lg:w-full w-1/2"
                 , Attr.style "height" "40px"
                 ]
                 [ case props.page of
@@ -209,7 +209,6 @@ view props =
                     ]
                     [ Html.div
                         [ Attr.class "text-sm"
-                        , Attr.style "padding" "0 8px"
                         , Attr.style "margin-right" "4px"
                         ]
                         [ Html.img

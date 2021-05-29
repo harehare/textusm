@@ -354,36 +354,35 @@ diagramListView props =
                 ]
 
           else
-            div
-                [ class "grid list p-sm mb-sm"
-                , style "height" "calc(100% - 70px)"
-                , style "will-change" "transform"
-                , style "border-top" "1px solid #323B46"
+            div [ class "overflow-y-auto", style "height" "calc(100vh - 120px - 2rem)" ]
+                [ div
+                    [ class "grid list p-sm mb-sm"
+                    , style "will-change" "transform"
+                    , style "border-top" "1px solid #323B46"
+                    ]
+                    (props.diagrams
+                        |> (case props.query of
+                                Just query ->
+                                    List.filter (\d -> Fuzzy.match query (Title.toString d.title))
+
+                                Nothing ->
+                                    identity
+                           )
+                        |> List.map
+                            (\d -> Lazy.lazy2 diagramView props.timeZone d)
+                    )
+                , if props.hasMorePage then
+                    div [ class "w-full flex-center" ]
+                        [ div
+                            [ class "button bg-activity text-center m-sm"
+                            , onClick <| LoadNextPage props.publicStatus <| props.pageNo + 1
+                            ]
+                            [ text "Load more" ]
+                        ]
+
+                  else
+                    Empty.view
                 ]
-                ((props.diagrams
-                    |> (case props.query of
-                            Just query ->
-                                List.filter (\d -> Fuzzy.match query (Title.toString d.title))
-
-                            Nothing ->
-                                identity
-                       )
-                    |> List.map
-                        (\d -> Lazy.lazy2 diagramView props.timeZone d)
-                 )
-                    ++ [ if props.hasMorePage then
-                            div [ class "w-full flex-center" ]
-                                [ div
-                                    [ class "button bg-activity text-center p-md m-sm"
-                                    , onClick <| LoadNextPage props.publicStatus <| props.pageNo + 1
-                                    ]
-                                    [ text "Load more" ]
-                                ]
-
-                         else
-                            Empty.view
-                       ]
-                )
         ]
 
 

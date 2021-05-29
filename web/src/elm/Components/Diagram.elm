@@ -110,8 +110,12 @@ zoomControl isFullscreen scale =
         , Attr.style "right" "35px"
         , Attr.style "top" "5px"
         , Attr.style "display" "flex"
-        , Attr.style "width" "180px"
+        , Attr.style "width" "240px"
         , Attr.style "justify-content" "space-between"
+        , Attr.style "background-color" "#F4F4F4"
+        , Attr.style "border-radius" "4px"
+        , Attr.style "padding" "8px 16px"
+        , Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)"
         ]
         [ div
             [ Attr.style "width" "24px"
@@ -147,6 +151,7 @@ zoomControl isFullscreen scale =
             , Attr.style "cursor" "pointer"
             , Attr.style "font-weight" "600"
             , Attr.class ".select-none"
+            , Attr.style "width" "32px"
             ]
             [ Html.text (String.fromInt s ++ "%")
             ]

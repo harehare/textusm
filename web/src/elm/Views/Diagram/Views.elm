@@ -141,7 +141,6 @@ card { settings, position, selectedItem, item, canMove } =
                         , position = ( posX, posY )
                         , size = ( settings.size.width, settings.size.height )
                         , color = color
-                        , backgroundColor = backgroundColor
                         , item = item_
                         }
                     ]
@@ -159,43 +158,36 @@ inputView :
     , position : Position
     , size : Size
     , color : RgbColor
-    , backgroundColor : RgbColor
     , item : Item
     }
     -> Svg Msg
-inputView { settings, fontSize, position, size, color, backgroundColor, item } =
+inputView { settings, fontSize, position, size, color, item } =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt <| Position.getX position
         , SvgAttr.y <| String.fromInt <| Position.getY position
         , SvgAttr.width <| String.fromInt <| Size.getWidth size
         , SvgAttr.height <| String.fromInt <| Size.getHeight size
         ]
-        [ Html.div
-            [ Attr.style "background-color" backgroundColor
-            , Attr.style "width" (String.fromInt (Size.getWidth size) ++ "px")
-            , Attr.style "height" (String.fromInt (Size.getHeight size) ++ "px")
+        [ Html.input
+            [ Attr.id "edit-item"
+            , Attr.type_ "text"
+            , Attr.autofocus True
+            , Attr.autocomplete False
+            , Attr.style "padding" "8px 8px 8px 0"
+            , Attr.style "font-family" <| Diagram.fontStyle settings
+            , Attr.style "color" color
+            , Attr.style "background-color" "transparent"
+            , Attr.style "border" "none"
+            , Attr.style "outline" "none"
+            , Attr.style "width" (String.fromInt (Size.getWidth size - 20) ++ "px")
+            , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
+            , Attr.style "margin-left" "2px"
+            , Attr.style "margin-top" "2px"
+            , Attr.value <| " " ++ String.trimLeft (Item.getText item)
+            , onInput EditSelectedItem
+            , Events.onEnter <| EndEditSelectedItem item
             ]
-            [ Html.input
-                [ Attr.id "edit-item"
-                , Attr.type_ "text"
-                , Attr.autofocus True
-                , Attr.autocomplete False
-                , Attr.style "padding" "8px 8px 8px 0"
-                , Attr.style "font-family" <| Diagram.fontStyle settings
-                , Attr.style "color" color
-                , Attr.style "background-color" "transparent"
-                , Attr.style "border" "none"
-                , Attr.style "outline" "none"
-                , Attr.style "width" (String.fromInt (Size.getWidth size - 20) ++ "px")
-                , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
-                , Attr.style "margin-left" "2px"
-                , Attr.style "margin-top" "2px"
-                , Attr.value <| " " ++ String.trimLeft (Item.getText item)
-                , onInput EditSelectedItem
-                , Events.onEnter <| EndEditSelectedItem item
-                ]
-                []
-            ]
+            []
         ]
 
 
@@ -288,7 +280,6 @@ canvas settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                                 |> ItemSettings.getForegroundColor
                                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                                 |> Maybe.withDefault settings.color.label
-                        , backgroundColor = "transparent"
                         , item = item_
                         }
                     , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
@@ -324,7 +315,6 @@ canvasBottom settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                         , position = ( posX, posY )
                         , size = ( svgWidth, settings.size.height )
                         , color = settings.color.label
-                        , backgroundColor = "transparent"
                         , item = item_
                         }
                     , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
@@ -676,7 +666,6 @@ grid settings ( posX, posY ) selectedItem item =
                         , position = ( posX, posY )
                         , size = ( settings.size.width, settings.size.height )
                         , color = forgroundColor
-                        , backgroundColor = "transparent"
                         , item = item_
                         }
                     ]
