@@ -1,7 +1,6 @@
-module Models.Views.UseCaseDiagram exposing (UseCase(..), UseCaseDiagram(..), UseCaseItem(..), from)
+module Models.Views.UseCaseDiagram exposing (UseCase(..), UseCaseDiagram(..), from)
 
 import Data.Item as Item exposing (Item, Items)
-import Set exposing (Set)
 
 
 type alias Name =
@@ -9,48 +8,36 @@ type alias Name =
 
 
 type UseCaseDiagram
-    = UseCaseDiagram (List UseCaseItem)
+    = UseCaseDiagram (List Actor)
 
 
-type UseCaseItem
-    = Actor Name (Set Name)
-    | UseCaseItem (List UseCase)
+type Actor
+    = Actor Name (List UseCase)
 
 
 type UseCase
     = UseCase Name
-    | Extend Name Name
-    | Include Name Name
+    | Extend Name UseCase
+    | Include Name UseCase
 
 
-itemToUseCaseItem : Item -> UseCaseItem
-itemToUseCaseItem item =
+itemToActor : Item -> Actor
+itemToActor item =
     let
         text =
             Item.getText item
-
-        dropChar =
-            String.dropLeft 1 >> String.dropRight 1
     in
-    case ( String.left 1 <| text, String.right 1 <| text ) of
-        ( "[", "]" ) ->
-            Actor (dropChar text) <| Set.fromList (Item.map (\t -> Item.getText t) <| Item.getChildrenItems item)
-
-        ( "(", ")" ) ->
-            UseCaseItem (Item.map itemToUseCase <| Item.getChildrenItems item)
-
-        _ ->
-            UseCaseItem []
+    Actor text <| (Item.map (\i -> itemToUseCase i) <| Item.getChildrenItems item)
 
 
 itemToUseCase : Item -> UseCase
 itemToUseCase item =
-    case String.words <| Item.getText item of
+    case String.words <| String.trim <| Item.getText item of
         [ u, "<", e ] ->
-            Extend e u
+            Extend e <| UseCase u
 
         [ u, ">", i ] ->
-            Include i u
+            Include i <| UseCase u
 
         _ ->
             UseCase <| Item.getText item
@@ -58,4 +45,4 @@ itemToUseCase item =
 
 from : Items -> UseCaseDiagram
 from items =
-    UseCaseDiagram <| Item.map itemToUseCaseItem items
+    UseCaseDiagram <| Item.map itemToActor items

@@ -4,7 +4,7 @@ import Data.Position exposing (Position)
 import Html
 import Html.Attributes as Attr
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
-import Models.Views.UseCaseDiagram exposing (UseCase(..), UseCaseDiagram(..), UseCaseItem(..))
+import Models.Views.UseCaseDiagram exposing (UseCase(..), UseCaseDiagram(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Views.Empty as Empty
@@ -17,42 +17,19 @@ actorSize =
 
 actorPosition : Int
 actorPosition =
-    actorSize * 9
+    actorSize * 12
 
 
 useCaseSize : Int
 useCaseSize =
-    40
+    50
 
 
 view : Model -> Svg Msg
 view model =
     case model.data of
         Diagram.UseCaseDiagram (UseCaseDiagram u) ->
-            Svg.g [] <|
-                List.indexedMap
-                    (\i item ->
-                        case item of
-                            Actor name names ->
-                                actorView model.settings name ( actorSize, actorSize + actorPosition * i )
-
-                            UseCaseItem useCases ->
-                                Svg.g [] <|
-                                    List.indexedMap
-                                        (\j useCase ->
-                                            case useCase of
-                                                UseCase name ->
-                                                    useCaseView model.settings name ( useCaseSize * 5, (useCaseSize * 3) * j )
-
-                                                Extend name useCaseName ->
-                                                    Svg.g [] []
-
-                                                Include name useCaseName ->
-                                                    Svg.g [] []
-                                        )
-                                        useCases
-                    )
-                    u
+            Svg.g [] []
 
         _ ->
             Empty.view
@@ -63,26 +40,24 @@ useCaseView settings name ( x, y ) =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt x
         , SvgAttr.y <| String.fromInt y
-        , SvgAttr.width "250"
-        , SvgAttr.height "100"
+        , SvgAttr.fill "transparent"
+        , SvgAttr.width "1"
+        , SvgAttr.height "1"
+        , SvgAttr.style "overflow: visible"
         ]
         [ Html.div
-            [ Attr.style "display" "flex"
-            , Attr.style "align-items" "center"
-            , Attr.style "justify-content" "center"
-            , Attr.style "padding" "8px"
+            [ Attr.style "display" "inline-block"
+            , Attr.style "padding" "32px 64px"
             , Attr.style "font-family" <| Diagram.fontStyle settings
             , Attr.style "word-wrap" "break-word"
             , Attr.style "border-radius" "50%"
-            , Attr.style "border-radius" "50%"
-            , Attr.style "width" "100%"
-            , Attr.style "height" "100%"
+            , Attr.style "max-width" "320px"
             , Attr.style "background-color" settings.color.activity.backgroundColor
             ]
             [ Html.div
                 [ Attr.style "color" settings.color.activity.color
                 ]
-                [ Html.text name ]
+                [ Html.text <| String.trim <| name ]
             ]
         ]
 
