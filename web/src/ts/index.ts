@@ -1,7 +1,7 @@
-import "./styles.scss";
-import { setElmApp } from "./ts/editor";
-import { initDownload } from "./ts/download";
-import { initDB } from "./ts/db";
+import "../styles.scss";
+import { setElmApp } from "./editor";
+import { initDownload } from "./download";
+import { initDB } from "./db";
 import {
     signOut,
     signIn,
@@ -9,12 +9,12 @@ import {
     providers,
     refreshToken,
     pollRefreshToken,
-} from "./ts/auth";
-import { loadSettings, saveSettings } from "./ts/settings";
-import { Settings } from "./ts/model";
-import { ElmApp, Provider } from "./ts/elm";
+} from "./auth";
+import { loadSettings, saveSettings } from "./settings";
+import { Settings } from "./model";
+import { ElmApp, Provider } from "./elm";
 // @ts-ignore
-import { Elm } from "./elm/Main.elm";
+import { Elm } from "../elm/Main.elm";
 import copy from "clipboard-copy";
 
 const lang =

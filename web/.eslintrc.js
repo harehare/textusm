@@ -3,8 +3,12 @@ module.exports = {
         browser: true,
         es2021: true,
     },
-
-    extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+    extends: [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:prettier/recommended",
+        "prettier/@typescript-eslint",
+    ],
     rules: {
         "import/prefer-default-export": "off",
         "@typescript-eslint/ban-ts-comment": "off",
@@ -18,5 +22,5 @@ module.exports = {
         sourceType: "module",
         ecmaVersion: 12,
     },
-    plugins: ["@typescript-eslint"],
+    plugins: ["@typescript-eslint", "prettier"],
 };
