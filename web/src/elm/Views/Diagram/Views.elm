@@ -104,7 +104,7 @@ card { settings, position, selectedItem, item, canMove } =
                     ( posX, posY )
                     ( settings.size.width, settings.size.height )
                     color
-                    (Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize)
+                    (Item.getFontSize item)
                     (Item.getText item)
                 ]
     in
@@ -137,7 +137,7 @@ card { settings, position, selectedItem, item, canMove } =
                         []
                     , inputView
                         { settings = settings
-                        , fontSize = Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize
+                        , fontSize = Item.getFontSize item
                         , position = ( posX, posY )
                         , size = ( settings.size.width, settings.size.height )
                         , color = color

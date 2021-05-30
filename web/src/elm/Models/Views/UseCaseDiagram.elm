@@ -1,4 +1,4 @@
-module Models.Views.UseCaseDiagram exposing (UseCase(..), UseCaseDiagram(..), from)
+module Models.Views.UseCaseDiagram exposing (Actor(..), Relation(..), UseCase(..), UseCaseDiagram(..), from)
 
 import Data.Item as Item exposing (Item, Items)
 
@@ -12,35 +12,39 @@ type UseCaseDiagram
 
 
 type Actor
-    = Actor Name (List UseCase)
+    = Actor Item (List UseCase)
 
 
 type UseCase
-    = UseCase Name
-    | Extend Name UseCase
-    | Include Name UseCase
+    = UseCase Item Relation
+
+
+type Relation
+    = Extend Name
+    | Include Name
+    | None
 
 
 itemToActor : Item -> Actor
 itemToActor item =
-    let
-        text =
-            Item.getText item
-    in
-    Actor text <| (Item.map (\i -> itemToUseCase i) <| Item.getChildrenItems item)
+    Actor item <| (Item.map (\i -> itemToUseCase i) <| Item.getChildrenItems item)
 
 
 itemToUseCase : Item -> UseCase
 itemToUseCase item =
-    case String.words <| String.trim <| Item.getText item of
-        [ u, "<", e ] ->
-            Extend e <| UseCase u
+    let
+        text =
+            Item.getText item
+    in
+    case String.words <| String.trim <| text of
+        [ _, "<", e ] ->
+            UseCase item <| Extend e
 
-        [ u, ">", i ] ->
-            Include i <| UseCase u
+        [ _, ">", i ] ->
+            UseCase item <| Include i
 
         _ ->
-            UseCase <| Item.getText item
+            UseCase item None
 
 
 from : Items -> UseCaseDiagram

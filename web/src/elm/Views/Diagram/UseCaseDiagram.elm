@@ -1,10 +1,13 @@
 module Views.Diagram.UseCaseDiagram exposing (view)
 
+import Data.FontSize as FontSize exposing (FontSize)
+import Data.Item as Item
 import Data.Position exposing (Position)
+import Dict exposing (Dict)
 import Html
 import Html.Attributes as Attr
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
-import Models.Views.UseCaseDiagram exposing (UseCase(..), UseCaseDiagram(..))
+import Models.Views.UseCaseDiagram exposing (Actor(..), Relation(..), UseCase(..), UseCaseDiagram(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Views.Empty as Empty
@@ -22,21 +25,79 @@ actorPosition =
 
 useCaseSize : Int
 useCaseSize =
-    50
+    40
+
+
+type alias UseCasePosition =
+    Dict String Position
 
 
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.UseCaseDiagram (UseCaseDiagram u) ->
-            Svg.g [] []
+        Diagram.UseCaseDiagram (UseCaseDiagram actors) ->
+            let
+                ( actorPositions, actorViews ) =
+                    actorInfo model.settings actors
+
+                ( useCasePositions, useCaseViews ) =
+                    useCaseInfo model.settings actors
+            in
+            Svg.g [] <| actorViews ++ useCaseViews
 
         _ ->
             Empty.view
 
 
-useCaseView : Settings -> String -> Position -> Svg Msg
-useCaseView settings name ( x, y ) =
+actorInfo : Settings -> List Actor -> ( UseCasePosition, List (Svg Msg) )
+actorInfo settings actors =
+    let
+        a =
+            List.indexedMap
+                (\i (Actor item _) ->
+                    let
+                        p =
+                            ( actorSize * 2, actorPosition * i )
+                    in
+                    ( ( Item.getText item, p )
+                    , actorView settings
+                        (Item.getFontSize item)
+                        (Item.getText item)
+                        p
+                    )
+                )
+                actors
+    in
+    ( Dict.fromList <| List.map Tuple.first a, List.map Tuple.second a )
+
+
+useCaseInfo : Settings -> List Actor -> ( UseCasePosition, List (Svg Msg) )
+useCaseInfo settings actors =
+    let
+        allUseCase =
+            List.map (\(Actor _ useCases) -> useCases) actors |> List.concat
+
+        a =
+            List.indexedMap
+                (\i (UseCase item _) ->
+                    let
+                        p =
+                            ( useCaseSize * 4, (useCaseSize * 2 + 20) * i )
+                    in
+                    ( ( Item.getText item, p )
+                    , useCaseView settings
+                        (Item.getFontSize item)
+                        (Item.getText item)
+                        p
+                    )
+                )
+                allUseCase
+    in
+    ( List.map Tuple.first a |> Dict.fromList, List.map Tuple.second a )
+
+
+useCaseView : Settings -> FontSize -> String -> Position -> Svg Msg
+useCaseView settings fontSize name ( x, y ) =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt x
         , SvgAttr.y <| String.fromInt y
@@ -47,7 +108,7 @@ useCaseView settings name ( x, y ) =
         ]
         [ Html.div
             [ Attr.style "display" "inline-block"
-            , Attr.style "padding" "32px 64px"
+            , Attr.style "padding" "16px 32px"
             , Attr.style "font-family" <| Diagram.fontStyle settings
             , Attr.style "word-wrap" "break-word"
             , Attr.style "border-radius" "50%"
@@ -56,14 +117,15 @@ useCaseView settings name ( x, y ) =
             ]
             [ Html.div
                 [ Attr.style "color" settings.color.activity.color
+                , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
                 ]
                 [ Html.text <| String.trim <| name ]
             ]
         ]
 
 
-actorView : Settings -> String -> Position -> Svg Msg
-actorView settings name ( x, y ) =
+actorView : Settings -> FontSize -> String -> Position -> Svg Msg
+actorView settings fontSize name ( x, y ) =
     let
         actirHalfSize =
             actorSize // 2
@@ -122,10 +184,12 @@ actorView settings name ( x, y ) =
             ]
             []
         , Svg.foreignObject
-            [ SvgAttr.x <| String.fromInt x
+            [ SvgAttr.x <| String.fromInt <| x - (actorSize * 3)
             , SvgAttr.y <| String.fromInt (y + actorSize * 7)
-            , SvgAttr.width <| String.fromInt <| actorSize * 2
-            , SvgAttr.height <| String.fromInt <| actorSize
+            , SvgAttr.fill "transparent"
+            , SvgAttr.width "1"
+            , SvgAttr.height "1"
+            , SvgAttr.style "overflow: visible"
             ]
             [ Html.div
                 [ Attr.style "display" "flex"
@@ -134,12 +198,14 @@ actorView settings name ( x, y ) =
                 , Attr.style "padding" "8px"
                 , Attr.style "font-family" <| Diagram.fontStyle settings
                 , Attr.style "word-wrap" "break-word"
-                , Attr.style "width" "100%"
+                , Attr.style "width" "160px"
                 , Attr.style "height" "100%"
                 , Attr.style "text-align" "center"
                 ]
                 [ Html.div
                     [ Attr.style "color" <| Diagram.getTextColor settings.color
+                    , Attr.style "padding" "8px"
+                    , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
                     ]
                     [ Html.text name ]
                 ]
