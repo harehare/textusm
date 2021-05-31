@@ -34,7 +34,7 @@
         "copy-webpack-plugin": "^9.0.0",
         "css-loader": "^5.2.6",
         "css-minimizer-webpack-plugin": "^3.0.0",
-        "cssnano-preset-advanced": "^5.1.1",
+        "cssnano-preset-advanced": "^5.1.2",
         "elm": "^0.19.1-5",
         "elm-hot-webpack-loader": "^1.1.8",
         "elm-test": "^0.19.1-revision7",
