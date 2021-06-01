@@ -7,7 +7,15 @@ import Dict exposing (Dict)
 import Html
 import Html.Attributes as Attr
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
-import Models.Views.UseCaseDiagram exposing (Actor(..), Relation(..), UseCase(..), UseCaseDiagram(..))
+import Models.Views.UseCaseDiagram as UseCaseDiagram
+    exposing
+        ( Actor(..)
+        , Relation(..)
+        , UseCase(..)
+        , UseCaseDiagram(..)
+        , UseCaseRelation
+        )
+import Set
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Views.Empty as Empty
@@ -35,13 +43,19 @@ type alias UseCasePosition =
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.UseCaseDiagram (UseCaseDiagram actors) ->
+        Diagram.UseCaseDiagram (UseCaseDiagram actors relation) ->
             let
+                useCases =
+                    List.map (\(Actor _ a) -> List.map (\(UseCase u) -> u) a) actors
+                        |> List.concat
+                        |> Set.fromList
+                        |> Set.toList
+
                 ( actorPositions, actorViews ) =
                     actorInfo model.settings actors
 
                 ( useCasePositions, useCaseViews ) =
-                    useCaseInfo model.settings actors
+                    useCaseInfo model.settings 1 relation useCases
             in
             Svg.g [] <| actorViews ++ useCaseViews
 
@@ -71,33 +85,36 @@ actorInfo settings actors =
     ( Dict.fromList <| List.map Tuple.first a, List.map Tuple.second a )
 
 
-useCaseInfo : Settings -> List Actor -> ( UseCasePosition, List (Svg Msg) )
-useCaseInfo settings actors =
+useCaseInfo : Settings -> Int -> UseCaseRelation -> List String -> ( UseCasePosition, List (Svg Msg) )
+useCaseInfo settings hierarchy relation useCases =
     let
-        allUseCase =
-            List.map (\(Actor _ useCases) -> useCases) actors |> List.concat
-
         a =
             List.indexedMap
-                (\i (UseCase item _) ->
+                (\i name ->
                     let
+                        count =
+                            max (UseCaseDiagram.relationCount name relation // 2) 1
+
                         p =
-                            ( useCaseSize * 4, (useCaseSize * 2 + 20) * i )
+                            ( useCaseSize * 4 * hierarchy
+                            , (useCaseSize * count * 2) * i
+                            )
                     in
-                    ( ( Item.getText item, p )
+                    ( ( name, p )
                     , useCaseView settings
-                        (Item.getFontSize item)
-                        (Item.getText item)
+                        settings.color.activity
+                        FontSize.default
+                        name
                         p
                     )
                 )
-                allUseCase
+                useCases
     in
     ( List.map Tuple.first a |> Dict.fromList, List.map Tuple.second a )
 
 
-useCaseView : Settings -> FontSize -> String -> Position -> Svg Msg
-useCaseView settings fontSize name ( x, y ) =
+useCaseView : Settings -> Diagram.Color -> FontSize -> String -> Position -> Svg Msg
+useCaseView settings color fontSize name ( x, y ) =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt x
         , SvgAttr.y <| String.fromInt y
@@ -113,10 +130,10 @@ useCaseView settings fontSize name ( x, y ) =
             , Attr.style "word-wrap" "break-word"
             , Attr.style "border-radius" "50%"
             , Attr.style "max-width" "320px"
-            , Attr.style "background-color" settings.color.activity.backgroundColor
+            , Attr.style "background-color" color.backgroundColor
             ]
             [ Html.div
-                [ Attr.style "color" settings.color.activity.color
+                [ Attr.style "color" color.color
                 , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
                 ]
                 [ Html.text <| String.trim <| name ]
