@@ -5,6 +5,8 @@ module Models.Views.UseCaseDiagram exposing
     , UseCaseDiagram(..)
     , UseCaseRelation
     , from
+    , getRelationName
+    , getRelations
     , relationCount
     )
 
@@ -13,16 +15,12 @@ import Dict exposing (Dict)
 import Maybe.Extra as MaybeEx
 
 
-type alias Name =
-    String
-
-
 type UseCaseDiagram
     = UseCaseDiagram (List Actor) UseCaseRelation
 
 
 type UseCase
-    = UseCase Name
+    = UseCase Item
 
 
 type Actor
@@ -34,15 +32,15 @@ type alias UseCaseRelation =
 
 
 type Relation
-    = Extend Name
-    | Include Name
+    = Extend Item
+    | Include Item
 
 
-relationCount : String -> UseCaseRelation -> Int
-relationCount name relations =
+relationCount : Item -> UseCaseRelation -> Int
+relationCount item relations =
     let
         childrens =
-            Dict.get name relations
+            Dict.get (Item.getText item) relations
 
         relationName relation =
             case relation of
@@ -60,15 +58,31 @@ relationCount name relations =
             1
 
 
+getRelations : Item -> UseCaseRelation -> Maybe (List Relation)
+getRelations item relation =
+    Dict.get (String.trim <| Item.getText item) relation
+
+
+getRelationName : Relation -> String
+getRelationName r =
+    Item.getText <|
+        case r of
+            Extend n ->
+                n
+
+            Include n ->
+                n
+
+
 itemToActor : Item -> Maybe Actor
 itemToActor item =
     let
-        text =
+        originalText =
             Item.getText item
     in
-    case ( String.left 1 text, String.right 1 text ) of
+    case ( String.left 1 originalText, String.right 1 originalText ) of
         ( "[", "]" ) ->
-            Just <| Actor item <| (Item.map (\i -> UseCase <| Item.getText i) <| Item.getChildrenItems item)
+            Just <| Actor item <| (Item.map (\i -> UseCase <| i) <| Item.getChildrenItems item)
 
         _ ->
             Nothing
@@ -77,12 +91,17 @@ itemToActor item =
 itemToUseCase : Item -> Maybe UseCaseRelation
 itemToUseCase item =
     let
-        text =
+        originalText =
             Item.getText item
+
+        name =
+            originalText
+                |> String.dropLeft 1
+                |> String.dropRight 1
     in
-    case ( String.left 1 text, String.right 1 text ) of
+    case ( String.left 1 originalText, String.right 1 originalText ) of
         ( "(", ")" ) ->
-            Just <| Dict.fromList [ ( text, Item.map itemToRelation (Item.getChildrenItems item) ) ]
+            Just <| Dict.fromList [ ( name, Item.map itemToRelation (Item.getChildrenItems item) ) ]
 
         _ ->
             Nothing
@@ -95,14 +114,14 @@ itemToRelation item =
             Item.getText item
     in
     case String.words <| String.trim <| text of
-        [ "<", e ] ->
-            Extend e
+        [ "<", _ ] ->
+            Extend item
 
-        [ ">", i ] ->
-            Include i
+        [ ">", _ ] ->
+            Include item
 
         _ ->
-            Extend text
+            Extend item
 
 
 emptyActor : Actor
