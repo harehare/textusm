@@ -2,7 +2,7 @@ module Views.Diagram.UseCaseDiagram exposing (view)
 
 import Data.FontSize as FontSize exposing (FontSize)
 import Data.Item as Item exposing (Item)
-import Data.Position exposing (Position)
+import Data.Position as Position exposing (Position)
 import Dict exposing (Dict)
 import Html
 import Html.Attributes as Attr
@@ -16,6 +16,7 @@ import Models.Views.UseCaseDiagram as UseCaseDiagram
         , UseCaseDiagram(..)
         , UseCaseRelation
         )
+import State as State exposing (Step(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Views.Empty as Empty
@@ -54,9 +55,45 @@ view model =
                     actorInfo model.settings actors
 
                 ( useCasePositions, useCaseViews ) =
-                    useCaseInfo model.settings 1 relation useCases
+                    useCaseInfo
+                        { settings = model.settings
+                        , basePosition = ( useCaseSize, 0 )
+                        , baseHierarchy = 1
+                        , relation = relation
+                        , useCases = useCases
+                        }
+
+                actorLine =
+                    List.map
+                        (\(Actor a ul) ->
+                            let
+                                maybeActorPosition =
+                                    Dict.get (UseCaseDiagram.getName a) actorPositions
+
+                                lines =
+                                    List.map
+                                        (\(UseCase u) ->
+                                            let
+                                                maybeUseCasePosition =
+                                                    Dict.get (UseCaseDiagram.getName u) useCasePositions
+                                            in
+                                            case ( maybeActorPosition, maybeUseCasePosition ) of
+                                                ( Just ap, Just up ) ->
+                                                    useCaseLineView model.settings ap up
+
+                                                _ ->
+                                                    Svg.g [] []
+                                        )
+                                        ul
+                            in
+                            lines
+                        )
+                        actors
+                        |> List.concat
             in
-            Svg.g [] <| arrowView model.settings :: (actorViews ++ useCaseViews)
+            Svg.g [] <|
+                arrowView model.settings
+                    :: (actorLine ++ actorViews ++ useCaseViews)
 
         _ ->
             Empty.view
@@ -72,10 +109,10 @@ actorInfo settings actors =
                         p =
                             ( actorSize * 2, actorPosition * i )
                     in
-                    ( ( Item.getText item, p )
+                    ( ( UseCaseDiagram.getName item, p )
                     , actorView settings
                         (Item.getFontSize item)
-                        (Item.getText item)
+                        (UseCaseDiagram.getName item)
                         p
                     )
                 )
@@ -84,73 +121,133 @@ actorInfo settings actors =
     ( Dict.fromList <| List.map Tuple.first a, List.map Tuple.second a )
 
 
-useCasePosition : Int -> Int -> Int -> ( Int, Int )
-useCasePosition hierarchy number index =
-    ( useCaseSize * 4 * hierarchy
-    , useCaseSize * number * 2 * index
+useCasePosition : { hierarchy : Int, relationCount : Int, nextPosition : Position } -> Position
+useCasePosition { hierarchy, relationCount, nextPosition } =
+    ( useCaseSize * 7 * hierarchy
+    , Position.getY nextPosition + (useCaseSize + 40) * relationCount
     )
 
 
-useCaseInfo : Settings -> Int -> UseCaseRelation -> List Item -> ( UseCasePosition, List (Svg Msg) )
-useCaseInfo settings hierarchy relation useCases =
+useCaseInfo :
+    { settings : Settings
+    , basePosition : Position
+    , baseHierarchy : Int
+    , relation : UseCaseRelation
+    , useCases : List Item
+    }
+    -> ( UseCasePosition, List (Svg Msg) )
+useCaseInfo { settings, basePosition, baseHierarchy, relation, useCases } =
     let
-        a =
-            List.indexedMap
-                (\i useCaseItem ->
-                    let
-                        name =
-                            Item.getText useCaseItem
+        loop { hierarchy, nextPosition, index, result, head, tail } =
+            let
+                name =
+                    Item.getText head
+                        |> String.trim
 
-                        position =
-                            useCasePosition hierarchy
-                                (max
-                                    (UseCaseDiagram.relationCount useCaseItem relation // 2)
-                                    1
+                relationCount =
+                    max (UseCaseDiagram.relationCount head relation) 1
+
+                position =
+                    useCasePosition
+                        { hierarchy = hierarchy
+                        , relationCount = max (relationCount // 2) 1
+                        , nextPosition = nextPosition
+                        }
+
+                newPosition =
+                    useCasePosition
+                        { hierarchy = hierarchy
+                        , relationCount = relationCount
+                        , nextPosition = nextPosition
+                        }
+
+                relationUseCases =
+                    case UseCaseDiagram.getRelations head relation of
+                        Just relationItems ->
+                            List.indexedMap
+                                (\i relationItem ->
+                                    let
+                                        relationName =
+                                            UseCaseDiagram.getRelationName relationItem
+
+                                        p =
+                                            useCasePosition
+                                                { hierarchy = hierarchy + 1
+                                                , relationCount = (i + 1) - max (relationCount // 2) 1
+                                                , nextPosition = position
+                                                }
+                                    in
+                                    ( ( relationName, p )
+                                    , [ relationLineView settings position p relationItem
+                                      , useCaseView settings
+                                            settings.color.task
+                                            FontSize.default
+                                            relationName
+                                            p
+                                      ]
+                                    )
                                 )
-                                i
+                                relationItems
 
-                        relationUseCases =
-                            case UseCaseDiagram.getRelations useCaseItem relation of
-                                Just relationItems ->
-                                    List.indexedMap
-                                        (\j relationItem ->
-                                            let
-                                                relationName =
-                                                    UseCaseDiagram.getRelationName relationItem
+                        Nothing ->
+                            []
 
-                                                p =
-                                                    useCasePosition (hierarchy + 1) j i
-                                            in
-                                            ( ( relationName, p )
-                                            , [ relationLineView settings position p relationItem
-                                              , useCaseView settings
-                                                    settings.color.activity
-                                                    FontSize.default
-                                                    relationName
-                                                    p
-                                              ]
-                                            )
-                                        )
-                                        relationItems
+                r =
+                    relationUseCases
+                        ++ [ ( ( name, position )
+                             , [ useCaseView settings
+                                    settings.color.activity
+                                    FontSize.default
+                                    name
+                                    position
+                               ]
+                             )
+                           ]
+            in
+            Loop
+                { nextPosition = newPosition
+                , hierarchy = hierarchy
+                , index = index + 1
+                , result = result ++ r
+                , restUseCases = tail
+                }
 
-                                Nothing ->
-                                    []
-                                        |> Debug.log "aa"
-                    in
-                    ( ( name, position )
-                    , [ useCaseView settings
-                            settings.color.activity
-                            FontSize.default
-                            name
-                            position
-                      ]
-                    )
-                        :: relationUseCases
-                )
-                useCases
+        go { nextPosition, hierarchy, index, result, restUseCases } =
+            case restUseCases of
+                x :: [] ->
+                    loop
+                        { nextPosition = nextPosition
+                        , hierarchy = hierarchy
+                        , index = index
+                        , result = result
+                        , head = x
+                        , tail = []
+                        }
+
+                x :: xs ->
+                    loop
+                        { nextPosition = nextPosition
+                        , hierarchy = hierarchy
+                        , index = index
+                        , result = result
+                        , head = x
+                        , tail = xs
+                        }
+
+                _ ->
+                    Done result
+
+        a =
+            State.tailRec go
+                { nextPosition = basePosition
+                , hierarchy = baseHierarchy
+                , index = 0
+                , result = []
+                , restUseCases = useCases
+                }
     in
-    ( a |> List.concat |> List.map Tuple.first |> Dict.fromList
-    , a |> List.concat |> List.map Tuple.second |> List.concat
+    ( a |> List.map Tuple.first |> Dict.fromList
+    , a |> List.map Tuple.second |> List.concat
     )
 
 
@@ -186,7 +283,17 @@ relationToString r =
 
 
 relationLineView : Settings -> Position -> Position -> Relation -> Svg Msg
-relationLineView settings ( fromX, fromY ) ( toX, toY ) r =
+relationLineView settings ( x1, y1 ) ( x2, y2 ) r =
+    let
+        ( fromX, fromY ) =
+            ( x1 + useCaseSize, y1 + useCaseSize // 2 + 10 )
+
+        ( toX, toY ) =
+            ( x2 - 2, y2 + useCaseSize // 2 + 10 )
+
+        ( centerX, centerY ) =
+            ( fromX + (toX - fromX) // 5 * 3, fromY + (toY - fromY) // 5 * 3 - 10 )
+    in
     Svg.g []
         [ Svg.line
             [ SvgAttr.x1 <| String.fromInt <| fromX
@@ -200,24 +307,21 @@ relationLineView settings ( fromX, fromY ) ( toX, toY ) r =
             ]
             []
         , Svg.foreignObject
-            [ SvgAttr.x <| String.fromInt fromX
-            , SvgAttr.y <| String.fromInt fromY
+            [ SvgAttr.x <| String.fromInt <| centerX - useCaseSize
+            , SvgAttr.y <| String.fromInt <| centerY - useCaseSize
             , SvgAttr.fill "transparent"
             , SvgAttr.width "1"
             , SvgAttr.height "1"
             , SvgAttr.style "overflow: visible"
             ]
             [ Html.div
-                [ Attr.style "display" "inline-block"
-                , Attr.style "padding" "16px 32px"
+                [ Attr.style "padding" "32px"
                 , Attr.style "font-family" <| Diagram.fontStyle settings
-                , Attr.style "word-wrap" "break-word"
-                , Attr.style "border-radius" "50%"
                 , Attr.style "background-color" "transparent"
                 ]
                 [ Html.div
                     [ Attr.style "color" <| Diagram.getTextColor settings.color
-                    , FontSize.htmlFontSize FontSize.default
+                    , FontSize.htmlFontSize FontSize.xs
                     ]
                     [ Html.text <| "<<" ++ relationToString r ++ ">>" ]
                 ]
@@ -226,8 +330,16 @@ relationLineView settings ( fromX, fromY ) ( toX, toY ) r =
 
 
 useCaseLineView : Settings -> Position -> Position -> Svg Msg
-useCaseLineView settings src dest =
-    Svg.g [] []
+useCaseLineView settings ( x1, y1 ) ( x2, y2 ) =
+    Svg.line
+        [ SvgAttr.x1 <| String.fromInt <| x1 + actorSize * 2
+        , SvgAttr.y1 <| String.fromInt <| y1 + actorSize * 3
+        , SvgAttr.x2 <| String.fromInt <| x2
+        , SvgAttr.y2 <| String.fromInt <| y2 + actorSize
+        , SvgAttr.stroke settings.color.line
+        , SvgAttr.strokeWidth "1"
+        ]
+        []
 
 
 useCaseView : Settings -> Diagram.Color -> FontSize -> String -> Position -> Svg Msg

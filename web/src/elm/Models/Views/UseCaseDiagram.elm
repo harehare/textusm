@@ -5,6 +5,7 @@ module Models.Views.UseCaseDiagram exposing
     , UseCaseDiagram(..)
     , UseCaseRelation
     , from
+    , getName
     , getRelationName
     , getRelations
     , relationCount
@@ -36,11 +37,42 @@ type Relation
     | Include Item
 
 
+getName : Item -> String
+getName item =
+    let
+        text =
+            String.trim <| Item.getText item
+
+        l =
+            String.left 1 <| text
+
+        trimText v =
+            v
+                |> String.dropLeft 1
+                |> String.trim
+    in
+    case l of
+        "[" ->
+            trimText text |> String.dropRight 1
+
+        "(" ->
+            trimText text |> String.dropRight 1
+
+        "<" ->
+            trimText text
+
+        ">" ->
+            trimText text
+
+        _ ->
+            text
+
+
 relationCount : Item -> UseCaseRelation -> Int
 relationCount item relations =
     let
         childrens =
-            Dict.get (Item.getText item) relations
+            Dict.get (Item.getText item |> String.trim) relations
 
         relationName relation =
             case relation of
@@ -55,7 +87,7 @@ relationCount item relations =
             List.length c + (List.map (\v -> relationCount (relationName v) relations) c |> List.sum)
 
         Nothing ->
-            1
+            0
 
 
 getRelations : Item -> UseCaseRelation -> Maybe (List Relation)
@@ -65,7 +97,7 @@ getRelations item relation =
 
 getRelationName : Relation -> String
 getRelationName r =
-    Item.getText <|
+    getName <|
         case r of
             Extend n ->
                 n

@@ -271,7 +271,7 @@ canvas settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                         { settings = settings
                         , fontSize =
                             Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
-                                |> Maybe.withDefault FontSize.fontSize20
+                                |> Maybe.withDefault FontSize.lg
                         , position = ( posX, posY )
                         , size = ( svgWidth, settings.size.height )
                         , color =
@@ -311,7 +311,7 @@ canvasBottom settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                         { settings = settings
                         , fontSize =
                             Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
-                                |> Maybe.withDefault FontSize.fontSize20
+                                |> Maybe.withDefault FontSize.lg
                         , position = ( posX, posY )
                         , size = ( svgWidth, settings.size.height )
                         , color = settings.color.label
@@ -361,7 +361,7 @@ title settings ( posX, posY ) item =
                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                 |> Maybe.withDefault settings.color.label
             )
-        , FontSize.svgFontSize FontSize.fontSize20
+        , FontSize.svgFontSize FontSize.lg
         , SvgAttr.fontWeight "bold"
         , SvgAttr.class "select-none ts-title"
         , Events.onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
