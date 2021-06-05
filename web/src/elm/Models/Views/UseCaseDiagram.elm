@@ -6,6 +6,7 @@ module Models.Views.UseCaseDiagram exposing
     , UseCaseRelation
     , from
     , getName
+    , getRelationItem
     , getRelationName
     , getRelations
     , relationCount
@@ -92,18 +93,23 @@ relationCount item relations =
 
 getRelations : Item -> UseCaseRelation -> Maybe (List Relation)
 getRelations item relation =
-    Dict.get (String.trim <| Item.getText item) relation
+    Dict.get (getName item) relation
+
+
+getRelationItem : Relation -> Item
+getRelationItem r =
+    case r of
+        Extend n ->
+            n
+
+        Include n ->
+            n
 
 
 getRelationName : Relation -> String
 getRelationName r =
     getName <|
-        case r of
-            Extend n ->
-                n
-
-            Include n ->
-                n
+        getRelationItem r
 
 
 itemToActor : Item -> Maybe Actor
