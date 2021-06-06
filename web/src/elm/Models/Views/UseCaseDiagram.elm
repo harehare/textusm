@@ -4,11 +4,13 @@ module Models.Views.UseCaseDiagram exposing
     , UseCase(..)
     , UseCaseDiagram(..)
     , UseCaseRelation
+    , allRelationCount
     , from
     , getName
     , getRelationItem
     , getRelationName
     , getRelations
+    , hierarchy
     , relationCount
     )
 
@@ -44,15 +46,12 @@ getName item =
         text =
             String.trim <| Item.getText item
 
-        l =
-            String.left 1 <| text
-
         trimText v =
             v
                 |> String.dropLeft 1
                 |> String.trim
     in
-    case l of
+    case String.left 1 <| text of
         "[" ->
             trimText text |> String.dropRight 1
 
@@ -117,6 +116,7 @@ itemToActor item =
     let
         originalText =
             Item.getText item
+                |> String.trim
     in
     case ( String.left 1 originalText, String.right 1 originalText ) of
         ( "[", "]" ) ->
@@ -131,6 +131,7 @@ itemToUseCase item =
     let
         originalText =
             Item.getText item
+                |> String.trim
 
         name =
             originalText
@@ -151,11 +152,11 @@ itemToRelation item =
         text =
             Item.getText item
     in
-    case String.words <| String.trim <| text of
-        [ "<", _ ] ->
+    case String.left 1 <| String.trim <| text of
+        "<" ->
             Extend item
 
-        [ ">", _ ] ->
+        ">" ->
             Include item
 
         _ ->
@@ -184,3 +185,43 @@ from items =
             |> List.map (Maybe.withDefault emptyUseCaseRelation)
             |> List.foldl Dict.union Dict.empty
         )
+
+
+allRelationCount : List Item -> UseCaseRelation -> Int
+allRelationCount items relations =
+    List.map
+        (\i ->
+            case getRelations i relations of
+                Just r ->
+                    List.length r + allRelationCount (List.map getRelationItem r) relations
+
+                Nothing ->
+                    1
+        )
+        items
+        |> List.sum
+
+
+hierarchy : List Item -> UseCaseRelation -> Int
+hierarchy items relations =
+    case items of
+        x :: [] ->
+            case getRelations x relations of
+                Just _ ->
+                    2
+
+                Nothing ->
+                    1
+
+        x :: xs ->
+            (case getRelations x relations of
+                Just _ ->
+                    2
+
+                Nothing ->
+                    1
+            )
+                + hierarchy xs relations
+
+        _ ->
+            0

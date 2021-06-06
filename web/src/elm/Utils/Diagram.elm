@@ -10,6 +10,13 @@ import Models.Views.FreeForm as FreeForm
 import Models.Views.GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
 import Models.Views.Kanban as Kanban
 import Models.Views.SequenceDiagram as SequenceDiagram
+import Models.Views.UseCaseDiagram as UseCaseDiagram
+    exposing
+        ( Actor(..)
+        , Relation(..)
+        , UseCase(..)
+        , UseCaseDiagram(..)
+        )
 import Models.Views.UserStoryMap as UserStoryMap
 import TextUSM.Enum.Diagram as Diagram
 import Time exposing (Month(..))
@@ -198,72 +205,97 @@ getCanvasSize model =
                             ( 0, 0 )
 
                 Diagram.Kanban ->
-                    let
-                        kanban =
-                            Kanban.from model.items
-                    in
-                    ( Kanban.getListCount kanban * (model.settings.size.width + Constants.itemMargin * 3), Kanban.getCardCount kanban * (model.settings.size.height + Constants.itemMargin) + Constants.itemMargin * 2 )
+                    case model.data of
+                        DiagramModel.Kanban kanban ->
+                            ( Kanban.getListCount kanban * (model.settings.size.width + Constants.itemMargin * 3), Kanban.getCardCount kanban * (model.settings.size.height + Constants.itemMargin) + Constants.itemMargin * 2 )
+
+                        _ ->
+                            ( 0, 0 )
 
                 Diagram.SequenceDiagram ->
-                    let
-                        sequenceDiagram =
-                            SequenceDiagram.from model.items
+                    case model.data of
+                        DiagramModel.SequenceDiagram sequenceDiagram ->
+                            let
+                                diagramWidth =
+                                    SequenceDiagram.participantCount sequenceDiagram * (model.settings.size.width + Constants.participantMargin) + 8
 
-                        diagramWidth =
-                            SequenceDiagram.participantCount sequenceDiagram * (model.settings.size.width + Constants.participantMargin) + 8
+                                diagramHeight =
+                                    SequenceDiagram.messageCountAll sequenceDiagram
+                                        * Constants.messageMargin
+                                        + model.settings.size.height
+                                        * 4
+                                        + Constants.messageMargin
+                                        + 8
+                            in
+                            ( diagramWidth, diagramHeight )
 
-                        diagramHeight =
-                            SequenceDiagram.messageCountAll sequenceDiagram
-                                * Constants.messageMargin
-                                + model.settings.size.height
-                                * 4
-                                + Constants.messageMargin
-                                + 8
-                    in
-                    ( diagramWidth, diagramHeight )
+                        _ ->
+                            ( 0, 0 )
 
                 Diagram.Freeform ->
-                    let
-                        items =
-                            FreeForm.from model.items
-                                |> FreeForm.unwrap
+                    case model.data of
+                        DiagramModel.FreeForm freeForm ->
+                            let
+                                items =
+                                    freeForm
+                                        |> FreeForm.unwrap
 
-                        positionList =
-                            Item.indexedMap
-                                (\i item ->
-                                    let
-                                        ( offsetX, offsetY ) =
-                                            Item.getOffset item
-                                    in
-                                    ( 16 + (modBy 4 i + 1) * (model.settings.size.width + 32)
-                                    , (i // 4 + 1) * (model.settings.size.height + 32)
-                                    )
-                                        |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
-                                )
-                                items
+                                positionList =
+                                    Item.indexedMap
+                                        (\i item ->
+                                            let
+                                                ( offsetX, offsetY ) =
+                                                    Item.getOffset item
+                                            in
+                                            ( 16 + (modBy 4 i + 1) * (model.settings.size.width + 32)
+                                            , (i // 4 + 1) * (model.settings.size.height + 32)
+                                            )
+                                                |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+                                        )
+                                        items
 
-                        freeFormWidth =
-                            List.map
-                                (\( w, _ ) ->
-                                    w
-                                )
-                                positionList
-                                |> List.maximum
-                                |> Maybe.withDefault 0
+                                freeFormWidth =
+                                    List.map
+                                        (\( w, _ ) ->
+                                            w
+                                        )
+                                        positionList
+                                        |> List.maximum
+                                        |> Maybe.withDefault 0
 
-                        freeFormHeight =
-                            List.map
-                                (\( _, h ) ->
-                                    h
-                                )
-                                positionList
-                                |> List.maximum
-                                |> Maybe.withDefault 0
-                    in
-                    ( freeFormWidth, freeFormHeight )
+                                freeFormHeight =
+                                    List.map
+                                        (\( _, h ) ->
+                                            h
+                                        )
+                                        positionList
+                                        |> List.maximum
+                                        |> Maybe.withDefault 0
+                            in
+                            ( freeFormWidth, freeFormHeight )
+
+                        _ ->
+                            ( 0, 0 )
 
                 Diagram.UseCaseDiagram ->
-                    ( 0, 0 )
+                    case model.data of
+                        DiagramModel.UseCaseDiagram (UseCaseDiagram actors relations) ->
+                            let
+                                useCases =
+                                    List.map (\(Actor _ a) -> List.map (\(UseCase u) -> u) a) actors
+                                        |> List.concat
+                                        |> ListEx.uniqueBy Item.getText
+
+                                count =
+                                    UseCaseDiagram.allRelationCount useCases relations
+
+                                hierarchy =
+                                    UseCaseDiagram.hierarchy useCases relations
+                            in
+                            ( hierarchy * 320, count * 70 )
+
+                        _ ->
+                            ( 0, 0 )
     in
     ( width, height )
 

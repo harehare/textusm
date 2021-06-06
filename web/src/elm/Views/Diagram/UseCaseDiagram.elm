@@ -17,6 +17,7 @@ import Models.Views.UseCaseDiagram as UseCaseDiagram
         , UseCaseDiagram(..)
         , UseCaseRelation
         )
+import Set exposing (Set)
 import State as State exposing (Step(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
@@ -88,10 +89,11 @@ view model =
                 ( useCasePositions, useCaseViews ) =
                     useCasesView
                         { settings = model.settings
-                        , basePosition = ( useCaseSize, 0 )
+                        , basePosition = ( 0, -50 )
                         , baseHierarchy = 1
                         , relation = relation
                         , useCases = useCases
+                        , allUseCaseName = useCases |> List.map (\v -> Item.getText v |> String.trim) |> Set.fromList
                         }
 
                 actorLine =
@@ -171,9 +173,14 @@ actorsView settings actors =
 
 useCasePosition : { hierarchy : Int, relationCount : Int, nextPosition : Position } -> Position
 useCasePosition { hierarchy, relationCount, nextPosition } =
-    ( useCaseSize * 7 * hierarchy
+    ( useCaseSize * 8 * hierarchy
     , Position.getY nextPosition + (useCaseSize + actorSize2) * relationCount
     )
+
+
+adjustmentLinePosition : Position -> Int -> Position
+adjustmentLinePosition position index =
+    Tuple.mapBoth (\x -> x - index * 5) (\y -> y + index * 4) position
 
 
 useCasesView :
@@ -182,9 +189,10 @@ useCasesView :
     , baseHierarchy : Int
     , relation : UseCaseRelation
     , useCases : List Item
+    , allUseCaseName : Set String
     }
     -> ( UseCasePosition, List (Svg Msg) )
-useCasesView { settings, basePosition, baseHierarchy, relation, useCases } =
+useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUseCaseName } =
     let
         loop { hierarchy, nextPosition, index, result, head, tail } =
             let
@@ -249,18 +257,20 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases } =
                                                 , baseHierarchy = hierarchy + 2
                                                 , relation = relation
                                                 , useCases = subRelations |> List.map UseCaseDiagram.getRelationItem
+                                                , allUseCaseName = allUseCaseName
                                                 }
 
                                         subLines =
-                                            List.map
-                                                (\v ->
+                                            List.indexedMap
+                                                (\j v ->
                                                     relationLineView
                                                         { settings = settings
-                                                        , from = subPosition
+                                                        , from = adjustmentLinePosition subPosition j
                                                         , to =
                                                             Dict.get (UseCaseDiagram.getRelationName v) subPositions
                                                                 |> Maybe.withDefault Position.zero
                                                         , relation = v
+                                                        , reverse = not <| Set.member relationName allUseCaseName
                                                         }
                                                 )
                                                 subRelations
@@ -270,9 +280,10 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases } =
                                         ++ subUseCases
                                         ++ [ Lazy.lazy relationLineView
                                                 { settings = settings
-                                                , from = position
+                                                , from = adjustmentLinePosition position i
                                                 , to = subPosition
                                                 , relation = relationItem
+                                                , reverse = not <| Set.member name allUseCaseName
                                                 }
                                            , Lazy.lazy useCaseView
                                                 { settings = settings
@@ -381,17 +392,30 @@ relationToString r =
             "include"
 
 
-relationLineView : { settings : Settings, from : Position, to : Position, relation : Relation } -> Svg Msg
-relationLineView { settings, from, to, relation } =
+relationLineView : { settings : Settings, from : Position, to : Position, relation : Relation, reverse : Bool } -> Svg Msg
+relationLineView { settings, from, to, relation, reverse } =
     let
         ( fromX, fromY ) =
-            ( Position.getX from + useCaseSize, Position.getY from + useCaseSize // 2 + actorHalfSize )
+            ( Position.getX from
+                + (if reverse then
+                    useCaseSize * 4 - 5
+
+                   else
+                    useCaseSize * 4 - actorBaseSize
+                  )
+            , Position.getY from + useCaseSize // 2 + actorHalfSize
+            )
 
         ( toX, toY ) =
-            ( Position.getX to - 2, Position.getY to + useCaseSize // 2 + actorHalfSize )
+            ( Position.getX to - 2
+            , Position.getY to + useCaseSize // 2 + actorHalfSize
+            )
 
         ( centerX, centerY ) =
             ( fromX + (toX - fromX) // 5 * 3, fromY + (toY - fromY) // 5 * 3 - actorHalfSize )
+
+        diffY =
+            toY - fromY
     in
     Svg.g []
         [ Svg.line
@@ -402,7 +426,11 @@ relationLineView { settings, from, to, relation } =
             , SvgAttr.stroke settings.color.line
             , SvgAttr.strokeWidth "1"
             , SvgAttr.strokeDasharray "15 5"
-            , SvgAttr.markerEnd "url(#arrow)"
+            , if reverse then
+                SvgAttr.markerStart "url(#arrow)"
+
+              else
+                SvgAttr.markerEnd "url(#arrow)"
             ]
             []
         , Svg.foreignObject
@@ -414,7 +442,11 @@ relationLineView { settings, from, to, relation } =
             , SvgAttr.style "overflow: visible"
             ]
             [ Html.div
-                [ Attr.style "padding" "32px"
+                [ if diffY < 10 then
+                    Attr.style "padding" "32px 0 0 0"
+
+                  else
+                    Attr.style "padding" "28px 0 0 24px"
                 , Attr.style "font-family" <| Diagram.fontStyle settings
                 , Attr.style "background-color" "transparent"
                 ]
@@ -458,6 +490,7 @@ useCaseView { settings, color, fontSize, name, position } =
             , Attr.style "word-wrap" "break-word"
             , Attr.style "border-radius" "50%"
             , Attr.style "min-width" "150px"
+            , Attr.style "max-height" "80px"
             , Attr.style "background-color" color.backgroundColor
             ]
             [ Html.div
