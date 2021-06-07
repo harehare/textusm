@@ -292,7 +292,7 @@ getCanvasSize model =
                                 hierarchy =
                                     UseCaseDiagram.hierarchy useCases relations
                             in
-                            ( hierarchy * 320, count * 70 )
+                            ( (hierarchy + 1) * 320, count * 70 )
 
                         _ ->
                             ( 0, 0 )

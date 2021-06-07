@@ -1,9 +1,11 @@
 module Views.Diagram.UseCaseDiagram exposing (view)
 
+import Data.Color as Color
 import Data.FontSize as FontSize exposing (FontSize)
 import Data.Item as Item exposing (Item)
 import Data.Position as Position exposing (Position)
 import Dict exposing (Dict)
+import Events
 import Html
 import Html.Attributes as Attr
 import Html.Lazy as Lazy
@@ -287,6 +289,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                                                 }
                                            , Lazy.lazy useCaseView
                                                 { settings = settings
+                                                , item = UseCaseDiagram.getRelationItem relationItem
                                                 , color = settings.color.task
                                                 , fontSize = FontSize.default
                                                 , name = relationName
@@ -305,6 +308,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                         ++ [ ( ( name, position )
                              , [ Lazy.lazy useCaseView
                                     { settings = settings
+                                    , item = head
                                     , color = settings.color.activity
                                     , fontSize = FontSize.default
                                     , name = name
@@ -398,10 +402,10 @@ relationLineView { settings, from, to, relation, reverse } =
         ( fromX, fromY ) =
             ( Position.getX from
                 + (if reverse then
-                    useCaseSize * 4 - 5
+                    useCaseSize * 4 - actorBaseSize - 10
 
                    else
-                    useCaseSize * 4 - actorBaseSize
+                    useCaseSize * 3 - actorBaseSize
                   )
             , Position.getY from + useCaseSize // 2 + actorHalfSize
             )
@@ -473,32 +477,32 @@ useCaseLineView { settings, from, to } =
         []
 
 
-useCaseView : { settings : Settings, color : Diagram.Color, fontSize : FontSize, name : String, position : Position } -> Svg Msg
-useCaseView { settings, color, fontSize, name, position } =
+useCaseView : { settings : Settings, item : Item, color : Diagram.Color, fontSize : FontSize, name : String, position : Position } -> Svg Msg
+useCaseView { settings, item, color, fontSize, name, position } =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt <| Position.getX position
         , SvgAttr.y <| String.fromInt <| Position.getY position
         , SvgAttr.fill "transparent"
-        , SvgAttr.width "1"
+        , SvgAttr.width "130"
         , SvgAttr.height "1"
         , SvgAttr.style "overflow: visible"
+        , Events.onClickStopPropagation <|
+            Select <|
+                Just ( item, ( Position.getX position, Position.getY position + 60 ) )
         ]
         [ Html.div
-            [ Attr.style "display" "inline-block"
-            , Attr.style "padding" "16px 32px"
+            [ Attr.style "display" "block"
+            , Attr.style "padding" "16px 24px"
             , Attr.style "font-family" <| Diagram.fontStyle settings
             , Attr.style "word-wrap" "break-word"
             , Attr.style "border-radius" "50%"
-            , Attr.style "min-width" "150px"
-            , Attr.style "max-height" "80px"
-            , Attr.style "background-color" color.backgroundColor
+            , Attr.style "max-height" "100px"
+            , Attr.style "background-color" <| Color.toString <| Maybe.withDefault Color.background2Defalut <| Item.getBackgroundColor item
+            , Attr.style "color" <| Color.toString <| Maybe.withDefault Color.white <| Item.getForegroundColor item
+            , Attr.style "line-height" "1.1rem"
+            , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
             ]
-            [ Html.div
-                [ Attr.style "color" color.color
-                , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
-                ]
-                [ Html.text <| String.trim <| name ]
-            ]
+            [ Html.text <| String.trim <| name ]
         ]
 
 

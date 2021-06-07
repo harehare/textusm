@@ -38,6 +38,7 @@
         "css-minimizer-webpack-plugin": "^3.0.1",
         "cssnano-preset-advanced": "^5.1.2",
         "elm": "^0.19.1-5",
+        "elm-constants": "^1.0.0",
         "elm-hot-webpack-loader": "^1.1.8",
         "elm-test": "^0.19.1-revision7",
         "elm-webpack-loader": "^8.0.0",
@@ -95,6 +96,7 @@
         "vscode:build": "elm make src/elm/Extension/VSCode.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/vscode/js/",
         "lib:build": "elm make src/elm/Extension/Lib.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/lib/src/js/",
         "generate-elm-types": "elm-graphql http://localhost:8081/graphql --base TextUSM --output src/elm",
+        "generate-elm-constants": "elm-constants --no-dotenv",
         "format": "prettier --write src/**/*.{js,jsx,ts,tsx}",
         "lint": "eslint --fix src/ts/*.ts",
         "prepare": "cd .. && husky install"

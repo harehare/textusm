@@ -7,6 +7,7 @@ import Data.IpAddress as IpAddress exposing (IpAddress)
 import Data.Session as Session exposing (Session)
 import Data.Size as Size exposing (Size)
 import Data.Title as Title exposing (Title)
+import Env
 import Events
 import GraphQL.Query exposing (ShareCondition)
 import GraphQL.Request as Request
@@ -97,7 +98,7 @@ sharUrl : RemoteData String String -> Diagram -> String
 sharUrl token diagramType =
     case token of
         Success t ->
-            crossOrigin "https://app.textusm.com"
+            crossOrigin Env.webRoot
                 [ "view"
                 , DiagramType.toString diagramType
                 , t
@@ -123,7 +124,7 @@ embedUrl { token, diagramType, title, embedSize } =
                     Size.getHeight embedSize
 
                 embed =
-                    crossOrigin "https://app.textusm.com"
+                    crossOrigin Env.webRoot
                         [ "embed"
                         , DiagramType.toString diagramType
                         , Title.toString title

@@ -17,6 +17,7 @@ module Asset exposing
     , src
     , startStopContinue
     , table
+    , useCaseDiagram
     , userPersona
     , userStoryMap
     )
@@ -112,6 +113,11 @@ table =
 sequenceDiagram : Asset
 sequenceDiagram =
     asset "diagram/sed.svg"
+
+
+useCaseDiagram : Asset
+useCaseDiagram =
+    asset "diagram/ucd.svg"
 
 
 freeform : Asset

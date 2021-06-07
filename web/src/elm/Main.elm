@@ -27,6 +27,7 @@ import Data.Text as Text
 import Data.Title as Title
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
+import Env
 import File.Download as Download
 import GraphQL.Request as Request
 import GraphQL.RequestError as RequestError
@@ -79,8 +80,7 @@ import Views.SwitchWindow as SwitchWindow
 
 
 type alias Flags =
-    { apiRoot : String
-    , lang : String
+    { lang : String
     , settings : D.Value
     }
 
@@ -96,7 +96,7 @@ init flags url key =
             Translations.fromString flags.lang
 
         ( diagramListModel, _ ) =
-            DiagramList.init Session.guest lang flags.apiRoot
+            DiagramList.init Session.guest lang Env.apiRoot
 
         ( diagramModel, _ ) =
             Diagram.init initSettings.storyMap
@@ -105,7 +105,7 @@ init flags url key =
             Share.init
                 { diagram = Diagram.UserStoryMap
                 , diagramId = DiagramId.fromString ""
-                , apiRoot = flags.apiRoot
+                , apiRoot = Env.apiRoot
                 , session = Session.guest
                 , title = Title.untitled
                 }
@@ -132,7 +132,7 @@ init flags url key =
                 , key = key
                 , switchWindow = Left
                 , progress = False
-                , apiRoot = flags.apiRoot
+                , apiRoot = Env.apiRoot
                 , session = Session.guest
                 , currentDiagram = initSettings.diagram
                 , page = Page.Main
