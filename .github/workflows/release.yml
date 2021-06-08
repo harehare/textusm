@@ -5,10 +5,11 @@ jobs:
     name: release
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: setup ruby
         uses: actions/setup-ruby@v1
-        with:
-          ruby-version: 2.6.x
       - name: Create a release pull request
         env:
           GIT_PR_RELEASE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -16,5 +17,5 @@ jobs:
           GIT_PR_RELEASE_BRANCH_STAGING: master
           GIT_PR_RELEASE_LABELS: release
         run: |
-          gem install -N git-pr-release -v "1.2.0"
+          gem install -N git-pr-release
           git-pr-release --no-fetch
