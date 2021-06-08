@@ -194,6 +194,6 @@
     "url": "https://github.com/harehare/textusm.git"
   },
   "dependencies": {
-    "svgo": "^2.0.3"
+    "svgo": "^2.3.0"
   }
 }

@@ -26,7 +26,7 @@ module Constants exposing
 
 version : String
 version =
-    "v0.7.1"
+    "v0.8.0"
 
 
 space : String
