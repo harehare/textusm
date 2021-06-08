@@ -202,31 +202,33 @@ allRelationCount items relations =
         |> List.sum
 
 
-hierarchyHelper : Int -> List Item -> UseCaseRelation -> List Int
+hierarchy : List Item -> UseCaseRelation -> Int
+hierarchy items relations =
+    hierarchyHelper 1 items relations
+
+
+hierarchyHelper : Int -> List Item -> UseCaseRelation -> Int
 hierarchyHelper h items relations =
     case items of
         x :: [] ->
             case getRelations x relations of
                 Just r ->
-                    h :: hierarchyHelper (h + 1) (List.map getRelationItem r) relations
+                    hierarchyHelper (h + 1) (List.map getRelationItem r) relations
 
                 Nothing ->
-                    [ h ]
+                    h
 
         x :: xs ->
-            (case getRelations x relations of
-                Just r ->
-                    h :: hierarchyHelper (h + 1) (List.map getRelationItem r) relations
+            max
+                (case getRelations x relations of
+                    Just r ->
+                        hierarchyHelper (h + 1) (List.map getRelationItem r) relations
 
-                Nothing ->
-                    [ h ]
-            )
-                ++ hierarchyHelper h xs relations
+                    Nothing ->
+                        h
+                )
+            <|
+                hierarchyHelper h xs relations
 
         _ ->
-            []
-
-
-hierarchy : List Item -> UseCaseRelation -> Int
-hierarchy items relations =
-    hierarchyHelper 1 items relations |> List.maximum |> Maybe.withDefault 1
+            h
