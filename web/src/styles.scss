@@ -6,6 +6,7 @@
 :root {
     --main-color: #273037;
     --text-color: #f5f5f6;
+    --secondary-text-color: #b9b9b9;
     --dark-text-color: #555;
     --background-color: #323d46;
     --light-background-color: #fefefe;
@@ -19,24 +20,6 @@
         YuGothicM, メイリオ, Meiryo, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --main-color: #273037;
-        --text-color: #f5f5f6;
-        --dark-text-color: #828288;
-        --background-color: #323d46;
-        --light-background-color: #fefefe;
-        --accent-color: #3e9bcd;
-        --border-color: #47474a;
-        --error-color: #ff0000;
-        --comment-color: #008800;
-        --activity-color: #266b9a;
-        --font-family: "Nunito Sans", apple-system, BlinkMacSystemFont,
-            Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium,
-            YuGothic, YuGothicM, メイリオ, Meiryo, sans-serif;
-    }
-}
-
 @layer base {
     html:focus-within {
         scroll-behavior: smooth;
@@ -47,7 +30,7 @@
         @apply p-0;
         @apply font;
         @apply overflow-hidden;
-        @apply bg-default;
+        @apply bg-main;
         @apply antialiased;
         -webkit-text-size-adjust: 100%;
     }
@@ -89,8 +72,11 @@
         @apply text-xl font-semibold;
     }
     .button {
-        @apply p-0.5 lg:p-3 cursor-pointer relative text-color flex items-center;
-
+        @apply p-0.5;
+        @apply lg:p-3;
+        @apply cursor-pointer;
+        @apply relative text-color flex items-center;
+        @apply rounded-sm;
         &:hover {
             .bottom-tooltip {
                 @apply visible opacity-100 text-color;
@@ -149,14 +135,17 @@
     .full-screen {
         @apply w-screen h-screen;
     }
-    .content-height {
-        height: calc(100vh - 35px);
+    .h-content {
+        height: calc(100vh - 40px - 2rem);
     }
     .font {
         font-family: var(--font-family);
     }
     .text-color {
         color: var(--text-color);
+    }
+    .text-secondary-color {
+        color: var(--secondary-text-color);
     }
     .text-accent {
         color: var(--accent-color);
@@ -217,6 +206,9 @@
     }
     .border-main {
         border: 1px solid var(--main-color);
+    }
+    .border-content {
+        border: 1px solid rgba(0, 0, 0, 0.1);
     }
     @variants responsive {
         .h-main {
@@ -490,7 +482,7 @@
 }
 
 .menu-item {
-    @apply cursor-pointer text-base font-bold;
+    @apply cursor-pointer text-sm	font-bold;
     padding: 16px;
 }
 
@@ -801,7 +793,7 @@
     }
 
     .item {
-        @apply block bg-light;
+        @apply block bg-light relative;
         padding: 8px;
 
         &::after {
@@ -817,7 +809,7 @@
     .dropdown-item {
         @apply w-full block;
         padding: 8px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         background-color: var(--light-background-color);
 
         &:hover {

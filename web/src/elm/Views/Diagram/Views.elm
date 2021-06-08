@@ -12,7 +12,7 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events exposing (onInput)
 import Markdown
-import Models.Diagram as Diagram exposing (Msg(..), SelectedItem, Settings, fontStyle, settingsOfWidth)
+import Models.Diagram as Diagram exposing (Msg(..), SelectedItem, Settings, settingsOfWidth)
 import String
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
@@ -104,7 +104,7 @@ card { settings, position, selectedItem, item, canMove } =
                     ( posX, posY )
                     ( settings.size.width, settings.size.height )
                     color
-                    (Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize)
+                    (Item.getFontSize item)
                     (Item.getText item)
                 ]
     in
@@ -137,11 +137,10 @@ card { settings, position, selectedItem, item, canMove } =
                         []
                     , inputView
                         { settings = settings
-                        , fontSize = Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize
+                        , fontSize = Item.getFontSize item
                         , position = ( posX, posY )
                         , size = ( settings.size.width, settings.size.height )
                         , color = color
-                        , backgroundColor = backgroundColor
                         , item = item_
                         }
                     ]
@@ -159,43 +158,36 @@ inputView :
     , position : Position
     , size : Size
     , color : RgbColor
-    , backgroundColor : RgbColor
     , item : Item
     }
     -> Svg Msg
-inputView { settings, fontSize, position, size, color, backgroundColor, item } =
+inputView { settings, fontSize, position, size, color, item } =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt <| Position.getX position
         , SvgAttr.y <| String.fromInt <| Position.getY position
         , SvgAttr.width <| String.fromInt <| Size.getWidth size
         , SvgAttr.height <| String.fromInt <| Size.getHeight size
         ]
-        [ Html.div
-            [ Attr.style "background-color" backgroundColor
-            , Attr.style "width" (String.fromInt (Size.getWidth size) ++ "px")
-            , Attr.style "height" (String.fromInt (Size.getHeight size) ++ "px")
+        [ Html.input
+            [ Attr.id "edit-item"
+            , Attr.type_ "text"
+            , Attr.autofocus True
+            , Attr.autocomplete False
+            , Attr.style "padding" "8px 8px 8px 0"
+            , Attr.style "font-family" <| Diagram.fontStyle settings
+            , Attr.style "color" color
+            , Attr.style "background-color" "transparent"
+            , Attr.style "border" "none"
+            , Attr.style "outline" "none"
+            , Attr.style "width" (String.fromInt (Size.getWidth size - 20) ++ "px")
+            , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
+            , Attr.style "margin-left" "2px"
+            , Attr.style "margin-top" "2px"
+            , Attr.value <| " " ++ String.trimLeft (Item.getText item)
+            , onInput EditSelectedItem
+            , Events.onEnter <| EndEditSelectedItem item
             ]
-            [ Html.input
-                [ Attr.id "edit-item"
-                , Attr.type_ "text"
-                , Attr.autofocus True
-                , Attr.autocomplete False
-                , Attr.style "padding" "8px 8px 8px 0"
-                , Attr.style "font-family" (fontStyle settings)
-                , Attr.style "color" color
-                , Attr.style "background-color" "transparent"
-                , Attr.style "border" "none"
-                , Attr.style "outline" "none"
-                , Attr.style "width" (String.fromInt (Size.getWidth size - 20) ++ "px")
-                , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
-                , Attr.style "margin-left" "2px"
-                , Attr.style "margin-top" "2px"
-                , Attr.value <| " " ++ String.trimLeft (Item.getText item)
-                , onInput EditSelectedItem
-                , Events.onEnter <| EndEditSelectedItem item
-                ]
-                []
-            ]
+            []
         ]
 
 
@@ -236,7 +228,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs cardText =
             ]
             [ Html.div
                 [ Attr.style "padding" "8px"
-                , Attr.style "font-family" (fontStyle settings)
+                , Attr.style "font-family" <| Diagram.fontStyle settings
                 , Attr.style "word-wrap" "break-word"
                 ]
                 [ Html.text cardText ]
@@ -250,7 +242,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs cardText =
             , SvgAttr.height <| String.fromInt svgHeight
             , SvgAttr.fill colour
             , SvgAttr.color colour
-            , SvgAttr.fontFamily (fontStyle settings)
+            , SvgAttr.fontFamily <| Diagram.fontStyle settings
             , FontSize.svgFontSize fs
             , SvgAttr.class "select-none"
             ]
@@ -279,7 +271,7 @@ canvas settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                         { settings = settings
                         , fontSize =
                             Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
-                                |> Maybe.withDefault FontSize.fontSize20
+                                |> Maybe.withDefault FontSize.lg
                         , position = ( posX, posY )
                         , size = ( svgWidth, settings.size.height )
                         , color =
@@ -288,7 +280,6 @@ canvas settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                                 |> ItemSettings.getForegroundColor
                                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                                 |> Maybe.withDefault settings.color.label
-                        , backgroundColor = "transparent"
                         , item = item_
                         }
                     , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
@@ -320,11 +311,10 @@ canvasBottom settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                         { settings = settings
                         , fontSize =
                             Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
-                                |> Maybe.withDefault FontSize.fontSize20
+                                |> Maybe.withDefault FontSize.lg
                         , position = ( posX, posY )
                         , size = ( svgWidth, settings.size.height )
                         , color = settings.color.label
-                        , backgroundColor = "transparent"
                         , item = item_
                         }
                     , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
@@ -363,7 +353,7 @@ title settings ( posX, posY ) item =
     Svg.text_
         [ SvgAttr.x <| String.fromInt posX
         , SvgAttr.y <| String.fromInt <| posY + 14
-        , SvgAttr.fontFamily <| fontStyle settings
+        , SvgAttr.fontFamily <| Diagram.fontStyle settings
         , SvgAttr.fill
             (Item.getItemSettings item
                 |> Maybe.withDefault ItemSettings.new
@@ -371,7 +361,7 @@ title settings ( posX, posY ) item =
                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                 |> Maybe.withDefault settings.color.label
             )
-        , FontSize.svgFontSize FontSize.fontSize20
+        , FontSize.svgFontSize FontSize.lg
         , SvgAttr.fontWeight "bold"
         , SvgAttr.class "select-none ts-title"
         , Events.onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
@@ -572,7 +562,7 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
         [ Html.div
             [ Attr.style "width" <| String.fromInt svgWidth ++ "px"
             , Attr.style "height" <| String.fromInt svgHeight ++ "px"
-            , Attr.style "font-family" <| fontStyle settings
+            , Attr.style "font-family" <| Diagram.fontStyle settings
             , Attr.style "word-wrap" "break-word"
             , Attr.style "display" "flex"
             , Attr.style "align-items" "center"
@@ -602,11 +592,11 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
             [ Html.input
                 [ Attr.id "edit-item"
                 , Attr.type_ "text"
-                , Attr.style "font-family" <| fontStyle settings
+                , Attr.style "font-family" <| Diagram.fontStyle settings
                 , Attr.autofocus True
                 , Attr.autocomplete False
                 , Attr.style "padding" "8px 8px 8px 0"
-                , Attr.style "font-family" (fontStyle settings)
+                , Attr.style "font-family" <| Diagram.fontStyle settings
                 , Attr.style "color"
                     (Item.getForegroundColor item
                         |> Maybe.withDefault Color.black
@@ -676,7 +666,6 @@ grid settings ( posX, posY ) selectedItem item =
                         , position = ( posX, posY )
                         , size = ( settings.size.width, settings.size.height )
                         , color = forgroundColor
-                        , backgroundColor = "transparent"
                         , item = item_
                         }
                     ]

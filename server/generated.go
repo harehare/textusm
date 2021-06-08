@@ -393,6 +393,7 @@ enum Diagram {
   TABLE
   SEQUENCE_DIAGRAM
   FREEFORM
+  USE_CASE_DIAGRAM
 }
 
 type Item {

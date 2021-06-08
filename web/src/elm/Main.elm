@@ -27,6 +27,7 @@ import Data.Text as Text
 import Data.Title as Title
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
+import Env
 import File.Download as Download
 import GraphQL.Request as Request
 import GraphQL.RequestError as RequestError
@@ -69,6 +70,7 @@ import Url
 import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils
 import Views.Empty as Empty
+import Views.Footer as Footer
 import Views.Header as Header
 import Views.Menu as Menu
 import Views.Notification as Notification
@@ -78,8 +80,7 @@ import Views.SwitchWindow as SwitchWindow
 
 
 type alias Flags =
-    { apiRoot : String
-    , lang : String
+    { lang : String
     , settings : D.Value
     }
 
@@ -95,7 +96,7 @@ init flags url key =
             Translations.fromString flags.lang
 
         ( diagramListModel, _ ) =
-            DiagramList.init Session.guest lang flags.apiRoot
+            DiagramList.init Session.guest lang Env.apiRoot
 
         ( diagramModel, _ ) =
             Diagram.init initSettings.storyMap
@@ -104,7 +105,7 @@ init flags url key =
             Share.init
                 { diagram = Diagram.UserStoryMap
                 , diagramId = DiagramId.fromString ""
-                , apiRoot = flags.apiRoot
+                , apiRoot = Env.apiRoot
                 , session = Session.guest
                 , title = Title.untitled
                 }
@@ -131,7 +132,7 @@ init flags url key =
                 , key = key
                 , switchWindow = Left
                 , progress = False
-                , apiRoot = flags.apiRoot
+                , apiRoot = Env.apiRoot
                 , session = Session.guest
                 , currentDiagram = initSettings.diagram
                 , page = Page.Main
@@ -149,7 +150,7 @@ init flags url key =
 
 editor : Model -> Html Msg
 editor model =
-    div [ id "editor", class "full" ]
+    div [ id "editor", class "full p-sm" ]
         [ Html.node "monaco-editor"
             [ attribute "value" <| Text.toString model.diagramModel.text
             , attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
@@ -200,7 +201,7 @@ view model =
             , class "overflow-hidden"
             , class "relative"
             , class "w-full"
-            , class "h-screen"
+            , class "h-content"
             ]
             [ Lazy.lazy Menu.view { page = model.page, route = toRoute model.url, text = model.diagramModel.text, width = Size.getWidth model.diagramModel.size, fullscreen = model.window.fullscreen, openMenu = model.openMenu, lang = model.lang }
             , let
@@ -317,6 +318,7 @@ view model =
 
             _ ->
                 Empty.view
+        , Footer.view
         ]
 
 

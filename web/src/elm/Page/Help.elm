@@ -12,8 +12,7 @@ view =
         [ class "help"
         ]
         [ div [ class "font-semibold flex items-center p-3 justify-start" ]
-            [ span [ class "text-2xl mr-2" ] [ text "ABOUT" ]
-            , span [ class "text-2xl ml-2" ] [ text "Text" ]
+            [ span [ class "text-2xl ml-2" ] [ text "Text" ]
             , img [ Asset.src Asset.logo, class "ml-2", style "width" "32px", alt "logo" ] []
             , span [ class "text-2xl ml-2" ] [ text "USM" ]
             ]

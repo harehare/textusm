@@ -2,7 +2,7 @@ module Page.Tags exposing (Model, Msg(..), init, update, view)
 
 import Browser.Dom as Dom
 import Events
-import Html exposing (Attribute, Html, div, input, text)
+import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (autofocus, class, id, placeholder, style)
 import Html.Events exposing (onClick, onInput)
 import List.Extra exposing (last)
@@ -83,7 +83,7 @@ view model =
     div
         [ class "w-full"
         , class "bg-default"
-        , class "content-height"
+        , class "h-content"
         , class "text-color"
         ]
         [ div
@@ -91,6 +91,7 @@ view model =
             , class "items-center"
             , class "flex-wrap"
             , class "w-full"
+            , class "h-14"
             , class "border-main"
             , style "adding" "8px"
             ]

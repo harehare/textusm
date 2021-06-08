@@ -32,6 +32,7 @@ import Models.Views.OpportunityCanvas as OpportunityCanvasModel
 import Models.Views.SequenceDiagram as SequenceDiagramModel
 import Models.Views.StartStopContinue as StartStopContinueModel
 import Models.Views.Table as TableModel
+import Models.Views.UseCaseDiagram as UseCaseDiagramModel
 import Models.Views.UserPersona as UserPersonaModel
 import Models.Views.UserStoryMap as UserStoryMapModel
 import Return as Return exposing (Return)
@@ -61,6 +62,7 @@ import Views.Diagram.SequenceDiagram as SequenceDiagram
 import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.Table as Table
+import Views.Diagram.UseCaseDiagram as UseCaseDiagram
 import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
 import Views.Empty as Empty
@@ -108,8 +110,12 @@ zoomControl isFullscreen scale =
         , Attr.style "right" "35px"
         , Attr.style "top" "5px"
         , Attr.style "display" "flex"
-        , Attr.style "width" "180px"
+        , Attr.style "width" "240px"
         , Attr.style "justify-content" "space-between"
+        , Attr.style "background-color" "#F4F4F4"
+        , Attr.style "border-radius" "4px"
+        , Attr.style "padding" "8px 16px"
+        , Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)"
         ]
         [ div
             [ Attr.style "width" "24px"
@@ -145,6 +151,7 @@ zoomControl isFullscreen scale =
             , Attr.style "cursor" "pointer"
             , Attr.style "font-weight" "600"
             , Attr.class ".select-none"
+            , Attr.style "width" "32px"
             ]
             [ Html.text (String.fromInt s ++ "%")
             ]
@@ -310,6 +317,9 @@ diagramView diagramType =
 
         Freeform ->
             FreeForm.view
+
+        UseCaseDiagram ->
+            UseCaseDiagram.view
 
 
 svgView : Model -> Position -> Size -> Svg Msg -> Svg Msg
@@ -603,6 +613,9 @@ updateDiagram ( width, height ) base text =
 
                 GanttChart ->
                     Diagram.GanttChart <| GanttChartModel.from items
+
+                UseCaseDiagram ->
+                    Diagram.UseCaseDiagram <| UseCaseDiagramModel.from items
 
         newModel =
             { base | items = items, data = data }

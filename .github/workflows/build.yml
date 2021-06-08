@@ -20,6 +20,12 @@ jobs:
         working-directory: web
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm install
+      - name: Generate elm-constants
+        working-directory: web
+        run: npm run generate-elm-constants
+        env:
+          API_ROOT: ${{ secrets.API_ROOT }}
+          WEB_ROOT: ${{ secrets.WEB_ROOT }}
       - name: Build
         working-directory: web
         env:
