@@ -1,10 +1,12 @@
 name: release
 on: [ workflow_dispatch ]
 jobs:
-  build:
+  release:
     name: release
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
       - name: create-release-pr
         uses: grassedge/git-pr-release-action@v1.0
         with:
