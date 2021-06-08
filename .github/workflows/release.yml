@@ -1,17 +1,20 @@
 name: release
 on: [ workflow_dispatch ]
 jobs:
-  release:
+  build:
     name: release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-      - name: create-release-pr
-        uses: grassedge/git-pr-release-action@v1.0
+      - name: setup ruby
+        uses: actions/setup-ruby@v1
         with:
-          base: release
-          head: master
-          token: ${{ secrets.GITHUB_TOKEN }}
-          labels: release
-          assign: true
+          ruby-version: 2.6.x
+      - name: Create a release pull request
+        env:
+          GIT_PR_RELEASE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_PR_RELEASE_BRANCH_PRODUCTION: release
+          GIT_PR_RELEASE_BRANCH_STAGING: master
+          GIT_PR_RELEASE_LABELS: release
+        run: |
+          gem install -N git-pr-release
+          git-pr-release --no-fetch
