@@ -36,6 +36,7 @@ type DiagramType =
   | "ERDiagram"
   | "Kanban"
   | "SequenceDiagram"
+  | "UseCaseDiagram"
   | "Freeform";
 
 interface Settings {

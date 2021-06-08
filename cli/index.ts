@@ -29,6 +29,7 @@ type DiagramKey =
   | "er_diagram"
   | "kanban"
   | "sequence_diagram"
+  | "use_case_diagram"
   | "free_form";
 
 const diagramMap: { readonly [T in DiagramKey]: DiagramSettings } = {
@@ -116,6 +117,11 @@ const diagramMap: { readonly [T in DiagramKey]: DiagramSettings } = {
     width: 1024,
     height: 1024,
     diagramType: "Freeform",
+  },
+  use_case_diagram: {
+    width: 1024,
+    height: 1024,
+    diagramType: "UseCaseDiagram",
   },
 };
 
@@ -338,6 +344,7 @@ const writeResult = (output: string | null, result: string): void => {
       });
       fs.writeFileSync(output, html);
     }
+    await page.close();
 
     if (cdp) {
       browser.disconnect();

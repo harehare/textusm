@@ -107,6 +107,9 @@ init flags =
                 else if flags.diagramType == "Freeform" then
                     Diagram.Freeform
 
+                else if flags.diagramType == "UseCaseDiagram" then
+                    Diagram.UseCaseDiagram
+
                 else
                     Diagram.UserStoryMap
             , text = Text.empty

@@ -15,6 +15,7 @@ const diagrams = [
   { label: "Gantt Chart", value: "gct" },
   { label: "ER Diagram", value: "erd" },
   { label: "Sequence Diagram", value: "sed" },
+  { label: "Use Case Diagram", value: "ucd" },
   { label: "Kanban", value: "kanban" },
   { label: "KPT Retrospective", value: "kpt" },
   { label: "Start, Stop, Continue Retrospective", value: "ssc" },
@@ -185,6 +186,12 @@ export function activate(context: vscode.ExtensionContext) {
                   values[0].value
                 );
                 break;
+              case "ucd":
+                newTextOpen(
+                  "[Customer]\n    Sign In\n    Buy Products\n(Buy Products)\n    >Browse Products\n    >Checkout\n(Checkout)\n    <Add New Credit Card\n[Staff]\n    Processs Order\n",
+                  values[0].value
+                );
+                break;
               default:
                 newTextOpen("", values[0].value);
                 break;
@@ -278,7 +285,6 @@ class DiagramPanel {
         );
 
         const svgo = await import("svgo");
-        // @ts-expect-error
         const optimizedSvg = svgo.optimize(
           `<?xml version="1.0"?>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${message.width} ${
@@ -293,7 +299,6 @@ class DiagramPanel {
           .join('<img xmlns="1http://www.w3.org/1999/xhtml"')}
         </svg>`,
           {
-            // @ts-expect-error
             plugins: svgo.extendDefaultPlugins([
               {
                 name: "convertStyleToAttrs",
