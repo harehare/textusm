@@ -5,11 +5,11 @@ jobs:
     name: release
     runs-on: ubuntu-latest
     steps:
-      - name: git-pr-release
-        uses: bakunyo/git-pr-release-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GIT_PR_RELEASE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GIT_PR_RELEASE_BRANCH_PRODUCTION: release
-          GIT_PR_RELEASE_BRANCH_STAGING: master
-          GIT_PR_RELEASE_LABELS: release
+      - name: create-release-pr
+        uses: grassedge/git-pr-release-action@v1.0
+        with:
+          base: release
+          head: master
+          token: ${{ secrets.GITHUB_TOKEN }}
+          labels: release
+          assign: true
