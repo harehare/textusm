@@ -44,7 +44,7 @@
         "elm-webpack-loader": "^8.0.0",
         "eslint": "^7.28.0",
         "eslint-config-airbnb-typescript-prettier": "^4.2.0",
-        "html-inline-css-webpack-plugin": "^1.11.0",
+        "html-inline-css-webpack-plugin": "^1.11.1",
         "html-webpack-plugin": "^5.3.1",
         "husky": "^6.0.0",
         "imagemin-webpack-plugin": "^2.4.2",
