@@ -26,6 +26,7 @@ jobs:
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
+          APP_VERSION: ${{ secrets.APP_VERSION }}
       - name: Build
         working-directory: web
         env:
