@@ -227,6 +227,7 @@ view model =
     div
         [ Attr.id "usm-area"
         , Attr.style "position" "relative"
+        , Attr.style "height" "100%"
         , case model.moveState of
             Diagram.BoardMove ->
                 Attr.style "cursor" "grabbing"

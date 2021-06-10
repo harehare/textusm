@@ -36,24 +36,25 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg 
                     Size.zero
     in
     Html.div
-        [ Attr.class "mini-map"
-        , Attr.style "position" "absolute"
-        , Attr.style "width" "260px"
-        , if showMiniMap then
-            Attr.style "height" "150px"
+        ([ Attr.class "mini-map"
+         , Attr.style "position" "absolute"
+         , Attr.style "width" "260px"
+         , Attr.style "background-color" "#fff"
+         , Attr.style "z-index" "1"
+         , Attr.style "cursor" "default"
+         , Attr.style "border-radius" "4px"
+         , Attr.style "bottom" "16px"
+         , Attr.style "right" "16px"
+         , Attr.style "transition" "height 0.15s ease-out"
+         , Attr.style "pointer-events" "none"
+         ]
+            ++ (if showMiniMap then
+                    [ Attr.style "height" "150px", Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)" ]
 
-          else
-            Attr.style "height" "0px"
-        , Attr.style "background-color" "#fff"
-        , Attr.style "z-index" "1"
-        , Attr.style "cursor" "default"
-        , Attr.style "border-radius" "4px"
-        , Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)"
-        , Attr.style "bottom" "16px"
-        , Attr.style "right" "16px"
-        , Attr.style "transition" "height 0.15s ease-out"
-        , Attr.style "pointer-events" "none"
-        ]
+                else
+                    [ Attr.style "height" "0px" ]
+               )
+        )
         [ if showMiniMap then
             Svg.svg
                 [ SvgAttr.width "270"

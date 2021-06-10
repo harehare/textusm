@@ -196,7 +196,11 @@ view model =
             , class "overflow-hidden"
             , class "relative"
             , class "w-full"
-            , class "h-content"
+            , if model.window.fullscreen then
+                class "h-screen"
+
+              else
+                class "h-content"
             ]
             [ Lazy.lazy Menu.view { page = model.page, route = toRoute model.url, text = model.diagramModel.text, width = Size.getWidth model.diagramModel.size, fullscreen = model.window.fullscreen, openMenu = model.openMenu, lang = model.lang }
             , let
