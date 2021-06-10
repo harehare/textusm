@@ -46,7 +46,7 @@ type Msg
     | UpdateSettings Settings.Msg
     | UpdateTags Tags.Msg
     | OpenMenu Menu
-    | Stop
+    | MoveStop
     | CloseMenu
     | Download FileType
     | DownloadCompleted ( Int, Int )
@@ -129,7 +129,6 @@ type alias Model =
     , notification : Maybe Notification
     , switchWindow : SwitchWindow
     , progress : Bool
-    , apiRoot : String
     , lang : Lang
     , view :
         { password : Maybe String

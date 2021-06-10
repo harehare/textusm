@@ -543,7 +543,7 @@ update message model =
                             model.publicDiagramList
 
                         remoteTask =
-                            Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session } (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
+                            Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
                                 |> Task.map
                                     (\i ->
                                         i
@@ -585,7 +585,7 @@ update message model =
                             if Session.isSignedIn model.session then
                                 let
                                     remoteItems =
-                                        Request.items { url = model.apiRoot, idToken = Session.getIdToken model.session } (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = False }
+                                        Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = False }
                                             |> Task.map
                                                 (\i ->
                                                     i
@@ -684,7 +684,7 @@ update message model =
                         Ok diagram ->
                             Return.command <|
                                 Task.attempt Removed
-                                    (Request.delete { url = model.apiRoot, idToken = Session.getIdToken model.session }
+                                    (Request.delete (Session.getIdToken model.session)
                                         (diagram.id |> Maybe.withDefault (DiagramId.fromString "") |> DiagramId.toString)
                                         False
                                         |> Task.map (\id -> id)
@@ -714,7 +714,7 @@ update message model =
                         \m ->
                             Return.return { m | diagramList = DiagramList (Success diagramList) pageNo hasMorePage }
                                 (Task.attempt Bookmarked
-                                    (Request.bookmark { url = model.apiRoot, idToken = Session.getIdToken model.session }
+                                    (Request.bookmark (Session.getIdToken model.session)
                                         (case diagram.id of
                                             Just id ->
                                                 DiagramId.toString id

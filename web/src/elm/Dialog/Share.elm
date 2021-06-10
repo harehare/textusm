@@ -51,7 +51,6 @@ type alias Model =
     , urlCopyState : CopyState
     , embedCopyState : CopyState
     , now : Posix
-    , apiRoot : String
     , session : Session
     , password : Maybe String
     , ip : InputCondition
@@ -141,27 +140,41 @@ embedUrl { token, diagramType, title, embedSize } =
             "Loading..."
 
 
-share : { diagramId : DiagramId, expireSecond : Int, password : Maybe String, allowIPList : List IpAddress, allowEmail : List Email } -> String -> Session -> Task String String
-share { diagramId, expireSecond, password, allowIPList, allowEmail } apiRoot session =
-    Request.share { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString diagramId) expireSecond password allowIPList allowEmail
+share :
+    { diagramId : DiagramId
+    , expireSecond : Int
+    , password : Maybe String
+    , allowIPList : List IpAddress
+    , allowEmail : List Email
+    }
+    -> Session
+    -> Task String String
+share { diagramId, expireSecond, password, allowIPList, allowEmail } session =
+    Request.share
+        { idToken = Session.getIdToken session
+        , itemID = DiagramId.toString diagramId
+        , expSecond = expireSecond
+        , password = password
+        , allowIPList = allowIPList
+        , allowEmailList = allowEmail
+        }
         |> Task.mapError (\_ -> "Failed to generate URL for sharing.")
 
 
-shareCondition : DiagramId -> String -> Session -> Task String (Maybe ShareCondition)
-shareCondition diagramId apiRoot session =
-    Request.shareCondition { url = apiRoot, idToken = Session.getIdToken session } (DiagramId.toString diagramId)
+shareCondition : DiagramId -> Session -> Task String (Maybe ShareCondition)
+shareCondition diagramId session =
+    Request.shareCondition (Session.getIdToken session) (DiagramId.toString diagramId)
         |> Task.mapError (\_ -> "Failed to generate URL for sharing.")
 
 
 init :
     { diagram : Diagram
     , diagramId : DiagramId
-    , apiRoot : String
     , session : Session
     , title : Title
     }
     -> Return Msg Model
-init { diagram, diagramId, apiRoot, session, title } =
+init { diagram, diagramId, session, title } =
     let
         initTask =
             Task.andThen
@@ -189,7 +202,6 @@ init { diagram, diagramId, apiRoot, session, title } =
                                     , allowIPList = []
                                     , allowEmail = []
                                     }
-                                    apiRoot
                                     session
                     in
                     case cond of
@@ -204,7 +216,7 @@ init { diagram, diagramId, apiRoot, session, title } =
                             shareReqTask
                 )
             <|
-                shareCondition diagramId apiRoot session
+                shareCondition diagramId session
     in
     Return.singleton
         { embedSize = ( 800, 600 )
@@ -219,7 +231,6 @@ init { diagram, diagramId, apiRoot, session, title } =
         , urlCopyState = NotCopy
         , embedCopyState = NotCopy
         , now = Time.millisToPosix 0
-        , apiRoot = apiRoot
         , session = session
         , password = Nothing
         , ip =
@@ -381,7 +392,6 @@ update msg model =
                                             , allowIPList = validIP
                                             , allowEmail = validMail
                                             }
-                                            model.apiRoot
                                             model.session
                                )
 
@@ -432,7 +442,6 @@ update msg model =
                                             , allowIPList = validIP
                                             , allowEmail = validMail
                                             }
-                                            model.apiRoot
                                             model.session
                                )
 

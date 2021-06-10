@@ -20,13 +20,7 @@ module Constants exposing
     , space
     , tableMargin
     , tableRowHeight
-    , version
     )
-
-
-version : String
-version =
-    "v0.8.0"
 
 
 space : String

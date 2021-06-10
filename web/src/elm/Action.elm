@@ -92,11 +92,11 @@ saveToLocal item =
     Return.command <| (Ports.saveDiagram <| DiagramItem.encoder { item | isRemote = False })
 
 
-saveToRemote : DiagramItem -> String -> Session -> Return.ReturnF Msg Model
-saveToRemote diagram apiRoot session =
+saveToRemote : DiagramItem -> Session -> Return.ReturnF Msg Model
+saveToRemote diagram session =
     let
         saveTask =
-            Request.save { url = apiRoot, idToken = Session.getIdToken session } (DiagramItem.toInputItem diagram) diagram.isPublic
+            Request.save (Session.getIdToken session) (DiagramItem.toInputItem diagram) diagram.isPublic
                 |> Task.mapError (\_ -> diagram)
     in
     Return.command <| Task.attempt SaveToRemoteCompleted saveTask

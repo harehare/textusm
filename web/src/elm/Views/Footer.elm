@@ -1,6 +1,6 @@
 module Views.Footer exposing (..)
 
-import Constants
+import Env
 import Html exposing (Html)
 import Html.Attributes as Attr
 
@@ -23,5 +23,5 @@ view =
             , Attr.class "font-bold"
             , Attr.class "pr-sm"
             ]
-            [ Html.text Constants.version ]
+            [ Html.text Env.appVersion ]
         ]

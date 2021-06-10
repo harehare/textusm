@@ -105,47 +105,42 @@ init flags url key =
             Share.init
                 { diagram = Diagram.UserStoryMap
                 , diagramId = DiagramId.fromString ""
-                , apiRoot = Env.apiRoot
                 , session = Session.guest
                 , title = Title.untitled
                 }
 
         ( settingsModel, _ ) =
             Settings.init initSettings
-
-        ( model, cmds ) =
-            changeRouteTo (toRoute url)
-                { diagramModel = { diagramModel | text = Text.fromString (Maybe.withDefault "" initSettings.text) }
-                , diagramListModel = diagramListModel
-                , settingsModel = settingsModel
-                , shareModel = shareModel
-                , openMenu = Nothing
-                , title = Title.fromString (Maybe.withDefault "" initSettings.title)
-                , window =
-                    { position = initSettings.position |> Maybe.withDefault 0
-                    , moveStart = False
-                    , moveX = 0
-                    , fullscreen = False
-                    }
-                , notification = Nothing
-                , url = url
-                , key = key
-                , switchWindow = Left
-                , progress = False
-                , apiRoot = Env.apiRoot
-                , session = Session.guest
-                , currentDiagram = initSettings.diagram
-                , page = Page.Main
-                , lang = lang
-                , view =
-                    { password = Nothing
-                    , authenticated = False
-                    , token = Nothing
-                    , error = Nothing
-                    }
-                }
     in
-    ( model, cmds )
+    changeRouteTo (toRoute url)
+        { diagramModel = { diagramModel | text = Text.fromString (Maybe.withDefault "" initSettings.text) }
+        , diagramListModel = diagramListModel
+        , settingsModel = settingsModel
+        , shareModel = shareModel
+        , openMenu = Nothing
+        , title = Title.fromString (Maybe.withDefault "" initSettings.title)
+        , window =
+            { position = initSettings.position |> Maybe.withDefault 0
+            , moveStart = False
+            , moveX = 0
+            , fullscreen = False
+            }
+        , notification = Nothing
+        , url = url
+        , key = key
+        , switchWindow = Left
+        , progress = False
+        , session = Session.guest
+        , currentDiagram = initSettings.diagram
+        , page = Page.Main
+        , lang = lang
+        , view =
+            { password = Nothing
+            , authenticated = False
+            , token = Nothing
+            , error = Nothing
+            }
+        }
 
 
 editor : Model -> Html Msg
@@ -427,9 +422,7 @@ changeRouteTo route model =
                             >> Return.command
                                 (Task.attempt Load <|
                                     Request.shareItem
-                                        { url = model.apiRoot
-                                        , idToken = Session.getIdToken model.session
-                                        }
+                                        (Session.getIdToken model.session)
                                         (ShareToken.toString id_)
                                         Nothing
                                 )
@@ -466,7 +459,12 @@ changeRouteTo route model =
                                 if Session.isSignedIn model.session then
                                     Action.updateIdToken
                                         >> Return.andThen (Action.switchPage Page.Main)
-                                        >> Return.command (Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_))
+                                        >> Return.command
+                                            (Task.attempt Load <|
+                                                Request.item
+                                                    (Session.getIdToken model.session)
+                                                    (DiagramId.toString id_)
+                                            )
 
                                 else
                                     Return.andThen (Action.switchPage Page.Main)
@@ -480,7 +478,12 @@ changeRouteTo route model =
                                         if item.isRemote then
                                             Action.updateIdToken
                                                 >> Return.andThen (Action.switchPage Page.Main)
-                                                >> Return.command (Task.attempt Load <| Request.item { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_))
+                                                >> Return.command
+                                                    (Task.attempt Load <|
+                                                        Request.item
+                                                            (Session.getIdToken model.session)
+                                                            (DiagramId.toString id_)
+                                                    )
 
                                         else
                                             Return.andThen (Action.switchPage Page.Main)
@@ -510,7 +513,12 @@ changeRouteTo route model =
                     Route.ViewPublic _ id_ ->
                         Action.updateIdToken
                             >> Return.andThen (Action.switchPage Page.Main)
-                            >> Return.command (Task.attempt Load <| Request.publicItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramId.toString id_))
+                            >> Return.command
+                                (Task.attempt Load <|
+                                    Request.publicItem
+                                        (Session.getIdToken model.session)
+                                        (DiagramId.toString id_)
+                                )
 
                     Route.Home ->
                         Return.andThen (Action.switchPage Page.Main)
@@ -532,7 +540,6 @@ changeRouteTo route model =
                                             Share.init
                                                 { diagram = diagram.diagram
                                                 , diagramId = diagram.id |> Maybe.withDefault (DiagramId.fromString "")
-                                                , apiRoot = model.apiRoot
                                                 , session = model.session
                                                 , title = model.title
                                                 }
@@ -556,7 +563,13 @@ changeRouteTo route model =
 
                                         else
                                             Return.andThen (Action.switchPage Page.Main)
-                                                >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (ShareToken.toString id_) Nothing)
+                                                >> Return.command
+                                                    (Task.attempt Load <|
+                                                        Request.shareItem
+                                                            (Session.getIdToken model.session)
+                                                            (ShareToken.toString id_)
+                                                            Nothing
+                                                    )
                                                 >> Return.andThen Action.startProgress
                                                 >> Return.andThen Action.changeRouteInit
                                        )
@@ -959,7 +972,7 @@ update message model =
                     in
                     case result of
                         Ok diagram ->
-                            Action.saveToRemote diagram model.apiRoot model.session
+                            Action.saveToRemote diagram model.session
                                 >> Return.andThen Action.startProgress
 
                         Err _ ->
@@ -1063,7 +1076,7 @@ update message model =
                                             |> Page.windowOfMoveX.set x
                                 }
 
-                Stop ->
+                MoveStop ->
                     Return.andThen <| \m -> Return.singleton { m | window = m.window |> Page.windowOfMoveStart.set False }
 
                 HandleWindowResize x ->
@@ -1123,7 +1136,13 @@ update message model =
 
                                             else
                                                 Return.andThen (Action.switchPage Page.Main)
-                                                    >> Return.command (Task.attempt Load <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken <| Session.signIn user } (ShareToken.toString id_) Nothing)
+                                                    >> Return.command
+                                                        (Task.attempt Load <|
+                                                            Request.shareItem
+                                                                (Session.getIdToken <| Session.signIn user)
+                                                                (ShareToken.toString id_)
+                                                                Nothing
+                                                        )
                                                     >> Return.andThen Action.startProgress
                                                     >> Return.andThen Action.changeRouteInit
 
@@ -1197,7 +1216,10 @@ update message model =
                         Just diagram ->
                             let
                                 saveTask =
-                                    Request.save { url = model.apiRoot, idToken = Session.getIdToken model.session } (DiagramItem.toInputItem diagram) isPublic
+                                    Request.save
+                                        (Session.getIdToken model.session)
+                                        (DiagramItem.toInputItem diagram)
+                                        isPublic
                                         |> Task.mapError (\_ -> diagram)
                             in
                             Action.updateIdToken
@@ -1238,7 +1260,13 @@ update message model =
                     case model.view.token of
                         Just token ->
                             Return.andThen (Action.switchPage Page.Main)
-                                >> Return.command (Task.attempt LoadWithPassword <| Request.shareItem { url = model.apiRoot, idToken = Session.getIdToken model.session } (ShareToken.toString token) model.view.password)
+                                >> Return.command
+                                    (Task.attempt LoadWithPassword <|
+                                        Request.shareItem
+                                            (Session.getIdToken model.session)
+                                            (ShareToken.toString token)
+                                            model.view.password
+                                    )
                                 >> Return.andThen Action.startProgress
 
                         Nothing ->
@@ -1282,7 +1310,7 @@ subscriptions model =
          , Ports.updateIdToken UpdateIdToken
          ]
             ++ (if model.window.moveStart then
-                    [ onMouseUp <| D.succeed Stop
+                    [ onMouseUp <| D.succeed MoveStop
                     , onMouseMove <| D.map HandleWindowResize (D.field "pageX" D.int)
                     ]
 
