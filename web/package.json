@@ -61,7 +61,7 @@
         "style-loader": "^2.0.0",
         "stylelint": "^13.13.1",
         "stylelint-config-prettier": "^7.0.0",
-        "stylelint-config-standard": "^18.3.0",
+        "stylelint-config-standard": "^22.0.0",
         "svg-inline-loader": "^0.8.2",
         "tailwindcss": "^2.1.4",
         "terser": "^5.7.0",
