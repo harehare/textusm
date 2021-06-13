@@ -290,7 +290,6 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                                            , Lazy.lazy useCaseView
                                                 { settings = settings
                                                 , item = UseCaseDiagram.getRelationItem relationItem
-                                                , color = settings.color.task
                                                 , fontSize = FontSize.default
                                                 , name = relationName
                                                 , position = subPosition
@@ -309,7 +308,6 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                              , [ Lazy.lazy useCaseView
                                     { settings = settings
                                     , item = head
-                                    , color = settings.color.activity
                                     , fontSize = FontSize.default
                                     , name = name
                                     , position = position
@@ -477,8 +475,8 @@ useCaseLineView { settings, from, to } =
         []
 
 
-useCaseView : { settings : Settings, item : Item, color : Diagram.Color, fontSize : FontSize, name : String, position : Position } -> Svg Msg
-useCaseView { settings, item, color, fontSize, name, position } =
+useCaseView : { settings : Settings, item : Item, fontSize : FontSize, name : String, position : Position } -> Svg Msg
+useCaseView { settings, item, fontSize, name, position } =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt <| Position.getX position
         , SvgAttr.y <| String.fromInt <| Position.getY position
