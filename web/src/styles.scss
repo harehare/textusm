@@ -522,7 +522,7 @@
 
 .help {
     @apply text-xl bg-default w-full text-color overflow-auto;
-    height: calc(100vh - 35px);
+    @apply h-content;
     @media (max-width: 480px) {
         @apply w-screen;
         height: calc(100vh - 130px);
