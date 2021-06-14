@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	firebase "firebase.google.com/go"
-	"github.com/harehare/textusm/pkg/values"
+	"github.com/harehare/textusm/pkg/context/values"
 )
 
 func AuthMiddleware(app *firebase.App) func(http.Handler) http.Handler {

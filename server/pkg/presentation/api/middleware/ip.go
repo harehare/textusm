@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/harehare/textusm/pkg/values"
+	"github.com/harehare/textusm/pkg/context/values"
 )
 
 func IPMiddleware() func(http.Handler) http.Handler {

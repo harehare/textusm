@@ -16,9 +16,12 @@ import (
 	firebase "firebase.google.com/go"
 	"github.com/kelseyhightower/envconfig"
 
-	"github.com/harehare/textusm/api/middleware"
-	"github.com/harehare/textusm/pkg/repository"
-	"github.com/harehare/textusm/pkg/service"
+	"github.com/harehare/textusm/pkg/domain/service"
+	itemRepo "github.com/harehare/textusm/pkg/infra/firestore/item"
+	shareRepo "github.com/harehare/textusm/pkg/infra/firestore/share"
+	userRepo "github.com/harehare/textusm/pkg/infra/firestore/user"
+	"github.com/harehare/textusm/pkg/presentation/api/middleware"
+	resolver "github.com/harehare/textusm/pkg/presentation/graphql"
 
 	gqlHandler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -86,9 +89,9 @@ func Run() int {
 		return 1
 	}
 
-	repo := repository.NewFirestoreItemRepository(firestore)
-	shareRepo := repository.NewFirestoreShareRepository(firestore)
-	userRepo := repository.NewFirebaseUserRepository(app)
+	repo := itemRepo.NewFirestoreItemRepository(firestore)
+	shareRepo := shareRepo.NewFirestoreShareRepository(firestore)
+	userRepo := userRepo.NewFirebaseUserRepository(app)
 	service := service.NewService(repo, shareRepo, userRepo)
 
 	r := chi.NewRouter()
@@ -109,7 +112,7 @@ func Run() int {
 			AllowCredentials: false,
 		}))
 		r.Use(httprate.LimitByIP(100, 1*time.Minute))
-		graphql := gqlHandler.New(NewExecutableSchema(Config{Resolvers: &Resolver{service: service, client: firestore}}))
+		graphql := gqlHandler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: resolver.New(service, firestore)}))
 		graphql.AddTransport(transport.Options{})
 		graphql.AddTransport(transport.POST{})
 		graphql.SetQueryCache(lru.New(100))

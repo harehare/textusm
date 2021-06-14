@@ -12,11 +12,14 @@ import (
 	"time"
 
 	jwt "github.com/form3tech-oss/jwt-go"
+	"github.com/harehare/textusm/pkg/context/values"
+	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
+	shareModel "github.com/harehare/textusm/pkg/domain/model/share"
+	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
+	shareRepo "github.com/harehare/textusm/pkg/domain/repository/share"
+	userRepo "github.com/harehare/textusm/pkg/domain/repository/user"
+	v "github.com/harehare/textusm/pkg/domain/values"
 	e "github.com/harehare/textusm/pkg/error"
-	"github.com/harehare/textusm/pkg/item"
-	"github.com/harehare/textusm/pkg/model"
-	"github.com/harehare/textusm/pkg/repository"
-	"github.com/harehare/textusm/pkg/values"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -28,12 +31,12 @@ var (
 )
 
 type Service struct {
-	repo      repository.ItemRepository
-	shareRepo repository.ShareRepository
-	userRepo  repository.UserRepository
+	repo      itemRepo.ItemRepository
+	shareRepo shareRepo.ShareRepository
+	userRepo  userRepo.UserRepository
 }
 
-func NewService(r repository.ItemRepository, s repository.ShareRepository, u repository.UserRepository) *Service {
+func NewService(r itemRepo.ItemRepository, s shareRepo.ShareRepository, u userRepo.UserRepository) *Service {
 	return &Service{
 		repo:      r,
 		shareRepo: s,
@@ -51,7 +54,7 @@ func isAuthenticated(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic bool) ([]*item.Item, error) {
+func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic bool) ([]*itemModel.Item, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -63,7 +66,7 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 		return nil, err
 	}
 
-	resultItems := make([]*item.Item, len(items))
+	resultItems := make([]*itemModel.Item, len(items))
 
 	for i, item := range items {
 		if item.Text != "" {
@@ -80,7 +83,7 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 	return resultItems, nil
 }
 
-func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool) (*item.Item, error) {
+func (s *Service) FindDiagram(ctx context.Context, itemID v.ItemID, isPublic bool) (*itemModel.Item, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -102,7 +105,7 @@ func (s *Service) FindDiagram(ctx context.Context, itemID string, isPublic bool)
 	return item, nil
 }
 
-func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic bool) (*item.Item, error) {
+func (s *Service) SaveDiagram(ctx context.Context, item *itemModel.Item, isPublic bool) (*itemModel.Item, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -149,7 +152,7 @@ func (s *Service) SaveDiagram(ctx context.Context, item *item.Item, isPublic boo
 	return resultItem, err
 }
 
-func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic bool) error {
+func (s *Service) DeleteDiagram(ctx context.Context, itemID v.ItemID, isPublic bool) error {
 	if err := isAuthenticated(ctx); err != nil {
 		return err
 	}
@@ -182,7 +185,7 @@ func (s *Service) DeleteDiagram(ctx context.Context, itemID string, isPublic boo
 	return s.repo.Delete(ctx, *userID, itemID, false)
 }
 
-func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error) {
+func (s *Service) Bookmark(ctx context.Context, itemID v.ItemID, isBookmark bool) (*itemModel.Item, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -196,7 +199,7 @@ func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) 
 	return s.SaveDiagram(ctx, diagramItem, false)
 }
 
-func (s *Service) FindShareItem(ctx context.Context, token string, password string) (*item.Item, error) {
+func (s *Service) FindShareItem(ctx context.Context, token string, password string) (*itemModel.Item, error) {
 	t, err := base64.RawURLEncoding.DecodeString(token)
 
 	if err != nil {
@@ -257,7 +260,7 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password stri
 	return item, nil
 }
 
-func (s *Service) FindShareCondition(ctx context.Context, itemID string) (*item.ShareCondition, error) {
+func (s *Service) FindShareCondition(ctx context.Context, itemID v.ItemID) (*shareModel.ShareCondition, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -286,7 +289,7 @@ func (s *Service) FindShareCondition(ctx context.Context, itemID string) (*item.
 		return nil, nil
 	}
 
-	return &item.ShareCondition{
+	return &shareModel.ShareCondition{
 		Token:          share.Token,
 		UsePassword:    share.Password != "",
 		ExpireTime:     int(share.ExpireTime),
@@ -295,7 +298,7 @@ func (s *Service) FindShareCondition(ctx context.Context, itemID string) (*item.
 	}, nil
 }
 
-func (s *Service) Share(ctx context.Context, itemID string, expSecond int, password string, allowIPList []string, allowEmailList []string) (*string, error) {
+func (s *Service) Share(ctx context.Context, itemID v.ItemID, expSecond int, password string, allowIPList []string, allowEmailList []string) (*string, error) {
 	userID := values.GetUID(ctx)
 
 	if userID == nil {
@@ -343,7 +346,7 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 		return nil, err
 	}
 
-	shareInfo := model.Share{
+	shareInfo := shareModel.Share{
 		Token:          tokenString,
 		Password:       password,
 		AllowIPList:    validIpList(allowIPList),
@@ -386,7 +389,7 @@ func verifyToken(ctx context.Context, token string) (*jwt.Token, error) {
 	return verifiedToken, nil
 }
 
-func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID, ownerUserID string) (bool, error) {
+func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID v.ItemID, ownerUserID string) (bool, error) {
 	if itemID == "" {
 		return true, nil
 	}
@@ -401,9 +404,9 @@ func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID, ownerUserID 
 	return isOwner, err
 }
 
-func itemIDToShareID(itemID string) (*string, error) {
+func itemIDToShareID(itemID v.ItemID) (*string, error) {
 	mac := hmac.New(sha256.New, shareEncryptKey)
-	_, err := mac.Write([]byte(itemID))
+	_, err := mac.Write([]byte(itemID.String()))
 
 	if err != nil {
 		return nil, err

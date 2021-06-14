@@ -1,21 +1,22 @@
-package repository
+package user
 
 import (
 	"context"
 
 	firebase "firebase.google.com/go"
-	"github.com/harehare/textusm/pkg/model"
+	"github.com/harehare/textusm/pkg/domain/model/user"
+	userRepo "github.com/harehare/textusm/pkg/domain/repository/user"
 )
 
 type FirebaseUserRepository struct {
 	app *firebase.App
 }
 
-func NewFirebaseUserRepository(app *firebase.App) UserRepository {
+func NewFirebaseUserRepository(app *firebase.App) userRepo.UserRepository {
 	return &FirebaseUserRepository{app: app}
 }
 
-func (r *FirebaseUserRepository) Find(ctx context.Context, uid string) (*model.User, error) {
+func (r *FirebaseUserRepository) Find(ctx context.Context, uid string) (*user.User, error) {
 	client, err := r.app.Auth(ctx)
 	if err != nil {
 		return nil, err
@@ -24,7 +25,7 @@ func (r *FirebaseUserRepository) Find(ctx context.Context, uid string) (*model.U
 	if err != nil {
 		return nil, err
 	}
-	user := model.NewUser(u)
+	user := user.NewUser(u)
 
 	return &user, nil
 }

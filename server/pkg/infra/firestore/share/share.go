@@ -1,13 +1,14 @@
-package repository
+package share
 
 import (
 	"context"
 
 	"cloud.google.com/go/firestore"
+	"github.com/harehare/textusm/pkg/context/values"
+	"github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/share"
+	shareRepo "github.com/harehare/textusm/pkg/domain/repository/share"
 	e "github.com/harehare/textusm/pkg/error"
-	"github.com/harehare/textusm/pkg/item"
-	"github.com/harehare/textusm/pkg/model"
-	"github.com/harehare/textusm/pkg/values"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -21,11 +22,11 @@ type FirestoreShareRepository struct {
 	client *firestore.Client
 }
 
-func NewFirestoreShareRepository(client *firestore.Client) ShareRepository {
+func NewFirestoreShareRepository(client *firestore.Client) shareRepo.ShareRepository {
 	return &FirestoreShareRepository{client: client}
 }
 
-func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *model.Share, error) {
+func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *share.Share, error) {
 	fields, err := r.client.Collection(shareCollection).Doc(hashKey).Get(ctx)
 
 	if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
@@ -71,7 +72,7 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 		expireTime = v.(int64)
 	}
 
-	shareInfo := model.Share{
+	shareInfo := share.Share{
 		Token:          token,
 		ExpireTime:     expireTime,
 		Password:       p,
@@ -81,7 +82,7 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 	return &i, &shareInfo, nil
 }
 
-func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, shareInfo *model.Share) error {
+func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, shareInfo *share.Share) error {
 	var savePassword string
 
 	if shareInfo.Password != "" {

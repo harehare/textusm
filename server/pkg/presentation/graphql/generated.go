@@ -13,7 +13,10 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/harehare/textusm/pkg/item"
+	"github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/share"
+	"github.com/harehare/textusm/pkg/domain/values"
+	"github.com/harehare/textusm/pkg/presentation/graphql/scalar"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -58,16 +61,16 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		Bookmark func(childComplexity int, itemID string, isBookmark bool) int
-		Delete   func(childComplexity int, itemID string, isPublic *bool) int
-		Save     func(childComplexity int, input item.InputItem, isPublic *bool) int
-		Share    func(childComplexity int, input item.InputShareItem) int
+		Bookmark func(childComplexity int, itemID *values.ItemID, isBookmark bool) int
+		Delete   func(childComplexity int, itemID *values.ItemID, isPublic *bool) int
+		Save     func(childComplexity int, input InputItem, isPublic *bool) int
+		Share    func(childComplexity int, input InputShareItem) int
 	}
 
 	Query struct {
-		Item           func(childComplexity int, id string, isPublic *bool) int
+		Item           func(childComplexity int, id *values.ItemID, isPublic *bool) int
 		Items          func(childComplexity int, offset *int, limit *int, isBookmark *bool, isPublic *bool) int
-		ShareCondition func(childComplexity int, id string) int
+		ShareCondition func(childComplexity int, id *values.ItemID) int
 		ShareItem      func(childComplexity int, token string, password *string) int
 	}
 
@@ -81,16 +84,16 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Save(ctx context.Context, input item.InputItem, isPublic *bool) (*item.Item, error)
-	Delete(ctx context.Context, itemID string, isPublic *bool) (string, error)
-	Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error)
-	Share(ctx context.Context, input item.InputShareItem) (string, error)
+	Save(ctx context.Context, input InputItem, isPublic *bool) (*item.Item, error)
+	Delete(ctx context.Context, itemID *values.ItemID, isPublic *bool) (*values.ItemID, error)
+	Bookmark(ctx context.Context, itemID *values.ItemID, isBookmark bool) (*item.Item, error)
+	Share(ctx context.Context, input InputShareItem) (string, error)
 }
 type QueryResolver interface {
-	Item(ctx context.Context, id string, isPublic *bool) (*item.Item, error)
+	Item(ctx context.Context, id *values.ItemID, isPublic *bool) (*item.Item, error)
 	Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*item.Item, error)
 	ShareItem(ctx context.Context, token string, password *string) (*item.Item, error)
-	ShareCondition(ctx context.Context, id string) (*item.ShareCondition, error)
+	ShareCondition(ctx context.Context, id *values.ItemID) (*share.ShareCondition, error)
 }
 
 type executableSchema struct {
@@ -188,7 +191,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Bookmark(childComplexity, args["itemID"].(string), args["isBookmark"].(bool)), true
+		return e.complexity.Mutation.Bookmark(childComplexity, args["itemID"].(*values.ItemID), args["isBookmark"].(bool)), true
 
 	case "Mutation.delete":
 		if e.complexity.Mutation.Delete == nil {
@@ -200,7 +203,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Delete(childComplexity, args["itemID"].(string), args["isPublic"].(*bool)), true
+		return e.complexity.Mutation.Delete(childComplexity, args["itemID"].(*values.ItemID), args["isPublic"].(*bool)), true
 
 	case "Mutation.save":
 		if e.complexity.Mutation.Save == nil {
@@ -212,7 +215,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Save(childComplexity, args["input"].(item.InputItem), args["isPublic"].(*bool)), true
+		return e.complexity.Mutation.Save(childComplexity, args["input"].(InputItem), args["isPublic"].(*bool)), true
 
 	case "Mutation.share":
 		if e.complexity.Mutation.Share == nil {
@@ -224,7 +227,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Share(childComplexity, args["input"].(item.InputShareItem)), true
+		return e.complexity.Mutation.Share(childComplexity, args["input"].(InputShareItem)), true
 
 	case "Query.item":
 		if e.complexity.Query.Item == nil {
@@ -236,7 +239,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Item(childComplexity, args["id"].(string), args["isPublic"].(*bool)), true
+		return e.complexity.Query.Item(childComplexity, args["id"].(*values.ItemID), args["isPublic"].(*bool)), true
 
 	case "Query.items":
 		if e.complexity.Query.Items == nil {
@@ -260,7 +263,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ShareCondition(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.ShareCondition(childComplexity, args["id"].(*values.ItemID)), true
 
 	case "Query.shareItem":
 		if e.complexity.Query.ShareItem == nil {
@@ -397,7 +400,7 @@ enum Diagram {
 }
 
 type Item {
-  id: ID!
+  id: ItemIdScalar!
   title: String!
   text: String!
   thumbnail: String
@@ -418,7 +421,7 @@ type ShareCondition {
 }
 
 type Query {
-  item(id: String!, isPublic: Boolean = False): Item!
+  item(id: ItemIdScalar!, isPublic: Boolean = False): Item!
   items(
     offset: Int = 0
     limit: Int = 30
@@ -426,11 +429,11 @@ type Query {
     isPublic: Boolean = False
   ): [Item]!
   shareItem(token: String!, password: String): Item!
-  ShareCondition(id: ID!): ShareCondition
+  ShareCondition(id: ItemIdScalar!): ShareCondition
 }
 
 input InputItem {
-  id: ID
+  id: ItemIdScalar
   title: String!
   text: String!
   thumbnail: String
@@ -441,7 +444,7 @@ input InputItem {
 }
 
 input InputShareItem {
-  itemID: String!
+  itemID: ItemIdScalar!
   expSecond: Int = 300
   password: String
   allowIPList: [String!] = []
@@ -450,10 +453,12 @@ input InputShareItem {
 
 type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
-  delete(itemID: String!, isPublic: Boolean = False): String!
-  bookmark(itemID: String!, isBookmark: Boolean!): Item
+  delete(itemID: ItemIdScalar!, isPublic: Boolean = False): ItemIdScalar!
+  bookmark(itemID: ItemIdScalar!, isBookmark: Boolean!): Item
   share(input: InputShareItem!): String!
 }
+
+scalar ItemIdScalar
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -465,10 +470,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_bookmark_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 *values.ItemID
 	if tmp, ok := rawArgs["itemID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -489,10 +494,10 @@ func (ec *executionContext) field_Mutation_bookmark_args(ctx context.Context, ra
 func (ec *executionContext) field_Mutation_delete_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 *values.ItemID
 	if tmp, ok := rawArgs["itemID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -513,10 +518,10 @@ func (ec *executionContext) field_Mutation_delete_args(ctx context.Context, rawA
 func (ec *executionContext) field_Mutation_save_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 item.InputItem
+	var arg0 InputItem
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNInputItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐInputItem(ctx, tmp)
+		arg0, err = ec.unmarshalNInputItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputItem(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -537,10 +542,10 @@ func (ec *executionContext) field_Mutation_save_args(ctx context.Context, rawArg
 func (ec *executionContext) field_Mutation_share_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 item.InputShareItem
+	var arg0 InputShareItem
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNInputShareItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐInputShareItem(ctx, tmp)
+		arg0, err = ec.unmarshalNInputShareItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputShareItem(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -552,10 +557,10 @@ func (ec *executionContext) field_Mutation_share_args(ctx context.Context, rawAr
 func (ec *executionContext) field_Query_ShareCondition_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 *values.ItemID
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -582,10 +587,10 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_item_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 *values.ItemID
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -737,9 +742,9 @@ func (ec *executionContext) _Item_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(values.ItemID)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNItemIdScalar2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Item_title(ctx context.Context, field graphql.CollectedField, obj *item.Item) (ret graphql.Marshaler) {
@@ -874,9 +879,9 @@ func (ec *executionContext) _Item_diagram(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(item.Diagram)
+	res := resTmp.(values.Diagram)
 	fc.Result = res
-	return ec.marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐDiagram(ctx, field.Selections, res)
+	return ec.marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Item_isPublic(ctx context.Context, field graphql.CollectedField, obj *item.Item) (ret graphql.Marshaler) {
@@ -1076,7 +1081,7 @@ func (ec *executionContext) _Mutation_save(ctx context.Context, field graphql.Co
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Save(rctx, args["input"].(item.InputItem), args["isPublic"].(*bool))
+		return ec.resolvers.Mutation().Save(rctx, args["input"].(InputItem), args["isPublic"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1090,7 +1095,7 @@ func (ec *executionContext) _Mutation_save(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(*item.Item)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_delete(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1118,7 +1123,7 @@ func (ec *executionContext) _Mutation_delete(ctx context.Context, field graphql.
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Delete(rctx, args["itemID"].(string), args["isPublic"].(*bool))
+		return ec.resolvers.Mutation().Delete(rctx, args["itemID"].(*values.ItemID), args["isPublic"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1130,9 +1135,9 @@ func (ec *executionContext) _Mutation_delete(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*values.ItemID)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_bookmark(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1160,7 +1165,7 @@ func (ec *executionContext) _Mutation_bookmark(ctx context.Context, field graphq
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Bookmark(rctx, args["itemID"].(string), args["isBookmark"].(bool))
+		return ec.resolvers.Mutation().Bookmark(rctx, args["itemID"].(*values.ItemID), args["isBookmark"].(bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1171,7 +1176,7 @@ func (ec *executionContext) _Mutation_bookmark(ctx context.Context, field graphq
 	}
 	res := resTmp.(*item.Item)
 	fc.Result = res
-	return ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, field.Selections, res)
+	return ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_share(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1199,7 +1204,7 @@ func (ec *executionContext) _Mutation_share(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Share(rctx, args["input"].(item.InputShareItem))
+		return ec.resolvers.Mutation().Share(rctx, args["input"].(InputShareItem))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1241,7 +1246,7 @@ func (ec *executionContext) _Query_item(ctx context.Context, field graphql.Colle
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Item(rctx, args["id"].(string), args["isPublic"].(*bool))
+		return ec.resolvers.Query().Item(rctx, args["id"].(*values.ItemID), args["isPublic"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1255,7 +1260,7 @@ func (ec *executionContext) _Query_item(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*item.Item)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_items(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1297,7 +1302,7 @@ func (ec *executionContext) _Query_items(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*item.Item)
 	fc.Result = res
-	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_shareItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1339,7 +1344,7 @@ func (ec *executionContext) _Query_shareItem(ctx context.Context, field graphql.
 	}
 	res := resTmp.(*item.Item)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_ShareCondition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1367,7 +1372,7 @@ func (ec *executionContext) _Query_ShareCondition(ctx context.Context, field gra
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ShareCondition(rctx, args["id"].(string))
+		return ec.resolvers.Query().ShareCondition(rctx, args["id"].(*values.ItemID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1376,9 +1381,9 @@ func (ec *executionContext) _Query_ShareCondition(ctx context.Context, field gra
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*item.ShareCondition)
+	res := resTmp.(*share.ShareCondition)
 	fc.Result = res
-	return ec.marshalOShareCondition2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐShareCondition(ctx, field.Selections, res)
+	return ec.marshalOShareCondition2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋshareᚐShareCondition(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1452,7 +1457,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _ShareCondition_token(ctx context.Context, field graphql.CollectedField, obj *item.ShareCondition) (ret graphql.Marshaler) {
+func (ec *executionContext) _ShareCondition_token(ctx context.Context, field graphql.CollectedField, obj *share.ShareCondition) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1487,7 +1492,7 @@ func (ec *executionContext) _ShareCondition_token(ctx context.Context, field gra
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _ShareCondition_usePassword(ctx context.Context, field graphql.CollectedField, obj *item.ShareCondition) (ret graphql.Marshaler) {
+func (ec *executionContext) _ShareCondition_usePassword(ctx context.Context, field graphql.CollectedField, obj *share.ShareCondition) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1522,7 +1527,7 @@ func (ec *executionContext) _ShareCondition_usePassword(ctx context.Context, fie
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _ShareCondition_expireTime(ctx context.Context, field graphql.CollectedField, obj *item.ShareCondition) (ret graphql.Marshaler) {
+func (ec *executionContext) _ShareCondition_expireTime(ctx context.Context, field graphql.CollectedField, obj *share.ShareCondition) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1557,7 +1562,7 @@ func (ec *executionContext) _ShareCondition_expireTime(ctx context.Context, fiel
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _ShareCondition_allowIPList(ctx context.Context, field graphql.CollectedField, obj *item.ShareCondition) (ret graphql.Marshaler) {
+func (ec *executionContext) _ShareCondition_allowIPList(ctx context.Context, field graphql.CollectedField, obj *share.ShareCondition) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1589,7 +1594,7 @@ func (ec *executionContext) _ShareCondition_allowIPList(ctx context.Context, fie
 	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _ShareCondition_allowEmailList(ctx context.Context, field graphql.CollectedField, obj *item.ShareCondition) (ret graphql.Marshaler) {
+func (ec *executionContext) _ShareCondition_allowEmailList(ctx context.Context, field graphql.CollectedField, obj *share.ShareCondition) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -2708,8 +2713,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj interface{}) (item.InputItem, error) {
-	var it item.InputItem
+func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj interface{}) (InputItem, error) {
+	var it InputItem
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -2718,7 +2723,7 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			it.ID, err = ec.unmarshalOItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2750,7 +2755,7 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("diagram"))
-			it.Diagram, err = ec.unmarshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐDiagram(ctx, v)
+			it.Diagram, err = ec.unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2784,8 +2789,8 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, obj interface{}) (item.InputShareItem, error) {
-	var it item.InputShareItem
+func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, obj interface{}) (InputShareItem, error) {
+	var it InputShareItem
 	var asMap = obj.(map[string]interface{})
 
 	if _, present := asMap["expSecond"]; !present {
@@ -2798,7 +2803,7 @@ func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
-			it.ItemID, err = ec.unmarshalNString2string(ctx, v)
+			it.ItemID, err = ec.unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3042,7 +3047,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 var shareConditionImplementors = []string{"ShareCondition"}
 
-func (ec *executionContext) _ShareCondition(ctx context.Context, sel ast.SelectionSet, obj *item.ShareCondition) graphql.Marshaler {
+func (ec *executionContext) _ShareCondition(ctx context.Context, sel ast.SelectionSet, obj *share.ShareCondition) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, shareConditionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3341,23 +3346,13 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐDiagram(ctx context.Context, v interface{}) (item.Diagram, error) {
-	var res item.Diagram
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
+func (ec *executionContext) unmarshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx context.Context, v interface{}) (values.Diagram, error) {
+	res, err := values.UnmarshalDiagram(v)
+	return *res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐDiagram(ctx context.Context, sel ast.SelectionSet, v item.Diagram) graphql.Marshaler {
-	return v
-}
-
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
+func (ec *executionContext) marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx context.Context, sel ast.SelectionSet, v values.Diagram) graphql.Marshaler {
+	res := values.MarshalDiagram(&v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3366,12 +3361,33 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) unmarshalNInputItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐInputItem(ctx context.Context, v interface{}) (item.InputItem, error) {
+func (ec *executionContext) unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx context.Context, v interface{}) (*values.Diagram, error) {
+	res, err := values.UnmarshalDiagram(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx context.Context, sel ast.SelectionSet, v *values.Diagram) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := values.MarshalDiagram(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNInputItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputItem(ctx context.Context, v interface{}) (InputItem, error) {
 	res, err := ec.unmarshalInputInputItem(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNInputShareItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐInputShareItem(ctx context.Context, v interface{}) (item.InputShareItem, error) {
+func (ec *executionContext) unmarshalNInputShareItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputShareItem(ctx context.Context, v interface{}) (InputShareItem, error) {
 	res, err := ec.unmarshalInputInputShareItem(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -3391,11 +3407,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx context.Context, sel ast.SelectionSet, v item.Item) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐItem(ctx context.Context, sel ast.SelectionSet, v item.Item) graphql.Marshaler {
 	return ec._Item(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx context.Context, sel ast.SelectionSet, v []*item.Item) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐItem(ctx context.Context, sel ast.SelectionSet, v []*item.Item) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3419,7 +3435,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusm
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx, sel, v[i])
+			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3432,7 +3448,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusm
 	return ret
 }
 
-func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx context.Context, sel ast.SelectionSet, v *item.Item) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐItem(ctx context.Context, sel ast.SelectionSet, v *item.Item) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3440,6 +3456,42 @@ func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋ
 		return graphql.Null
 	}
 	return ec._Item(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNItemIdScalar2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, v interface{}) (values.ItemID, error) {
+	res, err := scalar.UnmarshalItemID(v)
+	return *res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNItemIdScalar2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, sel ast.SelectionSet, v values.ItemID) graphql.Marshaler {
+	res := scalar.MarshalItemID(&v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, v interface{}) (*values.ItemID, error) {
+	res, err := scalar.UnmarshalItemID(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, sel ast.SelectionSet, v *values.ItemID) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := scalar.MarshalItemID(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -3725,21 +3777,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return graphql.MarshalBoolean(*v)
 }
 
-func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalID(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return graphql.MarshalID(*v)
-}
-
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
 	if v == nil {
 		return nil, nil
@@ -3755,14 +3792,29 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return graphql.MarshalInt(*v)
 }
 
-func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐItem(ctx context.Context, sel ast.SelectionSet, v *item.Item) graphql.Marshaler {
+func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐItem(ctx context.Context, sel ast.SelectionSet, v *item.Item) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Item(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOShareCondition2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋitemᚐShareCondition(ctx context.Context, sel ast.SelectionSet, v *item.ShareCondition) graphql.Marshaler {
+func (ec *executionContext) unmarshalOItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, v interface{}) (*values.ItemID, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := scalar.UnmarshalItemID(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, sel ast.SelectionSet, v *values.ItemID) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return scalar.MarshalItemID(v)
+}
+
+func (ec *executionContext) marshalOShareCondition2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋshareᚐShareCondition(ctx context.Context, sel ast.SelectionSet, v *share.ShareCondition) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

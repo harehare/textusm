@@ -22,7 +22,7 @@ enum Diagram {
 }
 
 type Item {
-  id: ID!
+  id: ItemIdScalar!
   title: String!
   text: String!
   thumbnail: String
@@ -43,7 +43,7 @@ type ShareCondition {
 }
 
 type Query {
-  item(id: String!, isPublic: Boolean = False): Item!
+  item(id: ItemIdScalar!, isPublic: Boolean = False): Item!
   items(
     offset: Int = 0
     limit: Int = 30
@@ -51,11 +51,11 @@ type Query {
     isPublic: Boolean = False
   ): [Item]!
   shareItem(token: String!, password: String): Item!
-  ShareCondition(id: ID!): ShareCondition
+  ShareCondition(id: ItemIdScalar!): ShareCondition
 }
 
 input InputItem {
-  id: ID
+  id: ItemIdScalar
   title: String!
   text: String!
   thumbnail: String
@@ -66,7 +66,7 @@ input InputItem {
 }
 
 input InputShareItem {
-  itemID: String!
+  itemID: ItemIdScalar!
   expSecond: Int = 300
   password: String
   allowIPList: [String!] = []
@@ -75,7 +75,9 @@ input InputShareItem {
 
 type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
-  delete(itemID: String!, isPublic: Boolean = False): String!
-  bookmark(itemID: String!, isBookmark: Boolean!): Item
+  delete(itemID: ItemIdScalar!, isPublic: Boolean = False): ItemIdScalar!
+  bookmark(itemID: ItemIdScalar!, isBookmark: Boolean!): Item
   share(input: InputShareItem!): String!
 }
+
+scalar ItemIdScalar

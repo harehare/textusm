@@ -1,4 +1,4 @@
-package model
+package user
 
 import "firebase.google.com/go/auth"
 

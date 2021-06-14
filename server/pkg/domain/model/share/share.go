@@ -1,4 +1,4 @@
-package model
+package share
 
 import (
 	"net"
@@ -13,6 +13,14 @@ type Share struct {
 	AllowIPList    []string
 	ExpireTime     int64
 	AllowEmailList []string
+}
+
+type ShareCondition struct {
+	Token          string   `json:"token"`
+	UsePassword    bool     `json:"usePassword"`
+	ExpireTime     int      `json:"expireTime"`
+	AllowIPList    []string `json:"allowIPList"`
+	AllowEmailList []string `json:"allowEmailList"`
 }
 
 func (s *Share) ComparePassword(password string) error {
