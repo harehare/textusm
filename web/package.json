@@ -7,7 +7,7 @@
         "url": "https://github.com/harehare/textusm/issues"
     },
     "dependencies": {
-        "@sentry/browser": "^6.6.0",
+        "@sentry/browser": "^6.7.0",
         "clipboard-copy": "^4.0.1",
         "dexie": "^3.0.3",
         "firebase": "^8.6.7",
@@ -15,7 +15,7 @@
         "jspdf": "^2.3.1",
         "monaco-editor": "^0.25.0",
         "svgo": "^2.3.0",
-        "tslib": "^2.2.0",
+        "tslib": "^2.3.0",
         "uuid": "^8.3.2"
     },
     "devDependencies": {
@@ -29,7 +29,7 @@
         "@types/requestidlecallback": "^0.3.1",
         "@types/svgo": "^2.3.0",
         "@types/uuid": "^8.3.0",
-        "@typescript-eslint/eslint-plugin": "^4.26.1",
+        "@typescript-eslint/eslint-plugin": "^4.27.0",
         "@typescript-eslint/parser": "^4.26.1",
         "babel-loader": "^8.2.2",
         "clean-webpack-plugin": "^3.0.0",
@@ -50,9 +50,9 @@
         "imagemin-webpack-plugin": "^2.4.2",
         "lint-staged": "^11.0.0",
         "mini-css-extract-plugin": "^1.6.0",
-        "monaco-editor-webpack-plugin": "^3.1.0",
+        "monaco-editor-webpack-plugin": "^4.0.0",
         "node-sass": "^6.0.0",
-        "postcss": "^8.3.2",
+        "postcss": "^8.3.4",
         "postcss-loader": "^6.1.0",
         "preload-webpack-plugin": "^3.0.0-beta.4",
         "prettier": "^2.3.1",
