@@ -490,7 +490,7 @@ viewTag tag =
         , class "text-color"
         , class "bg-activity"
         , class "p-sm"
-        , class "rounded-sm"
+        , class "rounded"
         , class "m-xs"
         ]
         [ text tag ]

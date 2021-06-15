@@ -36,7 +36,7 @@ item id isPublic =
             |> with TextUSM.Object.Item.isPublic
             |> with TextUSM.Object.Item.isBookmark
             |> hardcoded True
-            |> hardcoded Nothing
+            |> with TextUSM.Object.Item.tags
             |> with (TextUSM.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (TextUSM.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
         )

@@ -143,7 +143,7 @@ viewTag css children =
         , class "text-center"
         , class "text-color"
         , class "m-sm"
-        , class "rounded-sm"
+        , class "rounded"
         , class css
         , class "items-center"
         , style "padding" "8px 16px"
