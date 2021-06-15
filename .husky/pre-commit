@@ -2,4 +2,4 @@
 . "$(dirname "$0")/_/husky.sh"
 
 cd web && npm run lint && npm run test
-cd ../server && just test
+cd ../server && just clean test
