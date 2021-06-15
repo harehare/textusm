@@ -601,16 +601,16 @@ update message model =
                                                         |> List.sortWith
                                                             (\a b ->
                                                                 let
-                                                                    v1 =
+                                                                    a_ =
                                                                         a.updatedAt |> Time.posixToMillis
 
-                                                                    v2 =
+                                                                    b_ =
                                                                         b.updatedAt |> Time.posixToMillis
                                                                 in
-                                                                if v1 - v2 > 0 then
+                                                                if a_ - b_ > 0 then
                                                                     LT
 
-                                                                else if v1 - v2 < 0 then
+                                                                else if a_ - b_ < 0 then
                                                                     GT
 
                                                                 else
