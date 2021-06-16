@@ -3,7 +3,6 @@ module Models.Model exposing
     , Model
     , Msg(..)
     , Notification(..)
-    , Page(..)
     , SwitchWindow(..)
     , Window
     , modelOfDiagramModel
@@ -21,18 +20,18 @@ import Data.FileType exposing (FileType)
 import Data.LoginProvider exposing (LoginProvider)
 import Data.Session exposing (Session, User)
 import Data.ShareToken exposing (ShareToken)
-import Data.Size exposing (Size)
 import Data.Title exposing (Title)
 import Dialog.Share as Share
 import GraphQL.RequestError exposing (RequestError)
 import Graphql.Http as GraphQlHttp
 import Json.Decode as D
 import Models.Diagram as Diagram
+import Models.Dialog exposing (ConfirmDialog)
+import Models.Page exposing (Page)
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Tags as Tags
-import TextUSM.Enum.Diagram as DiagramType
 import Translations exposing (Lang)
 import Url
 
@@ -102,17 +101,6 @@ type SwitchWindow
     | Right
 
 
-type Page
-    = Main
-    | New
-    | Help
-    | List
-    | Tags Tags.Model
-    | Settings
-    | Embed DiagramType.Diagram String (Maybe Size)
-    | NotFound
-
-
 type alias Model =
     { key : Nav.Key
     , url : Url.Url
@@ -129,6 +117,7 @@ type alias Model =
     , notification : Maybe Notification
     , switchWindow : SwitchWindow
     , progress : Bool
+    , confirmDialog : ConfirmDialog Msg
     , lang : Lang
     , view :
         { password : Maybe String

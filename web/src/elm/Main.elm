@@ -25,6 +25,7 @@ import Data.ShareToken as ShareToken
 import Data.Size as Size
 import Data.Text as Text
 import Data.Title as Title
+import Dialog.Confirm as ConfirmDialog
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
 import Env
@@ -40,7 +41,9 @@ import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (find)
 import Models.Diagram as DiagramModel
-import Models.Model as Page exposing (Model, Msg(..), Notification(..), Page(..), SwitchWindow(..))
+import Models.Dialog as Dialog
+import Models.Model as Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
+import Models.Page as Page
 import Models.Views.ER as ER
 import Models.Views.Table as Table
 import Page.Embed as Embed
@@ -134,6 +137,7 @@ init flags url key =
         , currentDiagram = initSettings.diagram
         , page = Page.Main
         , lang = lang
+        , confirmDialog = Dialog.Hide
         , view =
             { password = Nothing
             , authenticated = False
@@ -317,6 +321,7 @@ view model =
 
             _ ->
                 Empty.view
+        , Lazy.lazy showDialog model.confirmDialog
         , Footer.view
         ]
 
@@ -360,6 +365,21 @@ showProgressbar show fullscreen =
 showNotification : Maybe Notification -> Html Msg
 showNotification notify =
     Notification.view notify
+
+
+showDialog : Dialog.ConfirmDialog Msg -> Html Msg
+showDialog d =
+    case d of
+        Dialog.Hide ->
+            Empty.view
+
+        Dialog.Show { title, message, ok, cancel } ->
+            ConfirmDialog.view
+                { title = title
+                , message = message
+                , okButton = { text = "Ok", onClick = ok }
+                , cancelButton = { text = "Cancel", onClick = cancel }
+                }
 
 
 
@@ -410,7 +430,7 @@ changeRouteTo route model =
                         (\m ->
                             Return.singleton
                                 { m
-                                    | window = m.window |> Page.windowOfFullscreen.set True
+                                    | window = m.window |> Model.windowOfFullscreen.set True
                                     , diagramModel =
                                         model.diagramModel
                                             |> DiagramModel.modelOfShowZoomControl.set False
@@ -728,7 +748,7 @@ update message model =
                                         { m
                                             | window =
                                                 m.window
-                                                    |> Page.windowOfFullscreen.set (not m.window.fullscreen)
+                                                    |> Model.windowOfFullscreen.set (not m.window.fullscreen)
                                             , diagramModel = model_
                                         }
                                         (cmd_ |> Cmd.map UpdateDiagram)
@@ -1072,12 +1092,12 @@ update message model =
                                 { m
                                     | window =
                                         m.window
-                                            |> Page.windowOfMoveStart.set True
-                                            |> Page.windowOfMoveX.set x
+                                            |> Model.windowOfMoveStart.set True
+                                            |> Model.windowOfMoveX.set x
                                 }
 
                 MoveStop ->
-                    Return.andThen <| \m -> Return.singleton { m | window = m.window |> Page.windowOfMoveStart.set False }
+                    Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfMoveStart.set False }
 
                 HandleWindowResize x ->
                     Return.andThen <| \m -> Return.singleton { m | window = { position = m.window.position + x - m.window.moveX, moveStart = True, moveX = x, fullscreen = m.window.fullscreen } }
@@ -1243,7 +1263,7 @@ update message model =
                         ( model_, cmd_ ) =
                             Diagram.update DiagramModel.ToggleFullscreen model.diagramModel
                     in
-                    Return.andThen <| \m -> Return.return { m | window = m.window |> Page.windowOfFullscreen.set False, diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
+                    Return.andThen <| \m -> Return.return { m | window = m.window |> Model.windowOfFullscreen.set False, diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
 
                 UpdateIdToken token ->
                     Return.andThen <| \m -> Return.singleton { m | session = Session.updateIdToken m.session (IdToken.fromString token) }

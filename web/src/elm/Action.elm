@@ -9,7 +9,8 @@ import Data.Text as Text
 import Data.Title as Title
 import GraphQL.Request as Request
 import Models.Diagram as DiagramModel
-import Models.Model exposing (Model, Msg(..), Notification(..), Page, SwitchWindow(..))
+import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
+import Models.Page exposing (Page)
 import Ports
 import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)

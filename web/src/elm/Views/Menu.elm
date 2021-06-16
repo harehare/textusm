@@ -8,7 +8,8 @@ import Html.Events as Events
 import Json.Decode as D
 import List
 import Maybe.Extra exposing (isNothing)
-import Models.Model exposing (Menu(..), Msg(..), Page(..))
+import Models.Model exposing (Menu(..), Msg(..))
+import Models.Page as Page
 import Route exposing (Route)
 import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Translations exposing (Lang)
@@ -29,7 +30,7 @@ type alias MenuInfo msg =
 
 
 type alias Props =
-    { page : Page
+    { page : Page.Page
     , route : Route
     , lang : Lang
     , text : Text
@@ -101,7 +102,7 @@ view props =
                     , Attr.attribute "aria-label" "List"
                     ]
                     [ Icon.folderOpen
-                        (if isNothing props.openMenu && props.page == List then
+                        (if isNothing props.openMenu && props.page == Page.List then
                             selectedColor
 
                          else
@@ -150,7 +151,7 @@ view props =
                 [ Attr.class "menu-button" ]
                 [ Html.a [ Attr.href <| Route.toString Route.Settings, Attr.attribute "aria-label" "Settings" ]
                     [ Icon.settings
-                        (if isNothing props.openMenu && props.page == Settings then
+                        (if isNothing props.openMenu && props.page == Page.Settings then
                             selectedColor
 
                          else

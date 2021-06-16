@@ -14,7 +14,8 @@ import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
-import Models.Model as Page exposing (Menu(..), Msg(..), Page(..))
+import Models.Model exposing (Menu(..), Msg(..))
+import Models.Page as Page exposing (Page)
 import Route exposing (Route(..))
 import Translations exposing (Lang)
 import Views.Empty as Empty
