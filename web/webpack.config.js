@@ -180,6 +180,7 @@ if (mode === "production") {
                 swDest: dist + "/sw.js",
                 clientsClaim: true,
                 skipWaiting: true,
+                maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
             }),
             new HTMLInlineCSSWebpackPlugin(),
             new CleanWebpackPlugin({
