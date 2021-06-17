@@ -8,6 +8,7 @@ module Data.Item exposing
     , empty
     , emptyChildren
     , filter
+    , filterMap
     , flatten
     , fromList
     , fromString
@@ -256,6 +257,11 @@ tail (Items items) =
 map : (Item -> a) -> Items -> List a
 map f (Items items) =
     List.map f items
+
+
+filterMap : (Item -> Maybe a) -> Items -> List a
+filterMap f (Items items) =
+    List.filterMap f items
 
 
 filter : (Item -> Bool) -> Items -> Items

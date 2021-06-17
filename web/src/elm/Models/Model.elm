@@ -32,6 +32,7 @@ import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Tags as Tags
+import Route exposing (Route(..))
 import Translations exposing (Lang)
 import Url
 
@@ -82,6 +83,8 @@ type Msg
     | EditPassword String
     | EndEditPassword
     | LoadWithPassword (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
+    | MoveTo Route
+    | CloseDialog
 
 
 type Notification

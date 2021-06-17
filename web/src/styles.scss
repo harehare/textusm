@@ -15,6 +15,7 @@
     --error-color: #f55c64;
     --comment-color: #008800;
     --activity-color: #266b9a;
+    --disabled-color: #dddddd;
     --font-family: "Nunito Sans", apple-system, BlinkMacSystemFont,
         Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic,
         YuGothicM, メイリオ, Meiryo, sans-serif;
@@ -188,6 +189,9 @@
         background-image: none;
         box-shadow: none;
         appearance: none;
+    }
+    .bg-disabled {
+        background-color: var(--disabled-color);
     }
     .empty-content {
         content: "";

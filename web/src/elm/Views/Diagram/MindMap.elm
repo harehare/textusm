@@ -138,8 +138,14 @@ nodesView { settings, hierarchy, position, direction, selectedItem, items, movei
         nodeCounts =
             tmpNodeCounts
                 |> List.indexedMap (\i _ -> i)
-                |> List.filter (\i -> i == 0 || modBy 2 i == 0)
-                |> List.map (\i -> ListEx.getAt i tmpNodeCounts |> Maybe.withDefault 1)
+                |> List.filterMap
+                    (\i ->
+                        if i == 0 || modBy 2 i == 0 then
+                            ListEx.getAt i tmpNodeCounts
+
+                        else
+                            Nothing
+                    )
                 |> List.indexedMap (\i v -> v + i + 1)
 
         yOffset =

@@ -253,9 +253,7 @@ validIPList ipList =
         Maybe.andThen
             (\i ->
                 String.lines i
-                    |> List.map IpAddress.fromString
-                    |> List.filter MaybeEx.isJust
-                    |> List.map (Maybe.withDefault IpAddress.localhost)
+                    |> List.filterMap IpAddress.fromString
                     |> Just
             )
             ipList
@@ -273,9 +271,7 @@ validEmail email =
         Maybe.andThen
             (\i ->
                 String.lines i
-                    |> List.map Email.fromString
-                    |> List.filter MaybeEx.isJust
-                    |> List.map (Maybe.withDefault Email.empty)
+                    |> List.filterMap Email.fromString
                     |> Just
             )
             email

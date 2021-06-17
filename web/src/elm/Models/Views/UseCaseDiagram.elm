@@ -168,11 +168,6 @@ emptyActor =
     Actor Item.new []
 
 
-emptyUseCaseRelation : UseCaseRelation
-emptyUseCaseRelation =
-    Dict.empty
-
-
 from : Items -> UseCaseDiagram
 from items =
     UseCaseDiagram
@@ -181,8 +176,7 @@ from items =
             |> List.map (Maybe.withDefault emptyActor)
         )
         (Item.map itemToUseCase items
-            |> List.filter MaybeEx.isJust
-            |> List.map (Maybe.withDefault emptyUseCaseRelation)
+            |> List.filterMap identity
             |> List.foldl Dict.union Dict.empty
         )
 

@@ -79,8 +79,7 @@ from items =
 
         messages =
             Item.map (itemToSequenceItem participants) items
-                |> List.filter isJust
-                |> List.map (\item -> Maybe.withDefault emptySequenceItem item)
+                |> List.filterMap identity
     in
     SequenceDiagram (Dict.values participants) messages
 
@@ -177,8 +176,7 @@ itemToParticipant maybeItem =
 itemsToMessages : Dict String Participant -> Items -> List Message
 itemsToMessages participantDict items =
     Item.map (\item -> itemToMessage item participantDict) items
-        |> List.filter isJust
-        |> List.map (\item -> Maybe.withDefault (Message (Sync "") (Participant Item.new 0) (Participant Item.new 0)) item)
+        |> List.filterMap identity
 
 
 itemToSequenceItem : Dict String Participant -> Item -> Maybe SequenceItem

@@ -148,8 +148,18 @@ tags items =
         (\item ->
             item.tags
                 |> Maybe.withDefault []
-                |> List.map (Maybe.withDefault "")
-                |> List.filter (String.isEmpty >> not)
+                |> List.filterMap
+                    (\v ->
+                        Maybe.andThen
+                            (\v_ ->
+                                if not <| String.isEmpty v_ then
+                                    Just v_
+
+                                else
+                                    Nothing
+                            )
+                            v
+                    )
         )
         items
         |> List.concat
@@ -544,12 +554,7 @@ update message model =
 
                         remoteTask =
                             Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
-                                |> Task.map
-                                    (\i ->
-                                        i
-                                            |> List.filter (\item -> isJust item)
-                                            |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
-                                    )
+                                |> Task.map (\i -> List.filterMap identity i)
                     in
                     Return.andThen <| \m -> Return.return { m | filterCondition = FilterCondition FilterPublic (\_ -> True), publicDiagramList = DiagramList Loading pageNo hasMorePage } <| Task.attempt GotPublicDiagrams remoteTask
 
@@ -586,12 +591,7 @@ update message model =
                                 let
                                     remoteItems =
                                         Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = False }
-                                            |> Task.map
-                                                (\i ->
-                                                    i
-                                                        |> List.filter (\item -> isJust item)
-                                                        |> List.map (\item -> Maybe.withDefault DiagramItem.empty item)
-                                                )
+                                            |> Task.map (\i -> List.filterMap identity i)
 
                                     items =
                                         remoteItems

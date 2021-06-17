@@ -36,7 +36,7 @@ view { title, message, okButton, cancelButton } =
                     [ text okButton.text ]
                 , button
                     [ type_ "button"
-                    , class "button submit"
+                    , class "button submit bg-disabled text-dark"
                     , style "margin-top" "8px"
                     , style "border-radius" "8px"
                     , onClick cancelButton.onClick

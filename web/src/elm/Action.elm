@@ -9,6 +9,7 @@ import Data.Text as Text
 import Data.Title as Title
 import GraphQL.Request as Request
 import Models.Diagram as DiagramModel
+import Models.Dialog exposing (ConfirmDialog(..))
 import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
 import Models.Page exposing (Page)
 import Ports
@@ -226,6 +227,11 @@ moveTo key route =
     Return.command <| Route.moveTo key route
 
 
+replaceTo : Nav.Key -> Route -> Return.ReturnF Msg Model
+replaceTo key route =
+    Return.command <| Route.replaceTo key route
+
+
 redirectToLastEditedFile : Model -> Return.ReturnF Msg Model
 redirectToLastEditedFile model =
     case ( Maybe.andThen .id model.currentDiagram, Maybe.map .diagram model.currentDiagram ) of
@@ -235,3 +241,16 @@ redirectToLastEditedFile model =
 
         _ ->
             Return.zero
+
+
+showConfirmDialog : String -> String -> Route -> Model -> Return Msg Model
+showConfirmDialog title message route model =
+    Return.singleton
+        { model
+            | confirmDialog = Show { title = title, message = message, ok = MoveTo route, cancel = CloseDialog }
+        }
+
+
+closeDialog : Model -> Return Msg Model
+closeDialog model =
+    Return.singleton { model | confirmDialog = Hide }

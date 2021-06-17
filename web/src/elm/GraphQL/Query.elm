@@ -8,7 +8,6 @@ import Data.Title as Title
 import Graphql.Operation exposing (RootQuery)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
-import Maybe.Extra as MaybeEx
 import Route exposing (Route(..))
 import TextUSM.Object.Item
 import TextUSM.Object.ShareCondition
@@ -100,9 +99,7 @@ shareCondition id =
                     |> SelectionSet.map
                         (\v ->
                             Maybe.withDefault [] v
-                                |> List.map IpAddress.fromString
-                                |> List.filter MaybeEx.isJust
-                                |> List.map (Maybe.withDefault IpAddress.localhost)
+                                |> List.filterMap IpAddress.fromString
                         )
                 )
             |> with
@@ -110,9 +107,7 @@ shareCondition id =
                     |> SelectionSet.map
                         (\v ->
                             Maybe.withDefault [] v
-                                |> List.map Email.fromString
-                                |> List.filter MaybeEx.isJust
-                                |> List.map (Maybe.withDefault Email.empty)
+                                |> List.filterMap Email.fromString
                         )
                 )
             |> with TextUSM.Object.ShareCondition.token

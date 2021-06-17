@@ -532,12 +532,11 @@ primaryKeyToString : List Column -> Maybe String
 primaryKeyToString columns =
     let
         primaryKeys =
-            List.filter
-                (\(Column _ _ attrs) ->
-                    ListEx.find (\i -> i == PrimaryKey) attrs |> isJust
+            List.filterMap
+                (\(Column name _ attrs) ->
+                    ListEx.find (\i -> i == PrimaryKey) attrs |> Maybe.map (\_ -> "`" ++ name ++ "`")
                 )
                 columns
-                |> List.map (\(Column name _ _) -> "`" ++ name ++ "`")
     in
     if List.isEmpty primaryKeys then
         Nothing
