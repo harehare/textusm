@@ -182,6 +182,26 @@ needSaved model =
         }
 
 
+unchanged : Model -> Return Msg Model
+unchanged model =
+    Return.singleton
+        { model
+            | diagramModel =
+                model.diagramModel
+                    |> DiagramModel.modelOfText.set (Text.saved model.diagramModel.text)
+        }
+
+
+changed : Model -> Return Msg Model
+changed model =
+    Return.singleton
+        { model
+            | diagramModel =
+                model.diagramModel
+                    |> DiagramModel.modelOfText.set (Text.change model.diagramModel.text)
+        }
+
+
 setTitle : String -> Model -> Return Msg Model
 setTitle title model =
     Return.singleton { model | title = Title.fromString <| title }

@@ -6,6 +6,7 @@ import Data.DiagramId as DiagramId
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
 import Data.Title as Title
+import Dialog.Confirm as ConfirmDialog
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
@@ -19,7 +20,7 @@ import Http
 import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (unique, updateIf)
-import Maybe.Extra exposing (isJust)
+import Models.Dialog as Dialog
 import Monocle.Lens exposing (Lens)
 import RemoteData exposing (RemoteData(..), WebData)
 import Return as Return exposing (Return)
@@ -54,6 +55,8 @@ type Msg
     | Import
     | ImportFile File
     | ImportComplete String
+    | ShowConfirmDialog DiagramItem
+    | CloseDialog
 
 
 type FilterValue
@@ -86,6 +89,7 @@ type alias Model =
     , apiRoot : String
     , lang : Lang
     , tags : List String
+    , confirmDialog : Dialog.ConfirmDialog Msg
     }
 
 
@@ -134,12 +138,33 @@ init session lang apiRoot =
       , apiRoot = apiRoot
       , lang = lang
       , tags = []
+      , confirmDialog = Dialog.Hide
       }
     , Cmd.batch
         [ Task.perform GotTimeZone Time.here
         , getDiagrams ()
         ]
     )
+
+
+showDialog : Dialog.ConfirmDialog Msg -> Html Msg
+showDialog d =
+    case d of
+        Dialog.Hide ->
+            Empty.view
+
+        Dialog.Show { title, message, ok, cancel } ->
+            ConfirmDialog.view
+                { title = title
+                , message = message
+                , okButton = { text = "Ok", onClick = ok }
+                , cancelButton = { text = "Cancel", onClick = cancel }
+                }
+
+
+closeDialog : Model -> Return Msg Model
+closeDialog model =
+    Return.singleton { model | confirmDialog = Dialog.Hide }
 
 
 tags : List DiagramItem -> List String
@@ -257,6 +282,7 @@ view model =
                     , lang = model.lang
                     , diagrams = diagrams
                     , publicStatus = Public
+                    , confirmDialog = model.confirmDialog
                     }
                 ]
 
@@ -283,6 +309,7 @@ view model =
                     , lang = model.lang
                     , diagrams = displayDiagrams
                     , publicStatus = Private
+                    , confirmDialog = model.confirmDialog
                     }
                 ]
 
@@ -316,6 +343,7 @@ diagramListView :
     , query : Maybe String
     , lang : Lang
     , diagrams : List DiagramItem
+    , confirmDialog : Dialog.ConfirmDialog Msg
     }
     -> Html Msg
 diagramListView props =
@@ -393,6 +421,7 @@ diagramListView props =
                   else
                     Empty.view
                 ]
+        , Lazy.lazy showDialog props.confirmDialog
         ]
 
 
@@ -449,7 +478,7 @@ diagramView timezone diagram =
             Empty.view
 
           else
-            div [ class "remove button", stopPropagationOn "click" (D.succeed ( Remove diagram, True )) ] [ Icon.clear "#333" 18 ]
+            div [ class "remove button", stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True )) ] [ Icon.clear "#333" 18 ]
         , case ( diagram.isBookmark, diagram.isRemote ) of
             ( True, True ) ->
                 div
@@ -677,7 +706,8 @@ update message model =
                                 }
 
                 Remove diagram ->
-                    Return.command (removeDiagrams (DiagramItem.encoder diagram))
+                    Return.andThen closeDialog
+                        >> Return.command (removeDiagrams (DiagramItem.encoder diagram))
 
                 RemoveRemote diagramJson ->
                     case D.decodeValue DiagramItem.decoder diagramJson of
@@ -748,6 +778,23 @@ update message model =
 
                         _ ->
                             Return.zero
+
+                CloseDialog ->
+                    Return.andThen closeDialog
+
+                ShowConfirmDialog d ->
+                    Return.andThen <|
+                        \m ->
+                            Return.singleton
+                                { m
+                                    | confirmDialog =
+                                        Dialog.Show
+                                            { title = "Confirmation"
+                                            , message = "Are you sure you want to delete " ++ Title.toString d.title ++ " diagram?`"
+                                            , ok = Remove d
+                                            , cancel = CloseDialog
+                                            }
+                                }
 
                 _ ->
                     Return.zero

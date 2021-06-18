@@ -139,19 +139,12 @@ export const initDB = (app: ElmApp): void => {
     });
 
     app.ports.removeDiagrams.subscribe(async (diagram: Diagram) => {
-        const { id, title, isRemote } = diagram;
-        if (
-            /* eslint no-alert: 0 */
-            window.confirm(
-                `Are you sure you want to delete "${title}" diagram?`
-            )
-        ) {
-            if (isRemote) {
-                app.ports.removeRemoteDiagram.send(diagram);
-            } else {
-                await db.diagrams.delete(id);
-                app.ports.reload.send("");
-            }
+        const { id, isRemote } = diagram;
+        if (isRemote) {
+            app.ports.removeRemoteDiagram.send(diagram);
+        } else {
+            await db.diagrams.delete(id);
+            app.ports.reload.send("");
         }
     });
 

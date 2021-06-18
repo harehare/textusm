@@ -389,7 +389,7 @@ showDialog d =
 changeRouteTo : Route -> Model -> Return Msg Model
 changeRouteTo route model =
     Return.singleton model
-        |> (if Text.isChanged model.diagramModel.text then
+        |> (if Text.isChanged model.diagramModel.text && not (Dialog.display model.confirmDialog) then
                 Return.andThen (Action.showConfirmDialog "Confirmation" "Your data has been changed. do you wish to continue ?" route)
 
             else
@@ -1276,14 +1276,7 @@ update message model =
                     Action.historyBack model.key
 
                 MoveTo route ->
-                    let
-                        diagramModel =
-                            model.diagramModel
-
-                        diagramModel_ =
-                            { diagramModel | text = Text.saved diagramModel.text }
-                    in
-                    Return.andThen (\m -> Return.singleton { m | diagramModel = diagramModel_ })
+                    Return.andThen Action.unchanged
                         >> Return.andThen Action.closeDialog
                         >> Action.replaceTo model.key route
 
