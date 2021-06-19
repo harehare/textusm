@@ -777,14 +777,14 @@ update message model =
                                             (Route.toString <|
                                                 ViewPublic diagram.diagram (DiagramItem.getId diagram)
                                             )
-                                            model
+                                            model.key
 
                                      else
                                         Action.pushUrl
                                             (Route.toString <|
                                                 EditFile diagram.diagram (DiagramItem.getId diagram)
                                             )
-                                            model
+                                            model.key
                                     )
                                         >> Return.andThen Action.startProgress
 
@@ -1122,7 +1122,7 @@ update message model =
                                 Return.andThen (Action.showConfirmDialog "Confirmation" "Your data has been changed. do you wish to continue ?" <| toRoute url)
 
                             else
-                                Action.pushUrl (Url.toString url) model
+                                Action.pushUrl (Url.toString url) model.key
 
                         Browser.External href ->
                             Return.command (Nav.load href)
@@ -1143,13 +1143,13 @@ update message model =
                         >> (case ( toRoute model.url, model.currentDiagram ) of
                                 ( Route.EditFile type_ id_, Just diagram ) ->
                                     if (DiagramItem.getId diagram |> DiagramId.toString) /= DiagramId.toString id_ then
-                                        Action.pushUrl (Route.toString <| Route.EditFile type_ id_) model
+                                        Action.pushUrl (Route.toString <| Route.EditFile type_ id_) model.key
 
                                     else
                                         Return.zero
 
                                 ( Route.EditFile type_ id_, _ ) ->
-                                    Action.pushUrl (Route.toString <| Route.EditFile type_ id_) model
+                                    Action.pushUrl (Route.toString <| Route.EditFile type_ id_) model.key
 
                                 ( Route.ViewFile _ id_, _ ) ->
                                     case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
@@ -1174,7 +1174,7 @@ update message model =
                                             Return.andThen <| Action.switchPage Page.NotFound
 
                                 ( Route.DiagramList, _ ) ->
-                                    Action.pushUrl (Route.toString <| Route.Home) model
+                                    Action.pushUrl (Route.toString <| Route.Home) model.key
 
                                 _ ->
                                     Return.zero

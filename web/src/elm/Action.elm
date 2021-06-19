@@ -117,9 +117,9 @@ setFocusEditor =
     Return.command <| Ports.focusEditor ()
 
 
-pushUrl : String -> Model -> Return.ReturnF Msg Model
-pushUrl url model =
-    Return.command <| Nav.pushUrl model.key url
+pushUrl : String -> Nav.Key -> Return.ReturnF Msg Model
+pushUrl url key =
+    Return.command <| Nav.pushUrl key url
 
 
 updateIdToken : Return.ReturnF Msg Model
