@@ -247,11 +247,6 @@ moveTo key route =
     Return.command <| Route.moveTo key route
 
 
-replaceTo : Nav.Key -> Route -> Return.ReturnF Msg Model
-replaceTo key route =
-    Return.command <| Route.replaceTo key route
-
-
 redirectToLastEditedFile : Model -> Return.ReturnF Msg Model
 redirectToLastEditedFile model =
     case ( Maybe.andThen .id model.currentDiagram, Maybe.map .diagram model.currentDiagram ) of
