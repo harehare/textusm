@@ -138,6 +138,7 @@ init flags url key =
         , page = Page.Main
         , lang = lang
         , confirmDialog = Dialog.Hide
+        , prevRoute = Nothing
         , view =
             { password = Nothing
             , authenticated = False
@@ -192,6 +193,7 @@ view model =
             , currentText = model.diagramModel.text
             , lang = model.lang
             , route = toRoute model.url
+            , prevRoute = model.prevRoute
             }
         , Lazy.lazy showNotification model.notification
         , Lazy.lazy2 showProgressbar model.progress model.window.fullscreen
@@ -1128,7 +1130,7 @@ update message model =
                             Return.command (Nav.load href)
 
                 UrlChanged url ->
-                    \( m, _ ) -> changeRouteTo (toRoute url) { m | url = url }
+                    \( m, _ ) -> changeRouteTo (toRoute url) { m | url = url, prevRoute = Just <| toRoute model.url }
 
                 SignIn provider ->
                     Return.command (Ports.signIn <| LoginProdiver.toString provider)
@@ -1186,7 +1188,7 @@ update message model =
                         >> Return.andThen Action.stopProgress
 
                 Progress visible ->
-                    Return.andThen (\m -> Return.singleton { m | progress = visible })
+                    Return.andThen <| \m -> Return.singleton { m | progress = visible }
 
                 Load (Ok diagram) ->
                     loadDiagram model diagram
@@ -1271,9 +1273,6 @@ update message model =
 
                 UpdateIdToken token ->
                     Return.andThen <| \m -> Return.singleton { m | session = Session.updateIdToken m.session (IdToken.fromString token) }
-
-                HistoryBack ->
-                    Action.historyBack model.key
 
                 MoveTo route ->
                     Return.andThen Action.unchanged

@@ -51,7 +51,6 @@ authStateChanged(
         }
     }
 );
-pollRefreshToken(app.ports.updateIdToken.send);
 
 app.ports.saveSettings.subscribe((settings: Settings) => {
     saveSettings(settings);
@@ -127,6 +126,8 @@ document.addEventListener("fullscreenchange", () => {
 });
 
 window.requestIdleCallback(() => {
+    pollRefreshToken(app.ports.updateIdToken.send);
+
     const loadSentry = async () => {
         if (process.env.SENTRY_ENABLE === "1") {
             const sentry = await import("@sentry/browser");

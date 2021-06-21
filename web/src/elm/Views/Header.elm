@@ -33,6 +33,7 @@ type alias Props =
     , currentText : Text
     , lang : Lang
     , route : Route
+    , prevRoute : Maybe Route
     }
 
 
@@ -74,19 +75,39 @@ view props =
                     Page.Main ->
                         Html.div
                             [ Attr.class "flex-center"
-                            , Attr.style "width" "40px"
-                            , Attr.style "height" "40px"
+                            , Attr.style "width" "32px"
+                            , Attr.style "height" "32px"
                             ]
-                            [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ] [ Html.img [ Asset.src Asset.logo, Attr.style "width" "32px", Attr.style "height" "32px", Attr.alt "logo" ] [] ] ]
+                            [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ]
+                                [ Html.img
+                                    [ Asset.src Asset.logo
+                                    , Attr.style "width" "28px"
+                                    , Attr.style "height" "28px"
+                                    , Attr.style "margin-left" "4px"
+                                    , Attr.alt "logo"
+                                    ]
+                                    []
+                                ]
+                            ]
 
                     _ ->
-                        Html.div
-                            [ Attr.class "flex-center"
-                            , Attr.style "padding" "8px 8px 8px 12px"
-                            , Attr.style "cursor" "pointer"
-                            , Events.onClick HistoryBack
-                            ]
-                            [ Icon.arrowLeft "#F5F5F6" 18 ]
+                        case props.prevRoute of
+                            Just r ->
+                                Html.div
+                                    [ Attr.class "flex-center"
+                                    , Attr.style "padding" "8px 8px 8px 12px"
+                                    , Attr.style "cursor" "pointer"
+                                    , Events.onClick <| MoveTo r
+                                    ]
+                                    [ Icon.arrowLeft "#F5F5F6" 18 ]
+
+                            Nothing ->
+                                Html.div
+                                    [ Attr.class "flex-center"
+                                    , Attr.style "padding" "8px 8px 8px 12px"
+                                    , Attr.style "cursor" "pointer"
+                                    ]
+                                    [ Icon.arrowLeft "#555" 18 ]
                 , case props.page of
                     Page.Main ->
                         if canEdit && Title.isEdit props.title then
@@ -214,7 +235,7 @@ view props =
                         ]
                         [ Html.img
                             [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
-                            , Attr.class "w-20 object-cover rounded-full lg:w-8 h-full mt-xs"
+                            , Attr.class "w-6 object-cover rounded-full lg:w-8 h-full mt-xs"
                             , Attr.alt "avatar"
                             ]
                             []

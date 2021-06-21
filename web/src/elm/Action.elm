@@ -192,16 +192,6 @@ unchanged model =
         }
 
 
-changed : Model -> Return Msg Model
-changed model =
-    Return.singleton
-        { model
-            | diagramModel =
-                model.diagramModel
-                    |> DiagramModel.modelOfText.set (Text.change model.diagramModel.text)
-        }
-
-
 setTitle : String -> Model -> Return Msg Model
 setTitle title model =
     Return.singleton { model | title = Title.fromString <| title }

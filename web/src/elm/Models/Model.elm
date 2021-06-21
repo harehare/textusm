@@ -79,7 +79,6 @@ type Msg
     | Load (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
     | CloseFullscreen D.Value
     | UpdateIdToken String
-    | HistoryBack
     | EditPassword String
     | EndEditPassword
     | LoadWithPassword (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
@@ -122,6 +121,7 @@ type alias Model =
     , progress : Bool
     , confirmDialog : ConfirmDialog Msg
     , lang : Lang
+    , prevRoute : Maybe Route
     , view :
         { password : Maybe String
         , authenticated : Bool

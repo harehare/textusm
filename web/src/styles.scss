@@ -537,7 +537,7 @@
 }
 
 .help {
-    @apply text-xl bg-default w-full text-color overflow-auto;
+    @apply text-xl bg-default w-full text-color overflow-x-hidden;
     @apply h-content;
     @media (max-width: 480px) {
         @apply w-screen;
