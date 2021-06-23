@@ -7,7 +7,7 @@
         "url": "https://github.com/harehare/textusm/issues"
     },
     "dependencies": {
-        "@sentry/browser": "^6.7.1",
+        "@sentry/browser": "^6.7.2",
         "clipboard-copy": "^4.0.1",
         "dexie": "^3.0.3",
         "firebase": "^8.6.8",
@@ -20,7 +20,7 @@
     },
     "devDependencies": {
         "@babel/core": "^7.14.6",
-        "@babel/preset-env": "^7.14.5",
+        "@babel/preset-env": "^7.14.7",
         "@commitlint/cli": "^12.1.4",
         "@commitlint/config-conventional": "^12.1.4",
         "@dillonkearns/elm-graphql": "^4.2.1",
@@ -29,7 +29,7 @@
         "@types/requestidlecallback": "^0.3.1",
         "@types/svgo": "^2.3.0",
         "@types/uuid": "^8.3.0",
-        "@typescript-eslint/eslint-plugin": "^4.27.0",
+        "@typescript-eslint/eslint-plugin": "^4.28.0",
         "@typescript-eslint/parser": "^4.27.0",
         "babel-loader": "^8.2.2",
         "clean-webpack-plugin": "^3.0.0",
@@ -45,7 +45,7 @@
         "eslint": "^7.29.0",
         "eslint-config-airbnb-typescript-prettier": "^4.2.0",
         "html-inline-css-webpack-plugin": "^1.11.1",
-        "html-webpack-plugin": "^5.3.1",
+        "html-webpack-plugin": "^5.3.2",
         "husky": "^6.0.0",
         "imagemin-webpack-plugin": "^2.4.2",
         "lint-staged": "^11.0.0",
