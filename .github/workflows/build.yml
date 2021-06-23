@@ -49,7 +49,7 @@ jobs:
           name: dist
           path: web/dist
   deploy-web:
-    name: deploy
+    name: deploy-web
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -75,7 +75,7 @@ jobs:
       - name: Deploy server to Heroku
         run: git push heroku `git subtree split --prefix server HEAD`:master --force
   deploy-server:
-    name: deploy
+    name: deploy-server
     needs: build
     runs-on: ubuntu-latest
     steps:
