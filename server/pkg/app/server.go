@@ -1,4 +1,4 @@
-package server
+package app
 
 import (
 	"encoding/base64"
@@ -40,6 +40,8 @@ type Env struct {
 	Port                string `envconfig:"PORT"`
 	Credentials         string `envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`
 	DatabaseCredentials string `envconfig:"DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON"`
+	TlsCertFile         string `envconfig:"TLS_CERT_FILE" default:""`
+	TlsKeyFile          string `envconfig:"TLS_KEY_FILE"  default:""`
 }
 
 var (
@@ -106,7 +108,7 @@ func Run() int {
 		r.Use(middleware.AuthMiddleware(app))
 		r.Use(middleware.IPMiddleware())
 		r.Use(cors.Handler(cors.Options{
-			AllowedOrigins:   []string{"https://app.textusm.com", "http://localhost:3000"},
+			AllowedOrigins:   []string{"https://app.textusm.com", "http://localhost:3000", "https://localhost:3000"},
 			AllowedMethods:   []string{"POST", "OPTIONS"},
 			AllowedHeaders:   []string{"accept", "authorization", "content-type"},
 			AllowCredentials: false,
@@ -142,7 +144,12 @@ func Run() int {
 	go gracefullShutdown(ctx, s, quit, done)
 
 	log.Info().Msg(fmt.Sprintf("Start server %s", env.Port))
-	err = s.ListenAndServe()
+
+	if env.TlsCertFile != "" && env.TlsKeyFile != "" {
+		err = s.ListenAndServeTLS(env.TlsCertFile, env.TlsKeyFile)
+	} else {
+		err = s.ListenAndServe()
+	}
 
 	if err != nil {
 		return 1

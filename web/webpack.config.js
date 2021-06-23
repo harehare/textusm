@@ -1,7 +1,7 @@
 const path = require("path");
+const fs = require("fs");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
-
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
@@ -170,6 +170,13 @@ if (mode === "development") {
             stats: "errors-only",
             contentBase: path.join(__dirname, "src/assets"),
             historyApiFallback: true,
+            https:
+                process.env.TLS_CERT_FILE && process.env.TLS_KEY_FILE
+                    ? {
+                          key: fs.readFileSync(process.env.TLS_KEY_FILE),
+                          cert: fs.readFileSync(process.env.TLS_CERT_FILE),
+                      }
+                    : false,
         },
     });
 }
