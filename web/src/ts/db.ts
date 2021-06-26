@@ -1,22 +1,22 @@
-import { v4 as uuidv4 } from "uuid";
-import Dexie from "dexie";
-import { Diagram, DiagramItem } from "./model";
-import { ElmApp } from "./elm";
+import { v4 as uuidv4 } from 'uuid';
+import Dexie from 'dexie';
+import { Diagram, DiagramItem } from './model';
+import { ElmApp } from './elm';
 
 class LocalDatabase extends Dexie {
     diagrams: Dexie.Table<DiagramItem, string>;
 
     constructor() {
-        super("textusm");
+        super('textusm');
         this.version(2).stores({
             diagrams:
-                "++id,title,text,thumbnail,diagramPath,createdAt,updatedAt",
+                '++id,title,text,thumbnail,diagramPath,createdAt,updatedAt',
         });
 
         this.version(2)
             .stores({
                 diagrams:
-                    "++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt",
+                    '++id,title,text,thumbnail,diagram,isBookmark,createdAt,updatedAt',
             })
             .upgrade((trans) => {
                 // @ts-ignore
@@ -35,11 +35,11 @@ class LocalDatabase extends Dexie {
                     .toCollection()
                     // @ts-ignore
                     .modify((d) => {
-                        d.diagram = d.diagram === "cjm" ? "table" : "";
+                        d.diagram = d.diagram === 'cjm' ? 'table' : '';
                     })
             );
         });
-        this.diagrams = this.table("diagrams");
+        this.diagrams = this.table('diagrams');
     }
 }
 
@@ -47,20 +47,20 @@ export const initDB = (app: ElmApp): void => {
     const db = new LocalDatabase();
     const svg2base64 = async (id: string) => {
         // @ts-expect-error
-        const svgoImport = await import("svgo/dist/svgo.browser.js").catch(() =>
+        const svgoImport = await import('svgo/dist/svgo.browser.js').catch(() =>
             app.ports.sendErrorNotification.send(
-                "Failed to load chunks. Please reload."
+                'Failed to load chunks. Please reload.'
             )
         );
         const svgo = svgoImport.default;
         const svg = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "svg"
+            'http://www.w3.org/2000/svg',
+            'svg'
         );
-        svg.setAttribute("viewBox", `0 0 1280 960`);
-        svg.setAttribute("width", "320");
-        svg.setAttribute("height", "240");
-        svg.setAttribute("style", "background-color: #F5F5F6;");
+        svg.setAttribute('viewBox', `0 0 1280 960`);
+        svg.setAttribute('width', '320');
+        svg.setAttribute('height', '240');
+        svg.setAttribute('style', 'background-color: #F5F5F6;');
         const elm = document.querySelector(`#${id}`);
 
         if (elm) {
@@ -75,7 +75,7 @@ export const initDB = (app: ElmApp): void => {
                         {
                             plugins: svgo.extendDefaultPlugins([
                                 {
-                                    name: "convertStyleToAttrs",
+                                    name: 'convertStyleToAttrs',
                                     active: false,
                                 },
                             ]),
@@ -97,7 +97,7 @@ export const initDB = (app: ElmApp): void => {
             isRemote,
             tags,
         }: Diagram) => {
-            const thumbnail = await svg2base64("usm");
+            const thumbnail = await svg2base64('usm');
             const createdAt = new Date().getTime();
             const diagramItem: DiagramItem = {
                 id,
@@ -135,7 +135,7 @@ export const initDB = (app: ElmApp): void => {
 
     app.ports.importDiagram.subscribe(async (diagrams: DiagramItem[]) => {
         await db.diagrams.bulkPut(diagrams);
-        app.ports.reload.send("");
+        app.ports.reload.send('');
     });
 
     app.ports.removeDiagrams.subscribe(async (diagram: Diagram) => {
@@ -144,7 +144,7 @@ export const initDB = (app: ElmApp): void => {
             app.ports.removeRemoteDiagram.send(diagram);
         } else {
             await db.diagrams.delete(id);
-            app.ports.reload.send("");
+            app.ports.reload.send('');
         }
     });
 
@@ -162,7 +162,7 @@ export const initDB = (app: ElmApp): void => {
 
     app.ports.getDiagrams.subscribe(async () => {
         const diagrams = await db.diagrams
-            .orderBy("updatedAt")
+            .orderBy('updatedAt')
             .reverse()
             .toArray();
         app.ports.gotLocalDiagramsJson.send(

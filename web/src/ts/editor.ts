@@ -1,5 +1,5 @@
-import * as monaco from "monaco-editor";
-import { ElmApp } from "./elm";
+import * as monaco from 'monaco-editor';
+import { ElmApp } from './elm';
 
 let monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;
 let updateTextInterval: number | null = null;
@@ -18,48 +18,48 @@ export const setElmApp = (app: ElmApp): void => {
 };
 
 monaco.languages.register({
-    id: "userStoryMap",
+    id: 'userStoryMap',
 });
 
-monaco.languages.setMonarchTokensProvider("userStoryMap", {
+monaco.languages.setMonarchTokensProvider('userStoryMap', {
     tokenizer: {
         root: [
-            [/^ *#.+/, "comment"],
-            [/^[^ ][^#:||]+/, "activity"],
-            [/^ {8}[^#:||]+/, "story"],
-            [/^ {4}[^#:||]+/, "task"],
-            [/#.+/, "color"],
-            [/\|[^|]+/, "color"],
+            [/^ *#.+/, 'comment'],
+            [/^[^ ][^#:||]+/, 'activity'],
+            [/^ {8}[^#:||]+/, 'story'],
+            [/^ {4}[^#:||]+/, 'task'],
+            [/#.+/, 'color'],
+            [/\|[^|]+/, 'color'],
         ],
     },
 });
 
-monaco.editor.defineTheme("usmTheme", {
-    base: "vs-dark",
+monaco.editor.defineTheme('usmTheme', {
+    base: 'vs-dark',
     inherit: true,
     colors: {
-        "editor.background": "#273037",
+        'editor.background': '#273037',
     },
     rules: [
         {
-            token: "comment",
-            foreground: "#008800",
+            token: 'comment',
+            foreground: '#008800',
         },
         {
-            token: "color",
-            foreground: "#323d46",
+            token: 'color',
+            foreground: '#323d46',
         },
         {
-            token: "activity",
-            foreground: "#439ad9",
+            token: 'activity',
+            foreground: '#439ad9',
         },
         {
-            token: "task",
-            foreground: "#3a5aba",
+            token: 'task',
+            foreground: '#3a5aba',
         },
         {
-            token: "story",
-            foreground: "#c4c0b9",
+            token: 'story',
+            foreground: '#c4c0b9',
         },
     ],
 });
@@ -79,7 +79,7 @@ export class MonacoEditor extends HTMLElement {
     }
 
     static get observedAttributes(): string[] {
-        return ["value", "fontSize", "wordWrap", "showLineNumber", "changed"];
+        return ['value', 'fontSize', 'wordWrap', 'showLineNumber', 'changed'];
     }
 
     attributeChangedCallback(
@@ -91,29 +91,29 @@ export class MonacoEditor extends HTMLElement {
             return;
         }
         switch (name) {
-            case "value":
+            case 'value':
                 if (newValue !== this.editor?.getValue()) {
                     this.value = newValue as string;
                 }
                 break;
-            case "fontSize":
+            case 'fontSize':
                 if (oldValue !== newValue) {
                     this.fontSize = newValue as number;
                 }
                 break;
-            case "wordWrap":
+            case 'wordWrap':
                 if (oldValue !== newValue) {
-                    this.wordWrap = newValue === "true";
+                    this.wordWrap = newValue === 'true';
                 }
                 break;
-            case "showLineNumber":
+            case 'showLineNumber':
                 if (oldValue !== newValue) {
-                    this.showLineNumber = newValue === "true";
+                    this.showLineNumber = newValue === 'true';
                 }
                 break;
-            case "changed":
+            case 'changed':
                 if (oldValue !== newValue) {
-                    this.changed = newValue === "true";
+                    this.changed = newValue === 'true';
                 }
                 break;
             default:
@@ -130,11 +130,11 @@ export class MonacoEditor extends HTMLElement {
     }
 
     set wordWrap(value: boolean) {
-        this.editor?.updateOptions({ wordWrap: value ? "on" : "off" });
+        this.editor?.updateOptions({ wordWrap: value ? 'on' : 'off' });
     }
 
     set showLineNumber(value: boolean) {
-        this.editor?.updateOptions({ lineNumbers: value ? "on" : "off" });
+        this.editor?.updateOptions({ lineNumbers: value ? 'on' : 'off' });
     }
 
     set changed(value: boolean) {
@@ -147,17 +147,17 @@ export class MonacoEditor extends HTMLElement {
     }
 
     async connectedCallback(): Promise<void> {
-        const editor = document.getElementById("editor") as HTMLElement | null;
+        const editor = document.getElementById('editor') as HTMLElement | null;
         if (editor) {
             this.editor = monaco.editor.create(editor, {
-                language: "userStoryMap",
-                theme: "usmTheme",
+                language: 'userStoryMap',
+                theme: 'usmTheme',
                 lineNumbers:
-                    this.getAttribute("showLineNumber") === "true"
-                        ? "on"
-                        : "off",
+                    this.getAttribute('showLineNumber') === 'true'
+                        ? 'on'
+                        : 'off',
                 wordWrap:
-                    this.getAttribute("wordWrap") === "true" ? "on" : "off",
+                    this.getAttribute('wordWrap') === 'true' ? 'on' : 'off',
                 minimap: {
                     enabled: false,
                 },
@@ -168,26 +168,26 @@ export class MonacoEditor extends HTMLElement {
                     verticalScrollbarSize: 6,
                     horizontalScrollbarSize: 6,
                 },
-                renderLineHighlight: "none",
+                renderLineHighlight: 'none',
             });
 
             this.editor.addAction({
-                id: "open",
-                label: "open",
+                id: 'open',
+                label: 'open',
                 keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
                 contextMenuOrder: 1,
                 run: () => {
-                    _app?.ports.shortcuts.send("open");
+                    _app?.ports.shortcuts.send('open');
                 },
             });
 
             this.editor.addAction({
-                id: "save-to-local",
-                label: "save",
+                id: 'save-to-local',
+                label: 'save',
                 keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
                 contextMenuOrder: 2,
                 run: () => {
-                    _app?.ports.shortcuts.send("save");
+                    _app?.ports.shortcuts.send('save');
                 },
             });
 
@@ -205,15 +205,15 @@ export class MonacoEditor extends HTMLElement {
                 }
             });
 
-            if (this.hasAttribute("value")) {
-                const value = this.getAttribute("value");
+            if (this.hasAttribute('value')) {
+                const value = this.getAttribute('value');
                 if (value) {
                     this.value = value;
                 }
             }
 
-            if (this.hasAttribute("fontSize")) {
-                const fontSize = this.getAttribute("fontSize");
+            if (this.hasAttribute('fontSize')) {
+                const fontSize = this.getAttribute('fontSize');
                 if (fontSize) {
                     this.fontSize = parseInt(fontSize, 10);
                 }
@@ -225,4 +225,4 @@ export class MonacoEditor extends HTMLElement {
     }
 }
 
-customElements.define("monaco-editor", MonacoEditor);
+customElements.define('monaco-editor', MonacoEditor);

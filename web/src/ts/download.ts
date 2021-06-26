@@ -1,26 +1,26 @@
-import { DownloadInfo, ImageInfo } from "./model";
-import { ElmApp } from "./elm";
+import { DownloadInfo, ImageInfo } from './model';
+import { ElmApp } from './elm';
 
 export const initDownload = (app: ElmApp): void => {
     const createSvg = async (id: string, width: number, height: number) => {
         const svg = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "svg"
+            'http://www.w3.org/2000/svg',
+            'svg'
         );
         const element = document.querySelector(`#${id}`);
-        svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-        svg.setAttribute("width", width.toString());
-        svg.setAttribute("height", height.toString());
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        svg.setAttribute('width', width.toString());
+        svg.setAttribute('height', height.toString());
 
         if (element) {
-            svg.setAttribute("style", element.getAttribute("style") ?? "");
+            svg.setAttribute('style', element.getAttribute('style') ?? '');
             svg.innerHTML = element.innerHTML;
         }
 
         // @ts-expect-error
-        const svgoImport = await import("svgo/dist/svgo.browser.js").catch(() =>
+        const svgoImport = await import('svgo/dist/svgo.browser.js').catch(() =>
             app.ports.sendErrorNotification.send(
-                "Failed to load chunks. Please reload."
+                'Failed to load chunks. Please reload.'
             )
         );
         const svgo = svgoImport.default;
@@ -29,7 +29,7 @@ export const initDownload = (app: ElmApp): void => {
             {
                 plugins: svgo.extendDefaultPlugins([
                     {
-                        name: "convertStyleToAttrs",
+                        name: 'convertStyleToAttrs',
                         active: false,
                     },
                 ]),
@@ -46,23 +46,23 @@ export const initDownload = (app: ElmApp): void => {
         scale = 1,
         callback,
     }: ImageInfo) => {
-        const canvas = document.createElement("canvas");
+        const canvas = document.createElement('canvas');
         const svgWidth = width;
         const svgHeight = height;
-        canvas.setAttribute("width", (svgWidth * scale).toString());
-        canvas.setAttribute("height", (svgHeight * scale).toString());
-        canvas.style.display = "none";
+        canvas.setAttribute('width', (svgWidth * scale).toString());
+        canvas.setAttribute('height', (svgHeight * scale).toString());
+        canvas.style.display = 'none';
 
-        const context = canvas.getContext("2d");
+        const context = canvas.getContext('2d');
 
         if (context) {
             context.scale(scale, scale);
             const img = new Image();
             img.addEventListener(
-                "load",
+                'load',
                 () => {
                     context.drawImage(img, 0, 0, width, height);
-                    const url = canvas.toDataURL("image/png");
+                    const url = canvas.toDataURL('image/png');
                     callback(url);
                 },
                 false
@@ -77,8 +77,8 @@ export const initDownload = (app: ElmApp): void => {
         async ({ id, width, height, x, y }: DownloadInfo) => {
             app.ports.startDownload.send({
                 content: await createSvg(id, width, height),
-                extension: ".svg",
-                mimeType: "image/svg+xml",
+                extension: '.svg',
+                mimeType: 'image/svg+xml',
             });
             app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
         }
@@ -87,13 +87,13 @@ export const initDownload = (app: ElmApp): void => {
     app.ports.downloadPdf.subscribe(
         async ({ id, width, height, title, x, y }: DownloadInfo) => {
             // @ts-ignore
-            window.html2canvas = (await import("html2canvas")).default;
-            const JsPdf = (await import("jspdf")).default;
+            window.html2canvas = (await import('html2canvas')).default;
+            const JsPdf = (await import('jspdf')).default;
 
-            if (window.location.pathname === "/md") {
+            if (window.location.pathname === '/md') {
                 const doc = new JsPdf({
-                    orientation: "p",
-                    unit: "px",
+                    orientation: 'p',
+                    unit: 'px',
                     compress: true,
                 });
                 const pageWidth = doc.internal.pageSize.width;
@@ -117,7 +117,7 @@ export const initDownload = (app: ElmApp): void => {
                             }
                             doc.addImage(
                                 url,
-                                "PNG",
+                                'PNG',
                                 8,
                                 printedHeight * -1,
                                 width,
@@ -142,14 +142,14 @@ export const initDownload = (app: ElmApp): void => {
                     scale: 3,
                     callback: (url: string) => {
                         const doc = new JsPdf({
-                            orientation: "l",
-                            unit: "px",
+                            orientation: 'l',
+                            unit: 'px',
                             compress: true,
                         });
                         const pageWidth = doc.internal.pageSize.getWidth();
                         doc.addImage(
                             url,
-                            "PNG",
+                            'PNG',
                             0,
                             0,
                             width * (pageWidth / width),
@@ -174,10 +174,10 @@ export const initDownload = (app: ElmApp): void => {
                 height,
                 scale: 2,
                 callback: (url: string) => {
-                    const a = document.createElement("a");
-                    a.setAttribute("download", title);
-                    a.setAttribute("href", url);
-                    a.style.display = "none";
+                    const a = document.createElement('a');
+                    a.setAttribute('download', title);
+                    a.setAttribute('href', url);
+                    a.style.display = 'none';
                     a.click();
 
                     setTimeout(() => {
@@ -198,14 +198,14 @@ export const initDownload = (app: ElmApp): void => {
 
         if (!doc) return;
 
-        const element = doc.querySelector("#usm-area");
+        const element = doc.querySelector('#usm-area');
 
         if (element) {
             const e = element.cloneNode(true);
             const elm = e as Element;
 
-            const minimap = elm.querySelector(".minimap");
-            const zoomControl = elm.querySelector("#zoom-control");
+            const minimap = elm.querySelector('.minimap');
+            const zoomControl = elm.querySelector('#zoom-control');
 
             if (minimap) {
                 minimap.remove();
@@ -216,8 +216,8 @@ export const initDownload = (app: ElmApp): void => {
             }
             app.ports.startDownload.send({
                 content: `<html>${elm.outerHTML}</html>`,
-                extension: ".html",
-                mimeType: "text/html",
+                extension: '.html',
+                mimeType: 'text/html',
             });
         }
     });

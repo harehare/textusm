@@ -1,38 +1,38 @@
-import { Settings } from "./model";
+import { Settings } from './model';
 
-const SettingsKey = "textusm:settings";
+const SettingsKey = 'textusm:settings';
 
 const defaultSettings = {
-    font: "Nunito Sans",
+    font: 'Nunito Sans',
     storyMap: {
-        font: "Nunito Sans",
+        font: 'Nunito Sans',
         size: {
             width: 140,
             height: 65,
         },
         color: {
             activity: {
-                color: "#FFFFFF",
-                backgroundColor: "#266B9A",
+                color: '#FFFFFF',
+                backgroundColor: '#266B9A',
             },
             task: {
-                color: "#FFFFFF",
-                backgroundColor: "#3E9BCD",
+                color: '#FFFFFF',
+                backgroundColor: '#3E9BCD',
             },
             story: {
-                color: "#333333",
-                backgroundColor: "#FFFFFF",
+                color: '#333333',
+                backgroundColor: '#FFFFFF',
             },
-            line: "#434343",
-            label: "#8C9FAE",
-            text: "#111111",
+            line: '#434343',
+            label: '#8C9FAE',
+            text: '#111111',
         },
-        backgroundColor: "#F4F4F5",
+        backgroundColor: '#F4F4F5',
         zoomControl: true,
         scale: 1.0,
     },
     position: -10,
-    text: "",
+    text: '',
     title: null,
     editor: {
         fontSize: 12,

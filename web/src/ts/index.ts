@@ -1,7 +1,7 @@
-import "../styles.scss";
-import { setElmApp } from "./editor";
-import { initDownload } from "./download";
-import { initDB } from "./db";
+import '../styles.scss';
+import { setElmApp } from './editor';
+import { initDownload } from './download';
+import { initDB } from './db';
 import {
     signOut,
     signIn,
@@ -9,13 +9,13 @@ import {
     providers,
     refreshToken,
     pollRefreshToken,
-} from "./auth";
-import { loadSettings, saveSettings } from "./settings";
-import { Settings } from "./model";
-import { ElmApp, Provider } from "./elm";
+} from './auth';
+import { loadSettings, saveSettings } from './settings';
+import { Settings } from './model';
+import { ElmApp, Provider } from './elm';
 // @ts-ignore
-import { Elm } from "../elm/Main.elm";
-import copy from "clipboard-copy";
+import { Elm } from '../elm/Main.elm';
+import copy from 'clipboard-copy';
 
 const lang =
     (window.navigator.languages && window.navigator.languages[0]) ||
@@ -44,9 +44,9 @@ authStateChanged(
             app.ports.onAuthStateChanged.send({
                 idToken,
                 id: profile.uid,
-                displayName: profile.displayName ?? "",
-                email: profile.email ?? "",
-                photoURL: profile.photoURL ?? "",
+                displayName: profile.displayName ?? '',
+                email: profile.email ?? '',
+                photoURL: profile.photoURL ?? '',
             });
         }
     }
@@ -57,12 +57,12 @@ app.ports.saveSettings.subscribe((settings: Settings) => {
 });
 
 app.ports.signIn.subscribe((provider: Provider) => {
-    signIn(provider === "Google" ? providers.google : providers.github);
+    signIn(provider === 'Google' ? providers.google : providers.github);
 });
 
 app.ports.signOut.subscribe(async () => {
     await signOut().catch(() => {
-        app.ports.sendErrorNotification.send("Failed sign out.");
+        app.ports.sendErrorNotification.send('Failed sign out.');
     });
 });
 
@@ -119,7 +119,7 @@ const attachApp = (a: ElmApp, list: ((a: ElmApp) => void)[]) => {
 
 attachApp(app, [initDownload, initDB]);
 
-document.addEventListener("fullscreenchange", () => {
+document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) {
         app.ports.onCloseFullscreen.send({});
     }
@@ -129,8 +129,8 @@ window.requestIdleCallback(() => {
     pollRefreshToken(app.ports.updateIdToken.send);
 
     const loadSentry = async () => {
-        if (process.env.SENTRY_ENABLE === "1") {
-            const sentry = await import("@sentry/browser");
+        if (process.env.SENTRY_ENABLE === '1') {
+            const sentry = await import('@sentry/browser');
             sentry.init({
                 dsn: process.env.SENTRY_DSN,
             });
@@ -140,9 +140,9 @@ window.requestIdleCallback(() => {
     loadSentry();
 
     if (
-        "serviceWorker" in navigator &&
-        !window.location.host.startsWith("localhost")
+        'serviceWorker' in navigator &&
+        !window.location.host.startsWith('localhost')
     ) {
-        navigator.serviceWorker.register("/sw.js");
+        navigator.serviceWorker.register('/sw.js');
     }
 });
