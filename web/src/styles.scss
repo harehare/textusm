@@ -76,7 +76,7 @@
         @apply p-0.5;
         @apply lg:p-3;
         @apply cursor-pointer;
-        @apply relative text-color flex items-center;
+        @apply relative text-color flex items-center justify-center;
         @apply rounded-sm;
         &:hover {
             .bottom-tooltip {

@@ -227,6 +227,8 @@ view props =
                 in
                 Html.div
                     [ Attr.class "button"
+                    , Attr.style "width" "96px;"
+                    , Attr.style "height" "50px"
                     , Events.stopPropagationOn "click" (D.succeed ( OpenMenu HeaderMenu, True ))
                     ]
                     [ Html.div
@@ -262,10 +264,13 @@ view props =
 
               else
                 Html.div
-                    [ Attr.class "button m-2"
+                    [ Attr.class "button"
+                    , Attr.style "width" "96px"
+                    , Attr.style "height" "50px"
                     , Events.stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
                     ]
-                    [ Html.div [ Attr.style "width" "70px", Attr.class "text-base font-bold" ] [ Html.text "SIGN IN" ]
+                    [ Html.div [ Attr.class "text-base font-bold" ]
+                        [ Html.text "SIGN IN" ]
                     , case props.menu of
                         Just LoginMenu ->
                             Menu.menu (Just "30px")
