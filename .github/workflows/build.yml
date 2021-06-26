@@ -89,12 +89,12 @@ jobs:
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
       - name: Deploy server to Heroku
         run: git push heroku `git subtree split --prefix server HEAD`:master --force
-  audit:
+  lighthouse:
     runs-on: ubuntu-latest
-    name: audit
+    name: lighthouse
     needs: [deploy-web, deploy-server]
     steps:
-      - name: Audit live URL
+      - name: Lighthouse test
         uses: jakejarvis/lighthouse-action@master
         with:
           url: "https://app.textusm.com"

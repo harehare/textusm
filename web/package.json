@@ -77,9 +77,6 @@
     },
     "homepage": "https://github.com/harehare/textusm",
     "license": "MIT",
-    "prettier": {
-        "tabWidth": 4
-    },
     "private": true,
     "repository": {
         "type": "git",

@@ -4,6 +4,7 @@ go := "go"
 module := "github.com/harehare/textusm"
 run := go + " run"
 fmt := go + " fmt"
+build := go + " build"
 test := go + " test"
 generate := go + " generate"
 lint := "staticcheck"
@@ -17,6 +18,9 @@ setup:
 
 run:
 	{{ run }} {{ main }}
+
+build:
+	{{ build }} -o textusm {{ main }}
 
 generate:
 	{{ generate }} {{ target }}
