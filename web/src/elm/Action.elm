@@ -5,13 +5,17 @@ import Browser.Navigation as Nav
 import Data.DiagramId as DiagramId exposing (DiagramId)
 import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Data.Session as Session exposing (Session)
+import Data.ShareToken as ShareToken exposing (ShareToken)
 import Data.Text as Text
 import Data.Title as Title
+import Dialog.Share as Share
 import GraphQL.Request as Request
 import Models.Diagram as DiagramModel
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
-import Models.Page exposing (Page)
+import Models.Page as Page exposing (Page)
+import Page.List as DiagramList
+import Page.Tags as Tags
 import Ports
 import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
@@ -34,6 +38,74 @@ loadLocalDiagram diagramId model =
 changeRouteInit : Model -> Return Msg Model
 changeRouteInit model =
     Return.return model (Task.perform Init Dom.getViewport)
+
+
+initListPage : Model -> Return Msg Model
+initListPage model =
+    let
+        ( model_, cmd_ ) =
+            DiagramList.init model.session model.lang model.diagramListModel.apiRoot
+    in
+    Return.return { model | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
+
+
+initTagPage : Model -> Return Msg Model
+initTagPage model =
+    case model.currentDiagram of
+        Nothing ->
+            Return.singleton model
+
+        Just diagram ->
+            let
+                ( model_, _ ) =
+                    Tags.init (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault ""))
+            in
+            switchPage (Page.Tags model_) model
+
+
+initShareDiagram : DiagramItem -> Model -> Return Msg Model
+initShareDiagram diagramItem model =
+    let
+        ( shareModel, cmd_ ) =
+            Share.init
+                { diagram = diagramItem.diagram
+                , diagramId = diagramItem.id |> Maybe.withDefault (DiagramId.fromString "")
+                , session = model.session
+                , title = model.title
+                }
+    in
+    Return.return { model | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare)
+
+
+loadShareItem : ShareToken -> Model -> Return Msg Model
+loadShareItem id_ model =
+    Return.return model
+        (Task.attempt Load <|
+            Request.shareItem
+                (Session.getIdToken model.session)
+                (ShareToken.toString id_)
+                Nothing
+        )
+
+
+loadItem : DiagramId -> Model -> Return Msg Model
+loadItem id_ model =
+    Return.return model
+        (Task.attempt Load <|
+            Request.item
+                (Session.getIdToken model.session)
+                (DiagramId.toString id_)
+        )
+
+
+loadPublicItem : DiagramId -> Model -> Return Msg Model
+loadPublicItem id_ model =
+    Return.return model
+        (Task.attempt Load <|
+            Request.publicItem
+                (Session.getIdToken model.session)
+                (DiagramId.toString id_)
+        )
 
 
 startProgress : Model -> Return Msg Model
@@ -237,15 +309,15 @@ moveTo key route =
     Return.command <| Route.moveTo key route
 
 
-redirectToLastEditedFile : Model -> Return.ReturnF Msg Model
+redirectToLastEditedFile : Model -> Return Msg Model
 redirectToLastEditedFile model =
     case ( Maybe.andThen .id model.currentDiagram, Maybe.map .diagram model.currentDiagram ) of
         ( Just id_, Just diagramType ) ->
-            moveTo model.key <|
-                Route.EditFile diagramType id_
+            Return.singleton model
+                |> (moveTo model.key <| Route.EditFile diagramType id_)
 
         _ ->
-            Return.zero
+            Return.singleton model
 
 
 showConfirmDialog : String -> String -> Route -> Model -> Return Msg Model
