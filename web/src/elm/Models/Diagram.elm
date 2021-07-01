@@ -43,36 +43,36 @@ module Models.Diagram exposing
     )
 
 import Browser.Dom exposing (Viewport)
-import Data.Color as Color
-import Data.FontSize exposing (FontSize)
-import Data.FontStyle exposing (FontStyle)
-import Data.Item exposing (Item, ItemType(..), Items)
-import Data.Position exposing (Position)
-import Data.Size as Size
-import Data.Text exposing (Text)
 import Events
 import File exposing (File)
+import Graphql.Enum.Diagram exposing (Diagram)
 import List.Extra exposing (getAt)
-import Models.Views.BusinessModelCanvas exposing (BusinessModelCanvas)
-import Models.Views.ER as ER exposing (ErDiagram)
-import Models.Views.EmpathyMap exposing (EmpathyMap)
-import Models.Views.FourLs exposing (FourLs)
-import Models.Views.FreeForm exposing (FreeForm)
-import Models.Views.GanttChart exposing (GanttChart)
-import Models.Views.Kanban exposing (Kanban)
-import Models.Views.Kpt exposing (Kpt)
-import Models.Views.OpportunityCanvas exposing (OpportunityCanvas)
-import Models.Views.SequenceDiagram exposing (SequenceDiagram)
-import Models.Views.StartStopContinue exposing (StartStopContinue)
-import Models.Views.Table exposing (Table)
-import Models.Views.UseCaseDiagram exposing (UseCaseDiagram)
-import Models.Views.UserPersona exposing (UserPersona)
-import Models.Views.UserStoryMap exposing (UserStoryMap)
+import Models.Diagram.BusinessModelCanvas exposing (BusinessModelCanvas)
+import Models.Diagram.ER as ER exposing (ErDiagram)
+import Models.Diagram.EmpathyMap exposing (EmpathyMap)
+import Models.Diagram.FourLs exposing (FourLs)
+import Models.Diagram.FreeForm exposing (FreeForm)
+import Models.Diagram.GanttChart exposing (GanttChart)
+import Models.Diagram.Kanban exposing (Kanban)
+import Models.Diagram.Kpt exposing (Kpt)
+import Models.Diagram.OpportunityCanvas exposing (OpportunityCanvas)
+import Models.Diagram.SequenceDiagram exposing (SequenceDiagram)
+import Models.Diagram.StartStopContinue exposing (StartStopContinue)
+import Models.Diagram.Table exposing (Table)
+import Models.Diagram.UseCaseDiagram exposing (UseCaseDiagram)
+import Models.Diagram.UserPersona exposing (UserPersona)
+import Models.Diagram.UserStoryMap exposing (UserStoryMap)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
 import Svg
-import TextUSM.Enum.Diagram exposing (Diagram)
+import Types.Color as Color
+import Types.FontSize exposing (FontSize)
+import Types.FontStyle exposing (FontStyle)
+import Types.Item exposing (Item, ItemType(..), Items)
+import Types.Position exposing (Position)
+import Types.Size as Size
+import Types.Text exposing (Text)
 import Utils.Utils as Utils
 
 

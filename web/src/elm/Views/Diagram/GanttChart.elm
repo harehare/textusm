@@ -1,20 +1,20 @@
 module Views.Diagram.GanttChart exposing (view)
 
 import Constants
-import Data.FontSize as FontSize
-import Data.Position exposing (Position)
-import Data.Size exposing (Size)
 import Html
 import Html.Attributes as Attr
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
-import Models.Views.GanttChart as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
+import Models.Diagram.GanttChart as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Svg.Keyed as Keyed
 import Time exposing (Posix)
 import Time.Extra as TimeEx exposing (Interval(..))
 import Tuple exposing (first, second)
+import Types.FontSize as FontSize
+import Types.Position exposing (Position)
+import Types.Size exposing (Size)
 import Utils.Date as DateUtils
 import Views.Diagram.Views as Views
 

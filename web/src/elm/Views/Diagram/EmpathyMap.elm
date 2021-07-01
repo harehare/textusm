@@ -2,7 +2,7 @@ module Views.Diagram.EmpathyMap exposing (view)
 
 import Constants
 import Models.Diagram as Diagram exposing (Model, Msg(..))
-import Models.Views.EmpathyMap exposing (EmpathyMapItem(..))
+import Models.Diagram.EmpathyMap exposing (EmpathyMapItem(..))
 import Svg exposing (Svg)
 import Svg.Lazy as Lazy
 import Utils.Diagram as DiagramUtils

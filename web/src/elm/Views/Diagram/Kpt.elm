@@ -2,7 +2,7 @@ module Views.Diagram.Kpt exposing (view)
 
 import Constants
 import Models.Diagram as Diagram exposing (Model, Msg(..))
-import Models.Views.Kpt exposing (KptItem(..))
+import Models.Diagram.Kpt exposing (KptItem(..))
 import Svg exposing (Svg)
 import Svg.Lazy as Lazy
 import Utils.Diagram as DiagramUtils

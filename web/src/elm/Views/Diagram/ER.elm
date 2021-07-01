@@ -1,8 +1,6 @@
 module Views.Diagram.ER exposing (view)
 
 import Constants
-import Data.Position as Position exposing (Position, getX, getY)
-import Data.Size as Size exposing (Size, getHeight, getWidth)
 import Dict as Dict exposing (Dict)
 import Events
 import Html
@@ -11,11 +9,13 @@ import Html.Lazy as Lazy
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
-import Models.Views.ER as ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..))
+import Models.Diagram.ER as ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..))
 import State as State exposing (Step(..))
 import String
 import Svg exposing (Svg)
 import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, y)
+import Types.Position as Position exposing (Position, getX, getY)
+import Types.Size as Size exposing (Size, getHeight, getWidth)
 import Utils.Utils as Utils
 import Views.Diagram.Path as Path
 import Views.Empty as Empty

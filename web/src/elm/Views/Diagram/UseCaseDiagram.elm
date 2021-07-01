@@ -1,9 +1,5 @@
 module Views.Diagram.UseCaseDiagram exposing (view)
 
-import Data.Color as Color
-import Data.FontSize as FontSize exposing (FontSize)
-import Data.Item as Item exposing (Item)
-import Data.Position as Position exposing (Position)
 import Dict exposing (Dict)
 import Events
 import Html
@@ -11,7 +7,7 @@ import Html.Attributes as Attr
 import Html.Lazy as Lazy
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
-import Models.Views.UseCaseDiagram as UseCaseDiagram
+import Models.Diagram.UseCaseDiagram as UseCaseDiagram
     exposing
         ( Actor(..)
         , Relation(..)
@@ -23,6 +19,10 @@ import Set exposing (Set)
 import State as State exposing (Step(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
+import Types.Color as Color
+import Types.FontSize as FontSize exposing (FontSize)
+import Types.Item as Item exposing (Item)
+import Types.Position as Position exposing (Position)
 import Views.Empty as Empty
 
 

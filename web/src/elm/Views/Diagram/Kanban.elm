@@ -1,13 +1,13 @@
 module Views.Diagram.Kanban exposing (view)
 
 import Constants
-import Data.Position exposing (Position)
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle)
-import Models.Views.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
+import Models.Diagram.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import String
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Svg.Lazy as Lazy
+import Types.Position exposing (Position)
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 

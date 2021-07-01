@@ -1,15 +1,15 @@
-module Views.Diagram.MiniMap exposing (..)
+module Views.Diagram.MiniMap exposing (view)
 
 import Constants
-import Data.Position as Position exposing (Position)
-import Data.Size as Size exposing (Size)
+import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Models.Diagram exposing (Msg(..))
-import Models.Views.FourLs exposing (FourLsItem(..))
+import Models.Diagram.FourLs exposing (FourLsItem(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
-import TextUSM.Enum.Diagram exposing (Diagram(..))
+import Types.Position as Position exposing (Position)
+import Types.Size as Size exposing (Size)
 
 
 view :

@@ -1,16 +1,10 @@
 port module Dialog.Share exposing (Model, Msg(..), init, update, view)
 
-import Data.DiagramId as DiagramId exposing (DiagramId)
-import Data.DiagramType as DiagramType
-import Data.Email as Email exposing (Email)
-import Data.IpAddress as IpAddress exposing (IpAddress)
-import Data.Session as Session exposing (Session)
-import Data.Size as Size exposing (Size)
-import Data.Title as Title exposing (Title)
+import Api.Query exposing (ShareCondition)
+import Api.Request as Request
 import Env
 import Events
-import GraphQL.Query exposing (ShareCondition)
-import GraphQL.Request as Request
+import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html exposing (Html, div, input, text, textarea)
 import Html.Attributes as Attr exposing (class, id, maxlength, placeholder, readonly, style, type_, value)
 import Html.Events exposing (onClick, onFocus, onInput)
@@ -20,9 +14,15 @@ import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
 import Route exposing (Route(..))
 import Task exposing (Task)
-import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Time exposing (Posix, Zone)
 import Time.Extra as TimeEx
+import Types.DiagramId as DiagramId exposing (DiagramId)
+import Types.DiagramType as DiagramType
+import Types.Email as Email exposing (Email)
+import Types.IpAddress as IpAddress exposing (IpAddress)
+import Types.Session as Session exposing (Session)
+import Types.Size as Size exposing (Size)
+import Types.Title as Title exposing (Title)
 import Url.Builder as Builder exposing (crossOrigin)
 import Utils.Date as DateUtils
 import Utils.Utils as Utils

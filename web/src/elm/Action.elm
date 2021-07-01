@@ -1,15 +1,10 @@
 module Action exposing (..)
 
+import Api.Request as Request
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
-import Data.DiagramId as DiagramId exposing (DiagramId)
-import Data.DiagramItem as DiagramItem exposing (DiagramItem)
-import Data.Session as Session exposing (Session)
-import Data.ShareToken as ShareToken exposing (ShareToken)
-import Data.Text as Text
-import Data.Title as Title
 import Dialog.Share as Share
-import GraphQL.Request as Request
+import Graphql.Enum.Diagram exposing (Diagram)
 import Models.Diagram as DiagramModel
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
@@ -21,7 +16,12 @@ import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
 import Route exposing (Route(..))
 import Task
-import TextUSM.Enum.Diagram exposing (Diagram)
+import Types.DiagramId as DiagramId exposing (DiagramId)
+import Types.DiagramItem as DiagramItem exposing (DiagramItem)
+import Types.Session as Session exposing (Session)
+import Types.ShareToken as ShareToken exposing (ShareToken)
+import Types.Text as Text
+import Types.Title as Title
 import Utils.Utils as Utils
 
 

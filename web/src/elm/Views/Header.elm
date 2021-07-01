@@ -3,11 +3,6 @@ module Views.Header exposing (view)
 import Asset
 import Avatar exposing (Avatar(..))
 import Constants
-import Data.DiagramItem as DiagramItem exposing (DiagramItem)
-import Data.LoginProvider as LoginProvider exposing (LoginProvider(..))
-import Data.Session as Session exposing (Session)
-import Data.Text as Text exposing (Text)
-import Data.Title as Title exposing (Title)
 import Events as E
 import Html exposing (Html)
 import Html.Attributes as Attr
@@ -18,6 +13,11 @@ import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page exposing (Page)
 import Route exposing (Route(..))
 import Translations exposing (Lang)
+import Types.DiagramItem as DiagramItem exposing (DiagramItem)
+import Types.LoginProvider as LoginProvider exposing (LoginProvider(..))
+import Types.Session as Session exposing (Session)
+import Types.Text as Text exposing (Text)
+import Types.Title as Title exposing (Title)
 import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu

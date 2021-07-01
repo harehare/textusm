@@ -1,8 +1,8 @@
 module Models.Page exposing (Page(..))
 
-import Data.Size exposing (Size)
+import Graphql.Enum.Diagram as DiagramType
 import Page.Tags as Tags
-import TextUSM.Enum.Diagram as DiagramType
+import Types.Size exposing (Size)
 
 
 type Page

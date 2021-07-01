@@ -1,19 +1,19 @@
 module Views.Diagram.UserStoryMap exposing (view)
 
 import Constants
-import Data.Item as Item exposing (Item, ItemType(..), Items)
-import Data.Position exposing (Position)
 import Html
 import Html.Attributes as Attr
 import List
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
-import Models.Views.UserStoryMap as UserStoryMap exposing (UserStoryMap)
+import Models.Diagram.UserStoryMap as UserStoryMap exposing (UserStoryMap)
 import String
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Svg.Keyed as Keyed
 import Svg.Lazy as Lazy
+import Types.Item as Item exposing (Item, ItemType(..), Items)
+import Types.Position exposing (Position)
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 

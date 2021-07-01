@@ -1,9 +1,9 @@
 module Models.UserStoryMapTests exposing (suite)
 
-import Data.Item as Item
 import Expect
-import Models.Views.UserStoryMap as UserStoryMap
+import Models.Diagram.UserStoryMap as UserStoryMap
 import Test exposing (Test, describe, test)
+import Types.Item as Item
 
 
 suite : Test

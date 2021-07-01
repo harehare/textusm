@@ -1,4 +1,4 @@
-module Views.Footer exposing (..)
+module Views.Footer exposing (view)
 
 import Env
 import Html exposing (Html)

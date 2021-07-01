@@ -1,16 +1,16 @@
 module Views.Diagram.ContextMenu exposing (view)
 
-import Data.Color as Color exposing (Color)
-import Data.FontSize as FontSize exposing (FontSize)
-import Data.FontStyle as FontStyle exposing (FontStyle)
-import Data.Item as Item exposing (Item)
-import Data.Position as Position exposing (Position)
 import Events exposing (onClickStopPropagation)
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Models.Diagram exposing (ContextMenu(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
+import Types.Color as Color exposing (Color)
+import Types.FontSize as FontSize exposing (FontSize)
+import Types.FontStyle as FontStyle exposing (FontStyle)
+import Types.Item as Item exposing (Item)
+import Types.Position as Position exposing (Position)
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Empty as Empty
 import Views.Icon as Icon

@@ -1,4 +1,4 @@
-module Page.Embed exposing (..)
+module Page.Embed exposing (view)
 
 import Components.Diagram as Diagram
 import Html exposing (Html, div)

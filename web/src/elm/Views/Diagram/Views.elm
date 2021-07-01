@@ -1,12 +1,6 @@
 module Views.Diagram.Views exposing (canvas, canvasBottom, canvasImage, card, grid, node, rootTextNode, text)
 
 import Constants
-import Data.Color as Color
-import Data.FontSize as FontSize exposing (FontSize)
-import Data.Item as Item exposing (Item, ItemType(..), Items)
-import Data.ItemSettings as ItemSettings
-import Data.Position as Position exposing (Position)
-import Data.Size as Size exposing (Size)
 import Events
 import Html exposing (Html)
 import Html.Attributes as Attr
@@ -16,6 +10,12 @@ import Models.Diagram as Diagram exposing (Msg(..), SelectedItem, Settings, sett
 import String
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
+import Types.Color as Color
+import Types.FontSize as FontSize exposing (FontSize)
+import Types.Item as Item exposing (Item, ItemType(..), Items)
+import Types.ItemSettings as ItemSettings
+import Types.Position as Position exposing (Position)
+import Types.Size as Size exposing (Size)
 
 
 type alias RgbColor =

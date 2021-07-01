@@ -2,7 +2,7 @@ module Views.Diagram.UserPersona exposing (view)
 
 import Constants
 import Models.Diagram as Diagram exposing (Model, Msg(..))
-import Models.Views.UserPersona exposing (UserPersonaItem(..))
+import Models.Diagram.UserPersona exposing (UserPersonaItem(..))
 import Svg exposing (Svg)
 import Svg.Lazy as Lazy
 import Utils.Diagram as DiagramUtils

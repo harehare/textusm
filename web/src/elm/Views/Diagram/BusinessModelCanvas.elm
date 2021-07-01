@@ -2,7 +2,7 @@ module Views.Diagram.BusinessModelCanvas exposing (view)
 
 import Constants
 import Models.Diagram as Diagram exposing (Model, Msg(..))
-import Models.Views.BusinessModelCanvas exposing (BusinessModelCanvasItem(..))
+import Models.Diagram.BusinessModelCanvas exposing (BusinessModelCanvasItem(..))
 import Svg exposing (Svg)
 import Svg.Lazy as Lazy
 import Utils.Diagram as DiagramUtils

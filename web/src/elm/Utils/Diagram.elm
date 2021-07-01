@@ -1,26 +1,26 @@
 module Utils.Diagram exposing (getCanvasHeight, getCanvasSize, getSpacePrefix)
 
 import Constants
-import Data.Item as Item exposing (Items)
+import Graphql.Enum.Diagram as Diagram
 import Http exposing (Error(..))
 import List.Extra as ListEx
 import Models.Diagram as DiagramModel
-import Models.Views.ER as ER exposing (Table(..))
-import Models.Views.FreeForm as FreeForm
-import Models.Views.GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
-import Models.Views.Kanban as Kanban
-import Models.Views.SequenceDiagram as SequenceDiagram
-import Models.Views.UseCaseDiagram as UseCaseDiagram
+import Models.Diagram.ER as ER exposing (Table(..))
+import Models.Diagram.FreeForm as FreeForm
+import Models.Diagram.GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
+import Models.Diagram.Kanban as Kanban
+import Models.Diagram.SequenceDiagram as SequenceDiagram
+import Models.Diagram.UseCaseDiagram as UseCaseDiagram
     exposing
         ( Actor(..)
         , Relation(..)
         , UseCase(..)
         , UseCaseDiagram(..)
         )
-import Models.Views.UserStoryMap as UserStoryMap
-import TextUSM.Enum.Diagram as Diagram
+import Models.Diagram.UserStoryMap as UserStoryMap
 import Time exposing (Month(..))
 import Tuple
+import Types.Item as Item exposing (Items)
 
 
 getCanvasHeight : DiagramModel.Settings -> Items -> Int

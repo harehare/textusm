@@ -1,6 +1,8 @@
 module Main exposing (init, main, view)
 
 import Action
+import Api.Request as Request
+import Api.RequestError as RequestError
 import Asset
 import Browser
 import Browser.Events
@@ -13,26 +15,12 @@ import Browser.Events
         )
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
-import Data.DiagramId as DiagramId
-import Data.DiagramItem as DiagramItem exposing (DiagramItem)
-import Data.DiagramType as DiagramType
-import Data.FileType as FileType
-import Data.IdToken as IdToken
-import Data.Jwt as Jwt
-import Data.LoginProvider as LoginProdiver
-import Data.Session as Session
-import Data.ShareToken as ShareToken
-import Data.Size as Size
-import Data.Text as Text
-import Data.Title as Title
 import Dialog.Confirm as ConfirmDialog
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
 import Env
 import File.Download as Download
-import GraphQL.Request as Request
-import GraphQL.RequestError as RequestError
-import Graphql.Http as Http
+import Graphql.Enum.Diagram as Diagram
 import Html exposing (Html, div, img, main_, text)
 import Html.Attributes exposing (alt, attribute, class, id, style)
 import Html.Events as E
@@ -41,11 +29,11 @@ import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (find)
 import Models.Diagram as DiagramModel
+import Models.Diagram.ER as ER
+import Models.Diagram.Table as Table
 import Models.Dialog as Dialog
 import Models.Model as Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
 import Models.Page as Page
-import Models.Views.ER as ER
-import Models.Views.Table as Table
 import Page.Embed as Embed
 import Page.Help as Help
 import Page.List as DiagramList
@@ -66,9 +54,20 @@ import Settings
         )
 import String
 import Task
-import TextUSM.Enum.Diagram as Diagram
 import Time
 import Translations
+import Types.DiagramId as DiagramId
+import Types.DiagramItem as DiagramItem exposing (DiagramItem)
+import Types.DiagramType as DiagramType
+import Types.FileType as FileType
+import Types.IdToken as IdToken
+import Types.Jwt as Jwt
+import Types.LoginProvider as LoginProdiver
+import Types.Session as Session
+import Types.ShareToken as ShareToken
+import Types.Size as Size
+import Types.Text as Text
+import Types.Title as Title
 import Url
 import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils
@@ -746,19 +745,8 @@ update message model =
                         Nothing ->
                             Return.zero
 
-                DiagramList.Removed (Err e) ->
-                    case e of
-                        Http.GraphqlError _ _ ->
-                            Action.showErrorMessage (Translations.messageFailed model.lang)
-
-                        Http.HttpError Http.Timeout ->
-                            Action.showErrorMessage (Translations.messageRequestTimeout model.lang)
-
-                        Http.HttpError Http.NetworkError ->
-                            Action.showErrorMessage (Translations.messageNetworkError model.lang)
-
-                        Http.HttpError _ ->
-                            Action.showErrorMessage (Translations.messageFailed model.lang)
+                DiagramList.Removed (Err _) ->
+                    Action.showErrorMessage (Translations.messageFailed model.lang)
 
                 DiagramList.GotDiagrams (Err _) ->
                     Action.showErrorMessage (Translations.messageFailed model.lang)

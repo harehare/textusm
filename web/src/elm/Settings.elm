@@ -25,7 +25,6 @@ module Settings exposing
     , settingsOfZoomControl
     )
 
-import Data.DiagramItem as DiagramItem exposing (DiagramItem)
 import Json.Decode as D
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
@@ -33,6 +32,7 @@ import Models.Diagram as Diagram exposing (Color, ColorSettings, Settings, Size)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
+import Types.DiagramItem as DiagramItem exposing (DiagramItem)
 
 
 type alias Settings =

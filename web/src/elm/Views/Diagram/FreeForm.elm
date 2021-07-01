@@ -1,9 +1,9 @@
-module Views.Diagram.FreeForm exposing (..)
+module Views.Diagram.FreeForm exposing (view)
 
-import Data.Item as Item
 import Models.Diagram as Diagram exposing (Model, Msg(..))
-import Models.Views.FreeForm as FreeForm
+import Models.Diagram.FreeForm as FreeForm
 import Svg exposing (Svg)
+import Types.Item as Item
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 

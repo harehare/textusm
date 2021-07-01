@@ -1,14 +1,14 @@
 module Views.Diagram.SequenceDiagram exposing (view)
 
 import Constants
-import Data.Position as Position exposing (Position)
-import Data.Size exposing (Size)
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle, getTextColor)
-import Models.Views.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
+import Models.Diagram.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Svg.Lazy as Lazy
+import Types.Position as Position exposing (Position)
+import Types.Size exposing (Size)
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 

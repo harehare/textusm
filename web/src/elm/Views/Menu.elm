@@ -1,7 +1,6 @@
 module Views.Menu exposing (MenuItem(..), menu, view)
 
-import Data.FileType as FileType
-import Data.Text as Text exposing (Text)
+import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events as Events
@@ -11,8 +10,9 @@ import Maybe.Extra exposing (isNothing)
 import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page
 import Route exposing (Route)
-import TextUSM.Enum.Diagram exposing (Diagram(..))
 import Translations exposing (Lang)
+import Types.FileType as FileType
+import Types.Text as Text exposing (Text)
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon

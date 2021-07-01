@@ -1,12 +1,12 @@
 module Views.Diagram.SiteMap exposing (view)
 
 import Constants
-import Data.Item as Item exposing (Items)
-import Data.Position exposing (Position)
 import List.Extra as ListEx
 import Models.Diagram exposing (Model, Msg(..), SelectedItem, Settings)
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
+import Types.Item as Item exposing (Items)
+import Types.Position exposing (Position)
 import Views.Diagram.Views as Views
 
 

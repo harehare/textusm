@@ -1,10 +1,10 @@
 module Page.New exposing (view)
 
 import Asset exposing (Asset)
+import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html exposing (Html, a, div, img, text)
 import Html.Attributes exposing (attribute, class, href, style)
 import Route
-import TextUSM.Enum.Diagram exposing (Diagram(..))
 
 
 type alias NewItem =

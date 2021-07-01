@@ -1,12 +1,12 @@
 module Page.Settings exposing (Model, Msg, init, update, view)
 
-import Data.Color as Color exposing (colors)
-import Data.FontSize as FontSize
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
 import Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
+import Types.Color as Color exposing (colors)
+import Types.FontSize as FontSize
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Switch as Switch
 

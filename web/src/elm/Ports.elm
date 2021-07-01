@@ -1,8 +1,8 @@
 port module Ports exposing (changeText, closeFullscreen, copyClipboard, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, onAuthStateChanged, onCloseFullscreen, onNotification, onWarnNotification, openFullscreen, progress, refreshToken, reload, removeRemoteDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, sendErrorNotification, shortcuts, signIn, signOut, startDownload, updateIdToken)
 
-import Data.Session exposing (User)
 import Json.Decode as D
 import Json.Encode as E
+import Types.Session exposing (User)
 
 
 type alias DownloadInfo =

@@ -2,14 +2,9 @@ module Components.Diagram exposing (init, update, view)
 
 import Browser.Dom as Dom
 import Constants
-import Data.FontStyle as FontStyle
-import Data.Item as Item exposing (ItemType(..))
-import Data.ItemSettings as ItemSettings
-import Data.Position as Position exposing (Position)
-import Data.Size as Size exposing (Size)
-import Data.Text as Text
 import Events
 import File
+import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Html.Events as Event
@@ -20,21 +15,21 @@ import List
 import List.Extra exposing (getAt, setAt)
 import Maybe
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, Settings)
-import Models.Views.BusinessModelCanvas as BusinessModelCanvasModel
-import Models.Views.ER as ErDiagramModel
-import Models.Views.EmpathyMap as EmpathyMapModel
-import Models.Views.FourLs as FourLsModel
-import Models.Views.FreeForm as FreeFormModel
-import Models.Views.GanttChart as GanttChartModel
-import Models.Views.Kanban as KanbanModel
-import Models.Views.Kpt as KptModel
-import Models.Views.OpportunityCanvas as OpportunityCanvasModel
-import Models.Views.SequenceDiagram as SequenceDiagramModel
-import Models.Views.StartStopContinue as StartStopContinueModel
-import Models.Views.Table as TableModel
-import Models.Views.UseCaseDiagram as UseCaseDiagramModel
-import Models.Views.UserPersona as UserPersonaModel
-import Models.Views.UserStoryMap as UserStoryMapModel
+import Models.Diagram.BusinessModelCanvas as BusinessModelCanvasModel
+import Models.Diagram.ER as ErDiagramModel
+import Models.Diagram.EmpathyMap as EmpathyMapModel
+import Models.Diagram.FourLs as FourLsModel
+import Models.Diagram.FreeForm as FreeFormModel
+import Models.Diagram.GanttChart as GanttChartModel
+import Models.Diagram.Kanban as KanbanModel
+import Models.Diagram.Kpt as KptModel
+import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
+import Models.Diagram.SequenceDiagram as SequenceDiagramModel
+import Models.Diagram.StartStopContinue as StartStopContinueModel
+import Models.Diagram.Table as TableModel
+import Models.Diagram.UseCaseDiagram as UseCaseDiagramModel
+import Models.Diagram.UserPersona as UserPersonaModel
+import Models.Diagram.UserStoryMap as UserStoryMapModel
 import Return as Return exposing (Return)
 import String
 import Svg exposing (Svg)
@@ -42,7 +37,12 @@ import Svg.Attributes as SvgAttr
 import Svg.Events exposing (onClick)
 import Svg.Lazy as Lazy
 import Task
-import TextUSM.Enum.Diagram exposing (Diagram(..))
+import Types.FontStyle as FontStyle
+import Types.Item as Item exposing (ItemType(..))
+import Types.ItemSettings as ItemSettings
+import Types.Position as Position exposing (Position)
+import Types.Size as Size exposing (Size)
+import Types.Text as Text
 import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas

@@ -1,16 +1,13 @@
 port module Page.List exposing (DiagramList(..), Model, Msg(..), init, isNotAsked, modelOfDiagramList, notAsked, update, view)
 
+import Api.Request as Request
+import Api.RequestError exposing (RequestError)
 import Asset
 import Constants
-import Data.DiagramId as DiagramId
-import Data.DiagramItem as DiagramItem exposing (DiagramItem)
-import Data.Session as Session exposing (Session)
-import Data.Title as Title
 import Dialog.Confirm as ConfirmDialog
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
-import GraphQL.Request as Request
 import Graphql.Http as GraphQLHttp
 import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, style)
@@ -28,6 +25,10 @@ import Simple.Fuzzy as Fuzzy
 import Task
 import Time exposing (Zone)
 import Translations exposing (Lang)
+import Types.DiagramId as DiagramId
+import Types.DiagramItem as DiagramItem exposing (DiagramItem)
+import Types.Session as Session exposing (Session)
+import Types.Title as Title
 import Utils.Date as DateUtils
 import Utils.Utils as Utils
 import Views.Empty as Empty
@@ -43,7 +44,7 @@ type Msg
     | Remove DiagramItem
     | Bookmark DiagramItem
     | RemoveRemote D.Value
-    | Removed (Result (GraphQLHttp.Error String) String)
+    | Removed (Result RequestError String)
     | Bookmarked (Result (GraphQLHttp.Error (Maybe DiagramItem)) (Maybe DiagramItem))
     | GotTimeZone Zone
     | GotLocalDiagramsJson D.Value

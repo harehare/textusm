@@ -1,4 +1,4 @@
-module Views.Logo exposing (..)
+module Views.Logo exposing (view)
 
 import Asset
 import Html exposing (Html, a, div, img, span, text)

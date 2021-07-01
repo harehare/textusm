@@ -11,19 +11,13 @@ module Models.Model exposing
     , windowOfMoveX
     )
 
+import Api.RequestError exposing (RequestError)
 import Browser
 import Browser.Dom exposing (Viewport)
 import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
-import Data.DiagramItem exposing (DiagramItem)
-import Data.FileType exposing (FileType)
-import Data.LoginProvider exposing (LoginProvider)
-import Data.Session exposing (Session, User)
-import Data.ShareToken exposing (ShareToken)
-import Data.Title exposing (Title)
 import Dialog.Share as Share
-import GraphQL.RequestError exposing (RequestError)
-import Graphql.Http as GraphQlHttp
+import Graphql.Http as GraphQLHttp
 import Json.Decode as D
 import Models.Diagram as Diagram
 import Models.Dialog exposing (ConfirmDialog)
@@ -34,6 +28,12 @@ import Page.Settings as Settings
 import Page.Tags as Tags
 import Route exposing (Route(..))
 import Translations exposing (Lang)
+import Types.DiagramItem exposing (DiagramItem)
+import Types.FileType exposing (FileType)
+import Types.LoginProvider exposing (LoginProvider)
+import Types.Session exposing (Session, User)
+import Types.ShareToken exposing (ShareToken)
+import Types.Title exposing (Title)
 import Url
 
 
@@ -76,12 +76,12 @@ type Msg
     | GotLocalDiagramJson D.Value
     | ChangePublicStatus Bool
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
-    | Load (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
+    | Load (Result (GraphQLHttp.Error DiagramItem) DiagramItem)
     | CloseFullscreen D.Value
     | UpdateIdToken String
     | EditPassword String
     | EndEditPassword
-    | LoadWithPassword (Result (GraphQlHttp.Error DiagramItem) DiagramItem)
+    | LoadWithPassword (Result (GraphQLHttp.Error DiagramItem) DiagramItem)
     | MoveTo Route
     | CloseDialog
 

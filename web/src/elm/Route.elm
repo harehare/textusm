@@ -1,11 +1,11 @@
 module Route exposing (Route(..), moveTo, replaceRoute, toDiagramToRoute, toRoute, toString)
 
 import Browser.Navigation as Nav
-import Data.DiagramId as DiagramId exposing (DiagramId)
-import Data.DiagramItem exposing (DiagramItem)
-import Data.DiagramType as DiagramType
-import Data.ShareToken as ShareToken exposing (ShareToken)
-import TextUSM.Enum.Diagram exposing (Diagram(..))
+import Graphql.Enum.Diagram exposing (Diagram(..))
+import Types.DiagramId as DiagramId exposing (DiagramId)
+import Types.DiagramItem exposing (DiagramItem)
+import Types.DiagramType as DiagramType
+import Types.ShareToken as ShareToken exposing (ShareToken)
 import UUID
 import Url exposing (Url)
 import Url.Builder as Builder exposing (absolute)

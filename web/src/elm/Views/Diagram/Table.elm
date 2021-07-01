@@ -1,12 +1,12 @@
 module Views.Diagram.Table exposing (view)
 
-import Data.Item as Item exposing (Item, ItemType(..))
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
-import Models.Views.Table exposing (Header(..), Row(..), Table(..))
+import Models.Diagram.Table exposing (Header(..), Row(..), Table(..))
 import String
 import Svg exposing (Svg)
 import Svg.Keyed as Keyed
 import Svg.Lazy as Lazy
+import Types.Item as Item exposing (Item, ItemType(..))
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
