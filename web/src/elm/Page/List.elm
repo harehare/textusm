@@ -8,7 +8,6 @@ import Dialog.Confirm as ConfirmDialog
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
-import Graphql.Http as GraphQLHttp
 import Html exposing (Html, div, img, input, span, text)
 import Html.Attributes exposing (alt, class, placeholder, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
@@ -17,6 +16,12 @@ import Http
 import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (unique, updateIf)
+import Loading
+    exposing
+        ( LoaderType(..)
+        , defaultConfig
+        , render
+        )
 import Models.Dialog as Dialog
 import Monocle.Lens exposing (Lens)
 import RemoteData exposing (RemoteData(..), WebData)
@@ -45,12 +50,12 @@ type Msg
     | Bookmark DiagramItem
     | RemoveRemote D.Value
     | Removed (Result RequestError String)
-    | Bookmarked (Result (GraphQLHttp.Error (Maybe DiagramItem)) (Maybe DiagramItem))
+    | Bookmarked (Result RequestError (Maybe DiagramItem))
     | GotTimeZone Zone
     | GotLocalDiagramsJson D.Value
-    | GotDiagrams (Result ( List DiagramItem, GraphQLHttp.Error (List (Maybe DiagramItem)) ) (List DiagramItem))
+    | GotDiagrams (Result RequestError (List DiagramItem))
     | GetPublicDiagrams
-    | GotPublicDiagrams (Result (GraphQLHttp.Error (List (Maybe DiagramItem))) (List DiagramItem))
+    | GotPublicDiagrams (Result RequestError (List DiagramItem))
     | LoadNextPage PublicStatus Int
     | Export
     | Import
@@ -330,7 +335,10 @@ view model =
                     , style "color" "#8C9FAE"
                     ]
                     [ div [ style "margin-bottom" "8px" ]
-                        [ img [ class "keyframe anim", Asset.src Asset.logo, style "width" "64px", alt "LOADING..." ] []
+                        [ Loading.render
+                            Circle
+                            { defaultConfig | color = "#3e9bcd", size = 40 }
+                            Loading.On
                         ]
                     ]
                 ]
@@ -647,7 +655,6 @@ update message model =
                                                                     EQ
                                                             )
                                                 )
-                                            |> Task.mapError (Tuple.pair localItems)
                                 in
                                 Return.andThen <|
                                     \m ->
@@ -667,23 +674,8 @@ update message model =
                             else
                                 Return.andThen <| \m -> Return.singleton { m | diagramList = DiagramList (Success localItems) 1 False }
 
-                GotDiagrams (Err ( items, _ )) ->
-                    let
-                        hasMorePage =
-                            List.length items >= pageSize
-                    in
-                    Return.andThen <|
-                        \m ->
-                            Return.singleton
-                                { m
-                                    | diagramList =
-                                        case model.diagramList of
-                                            DiagramList (Failure _) _ _ ->
-                                                DiagramList (Success items) 1 hasMorePage
-
-                                            DiagramList remoteData _ _ ->
-                                                DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) 1 hasMorePage
-                                }
+                GotDiagrams (Err _) ->
+                    Return.zero
 
                 GotDiagrams (Ok items) ->
                     let

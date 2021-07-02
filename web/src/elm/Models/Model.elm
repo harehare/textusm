@@ -17,7 +17,6 @@ import Browser.Dom exposing (Viewport)
 import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
 import Dialog.Share as Share
-import Graphql.Http as GraphQLHttp
 import Json.Decode as D
 import Models.Diagram as Diagram
 import Models.Dialog exposing (ConfirmDialog)
@@ -76,12 +75,12 @@ type Msg
     | GotLocalDiagramJson D.Value
     | ChangePublicStatus Bool
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
-    | Load (Result (GraphQLHttp.Error DiagramItem) DiagramItem)
+    | Load (Result RequestError DiagramItem)
     | CloseFullscreen D.Value
     | UpdateIdToken String
     | EditPassword String
     | EndEditPassword
-    | LoadWithPassword (Result (GraphQLHttp.Error DiagramItem) DiagramItem)
+    | LoadWithPassword (Result RequestError DiagramItem)
     | MoveTo Route
     | CloseDialog
 

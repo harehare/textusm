@@ -1150,7 +1150,7 @@ update message model =
             Return.andThen (\m -> Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram))
 
         Load (Err e) ->
-            (case RequestError.toError e of
+            (case e of
                 RequestError.NotFound ->
                     Action.moveTo model.key Route.NotFound
 
@@ -1176,7 +1176,7 @@ update message model =
                     Action.moveTo model.key Route.Home
             )
                 >> Return.andThen Action.stopProgress
-                >> Action.showErrorMessage (RequestError.toMessage <| RequestError.toError e)
+                >> Action.showErrorMessage (RequestError.toMessage e)
 
         GotLocalDiagramJson json ->
             case D.decodeValue DiagramItem.decoder json of
@@ -1254,7 +1254,7 @@ update message model =
                 >> loadDiagram model diagram
 
         LoadWithPassword (Err e) ->
-            Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = m.view.token, authenticated = False, error = Just <| RequestError.toError e } })
+            Return.andThen (\m -> Return.singleton { m | view = { password = Nothing, token = m.view.token, authenticated = False, error = Just e } })
                 >> Return.andThen Action.stopProgress
 
         CloseDialog ->

@@ -21,52 +21,58 @@ graphQLUrl =
     crossOrigin Env.apiRoot [ "graphql" ] []
 
 
-item : Maybe IdToken -> String -> Task (Http.Error DiagramItem) DiagramItem
+item : Maybe IdToken -> String -> Task RequestError DiagramItem
 item idToken id =
     Query.item id False
         |> Http.queryRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
+        |> Task.mapError toError
 
 
-publicItem : Maybe IdToken -> String -> Task (Http.Error DiagramItem) DiagramItem
+publicItem : Maybe IdToken -> String -> Task RequestError DiagramItem
 publicItem idToken id =
     Query.item id True
         |> Http.queryRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
+        |> Task.mapError toError
 
 
-items : Maybe IdToken -> ( Int, Int ) -> { isPublic : Bool, isBookmark : Bool } -> Task (Http.Error (List (Maybe DiagramItem))) (List (Maybe DiagramItem))
+items : Maybe IdToken -> ( Int, Int ) -> { isPublic : Bool, isBookmark : Bool } -> Task RequestError (List (Maybe DiagramItem))
 items idToken ( offset, limit ) params =
     Query.items ( offset, limit ) params
         |> Http.queryRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
+        |> Task.mapError toError
 
 
-shareItem : Maybe IdToken -> String -> Maybe String -> Task (Http.Error DiagramItem) DiagramItem
+shareItem : Maybe IdToken -> String -> Maybe String -> Task RequestError DiagramItem
 shareItem idToken id password =
     Query.shareItem id password
         |> Http.queryRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
+        |> Task.mapError toError
 
 
-shareCondition : Maybe IdToken -> String -> Task (Http.Error (Maybe Query.ShareCondition)) (Maybe Query.ShareCondition)
+shareCondition : Maybe IdToken -> String -> Task RequestError (Maybe Query.ShareCondition)
 shareCondition idToken id =
     Query.shareCondition id
         |> Http.queryRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
+        |> Task.mapError toError
 
 
-save : Maybe IdToken -> InputItem -> Bool -> Task (Http.Error DiagramItem) DiagramItem
+save : Maybe IdToken -> InputItem -> Bool -> Task RequestError DiagramItem
 save idToken input isPublic =
     Mutation.save input isPublic
         |> Http.mutationRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
+        |> Task.mapError toError
 
 
 delete : Maybe IdToken -> String -> Bool -> Task RequestError String
@@ -79,12 +85,13 @@ delete idToken itemID isPublic =
         |> Task.mapError toError
 
 
-bookmark : Maybe IdToken -> String -> Bool -> Task (Http.Error (Maybe DiagramItem)) (Maybe DiagramItem)
+bookmark : Maybe IdToken -> String -> Bool -> Task RequestError (Maybe DiagramItem)
 bookmark idToken itemID isBookmark =
     Mutation.bookmark itemID isBookmark
         |> Http.mutationRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
+        |> Task.mapError toError
 
 
 share :
@@ -95,7 +102,7 @@ share :
     , allowIPList : List IpAddress
     , allowEmailList : List Email
     }
-    -> Task (Http.Error String) String
+    -> Task RequestError String
 share { idToken, itemID, expSecond, password, allowIPList, allowEmailList } =
     Mutation.share
         { itemID = ItemIdScalar itemID
@@ -113,6 +120,7 @@ share { idToken, itemID, expSecond, password, allowIPList, allowEmailList } =
         |> Http.mutationRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
+        |> Task.mapError toError
 
 
 authHeaders : Maybe IdToken -> Http.Request decodesTo -> Http.Request decodesTo
