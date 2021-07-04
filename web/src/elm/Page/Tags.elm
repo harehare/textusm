@@ -42,40 +42,39 @@ focusInput model =
         )
 
 
-update : Msg -> Model -> Return Msg Model
+update : Msg -> Model -> Return.ReturnF Msg Model
 update msg model =
     case msg of
         NoOp ->
-            Return.singleton model
+            Return.zero
 
         EditTag tag ->
-            Return.singleton { model | deleteTag = Nothing, editTag = tag }
+            Return.andThen (\m -> Return.singleton { m | deleteTag = Nothing, editTag = tag })
 
         AddOrDeleteTag 13 False ->
             if not <| List.member model.editTag model.tags then
-                Return.singleton { model | editTag = "", tags = model.tags ++ [ model.editTag ] }
-                    |> Return.andThen focusInput
+                Return.andThen (\m -> Return.singleton { m | editTag = "", tags = model.tags ++ [ m.editTag ] })
+                    >> Return.andThen focusInput
 
             else
-                focusInput model
+                Return.andThen focusInput
 
         AddOrDeleteTag 8 False ->
             case model.deleteTag of
                 Just tag ->
-                    Return.singleton { model | deleteTag = Nothing, tags = List.filter (\t -> tag /= t) model.tags }
-                        |> Return.andThen focusInput
+                    Return.andThen (\m -> Return.singleton { m | deleteTag = Nothing, tags = List.filter (\t -> tag /= t) model.tags })
+                        >> Return.andThen focusInput
 
                 Nothing ->
-                    Return.singleton { model | deleteTag = last model.tags }
-                        |> Return.andThen focusInput
+                    Return.andThen (\m -> Return.singleton { m | deleteTag = last m.tags })
+                        >> Return.andThen focusInput
 
         AddOrDeleteTag _ _ ->
-            Return.singleton model
-                |> Return.andThen focusInput
+            Return.andThen focusInput
 
         DeleteTag tag ->
-            Return.singleton { model | deleteTag = Nothing, tags = List.filter (\t -> tag /= t) model.tags }
-                |> Return.andThen focusInput
+            Return.andThen (\m -> Return.singleton { m | deleteTag = Nothing, tags = List.filter (\t -> tag /= t) m.tags })
+                >> Return.andThen focusInput
 
 
 view : Model -> Html Msg

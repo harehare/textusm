@@ -4,6 +4,7 @@ import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
+import Return as Return
 import Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
 import Types.Color as Color exposing (colors)
 import Types.FontSize as FontSize
@@ -1022,7 +1023,7 @@ init settings =
     ( Model Nothing settings, Cmd.none )
 
 
-update : Msg -> Model -> ( Model, Cmd msg )
+update : Msg -> Model -> Return.ReturnF Msg Model
 update msg model =
     case msg of
         ToggleDropDownList id ->
@@ -1034,17 +1035,17 @@ update msg model =
                     else
                         Just id
             in
-            ( { model | dropDownIndex = activeIndex }, Cmd.none )
+            Return.andThen (\m -> Return.singleton { m | dropDownIndex = activeIndex })
 
         UpdateSettings getSetting value ->
             let
                 settings =
                     getSetting value
             in
-            ( { model | dropDownIndex = Nothing, settings = settings }, Cmd.none )
+            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing, settings = settings })
 
         DropDownClose ->
-            ( { model | dropDownIndex = Nothing }, Cmd.none )
+            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing })
 
 
 view : Model -> Html Msg

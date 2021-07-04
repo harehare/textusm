@@ -4,15 +4,17 @@ import Events
 import Html exposing (Html, button, div, input, text)
 import Html.Attributes exposing (class, maxlength, placeholder, style, type_, value)
 import Html.Events exposing (onClick, onInput)
+import Message exposing (Lang, Message)
 import Views.Empty as Empty
 import Views.Spinner as Spinner
 
 
 type alias Props msg =
     { title : String
-    , errorMessage : Maybe String
+    , errorMessage : Maybe Message
     , value : String
     , inProcess : Bool
+    , lang : Lang
     , onInput : String -> msg
     , onEnter : msg
     }
@@ -48,7 +50,7 @@ view props =
                     []
                 , case props.errorMessage of
                     Just msg ->
-                        div [ class "w-full text-sm font-bold text-right", style "color" "var(--error-color)" ] [ text msg ]
+                        div [ class "w-full text-sm font-bold text-right", style "color" "var(--error-color)" ] [ text (msg props.lang) ]
 
                     Nothing ->
                         Empty.view

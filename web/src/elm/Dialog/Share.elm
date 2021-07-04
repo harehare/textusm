@@ -10,6 +10,7 @@ import Html.Attributes as Attr exposing (class, id, maxlength, placeholder, read
 import Html.Events exposing (onClick, onFocus, onInput)
 import Html.Lazy as Lazy
 import Maybe.Extra as MaybeEx
+import Message exposing (Message)
 import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
 import Route exposing (Route(..))
@@ -41,7 +42,7 @@ type alias InputCondition =
 type alias Model =
     { embedSize : Size
     , diagramType : Diagram
-    , token : RemoteData String String
+    , token : RemoteData Message String
     , title : Title
     , diagramId : DiagramId
     , expireDate : String
@@ -66,7 +67,7 @@ type Msg
     | ChangeEmbedHeight String
     | DateChange String
     | TimeChange String
-    | Shared (Result String String)
+    | Shared (Result Message String)
     | UrlCopy
     | UrlCopied
     | EmbedCopy
@@ -78,7 +79,7 @@ type Msg
     | UseLimitByEmail Bool
     | EditIP String
     | EditEmail String
-    | LoadShareCondition (Result String ShareCondition)
+    | LoadShareCondition (Result Message ShareCondition)
 
 
 type CopyState
@@ -93,7 +94,7 @@ port selectTextById : String -> Cmd msg
 port copyText : String -> Cmd msg
 
 
-sharUrl : RemoteData String String -> Diagram -> String
+sharUrl : RemoteData Message String -> Diagram -> String
 sharUrl token diagramType =
     case token of
         Success t ->
@@ -111,7 +112,7 @@ sharUrl token diagramType =
             "Loading..."
 
 
-embedUrl : { token : RemoteData String String, diagramType : Diagram, title : Title, embedSize : Size } -> String
+embedUrl : { token : RemoteData Message String, diagramType : Diagram, title : Title, embedSize : Size } -> String
 embedUrl { token, diagramType, title, embedSize } =
     case token of
         Success t ->
@@ -148,7 +149,7 @@ share :
     , allowEmail : List Email
     }
     -> Session
-    -> Task String String
+    -> Task Message String
 share { diagramId, expireSecond, password, allowIPList, allowEmail } session =
     Request.share
         { idToken = Session.getIdToken session
@@ -158,13 +159,13 @@ share { diagramId, expireSecond, password, allowIPList, allowEmail } session =
         , allowIPList = allowIPList
         , allowEmailList = allowEmail
         }
-        |> Task.mapError (\_ -> "Failed to generate URL for sharing.")
+        |> Task.mapError (\_ -> Message.messageFailedSharing)
 
 
-shareCondition : DiagramId -> Session -> Task String (Maybe ShareCondition)
+shareCondition : DiagramId -> Session -> Task Message (Maybe ShareCondition)
 shareCondition diagramId session =
     Request.shareCondition (Session.getIdToken session) (DiagramId.toString diagramId)
-        |> Task.mapError (\_ -> "Failed to generate URL for sharing.")
+        |> Task.mapError (\_ -> Message.messageFailedSharing)
 
 
 init :

@@ -5,6 +5,7 @@ import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Dialog.Share as Share
 import Graphql.Enum.Diagram exposing (Diagram)
+import Message exposing (Message)
 import Models.Diagram as DiagramModel
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
@@ -123,22 +124,37 @@ closeNotification =
     Return.command (Utils.delay 3000 HandleCloseNotification)
 
 
-showWarningMessage : String -> Return.ReturnF Msg Model
-showWarningMessage msg =
-    Return.command (Task.perform identity <| Task.succeed <| ShowNotification <| Warning msg)
-        >> closeNotification
-
-
-showInfoMessage : String -> Model -> Return Msg Model
-showInfoMessage msg model =
-    Return.return model (Task.perform identity <| Task.succeed <| ShowNotification <| Info msg)
+showWarningMessage : Message -> Model -> Return Msg Model
+showWarningMessage msg model =
+    Return.return model
+        (Warning (msg model.lang)
+            |> ShowNotification
+            |> Task.succeed
+            |> Task.perform identity
+        )
         |> closeNotification
 
 
-showErrorMessage : String -> Return.ReturnF Msg Model
-showErrorMessage msg =
-    Return.command (Task.perform identity <| Task.succeed <| ShowNotification <| Error msg)
-        >> closeNotification
+showInfoMessage : Message -> Model -> Return Msg Model
+showInfoMessage msg model =
+    Return.return model
+        (Info (msg model.lang)
+            |> ShowNotification
+            |> Task.succeed
+            |> Task.perform identity
+        )
+        |> closeNotification
+
+
+showErrorMessage : Message -> Model -> Return Msg Model
+showErrorMessage msg model =
+    Return.return model
+        (Error (msg model.lang)
+            |> ShowNotification
+            |> Task.succeed
+            |> Task.perform identity
+        )
+        |> closeNotification
 
 
 openFullscreen : Return.ReturnF Msg Model

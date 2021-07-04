@@ -28,6 +28,7 @@ import Html.Lazy as Lazy
 import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (find)
+import Message
 import Models.Diagram as DiagramModel
 import Models.Diagram.ER as ER
 import Models.Diagram.Table as Table
@@ -55,7 +56,6 @@ import Settings
 import String
 import Task
 import Time
-import Translations
 import Types.DiagramId as DiagramId
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
 import Types.DiagramType as DiagramType
@@ -95,7 +95,7 @@ init flags url key =
                 |> Result.withDefault defaultSettings
 
         lang =
-            Translations.fromString flags.lang
+            Message.fromString flags.lang
 
         ( diagramListModel, _ ) =
             DiagramList.init Session.guest lang Env.apiRoot
@@ -312,6 +312,7 @@ view model =
                                 , errorMessage = Maybe.map RequestError.toMessage model.view.error
                                 , value = model.view.password |> Maybe.withDefault ""
                                 , inProcess = model.progress
+                                , lang = model.lang
                                 , onInput = EditPassword
                                 , onEnter = EndEditPassword
                                 }
@@ -612,14 +613,14 @@ update message model =
                             Return.return { m | shareModel = model_ } (cmd_ |> Cmd.map UpdateShare)
                         )
                             >> (case msg of
-                                    Share.Shared (Err errMsg) ->
-                                        Action.showErrorMessage errMsg
+                                    Share.Shared (Err e) ->
+                                        Return.andThen <| Action.showErrorMessage e
 
                                     Share.Close ->
                                         Action.historyBack model.key
 
-                                    Share.LoadShareCondition (Err errMsg) ->
-                                        Action.showErrorMessage errMsg
+                                    Share.LoadShareCondition (Err e) ->
+                                        Return.andThen <| Action.showErrorMessage e
 
                                     _ ->
                                         Return.zero
@@ -634,14 +635,22 @@ update message model =
                 ( Page.Tags m, Just diagram ) ->
                     let
                         ( model_, cmd_ ) =
-                            Tags.update msg m
+                            Return.singleton m |> Tags.update msg m
 
                         newDiagram =
                             { diagram
                                 | tags = Just (List.map Just model_.tags)
                             }
                     in
-                    Return.andThen <| \mo -> Return.return { mo | page = Page.Tags model_, currentDiagram = Just newDiagram, diagramModel = DiagramModel.updatedText mo.diagramModel (Text.change diagram.text) } (cmd_ |> Cmd.map UpdateTags)
+                    Return.andThen <|
+                        \m_ ->
+                            Return.return
+                                { m_
+                                    | page = Page.Tags model_
+                                    , currentDiagram = Just newDiagram
+                                    , diagramModel = DiagramModel.updatedText m_.diagramModel (Text.change diagram.text)
+                                }
+                                (cmd_ |> Cmd.map UpdateTags)
 
                 _ ->
                     Return.zero
@@ -649,15 +658,18 @@ update message model =
         UpdateSettings msg ->
             let
                 ( model_, cmd_ ) =
-                    Settings.update msg model.settingsModel
-
-                diagramModel =
-                    model.diagramModel
-
-                newDiagramModel =
-                    { diagramModel | settings = model_.settings.storyMap }
+                    Return.singleton model.settingsModel
+                        |> Settings.update msg model.settingsModel
             in
-            Return.andThen <| \m -> Return.return { m | page = Page.Settings, diagramModel = newDiagramModel, settingsModel = model_ } cmd_
+            Return.andThen <|
+                \m ->
+                    Return.return
+                        { m
+                            | page = Page.Settings
+                            , diagramModel = m.diagramModel |> DiagramModel.modelOfSettings.set model_.settings.storyMap
+                            , settingsModel = model_
+                        }
+                        (cmd_ |> Cmd.map UpdateSettings)
 
         UpdateDiagram msg ->
             let
@@ -720,7 +732,7 @@ update message model =
         UpdateDiagramList subMsg ->
             let
                 ( model_, cmd_ ) =
-                    DiagramList.update subMsg model.diagramListModel
+                    Return.singleton model.diagramListModel |> DiagramList.update subMsg model.diagramListModel
             in
             case subMsg of
                 DiagramList.Select diagram ->
@@ -746,19 +758,19 @@ update message model =
                             Return.zero
 
                 DiagramList.Removed (Err _) ->
-                    Action.showErrorMessage (Translations.messageFailed model.lang)
+                    Return.andThen <| Action.showErrorMessage Message.messageFailed
 
                 DiagramList.GotDiagrams (Err _) ->
-                    Action.showErrorMessage (Translations.messageFailed model.lang)
+                    Return.andThen <| Action.showErrorMessage Message.messageFailed
 
                 DiagramList.ImportComplete json ->
                     case DiagramItem.stringToList json of
                         Ok _ ->
                             Return.andThen (\m -> Return.return { m | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList))
-                                >> Return.andThen (Action.showInfoMessage (Translations.messageImportCompleted model.lang))
+                                >> Return.andThen (Action.showInfoMessage Message.messageImportCompleted)
 
                         Err _ ->
-                            Action.showErrorMessage (Translations.messageFailed model.lang)
+                            Return.andThen <| Action.showErrorMessage Message.messageFailed
 
                 _ ->
                     Return.andThen (\m -> Return.return { m | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList))
@@ -923,7 +935,7 @@ update message model =
                                         )
                                     )
                         )
-                        >> Return.andThen (Action.showInfoMessage (Translations.messageSuccessfullySaved model.lang (Title.toString item.title)))
+                        >> Return.andThen (Action.showInfoMessage Message.messageSuccessfullySaved)
 
                 Err _ ->
                     Return.zero
@@ -939,7 +951,7 @@ update message model =
                         >> Return.andThen Action.startProgress
 
                 Err _ ->
-                    Action.showWarningMessage ("Successfully \"" ++ Title.toString model.title ++ "\" saved.")
+                    Return.andThen (Action.showWarningMessage Message.messageSuccessfullySaved)
                         >> Return.andThen Action.stopProgress
 
         SaveToRemoteCompleted (Err _) ->
@@ -961,7 +973,7 @@ update message model =
             Return.andThen (Action.setCurrentDiagram <| Just item)
                 >> Action.saveToLocal item
                 >> Return.andThen Action.stopProgress
-                >> (Action.showWarningMessage <| Translations.messageFailedSaved model.lang (Title.toString model.title))
+                >> Return.andThen (Action.showWarningMessage <| Message.messageFailedSaved)
 
         SaveToRemoteCompleted (Ok diagram) ->
             Return.andThen (Action.setCurrentDiagram <| Just diagram)
@@ -972,7 +984,7 @@ update message model =
                         )
                     )
                 >> Return.andThen Action.stopProgress
-                >> Return.andThen (Action.showInfoMessage <| Translations.messageSuccessfullySaved model.lang (Title.toString model.title))
+                >> Return.andThen (Action.showInfoMessage <| Message.messageSuccessfullySaved)
 
         Shortcuts x ->
             case x of
@@ -1176,7 +1188,7 @@ update message model =
                     Action.moveTo model.key Route.Home
             )
                 >> Return.andThen Action.stopProgress
-                >> Action.showErrorMessage (RequestError.toMessage e)
+                >> Return.andThen (Action.showErrorMessage <| RequestError.toMessage e)
 
         GotLocalDiagramJson json ->
             case D.decodeValue DiagramItem.decoder json of
@@ -1207,10 +1219,10 @@ update message model =
         ChangePublicStatusCompleted (Ok d) ->
             Return.andThen (Action.setCurrentDiagram <| Just d)
                 >> Return.andThen Action.stopProgress
-                >> Return.andThen (Action.showInfoMessage <| "\"" ++ Title.toString d.title ++ "\"" ++ " published")
+                >> Return.andThen (Action.showInfoMessage Message.messagePublished)
 
         ChangePublicStatusCompleted (Err _) ->
-            Action.showErrorMessage "Failed to change publishing settings"
+            Return.andThen (Action.showErrorMessage Message.messageFailedPublished)
                 >> Return.andThen Action.stopProgress
 
         CloseFullscreen _ ->

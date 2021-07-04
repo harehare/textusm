@@ -1,6 +1,7 @@
 module Api.RequestError exposing (RequestError(..), fromString, toError, toMessage)
 
 import Graphql.Http exposing (Error, HttpError(..), RawError(..))
+import Message exposing (Message)
 
 
 type RequestError
@@ -39,46 +40,46 @@ fromString s =
             Unknown
 
 
-toMessage : RequestError -> String
+toMessage : RequestError -> Message
 toMessage e =
     case e of
         NotFound ->
-            "Not found"
+            Message.messageNotFound
 
         Forbidden ->
-            "Not authorized"
+            Message.messageNotAuthorized
 
         NoAuthorization ->
-            "Not authorized"
+            Message.messageNotAuthorized
 
         DecryptionFailed ->
-            "Internal server error has occurred"
+            Message.messageInternalServerError
 
         EncryptionFailed ->
-            "Internal server error has occurred"
+            Message.messageInternalServerError
 
         URLExpired ->
-            "URL has expired"
+            Message.messageUrlExpired
 
         Unknown ->
-            "Unknown error has occurred"
+            Message.messageUnknown
 
         Http httpError ->
             case httpError of
-                BadUrl url ->
-                    url ++ "is not valid URL"
+                BadUrl _ ->
+                    Message.messageInvalidUrl
 
                 Timeout ->
-                    "Request timeout"
+                    Message.messageTimeout
 
                 NetworkError ->
-                    "Network error has occurred"
+                    Message.messageNetworkError
 
                 BadStatus _ _ ->
-                    "Bad request"
+                    Message.messageBadRequest
 
                 BadPayload _ ->
-                    "Bad request"
+                    Message.messageBadRequest
 
 
 toError : Error a -> RequestError

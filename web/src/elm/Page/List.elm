@@ -2,26 +2,21 @@ port module Page.List exposing (DiagramList(..), Model, Msg(..), init, isNotAske
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
-import Asset
 import Constants
 import Dialog.Confirm as ConfirmDialog
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
-import Html exposing (Html, div, img, input, span, text)
-import Html.Attributes exposing (alt, class, placeholder, style)
+import Html exposing (Html, div, input, span, text)
+import Html.Attributes exposing (class, placeholder, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Html.Lazy as Lazy
 import Http
 import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (unique, updateIf)
-import Loading
-    exposing
-        ( LoaderType(..)
-        , defaultConfig
-        , render
-        )
+import Loading exposing (LoaderType(..), defaultConfig)
+import Message exposing (Lang)
 import Models.Dialog as Dialog
 import Monocle.Lens exposing (Lens)
 import RemoteData exposing (RemoteData(..), WebData)
@@ -29,7 +24,6 @@ import Return as Return exposing (Return)
 import Simple.Fuzzy as Fuzzy
 import Task
 import Time exposing (Zone)
-import Translations exposing (Lang)
 import Types.DiagramId as DiagramId
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
 import Types.Session as Session exposing (Session)
@@ -384,12 +378,12 @@ diagramListView props =
                 , style "margin-left" "8px"
                 , onClick Export
                 ]
-                [ Icon.cloudDownload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipExport props.lang ] ] ]
+                [ Icon.cloudDownload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Message.toolTipExport props.lang ] ] ]
             , div
                 [ class "button"
                 , onClick Import
                 ]
-                [ Icon.cloudUpload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Translations.toolTipImport props.lang ] ] ]
+                [ Icon.cloudUpload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Message.toolTipImport props.lang ] ] ]
             ]
         , if List.isEmpty props.diagrams then
             div
@@ -549,246 +543,244 @@ reload =
     Return.andThen <| \m -> Return.return { m | diagramList = notAsked } (getDiagrams ())
 
 
-update : Msg -> Model -> Return Msg Model
+update : Msg -> Model -> Return.ReturnF Msg Model
 update message model =
-    Return.singleton model
-        |> (case message of
-                NoOp ->
+    case message of
+        NoOp ->
+            Return.zero
+
+        GotTimeZone zone ->
+            Return.andThen <| \m -> Return.singleton { m | timeZone = zone }
+
+        Filter cond ->
+            Return.andThen <| \m -> Return.singleton { m | filterCondition = cond }
+
+        SearchInput input ->
+            Return.andThen <|
+                \m ->
+                    Return.singleton
+                        { m
+                            | searchQuery =
+                                if String.isEmpty input then
+                                    Nothing
+
+                                else
+                                    Just input
+                        }
+
+        LoadNextPage Private pageNo ->
+            let
+                (DiagramList remoteData _ hasMorePage) =
+                    model.diagramList
+            in
+            Return.andThen <| \m -> Return.return { m | diagramList = DiagramList remoteData pageNo hasMorePage } (getDiagrams ())
+
+        LoadNextPage Public pageNo ->
+            Return.andThen <| \m -> Return.return { m | publicDiagramList = DiagramList Loading pageNo True } <| Task.perform identity (Task.succeed GetPublicDiagrams)
+
+        GetPublicDiagrams ->
+            let
+                (DiagramList _ pageNo hasMorePage) =
+                    model.publicDiagramList
+
+                remoteTask =
+                    Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
+                        |> Task.map (\i -> List.filterMap identity i)
+            in
+            Return.andThen <| \m -> Return.return { m | filterCondition = FilterCondition FilterPublic (\_ -> True), publicDiagramList = DiagramList Loading pageNo hasMorePage } <| Task.attempt GotPublicDiagrams remoteTask
+
+        GotPublicDiagrams (Ok diagrams) ->
+            let
+                hasMorePage =
+                    List.length diagrams >= pageSize
+
+                ( pageNo, allDiagrams ) =
+                    case model.publicDiagramList of
+                        DiagramList (Success currentDiagrams) p _ ->
+                            ( p, Success <| List.concat [ currentDiagrams, diagrams ] )
+
+                        DiagramList _ p _ ->
+                            ( p, Success diagrams )
+            in
+            Return.andThen <| \m -> Return.singleton { m | publicDiagramList = DiagramList allDiagrams pageNo hasMorePage }
+
+        GotPublicDiagrams (Err _) ->
+            Return.zero
+
+        GotLocalDiagramsJson json ->
+            case model.diagramList of
+                DiagramList Loading _ _ ->
                     Return.zero
 
-                GotTimeZone zone ->
-                    Return.andThen <| \m -> Return.singleton { m | timeZone = zone }
-
-                Filter cond ->
-                    Return.andThen <| \m -> Return.singleton { m | filterCondition = cond }
-
-                SearchInput input ->
-                    Return.andThen <|
-                        \m ->
-                            Return.singleton
-                                { m
-                                    | searchQuery =
-                                        if String.isEmpty input then
-                                            Nothing
-
-                                        else
-                                            Just input
-                                }
-
-                LoadNextPage Private pageNo ->
+                DiagramList _ pageNo _ ->
                     let
-                        (DiagramList remoteData _ hasMorePage) =
-                            model.diagramList
+                        localItems =
+                            Result.withDefault [] <|
+                                D.decodeValue (D.list DiagramItem.decoder) json
                     in
-                    Return.andThen <| \m -> Return.return { m | diagramList = DiagramList remoteData pageNo hasMorePage } (getDiagrams ())
+                    if Session.isSignedIn model.session then
+                        let
+                            remoteItems =
+                                Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = False }
+                                    |> Task.map (\i -> List.filterMap identity i)
 
-                LoadNextPage Public pageNo ->
-                    Return.andThen <| \m -> Return.return { m | publicDiagramList = DiagramList Loading pageNo True } <| Task.perform identity (Task.succeed GetPublicDiagrams)
+                            items =
+                                remoteItems
+                                    |> Task.map
+                                        (\item ->
+                                            List.concat [ localItems, item ]
+                                                |> List.sortWith
+                                                    (\a b ->
+                                                        let
+                                                            a_ =
+                                                                a.updatedAt |> Time.posixToMillis
 
-                GetPublicDiagrams ->
-                    let
-                        (DiagramList _ pageNo hasMorePage) =
-                            model.publicDiagramList
+                                                            b_ =
+                                                                b.updatedAt |> Time.posixToMillis
+                                                        in
+                                                        if a_ - b_ > 0 then
+                                                            LT
 
-                        remoteTask =
-                            Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
-                                |> Task.map (\i -> List.filterMap identity i)
-                    in
-                    Return.andThen <| \m -> Return.return { m | filterCondition = FilterCondition FilterPublic (\_ -> True), publicDiagramList = DiagramList Loading pageNo hasMorePage } <| Task.attempt GotPublicDiagrams remoteTask
+                                                        else if a_ - b_ < 0 then
+                                                            GT
 
-                GotPublicDiagrams (Ok diagrams) ->
-                    let
-                        hasMorePage =
-                            List.length diagrams >= pageSize
-
-                        ( pageNo, allDiagrams ) =
-                            case model.publicDiagramList of
-                                DiagramList (Success currentDiagrams) p _ ->
-                                    ( p, Success <| List.concat [ currentDiagrams, diagrams ] )
-
-                                DiagramList _ p _ ->
-                                    ( p, Success diagrams )
-                    in
-                    Return.andThen <| \m -> Return.singleton { m | publicDiagramList = DiagramList allDiagrams pageNo hasMorePage }
-
-                GotPublicDiagrams (Err _) ->
-                    Return.zero
-
-                GotLocalDiagramsJson json ->
-                    case model.diagramList of
-                        DiagramList Loading _ _ ->
-                            Return.zero
-
-                        DiagramList _ pageNo _ ->
-                            let
-                                localItems =
-                                    Result.withDefault [] <|
-                                        D.decodeValue (D.list DiagramItem.decoder) json
-                            in
-                            if Session.isSignedIn model.session then
-                                let
-                                    remoteItems =
-                                        Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = False }
-                                            |> Task.map (\i -> List.filterMap identity i)
-
-                                    items =
-                                        remoteItems
-                                            |> Task.map
-                                                (\item ->
-                                                    List.concat [ localItems, item ]
-                                                        |> List.sortWith
-                                                            (\a b ->
-                                                                let
-                                                                    a_ =
-                                                                        a.updatedAt |> Time.posixToMillis
-
-                                                                    b_ =
-                                                                        b.updatedAt |> Time.posixToMillis
-                                                                in
-                                                                if a_ - b_ > 0 then
-                                                                    LT
-
-                                                                else if a_ - b_ < 0 then
-                                                                    GT
-
-                                                                else
-                                                                    EQ
-                                                            )
-                                                )
-                                in
-                                Return.andThen <|
-                                    \m ->
-                                        Return.return
-                                            { m
-                                                | diagramList =
-                                                    case model.diagramList of
-                                                        DiagramList NotAsked _ _ ->
-                                                            DiagramList Loading 1 False
-
-                                                        _ ->
-                                                            model.diagramList
-                                            }
-                                        <|
-                                            Task.attempt GotDiagrams items
-
-                            else
-                                Return.andThen <| \m -> Return.singleton { m | diagramList = DiagramList (Success localItems) 1 False }
-
-                GotDiagrams (Err _) ->
-                    Return.zero
-
-                GotDiagrams (Ok items) ->
-                    let
-                        hasMorePage =
-                            List.length items >= pageSize
-
-                        (DiagramList remoteData pageNo _) =
-                            model.diagramList
-                    in
-                    Return.andThen <|
-                        \m ->
-                            Return.singleton
-                                { m
-                                    | diagramList =
-                                        if List.isEmpty <| RemoteData.withDefault [] remoteData then
-                                            DiagramList (Success items) 1 hasMorePage
-
-                                        else
-                                            DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) pageNo hasMorePage
-                                    , tags = List.concat [ model.tags, tags items ]
-                                }
-
-                Remove diagram ->
-                    Return.andThen closeDialog
-                        >> Return.command (removeDiagrams (DiagramItem.encoder diagram))
-
-                RemoveRemote diagramJson ->
-                    case D.decodeValue DiagramItem.decoder diagramJson of
-                        Ok diagram ->
-                            Return.command <|
-                                Task.attempt Removed
-                                    (Request.delete (Session.getIdToken model.session)
-                                        (diagram.id |> Maybe.withDefault (DiagramId.fromString "") |> DiagramId.toString)
-                                        False
-                                        |> Task.map (\id -> id)
-                                    )
-
-                        Err _ ->
-                            Return.zero
-
-                Removed (Err _) ->
-                    Return.zero
-
-                Removed (Ok _) ->
-                    reload
-
-                Reload ->
-                    reload
-
-                Bookmark diagram ->
-                    let
-                        (DiagramList remoteData pageNo hasMorePage) =
-                            model.diagramList
-
-                        diagramList =
-                            RemoteData.withDefault [] remoteData |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark })
-                    in
-                    Return.andThen <|
-                        \m ->
-                            Return.return { m | diagramList = DiagramList (Success diagramList) pageNo hasMorePage }
-                                (Task.attempt Bookmarked
-                                    (Request.bookmark (Session.getIdToken model.session)
-                                        (case diagram.id of
-                                            Just id ->
-                                                DiagramId.toString id
-
-                                            Nothing ->
-                                                ""
+                                                        else
+                                                            EQ
+                                                    )
                                         )
-                                        (not diagram.isBookmark)
-                                        |> Task.map (\_ -> Just diagram)
-                                    )
+                        in
+                        Return.andThen <|
+                            \m ->
+                                Return.return
+                                    { m
+                                        | diagramList =
+                                            case model.diagramList of
+                                                DiagramList NotAsked _ _ ->
+                                                    DiagramList Loading 1 False
+
+                                                _ ->
+                                                    model.diagramList
+                                    }
+                                <|
+                                    Task.attempt GotDiagrams items
+
+                    else
+                        Return.andThen <| \m -> Return.singleton { m | diagramList = DiagramList (Success localItems) 1 False }
+
+        GotDiagrams (Err _) ->
+            Return.zero
+
+        GotDiagrams (Ok items) ->
+            let
+                hasMorePage =
+                    List.length items >= pageSize
+
+                (DiagramList remoteData pageNo _) =
+                    model.diagramList
+            in
+            Return.andThen <|
+                \m ->
+                    Return.singleton
+                        { m
+                            | diagramList =
+                                if List.isEmpty <| RemoteData.withDefault [] remoteData then
+                                    DiagramList (Success items) 1 hasMorePage
+
+                                else
+                                    DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) pageNo hasMorePage
+                            , tags = List.concat [ model.tags, tags items ]
+                        }
+
+        Remove diagram ->
+            Return.andThen closeDialog
+                >> Return.command (removeDiagrams (DiagramItem.encoder diagram))
+
+        RemoveRemote diagramJson ->
+            case D.decodeValue DiagramItem.decoder diagramJson of
+                Ok diagram ->
+                    Return.command <|
+                        Task.attempt Removed
+                            (Request.delete (Session.getIdToken model.session)
+                                (diagram.id |> Maybe.withDefault (DiagramId.fromString "") |> DiagramId.toString)
+                                False
+                                |> Task.map (\id -> id)
+                            )
+
+                Err _ ->
+                    Return.zero
+
+        Removed (Err _) ->
+            Return.zero
+
+        Removed (Ok _) ->
+            reload
+
+        Reload ->
+            reload
+
+        Bookmark diagram ->
+            let
+                (DiagramList remoteData pageNo hasMorePage) =
+                    model.diagramList
+
+                diagramList =
+                    RemoteData.withDefault [] remoteData |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark })
+            in
+            Return.andThen <|
+                \m ->
+                    Return.return { m | diagramList = DiagramList (Success diagramList) pageNo hasMorePage }
+                        (Task.attempt Bookmarked
+                            (Request.bookmark (Session.getIdToken model.session)
+                                (case diagram.id of
+                                    Just id ->
+                                        DiagramId.toString id
+
+                                    Nothing ->
+                                        ""
                                 )
+                                (not diagram.isBookmark)
+                                |> Task.map (\_ -> Just diagram)
+                            )
+                        )
 
-                Import ->
-                    Return.command <| Select.file [ "application/json" ] ImportFile
+        Import ->
+            Return.command <| Select.file [ "application/json" ] ImportFile
 
-                ImportFile file ->
-                    Return.command <| Task.perform ImportComplete <| File.toString file
+        ImportFile file ->
+            Return.command <| Task.perform ImportComplete <| File.toString file
 
-                ImportComplete json ->
-                    case DiagramItem.stringToList json of
-                        Ok diagrams ->
-                            Return.command <| importDiagram <| DiagramItem.listToValue diagrams
+        ImportComplete json ->
+            case DiagramItem.stringToList json of
+                Ok diagrams ->
+                    Return.command <| importDiagram <| DiagramItem.listToValue diagrams
 
-                        Err _ ->
-                            Return.zero
+                Err _ ->
+                    Return.zero
 
-                Export ->
-                    case model.diagramList of
-                        DiagramList (Success diagrams) _ _ ->
-                            Return.command <| Download.string "textusm.json" "application/json" <| DiagramItem.listToString diagrams
-
-                        _ ->
-                            Return.zero
-
-                CloseDialog ->
-                    Return.andThen closeDialog
-
-                ShowConfirmDialog d ->
-                    Return.andThen <|
-                        \m ->
-                            Return.singleton
-                                { m
-                                    | confirmDialog =
-                                        Dialog.Show
-                                            { title = "Confirmation"
-                                            , message = "Are you sure you want to delete " ++ Title.toString d.title ++ " diagram?`"
-                                            , ok = Remove d
-                                            , cancel = CloseDialog
-                                            }
-                                }
+        Export ->
+            case model.diagramList of
+                DiagramList (Success diagrams) _ _ ->
+                    Return.command <| Download.string "textusm.json" "application/json" <| DiagramItem.listToString diagrams
 
                 _ ->
                     Return.zero
-           )
+
+        CloseDialog ->
+            Return.andThen closeDialog
+
+        ShowConfirmDialog d ->
+            Return.andThen <|
+                \m ->
+                    Return.singleton
+                        { m
+                            | confirmDialog =
+                                Dialog.Show
+                                    { title = "Confirmation"
+                                    , message = "Are you sure you want to delete " ++ Title.toString d.title ++ " diagram?`"
+                                    , ok = Remove d
+                                    , cancel = CloseDialog
+                                    }
+                        }
+
+        _ ->
+            Return.zero

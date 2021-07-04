@@ -7,10 +7,10 @@ import Html.Events as Events
 import Json.Decode as D
 import List
 import Maybe.Extra exposing (isNothing)
+import Message exposing (Lang)
 import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page
 import Route exposing (Route)
-import Translations exposing (Lang)
 import Types.FileType as FileType
 import Types.Text as Text exposing (Text)
 import Utils.Utils as Utils
@@ -92,7 +92,7 @@ view props =
                     , Attr.class "menu-button"
                     ]
                     [ Icon.file selectedColor 18
-                    , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipNewFile props.lang ] ]
+                    , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipNewFile props.lang ] ]
                     ]
                 ]
             , Html.div
@@ -109,7 +109,7 @@ view props =
                             notSelectedColor
                         )
                         18
-                    , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipOpenFile props.lang ] ]
+                    , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile props.lang ] ]
                     ]
                 ]
             , let
@@ -132,7 +132,7 @@ view props =
                         notSelectedColor
                     )
                     22
-                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipSave props.lang ] ]
+                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave props.lang ] ]
                 ]
             , Html.div
                 [ Events.stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )), Attr.class "menu-button" ]
@@ -145,7 +145,7 @@ view props =
                             notSelectedColor
                     )
                     18
-                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipExport props.lang ] ]
+                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ]
                 ]
             , Html.div
                 [ Attr.class "menu-button" ]
@@ -158,7 +158,7 @@ view props =
                             notSelectedColor
                         )
                         20
-                    , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipSettings props.lang ] ]
+                    , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSettings props.lang ] ]
                     ]
                 ]
             , if Utils.isPhone props.width then

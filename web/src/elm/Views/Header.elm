@@ -9,10 +9,10 @@ import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
+import Message exposing (Lang)
 import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page exposing (Page)
 import Route exposing (Route(..))
-import Translations exposing (Lang)
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
 import Types.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Types.Session as Session exposing (Session)
@@ -171,10 +171,10 @@ view props =
                         [ Html.span [ Attr.class "text" ]
                             [ Html.text <|
                                 if isPublic then
-                                    Translations.toolPublic props.lang
+                                    Message.toolPublic props.lang
 
                                 else
-                                    Translations.toolPrivate props.lang
+                                    Message.toolPrivate props.lang
                             ]
                         ]
                     ]
@@ -182,25 +182,25 @@ view props =
               else
                 Html.div [ Attr.class "button" ]
                     [ Icon.lock Constants.disabledIconColor 14
-                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolPrivate props.lang ] ]
+                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolPrivate props.lang ] ]
                     ]
             , if (isJust <| Maybe.andThen .id props.currentDiagram) && canEdit then
                 Html.a [ Attr.attribute "aria-label" "Tag", Attr.style "display" "flex", Attr.href <| Route.toString Route.Tag ]
                     [ Html.div [ Attr.class "button" ]
                         [ Icon.tag Constants.iconColor 14
-                        , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipTags props.lang ] ]
+                        , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipTags props.lang ] ]
                         ]
                     ]
 
               else
                 Html.div [ Attr.class "button" ]
                     [ Icon.tag Constants.disabledIconColor 14
-                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipTags props.lang ] ]
+                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipTags props.lang ] ]
                     ]
             , Html.a [ Attr.attribute "aria-label" "Help", Attr.style "display" "flex", Attr.href <| Route.toString Route.Help ]
                 [ Html.div [ Attr.class "button" ]
                     [ Icon.helpOutline 16
-                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipHelp props.lang ] ]
+                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipHelp props.lang ] ]
                     ]
                 ]
             , if canShare then
@@ -211,14 +211,14 @@ view props =
                     ]
                     [ Html.div [ Attr.class "button" ]
                         [ Icon.people Constants.iconColor 20
-                        , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipShare props.lang ] ]
+                        , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipShare props.lang ] ]
                         ]
                     ]
 
               else
                 Html.div [ Attr.class "button" ]
                     [ Icon.people Constants.disabledIconColor 20
-                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Translations.toolTipShare props.lang ] ]
+                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipShare props.lang ] ]
                     ]
             , if Session.isSignedIn props.session then
                 let

@@ -18,6 +18,7 @@ import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
 import Dialog.Share as Share
 import Json.Decode as D
+import Message exposing (Lang)
 import Models.Diagram as Diagram
 import Models.Dialog exposing (ConfirmDialog)
 import Models.Page exposing (Page)
@@ -26,7 +27,6 @@ import Page.List as DiagramList
 import Page.Settings as Settings
 import Page.Tags as Tags
 import Route exposing (Route(..))
-import Translations exposing (Lang)
 import Types.DiagramItem exposing (DiagramItem)
 import Types.FileType exposing (FileType)
 import Types.LoginProvider exposing (LoginProvider)
