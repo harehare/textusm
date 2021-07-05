@@ -11,7 +11,7 @@
         "clipboard-copy": "^4.0.1",
         "dexie": "^3.0.3",
         "firebase": "^8.7.0",
-        "html2canvas": "^1.0.0-rc.7",
+        "html2canvas": "^1.0.0",
         "jspdf": "^2.3.1",
         "monaco-editor": "^0.25.2",
         "svgo": "^2.3.1",
