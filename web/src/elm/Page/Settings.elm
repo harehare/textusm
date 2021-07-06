@@ -1023,26 +1023,25 @@ init settings =
     ( Model Nothing settings, Cmd.none )
 
 
-update : Msg -> Model -> Return.ReturnF Msg Model
-update msg model =
+update : Msg  -> Return.ReturnF Msg Model
+update msg =
     case msg of
         ToggleDropDownList id ->
-            let
-                activeIndex =
-                    if (model.dropDownIndex |> Maybe.withDefault "") == id then
-                        Nothing
+            Return.andThen
+                (\m ->
+                    Return.singleton
+                        { m
+                            | dropDownIndex =
+                                if (m.dropDownIndex |> Maybe.withDefault "") == id then
+                                    Nothing
 
-                    else
-                        Just id
-            in
-            Return.andThen (\m -> Return.singleton { m | dropDownIndex = activeIndex })
+                                else
+                                    Just id
+                        }
+                )
 
         UpdateSettings getSetting value ->
-            let
-                settings =
-                    getSetting value
-            in
-            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing, settings = settings })
+            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing, settings = getSetting value})
 
         DropDownClose ->
             Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing })

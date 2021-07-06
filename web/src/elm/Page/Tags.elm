@@ -42,8 +42,8 @@ focusInput model =
         )
 
 
-update : Msg -> Model -> Return.ReturnF Msg Model
-update msg model =
+update : Msg -> Return.ReturnF Msg Model
+update msg =
     case msg of
         NoOp ->
             Return.zero
@@ -52,22 +52,28 @@ update msg model =
             Return.andThen (\m -> Return.singleton { m | deleteTag = Nothing, editTag = tag })
 
         AddOrDeleteTag 13 False ->
-            if not <| List.member model.editTag model.tags then
-                Return.andThen (\m -> Return.singleton { m | editTag = "", tags = model.tags ++ [ m.editTag ] })
-                    >> Return.andThen focusInput
+            Return.andThen
+                (\m ->
+                    if not <| List.member m.editTag m.tags then
+                        Return.singleton { m | editTag = "", tags = m.tags ++ [ m.editTag ] }
+                            |> Return.andThen focusInput
 
-            else
-                Return.andThen focusInput
+                    else
+                        focusInput m
+                )
 
         AddOrDeleteTag 8 False ->
-            case model.deleteTag of
-                Just tag ->
-                    Return.andThen (\m -> Return.singleton { m | deleteTag = Nothing, tags = List.filter (\t -> tag /= t) model.tags })
-                        >> Return.andThen focusInput
+            Return.andThen
+                (\m ->
+                    case m.deleteTag of
+                        Just tag ->
+                            Return.singleton { m | deleteTag = Nothing, tags = List.filter (\t -> tag /= t) m.tags }
+                                |> Return.andThen focusInput
 
-                Nothing ->
-                    Return.andThen (\m -> Return.singleton { m | deleteTag = last m.tags })
-                        >> Return.andThen focusInput
+                        Nothing ->
+                            Return.singleton { m | deleteTag = last m.tags }
+                                |> Return.andThen focusInput
+                )
 
         AddOrDeleteTag _ _ ->
             Return.andThen focusInput

@@ -320,17 +320,16 @@ historyBack key =
     Return.command <| Nav.back key 1
 
 
-moveTo : Nav.Key -> Route -> Return.ReturnF Msg Model
-moveTo key route =
-    Return.command <| Route.moveTo key route
+moveTo : Nav.Key -> Route -> Model -> Return Msg Model
+moveTo key route model =
+    Return.return model <| Route.moveTo key route
 
 
 redirectToLastEditedFile : Model -> Return Msg Model
 redirectToLastEditedFile model =
     case ( Maybe.andThen .id model.currentDiagram, Maybe.map .diagram model.currentDiagram ) of
         ( Just id_, Just diagramType ) ->
-            Return.singleton model
-                |> (moveTo model.key <| Route.EditFile diagramType id_)
+            moveTo model.key (Route.EditFile diagramType id_) model
 
         _ ->
             Return.singleton model
