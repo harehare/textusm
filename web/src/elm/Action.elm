@@ -1,8 +1,10 @@
 module Action exposing (..)
 
 import Api.Request as Request
+import Api.RequestError exposing (RequestError)
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
+import Components.Diagram as Diagram
 import Dialog.Share as Share
 import Graphql.Enum.Diagram exposing (Diagram)
 import Message exposing (Message)
@@ -34,6 +36,43 @@ loadText diagram model =
 loadLocalDiagram : DiagramId -> Model -> Return Msg Model
 loadLocalDiagram diagramId model =
     Return.return model <| Ports.getDiagram (DiagramId.toString diagramId)
+
+
+loadDiagram : DiagramItem -> Model -> Return Msg Model
+loadDiagram diagram model =
+    let
+        newDiagram =
+            case diagram.id of
+                Nothing ->
+                    { diagram
+                        | title = model.title
+                        , text = model.diagramModel.text
+                        , diagram = model.diagramModel.diagramType
+                    }
+
+                Just _ ->
+                    diagram
+
+        diagramModel =
+            model.diagramModel
+
+        newDiagramModel =
+            { diagramModel
+                | diagramType = newDiagram.diagram
+                , text = newDiagram.text
+            }
+
+        ( model_, cmd_ ) =
+            Diagram.update (DiagramModel.OnChangeText <| Text.toString newDiagram.text) newDiagramModel
+    in
+    Return.return
+        { model
+            | title = newDiagram.title
+            , currentDiagram = Just newDiagram
+            , diagramModel = model_
+        }
+        (cmd_ |> Cmd.map UpdateDiagram)
+        |> Return.andThen stopProgress
 
 
 changeRouteInit : Model -> Return Msg Model
@@ -79,13 +118,24 @@ initShareDiagram diagramItem model =
 
 
 loadShareItem : ShareToken -> Model -> Return Msg Model
-loadShareItem id_ model =
+loadShareItem token model =
     Return.return model
         (Task.attempt Load <|
             Request.shareItem
                 (Session.getIdToken model.session)
-                (ShareToken.toString id_)
+                (ShareToken.toString token)
                 Nothing
+        )
+
+
+loadWithPasswordShareItem : Maybe String -> ShareToken -> Model -> Return Msg Model
+loadWithPasswordShareItem password token model =
+    Return.return model
+        (Task.attempt LoadWithPassword <|
+            Request.shareItem
+                (Session.getIdToken model.session)
+                (ShareToken.toString token)
+                password
         )
 
 
@@ -205,9 +255,32 @@ setFocusEditor =
     Return.command <| Ports.focusEditor ()
 
 
-pushUrl : String -> Nav.Key -> Return.ReturnF Msg Model
-pushUrl url key =
-    Return.command <| Nav.pushUrl key url
+setShareToken : ShareToken -> Model -> Return Msg Model
+setShareToken token model =
+    Return.singleton
+        { model
+            | view =
+                { password = model.view.password
+                , authenticated = model.view.authenticated
+                , token = Just token
+                , error = Nothing
+                }
+        }
+
+
+canView : Model -> Return Msg Model
+canView model =
+    Return.singleton { model | view = { password = Nothing, token = Nothing, authenticated = True, error = Nothing } }
+
+
+canNotView : RequestError -> Model -> Return Msg Model
+canNotView error model =
+    Return.singleton { model | view = { password = Nothing, token = model.view.token, authenticated = False, error = Just error } }
+
+
+pushUrl : String -> Model -> Return Msg Model
+pushUrl url model =
+    Return.return model <| Nav.pushUrl model.key url
 
 
 updateIdToken : Return.ReturnF Msg Model
@@ -283,6 +356,11 @@ unchanged model =
 setTitle : String -> Model -> Return Msg Model
 setTitle title model =
     Return.singleton { model | title = Title.fromString <| title }
+
+
+untitled : Model -> Return Msg Model
+untitled model =
+    Return.singleton { model | title = Title.untitled }
 
 
 startEditTitle : Return.ReturnF Msg Model
