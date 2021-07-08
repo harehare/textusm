@@ -1,4 +1,17 @@
-module Types.DiagramItem exposing (DiagramItem, decoder, empty, encoder, getId, idToString, listToString, listToValue, mapToDateTime, stringToList, toInputItem)
+module Types.DiagramItem exposing
+    ( DiagramItem
+    , decoder
+    , empty
+    , encoder
+    , getId
+    , idToString
+    , isRemoteDiagram
+    , listToString
+    , listToValue
+    , mapToDateTime
+    , stringToList
+    , toInputItem
+    )
 
 import Graphql.Enum.Diagram
 import Graphql.InputObject exposing (InputItem)
@@ -13,6 +26,7 @@ import Json.Encode.Extra exposing (maybe)
 import Time exposing (Posix)
 import Types.DiagramId as DiagramId exposing (DiagramId)
 import Types.DiagramType as DiagramType
+import Types.Session as Session exposing (Session)
 import Types.Text as Text exposing (Text)
 import Types.Title as Title exposing (Title)
 
@@ -81,6 +95,19 @@ empty =
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
     }
+
+
+isRemoteDiagram : Session -> DiagramItem -> Bool
+isRemoteDiagram session diagram =
+    case ( diagram.isRemote, diagram.id ) of
+        ( False, Nothing ) ->
+            Session.isSignedIn session
+
+        ( False, Just _ ) ->
+            False
+
+        _ ->
+            True
 
 
 encoder : DiagramItem -> E.Value

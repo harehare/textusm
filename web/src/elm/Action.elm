@@ -128,14 +128,14 @@ loadShareItem token model =
         )
 
 
-loadWithPasswordShareItem : Maybe String -> ShareToken -> Model -> Return Msg Model
-loadWithPasswordShareItem password token model =
+loadWithPasswordShareItem : ShareToken -> Model -> Return Msg Model
+loadWithPasswordShareItem token model =
     Return.return model
         (Task.attempt LoadWithPassword <|
             Request.shareItem
                 (Session.getIdToken model.session)
                 (ShareToken.toString token)
-                password
+                model.view.password
         )
 
 
@@ -232,14 +232,26 @@ saveToLocal item =
     Return.command <| (Ports.saveDiagram <| DiagramItem.encoder { item | isRemote = False })
 
 
-saveToRemote : DiagramItem -> Session -> Return.ReturnF Msg Model
-saveToRemote diagram session =
+changePublicState : DiagramItem -> Bool -> Model -> Return Msg Model
+changePublicState diagram isPublic model =
+    Return.return model <|
+        Task.attempt ChangePublicStatusCompleted
+            (Request.save
+                (Session.getIdToken model.session)
+                (DiagramItem.toInputItem diagram)
+                isPublic
+                |> Task.mapError (\_ -> diagram)
+            )
+
+
+saveToRemote : DiagramItem -> Model -> Return Msg Model
+saveToRemote diagram model =
     let
         saveTask =
-            Request.save (Session.getIdToken session) (DiagramItem.toInputItem diagram) diagram.isPublic
+            Request.save (Session.getIdToken model.session) (DiagramItem.toInputItem diagram) diagram.isPublic
                 |> Task.mapError (\_ -> diagram)
     in
-    Return.command <| Task.attempt SaveToRemoteCompleted saveTask
+    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
 
 
 setFocus : String -> Model -> Return Msg Model
@@ -283,9 +295,9 @@ pushUrl url model =
     Return.return model <| Nav.pushUrl model.key url
 
 
-updateIdToken : Return.ReturnF Msg Model
-updateIdToken =
-    Return.command <| Ports.refreshToken ()
+updateIdToken : Model -> Return Msg Model
+updateIdToken model =
+    Return.return model <| Ports.refreshToken ()
 
 
 switchPage : Page -> Model -> Return Msg Model
@@ -363,9 +375,9 @@ untitled model =
     Return.singleton { model | title = Title.untitled }
 
 
-startEditTitle : Return.ReturnF Msg Model
-startEditTitle =
-    Return.command <| Task.perform identity <| Task.succeed StartEditTitle
+startEditTitle : Model -> Return Msg Model
+startEditTitle model =
+    Return.return model <| Task.perform identity <| Task.succeed StartEditTitle
 
 
 setCurrentDiagram : Maybe DiagramItem -> Model -> Return Msg Model
@@ -398,16 +410,16 @@ historyBack key =
     Return.command <| Nav.back key 1
 
 
-moveTo : Nav.Key -> Route -> Model -> Return Msg Model
-moveTo key route model =
-    Return.return model <| Route.moveTo key route
+moveTo : Route -> Model -> Return Msg Model
+moveTo route model =
+    Return.return model <| Route.moveTo model.key route
 
 
 redirectToLastEditedFile : Model -> Return Msg Model
 redirectToLastEditedFile model =
     case ( Maybe.andThen .id model.currentDiagram, Maybe.map .diagram model.currentDiagram ) of
         ( Just id_, Just diagramType ) ->
-            moveTo model.key (Route.EditFile diagramType id_) model
+            moveTo (Route.EditFile diagramType id_) model
 
         _ ->
             Return.singleton model

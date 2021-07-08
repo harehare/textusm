@@ -334,7 +334,7 @@ main : Program Flags Model Msg
 main =
     Browser.application
         { init = init
-        , update = \msg m -> Return.singleton m |> update msg m
+        , update = \msg m -> Return.singleton m |> update msg
         , view =
             \m ->
                 { title =
@@ -456,7 +456,7 @@ changeRouteTo route =
                         loadText_ =
                             Return.singleton m
                                 |> (if Session.isSignedIn m.session then
-                                        Action.updateIdToken
+                                        Return.andThen Action.updateIdToken
                                             >> Return.andThen (Action.switchPage Page.Main)
                                             >> Return.andThen (Action.loadItem id_)
 
@@ -472,7 +472,7 @@ changeRouteTo route =
                                 Just item ->
                                     Return.singleton m
                                         |> (if item.isRemote then
-                                                Action.updateIdToken
+                                                Return.andThen Action.updateIdToken
                                                     >> Return.andThen (Action.switchPage Page.Main)
                                                     >> Return.andThen (Action.loadItem id_)
 
@@ -508,7 +508,7 @@ changeRouteTo route =
                 )
 
         Route.ViewPublic _ id_ ->
-            Action.updateIdToken
+            Return.andThen Action.updateIdToken
                 >> Return.andThen (Action.switchPage Page.Main)
                 >> Return.andThen (Action.loadPublicItem id_)
 
@@ -534,11 +534,11 @@ changeRouteTo route =
                                             >> Return.andThen Action.startProgress
 
                                     else
-                                        Return.andThen <| Action.moveTo m.key Route.Home
+                                        Return.andThen <| Action.moveTo Route.Home
                                    )
 
                         _ ->
-                            Action.moveTo m.key Route.Home m
+                            Action.moveTo Route.Home m
                 )
 
         Route.ViewFile _ id_ ->
@@ -560,8 +560,8 @@ changeRouteTo route =
                     Return.andThen <| Action.switchPage Page.NotFound
 
 
-update : Msg -> Model -> Return.ReturnF Msg Model
-update message model =
+update : Msg -> Return.ReturnF Msg Model
+update message =
     case message of
         NoOp ->
             Return.zero
@@ -581,7 +581,7 @@ update message model =
                                             Return.andThen <| Action.showErrorMessage e
 
                                         Share.Close ->
-                                            Action.historyBack model.key
+                                            Action.historyBack m.key
 
                                         Share.LoadShareCondition (Err e) ->
                                             Return.andThen <| Action.showErrorMessage e
@@ -744,89 +744,95 @@ update message model =
                 )
 
         Init window ->
-            let
-                ( model_, cmd_ ) =
-                    Diagram.update (DiagramModel.Init model.diagramModel.settings window (Text.toString model.diagramModel.text)) model.diagramModel
+            Return.andThen
+                (\m ->
+                    let
+                        ( model_, cmd_ ) =
+                            Diagram.update (DiagramModel.Init m.diagramModel.settings window (Text.toString m.diagramModel.text)) m.diagramModel
 
-                model__ =
-                    case toRoute model.url of
-                        Route.Embed _ _ _ (Just w) (Just h) ->
-                            let
-                                scale =
-                                    toFloat w
-                                        / toFloat model_.svg.width
-                            in
-                            { model_ | size = ( w, h ), svg = { width = w, height = h, scale = scale } }
+                        model__ =
+                            case toRoute m.url of
+                                Route.Embed _ _ _ (Just w) (Just h) ->
+                                    let
+                                        scale =
+                                            toFloat w
+                                                / toFloat model_.svg.width
+                                    in
+                                    { model_ | size = ( w, h ), svg = { width = w, height = h, scale = scale } }
 
-                        _ ->
-                            model_
-            in
-            Return.andThen (\m -> Return.return { m | diagramModel = model__ } (cmd_ |> Cmd.map UpdateDiagram))
-                >> Return.andThen (Action.loadText (model.currentDiagram |> Maybe.withDefault DiagramItem.empty))
+                                _ ->
+                                    model_
+                    in
+                    Return.return { m | diagramModel = model__ } (cmd_ |> Cmd.map UpdateDiagram)
+                        |> Return.andThen (Action.loadText (m.currentDiagram |> Maybe.withDefault DiagramItem.empty))
+                )
                 >> Return.andThen Action.stopProgress
 
         DownloadCompleted ( x, y ) ->
             Return.andThen (\m -> Return.singleton { m | diagramModel = m.diagramModel |> DiagramModel.modelOfPosition.set ( x, y ) })
 
         Download fileType ->
-            case fileType of
-                FileType.Ddl ex ->
-                    let
-                        ( _, tables ) =
-                            ER.from model.diagramModel.items
+            Return.andThen
+                (\m ->
+                    case fileType of
+                        FileType.Ddl ex ->
+                            let
+                                ( _, tables ) =
+                                    ER.from m.diagramModel.items
 
-                        ddl =
-                            List.map ER.tableToString tables
-                                |> String.join "\n"
-                    in
-                    Return.command <| Download.string (Title.toString model.title ++ ex) "text/plain" ddl
+                                ddl =
+                                    List.map ER.tableToString tables
+                                        |> String.join "\n"
+                            in
+                            Return.return m <| Download.string (Title.toString m.title ++ ex) "text/plain" ddl
 
-                FileType.Markdown ex ->
-                    Return.command <| Download.string (Title.toString model.title ++ ex) "text/plain" (Table.toString (Table.from model.diagramModel.items))
+                        FileType.Markdown ex ->
+                            Return.return m <| Download.string (Title.toString m.title ++ ex) "text/plain" (Table.toString (Table.from m.diagramModel.items))
 
-                FileType.PlainText ex ->
-                    Return.command <| Download.string (Title.toString model.title ++ ex) "text/plain" (Text.toString model.diagramModel.text)
+                        FileType.PlainText ex ->
+                            Return.return m <| Download.string (Title.toString m.title ++ ex) "text/plain" (Text.toString m.diagramModel.text)
 
-                _ ->
-                    let
-                        ( posX, posY ) =
-                            model.diagramModel.position
+                        _ ->
+                            let
+                                ( posX, posY ) =
+                                    m.diagramModel.position
 
-                        ( width, height ) =
-                            DiagramUtils.getCanvasSize model.diagramModel
-                                |> Tuple.mapBoth (\x -> x + posX) (\y -> y + posY)
+                                ( width, height ) =
+                                    DiagramUtils.getCanvasSize m.diagramModel
+                                        |> Tuple.mapBoth (\x -> x + posX) (\y -> y + posY)
 
-                        ( sub, extension ) =
-                            case fileType of
-                                FileType.Png ex ->
-                                    ( Ports.downloadPng, ex )
+                                ( download, extension ) =
+                                    case fileType of
+                                        FileType.Png ex ->
+                                            ( Ports.downloadPng, ex )
 
-                                FileType.Pdf ex ->
-                                    ( Ports.downloadPdf, ex )
+                                        FileType.Pdf ex ->
+                                            ( Ports.downloadPdf, ex )
 
-                                FileType.Svg ex ->
-                                    ( Ports.downloadSvg, ex )
+                                        FileType.Svg ex ->
+                                            ( Ports.downloadSvg, ex )
 
-                                FileType.Html ex ->
-                                    ( Ports.downloadHtml, ex )
+                                        FileType.Html ex ->
+                                            ( Ports.downloadHtml, ex )
 
-                                _ ->
-                                    ( Ports.downloadSvg, "" )
-                    in
-                    Return.command <|
-                        sub
-                            { width = width
-                            , height = height
-                            , id = "usm"
-                            , title = Title.toString model.title ++ extension
-                            , x = 0
-                            , y = 0
-                            , text = Text.toString model.diagramModel.text
-                            , diagramType = DiagramType.toString model.diagramModel.diagramType
-                            }
+                                        _ ->
+                                            ( Ports.downloadSvg, "" )
+                            in
+                            Return.return m <|
+                                download
+                                    { width = width
+                                    , height = height
+                                    , id = "usm"
+                                    , title = Title.toString m.title ++ extension
+                                    , x = 0
+                                    , y = 0
+                                    , text = Text.toString m.diagramModel.text
+                                    , diagramType = DiagramType.toString m.diagramModel.diagramType
+                                    }
+                )
 
         StartDownload info ->
-            Return.command (Download.string (Title.toString model.title ++ info.extension) info.mimeType info.content)
+            Return.andThen (\m -> Return.return m (Download.string (Title.toString m.title ++ info.extension) info.mimeType info.content))
                 >> Return.andThen Action.closeMenu
 
         OpenMenu menu ->
@@ -836,54 +842,38 @@ update message model =
             Return.andThen Action.closeMenu
 
         Save ->
-            let
-                isRemote =
-                    Maybe.andThen
-                        (\d ->
-                            case ( d.isRemote, d.id ) of
-                                ( False, Nothing ) ->
-                                    Nothing
+            Return.andThen
+                (\m ->
+                    if Title.isUntitled m.title then
+                        Action.startEditTitle m
 
-                                ( False, Just _ ) ->
-                                    Just False
-
-                                ( True, _ ) ->
-                                    Just True
-                        )
-                        model.currentDiagram
-                        |> Maybe.withDefault (Session.isSignedIn model.session)
-            in
-            if Title.isUntitled model.title then
-                Action.startEditTitle
-
-            else
-                let
-                    newDiagramModel =
-                        DiagramModel.updatedText model.diagramModel (Text.saved model.diagramModel.text)
-
-                    item =
-                        { id = Maybe.andThen .id model.currentDiagram
-                        , title = model.title
-                        , text = newDiagramModel.text
-                        , thumbnail = Nothing
-                        , diagram = newDiagramModel.diagramType
-                        , isRemote = isRemote
-                        , isPublic = Maybe.map .isPublic model.currentDiagram |> Maybe.withDefault False
-                        , isBookmark = False
-                        , tags = Maybe.andThen .tags model.currentDiagram
-                        , updatedAt = Time.millisToPosix 0
-                        , createdAt = Time.millisToPosix 0
-                        }
-                in
-                Return.andThen
-                    (\m ->
+                    else
+                        let
+                            newDiagramModel =
+                                DiagramModel.updatedText m.diagramModel (Text.saved m.diagramModel.text)
+                        in
                         Return.singleton
                             { m
                                 | diagramListModel = m.diagramListModel |> DiagramList.modelOfDiagramList.set DiagramList.notAsked
                                 , diagramModel = newDiagramModel
                             }
-                    )
-                    >> Action.saveDiagram item
+                            |> Action.saveDiagram
+                                { id = Maybe.andThen .id m.currentDiagram
+                                , title = m.title
+                                , text = newDiagramModel.text
+                                , thumbnail = Nothing
+                                , diagram = newDiagramModel.diagramType
+                                , isRemote =
+                                    m.currentDiagram
+                                        |> Maybe.withDefault DiagramItem.empty
+                                        |> DiagramItem.isRemoteDiagram m.session
+                                , isPublic = Maybe.map .isPublic m.currentDiagram |> Maybe.withDefault False
+                                , isBookmark = False
+                                , tags = Maybe.andThen .tags m.currentDiagram
+                                , updatedAt = Time.millisToPosix 0
+                                , createdAt = Time.millisToPosix 0
+                                }
+                )
 
         SaveToLocalCompleted diagramJson ->
             case D.decodeValue DiagramItem.decoder diagramJson of
@@ -891,16 +881,9 @@ update message model =
                     Return.andThen
                         (\m ->
                             Return.return { m | currentDiagram = Just item } <|
-                                Route.replaceRoute m.key
-                                    (Route.EditFile item.diagram
-                                        (case item.id of
-                                            Nothing ->
-                                                DiagramId.fromString ""
-
-                                            Just diagramId ->
-                                                diagramId
-                                        )
-                                    )
+                                Route.replaceRoute m.key <|
+                                    Route.EditFile item.diagram
+                                        (Maybe.withDefault (DiagramId.fromString "") <| item.id)
                         )
                         >> Return.andThen (Action.showInfoMessage Message.messageSuccessfullySaved)
 
@@ -914,7 +897,7 @@ update message model =
             in
             case result of
                 Ok diagram ->
-                    Action.saveToRemote diagram model.session
+                    Return.andThen (Action.saveToRemote diagram)
                         >> Return.andThen Action.startProgress
 
                 Err _ ->
@@ -922,33 +905,38 @@ update message model =
                         >> Return.andThen Action.stopProgress
 
         SaveToRemoteCompleted (Err _) ->
-            let
-                item =
-                    { id = Nothing
-                    , title = model.title
-                    , text = model.diagramModel.text
-                    , thumbnail = Nothing
-                    , diagram = model.diagramModel.diagramType
-                    , isRemote = False
-                    , isPublic = False
-                    , isBookmark = False
-                    , tags = Nothing
-                    , updatedAt = Time.millisToPosix 0
-                    , createdAt = Time.millisToPosix 0
-                    }
-            in
-            Return.andThen (Action.setCurrentDiagram <| Just item)
-                >> Action.saveToLocal item
+            Return.andThen
+                (\m ->
+                    let
+                        item =
+                            { id = Nothing
+                            , title = m.title
+                            , text = m.diagramModel.text
+                            , thumbnail = Nothing
+                            , diagram = m.diagramModel.diagramType
+                            , isRemote = False
+                            , isPublic = False
+                            , isBookmark = False
+                            , tags = Nothing
+                            , updatedAt = Time.millisToPosix 0
+                            , createdAt = Time.millisToPosix 0
+                            }
+                    in
+                    Action.setCurrentDiagram (Just item) m
+                        |> Action.saveToLocal item
+                )
                 >> Return.andThen Action.stopProgress
                 >> Return.andThen (Action.showWarningMessage <| Message.messageFailedSaved)
 
         SaveToRemoteCompleted (Ok diagram) ->
             Return.andThen (Action.setCurrentDiagram <| Just diagram)
-                >> Return.command
-                    (Route.replaceRoute model.key
-                        (Route.EditFile diagram.diagram
-                            (diagram.id |> Maybe.withDefault (DiagramId.fromString ""))
-                        )
+                >> Return.andThen
+                    (\m ->
+                        Return.return m <|
+                            Route.replaceRoute m.key
+                                (Route.EditFile diagram.diagram
+                                    (diagram.id |> Maybe.withDefault (DiagramId.fromString ""))
+                                )
                     )
                 >> Return.andThen Action.stopProgress
                 >> Return.andThen (Action.showInfoMessage <| Message.messageSuccessfullySaved)
@@ -956,14 +944,20 @@ update message model =
         Shortcuts x ->
             case x of
                 "save" ->
-                    if Text.isChanged model.diagramModel.text then
-                        Return.command <| Task.perform identity <| Task.succeed Save
+                    Return.andThen
+                        (\m ->
+                            if Text.isChanged m.diagramModel.text then
+                                Return.return m <| Task.perform identity <| Task.succeed Save
 
-                    else
-                        Return.zero
+                            else
+                                Return.singleton m
+                        )
 
                 "open" ->
-                    Return.command <| Nav.load <| Route.toString (toRoute model.url)
+                    Return.andThen
+                        (\m ->
+                            Return.return m <| Nav.load <| Route.toString (toRoute m.url)
+                        )
 
                 _ ->
                     Return.zero
@@ -983,26 +977,29 @@ update message model =
         HandleVisibilityChange visible ->
             case visible of
                 Hidden ->
-                    let
-                        newStoryMap =
-                            model.settingsModel.settings |> Settings.settingsOfFont.set model.settingsModel.settings.font
+                    Return.andThen
+                        (\m ->
+                            let
+                                newStoryMap =
+                                    m.settingsModel.settings |> Settings.settingsOfFont.set m.settingsModel.settings.font
 
-                        newSettings =
-                            { position = Just model.window.position
-                            , font = model.settingsModel.settings.font
-                            , diagramId = Maybe.andThen (\d -> Maybe.andThen (\i -> Just <| DiagramId.toString i) d.id) model.currentDiagram
-                            , storyMap = newStoryMap.storyMap |> DiagramModel.settingsOfScale.set (Just model.diagramModel.svg.scale)
-                            , text = Just (Text.toString model.diagramModel.text)
-                            , title = Just <| Title.toString model.title
-                            , editor = model.settingsModel.settings.editor
-                            , diagram = model.currentDiagram
-                            }
+                                newSettings =
+                                    { position = Just m.window.position
+                                    , font = m.settingsModel.settings.font
+                                    , diagramId = Maybe.andThen (\d -> Maybe.andThen (\i -> Just <| DiagramId.toString i) d.id) m.currentDiagram
+                                    , storyMap = newStoryMap.storyMap |> DiagramModel.settingsOfScale.set (Just m.diagramModel.svg.scale)
+                                    , text = Just (Text.toString m.diagramModel.text)
+                                    , title = Just <| Title.toString m.title
+                                    , editor = m.settingsModel.settings.editor
+                                    , diagram = m.currentDiagram
+                                    }
 
-                        ( newSettingsModel, _ ) =
-                            Settings.init newSettings
-                    in
-                    Return.andThen (\m -> Return.singleton { m | settingsModel = newSettingsModel })
-                        >> Return.command (Ports.saveSettings (settingsEncoder newSettings))
+                                ( newSettingsModel, _ ) =
+                                    Settings.init newSettings
+                            in
+                            Return.singleton { m | settingsModel = newSettingsModel }
+                                |> Return.command (Ports.saveSettings (settingsEncoder newSettings))
+                        )
 
                 _ ->
                     Return.zero
@@ -1040,11 +1037,14 @@ update message model =
         LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
-                    if Text.isChanged model.diagramModel.text && not (Dialog.display model.confirmDialog) then
-                        Return.andThen (Action.showConfirmDialog "Confirmation" "Your data has been changed. do you wish to continue ?" <| toRoute url)
+                    Return.andThen
+                        (\m ->
+                            if Text.isChanged m.diagramModel.text && not (Dialog.display m.confirmDialog) then
+                                Action.showConfirmDialog "Confirmation" "Your data has been changed. do you wish to continue ?" (toRoute url) m
 
-                    else
-                        Return.andThen (Action.pushUrl (Url.toString url))
+                            else
+                                Action.pushUrl (Url.toString url) m
+                        )
 
                 Browser.External href ->
                     Return.command (Nav.load href)
@@ -1052,11 +1052,7 @@ update message model =
         UrlChanged url ->
             Return.andThen
                 (\m ->
-                    let
-                        model_ =
-                            { m | url = url, prevRoute = Just <| toRoute m.url }
-                    in
-                    Return.singleton model_ |> changeRouteTo (toRoute url)
+                    Return.singleton { m | url = url, prevRoute = Just <| toRoute m.url } |> changeRouteTo (toRoute url)
                 )
 
         SignIn provider ->
@@ -1069,39 +1065,41 @@ update message model =
 
         HandleAuthStateChanged (Just user) ->
             Return.andThen (\m -> Return.singleton { m | session = Session.signIn user })
-                >> (case ( toRoute model.url, model.currentDiagram ) of
-                        ( Route.EditFile type_ id_, Just diagram ) ->
-                            if (DiagramItem.getId diagram |> DiagramId.toString) /= DiagramId.toString id_ then
-                                Return.andThen <| Action.pushUrl (Route.toString <| Route.EditFile type_ id_)
+                >> Return.andThen
+                    (\m ->
+                        case ( toRoute m.url, m.currentDiagram ) of
+                            ( Route.EditFile type_ id_, Just diagram ) ->
+                                if DiagramItem.getId diagram /= id_ then
+                                    Action.pushUrl (Route.toString <| Route.EditFile type_ id_) m
 
-                            else
-                                Return.zero
+                                else
+                                    Return.singleton m
 
-                        ( Route.EditFile type_ id_, _ ) ->
-                            Return.andThen <| Action.pushUrl (Route.toString <| Route.EditFile type_ id_)
+                            ( Route.EditFile type_ id_, _ ) ->
+                                Action.pushUrl (Route.toString <| Route.EditFile type_ id_) m
 
-                        ( Route.ViewFile _ id_, _ ) ->
-                            case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
-                                Just jwt ->
-                                    if jwt.checkPassword then
-                                        Return.andThen (Action.switchPage Page.Main)
-                                            >> Return.andThen Action.changeRouteInit
+                            ( Route.ViewFile _ id_, _ ) ->
+                                case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
+                                    Just jwt ->
+                                        if jwt.checkPassword then
+                                            Action.switchPage Page.Main m
+                                                |> Return.andThen Action.changeRouteInit
 
-                                    else
-                                        Return.andThen (Action.switchPage Page.Main)
-                                            >> Return.andThen (Action.loadShareItem id_)
-                                            >> Return.andThen Action.startProgress
-                                            >> Return.andThen Action.changeRouteInit
+                                        else
+                                            Action.switchPage Page.Main m
+                                                |> Return.andThen (Action.loadShareItem id_)
+                                                |> Return.andThen Action.startProgress
+                                                |> Return.andThen Action.changeRouteInit
 
-                                Nothing ->
-                                    Return.andThen <| Action.switchPage Page.NotFound
+                                    Nothing ->
+                                        Action.switchPage Page.NotFound m
 
-                        ( Route.DiagramList, _ ) ->
-                            Return.andThen (Action.pushUrl (Route.toString <| Route.Home))
+                            ( Route.DiagramList, _ ) ->
+                                Action.pushUrl (Route.toString <| Route.Home) m
 
-                        _ ->
-                            Return.zero
-                   )
+                            _ ->
+                                Return.singleton m
+                    )
                 >> Return.andThen Action.stopProgress
 
         HandleAuthStateChanged Nothing ->
@@ -1115,37 +1113,40 @@ update message model =
             Return.andThen <| Action.loadDiagram diagram
 
         EditText text ->
-            let
-                ( model_, cmd_ ) =
-                    Diagram.update (DiagramModel.OnChangeText text) model.diagramModel
-            in
-            Return.andThen (\m -> Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram))
+            Return.andThen
+                (\m ->
+                    let
+                        ( model_, cmd_ ) =
+                            Diagram.update (DiagramModel.OnChangeText text) m.diagramModel
+                    in
+                    Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
+                )
 
         Load (Err e) ->
             (case e of
                 RequestError.NotFound ->
-                    Return.andThen <| Action.moveTo model.key Route.NotFound
+                    Return.andThen <| Action.moveTo Route.NotFound
 
                 RequestError.Forbidden ->
-                    Return.andThen <| Action.moveTo model.key Route.Home
+                    Return.andThen <| Action.moveTo Route.Home
 
                 RequestError.NoAuthorization ->
-                    Return.andThen <| Action.moveTo model.key Route.Home
+                    Return.andThen <| Action.moveTo Route.Home
 
                 RequestError.DecryptionFailed ->
-                    Return.andThen <| Action.moveTo model.key Route.Home
+                    Return.andThen <| Action.moveTo Route.Home
 
                 RequestError.EncryptionFailed ->
-                    Return.andThen <| Action.moveTo model.key Route.Home
+                    Return.andThen <| Action.moveTo Route.Home
 
                 RequestError.URLExpired ->
-                    Return.andThen <| Action.moveTo model.key Route.Home
+                    Return.andThen <| Action.moveTo Route.Home
 
                 RequestError.Unknown ->
-                    Return.andThen <| Action.moveTo model.key Route.Home
+                    Return.andThen <| Action.moveTo Route.Home
 
                 RequestError.Http _ ->
-                    Return.andThen <| Action.moveTo model.key Route.Home
+                    Return.andThen <| Action.moveTo Route.Home
             )
                 >> Return.andThen Action.stopProgress
                 >> Return.andThen (Action.showErrorMessage <| RequestError.toMessage e)
@@ -1159,22 +1160,17 @@ update message model =
                     Return.zero
 
         ChangePublicStatus isPublic ->
-            case model.currentDiagram of
-                Just diagram ->
-                    let
-                        saveTask =
-                            Request.save
-                                (Session.getIdToken model.session)
-                                (DiagramItem.toInputItem diagram)
-                                isPublic
-                                |> Task.mapError (\_ -> diagram)
-                    in
-                    Action.updateIdToken
-                        >> Return.command (Task.attempt ChangePublicStatusCompleted saveTask)
-                        >> Return.andThen Action.stopProgress
+            Return.andThen
+                (\m ->
+                    case m.currentDiagram of
+                        Just diagram ->
+                            Action.updateIdToken m
+                                |> Return.andThen (Action.changePublicState diagram isPublic)
+                                |> Return.andThen Action.stopProgress
 
-                _ ->
-                    Return.zero
+                        _ ->
+                            Return.singleton m
+                )
 
         ChangePublicStatusCompleted (Ok d) ->
             Return.andThen (Action.setCurrentDiagram <| Just d)
@@ -1186,11 +1182,14 @@ update message model =
                 >> Return.andThen Action.stopProgress
 
         CloseFullscreen _ ->
-            let
-                ( model_, cmd_ ) =
-                    Diagram.update DiagramModel.ToggleFullscreen model.diagramModel
-            in
-            Return.andThen <| \m -> Return.return { m | window = m.window |> Model.windowOfFullscreen.set False, diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
+            Return.andThen
+                (\m ->
+                    let
+                        ( model_, cmd_ ) =
+                            Diagram.update DiagramModel.ToggleFullscreen m.diagramModel
+                    in
+                    Return.return { m | window = m.window |> Model.windowOfFullscreen.set False, diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
+                )
 
         UpdateIdToken token ->
             Return.andThen <| \m -> Return.singleton { m | session = Session.updateIdToken m.session (IdToken.fromString token) }
@@ -1198,7 +1197,7 @@ update message model =
         MoveTo route ->
             Return.andThen Action.unchanged
                 >> Return.andThen Action.closeDialog
-                >> Return.andThen (Action.moveTo model.key route)
+                >> Return.andThen (Action.moveTo route)
 
         EditPassword password ->
             Return.andThen <|
@@ -1206,14 +1205,17 @@ update message model =
                     Return.singleton { m | view = { password = Just password, authenticated = False, token = m.view.token, error = Nothing } }
 
         EndEditPassword ->
-            case model.view.token of
-                Just token ->
-                    Return.andThen (Action.switchPage Page.Main)
-                        >> Return.andThen (Action.loadWithPasswordShareItem model.view.password token)
-                        >> Return.andThen Action.startProgress
+            Return.andThen
+                (\m ->
+                    case m.view.token of
+                        Just token ->
+                            Action.switchPage Page.Main m
+                                |> Return.andThen (Action.loadWithPasswordShareItem token)
+                                |> Return.andThen Action.startProgress
 
-                Nothing ->
-                    Return.zero
+                        Nothing ->
+                            Return.singleton m
+                )
 
         LoadWithPassword (Ok diagram) ->
             Return.andThen Action.canView
