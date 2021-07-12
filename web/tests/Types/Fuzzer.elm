@@ -6,6 +6,7 @@ import Time exposing (Posix)
 import Types.Color as Color exposing (Color)
 import Types.DiagramId as DiagramId exposing (DiagramId)
 import Types.DiagramItem exposing (DiagramItem)
+import Types.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Types.FontSize as FontSize exposing (FontSize)
 import Types.Item as Item exposing (Children, Item, ItemType(..), Items)
 import Types.ItemSettings as ItemSettings exposing (ItemSettings)
@@ -75,6 +76,7 @@ diagramItemFuzzer =
         |> Fuzz.andMap Fuzz.bool
         |> Fuzz.andMap Fuzz.bool
         |> Fuzz.andMap Fuzz.bool
+        |> Fuzz.andMap (Fuzz.maybe diagramLocationFuzzer)
         |> Fuzz.andMap tagFuzzer
         |> Fuzz.andMap posixFuzzer
         |> Fuzz.andMap posixFuzzer
@@ -163,3 +165,13 @@ tagFuzzer =
 posixFuzzer : Fuzzer Posix
 posixFuzzer =
     Fuzz.map Time.millisToPosix (Fuzz.intRange 0 100000)
+
+
+diagramLocationFuzzer : Fuzzer DiagramLocation
+diagramLocationFuzzer =
+    Fuzz.oneOf
+        [ Fuzz.constant DiagramLocation.Local
+        , Fuzz.constant DiagramLocation.Remote
+        , Fuzz.constant DiagramLocation.Gist
+        , Fuzz.constant DiagramLocation.GoogleDrive
+        ]

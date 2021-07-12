@@ -123,7 +123,7 @@ encoder diagram =
         , ( "thumbnail", maybe E.string diagram.thumbnail )
         , ( "isPublic", E.bool diagram.isPublic )
         , ( "isBookmark", E.bool diagram.isBookmark )
-        , ( "isRemote", E.bool (Maybe.withDefault DiagramLocation.Local diagram.location |> DiagramLocation.isRemote) )
+        , ( "isRemote", E.bool diagram.isRemote )
         , ( "location", maybe E.string <| Maybe.map DiagramLocation.toString diagram.location )
         , ( "tags", maybe (E.list (maybe E.string)) diagram.tags )
         , ( "createdAt", E.int <| Time.posixToMillis diagram.createdAt )
