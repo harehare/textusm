@@ -25,6 +25,7 @@ import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import Time exposing (Posix)
 import Types.DiagramId as DiagramId exposing (DiagramId)
+import Types.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Types.DiagramType as DiagramType
 import Types.Session as Session exposing (Session)
 import Types.Text as Text exposing (Text)
@@ -40,6 +41,7 @@ type alias DiagramItem =
     , isPublic : Bool
     , isBookmark : Bool
     , isRemote : Bool
+    , location : Maybe DiagramLocation
     , tags : Maybe (List (Maybe String))
     , createdAt : Posix
     , updatedAt : Posix
@@ -91,6 +93,7 @@ empty =
     , isPublic = False
     , isBookmark = False
     , isRemote = False
+    , location = Just DiagramLocation.Local
     , tags = Nothing
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
@@ -99,7 +102,7 @@ empty =
 
 isRemoteDiagram : Session -> DiagramItem -> Bool
 isRemoteDiagram session diagram =
-    case ( diagram.isRemote, diagram.id ) of
+    case ( Maybe.withDefault DiagramLocation.Local diagram.location |> DiagramLocation.isRemote, diagram.id ) of
         ( False, Nothing ) ->
             Session.isSignedIn session
 
@@ -120,7 +123,8 @@ encoder diagram =
         , ( "thumbnail", maybe E.string diagram.thumbnail )
         , ( "isPublic", E.bool diagram.isPublic )
         , ( "isBookmark", E.bool diagram.isBookmark )
-        , ( "isRemote", E.bool diagram.isRemote )
+        , ( "isRemote", E.bool (Maybe.withDefault DiagramLocation.Local diagram.location |> DiagramLocation.isRemote) )
+        , ( "location", maybe E.string <| Maybe.map DiagramLocation.toString diagram.location )
         , ( "tags", maybe (E.list (maybe E.string)) diagram.tags )
         , ( "createdAt", E.int <| Time.posixToMillis diagram.createdAt )
         , ( "updatedAt", E.int <| Time.posixToMillis diagram.updatedAt )
@@ -138,6 +142,7 @@ decoder =
         |> required "isPublic" D.bool
         |> required "isBookmark" D.bool
         |> required "isRemote" D.bool
+        |> optional "location" (D.map (\l -> Just <| DiagramLocation.fromString l) D.string) Nothing
         |> optional "tags" (D.map Just (D.list (D.maybe D.string))) Nothing
         |> required "createdAt" (D.map Time.millisToPosix D.int)
         |> required "updatedAt" (D.map Time.millisToPosix D.int)

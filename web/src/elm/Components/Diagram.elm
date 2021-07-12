@@ -107,7 +107,7 @@ zoomControl isFullscreen scale =
         [ Attr.id "zoom-control"
         , Attr.style "position" "absolute"
         , Attr.style "align-items" "center"
-        , Attr.style "right" "35px"
+        , Attr.style "right" "16px"
         , Attr.style "top" "5px"
         , Attr.style "display" "flex"
         , Attr.style "width" "240px"

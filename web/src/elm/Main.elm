@@ -1,7 +1,6 @@
 module Main exposing (init, main, view)
 
 import Action
-import Api.Request as Request
 import Api.RequestError as RequestError
 import Asset
 import Browser
@@ -58,6 +57,7 @@ import Task
 import Time
 import Types.DiagramId as DiagramId
 import Types.DiagramItem as DiagramItem
+import Types.DiagramLocation as DiagramLocation
 import Types.DiagramType as DiagramType
 import Types.FileType as FileType
 import Types.IdToken as IdToken
@@ -849,6 +849,11 @@ update message =
 
                     else
                         let
+                            isRemote =
+                                m.currentDiagram
+                                    |> Maybe.withDefault DiagramItem.empty
+                                    |> DiagramItem.isRemoteDiagram m.session
+
                             newDiagramModel =
                                 DiagramModel.updatedText m.diagramModel (Text.saved m.diagramModel.text)
                         in
@@ -863,10 +868,13 @@ update message =
                                 , text = newDiagramModel.text
                                 , thumbnail = Nothing
                                 , diagram = newDiagramModel.diagramType
-                                , isRemote =
-                                    m.currentDiagram
-                                        |> Maybe.withDefault DiagramItem.empty
-                                        |> DiagramItem.isRemoteDiagram m.session
+                                , isRemote = isRemote
+                                , location =
+                                    if isRemote then
+                                        Just DiagramLocation.Remote
+
+                                    else
+                                        Just DiagramLocation.Local
                                 , isPublic = Maybe.map .isPublic m.currentDiagram |> Maybe.withDefault False
                                 , isBookmark = False
                                 , tags = Maybe.andThen .tags m.currentDiagram
@@ -917,6 +925,7 @@ update message =
                             , isRemote = False
                             , isPublic = False
                             , isBookmark = False
+                            , location = Just DiagramLocation.Local
                             , tags = Nothing
                             , updatedAt = Time.millisToPosix 0
                             , createdAt = Time.millisToPosix 0

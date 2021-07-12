@@ -9,6 +9,7 @@ import Graphql.Scalar exposing (Id(..), ItemIdScalar(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Route exposing (Route(..))
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
+import Types.DiagramLocation as DiagramLocation
 import Types.Email as Email exposing (Email)
 import Types.IpAddress as IpAddress exposing (IpAddress)
 import Types.Text as Text
@@ -35,6 +36,7 @@ item id isPublic =
             |> with Graphql.Object.Item.isPublic
             |> with Graphql.Object.Item.isBookmark
             |> hardcoded True
+            |> hardcoded (Just DiagramLocation.Remote)
             |> with Graphql.Object.Item.tags
             |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
@@ -53,6 +55,7 @@ items ( offset, limit ) params =
             |> with Graphql.Object.Item.isPublic
             |> with Graphql.Object.Item.isBookmark
             |> hardcoded True
+            |> hardcoded (Just DiagramLocation.Remote)
             |> with Graphql.Object.Item.tags
             |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
@@ -84,6 +87,7 @@ shareItem token password =
             |> with Graphql.Object.Item.isPublic
             |> with Graphql.Object.Item.isBookmark
             |> hardcoded True
+            |> hardcoded (Just DiagramLocation.Remote)
             |> hardcoded Nothing
             |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
