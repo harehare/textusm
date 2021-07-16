@@ -13,7 +13,7 @@
         "firebase": "^8.7.1",
         "html2canvas": "^1.1.4",
         "jspdf": "^2.3.1",
-        "monaco-editor": "^0.25.2",
+        "monaco-editor": "^0.26.1",
         "svgo": "^2.3.1",
         "tslib": "^2.3.0",
         "uuid": "^8.3.2"
