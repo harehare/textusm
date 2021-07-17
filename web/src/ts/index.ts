@@ -57,7 +57,20 @@ app.ports.saveSettings.subscribe((settings: Settings) => {
 });
 
 app.ports.signIn.subscribe((provider: Provider) => {
-    signIn(provider === 'Google' ? providers.google : providers.github);
+    switch (provider) {
+        case 'Google':
+            signIn(providers.google);
+            return;
+        case 'Github':
+            signIn(providers.github);
+            return;
+        case 'GithubWithGist':
+            signIn(providers.githubWithGist);
+            return;
+        default:
+            const _exhaustiveCheck: never = provider;
+            return _exhaustiveCheck;
+    }
 });
 
 app.ports.signOut.subscribe(async () => {

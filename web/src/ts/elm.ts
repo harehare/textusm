@@ -1,6 +1,6 @@
 import { Settings, DownloadInfo, Diagram, DiagramItem } from './model';
 
-type Provider = 'Google' | 'Github';
+type Provider = 'Google' | 'Github' | 'GithubWithGist';
 
 interface Send<T> {
     send: (params: T) => void;

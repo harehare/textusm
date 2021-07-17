@@ -79,4 +79,9 @@ export const authStateChanged = (
 export const providers = {
     google: new firebase.auth.GoogleAuthProvider(),
     github: new firebase.auth.GithubAuthProvider(),
+    githubWithGist: (() => {
+        const p = new firebase.auth.GithubAuthProvider();
+        p.addScope('gist');
+        return p;
+    })(),
 };

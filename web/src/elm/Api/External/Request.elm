@@ -50,13 +50,13 @@ patch req body resolver =
         }
 
 
-delete : Request -> Http.Resolver Http.Error a -> Task Http.Error a
-delete req resolver =
+delete : Request -> Http.Body -> Http.Resolver Http.Error a -> Task Http.Error a
+delete req body resolver =
     Http.task
         { method = "DELETE"
         , headers = req.headers
         , url = crossOrigin req.url req.path req.query
-        , body = Http.emptyBody
+        , body = body
         , resolver = resolver
         , timeout = Nothing
         }

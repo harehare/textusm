@@ -1,9 +1,9 @@
-module Api.External.Github.CreateGist exposing (CreateGist, encoder)
+module Api.External.Github.GistInput exposing (GistInput, encoder)
 
 import Json.Encode as E
 
 
-type alias CreateGist =
+type alias GistInput =
     { accept : String
     , description : String
     , files : List ( String, File )
@@ -16,7 +16,7 @@ type alias File =
     }
 
 
-encoder : CreateGist -> E.Value
+encoder : GistInput -> E.Value
 encoder gist =
     E.object
         [ ( "accept", E.string gist.accept )
