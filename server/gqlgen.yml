@@ -11,9 +11,13 @@ autobind: []
 models:
   Item:
     model: github.com/harehare/textusm/pkg/domain/model/item.Item
+  GistItem:
+    model: github.com/harehare/textusm/pkg/domain/model/item.GistItem
   ShareCondition:
     model: github.com/harehare/textusm/pkg/domain/model/share.ShareCondition
   Diagram:
     model: github.com/harehare/textusm/pkg/domain/values.Diagram
   ItemIdScalar:
     model: github.com/harehare/textusm/pkg/presentation/graphql/scalar.ItemID
+  GistIdScalar:
+    model: github.com/harehare/textusm/pkg/presentation/graphql/scalar.GistID

@@ -6,6 +6,16 @@ import (
 	"github.com/harehare/textusm/pkg/domain/values"
 )
 
+type InputGistItem struct {
+	ID         *values.GistID  `json:"id"`
+	Title      string          `json:"title"`
+	Thumbnail  *string         `json:"thumbnail"`
+	Diagram    *values.Diagram `json:"diagram"`
+	IsBookmark bool            `json:"isBookmark"`
+	URL        string          `json:"url"`
+	Tags       []*string       `json:"tags"`
+}
+
 type InputItem struct {
 	ID         *values.ItemID  `json:"id"`
 	Title      string          `json:"title"`
