@@ -67,9 +67,6 @@ app.ports.signIn.subscribe((provider: Provider) => {
         case 'GithubWithGist':
             signIn(providers.githubWithGist);
             return;
-        default:
-            const _exhaustiveCheck: never = provider;
-            return _exhaustiveCheck;
     }
 });
 
