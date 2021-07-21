@@ -94,7 +94,9 @@ func Run() int {
 	repo := itemRepo.NewFirestoreItemRepository(firestore)
 	shareRepo := shareRepo.NewFirestoreShareRepository(firestore)
 	userRepo := userRepo.NewFirebaseUserRepository(app)
-	service := service.NewService(repo, shareRepo, userRepo)
+	gistRepo := itemRepo.NewFirestoreGistItemRepository(firestore)
+	itemService := service.NewService(repo, shareRepo, userRepo)
+	gistService := service.NewGistService(gistRepo)
 
 	r := chi.NewRouter()
 	r.Use(chiMiddleware.Compress(5))
@@ -114,7 +116,7 @@ func Run() int {
 			AllowCredentials: false,
 		}))
 		r.Use(httprate.LimitByIP(100, 1*time.Minute))
-		graphql := gqlHandler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: resolver.New(service, firestore)}))
+		graphql := gqlHandler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: resolver.New(itemService, gistService, firestore)}))
 		graphql.AddTransport(transport.Options{})
 		graphql.AddTransport(transport.POST{})
 		graphql.SetQueryCache(lru.New(100))
