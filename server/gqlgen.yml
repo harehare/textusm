@@ -1,12 +1,14 @@
 schema:
-  - schema.graphql
+  - graphql/*.graphql
 exec:
   filename: pkg/presentation/graphql/generated.go
+  package: graphql
 model:
   filename: pkg/presentation/graphql/models.go
+  package: graphql
 resolver:
   filename: pkg/presentation/graphql/resolver.go
-  type: Resolver
+  package: graphql
 autobind: []
 models:
   Item:
@@ -21,3 +23,5 @@ models:
     model: github.com/harehare/textusm/pkg/presentation/graphql/scalar.ItemID
   GistIdScalar:
     model: github.com/harehare/textusm/pkg/presentation/graphql/scalar.GistID
+  DiagramItem:
+    model: github.com/harehare/textusm/pkg/presentation/graphql/union.DiagramItem

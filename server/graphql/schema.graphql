@@ -56,7 +56,10 @@ type ShareCondition {
   allowEmailList: [String!]
 }
 
+union DiagramItem = Item | GistItem
+
 type Query {
+  allItems(offset: Int = 0, limit: Int = 30): [DiagramItem!]
   item(id: ItemIdScalar!, isPublic: Boolean = False): Item!
   items(
     offset: Int = 0

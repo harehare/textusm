@@ -1,4 +1,4 @@
-package server
+package graphql
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
 	shareModel "github.com/harehare/textusm/pkg/domain/model/share"
 	v "github.com/harehare/textusm/pkg/domain/values"
+	"github.com/harehare/textusm/pkg/presentation/graphql/union"
 )
 
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
@@ -32,6 +33,10 @@ func (r *queryResolver) ShareItem(ctx context.Context, token string, password *s
 
 func (r *queryResolver) ShareCondition(ctx context.Context, itemID *v.ItemID) (*shareModel.ShareCondition, error) {
 	return r.service.FindShareCondition(ctx, *itemID)
+}
+
+func (r *queryResolver) AllItems(ctx context.Context, offset *int, limit *int) ([]union.DiagramItem, error) {
+	panic("not implemented")
 }
 
 func (r *queryResolver) GistItem(ctx context.Context, id *v.GistID) (*itemModel.GistItem, error) {
