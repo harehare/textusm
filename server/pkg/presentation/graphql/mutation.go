@@ -28,9 +28,9 @@ func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
 		}
-		return r.service.SaveDiagram(ctx, &saveItem, *isPublic)
+		return r.service.Save(ctx, &saveItem, *isPublic)
 	}
-	baseItem, err := r.service.FindDiagram(ctx, *input.ID, false)
+	baseItem, err := r.service.FindByID(ctx, *input.ID, false)
 
 	if err != nil {
 		return nil, err
@@ -49,13 +49,13 @@ func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *
 		UpdatedAt:  time.Now(),
 	}
 
-	return r.service.SaveDiagram(ctx, &saveItem, *isPublic)
+	return r.service.Save(ctx, &saveItem, *isPublic)
 }
 
 func (r *mutationResolver) Delete(ctx context.Context, itemID *v.ItemID, isPublic *bool) (*v.ItemID, error) {
 	err := r.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		ctx = values.WithTx(ctx, tx)
-		return r.service.DeleteDiagram(ctx, *itemID, *isPublic)
+		return r.service.Delete(ctx, *itemID, *isPublic)
 	})
 
 	if err != nil {
@@ -81,9 +81,20 @@ func (r *mutationResolver) Share(ctx context.Context, input InputShareItem) (str
 }
 
 func (r *mutationResolver) SaveGist(ctx context.Context, input InputGistItem) (*itemModel.GistItem, error) {
-	panic("not implemented")
+	gist := itemModel.GistItem{
+		ID:         *input.ID,
+		Title:      input.Title,
+		Thumbnail:  input.Thumbnail,
+		Diagram:    *input.Diagram,
+		IsBookmark: input.IsBookmark,
+		Tags:       input.Tags,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
+	}
+	return r.gistService.Save(ctx, &gist)
 }
 
-func (r *mutationResolver) DeleteGist(ctx context.Context, itemID *v.GistID) (*v.GistID, error) {
-	panic("not implemented")
+func (r *mutationResolver) DeleteGist(ctx context.Context, gistID *v.GistID) (*v.GistID, error) {
+	err := r.gistService.Delete(ctx, *gistID)
+	return gistID, err
 }

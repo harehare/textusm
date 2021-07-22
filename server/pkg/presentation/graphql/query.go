@@ -14,11 +14,11 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 type queryResolver struct{ *Resolver }
 
 func (r *queryResolver) Item(ctx context.Context, id *v.ItemID, isPublic *bool) (*itemModel.Item, error) {
-	return r.service.FindDiagram(ctx, *id, *isPublic)
+	return r.service.FindByID(ctx, *id, *isPublic)
 }
 
 func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*itemModel.Item, error) {
-	return r.service.FindDiagrams(ctx, *offset, *limit, *isPublic)
+	return r.service.Find(ctx, *offset, *limit, *isPublic)
 }
 
 func (r *queryResolver) ShareItem(ctx context.Context, token string, password *string) (*itemModel.Item, error) {
@@ -35,14 +35,35 @@ func (r *queryResolver) ShareCondition(ctx context.Context, itemID *v.ItemID) (*
 	return r.service.FindShareCondition(ctx, *itemID)
 }
 
-func (r *queryResolver) AllItems(ctx context.Context, offset *int, limit *int) ([]union.DiagramItem, error) {
-	panic("not implemented")
+func (r *queryResolver) AllItems(ctx context.Context, offset, limit *int) ([]union.DiagramItem, error) {
+	var diagramItems []union.DiagramItem
+	items, err := r.service.Find(ctx, *offset, *limit, false)
+
+	if err != nil {
+		return nil, err
+	}
+
+	gistItems, err := r.gistService.Find(ctx, *offset, *limit)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range items {
+		diagramItems = append(diagramItems, item)
+	}
+
+	for _, item := range gistItems {
+		diagramItems = append(diagramItems, item)
+	}
+
+	return diagramItems, nil
 }
 
 func (r *queryResolver) GistItem(ctx context.Context, id *v.GistID) (*itemModel.GistItem, error) {
-	panic("not implemented")
+	return r.gistService.FindByID(ctx, *id)
 }
 
 func (r *queryResolver) GistItems(ctx context.Context, offset, limit *int) ([]*itemModel.GistItem, error) {
-	panic("not implemented")
+	return r.gistService.Find(ctx, *offset, *limit)
 }
