@@ -5,6 +5,10 @@
 module Graphql.Object exposing (..)
 
 
+type GistItem
+    = GistItem
+
+
 type Item
     = Item
 

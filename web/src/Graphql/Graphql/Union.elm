@@ -5,6 +5,5 @@
 module Graphql.Union exposing (..)
 
 
-placeholder : String
-placeholder =
-    ""
+type DiagramItem
+    = DiagramItem

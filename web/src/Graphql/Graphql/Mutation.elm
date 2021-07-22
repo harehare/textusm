@@ -114,3 +114,36 @@ share :
     -> SelectionSet String RootMutation
 share requiredArgs____ =
     Object.selectionForField "String" "share" [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputShareItem ] Decode.string
+
+
+type alias SaveGistRequiredArguments =
+    { input : Graphql.InputObject.InputGistItem }
+
+
+{-|
+
+  - input -
+
+-}
+saveGist :
+    SaveGistRequiredArguments
+    -> SelectionSet decodesTo Graphql.Object.GistItem
+    -> SelectionSet decodesTo RootMutation
+saveGist requiredArgs____ object____ =
+    Object.selectionForCompositeField "saveGist" [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputGistItem ] object____ identity
+
+
+type alias DeleteGistRequiredArguments =
+    { itemID : Graphql.ScalarCodecs.GistIdScalar }
+
+
+{-|
+
+  - itemID -
+
+-}
+deleteGist :
+    DeleteGistRequiredArguments
+    -> SelectionSet Graphql.ScalarCodecs.GistIdScalar RootMutation
+deleteGist requiredArgs____ =
+    Object.selectionForField "ScalarCodecs.GistIdScalar" "deleteGist" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecGistIdScalar) ] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecGistIdScalar |> .decoder)
