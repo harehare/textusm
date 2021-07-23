@@ -108,5 +108,5 @@ type Mutation {
   bookmark(itemID: ItemIdScalar!, isBookmark: Boolean!): Item
   share(input: InputShareItem!): String!
   saveGist(input: InputGistItem!): GistItem!
-  deleteGist(itemID: GistIdScalar!): GistIdScalar!
+  deleteGist(gistID: GistIdScalar!): GistIdScalar!
 }

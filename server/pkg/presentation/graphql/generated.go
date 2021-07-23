@@ -77,7 +77,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		Bookmark   func(childComplexity int, itemID *values.ItemID, isBookmark bool) int
 		Delete     func(childComplexity int, itemID *values.ItemID, isPublic *bool) int
-		DeleteGist func(childComplexity int, itemID *values.GistID) int
+		DeleteGist func(childComplexity int, gistID *values.GistID) int
 		Save       func(childComplexity int, input InputItem, isPublic *bool) int
 		SaveGist   func(childComplexity int, input InputGistItem) int
 		Share      func(childComplexity int, input InputShareItem) int
@@ -108,7 +108,7 @@ type MutationResolver interface {
 	Bookmark(ctx context.Context, itemID *values.ItemID, isBookmark bool) (*item.Item, error)
 	Share(ctx context.Context, input InputShareItem) (string, error)
 	SaveGist(ctx context.Context, input InputGistItem) (*item.GistItem, error)
-	DeleteGist(ctx context.Context, itemID *values.GistID) (*values.GistID, error)
+	DeleteGist(ctx context.Context, gistID *values.GistID) (*values.GistID, error)
 }
 type QueryResolver interface {
 	AllItems(ctx context.Context, offset *int, limit *int) ([]union.DiagramItem, error)
@@ -302,7 +302,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteGist(childComplexity, args["itemID"].(*values.GistID)), true
+		return e.complexity.Mutation.DeleteGist(childComplexity, args["gistID"].(*values.GistID)), true
 
 	case "Mutation.save":
 		if e.complexity.Mutation.Save == nil {
@@ -633,7 +633,7 @@ type Mutation {
   bookmark(itemID: ItemIdScalar!, isBookmark: Boolean!): Item
   share(input: InputShareItem!): String!
   saveGist(input: InputGistItem!): GistItem!
-  deleteGist(itemID: GistIdScalar!): GistIdScalar!
+  deleteGist(gistID: GistIdScalar!): GistIdScalar!
 }
 `, BuiltIn: false},
 }
@@ -671,14 +671,14 @@ func (ec *executionContext) field_Mutation_deleteGist_args(ctx context.Context, 
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *values.GistID
-	if tmp, ok := rawArgs["itemID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
+	if tmp, ok := rawArgs["gistID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gistID"))
 		arg0, err = ec.unmarshalNGistIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["itemID"] = arg0
+	args["gistID"] = arg0
 	return args, nil
 }
 
@@ -1866,7 +1866,7 @@ func (ec *executionContext) _Mutation_deleteGist(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteGist(rctx, args["itemID"].(*values.GistID))
+		return ec.resolvers.Mutation().DeleteGist(rctx, args["gistID"].(*values.GistID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

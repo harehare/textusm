@@ -4,6 +4,7 @@ module Types.DiagramItem exposing
     , empty
     , encoder
     , getId
+    , gistIdToString
     , idToString
     , isRemoteDiagram
     , listToString
@@ -166,6 +167,14 @@ idToString : SelectionSet Graphql.Scalar.ItemIdScalar typeLock -> SelectionSet (
 idToString =
     SelectionSet.map
         (\(Graphql.Scalar.ItemIdScalar value) ->
+            Just (DiagramId.fromString value)
+        )
+
+
+gistIdToString : SelectionSet Graphql.Scalar.GistIdScalar typeLock -> SelectionSet (Maybe DiagramId) typeLock
+gistIdToString =
+    SelectionSet.map
+        (\(Graphql.Scalar.GistIdScalar value) ->
             Just (DiagramId.fromString value)
         )
 

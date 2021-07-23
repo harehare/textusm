@@ -1,14 +1,28 @@
-module Api.Request exposing (bookmark, delete, item, items, publicItem, save, share, shareCondition, shareItem)
+module Api.Request exposing
+    ( bookmark
+    , delete
+    , gistItem
+    , gistItems
+    , item
+    , items
+    , publicItem
+    , save
+    , share
+    , shareCondition
+    , shareItem
+    )
 
+import Api.External.Github.Request as GithubRequest exposing (AccessToken, GistId)
 import Api.Mutation as Mutation
 import Api.Query as Query
-import Api.RequestError exposing (RequestError, toError)
+import Api.RequestError as RequestError exposing (RequestError, toError)
 import Env
 import Graphql.Http as Http
-import Graphql.InputObject exposing (InputItem)
+import Graphql.InputObject exposing (InputGistItem, InputItem)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar exposing (ItemIdScalar(..))
 import Task exposing (Task)
+import Types.DiagramId as DiagramId
 import Types.DiagramItem exposing (DiagramItem)
 import Types.Email as Email exposing (Email)
 import Types.IdToken as IdToken exposing (IdToken)
@@ -118,6 +132,33 @@ share { idToken, itemID, expSecond, password, allowIPList, allowEmailList } =
         , allowEmailList = Present <| List.map Email.toString allowEmailList
         }
         |> Http.mutationRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+gistItem : Maybe IdToken -> AccessToken -> GistId -> Task RequestError DiagramItem
+gistItem idToken accessToken gistId =
+    GithubRequest.getGist accessToken gistId
+        |> Task.mapError RequestError.fromHttpError
+        |> Task.andThen
+            (\gist ->
+                Query.gistItem gistId
+                    |> Http.queryRequest graphQLUrl
+                    |> authHeaders idToken
+                    |> Http.toTask
+                    |> Task.map
+                        (\x ->
+                            { x | id = Just <| DiagramId.fromString gist.id }
+                        )
+                    |> Task.mapError toError
+            )
+
+
+gistItems : Maybe IdToken -> ( Int, Int ) -> Task RequestError (List (Maybe DiagramItem))
+gistItems idToken ( offset, limit ) =
+    Query.gistItems ( offset, limit )
+        |> Http.queryRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
         |> Task.mapError toError

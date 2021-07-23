@@ -134,16 +134,16 @@ saveGist requiredArgs____ object____ =
 
 
 type alias DeleteGistRequiredArguments =
-    { itemID : Graphql.ScalarCodecs.GistIdScalar }
+    { gistID : Graphql.ScalarCodecs.GistIdScalar }
 
 
 {-|
 
-  - itemID -
+  - gistID -
 
 -}
 deleteGist :
     DeleteGistRequiredArguments
     -> SelectionSet Graphql.ScalarCodecs.GistIdScalar RootMutation
 deleteGist requiredArgs____ =
-    Object.selectionForField "ScalarCodecs.GistIdScalar" "deleteGist" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecGistIdScalar) ] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecGistIdScalar |> .decoder)
+    Object.selectionForField "ScalarCodecs.GistIdScalar" "deleteGist" [ Argument.required "gistID" requiredArgs____.gistID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecGistIdScalar) ] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecGistIdScalar |> .decoder)

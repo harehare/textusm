@@ -1,11 +1,12 @@
-module Api.Mutation exposing (bookmark, delete, save, share)
+module Api.Mutation exposing (bookmark, delete, deleteGist, save, saveGist, share)
 
-import Graphql.InputObject exposing (InputItem, InputShareItem)
+import Graphql.InputObject exposing (InputGistItem, InputItem, InputShareItem)
 import Graphql.Mutation as Mutation
+import Graphql.Object.GistItem
 import Graphql.Object.Item
 import Graphql.Operation exposing (RootMutation)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
-import Graphql.Scalar exposing (Id(..), ItemIdScalar(..))
+import Graphql.Scalar exposing (GistIdScalar(..), Id(..), ItemIdScalar(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
 import Types.DiagramLocation as DiagramLocation
@@ -59,3 +60,27 @@ bookmark itemID isBookmark =
 share : InputShareItem -> SelectionSet String RootMutation
 share input =
     Mutation.share { input = input }
+
+
+saveGist : InputGistItem -> SelectionSet DiagramItem RootMutation
+saveGist input =
+    Mutation.saveGist { input = input } <|
+        (SelectionSet.succeed DiagramItem
+            |> with (Graphql.Object.GistItem.id |> DiagramItem.gistIdToString)
+            |> hardcoded Text.empty
+            |> with Graphql.Object.GistItem.diagram
+            |> with (Graphql.Object.GistItem.title |> SelectionSet.map Title.fromString)
+            |> with Graphql.Object.GistItem.thumbnail
+            |> hardcoded False
+            |> hardcoded False
+            |> hardcoded True
+            |> hardcoded (Just DiagramLocation.Remote)
+            |> with Graphql.Object.GistItem.tags
+            |> with (Graphql.Object.GistItem.createdAt |> DiagramItem.mapToDateTime)
+            |> with (Graphql.Object.GistItem.updatedAt |> DiagramItem.mapToDateTime)
+        )
+
+
+deleteGist : String -> SelectionSet GistIdScalar RootMutation
+deleteGist gistID =
+    Mutation.deleteGist { gistID = GistIdScalar gistID }

@@ -1,11 +1,12 @@
-module Api.Query exposing (ShareCondition, item, items, shareCondition, shareItem)
+module Api.Query exposing (ShareCondition, gistItem, gistItems, item, items, shareCondition, shareItem)
 
+import Graphql.Object.GistItem
 import Graphql.Object.Item
 import Graphql.Object.ShareCondition
 import Graphql.Operation exposing (RootQuery)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Query as Query
-import Graphql.Scalar exposing (Id(..), ItemIdScalar(..))
+import Graphql.Scalar exposing (GistIdScalar(..), Id(..), ItemIdScalar(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Route exposing (Route(..))
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
@@ -116,4 +117,42 @@ shareCondition id =
                 )
             |> with Graphql.Object.ShareCondition.token
             |> with Graphql.Object.ShareCondition.expireTime
+        )
+
+
+gistItem : String -> SelectionSet DiagramItem RootQuery
+gistItem id =
+    Query.gistItem { id = GistIdScalar id } <|
+        (SelectionSet.succeed DiagramItem
+            |> with (Graphql.Object.GistItem.id |> DiagramItem.gistIdToString)
+            |> hardcoded Text.empty
+            |> with Graphql.Object.GistItem.diagram
+            |> with (Graphql.Object.GistItem.title |> SelectionSet.map (\value -> Title.fromString value))
+            |> hardcoded Nothing
+            |> hardcoded False
+            |> hardcoded False
+            |> hardcoded True
+            |> hardcoded (Just DiagramLocation.Gist)
+            |> with Graphql.Object.GistItem.tags
+            |> with (Graphql.Object.GistItem.createdAt |> DiagramItem.mapToDateTime)
+            |> with (Graphql.Object.GistItem.updatedAt |> DiagramItem.mapToDateTime)
+        )
+
+
+gistItems : ( Int, Int ) -> SelectionSet (List (Maybe DiagramItem)) RootQuery
+gistItems ( offset, limit ) =
+    Query.gistItems (\optionals -> { optionals | offset = Present offset, limit = Present limit }) <|
+        (SelectionSet.succeed DiagramItem
+            |> with (Graphql.Object.GistItem.id |> DiagramItem.gistIdToString)
+            |> hardcoded Text.empty
+            |> with Graphql.Object.GistItem.diagram
+            |> with (Graphql.Object.GistItem.title |> SelectionSet.map (\value -> Title.fromString value))
+            |> with Graphql.Object.GistItem.thumbnail
+            |> hardcoded False
+            |> hardcoded False
+            |> hardcoded True
+            |> hardcoded (Just DiagramLocation.Remote)
+            |> with Graphql.Object.GistItem.tags
+            |> with (Graphql.Object.GistItem.createdAt |> DiagramItem.mapToDateTime)
+            |> with (Graphql.Object.GistItem.updatedAt |> DiagramItem.mapToDateTime)
         )

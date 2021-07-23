@@ -1154,7 +1154,7 @@ update message =
                 RequestError.Unknown ->
                     Return.andThen <| Action.moveTo Route.Home
 
-                RequestError.Http _ ->
+                RequestError.Network _ ->
                     Return.andThen <| Action.moveTo Route.Home
             )
                 >> Return.andThen Action.stopProgress
