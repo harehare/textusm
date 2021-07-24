@@ -12,6 +12,7 @@ type RequestError
     | DecryptionFailed
     | EncryptionFailed
     | URLExpired
+    | InvalidParameter
     | Unknown
     | Network HttpError
 
@@ -73,6 +74,9 @@ toMessage e =
             Message.messageInternalServerError
 
         URLExpired ->
+            Message.messageUrlExpired
+
+        InvalidParameter ->
             Message.messageUrlExpired
 
         Unknown ->

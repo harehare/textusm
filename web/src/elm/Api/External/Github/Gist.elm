@@ -13,11 +13,23 @@ type alias Gist =
     , gitPullUrl : String
     , gitPushUrl : String
     , htmlUrl : String
+    , files : List ( String, File )
     , createdAt : String
     , updatedAt : String
     , description : String
     , comments : Int
     , commentsUrl : String
+    }
+
+
+type alias File =
+    { filename : String
+    , type_ : String
+    , language : String
+    , raw_url : String
+    , size : Int
+    , truncated : Bool
+    , content : String
     }
 
 
@@ -32,8 +44,21 @@ decoder =
         |> required "gitPullUrl" D.string
         |> required "gitPushUrl" D.string
         |> required "htmlUrl" D.string
+        |> required "files" (D.keyValuePairs fileDecoder)
         |> required "createdAt" D.string
         |> required "updatedAt" D.string
         |> required "description" D.string
         |> required "comments" D.int
         |> required "commentsUrl" D.string
+
+
+fileDecoder : D.Decoder File
+fileDecoder =
+    D.succeed File
+        |> required "filename" D.string
+        |> required "type" D.string
+        |> required "language" D.string
+        |> required "raw_url" D.string
+        |> required "size" D.int
+        |> required "truncated" D.bool
+        |> required "content" D.string

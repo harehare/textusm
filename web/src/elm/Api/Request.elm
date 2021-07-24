@@ -1,12 +1,14 @@
 module Api.Request exposing
     ( bookmark
     , delete
+    , deleteGist
     , gistItem
     , gistItems
     , item
     , items
     , publicItem
     , save
+    , saveGist
     , share
     , shareCondition
     , shareItem
@@ -16,17 +18,20 @@ import Api.External.Github.Request as GithubRequest exposing (AccessToken, GistI
 import Api.Mutation as Mutation
 import Api.Query as Query
 import Api.RequestError as RequestError exposing (RequestError, toError)
+import Dict
 import Env
 import Graphql.Http as Http
 import Graphql.InputObject exposing (InputGistItem, InputItem)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
-import Graphql.Scalar exposing (ItemIdScalar(..))
+import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
 import Task exposing (Task)
 import Types.DiagramId as DiagramId
 import Types.DiagramItem exposing (DiagramItem)
 import Types.Email as Email exposing (Email)
 import Types.IdToken as IdToken exposing (IdToken)
 import Types.IpAddress as IpAddress exposing (IpAddress)
+import Types.Text as Text
+import Types.Title as Title
 import Url.Builder exposing (crossOrigin)
 
 
@@ -149,7 +154,14 @@ gistItem idToken accessToken gistId =
                     |> Http.toTask
                     |> Task.map
                         (\x ->
-                            { x | id = Just <| DiagramId.fromString gist.id }
+                            let
+                                content =
+                                    Dict.fromList gist.files
+                                        |> Dict.get (Title.toString x.title)
+                                        |> Maybe.map .content
+                                        |> Maybe.withDefault ""
+                            in
+                            { x | id = Just <| DiagramId.fromString gist.id, text = Text.fromString content }
                         )
                     |> Task.mapError toError
             )
@@ -162,6 +174,56 @@ gistItems idToken ( offset, limit ) =
         |> authHeaders idToken
         |> Http.toTask
         |> Task.mapError toError
+
+
+saveGist : Maybe IdToken -> AccessToken -> InputGistItem -> String -> Task RequestError DiagramItem
+saveGist idToken accessToken input content =
+    let
+        gistInput =
+            { description = Nothing
+            , files = [ ( input.title, { content = content } ) ]
+            , public = False
+            }
+
+        saveTask =
+            Task.andThen
+                (\gist ->
+                    Mutation.saveGist
+                        { input | id = Present <| GistIdScalar gist.id }
+                        |> Http.mutationRequest graphQLUrl
+                        |> authHeaders idToken
+                        |> Http.toTask
+                        |> Task.mapError toError
+                )
+    in
+    case input.id of
+        Null ->
+            GithubRequest.createGist accessToken gistInput
+                |> Task.mapError RequestError.fromHttpError
+                |> saveTask
+
+        Present (GistIdScalar id_) ->
+            GithubRequest.updateGist accessToken id_ gistInput
+                |> Task.mapError RequestError.fromHttpError
+                |> saveTask
+
+        _ ->
+            Task.fail RequestError.InvalidParameter
+
+
+deleteGist : Maybe IdToken -> AccessToken -> GistId -> Task RequestError String
+deleteGist idToken accessToken gistId =
+    GithubRequest.deleteGist accessToken gistId
+        |> Task.mapError RequestError.fromHttpError
+        |> Task.andThen
+            (\_ ->
+                Mutation.deleteGist gistId
+                    |> Http.mutationRequest graphQLUrl
+                    |> authHeaders idToken
+                    |> Http.toTask
+                    |> Task.map (\(GistIdScalar id) -> id)
+                    |> Task.mapError toError
+            )
 
 
 authHeaders : Maybe IdToken -> Http.Request decodesTo -> Http.Request decodesTo

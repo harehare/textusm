@@ -1136,25 +1136,7 @@ update message =
                 RequestError.NotFound ->
                     Return.andThen <| Action.moveTo Route.NotFound
 
-                RequestError.Forbidden ->
-                    Return.andThen <| Action.moveTo Route.Home
-
-                RequestError.NoAuthorization ->
-                    Return.andThen <| Action.moveTo Route.Home
-
-                RequestError.DecryptionFailed ->
-                    Return.andThen <| Action.moveTo Route.Home
-
-                RequestError.EncryptionFailed ->
-                    Return.andThen <| Action.moveTo Route.Home
-
-                RequestError.URLExpired ->
-                    Return.andThen <| Action.moveTo Route.Home
-
-                RequestError.Unknown ->
-                    Return.andThen <| Action.moveTo Route.Home
-
-                RequestError.Network _ ->
+                _ ->
                     Return.andThen <| Action.moveTo Route.Home
             )
                 >> Return.andThen Action.stopProgress
