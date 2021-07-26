@@ -143,7 +143,7 @@ decoder =
         |> required "isPublic" D.bool
         |> required "isBookmark" D.bool
         |> required "isRemote" D.bool
-        |> optional "location" (D.map (\l -> Just <| DiagramLocation.fromString l) D.string) Nothing
+        |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
         |> optional "tags" (D.map Just (D.list (D.maybe D.string))) Nothing
         |> required "createdAt" (D.map Time.millisToPosix D.int)
         |> required "updatedAt" (D.map Time.millisToPosix D.int)

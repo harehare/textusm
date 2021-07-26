@@ -7,6 +7,7 @@ import Maybe.Extra exposing (isNothing)
 import Return as Return
 import Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
 import Types.Color as Color exposing (colors)
+import Types.DiagramLocation as DiagramLocation
 import Types.FontSize as FontSize
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Switch as Switch
@@ -1023,7 +1024,7 @@ init settings =
     ( Model Nothing settings, Cmd.none )
 
 
-update : Msg  -> Return.ReturnF Msg Model
+update : Msg -> Return.ReturnF Msg Model
 update msg =
     case msg of
         ToggleDropDownList id ->
@@ -1041,7 +1042,7 @@ update msg =
                 )
 
         UpdateSettings getSetting value ->
-            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing, settings = getSetting value})
+            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing, settings = getSetting value })
 
         DropDownClose ->
             Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing })
@@ -1090,6 +1091,21 @@ view_ dropDownIndex settings =
                             )
                             baseColorItems
                             settings.storyMap.backgroundColor
+                        ]
+                    ]
+                , div [ class "control" ]
+                    [ div [ class "name" ] [ text "Save location" ]
+                    , div [ class "input-area" ]
+                        [ DropDownList.view ToggleDropDownList
+                            "save-location"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    { settings | location = Just <| DiagramLocation.fromString x }
+                                )
+                            )
+                            (List.map (\( k, v ) -> { name = k, value = DropDownList.stringValue (DiagramLocation.toString v) }) DiagramLocation.enabled)
+                            (settings.location |> Maybe.withDefault DiagramLocation.Remote |> DiagramLocation.toString)
                         ]
                     ]
                 , div [ class "control-row" ]

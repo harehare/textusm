@@ -1,4 +1,18 @@
-module Types.DiagramLocation exposing (DiagramLocation(..), fromString, isGist, isGoogleDrive, isLocal, isRemote, toString)
+module Types.DiagramLocation exposing
+    ( DiagramLocation(..)
+    , decoder
+    , enabled
+    , encoder
+    , fromString
+    , isGist
+    , isGoogleDrive
+    , isLocal
+    , isRemote
+    , toString
+    )
+
+import Json.Decode as D
+import Json.Encode as E
 
 
 type DiagramLocation
@@ -6,6 +20,13 @@ type DiagramLocation
     | Remote
     | Gist
     | GoogleDrive
+
+
+enabled : List ( String, DiagramLocation )
+enabled =
+    [ ( "System", Remote )
+    , ( "Github Gist", Gist )
+    ]
 
 
 isRemote : DiagramLocation -> Bool
@@ -81,3 +102,13 @@ fromString s =
 
         _ ->
             Local
+
+
+decoder : D.Decoder DiagramLocation
+decoder =
+    D.map fromString D.string
+
+
+encoder : DiagramLocation -> E.Value
+encoder location =
+    E.string <| toString location

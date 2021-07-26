@@ -1001,6 +1001,7 @@ update message =
                                     , title = Just <| Title.toString m.title
                                     , editor = m.settingsModel.settings.editor
                                     , diagram = m.currentDiagram
+                                    , location = m.settingsModel.settings.location
                                     }
 
                                 ( newSettingsModel, _ ) =
