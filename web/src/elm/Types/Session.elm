@@ -1,6 +1,20 @@
-module Types.Session exposing (Session, User, getIdToken, getUser, guest, isGuest, isSignedIn, signIn, updateIdToken)
+module Types.Session exposing
+    ( Session
+    , User
+    , decoder
+    , getIdToken
+    , getUser
+    , guest
+    , isGuest
+    , isSignedIn
+    , signIn
+    , updateIdToken
+    )
 
+import Json.Decode as D
+import Json.Decode.Pipeline exposing (required)
 import Types.IdToken as IdToken exposing (IdToken)
+import Types.LoginProvider as LoginProvider exposing (LoginProvider)
 
 
 type Session
@@ -14,6 +28,7 @@ type alias User =
     , photoURL : String
     , idToken : String
     , id : String
+    , loginProvider : LoginProvider
     }
 
 
@@ -75,3 +90,14 @@ updateIdToken session idToken =
 
         Guest ->
             Guest
+
+
+decoder : D.Decoder User
+decoder =
+    D.succeed User
+        |> required "displayName" D.string
+        |> required "email" D.string
+        |> required "photoURL" D.string
+        |> required "idToken" D.string
+        |> required "id" D.string
+        |> required "loginProvider" LoginProvider.decoder

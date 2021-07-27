@@ -39,7 +39,7 @@ authStateChanged(
     () => {
         app.ports.progress.send(false);
     },
-    async (idToken, profile) => {
+    async (idToken, profile, provider) => {
         if (profile && idToken) {
             app.ports.onAuthStateChanged.send({
                 idToken,
@@ -47,6 +47,10 @@ authStateChanged(
                 displayName: profile.displayName ?? '',
                 email: profile.email ?? '',
                 photoURL: profile.photoURL ?? '',
+                loginProvider: {
+                    provider: provider.provider,
+                    accessToken: provider.accessToken,
+                },
             });
         }
     }

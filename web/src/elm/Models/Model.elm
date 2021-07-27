@@ -68,7 +68,7 @@ type Msg
     | HandleWindowResize Int
     | HandleAutoCloseNotification Notification
     | HandleCloseNotification
-    | HandleAuthStateChanged (Maybe User)
+    | HandleAuthStateChanged (Maybe D.Value)
     | ShowNotification Notification
     | SwitchWindow SwitchWindow
     | Shortcuts String

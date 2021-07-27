@@ -58,6 +58,10 @@ type ElmApp = {
             displayName: string;
             email: string;
             photoURL: string;
+            loginProvider: {
+                provider: string | null;
+                accessToken: string | null;
+            };
         }>;
     };
 };

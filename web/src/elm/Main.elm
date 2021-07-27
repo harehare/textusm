@@ -1073,44 +1073,50 @@ update message =
             Return.andThen (\m -> Return.return { m | session = Session.guest } (Ports.signOut ()))
                 >> Return.andThen (Action.setCurrentDiagram Nothing)
 
-        HandleAuthStateChanged (Just user) ->
-            Return.andThen (\m -> Return.singleton { m | session = Session.signIn user })
-                >> Return.andThen
-                    (\m ->
-                        case ( toRoute m.url, m.currentDiagram ) of
-                            ( Route.EditFile type_ id_, Just diagram ) ->
-                                if DiagramItem.getId diagram /= id_ then
-                                    Action.pushUrl (Route.toString <| Route.EditFile type_ id_) m
-
-                                else
-                                    Return.singleton m
-
-                            ( Route.EditFile type_ id_, _ ) ->
-                                Action.pushUrl (Route.toString <| Route.EditFile type_ id_) m
-
-                            ( Route.ViewFile _ id_, _ ) ->
-                                case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
-                                    Just jwt ->
-                                        if jwt.checkPassword then
-                                            Action.switchPage Page.Main m
-                                                |> Return.andThen Action.changeRouteInit
+        HandleAuthStateChanged (Just value) ->
+            case D.decodeValue Session.decoder value of
+                Ok user ->
+                    Return.andThen (\m -> Return.singleton { m | session = Session.signIn user })
+                        >> Return.andThen
+                            (\m ->
+                                case ( toRoute m.url, m.currentDiagram ) of
+                                    ( Route.EditFile type_ id_, Just diagram ) ->
+                                        if DiagramItem.getId diagram /= id_ then
+                                            Action.pushUrl (Route.toString <| Route.EditFile type_ id_) m
 
                                         else
-                                            Action.switchPage Page.Main m
-                                                |> Return.andThen (Action.loadShareItem id_)
-                                                |> Return.andThen Action.startProgress
-                                                |> Return.andThen Action.changeRouteInit
+                                            Return.singleton m
 
-                                    Nothing ->
-                                        Action.switchPage Page.NotFound m
+                                    ( Route.EditFile type_ id_, _ ) ->
+                                        Action.pushUrl (Route.toString <| Route.EditFile type_ id_) m
 
-                            ( Route.DiagramList, _ ) ->
-                                Action.pushUrl (Route.toString <| Route.Home) m
+                                    ( Route.ViewFile _ id_, _ ) ->
+                                        case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
+                                            Just jwt ->
+                                                if jwt.checkPassword then
+                                                    Action.switchPage Page.Main m
+                                                        |> Return.andThen Action.changeRouteInit
 
-                            _ ->
-                                Return.singleton m
-                    )
-                >> Return.andThen Action.stopProgress
+                                                else
+                                                    Action.switchPage Page.Main m
+                                                        |> Return.andThen (Action.loadShareItem id_)
+                                                        |> Return.andThen Action.startProgress
+                                                        |> Return.andThen Action.changeRouteInit
+
+                                            Nothing ->
+                                                Action.switchPage Page.NotFound m
+
+                                    ( Route.DiagramList, _ ) ->
+                                        Action.pushUrl (Route.toString <| Route.Home) m
+
+                                    _ ->
+                                        Return.singleton m
+                            )
+                        >> Return.andThen Action.stopProgress
+
+                Err _ ->
+                    Return.andThen (\m -> Return.singleton { m | session = Session.guest })
+                        >> Return.andThen Action.stopProgress
 
         HandleAuthStateChanged Nothing ->
             Return.andThen (\m -> Return.singleton { m | session = Session.guest })

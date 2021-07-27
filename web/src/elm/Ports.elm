@@ -23,7 +23,7 @@ port changeText : (String -> msg) -> Sub msg
 port progress : (Bool -> msg) -> Sub msg
 
 
-port onAuthStateChanged : (Maybe User -> msg) -> Sub msg
+port onAuthStateChanged : (Maybe D.Value -> msg) -> Sub msg
 
 
 port startDownload : ({ extension : String, mimeType : String, content : String } -> msg) -> Sub msg

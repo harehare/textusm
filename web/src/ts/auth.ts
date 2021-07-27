@@ -59,18 +59,33 @@ export const authStateChanged = (
     onAfterAuth: () => void,
     onAuthStateChanged: (
         idToken: string | null,
-        user: firebase.User | null
+        user: firebase.User | null,
+        provider: { provider: string | null; accessToken: string | null }
     ) => void
 ): void => {
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(async (user) => {
         onBeforeAuth();
+        const result = await firebase.auth().getRedirectResult();
         if (user) {
+            const providers = user.providerData.map((p) =>
+                p ? p.providerId : ''
+            );
             user.getIdToken().then((idToken) => {
-                onAuthStateChanged(idToken, user);
+                onAuthStateChanged(idToken, user, {
+                    provider:
+                        providers.length > 0 && providers[0]
+                            ? providers[0]
+                            : '',
+                    // @ts-expect-error
+                    accessToken: result.credential?.accessToken,
+                });
                 onAfterAuth();
             });
         } else {
-            onAuthStateChanged(null, null);
+            onAuthStateChanged(null, null, {
+                provider: null,
+                accessToken: null,
+            });
             onAfterAuth();
         }
     });

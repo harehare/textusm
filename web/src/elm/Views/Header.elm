@@ -282,8 +282,8 @@ view props =
                                     , title = LoginProvider.toString Google
                                     }
                                 , Menu.Item
-                                    { e = SignIn Github
-                                    , title = LoginProvider.toString Github
+                                    { e = SignIn <| Github Nothing
+                                    , title = LoginProvider.toString <| Github Nothing
                                     }
                                 ]
 
