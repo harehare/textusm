@@ -22,7 +22,7 @@
         "@babel/core": "^7.14.8",
         "@babel/preset-env": "^7.14.8",
         "@commitlint/cli": "^13.1.0",
-        "@commitlint/config-conventional": "^12.1.4",
+        "@commitlint/config-conventional": "^13.1.0",
         "@dillonkearns/elm-graphql": "^4.2.1",
         "@types/jspdf": "^2.0.0",
         "@types/node": "^16.4.3",
