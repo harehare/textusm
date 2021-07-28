@@ -243,19 +243,39 @@ view props =
                             []
                         , case props.menu of
                             Just HeaderMenu ->
+                                let
+                                    user_ =
+                                        Maybe.andThen
+                                            (\u ->
+                                                if String.isEmpty u.email then
+                                                    Just u
+
+                                                else
+                                                    Nothing
+                                            )
+                                            user
+                                in
                                 Menu.menu (Just "36px")
                                     Nothing
                                     Nothing
                                     (Just "5px")
-                                    [ Menu.Item
-                                        { e = NoOp
-                                        , title = Maybe.map .email user |> Maybe.withDefault ""
-                                        }
-                                    , Menu.Item
-                                        { e = SignOut
-                                        , title = "SIGN OUT"
-                                        }
-                                    ]
+                                    ((case user_ of
+                                        Just u ->
+                                            [ Menu.Item
+                                                { e = NoOp
+                                                , title = u.email
+                                                }
+                                            ]
+
+                                        Nothing ->
+                                            []
+                                     )
+                                        ++ [ Menu.Item
+                                                { e = SignOut
+                                                , title = "SIGN OUT"
+                                                }
+                                           ]
+                                    )
 
                             _ ->
                                 Empty.view

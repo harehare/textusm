@@ -3,6 +3,7 @@ module Types.SessionTests exposing (suite)
 import Expect
 import Test exposing (Test, describe, test)
 import Types.IdToken as IdToken
+import Types.LoginProvider exposing (LoginProvider(..))
 import Types.Session as Session
 
 
@@ -23,6 +24,7 @@ suite =
                                 , photoURL = "test"
                                 , idToken = "test"
                                 , id = "test"
+                                , loginProvider = Google
                                 }
                         )
                         False
@@ -41,6 +43,7 @@ suite =
                                 , photoURL = "test"
                                 , idToken = "test"
                                 , id = "test"
+                                , loginProvider = Google
                                 }
                         )
                         True
@@ -59,6 +62,7 @@ suite =
                                 , photoURL = "test"
                                 , idToken = "idToken"
                                 , id = "test"
+                                , loginProvider = Google
                                 }
                         )
                         (Just <| IdToken.fromString "idToken")
