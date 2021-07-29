@@ -68,9 +68,6 @@ app.ports.signIn.subscribe((provider: Provider) => {
         case 'Github':
             signIn(providers.github);
             return;
-        case 'GithubWithGist':
-            signIn(providers.githubWithGist);
-            return;
     }
 });
 

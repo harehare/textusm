@@ -7,7 +7,6 @@ export interface User {
     email: string;
     photoURL: string;
 }
-
 const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -33,6 +32,7 @@ export const signIn = (provider: firebase.auth.AuthProvider): Promise<void> => {
 
 export const signOut = (): Promise<void> => {
     return new Promise((resolve, reject) => {
+        new GithubAccessToken().clear();
         firebase
             .auth()
             .signOut()
@@ -74,9 +74,23 @@ export const authStateChanged = (
         onBeforeAuth();
         if (user) {
             const result = await firebase.auth().getRedirectResult();
+            console.log(result);
             const providers = user.providerData.map((p) =>
                 p ? p.providerId : ''
             );
+            const provider =
+                providers.length > 0 && providers[0] ? providers[0] : '';
+            // @ts-expect-error
+            const accessToken = result?.credential?.accessToken;
+            const g = new GithubAccessToken();
+            if (isGithubProvider(provider)) {
+                if (accessToken) {
+                    g.refresh(accessToken);
+                }
+            } else {
+                g.clear();
+            }
+
             user.getIdToken().then((idToken) => {
                 onAuthStateChanged(
                     idToken,
@@ -91,8 +105,7 @@ export const authStateChanged = (
                             providers.length > 0 && providers[0]
                                 ? providers[0]
                                 : '',
-                        // @ts-expect-error
-                        accessToken: result?.credential?.accessToken,
+                        accessToken: g.get(),
                     }
                 );
                 onAfterAuth();
@@ -109,10 +122,31 @@ export const authStateChanged = (
 
 export const providers = {
     google: new firebase.auth.GoogleAuthProvider(),
-    github: new firebase.auth.GithubAuthProvider(),
-    githubWithGist: (() => {
+    github: (() => {
         const p = new firebase.auth.GithubAuthProvider();
         p.addScope('gist');
         return p;
     })(),
 };
+
+const isGithubProvider = (provider: string) => {
+    return provider === 'github.com';
+};
+
+class GithubAccessToken {
+    LOCAL_STORAGE_KEY = 'gha_gist';
+    private accessToken = '';
+
+    refresh(accessToken: string) {
+        this.accessToken = accessToken;
+        localStorage.setItem(this.LOCAL_STORAGE_KEY, this.accessToken);
+    }
+
+    clear() {
+        localStorage.removeItem(this.LOCAL_STORAGE_KEY);
+    }
+
+    get() {
+        return this.accessToken;
+    }
+}
