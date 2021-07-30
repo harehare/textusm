@@ -9,6 +9,8 @@ module Types.Session exposing
     , isSignedIn
     , signIn
     , updateIdToken
+    , isGithubUser
+    , isGoogleUser
     )
 
 import Json.Decode as D
@@ -40,6 +42,26 @@ isGuest session =
 
         Guest ->
             True
+
+
+isGithubUser: Session -> Bool
+isGithubUser session =
+    case session of
+        SignedIn user ->
+            LoginProvider.isGithubLogin user.loginProvider
+
+        Guest ->
+            False
+
+
+isGoogleUser: Session -> Bool
+isGoogleUser session =
+    case session of
+        SignedIn user ->
+            LoginProvider.isGoogleLogin user.loginProvider
+
+        Guest ->
+            False
 
 
 isSignedIn : Session -> Bool

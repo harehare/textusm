@@ -11,6 +11,8 @@ import Types.DiagramLocation as DiagramLocation
 import Types.FontSize as FontSize
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Switch as Switch
+import Types.Session as Session exposing (Session)
+import Types.LoginProvider exposing (LoginProvider(..))
 
 
 baseColorItems : List { name : String, value : DropDownValue }
@@ -1010,6 +1012,7 @@ fontFamilyItems =
 type alias Model =
     { dropDownIndex : Maybe String
     , settings : Settings
+    , session : Session
     }
 
 
@@ -1019,9 +1022,9 @@ type Msg
     | DropDownClose
 
 
-init : Settings -> ( Model, Cmd Msg )
-init settings =
-    ( Model Nothing settings, Cmd.none )
+init : Session -> Settings -> ( Model, Cmd Msg )
+init session settings =
+    ( Model Nothing settings session, Cmd.none )
 
 
 update : Msg -> Return.ReturnF Msg Model
@@ -1050,11 +1053,11 @@ update msg =
 
 view : Model -> Html Msg
 view model =
-    view_ model.dropDownIndex model.settings
+    view_ model.dropDownIndex model.settings model.session
 
 
-view_ : Maybe String -> Settings -> Html Msg
-view_ dropDownIndex settings =
+view_ : Maybe String -> Settings -> Session -> Html Msg
+view_ dropDownIndex settings session =
     div
         [ class "settings"
         , style "user-select" "none"
@@ -1104,8 +1107,15 @@ view_ dropDownIndex settings =
                                     { settings | location = Just <| DiagramLocation.fromString x }
                                 )
                             )
-                            (List.map (\( k, v ) -> { name = k, value = DropDownList.stringValue (DiagramLocation.toString v) }) DiagramLocation.enabled)
-                            (settings.location |> Maybe.withDefault DiagramLocation.Remote |> DiagramLocation.toString)
+                            (List.map (\( k, v ) -> { name = k, value = DropDownList.stringValue (DiagramLocation.toString v) }) <| DiagramLocation.enabled (Session.isGithubUser session))
+                            ((case (settings.location, Session.isGithubUser session) of
+                                (Just DiagramLocation.Gist, True) ->
+                                    DiagramLocation.Gist
+                                (_, True) ->
+                                    DiagramLocation.Remote
+                                _ ->
+                                    DiagramLocation.Remote
+                             ) |> DiagramLocation.toString)
                         ]
                     ]
                 , div [ class "control-row" ]

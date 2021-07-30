@@ -5,6 +5,7 @@ module Api.Request exposing
     , gistItem
     , gistItems
     , item
+    , allItems
     , items
     , publicItem
     , save
@@ -61,6 +62,15 @@ publicItem idToken id =
 items : Maybe IdToken -> ( Int, Int ) -> { isPublic : Bool, isBookmark : Bool } -> Task RequestError (List (Maybe DiagramItem))
 items idToken ( offset, limit ) params =
     Query.items ( offset, limit ) params
+        |> Http.queryRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+allItems : Maybe IdToken -> ( Int, Int ) -> Task RequestError (Maybe (List DiagramItem))
+allItems idToken ( offset, limit ) =
+    Query.allItems ( offset, limit )
         |> Http.queryRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask

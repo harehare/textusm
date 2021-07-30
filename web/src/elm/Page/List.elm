@@ -632,8 +632,8 @@ update message =
                             if Session.isSignedIn m.session then
                                 let
                                     remoteItems =
-                                        Request.items (Session.getIdToken m.session) (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = False }
-                                            |> Task.map (\i -> List.filterMap identity i)
+                                        Request.allItems (Session.getIdToken m.session) (pageOffsetAndLimit pageNo)
+                                            |> Task.map (\i -> i |> Maybe.withDefault [])
 
                                     items =
                                         remoteItems

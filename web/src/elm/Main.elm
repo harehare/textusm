@@ -112,7 +112,7 @@ init flags url key =
                 }
 
         ( settingsModel, _ ) =
-            Settings.init initSettings
+            Settings.init Session.guest initSettings
 
         model =
             { diagramModel = { diagramModel | text = Text.fromString (Maybe.withDefault "" initSettings.text) }
@@ -518,7 +518,8 @@ changeRouteTo route =
                 >> Return.andThen Action.changeRouteInit
 
         Route.Settings ->
-            Return.andThen <| Action.switchPage Page.Settings
+            Return.andThen Action.initSettingsPage
+                >> Return.andThen (Action.switchPage Page.Settings)
 
         Route.Help ->
             Return.andThen <| Action.switchPage Page.Help
@@ -1005,7 +1006,7 @@ update message =
                                     }
 
                                 ( newSettingsModel, _ ) =
-                                    Settings.init newSettings
+                                    Settings.init m.session newSettings
                             in
                             Return.singleton { m | settingsModel = newSettingsModel }
                                 |> Return.command (Ports.saveSettings (settingsEncoder newSettings))

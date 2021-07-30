@@ -22,11 +22,18 @@ type DiagramLocation
     | GoogleDrive
 
 
-enabled : List ( String, DiagramLocation )
-enabled =
-    [ ( "System", Remote )
-    , ( "Github Gist", Gist )
-    ]
+type alias IsGithubUser =
+     Bool
+
+enabled : IsGithubUser ->  List ( String, DiagramLocation )
+enabled isGithubUser =
+    if isGithubUser then
+        [ ( "System", Remote )
+        , ( "Github Gist", Gist )
+        ]
+    else
+        [ ( "System", Remote )
+        ]
 
 
 isRemote : DiagramLocation -> Bool

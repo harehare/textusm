@@ -1,4 +1,4 @@
-module Types.LoginProvider exposing (LoginProvider(..), decoder, toString)
+module Types.LoginProvider exposing (LoginProvider(..), decoder, toString, isGithubLogin, isGoogleLogin)
 
 import Json.Decode as D
 
@@ -10,6 +10,23 @@ type alias AccessToken =
 type LoginProvider
     = Google
     | Github (Maybe AccessToken)
+
+
+isGithubLogin: LoginProvider -> Bool
+isGithubLogin provider =
+    case provider of
+        Google ->
+            False
+        Github _ ->
+            True
+
+isGoogleLogin: LoginProvider -> Bool
+isGoogleLogin provider =
+    case provider of
+        Google ->
+            True
+        Github _ ->
+            False
 
 
 toString : LoginProvider -> String

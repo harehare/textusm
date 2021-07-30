@@ -14,6 +14,7 @@ import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..)
 import Models.Page as Page exposing (Page)
 import Page.List as DiagramList
 import Page.Tags as Tags
+import Page.Settings as Settings
 import Ports
 import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
@@ -87,6 +88,15 @@ initListPage model =
             DiagramList.init model.session model.lang model.diagramListModel.apiRoot
     in
     Return.return { model | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
+
+
+initSettingsPage : Model -> Return Msg Model
+initSettingsPage model =
+    let
+        ( model_, cmd_ ) =
+            Settings.init model.session model.settingsModel.settings
+    in
+    Return.return { model | settingsModel = model_ } (cmd_ |> Cmd.map UpdateSettings)
 
 
 initTagPage : Model -> Return Msg Model
