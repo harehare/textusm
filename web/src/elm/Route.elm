@@ -62,9 +62,10 @@ diagramId : Parser (DiagramId -> a) a
 diagramId =
     custom "DIAGRAM_ID" <|
         \segment ->
-            UUID.fromString segment
-                |> Result.toMaybe
-                |> Maybe.map (\_ -> DiagramId.fromString segment)
+            if String.length segment >= 32 || String.length segment <= 35 then
+                Just <| DiagramId.fromString segment
+            else
+                Nothing
 
 
 shareId : Parser (ShareToken -> a) a

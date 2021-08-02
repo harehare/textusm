@@ -56,7 +56,7 @@ gistItemSelection =
         |> hardcoded False
         |> hardcoded False
         |> hardcoded True
-        |> hardcoded (Just DiagramLocation.Remote)
+        |> hardcoded (Just DiagramLocation.Gist)
         |> with Graphql.Object.GistItem.tags
         |> with (Graphql.Object.GistItem.createdAt |> DiagramItem.mapToDateTime)
         |> with (Graphql.Object.GistItem.updatedAt |> DiagramItem.mapToDateTime)

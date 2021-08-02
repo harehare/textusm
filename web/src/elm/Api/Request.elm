@@ -1,11 +1,11 @@
 module Api.Request exposing
-    ( bookmark
+    ( allItems
+    , bookmark
     , delete
     , deleteGist
     , gistItem
     , gistItems
     , item
-    , allItems
     , items
     , publicItem
     , save
@@ -28,6 +28,7 @@ import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
 import Task exposing (Task)
 import Types.DiagramId as DiagramId
 import Types.DiagramItem exposing (DiagramItem)
+import Types.DiagramLocation as DiagramLocation
 import Types.Email as Email exposing (Email)
 import Types.IdToken as IdToken exposing (IdToken)
 import Types.IpAddress as IpAddress exposing (IpAddress)
@@ -171,7 +172,10 @@ gistItem idToken accessToken gistId =
                                         |> Maybe.map .content
                                         |> Maybe.withDefault ""
                             in
-                            { x | id = Just <| DiagramId.fromString gist.id, text = Text.fromString content }
+                            { x
+                                | id = Just <| DiagramId.fromString gist.id
+                                , text = Text.fromString content
+                            }
                         )
                     |> Task.mapError toError
             )
@@ -190,35 +194,35 @@ saveGist : Maybe IdToken -> AccessToken -> InputGistItem -> String -> Task Reque
 saveGist idToken accessToken input content =
     let
         gistInput =
-            { description = Nothing
-            , files = [ ( input.title, { content = content } ) ]
+            { description = "This text is created by TextUSM"
+            , files = [ ( input.title, { content = { content = content } } ) ]
             , public = False
             }
 
         saveTask =
-            Task.andThen
-                (\gist ->
-                    Mutation.saveGist
-                        { input | id = Present <| GistIdScalar gist.id }
-                        |> Http.mutationRequest graphQLUrl
-                        |> authHeaders idToken
-                        |> Http.toTask
-                        |> Task.mapError toError
-                )
+            \gist ->
+                Mutation.saveGist
+                    { input | id = Present <| GistIdScalar gist.id, url = gist.url }
+                    |> Http.mutationRequest graphQLUrl
+                    |> authHeaders idToken
+                    |> Http.toTask
+                    |> Task.mapError toError
     in
     case input.id of
         Null ->
             GithubRequest.createGist accessToken gistInput
                 |> Task.mapError RequestError.fromHttpError
-                |> saveTask
+                |> Task.andThen saveTask
 
         Present (GistIdScalar id_) ->
             GithubRequest.updateGist accessToken id_ gistInput
                 |> Task.mapError RequestError.fromHttpError
-                |> saveTask
+                |> Task.andThen saveTask
 
         _ ->
-            Task.fail RequestError.InvalidParameter
+            GithubRequest.createGist accessToken gistInput
+                |> Task.mapError RequestError.fromHttpError
+                |> Task.andThen saveTask
 
 
 deleteGist : Maybe IdToken -> AccessToken -> GistId -> Task RequestError String

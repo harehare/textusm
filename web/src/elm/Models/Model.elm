@@ -30,7 +30,7 @@ import Route exposing (Route(..))
 import Types.DiagramItem exposing (DiagramItem)
 import Types.FileType exposing (FileType)
 import Types.LoginProvider exposing (LoginProvider)
-import Types.Session exposing (Session, User)
+import Types.Session exposing (Session)
 import Types.ShareToken exposing (ShareToken)
 import Types.Title exposing (Title)
 import Url
@@ -51,7 +51,7 @@ type Msg
     | DownloadCompleted ( Int, Int )
     | StartDownload { extension : String, mimeType : String, content : String }
     | Save
-    | SaveToRemoteCompleted (Result DiagramItem DiagramItem)
+    | SaveToRemoteCompleted (Result RequestError DiagramItem)
     | SaveToLocalCompleted D.Value
     | SaveToRemote D.Value
     | StartEditTitle

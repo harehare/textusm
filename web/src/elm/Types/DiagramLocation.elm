@@ -39,11 +39,11 @@ enabled isGithubUser =
 isRemote : DiagramLocation -> Bool
 isRemote loc =
     case loc of
-        Remote ->
-            True
+        Local ->
+            False
 
         _ ->
-            False
+            True
 
 
 isLocal : DiagramLocation -> Bool

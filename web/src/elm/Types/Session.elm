@@ -1,5 +1,5 @@
 module Types.Session exposing
-    ( Session
+    ( Session(..)
     , User
     , decoder
     , getIdToken

@@ -12,6 +12,7 @@ module Types.DiagramItem exposing
     , mapToDateTime
     , stringToList
     , toInputItem
+    , toInputGistItem
     )
 
 import Graphql.Enum.Diagram
@@ -31,6 +32,8 @@ import Types.DiagramType as DiagramType
 import Types.Session as Session exposing (Session)
 import Types.Text as Text exposing (Text)
 import Types.Title as Title exposing (Title)
+import Graphql.InputObject exposing (InputGistItem)
+import Graphql.Scalar exposing (GistIdScalar(..))
 
 
 type alias DiagramItem =
@@ -81,6 +84,29 @@ toInputItem item =
     , isPublic = item.isPublic
     , isBookmark = item.isBookmark
     , tags = OptionalArgument.Present (item.tags |> Maybe.withDefault [])
+    }
+
+toInputGistItem : DiagramItem -> InputGistItem
+toInputGistItem item =
+    { id =
+        case item.id of
+            Just id ->
+                OptionalArgument.Present (GistIdScalar <| DiagramId.toString id)
+
+            Nothing ->
+                OptionalArgument.Absent
+    , title = Title.toString item.title
+    , thumbnail =
+        case item.thumbnail of
+            Just thumbnail ->
+                OptionalArgument.Present thumbnail
+
+            Nothing ->
+                OptionalArgument.Absent
+    , diagram = item.diagram
+    , tags = OptionalArgument.Present (item.tags |> Maybe.withDefault [])
+    , url = ""
+    , isBookmark = item.isBookmark
     }
 
 

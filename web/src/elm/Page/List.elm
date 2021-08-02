@@ -19,6 +19,7 @@ import Loading exposing (LoaderType(..), defaultConfig)
 import Message exposing (Lang)
 import Models.Dialog as Dialog
 import Monocle.Lens exposing (Lens)
+import Ordering exposing (Ordering)
 import RemoteData exposing (RemoteData(..), WebData)
 import Return as Return exposing (Return)
 import Simple.Fuzzy as Fuzzy
@@ -26,6 +27,7 @@ import Task
 import Time exposing (Zone)
 import Types.DiagramId as DiagramId
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
+import Types.DiagramLocation as DiagramLocation
 import Types.Session as Session exposing (Session)
 import Types.Title as Title
 import Utils.Date as DateUtils
@@ -91,6 +93,14 @@ type alias Model =
     , tags : List String
     , confirmDialog : Dialog.ConfirmDialog Msg
     }
+
+
+diagramOrder : Ordering DiagramItem
+diagramOrder =
+    Ordering.byField (\i -> i.updatedAt |> Time.posixToMillis)
+        |> Ordering.breakTiesWith (Ordering.byField (\i -> i.title |> Title.toString))
+        |> Ordering.breakTiesWith (Ordering.byField (\i -> i.createdAt |> Time.posixToMillis))
+        |> Ordering.reverse
 
 
 modelOfDiagramList : Lens Model DiagramList
@@ -467,11 +477,15 @@ diagramView timezone diagram =
                     (List.map viewTag (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
                 ]
             ]
-        , if diagram.isRemote then
-            div [ class "cloud" ] [ Icon.cloudOn 14 ]
+        , case diagram.location of
+            Just DiagramLocation.Gist ->
+                div [ class "cloud" ] [ Icon.github 14 ]
 
-          else
-            div [ class "cloud" ] [ Icon.cloudOff 14 ]
+            Just DiagramLocation.Remote ->
+                div [ class "cloud" ] [ Icon.cloudOn 14 ]
+
+            _ ->
+                div [ class "cloud" ] [ Icon.cloudOff 14 ]
         , if diagram.isPublic then
             div [ class "public" ] [ Icon.lockOpen "rgba(51, 51, 51, 0.7)" 14 ]
 
@@ -640,24 +654,7 @@ update message =
                                             |> Task.map
                                                 (\item ->
                                                     List.concat [ localItems, item ]
-                                                        |> List.sortWith
-                                                            (\a b ->
-                                                                let
-                                                                    a_ =
-                                                                        a.updatedAt |> Time.posixToMillis
-
-                                                                    b_ =
-                                                                        b.updatedAt |> Time.posixToMillis
-                                                                in
-                                                                if a_ - b_ > 0 then
-                                                                    LT
-
-                                                                else if a_ - b_ < 0 then
-                                                                    GT
-
-                                                                else
-                                                                    EQ
-                                                            )
+                                                        |> List.sortWith diagramOrder
                                                 )
                                 in
                                 Return.return

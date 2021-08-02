@@ -24,13 +24,13 @@ hostName =
 headers : AccessToken -> List Header
 headers accessToken =
     [ Http.header "Accept" "application/vnd.github.v3+json"
-    , Http.header "Authorization" <| "token" ++ accessToken
+    , Http.header "Authorization" <| "token " ++ accessToken
     ]
 
 
 gistPath : String
 gistPath =
-    "/gists"
+    "gists"
 
 
 getGist : AccessToken -> GistId -> Task Http.Error Gist

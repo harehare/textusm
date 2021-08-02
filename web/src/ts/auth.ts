@@ -74,7 +74,6 @@ export const authStateChanged = (
         onBeforeAuth();
         if (user) {
             const result = await firebase.auth().getRedirectResult();
-            console.log(result);
             const providers = user.providerData.map((p) =>
                 p ? p.providerId : ''
             );
@@ -135,11 +134,9 @@ const isGithubProvider = (provider: string) => {
 
 class GithubAccessToken {
     LOCAL_STORAGE_KEY = 'gha_gist';
-    private accessToken = '';
 
     refresh(accessToken: string) {
-        this.accessToken = accessToken;
-        localStorage.setItem(this.LOCAL_STORAGE_KEY, this.accessToken);
+        localStorage.setItem(this.LOCAL_STORAGE_KEY, accessToken);
     }
 
     clear() {
@@ -147,6 +144,6 @@ class GithubAccessToken {
     }
 
     get() {
-        return this.accessToken;
+        return localStorage.getItem(this.LOCAL_STORAGE_KEY);
     }
 }

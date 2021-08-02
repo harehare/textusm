@@ -22,11 +22,12 @@ import Route exposing (Route(..))
 import Task
 import Types.DiagramId as DiagramId exposing (DiagramId)
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
-import Types.Session as Session exposing (Session)
+import Types.Session as Session
 import Types.ShareToken as ShareToken exposing (ShareToken)
 import Types.Text as Text
 import Types.Title as Title
 import Utils.Utils as Utils
+import Types.LoginProvider as LoginProvider
 
 
 loadText : DiagramItem.DiagramItem -> Model -> Return Msg Model
@@ -151,12 +152,34 @@ loadWithPasswordShareItem token model =
 
 loadItem : DiagramId -> Model -> Return Msg Model
 loadItem id_ model =
-    Return.return model
-        (Task.attempt Load <|
-            Request.item
-                (Session.getIdToken model.session)
-                (DiagramId.toString id_)
-        )
+    case model.session of
+        Session.SignedIn user ->
+            case user.loginProvider of
+                LoginProvider.Github (Just accessToken) ->
+                    if DiagramId.isGithubId id_ then
+                        Return.return model
+                        (Task.attempt Load <| Request.gistItem
+                            (Session.getIdToken model.session)
+                            accessToken
+                            (DiagramId.toString id_)
+                        )
+                    else
+                        Return.return model
+                        (Task.attempt Load <|
+                            Request.item
+                                (Session.getIdToken model.session)
+                                (DiagramId.toString id_)
+                        )
+
+                _ ->
+                    Return.return model
+                        (Task.attempt Load <|
+                            Request.item
+                                (Session.getIdToken model.session)
+                                (DiagramId.toString id_)
+                        )
+        Session.Guest ->
+            Return.singleton model
 
 
 loadPublicItem : DiagramId -> Model -> Return Msg Model
@@ -256,12 +279,24 @@ changePublicState diagram isPublic model =
 
 saveToRemote : DiagramItem -> Model -> Return Msg Model
 saveToRemote diagram model =
-    let
-        saveTask =
-            Request.save (Session.getIdToken model.session) (DiagramItem.toInputItem diagram) diagram.isPublic
-                |> Task.mapError (\_ -> diagram)
-    in
-    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+    case model.session of
+        Session.SignedIn user ->
+            case user.loginProvider of
+                LoginProvider.Github (Just accessToken) ->
+                    let
+                        saveTask =
+                            Request.saveGist (Session.getIdToken model.session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
+                    in
+                    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+
+                _ ->
+                    let
+                        saveTask =
+                            Request.save (Session.getIdToken model.session) (DiagramItem.toInputItem diagram) diagram.isPublic
+                    in
+                    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+        Session.Guest ->
+            Return.singleton model
 
 
 setFocus : String -> Model -> Return Msg Model
