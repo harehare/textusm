@@ -14,6 +14,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const HTMLInlineCSSWebpackPlugin =
     require('html-inline-css-webpack-plugin').default;
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
+
 const mode =
     process.env.NODE_ENV === 'production' ? 'production' : 'development';
 const dist = path.join(__dirname, 'dist');
