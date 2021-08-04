@@ -13,7 +13,6 @@ import Models.Dialog exposing (ConfirmDialog(..))
 import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
 import Models.Page as Page exposing (Page)
 import Page.List as DiagramList
-import Page.Tags as Tags
 import Page.Settings as Settings
 import Ports
 import RemoteData exposing (RemoteData(..))
@@ -22,12 +21,12 @@ import Route exposing (Route(..))
 import Task
 import Types.DiagramId as DiagramId exposing (DiagramId)
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
+import Types.LoginProvider as LoginProvider
 import Types.Session as Session
 import Types.ShareToken as ShareToken exposing (ShareToken)
 import Types.Text as Text
 import Types.Title as Title
 import Utils.Utils as Utils
-import Types.LoginProvider as LoginProvider
 
 
 loadText : DiagramItem.DiagramItem -> Model -> Return Msg Model
@@ -100,20 +99,6 @@ initSettingsPage model =
     Return.return { model | settingsModel = model_ } (cmd_ |> Cmd.map UpdateSettings)
 
 
-initTagPage : Model -> Return Msg Model
-initTagPage model =
-    case model.currentDiagram of
-        Nothing ->
-            Return.singleton model
-
-        Just diagram ->
-            let
-                ( model_, _ ) =
-                    Tags.init (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault ""))
-            in
-            switchPage (Page.Tags model_) model
-
-
 initShareDiagram : DiagramItem -> Model -> Return Msg Model
 initShareDiagram diagramItem model =
     let
@@ -158,18 +143,20 @@ loadItem id_ model =
                 LoginProvider.Github (Just accessToken) ->
                     if DiagramId.isGithubId id_ then
                         Return.return model
-                        (Task.attempt Load <| Request.gistItem
-                            (Session.getIdToken model.session)
-                            accessToken
-                            (DiagramId.toString id_)
-                        )
+                            (Task.attempt Load <|
+                                Request.gistItem
+                                    (Session.getIdToken model.session)
+                                    accessToken
+                                    (DiagramId.toString id_)
+                            )
+
                     else
                         Return.return model
-                        (Task.attempt Load <|
-                            Request.item
-                                (Session.getIdToken model.session)
-                                (DiagramId.toString id_)
-                        )
+                            (Task.attempt Load <|
+                                Request.item
+                                    (Session.getIdToken model.session)
+                                    (DiagramId.toString id_)
+                            )
 
                 _ ->
                     Return.return model
@@ -178,6 +165,7 @@ loadItem id_ model =
                                 (Session.getIdToken model.session)
                                 (DiagramId.toString id_)
                         )
+
         Session.Guest ->
             Return.singleton model
 
@@ -295,6 +283,7 @@ saveToRemote diagram model =
                             Request.save (Session.getIdToken model.session) (DiagramItem.toInputItem diagram) diagram.isPublic
                     in
                     Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+
         Session.Guest ->
             Return.singleton model
 

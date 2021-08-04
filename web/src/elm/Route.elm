@@ -6,7 +6,6 @@ import Types.DiagramId as DiagramId exposing (DiagramId)
 import Types.DiagramItem exposing (DiagramItem)
 import Types.DiagramType as DiagramType
 import Types.ShareToken as ShareToken exposing (ShareToken)
-import UUID
 import Url exposing (Url)
 import Url.Builder as Builder exposing (absolute)
 import Url.Parser as Parser exposing ((</>), (<?>), Parser, custom, map, oneOf, parse, s, string)
@@ -26,7 +25,6 @@ type Route
     | DiagramList
     | Settings
     | Help
-    | Tag
     | Share
     | Embed Diagram Title ShareToken (Maybe Int) (Maybe Int)
     | ViewFile Diagram ShareToken
@@ -41,7 +39,6 @@ parser =
         , map DiagramList (s "list")
         , map Settings (s "settings")
         , map Help (s "help")
-        , map Tag (s "tag")
         , map New (s "new")
         , map Share (s "share")
         , map Edit (s "edit" </> diagramType)
@@ -64,6 +61,7 @@ diagramId =
         \segment ->
             if String.length segment >= 32 || String.length segment <= 35 then
                 Just <| DiagramId.fromString segment
+
             else
                 Nothing
 
@@ -123,9 +121,6 @@ toString route =
 
         Help ->
             absolute [ "help" ] []
-
-        Tag ->
-            absolute [ "tag" ] []
 
         Share ->
             absolute [ "share" ] []

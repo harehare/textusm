@@ -63,12 +63,6 @@ isBookmark =
 
 
 {-| -}
-tags : SelectionSet (Maybe (List (Maybe String))) Graphql.Object.Item
-tags =
-    Object.selectionForField "(Maybe (List (Maybe String)))" "tags" [] (Decode.string |> Decode.nullable |> Decode.list |> Decode.nullable)
-
-
-{-| -}
 createdAt : SelectionSet Graphql.ScalarCodecs.Time Graphql.Object.Item
 createdAt =
     Object.selectionForField "ScalarCodecs.Time" "createdAt" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecTime |> .decoder)

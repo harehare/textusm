@@ -25,7 +25,6 @@ import Models.Page exposing (Page)
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
-import Page.Tags as Tags
 import Route exposing (Route(..))
 import Types.DiagramItem exposing (DiagramItem)
 import Types.FileType exposing (FileType)
@@ -43,7 +42,6 @@ type Msg
     | UpdateDiagramList DiagramList.Msg
     | UpdateShare Share.Msg
     | UpdateSettings Settings.Msg
-    | UpdateTags Tags.Msg
     | OpenMenu Menu
     | MoveStop
     | CloseMenu

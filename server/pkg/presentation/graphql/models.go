@@ -13,7 +13,6 @@ type InputGistItem struct {
 	Diagram    *values.Diagram `json:"diagram"`
 	IsBookmark bool            `json:"isBookmark"`
 	URL        string          `json:"url"`
-	Tags       []*string       `json:"tags"`
 }
 
 type InputItem struct {
@@ -24,7 +23,6 @@ type InputItem struct {
 	Diagram    *values.Diagram `json:"diagram"`
 	IsPublic   bool            `json:"isPublic"`
 	IsBookmark bool            `json:"isBookmark"`
-	Tags       []*string       `json:"tags"`
 }
 
 type InputShareItem struct {

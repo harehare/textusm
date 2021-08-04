@@ -40,7 +40,6 @@ itemSelection =
         |> with Graphql.Object.Item.isBookmark
         |> hardcoded True
         |> hardcoded (Just DiagramLocation.Remote)
-        |> with Graphql.Object.Item.tags
         |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
         |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
 
@@ -57,7 +56,6 @@ gistItemSelection =
         |> hardcoded False
         |> hardcoded True
         |> hardcoded (Just DiagramLocation.Gist)
-        |> with Graphql.Object.GistItem.tags
         |> with (Graphql.Object.GistItem.createdAt |> DiagramItem.mapToDateTime)
         |> with (Graphql.Object.GistItem.updatedAt |> DiagramItem.mapToDateTime)
 
@@ -83,7 +81,6 @@ item id isPublic =
             |> with Graphql.Object.Item.isBookmark
             |> hardcoded True
             |> hardcoded (Just DiagramLocation.Remote)
-            |> with Graphql.Object.Item.tags
             |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
         )
@@ -127,7 +124,6 @@ shareItem token password =
             |> with Graphql.Object.Item.isBookmark
             |> hardcoded True
             |> hardcoded (Just DiagramLocation.Remote)
-            |> hardcoded Nothing
             |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
         )
@@ -171,7 +167,6 @@ gistItem id =
             |> hardcoded False
             |> hardcoded True
             |> hardcoded (Just DiagramLocation.Gist)
-            |> with Graphql.Object.GistItem.tags
             |> with (Graphql.Object.GistItem.createdAt |> DiagramItem.mapToDateTime)
             |> with (Graphql.Object.GistItem.updatedAt |> DiagramItem.mapToDateTime)
         )

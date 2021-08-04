@@ -2,11 +2,11 @@ port module Page.List exposing (DiagramList(..), Model, Msg(..), init, isNotAske
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
-import Constants
 import Dialog.Confirm as ConfirmDialog
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
+import Graphql.Object.GistItem exposing (diagram)
 import Html exposing (Html, div, input, span, text)
 import Html.Attributes exposing (class, placeholder, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
@@ -14,7 +14,7 @@ import Html.Lazy as Lazy
 import Http
 import Json.Decode as D
 import Json.Encode as E
-import List.Extra exposing (unique, updateIf)
+import List.Extra exposing (updateIf)
 import Loading exposing (LoaderType(..), defaultConfig)
 import Message exposing (Lang)
 import Models.Dialog as Dialog
@@ -38,7 +38,6 @@ import Views.Icon as Icon
 
 type Msg
     = NoOp
-    | Filter FilterCondition
     | SearchInput String
     | Select DiagramItem
     | Reload
@@ -51,13 +50,13 @@ type Msg
     | GetDiagrams
     | GotLocalDiagramsJson D.Value
     | GotDiagrams (Result RequestError (List DiagramItem))
-    | GetPublicDiagrams
+    | GetPublicDiagrams Int
     | GotPublicDiagrams (Result RequestError (List DiagramItem))
-    | GetBookmarkDiagrams
+    | GetBookmarkDiagrams Int
     | GotBookmarkDiagrams (Result RequestError (List DiagramItem))
-    | GetGistDiagrams
+    | GetGistDiagrams Int
     | GotGistDiagrams (Result RequestError (List DiagramItem))
-    | LoadNextPage PublicStatus Int
+    | LoadNextPage DiagramList Int
     | Export
     | Import
     | ImportFile File
@@ -66,26 +65,10 @@ type Msg
     | CloseDialog
 
 
-type FilterValue
-    = FilterAll
-    | FilterBookmark
-    | FilterPublic
-    | FilterTag String
-    | FilterGist
-
-
-type PublicStatus
-    = Public
-    | Private
-
-
-type FilterCondition
-    = FilterCondition FilterValue (DiagramItem -> Bool)
-
-
 type DiagramList
-    = DiagramList (WebData (List DiagramItem)) Int Bool
+    = AllList (WebData (List DiagramItem)) Int Bool
     | PublicList (WebData (List DiagramItem)) Int Bool
+    | BookmarkList (WebData (List DiagramItem)) Int Bool
     | GistList (WebData (List DiagramItem)) Int Bool
 
 
@@ -93,13 +76,28 @@ type alias Model =
     { searchQuery : Maybe String
     , timeZone : Zone
     , diagramList : DiagramList
-    , filterCondition : FilterCondition
     , session : Session
     , apiRoot : String
     , lang : Lang
     , tags : List String
     , confirmDialog : Dialog.ConfirmDialog Msg
     }
+
+
+createDiagramList : DiagramList -> List DiagramItem -> Int -> Bool -> DiagramList
+createDiagramList diagramList data page hasMorePage =
+    case diagramList of
+        AllList _ _ _ ->
+            AllList (Success data) page hasMorePage
+
+        PublicList _ _ _ ->
+            PublicList (Success data) page hasMorePage
+
+        BookmarkList _ _ _ ->
+            BookmarkList (Success data) page hasMorePage
+
+        GistList _ _ _ ->
+            GistList (Success data) page hasMorePage
 
 
 diagramOrder : Ordering DiagramItem
@@ -117,20 +115,63 @@ modelOfDiagramList =
 
 notAsked : DiagramList
 notAsked =
-    DiagramList NotAsked 1 False
+    AllList NotAsked 1 False
 
 
 isNotAsked : DiagramList -> Bool
 isNotAsked data =
     case data of
-        DiagramList remoteData _ _ ->
+        AllList remoteData _ _ ->
             RemoteData.isNotAsked remoteData || List.isEmpty (RemoteData.withDefault [] remoteData)
 
         PublicList remoteData _ _ ->
             RemoteData.isNotAsked remoteData || List.isEmpty (RemoteData.withDefault [] remoteData)
 
+        BookmarkList remoteData _ _ ->
+            RemoteData.isNotAsked remoteData || List.isEmpty (RemoteData.withDefault [] remoteData)
+
         GistList remoteData _ _ ->
             RemoteData.isNotAsked remoteData || List.isEmpty (RemoteData.withDefault [] remoteData)
+
+
+isAllList : DiagramList -> Bool
+isAllList data =
+    case data of
+        AllList _ _ _ ->
+            True
+
+        _ ->
+            False
+
+
+isBookMarkList : DiagramList -> Bool
+isBookMarkList data =
+    case data of
+        BookmarkList _ _ _ ->
+            True
+
+        _ ->
+            False
+
+
+isPublicList : DiagramList -> Bool
+isPublicList data =
+    case data of
+        PublicList _ _ _ ->
+            True
+
+        _ ->
+            False
+
+
+isGistList : DiagramList -> Bool
+isGistList data =
+    case data of
+        GistList _ _ _ ->
+            True
+
+        _ ->
+            False
 
 
 pageSize : Int
@@ -157,7 +198,6 @@ init session lang apiRoot =
     ( { searchQuery = Nothing
       , timeZone = Time.utc
       , diagramList = notAsked
-      , filterCondition = FilterCondition FilterAll (\_ -> True)
       , session = session
       , apiRoot = apiRoot
       , lang = lang
@@ -191,36 +231,12 @@ closeDialog model =
     Return.singleton { model | confirmDialog = Dialog.Hide }
 
 
-tags : List DiagramItem -> List String
-tags items =
-    List.map
-        (\item ->
-            item.tags
-                |> Maybe.withDefault []
-                |> List.filterMap
-                    (\v ->
-                        Maybe.andThen
-                            (\v_ ->
-                                if not <| String.isEmpty v_ then
-                                    Just v_
-
-                                else
-                                    Nothing
-                            )
-                            v
-                    )
-        )
-        items
-        |> List.concat
-        |> unique
-
-
-sideMenu : Session -> FilterValue -> List String -> Html Msg
-sideMenu session filter tagItems =
+sideMenu : Session -> DiagramList -> Html Msg
+sideMenu session diagramList =
     div [ class "side-menu" ]
-        (div
+        [ div
             [ class <|
-                if filter == FilterAll then
+                if isAllList diagramList then
                     "item selected"
 
                 else
@@ -228,156 +244,138 @@ sideMenu session filter tagItems =
             , onClick GetDiagrams
             ]
             [ text "All" ]
-            :: (if Session.isSignedIn session then
-                    div
-                        [ class <|
-                            if filter == FilterPublic then
-                                "item selected"
-
-                            else
-                                "item"
-                        , onClick GetPublicDiagrams
-                        ]
-                        [ Icon.globe "#F5F5F6" 16, div [ class "p-sm" ] [ text "Public" ] ]
-
-                else
-                    div [] []
-               )
-            :: div
+        , if Session.isSignedIn session then
+            div
                 [ class <|
-                    if filter == FilterBookmark then
+                    if isPublicList diagramList then
                         "item selected"
 
                     else
                         "item"
-                , onClick GetBookmarkDiagrams
+                , onClick <| GetPublicDiagrams 1
                 ]
-                [ Icon.bookmark "#F5F5F6" 14, div [ class "p-sm" ] [ text "Bookmarks" ] ]
-            :: (if Session.isGithubUser session then
-                    div
-                        [ class <|
-                            if filter == FilterGist then
-                                "item selected"
+                [ Icon.globe "#F5F5F6" 16, div [ class "p-sm" ] [ text "Public" ] ]
 
-                            else
-                                "item"
-                        , onClick GetGistDiagrams
-                        ]
-                        [ Icon.github "#F5F5F6" 14
-                        , div [ class "p-sm" ] [ text "Gist" ]
-                        ]
+          else
+            Empty.view
+        , div
+            [ class <|
+                if isBookMarkList diagramList then
+                    "item selected"
 
                 else
-                    div [] []
-               )
-            :: div
-                [ class "w-full"
-                , style "height" "2px"
-                , style "border-bottom" "2px solid rgba(0, 0, 0, 0.1)"
-                ]
-                []
-            :: (tagItems
-                    |> List.map
-                        (\tag ->
-                            div
-                                [ class <|
-                                    if filter == FilterTag tag then
-                                        "item selected"
+                    "item"
+            , onClick <| GetBookmarkDiagrams 1
+            ]
+            [ Icon.bookmark "#F5F5F6" 14, div [ class "p-sm" ] [ text "Bookmarks" ] ]
+        , if Session.isGithubUser session then
+            div
+                [ class <|
+                    if isGistList diagramList then
+                        "item selected"
 
-                                    else
-                                        "item"
-                                , onClick <|
-                                    Filter
-                                        (FilterCondition (FilterTag tag)
-                                            (\item ->
-                                                List.member tag
-                                                    (item.tags
-                                                        |> Maybe.withDefault []
-                                                        |> List.map (Maybe.withDefault "")
-                                                    )
-                                            )
-                                        )
-                                ]
-                                [ Icon.tag Constants.iconColor 13, div [ class "p-sm" ] [ text tag ] ]
-                        )
-               )
-        )
+                    else
+                        "item"
+                , onClick <| GetGistDiagrams 1
+                ]
+                [ Icon.github "#F5F5F6" 14
+                , div [ class "p-sm" ] [ text "Gist" ]
+                ]
+
+          else
+            Empty.view
+        ]
 
 
 view : Model -> Html Msg
 view model =
-    case ( model.diagramList, model.filterCondition ) of
-        ( PublicList (Success diagrams) pageNo hasMorePage, FilterCondition FilterPublic _ ) ->
+    case model.diagramList of
+        PublicList (Success diagrams) pageNo hasMorePage ->
             div
                 [ class "diagram-list"
                 ]
-                [ Lazy.lazy3 sideMenu
+                [ Lazy.lazy2 sideMenu
                     model.session
-                    FilterPublic
-                    model.tags
+                    model.diagramList
                 , diagramListView
                     { timeZone = model.timeZone
                     , pageNo = pageNo
                     , hasMorePage = hasMorePage
                     , query = model.searchQuery
                     , lang = model.lang
+                    , diagramList = PublicList (Success diagrams) pageNo hasMorePage
                     , diagrams = diagrams
-                    , publicStatus = Public
                     , confirmDialog = model.confirmDialog
                     }
                 ]
 
-        ( GistList (Success diagrams) pageNo hasMorePage, FilterCondition FilterGist _ ) ->
+        BookmarkList (Success diagrams) pageNo hasMorePage ->
             div
                 [ class "diagram-list"
                 ]
-                [ Lazy.lazy3 sideMenu
+                [ Lazy.lazy2 sideMenu
                     model.session
-                    FilterPublic
-                    model.tags
+                    model.diagramList
                 , diagramListView
                     { timeZone = model.timeZone
                     , pageNo = pageNo
                     , hasMorePage = hasMorePage
                     , query = model.searchQuery
                     , lang = model.lang
+                    , diagramList = BookmarkList (Success diagrams) pageNo hasMorePage
                     , diagrams = diagrams
-                    , publicStatus = Public
                     , confirmDialog = model.confirmDialog
                     }
                 ]
 
-        ( DiagramList (Success diagrams) pageNo hasMorePage, filterCondition ) ->
-            let
-                (FilterCondition filterValue condition) =
-                    filterCondition
-
-                displayDiagrams =
-                    List.filter condition diagrams
-            in
+        GistList (Success diagrams) pageNo hasMorePage ->
             div
                 [ class "diagram-list"
                 ]
-                [ Lazy.lazy3 sideMenu
+                [ Lazy.lazy2 sideMenu
                     model.session
-                    filterValue
-                    (tags diagrams)
+                    model.diagramList
                 , diagramListView
                     { timeZone = model.timeZone
                     , pageNo = pageNo
                     , hasMorePage = hasMorePage
                     , query = model.searchQuery
                     , lang = model.lang
-                    , diagrams = displayDiagrams
-                    , publicStatus = Private
+                    , diagramList = GistList (Success diagrams) pageNo hasMorePage
+                    , diagrams = diagrams
                     , confirmDialog = model.confirmDialog
                     }
                 ]
 
-        ( DiagramList (Failure e) _ _, _ ) ->
+        AllList (Success diagrams) pageNo hasMorePage ->
+            div
+                [ class "diagram-list"
+                ]
+                [ Lazy.lazy2 sideMenu
+                    model.session
+                    model.diagramList
+                , diagramListView
+                    { timeZone = model.timeZone
+                    , pageNo = pageNo
+                    , hasMorePage = hasMorePage
+                    , query = model.searchQuery
+                    , lang = model.lang
+                    , diagramList = AllList (Success diagrams) pageNo hasMorePage
+                    , diagrams = diagrams
+                    , confirmDialog = model.confirmDialog
+                    }
+                ]
+
+        AllList (Failure e) _ _ ->
             errorView e
 
-        ( PublicList (Failure e) _ _, _ ) ->
+        PublicList (Failure e) _ _ ->
+            errorView e
+
+        GistList (Failure e) _ _ ->
+            errorView e
+
+        BookmarkList (Failure e) _ _ ->
             errorView e
 
         _ ->
@@ -400,12 +398,12 @@ view model =
 
 
 diagramListView :
-    { publicStatus : PublicStatus
-    , timeZone : Zone
+    { timeZone : Zone
     , pageNo : Int
     , hasMorePage : Bool
     , query : Maybe String
     , lang : Lang
+    , diagramList : DiagramList
     , diagrams : List DiagramItem
     , confirmDialog : Dialog.ConfirmDialog Msg
     }
@@ -477,7 +475,7 @@ diagramListView props =
                     div [ class "w-full flex-center" ]
                         [ div
                             [ class "button bg-activity text-center m-sm"
-                            , onClick <| LoadNextPage props.publicStatus <| props.pageNo + 1
+                            , onClick <| LoadNextPage props.diagramList <| props.pageNo + 1
                             ]
                             [ text "Load more" ]
                         ]
@@ -514,19 +512,7 @@ diagramView timezone diagram =
                 , class "items-center"
                 , class "justify-between"
                 ]
-                [ div [ class "date-time" ] [ text (DateUtils.millisToString timezone diagram.updatedAt) ]
-                , div
-                    [ class "absolute"
-                    , class "justify-end"
-                    , class "flex-wrap"
-                    , class "w-full"
-                    , class "hidden"
-                    , class "lg:flex"
-                    , style "bottom" "60px"
-                    , style "transform" "scale(0.9)"
-                    ]
-                    (List.map viewTag (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault "")))
-                ]
+                [ div [ class "date-time" ] [ text (DateUtils.millisToString timezone diagram.updatedAt) ] ]
             ]
         , case diagram.location of
             Just DiagramLocation.Gist ->
@@ -587,22 +573,6 @@ errorView e =
         ]
 
 
-viewTag : String -> Html Msg
-viewTag tag =
-    div
-        [ class "flex"
-        , class "items-center"
-        , class "text-center"
-        , class "text-sm"
-        , class "text-color"
-        , class "bg-activity"
-        , class "p-sm"
-        , class "rounded"
-        , class "m-xs"
-        ]
-        [ text tag ]
-
-
 reload : Return.ReturnF Msg Model
 reload =
     Return.andThen <| \m -> Return.return { m | diagramList = notAsked } (getDiagrams ())
@@ -617,14 +587,6 @@ update message =
         GotTimeZone zone ->
             Return.andThen <| \m -> Return.singleton { m | timeZone = zone }
 
-        Filter cond ->
-            case cond of
-                FilterCondition (FilterTag _) _ ->
-                    Return.andThen <| \m -> Return.singleton { m | filterCondition = cond }
-
-                _ ->
-                    Return.zero
-
         SearchInput input ->
             Return.andThen <|
                 \m ->
@@ -638,47 +600,62 @@ update message =
                                     Just input
                         }
 
-        LoadNextPage Private pageNo ->
+        LoadNextPage (AllList remoteData _ hasMorePage) pageNo ->
             Return.andThen
                 (\m ->
-                    let
-                        ( remoteData, hasMorePage ) =
-                            case m.diagramList of
-                                DiagramList r _ h ->
-                                    ( r, h )
-
-                                GistList _ _ _ ->
-                                    ( NotAsked, False )
-
-                                PublicList _ _ _ ->
-                                    ( NotAsked, False )
-                    in
-                    Return.return { m | diagramList = DiagramList remoteData pageNo hasMorePage } (getDiagrams ())
+                    Return.return { m | diagramList = AllList remoteData pageNo hasMorePage } (getDiagrams ())
                 )
 
-        LoadNextPage Public pageNo ->
-            Return.andThen <| \m -> Return.return { m | diagramList = PublicList Loading pageNo True } <| Task.perform identity (Task.succeed GetPublicDiagrams)
-
-        GetPublicDiagrams ->
+        LoadNextPage (PublicList _ _ hasMorePage) pageNo ->
             Return.andThen
                 (\m ->
                     let
-                        ( pageNo, hasMorePage ) =
+                        remoteTask =
+                            Request.items (Session.getIdToken m.session) (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
+                                |> Task.map (\i -> List.filterMap identity i)
+                    in
+                    Return.return { m | diagramList = PublicList Loading pageNo hasMorePage } <| Task.attempt GotPublicDiagrams remoteTask
+                )
+
+        LoadNextPage (BookmarkList _ _ hasMorePage) pageNo ->
+            Return.andThen
+                (\m ->
+                    let
+                        remoteTask =
+                            Request.items (Session.getIdToken m.session) (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = True }
+                                |> Task.map (\i -> List.filterMap identity i)
+                    in
+                    Return.return { m | diagramList = BookmarkList Loading pageNo hasMorePage } <| Task.attempt GotBookmarkDiagrams remoteTask
+                )
+
+        LoadNextPage (GistList _ _ hasMorePage) pageNo ->
+            Return.andThen
+                (\m ->
+                    let
+                        remoteTask =
+                            Request.gistItems (Session.getIdToken m.session) (pageOffsetAndLimit pageNo)
+                                |> Task.map (\i -> List.filterMap identity i)
+                    in
+                    Return.return { m | diagramList = GistList Loading pageNo hasMorePage } <| Task.attempt GotGistDiagrams remoteTask
+                )
+
+        GetPublicDiagrams pageNo ->
+            Return.andThen
+                (\m ->
+                    let
+                        hasMorePage =
                             case m.diagramList of
-                                DiagramList _ _ _ ->
-                                    ( 1, False )
+                                PublicList _ _ h ->
+                                    h
 
-                                GistList _ _ _ ->
-                                    ( 1, False )
-
-                                PublicList _ p h ->
-                                    ( p, h )
+                                _ ->
+                                    False
 
                         remoteTask =
                             Request.items (Session.getIdToken m.session) (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
                                 |> Task.map (\i -> List.filterMap identity i)
                     in
-                    Return.return { m | filterCondition = FilterCondition FilterPublic (\_ -> True), diagramList = PublicList Loading pageNo hasMorePage } <| Task.attempt GotPublicDiagrams remoteTask
+                    Return.return { m | diagramList = PublicList Loading pageNo hasMorePage } <| Task.attempt GotPublicDiagrams remoteTask
                 )
 
         GotPublicDiagrams (Ok diagrams) ->
@@ -705,26 +682,23 @@ update message =
         GotPublicDiagrams (Err _) ->
             Return.zero
 
-        GetBookmarkDiagrams ->
+        GetBookmarkDiagrams pageNo ->
             Return.andThen
                 (\m ->
                     let
-                        ( pageNo, hasMorePage ) =
+                        hasMorePage =
                             case m.diagramList of
-                                DiagramList _ p h ->
-                                    ( p, h )
+                                BookmarkList _ _ h ->
+                                    h
 
-                                GistList _ _ _ ->
-                                    ( 1, False )
-
-                                PublicList _ _ _ ->
-                                    ( 1, False )
+                                _ ->
+                                    False
 
                         remoteTask =
                             Request.items (Session.getIdToken m.session) (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = True }
                                 |> Task.map (\i -> List.filterMap identity i)
                     in
-                    Return.return { m | filterCondition = FilterCondition FilterBookmark (\_ -> True), diagramList = DiagramList Loading pageNo hasMorePage } <| Task.attempt GotBookmarkDiagrams remoteTask
+                    Return.return { m | diagramList = BookmarkList Loading pageNo hasMorePage } <| Task.attempt GotBookmarkDiagrams remoteTask
                 )
 
         GetDiagrams ->
@@ -739,41 +713,38 @@ update message =
 
                         ( pageNo, allDiagrams ) =
                             case m.diagramList of
-                                DiagramList (Success currentDiagrams) p _ ->
+                                BookmarkList (Success currentDiagrams) p _ ->
                                     ( p, Success <| List.concat [ currentDiagrams, diagrams ] )
 
-                                DiagramList _ p _ ->
+                                BookmarkList _ p _ ->
                                     ( p, Success diagrams )
 
                                 _ ->
                                     ( 1, Success diagrams )
                     in
-                    Return.singleton { m | diagramList = DiagramList allDiagrams pageNo hasMorePage }
+                    Return.singleton { m | diagramList = BookmarkList allDiagrams pageNo hasMorePage }
                 )
 
         GotBookmarkDiagrams (Err _) ->
             Return.zero
 
-        GetGistDiagrams ->
+        GetGistDiagrams pageNo ->
             Return.andThen
                 (\m ->
                     let
-                        ( pageNo, hasMorePage ) =
+                        hasMorePage =
                             case m.diagramList of
-                                DiagramList _ p h ->
-                                    ( p, h )
+                                GistList _ _ h ->
+                                    h
 
-                                GistList _ p h ->
-                                    ( p, h )
-
-                                PublicList _ p h ->
-                                    ( p, h )
+                                _ ->
+                                    False
 
                         remoteTask =
                             Request.gistItems (Session.getIdToken m.session) (pageOffsetAndLimit pageNo)
                                 |> Task.map (\i -> List.filterMap identity i)
                     in
-                    Return.return { m | filterCondition = FilterCondition FilterGist (\_ -> True), diagramList = GistList Loading pageNo hasMorePage } <| Task.attempt GotGistDiagrams remoteTask
+                    Return.return { m | diagramList = GistList Loading pageNo hasMorePage } <| Task.attempt GotGistDiagrams remoteTask
                 )
 
         GotGistDiagrams (Ok diagrams) ->
@@ -804,10 +775,10 @@ update message =
             Return.andThen
                 (\m ->
                     case m.diagramList of
-                        DiagramList Loading _ _ ->
+                        AllList Loading _ _ ->
                             Return.singleton m
 
-                        DiagramList _ pageNo _ ->
+                        AllList _ pageNo _ ->
                             let
                                 localItems =
                                     Result.withDefault [] <|
@@ -831,8 +802,8 @@ update message =
                                     { m
                                         | diagramList =
                                             case m.diagramList of
-                                                DiagramList NotAsked _ _ ->
-                                                    DiagramList Loading 1 False
+                                                AllList NotAsked _ _ ->
+                                                    AllList Loading 1 False
 
                                                 _ ->
                                                     m.diagramList
@@ -841,7 +812,7 @@ update message =
                                     Task.attempt GotDiagrams items
 
                             else
-                                Return.singleton { m | diagramList = DiagramList (Success localItems) 1 False }
+                                Return.singleton { m | diagramList = AllList (Success localItems) 1 False }
 
                         _ ->
                             Return.singleton m
@@ -859,24 +830,20 @@ update message =
 
                         ( remoteData, pageNo ) =
                             case m.diagramList of
-                                DiagramList r p _ ->
+                                AllList r p _ ->
                                     ( r, p )
 
-                                GistList r p _ ->
-                                    ( r, p )
-
-                                PublicList r p _ ->
-                                    ( r, p )
+                                _ ->
+                                    ( Success [], 1 )
                     in
                     Return.singleton
                         { m
                             | diagramList =
                                 if List.isEmpty <| RemoteData.withDefault [] remoteData then
-                                    DiagramList (Success items) 1 hasMorePage
+                                    AllList (Success items) 1 hasMorePage
 
                                 else
-                                    DiagramList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) pageNo hasMorePage
-                            , tags = List.concat [ m.tags, tags items ]
+                                    AllList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) pageNo hasMorePage
                         }
                 )
 
@@ -917,7 +884,7 @@ update message =
                     let
                         ( remoteData, pageNo, hasMorePage ) =
                             case m.diagramList of
-                                DiagramList r p h ->
+                                AllList r p h ->
                                     ( r, p, h )
 
                                 GistList r p h ->
@@ -926,10 +893,13 @@ update message =
                                 PublicList r p h ->
                                     ( r, p, h )
 
+                                BookmarkList r p h ->
+                                    ( r, p, h )
+
                         diagramList =
                             RemoteData.withDefault [] remoteData |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark })
                     in
-                    Return.return { m | diagramList = DiagramList (Success diagramList) pageNo hasMorePage }
+                    Return.return { m | diagramList = createDiagramList m.diagramList diagramList pageNo hasMorePage }
                         (Task.attempt Bookmarked
                             (Request.bookmark (Session.getIdToken m.session)
                                 (case diagram.id of
@@ -963,7 +933,7 @@ update message =
             Return.andThen
                 (\m ->
                     case m.diagramList of
-                        DiagramList (Success diagrams) _ _ ->
+                        AllList (Success diagrams) _ _ ->
                             Return.return m <| Download.string "textusm.json" "application/json" <| DiagramItem.listToString diagrams
 
                         _ ->

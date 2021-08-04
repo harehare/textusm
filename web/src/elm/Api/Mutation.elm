@@ -27,7 +27,6 @@ save input isPublic =
             |> with Graphql.Object.Item.isBookmark
             |> hardcoded True
             |> hardcoded (Just DiagramLocation.Remote)
-            |> with Graphql.Object.Item.tags
             |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
         )
@@ -51,7 +50,6 @@ bookmark itemID isBookmark =
             |> with Graphql.Object.Item.isBookmark
             |> hardcoded True
             |> hardcoded (Just DiagramLocation.Remote)
-            |> with Graphql.Object.Item.tags
             |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
         )
@@ -75,7 +73,6 @@ saveGist input =
             |> hardcoded False
             |> hardcoded True
             |> hardcoded (Just DiagramLocation.Remote)
-            |> with Graphql.Object.GistItem.tags
             |> with (Graphql.Object.GistItem.createdAt |> DiagramItem.mapToDateTime)
             |> with (Graphql.Object.GistItem.updatedAt |> DiagramItem.mapToDateTime)
         )

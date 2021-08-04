@@ -54,7 +54,6 @@ type ComplexityRoot struct {
 		Diagram    func(childComplexity int) int
 		ID         func(childComplexity int) int
 		IsBookmark func(childComplexity int) int
-		Tags       func(childComplexity int) int
 		Thumbnail  func(childComplexity int) int
 		Title      func(childComplexity int) int
 		URL        func(childComplexity int) int
@@ -67,7 +66,6 @@ type ComplexityRoot struct {
 		ID         func(childComplexity int) int
 		IsBookmark func(childComplexity int) int
 		IsPublic   func(childComplexity int) int
-		Tags       func(childComplexity int) int
 		Text       func(childComplexity int) int
 		Thumbnail  func(childComplexity int) int
 		Title      func(childComplexity int) int
@@ -163,13 +161,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GistItem.IsBookmark(childComplexity), true
 
-	case "GistItem.tags":
-		if e.complexity.GistItem.Tags == nil {
-			break
-		}
-
-		return e.complexity.GistItem.Tags(childComplexity), true
-
 	case "GistItem.thumbnail":
 		if e.complexity.GistItem.Thumbnail == nil {
 			break
@@ -232,13 +223,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Item.IsPublic(childComplexity), true
-
-	case "Item.tags":
-		if e.complexity.Item.Tags == nil {
-			break
-		}
-
-		return e.complexity.Item.Tags(childComplexity), true
 
 	case "Item.text":
 		if e.complexity.Item.Text == nil {
@@ -556,7 +540,6 @@ type Item {
   diagram: Diagram!
   isPublic: Boolean!
   isBookmark: Boolean!
-  tags: [String]
   createdAt: Time!
   updatedAt: Time!
 }
@@ -568,7 +551,6 @@ type GistItem {
   thumbnail: String
   diagram: Diagram!
   isBookmark: Boolean!
-  tags: [String]
   createdAt: Time!
   updatedAt: Time!
 }
@@ -606,7 +588,6 @@ input InputItem {
   diagram: Diagram!
   isPublic: Boolean!
   isBookmark: Boolean!
-  tags: [String]
 }
 
 input InputShareItem {
@@ -624,7 +605,6 @@ input InputGistItem {
   diagram: Diagram!
   isBookmark: Boolean!
   url: String!
-  tags: [String]
 }
 
 type Mutation {
@@ -1188,38 +1168,6 @@ func (ec *executionContext) _GistItem_isBookmark(ctx context.Context, field grap
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _GistItem_tags(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "GistItem",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Tags, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*string)
-	fc.Result = res
-	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _GistItem_createdAt(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1530,38 +1478,6 @@ func (ec *executionContext) _Item_isBookmark(ctx context.Context, field graphql.
 	res := resTmp.(bool)
 	fc.Result = res
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Item_tags(ctx context.Context, field graphql.CollectedField, obj *item.Item) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Item",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Tags, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*string)
-	fc.Result = res
-	return ec.marshalOString2ᚕᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Item_createdAt(ctx context.Context, field graphql.CollectedField, obj *item.Item) (ret graphql.Marshaler) {
@@ -3552,14 +3468,6 @@ func (ec *executionContext) unmarshalInputInputGistItem(ctx context.Context, obj
 			if err != nil {
 				return it, err
 			}
-		case "tags":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
-			it.Tags, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		}
 	}
 
@@ -3625,14 +3533,6 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isBookmark"))
 			it.IsBookmark, err = ec.unmarshalNBoolean2bool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "tags":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
-			it.Tags, err = ec.unmarshalOString2ᚕᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3767,8 +3667,6 @@ func (ec *executionContext) _GistItem(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "tags":
-			out.Values[i] = ec._GistItem_tags(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._GistItem_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3833,8 +3731,6 @@ func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "tags":
-			out.Values[i] = ec._Item_tags(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Item_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -5011,42 +4907,6 @@ func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel
 	ret := make(graphql.Array, len(v))
 	for i := range v {
 		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
-	}
-
-	return ret
-}
-
-func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalOString2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalOString2ᚖstring(ctx, sel, v[i])
 	}
 
 	return ret

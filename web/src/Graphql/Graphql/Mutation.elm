@@ -45,9 +45,9 @@ save fillInOptionals____ requiredArgs____ object____ =
 
         optionalArgs____ =
             [ Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
-                |> List.filterMap identity
+                |> List.filterMap Basics.identity
     in
-    Object.selectionForCompositeField "save" (optionalArgs____ ++ [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputItem ]) object____ identity
+    Object.selectionForCompositeField "save" (optionalArgs____ ++ [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputItem ]) object____ Basics.identity
 
 
 type alias DeleteOptionalArguments =
@@ -75,7 +75,7 @@ delete fillInOptionals____ requiredArgs____ =
 
         optionalArgs____ =
             [ Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
-                |> List.filterMap identity
+                |> List.filterMap Basics.identity
     in
     Object.selectionForField "ScalarCodecs.ItemIdScalar" "delete" (optionalArgs____ ++ [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecItemIdScalar) ]) (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecItemIdScalar |> .decoder)
 
@@ -97,7 +97,7 @@ bookmark :
     -> SelectionSet decodesTo Graphql.Object.Item
     -> SelectionSet (Maybe decodesTo) RootMutation
 bookmark requiredArgs____ object____ =
-    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecItemIdScalar), Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ (identity >> Decode.nullable)
+    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecItemIdScalar), Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ (Basics.identity >> Decode.nullable)
 
 
 type alias ShareRequiredArguments =
@@ -130,7 +130,7 @@ saveGist :
     -> SelectionSet decodesTo Graphql.Object.GistItem
     -> SelectionSet decodesTo RootMutation
 saveGist requiredArgs____ object____ =
-    Object.selectionForCompositeField "saveGist" [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputGistItem ] object____ identity
+    Object.selectionForCompositeField "saveGist" [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputGistItem ] object____ Basics.identity
 
 
 type alias DeleteGistRequiredArguments =

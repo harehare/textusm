@@ -153,9 +153,6 @@ view props =
                     Page.Help ->
                         viewTitle [] [ Html.text "Help" ]
 
-                    Page.Tags _ ->
-                        viewTitle [] [ Html.text "Tags" ]
-
                     _ ->
                         Empty.view
                 ]
@@ -183,19 +180,6 @@ view props =
                 Html.div [ Attr.class "button" ]
                     [ Icon.lock Constants.disabledIconColor 14
                     , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolPrivate props.lang ] ]
-                    ]
-            , if (isJust <| Maybe.andThen .id props.currentDiagram) && canEdit then
-                Html.a [ Attr.attribute "aria-label" "Tag", Attr.style "display" "flex", Attr.href <| Route.toString Route.Tag ]
-                    [ Html.div [ Attr.class "button" ]
-                        [ Icon.tag Constants.iconColor 14
-                        , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipTags props.lang ] ]
-                        ]
-                    ]
-
-              else
-                Html.div [ Attr.class "button" ]
-                    [ Icon.tag Constants.disabledIconColor 14
-                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipTags props.lang ] ]
                     ]
             , Html.a [ Attr.attribute "aria-label" "Help", Attr.style "display" "flex", Attr.href <| Route.toString Route.Help ]
                 [ Html.div [ Attr.class "button" ]

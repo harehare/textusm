@@ -31,7 +31,6 @@ type Item {
   diagram: Diagram!
   isPublic: Boolean!
   isBookmark: Boolean!
-  tags: [String]
   createdAt: Time!
   updatedAt: Time!
 }
@@ -43,7 +42,6 @@ type GistItem {
   thumbnail: String
   diagram: Diagram!
   isBookmark: Boolean!
-  tags: [String]
   createdAt: Time!
   updatedAt: Time!
 }
@@ -81,7 +79,6 @@ input InputItem {
   diagram: Diagram!
   isPublic: Boolean!
   isBookmark: Boolean!
-  tags: [String]
 }
 
 input InputShareItem {
@@ -99,7 +96,6 @@ input InputGistItem {
   diagram: Diagram!
   isBookmark: Boolean!
   url: String!
-  tags: [String]
 }
 
 type Mutation {

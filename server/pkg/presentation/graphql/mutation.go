@@ -24,7 +24,6 @@ func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *
 			Diagram:    *input.Diagram,
 			IsPublic:   input.IsPublic,
 			IsBookmark: input.IsBookmark,
-			Tags:       input.Tags,
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
 		}
@@ -44,7 +43,6 @@ func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *
 		Diagram:    *input.Diagram,
 		IsPublic:   input.IsPublic,
 		IsBookmark: input.IsBookmark,
-		Tags:       input.Tags,
 		CreatedAt:  baseItem.CreatedAt,
 		UpdatedAt:  time.Now(),
 	}
@@ -87,7 +85,6 @@ func (r *mutationResolver) SaveGist(ctx context.Context, input InputGistItem) (*
 		Thumbnail:  input.Thumbnail,
 		Diagram:    *input.Diagram,
 		IsBookmark: input.IsBookmark,
-		Tags:       input.Tags,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}

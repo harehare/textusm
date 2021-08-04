@@ -11,14 +11,14 @@ module Types.DiagramItem exposing
     , listToValue
     , mapToDateTime
     , stringToList
-    , toInputItem
     , toInputGistItem
+    , toInputItem
     )
 
 import Graphql.Enum.Diagram
-import Graphql.InputObject exposing (InputItem)
+import Graphql.InputObject exposing (InputGistItem, InputItem)
 import Graphql.OptionalArgument as OptionalArgument
-import Graphql.Scalar exposing (ItemIdScalar(..))
+import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Iso8601
 import Json.Decode as D
@@ -32,8 +32,6 @@ import Types.DiagramType as DiagramType
 import Types.Session as Session exposing (Session)
 import Types.Text as Text exposing (Text)
 import Types.Title as Title exposing (Title)
-import Graphql.InputObject exposing (InputGistItem)
-import Graphql.Scalar exposing (GistIdScalar(..))
 
 
 type alias DiagramItem =
@@ -46,7 +44,6 @@ type alias DiagramItem =
     , isBookmark : Bool
     , isRemote : Bool
     , location : Maybe DiagramLocation
-    , tags : Maybe (List (Maybe String))
     , createdAt : Posix
     , updatedAt : Posix
     }
@@ -83,8 +80,8 @@ toInputItem item =
     , diagram = item.diagram
     , isPublic = item.isPublic
     , isBookmark = item.isBookmark
-    , tags = OptionalArgument.Present (item.tags |> Maybe.withDefault [])
     }
+
 
 toInputGistItem : DiagramItem -> InputGistItem
 toInputGistItem item =
@@ -104,7 +101,6 @@ toInputGistItem item =
             Nothing ->
                 OptionalArgument.Absent
     , diagram = item.diagram
-    , tags = OptionalArgument.Present (item.tags |> Maybe.withDefault [])
     , url = ""
     , isBookmark = item.isBookmark
     }
@@ -121,7 +117,6 @@ empty =
     , isBookmark = False
     , isRemote = False
     , location = Just DiagramLocation.Local
-    , tags = Nothing
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
     }
@@ -152,7 +147,6 @@ encoder diagram =
         , ( "isBookmark", E.bool diagram.isBookmark )
         , ( "isRemote", E.bool diagram.isRemote )
         , ( "location", maybe E.string <| Maybe.map DiagramLocation.toString diagram.location )
-        , ( "tags", maybe (E.list (maybe E.string)) diagram.tags )
         , ( "createdAt", E.int <| Time.posixToMillis diagram.createdAt )
         , ( "updatedAt", E.int <| Time.posixToMillis diagram.updatedAt )
         ]
@@ -170,7 +164,6 @@ decoder =
         |> required "isBookmark" D.bool
         |> required "isRemote" D.bool
         |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
-        |> optional "tags" (D.map Just (D.list (D.maybe D.string))) Nothing
         |> required "createdAt" (D.map Time.millisToPosix D.int)
         |> required "updatedAt" (D.map Time.millisToPosix D.int)
 

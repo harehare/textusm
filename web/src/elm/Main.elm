@@ -40,7 +40,6 @@ import Page.List as DiagramList
 import Page.New as New
 import Page.NotFound as NotFound
 import Page.Settings as Settings
-import Page.Tags as Tags
 import Ports
 import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
@@ -252,9 +251,6 @@ view model =
                 Page.Settings ->
                     Lazy.lazy Settings.view model.settingsModel |> Html.map UpdateSettings
 
-                Page.Tags m ->
-                    Lazy.lazy Tags.view m |> Html.map UpdateTags
-
                 Page.Embed _ _ _ ->
                     Embed.view model
 
@@ -398,9 +394,6 @@ changeRouteTo route =
                 >> Return.andThen (Action.switchPage Page.List)
                 >> Return.andThen Action.startProgress
 
-        Route.Tag ->
-            Return.andThen Action.initTagPage
-
         Route.New ->
             Return.andThen <| Action.switchPage Page.New
 
@@ -452,59 +445,17 @@ changeRouteTo route =
         Route.EditFile _ id_ ->
             Return.andThen
                 (\m ->
-                    let
-                        loadText_ =
-                            Return.singleton m
-                                |> (if Session.isSignedIn m.session then
-                                        Return.andThen Action.updateIdToken
-                                            >> Return.andThen (Action.switchPage Page.Main)
-                                            >> Return.andThen (Action.loadItem id_)
-
-                                    else
-                                        Return.andThen (Action.switchPage Page.Main)
-                                            >> Return.andThen (Action.loadLocalDiagram id_)
-                                            >> Return.andThen Action.changeRouteInit
-                                   )
-                    in
-                    case ( m.diagramListModel.diagramList, m.currentDiagram ) of
-                        ( DiagramList.DiagramList (Success d) _ _, _ ) ->
-                            case find (\diagram -> (DiagramItem.getId diagram |> DiagramId.toString) == DiagramId.toString id_) d of
-                                Just item ->
-                                    Return.singleton m
-                                        |> (if item.isRemote then
-                                                Return.andThen Action.updateIdToken
-                                                    >> Return.andThen (Action.switchPage Page.Main)
-                                                    >> Return.andThen (Action.loadItem id_)
-
-                                            else
-                                                Return.andThen (Action.switchPage Page.Main)
-                                                    >> Return.command (Task.attempt Load <| Task.succeed item)
-                                           )
-
-                                Nothing ->
-                                    Return.singleton m
-                                        |> (Return.andThen (Action.switchPage Page.NotFound)
-                                                >> Return.andThen Action.stopProgress
-                                           )
-
-                        ( _, Just diagram ) ->
-                            if (DiagramItem.getId diagram |> DiagramId.toString) == DiagramId.toString id_ then
-                                Return.singleton m
-                                    |> (Return.andThen (Action.switchPage Page.Main)
-                                            >> (case ( m.page, Size.isZero m.diagramModel.size ) of
-                                                    ( Page.Main, False ) ->
-                                                        Return.zero
-
-                                                    _ ->
-                                                        Return.andThen Action.changeRouteInit
-                                               )
-                                       )
+                    Return.singleton m
+                        |> (if Session.isSignedIn m.session then
+                                Return.andThen Action.updateIdToken
+                                    >> Return.andThen (Action.switchPage Page.Main)
+                                    >> Return.andThen (Action.loadItem id_)
 
                             else
-                                loadText_
-
-                        _ ->
-                            loadText_
+                                Return.andThen (Action.switchPage Page.Main)
+                                    >> Return.andThen (Action.loadLocalDiagram id_)
+                                    >> Return.andThen Action.changeRouteInit
+                           )
                 )
 
         Route.ViewPublic _ id_ ->
@@ -591,32 +542,6 @@ update message =
                                             Return.zero
                                    )
                                 >> Return.andThen Action.stopProgress
-
-                        _ ->
-                            Return.singleton m
-                )
-
-        UpdateTags msg ->
-            Return.andThen
-                (\m ->
-                    case ( m.page, m.currentDiagram ) of
-                        ( Page.Tags tag, Just diagram ) ->
-                            let
-                                ( model_, cmd_ ) =
-                                    Return.singleton tag |> Tags.update msg
-
-                                newDiagram =
-                                    { diagram
-                                        | tags = Just (List.map Just model_.tags)
-                                    }
-                            in
-                            Return.return
-                                { m
-                                    | page = Page.Tags model_
-                                    , currentDiagram = Just newDiagram
-                                    , diagramModel = DiagramModel.updatedText m.diagramModel (Text.change diagram.text)
-                                }
-                                (cmd_ |> Cmd.map UpdateTags)
 
                         _ ->
                             Return.singleton m
@@ -878,7 +803,6 @@ update message =
                                         Just DiagramLocation.Local
                                 , isPublic = Maybe.map .isPublic m.currentDiagram |> Maybe.withDefault False
                                 , isBookmark = False
-                                , tags = Maybe.andThen .tags m.currentDiagram
                                 , updatedAt = Time.millisToPosix 0
                                 , createdAt = Time.millisToPosix 0
                                 }
@@ -927,7 +851,6 @@ update message =
                             , isPublic = False
                             , isBookmark = False
                             , location = Just DiagramLocation.Local
-                            , tags = Nothing
                             , updatedAt = Time.millisToPosix 0
                             , createdAt = Time.millisToPosix 0
                             }
