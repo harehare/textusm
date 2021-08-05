@@ -1,5 +1,5 @@
 {
     "path": "./src/elm/",
     "moduleName": "Env",
-    "values": ["API_ROOT", "WEB_ROOT", "APP_VERSION"]
+    "values": ["API_ROOT", "WEB_ROOT", "APP_VERSION", "REPO_URL"]
 }

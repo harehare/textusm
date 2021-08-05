@@ -97,5 +97,8 @@
         "format": "prettier --write src/**/*.{js,jsx,ts,tsx}",
         "lint": "eslint --fix src/ts/*.ts",
         "prepare": "cd .. && husky install"
-    }
+    },
+    "browserslist": [
+        "defaults"
+    ]
 }

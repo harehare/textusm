@@ -1,4 +1,4 @@
-port module Page.List exposing (DiagramList(..), Model, Msg(..), init, isNotAsked, modelOfDiagramList, notAsked, update, view)
+port module Page.List exposing (Model, Msg(..), init, isNotAsked, modelOfDiagramList, notAsked, update, view)
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
@@ -7,7 +7,7 @@ import File exposing (File)
 import File.Download as Download
 import File.Select as Select
 import Graphql.Object.GistItem exposing (diagram)
-import Html exposing (Html, div, input, span, text)
+import Html exposing (Html)
 import Html.Attributes exposing (class, placeholder, style)
 import Html.Events exposing (onClick, onInput, stopPropagationOn)
 import Html.Lazy as Lazy
@@ -79,7 +79,6 @@ type alias Model =
     , session : Session
     , apiRoot : String
     , lang : Lang
-    , tags : List String
     , confirmDialog : Dialog.ConfirmDialog Msg
     }
 
@@ -193,22 +192,19 @@ port removeDiagrams : E.Value -> Cmd msg
 port importDiagram : E.Value -> Cmd msg
 
 
-init : Session -> Lang -> String -> ( Model, Cmd Msg )
+init : Session -> Lang -> String -> Return Msg Model
 init session lang apiRoot =
-    ( { searchQuery = Nothing
-      , timeZone = Time.utc
-      , diagramList = notAsked
-      , session = session
-      , apiRoot = apiRoot
-      , lang = lang
-      , tags = []
-      , confirmDialog = Dialog.Hide
-      }
-    , Cmd.batch
-        [ Task.perform GotTimeZone Time.here
-        , getDiagrams ()
-        ]
-    )
+    Return.return
+        { searchQuery = Nothing
+        , timeZone = Time.utc
+        , diagramList = notAsked
+        , session = session
+        , apiRoot = apiRoot
+        , lang = lang
+        , confirmDialog = Dialog.Hide
+        }
+        (Task.perform GotTimeZone Time.here)
+        |> Return.command (getDiagrams ())
 
 
 showDialog : Dialog.ConfirmDialog Msg -> Html Msg
@@ -233,8 +229,8 @@ closeDialog model =
 
 sideMenu : Session -> DiagramList -> Html Msg
 sideMenu session diagramList =
-    div [ class "side-menu" ]
-        [ div
+    Html.div [ class "side-menu" ]
+        [ Html.div
             [ class <|
                 if isAllList diagramList then
                     "item selected"
@@ -243,9 +239,9 @@ sideMenu session diagramList =
                     "item"
             , onClick GetDiagrams
             ]
-            [ text "All" ]
+            [ Html.text "All" ]
         , if Session.isSignedIn session then
-            div
+            Html.div
                 [ class <|
                     if isPublicList diagramList then
                         "item selected"
@@ -254,11 +250,11 @@ sideMenu session diagramList =
                         "item"
                 , onClick <| GetPublicDiagrams 1
                 ]
-                [ Icon.globe "#F5F5F6" 16, div [ class "p-sm" ] [ text "Public" ] ]
+                [ Icon.globe "#F5F5F6" 16, Html.div [ class "p-sm" ] [ Html.text "Public" ] ]
 
           else
             Empty.view
-        , div
+        , Html.div
             [ class <|
                 if isBookMarkList diagramList then
                     "item selected"
@@ -267,9 +263,9 @@ sideMenu session diagramList =
                     "item"
             , onClick <| GetBookmarkDiagrams 1
             ]
-            [ Icon.bookmark "#F5F5F6" 14, div [ class "p-sm" ] [ text "Bookmarks" ] ]
+            [ Icon.bookmark "#F5F5F6" 14, Html.div [ class "p-sm" ] [ Html.text "Bookmarks" ] ]
         , if Session.isGithubUser session then
-            div
+            Html.div
                 [ class <|
                     if isGistList diagramList then
                         "item selected"
@@ -279,7 +275,7 @@ sideMenu session diagramList =
                 , onClick <| GetGistDiagrams 1
                 ]
                 [ Icon.github "#F5F5F6" 14
-                , div [ class "p-sm" ] [ text "Gist" ]
+                , Html.div [ class "p-sm" ] [ Html.text "Gist" ]
                 ]
 
           else
@@ -291,7 +287,7 @@ view : Model -> Html Msg
 view model =
     case model.diagramList of
         PublicList (Success diagrams) pageNo hasMorePage ->
-            div
+            Html.div
                 [ class "diagram-list"
                 ]
                 [ Lazy.lazy2 sideMenu
@@ -310,7 +306,7 @@ view model =
                 ]
 
         BookmarkList (Success diagrams) pageNo hasMorePage ->
-            div
+            Html.div
                 [ class "diagram-list"
                 ]
                 [ Lazy.lazy2 sideMenu
@@ -329,7 +325,7 @@ view model =
                 ]
 
         GistList (Success diagrams) pageNo hasMorePage ->
-            div
+            Html.div
                 [ class "diagram-list"
                 ]
                 [ Lazy.lazy2 sideMenu
@@ -348,7 +344,7 @@ view model =
                 ]
 
         AllList (Success diagrams) pageNo hasMorePage ->
-            div
+            Html.div
                 [ class "diagram-list"
                 ]
                 [ Lazy.lazy2 sideMenu
@@ -379,15 +375,15 @@ view model =
             errorView e
 
         _ ->
-            div
+            Html.div
                 [ class "diagram-list flex-center w-screen"
                 ]
-                [ div
+                [ Html.div
                     [ class "flex-center w-full text-2xl"
                     , style "padding-bottom" "32px"
                     , style "color" "#8C9FAE"
                     ]
-                    [ div [ style "margin-bottom" "8px" ]
+                    [ Html.div [ style "margin-bottom" "8px" ]
                         [ Loading.render
                             Circle
                             { defaultConfig | color = "#3e9bcd", size = 40 }
@@ -409,20 +405,20 @@ diagramListView :
     }
     -> Html Msg
 diagramListView props =
-    div
+    Html.div
         [ style "width" "100%" ]
-        [ div
+        [ Html.div
             [ class "flex items-center justify-end p-md"
             , style "color" "#FEFEFE"
             ]
-            [ div [ class "flex items-center w-full relative" ]
-                [ div
+            [ Html.div [ class "flex items-center w-full relative" ]
+                [ Html.div
                     [ class "absolute"
                     , style "left" "3px"
                     , style "top" "5px"
                     ]
                     [ Icon.search "#8C9FAE" 24 ]
-                , input
+                , Html.input
                     [ placeholder "Search"
                     , class "w-full text-sm border-none p-sm"
                     , style "border-radius" "16px"
@@ -432,30 +428,30 @@ diagramListView props =
                     ]
                     []
                 ]
-            , div
+            , Html.div
                 [ class "button"
                 , style "margin-left" "8px"
                 , onClick Export
                 ]
-                [ Icon.cloudDownload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Message.toolTipExport props.lang ] ] ]
-            , div
+                [ Icon.cloudDownload "#FEFEFE" 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ] ]
+            , Html.div
                 [ class "button"
                 , onClick Import
                 ]
-                [ Icon.cloudUpload "#FEFEFE" 24, span [ class "bottom-tooltip" ] [ span [ class "text" ] [ text <| Message.toolTipImport props.lang ] ] ]
+                [ Icon.cloudUpload "#FEFEFE" 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipImport props.lang ] ] ]
             ]
         , if List.isEmpty props.diagrams then
-            div
+            Html.div
                 [ class "flex-center h-full text-2xl"
                 , style "color" "#8C9FAE"
                 , style "padding-bottom" "32px"
                 ]
-                [ div [ style "margin-bottom" "8px" ] [ text "NOTHING" ]
+                [ Html.div [ style "margin-bottom" "8px" ] [ Html.text "NOTHING" ]
                 ]
 
           else
-            div [ class "overflow-y-auto", style "height" "calc(100vh - 120px - 2rem)" ]
-                [ div
+            Html.div [ class "overflow-y-auto", style "height" "calc(100vh - 120px - 2rem)" ]
+                [ Html.div
                     [ class "grid list p-sm mb-sm"
                     , style "will-change" "transform"
                     , style "border-top" "1px solid #323B46"
@@ -472,12 +468,12 @@ diagramListView props =
                             (\d -> Lazy.lazy2 diagramView props.timeZone d)
                     )
                 , if props.hasMorePage then
-                    div [ class "w-full flex-center" ]
-                        [ div
+                    Html.div [ class "w-full flex-center" ]
+                        [ Html.div
                             [ class "button bg-activity text-center m-sm"
                             , onClick <| LoadNextPage props.diagramList <| props.pageNo + 1
                             ]
-                            [ text "Load more" ]
+                            [ Html.text "Load more" ]
                         ]
 
                   else
@@ -489,7 +485,7 @@ diagramListView props =
 
 diagramView : Zone -> DiagramItem -> Html Msg
 diagramView timezone diagram =
-    div
+    Html.div
         [ class "diagram-item"
         , class "bg-cover"
         , class "bg-no-repeat"
@@ -497,52 +493,52 @@ diagramView timezone diagram =
         , style "background-image" ("url(\"" ++ (diagram.thumbnail |> Maybe.withDefault "") ++ "\")")
         , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
         ]
-        [ div
+        [ Html.div
             [ class "diagram-text"
             ]
-            [ div
+            [ Html.div
                 [ class "overflow-hidden"
                 , class "overflow-ellipsis"
                 , class "text-base"
                 , class "font-semibold"
                 ]
-                [ text (Title.toString diagram.title) ]
-            , div
+                [ Html.text (Title.toString diagram.title) ]
+            , Html.div
                 [ class "flex"
                 , class "items-center"
                 , class "justify-between"
                 ]
-                [ div [ class "date-time" ] [ text (DateUtils.millisToString timezone diagram.updatedAt) ] ]
+                [ Html.div [ class "date-time" ] [ Html.text (DateUtils.millisToString timezone diagram.updatedAt) ] ]
             ]
         , case diagram.location of
             Just DiagramLocation.Gist ->
-                div [ class "cloud" ] [ Icon.github "rgba(51, 51, 51, 0.7)" 14 ]
+                Html.div [ class "cloud" ] [ Icon.github "rgba(51, 51, 51, 0.7)" 14 ]
 
             Just DiagramLocation.Remote ->
-                div [ class "cloud" ] [ Icon.cloudOn 14 ]
+                Html.div [ class "cloud" ] [ Icon.cloudOn 14 ]
 
             _ ->
-                div [ class "cloud" ] [ Icon.cloudOff 14 ]
+                Html.div [ class "cloud" ] [ Icon.cloudOff 14 ]
         , if diagram.isPublic then
-            div [ class "public" ] [ Icon.lockOpen "rgba(51, 51, 51, 0.7)" 14 ]
+            Html.div [ class "public" ] [ Icon.lockOpen "rgba(51, 51, 51, 0.7)" 14 ]
 
           else
-            div [ class "public" ] [ Icon.lock "rgba(51, 51, 51, 0.7)" 14 ]
+            Html.div [ class "public" ] [ Icon.lock "rgba(51, 51, 51, 0.7)" 14 ]
         , if diagram.isPublic then
             Empty.view
 
           else
-            div [ class "remove button", stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True )) ] [ Icon.clear "#333" 18 ]
+            Html.div [ class "remove button", stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True )) ] [ Icon.clear "#333" 18 ]
         , case ( diagram.isBookmark, diagram.isRemote ) of
             ( True, True ) ->
-                div
+                Html.div
                     [ class "bookmark"
                     , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
                     ]
                     [ Icon.bookmark "#3e9bcd" 16 ]
 
             ( False, True ) ->
-                div
+                Html.div
                     [ class "bookmark"
                     , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
                     ]
@@ -555,19 +551,19 @@ diagramView timezone diagram =
 
 errorView : Http.Error -> Html Msg
 errorView e =
-    div
+    Html.div
         [ class "diagram-list"
         , class "w-screen"
         ]
-        [ div
+        [ Html.div
             [ class "flex-center"
             , class "h-full"
             , class "text-2xl"
             , style "padding-bottom" "32px"
             , style "color" "#8C9FAE"
             ]
-            [ div [ class "mb-sm" ]
-                [ text ("Failed " ++ Utils.httpErrorToString e)
+            [ Html.div [ class "mb-sm" ]
+                [ Html.text ("Failed " ++ Utils.httpErrorToString e)
                 ]
             ]
         ]

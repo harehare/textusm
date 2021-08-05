@@ -26,7 +26,6 @@ import Html.Events as E
 import Html.Lazy as Lazy
 import Json.Decode as D
 import Json.Encode as E
-import List.Extra exposing (find)
 import Message
 import Models.Diagram as DiagramModel
 import Models.Diagram.ER as ER
