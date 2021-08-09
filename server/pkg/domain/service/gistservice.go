@@ -10,12 +10,16 @@ import (
 )
 
 type GistService struct {
-	repo itemRepo.GistItemRepository
+	repo         itemRepo.GistItemRepository
+	clientID     string
+	clientSecret string
 }
 
-func NewGistService(r itemRepo.GistItemRepository) *GistService {
+func NewGistService(r itemRepo.GistItemRepository, clientID, clientSecret string) *GistService {
 	return &GistService{
-		repo: r,
+		repo:         r,
+		clientID:     clientID,
+		clientSecret: clientSecret,
 	}
 }
 
@@ -65,4 +69,12 @@ func (g *GistService) Delete(ctx context.Context, gistID v.GistID) error {
 
 	userID := values.GetUID(ctx)
 	return g.repo.Delete(ctx, *userID, gistID)
+}
+
+func (g *GistService) RevokeToken(ctx context.Context, accessToken string) error {
+	if err := isAuthenticated(ctx); err != nil {
+		return err
+	}
+
+	return g.repo.RevokeToken(ctx, g.clientID, g.clientSecret, accessToken)
 }

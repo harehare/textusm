@@ -12,4 +12,5 @@ type GistItemRepository interface {
 	Find(ctx context.Context, userID string, offset, limit int) ([]*m.GistItem, error)
 	Save(ctx context.Context, userID string, item *m.GistItem) (*m.GistItem, error)
 	Delete(ctx context.Context, userID string, itemID values.GistID) error
+	RevokeToken(ctx context.Context, clientID, clientSecret, accessToken string) error
 }

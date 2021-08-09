@@ -2,7 +2,7 @@ module Api.External.Github.Request exposing (..)
 
 import Api.External.Github.Gist as Gist exposing (Gist)
 import Api.External.Github.GistInput as GistInput exposing (GistInput)
-import Api.External.Request as Request
+import Api.Http.Request as Request
 import Http exposing (Header)
 import Json.Encode as E
 import Task exposing (Task)

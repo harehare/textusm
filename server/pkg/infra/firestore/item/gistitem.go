@@ -1,7 +1,11 @@
 package item
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"net/http"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
@@ -82,4 +86,23 @@ func (r *FirestoreGistItemRepository) Save(ctx context.Context, userID string, i
 func (r *FirestoreGistItemRepository) Delete(ctx context.Context, userID string, gistID v.GistID) error {
 	_, err := r.client.Collection(usersCollection).Doc(userID).Collection(gistItemsCollection).Doc(gistID.String()).Delete(ctx)
 	return err
+}
+
+func (r *FirestoreGistItemRepository) RevokeToken(ctx context.Context, clientID, clientSecret, accessToken string) error {
+	client := &http.Client{Timeout: time.Duration(30) * time.Second}
+	body := `{"access_token":"` + accessToken + `"}`
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("https://api.github.com/applications/%s/token", clientID), bytes.NewBuffer([]byte(body)))
+	if err != nil {
+		return err
+	}
+	req.SetBasicAuth(clientID, clientSecret)
+	req.Header.Add("Accept", "application/vnd.github.v3+json")
+	res, err := client.Do(req)
+
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return nil
 }

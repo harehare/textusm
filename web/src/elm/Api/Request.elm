@@ -28,7 +28,6 @@ import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
 import Task exposing (Task)
 import Types.DiagramId as DiagramId
 import Types.DiagramItem exposing (DiagramItem)
-import Types.DiagramLocation as DiagramLocation
 import Types.Email as Email exposing (Email)
 import Types.IdToken as IdToken exposing (IdToken)
 import Types.IpAddress as IpAddress exposing (IpAddress)

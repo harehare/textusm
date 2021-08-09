@@ -20,6 +20,7 @@ import (
 	itemRepo "github.com/harehare/textusm/pkg/infra/firestore/item"
 	shareRepo "github.com/harehare/textusm/pkg/infra/firestore/share"
 	userRepo "github.com/harehare/textusm/pkg/infra/firestore/user"
+	"github.com/harehare/textusm/pkg/presentation/api"
 	"github.com/harehare/textusm/pkg/presentation/api/middleware"
 	resolver "github.com/harehare/textusm/pkg/presentation/graphql"
 
@@ -42,6 +43,8 @@ type Env struct {
 	DatabaseCredentials string `envconfig:"DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON"`
 	TlsCertFile         string `envconfig:"TLS_CERT_FILE" default:""`
 	TlsKeyFile          string `envconfig:"TLS_KEY_FILE"  default:""`
+	GithubClientID      string `envconfig:"GITHUB_CLIENT_ID"  default:""`
+	GithubClientSecret  string `envconfig:"GITHUB_CLIENT_SECRET"  default:""`
 }
 
 var (
@@ -96,7 +99,7 @@ func Run() int {
 	userRepo := userRepo.NewFirebaseUserRepository(app)
 	gistRepo := itemRepo.NewFirestoreGistItemRepository(firestore)
 	itemService := service.NewService(repo, shareRepo, userRepo)
-	gistService := service.NewGistService(gistRepo)
+	gistService := service.NewGistService(gistRepo, env.GithubClientID, env.GithubClientSecret)
 
 	r := chi.NewRouter()
 	r.Use(chiMiddleware.Compress(5))
@@ -105,6 +108,20 @@ func Run() int {
 	r.Use(chiMiddleware.Logger)
 	r.Use(chiMiddleware.Recoverer)
 	r.Use(chiMiddleware.Heartbeat("/healthcheck"))
+
+	r.Route("/api/v1", func(r chi.Router) {
+		r.Use(chiMiddleware.AllowContentType("application/json"))
+		r.Use(middleware.AuthMiddleware(app))
+		r.Use(middleware.IPMiddleware())
+		r.Use(httprate.LimitByIP(10, 1*time.Minute))
+
+		restApi := api.New(*gistService)
+
+		r.Route("/token", func(r chi.Router) {
+			r.Delete("/gist/revoke", restApi.RevokeGistToken)
+		})
+	})
+
 	r.Route("/graphql", func(r chi.Router) {
 		r.Use(chiMiddleware.AllowContentType("application/json"))
 		r.Use(middleware.AuthMiddleware(app))
