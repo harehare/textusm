@@ -18,7 +18,7 @@ import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
 import Dialog.Share as Share
 import Json.Decode as D
-import Message exposing (Lang)
+import Message exposing (Lang, Message)
 import Models.Diagram as Diagram
 import Models.Dialog exposing (ConfirmDialog)
 import Models.Page exposing (Page)
@@ -74,6 +74,7 @@ type Msg
     | ChangePublicStatus Bool
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
     | Load (Result RequestError DiagramItem)
+    | CallApi (Result Message ())
     | CloseFullscreen D.Value
     | UpdateIdToken String
     | EditPassword String

@@ -993,7 +993,8 @@ update message =
                 >> Return.andThen Action.startProgress
 
         SignOut ->
-            Return.andThen (\m -> Return.return { m | session = Session.guest } (Ports.signOut ()))
+            Return.andThen Action.revokeGistToken
+                >> Return.andThen (\m -> Return.return { m | session = Session.guest } (Ports.signOut ()))
                 >> Return.andThen (Action.setCurrentDiagram Nothing)
 
         HandleAuthStateChanged (Just value) ->
@@ -1148,6 +1149,12 @@ update message =
 
         CloseDialog ->
             Return.andThen Action.closeDialog
+
+        CallApi (Ok ()) ->
+            Return.zero
+
+        CallApi (Err m) ->
+            Return.andThen (Action.showErrorMessage m)
 
 
 

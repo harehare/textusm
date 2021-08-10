@@ -109,11 +109,19 @@ func Run() int {
 	r.Use(chiMiddleware.Recoverer)
 	r.Use(chiMiddleware.Heartbeat("/healthcheck"))
 
+	cors := cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://app.textusm.com", "http://localhost:3000", "https://localhost:3000"},
+		AllowedMethods:   []string{"POST", "OPTIONS", "DELETE"},
+		AllowedHeaders:   []string{"accept", "authorization", "content-type"},
+		AllowCredentials: false,
+	})
+
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Use(chiMiddleware.AllowContentType("application/json"))
 		r.Use(middleware.AuthMiddleware(app))
 		r.Use(middleware.IPMiddleware())
 		r.Use(httprate.LimitByIP(10, 1*time.Minute))
+		r.Use(cors)
 
 		restApi := api.New(*gistService)
 
@@ -126,12 +134,7 @@ func Run() int {
 		r.Use(chiMiddleware.AllowContentType("application/json"))
 		r.Use(middleware.AuthMiddleware(app))
 		r.Use(middleware.IPMiddleware())
-		r.Use(cors.Handler(cors.Options{
-			AllowedOrigins:   []string{"https://app.textusm.com", "http://localhost:3000", "https://localhost:3000"},
-			AllowedMethods:   []string{"POST", "OPTIONS"},
-			AllowedHeaders:   []string{"accept", "authorization", "content-type"},
-			AllowCredentials: false,
-		}))
+		r.Use(cors)
 		r.Use(httprate.LimitByIP(100, 1*time.Minute))
 		graphql := gqlHandler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: resolver.New(itemService, gistService, firestore)}))
 		graphql.AddTransport(transport.Options{})

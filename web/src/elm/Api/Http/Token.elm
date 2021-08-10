@@ -21,7 +21,7 @@ revokeGistToken : Maybe IdToken -> String -> Task RequestError ()
 revokeGistToken idToken accessToken =
     HttpRequest.delete
         { url = Env.apiRoot
-        , path = [ "api", "v1" ]
+        , path = [ "api", "v1", "token", "gist", "revoke" ]
         , query = []
         , headers = headers idToken
         }
@@ -34,7 +34,7 @@ headers : Maybe IdToken -> List Http.Header
 headers idToken =
     case idToken of
         Just token ->
-            [ Http.header "Authorization" <| "Bearer " ++ IdToken.unwrap token ]
+            [ Http.header "Authorization" <| IdToken.unwrap token ]
 
         Nothing ->
             []

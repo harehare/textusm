@@ -5,6 +5,7 @@ module Message exposing
     , messageBadRequest
     , messageFailed
     , messageFailedPublished
+    , messageFailedRevokeToken
     , messageFailedSaved
     , messageFailedSharing
     , messageImportCompleted
@@ -352,3 +353,13 @@ messageBadRequest lang =
 
         _ ->
             "Bad request"
+
+
+messageFailedRevokeToken : Lang -> String
+messageFailedRevokeToken lang =
+    case lang of
+        Ja ->
+            "トークンの失効処理に失敗しました"
+
+        _ ->
+            "Failed to revoke the token"

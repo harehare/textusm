@@ -1,5 +1,6 @@
 module Action exposing (..)
 
+import Api.Http.Token as TokenApi
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
 import Browser.Dom as Dom
@@ -7,7 +8,7 @@ import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Dialog.Share as Share
 import Graphql.Enum.Diagram exposing (Diagram)
-import Message exposing (Message)
+import Message as Message exposing (Message)
 import Models.Diagram as DiagramModel
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
@@ -178,6 +179,28 @@ loadPublicItem id_ model =
                 (Session.getIdToken model.session)
                 (DiagramId.toString id_)
         )
+
+
+revokeGistToken : Model -> Return Msg Model
+revokeGistToken model =
+    case model.session of
+        Session.SignedIn user ->
+            case user.loginProvider of
+                LoginProvider.Github (Just accessToken) ->
+                    Return.return model
+                        (Task.attempt CallApi
+                            (TokenApi.revokeGistToken
+                                (Session.getIdToken model.session)
+                                accessToken
+                                |> Task.mapError (\_ -> Message.messageFailedRevokeToken)
+                            )
+                        )
+
+                _ ->
+                    Return.singleton model
+
+        Session.Guest ->
+            Return.singleton model
 
 
 startProgress : Model -> Return Msg Model
