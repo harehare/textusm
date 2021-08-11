@@ -92,10 +92,10 @@ export const initDB = (app: ElmApp): void => {
             title,
             text,
             diagram,
+            location,
             isPublic,
             isBookmark,
             isRemote,
-            tags,
         }: Diagram) => {
             const thumbnail = await svg2base64('usm');
             const createdAt = new Date().getTime();
@@ -108,7 +108,7 @@ export const initDB = (app: ElmApp): void => {
                 isPublic,
                 isRemote,
                 isBookmark,
-                tags,
+                location,
                 createdAt,
                 updatedAt: createdAt,
             };

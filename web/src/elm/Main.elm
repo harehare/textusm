@@ -766,6 +766,15 @@ update message =
         CloseMenu ->
             Return.andThen Action.closeMenu
 
+        GotGithubAccessToken { cmd, accessToken } ->
+            Return.andThen (\m -> Return.singleton { m | session = Session.updateAccessToken m.session (accessToken |> Maybe.withDefault "") })
+                >> (if cmd == "save" then
+                        Return.command (Task.perform identity (Task.succeed Save))
+
+                    else
+                        Return.andThen (Action.loadItem (DiagramId.fromString cmd))
+                   )
+
         Save ->
             Return.andThen
                 (\m ->
@@ -773,38 +782,48 @@ update message =
                         Action.startEditTitle m
 
                     else
-                        let
-                            isRemote =
-                                m.currentDiagram
-                                    |> Maybe.withDefault DiagramItem.empty
-                                    |> DiagramItem.isRemoteDiagram m.session
+                        case ( m.settingsModel.settings.location, Session.getAccessToken m.session ) of
+                            ( Just DiagramLocation.Gist, Nothing ) ->
+                                Return.return m <| Ports.getGithubAccessToken "save"
 
-                            newDiagramModel =
-                                DiagramModel.updatedText m.diagramModel (Text.saved m.diagramModel.text)
-                        in
-                        Return.singleton
-                            { m
-                                | diagramListModel = m.diagramListModel |> DiagramList.modelOfDiagramList.set DiagramList.notAsked
-                                , diagramModel = newDiagramModel
-                            }
-                            |> Action.saveDiagram
-                                { id = Maybe.andThen .id m.currentDiagram
-                                , title = m.title
-                                , text = newDiagramModel.text
-                                , thumbnail = Nothing
-                                , diagram = newDiagramModel.diagramType
-                                , isRemote = isRemote
-                                , location =
-                                    if isRemote then
-                                        Just DiagramLocation.Remote
+                            _ ->
+                                let
+                                    isRemote =
+                                        m.currentDiagram
+                                            |> Maybe.withDefault DiagramItem.empty
+                                            |> DiagramItem.isRemoteDiagram m.session
 
-                                    else
-                                        Just DiagramLocation.Local
-                                , isPublic = Maybe.map .isPublic m.currentDiagram |> Maybe.withDefault False
-                                , isBookmark = False
-                                , updatedAt = Time.millisToPosix 0
-                                , createdAt = Time.millisToPosix 0
-                                }
+                                    newDiagramModel =
+                                        DiagramModel.updatedText m.diagramModel (Text.saved m.diagramModel.text)
+                                in
+                                Return.singleton
+                                    { m
+                                        | diagramListModel = m.diagramListModel |> DiagramList.modelOfDiagramList.set DiagramList.notAsked
+                                        , diagramModel = newDiagramModel
+                                    }
+                                    |> Action.saveDiagram
+                                        { id = Maybe.andThen .id m.currentDiagram
+                                        , title = m.title
+                                        , text = newDiagramModel.text
+                                        , thumbnail = Nothing
+                                        , diagram = newDiagramModel.diagramType
+                                        , isRemote = isRemote
+                                        , location =
+                                            case Maybe.andThen .location m.currentDiagram of
+                                                Just loc ->
+                                                    Just loc
+
+                                                Nothing ->
+                                                    if isRemote then
+                                                        Just DiagramLocation.Remote
+
+                                                    else
+                                                        Just DiagramLocation.Local
+                                        , isPublic = Maybe.map .isPublic m.currentDiagram |> Maybe.withDefault False
+                                        , isBookmark = False
+                                        , updatedAt = Time.millisToPosix 0
+                                        , createdAt = Time.millisToPosix 0
+                                        }
                 )
 
         SaveToLocalCompleted diagramJson ->
@@ -1183,6 +1202,7 @@ subscriptions model =
          , Ports.gotLocalDiagramJson GotLocalDiagramJson
          , Ports.onCloseFullscreen CloseFullscreen
          , Ports.updateIdToken UpdateIdToken
+         , Ports.gotGithubAccessToken GotGithubAccessToken
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp <| D.succeed MoveStop

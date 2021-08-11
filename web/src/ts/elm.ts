@@ -31,7 +31,9 @@ type ElmApp = {
         getDiagrams: Subscribe<() => Promise<void>>;
         importDiagram: Subscribe<(diagrams: DiagramItem[]) => void>;
         copyText: Subscribe<(text: string) => void>;
+        getGithubAccessToken: Subscribe<(cmd: string) => void>;
 
+        gotGithubAccessToken: Send<{ cmd: string; accessToken: string | null }>;
         onCloseFullscreen: Send<Record<string, unknown>>;
         sendErrorNotification: Send<string>;
         progress: Send<boolean>;

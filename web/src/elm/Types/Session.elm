@@ -2,15 +2,17 @@ module Types.Session exposing
     ( Session(..)
     , User
     , decoder
+    , getAccessToken
     , getIdToken
     , getUser
     , guest
+    , isGithubUser
+    , isGoogleUser
     , isGuest
     , isSignedIn
     , signIn
+    , updateAccessToken
     , updateIdToken
-    , isGithubUser
-    , isGoogleUser
     )
 
 import Json.Decode as D
@@ -44,7 +46,7 @@ isGuest session =
             True
 
 
-isGithubUser: Session -> Bool
+isGithubUser : Session -> Bool
 isGithubUser session =
     case session of
         SignedIn user ->
@@ -54,7 +56,7 @@ isGithubUser session =
             False
 
 
-isGoogleUser: Session -> Bool
+isGoogleUser : Session -> Bool
 isGoogleUser session =
     case session of
         SignedIn user ->
@@ -104,11 +106,40 @@ getIdToken session =
             Nothing
 
 
+getAccessToken : Session -> Maybe String
+getAccessToken session =
+    case getUser session |> Maybe.map .loginProvider of
+        Just (LoginProvider.Github (Just a)) ->
+            Just a
+
+        _ ->
+            Nothing
+
+
 updateIdToken : Session -> IdToken -> Session
 updateIdToken session idToken =
     case session of
         SignedIn user ->
             SignedIn { user | idToken = IdToken.unwrap idToken }
+
+        Guest ->
+            Guest
+
+
+updateAccessToken : Session -> String -> Session
+updateAccessToken session accessToken =
+    case session of
+        SignedIn user ->
+            case user.loginProvider of
+                LoginProvider.Github _ ->
+                    let
+                        privider =
+                            LoginProvider.Github (Just accessToken)
+                    in
+                    SignedIn { user | loginProvider = privider }
+
+                _ ->
+                    session
 
         Guest ->
             Guest

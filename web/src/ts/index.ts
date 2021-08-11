@@ -9,6 +9,7 @@ import {
     providers,
     refreshToken,
     pollRefreshToken,
+    signInGithubWithGist,
 } from './auth';
 import { loadSettings, saveSettings } from './settings';
 import { Settings } from './model';
@@ -122,6 +123,17 @@ app.ports.closeFullscreen.subscribe(() => {
 
 app.ports.copyText.subscribe((text: string) => {
     copy(text);
+});
+
+app.ports.getGithubAccessToken.subscribe(async (cmd) => {
+    const result = await signInGithubWithGist().catch(() => {
+        app.ports.sendErrorNotification.send('Failed sign out.');
+        return { accessToken: null };
+    });
+    app.ports.gotGithubAccessToken.send({
+        cmd,
+        accessToken: result.accessToken,
+    });
 });
 
 const attachApp = (a: ElmApp, list: ((a: ElmApp) => void)[]) => {

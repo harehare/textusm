@@ -22,6 +22,7 @@ import Route exposing (Route(..))
 import Task
 import Types.DiagramId as DiagramId exposing (DiagramId)
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
+import Types.DiagramLocation as DiagramLocation
 import Types.LoginProvider as LoginProvider
 import Types.Session as Session
 import Types.ShareToken as ShareToken exposing (ShareToken)
@@ -159,6 +160,9 @@ loadItem id_ model =
                                     (DiagramId.toString id_)
                             )
 
+                LoginProvider.Github Nothing ->
+                    Return.return model <| Ports.getGithubAccessToken (DiagramId.toString id_)
+
                 _ ->
                     Return.return model
                         (Task.attempt Load <|
@@ -292,8 +296,15 @@ saveToRemote : DiagramItem -> Model -> Return Msg Model
 saveToRemote diagram model =
     case model.session of
         Session.SignedIn user ->
-            case user.loginProvider of
-                LoginProvider.Github (Just accessToken) ->
+            case ( diagram.location, model.settingsModel.settings.location, user.loginProvider ) of
+                ( Just DiagramLocation.Gist, _, LoginProvider.Github (Just accessToken) ) ->
+                    let
+                        saveTask =
+                            Request.saveGist (Session.getIdToken model.session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
+                    in
+                    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+
+                ( _, Just DiagramLocation.Gist, LoginProvider.Github (Just accessToken) ) ->
                     let
                         saveTask =
                             Request.saveGist (Session.getIdToken model.session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)

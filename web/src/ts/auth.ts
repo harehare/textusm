@@ -32,7 +32,6 @@ export const signIn = (provider: firebase.auth.AuthProvider): Promise<void> => {
 
 export const signOut = (): Promise<void> => {
     return new Promise((resolve, reject) => {
-        new GithubAccessToken().clear();
         firebase
             .auth()
             .signOut()
@@ -73,22 +72,11 @@ export const authStateChanged = (
     firebase.auth().onAuthStateChanged(async (user) => {
         onBeforeAuth();
         if (user) {
-            const result = await firebase.auth().getRedirectResult();
             const providers = user.providerData.map((p) =>
                 p ? p.providerId : ''
             );
             const provider =
                 providers.length > 0 && providers[0] ? providers[0] : '';
-            // @ts-expect-error
-            const accessToken = result?.credential?.accessToken;
-            const g = new GithubAccessToken();
-            if (isGithubProvider(provider)) {
-                if (accessToken) {
-                    g.refresh(accessToken);
-                }
-            } else {
-                g.clear();
-            }
 
             user.getIdToken().then((idToken) => {
                 onAuthStateChanged(
@@ -100,11 +88,8 @@ export const authStateChanged = (
                         photoURL: user.photoURL ?? '',
                     },
                     {
-                        provider:
-                            providers.length > 0 && providers[0]
-                                ? providers[0]
-                                : '',
-                        accessToken: g.get(),
+                        accessToken: null,
+                        provider,
                     }
                 );
                 onAfterAuth();
@@ -121,29 +106,32 @@ export const authStateChanged = (
 
 export const providers = {
     google: new firebase.auth.GoogleAuthProvider(),
-    github: (() => {
+    github: new firebase.auth.GithubAuthProvider(),
+    githubWithGist: (() => {
         const p = new firebase.auth.GithubAuthProvider();
         p.addScope('gist');
         return p;
     })(),
 };
 
-const isGithubProvider = (provider: string) => {
-    return provider === 'github.com';
+export const signInGithubWithGist = (): Promise<{
+    accessToken: string | null;
+}> => {
+    return new Promise((resolve, reject) => {
+        firebase
+            .auth()
+            .signInWithPopup(providers.githubWithGist)
+            .then((result) => {
+                const user = result.user;
+                if (!user) {
+                    reject(new Error('Failed sigIn'));
+                    return;
+                }
+                // @ts-expect-error
+                resolve({ accessToken: result?.credential?.accessToken });
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    });
 };
-
-class GithubAccessToken {
-    LOCAL_STORAGE_KEY = 'gha_gist';
-
-    refresh(accessToken: string) {
-        localStorage.setItem(this.LOCAL_STORAGE_KEY, accessToken);
-    }
-
-    clear() {
-        localStorage.removeItem(this.LOCAL_STORAGE_KEY);
-    }
-
-    get() {
-        return localStorage.getItem(this.LOCAL_STORAGE_KEY);
-    }
-}

@@ -124,11 +124,11 @@ empty =
 
 isRemoteDiagram : Session -> DiagramItem -> Bool
 isRemoteDiagram session diagram =
-    case ( Maybe.withDefault DiagramLocation.Local diagram.location |> DiagramLocation.isRemote, diagram.id ) of
-        ( False, Nothing ) ->
+    case ( diagram.location, diagram.id ) of
+        ( Nothing, Nothing ) ->
             Session.isSignedIn session
 
-        ( False, Just _ ) ->
+        ( Just DiagramLocation.Local, Just _ ) ->
             False
 
         _ ->

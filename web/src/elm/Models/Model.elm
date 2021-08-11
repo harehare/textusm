@@ -82,6 +82,7 @@ type Msg
     | LoadWithPassword (Result RequestError DiagramItem)
     | MoveTo Route
     | CloseDialog
+    | GotGithubAccessToken { cmd : String, accessToken : Maybe String }
 
 
 type Notification

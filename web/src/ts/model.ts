@@ -7,7 +7,7 @@ type DiagramItem = {
     isBookmark: boolean;
     isPublic: boolean;
     isRemote: boolean;
-    tags: string[] | null;
+    location: 'local' | 'gist' | 'system' | 'googledrive';
     createdAt: number;
     updatedAt: number;
 };
@@ -20,7 +20,7 @@ type Diagram = {
     isPublic: boolean;
     isRemote: boolean;
     isBookmark: boolean;
-    tags: string[] | null;
+    location: 'local' | 'gist' | 'system' | 'googledrive';
 };
 
 type DownloadInfo = {
