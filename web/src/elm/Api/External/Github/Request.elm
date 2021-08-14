@@ -2,7 +2,7 @@ module Api.External.Github.Request exposing (..)
 
 import Api.External.Github.Gist as Gist exposing (Gist)
 import Api.External.Github.GistInput as GistInput exposing (GistInput)
-import Api.External.Request as Request
+import Api.Http.Request as Request
 import Http exposing (Header)
 import Json.Encode as E
 import Task exposing (Task)
@@ -24,13 +24,13 @@ hostName =
 headers : AccessToken -> List Header
 headers accessToken =
     [ Http.header "Accept" "application/vnd.github.v3+json"
-    , Http.header "Authorization" <| "token" ++ accessToken
+    , Http.header "Authorization" <| "token " ++ accessToken
     ]
 
 
 gistPath : String
 gistPath =
-    "/gists"
+    "gists"
 
 
 getGist : AccessToken -> GistId -> Task Http.Error Gist

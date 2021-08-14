@@ -4,19 +4,21 @@ module Types.DiagramItem exposing
     , empty
     , encoder
     , getId
+    , gistIdToString
     , idToString
     , isRemoteDiagram
     , listToString
     , listToValue
     , mapToDateTime
     , stringToList
+    , toInputGistItem
     , toInputItem
     )
 
 import Graphql.Enum.Diagram
-import Graphql.InputObject exposing (InputItem)
+import Graphql.InputObject exposing (InputGistItem, InputItem)
 import Graphql.OptionalArgument as OptionalArgument
-import Graphql.Scalar exposing (ItemIdScalar(..))
+import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Iso8601
 import Json.Decode as D
@@ -42,7 +44,6 @@ type alias DiagramItem =
     , isBookmark : Bool
     , isRemote : Bool
     , location : Maybe DiagramLocation
-    , tags : Maybe (List (Maybe String))
     , createdAt : Posix
     , updatedAt : Posix
     }
@@ -79,7 +80,29 @@ toInputItem item =
     , diagram = item.diagram
     , isPublic = item.isPublic
     , isBookmark = item.isBookmark
-    , tags = OptionalArgument.Present (item.tags |> Maybe.withDefault [])
+    }
+
+
+toInputGistItem : DiagramItem -> InputGistItem
+toInputGistItem item =
+    { id =
+        case item.id of
+            Just id ->
+                OptionalArgument.Present (GistIdScalar <| DiagramId.toString id)
+
+            Nothing ->
+                OptionalArgument.Absent
+    , title = Title.toString item.title
+    , thumbnail =
+        case item.thumbnail of
+            Just thumbnail ->
+                OptionalArgument.Present thumbnail
+
+            Nothing ->
+                OptionalArgument.Absent
+    , diagram = item.diagram
+    , url = ""
+    , isBookmark = item.isBookmark
     }
 
 
@@ -94,7 +117,6 @@ empty =
     , isBookmark = False
     , isRemote = False
     , location = Just DiagramLocation.Local
-    , tags = Nothing
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
     }
@@ -102,11 +124,11 @@ empty =
 
 isRemoteDiagram : Session -> DiagramItem -> Bool
 isRemoteDiagram session diagram =
-    case ( Maybe.withDefault DiagramLocation.Local diagram.location |> DiagramLocation.isRemote, diagram.id ) of
-        ( False, Nothing ) ->
+    case ( diagram.location, diagram.id ) of
+        ( Nothing, Nothing ) ->
             Session.isSignedIn session
 
-        ( False, Just _ ) ->
+        ( Just DiagramLocation.Local, _ ) ->
             False
 
         _ ->
@@ -125,7 +147,6 @@ encoder diagram =
         , ( "isBookmark", E.bool diagram.isBookmark )
         , ( "isRemote", E.bool diagram.isRemote )
         , ( "location", maybe E.string <| Maybe.map DiagramLocation.toString diagram.location )
-        , ( "tags", maybe (E.list (maybe E.string)) diagram.tags )
         , ( "createdAt", E.int <| Time.posixToMillis diagram.createdAt )
         , ( "updatedAt", E.int <| Time.posixToMillis diagram.updatedAt )
         ]
@@ -142,8 +163,7 @@ decoder =
         |> required "isPublic" D.bool
         |> required "isBookmark" D.bool
         |> required "isRemote" D.bool
-        |> optional "location" (D.map (\l -> Just <| DiagramLocation.fromString l) D.string) Nothing
-        |> optional "tags" (D.map Just (D.list (D.maybe D.string))) Nothing
+        |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
         |> required "createdAt" (D.map Time.millisToPosix D.int)
         |> required "updatedAt" (D.map Time.millisToPosix D.int)
 
@@ -166,6 +186,14 @@ idToString : SelectionSet Graphql.Scalar.ItemIdScalar typeLock -> SelectionSet (
 idToString =
     SelectionSet.map
         (\(Graphql.Scalar.ItemIdScalar value) ->
+            Just (DiagramId.fromString value)
+        )
+
+
+gistIdToString : SelectionSet Graphql.Scalar.GistIdScalar typeLock -> SelectionSet (Maybe DiagramId) typeLock
+gistIdToString =
+    SelectionSet.map
+        (\(Graphql.Scalar.GistIdScalar value) ->
             Just (DiagramId.fromString value)
         )
 

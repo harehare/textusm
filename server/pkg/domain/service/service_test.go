@@ -89,7 +89,7 @@ func TestFindDiagrams(t *testing.T) {
 	mockItemRepo.On("Find", ctx, "userID", 0, 10, false).Return(items, nil)
 
 	service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
-	diagrams, err := service.FindDiagrams(ctx, 0, 10, false)
+	diagrams, err := service.Find(ctx, 0, 10, false)
 
 	if err != nil {
 		t.Fatal("failed FindDiagrams")
@@ -122,7 +122,7 @@ func TestFindDiagram(t *testing.T) {
 	mockItemRepo.On("FindByID", ctx, "userID", v.NewItemID("testID"), false).Return(&item, nil)
 
 	service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
-	diagram, err := service.FindDiagram(ctx, v.NewItemID("testID"), false)
+	diagram, err := service.FindByID(ctx, v.NewItemID("testID"), false)
 
 	if err != nil || diagram == nil || diagram.Text != baseText {
 		t.Fatal("failed FindDiagram")
@@ -142,7 +142,7 @@ func TestSaveDiagram(t *testing.T) {
 	mockItemRepo.On("Save", ctx, "userID", &item, false).Return(&item, nil)
 
 	service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
-	diagram, err := service.SaveDiagram(ctx, &item, false)
+	diagram, err := service.Save(ctx, &item, false)
 
 	if err != nil || diagram == nil || diagram.Text != baseText {
 		t.Fatal("failed SaveDiagram")
@@ -161,7 +161,7 @@ func TestDeleteDiagram(t *testing.T) {
 
 	service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
 
-	if err := service.DeleteDiagram(ctx, v.NewItemID("testID"), false); err != nil {
+	if err := service.Delete(ctx, v.NewItemID("testID"), false); err != nil {
 		t.Fatal("failed DeleteDiagram")
 	}
 }

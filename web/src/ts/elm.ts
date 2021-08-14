@@ -1,6 +1,6 @@
 import { Settings, DownloadInfo, Diagram, DiagramItem } from './model';
 
-type Provider = 'Google' | 'Github' | 'GithubWithGist';
+type Provider = 'Google' | 'Github';
 
 interface Send<T> {
     send: (params: T) => void;
@@ -31,7 +31,9 @@ type ElmApp = {
         getDiagrams: Subscribe<() => Promise<void>>;
         importDiagram: Subscribe<(diagrams: DiagramItem[]) => void>;
         copyText: Subscribe<(text: string) => void>;
+        getGithubAccessToken: Subscribe<(cmd: string) => void>;
 
+        gotGithubAccessToken: Send<{ cmd: string; accessToken: string | null }>;
         onCloseFullscreen: Send<Record<string, unknown>>;
         sendErrorNotification: Send<string>;
         progress: Send<boolean>;
@@ -58,6 +60,10 @@ type ElmApp = {
             displayName: string;
             email: string;
             photoURL: string;
+            loginProvider: {
+                provider: string | null;
+                accessToken: string | null;
+            };
         }>;
     };
 };

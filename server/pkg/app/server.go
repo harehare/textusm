@@ -20,6 +20,7 @@ import (
 	itemRepo "github.com/harehare/textusm/pkg/infra/firestore/item"
 	shareRepo "github.com/harehare/textusm/pkg/infra/firestore/share"
 	userRepo "github.com/harehare/textusm/pkg/infra/firestore/user"
+	"github.com/harehare/textusm/pkg/presentation/api"
 	"github.com/harehare/textusm/pkg/presentation/api/middleware"
 	resolver "github.com/harehare/textusm/pkg/presentation/graphql"
 
@@ -42,6 +43,8 @@ type Env struct {
 	DatabaseCredentials string `envconfig:"DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON"`
 	TlsCertFile         string `envconfig:"TLS_CERT_FILE" default:""`
 	TlsKeyFile          string `envconfig:"TLS_KEY_FILE"  default:""`
+	GithubClientID      string `envconfig:"GITHUB_CLIENT_ID"  default:""`
+	GithubClientSecret  string `envconfig:"GITHUB_CLIENT_SECRET"  default:""`
 }
 
 var (
@@ -94,7 +97,9 @@ func Run() int {
 	repo := itemRepo.NewFirestoreItemRepository(firestore)
 	shareRepo := shareRepo.NewFirestoreShareRepository(firestore)
 	userRepo := userRepo.NewFirebaseUserRepository(app)
-	service := service.NewService(repo, shareRepo, userRepo)
+	gistRepo := itemRepo.NewFirestoreGistItemRepository(firestore)
+	itemService := service.NewService(repo, shareRepo, userRepo)
+	gistService := service.NewGistService(gistRepo, env.GithubClientID, env.GithubClientSecret)
 
 	r := chi.NewRouter()
 	r.Use(chiMiddleware.Compress(5))
@@ -103,18 +108,35 @@ func Run() int {
 	r.Use(chiMiddleware.Logger)
 	r.Use(chiMiddleware.Recoverer)
 	r.Use(chiMiddleware.Heartbeat("/healthcheck"))
+
+	cors := cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://app.textusm.com", "http://localhost:3000", "https://localhost:3000"},
+		AllowedMethods:   []string{"POST", "OPTIONS", "DELETE"},
+		AllowedHeaders:   []string{"accept", "authorization", "content-type"},
+		AllowCredentials: false,
+	})
+
+	r.Route("/api/v1", func(r chi.Router) {
+		r.Use(chiMiddleware.AllowContentType("application/json"))
+		r.Use(middleware.AuthMiddleware(app))
+		r.Use(middleware.IPMiddleware())
+		r.Use(httprate.LimitByIP(10, 1*time.Minute))
+		r.Use(cors)
+
+		restApi := api.New(*gistService)
+
+		r.Route("/token", func(r chi.Router) {
+			r.Delete("/gist/revoke", restApi.RevokeGistToken)
+		})
+	})
+
 	r.Route("/graphql", func(r chi.Router) {
 		r.Use(chiMiddleware.AllowContentType("application/json"))
 		r.Use(middleware.AuthMiddleware(app))
 		r.Use(middleware.IPMiddleware())
-		r.Use(cors.Handler(cors.Options{
-			AllowedOrigins:   []string{"https://app.textusm.com", "http://localhost:3000", "https://localhost:3000"},
-			AllowedMethods:   []string{"POST", "OPTIONS"},
-			AllowedHeaders:   []string{"accept", "authorization", "content-type"},
-			AllowCredentials: false,
-		}))
+		r.Use(cors)
 		r.Use(httprate.LimitByIP(100, 1*time.Minute))
-		graphql := gqlHandler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: resolver.New(service, firestore)}))
+		graphql := gqlHandler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: resolver.New(itemService, gistService, firestore)}))
 		graphql.AddTransport(transport.Options{})
 		graphql.AddTransport(transport.POST{})
 		graphql.SetQueryCache(lru.New(100))

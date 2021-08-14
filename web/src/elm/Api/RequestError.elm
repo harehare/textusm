@@ -1,6 +1,7 @@
-module Api.RequestError exposing (RequestError(..), fromString, toError, toMessage)
+module Api.RequestError exposing (RequestError(..), fromHttpError, fromString, toError, toMessage)
 
 import Graphql.Http exposing (Error, HttpError(..), RawError(..))
+import Http
 import Message exposing (Message)
 
 
@@ -11,8 +12,9 @@ type RequestError
     | DecryptionFailed
     | EncryptionFailed
     | URLExpired
+    | InvalidParameter
     | Unknown
-    | Http HttpError
+    | Network HttpError
 
 
 fromString : String -> RequestError
@@ -40,6 +42,19 @@ fromString s =
             Unknown
 
 
+fromHttpError : Http.Error -> RequestError
+fromHttpError err =
+    case err of
+        Http.Timeout ->
+            Network Timeout
+
+        Http.NetworkError ->
+            Network NetworkError
+
+        _ ->
+            Unknown
+
+
 toMessage : RequestError -> Message
 toMessage e =
     case e of
@@ -61,10 +76,13 @@ toMessage e =
         URLExpired ->
             Message.messageUrlExpired
 
+        InvalidParameter ->
+            Message.messageUrlExpired
+
         Unknown ->
             Message.messageUnknown
 
-        Http httpError ->
+        Network httpError ->
             case httpError of
                 BadUrl _ ->
                     Message.messageInvalidUrl
@@ -94,4 +112,4 @@ toError e =
                     Unknown
 
         HttpError httpError ->
-            Http httpError
+            Network httpError

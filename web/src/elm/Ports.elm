@@ -1,8 +1,41 @@
-port module Ports exposing (changeText, closeFullscreen, copyClipboard, downloadCompleted, downloadHtml, downloadPdf, downloadPng, downloadSvg, focusEditor, getDiagram, gotLocalDiagramJson, gotLocalDiagramsJson, onAuthStateChanged, onCloseFullscreen, onNotification, onWarnNotification, openFullscreen, progress, refreshToken, reload, removeRemoteDiagram, saveDiagram, saveSettings, saveToLocalCompleted, saveToRemote, sendErrorNotification, shortcuts, signIn, signOut, startDownload, updateIdToken)
+port module Ports exposing
+    ( changeText
+    , closeFullscreen
+    , copyClipboard
+    , downloadCompleted
+    , downloadHtml
+    , downloadPdf
+    , downloadPng
+    , downloadSvg
+    , focusEditor
+    , getDiagram
+    , getGithubAccessToken
+    , gotGithubAccessToken
+    , gotLocalDiagramJson
+    , gotLocalDiagramsJson
+    , onAuthStateChanged
+    , onCloseFullscreen
+    , onNotification
+    , onWarnNotification
+    , openFullscreen
+    , progress
+    , refreshToken
+    , reload
+    , removeRemoteDiagram
+    , saveDiagram
+    , saveSettings
+    , saveToLocalCompleted
+    , saveToRemote
+    , sendErrorNotification
+    , shortcuts
+    , signIn
+    , signOut
+    , startDownload
+    , updateIdToken
+    )
 
 import Json.Decode as D
 import Json.Encode as E
-import Types.Session exposing (User)
 
 
 type alias DownloadInfo =
@@ -23,7 +56,7 @@ port changeText : (String -> msg) -> Sub msg
 port progress : (Bool -> msg) -> Sub msg
 
 
-port onAuthStateChanged : (Maybe User -> msg) -> Sub msg
+port onAuthStateChanged : (Maybe D.Value -> msg) -> Sub msg
 
 
 port startDownload : ({ extension : String, mimeType : String, content : String } -> msg) -> Sub msg
@@ -108,3 +141,9 @@ port refreshToken : () -> Cmd msg
 
 
 port updateIdToken : (String -> msg) -> Sub msg
+
+
+port getGithubAccessToken : String -> Cmd msg
+
+
+port gotGithubAccessToken : ({ cmd : String, accessToken : Maybe String } -> msg) -> Sub msg

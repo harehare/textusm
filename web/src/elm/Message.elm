@@ -5,10 +5,12 @@ module Message exposing
     , messageBadRequest
     , messageFailed
     , messageFailedPublished
+    , messageFailedRevokeToken
     , messageFailedSaved
     , messageFailedSharing
     , messageImportCompleted
     , messageInternalServerError
+    , messageInvalidParameter
     , messageInvalidUrl
     , messageNetworkError
     , messageNotAuthorized
@@ -303,6 +305,16 @@ messageUrlExpired lang =
             "URL has expired"
 
 
+messageInvalidParameter : Lang -> String
+messageInvalidParameter lang =
+    case lang of
+        Ja ->
+            "不正なパラメタが指定されました"
+
+        _ ->
+            "Invalid parameters"
+
+
 messageUnknown : Lang -> String
 messageUnknown lang =
     case lang of
@@ -341,3 +353,13 @@ messageBadRequest lang =
 
         _ ->
             "Bad request"
+
+
+messageFailedRevokeToken : Lang -> String
+messageFailedRevokeToken lang =
+    case lang of
+        Ja ->
+            "トークンの失効処理に失敗しました"
+
+        _ ->
+            "Failed to revoke the token"

@@ -1,4 +1,4 @@
-module Api.External.Request exposing (..)
+module Api.Http.Request exposing (..)
 
 import Http exposing (Error(..), Header)
 import Json.Decode as D

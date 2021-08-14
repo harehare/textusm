@@ -14,6 +14,7 @@ import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page exposing (Page)
 import Route exposing (Route(..))
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
+import Types.DiagramLocation as DiagramLocation
 import Types.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Types.Session as Session exposing (Session)
 import Types.Text as Text exposing (Text)
@@ -52,9 +53,9 @@ view props =
                     True
 
         isRemoteDiagram =
-            props.currentDiagram
-                |> Maybe.withDefault DiagramItem.empty
-                |> .isRemote
+            Maybe.andThen .location props.currentDiagram
+                |> Maybe.map DiagramLocation.isRemote
+                |> Maybe.withDefault False
 
         canShare =
             Session.isSignedIn props.session && isRemoteDiagram && canEdit
@@ -153,9 +154,6 @@ view props =
                     Page.Help ->
                         viewTitle [] [ Html.text "Help" ]
 
-                    Page.Tags _ ->
-                        viewTitle [] [ Html.text "Tags" ]
-
                     _ ->
                         Empty.view
                 ]
@@ -183,19 +181,6 @@ view props =
                 Html.div [ Attr.class "button" ]
                     [ Icon.lock Constants.disabledIconColor 14
                     , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolPrivate props.lang ] ]
-                    ]
-            , if (isJust <| Maybe.andThen .id props.currentDiagram) && canEdit then
-                Html.a [ Attr.attribute "aria-label" "Tag", Attr.style "display" "flex", Attr.href <| Route.toString Route.Tag ]
-                    [ Html.div [ Attr.class "button" ]
-                        [ Icon.tag Constants.iconColor 14
-                        , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipTags props.lang ] ]
-                        ]
-                    ]
-
-              else
-                Html.div [ Attr.class "button" ]
-                    [ Icon.tag Constants.disabledIconColor 14
-                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipTags props.lang ] ]
                     ]
             , Html.a [ Attr.attribute "aria-label" "Help", Attr.style "display" "flex", Attr.href <| Route.toString Route.Help ]
                 [ Html.div [ Attr.class "button" ]
@@ -243,19 +228,41 @@ view props =
                             []
                         , case props.menu of
                             Just HeaderMenu ->
+                                let
+                                    user_ =
+                                        Maybe.andThen
+                                            (\u ->
+                                                if not <| String.isEmpty u.email then
+                                                    Just u
+
+                                                else
+                                                    Nothing
+                                            )
+                                            user
+                                in
                                 Menu.menu (Just "36px")
                                     Nothing
                                     Nothing
                                     (Just "5px")
-                                    [ Menu.Item
-                                        { e = NoOp
-                                        , title = Maybe.map .email user |> Maybe.withDefault ""
-                                        }
-                                    , Menu.Item
-                                        { e = SignOut
-                                        , title = "SIGN OUT"
-                                        }
-                                    ]
+                                    (case user_ of
+                                        Just u ->
+                                            [ Menu.Item
+                                                { e = NoOp
+                                                , title = u.email
+                                                }
+                                            , Menu.Item
+                                                { e = SignOut
+                                                , title = "SIGN OUT"
+                                                }
+                                            ]
+
+                                        Nothing ->
+                                            [ Menu.Item
+                                                { e = SignOut
+                                                , title = "SIGN OUT"
+                                                }
+                                            ]
+                                    )
 
                             _ ->
                                 Empty.view
@@ -282,8 +289,8 @@ view props =
                                     , title = LoginProvider.toString Google
                                     }
                                 , Menu.Item
-                                    { e = SignIn Github
-                                    , title = LoginProvider.toString Github
+                                    { e = SignIn <| Github Nothing
+                                    , title = LoginProvider.toString <| Github Nothing
                                     }
                                 ]
 

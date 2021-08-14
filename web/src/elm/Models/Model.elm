@@ -18,19 +18,18 @@ import Browser.Events exposing (Visibility)
 import Browser.Navigation as Nav
 import Dialog.Share as Share
 import Json.Decode as D
-import Message exposing (Lang)
+import Message exposing (Lang, Message)
 import Models.Diagram as Diagram
 import Models.Dialog exposing (ConfirmDialog)
 import Models.Page exposing (Page)
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
-import Page.Tags as Tags
 import Route exposing (Route(..))
 import Types.DiagramItem exposing (DiagramItem)
 import Types.FileType exposing (FileType)
 import Types.LoginProvider exposing (LoginProvider)
-import Types.Session exposing (Session, User)
+import Types.Session exposing (Session)
 import Types.ShareToken exposing (ShareToken)
 import Types.Title exposing (Title)
 import Url
@@ -43,7 +42,6 @@ type Msg
     | UpdateDiagramList DiagramList.Msg
     | UpdateShare Share.Msg
     | UpdateSettings Settings.Msg
-    | UpdateTags Tags.Msg
     | OpenMenu Menu
     | MoveStop
     | CloseMenu
@@ -51,7 +49,7 @@ type Msg
     | DownloadCompleted ( Int, Int )
     | StartDownload { extension : String, mimeType : String, content : String }
     | Save
-    | SaveToRemoteCompleted (Result DiagramItem DiagramItem)
+    | SaveToRemoteCompleted (Result RequestError DiagramItem)
     | SaveToLocalCompleted D.Value
     | SaveToRemote D.Value
     | StartEditTitle
@@ -68,7 +66,7 @@ type Msg
     | HandleWindowResize Int
     | HandleAutoCloseNotification Notification
     | HandleCloseNotification
-    | HandleAuthStateChanged (Maybe User)
+    | HandleAuthStateChanged (Maybe D.Value)
     | ShowNotification Notification
     | SwitchWindow SwitchWindow
     | Shortcuts String
@@ -76,6 +74,7 @@ type Msg
     | ChangePublicStatus Bool
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
     | Load (Result RequestError DiagramItem)
+    | CallApi (Result Message ())
     | CloseFullscreen D.Value
     | UpdateIdToken String
     | EditPassword String
@@ -83,6 +82,7 @@ type Msg
     | LoadWithPassword (Result RequestError DiagramItem)
     | MoveTo Route
     | CloseDialog
+    | GotGithubAccessToken { cmd : String, accessToken : Maybe String }
 
 
 type Notification

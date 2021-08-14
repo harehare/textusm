@@ -53,43 +53,123 @@
     "shortcuts": [
         {
             "name": "New User Story Map",
-            "url": "/edit/usm"
+            "url": "/edit/usm",
+            "icons": [
+                {
+                    "src": "images/icon_96x96.png",
+                    "type": "image/png",
+                    "sizes": "96x96",
+                    "purpose": "any maskable"
+                }
+            ]
         },
         {
             "name": "New Mind Map",
-            "url": "/edit/mmp"
+            "url": "/edit/mmp",
+            "icons": [
+                {
+                    "src": "images/icon_96x96.png",
+                    "type": "image/png",
+                    "sizes": "96x96",
+                    "purpose": "any maskable"
+                }
+            ]
         },
         {
             "name": "New Mind Map",
-            "url": "/edit/mmp"
+            "url": "/edit/mmp",
+            "icons": [
+                {
+                    "src": "images/icon_96x96.png",
+                    "type": "image/png",
+                    "sizes": "96x96",
+                    "purpose": "any maskable"
+                }
+            ]
         },
         {
             "name": "New Business Model Canvas",
-            "url": "/edit/bmc"
+            "url": "/edit/bmc",
+            "icons": [
+                {
+                    "src": "images/icon_96x96.png",
+                    "type": "image/png",
+                    "sizes": "96x96",
+                    "purpose": "any maskable"
+                }
+            ]
         },
         {
             "name": "New Gantt Chart",
-            "url": "/edit/gct"
+            "url": "/edit/gct",
+            "icons": [
+                {
+                    "src": "images/icon_96x96.png",
+                    "type": "image/png",
+                    "sizes": "96x96",
+                    "purpose": "any maskable"
+                }
+            ]
         },
         {
             "name": "New Kanban",
-            "url": "/edit/kanban"
+            "url": "/edit/kanban",
+            "icons": [
+                {
+                    "src": "images/icon_96x96.png",
+                    "type": "image/png",
+                    "sizes": "96x96",
+                    "purpose": "any maskable"
+                }
+            ]
         },
         {
             "name": "New ER Diagram",
-            "url": "/edit/erd"
+            "url": "/edit/erd",
+            "icons": [
+                {
+                    "src": "images/icon_96x96.png",
+                    "type": "image/png",
+                    "sizes": "96x96",
+                    "purpose": "any maskable"
+                }
+            ]
         },
         {
             "name": "New 4Ls",
-            "url": "/edit/4ls"
+            "url": "/edit/4ls",
+            "icons": [
+                {
+                    "src": "images/icon_96x96.png",
+                    "type": "image/png",
+                    "sizes": "96x96",
+                    "purpose": "any maskable"
+                }
+            ]
         },
         {
             "name": "New KPT",
-            "url": "/edit/kpt"
+            "url": "/edit/kpt",
+            "icons": [
+                {
+                    "src": "images/icon_96x96.png",
+                    "type": "image/png",
+                    "sizes": "96x96",
+                    "purpose": "any maskable"
+                }
+            ]
         },
         {
             "name": "New Table",
-            "url": "/edit/table"
+            "url": "/edit/table",
+            "icons": [
+                {
+                    "src": "images/icon_96x96.png",
+                    "type": "image/png",
+                    "sizes": "96x96",
+                    "purpose": "any maskable"
+                }
+            ]
         }
     ]
 }

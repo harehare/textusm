@@ -1,18 +1,38 @@
-module Api.Request exposing (bookmark, delete, item, items, publicItem, save, share, shareCondition, shareItem)
+module Api.Request exposing
+    ( allItems
+    , bookmark
+    , delete
+    , deleteGist
+    , gistItem
+    , gistItems
+    , item
+    , items
+    , publicItem
+    , save
+    , saveGist
+    , share
+    , shareCondition
+    , shareItem
+    )
 
+import Api.External.Github.Request as GithubRequest exposing (AccessToken, GistId)
 import Api.Mutation as Mutation
 import Api.Query as Query
-import Api.RequestError exposing (RequestError, toError)
+import Api.RequestError as RequestError exposing (RequestError, toError)
+import Dict
 import Env
 import Graphql.Http as Http
-import Graphql.InputObject exposing (InputItem)
+import Graphql.InputObject exposing (InputGistItem, InputItem)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
-import Graphql.Scalar exposing (ItemIdScalar(..))
+import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
 import Task exposing (Task)
+import Types.DiagramId as DiagramId
 import Types.DiagramItem exposing (DiagramItem)
 import Types.Email as Email exposing (Email)
 import Types.IdToken as IdToken exposing (IdToken)
 import Types.IpAddress as IpAddress exposing (IpAddress)
+import Types.Text as Text
+import Types.Title as Title
 import Url.Builder exposing (crossOrigin)
 
 
@@ -42,6 +62,15 @@ publicItem idToken id =
 items : Maybe IdToken -> ( Int, Int ) -> { isPublic : Bool, isBookmark : Bool } -> Task RequestError (List (Maybe DiagramItem))
 items idToken ( offset, limit ) params =
     Query.items ( offset, limit ) params
+        |> Http.queryRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+allItems : Maybe IdToken -> ( Int, Int ) -> Task RequestError (Maybe (List DiagramItem))
+allItems idToken ( offset, limit ) =
+    Query.allItems ( offset, limit )
         |> Http.queryRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
@@ -121,6 +150,93 @@ share { idToken, itemID, expSecond, password, allowIPList, allowEmailList } =
         |> authHeaders idToken
         |> Http.toTask
         |> Task.mapError toError
+
+
+gistItem : Maybe IdToken -> AccessToken -> GistId -> Task RequestError DiagramItem
+gistItem idToken accessToken gistId =
+    GithubRequest.getGist accessToken gistId
+        |> Task.mapError RequestError.fromHttpError
+        |> Task.andThen
+            (\gist ->
+                Query.gistItem gistId
+                    |> Http.queryRequest graphQLUrl
+                    |> authHeaders idToken
+                    |> Http.toTask
+                    |> Task.map
+                        (\x ->
+                            let
+                                content =
+                                    Dict.fromList gist.files
+                                        |> Dict.get (Title.toString x.title)
+                                        |> Maybe.map .content
+                                        |> Maybe.withDefault ""
+                            in
+                            { x
+                                | id = Just <| DiagramId.fromString gist.id
+                                , text = Text.fromString content
+                            }
+                        )
+                    |> Task.mapError toError
+            )
+
+
+gistItems : Maybe IdToken -> ( Int, Int ) -> Task RequestError (List (Maybe DiagramItem))
+gistItems idToken ( offset, limit ) =
+    Query.gistItems ( offset, limit )
+        |> Http.queryRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+saveGist : Maybe IdToken -> AccessToken -> InputGistItem -> String -> Task RequestError DiagramItem
+saveGist idToken accessToken input content =
+    let
+        gistInput =
+            { description = "This text is created by TextUSM"
+            , files = [ ( input.title, { content = { content = content } } ) ]
+            , public = False
+            }
+
+        saveTask =
+            \gist ->
+                Mutation.saveGist
+                    { input | id = Present <| GistIdScalar gist.id, url = gist.url }
+                    |> Http.mutationRequest graphQLUrl
+                    |> authHeaders idToken
+                    |> Http.toTask
+                    |> Task.mapError toError
+    in
+    case input.id of
+        Null ->
+            GithubRequest.createGist accessToken gistInput
+                |> Task.mapError RequestError.fromHttpError
+                |> Task.andThen saveTask
+
+        Present (GistIdScalar id_) ->
+            GithubRequest.updateGist accessToken id_ gistInput
+                |> Task.mapError RequestError.fromHttpError
+                |> Task.andThen saveTask
+
+        _ ->
+            GithubRequest.createGist accessToken gistInput
+                |> Task.mapError RequestError.fromHttpError
+                |> Task.andThen saveTask
+
+
+deleteGist : Maybe IdToken -> AccessToken -> GistId -> Task RequestError String
+deleteGist idToken accessToken gistId =
+    GithubRequest.deleteGist accessToken gistId
+        |> Task.mapError RequestError.fromHttpError
+        |> Task.andThen
+            (\_ ->
+                Mutation.deleteGist gistId
+                    |> Http.mutationRequest graphQLUrl
+                    |> authHeaders idToken
+                    |> Http.toTask
+                    |> Task.map (\(GistIdScalar id) -> id)
+                    |> Task.mapError toError
+            )
 
 
 authHeaders : Maybe IdToken -> Http.Request decodesTo -> Http.Request decodesTo

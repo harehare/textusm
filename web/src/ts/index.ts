@@ -9,6 +9,7 @@ import {
     providers,
     refreshToken,
     pollRefreshToken,
+    signInGithubWithGist,
 } from './auth';
 import { loadSettings, saveSettings } from './settings';
 import { Settings } from './model';
@@ -39,14 +40,18 @@ authStateChanged(
     () => {
         app.ports.progress.send(false);
     },
-    async (idToken, profile) => {
-        if (profile && idToken) {
+    async (idToken, user, provider) => {
+        if (user && idToken) {
             app.ports.onAuthStateChanged.send({
                 idToken,
-                id: profile.uid,
-                displayName: profile.displayName ?? '',
-                email: profile.email ?? '',
-                photoURL: profile.photoURL ?? '',
+                id: user.id,
+                displayName: user.displayName,
+                email: user.email,
+                photoURL: user.photoURL,
+                loginProvider: {
+                    provider: provider.provider,
+                    accessToken: provider.accessToken,
+                },
             });
         }
     }
@@ -64,12 +69,6 @@ app.ports.signIn.subscribe((provider: Provider) => {
         case 'Github':
             signIn(providers.github);
             return;
-        case 'GithubWithGist':
-            signIn(providers.githubWithGist);
-            return;
-        default:
-            const _exhaustiveCheck: never = provider;
-            return _exhaustiveCheck;
     }
 });
 
@@ -124,6 +123,17 @@ app.ports.closeFullscreen.subscribe(() => {
 
 app.ports.copyText.subscribe((text: string) => {
     copy(text);
+});
+
+app.ports.getGithubAccessToken.subscribe(async (cmd) => {
+    const result = await signInGithubWithGist().catch(() => {
+        app.ports.sendErrorNotification.send('Failed sign out.');
+        return { accessToken: null };
+    });
+    app.ports.gotGithubAccessToken.send({
+        cmd,
+        accessToken: result.accessToken,
+    });
 });
 
 const attachApp = (a: ElmApp, list: ((a: ElmApp) => void)[]) => {

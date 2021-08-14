@@ -26,6 +26,7 @@ module Settings exposing
     )
 
 import Json.Decode as D
+import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import Models.Diagram as Diagram exposing (Color, ColorSettings, Settings, Size)
@@ -33,6 +34,7 @@ import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
+import Types.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 
 
 type alias Settings =
@@ -44,6 +46,7 @@ type alias Settings =
     , title : Maybe String
     , editor : Maybe EditorSettings
     , diagram : Maybe DiagramItem
+    , location : Maybe DiagramLocation
     }
 
 
@@ -87,6 +90,7 @@ defaultSettings =
     , title = Nothing
     , editor = Nothing
     , diagram = Nothing
+    , location = Nothing
     }
 
 
@@ -217,15 +221,16 @@ defaultEditorSettings settings =
 
 settingsDecoder : D.Decoder Settings
 settingsDecoder =
-    D.map8 Settings
-        (D.maybe (D.field "position" D.int))
-        (D.field "font" D.string)
-        (D.maybe (D.field "diagramId" D.string))
-        (D.field "storyMap" diagramDecoder)
-        (D.maybe (D.field "text" D.string))
-        (D.maybe (D.field "title" D.string))
-        (D.maybe (D.field "editor" editorSettingsDecoder))
-        (D.maybe (D.field "diagram" DiagramItem.decoder))
+    D.succeed Settings
+        |> optional "position" (D.map Just D.int) Nothing
+        |> required "font" D.string
+        |> optional "diagramId" (D.map Just D.string) Nothing
+        |> required "storyMap" diagramDecoder
+        |> optional "text" (D.map Just D.string) Nothing
+        |> optional "title" (D.map Just D.string) Nothing
+        |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
+        |> optional "diagram" (D.map Just DiagramItem.decoder) Nothing
+        |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
 
 
 diagramDecoder : D.Decoder Diagram.Settings
@@ -283,6 +288,7 @@ settingsEncoder settings =
         , ( "title", maybe E.string settings.title )
         , ( "editor", maybe editorSettingsEncoder settings.editor )
         , ( "diagram", maybe DiagramItem.encoder settings.diagram )
+        , ( "location", maybe DiagramLocation.encoder settings.location )
         ]
 
 

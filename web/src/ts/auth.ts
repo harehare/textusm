@@ -1,6 +1,12 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
 
+export interface User {
+    id: string;
+    displayName: string;
+    email: string;
+    photoURL: string;
+}
 const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
     authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -59,18 +65,40 @@ export const authStateChanged = (
     onAfterAuth: () => void,
     onAuthStateChanged: (
         idToken: string | null,
-        user: firebase.User | null
+        user: User | null,
+        provider: { provider: string | null; accessToken: string | null }
     ) => void
 ): void => {
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(async (user) => {
         onBeforeAuth();
         if (user) {
+            const providers = user.providerData.map((p) =>
+                p ? p.providerId : ''
+            );
+            const provider =
+                providers.length > 0 && providers[0] ? providers[0] : '';
+
             user.getIdToken().then((idToken) => {
-                onAuthStateChanged(idToken, user);
+                onAuthStateChanged(
+                    idToken,
+                    {
+                        id: user.uid,
+                        displayName: user.displayName ?? '',
+                        email: user.email ?? '',
+                        photoURL: user.photoURL ?? '',
+                    },
+                    {
+                        accessToken: null,
+                        provider,
+                    }
+                );
                 onAfterAuth();
             });
         } else {
-            onAuthStateChanged(null, null);
+            onAuthStateChanged(null, null, {
+                provider: null,
+                accessToken: null,
+            });
             onAfterAuth();
         }
     });
@@ -84,4 +112,26 @@ export const providers = {
         p.addScope('gist');
         return p;
     })(),
+};
+
+export const signInGithubWithGist = (): Promise<{
+    accessToken: string | null;
+}> => {
+    return new Promise((resolve, reject) => {
+        firebase
+            .auth()
+            .signInWithPopup(providers.githubWithGist)
+            .then((result) => {
+                const user = result.user;
+                if (!user) {
+                    reject(new Error('Failed sigIn'));
+                    return;
+                }
+                // @ts-expect-error
+                resolve({ accessToken: result?.credential?.accessToken });
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    });
 };

@@ -93,7 +93,12 @@ export class MonacoEditor extends HTMLElement {
         switch (name) {
             case 'value':
                 if (newValue !== this.editor?.getValue()) {
+                    const position: monaco.IPosition | null | undefined =
+                        this.editor?.getPosition();
                     this.value = newValue as string;
+                    if (position) {
+                        this.editor?.setPosition(position);
+                    }
                 }
                 break;
             case 'fontSize':

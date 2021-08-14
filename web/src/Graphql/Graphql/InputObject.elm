@@ -18,6 +18,53 @@ import Graphql.Union
 import Json.Decode as Decode
 
 
+buildInputGistItem :
+    InputGistItemRequiredFields
+    -> (InputGistItemOptionalFields -> InputGistItemOptionalFields)
+    -> InputGistItem
+buildInputGistItem required____ fillOptionals____ =
+    let
+        optionals____ =
+            fillOptionals____
+                { id = Absent, thumbnail = Absent }
+    in
+    { id = optionals____.id, title = required____.title, thumbnail = optionals____.thumbnail, diagram = required____.diagram, isBookmark = required____.isBookmark, url = required____.url }
+
+
+type alias InputGistItemRequiredFields =
+    { title : String
+    , diagram : Graphql.Enum.Diagram.Diagram
+    , isBookmark : Bool
+    , url : String
+    }
+
+
+type alias InputGistItemOptionalFields =
+    { id : OptionalArgument Graphql.ScalarCodecs.GistIdScalar
+    , thumbnail : OptionalArgument String
+    }
+
+
+{-| Type for the InputGistItem input object.
+-}
+type alias InputGistItem =
+    { id : OptionalArgument Graphql.ScalarCodecs.GistIdScalar
+    , title : String
+    , thumbnail : OptionalArgument String
+    , diagram : Graphql.Enum.Diagram.Diagram
+    , isBookmark : Bool
+    , url : String
+    }
+
+
+{-| Encode a InputGistItem into a value that can be used as an argument.
+-}
+encodeInputGistItem : InputGistItem -> Value
+encodeInputGistItem input____ =
+    Encode.maybeObject
+        [ ( "id", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecGistIdScalar) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum Graphql.Enum.Diagram.toString input____.diagram |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ), ( "url", Encode.string input____.url |> Just ) ]
+
+
 buildInputItem :
     InputItemRequiredFields
     -> (InputItemOptionalFields -> InputItemOptionalFields)
@@ -26,9 +73,9 @@ buildInputItem required____ fillOptionals____ =
     let
         optionals____ =
             fillOptionals____
-                { id = Absent, thumbnail = Absent, tags = Absent }
+                { id = Absent, thumbnail = Absent }
     in
-    { id = optionals____.id, title = required____.title, text = required____.text, thumbnail = optionals____.thumbnail, diagram = required____.diagram, isPublic = required____.isPublic, isBookmark = required____.isBookmark, tags = optionals____.tags }
+    { id = optionals____.id, title = required____.title, text = required____.text, thumbnail = optionals____.thumbnail, diagram = required____.diagram, isPublic = required____.isPublic, isBookmark = required____.isBookmark }
 
 
 type alias InputItemRequiredFields =
@@ -43,7 +90,6 @@ type alias InputItemRequiredFields =
 type alias InputItemOptionalFields =
     { id : OptionalArgument Graphql.ScalarCodecs.ItemIdScalar
     , thumbnail : OptionalArgument String
-    , tags : OptionalArgument (List (Maybe String))
     }
 
 
@@ -57,7 +103,6 @@ type alias InputItem =
     , diagram : Graphql.Enum.Diagram.Diagram
     , isPublic : Bool
     , isBookmark : Bool
-    , tags : OptionalArgument (List (Maybe String))
     }
 
 
@@ -66,7 +111,7 @@ type alias InputItem =
 encodeInputItem : InputItem -> Value
 encodeInputItem input____ =
     Encode.maybeObject
-        [ ( "id", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecItemIdScalar) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "text", Encode.string input____.text |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum Graphql.Enum.Diagram.toString input____.diagram |> Just ), ( "isPublic", Encode.bool input____.isPublic |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ), ( "tags", (Encode.string |> Encode.maybe |> Encode.list) |> Encode.optional input____.tags ) ]
+        [ ( "id", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecItemIdScalar) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "text", Encode.string input____.text |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum Graphql.Enum.Diagram.toString input____.diagram |> Just ), ( "isPublic", Encode.bool input____.isPublic |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ) ]
 
 
 buildInputShareItem :

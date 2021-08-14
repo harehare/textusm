@@ -54,7 +54,7 @@ func isAuthenticated(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic bool) ([]*itemModel.Item, error) {
+func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool) ([]*itemModel.Item, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (s *Service) FindDiagrams(ctx context.Context, offset, limit int, isPublic 
 	return resultItems, nil
 }
 
-func (s *Service) FindDiagram(ctx context.Context, itemID v.ItemID, isPublic bool) (*itemModel.Item, error) {
+func (s *Service) FindByID(ctx context.Context, itemID v.ItemID, isPublic bool) (*itemModel.Item, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (s *Service) FindDiagram(ctx context.Context, itemID v.ItemID, isPublic boo
 	return item, nil
 }
 
-func (s *Service) SaveDiagram(ctx context.Context, item *itemModel.Item, isPublic bool) (*itemModel.Item, error) {
+func (s *Service) Save(ctx context.Context, item *itemModel.Item, isPublic bool) (*itemModel.Item, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (s *Service) SaveDiagram(ctx context.Context, item *itemModel.Item, isPubli
 	return resultItem, err
 }
 
-func (s *Service) DeleteDiagram(ctx context.Context, itemID v.ItemID, isPublic bool) error {
+func (s *Service) Delete(ctx context.Context, itemID v.ItemID, isPublic bool) error {
 	if err := isAuthenticated(ctx); err != nil {
 		return err
 	}
@@ -170,9 +170,6 @@ func (s *Service) DeleteDiagram(ctx context.Context, itemID v.ItemID, isPublic b
 		if !isOwner {
 			return e.NoAuthorizationError(err)
 		}
-	}
-
-	if isPublic {
 		if err := s.repo.Delete(ctx, *userID, itemID, true); err != nil {
 			return err
 		}
@@ -190,13 +187,13 @@ func (s *Service) Bookmark(ctx context.Context, itemID v.ItemID, isBookmark bool
 		return nil, err
 	}
 
-	diagramItem, err := s.FindDiagram(ctx, itemID, false)
+	diagramItem, err := s.FindByID(ctx, itemID, false)
 
 	if err != nil {
 		return nil, err
 	}
 	diagramItem.IsBookmark = isBookmark
-	return s.SaveDiagram(ctx, diagramItem, false)
+	return s.Save(ctx, diagramItem, false)
 }
 
 func (s *Service) FindShareItem(ctx context.Context, token string, password string) (*itemModel.Item, error) {

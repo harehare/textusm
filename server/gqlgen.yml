@@ -1,19 +1,27 @@
 schema:
-  - schema.graphql
+  - graphql/*.graphql
 exec:
   filename: pkg/presentation/graphql/generated.go
+  package: graphql
 model:
   filename: pkg/presentation/graphql/models.go
+  package: graphql
 resolver:
   filename: pkg/presentation/graphql/resolver.go
-  type: Resolver
+  package: graphql
 autobind: []
 models:
   Item:
     model: github.com/harehare/textusm/pkg/domain/model/item.Item
+  GistItem:
+    model: github.com/harehare/textusm/pkg/domain/model/item.GistItem
   ShareCondition:
     model: github.com/harehare/textusm/pkg/domain/model/share.ShareCondition
   Diagram:
     model: github.com/harehare/textusm/pkg/domain/values.Diagram
   ItemIdScalar:
     model: github.com/harehare/textusm/pkg/presentation/graphql/scalar.ItemID
+  GistIdScalar:
+    model: github.com/harehare/textusm/pkg/presentation/graphql/scalar.GistID
+  DiagramItem:
+    model: github.com/harehare/textusm/pkg/presentation/graphql/union.DiagramItem

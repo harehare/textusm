@@ -32,6 +32,7 @@
             "folkertdev/elm-state": "3.0.1",
             "justinmimbs/time-extra": "1.1.0",
             "krisajenkins/remotedata": "6.0.1",
+            "matthewsj/elm-ordering": "2.0.0",
             "mpizenberg/elm-pointer-events": "4.0.2",
             "norpan/elm-html5-drag-drop": "3.1.4",
             "perzanko/elm-loading": "2.0.4",

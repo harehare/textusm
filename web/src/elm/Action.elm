@@ -1,5 +1,6 @@
 module Action exposing (..)
 
+import Api.Http.Token as TokenApi
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
 import Browser.Dom as Dom
@@ -7,13 +8,13 @@ import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Dialog.Share as Share
 import Graphql.Enum.Diagram exposing (Diagram)
-import Message exposing (Message)
+import Message as Message exposing (Message)
 import Models.Diagram as DiagramModel
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
 import Models.Page as Page exposing (Page)
 import Page.List as DiagramList
-import Page.Tags as Tags
+import Page.Settings as Settings
 import Ports
 import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
@@ -21,7 +22,9 @@ import Route exposing (Route(..))
 import Task
 import Types.DiagramId as DiagramId exposing (DiagramId)
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
-import Types.Session as Session exposing (Session)
+import Types.DiagramLocation as DiagramLocation
+import Types.LoginProvider as LoginProvider
+import Types.Session as Session
 import Types.ShareToken as ShareToken exposing (ShareToken)
 import Types.Text as Text
 import Types.Title as Title
@@ -41,34 +44,22 @@ loadLocalDiagram diagramId model =
 loadDiagram : DiagramItem -> Model -> Return Msg Model
 loadDiagram diagram model =
     let
-        newDiagram =
-            case diagram.id of
-                Nothing ->
-                    { diagram
-                        | title = model.title
-                        , text = model.diagramModel.text
-                        , diagram = model.diagramModel.diagramType
-                    }
-
-                Just _ ->
-                    diagram
-
         diagramModel =
             model.diagramModel
 
         newDiagramModel =
             { diagramModel
-                | diagramType = newDiagram.diagram
-                , text = newDiagram.text
+                | diagramType = diagram.diagram
+                , text = diagram.text
             }
 
         ( model_, cmd_ ) =
-            Diagram.update (DiagramModel.OnChangeText <| Text.toString newDiagram.text) newDiagramModel
+            Diagram.update (DiagramModel.OnChangeText <| Text.toString diagram.text) newDiagramModel
     in
     Return.return
         { model
-            | title = newDiagram.title
-            , currentDiagram = Just newDiagram
+            | title = diagram.title
+            , currentDiagram = Just diagram
             , diagramModel = model_
         }
         (cmd_ |> Cmd.map UpdateDiagram)
@@ -89,18 +80,13 @@ initListPage model =
     Return.return { model | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
 
 
-initTagPage : Model -> Return Msg Model
-initTagPage model =
-    case model.currentDiagram of
-        Nothing ->
-            Return.singleton model
-
-        Just diagram ->
-            let
-                ( model_, _ ) =
-                    Tags.init (diagram.tags |> Maybe.withDefault [] |> List.map (Maybe.withDefault ""))
-            in
-            switchPage (Page.Tags model_) model
+initSettingsPage : Model -> Return Msg Model
+initSettingsPage model =
+    let
+        ( model_, cmd_ ) =
+            Settings.init model.session model.settingsModel.settings
+    in
+    Return.return { model | settingsModel = model_ } (cmd_ |> Cmd.map UpdateSettings)
 
 
 initShareDiagram : DiagramItem -> Model -> Return Msg Model
@@ -141,12 +127,43 @@ loadWithPasswordShareItem token model =
 
 loadItem : DiagramId -> Model -> Return Msg Model
 loadItem id_ model =
-    Return.return model
-        (Task.attempt Load <|
-            Request.item
-                (Session.getIdToken model.session)
-                (DiagramId.toString id_)
-        )
+    let
+        loadFromRemote =
+            Return.return model
+                (Task.attempt Load <|
+                    Request.item
+                        (Session.getIdToken model.session)
+                        (DiagramId.toString id_)
+                )
+    in
+    case model.session of
+        Session.SignedIn user ->
+            case user.loginProvider of
+                LoginProvider.Github (Just accessToken) ->
+                    if DiagramId.isGithubId id_ then
+                        Return.return model
+                            (Task.attempt Load <|
+                                Request.gistItem
+                                    (Session.getIdToken model.session)
+                                    accessToken
+                                    (DiagramId.toString id_)
+                            )
+
+                    else
+                        loadFromRemote
+
+                LoginProvider.Github Nothing ->
+                    if DiagramId.isGithubId id_ then
+                        Return.return model <| Ports.getGithubAccessToken (DiagramId.toString id_)
+
+                    else
+                        loadFromRemote
+
+                _ ->
+                    loadFromRemote
+
+        Session.Guest ->
+            Return.singleton model
 
 
 loadPublicItem : DiagramId -> Model -> Return Msg Model
@@ -157,6 +174,28 @@ loadPublicItem id_ model =
                 (Session.getIdToken model.session)
                 (DiagramId.toString id_)
         )
+
+
+revokeGistToken : Model -> Return Msg Model
+revokeGistToken model =
+    case model.session of
+        Session.SignedIn user ->
+            case user.loginProvider of
+                LoginProvider.Github (Just accessToken) ->
+                    Return.return model
+                        (Task.attempt CallApi
+                            (TokenApi.revokeGistToken
+                                (Session.getIdToken model.session)
+                                accessToken
+                                |> Task.mapError (\_ -> Message.messageFailedRevokeToken)
+                            )
+                        )
+
+                _ ->
+                    Return.singleton model
+
+        Session.Guest ->
+            Return.singleton model
 
 
 startProgress : Model -> Return Msg Model
@@ -246,12 +285,32 @@ changePublicState diagram isPublic model =
 
 saveToRemote : DiagramItem -> Model -> Return Msg Model
 saveToRemote diagram model =
-    let
-        saveTask =
-            Request.save (Session.getIdToken model.session) (DiagramItem.toInputItem diagram) diagram.isPublic
-                |> Task.mapError (\_ -> diagram)
-    in
-    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+    case model.session of
+        Session.SignedIn user ->
+            case ( diagram.location, model.settingsModel.settings.location, user.loginProvider ) of
+                ( Just DiagramLocation.Gist, _, LoginProvider.Github (Just accessToken) ) ->
+                    let
+                        saveTask =
+                            Request.saveGist (Session.getIdToken model.session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
+                    in
+                    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+
+                ( _, Just DiagramLocation.Gist, LoginProvider.Github (Just accessToken) ) ->
+                    let
+                        saveTask =
+                            Request.saveGist (Session.getIdToken model.session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
+                    in
+                    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+
+                _ ->
+                    let
+                        saveTask =
+                            Request.save (Session.getIdToken model.session) (DiagramItem.toInputItem diagram) diagram.isPublic
+                    in
+                    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+
+        Session.Guest ->
+            Return.singleton model
 
 
 setFocus : String -> Model -> Return Msg Model

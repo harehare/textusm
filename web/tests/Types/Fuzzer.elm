@@ -77,7 +77,6 @@ diagramItemFuzzer =
         |> Fuzz.andMap Fuzz.bool
         |> Fuzz.andMap Fuzz.bool
         |> Fuzz.andMap (Fuzz.maybe diagramLocationFuzzer)
-        |> Fuzz.andMap tagFuzzer
         |> Fuzz.andMap posixFuzzer
         |> Fuzz.andMap posixFuzzer
 
@@ -153,13 +152,6 @@ textFuzzer =
 titleFuzzer : Fuzzer Title
 titleFuzzer =
     Fuzz.map Title.fromString Fuzz.string
-
-
-tagFuzzer : Fuzzer (Maybe (List (Maybe String)))
-tagFuzzer =
-    Fuzz.maybe Fuzz.string
-        |> Fuzz.list
-        |> Fuzz.maybe
 
 
 posixFuzzer : Fuzzer Posix

@@ -1,8 +1,11 @@
 module Types.IdToken exposing
     ( IdToken
+    , decoder
     , fromString
     , unwrap
     )
+
+import Json.Decode as D
 
 
 type IdToken
@@ -21,3 +24,8 @@ fromString string =
 unwrap : IdToken -> String
 unwrap (IdToken string) =
     string
+
+
+decoder : D.Decoder IdToken
+decoder =
+    D.map IdToken D.string

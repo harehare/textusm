@@ -1,4 +1,6 @@
 scalar Time
+scalar ItemIdScalar
+scalar GistIdScalar
 
 enum Diagram {
   USER_STORY_MAP
@@ -29,7 +31,17 @@ type Item {
   diagram: Diagram!
   isPublic: Boolean!
   isBookmark: Boolean!
-  tags: [String]
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type GistItem {
+  id: GistIdScalar!
+  url: String!
+  title: String!
+  thumbnail: String
+  diagram: Diagram!
+  isBookmark: Boolean!
   createdAt: Time!
   updatedAt: Time!
 }
@@ -42,7 +54,10 @@ type ShareCondition {
   allowEmailList: [String!]
 }
 
+union DiagramItem = Item | GistItem
+
 type Query {
+  allItems(offset: Int = 0, limit: Int = 30): [DiagramItem!]
   item(id: ItemIdScalar!, isPublic: Boolean = False): Item!
   items(
     offset: Int = 0
@@ -52,6 +67,8 @@ type Query {
   ): [Item]!
   shareItem(token: String!, password: String): Item!
   ShareCondition(id: ItemIdScalar!): ShareCondition
+  gistItem(id: GistIdScalar!): GistItem!
+  gistItems(offset: Int = 0, limit: Int = 30): [GistItem]!
 }
 
 input InputItem {
@@ -62,7 +79,6 @@ input InputItem {
   diagram: Diagram!
   isPublic: Boolean!
   isBookmark: Boolean!
-  tags: [String]
 }
 
 input InputShareItem {
@@ -73,11 +89,20 @@ input InputShareItem {
   allowEmailList: [String!] = []
 }
 
+input InputGistItem {
+  id: GistIdScalar
+  title: String!
+  thumbnail: String
+  diagram: Diagram!
+  isBookmark: Boolean!
+  url: String!
+}
+
 type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
   delete(itemID: ItemIdScalar!, isPublic: Boolean = False): ItemIdScalar!
   bookmark(itemID: ItemIdScalar!, isBookmark: Boolean!): Item
   share(input: InputShareItem!): String!
+  saveGist(input: InputGistItem!): GistItem!
+  deleteGist(gistID: GistIdScalar!): GistIdScalar!
 }
-
-scalar ItemIdScalar
