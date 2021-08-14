@@ -72,10 +72,10 @@ from items =
             itemToParticipant <| Item.head items
 
         messages =
-            Item.map (itemToSequenceItem participants) items
+            Item.map (itemToSequenceItem (Dict.fromList participants)) items
                 |> List.filterMap identity
     in
-    SequenceDiagram (Dict.values participants) messages
+    SequenceDiagram (List.map Tuple.second participants) messages
 
 
 participantCount : SequenceDiagram -> Int
@@ -157,14 +157,14 @@ messageCount message =
             1
 
 
-itemToParticipant : Maybe Item -> Dict String Participant
+itemToParticipant : Maybe Item -> List ( String, Participant )
 itemToParticipant maybeItem =
     case ( maybeItem, maybeItem |> Maybe.map Item.getText |> Maybe.withDefault "" |> String.toLower ) of
         ( Just item, "participant" ) ->
-            Item.getChildren item |> Item.unwrapChildren |> Item.indexedMap (\i childItem -> ( Item.getText childItem |> String.trim, Participant childItem i )) |> Dict.fromList
+            Item.getChildren item |> Item.unwrapChildren |> Item.indexedMap (\i childItem -> ( Item.getText childItem |> String.trim, Participant childItem i ))
 
         _ ->
-            Dict.empty
+            []
 
 
 itemsToMessages : Dict String Participant -> Items -> List Message
