@@ -44,34 +44,22 @@ loadLocalDiagram diagramId model =
 loadDiagram : DiagramItem -> Model -> Return Msg Model
 loadDiagram diagram model =
     let
-        newDiagram =
-            case diagram.id of
-                Nothing ->
-                    { diagram
-                        | title = model.title
-                        , text = model.diagramModel.text
-                        , diagram = model.diagramModel.diagramType
-                    }
-
-                Just _ ->
-                    diagram
-
         diagramModel =
             model.diagramModel
 
         newDiagramModel =
             { diagramModel
-                | diagramType = newDiagram.diagram
-                , text = newDiagram.text
+                | diagramType = diagram.diagram
+                , text = diagram.text
             }
 
         ( model_, cmd_ ) =
-            Diagram.update (DiagramModel.OnChangeText <| Text.toString newDiagram.text) newDiagramModel
+            Diagram.update (DiagramModel.OnChangeText <| Text.toString diagram.text) newDiagramModel
     in
     Return.return
         { model
-            | title = newDiagram.title
-            , currentDiagram = Just newDiagram
+            | title = diagram.title
+            , currentDiagram = Just diagram
             , diagramModel = model_
         }
         (cmd_ |> Cmd.map UpdateDiagram)

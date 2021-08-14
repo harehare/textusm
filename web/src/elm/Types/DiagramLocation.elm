@@ -23,14 +23,16 @@ type DiagramLocation
 
 
 type alias IsGithubUser =
-     Bool
+    Bool
 
-enabled : IsGithubUser ->  List ( String, DiagramLocation )
+
+enabled : IsGithubUser -> List ( String, DiagramLocation )
 enabled isGithubUser =
     if isGithubUser then
         [ ( "System", Remote )
         , ( "Github Gist", Gist )
         ]
+
     else
         [ ( "System", Remote )
         ]
@@ -39,11 +41,11 @@ enabled isGithubUser =
 isRemote : DiagramLocation -> Bool
 isRemote loc =
     case loc of
-        Local ->
-            False
+        Remote ->
+            True
 
         _ ->
-            True
+            False
 
 
 isLocal : DiagramLocation -> Bool

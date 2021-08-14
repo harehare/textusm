@@ -1,4 +1,14 @@
-port module Page.List exposing (Model, Msg(..), init, isNotAsked, modelOfDiagramList, notAsked, update, view)
+port module Page.List exposing
+    ( DiagramList(..)
+    , Model
+    , Msg(..)
+    , init
+    , isNotAsked
+    , modelOfDiagramList
+    , notAsked
+    , update
+    , view
+    )
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
@@ -254,16 +264,20 @@ sideMenu session diagramList =
 
           else
             Empty.view
-        , Html.div
-            [ class <|
-                if isBookMarkList diagramList then
-                    "item selected"
+        , if Session.isSignedIn session then
+            Html.div
+                [ class <|
+                    if isBookMarkList diagramList then
+                        "item selected"
 
-                else
-                    "item"
-            , onClick <| GetBookmarkDiagrams 1
-            ]
-            [ Icon.bookmark "#F5F5F6" 14, Html.div [ class "p-sm" ] [ Html.text "Bookmarks" ] ]
+                    else
+                        "item"
+                , onClick <| GetBookmarkDiagrams 1
+                ]
+                [ Icon.bookmark "#F5F5F6" 14, Html.div [ class "p-sm" ] [ Html.text "Bookmarks" ] ]
+
+          else
+            Empty.view
         , if Session.isGithubUser session then
             Html.div
                 [ class <|

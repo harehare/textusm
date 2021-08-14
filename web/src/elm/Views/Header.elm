@@ -14,6 +14,7 @@ import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page exposing (Page)
 import Route exposing (Route(..))
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
+import Types.DiagramLocation as DiagramLocation
 import Types.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Types.Session as Session exposing (Session)
 import Types.Text as Text exposing (Text)
@@ -52,9 +53,9 @@ view props =
                     True
 
         isRemoteDiagram =
-            props.currentDiagram
-                |> Maybe.withDefault DiagramItem.empty
-                |> .isRemote
+            Maybe.andThen .location props.currentDiagram
+                |> Maybe.map DiagramLocation.isRemote
+                |> Maybe.withDefault False
 
         canShare =
             Session.isSignedIn props.session && isRemoteDiagram && canEdit

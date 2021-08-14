@@ -21,6 +21,7 @@ type Route
     | New
     | Edit Diagram
     | EditFile Diagram DiagramId
+    | EditLocalFile Diagram DiagramId
     | ViewPublic Diagram DiagramId
     | DiagramList
     | Settings
@@ -43,6 +44,7 @@ parser =
         , map Share (s "share")
         , map Edit (s "edit" </> diagramType)
         , map EditFile (s "edit" </> diagramType </> diagramId)
+        , map EditLocalFile (s "edit" </> diagramType </> s "local" </> diagramId)
         , map ViewFile (s "view" </> diagramType </> shareId)
         , map ViewPublic (s "public" </> diagramType </> diagramId)
         ]
@@ -106,6 +108,9 @@ toString route =
 
         EditFile type_ id_ ->
             absolute [ "edit", DiagramType.toString type_, DiagramId.toString id_ ] []
+
+        EditLocalFile type_ id_ ->
+            absolute [ "edit", DiagramType.toString type_, "local", DiagramId.toString id_ ] []
 
         ViewFile type_ token_ ->
             absolute [ "view", DiagramType.toString type_, ShareToken.toString token_ ] []

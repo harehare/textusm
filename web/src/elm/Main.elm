@@ -425,21 +425,32 @@ changeRouteTo route =
                 >> Return.andThen Action.changeRouteInit
 
         Route.Edit diagramType ->
-            Return.andThen Action.untitled
+            let
+                diagram =
+                    { id = Nothing
+                    , text = Text.fromString <| DiagramType.defaultText diagramType
+                    , diagram = diagramType
+                    , title = Title.untitled
+                    , thumbnail = Nothing
+                    , isPublic = False
+                    , isBookmark = False
+                    , isRemote = False
+                    , location = Just DiagramLocation.Local
+                    , createdAt = Time.millisToPosix 0
+                    , updatedAt = Time.millisToPosix 0
+                    }
+            in
+            Return.andThen (Action.setCurrentDiagram (Just diagram))
                 >> Return.andThen
                     (\m ->
-                        Return.singleton
-                            { m
-                                | diagramModel =
-                                    DiagramModel.updatedText
-                                        (m.diagramModel
-                                            |> DiagramModel.modelOfDiagramType.set diagramType
-                                        )
-                                        (Text.fromString <| DiagramType.defaultText diagramType)
-                            }
+                        Action.loadDiagram diagram m
                     )
-                >> Return.andThen (Action.setCurrentDiagram Nothing)
                 >> Return.andThen (Action.switchPage Page.Main)
+                >> Return.andThen Action.changeRouteInit
+
+        Route.EditLocalFile _ id_ ->
+            Return.andThen (Action.switchPage Page.Main)
+                >> Return.andThen (Action.loadLocalDiagram id_)
                 >> Return.andThen Action.changeRouteInit
 
         Route.EditFile _ id_ ->
@@ -630,19 +641,27 @@ update message =
                         DiagramList.Select diagram ->
                             case diagram.id of
                                 Just _ ->
-                                    (if diagram.isRemote && diagram.isPublic then
-                                        Action.pushUrl
-                                            (Route.toString <|
-                                                ViewPublic diagram.diagram (DiagramItem.getId diagram)
-                                            )
-                                            m
+                                    (case ( diagram.isRemote, diagram.isPublic ) of
+                                        ( True, True ) ->
+                                            Action.pushUrl
+                                                (Route.toString <|
+                                                    ViewPublic diagram.diagram (DiagramItem.getId diagram)
+                                                )
+                                                m
 
-                                     else
-                                        Action.pushUrl
-                                            (Route.toString <|
-                                                EditFile diagram.diagram (DiagramItem.getId diagram)
-                                            )
-                                            m
+                                        ( True, False ) ->
+                                            Action.pushUrl
+                                                (Route.toString <|
+                                                    EditFile diagram.diagram (DiagramItem.getId diagram)
+                                                )
+                                                m
+
+                                        _ ->
+                                            Action.pushUrl
+                                                (Route.toString <|
+                                                    EditLocalFile diagram.diagram (DiagramItem.getId diagram)
+                                                )
+                                                m
                                     )
                                         |> Return.andThen Action.startProgress
 
@@ -842,7 +861,7 @@ update message =
                         (\m ->
                             Return.return { m | currentDiagram = Just item } <|
                                 Route.replaceRoute m.key <|
-                                    Route.EditFile item.diagram
+                                    Route.EditLocalFile item.diagram
                                         (Maybe.withDefault (DiagramId.fromString "") <| item.id)
                         )
                         >> Return.andThen (Action.showInfoMessage Message.messageSuccessfullySaved)
