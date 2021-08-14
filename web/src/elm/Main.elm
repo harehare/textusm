@@ -26,6 +26,7 @@ import Html.Events as E
 import Html.Lazy as Lazy
 import Json.Decode as D
 import Json.Encode as E
+import Maybe.Extra exposing (isJust)
 import Message
 import Models.Diagram as DiagramModel
 import Models.Diagram.ER as ER
@@ -782,7 +783,15 @@ update message =
                         Action.startEditTitle m
 
                     else
-                        case ( m.settingsModel.settings.location, Session.getAccessToken m.session ) of
+                        let
+                            location =
+                                if Maybe.andThen .id m.currentDiagram |> isJust then
+                                    Maybe.andThen .location m.currentDiagram
+
+                                else
+                                    m.settingsModel.settings.location
+                        in
+                        case ( location, Session.getAccessToken m.session ) of
                             ( Just DiagramLocation.Gist, Nothing ) ->
                                 Return.return m <| Ports.getGithubAccessToken "save"
 

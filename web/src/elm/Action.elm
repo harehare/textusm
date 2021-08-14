@@ -139,6 +139,15 @@ loadWithPasswordShareItem token model =
 
 loadItem : DiagramId -> Model -> Return Msg Model
 loadItem id_ model =
+    let
+        loadFromRemote =
+            Return.return model
+                (Task.attempt Load <|
+                    Request.item
+                        (Session.getIdToken model.session)
+                        (DiagramId.toString id_)
+                )
+    in
     case model.session of
         Session.SignedIn user ->
             case user.loginProvider of
@@ -153,23 +162,17 @@ loadItem id_ model =
                             )
 
                     else
-                        Return.return model
-                            (Task.attempt Load <|
-                                Request.item
-                                    (Session.getIdToken model.session)
-                                    (DiagramId.toString id_)
-                            )
+                        loadFromRemote
 
                 LoginProvider.Github Nothing ->
-                    Return.return model <| Ports.getGithubAccessToken (DiagramId.toString id_)
+                    if DiagramId.isGithubId id_ then
+                        Return.return model <| Ports.getGithubAccessToken (DiagramId.toString id_)
+
+                    else
+                        loadFromRemote
 
                 _ ->
-                    Return.return model
-                        (Task.attempt Load <|
-                            Request.item
-                                (Session.getIdToken model.session)
-                                (DiagramId.toString id_)
-                        )
+                    loadFromRemote
 
         Session.Guest ->
             Return.singleton model
