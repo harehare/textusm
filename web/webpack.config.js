@@ -221,14 +221,14 @@ if (mode === 'production') {
                 {
                     test: /\.css$/,
                     exclude: [/elm-stuff/, /node_modules/],
-                    use: [MiniCssExtractPlugin.loader, 'css-loader?url=false'],
+                    use: [MiniCssExtractPlugin.loader, 'css-loader'],
                 },
                 {
                     test: /\.scss$/,
                     exclude: [/elm-stuff/, /node_modules/],
                     use: [
                         MiniCssExtractPlugin.loader,
-                        'css-loader?url=false',
+                        'css-loader',
                         {
                             loader: 'sass-loader',
                             options: {
