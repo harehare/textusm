@@ -65,5 +65,14 @@
         ]
       }
     ]
+  },
+  "emulators": {
+    "firestore": {
+      "host": "localhost",
+      "port": 8082
+    },
+    "ui": {
+      "enabled": true
+    }
   }
 }
