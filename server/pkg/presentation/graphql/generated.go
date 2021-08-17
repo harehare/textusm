@@ -15,6 +15,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/settings"
 	"github.com/harehare/textusm/pkg/domain/model/share"
 	"github.com/harehare/textusm/pkg/domain/values"
 	"github.com/harehare/textusm/pkg/presentation/graphql/scalar"
@@ -49,6 +50,11 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Color struct {
+		BackgroundColor func(childComplexity int) int
+		ForegroundColor func(childComplexity int) int
+	}
+
 	GistItem struct {
 		CreatedAt  func(childComplexity int) int
 		Diagram    func(childComplexity int) int
@@ -73,12 +79,13 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		Bookmark   func(childComplexity int, itemID *values.ItemID, isBookmark bool) int
-		Delete     func(childComplexity int, itemID *values.ItemID, isPublic *bool) int
-		DeleteGist func(childComplexity int, gistID *values.GistID) int
-		Save       func(childComplexity int, input InputItem, isPublic *bool) int
-		SaveGist   func(childComplexity int, input InputGistItem) int
-		Share      func(childComplexity int, input InputShareItem) int
+		Bookmark     func(childComplexity int, itemID *values.ItemID, isBookmark bool) int
+		Delete       func(childComplexity int, itemID *values.ItemID, isPublic *bool) int
+		DeleteGist   func(childComplexity int, gistID *values.GistID) int
+		Save         func(childComplexity int, input InputItem, isPublic *bool) int
+		SaveGist     func(childComplexity int, input InputGistItem) int
+		SaveSettings func(childComplexity int, input InputSettings) int
+		Share        func(childComplexity int, input InputShareItem) int
 	}
 
 	Query struct {
@@ -87,8 +94,24 @@ type ComplexityRoot struct {
 		GistItems      func(childComplexity int, offset *int, limit *int) int
 		Item           func(childComplexity int, id *values.ItemID, isPublic *bool) int
 		Items          func(childComplexity int, offset *int, limit *int, isBookmark *bool, isPublic *bool) int
+		Settings       func(childComplexity int) int
 		ShareCondition func(childComplexity int, id *values.ItemID) int
 		ShareItem      func(childComplexity int, token string, password *string) int
+	}
+
+	Settings struct {
+		ActivityColor   func(childComplexity int) int
+		BackgroundColor func(childComplexity int) int
+		Font            func(childComplexity int) int
+		Height          func(childComplexity int) int
+		LabelColor      func(childComplexity int) int
+		LineColor       func(childComplexity int) int
+		Scale           func(childComplexity int) int
+		StoryColor      func(childComplexity int) int
+		TaskColor       func(childComplexity int) int
+		TextColor       func(childComplexity int) int
+		Width           func(childComplexity int) int
+		ZoomControl     func(childComplexity int) int
 	}
 
 	ShareCondition struct {
@@ -107,6 +130,7 @@ type MutationResolver interface {
 	Share(ctx context.Context, input InputShareItem) (string, error)
 	SaveGist(ctx context.Context, input InputGistItem) (*item.GistItem, error)
 	DeleteGist(ctx context.Context, gistID *values.GistID) (*values.GistID, error)
+	SaveSettings(ctx context.Context, input InputSettings) (*settings.Settings, error)
 }
 type QueryResolver interface {
 	AllItems(ctx context.Context, offset *int, limit *int) ([]union.DiagramItem, error)
@@ -116,6 +140,7 @@ type QueryResolver interface {
 	ShareCondition(ctx context.Context, id *values.ItemID) (*share.ShareCondition, error)
 	GistItem(ctx context.Context, id *values.GistID) (*item.GistItem, error)
 	GistItems(ctx context.Context, offset *int, limit *int) ([]*item.GistItem, error)
+	Settings(ctx context.Context) (*settings.Settings, error)
 }
 
 type executableSchema struct {
@@ -132,6 +157,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Color.backgroundColor":
+		if e.complexity.Color.BackgroundColor == nil {
+			break
+		}
+
+		return e.complexity.Color.BackgroundColor(childComplexity), true
+
+	case "Color.foregroundColor":
+		if e.complexity.Color.ForegroundColor == nil {
+			break
+		}
+
+		return e.complexity.Color.ForegroundColor(childComplexity), true
 
 	case "GistItem.createdAt":
 		if e.complexity.GistItem.CreatedAt == nil {
@@ -312,6 +351,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SaveGist(childComplexity, args["input"].(InputGistItem)), true
 
+	case "Mutation.saveSettings":
+		if e.complexity.Mutation.SaveSettings == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_saveSettings_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SaveSettings(childComplexity, args["input"].(InputSettings)), true
+
 	case "Mutation.share":
 		if e.complexity.Mutation.Share == nil {
 			break
@@ -384,6 +435,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Items(childComplexity, args["offset"].(*int), args["limit"].(*int), args["isBookmark"].(*bool), args["isPublic"].(*bool)), true
 
+	case "Query.settings":
+		if e.complexity.Query.Settings == nil {
+			break
+		}
+
+		return e.complexity.Query.Settings(childComplexity), true
+
 	case "Query.ShareCondition":
 		if e.complexity.Query.ShareCondition == nil {
 			break
@@ -407,6 +465,90 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.ShareItem(childComplexity, args["token"].(string), args["password"].(*string)), true
+
+	case "Settings.activityColor":
+		if e.complexity.Settings.ActivityColor == nil {
+			break
+		}
+
+		return e.complexity.Settings.ActivityColor(childComplexity), true
+
+	case "Settings.backgroundColor":
+		if e.complexity.Settings.BackgroundColor == nil {
+			break
+		}
+
+		return e.complexity.Settings.BackgroundColor(childComplexity), true
+
+	case "Settings.font":
+		if e.complexity.Settings.Font == nil {
+			break
+		}
+
+		return e.complexity.Settings.Font(childComplexity), true
+
+	case "Settings.height":
+		if e.complexity.Settings.Height == nil {
+			break
+		}
+
+		return e.complexity.Settings.Height(childComplexity), true
+
+	case "Settings.labelColor":
+		if e.complexity.Settings.LabelColor == nil {
+			break
+		}
+
+		return e.complexity.Settings.LabelColor(childComplexity), true
+
+	case "Settings.lineColor":
+		if e.complexity.Settings.LineColor == nil {
+			break
+		}
+
+		return e.complexity.Settings.LineColor(childComplexity), true
+
+	case "Settings.scale":
+		if e.complexity.Settings.Scale == nil {
+			break
+		}
+
+		return e.complexity.Settings.Scale(childComplexity), true
+
+	case "Settings.storyColor":
+		if e.complexity.Settings.StoryColor == nil {
+			break
+		}
+
+		return e.complexity.Settings.StoryColor(childComplexity), true
+
+	case "Settings.taskColor":
+		if e.complexity.Settings.TaskColor == nil {
+			break
+		}
+
+		return e.complexity.Settings.TaskColor(childComplexity), true
+
+	case "Settings.textColor":
+		if e.complexity.Settings.TextColor == nil {
+			break
+		}
+
+		return e.complexity.Settings.TextColor(childComplexity), true
+
+	case "Settings.width":
+		if e.complexity.Settings.Width == nil {
+			break
+		}
+
+		return e.complexity.Settings.Width(childComplexity), true
+
+	case "Settings.zoomControl":
+		if e.complexity.Settings.ZoomControl == nil {
+			break
+		}
+
+		return e.complexity.Settings.ZoomControl(childComplexity), true
 
 	case "ShareCondition.allowEmailList":
 		if e.complexity.ShareCondition.AllowEmailList == nil {
@@ -563,6 +705,26 @@ type ShareCondition {
   allowEmailList: [String!]
 }
 
+type Settings {
+  font: String!
+  width: Int!
+  height: Int!
+  backgroundColor: String!
+  activityColor: Color!
+  taskColor: Color!
+  storyColor: Color!
+  lineColor: String!
+  labelColor: String!
+  textColor: String
+  zoomControl: Boolean
+  scale: Float
+}
+
+type Color {
+  foregroundColor: String!
+  backgroundColor: String!
+}
+
 union DiagramItem = Item | GistItem
 
 type Query {
@@ -578,6 +740,7 @@ type Query {
   ShareCondition(id: ItemIdScalar!): ShareCondition
   gistItem(id: GistIdScalar!): GistItem!
   gistItems(offset: Int = 0, limit: Int = 30): [GistItem]!
+  settings: Settings!
 }
 
 input InputItem {
@@ -607,6 +770,26 @@ input InputGistItem {
   url: String!
 }
 
+input InputSettings {
+  font: String!
+  width: Int!
+  height: Int!
+  backgroundColor: String!
+  activityColor: InputColor!
+  taskColor: InputColor!
+  storyColor: InputColor!
+  lineColor: String!
+  labelColor: String!
+  textColor: String
+  zoomControl: Boolean = false
+  scale: Float = 1.0
+}
+
+input InputColor {
+  foregroundColor: String!
+  backgroundColor: String!
+}
+
 type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
   delete(itemID: ItemIdScalar!, isPublic: Boolean = False): ItemIdScalar!
@@ -614,6 +797,7 @@ type Mutation {
   share(input: InputShareItem!): String!
   saveGist(input: InputGistItem!): GistItem!
   deleteGist(gistID: GistIdScalar!): GistIdScalar!
+  saveSettings(input: InputSettings!): Settings!
 }
 `, BuiltIn: false},
 }
@@ -693,6 +877,21 @@ func (ec *executionContext) field_Mutation_saveGist_args(ctx context.Context, ra
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNInputGistItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputGistItem(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_saveSettings_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 InputSettings
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNInputSettings2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputSettings(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -960,6 +1159,76 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _Color_foregroundColor(ctx context.Context, field graphql.CollectedField, obj *settings.Color) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Color",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ForegroundColor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Color_backgroundColor(ctx context.Context, field graphql.CollectedField, obj *settings.Color) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Color",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BackgroundColor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _GistItem_id(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
 	defer func() {
@@ -1799,6 +2068,48 @@ func (ec *executionContext) _Mutation_deleteGist(ctx context.Context, field grap
 	return ec.marshalNGistIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_saveSettings(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_saveSettings_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().SaveSettings(rctx, args["input"].(InputSettings))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*settings.Settings)
+	fc.Result = res
+	return ec.marshalNSettings2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐSettings(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_allItems(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2087,6 +2398,41 @@ func (ec *executionContext) _Query_gistItems(ctx context.Context, field graphql.
 	return ec.marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐGistItem(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_settings(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Settings(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*settings.Settings)
+	fc.Result = res
+	return ec.marshalNSettings2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐSettings(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2156,6 +2502,417 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_font(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Font, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_width(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Width, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_height(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Height, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_backgroundColor(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BackgroundColor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_activityColor(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ActivityColor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(settings.Color)
+	fc.Result = res
+	return ec.marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐColor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_taskColor(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TaskColor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(settings.Color)
+	fc.Result = res
+	return ec.marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐColor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_storyColor(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StoryColor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(settings.Color)
+	fc.Result = res
+	return ec.marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐColor(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_lineColor(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LineColor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_labelColor(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LabelColor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_textColor(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TextColor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_zoomControl(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ZoomControl, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Settings_scale(ctx context.Context, field graphql.CollectedField, obj *settings.Settings) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Settings",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Scale, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _ShareCondition_token(ctx context.Context, field graphql.CollectedField, obj *share.ShareCondition) (ret graphql.Marshaler) {
@@ -3414,6 +4171,34 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputInputColor(ctx context.Context, obj interface{}) (InputColor, error) {
+	var it InputColor
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "foregroundColor":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("foregroundColor"))
+			it.ForegroundColor, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "backgroundColor":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("backgroundColor"))
+			it.BackgroundColor, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputInputGistItem(ctx context.Context, obj interface{}) (InputGistItem, error) {
 	var it InputGistItem
 	var asMap = obj.(map[string]interface{})
@@ -3542,6 +4327,118 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj interface{}) (InputSettings, error) {
+	var it InputSettings
+	var asMap = obj.(map[string]interface{})
+
+	if _, present := asMap["scale"]; !present {
+		asMap["scale"] = 1.000000
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "font":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("font"))
+			it.Font, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "width":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("width"))
+			it.Width, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "height":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("height"))
+			it.Height, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "backgroundColor":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("backgroundColor"))
+			it.BackgroundColor, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "activityColor":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("activityColor"))
+			it.ActivityColor, err = ec.unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputColor(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "taskColor":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("taskColor"))
+			it.TaskColor, err = ec.unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputColor(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "storyColor":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("storyColor"))
+			it.StoryColor, err = ec.unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputColor(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "lineColor":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lineColor"))
+			it.LineColor, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "labelColor":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("labelColor"))
+			it.LabelColor, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "textColor":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("textColor"))
+			it.TextColor, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "zoomControl":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("zoomControl"))
+			it.ZoomControl, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "scale":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("scale"))
+			it.Scale, err = ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, obj interface{}) (InputShareItem, error) {
 	var it InputShareItem
 	var asMap = obj.(map[string]interface{})
@@ -3628,6 +4525,38 @@ func (ec *executionContext) _DiagramItem(ctx context.Context, sel ast.SelectionS
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var colorImplementors = []string{"Color"}
+
+func (ec *executionContext) _Color(ctx context.Context, sel ast.SelectionSet, obj *settings.Color) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, colorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Color")
+		case "foregroundColor":
+			out.Values[i] = ec._Color_foregroundColor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "backgroundColor":
+			out.Values[i] = ec._Color_backgroundColor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
 
 var gistItemImplementors = []string{"GistItem", "DiagramItem"}
 
@@ -3794,6 +4723,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "saveSettings":
+			out.Values[i] = ec._Mutation_saveSettings(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3912,10 +4846,97 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "settings":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_settings(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var settingsImplementors = []string{"Settings"}
+
+func (ec *executionContext) _Settings(ctx context.Context, sel ast.SelectionSet, obj *settings.Settings) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, settingsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Settings")
+		case "font":
+			out.Values[i] = ec._Settings_font(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "width":
+			out.Values[i] = ec._Settings_width(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "height":
+			out.Values[i] = ec._Settings_height(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "backgroundColor":
+			out.Values[i] = ec._Settings_backgroundColor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "activityColor":
+			out.Values[i] = ec._Settings_activityColor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "taskColor":
+			out.Values[i] = ec._Settings_taskColor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "storyColor":
+			out.Values[i] = ec._Settings_storyColor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "lineColor":
+			out.Values[i] = ec._Settings_lineColor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "labelColor":
+			out.Values[i] = ec._Settings_labelColor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "textColor":
+			out.Values[i] = ec._Settings_textColor(ctx, field, obj)
+		case "zoomControl":
+			out.Values[i] = ec._Settings_zoomControl(ctx, field, obj)
+		case "scale":
+			out.Values[i] = ec._Settings_scale(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -4228,6 +5249,10 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalNColor2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐColor(ctx context.Context, sel ast.SelectionSet, v settings.Color) graphql.Marshaler {
+	return ec._Color(ctx, sel, &v)
+}
+
 func (ec *executionContext) unmarshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx context.Context, v interface{}) (values.Diagram, error) {
 	res, err := values.UnmarshalDiagram(v)
 	return *res, graphql.ErrorOnPath(ctx, err)
@@ -4361,6 +5386,11 @@ func (ec *executionContext) marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextus
 	return ec._GistItem(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputColor(ctx context.Context, v interface{}) (*InputColor, error) {
+	res, err := ec.unmarshalInputInputColor(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNInputGistItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputGistItem(ctx context.Context, v interface{}) (InputGistItem, error) {
 	res, err := ec.unmarshalInputInputGistItem(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4368,6 +5398,11 @@ func (ec *executionContext) unmarshalNInputGistItem2githubᚗcomᚋharehareᚋte
 
 func (ec *executionContext) unmarshalNInputItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputItem(ctx context.Context, v interface{}) (InputItem, error) {
 	res, err := ec.unmarshalInputInputItem(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNInputSettings2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputSettings(ctx context.Context, v interface{}) (InputSettings, error) {
+	res, err := ec.unmarshalInputInputSettings(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -4476,6 +5511,20 @@ func (ec *executionContext) marshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋte
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNSettings2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐSettings(ctx context.Context, sel ast.SelectionSet, v settings.Settings) graphql.Marshaler {
+	return ec._Settings(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSettings2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐSettings(ctx context.Context, sel ast.SelectionSet, v *settings.Settings) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Settings(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -4799,6 +5848,21 @@ func (ec *executionContext) marshalODiagramItem2ᚕgithubᚗcomᚋharehareᚋtex
 	}
 	wg.Wait()
 	return ret
+}
+
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloat(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalFloat(*v)
 }
 
 func (ec *executionContext) unmarshalOGistIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx context.Context, v interface{}) (*values.GistID, error) {

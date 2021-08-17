@@ -6,6 +6,11 @@ import (
 	"github.com/harehare/textusm/pkg/domain/values"
 )
 
+type InputColor struct {
+	ForegroundColor string `json:"foregroundColor"`
+	BackgroundColor string `json:"backgroundColor"`
+}
+
 type InputGistItem struct {
 	ID         *values.GistID  `json:"id"`
 	Title      string          `json:"title"`
@@ -23,6 +28,21 @@ type InputItem struct {
 	Diagram    *values.Diagram `json:"diagram"`
 	IsPublic   bool            `json:"isPublic"`
 	IsBookmark bool            `json:"isBookmark"`
+}
+
+type InputSettings struct {
+	Font            string      `json:"font"`
+	Width           int         `json:"width"`
+	Height          int         `json:"height"`
+	BackgroundColor string      `json:"backgroundColor"`
+	ActivityColor   *InputColor `json:"activityColor"`
+	TaskColor       *InputColor `json:"taskColor"`
+	StoryColor      *InputColor `json:"storyColor"`
+	LineColor       string      `json:"lineColor"`
+	LabelColor      string      `json:"labelColor"`
+	TextColor       *string     `json:"textColor"`
+	ZoomControl     *bool       `json:"zoomControl"`
+	Scale           *float64    `json:"scale"`
 }
 
 type InputShareItem struct {

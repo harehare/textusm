@@ -19,6 +19,10 @@ models:
     model: github.com/harehare/textusm/pkg/domain/model/share.ShareCondition
   Diagram:
     model: github.com/harehare/textusm/pkg/domain/values.Diagram
+  Settings:
+    model: github.com/harehare/textusm/pkg/domain/model/settings.Settings
+  Color:
+    model: github.com/harehare/textusm/pkg/domain/model/settings.Color
   ItemIdScalar:
     model: github.com/harehare/textusm/pkg/presentation/graphql/scalar.ItemID
   GistIdScalar:

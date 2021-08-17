@@ -54,6 +54,26 @@ type ShareCondition {
   allowEmailList: [String!]
 }
 
+type Settings {
+  font: String!
+  width: Int!
+  height: Int!
+  backgroundColor: String!
+  activityColor: Color!
+  taskColor: Color!
+  storyColor: Color!
+  lineColor: String!
+  labelColor: String!
+  textColor: String
+  zoomControl: Boolean
+  scale: Float
+}
+
+type Color {
+  foregroundColor: String!
+  backgroundColor: String!
+}
+
 union DiagramItem = Item | GistItem
 
 type Query {
@@ -69,6 +89,7 @@ type Query {
   ShareCondition(id: ItemIdScalar!): ShareCondition
   gistItem(id: GistIdScalar!): GistItem!
   gistItems(offset: Int = 0, limit: Int = 30): [GistItem]!
+  settings: Settings!
 }
 
 input InputItem {
@@ -98,6 +119,26 @@ input InputGistItem {
   url: String!
 }
 
+input InputSettings {
+  font: String!
+  width: Int!
+  height: Int!
+  backgroundColor: String!
+  activityColor: InputColor!
+  taskColor: InputColor!
+  storyColor: InputColor!
+  lineColor: String!
+  labelColor: String!
+  textColor: String
+  zoomControl: Boolean = false
+  scale: Float = 1.0
+}
+
+input InputColor {
+  foregroundColor: String!
+  backgroundColor: String!
+}
+
 type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
   delete(itemID: ItemIdScalar!, isPublic: Boolean = False): ItemIdScalar!
@@ -105,4 +146,5 @@ type Mutation {
   share(input: InputShareItem!): String!
   saveGist(input: InputGistItem!): GistItem!
   deleteGist(gistID: GistIdScalar!): GistIdScalar!
+  saveSettings(input: InputSettings!): Settings!
 }

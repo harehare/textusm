@@ -7,6 +7,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/harehare/textusm/pkg/context/values"
 	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/settings"
 	v "github.com/harehare/textusm/pkg/domain/values"
 )
 
@@ -94,4 +95,8 @@ func (r *mutationResolver) SaveGist(ctx context.Context, input InputGistItem) (*
 func (r *mutationResolver) DeleteGist(ctx context.Context, gistID *v.GistID) (*v.GistID, error) {
 	err := r.gistService.Delete(ctx, *gistID)
 	return gistID, err
+}
+
+func (r *mutationResolver) SaveSettings(ctx context.Context, input InputSettings) (*settings.Settings, error) {
+	panic("not implemented")
 }
