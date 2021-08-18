@@ -84,7 +84,7 @@ type ComplexityRoot struct {
 		DeleteGist   func(childComplexity int, gistID *values.GistID) int
 		Save         func(childComplexity int, input InputItem, isPublic *bool) int
 		SaveGist     func(childComplexity int, input InputGistItem) int
-		SaveSettings func(childComplexity int, input InputSettings) int
+		SaveSettings func(childComplexity int, diagram *values.Diagram, input InputSettings) int
 		Share        func(childComplexity int, input InputShareItem) int
 	}
 
@@ -94,7 +94,7 @@ type ComplexityRoot struct {
 		GistItems      func(childComplexity int, offset *int, limit *int) int
 		Item           func(childComplexity int, id *values.ItemID, isPublic *bool) int
 		Items          func(childComplexity int, offset *int, limit *int, isBookmark *bool, isPublic *bool) int
-		Settings       func(childComplexity int) int
+		Settings       func(childComplexity int, diagram *values.Diagram) int
 		ShareCondition func(childComplexity int, id *values.ItemID) int
 		ShareItem      func(childComplexity int, token string, password *string) int
 	}
@@ -130,7 +130,7 @@ type MutationResolver interface {
 	Share(ctx context.Context, input InputShareItem) (string, error)
 	SaveGist(ctx context.Context, input InputGistItem) (*item.GistItem, error)
 	DeleteGist(ctx context.Context, gistID *values.GistID) (*values.GistID, error)
-	SaveSettings(ctx context.Context, input InputSettings) (*settings.Settings, error)
+	SaveSettings(ctx context.Context, diagram *values.Diagram, input InputSettings) (*settings.Settings, error)
 }
 type QueryResolver interface {
 	AllItems(ctx context.Context, offset *int, limit *int) ([]union.DiagramItem, error)
@@ -140,7 +140,7 @@ type QueryResolver interface {
 	ShareCondition(ctx context.Context, id *values.ItemID) (*share.ShareCondition, error)
 	GistItem(ctx context.Context, id *values.GistID) (*item.GistItem, error)
 	GistItems(ctx context.Context, offset *int, limit *int) ([]*item.GistItem, error)
-	Settings(ctx context.Context) (*settings.Settings, error)
+	Settings(ctx context.Context, diagram *values.Diagram) (*settings.Settings, error)
 }
 
 type executableSchema struct {
@@ -361,7 +361,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SaveSettings(childComplexity, args["input"].(InputSettings)), true
+		return e.complexity.Mutation.SaveSettings(childComplexity, args["diagram"].(*values.Diagram), args["input"].(InputSettings)), true
 
 	case "Mutation.share":
 		if e.complexity.Mutation.Share == nil {
@@ -440,7 +440,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Settings(childComplexity), true
+		args, err := ec.field_Query_settings_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Settings(childComplexity, args["diagram"].(*values.Diagram)), true
 
 	case "Query.ShareCondition":
 		if e.complexity.Query.ShareCondition == nil {
@@ -740,7 +745,7 @@ type Query {
   ShareCondition(id: ItemIdScalar!): ShareCondition
   gistItem(id: GistIdScalar!): GistItem!
   gistItems(offset: Int = 0, limit: Int = 30): [GistItem]!
-  settings: Settings!
+  settings(diagram: Diagram!): Settings!
 }
 
 input InputItem {
@@ -797,7 +802,7 @@ type Mutation {
   share(input: InputShareItem!): String!
   saveGist(input: InputGistItem!): GistItem!
   deleteGist(gistID: GistIdScalar!): GistIdScalar!
-  saveSettings(input: InputSettings!): Settings!
+  saveSettings(diagram: Diagram!, input: InputSettings!): Settings!
 }
 `, BuiltIn: false},
 }
@@ -888,15 +893,24 @@ func (ec *executionContext) field_Mutation_saveGist_args(ctx context.Context, ra
 func (ec *executionContext) field_Mutation_saveSettings_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 InputSettings
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNInputSettings2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputSettings(ctx, tmp)
+	var arg0 *values.Diagram
+	if tmp, ok := rawArgs["diagram"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("diagram"))
+		arg0, err = ec.unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["diagram"] = arg0
+	var arg1 InputSettings
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNInputSettings2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputSettings(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -1095,6 +1109,21 @@ func (ec *executionContext) field_Query_items_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["isPublic"] = arg3
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_settings_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *values.Diagram
+	if tmp, ok := rawArgs["diagram"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("diagram"))
+		arg0, err = ec.unmarshalNDiagram2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["diagram"] = arg0
 	return args, nil
 }
 
@@ -2093,7 +2122,7 @@ func (ec *executionContext) _Mutation_saveSettings(ctx context.Context, field gr
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SaveSettings(rctx, args["input"].(InputSettings))
+		return ec.resolvers.Mutation().SaveSettings(rctx, args["diagram"].(*values.Diagram), args["input"].(InputSettings))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2414,9 +2443,16 @@ func (ec *executionContext) _Query_settings(ctx context.Context, field graphql.C
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_settings_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Settings(rctx)
+		return ec.resolvers.Query().Settings(rctx, args["diagram"].(*values.Diagram))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

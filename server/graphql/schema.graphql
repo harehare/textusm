@@ -89,7 +89,7 @@ type Query {
   ShareCondition(id: ItemIdScalar!): ShareCondition
   gistItem(id: GistIdScalar!): GistItem!
   gistItems(offset: Int = 0, limit: Int = 30): [GistItem]!
-  settings: Settings!
+  settings(diagram: Diagram!): Settings!
 }
 
 input InputItem {
@@ -146,5 +146,5 @@ type Mutation {
   share(input: InputShareItem!): String!
   saveGist(input: InputGistItem!): GistItem!
   deleteGist(gistID: GistIdScalar!): GistIdScalar!
-  saveSettings(input: InputSettings!): Settings!
+  saveSettings(diagram: Diagram!, input: InputSettings!): Settings!
 }

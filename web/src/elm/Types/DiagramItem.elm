@@ -132,7 +132,7 @@ isRemoteDiagram session diagram =
             False
 
         ( Just DiagramLocation.Local, Nothing ) ->
-            True
+            Session.isSignedIn session
 
         _ ->
             True

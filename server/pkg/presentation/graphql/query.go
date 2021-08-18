@@ -6,6 +6,7 @@ import (
 	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
 	"github.com/harehare/textusm/pkg/domain/model/settings"
 	shareModel "github.com/harehare/textusm/pkg/domain/model/share"
+	"github.com/harehare/textusm/pkg/domain/values"
 	v "github.com/harehare/textusm/pkg/domain/values"
 	"github.com/harehare/textusm/pkg/presentation/graphql/union"
 )
@@ -69,6 +70,6 @@ func (r *queryResolver) GistItems(ctx context.Context, offset, limit *int) ([]*i
 	return r.gistService.Find(ctx, *offset, *limit)
 }
 
-func (r *queryResolver) Settings(ctx context.Context) (*settings.Settings, error) {
+func (r *queryResolver) Settings(ctx context.Context, diagram *values.Diagram) (*settings.Settings, error) {
 	panic("not implemented")
 }

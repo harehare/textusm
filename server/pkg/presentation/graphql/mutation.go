@@ -97,6 +97,6 @@ func (r *mutationResolver) DeleteGist(ctx context.Context, gistID *v.GistID) (*v
 	return gistID, err
 }
 
-func (r *mutationResolver) SaveSettings(ctx context.Context, input InputSettings) (*settings.Settings, error) {
+func (r *mutationResolver) SaveSettings(ctx context.Context, diagram *v.Diagram, input InputSettings) (*settings.Settings, error) {
 	panic("not implemented")
 }
