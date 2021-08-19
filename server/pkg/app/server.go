@@ -18,6 +18,7 @@ import (
 
 	"github.com/harehare/textusm/pkg/domain/service"
 	itemRepo "github.com/harehare/textusm/pkg/infra/firestore/item"
+	settingsRepo "github.com/harehare/textusm/pkg/infra/firestore/settings"
 	shareRepo "github.com/harehare/textusm/pkg/infra/firestore/share"
 	userRepo "github.com/harehare/textusm/pkg/infra/firestore/user"
 	"github.com/harehare/textusm/pkg/presentation/api"
@@ -98,8 +99,10 @@ func Run() int {
 	shareRepo := shareRepo.NewFirestoreShareRepository(firestore)
 	userRepo := userRepo.NewFirebaseUserRepository(app)
 	gistRepo := itemRepo.NewFirestoreGistItemRepository(firestore)
+	settingsRepo := settingsRepo.NewFirestoreSettingsRepository(firestore)
 	itemService := service.NewService(repo, shareRepo, userRepo)
 	gistService := service.NewGistService(gistRepo, env.GithubClientID, env.GithubClientSecret)
+	settingsService := service.NewSettingsService(settingsRepo, env.GithubClientID, env.GithubClientSecret)
 
 	r := chi.NewRouter()
 	r.Use(chiMiddleware.Compress(5))
@@ -136,7 +139,7 @@ func Run() int {
 		r.Use(middleware.IPMiddleware())
 		r.Use(cors)
 		r.Use(httprate.LimitByIP(100, 1*time.Minute))
-		graphql := gqlHandler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: resolver.New(itemService, gistService, firestore)}))
+		graphql := gqlHandler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: resolver.New(itemService, gistService, settingsService, firestore)}))
 		graphql.AddTransport(transport.Options{})
 		graphql.AddTransport(transport.POST{})
 		graphql.SetQueryCache(lru.New(100))

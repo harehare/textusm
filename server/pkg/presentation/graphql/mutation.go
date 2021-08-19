@@ -7,7 +7,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/harehare/textusm/pkg/context/values"
 	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
-	"github.com/harehare/textusm/pkg/domain/model/settings"
+	settingsModel "github.com/harehare/textusm/pkg/domain/model/settings"
 	v "github.com/harehare/textusm/pkg/domain/values"
 )
 
@@ -97,6 +97,27 @@ func (r *mutationResolver) DeleteGist(ctx context.Context, gistID *v.GistID) (*v
 	return gistID, err
 }
 
-func (r *mutationResolver) SaveSettings(ctx context.Context, diagram *v.Diagram, input InputSettings) (*settings.Settings, error) {
-	panic("not implemented")
+func (r *mutationResolver) SaveSettings(ctx context.Context, diagram *v.Diagram, input InputSettings) (*settingsModel.Settings, error) {
+	settings := settingsModel.Settings{
+		Font:            input.Font,
+		Width:           input.Width,
+		Height:          input.Height,
+		BackgroundColor: input.BackgroundColor,
+		ActivityColor:   inputColorToColor(*input.ActivityColor),
+		TaskColor:       inputColorToColor(*input.TaskColor),
+		StoryColor:      inputColorToColor(*input.StoryColor),
+		LineColor:       input.LineColor,
+		LabelColor:      input.LabelColor,
+		TextColor:       input.TextColor,
+		ZoomControl:     input.ZoomControl,
+		Scale:           input.Scale,
+	}
+	return r.settingsService.Save(ctx, *diagram, &settings)
+}
+
+func inputColorToColor(input InputColor) settingsModel.Color {
+	return settingsModel.Color{
+		ForegroundColor: input.ForegroundColor,
+		BackgroundColor: input.BackgroundColor,
+	}
 }

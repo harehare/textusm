@@ -9,12 +9,13 @@ import (
 )
 
 type Resolver struct {
-	service     *service.Service
-	gistService *service.GistService
-	client      *firestore.Client
+	service         *service.Service
+	gistService     *service.GistService
+	settingsService *service.SettingsService
+	client          *firestore.Client
 }
 
-func New(service *service.Service, gistService *service.GistService, client *firestore.Client) *Resolver {
-	r := Resolver{service: service, gistService: gistService, client: client}
+func New(service *service.Service, gistService *service.GistService, settingsService *service.SettingsService, client *firestore.Client) *Resolver {
+	r := Resolver{service: service, gistService: gistService, settingsService: settingsService, client: client}
 	return &r
 }

@@ -71,5 +71,5 @@ func (r *queryResolver) GistItems(ctx context.Context, offset, limit *int) ([]*i
 }
 
 func (r *queryResolver) Settings(ctx context.Context, diagram *values.Diagram) (*settings.Settings, error) {
-	panic("not implemented")
+	return r.settingsService.Find(ctx, *diagram)
 }
