@@ -27,12 +27,19 @@ export const initDownload = (app: ElmApp): void => {
         const optimizedSvg = await svgo.optimize(
             new XMLSerializer().serializeToString(svg),
             {
-                plugins: svgo.extendDefaultPlugins([
+                plugins: [
                     {
-                        name: 'convertStyleToAttrs',
-                        active: false,
+                        name: 'preset-default',
+                        params: {
+                            overrides: {
+                                convertShapeToPath: {
+                                    convertArcs: true,
+                                },
+                                convertPathData: false,
+                            },
+                        },
                     },
-                ]),
+                ],
             }
         );
 

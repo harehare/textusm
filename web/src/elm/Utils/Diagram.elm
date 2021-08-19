@@ -153,7 +153,7 @@ getCanvasSize model =
                 Diagram.UserStoryMap ->
                     case model.data of
                         DiagramModel.UserStoryMap userStoryMap ->
-                            ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * UserStoryMap.taskCount userStoryMap
+                            ( Constants.leftMargin + (model.settings.size.width + Constants.itemMargin * 2) * (UserStoryMap.taskCount userStoryMap + 1)
                             , (model.settings.size.height + Constants.itemMargin) * (UserStoryMap.storyCount userStoryMap + 2)
                             )
 
