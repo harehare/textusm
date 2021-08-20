@@ -4,6 +4,7 @@
 
 module Graphql.Query exposing (..)
 
+import Graphql.Enum.Diagram
 import Graphql.InputObject
 import Graphql.Interface
 import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
@@ -201,3 +202,20 @@ gistItems fillInOptionals____ object____ =
                 |> List.filterMap Basics.identity
     in
     Object.selectionForCompositeField "gistItems" optionalArgs____ object____ (Basics.identity >> Decode.nullable >> Decode.list)
+
+
+type alias SettingsRequiredArguments =
+    { diagram : Graphql.Enum.Diagram.Diagram }
+
+
+{-|
+
+  - diagram -
+
+-}
+settings :
+    SettingsRequiredArguments
+    -> SelectionSet decodesTo Graphql.Object.Settings
+    -> SelectionSet decodesTo RootQuery
+settings requiredArgs____ object____ =
+    Object.selectionForCompositeField "settings" [ Argument.required "diagram" requiredArgs____.diagram (Encode.enum Graphql.Enum.Diagram.toString) ] object____ Basics.identity

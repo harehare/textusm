@@ -5,12 +5,20 @@
 module Graphql.Object exposing (..)
 
 
+type Color
+    = Color
+
+
 type GistItem
     = GistItem
 
 
 type Item
     = Item
+
+
+type Settings
+    = Settings
 
 
 type ShareCondition

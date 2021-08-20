@@ -4,6 +4,7 @@
 
 module Graphql.Mutation exposing (..)
 
+import Graphql.Enum.Diagram
 import Graphql.InputObject
 import Graphql.Interface
 import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
@@ -147,3 +148,23 @@ deleteGist :
     -> SelectionSet Graphql.ScalarCodecs.GistIdScalar RootMutation
 deleteGist requiredArgs____ =
     Object.selectionForField "ScalarCodecs.GistIdScalar" "deleteGist" [ Argument.required "gistID" requiredArgs____.gistID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecGistIdScalar) ] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecGistIdScalar |> .decoder)
+
+
+type alias SaveSettingsRequiredArguments =
+    { diagram : Graphql.Enum.Diagram.Diagram
+    , input : Graphql.InputObject.InputSettings
+    }
+
+
+{-|
+
+  - diagram -
+  - input -
+
+-}
+saveSettings :
+    SaveSettingsRequiredArguments
+    -> SelectionSet decodesTo Graphql.Object.Settings
+    -> SelectionSet decodesTo RootMutation
+saveSettings requiredArgs____ object____ =
+    Object.selectionForCompositeField "saveSettings" [ Argument.required "diagram" requiredArgs____.diagram (Encode.enum Graphql.Enum.Diagram.toString), Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputSettings ] object____ Basics.identity
