@@ -8,6 +8,7 @@ import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Dialog.Share as Share
 import Graphql.Enum.Diagram exposing (Diagram)
+import Graphql.OptionalArgument as OptionalArgument
 import Message as Message exposing (Message)
 import Models.Diagram as DiagramModel
 import Models.Dialog exposing (ConfirmDialog(..))
@@ -173,6 +174,66 @@ loadPublicItem id_ model =
             Request.publicItem
                 (Session.getIdToken model.session)
                 (DiagramId.toString id_)
+        )
+
+
+loadSettings : Diagram -> Model -> Return Msg Model
+loadSettings diagram model =
+    Return.return model
+        (Task.attempt LoadSettings <|
+            Request.settings
+                (Session.getIdToken model.session)
+                diagram
+        )
+
+
+saveSettings : Diagram -> DiagramModel.Settings -> Model -> Return Msg Model
+saveSettings diagram settings model =
+    Return.return model
+        (Task.attempt SaveSettings <|
+            Request.saveSettings
+                (Session.getIdToken model.session)
+                diagram
+                { font = settings.font
+                , width = settings.size.width
+                , height = settings.size.height
+                , backgroundColor = settings.backgroundColor
+                , activityColor =
+                    { foregroundColor = settings.color.activity.color
+                    , backgroundColor = settings.color.activity.backgroundColor
+                    }
+                , taskColor =
+                    { foregroundColor = settings.color.task.color
+                    , backgroundColor = settings.color.task.backgroundColor
+                    }
+                , storyColor =
+                    { foregroundColor = settings.color.story.color
+                    , backgroundColor = settings.color.story.backgroundColor
+                    }
+                , lineColor = settings.color.line
+                , labelColor = settings.color.label
+                , textColor =
+                    case settings.color.text of
+                        Just c ->
+                            OptionalArgument.Present c
+
+                        Nothing ->
+                            OptionalArgument.Absent
+                , zoomControl =
+                    case settings.zoomControl of
+                        Just z ->
+                            OptionalArgument.Present z
+
+                        Nothing ->
+                            OptionalArgument.Absent
+                , scale =
+                    case settings.scale of
+                        Just s ->
+                            OptionalArgument.Present s
+
+                        Nothing ->
+                            OptionalArgument.Absent
+                }
         )
 
 

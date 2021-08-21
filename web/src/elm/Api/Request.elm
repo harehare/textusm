@@ -10,21 +10,25 @@ module Api.Request exposing
     , publicItem
     , save
     , saveGist
+    , saveSettings
+    , settings
     , share
     , shareCondition
     , shareItem
     )
 
 import Api.External.Github.Request as GithubRequest exposing (AccessToken, GistId)
-import Api.Mutation as Mutation
-import Api.Query as Query
+import Api.Graphql.Mutation as Mutation
+import Api.Graphql.Query as Query
 import Api.RequestError as RequestError exposing (RequestError, toError)
 import Dict
 import Env
+import Graphql.Enum.Diagram exposing (Diagram)
 import Graphql.Http as Http
-import Graphql.InputObject exposing (InputGistItem, InputItem)
+import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
+import Models.Diagram as DiagramModel
 import Task exposing (Task)
 import Types.DiagramId as DiagramId
 import Types.DiagramItem exposing (DiagramItem)
@@ -237,6 +241,24 @@ deleteGist idToken accessToken gistId =
                     |> Task.map (\(GistIdScalar id) -> id)
                     |> Task.mapError toError
             )
+
+
+settings : Maybe IdToken -> Diagram -> Task RequestError DiagramModel.Settings
+settings idToken diagram =
+    Query.settings diagram
+        |> Http.queryRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+saveSettings : Maybe IdToken -> Diagram -> InputSettings -> Task RequestError DiagramModel.Settings
+saveSettings idToken diagram input =
+    Mutation.saveSettings diagram input
+        |> Http.mutationRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
 
 
 authHeaders : Maybe IdToken -> Http.Request decodesTo -> Http.Request decodesTo

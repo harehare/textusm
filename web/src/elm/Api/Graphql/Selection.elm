@@ -1,4 +1,4 @@
-module Api.Selection exposing
+module Api.Graphql.Selection exposing
     ( allItemsSelection
     , colorSelection
     , gistItemSelection

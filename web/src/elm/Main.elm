@@ -1203,6 +1203,21 @@ update message =
         CallApi (Err m) ->
             Return.andThen (Action.showErrorMessage m)
 
+        LoadSettings (Ok settings) ->
+            Return.andThen (\m -> Return.singleton { m | diagramModel = m.diagramModel |> DiagramModel.modelOfSettings.set settings })
+                >> Return.andThen Action.stopProgress
+
+        LoadSettings (Err _) ->
+            Return.andThen (Action.showWarningMessage Message.messageFailedLoadSettings)
+                >> Return.andThen Action.stopProgress
+
+        SaveSettings (Ok _) ->
+            Return.andThen Action.stopProgress
+
+        SaveSettings (Err _) ->
+            Return.andThen (Action.showWarningMessage Message.messageFailedSaveSettings)
+                >> Return.andThen Action.stopProgress
+
 
 
 -- Subscriptions

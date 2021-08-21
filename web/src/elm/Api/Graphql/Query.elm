@@ -1,4 +1,4 @@
-module Api.Query exposing
+module Api.Graphql.Query exposing
     ( ShareCondition
     , allItems
     , gistItem
@@ -10,7 +10,7 @@ module Api.Query exposing
     , shareItem
     )
 
-import Api.Selection as Selection
+import Api.Graphql.Selection as Selection
 import Graphql.Enum.Diagram exposing (Diagram)
 import Graphql.Object.GistItem
 import Graphql.Object.Item

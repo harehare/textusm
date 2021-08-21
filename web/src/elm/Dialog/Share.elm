@@ -1,6 +1,6 @@
 port module Dialog.Share exposing (Model, Msg(..), init, update, view)
 
-import Api.Query exposing (ShareCondition)
+import Api.Graphql.Query exposing (ShareCondition)
 import Api.Request as Request
 import Env
 import Events

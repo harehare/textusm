@@ -4,8 +4,10 @@ module Message exposing
     , fromString
     , messageBadRequest
     , messageFailed
+    , messageFailedLoadSettings
     , messageFailedPublished
     , messageFailedRevokeToken
+    , messageFailedSaveSettings
     , messageFailedSaved
     , messageFailedSharing
     , messageImportCompleted
@@ -363,3 +365,23 @@ messageFailedRevokeToken lang =
 
         _ ->
             "Failed to revoke the token"
+
+
+messageFailedLoadSettings : Lang -> String
+messageFailedLoadSettings lang =
+    case lang of
+        Ja ->
+            "設定の読み込みに失敗しました"
+
+        _ ->
+            "Failed to load settings"
+
+
+messageFailedSaveSettings : Lang -> String
+messageFailedSaveSettings lang =
+    case lang of
+        Ja ->
+            "設定の保存に失敗しました"
+
+        _ ->
+            "Failed to save settings"

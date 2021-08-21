@@ -1,4 +1,4 @@
-module Api.Mutation exposing
+module Api.Graphql.Mutation exposing
     ( bookmark
     , delete
     , deleteGist
@@ -8,7 +8,7 @@ module Api.Mutation exposing
     , share
     )
 
-import Api.Selection as Selection
+import Api.Graphql.Selection as Selection
 import Graphql.Enum.Diagram exposing (Diagram)
 import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings, InputShareItem)
 import Graphql.Mutation as Mutation

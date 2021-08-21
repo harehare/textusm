@@ -74,6 +74,8 @@ type Msg
     | ChangePublicStatus Bool
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
     | Load (Result RequestError DiagramItem)
+    | LoadSettings (Result RequestError Diagram.Settings)
+    | SaveSettings (Result RequestError Diagram.Settings)
     | CallApi (Result Message ())
     | CloseFullscreen D.Value
     | UpdateIdToken String
