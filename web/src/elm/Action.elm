@@ -177,8 +177,8 @@ loadPublicItem id_ model =
         )
 
 
-loadSettings : Diagram -> Model -> Return Msg Model
-loadSettings diagram model =
+loadRemoteSettings : Diagram -> Model -> Return Msg Model
+loadRemoteSettings diagram model =
     Return.return model
         (Task.attempt LoadSettings <|
             Request.settings
@@ -187,8 +187,28 @@ loadSettings diagram model =
         )
 
 
-saveSettings : Diagram -> DiagramModel.Settings -> Model -> Return Msg Model
-saveSettings diagram settings model =
+loadSettings : Model -> Return Msg Model
+loadSettings model =
+    case ( model.session, model.currentDiagram ) of
+        ( Session.SignedIn _, Just d ) ->
+            loadRemoteSettings d.diagram model
+
+        _ ->
+            Return.singleton model
+
+
+saveSettings : Model -> Return Msg Model
+saveSettings model =
+    case ( Route.toRoute model.url, model.session, model.currentDiagram ) of
+        ( Route.Settings, Session.SignedIn _, Just d ) ->
+            saveSettingsToRemote d.diagram model.settingsModel.settings.storyMap model
+
+        _ ->
+            Return.singleton model
+
+
+saveSettingsToRemote : Diagram -> DiagramModel.Settings -> Model -> Return Msg Model
+saveSettingsToRemote diagram settings model =
     Return.return model
         (Task.attempt SaveSettings <|
             Request.saveSettings

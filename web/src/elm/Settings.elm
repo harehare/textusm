@@ -23,6 +23,7 @@ module Settings exposing
     , settingsOfWidth
     , settingsOfWordWrap
     , settingsOfZoomControl
+    , storyMapOfSettings
     )
 
 import Json.Decode as D

@@ -441,6 +441,7 @@ changeRouteTo route =
                     }
             in
             Return.andThen (Action.setCurrentDiagram (Just diagram))
+                >> Return.andThen Action.loadSettings
                 >> Return.andThen
                     (\m ->
                         Action.loadDiagram diagram m
@@ -460,6 +461,7 @@ changeRouteTo route =
                         |> (if Session.isSignedIn m.session then
                                 Return.andThen Action.updateIdToken
                                     >> Return.andThen (Action.switchPage Page.Main)
+                                    >> Return.andThen Action.loadSettings
                                     >> Return.andThen (Action.loadItem id_)
 
                             else
@@ -1020,10 +1022,11 @@ update message =
                     Return.andThen
                         (\m ->
                             if Text.isChanged m.diagramModel.text && not (Dialog.display m.confirmDialog) then
-                                Action.showConfirmDialog "Confirmation" "Your data has been changed. do you wish to continue ?" (toRoute url) m
+                                Action.showConfirmDialog "Confirmation" "Your data has been changed. do you wish to continue?" (toRoute url) m
 
                             else
                                 Action.pushUrl (Url.toString url) m
+                                    |> Return.andThen Action.saveSettings
                         )
 
                 Browser.External href ->
@@ -1165,6 +1168,7 @@ update message =
 
         MoveTo route ->
             Return.andThen Action.unchanged
+                >> Return.andThen Action.saveSettings
                 >> Return.andThen Action.closeDialog
                 >> Return.andThen (Action.moveTo route)
 
@@ -1204,8 +1208,19 @@ update message =
             Return.andThen (Action.showErrorMessage m)
 
         LoadSettings (Ok settings) ->
-            Return.andThen (\m -> Return.singleton { m | diagramModel = m.diagramModel |> DiagramModel.modelOfSettings.set settings })
-                >> Return.andThen Action.stopProgress
+            Return.andThen Action.stopProgress
+                >> Return.andThen
+                    (\m ->
+                        let
+                            newSettings =
+                                m.settingsModel
+                        in
+                        Return.singleton
+                            { m
+                                | diagramModel = m.diagramModel |> DiagramModel.modelOfSettings.set settings
+                                , settingsModel = { newSettings | settings = m.settingsModel.settings |> Settings.storyMapOfSettings.set settings }
+                            }
+                    )
 
         LoadSettings (Err _) ->
             Return.andThen (Action.showWarningMessage Message.messageFailedLoadSettings)
