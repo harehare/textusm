@@ -21,13 +21,16 @@ jobs:
         working-directory: web
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm install
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@master
       - name: Generate elm-constants
         working-directory: web
         run: npm run generate-elm-constants
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
-          APP_VERSION: ${{ secrets.APP_VERSION }}
+          APP_VERSION: ${{ steps.package-version.outputs.current-version}}
           REPO_URL: ${{ secrets.REPO_URL }}
       - name: Build
         working-directory: web
