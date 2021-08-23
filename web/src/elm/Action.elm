@@ -15,11 +15,12 @@ import Models.Dialog exposing (ConfirmDialog(..))
 import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
 import Models.Page as Page exposing (Page)
 import Page.List as DiagramList
-import Page.Settings as Settings
+import Page.Settings as SettingsPage
 import Ports
 import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
 import Route exposing (Route(..))
+import Settings as Settings
 import Task
 import Types.DiagramId as DiagramId exposing (DiagramId)
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
@@ -85,7 +86,7 @@ initSettingsPage : Model -> Return Msg Model
 initSettingsPage model =
     let
         ( model_, cmd_ ) =
-            Settings.init model.session model.settingsModel.settings
+            SettingsPage.init model.session model.settingsModel.settings
     in
     Return.return { model | settingsModel = model_ } (cmd_ |> Cmd.map UpdateSettings)
 
@@ -189,8 +190,8 @@ loadRemoteSettings diagram model =
 
 loadSettings : Model -> Return Msg Model
 loadSettings model =
-    case ( model.session, model.currentDiagram ) of
-        ( Session.SignedIn _, Just d ) ->
+    case ( Session.isSignedIn model.session, model.currentDiagram ) of
+        ( True, Just d ) ->
             loadRemoteSettings d.diagram model
 
         _ ->
@@ -199,12 +200,25 @@ loadSettings model =
 
 saveSettings : Model -> Return Msg Model
 saveSettings model =
-    case ( Route.toRoute model.url, model.session, model.currentDiagram ) of
-        ( Route.Settings, Session.SignedIn _, Just d ) ->
+    case ( Route.toRoute model.url, Session.isSignedIn model.session, model.currentDiagram ) of
+        ( Route.Settings, True, Just d ) ->
             saveSettingsToRemote d.diagram model.settingsModel.settings.storyMap model
 
         _ ->
             Return.singleton model
+
+
+setSettings : DiagramModel.Settings -> Model -> Return Msg Model
+setSettings settings model =
+    let
+        newSettings =
+            model.settingsModel
+    in
+    Return.singleton
+        { model
+            | diagramModel = model.diagramModel |> DiagramModel.modelOfSettings.set settings
+            , settingsModel = { newSettings | settings = model.settingsModel.settings |> Settings.storyMapOfSettings.set settings }
+        }
 
 
 saveSettingsToRemote : Diagram -> DiagramModel.Settings -> Model -> Return Msg Model

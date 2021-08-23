@@ -15,6 +15,7 @@ import Models.Page as Page exposing (Page)
 import Route exposing (Route(..))
 import Types.DiagramItem as DiagramItem exposing (DiagramItem)
 import Types.DiagramLocation as DiagramLocation
+import Types.DiagramType as DiagramType
 import Types.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Types.Session as Session exposing (Session)
 import Types.Text as Text exposing (Text)
@@ -149,7 +150,15 @@ view props =
                         viewTitle [] [ Html.text "All Diagrams" ]
 
                     Page.Settings ->
-                        viewTitle [] [ Html.text "Settings" ]
+                        viewTitle []
+                            [ Html.text <|
+                                case ( Session.isSignedIn props.session, props.currentDiagram ) of
+                                    ( True, Just d ) ->
+                                        DiagramType.toLongString d.diagram ++ " Settings"
+
+                                    _ ->
+                                        "Settings"
+                            ]
 
                     Page.Help ->
                         viewTitle [] [ Html.text "Help" ]

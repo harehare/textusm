@@ -960,27 +960,31 @@ update message =
                 Hidden ->
                     Return.andThen
                         (\m ->
-                            let
-                                newStoryMap =
-                                    m.settingsModel.settings |> Settings.settingsOfFont.set m.settingsModel.settings.font
+                            if Session.isSignedIn m.session then
+                                let
+                                    newStoryMap =
+                                        m.settingsModel.settings |> Settings.settingsOfFont.set m.settingsModel.settings.font
 
-                                newSettings =
-                                    { position = Just m.window.position
-                                    , font = m.settingsModel.settings.font
-                                    , diagramId = Maybe.andThen (\d -> Maybe.andThen (\i -> Just <| DiagramId.toString i) d.id) m.currentDiagram
-                                    , storyMap = newStoryMap.storyMap |> DiagramModel.settingsOfScale.set (Just m.diagramModel.svg.scale)
-                                    , text = Just (Text.toString m.diagramModel.text)
-                                    , title = Just <| Title.toString m.title
-                                    , editor = m.settingsModel.settings.editor
-                                    , diagram = m.currentDiagram
-                                    , location = m.settingsModel.settings.location
-                                    }
+                                    newSettings =
+                                        { position = Just m.window.position
+                                        , font = m.settingsModel.settings.font
+                                        , diagramId = Maybe.andThen (\d -> Maybe.andThen (\i -> Just <| DiagramId.toString i) d.id) m.currentDiagram
+                                        , storyMap = newStoryMap.storyMap |> DiagramModel.settingsOfScale.set (Just m.diagramModel.svg.scale)
+                                        , text = Just (Text.toString m.diagramModel.text)
+                                        , title = Just <| Title.toString m.title
+                                        , editor = m.settingsModel.settings.editor
+                                        , diagram = m.currentDiagram
+                                        , location = m.settingsModel.settings.location
+                                        }
 
-                                ( newSettingsModel, _ ) =
-                                    Settings.init m.session newSettings
-                            in
-                            Return.singleton { m | settingsModel = newSettingsModel }
-                                |> Return.command (Ports.saveSettings (settingsEncoder newSettings))
+                                    ( newSettingsModel, _ ) =
+                                        Settings.init m.session newSettings
+                                in
+                                Return.singleton { m | settingsModel = newSettingsModel }
+                                    |> Return.command (Ports.saveSettings (settingsEncoder newSettings))
+
+                            else
+                                Return.singleton m
                         )
 
                 _ ->
@@ -1209,21 +1213,10 @@ update message =
 
         LoadSettings (Ok settings) ->
             Return.andThen Action.stopProgress
-                >> Return.andThen
-                    (\m ->
-                        let
-                            newSettings =
-                                m.settingsModel
-                        in
-                        Return.singleton
-                            { m
-                                | diagramModel = m.diagramModel |> DiagramModel.modelOfSettings.set settings
-                                , settingsModel = { newSettings | settings = m.settingsModel.settings |> Settings.storyMapOfSettings.set settings }
-                            }
-                    )
+                >> Return.andThen (Action.setSettings settings)
 
         LoadSettings (Err _) ->
-            Return.andThen (Action.showWarningMessage Message.messageFailedLoadSettings)
+            Return.andThen (Action.setSettings Settings.defaultSettings.storyMap)
                 >> Return.andThen Action.stopProgress
 
         SaveSettings (Ok _) ->
