@@ -299,12 +299,19 @@ class DiagramPanel {
           .join('<img xmlns="1http://www.w3.org/1999/xhtml"')}
         </svg>`,
           {
-            plugins: svgo.extendDefaultPlugins([
+            plugins: [
               {
-                name: "convertStyleToAttrs",
-                active: false,
+                name: "preset-default",
+                params: {
+                  overrides: {
+                    convertShapeToPath: {
+                      convertArcs: true,
+                    },
+                    convertPathData: false,
+                  },
+                },
               },
-            ]),
+            ],
           }
         );
 

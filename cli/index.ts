@@ -299,12 +299,19 @@ const writeResult = (output: string | null, result: string): void => {
             .split("<img")
             .join('<img xmlns="http://www.w3.org/1999/xhtml"'),
           {
-            plugins: extendDefaultPlugins([
+            plugins: [
               {
-                name: "convertStyleToAttrs",
-                active: false,
+                name: "preset-default",
+                params: {
+                  overrides: {
+                    convertShapeToPath: {
+                      convertArcs: true,
+                    },
+                    convertPathData: false,
+                  },
+                },
               },
-            ]),
+            ],
           }
         )
           .data.split("&quot;")
