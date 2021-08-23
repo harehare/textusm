@@ -24,6 +24,8 @@ jobs:
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@master
+        with:
+          path: web
       - name: Generate elm-constants
         working-directory: web
         run: npm run generate-elm-constants
