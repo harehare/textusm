@@ -12,6 +12,7 @@ port module Page.List exposing
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
+import Asset
 import Dialog.Confirm as ConfirmDialog
 import File exposing (File)
 import File.Download as Download
@@ -25,7 +26,6 @@ import Http
 import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (updateIf)
-import Loading exposing (LoaderType(..), defaultConfig)
 import Message exposing (Lang)
 import Models.Dialog as Dialog
 import Monocle.Lens exposing (Lens)
@@ -44,6 +44,7 @@ import Utils.Date as DateUtils
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
+import Views.Loading as Loading
 
 
 type Msg
@@ -397,11 +398,8 @@ view model =
                     , style "padding-bottom" "32px"
                     , style "color" "#8C9FAE"
                     ]
-                    [ Html.div [ style "margin-bottom" "8px" ]
-                        [ Loading.render
-                            Circle
-                            { defaultConfig | color = "#3e9bcd", size = 40 }
-                            Loading.On
+                    [ Html.div [ style "margin-bottom" "8px", style "width" "48px", style "height" "48px" ]
+                        [ Loading.view
                         ]
                     ]
                 ]
