@@ -1,5 +1,14 @@
-import firebase from 'firebase/app';
-import 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+import {
+    AuthProvider,
+    signOut as firebaseSignOut,
+    signInWithRedirect,
+    signInWithPopup as firebaseSignInWithPopup,
+    GoogleAuthProvider,
+    GithubAuthProvider,
+    getAuth,
+    onAuthStateChanged as firebaseOnAuthStateChanged,
+} from 'firebase/auth';
 
 export interface User {
     id: string;
@@ -14,13 +23,12 @@ const firebaseConfig = {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     appId: process.env.FIREBASE_APP_ID,
 };
-firebase.initializeApp(firebaseConfig);
+initializeApp(firebaseConfig);
+const auth = getAuth();
 
-export const signIn = (provider: firebase.auth.AuthProvider): Promise<void> => {
+export const signIn = (provider: AuthProvider): Promise<void> => {
     return new Promise((resolve, reject) => {
-        firebase
-            .auth()
-            .signInWithRedirect(provider)
+        signInWithRedirect(auth, provider)
             .then((result) => {
                 resolve(result);
             })
@@ -32,9 +40,7 @@ export const signIn = (provider: firebase.auth.AuthProvider): Promise<void> => {
 
 export const signOut = (): Promise<void> => {
     return new Promise((resolve, reject) => {
-        firebase
-            .auth()
-            .signOut()
+        firebaseSignOut(auth)
             .then((result) => {
                 resolve(result);
             })
@@ -46,7 +52,7 @@ export const signOut = (): Promise<void> => {
 
 export const pollRefreshToken = (callback: (idToken: string) => void): void => {
     setInterval(async () => {
-        const user = firebase.auth().currentUser;
+        const user = auth.currentUser;
         if (user) {
             const idToken = await user.getIdToken(true);
             if (idToken) {
@@ -57,7 +63,7 @@ export const pollRefreshToken = (callback: (idToken: string) => void): void => {
 };
 
 export const refreshToken = (): Promise<string> | undefined => {
-    return firebase.auth().currentUser?.getIdToken(true);
+    return auth.currentUser?.getIdToken(true);
 };
 
 export const authStateChanged = (
@@ -69,7 +75,7 @@ export const authStateChanged = (
         provider: { provider: string | null; accessToken: string | null }
     ) => void
 ): void => {
-    firebase.auth().onAuthStateChanged(async (user) => {
+    firebaseOnAuthStateChanged(auth, async (user) => {
         onBeforeAuth();
         if (user) {
             const providers = user.providerData.map((p) =>
@@ -105,10 +111,10 @@ export const authStateChanged = (
 };
 
 export const providers = {
-    google: new firebase.auth.GoogleAuthProvider(),
-    github: new firebase.auth.GithubAuthProvider(),
+    google: new GoogleAuthProvider(),
+    github: new GithubAuthProvider(),
     githubWithGist: (() => {
-        const p = new firebase.auth.GithubAuthProvider();
+        const p = new GithubAuthProvider();
         p.addScope('gist');
         return p;
     })(),
@@ -118,9 +124,7 @@ export const signInGithubWithGist = (): Promise<{
     accessToken: string | null;
 }> => {
     return new Promise((resolve, reject) => {
-        firebase
-            .auth()
-            .signInWithPopup(providers.githubWithGist)
+        firebaseSignInWithPopup(auth, providers.githubWithGist)
             .then((result) => {
                 const user = result.user;
                 if (!user) {

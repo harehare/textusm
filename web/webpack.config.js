@@ -161,12 +161,9 @@ if (mode === 'development') {
             ],
         },
         devServer: {
-            inline: true,
             hot: true,
-            index: '/',
-            stats: 'errors-only',
-            contentBase: path.join(__dirname, 'src/assets'),
             historyApiFallback: true,
+            static: path.join(__dirname, 'src/assets'),
             https:
                 process.env.TLS_CERT_FILE && process.env.TLS_KEY_FILE
                     ? {
