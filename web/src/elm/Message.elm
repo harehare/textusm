@@ -2,8 +2,8 @@ module Message exposing
     ( Lang(..)
     , Message
     , fromString
+    , messagEerrorOccurred
     , messageBadRequest
-    , messageFailed
     , messageFailedLoadSettings
     , messageFailedPublished
     , messageFailedRevokeToken
@@ -177,14 +177,14 @@ toolTipHelp lang =
             "Help"
 
 
-messageFailed : Lang -> String
-messageFailed lang =
+messagEerrorOccurred : Lang -> String
+messagEerrorOccurred lang =
     case lang of
         Ja ->
-            "失敗しました"
+            "エラーが発生しました"
 
         _ ->
-            "Failed"
+            "An error occurred"
 
 
 messageRequestTimeout : Lang -> String

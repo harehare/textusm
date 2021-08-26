@@ -12,7 +12,6 @@ port module Page.List exposing
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
-import Asset
 import Dialog.Confirm as ConfirmDialog
 import File exposing (File)
 import File.Download as Download
@@ -391,16 +390,13 @@ view model =
 
         _ ->
             Html.div
-                [ class "diagram-list flex-center w-screen"
+                [ class "diagram-list flex-center w-screen h-full"
                 ]
                 [ Html.div
-                    [ class "flex-center w-full text-2xl"
-                    , style "padding-bottom" "32px"
+                    [ class "flex-center w-full text-2xl h-full"
                     , style "color" "#8C9FAE"
                     ]
-                    [ Html.div [ style "margin-bottom" "8px", style "width" "48px", style "height" "48px" ]
-                        [ Loading.view
-                        ]
+                    [ Loading.view
                     ]
                 ]
 

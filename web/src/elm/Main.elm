@@ -671,10 +671,10 @@ update message =
                                     Return.singleton m
 
                         DiagramList.Removed (Err _) ->
-                            Action.showErrorMessage Message.messageFailed m
+                            Action.showErrorMessage Message.messagEerrorOccurred m
 
                         DiagramList.GotDiagrams (Err _) ->
-                            Action.showErrorMessage Message.messageFailed m
+                            Action.showErrorMessage Message.messagEerrorOccurred m
 
                         DiagramList.ImportComplete json ->
                             case DiagramItem.stringToList json of
@@ -683,7 +683,7 @@ update message =
                                         |> Return.andThen (Action.showInfoMessage Message.messageImportCompleted)
 
                                 Err _ ->
-                                    Action.showErrorMessage Message.messageFailed m
+                                    Action.showErrorMessage Message.messagEerrorOccurred m
 
                         _ ->
                             Return.return { m | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
