@@ -1,5 +1,5 @@
-import { DownloadInfo, ImageInfo } from './model';
 import { ElmApp } from './elm';
+import { DownloadInfo, ImageInfo } from './model';
 
 export const initDownload = (app: ElmApp): void => {
     const createSvg = async (id: string, width: number, height: number) => {

@@ -1,7 +1,8 @@
+import copy from 'clipboard-copy';
+
+// @ts-ignore
+import { Elm } from '../elm/Main.elm';
 import '../styles.scss';
-import { setElmApp } from './editor';
-import { initDownload } from './download';
-import { initDB } from './db';
 import {
     signOut,
     signIn,
@@ -11,12 +12,12 @@ import {
     pollRefreshToken,
     signInGithubWithGist,
 } from './auth';
-import { loadSettings, saveSettings } from './settings';
-import { Settings } from './model';
+import { initDB } from './db';
+import { initDownload } from './download';
+import { setElmApp } from './editor';
 import { ElmApp, Provider } from './elm';
-// @ts-ignore
-import { Elm } from '../elm/Main.elm';
-import copy from 'clipboard-copy';
+import { Settings } from './model';
+import { loadSettings, saveSettings } from './settings';
 
 const lang =
     (window.navigator.languages && window.navigator.languages[0]) ||

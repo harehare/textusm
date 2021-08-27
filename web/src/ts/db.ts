@@ -1,7 +1,8 @@
-import { v4 as uuidv4 } from 'uuid';
 import Dexie from 'dexie';
-import { Diagram, DiagramItem } from './model';
+import { v4 as uuidv4 } from 'uuid';
+
 import { ElmApp } from './elm';
+import { Diagram, DiagramItem } from './model';
 
 class LocalDatabase extends Dexie {
     diagrams: Dexie.Table<DiagramItem, string>;
