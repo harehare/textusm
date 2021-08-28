@@ -182,6 +182,7 @@ if (mode === 'production') {
                 clientsClaim: true,
                 skipWaiting: true,
                 maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
+                navigateFallback: '/index.html',
             }),
             new HTMLInlineCSSWebpackPlugin(),
             new CleanWebpackPlugin({
