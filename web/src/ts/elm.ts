@@ -65,6 +65,7 @@ type ElmApp = {
                 accessToken: string | null;
             };
         }>;
+        changeNetworkState: Send<boolean>;
     };
 };
 

@@ -27,9 +27,9 @@ const lang =
 
 const app: ElmApp = Elm.Main.init({
     flags: {
-        apiRoot: process.env.API_ROOT,
         lang,
         settings: loadSettings(),
+        isOnline: window.navigator.onLine ?? true,
     },
 });
 
@@ -143,14 +143,22 @@ const attachApp = (a: ElmApp, list: ((a: ElmApp) => void)[]) => {
 
 attachApp(app, [initDownload, initDB]);
 
-document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-        app.ports.onCloseFullscreen.send({});
-    }
-});
-
 window.requestIdleCallback(() => {
     pollRefreshToken(app.ports.updateIdToken.send);
+
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            app.ports.onCloseFullscreen.send({});
+        }
+    });
+
+    window.addEventListener('offline', () => {
+        app.ports.changeNetworkState.send(false);
+    });
+
+    window.addEventListener('online', () => {
+        app.ports.changeNetworkState.send(true);
+    });
 
     const loadSentry = async () => {
         if (process.env.SENTRY_ENABLE === '1') {

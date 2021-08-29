@@ -77,7 +77,7 @@ initListPage : Model -> Return Msg Model
 initListPage model =
     let
         ( model_, cmd_ ) =
-            DiagramList.init model.session model.lang model.diagramListModel.apiRoot
+            DiagramList.init model.session model.lang model.diagramListModel.apiRoot model.isOnline
     in
     Return.return { model | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
 

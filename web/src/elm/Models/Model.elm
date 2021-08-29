@@ -20,6 +20,7 @@ import Dialog.Share as Share
 import Json.Decode as D
 import Message exposing (Lang, Message)
 import Models.Diagram as Diagram
+import Models.Diagram.ER exposing (ColumnType(..))
 import Models.Dialog exposing (ConfirmDialog)
 import Models.Page exposing (Page)
 import Monocle.Lens exposing (Lens)
@@ -85,6 +86,7 @@ type Msg
     | MoveTo Route
     | CloseDialog
     | GotGithubAccessToken { cmd : String, accessToken : Maybe String }
+    | ChangeNetworkState Bool
 
 
 type Notification
@@ -129,6 +131,7 @@ type alias Model =
         , token : Maybe ShareToken
         , error : Maybe RequestError
         }
+    , isOnline : Bool
     }
 
 

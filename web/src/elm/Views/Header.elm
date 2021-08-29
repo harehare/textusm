@@ -36,6 +36,7 @@ type alias Props =
     , lang : Lang
     , route : Route
     , prevRoute : Maybe Route
+    , isOnline : Bool
     }
 
 
@@ -59,7 +60,7 @@ view props =
                 |> Maybe.withDefault False
 
         canShare =
-            Session.isSignedIn props.session && isRemoteDiagram && canEdit
+            Session.isSignedIn props.session && isRemoteDiagram && canEdit && props.isOnline
     in
     if props.isFullscreen then
         Html.header [] []
@@ -166,7 +167,7 @@ view props =
                     _ ->
                         Empty.view
                 ]
-            , if (isJust (Maybe.andThen .id props.currentDiagram) && (Maybe.map .isRemote props.currentDiagram |> Maybe.withDefault False)) && canEdit then
+            , if (isJust (Maybe.andThen .id props.currentDiagram) && (Maybe.map .isRemote props.currentDiagram |> Maybe.withDefault False)) && canEdit && props.isOnline then
                 Html.div
                     [ Attr.class "button", Events.onClick <| ChangePublicStatus (not isPublic) ]
                     [ if isPublic then

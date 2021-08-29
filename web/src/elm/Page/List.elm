@@ -90,6 +90,7 @@ type alias Model =
     , apiRoot : String
     , lang : Lang
     , confirmDialog : Dialog.ConfirmDialog Msg
+    , isOnline : Bool
     }
 
 
@@ -202,8 +203,8 @@ port removeDiagrams : E.Value -> Cmd msg
 port importDiagram : E.Value -> Cmd msg
 
 
-init : Session -> Lang -> String -> Return Msg Model
-init session lang apiRoot =
+init : Session -> Lang -> String -> Bool -> Return Msg Model
+init session lang apiRoot isOnline =
     Return.return
         { searchQuery = Nothing
         , timeZone = Time.utc
@@ -212,6 +213,7 @@ init session lang apiRoot =
         , apiRoot = apiRoot
         , lang = lang
         , confirmDialog = Dialog.Hide
+        , isOnline = isOnline
         }
         (Task.perform GotTimeZone Time.here)
         |> Return.command (getDiagrams ())
@@ -237,8 +239,8 @@ closeDialog model =
     Return.singleton { model | confirmDialog = Dialog.Hide }
 
 
-sideMenu : Session -> DiagramList -> Html Msg
-sideMenu session diagramList =
+sideMenu : Session -> DiagramList -> Bool -> Html Msg
+sideMenu session diagramList isOnline =
     Html.div [ class "side-menu" ]
         [ Html.div
             [ class <|
@@ -250,7 +252,7 @@ sideMenu session diagramList =
             , onClick GetDiagrams
             ]
             [ Html.text "All" ]
-        , if Session.isSignedIn session then
+        , if Session.isSignedIn session && isOnline then
             Html.div
                 [ class <|
                     if isPublicList diagramList then
@@ -304,9 +306,10 @@ view model =
             Html.div
                 [ class "diagram-list"
                 ]
-                [ Lazy.lazy2 sideMenu
+                [ Lazy.lazy3 sideMenu
                     model.session
                     model.diagramList
+                    model.isOnline
                 , diagramListView
                     { timeZone = model.timeZone
                     , pageNo = pageNo
@@ -323,9 +326,10 @@ view model =
             Html.div
                 [ class "diagram-list"
                 ]
-                [ Lazy.lazy2 sideMenu
+                [ Lazy.lazy3 sideMenu
                     model.session
                     model.diagramList
+                    model.isOnline
                 , diagramListView
                     { timeZone = model.timeZone
                     , pageNo = pageNo
@@ -342,9 +346,10 @@ view model =
             Html.div
                 [ class "diagram-list"
                 ]
-                [ Lazy.lazy2 sideMenu
+                [ Lazy.lazy3 sideMenu
                     model.session
                     model.diagramList
+                    model.isOnline
                 , diagramListView
                     { timeZone = model.timeZone
                     , pageNo = pageNo
@@ -361,9 +366,10 @@ view model =
             Html.div
                 [ class "diagram-list"
                 ]
-                [ Lazy.lazy2 sideMenu
+                [ Lazy.lazy3 sideMenu
                     model.session
                     model.diagramList
+                    model.isOnline
                 , diagramListView
                     { timeZone = model.timeZone
                     , pageNo = pageNo
@@ -788,7 +794,7 @@ update message =
                                     Result.withDefault [] <|
                                         D.decodeValue (D.list DiagramItem.decoder) json
                             in
-                            if Session.isSignedIn m.session then
+                            if Session.isSignedIn m.session && m.isOnline then
                                 let
                                     remoteItems =
                                         Request.allItems (Session.getIdToken m.session) (pageOffsetAndLimit pageNo)

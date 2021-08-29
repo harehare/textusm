@@ -1,5 +1,6 @@
 port module Ports exposing
-    ( changeText
+    ( changeNetworkState
+    , changeText
     , closeFullscreen
     , copyClipboard
     , downloadCompleted
@@ -147,3 +148,6 @@ port getGithubAccessToken : String -> Cmd msg
 
 
 port gotGithubAccessToken : ({ cmd : String, accessToken : Maybe String } -> msg) -> Sub msg
+
+
+port changeNetworkState : (Bool -> msg) -> Sub msg

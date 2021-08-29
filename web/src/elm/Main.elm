@@ -83,6 +83,7 @@ import Views.SwitchWindow as SwitchWindow
 type alias Flags =
     { lang : String
     , settings : D.Value
+    , isOnline : Bool
     }
 
 
@@ -97,7 +98,7 @@ init flags url key =
             Message.fromString flags.lang
 
         ( diagramListModel, _ ) =
-            DiagramList.init Session.guest lang Env.apiRoot
+            DiagramList.init Session.guest lang Env.apiRoot flags.isOnline
 
         ( diagramModel, _ ) =
             Diagram.init initSettings.storyMap
@@ -143,6 +144,7 @@ init flags url key =
                 , token = Nothing
                 , error = Nothing
                 }
+            , isOnline = flags.isOnline
             }
     in
     Return.singleton model |> changeRouteTo (toRoute url)
@@ -194,6 +196,7 @@ view model =
             , lang = model.lang
             , route = toRoute model.url
             , prevRoute = model.prevRoute
+            , isOnline = model.isOnline
             }
         , Lazy.lazy showNotification model.notification
         , Lazy.lazy2 showProgressbar model.progress model.window.fullscreen
@@ -458,7 +461,7 @@ changeRouteTo route =
             Return.andThen
                 (\m ->
                     Return.singleton m
-                        |> (if Session.isSignedIn m.session then
+                        |> (if Session.isSignedIn m.session && m.isOnline then
                                 Return.andThen Action.updateIdToken
                                     >> Return.andThen (Action.switchPage Page.Main)
                                     >> Return.andThen Action.loadSettings
@@ -1226,6 +1229,9 @@ update message =
             Return.andThen (Action.showWarningMessage Message.messageFailedSaveSettings)
                 >> Return.andThen Action.stopProgress
 
+        ChangeNetworkState isOnline ->
+            Return.andThen <| \m -> Return.singleton { m | isOnline = isOnline }
+
 
 
 -- Subscriptions
@@ -1254,6 +1260,7 @@ subscriptions model =
          , Ports.onCloseFullscreen CloseFullscreen
          , Ports.updateIdToken UpdateIdToken
          , Ports.gotGithubAccessToken GotGithubAccessToken
+         , Ports.changeNetworkState ChangeNetworkState
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp <| D.succeed MoveStop
