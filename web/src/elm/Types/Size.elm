@@ -1,4 +1,15 @@
-module Types.Size exposing (Height, Size, Width, getHeight, getWidth, isZero, zero)
+module Types.Size exposing
+    ( Height
+    , Size
+    , Width
+    , decoder
+    , getHeight
+    , getWidth
+    , isZero
+    , zero
+    )
+
+import Json.Decode as D
 
 
 type alias Width =
@@ -36,3 +47,10 @@ isZero size =
 
         _ ->
             False
+
+
+decoder : D.Decoder Size
+decoder =
+    D.map2 Tuple.pair
+        (D.index 0 D.int)
+        (D.index 1 D.int)

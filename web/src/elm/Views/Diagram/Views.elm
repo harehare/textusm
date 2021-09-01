@@ -70,12 +70,23 @@ card { settings, position, selectedItem, item, canMove } =
         ( offsetX, offsetY ) =
             Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
 
+        size =
+            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getSize
+
         ( posX, posY ) =
             if ( offsetX, offsetY ) == Position.zero then
                 position
 
             else
                 position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+
+        ( width, height ) =
+            case size of
+                Just s ->
+                    s
+
+                Nothing ->
+                    ( settings.size.width, settings.size.height - 1 )
 
         view_ =
             Svg.g
@@ -89,8 +100,8 @@ card { settings, position, selectedItem, item, canMove } =
                     SvgAttr.style ""
                 ]
                 [ Svg.rect
-                    [ SvgAttr.width <| String.fromInt settings.size.width
-                    , SvgAttr.height <| String.fromInt <| settings.size.height - 1
+                    [ SvgAttr.width <| String.fromInt width
+                    , SvgAttr.height <| String.fromInt height
                     , SvgAttr.x <| String.fromInt posX
                     , SvgAttr.y <| String.fromInt posY
                     , SvgAttr.fill backgroundColor
@@ -102,7 +113,7 @@ card { settings, position, selectedItem, item, canMove } =
                     []
                 , text settings
                     ( posX, posY )
-                    ( settings.size.width, settings.size.height )
+                    ( width, height )
                     color
                     (Item.getFontSize item)
                     (Item.getText item)
@@ -113,8 +124,8 @@ card { settings, position, selectedItem, item, canMove } =
             if Item.getLineNo item_ == Item.getLineNo item then
                 Svg.g []
                     [ Svg.rect
-                        [ SvgAttr.width <| String.fromInt <| settings.size.width + 16
-                        , SvgAttr.height <| String.fromInt <| settings.size.height + 16
+                        [ SvgAttr.width <| String.fromInt <| width + 16
+                        , SvgAttr.height <| String.fromInt <| height + 16
                         , SvgAttr.x (String.fromInt <| posX - 8)
                         , SvgAttr.y (String.fromInt <| posY - 8)
                         , SvgAttr.rx "1"
@@ -125,8 +136,8 @@ card { settings, position, selectedItem, item, canMove } =
                         ]
                         []
                     , Svg.rect
-                        [ SvgAttr.width <| String.fromInt <| settings.size.width + 4
-                        , SvgAttr.height <| String.fromInt <| settings.size.height + 4
+                        [ SvgAttr.width <| String.fromInt <| width + 4
+                        , SvgAttr.height <| String.fromInt <| height + 4
                         , SvgAttr.x (String.fromInt <| posX - 2)
                         , SvgAttr.y (String.fromInt <| posY - 2)
                         , SvgAttr.rx "1"
@@ -139,7 +150,7 @@ card { settings, position, selectedItem, item, canMove } =
                         { settings = settings
                         , fontSize = Item.getFontSize item
                         , position = ( posX, posY )
-                        , size = ( settings.size.width, settings.size.height )
+                        , size = ( width, height )
                         , color = color
                         , item = item_
                         }
