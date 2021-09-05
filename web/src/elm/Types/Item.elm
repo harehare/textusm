@@ -25,6 +25,9 @@ module Types.Item exposing
     , getLeafCount
     , getLineNo
     , getOffset
+    , getOffsetSize
+    , getPosition
+    , getSize
     , getText
     , head
     , indexedMap
@@ -44,6 +47,8 @@ module Types.Item exposing
     , withItemSettings
     , withItemType
     , withLineNo
+    , withOffset
+    , withOffsetSize
     , withText
     , withTextOnly
     )
@@ -56,6 +61,7 @@ import Types.Color exposing (Color)
 import Types.FontSize exposing (FontSize, unwrap)
 import Types.ItemSettings as ItemSettings exposing (ItemSettings)
 import Types.Position exposing (Position)
+import Types.Size as Size exposing (Size)
 import Types.Text as Text exposing (Text)
 
 
@@ -166,6 +172,16 @@ withChildren children (Item item) =
     Item { item | children = children }
 
 
+withOffset : Position -> Item -> Item
+withOffset newPosition item =
+    withItemSettings (Just (getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffset newPosition)) item
+
+
+withOffsetSize : Size -> Item -> Item
+withOffsetSize newSize item =
+    withItemSettings (Just (getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffsetSize (Just newSize))) item
+
+
 getChildren : Item -> Children
 getChildren (Item i) =
     i.children
@@ -221,6 +237,33 @@ getOffset item =
         |> getItemSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getOffset
+
+
+getPosition : Item -> Position -> Position
+getPosition item basePosition =
+    let
+        ( offsetX, offsetY ) =
+            getOffset item
+    in
+    Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY) basePosition
+
+
+getSize : Item -> Size -> Position
+getSize item baseSize =
+    let
+        ( offsetWidth, offsetHeight ) =
+            getOffsetSize item
+    in
+    Tuple.mapBoth (\x -> x + offsetWidth) (\y -> y + offsetHeight) baseSize
+
+
+getOffsetSize : Item -> Size
+getOffsetSize item =
+    item
+        |> getItemSettings
+        |> Maybe.withDefault ItemSettings.new
+        |> ItemSettings.getOffsetSize
+        |> Maybe.withDefault Size.zero
 
 
 getLineNo : Item -> Int

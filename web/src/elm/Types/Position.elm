@@ -1,4 +1,13 @@
-module Types.Position exposing (Position, X, Y, decoder, getX, getY, zero)
+module Types.Position exposing
+    ( Position
+    , X
+    , Y
+    , concat
+    , decoder
+    , getX
+    , getY
+    , zero
+    )
 
 import Json.Decode as D
 
@@ -23,6 +32,11 @@ getX ( x, _ ) =
 getY : Position -> Y
 getY ( _, y ) =
     y
+
+
+concat : Position -> Position -> Position
+concat ( x1, y1 ) ( x2, y2 ) =
+    ( x1 + x2, y1 + y2 )
 
 
 zero : Position

@@ -149,7 +149,7 @@ activityView settings verticalCount ( posX, posY ) selectedItem item =
             , position = ( posX, posY )
             , selectedItem = selectedItem
             , item = item
-            , canMove = False
+            , canMove = True
             }
          )
             :: (Item.unwrapChildren (Item.getChildren item)
@@ -191,7 +191,7 @@ taskView settings verticalCount ( posX, posY ) selectedItem item =
             , position = ( posX, posY )
             , selectedItem = selectedItem
             , item = item
-            , canMove = False
+            , canMove = True
             }
          )
             :: (children
@@ -243,7 +243,7 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
             , position = ( posX, posY )
             , selectedItem = selectedItem
             , item = item
-            , canMove = False
+            , canMove = True
             }
          )
             :: (children

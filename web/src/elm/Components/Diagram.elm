@@ -419,12 +419,19 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
             [ mainSvg ]
         , case ( model.selectedItem, model.contextMenu ) of
             ( Just item_, Just ( contextMenu, position ) ) ->
+                let
+                    pos =
+                        Item.getPosition item_ <| Position.concat position centerPosition
+
+                    ( _, h ) =
+                        Item.getSize item_ ( model.settings.size.width, model.settings.size.height )
+                in
                 ContextMenu.view
                     { state = contextMenu
                     , item = item_
                     , position =
-                        ( floor <| toFloat (Position.getX position + Position.getX centerPosition) * model.svg.scale
-                        , floor <| toFloat (Position.getY position + Position.getY centerPosition) * model.svg.scale
+                        ( floor <| toFloat (Position.getX pos) * model.svg.scale
+                        , floor <| toFloat (Position.getY pos + h + 8) * model.svg.scale
                         )
                     , dropDownIndex = model.dropDownIndex
                     , onMenuSelect = SelectContextMenu
@@ -780,6 +787,9 @@ update message model =
                                 Diagram.ItemTarget item ->
                                     Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
 
+                        Diagram.ItemResize item _ ->
+                            Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
+
                         _ ->
                             Return.zero
                     )
@@ -842,20 +852,78 @@ update message model =
                                                 ( Position.getX offset + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
                                                 , Position.getY offset + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
                                                 )
+
+                                            newItem =
+                                                Item.withOffset newPosition item
                                         in
                                         Return.andThen <|
                                             \m ->
                                                 Return.singleton
                                                     { m
                                                         | moveState =
-                                                            Diagram.ItemMove
-                                                                (Diagram.ItemTarget <|
-                                                                    Item.withItemSettings
-                                                                        (Just (Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffset newPosition))
-                                                                        item
-                                                                )
+                                                            Diagram.ItemMove <|
+                                                                Diagram.ItemTarget newItem
+                                                        , selectedItem = Just newItem
                                                         , movePosition = ( x, y )
                                                     }
+
+                            Diagram.ItemResize item direction ->
+                                let
+                                    offsetPosition =
+                                        Item.getOffset item
+
+                                    offsetSize =
+                                        Item.getOffsetSize item
+
+                                    ( newSize, newPosition ) =
+                                        case direction of
+                                            Diagram.TopLeft ->
+                                                ( ( Size.getWidth offsetSize + round (toFloat (Position.getX model.movePosition - x) / model.svg.scale)
+                                                  , Size.getHeight offsetSize + round (toFloat (Position.getY model.movePosition - y) / model.svg.scale)
+                                                  )
+                                                , ( Position.getX offsetPosition + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                                                  , Position.getY offsetPosition + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                  )
+                                                )
+
+                                            Diagram.TopRight ->
+                                                ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                                                  , Size.getHeight offsetSize + round (toFloat (Position.getY model.movePosition - y) / model.svg.scale)
+                                                  )
+                                                , ( Position.getX offsetPosition
+                                                  , Position.getY offsetPosition + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                  )
+                                                )
+
+                                            Diagram.BottomLeft ->
+                                                ( ( Size.getWidth offsetSize + round (toFloat (Position.getX model.movePosition - x) / model.svg.scale)
+                                                  , Size.getHeight offsetSize + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                  )
+                                                , ( Position.getX offsetPosition + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                                                  , Position.getY offsetPosition
+                                                  )
+                                                )
+
+                                            Diagram.BottomRight ->
+                                                ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                                                  , Size.getHeight offsetSize + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                  )
+                                                , offsetPosition
+                                                )
+
+                                    newItem =
+                                        Item.withOffsetSize newSize item
+                                            |> Item.withOffset newPosition
+                                in
+                                Return.andThen <|
+                                    \m ->
+                                        Return.singleton
+                                            { m
+                                                | moveState =
+                                                    Diagram.ItemResize newItem direction
+                                                , selectedItem = Just newItem
+                                                , movePosition = ( x, y )
+                                            }
 
                             _ ->
                                 Return.zero

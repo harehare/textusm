@@ -81,7 +81,7 @@ listView settings height ( posX, posY ) selectedItem (KanbanList name cards) =
                             )
                         , selectedItem = selectedItem
                         , item = item
-                        , canMove = False
+                        , canMove = True
                         }
                 )
                 cards

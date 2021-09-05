@@ -30,7 +30,7 @@ view model =
                     , position = ( 0, 0 )
                     , selectedItem = model.selectedItem
                     , item = root
-                    , canMove = False
+                    , canMove = True
                     }
                 ]
 
@@ -69,7 +69,7 @@ siteView settings ( posX, posY ) selectedItem items =
                         , position = ( x, posY )
                         , selectedItem = selectedItem
                         , item = item
-                        , canMove = False
+                        , canMove = True
                         }
                     , siteLineView settings ( 0, 0 ) ( x, posY )
                     , siteTreeView settings
@@ -121,7 +121,7 @@ siteTreeView settings ( posX, posY ) selectedItem items =
                         , position = ( x, y )
                         , selectedItem = selectedItem
                         , item = item
-                        , canMove = False
+                        , canMove = True
                         }
                     , siteTreeView settings
                         ( x

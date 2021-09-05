@@ -8,6 +8,7 @@ module Models.Diagram exposing
     , MoveState(..)
     , MoveTarget(..)
     , Msg(..)
+    , ResizeDirection(..)
     , SelectedItem
     , Settings
     , Size
@@ -200,12 +201,20 @@ type DragStatus
 type MoveState
     = BoardMove
     | ItemMove MoveTarget
+    | ItemResize Item ResizeDirection
     | NotMove
 
 
 type MoveTarget
     = TableTarget ER.Table
     | ItemTarget Item
+
+
+type ResizeDirection
+    = TopLeft
+    | TopRight
+    | BottomLeft
+    | BottomRight
 
 
 type alias Settings =

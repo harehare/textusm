@@ -7,6 +7,7 @@ import Html exposing (Html, div)
 import Html.Attributes exposing (style)
 import Html.Lazy exposing (lazy)
 import Json.Decode as D
+import List.Extra exposing (setAt)
 import Models.Diagram as DiagramModel
 import Return as Return exposing (Return)
 import Task
@@ -151,6 +152,25 @@ updateText text model =
     ( model, setText (Text.toString text) )
 
 
+setLine : Int -> List String -> String -> Model -> Return Msg Model
+setLine lineNo lines line model =
+    let
+        model_ =
+            model.diagramModel
+
+        newDiagramModel =
+            { model_
+                | text =
+                    Text.fromString <|
+                        (setAt lineNo line lines
+                            |> String.join "\n"
+                        )
+            }
+    in
+    Return.singleton { model | diagramModel = newDiagramModel }
+        |> Return.andThen (updateText newDiagramModel.text)
+
+
 update : Msg -> Model -> Return Msg Model
 update message model =
     case message of
@@ -186,6 +206,10 @@ update message model =
                                 DiagramModel.ItemTarget _ ->
                                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
                                         |> Return.andThen (updateText model_.text)
+
+                        DiagramModel.ItemResize item _ ->
+                            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                                |> Return.andThen (setLine (Item.getLineNo item) (Text.lines model_.text) (Item.toLineString item))
 
                         _ ->
                             ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )

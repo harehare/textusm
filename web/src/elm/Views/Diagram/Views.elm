@@ -6,7 +6,7 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events exposing (onInput)
 import Markdown
-import Models.Diagram as Diagram exposing (Msg(..), SelectedItem, Settings, settingsOfWidth)
+import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..), SelectedItem, Settings, settingsOfWidth)
 import String
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
@@ -70,8 +70,8 @@ card { settings, position, selectedItem, item, canMove } =
         ( offsetX, offsetY ) =
             Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
 
-        size =
-            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getSize
+        ( offsetWidth, offsetHeight ) =
+            Item.getOffsetSize item
 
         ( posX, posY ) =
             if ( offsetX, offsetY ) == Position.zero then
@@ -81,23 +81,13 @@ card { settings, position, selectedItem, item, canMove } =
                 position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
 
         ( width, height ) =
-            case size of
-                Just s ->
-                    s
-
-                Nothing ->
-                    ( settings.size.width, settings.size.height - 1 )
+            ( settings.size.width, settings.size.height - 1 ) |> Tuple.mapBoth (\w -> w + offsetWidth) (\h -> h + offsetHeight)
 
         view_ =
             Svg.g
                 [ Events.onClickStopPropagation <|
                     Select <|
-                        Just ( item, ( posX, posY + settings.size.height + 8 ) )
-                , if canMove then
-                    Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
-
-                  else
-                    SvgAttr.style ""
+                        Just ( item, position )
                 ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt width
@@ -122,12 +112,40 @@ card { settings, position, selectedItem, item, canMove } =
     case selectedItem of
         Just item_ ->
             if Item.getLineNo item_ == Item.getLineNo item then
-                Svg.g []
+                let
+                    selectedItemOffsetSize =
+                        Item.getOffsetSize item_
+
+                    selectedItemOffsetPosition =
+                        Item.getOffset item_
+
+                    selectedItemPosition =
+                        position
+                            |> Tuple.mapBoth
+                                (\x -> x + Position.getX selectedItemOffsetPosition)
+                                (\y -> y + Position.getY selectedItemOffsetPosition)
+
+                    selectedItemSize =
+                        ( settings.size.width, settings.size.height - 1 )
+                            |> Tuple.mapBoth
+                                (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
+                                (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
+
+                    ( x_, y_ ) =
+                        ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
+                in
+                Svg.g
+                    [ if canMove then
+                        Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
+
+                      else
+                        SvgAttr.style ""
+                    ]
                     [ Svg.rect
-                        [ SvgAttr.width <| String.fromInt <| width + 16
-                        , SvgAttr.height <| String.fromInt <| height + 16
-                        , SvgAttr.x (String.fromInt <| posX - 8)
-                        , SvgAttr.y (String.fromInt <| posY - 8)
+                        [ SvgAttr.width <| String.fromInt <| Size.getWidth selectedItemSize + 16
+                        , SvgAttr.height <| String.fromInt <| Size.getHeight selectedItemSize + 16
+                        , SvgAttr.x (String.fromInt <| x_ - 8)
+                        , SvgAttr.y (String.fromInt <| y_ - 8)
                         , SvgAttr.rx "1"
                         , SvgAttr.ry "1"
                         , SvgAttr.fill "transparent"
@@ -136,21 +154,25 @@ card { settings, position, selectedItem, item, canMove } =
                         ]
                         []
                     , Svg.rect
-                        [ SvgAttr.width <| String.fromInt <| width + 4
-                        , SvgAttr.height <| String.fromInt <| height + 4
-                        , SvgAttr.x (String.fromInt <| posX - 2)
-                        , SvgAttr.y (String.fromInt <| posY - 2)
+                        [ SvgAttr.width <| String.fromInt <| Size.getWidth selectedItemSize + 4
+                        , SvgAttr.height <| String.fromInt <| Size.getHeight selectedItemSize + 4
+                        , SvgAttr.x (String.fromInt <| x_ - 2)
+                        , SvgAttr.y (String.fromInt <| y_ - 2)
                         , SvgAttr.rx "1"
                         , SvgAttr.ry "1"
                         , SvgAttr.fill backgroundColor
                         , SvgAttr.style "filter:url(#shadow)"
                         ]
                         []
+                    , resizeRect item TopLeft ( x_ - 8, y_ - 8 )
+                    , resizeRect item TopRight ( x_ + Size.getWidth selectedItemSize + 8, y_ - 8 )
+                    , resizeRect item BottomRight ( x_ + Size.getWidth selectedItemSize + 8, y_ + Size.getHeight selectedItemSize + 8 )
+                    , resizeRect item BottomLeft ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 )
                     , inputView
                         { settings = settings
                         , fontSize = Item.getFontSize item
-                        , position = ( posX, posY )
-                        , size = ( width, height )
+                        , position = ( x_, y_ )
+                        , size = selectedItemSize
                         , color = color
                         , item = item_
                         }
@@ -161,6 +183,33 @@ card { settings, position, selectedItem, item, canMove } =
 
         Nothing ->
             view_
+
+
+resizeRect : Item -> ResizeDirection -> Position -> Svg Msg
+resizeRect item direction ( x, y ) =
+    Svg.circle
+        [ SvgAttr.cx <| String.fromInt x
+        , SvgAttr.cy <| String.fromInt y
+        , SvgAttr.r "5"
+        , SvgAttr.style <|
+            case direction of
+                TopLeft ->
+                    "cursor: nwse-resize"
+
+                TopRight ->
+                    "cursor: nesw-resize"
+
+                BottomLeft ->
+                    "cursor: nesw-resize"
+
+                BottomRight ->
+                    "cursor: nwse-resize"
+        , SvgAttr.fill "#FEFEFE"
+        , SvgAttr.strokeWidth "2"
+        , SvgAttr.stroke "#BDBDBD"
+        , Diagram.dragStart (ItemResize item direction) False
+        ]
+        []
 
 
 inputView :

@@ -6,14 +6,14 @@ module Types.ItemSettings exposing
     , getFontSize
     , getForegroundColor
     , getOffset
-    , getSize
+    , getOffsetSize
     , new
     , toString
     , withBackgroundColor
     , withFontSize
     , withForegroundColor
     , withOffset
-    , withSize
+    , withOffsetSize
     )
 
 import Json.Decode as D
@@ -34,7 +34,7 @@ type alias Settings =
     , foregroundColor : Maybe Color
     , offset : Position
     , fontSize : FontSize
-    , size : Maybe Size
+    , offsetSize : Maybe Size
     }
 
 
@@ -45,7 +45,7 @@ new =
         , foregroundColor = Nothing
         , offset = Position.zero
         , fontSize = FontSize.default
-        , size = Nothing
+        , offsetSize = Nothing
         }
 
 
@@ -69,9 +69,9 @@ getFontSize (ItemSettings settings) =
     settings.fontSize
 
 
-getSize : ItemSettings -> Maybe Size
-getSize (ItemSettings settings) =
-    settings.size
+getOffsetSize : ItemSettings -> Maybe Size
+getOffsetSize (ItemSettings settings) =
+    settings.offsetSize
 
 
 withBackgroundColor : Maybe Color -> ItemSettings -> ItemSettings
@@ -94,9 +94,9 @@ withFontSize fontSize (ItemSettings settings) =
     ItemSettings { settings | fontSize = fontSize }
 
 
-withSize : Maybe Size -> ItemSettings -> ItemSettings
-withSize size (ItemSettings settings) =
-    ItemSettings { settings | size = size }
+withOffsetSize : Maybe Size -> ItemSettings -> ItemSettings
+withOffsetSize offsetSize (ItemSettings settings) =
+    ItemSettings { settings | offsetSize = offsetSize }
 
 
 encoder : ItemSettings -> E.Value
@@ -128,9 +128,9 @@ encoder (ItemSettings settings) =
                 else
                     [ ( "s", E.int <| FontSize.unwrap settings.fontSize ) ]
                )
-            ++ (case settings.size of
+            ++ (case settings.offsetSize of
                     Just size ->
-                        [ ( "z", E.list E.int [ Size.getWidth size, Size.getHeight size ] ) ]
+                        [ ( "os", E.list E.int [ Size.getWidth size, Size.getHeight size ] ) ]
 
                     Nothing ->
                         []
@@ -146,7 +146,7 @@ decoder =
             |> optional "f" (D.map Just Color.decoder) Nothing
             |> optional "o" Position.decoder Position.zero
             |> optional "s" FontSize.decoder FontSize.default
-            |> optional "z" (D.map Just Size.decoder) Nothing
+            |> optional "os" (D.map Just Size.decoder) Nothing
         )
 
 

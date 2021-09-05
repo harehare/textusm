@@ -9,3 +9,7 @@ updates:
     labels:
       - "dependencies"
       - "automerge"
+  - package-ecosystem: "gomod"
+    directory: "/server"
+    schedule:
+      interval: "weekly"
