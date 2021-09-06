@@ -13,3 +13,6 @@ updates:
     directory: "/server"
     schedule:
       interval: "weekly"
+    labels:
+      - "dependencies"
+      - "automerge"
