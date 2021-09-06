@@ -12,17 +12,13 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
-	github.com/rs/zerolog v1.20.0
+	github.com/rs/zerolog v1.24.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/vektah/gqlparser/v2 v2.1.0
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-	golang.org/x/mod v0.4.1 // indirect
-	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
-	golang.org/x/sys v0.0.0-20210228012217-479acdf4ea46 // indirect
 	golang.org/x/text v0.3.5 // indirect
-	golang.org/x/tools v0.1.0 // indirect
 	google.golang.org/api v0.35.0
 	google.golang.org/grpc v1.33.2
 	gopkg.in/yaml.v2 v2.4.0 // indirect
