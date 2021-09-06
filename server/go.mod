@@ -8,7 +8,7 @@ require (
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/go-chi/chi/v5 v5.0.1
 	github.com/go-chi/cors v1.2.0
-	github.com/go-chi/httprate v0.4.0
+	github.com/go-chi/httprate v0.5.1
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
