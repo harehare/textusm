@@ -9,7 +9,7 @@ require (
 	github.com/go-chi/cors v1.2.0
 	github.com/go-chi/httprate v0.5.1
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/kelseyhightower/envconfig v1.3.0
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/rs/zerolog v1.24.0
 	github.com/satori/go.uuid v1.2.0
