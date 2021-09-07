@@ -1,4 +1,15 @@
-module Views.Diagram.Views exposing (canvas, canvasBottom, canvasImage, card, grid, node, rootTextNode, text)
+module Views.Diagram.Views exposing
+    ( canvas
+    , canvasBottom
+    , canvasImage
+    , card
+    , grid
+    , horizontalLine
+    , node
+    , rootTextNode
+    , text
+    , verticalLine
+    )
 
 import Constants
 import Events
@@ -185,6 +196,206 @@ card { settings, position, selectedItem, item, canMove } =
             view_
 
 
+horizontalLine : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
+horizontalLine { settings, position, selectedItem, item } =
+    let
+        ( _, color ) =
+            getItemColor settings item
+
+        ( offsetX, offsetY ) =
+            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
+
+        ( offsetWidth, _ ) =
+            Item.getOffsetSize item
+
+        ( posX, posY ) =
+            if ( offsetX, offsetY ) == Position.zero then
+                position
+
+            else
+                position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+
+        width =
+            settings.size.width + offsetWidth
+
+        view_ =
+            Svg.g
+                [ Events.onClickStopPropagation <|
+                    Select <|
+                        Just ( item, position )
+                ]
+                [ Svg.line
+                    [ SvgAttr.x1 <| String.fromInt posX
+                    , SvgAttr.y1 <| String.fromInt posY
+                    , SvgAttr.x2 <| String.fromInt <| posX + width
+                    , SvgAttr.y2 <| String.fromInt posY
+                    , SvgAttr.stroke color
+                    , SvgAttr.strokeWidth "6"
+                    , SvgAttr.class "ts-line"
+                    ]
+                    []
+                ]
+    in
+    case selectedItem of
+        Just item_ ->
+            if Item.getLineNo item_ == Item.getLineNo item then
+                let
+                    selectedItemOffsetSize =
+                        Item.getOffsetSize item_
+
+                    selectedItemOffsetPosition =
+                        Item.getOffset item_
+
+                    selectedItemPosition =
+                        position
+                            |> Tuple.mapBoth
+                                (\x -> x + Position.getX selectedItemOffsetPosition)
+                                (\y -> y + Position.getY selectedItemOffsetPosition)
+
+                    selectedItemSize =
+                        ( settings.size.width, settings.size.height - 1 )
+                            |> Tuple.mapBoth
+                                (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
+                                (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
+
+                    ( x_, y_ ) =
+                        ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
+                in
+                Svg.g
+                    [ Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
+                    [ Svg.rect
+                        [ SvgAttr.width <| String.fromInt <| Size.getWidth selectedItemSize + 16
+                        , SvgAttr.height "16"
+                        , SvgAttr.x (String.fromInt <| x_ - 8)
+                        , SvgAttr.y (String.fromInt <| y_ - 8)
+                        , SvgAttr.rx "1"
+                        , SvgAttr.ry "1"
+                        , SvgAttr.fill "transparent"
+                        , SvgAttr.stroke "#266b9a"
+                        , SvgAttr.strokeWidth "1"
+                        ]
+                        []
+                    , Svg.line
+                        [ SvgAttr.x1 (String.fromInt <| x_ - 2)
+                        , SvgAttr.y1 (String.fromInt <| y_)
+                        , SvgAttr.x2 (String.fromInt <| x_ + Size.getWidth selectedItemSize + 4)
+                        , SvgAttr.y2 (String.fromInt <| y_)
+                        , SvgAttr.fill "transparent"
+                        , SvgAttr.stroke color
+                        , SvgAttr.strokeWidth "6"
+                        ]
+                        []
+                    , resizeRect item Left ( x_ - 8, y_ )
+                    , resizeRect item Right ( x_ + Size.getWidth selectedItemSize + 8, y_ )
+                    ]
+
+            else
+                view_
+
+        Nothing ->
+            view_
+
+
+verticalLine : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
+verticalLine { settings, position, selectedItem, item } =
+    let
+        ( _, color ) =
+            getItemColor settings item
+
+        ( offsetX, offsetY ) =
+            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
+
+        ( _, offsetHeight ) =
+            Item.getOffsetSize item
+
+        ( posX, posY ) =
+            if ( offsetX, offsetY ) == Position.zero then
+                position
+
+            else
+                position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+
+        height =
+            settings.size.height + offsetHeight
+
+        view_ =
+            Svg.g
+                [ Events.onClickStopPropagation <|
+                    Select <|
+                        Just ( item, position )
+                ]
+                [ Svg.line
+                    [ SvgAttr.x1 <| String.fromInt posX
+                    , SvgAttr.y1 <| String.fromInt posY
+                    , SvgAttr.x2 <| String.fromInt <| posX
+                    , SvgAttr.y2 <| String.fromInt <| posY + height
+                    , SvgAttr.stroke color
+                    , SvgAttr.strokeWidth "6"
+                    , SvgAttr.class "ts-line"
+                    ]
+                    []
+                ]
+    in
+    case selectedItem of
+        Just item_ ->
+            if Item.getLineNo item_ == Item.getLineNo item then
+                let
+                    selectedItemOffsetSize =
+                        Item.getOffsetSize item_
+
+                    selectedItemOffsetPosition =
+                        Item.getOffset item_
+
+                    selectedItemPosition =
+                        position
+                            |> Tuple.mapBoth
+                                (\x -> x + Position.getX selectedItemOffsetPosition)
+                                (\y -> y + Position.getY selectedItemOffsetPosition)
+
+                    selectedItemSize =
+                        ( settings.size.width, settings.size.height - 1 )
+                            |> Tuple.mapBoth
+                                (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
+                                (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
+
+                    ( x_, y_ ) =
+                        ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
+                in
+                Svg.g
+                    [ Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
+                    [ Svg.rect
+                        [ SvgAttr.width "16"
+                        , SvgAttr.height <| String.fromInt <| Size.getHeight selectedItemSize + 16
+                        , SvgAttr.x <| String.fromInt <| x_ - 8
+                        , SvgAttr.y <| String.fromInt <| y_ - 8
+                        , SvgAttr.rx "1"
+                        , SvgAttr.ry "1"
+                        , SvgAttr.fill "transparent"
+                        , SvgAttr.stroke "#266b9a"
+                        , SvgAttr.strokeWidth "1"
+                        ]
+                        []
+                    , Svg.line
+                        [ SvgAttr.x1 (String.fromInt <| x_)
+                        , SvgAttr.y1 (String.fromInt <| y_ - 2)
+                        , SvgAttr.x2 (String.fromInt <| x_)
+                        , SvgAttr.y2 (String.fromInt <| y_ + Size.getHeight selectedItemSize + 8)
+                        , SvgAttr.fill "transparent"
+                        , SvgAttr.stroke color
+                        , SvgAttr.strokeWidth "6"
+                        ]
+                        []
+                    , resizeRect item Top ( x_, y_ - 8 )
+                    , resizeRect item Bottom ( x_, y_ + Size.getHeight selectedItemSize + 8 )
+                    ]
+
+            else
+                view_
+
+        Nothing ->
+            view_
+
+
 resizeRect : Item -> ResizeDirection -> Position -> Svg Msg
 resizeRect item direction ( x, y ) =
     Svg.circle
@@ -204,6 +415,18 @@ resizeRect item direction ( x, y ) =
 
                 BottomRight ->
                     "cursor: nwse-resize"
+
+                Left ->
+                    "cursor: w-resize"
+
+                Right ->
+                    "cursor: e-resize"
+
+                Top ->
+                    "cursor: n-resize"
+
+                Bottom ->
+                    "cursor: s-resize"
         , SvgAttr.fill "#FEFEFE"
         , SvgAttr.strokeWidth "2"
         , SvgAttr.stroke "#BDBDBD"

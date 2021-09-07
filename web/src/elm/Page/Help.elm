@@ -43,6 +43,15 @@ view =
         , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# user_stories: Changed text" ]
         , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# release1: Changed text" ]
 
+        -- Free form
+        , section (Just "Freeform")
+        , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# Vertical line" ]
+        , div [ class "text", style "padding" "0 16px 0px" ] [ text "|" ]
+        , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# Horizontal line" ]
+        , div [ class "text", style "padding" "0 16px 0px" ] [ text "---" ]
+        , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# Item" ]
+        , div [ class "text", style "padding" "0 16px 0px" ] [ text "freeform" ]
+
         -- Use Case Diagram
         , section (Just "Use Case Diagram Syntax")
         , div [ class "text activity", style "padding" "0 16px 0px" ] [ text "[Actor Name]" ]

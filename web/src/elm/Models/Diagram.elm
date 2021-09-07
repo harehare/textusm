@@ -215,6 +215,10 @@ type ResizeDirection
     | TopRight
     | BottomLeft
     | BottomRight
+    | Top
+    | Bottom
+    | Left
+    | Right
 
 
 type alias Settings =

@@ -911,6 +911,26 @@ update message model =
                                                 , offsetPosition
                                                 )
 
+                                            Diagram.Top ->
+                                                ( ( 0
+                                                  , Size.getHeight offsetSize + round (toFloat (Position.getY model.movePosition - y) / model.svg.scale)
+                                                  )
+                                                , ( Position.getX offsetPosition, Position.getY offsetPosition + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale) )
+                                                )
+
+                                            Diagram.Bottom ->
+                                                ( ( 0, Size.getHeight offsetSize + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale) ), offsetPosition )
+
+                                            Diagram.Right ->
+                                                ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale), 0 ), offsetPosition )
+
+                                            Diagram.Left ->
+                                                ( ( Size.getWidth offsetSize + round (toFloat (Position.getX model.movePosition - x) / model.svg.scale), 0 )
+                                                , ( Position.getX offsetPosition + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                                                  , Position.getY offsetPosition
+                                                  )
+                                                )
+
                                     newItem =
                                         Item.withOffsetSize newSize item
                                             |> Item.withOffset newPosition

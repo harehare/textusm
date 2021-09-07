@@ -1,5 +1,6 @@
 module Views.Diagram.FreeForm exposing (view)
 
+import Graphql.Enum.Diagram exposing (Diagram(..))
 import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Diagram.FreeForm as FreeForm
 import Svg exposing (Svg)
@@ -27,28 +28,72 @@ view model =
                             Nothing
             in
             Svg.g []
-                (Item.indexedMap
+                (List.indexedMap
                     (\i item ->
-                        Views.card
-                            { settings = model.settings
-                            , position =
-                                ( 16 + modBy 4 i * (model.settings.size.width + 16)
-                                , (i // 4) * (model.settings.size.height + 16)
-                                )
-                            , selectedItem = model.selectedItem
-                            , item =
-                                moveingItem
-                                    |> Maybe.map
-                                        (\v ->
-                                            if Item.getLineNo v == Item.getLineNo item then
-                                                v
-
-                                            else
-                                                item
+                        case item of
+                            FreeForm.HorizontalLine item_ ->
+                                Views.horizontalLine
+                                    { settings = model.settings
+                                    , position =
+                                        ( 16 + modBy 4 i * (model.settings.size.width + 16)
+                                        , (i // 4) * (model.settings.size.height + 16)
                                         )
-                                    |> Maybe.withDefault item
-                            , canMove = True
-                            }
+                                    , selectedItem = model.selectedItem
+                                    , item =
+                                        moveingItem
+                                            |> Maybe.map
+                                                (\v ->
+                                                    if Item.getLineNo v == Item.getLineNo item_ then
+                                                        v
+
+                                                    else
+                                                        item_
+                                                )
+                                            |> Maybe.withDefault item_
+                                    }
+
+                            FreeForm.VerticalLine item_ ->
+                                Views.verticalLine
+                                    { settings = model.settings
+                                    , position =
+                                        ( 16 + modBy 4 i * (model.settings.size.width + 16)
+                                        , (i // 4) * (model.settings.size.height + 16)
+                                        )
+                                    , selectedItem = model.selectedItem
+                                    , item =
+                                        moveingItem
+                                            |> Maybe.map
+                                                (\v ->
+                                                    if Item.getLineNo v == Item.getLineNo item_ then
+                                                        v
+
+                                                    else
+                                                        item_
+                                                )
+                                            |> Maybe.withDefault item_
+                                    }
+
+                            FreeForm.Card item_ ->
+                                Views.card
+                                    { settings = model.settings
+                                    , position =
+                                        ( 16 + modBy 4 i * (model.settings.size.width + 16)
+                                        , (i // 4) * (model.settings.size.height + 16)
+                                        )
+                                    , selectedItem = model.selectedItem
+                                    , item =
+                                        moveingItem
+                                            |> Maybe.map
+                                                (\v ->
+                                                    if Item.getLineNo v == Item.getLineNo item_ then
+                                                        v
+
+                                                    else
+                                                        item_
+                                                )
+                                            |> Maybe.withDefault item_
+                                    , canMove = True
+                                    }
                     )
                     (FreeForm.getItems f)
                 )

@@ -241,11 +241,14 @@ getCanvasSize model =
                                         |> FreeForm.unwrap
 
                                 positionList =
-                                    Item.indexedMap
+                                    List.indexedMap
                                         (\i item ->
                                             let
+                                                item_ =
+                                                    FreeForm.unwrapItem item
+
                                                 ( offsetX, offsetY ) =
-                                                    Item.getOffset item
+                                                    Item.getOffset item_
                                             in
                                             ( 16 + (modBy 4 i + 1) * (model.settings.size.width + 32)
                                             , (i // 4 + 1) * (model.settings.size.height + 32)

@@ -1,7 +1,7 @@
 {
     "name": "textusm",
     "description": "Online tool for Generate a User Story Mapping from indented text.",
-    "version": "0.9.3",
+    "version": "0.9.4",
     "author": "harehare",
     "bugs": {
         "url": "https://github.com/harehare/textusm/issues"
@@ -53,6 +53,7 @@
         "mini-css-extract-plugin": "^2.2.2",
         "monaco-editor-webpack-plugin": "^4.1.2",
         "node-sass": "^6.0.1",
+        "npm-run-all": "^4.1.5",
         "postcss": "^8.3.6",
         "postcss-loader": "^6.1.1",
         "preload-webpack-plugin": "^3.0.0-beta.4",
@@ -86,7 +87,10 @@
     "scripts": {
         "build": "webpack",
         "deploy": "NODE_ENV=production webpack --mode production && firebase deploy --only hosting:textusm",
-        "dev": "webpack serve --hot --color --port 3000",
+        "dev": "run-p dev:*",
+        "dev:web": "webpack serve --hot --color --port 3000",
+        "dev:server": "cd ../server/ && just run",
+        "dev:firestore": "cd .. && firebase emulators:start --only firestore",
         "prod": "NODE_ENV=production webpack --mode production",
         "prod:run": "NODE_ENV=production webpack serve --color --port 3000 --mode production",
         "start": "npm run dev",
