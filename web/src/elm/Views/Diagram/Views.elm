@@ -6,6 +6,7 @@ module Views.Diagram.Views exposing
     , grid
     , horizontalLine
     , node
+    , plainText
     , rootTextNode
     , text
     , verticalLine
@@ -72,6 +73,16 @@ getItemColor settings item =
             ( settings.color.story.color, settings.color.story.backgroundColor )
 
 
+getLineColor : Settings -> Item -> RgbColor
+getLineColor settings item =
+    case Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getBackgroundColor of
+        Just c ->
+            Color.toString c
+
+        Nothing ->
+            settings.color.line
+
+
 card : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item, canMove : Bool } -> Svg Msg
 card { settings, position, selectedItem, item, canMove } =
     let
@@ -98,7 +109,7 @@ card { settings, position, selectedItem, item, canMove } =
             Svg.g
                 [ Events.onClickStopPropagation <|
                     Select <|
-                        Just ( item, position )
+                        Just { item = item, position = position, displayAllMenu = True }
                 ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt width
@@ -117,7 +128,7 @@ card { settings, position, selectedItem, item, canMove } =
                     ( width, height )
                     color
                     (Item.getFontSize item)
-                    (Item.getText item)
+                    item
                 ]
     in
     case selectedItem of
@@ -199,13 +210,13 @@ card { settings, position, selectedItem, item, canMove } =
 horizontalLine : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
 horizontalLine { settings, position, selectedItem, item } =
     let
-        ( _, color ) =
-            getItemColor settings item
+        color =
+            getLineColor settings item
 
         ( offsetX, offsetY ) =
             Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
 
-        ( offsetWidth, _ ) =
+        ( offsetWidth, offsetHeight ) =
             Item.getOffsetSize item
 
         ( posX, posY ) =
@@ -222,7 +233,7 @@ horizontalLine { settings, position, selectedItem, item } =
             Svg.g
                 [ Events.onClickStopPropagation <|
                     Select <|
-                        Just ( item, position )
+                        Just { item = item, position = Tuple.mapSecond (\y -> y - settings.size.width + offsetHeight + 72) position, displayAllMenu = False }
                 ]
                 [ Svg.line
                     [ SvgAttr.x1 <| String.fromInt posX
@@ -299,8 +310,8 @@ horizontalLine { settings, position, selectedItem, item } =
 verticalLine : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
 verticalLine { settings, position, selectedItem, item } =
     let
-        ( _, color ) =
-            getItemColor settings item
+        color =
+            getLineColor settings item
 
         ( offsetX, offsetY ) =
             Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
@@ -322,7 +333,7 @@ verticalLine { settings, position, selectedItem, item } =
             Svg.g
                 [ Events.onClickStopPropagation <|
                     Select <|
-                        Just ( item, position )
+                        Just { item = item, position = position, displayAllMenu = False }
                 ]
                 [ Svg.line
                     [ SvgAttr.x1 <| String.fromInt posX
@@ -474,9 +485,9 @@ inputView { settings, fontSize, position, size, color, item } =
         ]
 
 
-text : Settings -> Position -> Size -> RgbColor -> FontSize -> String -> Svg Msg
-text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs cardText =
-    if Item.isMarkdown cardText then
+text : Settings -> Position -> Size -> RgbColor -> FontSize -> Item -> Svg Msg
+text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
+    if Item.isMarkdown item then
         Svg.foreignObject
             [ SvgAttr.x <| String.fromInt posX
             , SvgAttr.y <| String.fromInt posY
@@ -489,16 +500,17 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs cardText =
             ]
             [ markdown settings
                 colour
-                (String.trim cardText
+                (Item.getText item
+                    |> String.trim
                     |> String.dropLeft 3
                     |> String.trim
                 )
             ]
 
-    else if Item.isImage cardText then
-        image ( svgWidth, svgHeight ) ( posX, posY ) <| String.trim cardText
+    else if Item.isImage item then
+        image ( svgWidth, svgHeight ) ( posX, posY ) <| String.trim <| Item.getText item
 
-    else if String.length cardText > 20 then
+    else if String.length (Item.getText item) > 20 then
         Svg.foreignObject
             [ SvgAttr.x <| String.fromInt posX
             , SvgAttr.y <| String.fromInt posY
@@ -514,22 +526,27 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs cardText =
                 , Attr.style "font-family" <| Diagram.fontStyle settings
                 , Attr.style "word-wrap" "break-word"
                 ]
-                [ Html.text cardText ]
+                [ Html.text <| Item.getText item ]
             ]
 
     else
-        Svg.text_
-            [ SvgAttr.x <| String.fromInt <| posX + 6
-            , SvgAttr.y <| String.fromInt <| posY + 24
-            , SvgAttr.width <| String.fromInt svgWidth
-            , SvgAttr.height <| String.fromInt svgHeight
-            , SvgAttr.fill colour
-            , SvgAttr.color colour
-            , SvgAttr.fontFamily <| Diagram.fontStyle settings
-            , FontSize.svgFontSize fs
-            , SvgAttr.class "select-none"
-            ]
-            [ Svg.text cardText ]
+        plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs <| Item.getText item
+
+
+plainText : Settings -> Position -> Size -> RgbColor -> FontSize -> String -> Svg Msg
+plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs t =
+    Svg.text_
+        [ SvgAttr.x <| String.fromInt <| posX + 6
+        , SvgAttr.y <| String.fromInt <| posY + 24
+        , SvgAttr.width <| String.fromInt svgWidth
+        , SvgAttr.height <| String.fromInt svgHeight
+        , SvgAttr.fill colour
+        , SvgAttr.color colour
+        , SvgAttr.fontFamily <| Diagram.fontStyle settings
+        , FontSize.svgFontSize fs
+        , SvgAttr.class "select-none"
+        ]
+        [ Svg.text t ]
 
 
 markdown : Settings -> RgbColor -> String -> Html Msg
@@ -647,7 +664,7 @@ title settings ( posX, posY ) item =
         , FontSize.svgFontSize FontSize.lg
         , SvgAttr.fontWeight "bold"
         , SvgAttr.class "select-none ts-title"
-        , Events.onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
+        , Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
         ]
         [ Svg.text <| Item.getText item ]
 
@@ -723,7 +740,7 @@ node settings ( posX, posY ) selectedItem item =
 
         view_ =
             Svg.g
-                [ Events.onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
+                [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
                 , Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
                 ]
                 [ Svg.rect
@@ -780,7 +797,7 @@ rootTextNode { settings, position, selectedItem, item } =
 
         view_ =
             Svg.g
-                [ Events.onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) )
+                [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
                 , Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
                 ]
                 [ Svg.rect
@@ -908,7 +925,7 @@ grid settings ( posX, posY ) selectedItem item =
             getItemColor settings item
 
         view_ =
-            Svg.g [ Events.onClickStopPropagation <| Select <| Just ( item, ( posX, posY + settings.size.height ) ) ]
+            Svg.g [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt settings.size.width
                     , SvgAttr.height <| String.fromInt <| settings.size.height - 1
@@ -924,7 +941,7 @@ grid settings ( posX, posY ) selectedItem item =
                     ( settings.size.width, settings.size.height )
                     forgroundColor
                     (Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize)
-                    (Item.getText item)
+                    item
                 ]
     in
     case selectedItem of

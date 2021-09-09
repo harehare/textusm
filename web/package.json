@@ -91,6 +91,7 @@
         "dev:web": "webpack serve --hot --color --port 3000",
         "dev:server": "cd ../server/ && just run",
         "dev:firestore": "cd .. && firebase emulators:start --only firestore",
+        "dev:generate-elm-constants": "npm run generate-elm-constants",
         "prod": "NODE_ENV=production webpack --mode production",
         "prod:run": "NODE_ENV=production webpack serve --color --port 3000 --mode production",
         "start": "npm run dev",

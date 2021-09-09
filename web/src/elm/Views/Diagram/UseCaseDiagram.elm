@@ -486,7 +486,7 @@ useCaseView { settings, item, fontSize, name, position } =
         , SvgAttr.style "overflow: visible"
         , Events.onClickStopPropagation <|
             Select <|
-                Just ( item, ( Position.getX position, Position.getY position + 60 ) )
+                Just { item = item, position = ( Position.getX position, Position.getY position + 60 ), displayAllMenu = True }
         ]
         [ Html.div
             [ Attr.style "display" "block"

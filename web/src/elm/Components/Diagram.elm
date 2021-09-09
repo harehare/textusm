@@ -418,7 +418,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
             ]
             [ mainSvg ]
         , case ( model.selectedItem, model.contextMenu ) of
-            ( Just item_, Just ( contextMenu, position ) ) ->
+            ( Just item_, Just { contextMenu, position, displayAllMenu } ) ->
                 let
                     pos =
                         Item.getPosition item_ <| Position.concat position centerPosition
@@ -426,7 +426,12 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     ( _, h ) =
                         Item.getSize item_ ( model.settings.size.width, model.settings.size.height )
                 in
-                ContextMenu.view
+                (if displayAllMenu then
+                    ContextMenu.viewAllMenu
+
+                 else
+                    ContextMenu.viewColorMenuOnly
+                )
                     { state = contextMenu
                     , item = item_
                     , position =
@@ -988,12 +993,12 @@ update message model =
                     in
                     Return.andThen <| \m -> Return.singleton { m | svg = newSvgModel, position = position }
 
-                Select (Just ( item, position )) ->
-                    if Item.isImage <| Item.getText item then
+                Select (Just { item, position, displayAllMenu }) ->
+                    if Item.isImage item then
                         Return.zero
 
                     else
-                        Return.andThen (\m -> Return.singleton { m | selectedItem = Just item, contextMenu = Just ( Diagram.CloseMenu, position ) })
+                        Return.andThen (\m -> Return.singleton { m | selectedItem = Just item, contextMenu = Just { contextMenu = Diagram.CloseMenu, position = position, displayAllMenu = displayAllMenu } })
                             >> Return.andThen (setFocus "edit-item")
 
                 Select Nothing ->
@@ -1034,7 +1039,14 @@ update message model =
                             Return.zero
 
                 SelectContextMenu menu ->
-                    Return.andThen <| \m -> Return.singleton { m | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> menu) c) m.contextMenu }
+                    Return.andThen <|
+                        \m ->
+                            case m.contextMenu of
+                                Just menu_ ->
+                                    Return.singleton { m | contextMenu = Just { menu_ | contextMenu = menu } }
+
+                                Nothing ->
+                                    Return.singleton m
 
                 FontSizeChanged size ->
                     case model.selectedItem of
@@ -1134,34 +1146,50 @@ update message model =
                             in
                             case ( model.selectedItem, menu ) of
                                 ( Just item_, Diagram.ColorSelectMenu ) ->
-                                    Return.andThen (\m -> Return.singleton { m | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> Diagram.CloseMenu) c) m.contextMenu })
-                                        >> Return.andThen (setText updateText)
-                                        >> Return.andThen
-                                            (selectItem
-                                                (Just
-                                                    (item_
-                                                        |> Item.withItemSettings
-                                                            (Item.getItemSettings item_
-                                                                |> Maybe.andThen (\s -> Just (ItemSettings.withForegroundColor (Just color) s))
+                                    Return.andThen
+                                        (\m ->
+                                            case m.contextMenu of
+                                                Just menu_ ->
+                                                    Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
+                                                        |> Return.andThen (setText updateText)
+                                                        |> Return.andThen
+                                                            (selectItem
+                                                                (Just
+                                                                    (item_
+                                                                        |> Item.withItemSettings
+                                                                            (Item.getItemSettings item_
+                                                                                |> Maybe.andThen (\s -> Just (ItemSettings.withForegroundColor (Just color) s))
+                                                                            )
+                                                                    )
+                                                                )
                                                             )
-                                                    )
-                                                )
-                                            )
+
+                                                Nothing ->
+                                                    Return.singleton m
+                                        )
 
                                 ( Just item_, Diagram.BackgroundColorSelectMenu ) ->
-                                    Return.andThen (\m -> Return.singleton { m | contextMenu = Maybe.andThen (\c -> Just <| Tuple.mapFirst (\_ -> Diagram.CloseMenu) c) m.contextMenu })
-                                        >> Return.andThen (setText updateText)
-                                        >> Return.andThen
-                                            (selectItem
-                                                (Just
-                                                    (item_
-                                                        |> Item.withItemSettings
-                                                            (Item.getItemSettings item_
-                                                                |> Maybe.andThen (\s -> Just (ItemSettings.withBackgroundColor (Just color) s))
+                                    Return.andThen
+                                        (\m ->
+                                            case m.contextMenu of
+                                                Just menu_ ->
+                                                    Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
+                                                        |> Return.andThen (setText updateText)
+                                                        |> Return.andThen
+                                                            (selectItem
+                                                                (Just
+                                                                    (item_
+                                                                        |> Item.withItemSettings
+                                                                            (Item.getItemSettings item_
+                                                                                |> Maybe.andThen (\s -> Just (ItemSettings.withBackgroundColor (Just color) s))
+                                                                            )
+                                                                    )
+                                                                )
                                                             )
-                                                    )
-                                                )
-                                            )
+
+                                                Nothing ->
+                                                    Return.singleton m
+                                        )
 
                                 _ ->
                                     Return.zero

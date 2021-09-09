@@ -31,10 +31,10 @@ getItems (FreeForm items) =
 
 itemToFreeFormItem : Item -> FreeFormItem
 itemToFreeFormItem item =
-    if String.startsWith "---" <| String.trim <| Item.getText item then
+    if Item.isHorizontalLine item then
         HorizontalLine item
 
-    else if String.startsWith "|" <| String.trim <| Item.getText item then
+    else if Item.isVerticalLine item then
         VerticalLine item
 
     else

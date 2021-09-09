@@ -46,7 +46,7 @@ view =
         -- Free form
         , section (Just "Freeform")
         , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# Vertical line" ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ text "|" ]
+        , div [ class "text", style "padding" "0 16px 0px" ] [ text "/" ]
         , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# Horizontal line" ]
         , div [ class "text", style "padding" "0 16px 0px" ] [ text "---" ]
         , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# Item" ]

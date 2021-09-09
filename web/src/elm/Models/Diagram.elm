@@ -81,6 +81,13 @@ type alias SelectedItem =
     Maybe Item
 
 
+type alias ContextMenuProps =
+    { contextMenu : ContextMenu
+    , position : Position
+    , displayAllMenu : Bool
+    }
+
+
 type alias Model =
     { items : Items
     , data : Data
@@ -97,7 +104,7 @@ type alias Model =
     , diagramType : Diagram
     , text : Text
     , selectedItem : SelectedItem
-    , contextMenu : Maybe ( ContextMenu, Position )
+    , contextMenu : Maybe ContextMenuProps
     , dragStatus : DragStatus
     , dropDownIndex : Maybe String
     }
@@ -295,6 +302,13 @@ type alias SvgInfo =
     }
 
 
+type alias SelectedItemInfo =
+    { item : Item
+    , position : Position
+    , displayAllMenu : Bool
+    }
+
+
 type Msg
     = NoOp
     | Init Settings Viewport String
@@ -313,7 +327,7 @@ type Msg
     | EditSelectedItem String
     | EndEditSelectedItem Item
     | FitToWindow
-    | Select (Maybe ( Item, Position ))
+    | Select (Maybe SelectedItemInfo)
     | ColorChanged ContextMenu Color.Color
     | SelectContextMenu ContextMenu
     | FontStyleChanged FontStyle

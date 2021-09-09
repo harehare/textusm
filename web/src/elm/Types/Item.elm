@@ -32,8 +32,10 @@ module Types.Item exposing
     , head
     , indexedMap
     , isEmpty
+    , isHorizontalLine
     , isImage
     , isMarkdown
+    , isVerticalLine
     , length
     , map
     , new
@@ -119,7 +121,7 @@ withText : String -> Item -> Item
 withText text (Item item) =
     let
         ( displayText, settings ) =
-            if isImage text then
+            if isImage <| withTextOnly text (Item item) then
                 ( text, Nothing )
 
             else
@@ -271,14 +273,24 @@ getLineNo (Item i) =
     i.lineNo
 
 
-isImage : String -> Bool
-isImage text =
-    String.trim text |> String.toLower |> String.startsWith "data:image/"
+isImage : Item -> Bool
+isImage item =
+    getText item |> String.trim |> String.toLower |> String.startsWith "data:image/"
 
 
-isMarkdown : String -> Bool
-isMarkdown text =
-    String.trim text |> String.toLower |> String.startsWith "md:"
+isMarkdown : Item -> Bool
+isMarkdown item =
+    getText item |> String.trim |> String.toLower |> String.startsWith "md:"
+
+
+isHorizontalLine : Item -> Bool
+isHorizontalLine item =
+    getText item |> String.trim |> String.toLower |> String.startsWith "---"
+
+
+isVerticalLine : Item -> Bool
+isVerticalLine item =
+    getText item |> String.trim |> String.toLower |> String.startsWith "/"
 
 
 getAt : Int -> Items -> Maybe Item
