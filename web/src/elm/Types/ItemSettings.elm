@@ -32,8 +32,8 @@ type ItemSettings
 type alias Settings =
     { backgroundColor : Maybe Color
     , foregroundColor : Maybe Color
-    , offset : Position
     , fontSize : FontSize
+    , offset : Position
     , offsetSize : Maybe Size
     }
 
@@ -144,8 +144,8 @@ decoder =
             Settings
             |> optional "b" (D.map Just Color.decoder) Nothing
             |> optional "f" (D.map Just Color.decoder) Nothing
-            |> optional "o" Position.decoder Position.zero
             |> optional "s" FontSize.decoder FontSize.default
+            |> optional "o" Position.decoder Position.zero
             |> optional "os" (D.map Just Size.decoder) Nothing
         )
 
