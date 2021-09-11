@@ -1,10 +1,8 @@
 module Constants exposing
     ( commentSize
-    , disabledIconColor
     , fontSize
     , fragmentOffset
     , ganttItemSize
-    , iconColor
     , indentSpace
     , inputPrefix
     , itemHeight
@@ -36,16 +34,6 @@ indentSpace =
 fontSize : String
 fontSize =
     "14"
-
-
-iconColor : String
-iconColor =
-    "#F5F5F6"
-
-
-disabledIconColor : String
-disabledIconColor =
-    "#848A90"
 
 
 itemSpan : Int

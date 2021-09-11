@@ -1,6 +1,6 @@
 module Models.Diagram.Kpt exposing (Kpt, KptItem(..), from)
 
-import Types.Item as Item exposing (Item, Items)
+import Models.Item as Item exposing (Item, Items)
 
 
 type alias Kpt =

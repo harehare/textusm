@@ -10,12 +10,12 @@ import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Diagram.ER as ER exposing (Attribute(..), Column(..), ColumnType(..), Relationship(..), Table(..))
+import Models.Position as Position exposing (Position, getX, getY)
+import Models.Size as Size exposing (Size, getHeight, getWidth)
 import State as State exposing (Step(..))
 import String
 import Svg exposing (Svg)
 import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, y)
-import Types.Position as Position exposing (Position, getX, getY)
-import Types.Size as Size exposing (Size, getHeight, getWidth)
 import Utils.Utils as Utils
 import Views.Diagram.Path as Path
 import Views.Empty as Empty

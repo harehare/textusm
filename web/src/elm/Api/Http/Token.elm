@@ -5,9 +5,9 @@ import Api.RequestError as RequestError exposing (RequestError)
 import Env
 import Http
 import Json.Encode as E
+import Models.IdToken as IdToken exposing (IdToken)
 import Platform exposing (Task)
 import Task
-import Types.IdToken as IdToken exposing (IdToken)
 
 
 accessTokenRequestEncorder : String -> E.Value

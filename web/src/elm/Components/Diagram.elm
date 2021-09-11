@@ -14,6 +14,7 @@ import Json.Decode as D
 import List
 import List.Extra exposing (getAt, setAt)
 import Maybe
+import Models.Color as Color
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, Settings)
 import Models.Diagram.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Diagram.ER as ErDiagramModel
@@ -30,6 +31,12 @@ import Models.Diagram.Table as TableModel
 import Models.Diagram.UseCaseDiagram as UseCaseDiagramModel
 import Models.Diagram.UserPersona as UserPersonaModel
 import Models.Diagram.UserStoryMap as UserStoryMapModel
+import Models.FontStyle as FontStyle
+import Models.Item as Item exposing (ItemType(..))
+import Models.ItemSettings as ItemSettings
+import Models.Position as Position exposing (Position)
+import Models.Size as Size exposing (Size)
+import Models.Text as Text
 import Return as Return exposing (Return)
 import String
 import Svg exposing (Svg)
@@ -37,12 +44,6 @@ import Svg.Attributes as SvgAttr
 import Svg.Events exposing (onClick)
 import Svg.Lazy as Lazy
 import Task
-import Types.FontStyle as FontStyle
-import Types.Item as Item exposing (ItemType(..))
-import Types.ItemSettings as ItemSettings
-import Types.Position as Position exposing (Position)
-import Types.Size as Size exposing (Size)
-import Types.Text as Text
 import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
@@ -112,7 +113,7 @@ zoomControl isFullscreen scale =
         , Attr.style "display" "flex"
         , Attr.style "width" "240px"
         , Attr.style "justify-content" "space-between"
-        , Attr.style "background-color" "#F4F4F4"
+        , Attr.style "background-color" <| Color.toString Color.white2
         , Attr.style "border-radius" "4px"
         , Attr.style "padding" "8px 16px"
         , Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)"
@@ -147,7 +148,7 @@ zoomControl isFullscreen scale =
             ]
         , div
             [ Attr.style "font-size" "0.7rem"
-            , Attr.style "color" "#8C9FAE"
+            , Attr.style "color" <| Color.toString Color.labelDefalut
             , Attr.style "cursor" "pointer"
             , Attr.style "font-weight" "600"
             , Attr.class ".select-none"

@@ -9,11 +9,11 @@ import Html.Lazy exposing (lazy)
 import Json.Decode as D
 import List.Extra exposing (setAt)
 import Models.Diagram as DiagramModel
+import Models.DiagramType as DiagramType
+import Models.Item as Item exposing (ItemType(..))
+import Models.Text as Text exposing (Text)
 import Return as Return exposing (Return)
 import Task
-import Types.DiagramType as DiagramType
-import Types.Item as Item exposing (ItemType(..))
-import Types.Text as Text exposing (Text)
 import Utils.Diagram as DiagramUtils
 
 

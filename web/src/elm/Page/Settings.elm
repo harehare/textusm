@@ -4,15 +4,15 @@ import Html exposing (Html, div, text)
 import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
+import Models.Color as Color exposing (colors)
+import Models.DiagramLocation as DiagramLocation
+import Models.FontSize as FontSize
+import Models.LoginProvider exposing (LoginProvider(..))
+import Models.Session as Session exposing (Session)
 import Return as Return
 import Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
-import Types.Color as Color exposing (colors)
-import Types.DiagramLocation as DiagramLocation
-import Types.FontSize as FontSize
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Switch as Switch
-import Types.Session as Session exposing (Session)
-import Types.LoginProvider exposing (LoginProvider(..))
 
 
 baseColorItems : List { name : String, value : DropDownValue }
@@ -1108,14 +1108,18 @@ view_ dropDownIndex settings session =
                                 )
                             )
                             (List.map (\( k, v ) -> { name = k, value = DropDownList.stringValue (DiagramLocation.toString v) }) <| DiagramLocation.enabled (Session.isGithubUser session))
-                            ((case (settings.location, Session.isGithubUser session) of
-                                (Just DiagramLocation.Gist, True) ->
+                            ((case ( settings.location, Session.isGithubUser session ) of
+                                ( Just DiagramLocation.Gist, True ) ->
                                     DiagramLocation.Gist
-                                (_, True) ->
+
+                                ( _, True ) ->
                                     DiagramLocation.Remote
+
                                 _ ->
                                     DiagramLocation.Remote
-                             ) |> DiagramLocation.toString)
+                             )
+                                |> DiagramLocation.toString
+                            )
                         ]
                     ]
                 , div [ class "control-row" ]
@@ -1349,7 +1353,7 @@ view_ dropDownIndex settings session =
                                 )
                             )
                             baseColorItems
-                            (settings.storyMap.color.text |> Maybe.withDefault "#111111")
+                            (settings.storyMap.color.text |> Maybe.withDefault (Color.toString Color.textDefalut))
                         ]
                     ]
                 ]
@@ -1364,7 +1368,7 @@ section title =
             style "" ""
 
           else
-            style "border-top" "1px solid #323B46"
+            style "border-top" <| "1px solid " ++ Color.toString Color.gray
         , if isNothing title then
             style "padding" "0px"
 

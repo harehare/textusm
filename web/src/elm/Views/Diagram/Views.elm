@@ -18,16 +18,16 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events exposing (onInput)
 import Markdown
+import Models.Color as Color
 import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..), SelectedItem, Settings, settingsOfWidth)
+import Models.FontSize as FontSize exposing (FontSize)
+import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Models.ItemSettings as ItemSettings
+import Models.Position as Position exposing (Position)
+import Models.Size as Size exposing (Size)
 import String
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
-import Types.Color as Color
-import Types.FontSize as FontSize exposing (FontSize)
-import Types.Item as Item exposing (Item, ItemType(..), Items)
-import Types.ItemSettings as ItemSettings
-import Types.Position as Position exposing (Position)
-import Types.Size as Size exposing (Size)
 
 
 type alias RgbColor =
@@ -171,8 +171,8 @@ card { settings, position, selectedItem, item, canMove } =
                         , SvgAttr.rx "1"
                         , SvgAttr.ry "1"
                         , SvgAttr.fill "transparent"
-                        , SvgAttr.stroke "#266b9a"
-                        , SvgAttr.strokeWidth "1"
+                        , SvgAttr.stroke "rgba(38, 107, 154, 0.6)"
+                        , SvgAttr.strokeWidth "2"
                         ]
                         []
                     , Svg.rect
@@ -282,7 +282,7 @@ horizontalLine { settings, position, selectedItem, item } =
                         , SvgAttr.rx "1"
                         , SvgAttr.ry "1"
                         , SvgAttr.fill "transparent"
-                        , SvgAttr.stroke "#266b9a"
+                        , SvgAttr.stroke <| Color.toString Color.background1Defalut
                         , SvgAttr.strokeWidth "1"
                         ]
                         []
@@ -382,7 +382,7 @@ verticalLine { settings, position, selectedItem, item } =
                         , SvgAttr.rx "1"
                         , SvgAttr.ry "1"
                         , SvgAttr.fill "transparent"
-                        , SvgAttr.stroke "#266b9a"
+                        , SvgAttr.stroke <| Color.toString Color.background1Defalut
                         , SvgAttr.strokeWidth "1"
                         ]
                         []
@@ -438,9 +438,9 @@ resizeRect item direction ( x, y ) =
 
                 Bottom ->
                     "cursor: s-resize"
-        , SvgAttr.fill "#FEFEFE"
+        , SvgAttr.fill <| Color.toString Color.white
         , SvgAttr.strokeWidth "2"
-        , SvgAttr.stroke "#BDBDBD"
+        , SvgAttr.stroke <| Color.toString Color.lightGray
         , Diagram.dragStart (ItemResize item direction) False
         ]
         []

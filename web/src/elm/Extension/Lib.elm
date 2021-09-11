@@ -9,9 +9,9 @@ import Html.Attributes exposing (style)
 import Html.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
+import Models.Item as Item exposing (ItemType(..))
+import Models.Text as Text
 import Task
-import Types.Item as Item exposing (ItemType(..))
-import Types.Text as Text
 
 
 

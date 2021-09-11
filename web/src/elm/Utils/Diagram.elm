@@ -18,9 +18,9 @@ import Models.Diagram.UseCaseDiagram as UseCaseDiagram
         , UseCaseDiagram(..)
         )
 import Models.Diagram.UserStoryMap as UserStoryMap
+import Models.Item as Item exposing (Items)
 import Time exposing (Month(..))
 import Tuple
-import Types.Item as Item exposing (Items)
 
 
 getCanvasHeight : DiagramModel.Settings -> Items -> Int

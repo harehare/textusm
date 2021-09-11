@@ -17,7 +17,7 @@ import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar exposing (GistIdScalar(..), Id(..), ItemIdScalar(..))
 import Graphql.SelectionSet exposing (SelectionSet)
 import Models.Diagram as DiagramModel
-import Types.DiagramItem exposing (DiagramItem)
+import Models.DiagramItem exposing (DiagramItem)
 
 
 save : InputItem -> Bool -> SelectionSet DiagramItem RootMutation

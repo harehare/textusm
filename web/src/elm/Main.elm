@@ -31,9 +31,22 @@ import Message
 import Models.Diagram as DiagramModel
 import Models.Diagram.ER as ER
 import Models.Diagram.Table as Table
+import Models.DiagramId as DiagramId
+import Models.DiagramItem as DiagramItem
+import Models.DiagramLocation as DiagramLocation
+import Models.DiagramType as DiagramType
 import Models.Dialog as Dialog
+import Models.FileType as FileType
+import Models.IdToken as IdToken
+import Models.Jwt as Jwt
+import Models.LoginProvider as LoginProdiver
 import Models.Model as Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
 import Models.Page as Page
+import Models.Session as Session
+import Models.ShareToken as ShareToken
+import Models.Size as Size
+import Models.Text as Text
+import Models.Title as Title
 import Page.Embed as Embed
 import Page.Help as Help
 import Page.List as DiagramList
@@ -54,19 +67,6 @@ import Settings
 import String
 import Task
 import Time
-import Types.DiagramId as DiagramId
-import Types.DiagramItem as DiagramItem
-import Types.DiagramLocation as DiagramLocation
-import Types.DiagramType as DiagramType
-import Types.FileType as FileType
-import Types.IdToken as IdToken
-import Types.Jwt as Jwt
-import Types.LoginProvider as LoginProdiver
-import Types.Session as Session
-import Types.ShareToken as ShareToken
-import Types.Size as Size
-import Types.Text as Text
-import Types.Title as Title
 import Url
 import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils

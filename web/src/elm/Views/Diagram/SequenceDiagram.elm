@@ -4,11 +4,11 @@ import Constants
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle, getTextColor)
 import Models.Diagram.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
+import Models.Position as Position exposing (Position)
+import Models.Size exposing (Size)
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Svg.Lazy as Lazy
-import Types.Position as Position exposing (Position)
-import Types.Size exposing (Size)
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 

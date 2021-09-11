@@ -17,11 +17,11 @@ import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, w
 import Graphql.Union
 import Graphql.Union.DiagramItem
 import Models.Diagram as DiagramModel
+import Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import Models.DiagramLocation as DiagramLocation
+import Models.Text as Text
+import Models.Title as Title
 import Route exposing (Route(..))
-import Types.DiagramItem as DiagramItem exposing (DiagramItem)
-import Types.DiagramLocation as DiagramLocation
-import Types.Text as Text
-import Types.Title as Title
 
 
 colorSelection : SelectionSet DiagramModel.Color Graphql.Object.Color

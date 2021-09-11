@@ -7,13 +7,13 @@ import List
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
 import Models.Diagram.UserStoryMap as UserStoryMap exposing (UserStoryMap)
+import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Models.Position exposing (Position)
 import String
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Svg.Keyed as Keyed
 import Svg.Lazy as Lazy
-import Types.Item as Item exposing (Item, ItemType(..), Items)
-import Types.Position exposing (Position)
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 

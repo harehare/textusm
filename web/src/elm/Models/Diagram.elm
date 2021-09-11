@@ -48,6 +48,7 @@ import Events
 import File exposing (File)
 import Graphql.Enum.Diagram exposing (Diagram)
 import List.Extra exposing (getAt)
+import Models.Color as Color
 import Models.Diagram.BusinessModelCanvas exposing (BusinessModelCanvas)
 import Models.Diagram.ER as ER exposing (ErDiagram)
 import Models.Diagram.EmpathyMap exposing (EmpathyMap)
@@ -63,17 +64,16 @@ import Models.Diagram.Table exposing (Table)
 import Models.Diagram.UseCaseDiagram exposing (UseCaseDiagram)
 import Models.Diagram.UserPersona exposing (UserPersona)
 import Models.Diagram.UserStoryMap exposing (UserStoryMap)
+import Models.FontSize exposing (FontSize)
+import Models.FontStyle exposing (FontStyle)
+import Models.Item exposing (Item, ItemType(..), Items)
+import Models.Position exposing (Position)
+import Models.Size as Size
+import Models.Text exposing (Text)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
 import Svg
-import Types.Color as Color
-import Types.FontSize exposing (FontSize)
-import Types.FontStyle exposing (FontStyle)
-import Types.Item exposing (Item, ItemType(..), Items)
-import Types.Position exposing (Position)
-import Types.Size as Size
-import Types.Text exposing (Text)
 import Utils.Utils as Utils
 
 
@@ -341,7 +341,7 @@ type Msg
 
 getTextColor : ColorSettings -> String
 getTextColor settings =
-    settings.text |> Maybe.withDefault "#111111"
+    settings.text |> Maybe.withDefault (Color.toString Color.textDefalut)
 
 
 settingsOfFont : Lens Settings String

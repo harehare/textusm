@@ -26,7 +26,13 @@ import Json.Decode as D
 import Json.Encode as E
 import List.Extra exposing (updateIf)
 import Message exposing (Lang)
+import Models.Color as Color
+import Models.DiagramId as DiagramId
+import Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import Models.DiagramLocation as DiagramLocation
 import Models.Dialog as Dialog
+import Models.Session as Session exposing (Session)
+import Models.Title as Title
 import Monocle.Lens exposing (Lens)
 import Ordering exposing (Ordering)
 import RemoteData exposing (RemoteData(..), WebData)
@@ -34,11 +40,6 @@ import Return as Return exposing (Return)
 import Simple.Fuzzy as Fuzzy
 import Task
 import Time exposing (Zone)
-import Types.DiagramId as DiagramId
-import Types.DiagramItem as DiagramItem exposing (DiagramItem)
-import Types.DiagramLocation as DiagramLocation
-import Types.Session as Session exposing (Session)
-import Types.Title as Title
 import Utils.Date as DateUtils
 import Utils.Utils as Utils
 import Views.Empty as Empty
@@ -262,7 +263,7 @@ sideMenu session diagramList isOnline =
                         "item"
                 , onClick <| GetPublicDiagrams 1
                 ]
-                [ Icon.globe "#F5F5F6" 16, Html.div [ class "p-sm" ] [ Html.text "Public" ] ]
+                [ Icon.globe (Color.toString Color.iconColor) 16, Html.div [ class "p-sm" ] [ Html.text "Public" ] ]
 
           else
             Empty.view
@@ -276,7 +277,7 @@ sideMenu session diagramList isOnline =
                         "item"
                 , onClick <| GetBookmarkDiagrams 1
                 ]
-                [ Icon.bookmark "#F5F5F6" 14, Html.div [ class "p-sm" ] [ Html.text "Bookmarks" ] ]
+                [ Icon.bookmark Color.iconColor 14, Html.div [ class "p-sm" ] [ Html.text "Bookmarks" ] ]
 
           else
             Empty.view
@@ -290,7 +291,7 @@ sideMenu session diagramList isOnline =
                         "item"
                 , onClick <| GetGistDiagrams 1
                 ]
-                [ Icon.github "#F5F5F6" 14
+                [ Icon.github Color.iconColor 14
                 , Html.div [ class "p-sm" ] [ Html.text "Gist" ]
                 ]
 
@@ -400,7 +401,7 @@ view model =
                 ]
                 [ Html.div
                     [ class "flex-center w-full text-2xl h-full"
-                    , style "color" "#8C9FAE"
+                    , style "color" <| Color.toString Color.labelDefalut
                     ]
                     [ Loading.view
                     ]
@@ -423,7 +424,7 @@ diagramListView props =
         [ style "width" "100%" ]
         [ Html.div
             [ class "flex items-center justify-end p-md"
-            , style "color" "#FEFEFE"
+            , style "color" <| Color.toString Color.white
             ]
             [ Html.div [ class "flex items-center w-full relative" ]
                 [ Html.div
@@ -431,7 +432,7 @@ diagramListView props =
                     , style "left" "3px"
                     , style "top" "5px"
                     ]
-                    [ Icon.search "#8C9FAE" 24 ]
+                    [ Icon.search (Color.toString Color.labelDefalut) 24 ]
                 , Html.input
                     [ placeholder "Search"
                     , class "w-full text-sm border-none p-sm"
@@ -447,17 +448,17 @@ diagramListView props =
                 , style "margin-left" "8px"
                 , onClick Export
                 ]
-                [ Icon.cloudDownload "#FEFEFE" 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ] ]
+                [ Icon.cloudDownload (Color.toString Color.white) 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ] ]
             , Html.div
                 [ class "button"
                 , onClick Import
                 ]
-                [ Icon.cloudUpload "#FEFEFE" 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipImport props.lang ] ] ]
+                [ Icon.cloudUpload (Color.toString Color.white) 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipImport props.lang ] ] ]
             ]
         , if List.isEmpty props.diagrams then
             Html.div
                 [ class "flex-center h-full text-2xl"
-                , style "color" "#8C9FAE"
+                , style "color" (Color.toString Color.labelDefalut)
                 , style "padding-bottom" "32px"
                 ]
                 [ Html.div [ style "margin-bottom" "8px" ] [ Html.text "NOTHING" ]
@@ -526,7 +527,7 @@ diagramView timezone diagram =
             ]
         , case diagram.location of
             Just DiagramLocation.Gist ->
-                Html.div [ class "cloud" ] [ Icon.github "rgba(51, 51, 51, 0.7)" 14 ]
+                Html.div [ class "cloud" ] [ Icon.github Color.gray 14 ]
 
             Just DiagramLocation.Remote ->
                 Html.div [ class "cloud" ] [ Icon.cloudOn 14 ]
@@ -534,10 +535,10 @@ diagramView timezone diagram =
             _ ->
                 Html.div [ class "cloud" ] [ Icon.cloudOff 14 ]
         , if diagram.isPublic then
-            Html.div [ class "public" ] [ Icon.lockOpen "rgba(51, 51, 51, 0.7)" 14 ]
+            Html.div [ class "public" ] [ Icon.lockOpen Color.gray 14 ]
 
           else
-            Html.div [ class "public" ] [ Icon.lock "rgba(51, 51, 51, 0.7)" 14 ]
+            Html.div [ class "public" ] [ Icon.lock Color.gray 14 ]
         , if diagram.isPublic then
             Empty.view
 
@@ -549,14 +550,14 @@ diagramView timezone diagram =
                     [ class "bookmark"
                     , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
                     ]
-                    [ Icon.bookmark "#3e9bcd" 16 ]
+                    [ Icon.bookmark Color.background2Defalut 16 ]
 
             ( False, True ) ->
                 Html.div
                     [ class "bookmark"
                     , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
                     ]
-                    [ Icon.unbookmark "#3e9bcd" 16 ]
+                    [ Icon.unbookmark Color.background2Defalut 16 ]
 
             _ ->
                 Empty.view
@@ -574,7 +575,7 @@ errorView e =
             , class "h-full"
             , class "text-2xl"
             , style "padding-bottom" "32px"
-            , style "color" "#8C9FAE"
+            , style "color" <| Color.toString Color.labelDefalut
             ]
             [ Html.div [ class "mb-sm" ]
                 [ Html.text ("Failed " ++ Utils.httpErrorToString e)

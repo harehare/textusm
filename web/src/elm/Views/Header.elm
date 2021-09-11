@@ -2,7 +2,6 @@ module Views.Header exposing (view)
 
 import Asset
 import Avatar exposing (Avatar(..))
-import Constants
 import Events as E
 import Html exposing (Html)
 import Html.Attributes as Attr
@@ -10,16 +9,17 @@ import Html.Events as Events
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Message exposing (Lang)
+import Models.Color as Color
+import Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import Models.DiagramLocation as DiagramLocation
+import Models.DiagramType as DiagramType
+import Models.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page exposing (Page)
+import Models.Session as Session exposing (Session)
+import Models.Text as Text exposing (Text)
+import Models.Title as Title exposing (Title)
 import Route exposing (Route(..))
-import Types.DiagramItem as DiagramItem exposing (DiagramItem)
-import Types.DiagramLocation as DiagramLocation
-import Types.DiagramType as DiagramType
-import Types.LoginProvider as LoginProvider exposing (LoginProvider(..))
-import Types.Session as Session exposing (Session)
-import Types.Text as Text exposing (Text)
-import Types.Title as Title exposing (Title)
 import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu
@@ -102,7 +102,7 @@ view props =
                                     , Attr.style "cursor" "pointer"
                                     , Events.onClick <| MoveTo r
                                     ]
-                                    [ Icon.arrowLeft "#F5F5F6" 18 ]
+                                    [ Icon.arrowLeft Color.iconColor 18 ]
 
                             Nothing ->
                                 Html.div
@@ -110,7 +110,7 @@ view props =
                                     , Attr.style "padding" "8px 8px 8px 12px"
                                     , Attr.style "cursor" "pointer"
                                     ]
-                                    [ Icon.arrowLeft "#555" 18 ]
+                                    [ Icon.arrowLeft Color.disabledIconColor 18 ]
                 , case props.page of
                     Page.Main ->
                         if canEdit && Title.isEdit props.title then
@@ -119,7 +119,7 @@ view props =
                                 , Attr.class "w-full bg-main border-none font text-base font-bold"
                                 , Attr.style "padding" "8px"
                                 , Attr.style "margin-left" "8px"
-                                , Attr.style "color" "#f4f4f4"
+                                , Attr.style "color" <| Color.toString Color.white2
                                 , Attr.value <| Title.toString props.title
                                 , Events.onInput EditTitle
                                 , Events.onBlur EndEditTitle
@@ -137,7 +137,7 @@ view props =
                                 , Html.div
                                     [ Attr.style "margin-left" "8px" ]
                                     [ if canEdit && Text.isChanged props.currentText then
-                                        Icon.circle "#FEFEFE" 10
+                                        Icon.circle Color.white 10
 
                                       else
                                         Empty.view
@@ -171,10 +171,10 @@ view props =
                 Html.div
                     [ Attr.class "button", Events.onClick <| ChangePublicStatus (not isPublic) ]
                     [ if isPublic then
-                        Icon.lockOpen "#F5F5F6" 14
+                        Icon.lockOpen Color.iconColor 14
 
                       else
-                        Icon.lock "#F5F5F6" 14
+                        Icon.lock Color.iconColor 14
                     , Html.span [ Attr.class "bottom-tooltip" ]
                         [ Html.span [ Attr.class "text" ]
                             [ Html.text <|
@@ -189,7 +189,7 @@ view props =
 
               else
                 Html.div [ Attr.class "button" ]
-                    [ Icon.lock Constants.disabledIconColor 14
+                    [ Icon.lock Color.disabledIconColor 14
                     , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolPrivate props.lang ] ]
                     ]
             , Html.a [ Attr.attribute "aria-label" "Help", Attr.style "display" "flex", Attr.href <| Route.toString Route.Help ]
@@ -205,14 +205,14 @@ view props =
                     , Attr.attribute "aria-label" "Share"
                     ]
                     [ Html.div [ Attr.class "button" ]
-                        [ Icon.people Constants.iconColor 20
+                        [ Icon.people Color.iconColor 20
                         , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipShare props.lang ] ]
                         ]
                     ]
 
               else
                 Html.div [ Attr.class "button" ]
-                    [ Icon.people Constants.disabledIconColor 20
+                    [ Icon.people Color.disabledIconColor 20
                     , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipShare props.lang ] ]
                     ]
             , if Session.isSignedIn props.session then

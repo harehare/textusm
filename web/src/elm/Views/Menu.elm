@@ -8,11 +8,12 @@ import Json.Decode as D
 import List
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
+import Models.Color as Color
+import Models.FileType as FileType
 import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page
+import Models.Text as Text exposing (Text)
 import Route exposing (Route)
-import Types.FileType as FileType
-import Types.Text as Text exposing (Text)
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -38,16 +39,6 @@ type alias Props =
     , fullscreen : Bool
     , openMenu : Maybe Menu
     }
-
-
-selectedColor : String
-selectedColor =
-    "#F5F5F6"
-
-
-notSelectedColor : String
-notSelectedColor =
-    "#848A90"
 
 
 view : Props -> Html Msg
@@ -91,7 +82,7 @@ view props =
                     [ Attr.class "ml-xs"
                     , Attr.class "menu-button"
                     ]
-                    [ Icon.file selectedColor 18
+                    [ Icon.file (Color.toString Color.iconColor) 18
                     , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipNewFile props.lang ] ]
                     ]
                 ]
@@ -103,10 +94,10 @@ view props =
                     ]
                     [ Icon.folderOpen
                         (if isNothing props.openMenu && props.page == Page.List then
-                            selectedColor
+                            Color.toString Color.iconColor
 
                          else
-                            notSelectedColor
+                            Color.toString Color.disabledIconColor
                         )
                         18
                     , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile props.lang ] ]
@@ -126,10 +117,10 @@ view props =
                 ]
                 [ Icon.save
                     (if canSave then
-                        selectedColor
+                        Color.toString Color.iconColor
 
                      else
-                        notSelectedColor
+                        Color.toString Color.disabledIconColor
                     )
                     22
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave props.lang ] ]
@@ -139,10 +130,10 @@ view props =
                 [ Icon.download
                     (case props.openMenu of
                         Just Export ->
-                            selectedColor
+                            Color.toString Color.iconColor
 
                         _ ->
-                            notSelectedColor
+                            Color.toString Color.disabledIconColor
                     )
                     18
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ]
@@ -152,10 +143,10 @@ view props =
                 [ Html.a [ Attr.href <| Route.toString Route.Settings, Attr.attribute "aria-label" "Settings" ]
                     [ Icon.settings
                         (if isNothing props.openMenu && props.page == Page.Settings then
-                            selectedColor
+                            Color.toString Color.iconColor
 
                          else
-                            notSelectedColor
+                            Color.toString Color.disabledIconColor
                         )
                         20
                     , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSettings props.lang ] ]

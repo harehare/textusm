@@ -4,9 +4,9 @@ import Basics.Extra as BasicEx
 import List
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
+import Models.Item as Item exposing (Item, Items)
 import Time exposing (Month(..), Posix)
 import Time.Extra as TimeEx exposing (Interval(..))
-import Types.Item as Item exposing (Item, Items)
 
 
 type GanttChart

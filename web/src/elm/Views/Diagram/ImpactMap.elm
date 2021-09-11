@@ -2,11 +2,11 @@ module Views.Diagram.ImpactMap exposing (view)
 
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
+import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Models.ItemSettings as ItemSettings
+import Models.Position as Position exposing (Position)
+import Models.Size exposing (Size)
 import Svg exposing (Svg)
-import Types.Item as Item exposing (Item, ItemType(..), Items)
-import Types.ItemSettings as ItemSettings
-import Types.Position as Position exposing (Position)
-import Types.Size exposing (Size)
 import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views
 import Views.Empty as Empty

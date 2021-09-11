@@ -11,9 +11,17 @@ import Graphql.Enum.Diagram exposing (Diagram)
 import Graphql.OptionalArgument as OptionalArgument
 import Message as Message exposing (Message)
 import Models.Diagram as DiagramModel
+import Models.DiagramId as DiagramId exposing (DiagramId)
+import Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import Models.DiagramLocation as DiagramLocation
 import Models.Dialog exposing (ConfirmDialog(..))
+import Models.LoginProvider as LoginProvider
 import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
 import Models.Page as Page exposing (Page)
+import Models.Session as Session
+import Models.ShareToken as ShareToken exposing (ShareToken)
+import Models.Text as Text
+import Models.Title as Title
 import Page.List as DiagramList
 import Page.Settings as SettingsPage
 import Ports
@@ -22,14 +30,6 @@ import Return as Return exposing (Return)
 import Route exposing (Route(..))
 import Settings as Settings
 import Task
-import Types.DiagramId as DiagramId exposing (DiagramId)
-import Types.DiagramItem as DiagramItem exposing (DiagramItem)
-import Types.DiagramLocation as DiagramLocation
-import Types.LoginProvider as LoginProvider
-import Types.Session as Session
-import Types.ShareToken as ShareToken exposing (ShareToken)
-import Types.Text as Text
-import Types.Title as Title
 import Utils.Utils as Utils
 
 

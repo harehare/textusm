@@ -30,12 +30,13 @@ import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
+import Models.Color as Color
 import Models.Diagram as Diagram exposing (Color, ColorSettings, Settings, Size)
+import Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
-import Types.DiagramItem as DiagramItem exposing (DiagramItem)
-import Types.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 
 
 type alias Settings =
@@ -68,22 +69,22 @@ defaultSettings =
         , size = { width = 140, height = 65 }
         , color =
             { activity =
-                { color = "#FFFFFF"
-                , backgroundColor = "#266B9A"
+                { color = Color.toString Color.white
+                , backgroundColor = Color.toString Color.background1Defalut
                 }
             , task =
-                { color = "#FFFFFF"
-                , backgroundColor = "#3E9BCD"
+                { color = Color.toString Color.white
+                , backgroundColor = Color.toString Color.background2Defalut
                 }
             , story =
-                { color = "#333333"
-                , backgroundColor = "#FFFFFF"
+                { color = Color.toString Color.gray
+                , backgroundColor = Color.toString Color.white
                 }
-            , line = "#434343"
-            , label = "#8C9FAE"
-            , text = Just "#111111"
+            , line = Color.toString Color.lineDefalut
+            , label = Color.toString Color.labelDefalut
+            , text = Just <| Color.toString Color.textDefalut
             }
-        , backgroundColor = "#F4F4F5"
+        , backgroundColor = Color.toString Color.backgroundDefalut
         , zoomControl = Just True
         , scale = Just 1.0
         }

@@ -4,12 +4,13 @@ import Constants
 import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html exposing (Html)
 import Html.Attributes as Attr
+import Models.Color as Color
 import Models.Diagram exposing (Msg(..))
 import Models.Diagram.FourLs exposing (FourLsItem(..))
+import Models.Position as Position exposing (Position)
+import Models.Size as Size exposing (Size)
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
-import Types.Position as Position exposing (Position)
-import Types.Size as Size exposing (Size)
 
 
 view :
@@ -75,7 +76,7 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg 
                         , SvgAttr.height <| String.fromInt <| round <| (toFloat <| Size.getHeight viewport) / scale
                         , SvgAttr.x <| String.fromInt <| 0 - Position.getX position
                         , SvgAttr.y <| String.fromInt <| 0 - Position.getY position
-                        , SvgAttr.stroke "#333333"
+                        , SvgAttr.stroke <| Color.toString Color.gray
                         , SvgAttr.strokeWidth "40"
                         , SvgAttr.fill "transparent"
                         , SvgAttr.class "display-rect"

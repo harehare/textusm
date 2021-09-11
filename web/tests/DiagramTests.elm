@@ -5,12 +5,12 @@ import Components.Diagram exposing (init, update, view)
 import Expect
 import Graphql.Enum.Diagram exposing (Diagram(..))
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
+import Models.DiagramType as DiagramType
+import Models.Item as Item exposing (ItemType(..))
+import Models.Position as Position
 import Test exposing (Test, describe, test)
 import Test.Html.Query as Query
 import Test.Html.Selector exposing (tag, text)
-import Types.DiagramType as DiagramType
-import Types.Item as Item exposing (ItemType(..))
-import Types.Position as Position
 
 
 defaultSettings : Settings

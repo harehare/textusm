@@ -3,16 +3,16 @@ module Views.Diagram.ContextMenu exposing (view, viewAllMenu, viewColorMenuOnly)
 import Events exposing (onClickStopPropagation)
 import Html exposing (Html)
 import Html.Attributes as Attr
+import Models.Color as Color exposing (Color)
 import Models.Diagram exposing (ContextMenu(..), Data(..), Msg(..))
 import Models.Dialog exposing (display)
+import Models.FontSize as FontSize exposing (FontSize)
+import Models.FontStyle as FontStyle exposing (FontStyle)
+import Models.Item as Item exposing (Item)
+import Models.Position as Position exposing (Position)
+import Models.Size exposing (Width)
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
-import Types.Color as Color exposing (Color)
-import Types.FontSize as FontSize exposing (FontSize)
-import Types.FontStyle as FontStyle exposing (FontStyle)
-import Types.Item as Item exposing (Item)
-import Types.Position as Position exposing (Position)
-import Types.Size exposing (Width)
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -92,7 +92,7 @@ view width display props =
         , SvgAttr.height "205"
         ]
         [ Html.div
-            [ Attr.style "background-color" "#fefefe"
+            [ Attr.style "background-color" (Color.toString Color.white)
             , Attr.style "border-radius" "4px"
             , Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)"
             , Attr.style "display" "flex"
@@ -181,7 +181,7 @@ view width display props =
                                 |> Color.toString
                             )
                         ]
-                        [ Icon.bold "#273037" 16 ]
+                        [ Icon.bold Color.navy 16 ]
                     ]
 
               else
@@ -204,7 +204,7 @@ view width display props =
                                 |> Color.toString
                             )
                         ]
-                        [ Icon.italic "#273037" 16 ]
+                        [ Icon.italic Color.navy 16 ]
                     ]
 
               else
@@ -227,7 +227,7 @@ view width display props =
                                 |> Color.toString
                             )
                         ]
-                        [ Icon.strikethrough "#273037" 16 ]
+                        [ Icon.strikethrough Color.navy 16 ]
                     ]
 
               else
@@ -265,7 +265,7 @@ colorPicker x colors onColorChanged =
     Html.div
         [ Attr.style "width" "140px"
         , Attr.style "height" "140px"
-        , Attr.style "background-color" "#FEFEFE"
+        , Attr.style "background-color" <| Color.toString Color.white
         , Attr.style "box-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)"
         , Attr.style "border-radius" "2px"
         , Attr.style "position" "absolute"

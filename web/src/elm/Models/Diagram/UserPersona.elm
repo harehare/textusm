@@ -1,6 +1,6 @@
 module Models.Diagram.UserPersona exposing (UserPersona, UserPersonaItem(..), from)
 
-import Types.Item as Item exposing (Item, Items)
+import Models.Item as Item exposing (Item, Items)
 
 
 type alias UserPersona =

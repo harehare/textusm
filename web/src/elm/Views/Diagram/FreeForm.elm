@@ -3,8 +3,8 @@ module Views.Diagram.FreeForm exposing (view)
 import Graphql.Enum.Diagram exposing (Diagram(..))
 import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Diagram.FreeForm as FreeForm
+import Models.Item as Item
 import Svg exposing (Svg)
-import Types.Item as Item
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 

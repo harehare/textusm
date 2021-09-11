@@ -21,13 +21,13 @@ import Graphql.Query as Query
 import Graphql.Scalar exposing (GistIdScalar(..), Id(..), ItemIdScalar(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Models.Diagram as DiagramModel
+import Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import Models.DiagramLocation as DiagramLocation
+import Models.Email as Email exposing (Email)
+import Models.IpAddress as IpAddress exposing (IpAddress)
+import Models.Text as Text
+import Models.Title as Title
 import Route exposing (Route(..))
-import Types.DiagramItem as DiagramItem exposing (DiagramItem)
-import Types.DiagramLocation as DiagramLocation
-import Types.Email as Email exposing (Email)
-import Types.IpAddress as IpAddress exposing (IpAddress)
-import Types.Text as Text
-import Types.Title as Title
 
 
 type alias ShareCondition =

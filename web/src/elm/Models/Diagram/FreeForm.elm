@@ -7,7 +7,7 @@ module Models.Diagram.FreeForm exposing
     , unwrapItem
     )
 
-import Types.Item as Item exposing (Item, Items)
+import Models.Item as Item exposing (Item, Items)
 
 
 type FreeForm

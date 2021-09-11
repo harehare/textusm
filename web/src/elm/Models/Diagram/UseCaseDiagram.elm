@@ -16,7 +16,7 @@ module Models.Diagram.UseCaseDiagram exposing
 
 import Dict exposing (Dict)
 import Maybe.Extra as MaybeEx
-import Types.Item as Item exposing (Item, Items)
+import Models.Item as Item exposing (Item, Items)
 
 
 type UseCaseDiagram

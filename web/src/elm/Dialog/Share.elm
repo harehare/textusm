@@ -11,19 +11,20 @@ import Html.Events exposing (onClick, onFocus, onInput)
 import Html.Lazy as Lazy
 import Maybe.Extra as MaybeEx
 import Message exposing (Message)
+import Models.Color as Color
+import Models.DiagramId as DiagramId exposing (DiagramId)
+import Models.DiagramType as DiagramType
+import Models.Email as Email exposing (Email)
+import Models.IpAddress as IpAddress exposing (IpAddress)
+import Models.Session as Session exposing (Session)
+import Models.Size as Size exposing (Size)
+import Models.Title as Title exposing (Title)
 import RemoteData exposing (RemoteData(..))
 import Return as Return exposing (Return)
 import Route exposing (Route(..))
 import Task exposing (Task)
 import Time exposing (Posix, Zone)
 import Time.Extra as TimeEx
-import Types.DiagramId as DiagramId exposing (DiagramId)
-import Types.DiagramType as DiagramType
-import Types.Email as Email exposing (Email)
-import Types.IpAddress as IpAddress exposing (IpAddress)
-import Types.Session as Session exposing (Session)
-import Types.Size as Size exposing (Size)
-import Types.Title as Title exposing (Title)
 import Url.Builder as Builder exposing (crossOrigin)
 import Utils.Date as DateUtils
 import Utils.Utils as Utils
@@ -609,7 +610,7 @@ copyButton copy msg =
         ]
         [ case copy of
             NotCopy ->
-                Icon.copy "#FEFEFE" 16
+                Icon.copy (Color.toString Color.white) 16
 
             Copying ->
                 Spinner.small
@@ -796,6 +797,6 @@ view model =
                 [ class "absolute cursor-pointer top-4 right-4"
                 , onClick Close
                 ]
-                [ Icon.times "#FEFEFE" 24 ]
+                [ Icon.times (Color.toString Color.white) 24 ]
             ]
         ]

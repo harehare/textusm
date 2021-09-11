@@ -6,6 +6,7 @@ import Html
 import Html.Attributes as Attr
 import Html.Lazy as Lazy
 import List.Extra as ListEx
+import Models.Color as Color
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Diagram.UseCaseDiagram as UseCaseDiagram
     exposing
@@ -15,14 +16,13 @@ import Models.Diagram.UseCaseDiagram as UseCaseDiagram
         , UseCaseDiagram(..)
         , UseCaseRelation
         )
+import Models.FontSize as FontSize exposing (FontSize)
+import Models.Item as Item exposing (Item)
+import Models.Position as Position exposing (Position)
 import Set exposing (Set)
 import State as State exposing (Step(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
-import Types.Color as Color
-import Types.FontSize as FontSize exposing (FontSize)
-import Types.Item as Item exposing (Item)
-import Types.Position as Position exposing (Position)
 import Views.Empty as Empty
 
 

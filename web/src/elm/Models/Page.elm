@@ -1,7 +1,7 @@
 module Models.Page exposing (Page(..))
 
 import Graphql.Enum.Diagram as DiagramType
-import Types.Size exposing (Size)
+import Models.Size exposing (Size)
 
 
 type Page

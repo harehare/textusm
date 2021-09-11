@@ -1,6 +1,6 @@
 module Models.Diagram.Kanban exposing (Card(..), Kanban(..), KanbanList(..), from, getCardCount, getListCount)
 
-import Types.Item as Item exposing (Item, Items)
+import Models.Item as Item exposing (Item, Items)
 
 
 type alias Name =

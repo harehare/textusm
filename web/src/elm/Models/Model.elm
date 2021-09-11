@@ -21,18 +21,18 @@ import Json.Decode as D
 import Message exposing (Lang, Message)
 import Models.Diagram as Diagram
 import Models.Diagram.ER exposing (ColumnType(..))
+import Models.DiagramItem exposing (DiagramItem)
 import Models.Dialog exposing (ConfirmDialog)
+import Models.FileType exposing (FileType)
+import Models.LoginProvider exposing (LoginProvider)
 import Models.Page exposing (Page)
+import Models.Session exposing (Session)
+import Models.ShareToken exposing (ShareToken)
+import Models.Title exposing (Title)
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
 import Route exposing (Route(..))
-import Types.DiagramItem exposing (DiagramItem)
-import Types.FileType exposing (FileType)
-import Types.LoginProvider exposing (LoginProvider)
-import Types.Session exposing (Session)
-import Types.ShareToken exposing (ShareToken)
-import Types.Title exposing (Title)
 import Url
 
 

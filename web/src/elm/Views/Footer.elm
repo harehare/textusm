@@ -3,6 +3,7 @@ module Views.Footer exposing (view)
 import Env
 import Html exposing (Html)
 import Html.Attributes as Attr
+import Models.Color as Color
 import Views.Icon as Icon
 
 
@@ -24,7 +25,7 @@ view =
                 , Attr.target "_blank"
                 , Attr.rel "noopener noreferrer"
                 ]
-                [ Icon.github "#b9b9b9" 16 ]
+                [ Icon.github Color.darkIconColor 16 ]
             ]
         , Html.div
             [ Attr.class "text-secondary-color"
