@@ -22,6 +22,10 @@ run:
 build:
 	{{ build }} -o textusm {{ main }}
 
+
+embed-build:
+	{{ build }} -tags embed -o textusm-embed {{ main }}
+
 generate:
 	{{ generate }} {{ target }}
 
