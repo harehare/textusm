@@ -9,6 +9,7 @@ module Models.Model exposing
     , windowOfFullscreen
     , windowOfMoveStart
     , windowOfMoveX
+    , windowOfShowEditor
     )
 
 import Api.RequestError exposing (RequestError)
@@ -87,6 +88,7 @@ type Msg
     | CloseDialog
     | GotGithubAccessToken { cmd : String, accessToken : Maybe String }
     | ChangeNetworkState Bool
+    | ShowEditor Bool
 
 
 type Notification
@@ -140,12 +142,18 @@ type alias Window =
     , moveStart : Bool
     , moveX : Int
     , fullscreen : Bool
+    , showEditor : Bool
     }
 
 
 modelOfDiagramModel : Lens Model Diagram.Model
 modelOfDiagramModel =
     Lens .diagramModel (\b a -> { a | diagramModel = b })
+
+
+windowOfShowEditor : Lens Window Bool
+windowOfShowEditor =
+    Lens .showEditor (\b a -> { a | showEditor = b })
 
 
 windowOfFullscreen : Lens Window Bool

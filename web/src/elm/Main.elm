@@ -126,6 +126,7 @@ init flags url key =
                 , moveStart = False
                 , moveX = 0
                 , fullscreen = False
+                , showEditor = True
                 }
             , notification = Nothing
             , url = url
@@ -211,7 +212,15 @@ view model =
               else
                 class "h-content"
             ]
-            [ Lazy.lazy Menu.view { page = model.page, route = toRoute model.url, text = model.diagramModel.text, width = Size.getWidth model.diagramModel.size, fullscreen = model.window.fullscreen, openMenu = model.openMenu, lang = model.lang }
+            [ Lazy.lazy Menu.view
+                { page = model.page
+                , route = toRoute model.url
+                , text = model.diagramModel.text
+                , width = Size.getWidth model.diagramModel.size
+                , fullscreen = model.window.fullscreen
+                , openMenu = model.openMenu
+                , lang = model.lang
+                }
             , let
                 mainWindow =
                     if Size.getWidth model.diagramModel.size > 0 && Utils.isPhone (Size.getWidth model.diagramModel.size) then
@@ -230,10 +239,13 @@ view model =
                             )
 
                     else
-                        Lazy.lazy5 SplitWindow.view
-                            HandleStartWindowResize
-                            model.diagramModel.settings.backgroundColor
-                            model.window
+                        Lazy.lazy3 SplitWindow.view
+                            { onResize = HandleStartWindowResize
+                            , onToggleEditor = ShowEditor
+                            , showEditor = model.window.showEditor
+                            , backgroundColor = model.diagramModel.settings.backgroundColor
+                            , window = model.window
+                            }
                             (div
                                 [ class "bg-main"
                                 , class "w-full"
@@ -1008,7 +1020,7 @@ update message =
             Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfMoveStart.set False }
 
         HandleWindowResize x ->
-            Return.andThen <| \m -> Return.singleton { m | window = { position = m.window.position + x - m.window.moveX, moveStart = True, moveX = x, fullscreen = m.window.fullscreen } }
+            Return.andThen <| \m -> Return.singleton { m | window = { position = m.window.position + x - m.window.moveX, moveStart = True, moveX = x, fullscreen = m.window.fullscreen, showEditor = m.window.showEditor } }
 
         ShowNotification notification ->
             Return.andThen <| \m -> Return.singleton { m | notification = Just notification }
@@ -1231,6 +1243,9 @@ update message =
 
         ChangeNetworkState isOnline ->
             Return.andThen <| \m -> Return.singleton { m | isOnline = isOnline }
+
+        ShowEditor show ->
+            Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfShowEditor.set show }
 
 
 

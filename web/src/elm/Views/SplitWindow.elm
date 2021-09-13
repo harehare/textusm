@@ -4,14 +4,28 @@ import Html exposing (Attribute, Html)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as D
-import Models.Model exposing (Window)
+import Models.Color as Color
+import Models.Model exposing (Msg(..), Window)
+import Views.Icon as Icon
 
 
-view : (Int -> msg) -> String -> Window -> Html msg -> Html msg -> Html msg
-view onResize backgroundColor window left right =
+type alias Props msg =
+    { backgroundColor : String
+    , window : Window
+    , showEditor : Bool
+    , onToggleEditor : Bool -> msg
+    , onResize : Int -> msg
+    }
+
+
+view : Props msg -> Html msg -> Html msg -> Html msg
+view { onToggleEditor, onResize, showEditor, backgroundColor, window } left right =
     let
         ( leftPos, rightPos ) =
-            if window.position > 0 then
+            if not showEditor then
+                ( "0px", "calc(100vw - 40px)" )
+
+            else if window.position > 0 then
                 ( "calc((100vw - 40px) / 2 + "
                     ++ String.fromInt (abs window.position)
                     ++ "px)"
@@ -47,8 +61,10 @@ view onResize backgroundColor window left right =
                     leftPos
                 , Attr.class "h-content"
                 , Attr.class "bg-main"
+                , Attr.class "bg-main"
+                , Attr.class "relative"
                 ]
-                [ left ]
+                [ left, toggleEditorButton showEditor onToggleEditor ]
             , Html.div
                 [ Attr.class "bg-main"
                 , Attr.style "width" "6px"
@@ -64,6 +80,36 @@ view onResize backgroundColor window left right =
                 ]
                 [ right ]
             ]
+
+
+toggleEditorButton : Bool -> (Bool -> msg) -> Html msg
+toggleEditorButton show onToggleEditor =
+    Html.div
+        [ Attr.class "absolute z-50 cursor-pointer"
+        , Attr.style "top" "8px"
+        , Attr.style "right" "-22px"
+        , Attr.style "border-top-right-radius" "4px"
+        , Attr.style "border-bottom-right-radius" "4px"
+        , Attr.style "width" "16px"
+        , Attr.style "height" "24px"
+        , Attr.style "background-color" "var(--main-color)"
+        ]
+        [ if show then
+            hideEditorButton (onToggleEditor False)
+
+          else
+            showEditorButton (onToggleEditor True)
+        ]
+
+
+showEditorButton : msg -> Html msg
+showEditorButton m =
+    Html.div [ Attr.class "w-full h-full flex items-center", Events.onClick m ] [ Icon.angleRight Color.white 12 ]
+
+
+hideEditorButton : msg -> Html msg
+hideEditorButton m =
+    Html.div [ Attr.class "w-full h-full flex items-center", Events.onClick m ] [ Icon.angleLeft Color.white 12 ]
 
 
 onStartWindowResize : (Int -> msg) -> Attribute msg
