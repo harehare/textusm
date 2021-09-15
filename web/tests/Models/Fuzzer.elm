@@ -136,6 +136,7 @@ colorFuzzer =
         , Fuzz.constant Color.lineDefalut
         , Fuzz.constant Color.labelDefalut
         , Fuzz.constant Color.backgroundDefalut
+        , customColorFuzzer
         ]
 
 
@@ -166,4 +167,45 @@ diagramLocationFuzzer =
         , Fuzz.constant DiagramLocation.Remote
         , Fuzz.constant DiagramLocation.Gist
         , Fuzz.constant DiagramLocation.GoogleDrive
+        ]
+
+
+customColorFuzzer : Fuzzer Color
+customColorFuzzer =
+    Fuzz.map Color.fromString rgbFuzzer
+
+
+rgbFuzzer : Fuzzer String
+rgbFuzzer =
+    Fuzz.map
+        (\c1 c2 c3 c4 c5 c6 ->
+            "#" ++ c1 ++ c2 ++ c3 ++ c4 ++ c5 ++ c6
+        )
+        hexFuzzer
+        |> Fuzz.andMap hexFuzzer
+        |> Fuzz.andMap hexFuzzer
+        |> Fuzz.andMap hexFuzzer
+        |> Fuzz.andMap hexFuzzer
+        |> Fuzz.andMap hexFuzzer
+
+
+hexFuzzer : Fuzzer String
+hexFuzzer =
+    Fuzz.oneOf
+        [ Fuzz.constant "A"
+        , Fuzz.constant "B"
+        , Fuzz.constant "C"
+        , Fuzz.constant "D"
+        , Fuzz.constant "E"
+        , Fuzz.constant "F"
+        , Fuzz.constant "0"
+        , Fuzz.constant "1"
+        , Fuzz.constant "2"
+        , Fuzz.constant "3"
+        , Fuzz.constant "4"
+        , Fuzz.constant "5"
+        , Fuzz.constant "6"
+        , Fuzz.constant "7"
+        , Fuzz.constant "8"
+        , Fuzz.constant "9"
         ]

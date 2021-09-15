@@ -60,7 +60,7 @@ func (s *Share) CheckIpWithinRange(remoteIP string) bool {
 			continue
 		}
 
-		parsedIP := net.ParseIP(ip)
+		parsedIP := net.ParseIP(remoteIP)
 
 		if parsedIP == nil {
 			continue

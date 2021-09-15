@@ -188,7 +188,7 @@ name (Color n _) =
 
 fromString : String -> Color
 fromString rgb =
-    case rgb of
+    case String.toUpper rgb of
         "#FEFEFE" ->
             white
 
