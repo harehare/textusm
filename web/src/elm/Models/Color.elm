@@ -2,6 +2,7 @@ module Models.Color exposing
     ( Color
     , background1Defalut
     , background2Defalut
+    , backgroundDarkDefalut
     , backgroundDefalut
     , black
     , blue
@@ -135,6 +136,11 @@ backgroundDefalut =
     Color "Background Defalut" "#F4F4F5"
 
 
+backgroundDarkDefalut : Color
+backgroundDarkDefalut =
+    Color "Background Dark Defalut" "#323d46"
+
+
 textDefalut : Color
 textDefalut =
     Color "Text Defalut" "#111111"
@@ -173,6 +179,7 @@ colors =
     , lineDefalut
     , labelDefalut
     , backgroundDefalut
+    , backgroundDarkDefalut
     ]
 
 

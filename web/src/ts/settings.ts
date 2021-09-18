@@ -2,7 +2,7 @@ import { Settings } from './model';
 
 const SettingsKey = 'textusm:settings';
 
-const defaultSettings = {
+const getDefaultSettings = (isDarkMode: boolean) => ({
     font: 'Nunito Sans',
     storyMap: {
         font: 'Nunito Sans',
@@ -27,7 +27,7 @@ const defaultSettings = {
             label: '#8C9FAE',
             text: '#111111',
         },
-        backgroundColor: '#F4F4F5',
+        backgroundColor: isDarkMode ? '#323d46' : '#F4F4F5',
         zoomControl: true,
         scale: 1.0,
     },
@@ -41,10 +41,11 @@ const defaultSettings = {
     },
     diagramId: null,
     diagram: null,
-};
+});
 
-const loadSettings = (): Settings => {
+const loadSettings = (isDarkMode: boolean): Settings => {
     const settings = localStorage.getItem(SettingsKey);
+    const defaultSettings = getDefaultSettings(isDarkMode);
 
     if (settings) {
         const settingsObject = JSON.parse(settings);

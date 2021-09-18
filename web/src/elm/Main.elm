@@ -73,6 +73,7 @@ import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Footer as Footer
 import Views.Header as Header
+import Views.Loading as Loading
 import Views.Menu as Menu
 import Views.Notification as Notification
 import Views.ProgressBar as ProgressBar
@@ -84,6 +85,7 @@ type alias Flags =
     { lang : String
     , settings : D.Value
     , isOnline : Bool
+    , isDarkMode : Bool
     }
 
 
@@ -92,7 +94,7 @@ init flags url key =
     let
         initSettings =
             D.decodeValue settingsDecoder flags.settings
-                |> Result.withDefault defaultSettings
+                |> Result.withDefault (defaultSettings flags.isDarkMode)
 
         lang =
             Message.fromString flags.lang
@@ -146,6 +148,7 @@ init flags url key =
                 , error = Nothing
                 }
             , isOnline = flags.isOnline
+            , isDarkMode = flags.isDarkMode
             }
     in
     Return.singleton model |> changeRouteTo (toRoute url)
@@ -200,7 +203,7 @@ view model =
             , isOnline = model.isOnline
             }
         , Lazy.lazy showNotification model.notification
-        , Lazy.lazy2 showProgressbar model.progress model.window.fullscreen
+        , Lazy.lazy2 showProgress model.progress model.window.fullscreen
         , div
             [ class "flex"
             , class "overflow-hidden"
@@ -365,10 +368,10 @@ main =
         }
 
 
-showProgressbar : Bool -> Bool -> Html Msg
-showProgressbar show fullscreen =
+showProgress : Bool -> Bool -> Html Msg
+showProgress show fullscreen =
     if show then
-        ProgressBar.view
+        div [ class "absolute top-0 left-0 full-screen z-40 flex-center", style "background-color" "rgba(39,48,55,0.4)" ] [ ProgressBar.view, Loading.view ]
 
     else if not fullscreen then
         div [ style "height" "4px", class "bg-main" ] []
@@ -1231,7 +1234,7 @@ update message =
                 >> Return.andThen (Action.setSettings settings)
 
         LoadSettings (Err _) ->
-            Return.andThen (Action.setSettings Settings.defaultSettings.storyMap)
+            Return.andThen (\m -> Action.setSettings (.storyMap (Settings.defaultSettings m.isDarkMode)) m)
                 >> Return.andThen Action.stopProgress
 
         SaveSettings (Ok _) ->

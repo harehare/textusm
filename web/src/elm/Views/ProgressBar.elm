@@ -6,4 +6,4 @@ import Html.Attributes as Attr
 
 view : Html msg
 view =
-    Html.div [ Attr.class "progress" ] [ Html.div [ Attr.class "indeterminate" ] [] ]
+    Html.div [ Attr.class "progress z-50 absolute top-0 left-0" ] [ Html.div [ Attr.class "indeterminate" ] [] ]

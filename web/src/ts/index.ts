@@ -24,12 +24,15 @@ const lang =
     window.navigator.language ||
     window.navigator.userLanguage ||
     window.navigator.browserLanguage;
-
+const isDarkMode =
+    window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches;
 const app: ElmApp = Elm.Main.init({
     flags: {
         lang,
-        settings: loadSettings(),
+        settings: loadSettings(isDarkMode),
         isOnline: window.navigator.onLine ?? true,
+        isDarkMode,
     },
 });
 

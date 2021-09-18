@@ -39,6 +39,10 @@ import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
 
 
+type alias IsDarkMode =
+    Bool
+
+
 type alias Settings =
     { position : Maybe Int
     , font : String
@@ -59,8 +63,8 @@ type alias EditorSettings =
     }
 
 
-defaultSettings : Settings
-defaultSettings =
+defaultSettings : IsDarkMode -> Settings
+defaultSettings isDarkMode =
     { position = Just -10
     , font = "Nunito Sans"
     , diagramId = Nothing
@@ -84,7 +88,12 @@ defaultSettings =
             , label = Color.toString Color.labelDefalut
             , text = Just <| Color.toString Color.textDefalut
             }
-        , backgroundColor = Color.toString Color.backgroundDefalut
+        , backgroundColor =
+            if isDarkMode then
+                Color.toString Color.backgroundDarkDefalut
+
+            else
+                Color.toString Color.backgroundDefalut
         , zoomControl = Just True
         , scale = Just 1.0
         }

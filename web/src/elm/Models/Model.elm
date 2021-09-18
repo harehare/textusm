@@ -134,6 +134,7 @@ type alias Model =
         , error : Maybe RequestError
         }
     , isOnline : Bool
+    , isDarkMode : Bool
     }
 
 
