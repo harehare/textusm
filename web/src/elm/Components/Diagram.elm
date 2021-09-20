@@ -358,7 +358,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 Events.onWheel chooseZoom
         , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
         , onDragMove model.touchDistance model.moveState (Utils.isPhone <| Size.getWidth model.size)
-        , onClick <| Select Nothing
+        , Events.onMouseDown <| \_ -> Select Nothing
         ]
         [ if String.isEmpty model.settings.font then
             Svg.g [] []

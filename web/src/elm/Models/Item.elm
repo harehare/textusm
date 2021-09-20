@@ -96,6 +96,11 @@ type ItemType
     | Comments
 
 
+textSeparator : String
+textSeparator =
+    "#"
+
+
 new : Item
 new =
     Item
@@ -117,6 +122,22 @@ withTextOnly text (Item item) =
     Item { item | text = Text.fromString text }
 
 
+splitText : String -> List String
+splitText text =
+    let
+        tokens1 =
+            String.split textSeparator text
+
+        tokens2 =
+            String.split "|" text
+    in
+    if List.length tokens1 > 1 then
+        tokens1
+
+    else
+        tokens2
+
+
 withText : String -> Item -> Item
 withText text (Item item) =
     let
@@ -127,7 +148,7 @@ withText text (Item item) =
             else
                 let
                     tokens =
-                        String.split "|" text
+                        splitText text
 
                     textTuple =
                         case tokens of
@@ -135,7 +156,7 @@ withText text (Item item) =
                                 ( x, Just xs )
 
                             _ :: _ :: _ ->
-                                ( String.join "|" <| List.take (List.length tokens - 1) tokens, ListEx.last tokens )
+                                ( String.join textSeparator <| List.take (List.length tokens - 1) tokens, ListEx.last tokens )
 
                             _ ->
                                 ( text, Nothing )
@@ -154,7 +175,7 @@ withText text (Item item) =
                                     ( t, Just ss )
 
                                 Err _ ->
-                                    ( t ++ "|" ++ s, Nothing )
+                                    ( t ++ textSeparator ++ s, Nothing )
     in
     Item { item | text = Text.fromString displayText, itemSettings = settings }
 
@@ -431,7 +452,7 @@ toLineString : Item -> String
 toLineString item =
     case getItemSettings item of
         Just s ->
-            getText item ++ "|" ++ ItemSettings.toString s
+            getText item ++ textSeparator ++ ItemSettings.toString s
 
         Nothing ->
             getText item
@@ -441,7 +462,7 @@ spiltText : String -> ( String, ItemSettings )
 spiltText text =
     let
         tokens =
-            String.split "|" text
+            String.split textSeparator text
     in
     case tokens of
         [ t ] ->

@@ -203,7 +203,7 @@ view model =
             , isOnline = model.isOnline
             }
         , Lazy.lazy showNotification model.notification
-        , Lazy.lazy2 showProgress model.progress model.window.fullscreen
+        , Lazy.lazy showProgress model.progress
         , div
             [ class "flex"
             , class "overflow-hidden"
@@ -368,13 +368,10 @@ main =
         }
 
 
-showProgress : Bool -> Bool -> Html Msg
-showProgress show fullscreen =
+showProgress : Bool -> Html Msg
+showProgress show =
     if show then
         div [ class "absolute top-0 left-0 full-screen z-40 flex-center", style "background-color" "rgba(39,48,55,0.4)" ] [ ProgressBar.view, Loading.view ]
-
-    else if not fullscreen then
-        div [ style "height" "4px", class "bg-main" ] []
 
     else
         Empty.view
