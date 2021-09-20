@@ -98,7 +98,7 @@ type ItemType
 
 textSeparator : String
 textSeparator =
-    "#"
+    "|"
 
 
 new : Item
@@ -122,22 +122,6 @@ withTextOnly text (Item item) =
     Item { item | text = Text.fromString text }
 
 
-splitText : String -> List String
-splitText text =
-    let
-        tokens1 =
-            String.split textSeparator text
-
-        tokens2 =
-            String.split "|" text
-    in
-    if List.length tokens1 > 1 then
-        tokens1
-
-    else
-        tokens2
-
-
 withText : String -> Item -> Item
 withText text (Item item) =
     let
@@ -148,7 +132,7 @@ withText text (Item item) =
             else
                 let
                     tokens =
-                        splitText text
+                        String.split textSeparator text
 
                     textTuple =
                         case tokens of

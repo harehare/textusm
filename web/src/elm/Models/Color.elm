@@ -16,13 +16,16 @@ module Models.Color exposing
     , iconColor
     , labelDefalut
     , lightGray
+    , lime
     , lineDefalut
     , name
     , navy
+    , olive
     , orange
     , pink
     , purple
     , red
+    , teal
     , textDefalut
     , toString
     , white
@@ -111,6 +114,21 @@ navy =
     Color "Navy" "#273037"
 
 
+teal : Color
+teal =
+    Color "Teal" "#008080"
+
+
+olive : Color
+olive =
+    Color "Olive" "#808000"
+
+
+lime : Color
+lime =
+    Color "Lime" "#00ff00"
+
+
 background1Defalut : Color
 background1Defalut =
     Color "Background1 Defalut" "#266B9A"
@@ -180,6 +198,9 @@ colors =
     , labelDefalut
     , backgroundDefalut
     , backgroundDarkDefalut
+    , teal
+    , olive
+    , lime
     ]
 
 
@@ -243,6 +264,18 @@ fromString rgb =
 
         "#F4F4F5" ->
             backgroundDefalut
+
+        "#008080" ->
+            teal
+
+        "#00FF00" ->
+            lime
+
+        "#808000" ->
+            olive
+
+        "#323D46" ->
+            backgroundDarkDefalut
 
         _ ->
             case

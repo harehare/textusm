@@ -136,6 +136,10 @@ colorFuzzer =
         , Fuzz.constant Color.lineDefalut
         , Fuzz.constant Color.labelDefalut
         , Fuzz.constant Color.backgroundDefalut
+        , Fuzz.constant Color.backgroundDarkDefalut
+        , Fuzz.constant Color.teal
+        , Fuzz.constant Color.olive
+        , Fuzz.constant Color.lime
         , customColorFuzzer
         ]
 

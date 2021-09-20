@@ -1,6 +1,6 @@
 module Views.Diagram.ContextMenu exposing (view, viewAllMenu, viewColorMenuOnly)
 
-import Events exposing (onClickStopPropagation)
+import Events
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Models.Color as Color exposing (Color)
@@ -108,7 +108,7 @@ view width display props =
                     , Attr.style "justify-content" "center"
                     , Attr.style "border-right" "1px solid rgba(0, 0, 0, 0.1)"
                     , Attr.style "cursor" "pointer"
-                    , onClickStopPropagation <| props.onMenuSelect ColorSelectMenu
+                    , Events.onMouseDown <| \_ -> props.onMenuSelect ColorSelectMenu
                     ]
                     [ Html.div []
                         [ Icon.font
@@ -151,7 +151,7 @@ view width display props =
                     , Attr.style "justify-content" "center"
                     , Attr.style "cursor" "pointer"
                     , Attr.style "border-right" "1px solid rgba(0, 0, 0, 0.1)"
-                    , onClickStopPropagation <| props.onMenuSelect CloseMenu
+                    , Events.onMouseDown <| \_ -> props.onMenuSelect CloseMenu
                     ]
                     [ DropDownList.view props.onToggleDropDownList
                         "fontSize"
@@ -172,7 +172,7 @@ view width display props =
                     , Attr.style "align-items" "center"
                     , Attr.style "justify-content" "center"
                     , Attr.style "cursor" "pointer"
-                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Bold
+                    , Events.onMouseDown <| \_ -> props.onFontStyleChanged FontStyle.Bold
                     ]
                     [ Html.div
                         [ Attr.style "color"
@@ -195,7 +195,7 @@ view width display props =
                     , Attr.style "align-items" "center"
                     , Attr.style "justify-content" "center"
                     , Attr.style "cursor" "pointer"
-                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Italic
+                    , Events.onMouseDown <| \_ -> props.onFontStyleChanged FontStyle.Italic
                     ]
                     [ Html.div
                         [ Attr.style "color" <|
@@ -218,7 +218,7 @@ view width display props =
                     , Attr.style "align-items" "center"
                     , Attr.style "justify-content" "center"
                     , Attr.style "cursor" "pointer"
-                    , onClickStopPropagation <| props.onFontStyleChanged FontStyle.Strikethrough
+                    , Events.onMouseDown <| \_ -> props.onFontStyleChanged FontStyle.Strikethrough
                     ]
                     [ Html.div
                         [ Attr.style "color" <|
@@ -255,7 +255,7 @@ colorCircle color msg =
         , Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)"
         , Attr.style "cursor" "pointer"
         , Attr.style "margin" "2px"
-        , onClickStopPropagation msg
+        , Events.onMouseDown <| \_ -> msg
         ]
         []
 
@@ -264,7 +264,7 @@ colorPicker : Int -> List Color -> (Color -> msg) -> Html msg
 colorPicker x colors onColorChanged =
     Html.div
         [ Attr.style "width" "140px"
-        , Attr.style "height" "140px"
+        , Attr.style "height" "150px"
         , Attr.style "background-color" <| Color.toString Color.white
         , Attr.style "box-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)"
         , Attr.style "border-radius" "2px"
