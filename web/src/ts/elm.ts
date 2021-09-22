@@ -64,7 +64,7 @@ type ElmApp = {
                 provider: string | null;
                 accessToken: string | null;
             };
-        }>;
+        } | null>;
         changeNetworkState: Send<boolean>;
     };
 };

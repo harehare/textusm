@@ -1113,6 +1113,7 @@ update message =
 
         HandleAuthStateChanged Nothing ->
             Return.andThen (\m -> Return.singleton { m | session = Session.guest })
+                >> Return.andThen (Action.moveTo Route.Home)
                 >> Return.andThen Action.stopProgress
 
         Progress visible ->

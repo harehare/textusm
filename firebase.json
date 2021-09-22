@@ -71,6 +71,10 @@
       "host": "localhost",
       "port": 8082
     },
+    "auth": {
+      "host": "localhost",
+      "port": 9099
+    },
     "ui": {
       "enabled": true
     }

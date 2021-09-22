@@ -80,6 +80,7 @@ app.ports.signOut.subscribe(async () => {
     await signOut().catch(() => {
         app.ports.sendErrorNotification.send('Failed sign out.');
     });
+    app.ports.onAuthStateChanged.send(null);
 });
 
 app.ports.refreshToken.subscribe(async () => {

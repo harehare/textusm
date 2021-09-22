@@ -397,14 +397,28 @@ view model =
 
         _ ->
             Html.div
-                [ class "diagram-list flex-center w-screen h-full"
+                [ class "diagram-list"
+                , class "relative"
                 ]
-                [ Html.div
-                    [ class "flex-center w-full text-2xl h-full"
-                    , style "color" <| Color.toString Color.labelDefalut
+                [ Lazy.lazy3 sideMenu
+                    model.session
+                    model.diagramList
+                    model.isOnline
+                , diagramListView
+                    { timeZone = model.timeZone
+                    , pageNo = 1
+                    , hasMorePage = False
+                    , query = model.searchQuery
+                    , lang = model.lang
+                    , diagramList = AllList (Success []) 1 False
+                    , diagrams = []
+                    , confirmDialog = model.confirmDialog
+                    }
+                , Html.div
+                    [ class "flex-center full-screen absolute top-0 left-0 z-50"
+                    , style "background-color" "rgba(39,48,55,0.4)"
                     ]
-                    [ Loading.view
-                    ]
+                    [ Loading.view ]
                 ]
 
 
@@ -455,45 +469,35 @@ diagramListView props =
                 ]
                 [ Icon.cloudUpload (Color.toString Color.white) 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipImport props.lang ] ] ]
             ]
-        , if List.isEmpty props.diagrams then
-            Html.div
-                [ class "flex-center h-full text-2xl"
-                , style "color" (Color.toString Color.labelDefalut)
-                , style "padding-bottom" "32px"
+        , Html.div [ class "overflow-y-auto", style "height" "calc(100vh - 120px - 2rem)" ]
+            [ Html.div
+                [ class "grid list p-sm mb-sm"
+                , style "will-change" "transform"
+                , style "border-top" "1px solid #323B46"
                 ]
-                [ Html.div [ style "margin-bottom" "8px" ] [ Html.text "NOTHING" ]
-                ]
+                (props.diagrams
+                    |> (case props.query of
+                            Just query ->
+                                List.filter (\d -> Fuzzy.match query (Title.toString d.title))
 
-          else
-            Html.div [ class "overflow-y-auto", style "height" "calc(100vh - 120px - 2rem)" ]
-                [ Html.div
-                    [ class "grid list p-sm mb-sm"
-                    , style "will-change" "transform"
-                    , style "border-top" "1px solid #323B46"
-                    ]
-                    (props.diagrams
-                        |> (case props.query of
-                                Just query ->
-                                    List.filter (\d -> Fuzzy.match query (Title.toString d.title))
-
-                                Nothing ->
-                                    identity
-                           )
-                        |> List.map
-                            (\d -> Lazy.lazy2 diagramView props.timeZone d)
-                    )
-                , if props.hasMorePage then
-                    Html.div [ class "w-full flex-center" ]
-                        [ Html.div
-                            [ class "button bg-activity text-center m-sm"
-                            , onClick <| LoadNextPage props.diagramList <| props.pageNo + 1
-                            ]
-                            [ Html.text "Load more" ]
+                            Nothing ->
+                                identity
+                       )
+                    |> List.map
+                        (\d -> Lazy.lazy2 diagramView props.timeZone d)
+                )
+            , if props.hasMorePage then
+                Html.div [ class "w-full flex-center" ]
+                    [ Html.div
+                        [ class "button bg-activity text-center m-sm"
+                        , onClick <| LoadNextPage props.diagramList <| props.pageNo + 1
                         ]
+                        [ Html.text "Load more" ]
+                    ]
 
-                  else
-                    Empty.view
-                ]
+              else
+                Empty.view
+            ]
         , Lazy.lazy showDialog props.confirmDialog
         ]
 
@@ -872,7 +876,7 @@ update message =
                                     (Request.delete (Session.getIdToken m.session)
                                         (diagram.id |> Maybe.withDefault (DiagramId.fromString "") |> DiagramId.toString)
                                         False
-                                        |> Task.map (\id -> id)
+                                        |> Task.map identity
                                     )
                                 )
 
