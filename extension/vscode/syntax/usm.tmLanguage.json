@@ -1,0 +1,69 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "usm",
+  "patterns": [
+    {
+      "include": "#comment"
+    },
+    {
+      "include": "#activity"
+    },
+    {
+      "include": "#task"
+    },
+    {
+      "include": "#settings"
+    }
+  ],
+  "repository": {
+    "comment": {
+      "patterns": [
+        {
+          "match": "(#[^#]+)",
+          "captures": {
+            "1": {
+              "name": "comment.line.usm"
+            }
+          }
+        }
+      ]
+    },
+    "activity": {
+      "patterns": [
+        {
+          "match": "(^[^ ][^#:||]+)",
+          "captures": {
+            "1": {
+              "name": "keyword.activity.usm"
+            }
+          }
+        }
+      ]
+    },
+    "task": {
+      "patterns": [
+        {
+          "match": "(^ {4}[^ ][^#:||]+)",
+          "captures": {
+            "1": {
+              "name": "string.task.usm"
+            }
+          }
+        }
+      ]
+    },
+    "settings": {
+      "patterns": [
+        {
+          "match": "(\\|[^|]+)",
+          "captures": {
+            "1": {
+              "name": "invalid.settings.usm"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "scopeName": "text.usm"
+}

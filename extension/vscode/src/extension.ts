@@ -69,7 +69,7 @@ const setPreviewActiveContext = (value: boolean) => {
 export function activate(context: vscode.ExtensionContext) {
   const newTextOpen = async (text: string, diagramType: string) => {
     const doc = await vscode.workspace.openTextDocument({
-      language: "txt",
+      language: "usm",
       content: text,
     });
     const editor = await vscode.window.showTextDocument(doc, -1, true);
