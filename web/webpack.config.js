@@ -183,6 +183,7 @@ if (mode === 'production') {
                 skipWaiting: true,
                 maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
                 navigateFallback: '/index.html',
+                exclude: [/\/__\/auth\/handler.*$/],
             }),
             new HTMLInlineCSSWebpackPlugin(),
             new CleanWebpackPlugin({
