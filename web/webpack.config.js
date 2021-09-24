@@ -13,11 +13,11 @@ const PreloadWebpackPlugin = require('preload-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const HTMLInlineCSSWebpackPlugin =
     require('html-inline-css-webpack-plugin').default;
-const ImageminPlugin = require('imagemin-webpack-plugin').default;
 
 const mode =
     process.env.NODE_ENV === 'production' ? 'production' : 'development';
 const dist = path.join(__dirname, 'dist');
+const day = 60 * 60 * 24;
 
 const common = {
     mode,
@@ -183,7 +183,23 @@ if (mode === 'production') {
                 skipWaiting: true,
                 maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
                 navigateFallback: '/index.html',
-                exclude: [/\/__\/auth\/handler.*$/],
+                navigateFallbackDenylist: [/\/__\/auth\/handler.*$/],
+                runtimeCaching: [
+                    {
+                        urlPattern:
+                            /^https:\/\/fonts\.gstatic\.com.*\.woff2.*$/,
+                        handler: 'CacheFirst',
+                        options: {
+                            cacheName: 'google-font-file-cache',
+                            cacheableResponse: {
+                                statuses: [0, 200, 307],
+                            },
+                            expiration: {
+                                maxAgeSeconds: 31 * day,
+                            },
+                        },
+                    },
+                ],
             }),
             new HTMLInlineCSSWebpackPlugin(),
             new CleanWebpackPlugin({
@@ -199,7 +215,6 @@ if (mode === 'production') {
                     },
                 ],
             }),
-            new ImageminPlugin({ test: /\.(jpe?g|png|gif|svg)$/i }),
             new MiniCssExtractPlugin({
                 filename: '[name]-[hash].css',
                 chunkFilename: '[id]-[contenthash].css',

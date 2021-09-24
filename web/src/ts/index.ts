@@ -1,4 +1,5 @@
 import copy from 'clipboard-copy';
+import { Workbox } from 'workbox-window';
 
 // @ts-ignore
 import { Elm } from '../elm/Main.elm';
@@ -179,6 +180,14 @@ window.requestIdleCallback(() => {
         'serviceWorker' in navigator &&
         !window.location.host.startsWith('localhost')
     ) {
-        navigator.serviceWorker.register('/sw.js');
+        const wb = new Workbox('/sw.js');
+        wb.register();
+        wb.addEventListener('installed', (e) => {
+            if (e.isUpdate) {
+                if (confirm('New version is available! Click OK to refresh')) {
+                    window.location.reload();
+                }
+            }
+        });
     }
 });
