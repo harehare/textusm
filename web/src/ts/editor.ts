@@ -13,8 +13,10 @@ const focusEditor = () => {
 };
 
 export const setElmApp = (app: ElmApp): void => {
+    if (_app) {
+        _app.ports.focusEditor.unsubscribe(focusEditor);
+    }
     _app = app;
-    _app.ports.focusEditor.unsubscribe(focusEditor);
     _app.ports.focusEditor.subscribe(focusEditor);
 };
 
