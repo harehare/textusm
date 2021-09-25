@@ -89,6 +89,9 @@ type Msg
     | GotGithubAccessToken { cmd : String, accessToken : Maybe String }
     | ChangeNetworkState Bool
     | ShowEditor Bool
+    | NotifyNewVersionAvailable String
+    | Reload
+    | CloseSnackbar
 
 
 type Notification
@@ -135,6 +138,14 @@ type alias Model =
         }
     , isOnline : Bool
     , isDarkMode : Bool
+    , snackbar :
+        Maybe
+            { message : String
+            , action :
+                { text : String
+                , msg : Msg
+                }
+            }
     }
 
 

@@ -14,6 +14,7 @@ port module Ports exposing
     , gotGithubAccessToken
     , gotLocalDiagramJson
     , gotLocalDiagramsJson
+    , notifyNewVersionAvailable
     , onAuthStateChanged
     , onCloseFullscreen
     , onNotification
@@ -151,3 +152,6 @@ port gotGithubAccessToken : ({ cmd : String, accessToken : Maybe String } -> msg
 
 
 port changeNetworkState : (Bool -> msg) -> Sub msg
+
+
+port notifyNewVersionAvailable : (String -> msg) -> Sub msg

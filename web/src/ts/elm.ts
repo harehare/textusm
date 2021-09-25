@@ -66,6 +66,7 @@ type ElmApp = {
             };
         } | null>;
         changeNetworkState: Send<boolean>;
+        notifyNewVersionAvailable: Send<string>;
     };
 };
 

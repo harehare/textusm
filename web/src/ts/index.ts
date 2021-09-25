@@ -184,9 +184,9 @@ window.requestIdleCallback(() => {
         wb.register();
         wb.addEventListener('installed', (e) => {
             if (e.isUpdate) {
-                if (confirm('New version is available! Click OK to refresh')) {
-                    window.location.reload();
-                }
+                app.ports.notifyNewVersionAvailable.send(
+                    'New version is available!'
+                );
             }
         });
     }

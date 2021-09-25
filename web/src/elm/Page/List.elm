@@ -44,7 +44,7 @@ import Utils.Date as DateUtils
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
-import Views.Loading as Loading
+import Views.Progress as Progress
 
 
 type Msg
@@ -414,11 +414,7 @@ view model =
                     , diagrams = []
                     , confirmDialog = model.confirmDialog
                     }
-                , Html.div
-                    [ class "flex-center full-screen absolute top-0 left-0 z-50"
-                    , style "background-color" "rgba(39,48,55,0.4)"
-                    ]
-                    [ Loading.view ]
+                , Progress.view
                 ]
 
 

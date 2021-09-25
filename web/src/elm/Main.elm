@@ -73,10 +73,10 @@ import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Footer as Footer
 import Views.Header as Header
-import Views.Loading as Loading
 import Views.Menu as Menu
 import Views.Notification as Notification
-import Views.ProgressBar as ProgressBar
+import Views.Progress as Progress
+import Views.Snackbar as Snackbar
 import Views.SplitWindow as SplitWindow
 import Views.SwitchWindow as SwitchWindow
 
@@ -149,6 +149,7 @@ init flags url key =
                 }
             , isOnline = flags.isOnline
             , isDarkMode = flags.isDarkMode
+            , snackbar = Nothing
             }
     in
     Return.singleton model |> changeRouteTo (toRoute url)
@@ -204,6 +205,7 @@ view model =
             }
         , Lazy.lazy showNotification model.notification
         , Lazy.lazy showProgress model.progress
+        , Lazy.lazy showSnackbar model.snackbar
         , div
             [ class "flex"
             , class "overflow-hidden"
@@ -371,10 +373,28 @@ main =
 showProgress : Bool -> Html Msg
 showProgress show =
     if show then
-        div [ class "absolute top-0 left-0 full-screen z-40 flex-center", style "background-color" "rgba(39,48,55,0.4)" ] [ ProgressBar.view, Loading.view ]
+        Progress.view
 
     else
         Empty.view
+
+
+showSnackbar :
+    Maybe
+        { message : String
+        , action :
+            { text : String
+            , msg : Msg
+            }
+        }
+    -> Html Msg
+showSnackbar props =
+    case props of
+        Just { message, action } ->
+            Snackbar.view { message = message, action = action }
+
+        Nothing ->
+            Empty.view
 
 
 showNotification : Maybe Notification -> Html Msg
@@ -1248,6 +1268,29 @@ update message =
         ShowEditor show ->
             Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfShowEditor.set show }
 
+        Reload ->
+            Return.command Nav.reload
+
+        CloseSnackbar ->
+            Return.andThen <| \m -> Return.singleton { m | snackbar = Nothing }
+
+        NotifyNewVersionAvailable msg ->
+            Return.andThen
+                (\m ->
+                    Return.singleton
+                        { m
+                            | snackbar =
+                                Just
+                                    { message = msg
+                                    , action =
+                                        { text = "RELOAD"
+                                        , msg = Reload
+                                        }
+                                    }
+                        }
+                )
+                >> Return.command (Utils.delay 30000 CloseSnackbar)
+
 
 
 -- Subscriptions
@@ -1277,6 +1320,7 @@ subscriptions model =
          , Ports.updateIdToken UpdateIdToken
          , Ports.gotGithubAccessToken GotGithubAccessToken
          , Ports.changeNetworkState ChangeNetworkState
+         , Ports.notifyNewVersionAvailable NotifyNewVersionAvailable
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp <| D.succeed MoveStop

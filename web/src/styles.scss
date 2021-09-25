@@ -610,15 +610,31 @@
 }
 
 .notification {
-    @apply text-sm fixed cursor-pointer bg-main text-color flex items-center justify-between;
+    @apply text-sm fixed cursor-pointer text-color flex items-center justify-between;
     @apply shadow-md;
     @apply z-50;
-    bottom: 16px;
-    right: 16px;
     min-width: 300px;
     height: 40px;
+    bottom: 16px;
+    right: 16px;
     transform: translateY(100px);
     transition: transform 0.1s ease-in-out 0.1s;
+    background-color: rgba(0, 0, 0, 0.87);
+    @media (max-width: 480px) {
+        @apply w-screen right-0 shadow-none;
+        bottom: 55px;
+        z-index: 200;
+    }
+}
+
+.snackbar {
+    @apply text-sm fixed cursor-pointer text-color flex items-center justify-between;
+    @apply shadow-md;
+    @apply inset-x-0 bottom-0.5 z-50;
+    width: 300px;
+    background-color: rgba(0, 0, 0, 0.87);
+    left: 40%;
+    transform: translate(0, -50%);
     @media (max-width: 480px) {
         @apply w-screen right-0 shadow-none;
         bottom: 55px;
