@@ -43,6 +43,8 @@ const common = {
             'FIREBASE_APP_ID',
             'SENTRY_ENABLE',
             'SENTRY_DSN',
+            'NODE_ENV',
+            'FIREBASE_AUTH_EMULATOR_URL',
         ]),
         new PreloadWebpackPlugin({
             rel: 'preload',

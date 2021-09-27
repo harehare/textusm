@@ -46,6 +46,8 @@ jobs:
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           SENTRY_ENABLE: ${{ secrets.SENTRY_ENABLE }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+          FIREBASE_AUTH_EMULATOR_URL: ""
         run: npm run prod
       - name: Run Tests
         working-directory: web

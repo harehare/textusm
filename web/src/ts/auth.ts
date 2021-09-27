@@ -8,6 +8,7 @@ import {
     GithubAuthProvider,
     getAuth,
     onAuthStateChanged as firebaseOnAuthStateChanged,
+    connectAuthEmulator,
 } from 'firebase/auth';
 
 export interface User {
@@ -25,6 +26,13 @@ const firebaseConfig = {
 };
 initializeApp(firebaseConfig);
 const auth = getAuth();
+
+if (
+    process.env.NODE_ENV !== 'production' &&
+    process.env.FIREBASE_AUTH_EMULATOR_URL
+) {
+    connectAuthEmulator(auth, process.env.FIREBASE_AUTH_EMULATOR_URL);
+}
 
 export const signIn = (provider: AuthProvider): Promise<void> => {
     return new Promise((resolve, reject) => {
