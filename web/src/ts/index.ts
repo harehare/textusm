@@ -45,7 +45,7 @@ authStateChanged(
     () => {
         app.ports.progress.send(false);
     },
-    async (idToken, user, provider) => {
+    async (idToken, user) => {
         if (user && idToken) {
             app.ports.onAuthStateChanged.send({
                 idToken,
@@ -54,8 +54,8 @@ authStateChanged(
                 email: user.email,
                 photoURL: user.photoURL,
                 loginProvider: {
-                    provider: provider.provider,
-                    accessToken: provider.accessToken,
+                    provider: user.provider,
+                    accessToken: user.accessToken,
                 },
             });
         }
@@ -176,10 +176,7 @@ window.requestIdleCallback(() => {
 
     loadSentry();
 
-    if (
-        'serviceWorker' in navigator &&
-        !window.location.host.startsWith('localhost')
-    ) {
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
         const wb = new Workbox('/sw.js');
         wb.register();
         wb.addEventListener('installed', (e) => {

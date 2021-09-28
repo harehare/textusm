@@ -16,6 +16,8 @@ export interface User {
     displayName: string;
     email: string;
     photoURL: string;
+    provider: string | null;
+    accessToken: string | null;
 }
 const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -77,11 +79,7 @@ export const refreshToken = (): Promise<string> | undefined => {
 export const authStateChanged = (
     onBeforeAuth: () => void,
     onAfterAuth: () => void,
-    onAuthStateChanged: (
-        idToken: string | null,
-        user: User | null,
-        provider: { provider: string | null; accessToken: string | null }
-    ) => void
+    onAuthStateChanged: (idToken: string | null, user: User | null) => void
 ): void => {
     firebaseOnAuthStateChanged(auth, async (user) => {
         onBeforeAuth();
@@ -93,26 +91,18 @@ export const authStateChanged = (
                 providers.length > 0 && providers[0] ? providers[0] : '';
 
             user.getIdToken().then((idToken) => {
-                onAuthStateChanged(
-                    idToken,
-                    {
-                        id: user.uid,
-                        displayName: user.displayName ?? '',
-                        email: user.email ?? '',
-                        photoURL: user.photoURL ?? '',
-                    },
-                    {
-                        accessToken: null,
-                        provider,
-                    }
-                );
+                onAuthStateChanged(idToken, {
+                    id: user.uid,
+                    displayName: user.displayName ?? '',
+                    email: user.email ?? '',
+                    photoURL: user.photoURL ?? '',
+                    provider,
+                    accessToken: null,
+                });
                 onAfterAuth();
             });
         } else {
-            onAuthStateChanged(null, null, {
-                provider: null,
-                accessToken: null,
-            });
+            onAuthStateChanged(null, null);
             onAfterAuth();
         }
     });
