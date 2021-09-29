@@ -186,7 +186,7 @@ if (mode === 'production') {
                 maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
                 navigateFallback: '/index.html',
                 navigateFallbackAllowlist: [
-                    /^\/(|new|edit|view|public|list|settings|help|share|notfound|embed)/,
+                    /^\/($|new|edit|view|public|list|settings|help|share|notfound|embed)/,
                 ],
                 runtimeCaching: [
                     {
