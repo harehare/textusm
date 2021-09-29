@@ -184,8 +184,10 @@ if (mode === 'production') {
                 clientsClaim: true,
                 skipWaiting: true,
                 maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
-                // navigateFallback: '/index.html',
-                // navigateFallbackDenylist: [/\/__\/auth\/handler.*$/],
+                navigateFallback: '/index.html',
+                navigateFallbackAllowlist: [
+                    /^\/(|new|edit|view|public|list|settings|help|share|notfound|embed)/,
+                ],
                 runtimeCaching: [
                     {
                         urlPattern:

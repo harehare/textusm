@@ -134,10 +134,10 @@ toString route =
             absolute [ "notfound" ] []
 
         Embed diagramPath title token (Just width) (Just height) ->
-            absolute [ "Embed", DiagramType.toString diagramPath, title, ShareToken.toString token ] [ Builder.int "w" width, Builder.int "w" height ]
+            absolute [ "embed", DiagramType.toString diagramPath, title, ShareToken.toString token ] [ Builder.int "w" width, Builder.int "w" height ]
 
         Embed diagramPath title token _ _ ->
-            absolute [ "Embed", DiagramType.toString diagramPath, title, ShareToken.toString token ] []
+            absolute [ "embed", DiagramType.toString diagramPath, title, ShareToken.toString token ] []
 
 
 replaceRoute : Nav.Key -> Route -> Cmd msg
