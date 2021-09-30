@@ -39,6 +39,7 @@ jobs:
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
+          APP_VERSION: ${{ steps.package-version.outputs.current-version}}
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}

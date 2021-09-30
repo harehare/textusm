@@ -36,6 +36,7 @@ const common = {
         new webpack.EnvironmentPlugin([
             'API_ROOT',
             'WEB_ROOT',
+            'APP_VERSION',
             'FIREBASE_API_KEY',
             'FIREBASE_AUTH_DOMAIN',
             'FIREBASE_PROJECT_ID',

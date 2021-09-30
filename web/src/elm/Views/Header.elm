@@ -6,6 +6,7 @@ import Events as E
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events as Events
+import Html.Lazy as Lazy
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Message exposing (Lang)
@@ -61,6 +62,9 @@ view props =
 
         canShare =
             Session.isSignedIn props.session && isRemoteDiagram && canEdit && props.isOnline
+
+        canChangePublicState =
+            (isJust (Maybe.andThen .id props.currentDiagram) && (Maybe.map .isRemote props.currentDiagram |> Maybe.withDefault False)) && canEdit && props.isOnline
     in
     if props.isFullscreen then
         Html.header [] []
@@ -70,7 +74,7 @@ view props =
             [ Attr.class "flex items-center w-screen bg-main"
             , Attr.style "height" "40px"
             ]
-            [ Html.div
+            (Html.div
                 [ Attr.class "flex items-center lg:w-full w-1/2"
                 , Attr.style "height" "40px"
                 ]
@@ -167,149 +171,182 @@ view props =
                     _ ->
                         Empty.view
                 ]
-            , if (isJust (Maybe.andThen .id props.currentDiagram) && (Maybe.map .isRemote props.currentDiagram |> Maybe.withDefault False)) && canEdit && props.isOnline then
-                Html.div
-                    [ Attr.class "button", Events.onClick <| ChangePublicStatus (not isPublic) ]
-                    [ if isPublic then
-                        Icon.lockOpen Color.iconColor 14
+                :: (case props.route of
+                        Route.New ->
+                            [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
 
-                      else
-                        Icon.lock Color.iconColor 14
-                    , Html.span [ Attr.class "bottom-tooltip" ]
-                        [ Html.span [ Attr.class "text" ]
-                            [ Html.text <|
-                                if isPublic then
-                                    Message.toolPublic props.lang
+                        Route.Settings ->
+                            [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
 
-                                else
-                                    Message.toolPrivate props.lang
-                            ]
-                        ]
-                    ]
-
-              else
-                Html.div [ Attr.class "button" ]
-                    [ Icon.lock Color.disabledIconColor 14
-                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolPrivate props.lang ] ]
-                    ]
-            , Html.a [ Attr.attribute "aria-label" "Help", Attr.style "display" "flex", Attr.href <| Route.toString Route.Help ]
-                [ Html.div [ Attr.class "button" ]
-                    [ Icon.helpOutline 16
-                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipHelp props.lang ] ]
-                    ]
-                ]
-            , if canShare then
-                Html.a
-                    [ Attr.class "flex"
-                    , Attr.href <| Route.toString Route.Share
-                    , Attr.attribute "aria-label" "Share"
-                    ]
-                    [ Html.div [ Attr.class "button" ]
-                        [ Icon.people Color.iconColor 20
-                        , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipShare props.lang ] ]
-                        ]
-                    ]
-
-              else
-                Html.div [ Attr.class "button" ]
-                    [ Icon.people Color.disabledIconColor 20
-                    , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipShare props.lang ] ]
-                    ]
-            , if Session.isSignedIn props.session then
-                let
-                    user =
-                        Session.getUser props.session
-                in
-                Html.div
-                    [ Attr.class "button"
-                    , Attr.style "width" "96px;"
-                    , Attr.style "height" "50px"
-                    , Events.stopPropagationOn "click" (D.succeed ( OpenMenu HeaderMenu, True ))
-                    ]
-                    [ Html.div
-                        [ Attr.class "text-sm"
-                        , Attr.style "margin-right" "4px"
-                        ]
-                        [ Html.img
-                            [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
-                            , Attr.class "h-5 w-5 object-cover rounded-full lg:w-7 lg:h-7 h-full mt-xs"
-                            , Attr.alt "avatar"
-                            ]
-                            []
-                        , case props.menu of
-                            Just HeaderMenu ->
-                                let
-                                    user_ =
-                                        Maybe.andThen
-                                            (\u ->
-                                                if not <| String.isEmpty u.email then
-                                                    Just u
-
-                                                else
-                                                    Nothing
-                                            )
-                                            user
-                                in
-                                Menu.menu (Just "36px")
-                                    Nothing
-                                    Nothing
-                                    (Just "5px")
-                                    (case user_ of
-                                        Just u ->
-                                            [ Menu.Item
-                                                { e = NoOp
-                                                , title = u.email
-                                                }
-                                            , Menu.Item
-                                                { e = SignOut
-                                                , title = "SIGN OUT"
-                                                }
-                                            ]
-
-                                        Nothing ->
-                                            [ Menu.Item
-                                                { e = SignOut
-                                                , title = "SIGN OUT"
-                                                }
-                                            ]
-                                    )
-
-                            _ ->
-                                Empty.view
-                        ]
-                    ]
-
-              else
-                Html.div
-                    [ Attr.class "button"
-                    , Attr.style "width" "96px"
-                    , Attr.style "height" "50px"
-                    , Events.stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
-                    ]
-                    [ Html.div [ Attr.class "text-base font-bold" ]
-                        [ Html.text "SIGN IN" ]
-                    , case props.menu of
-                        Just LoginMenu ->
-                            Menu.menu (Just "30px")
-                                Nothing
-                                Nothing
-                                (Just "5px")
-                                [ Menu.Item
-                                    { e = SignIn Google
-                                    , title = LoginProvider.toString Google
-                                    }
-                                , Menu.Item
-                                    { e = SignIn <| Github Nothing
-                                    , title = LoginProvider.toString <| Github Nothing
-                                    }
-                                ]
+                        Route.DiagramList ->
+                            [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
 
                         _ ->
-                            Empty.view
-                    ]
-            ]
+                            [ Lazy.lazy3 viewChangePublicStateButton props.lang isPublic canChangePublicState
+                            , Lazy.lazy viewHelpButton props.lang
+                            , Lazy.lazy2 viewShareButton props.lang canShare
+                            , Lazy.lazy2 viewSignInButton props.menu props.session
+                            ]
+                   )
+            )
 
 
 viewTitle : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 viewTitle attrs children =
     Html.div ([ Attr.class "w-full header-title", Attr.style "padding" "8px" ] ++ attrs) children
+
+
+viewChangePublicStateButton : Lang -> Bool -> Bool -> Html Msg
+viewChangePublicStateButton lang isPublic canChangePublicState =
+    if canChangePublicState then
+        Html.div
+            [ Attr.class "button", Events.onClick <| ChangePublicStatus (not isPublic) ]
+            [ if isPublic then
+                Icon.lockOpen Color.iconColor 14
+
+              else
+                Icon.lock Color.iconColor 14
+            , Html.span [ Attr.class "bottom-tooltip" ]
+                [ Html.span [ Attr.class "text" ]
+                    [ Html.text <|
+                        if isPublic then
+                            Message.toolPublic lang
+
+                        else
+                            Message.toolPrivate lang
+                    ]
+                ]
+            ]
+
+    else
+        Html.div [ Attr.class "button" ]
+            [ Icon.lock Color.disabledIconColor 14
+            , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolPrivate lang ] ]
+            ]
+
+
+viewHelpButton : Lang -> Html Msg
+viewHelpButton lang =
+    Html.a [ Attr.attribute "aria-label" "Help", Attr.style "display" "flex", Attr.href <| Route.toString Route.Help ]
+        [ Html.div [ Attr.class "button" ]
+            [ Icon.helpOutline 16
+            , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipHelp lang ] ]
+            ]
+        ]
+
+
+viewShareButton : Lang -> Bool -> Html Msg
+viewShareButton lang canShare =
+    if canShare then
+        Html.a
+            [ Attr.class "flex"
+            , Attr.href <| Route.toString Route.Share
+            , Attr.attribute "aria-label" "Share"
+            ]
+            [ Html.div [ Attr.class "button" ]
+                [ Icon.people Color.iconColor 20
+                , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipShare lang ] ]
+                ]
+            ]
+
+    else
+        Html.div [ Attr.class "button" ]
+            [ Icon.people Color.disabledIconColor 20
+            , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipShare lang ] ]
+            ]
+
+
+viewSignInButton : Maybe Menu -> Session -> Html Msg
+viewSignInButton menu session =
+    if Session.isSignedIn session then
+        let
+            user =
+                Session.getUser session
+        in
+        Html.div
+            [ Attr.class "button"
+            , Attr.style "width" "96px;"
+            , Attr.style "height" "50px"
+            , Events.stopPropagationOn "click" (D.succeed ( OpenMenu HeaderMenu, True ))
+            ]
+            [ Html.div
+                [ Attr.class "text-sm"
+                , Attr.style "margin-right" "4px"
+                ]
+                [ Html.img
+                    [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
+                    , Attr.class "h-5 w-5 object-cover rounded-full lg:w-7 lg:h-7 h-full mt-xs"
+                    , Attr.alt "avatar"
+                    ]
+                    []
+                , case menu of
+                    Just HeaderMenu ->
+                        let
+                            user_ =
+                                Maybe.andThen
+                                    (\u ->
+                                        if not <| String.isEmpty u.email then
+                                            Just u
+
+                                        else
+                                            Nothing
+                                    )
+                                    user
+                        in
+                        Menu.menu (Just "36px")
+                            Nothing
+                            Nothing
+                            (Just "5px")
+                            (case user_ of
+                                Just u ->
+                                    [ Menu.Item
+                                        { e = NoOp
+                                        , title = u.email
+                                        }
+                                    , Menu.Item
+                                        { e = SignOut
+                                        , title = "SIGN OUT"
+                                        }
+                                    ]
+
+                                Nothing ->
+                                    [ Menu.Item
+                                        { e = SignOut
+                                        , title = "SIGN OUT"
+                                        }
+                                    ]
+                            )
+
+                    _ ->
+                        Empty.view
+                ]
+            ]
+
+    else
+        Html.div
+            [ Attr.class "button"
+            , Attr.style "width" "96px"
+            , Attr.style "height" "50px"
+            , Events.stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
+            ]
+            [ Html.div [ Attr.class "text-base font-bold" ]
+                [ Html.text "SIGN IN" ]
+            , case menu of
+                Just LoginMenu ->
+                    Menu.menu (Just "30px")
+                        Nothing
+                        Nothing
+                        (Just "5px")
+                        [ Menu.Item
+                            { e = SignIn Google
+                            , title = LoginProvider.toString Google
+                            }
+                        , Menu.Item
+                            { e = SignIn <| Github Nothing
+                            , title = LoginProvider.toString <| Github Nothing
+                            }
+                        ]
+
+                _ ->
+                    Empty.view
+            ]

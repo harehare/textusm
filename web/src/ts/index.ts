@@ -170,6 +170,7 @@ window.requestIdleCallback(() => {
             const sentry = await import('@sentry/browser');
             sentry.init({
                 dsn: process.env.SENTRY_DSN,
+                release: `textusm@${process.env.APP_VERSION}`,
             });
         }
     };
