@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
+import { v4 as uuidv4 } from "uuid";
 
 const diagrams = [
   { label: "User Story Map", value: "usm" },
@@ -517,14 +518,19 @@ class DiagramPanel {
       .getConfiguration()
       .get("textusm.card.height");
 
+    const nonce = uuidv4();
+
     return `<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TextUSM</title>
-    <script src="${scriptSrc.toString()}"/>
-    <script>
+    				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${
+              this._panel.webview.cspSource
+            }; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'nonce-${nonce}';">
+    <script nonce="${nonce}" src="${scriptSrc}"/>
+    <script nonce="${nonce}">
         document.getElementById("svg").innerHTML = 'Load SVG...';
     </script>
     <style type="text/css">
@@ -593,7 +599,7 @@ class DiagramPanel {
 </head>
 <body>
     <div id="svg"></div>
-    <script>
+    <script nonce="${nonce}">
         const vscode = acquireVsCodeApi();
         const app = Elm.Extension.VSCode.init({
             node: document.getElementById("svg"),
