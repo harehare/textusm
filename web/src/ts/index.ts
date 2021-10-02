@@ -166,11 +166,15 @@ window.requestIdleCallback(() => {
     });
 
     const loadSentry = async () => {
-        if (process.env.SENTRY_ENABLE === '1') {
+        if (
+            process.env.SENTRY_ENABLE === '1' &&
+            process.env.SENTRY_DSN &&
+            process.env.SENTRY_RELEASE
+        ) {
             const sentry = await import('@sentry/browser');
             sentry.init({
                 dsn: process.env.SENTRY_DSN,
-                release: `textusm@${process.env.APP_VERSION}`,
+                release: process.env.SENTRY_RELEASE,
             });
         }
     };

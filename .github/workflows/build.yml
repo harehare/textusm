@@ -39,16 +39,19 @@ jobs:
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
-          APP_VERSION: ${{ steps.package-version.outputs.current-version}}
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_AUTH_EMULATOR_URL: ""
+          NODE_ENV: ${{ secrets.NODE_ENV }}
           SENTRY_ENABLE: ${{ secrets.SENTRY_ENABLE }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          NODE_ENV: ${{ secrets.NODE_ENV }}
-          FIREBASE_AUTH_EMULATOR_URL: ""
+          SENTRY_RELEASE: ${{ secrets.SENTRY_RELEASE }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
         run: npm run prod
       - name: Run Tests
         working-directory: web

@@ -13,6 +13,7 @@ const PreloadWebpackPlugin = require('preload-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const HTMLInlineCSSWebpackPlugin =
     require('html-inline-css-webpack-plugin').default;
+const SentryWebpackPlugin = require('@sentry/webpack-plugin');
 
 const mode =
     process.env.NODE_ENV === 'production' ? 'production' : 'development';
@@ -21,6 +22,7 @@ const day = 60 * 60 * 24;
 
 const common = {
     mode,
+    devtool: 'source-map',
     entry: './src/ts/index.ts',
     output: {
         path: dist,
@@ -36,7 +38,6 @@ const common = {
         new webpack.EnvironmentPlugin([
             'API_ROOT',
             'WEB_ROOT',
-            'APP_VERSION',
             'FIREBASE_API_KEY',
             'FIREBASE_AUTH_DOMAIN',
             'FIREBASE_PROJECT_ID',
@@ -44,6 +45,7 @@ const common = {
             'FIREBASE_APP_ID',
             'SENTRY_ENABLE',
             'SENTRY_DSN',
+            'SENTRY_RELEASE',
             'NODE_ENV',
             'FIREBASE_AUTH_EMULATOR_URL',
         ]),
@@ -180,50 +182,64 @@ if (mode === 'development') {
 if (mode === 'production') {
     module.exports = merge(common, {
         plugins: [
-            new WorkboxWebpackPlugin.GenerateSW({
-                swDest: dist + '/sw.js',
-                clientsClaim: true,
-                skipWaiting: true,
-                maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
-                navigateFallback: '/index.html',
-                navigateFallbackAllowlist: [
-                    /^\/($|new|edit|view|public|list|settings|help|share|notfound|embed)/,
-                ],
-                runtimeCaching: [
-                    {
-                        urlPattern:
-                            /^https:\/\/fonts\.gstatic\.com.*\.woff2.*$/,
-                        handler: 'CacheFirst',
-                        options: {
-                            cacheName: 'google-font-file-cache',
-                            cacheableResponse: {
-                                statuses: [0, 200, 307],
-                            },
-                            expiration: {
-                                maxAgeSeconds: 31 * day,
+            ...[
+                new WorkboxWebpackPlugin.GenerateSW({
+                    swDest: dist + '/sw.js',
+                    clientsClaim: true,
+                    skipWaiting: true,
+                    maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
+                    navigateFallback: '/index.html',
+                    navigateFallbackAllowlist: [
+                        /^\/($|new|edit|view|public|list|settings|help|share|notfound|embed)/,
+                    ],
+                    runtimeCaching: [
+                        {
+                            urlPattern:
+                                /^https:\/\/fonts\.gstatic\.com.*\.woff2.*$/,
+                            handler: 'CacheFirst',
+                            options: {
+                                cacheName: 'google-font-file-cache',
+                                cacheableResponse: {
+                                    statuses: [0, 200, 307],
+                                },
+                                expiration: {
+                                    maxAgeSeconds: 31 * day,
+                                },
                             },
                         },
-                    },
-                ],
-            }),
-            new HTMLInlineCSSWebpackPlugin(),
-            new CleanWebpackPlugin({
-                root: __dirname,
-                exclude: [],
-                verbose: false,
-                dry: false,
-            }),
-            new CopyWebpackPlugin({
-                patterns: [
-                    {
-                        from: 'src/assets',
-                    },
-                ],
-            }),
-            new MiniCssExtractPlugin({
-                filename: '[name]-[hash].css',
-                chunkFilename: '[id]-[contenthash].css',
-            }),
+                    ],
+                }),
+                new HTMLInlineCSSWebpackPlugin(),
+                new CleanWebpackPlugin({
+                    root: __dirname,
+                    exclude: [],
+                    verbose: false,
+                    dry: false,
+                }),
+                new CopyWebpackPlugin({
+                    patterns: [
+                        {
+                            from: 'src/assets',
+                        },
+                    ],
+                }),
+                new MiniCssExtractPlugin({
+                    filename: '[name]-[hash].css',
+                    chunkFilename: '[id]-[contenthash].css',
+                }),
+            ],
+            ...(process.env.SENTRY_ENABLE === '1'
+                ? [
+                      new SentryWebpackPlugin({
+                          authToken: process.env.SENTRY_AUTH_TOKEN,
+                          org: process.env.SENTRY_ORG,
+                          project: process.env.SENTRY_PROJECT,
+                          release: process.env.SENTRY_RELEASE,
+                          include: './dist',
+                          ignore: ['node_modules', 'webpack.config.js'],
+                      }),
+                  ]
+                : []),
         ],
         module: {
             rules: [

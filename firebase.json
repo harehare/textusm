@@ -2,7 +2,7 @@
   "hosting": {
     "public": "web/dist",
     "target": "textusm",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/*.map"],
     "rewrites": [
       {
         "source": "**",

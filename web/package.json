@@ -1,7 +1,7 @@
 {
     "name": "textusm",
     "description": "Online tool for Generate a User Story Mapping from indented text.",
-    "version": "0.9.8",
+    "version": "0.9.9",
     "author": "harehare",
     "bugs": {
         "url": "https://github.com/harehare/textusm/issues"
@@ -25,6 +25,7 @@
         "@commitlint/cli": "^13.2.0",
         "@commitlint/config-conventional": "^13.2.0",
         "@dillonkearns/elm-graphql": "^4.2.2",
+        "@sentry/webpack-plugin": "^1.17.1",
         "@trivago/prettier-plugin-sort-imports": "^2.0.4",
         "@types/jspdf": "^2.0.0",
         "@types/node": "^16.10.2",
@@ -58,6 +59,7 @@
         "postcss-loader": "^6.1.1",
         "preload-webpack-plugin": "^3.0.0-beta.4",
         "prettier": "^2.4.1",
+        "rimraf": "^3.0.2",
         "sass": "^1.42.1",
         "sass-loader": "^12.1.0",
         "style-loader": "^3.3.0",
@@ -94,6 +96,7 @@
         "dev:generate-elm-constants": "npm run generate-elm-constants",
         "prod": "NODE_ENV=production webpack --mode production",
         "prod:run": "NODE_ENV=production webpack serve --color --port 3000 --mode production",
+        "postprod": "rimraf -rf dist/*.map",
         "embed:build": "npm run prod && cp -r dist ../server/pkg/app",
         "start": "npm run dev",
         "test": "elm-test",
