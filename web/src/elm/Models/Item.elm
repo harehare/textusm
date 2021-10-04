@@ -48,6 +48,7 @@ module Models.Item exposing
     , withChildren
     , withItemSettings
     , withItemType
+    , withLineComment
     , withLineNo
     , withOffset
     , withOffsetSize
@@ -83,6 +84,7 @@ type Item
     = Item
         { lineNo : Int
         , text : Text
+        , comment : Maybe String
         , itemType : ItemType
         , itemSettings : Maybe ItemSettings
         , children : Children
@@ -106,6 +108,7 @@ new =
     Item
         { lineNo = 0
         , text = Text.empty
+        , comment = Nothing
         , itemType = Activities
         , itemSettings = Nothing
         , children = emptyChildren
@@ -125,9 +128,9 @@ withTextOnly text (Item item) =
 withText : String -> Item -> Item
 withText text (Item item) =
     let
-        ( displayText, settings ) =
+        ( displayText, settings, comment ) =
             if isImage <| withTextOnly text (Item item) then
-                ( text, Nothing )
+                ( text, Nothing, Nothing )
 
             else
                 let
@@ -147,26 +150,35 @@ withText text (Item item) =
                 in
                 case textTuple of
                     ( _, Nothing ) ->
-                        ( text, Nothing )
+                        let
+                            ( text_, comment_ ) =
+                                splitLineComment text
+                        in
+                        ( text_, Nothing, comment_ )
 
                     ( t, Just s ) ->
-                        if String.trim s |> String.startsWith "{" |> not then
-                            ( text, Nothing )
+                        let
+                            ( text_, comment_ ) =
+                                splitLineComment t
+                        in
+                        case D.decodeString ItemSettings.decoder s of
+                            Ok settings_ ->
+                                ( text_, Just settings_, comment_ )
 
-                        else
-                            case D.decodeString ItemSettings.decoder s of
-                                Ok ss ->
-                                    ( t, Just ss )
-
-                                Err _ ->
-                                    ( t ++ textSeparator ++ s, Nothing )
+                            Err _ ->
+                                ( text_ ++ textSeparator ++ s, Nothing, comment_ )
     in
-    Item { item | text = Text.fromString displayText, itemSettings = settings }
+    Item { item | text = Text.fromString displayText, itemSettings = settings, comment = comment }
 
 
 withItemSettings : Maybe ItemSettings -> Item -> Item
 withItemSettings itemSettings (Item item) =
     Item { item | itemSettings = itemSettings }
+
+
+withLineComment : Maybe String -> Item -> Item
+withLineComment comment (Item item) =
+    Item { item | comment = comment }
 
 
 withItemType : ItemType -> Item -> Item
@@ -202,6 +214,11 @@ getChildrenItems (Item i) =
 getText : Item -> String
 getText (Item i) =
     Text.toString i.text
+
+
+getLineComment : Item -> Maybe String
+getLineComment (Item i) =
+    Maybe.map (\c -> "#" ++ c) i.comment
 
 
 getItemType : Item -> ItemType
@@ -350,8 +367,8 @@ length (Items items) =
 
 
 isEmpty : Items -> Bool
-isEmpty items =
-    length items == 0
+isEmpty (Items items) =
+    List.isEmpty items
 
 
 unwrap : Items -> List Item
@@ -393,15 +410,6 @@ getChildrenCount (Item item) =
     childrenCount <| unwrapChildren item.children
 
 
-childrenCount : Items -> Int
-childrenCount (Items items) =
-    if List.isEmpty items then
-        0
-
-    else
-        List.length items + (items |> List.map (\(Item i) -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
-
-
 getHierarchyCount : Item -> Int
 getHierarchyCount (Item item) =
     unwrapChildren item.children
@@ -409,59 +417,53 @@ getHierarchyCount (Item item) =
         |> List.length
 
 
-hierarchyCount : Items -> List Int
-hierarchyCount (Items items) =
-    if List.isEmpty items then
-        []
-
-    else
-        1 :: List.concatMap (\(Item i) -> hierarchyCount <| unwrapChildren i.children) items
-
-
 getLeafCount : Item -> Int
 getLeafCount (Item item) =
     leafCount <| unwrapChildren item.children
 
 
-leafCount : Items -> Int
-leafCount (Items items) =
-    if List.isEmpty items then
-        1
-
-    else
-        items |> List.map (\(Item i) -> leafCount <| unwrapChildren i.children) |> List.sum
-
-
 toLineString : Item -> String
 toLineString item =
+    let
+        comment =
+            Maybe.withDefault "" (getLineComment item)
+    in
     case getItemSettings item of
         Just s ->
-            getText item ++ textSeparator ++ ItemSettings.toString s
+            getText item ++ comment ++ textSeparator ++ ItemSettings.toString s
 
         Nothing ->
-            getText item
+            getText item ++ comment
 
 
-spiltText : String -> ( String, ItemSettings )
+spiltText : String -> ( String, ItemSettings, Maybe String )
 spiltText text =
     let
         tokens =
             String.split textSeparator text
     in
     case tokens of
-        [ t ] ->
-            ( t, ItemSettings.new )
+        [ text_ ] ->
+            let
+                ( text__, comment ) =
+                    splitLineComment text_
+            in
+            ( text__, ItemSettings.new, comment )
 
-        [ t, settingsString ] ->
+        [ text_, settingsString ] ->
+            let
+                ( text__, comment ) =
+                    splitLineComment text_
+            in
             case D.decodeString ItemSettings.decoder settingsString of
                 Ok settings ->
-                    ( t, settings )
+                    ( text__, settings, comment )
 
                 Err _ ->
-                    ( t, ItemSettings.new )
+                    ( text__, ItemSettings.new, comment )
 
         _ ->
-            ( text, ItemSettings.new )
+            ( text, ItemSettings.new, Nothing )
 
 
 flatten : Items -> Items
@@ -472,67 +474,6 @@ flatten (Items items) =
 
         _ ->
             Items (items ++ List.concatMap (\(Item item) -> unwrap <| flatten <| unwrapChildren item.children) items)
-
-
-hasIndent : Int -> String -> Bool
-hasIndent indent text =
-    let
-        lineinputPrefix =
-            String.repeat indent inputPrefix
-    in
-    if indent == 0 then
-        String.left 1 text /= " "
-
-    else
-        String.startsWith lineinputPrefix text
-            && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
-
-
-createItemType : String -> Int -> ItemType
-createItemType text indent =
-    if text |> String.trim |> String.startsWith "#" then
-        Comments
-
-    else
-        case indent of
-            0 ->
-                Activities
-
-            1 ->
-                Tasks
-
-            _ ->
-                Stories (indent - 1)
-
-
-parse : Int -> String -> ( List String, List String )
-parse indent text =
-    let
-        l =
-            String.lines text
-                |> List.filter
-                    (\x ->
-                        let
-                            str =
-                                x |> String.trim
-                        in
-                        not (String.isEmpty str)
-                    )
-    in
-    case List.tail l of
-        Just t ->
-            case
-                t
-                    |> ListEx.findIndex (hasIndent indent)
-            of
-                Just xs ->
-                    ListEx.splitAt (xs + 1) l
-
-                Nothing ->
-                    ( l, [] )
-
-        Nothing ->
-            ( [], [] )
 
 
 fromString : String -> ( Hierarchy, Items )
@@ -591,3 +532,108 @@ fromString text =
                 |> Maybe.withDefault 0
             , loadedItems
             )
+
+
+
+-- private
+
+
+parse : Int -> String -> ( List String, List String )
+parse indent text =
+    let
+        l =
+            String.lines text
+                |> List.filter
+                    (\x ->
+                        let
+                            str =
+                                x |> String.trim
+                        in
+                        not (String.isEmpty str)
+                    )
+    in
+    case List.tail l of
+        Just t ->
+            case
+                t
+                    |> ListEx.findIndex (hasIndent indent)
+            of
+                Just xs ->
+                    ListEx.splitAt (xs + 1) l
+
+                Nothing ->
+                    ( l, [] )
+
+        Nothing ->
+            ( [], [] )
+
+
+splitLineComment : String -> ( String, Maybe String )
+splitLineComment text =
+    case String.split "#" text of
+        [ _ ] ->
+            ( text, Nothing )
+
+        [ text_, comments ] ->
+            ( text_, Just comments )
+
+        _ ->
+            ( "", Nothing )
+
+
+childrenCount : Items -> Int
+childrenCount (Items items) =
+    if List.isEmpty items then
+        0
+
+    else
+        List.length items + (items |> List.map (\(Item i) -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
+
+
+hierarchyCount : Items -> List Int
+hierarchyCount (Items items) =
+    if List.isEmpty items then
+        []
+
+    else
+        1 :: List.concatMap (\(Item i) -> hierarchyCount <| unwrapChildren i.children) items
+
+
+leafCount : Items -> Int
+leafCount (Items items) =
+    if List.isEmpty items then
+        1
+
+    else
+        items |> List.map (\(Item i) -> leafCount <| unwrapChildren i.children) |> List.sum
+
+
+hasIndent : Int -> String -> Bool
+hasIndent indent text =
+    let
+        lineinputPrefix =
+            String.repeat indent inputPrefix
+    in
+    if indent == 0 then
+        String.left 1 text /= " "
+
+    else
+        String.startsWith lineinputPrefix text
+            && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
+
+
+createItemType : String -> Int -> ItemType
+createItemType text indent =
+    if text |> String.trim |> String.startsWith "#" then
+        Comments
+
+    else
+        case indent of
+            0 ->
+                Activities
+
+            1 ->
+                Tasks
+
+            _ ->
+                Stories (indent - 1)

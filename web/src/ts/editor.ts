@@ -27,7 +27,7 @@ monaco.languages.register({
 monaco.languages.setMonarchTokensProvider('userStoryMap', {
     tokenizer: {
         root: [
-            [/#[^#]+/, 'comment'],
+            [/#[^#|]+/, 'comment'],
             [/^[^ ][^#:||]+/, 'activity'],
             [/^ {8}[^#:||]+/, 'story'],
             [/^ {4}[^#:||]+/, 'task'],

@@ -1062,7 +1062,7 @@ update message model =
                                 currentText =
                                     getAt (Item.getLineNo item) lines
 
-                                ( mainText, settings ) =
+                                ( mainText, settings, comment ) =
                                     currentText
                                         |> Maybe.withDefault ""
                                         |> Item.spiltText
@@ -1071,6 +1071,7 @@ update message model =
                                     Item.new
                                         |> Item.withText mainText
                                         |> Item.withItemSettings (Just (settings |> ItemSettings.withFontSize size))
+                                        |> Item.withLineComment comment
                                         |> Item.toLineString
 
                                 prefix =
@@ -1114,7 +1115,7 @@ update message model =
                                 currentText =
                                     getAt (Item.getLineNo item) lines
 
-                                ( mainText, settings ) =
+                                ( mainText, settings, comment ) =
                                     currentText
                                         |> Maybe.withDefault ""
                                         |> Item.spiltText
@@ -1125,12 +1126,14 @@ update message model =
                                             Item.new
                                                 |> Item.withText mainText
                                                 |> Item.withItemSettings (Just (settings |> ItemSettings.withForegroundColor (Just color)))
+                                                |> Item.withLineComment comment
                                                 |> Item.toLineString
 
                                         Diagram.BackgroundColorSelectMenu ->
                                             Item.new
                                                 |> Item.withText mainText
                                                 |> Item.withItemSettings (Just (ItemSettings.withBackgroundColor (Just color) settings))
+                                                |> Item.withLineComment comment
                                                 |> Item.toLineString
 
                                         _ ->
@@ -1210,7 +1213,7 @@ update message model =
                                     currentText
                                         |> DiagramUtils.getSpacePrefix
 
-                                ( text, settings ) =
+                                ( text, settings, comment ) =
                                     currentText
                                         |> Item.spiltText
 
@@ -1218,6 +1221,7 @@ update message model =
                                     Item.new
                                         |> Item.withText (prefix ++ (String.trimLeft text |> FontStyle.apply style))
                                         |> Item.withItemSettings (Just settings)
+                                        |> Item.withLineComment comment
                                         |> Item.toLineString
 
                                 updateText =
