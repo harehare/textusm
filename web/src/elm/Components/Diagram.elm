@@ -1065,7 +1065,7 @@ update message model =
                                 ( mainText, settings, comment ) =
                                     currentText
                                         |> Maybe.withDefault ""
-                                        |> Item.spiltText
+                                        |> Item.split
 
                                 text =
                                     Item.new
@@ -1118,7 +1118,7 @@ update message model =
                                 ( mainText, settings, comment ) =
                                     currentText
                                         |> Maybe.withDefault ""
-                                        |> Item.spiltText
+                                        |> Item.split
 
                                 text =
                                     case menu of
@@ -1215,7 +1215,7 @@ update message model =
 
                                 ( text, settings, comment ) =
                                     currentText
-                                        |> Item.spiltText
+                                        |> Item.split
 
                                 updateLine =
                                     Item.new

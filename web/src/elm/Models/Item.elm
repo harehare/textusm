@@ -17,6 +17,7 @@ module Models.Item exposing
     , getChildren
     , getChildrenCount
     , getChildrenItems
+    , getComments
     , getFontSize
     , getForegroundColor
     , getHierarchyCount
@@ -39,7 +40,7 @@ module Models.Item exposing
     , length
     , map
     , new
-    , spiltText
+    , split
     , splitAt
     , tail
     , toLineString
@@ -84,7 +85,7 @@ type Item
     = Item
         { lineNo : Int
         , text : Text
-        , comment : Maybe String
+        , comments : Maybe String
         , itemType : ItemType
         , itemSettings : Maybe ItemSettings
         , children : Children
@@ -108,7 +109,7 @@ new =
     Item
         { lineNo = 0
         , text = Text.empty
-        , comment = Nothing
+        , comments = Nothing
         , itemType = Activities
         , itemSettings = Nothing
         , children = emptyChildren
@@ -128,7 +129,7 @@ withTextOnly text (Item item) =
 withText : String -> Item -> Item
 withText text (Item item) =
     let
-        ( displayText, settings, comment ) =
+        ( displayText, settings, comments ) =
             if isImage <| withTextOnly text (Item item) then
                 ( text, Nothing, Nothing )
 
@@ -151,24 +152,24 @@ withText text (Item item) =
                 case textTuple of
                     ( _, Nothing ) ->
                         let
-                            ( text_, comment_ ) =
-                                splitLineComment text
+                            ( text_, comments_ ) =
+                                splitLineComments text
                         in
-                        ( text_, Nothing, comment_ )
+                        ( text_, Nothing, comments_ )
 
                     ( t, Just s ) ->
                         let
-                            ( text_, comment_ ) =
-                                splitLineComment t
+                            ( text_, comments_ ) =
+                                splitLineComments t
                         in
                         case D.decodeString ItemSettings.decoder s of
                             Ok settings_ ->
-                                ( text_, Just settings_, comment_ )
+                                ( text_, Just settings_, comments_ )
 
                             Err _ ->
-                                ( text_ ++ textSeparator ++ s, Nothing, comment_ )
+                                ( text_ ++ textSeparator ++ s, Nothing, comments_ )
     in
-    Item { item | text = Text.fromString displayText, itemSettings = settings, comment = comment }
+    Item { item | text = Text.fromString displayText, itemSettings = settings, comments = comments }
 
 
 withItemSettings : Maybe ItemSettings -> Item -> Item
@@ -177,8 +178,8 @@ withItemSettings itemSettings (Item item) =
 
 
 withLineComment : Maybe String -> Item -> Item
-withLineComment comment (Item item) =
-    Item { item | comment = comment }
+withLineComment comments (Item item) =
+    Item { item | comments = comments }
 
 
 withItemType : ItemType -> Item -> Item
@@ -216,9 +217,9 @@ getText (Item i) =
     Text.toString i.text
 
 
-getLineComment : Item -> Maybe String
-getLineComment (Item i) =
-    Maybe.map (\c -> "#" ++ c) i.comment
+getComments : Item -> Maybe String
+getComments (Item i) =
+    Maybe.map (\c -> "#" ++ c) i.comments
 
 
 getItemType : Item -> ItemType
@@ -426,7 +427,7 @@ toLineString : Item -> String
 toLineString item =
     let
         comment =
-            Maybe.withDefault "" (getLineComment item)
+            Maybe.withDefault "" (getComments item)
     in
     case getItemSettings item of
         Just s ->
@@ -436,8 +437,8 @@ toLineString item =
             getText item ++ comment
 
 
-spiltText : String -> ( String, ItemSettings, Maybe String )
-spiltText text =
+split : String -> ( String, ItemSettings, Maybe String )
+split text =
     let
         tokens =
             String.split textSeparator text
@@ -446,14 +447,14 @@ spiltText text =
         [ text_ ] ->
             let
                 ( text__, comment ) =
-                    splitLineComment text_
+                    splitLineComments text_
             in
             ( text__, ItemSettings.new, comment )
 
         [ text_, settingsString ] ->
             let
                 ( text__, comment ) =
-                    splitLineComment text_
+                    splitLineComments text_
             in
             case D.decodeString ItemSettings.decoder settingsString of
                 Ok settings ->
@@ -568,8 +569,8 @@ parse indent text =
             ( [], [] )
 
 
-splitLineComment : String -> ( String, Maybe String )
-splitLineComment text =
+splitLineComments : String -> ( String, Maybe String )
+splitLineComments text =
     case String.split "#" text of
         [ _ ] ->
             ( text, Nothing )

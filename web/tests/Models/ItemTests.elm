@@ -2,7 +2,9 @@ module Models.ItemTests exposing (suite)
 
 import Expect
 import Graphql.Enum.Diagram exposing (Diagram(..))
+import Models.FontSize as FontSize
 import Models.Item as Item exposing (ItemType(..), Items(..))
+import Models.ItemSettings as ItemSettings
 import Test exposing (Test, describe, test)
 
 
@@ -158,5 +160,47 @@ suite =
                             |> Item.getText
                         )
                         "test|test2"
+            , test "when text with comments" <|
+                \() ->
+                    Expect.equal
+                        (Item.new
+                            |> Item.withText "test # comment"
+                            |> (\i -> ( Item.getText i, Item.getComments i ))
+                        )
+                        ( "test ", Just "# comment" )
+            , test "when text with comments and item settings json" <|
+                \() ->
+                    Expect.equal
+                        (Item.new
+                            |> Item.withText "test # comment |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
+                            |> (\i -> ( Item.getText i, Item.getComments i, Item.getItemSettings i |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize |> FontSize.toInt ))
+                        )
+                        ( "test ", Just "# comment ", 10 )
+            , test "when text with invalid comments and item settings json" <|
+                \() ->
+                    Expect.equal
+                        (Item.new
+                            |> Item.withText "test|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}# comment"
+                            |> (\i -> ( Item.getText i, Item.getComments i, Item.getItemSettings i ))
+                        )
+                        ( "test|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}# comment", Nothing, Nothing )
+            ]
+        , describe
+            "split test"
+            [ test "when text only" <|
+                \() ->
+                    Expect.equal
+                        (Item.split "test")
+                        ( "test", ItemSettings.new, Nothing )
+            , test "when text and comments" <|
+                \() ->
+                    Expect.equal
+                        (Item.split "test #comment")
+                        ( "test ", ItemSettings.new, Just "comment" )
+            , test "when text, comments and item settings" <|
+                \() ->
+                    Expect.equal
+                        (Item.split "test #comment|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}")
+                        ( "test ", ItemSettings.new |> ItemSettings.withFontSize (FontSize.fromInt 10), Just "comment" )
             ]
         ]
