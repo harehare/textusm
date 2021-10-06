@@ -47,9 +47,9 @@ module Models.Item exposing
     , unwrap
     , unwrapChildren
     , withChildren
+    , withComments
     , withItemSettings
     , withItemType
-    , withLineComment
     , withLineNo
     , withOffset
     , withOffsetSize
@@ -177,9 +177,21 @@ withItemSettings itemSettings (Item item) =
     Item { item | itemSettings = itemSettings }
 
 
-withLineComment : Maybe String -> Item -> Item
-withLineComment comments (Item item) =
-    Item { item | comments = comments }
+withComments : Maybe String -> Item -> Item
+withComments comments (Item item) =
+    Item
+        { item
+            | comments =
+                comments
+                    |> Maybe.andThen
+                        (\c ->
+                            if c |> String.trim |> String.isEmpty then
+                                Nothing
+
+                            else
+                                Just c
+                        )
+        }
 
 
 withItemType : ItemType -> Item -> Item

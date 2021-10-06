@@ -38,20 +38,32 @@ itemTypeFuzzer =
 
 itemFuzzer : Fuzzer Item
 itemFuzzer =
-    Fuzz.map5
-        (\lineNo text itemType itemSettings children ->
+    Fuzz.map
+        (\lineNo text comments itemType itemSettings children ->
             Item.new
                 |> Item.withLineNo lineNo
                 |> Item.withText text
+                |> Item.withComments comments
                 |> Item.withItemType itemType
                 |> Item.withItemSettings itemSettings
                 |> Item.withChildren children
         )
         (Fuzz.intRange 0 100)
-        Fuzz.string
-        itemTypeFuzzer
-        (Fuzz.maybe itemSettingsFuzzer)
-        childrenFuzzer
+        |> Fuzz.andMap (Fuzz.map (\s -> String.replace "#" "" s |> String.replace "|" "" |> String.trim) Fuzz.string)
+        |> Fuzz.andMap
+            (Fuzz.string
+                |> Fuzz.map
+                    (\s ->
+                        if s |> String.trim |> String.isEmpty then
+                            Nothing
+
+                        else
+                            Just (String.replace "#" "" s)
+                    )
+            )
+        |> Fuzz.andMap itemTypeFuzzer
+        |> Fuzz.andMap (Fuzz.maybe itemSettingsFuzzer)
+        |> Fuzz.andMap childrenFuzzer
 
 
 itemsFuzzer : Fuzzer Items

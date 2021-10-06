@@ -1071,7 +1071,7 @@ update message model =
                                     Item.new
                                         |> Item.withText mainText
                                         |> Item.withItemSettings (Just (settings |> ItemSettings.withFontSize size))
-                                        |> Item.withLineComment comment
+                                        |> Item.withComments comment
                                         |> Item.toLineString
 
                                 prefix =
@@ -1126,14 +1126,14 @@ update message model =
                                             Item.new
                                                 |> Item.withText mainText
                                                 |> Item.withItemSettings (Just (settings |> ItemSettings.withForegroundColor (Just color)))
-                                                |> Item.withLineComment comment
+                                                |> Item.withComments comment
                                                 |> Item.toLineString
 
                                         Diagram.BackgroundColorSelectMenu ->
                                             Item.new
                                                 |> Item.withText mainText
                                                 |> Item.withItemSettings (Just (ItemSettings.withBackgroundColor (Just color) settings))
-                                                |> Item.withLineComment comment
+                                                |> Item.withComments comment
                                                 |> Item.toLineString
 
                                         _ ->
@@ -1221,7 +1221,7 @@ update message model =
                                     Item.new
                                         |> Item.withText (prefix ++ (String.trimLeft text |> FontStyle.apply style))
                                         |> Item.withItemSettings (Just settings)
-                                        |> Item.withLineComment comment
+                                        |> Item.withComments comment
                                         |> Item.toLineString
 
                                 updateText =
