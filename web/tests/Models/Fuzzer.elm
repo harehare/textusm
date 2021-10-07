@@ -58,7 +58,7 @@ itemFuzzer =
                             Nothing
 
                         else
-                            Just (String.replace "#" "" s)
+                            Just (String.replace "#" "" s |> String.replace "|" "")
                     )
             )
         |> Fuzz.andMap itemTypeFuzzer

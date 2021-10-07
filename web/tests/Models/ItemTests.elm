@@ -3,9 +3,10 @@ module Models.ItemTests exposing (suite)
 import Expect
 import Graphql.Enum.Diagram exposing (Diagram(..))
 import Models.FontSize as FontSize
+import Models.Fuzzer exposing (itemFuzzer)
 import Models.Item as Item exposing (ItemType(..), Items(..))
 import Models.ItemSettings as ItemSettings
-import Test exposing (Test, describe, test)
+import Test exposing (Test, describe, fuzz, test)
 
 
 suite : Test
@@ -202,5 +203,12 @@ suite =
                     Expect.equal
                         (Item.split "test #comment|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}")
                         ( "test ", ItemSettings.new |> ItemSettings.withFontSize (FontSize.fromInt 10), Just "comment" )
+            ]
+        , describe
+            "fuzz test"
+            [ fuzz itemFuzzer "item  test" <|
+                \i ->
+                    Item.withText (Item.toLineString i) i
+                        |> Expect.equal i
             ]
         ]

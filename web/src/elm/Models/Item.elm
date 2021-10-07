@@ -137,30 +137,35 @@ withText text (Item item) =
                 let
                     tokens =
                         String.split textSeparator text
+                            |> List.map String.toList
 
-                    textTuple =
+                    tuple =
                         case tokens of
-                            [ x, xs ] ->
-                                ( x, Just xs )
+                            [ x, '{' :: xs ] ->
+                                ( String.fromList x, Just <| String.fromList <| '{' :: xs )
 
                             _ :: _ :: _ ->
-                                ( String.join textSeparator <| List.take (List.length tokens - 1) tokens, ListEx.last tokens )
+                                ( List.take (List.length tokens - 1) tokens
+                                    |> List.map String.fromList
+                                    |> String.join textSeparator
+                                , ListEx.last tokens |> Maybe.map String.fromList
+                                )
 
                             _ ->
                                 ( text, Nothing )
                 in
-                case textTuple of
+                case tuple of
                     ( _, Nothing ) ->
                         let
                             ( text_, comments_ ) =
-                                splitLineComments text
+                                splitLine text
                         in
                         ( text_, Nothing, comments_ )
 
                     ( t, Just s ) ->
                         let
                             ( text_, comments_ ) =
-                                splitLineComments t
+                                splitLine t
                         in
                         case D.decodeString ItemSettings.decoder s of
                             Ok settings_ ->
@@ -459,14 +464,14 @@ split text =
         [ text_ ] ->
             let
                 ( text__, comment ) =
-                    splitLineComments text_
+                    splitLine text_
             in
             ( text__, ItemSettings.new, comment )
 
         [ text_, settingsString ] ->
             let
                 ( text__, comment ) =
-                    splitLineComments text_
+                    splitLine text_
             in
             case D.decodeString ItemSettings.decoder settingsString of
                 Ok settings ->
@@ -581,8 +586,8 @@ parse indent text =
             ( [], [] )
 
 
-splitLineComments : String -> ( String, Maybe String )
-splitLineComments text =
+splitLine : String -> ( String, Maybe String )
+splitLine text =
     case String.split "#" text of
         [ _ ] ->
             ( text, Nothing )
