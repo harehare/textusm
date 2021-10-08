@@ -198,6 +198,7 @@ card { settings, position, selectedItem, item, canMove } =
                         , color = color
                         , item = item_
                         }
+                    , comments settings ( x_ + Size.getWidth selectedItemSize + 24, y_ + 2 ) (Item.getComments item)
                     ]
 
             else
@@ -205,6 +206,46 @@ card { settings, position, selectedItem, item, canMove } =
 
         Nothing ->
             view_
+
+
+comments : Settings -> Position -> Maybe String -> Svg Msg
+comments settings ( posX, posY ) comments_ =
+    case comments_ of
+        Just c ->
+            Svg.g []
+                [ Svg.rect
+                    [ SvgAttr.width "125"
+                    , SvgAttr.height "60"
+                    , SvgAttr.x <| String.fromInt posX
+                    , SvgAttr.y <| String.fromInt posY
+                    , SvgAttr.fill "rgba(0, 0, 0, 0.7)"
+                    , SvgAttr.rx "4"
+                    , SvgAttr.ry "4"
+                    , SvgAttr.style "filter:url(#shadow)"
+                    , SvgAttr.class "ts-card"
+                    ]
+                    []
+                , Svg.foreignObject
+                    [ SvgAttr.x <| String.fromInt <| posX - 1
+                    , SvgAttr.y <| String.fromInt <| posY + 1
+                    , SvgAttr.width "125"
+                    , SvgAttr.height "60"
+                    , SvgAttr.color "#f5f5f6"
+                    , FontSize.svgFontSize <| FontSize.fromInt 11
+                    , SvgAttr.class "select-none ts-text"
+                    ]
+                    [ Html.div
+                        [ Attr.style "font-family" <| Diagram.fontStyle settings
+                        , Attr.style "word-wrap" "break-word"
+                        , Attr.style "overflow-wrap" "break-word"
+                        , Attr.style "padding" "4px"
+                        ]
+                        [ Html.text <| String.dropLeft 1 c ]
+                    ]
+                ]
+
+        Nothing ->
+            Svg.g [] []
 
 
 horizontalLine : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
