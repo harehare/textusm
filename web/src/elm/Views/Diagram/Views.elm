@@ -218,16 +218,33 @@ comments settings ( posX, posY ) comments_ =
                     , SvgAttr.height "60"
                     , SvgAttr.x <| String.fromInt posX
                     , SvgAttr.y <| String.fromInt posY
-                    , SvgAttr.fill "rgba(0, 0, 0, 0.7)"
-                    , SvgAttr.rx "4"
-                    , SvgAttr.ry "4"
-                    , SvgAttr.style "filter:url(#shadow)"
+                    , SvgAttr.fill "#3D3D3D"
+                    , SvgAttr.rx "6"
+                    , SvgAttr.ry "6"
                     , SvgAttr.class "ts-card"
+                    ]
+                    []
+                , Svg.path
+                    [ SvgAttr.d
+                        (String.join " "
+                            [ "M"
+                            , String.fromInt <| posX - 8
+                            , String.fromInt <| posY + 20
+                            , "L"
+                            , String.fromInt <| posX + 2
+                            , String.fromInt <| posY + 10
+                            , "L"
+                            , String.fromInt <| posX + 2
+                            , String.fromInt <| posY + 30
+                            , "Z"
+                            ]
+                        )
+                    , SvgAttr.fill "#3D3D3D"
                     ]
                     []
                 , Svg.foreignObject
                     [ SvgAttr.x <| String.fromInt <| posX - 1
-                    , SvgAttr.y <| String.fromInt <| posY + 1
+                    , SvgAttr.y <| String.fromInt <| posY - 2
                     , SvgAttr.width "125"
                     , SvgAttr.height "60"
                     , SvgAttr.color "#f5f5f6"
@@ -238,7 +255,7 @@ comments settings ( posX, posY ) comments_ =
                         [ Attr.style "font-family" <| Diagram.fontStyle settings
                         , Attr.style "word-wrap" "break-word"
                         , Attr.style "overflow-wrap" "break-word"
-                        , Attr.style "padding" "4px"
+                        , Attr.style "padding" "8px"
                         ]
                         [ Html.text <| String.dropLeft 1 c ]
                     ]
@@ -551,7 +568,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
     else if Item.isImage item then
         image ( svgWidth, svgHeight ) ( posX, posY ) <| String.trim <| Item.getText item
 
-    else if String.length (Item.getText item) > 20 then
+    else if String.length (Item.getText item) > 15 then
         Svg.foreignObject
             [ SvgAttr.x <| String.fromInt posX
             , SvgAttr.y <| String.fromInt posY

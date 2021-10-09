@@ -40,7 +40,8 @@ import Models.FileType as FileType
 import Models.IdToken as IdToken
 import Models.Jwt as Jwt
 import Models.LoginProvider as LoginProdiver
-import Models.Model as Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
+import Models.Model as Model exposing (Model, Msg(..), SwitchWindow(..))
+import Models.Notification as Notification exposing (NotificationState)
 import Models.Page as Page
 import Models.Session as Session
 import Models.ShareToken as ShareToken
@@ -130,7 +131,7 @@ init flags url key =
                 , fullscreen = False
                 , showEditor = True
                 }
-            , notification = Nothing
+            , notification = Notification.Hide
             , url = url
             , key = key
             , switchWindow = Left
@@ -397,7 +398,7 @@ showSnackbar props =
             Empty.view
 
 
-showNotification : Maybe Notification -> Html Msg
+showNotification : NotificationState -> Html Msg
 showNotification notify =
     Notification.view notify
 
@@ -1043,14 +1044,14 @@ update message =
             Return.andThen <| \m -> Return.singleton { m | window = { position = m.window.position + x - m.window.moveX, moveStart = True, moveX = x, fullscreen = m.window.fullscreen, showEditor = m.window.showEditor } }
 
         ShowNotification notification ->
-            Return.andThen <| \m -> Return.singleton { m | notification = Just notification }
+            Return.andThen <| \m -> Return.singleton { m | notification = notification }
 
         HandleAutoCloseNotification notification ->
-            Return.andThen (\m -> Return.singleton { m | notification = Just notification })
+            Return.andThen (\m -> Return.singleton { m | notification = notification })
                 >> Action.closeNotification
 
         HandleCloseNotification ->
-            Return.andThen <| \m -> Return.singleton { m | notification = Nothing }
+            Return.andThen <| \m -> Return.singleton { m | notification = Notification.Hide }
 
         SwitchWindow w ->
             Return.andThen <| \m -> Return.singleton { m | switchWindow = w }
@@ -1306,9 +1307,9 @@ subscriptions model =
          , onVisibilityChange HandleVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
          , Ports.shortcuts Shortcuts
-         , Ports.onNotification (\n -> HandleAutoCloseNotification (Info n))
-         , Ports.sendErrorNotification (\n -> HandleAutoCloseNotification (Error n))
-         , Ports.onWarnNotification (\n -> HandleAutoCloseNotification (Warning n))
+         , Ports.onNotification (\n -> HandleAutoCloseNotification (Notification.showInfoNotifcation n))
+         , Ports.sendErrorNotification (\n -> HandleAutoCloseNotification (Notification.showErrorNotifcation n))
+         , Ports.onWarnNotification (\n -> HandleAutoCloseNotification (Notification.showWarningNotifcation n))
          , Ports.onAuthStateChanged HandleAuthStateChanged
          , Ports.saveToRemote SaveToRemote
          , Ports.removeRemoteDiagram (\diagram -> UpdateDiagramList <| DiagramList.RemoveRemote diagram)

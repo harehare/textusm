@@ -2,40 +2,41 @@ module Views.Notification exposing (view)
 
 import Html exposing (Html)
 import Html.Attributes as Attr
-import Maybe.Extra exposing (isNothing)
-import Models.Model exposing (Msg(..), Notification(..))
+import Models.Model exposing (Msg(..))
+import Models.Notification exposing (Notification(..), NotificationState(..))
 import Views.Icon as Icon
 
 
-view : Maybe Notification -> Html msg
+view : NotificationState -> Html msg
 view notification =
     let
-        ( t, icon ) =
+        ( text_, icon ) =
             case notification of
-                Just (Info text) ->
+                Show (Info text) ->
                     ( text, Icon.info 22 )
 
-                Just (Error text) ->
+                Show (Error text) ->
                     ( text, Icon.error 22 )
 
-                Just (Warning text) ->
+                Show (Warning text) ->
                     ( text, Icon.warning 22 )
 
-                Nothing ->
+                Hide ->
                     ( "", Icon.info 0 )
     in
     Html.div
         [ Attr.class "notification"
-        , if isNothing notification then
-            Attr.class ""
+        , case notification of
+            Hide ->
+                Attr.class ""
 
-          else
-            Attr.style "transform" "translateY(10%)"
+            _ ->
+                Attr.style "transform" "translateY(10%)"
         ]
         [ Html.div
             [ Attr.class "flex items-center mr-md"
             ]
             [ Html.div [ Attr.class "ml-sm" ] [ icon ]
-            , Html.div [ Attr.class "ml-sm" ] [ Html.text t ]
+            , Html.div [ Attr.class "ml-sm" ] [ Html.text text_ ]
             ]
         ]

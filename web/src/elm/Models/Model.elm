@@ -2,7 +2,6 @@ module Models.Model exposing
     ( Menu(..)
     , Model
     , Msg(..)
-    , Notification(..)
     , SwitchWindow(..)
     , Window
     , modelOfDiagramModel
@@ -26,6 +25,7 @@ import Models.DiagramItem exposing (DiagramItem)
 import Models.Dialog exposing (ConfirmDialog)
 import Models.FileType exposing (FileType)
 import Models.LoginProvider exposing (LoginProvider)
+import Models.Notification exposing (NotificationState)
 import Models.Page exposing (Page)
 import Models.Session exposing (Session)
 import Models.ShareToken exposing (ShareToken)
@@ -66,10 +66,10 @@ type Msg
     | HandleVisibilityChange Visibility
     | HandleStartWindowResize Int
     | HandleWindowResize Int
-    | HandleAutoCloseNotification Notification
+    | HandleAutoCloseNotification NotificationState
     | HandleCloseNotification
     | HandleAuthStateChanged (Maybe D.Value)
-    | ShowNotification Notification
+    | ShowNotification NotificationState
     | SwitchWindow SwitchWindow
     | Shortcuts String
     | GotLocalDiagramJson D.Value
@@ -94,12 +94,6 @@ type Msg
     | CloseSnackbar
 
 
-type Notification
-    = Info String
-    | Error String
-    | Warning String
-
-
 type Menu
     = Export
     | HeaderMenu
@@ -109,6 +103,15 @@ type Menu
 type SwitchWindow
     = Left
     | Right
+
+
+type alias Window =
+    { position : Int
+    , moveStart : Bool
+    , moveX : Int
+    , fullscreen : Bool
+    , showEditor : Bool
+    }
 
 
 type alias Model =
@@ -124,7 +127,7 @@ type alias Model =
     , openMenu : Maybe Menu
     , window : Window
     , title : Title
-    , notification : Maybe Notification
+    , notification : NotificationState
     , switchWindow : SwitchWindow
     , progress : Bool
     , confirmDialog : ConfirmDialog Msg
@@ -146,15 +149,6 @@ type alias Model =
                 , msg : Msg
                 }
             }
-    }
-
-
-type alias Window =
-    { position : Int
-    , moveStart : Bool
-    , moveX : Int
-    , fullscreen : Bool
-    , showEditor : Bool
     }
 
 

@@ -16,7 +16,8 @@ import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.LoginProvider as LoginProvider
-import Models.Model exposing (Model, Msg(..), Notification(..), SwitchWindow(..))
+import Models.Model exposing (Model, Msg(..), SwitchWindow(..))
+import Models.Notification as Notification
 import Models.Page as Page exposing (Page)
 import Models.Session as Session
 import Models.ShareToken as ShareToken exposing (ShareToken)
@@ -311,7 +312,7 @@ closeNotification =
 showWarningMessage : Message -> Model -> Return Msg Model
 showWarningMessage msg model =
     Return.return model
-        (Warning (msg model.lang)
+        (Notification.showWarningNotifcation (msg model.lang)
             |> ShowNotification
             |> Task.succeed
             |> Task.perform identity
@@ -322,7 +323,7 @@ showWarningMessage msg model =
 showInfoMessage : Message -> Model -> Return Msg Model
 showInfoMessage msg model =
     Return.return model
-        (Info (msg model.lang)
+        (Notification.showInfoNotifcation (msg model.lang)
             |> ShowNotification
             |> Task.succeed
             |> Task.perform identity
@@ -333,7 +334,7 @@ showInfoMessage msg model =
 showErrorMessage : Message -> Model -> Return Msg Model
 showErrorMessage msg model =
     Return.return model
-        (Error (msg model.lang)
+        (Notification.showErrorNotifcation (msg model.lang)
             |> ShowNotification
             |> Task.succeed
             |> Task.perform identity

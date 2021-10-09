@@ -335,7 +335,7 @@ userStoryMapRenderTest =
                 view model_
                     |> Query.fromHtml
                     |> Query.findAll [ tag "foreignObject" ]
-                    |> Query.count (Expect.equal 5)
+                    |> Query.count (Expect.equal 6)
         , test "User Story Map line count" <|
             \() ->
                 view model_
