@@ -3,26 +3,24 @@ module Views.Snackbar exposing (..)
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events as Events
+import Models.Snackbar as Snackbar
+import Views.Empty as Empty
 
 
-type alias Props msg =
-    { message : String
-    , action :
-        { text : String
-        , msg : msg
-        }
-    }
+view : Snackbar.Snackbar msg -> Html msg
+view snackbar =
+    case snackbar of
+        Snackbar.Show model ->
+            Html.div
+                [ Attr.class "snackbar"
+                ]
+                [ Html.div [ Attr.class "p-3" ] [ Html.text model.message ]
+                , Html.div
+                    [ Attr.class "p-3 text-accent cursor-pointer font-bold"
+                    , Events.onClick model.action
+                    ]
+                    [ Html.text model.text ]
+                ]
 
-
-view : Props msg -> Html msg
-view props =
-    Html.div
-        [ Attr.class "snackbar"
-        ]
-        [ Html.div [ Attr.class "p-3" ] [ Html.text props.message ]
-        , Html.div
-            [ Attr.class "p-3 text-accent cursor-pointer font-bold"
-            , Events.onClick props.action.msg
-            ]
-            [ Html.text props.action.text ]
-        ]
+        Snackbar.Hide ->
+            Empty.view

@@ -3,31 +3,31 @@ module Views.Notification exposing (view)
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Models.Model exposing (Msg(..))
-import Models.Notification exposing (Notification(..), NotificationState(..))
+import Models.Notification as Notification
 import Views.Icon as Icon
 
 
-view : NotificationState -> Html msg
+view : Notification.Notification -> Html msg
 view notification =
     let
         ( text_, icon ) =
             case notification of
-                Show (Info text) ->
+                Notification.Show (Notification.Info text) ->
                     ( text, Icon.info 22 )
 
-                Show (Error text) ->
+                Notification.Show (Notification.Error text) ->
                     ( text, Icon.error 22 )
 
-                Show (Warning text) ->
+                Notification.Show (Notification.Warning text) ->
                     ( text, Icon.warning 22 )
 
-                Hide ->
+                Notification.Hide ->
                     ( "", Icon.info 0 )
     in
     Html.div
         [ Attr.class "notification"
         , case notification of
-            Hide ->
+            Notification.Hide ->
                 Attr.class ""
 
             _ ->

@@ -1,33 +1,33 @@
 module Models.Notification exposing
-    ( Notification(..)
-    , NotificationState(..)
+    ( Model(..)
+    , Notification(..)
     , showErrorNotifcation
     , showInfoNotifcation
     , showWarningNotifcation
     )
 
 
-type NotificationState
-    = Show Notification
+type Notification
+    = Show Model
     | Hide
 
 
-type Notification
+type Model
     = Info String
     | Error String
     | Warning String
 
 
-showErrorNotifcation : String -> NotificationState
+showErrorNotifcation : String -> Notification
 showErrorNotifcation message =
     Show <| Error message
 
 
-showWarningNotifcation : String -> NotificationState
+showWarningNotifcation : String -> Notification
 showWarningNotifcation message =
     Show <| Warning message
 
 
-showInfoNotifcation : String -> NotificationState
+showInfoNotifcation : String -> Notification
 showInfoNotifcation message =
     Show <| Info message

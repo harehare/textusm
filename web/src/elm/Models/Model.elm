@@ -25,10 +25,11 @@ import Models.DiagramItem exposing (DiagramItem)
 import Models.Dialog exposing (ConfirmDialog)
 import Models.FileType exposing (FileType)
 import Models.LoginProvider exposing (LoginProvider)
-import Models.Notification exposing (NotificationState)
+import Models.Notification exposing (Notification)
 import Models.Page exposing (Page)
 import Models.Session exposing (Session)
 import Models.ShareToken exposing (ShareToken)
+import Models.Snackbar exposing (Snackbar)
 import Models.Title exposing (Title)
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
@@ -66,10 +67,10 @@ type Msg
     | HandleVisibilityChange Visibility
     | HandleStartWindowResize Int
     | HandleWindowResize Int
-    | HandleAutoCloseNotification NotificationState
+    | HandleAutoCloseNotification Notification
     | HandleCloseNotification
     | HandleAuthStateChanged (Maybe D.Value)
-    | ShowNotification NotificationState
+    | ShowNotification Notification
     | SwitchWindow SwitchWindow
     | Shortcuts String
     | GotLocalDiagramJson D.Value
@@ -127,7 +128,6 @@ type alias Model =
     , openMenu : Maybe Menu
     , window : Window
     , title : Title
-    , notification : NotificationState
     , switchWindow : SwitchWindow
     , progress : Bool
     , confirmDialog : ConfirmDialog Msg
@@ -141,14 +141,8 @@ type alias Model =
         }
     , isOnline : Bool
     , isDarkMode : Bool
-    , snackbar :
-        Maybe
-            { message : String
-            , action :
-                { text : String
-                , msg : Msg
-                }
-            }
+    , snackbar : Snackbar Msg
+    , notification : Notification
     }
 
 

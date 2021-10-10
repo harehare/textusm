@@ -41,11 +41,12 @@ import Models.IdToken as IdToken
 import Models.Jwt as Jwt
 import Models.LoginProvider as LoginProdiver
 import Models.Model as Model exposing (Model, Msg(..), SwitchWindow(..))
-import Models.Notification as Notification exposing (NotificationState)
+import Models.Notification as Notification exposing (Notification)
 import Models.Page as Page
 import Models.Session as Session
 import Models.ShareToken as ShareToken
 import Models.Size as Size
+import Models.Snackbar as SnackbarModel
 import Models.Text as Text
 import Models.Title as Title
 import Page.Embed as Embed
@@ -122,6 +123,9 @@ init flags url key =
             , diagramListModel = diagramListModel
             , settingsModel = settingsModel
             , shareModel = shareModel
+            , currentDiagram = initSettings.diagram
+            , session = Session.guest
+            , page = Page.Main
             , openMenu = Nothing
             , title = Title.fromString (Maybe.withDefault "" initSettings.title)
             , window =
@@ -131,16 +135,11 @@ init flags url key =
                 , fullscreen = False
                 , showEditor = True
                 }
-            , notification = Notification.Hide
             , url = url
             , key = key
             , switchWindow = Left
             , progress = False
-            , session = Session.guest
-            , currentDiagram = initSettings.diagram
-            , page = Page.Main
             , lang = lang
-            , confirmDialog = Dialog.Hide
             , prevRoute = Nothing
             , view =
                 { password = Nothing
@@ -150,7 +149,9 @@ init flags url key =
                 }
             , isOnline = flags.isOnline
             , isDarkMode = flags.isDarkMode
-            , snackbar = Nothing
+            , confirmDialog = Dialog.Hide
+            , notification = Notification.Hide
+            , snackbar = SnackbarModel.Hide
             }
     in
     Return.singleton model |> changeRouteTo (toRoute url)
@@ -204,9 +205,9 @@ view model =
             , prevRoute = model.prevRoute
             , isOnline = model.isOnline
             }
-        , Lazy.lazy showNotification model.notification
+        , Lazy.lazy Notification.view model.notification
+        , Lazy.lazy Snackbar.view model.snackbar
         , Lazy.lazy showProgress model.progress
-        , Lazy.lazy showSnackbar model.snackbar
         , div
             [ class "flex"
             , class "overflow-hidden"
@@ -378,29 +379,6 @@ showProgress show =
 
     else
         Empty.view
-
-
-showSnackbar :
-    Maybe
-        { message : String
-        , action :
-            { text : String
-            , msg : Msg
-            }
-        }
-    -> Html Msg
-showSnackbar props =
-    case props of
-        Just { message, action } ->
-            Snackbar.view { message = message, action = action }
-
-        Nothing ->
-            Empty.view
-
-
-showNotification : NotificationState -> Html Msg
-showNotification notify =
-    Notification.view notify
 
 
 showDialog : Dialog.ConfirmDialog Msg -> Html Msg
@@ -1273,7 +1251,7 @@ update message =
             Return.command Nav.reload
 
         CloseSnackbar ->
-            Return.andThen <| \m -> Return.singleton { m | snackbar = Nothing }
+            Return.andThen <| \m -> Return.singleton { m | snackbar = SnackbarModel.Hide }
 
         NotifyNewVersionAvailable msg ->
             Return.andThen
@@ -1281,12 +1259,10 @@ update message =
                     Return.singleton
                         { m
                             | snackbar =
-                                Just
+                                SnackbarModel.Show
                                     { message = msg
-                                    , action =
-                                        { text = "RELOAD"
-                                        , msg = Reload
-                                        }
+                                    , text = "RELOAD"
+                                    , action = Reload
                                     }
                         }
                 )
