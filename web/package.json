@@ -104,7 +104,7 @@
         "lib:build": "elm make src/elm/Extension/Lib.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/lib/src/js/",
         "generate-elm-types": "elm-graphql http://localhost:8081/graphql --base Graphql --output src/Graphql",
         "generate-elm-constants": "elm-constants --no-dotenv",
-        "format": "prettier --write src/**/*.{js,jsx,ts,tsx}",
+        "format": "prettier --write src/**/*.ts",
         "lint": "eslint --fix src/ts/*.ts",
         "prepare": "cd .. && husky install"
     },

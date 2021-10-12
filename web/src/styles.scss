@@ -614,7 +614,7 @@
     left: 40%;
     transform: translate(0, -50%);
     @media (max-width: 480px) {
-        @apply w-screen right-0 shadow-none;
+        @apply w-screen right-0 left-0 shadow-none;
         bottom: 55px;
         z-index: 200;
     }
