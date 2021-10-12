@@ -117,14 +117,14 @@ loadShareItem token model =
         )
 
 
-loadWithPasswordShareItem : ShareToken -> Model -> Return Msg Model
-loadWithPasswordShareItem token model =
+loadWithPasswordShareItem : ShareToken -> Maybe String -> Model -> Return Msg Model
+loadWithPasswordShareItem token password model =
     Return.return model
         (Task.attempt LoadWithPassword <|
             Request.shareItem
                 (Session.getIdToken model.session)
                 (ShareToken.toString token)
-                model.view.password
+                password
         )
 
 
@@ -420,29 +420,6 @@ setFocus id model =
 setFocusEditor : Return.ReturnF Msg Model
 setFocusEditor =
     Return.command <| Ports.focusEditor ()
-
-
-setShareToken : ShareToken -> Model -> Return Msg Model
-setShareToken token model =
-    Return.singleton
-        { model
-            | view =
-                { password = model.view.password
-                , authenticated = model.view.authenticated
-                , token = Just token
-                , error = Nothing
-                }
-        }
-
-
-canView : Model -> Return Msg Model
-canView model =
-    Return.singleton { model | view = { password = Nothing, token = Nothing, authenticated = True, error = Nothing } }
-
-
-canNotView : RequestError -> Model -> Return Msg Model
-canNotView error model =
-    Return.singleton { model | view = { password = Nothing, token = model.view.token, authenticated = False, error = Just error } }
 
 
 pushUrl : String -> Model -> Return Msg Model

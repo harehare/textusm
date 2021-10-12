@@ -358,7 +358,6 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 Events.onWheel chooseZoom
         , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
         , onDragMove model.touchDistance model.moveState (Utils.isPhone <| Size.getWidth model.size)
-        , Events.onMouseDown <| \_ -> Select Nothing
         ]
         [ if String.isEmpty model.settings.font then
             Svg.g [] []
@@ -797,7 +796,12 @@ update message model =
                             Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
 
                         _ ->
-                            Return.zero
+                            Return.andThen <|
+                                \m ->
+                                    Return.singleton
+                                        { m
+                                            | selectedItem = Nothing
+                                        }
                     )
                         >> Return.andThen stopMove
 

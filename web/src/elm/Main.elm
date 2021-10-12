@@ -41,9 +41,10 @@ import Models.IdToken as IdToken
 import Models.Jwt as Jwt
 import Models.LoginProvider as LoginProdiver
 import Models.Model as Model exposing (Model, Msg(..), SwitchWindow(..))
-import Models.Notification as Notification exposing (Notification)
+import Models.Notification as Notification
 import Models.Page as Page
 import Models.Session as Session
+import Models.ShareState as ShareState
 import Models.ShareToken as ShareToken
 import Models.Size as Size
 import Models.Snackbar as SnackbarModel
@@ -141,12 +142,7 @@ init flags url key =
             , progress = False
             , lang = lang
             , prevRoute = Nothing
-            , view =
-                { password = Nothing
-                , authenticated = False
-                , token = Nothing
-                , error = Nothing
-                }
+            , shareState = ShareState.unauthorized
             , isOnline = flags.isOnline
             , isDarkMode = flags.isDarkMode
             , confirmDialog = Dialog.Hide
@@ -324,11 +320,11 @@ view model =
             ViewFile _ id_ ->
                 case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
                     Just jwt ->
-                        if jwt.checkPassword && not model.view.authenticated then
+                        if jwt.checkPassword && not (ShareState.isAuthenticated model.shareState) then
                             Lazy.lazy InputDialog.view
                                 { title = "Protedted diagram"
-                                , errorMessage = Maybe.map RequestError.toMessage model.view.error
-                                , value = model.view.password |> Maybe.withDefault ""
+                                , errorMessage = Maybe.map RequestError.toMessage (ShareState.getError model.shareState)
+                                , value = ShareState.getPassword model.shareState |> Maybe.withDefault ""
                                 , inProcess = model.progress
                                 , lang = model.lang
                                 , onInput = EditPassword
@@ -523,17 +519,25 @@ changeRouteTo route =
         Route.ViewFile _ id_ ->
             case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
                 Just jwt ->
-                    Return.andThen (Action.setShareToken id_)
-                        >> (if jwt.checkPassword || jwt.checkEmail then
-                                Return.andThen (Action.switchPage Page.Main)
-                                    >> Return.andThen Action.changeRouteInit
+                    if jwt.checkPassword || jwt.checkEmail then
+                        Return.andThen
+                            (\m ->
+                                Return.singleton
+                                    { m | shareState = ShareState.authenticateWithPassword id_ }
+                            )
+                            >> Return.andThen (Action.switchPage Page.Main)
+                            >> Return.andThen Action.changeRouteInit
 
-                            else
-                                Return.andThen (Action.switchPage Page.Main)
-                                    >> Return.andThen (Action.loadShareItem id_)
-                                    >> Return.andThen Action.startProgress
-                                    >> Return.andThen Action.changeRouteInit
-                           )
+                    else
+                        Return.andThen
+                            (\m ->
+                                Return.singleton
+                                    { m | shareState = ShareState.authenticateNoPassword id_ }
+                            )
+                            >> Return.andThen (Action.switchPage Page.Main)
+                            >> Return.andThen (Action.loadShareItem id_)
+                            >> Return.andThen Action.startProgress
+                            >> Return.andThen Action.changeRouteInit
 
                 Nothing ->
                     Return.andThen <| Action.switchPage Page.NotFound
@@ -1194,15 +1198,15 @@ update message =
         EditPassword password ->
             Return.andThen <|
                 \m ->
-                    Return.singleton { m | view = { password = Just password, authenticated = False, token = m.view.token, error = Nothing } }
+                    Return.singleton { m | shareState = ShareState.inputPassword m.shareState password }
 
         EndEditPassword ->
             Return.andThen
                 (\m ->
-                    case m.view.token of
+                    case ShareState.getToken m.shareState of
                         Just token ->
                             Action.switchPage Page.Main m
-                                |> Return.andThen (Action.loadWithPasswordShareItem token)
+                                |> Return.andThen (Action.loadWithPasswordShareItem token (ShareState.getPassword m.shareState))
                                 |> Return.andThen Action.startProgress
 
                         Nothing ->
@@ -1210,11 +1214,11 @@ update message =
                 )
 
         LoadWithPassword (Ok diagram) ->
-            Return.andThen Action.canView
+            Return.andThen (\m -> Return.singleton { m | shareState = ShareState.authenticated m.shareState })
                 >> Return.andThen (Action.loadDiagram diagram)
 
         LoadWithPassword (Err e) ->
-            Return.andThen (Action.canNotView e)
+            Return.andThen (\m -> Return.singleton { m | shareState = ShareState.authenticatedError e })
                 >> Return.andThen Action.stopProgress
 
         CloseDialog ->

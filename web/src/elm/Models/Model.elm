@@ -28,7 +28,7 @@ import Models.LoginProvider exposing (LoginProvider)
 import Models.Notification exposing (Notification)
 import Models.Page exposing (Page)
 import Models.Session exposing (Session)
-import Models.ShareToken exposing (ShareToken)
+import Models.ShareState exposing (ShareState)
 import Models.Snackbar exposing (Snackbar)
 import Models.Title exposing (Title)
 import Monocle.Lens exposing (Lens)
@@ -133,12 +133,7 @@ type alias Model =
     , confirmDialog : ConfirmDialog Msg
     , lang : Lang
     , prevRoute : Maybe Route
-    , view :
-        { password : Maybe String
-        , authenticated : Bool
-        , token : Maybe ShareToken
-        , error : Maybe RequestError
-        }
+    , shareState : ShareState
     , isOnline : Bool
     , isDarkMode : Bool
     , snackbar : Snackbar Msg
