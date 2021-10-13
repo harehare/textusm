@@ -68,7 +68,7 @@
         "stylelint-config-prettier": "^9.0.2",
         "stylelint-config-standard": "^22.0.0",
         "svg-inline-loader": "^0.8.2",
-        "tailwindcss": "^2.2.16",
+        "tailwindcss": "^2.2.17",
         "terser": "^5.9.0",
         "terser-webpack-plugin": "^5.2.4",
         "ts-loader": "^9.2.6",
