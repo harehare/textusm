@@ -106,7 +106,8 @@
         "generate-elm-types": "elm-graphql http://localhost:8081/graphql --base Graphql --output src/Graphql",
         "generate-elm-constants": "elm-constants --no-dotenv",
         "format": "prettier --write src/**/*.ts",
-        "lint": "eslint --fix src/ts/*.ts && elm-review --template jfmengels/elm-review-unused/example",
+        "lint": "eslint --fix src/ts/*.ts",
+        "lint:elm": "elm-review --template jfmengels/elm-review-unused/example",
         "prepare": "cd .. && husky install"
     },
     "browserslist": [

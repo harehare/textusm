@@ -54,7 +54,7 @@ type Msg
     | Bookmark DiagramItem
     | RemoveRemote D.Value
     | Removed (Result RequestError String)
-    | Bookmarked (Result RequestError (Maybe DiagramItem))
+    | Bookmarked (Result RequestError ())
     | GotTimeZone Zone
     | GetDiagrams
     | GotLocalDiagramsJson D.Value
@@ -900,7 +900,7 @@ update message =
                                         ""
                                 )
                                 (not diagram.isBookmark)
-                                |> Task.map (\_ -> Just diagram)
+                                |> Task.map (\_ -> ())
                             )
                         )
                 )
@@ -946,6 +946,12 @@ update message =
                                     , cancel = CloseDialog
                                     }
                         }
+
+        Bookmarked (Ok _) ->
+            Return.zero
+
+        Bookmarked (Err _) ->
+            Return.zero
 
         _ ->
             Return.zero

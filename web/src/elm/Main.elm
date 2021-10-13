@@ -267,7 +267,7 @@ view model =
                 Page.Settings ->
                     Lazy.lazy Settings.view model.settingsModel |> Html.map UpdateSettings
 
-                Page.Embed _ _ _ ->
+                Page.Embed ->
                     Embed.view model
 
                 Page.New ->
@@ -423,13 +423,7 @@ changeRouteTo route =
                 )
                 >> Return.andThen (Action.setTitle title)
                 >> Return.andThen (Action.loadShareItem id_)
-                >> Return.andThen
-                    (Action.switchPage
-                        (Page.Embed diagram
-                            title
-                            (Maybe.andThen (\w -> Maybe.andThen (\h -> Just ( w, h )) height) width)
-                        )
-                    )
+                >> Return.andThen (Action.switchPage Page.Embed)
                 >> Return.andThen Action.changeRouteInit
 
         Route.Edit diagramType ->
@@ -1123,16 +1117,6 @@ update message =
         Load (Ok diagram) ->
             Return.andThen <| Action.loadDiagram diagram
 
-        EditText text ->
-            Return.andThen
-                (\m ->
-                    let
-                        ( model_, cmd_ ) =
-                            Diagram.update (DiagramModel.OnChangeText text) m.diagramModel
-                    in
-                    Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
-                )
-
         Load (Err e) ->
             (case e of
                 RequestError.NotFound ->
@@ -1174,7 +1158,7 @@ update message =
             Return.andThen (Action.showErrorMessage Message.messageFailedPublished)
                 >> Return.andThen Action.stopProgress
 
-        CloseFullscreen _ ->
+        CloseFullscreen ->
             Return.andThen
                 (\m ->
                     let
@@ -1295,7 +1279,14 @@ subscriptions model =
          , Ports.progress Progress
          , Ports.saveToLocalCompleted SaveToLocalCompleted
          , Ports.gotLocalDiagramJson GotLocalDiagramJson
-         , Ports.onCloseFullscreen CloseFullscreen
+         , Ports.fullscreen
+            (\f ->
+                if f then
+                    NoOp
+
+                else
+                    CloseFullscreen
+            )
          , Ports.updateIdToken UpdateIdToken
          , Ports.gotGithubAccessToken GotGithubAccessToken
          , Ports.changeNetworkState ChangeNetworkState

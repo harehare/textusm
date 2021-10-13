@@ -153,7 +153,7 @@ window.requestIdleCallback(() => {
 
     document.addEventListener('fullscreenchange', () => {
         if (!document.fullscreenElement) {
-            app.ports.onCloseFullscreen.send({});
+            app.ports.fullscreen.send(false);
         }
     });
 

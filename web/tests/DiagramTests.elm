@@ -266,7 +266,7 @@ changeTextTest =
                                                         (Item.fromList
                                                             [ Item.new
                                                                 |> Item.withText "        test3"
-                                                                |> Item.withItemType (Stories 1)
+                                                                |> Item.withItemType Stories
                                                                 |> Item.withLineNo 2
                                                             ]
                                                         )
@@ -297,11 +297,11 @@ changeTextTest =
                                                         (Item.fromList
                                                             [ Item.new
                                                                 |> Item.withText "        test3"
-                                                                |> Item.withItemType (Stories 1)
+                                                                |> Item.withItemType Stories
                                                                 |> Item.withLineNo 2
                                                             , Item.new
                                                                 |> Item.withText "        test4"
-                                                                |> Item.withItemType (Stories 1)
+                                                                |> Item.withItemType Stories
                                                                 |> Item.withLineNo 3
                                                             ]
                                                         )

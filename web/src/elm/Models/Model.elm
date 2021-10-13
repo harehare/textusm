@@ -57,7 +57,6 @@ type Msg
     | Progress Bool
     | EndEditTitle
     | EditTitle String
-    | EditText String
     | SignIn LoginProvider
     | SignOut
     | LinkClicked Browser.UrlRequest
@@ -78,7 +77,7 @@ type Msg
     | LoadSettings (Result RequestError Diagram.Settings)
     | SaveSettings (Result RequestError Diagram.Settings)
     | CallApi (Result Message ())
-    | CloseFullscreen D.Value
+    | CloseFullscreen
     | UpdateIdToken String
     | EditPassword String
     | EndEditPassword

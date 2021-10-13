@@ -93,7 +93,7 @@ type Item
 type ItemType
     = Activities
     | Tasks
-    | Stories Int
+    | Stories
     | Comments
 
 
@@ -647,4 +647,4 @@ createItemType text indent =
                 Tasks
 
             _ ->
-                Stories (indent - 1)
+                Stories

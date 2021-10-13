@@ -8,6 +8,7 @@ port module Ports exposing
     , downloadPng
     , downloadSvg
     , focusEditor
+    , fullscreen
     , getDiagram
     , getGithubAccessToken
     , gotGithubAccessToken
@@ -15,7 +16,6 @@ port module Ports exposing
     , gotLocalDiagramsJson
     , notifyNewVersionAvailable
     , onAuthStateChanged
-    , onCloseFullscreen
     , onNotification
     , onWarnNotification
     , openFullscreen
@@ -102,9 +102,6 @@ port focusEditor : () -> Cmd msg
 port saveSettings : E.Value -> Cmd msg
 
 
-port copyClipboard : String -> Cmd msg
-
-
 port downloadCompleted : (( Int, Int ) -> msg) -> Sub msg
 
 
@@ -135,7 +132,7 @@ port saveToRemote : (D.Value -> msg) -> Sub msg
 port saveToLocalCompleted : (D.Value -> msg) -> Sub msg
 
 
-port onCloseFullscreen : (D.Value -> msg) -> Sub msg
+port fullscreen : (Bool -> msg) -> Sub msg
 
 
 port refreshToken : () -> Cmd msg

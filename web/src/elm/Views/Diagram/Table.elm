@@ -73,7 +73,7 @@ rowView settings selectedItem rowNo item =
                         settings
                         ( settings.size.width * (i + 1), settings.size.height * rowNo )
                         selectedItem
-                        (Item.withItemType (Stories 1) childItem)
+                        (Item.withItemType Stories childItem)
                     )
                 )
                 (Item.getChildren item |> Item.unwrapChildren)

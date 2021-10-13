@@ -1,6 +1,7 @@
 module Api.Graphql.Mutation exposing
     ( bookmark
     , delete
+    , deleteGist
     , save
     , saveGist
     , saveSettings
@@ -13,7 +14,7 @@ import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings, In
 import Graphql.Mutation as Mutation
 import Graphql.Operation exposing (RootMutation)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
-import Graphql.Scalar exposing (ItemIdScalar(..))
+import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
 import Graphql.SelectionSet exposing (SelectionSet)
 import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramItem)
@@ -28,6 +29,11 @@ save input isPublic =
 delete : String -> Bool -> SelectionSet ItemIdScalar RootMutation
 delete itemID isPublic =
     Mutation.delete (\optionals -> { optionals | isPublic = Present isPublic }) { itemID = ItemIdScalar itemID }
+
+
+deleteGist : String -> SelectionSet GistIdScalar RootMutation
+deleteGist gistID =
+    Mutation.deleteGist { gistID = GistIdScalar gistID }
 
 
 bookmark : String -> Bool -> SelectionSet (Maybe DiagramItem) RootMutation

@@ -34,7 +34,7 @@ type ElmApp = {
         getGithubAccessToken: Subscribe<(cmd: string) => void>;
 
         gotGithubAccessToken: Send<{ cmd: string; accessToken: string | null }>;
-        onCloseFullscreen: Send<Record<string, unknown>>;
+        fullscreen: Send<boolean>;
         sendErrorNotification: Send<string>;
         progress: Send<boolean>;
         changeText: Send<string>;
