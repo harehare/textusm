@@ -1,7 +1,7 @@
 module Views.Diagram.Kanban exposing (view)
 
 import Constants
-import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle)
+import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings, fontStyle)
 import Models.Diagram.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import Models.Position exposing (Position)
 import String

@@ -1,7 +1,6 @@
 module Models.ItemSettings exposing
     ( ItemSettings
     , decoder
-    , encoder
     , getBackgroundColor
     , getFontSize
     , getForegroundColor

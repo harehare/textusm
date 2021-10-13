@@ -1,10 +1,10 @@
-module Views.Diagram.ContextMenu exposing (view, viewAllMenu, viewColorMenuOnly)
+module Views.Diagram.ContextMenu exposing (viewAllMenu, viewColorMenuOnly)
 
 import Events
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Models.Color as Color exposing (Color)
-import Models.Diagram exposing (ContextMenu(..), Data(..), Msg(..))
+import Models.Diagram exposing (ContextMenu(..))
 import Models.Dialog exposing (display)
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.FontStyle as FontStyle exposing (FontStyle)

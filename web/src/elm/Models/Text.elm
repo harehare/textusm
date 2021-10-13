@@ -1,4 +1,4 @@
-module Models.Text exposing (Text, change, decoder, edit, empty, fromString, isChanged, isEmpty, isSaved, lines, saved, toString)
+module Models.Text exposing (Text, change, decoder, edit, empty, fromString, isChanged, isEmpty, lines, saved, toString)
 
 import Json.Decode as D exposing (Decoder)
 
@@ -18,16 +18,6 @@ isChanged : Text -> Bool
 isChanged text =
     case text of
         Changed _ ->
-            True
-
-        _ ->
-            False
-
-
-isSaved : Text -> Bool
-isSaved text =
-    case text of
-        Saved _ ->
             True
 
         _ ->

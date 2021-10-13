@@ -2,24 +2,21 @@ module Utils.Diagram exposing (getCanvasHeight, getCanvasSize, getSpacePrefix)
 
 import Constants
 import Graphql.Enum.Diagram as Diagram
-import Http exposing (Error(..))
 import List.Extra as ListEx
 import Models.Diagram as DiagramModel
 import Models.Diagram.ER as ER exposing (Table(..))
 import Models.Diagram.FreeForm as FreeForm
-import Models.Diagram.GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
+import Models.Diagram.GanttChart exposing (GanttChart(..), Schedule(..), Section(..))
 import Models.Diagram.Kanban as Kanban
 import Models.Diagram.SequenceDiagram as SequenceDiagram
 import Models.Diagram.UseCaseDiagram as UseCaseDiagram
     exposing
         ( Actor(..)
-        , Relation(..)
         , UseCase(..)
         , UseCaseDiagram(..)
         )
 import Models.Diagram.UserStoryMap as UserStoryMap
 import Models.Item as Item exposing (Items)
-import Time exposing (Month(..))
 import Tuple
 
 

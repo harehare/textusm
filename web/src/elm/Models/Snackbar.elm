@@ -1,4 +1,4 @@
-module Models.Snackbar exposing (Snackbar(..), show)
+module Models.Snackbar exposing (Snackbar(..))
 
 
 type Snackbar msg
@@ -11,8 +11,3 @@ type alias Model msg =
     , text : String
     , action : msg
     }
-
-
-show : Model msg -> Snackbar msg
-show model =
-    Show model

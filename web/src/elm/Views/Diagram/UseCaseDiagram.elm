@@ -11,7 +11,7 @@ import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.Diagram.UseCaseDiagram as UseCaseDiagram
     exposing
         ( Actor(..)
-        , Relation(..)
+        , Relation
         , UseCase(..)
         , UseCaseDiagram(..)
         , UseCaseRelation
@@ -20,7 +20,7 @@ import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
 import Set exposing (Set)
-import State as State exposing (Step(..))
+import State exposing (Step(..))
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 import Views.Empty as Empty

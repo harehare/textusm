@@ -1,8 +1,8 @@
 module Views.Diagram.ImpactMap exposing (view)
 
 import List.Extra as ListEx
-import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
-import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
+import Models.Item as Item exposing (Item, Items)
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Size exposing (Size)

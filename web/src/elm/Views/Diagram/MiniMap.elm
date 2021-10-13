@@ -5,8 +5,7 @@ import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Models.Color as Color
-import Models.Diagram exposing (Msg(..))
-import Models.Diagram.FourLs exposing (FourLsItem(..))
+import Models.Diagram exposing (Msg)
 import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
 import Svg exposing (Svg)

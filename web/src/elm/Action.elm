@@ -2,23 +2,22 @@ module Action exposing (..)
 
 import Api.Http.Token as TokenApi
 import Api.Request as Request
-import Api.RequestError exposing (RequestError)
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Dialog.Share as Share
 import Graphql.Enum.Diagram exposing (Diagram)
 import Graphql.OptionalArgument as OptionalArgument
-import Message as Message exposing (Message)
+import Message exposing (Message)
 import Models.Diagram as DiagramModel
 import Models.DiagramId as DiagramId exposing (DiagramId)
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.LoginProvider as LoginProvider
-import Models.Model exposing (Model, Msg(..), SwitchWindow(..))
+import Models.Model exposing (Model, Msg(..))
 import Models.Notification as Notification
-import Models.Page as Page exposing (Page)
+import Models.Page exposing (Page)
 import Models.Session as Session
 import Models.ShareToken as ShareToken exposing (ShareToken)
 import Models.Text as Text
@@ -26,10 +25,9 @@ import Models.Title as Title
 import Page.List as DiagramList
 import Page.Settings as SettingsPage
 import Ports
-import RemoteData exposing (RemoteData(..))
-import Return as Return exposing (Return)
-import Route exposing (Route(..))
-import Settings as Settings
+import Return exposing (Return)
+import Route exposing (Route)
+import Settings
 import Task
 import Utils.Utils as Utils
 

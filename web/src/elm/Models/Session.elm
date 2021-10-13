@@ -7,7 +7,6 @@ module Models.Session exposing
     , getUser
     , guest
     , isGithubUser
-    , isGoogleUser
     , isGuest
     , isSignedIn
     , signIn
@@ -51,16 +50,6 @@ isGithubUser session =
     case session of
         SignedIn user ->
             LoginProvider.isGithubLogin user.loginProvider
-
-        Guest ->
-            False
-
-
-isGoogleUser : Session -> Bool
-isGoogleUser session =
-    case session of
-        SignedIn user ->
-            LoginProvider.isGoogleLogin user.loginProvider
 
         Guest ->
             False

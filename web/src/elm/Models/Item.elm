@@ -7,8 +7,6 @@ module Models.Item exposing
     , cons
     , empty
     , emptyChildren
-    , filter
-    , filterMap
     , flatten
     , fromList
     , fromString
@@ -62,7 +60,7 @@ import Json.Decode as D
 import List.Extra as ListEx
 import Maybe
 import Models.Color exposing (Color)
-import Models.FontSize exposing (FontSize, unwrap)
+import Models.FontSize exposing (FontSize)
 import Models.ItemSettings as ItemSettings exposing (ItemSettings)
 import Models.Position exposing (Position)
 import Models.Size as Size exposing (Size)
@@ -352,11 +350,6 @@ tail (Items items) =
 map : (Item -> a) -> Items -> List a
 map f (Items items) =
     List.map f items
-
-
-filterMap : (Item -> Maybe a) -> Items -> List a
-filterMap f (Items items) =
-    List.filterMap f items
 
 
 filter : (Item -> Bool) -> Items -> Items

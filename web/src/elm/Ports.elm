@@ -2,7 +2,6 @@ port module Ports exposing
     ( changeNetworkState
     , changeText
     , closeFullscreen
-    , copyClipboard
     , downloadCompleted
     , downloadHtml
     , downloadPdf

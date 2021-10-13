@@ -5,7 +5,6 @@ module Models.Size exposing
     , decoder
     , getHeight
     , getWidth
-    , isZero
     , zero
     )
 
@@ -37,16 +36,6 @@ getHeight ( _, height ) =
 zero : Size
 zero =
     ( 0, 0 )
-
-
-isZero : Size -> Bool
-isZero size =
-    case size of
-        ( 0, 0 ) ->
-            True
-
-        _ ->
-            False
 
 
 decoder : D.Decoder Size

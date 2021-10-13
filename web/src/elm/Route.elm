@@ -1,9 +1,8 @@
-module Route exposing (Route(..), moveTo, replaceRoute, toDiagramToRoute, toRoute, toString)
+module Route exposing (Route(..), moveTo, replaceRoute, toRoute, toString)
 
 import Browser.Navigation as Nav
-import Graphql.Enum.Diagram exposing (Diagram(..))
+import Graphql.Enum.Diagram exposing (Diagram)
 import Models.DiagramId as DiagramId exposing (DiagramId)
-import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramType as DiagramType
 import Models.ShareToken as ShareToken exposing (ShareToken)
 import Url exposing (Url)
@@ -78,20 +77,6 @@ shareId =
 toRoute : Url -> Route
 toRoute url =
     Maybe.withDefault NotFound (parse parser url)
-
-
-toDiagramToRoute : DiagramItem -> Route
-toDiagramToRoute diagram =
-    case diagram.id of
-        Nothing ->
-            Edit diagram.diagram
-
-        Just id_ ->
-            if diagram.isPublic then
-                ViewPublic diagram.diagram id_
-
-            else
-                EditFile diagram.diagram id_
 
 
 toString : Route -> String

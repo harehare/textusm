@@ -1,10 +1,9 @@
 module Models.ItemTests exposing (suite)
 
 import Expect
-import Graphql.Enum.Diagram exposing (Diagram(..))
 import Models.FontSize as FontSize
 import Models.Fuzzer exposing (itemFuzzer)
-import Models.Item as Item exposing (ItemType(..), Items(..))
+import Models.Item as Item
 import Models.ItemSettings as ItemSettings
 import Test exposing (Test, describe, fuzz, test)
 

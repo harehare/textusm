@@ -3,7 +3,6 @@ port module Page.List exposing
     , Model
     , Msg(..)
     , init
-    , isNotAsked
     , modelOfDiagramList
     , notAsked
     , update
@@ -36,7 +35,7 @@ import Models.Title as Title
 import Monocle.Lens exposing (Lens)
 import Ordering exposing (Ordering)
 import RemoteData exposing (RemoteData(..), WebData)
-import Return as Return exposing (Return)
+import Return exposing (Return)
 import Simple.Fuzzy as Fuzzy
 import Task
 import Time exposing (Zone)
@@ -48,8 +47,7 @@ import Views.Progress as Progress
 
 
 type Msg
-    = NoOp
-    | SearchInput String
+    = SearchInput String
     | Select DiagramItem
     | Reload
     | Remove DiagramItem
@@ -127,22 +125,6 @@ modelOfDiagramList =
 notAsked : DiagramList
 notAsked =
     AllList NotAsked 1 False
-
-
-isNotAsked : DiagramList -> Bool
-isNotAsked data =
-    case data of
-        AllList remoteData _ _ ->
-            RemoteData.isNotAsked remoteData || List.isEmpty (RemoteData.withDefault [] remoteData)
-
-        PublicList remoteData _ _ ->
-            RemoteData.isNotAsked remoteData || List.isEmpty (RemoteData.withDefault [] remoteData)
-
-        BookmarkList remoteData _ _ ->
-            RemoteData.isNotAsked remoteData || List.isEmpty (RemoteData.withDefault [] remoteData)
-
-        GistList remoteData _ _ ->
-            RemoteData.isNotAsked remoteData || List.isEmpty (RemoteData.withDefault [] remoteData)
 
 
 isAllList : DiagramList -> Bool
@@ -592,9 +574,6 @@ reload =
 update : Msg -> Return.ReturnF Msg Model
 update message =
     case message of
-        NoOp ->
-            Return.zero
-
         GotTimeZone zone ->
             Return.andThen <| \m -> Return.singleton { m | timeZone = zone }
 

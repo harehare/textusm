@@ -25,10 +25,6 @@ type alias RelationShipString =
     String
 
 
-type alias Length =
-    Int
-
-
 type alias LineNo =
     Int
 

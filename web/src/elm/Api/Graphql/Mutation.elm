@@ -1,7 +1,6 @@
 module Api.Graphql.Mutation exposing
     ( bookmark
     , delete
-    , deleteGist
     , save
     , saveGist
     , saveSettings
@@ -14,7 +13,7 @@ import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings, In
 import Graphql.Mutation as Mutation
 import Graphql.Operation exposing (RootMutation)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
-import Graphql.Scalar exposing (GistIdScalar(..), Id(..), ItemIdScalar(..))
+import Graphql.Scalar exposing (ItemIdScalar(..))
 import Graphql.SelectionSet exposing (SelectionSet)
 import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramItem)
@@ -46,11 +45,6 @@ saveGist : InputGistItem -> SelectionSet DiagramItem RootMutation
 saveGist input =
     Mutation.saveGist { input = input } <|
         Selection.gistItemSelection
-
-
-deleteGist : String -> SelectionSet GistIdScalar RootMutation
-deleteGist gistID =
-    Mutation.deleteGist { gistID = GistIdScalar gistID }
 
 
 saveSettings : Diagram -> InputSettings -> SelectionSet DiagramModel.Settings RootMutation

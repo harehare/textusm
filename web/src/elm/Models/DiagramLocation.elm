@@ -4,9 +4,6 @@ module Models.DiagramLocation exposing
     , enabled
     , encoder
     , fromString
-    , isGist
-    , isGoogleDrive
-    , isLocal
     , isRemote
     , toString
     )
@@ -42,36 +39,6 @@ isRemote : DiagramLocation -> Bool
 isRemote loc =
     case loc of
         Remote ->
-            True
-
-        _ ->
-            False
-
-
-isLocal : DiagramLocation -> Bool
-isLocal loc =
-    case loc of
-        Local ->
-            True
-
-        _ ->
-            False
-
-
-isGist : DiagramLocation -> Bool
-isGist loc =
-    case loc of
-        Gist ->
-            True
-
-        _ ->
-            False
-
-
-isGoogleDrive : DiagramLocation -> Bool
-isGoogleDrive loc =
-    case loc of
-        GoogleDrive ->
             True
 
         _ ->

@@ -2,7 +2,6 @@ module Api.Request exposing
     ( allItems
     , bookmark
     , delete
-    , deleteGist
     , gistItem
     , gistItems
     , item
@@ -226,21 +225,6 @@ saveGist idToken accessToken input content =
             GithubRequest.createGist accessToken gistInput
                 |> Task.mapError RequestError.fromHttpError
                 |> Task.andThen saveTask
-
-
-deleteGist : Maybe IdToken -> AccessToken -> GistId -> Task RequestError String
-deleteGist idToken accessToken gistId =
-    GithubRequest.deleteGist accessToken gistId
-        |> Task.mapError RequestError.fromHttpError
-        |> Task.andThen
-            (\_ ->
-                Mutation.deleteGist gistId
-                    |> Http.mutationRequest graphQLUrl
-                    |> authHeaders idToken
-                    |> Http.toTask
-                    |> Task.map (\(GistIdScalar id) -> id)
-                    |> Task.mapError toError
-            )
 
 
 settings : Maybe IdToken -> Diagram -> Task RequestError DiagramModel.Settings

@@ -1,6 +1,6 @@
 module Views.Diagram.Path exposing (view)
 
-import Models.Diagram exposing (Msg(..))
+import Models.Diagram exposing (Msg)
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
 

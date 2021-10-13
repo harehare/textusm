@@ -4,7 +4,7 @@ import Api.Graphql.Query exposing (ShareCondition)
 import Api.Request as Request
 import Env
 import Events
-import Graphql.Enum.Diagram exposing (Diagram(..))
+import Graphql.Enum.Diagram exposing (Diagram)
 import Html exposing (Html, div, input, text, textarea)
 import Html.Attributes as Attr exposing (class, id, maxlength, placeholder, readonly, style, type_, value)
 import Html.Events exposing (onClick, onFocus, onInput)
@@ -20,8 +20,7 @@ import Models.Session as Session exposing (Session)
 import Models.Size as Size exposing (Size)
 import Models.Title as Title exposing (Title)
 import RemoteData exposing (RemoteData(..))
-import Return as Return exposing (Return)
-import Route exposing (Route(..))
+import Return exposing (Return)
 import Task exposing (Task)
 import Time exposing (Posix, Zone)
 import Time.Extra as TimeEx

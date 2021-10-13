@@ -1,6 +1,5 @@
 module Api.Graphql.Selection exposing
     ( allItemsSelection
-    , colorSelection
     , gistItemSelection
     , itemSelection
     , settingsSelection
@@ -11,8 +10,6 @@ import Graphql.Object.Color
 import Graphql.Object.GistItem
 import Graphql.Object.Item
 import Graphql.Object.Settings
-import Graphql.OptionalArgument exposing (OptionalArgument(..))
-import Graphql.Scalar exposing (GistIdScalar(..), Id(..), ItemIdScalar(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Graphql.Union
 import Graphql.Union.DiagramItem
@@ -21,7 +18,6 @@ import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
 import Models.Text as Text
 import Models.Title as Title
-import Route exposing (Route(..))
 
 
 colorSelection : SelectionSet DiagramModel.Color Graphql.Object.Color

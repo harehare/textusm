@@ -1,4 +1,4 @@
-module Events exposing (keyBackspace, keyEnter, onBackspace, onChange, onClickStopPropagation, onDblclickstoppropagation, onDrop, onEnter, onKeyDown, onMouseDown, onMouseMove, onMouseUp, onTouchStart, onWheel, touchCoordinates)
+module Events exposing (onChange, onClickStopPropagation, onDrop, onEnter, onMouseDown, onMouseMove, onMouseUp, onTouchStart, onWheel, touchCoordinates)
 
 import File exposing (File)
 import Html exposing (Attribute)
@@ -16,11 +16,6 @@ type alias KeyCode =
 keyEnter : KeyCode
 keyEnter =
     13
-
-
-keyBackspace : KeyCode
-keyBackspace =
-    8
 
 
 onMouseDown : (Mouse.Event -> msg) -> Html.Attribute msg
@@ -52,11 +47,6 @@ onClickStopPropagation msg =
     stopPropagationOn "click" (D.map alwaysStopPropagation (D.succeed msg))
 
 
-onDblclickstoppropagation : msg -> Html.Attribute msg
-onDblclickstoppropagation msg =
-    stopPropagationOn "dblclick" (D.map alwaysStopPropagation (D.succeed msg))
-
-
 alwaysStopPropagation : msg -> ( msg, Bool )
 alwaysStopPropagation msg =
     ( msg, True )
@@ -67,19 +57,9 @@ alwaysPreventDefaultOn msg =
     alwaysStopPropagation msg
 
 
-onKeyDown : (Int -> Bool -> msg) -> Attribute msg
-onKeyDown tagger =
-    on "keydown" (D.map2 tagger keyCode isComposing)
-
-
 onEnter : msg -> Attribute msg
 onEnter msg =
     onKeyCodeDown keyEnter msg
-
-
-onBackspace : msg -> Attribute msg
-onBackspace msg =
-    onKeyCodeDown keyBackspace msg
 
 
 onKeyCodeDown : Int -> msg -> Attribute msg

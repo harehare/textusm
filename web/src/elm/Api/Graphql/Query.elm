@@ -18,7 +18,7 @@ import Graphql.Object.ShareCondition
 import Graphql.Operation exposing (RootQuery)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Query as Query
-import Graphql.Scalar exposing (GistIdScalar(..), Id(..), ItemIdScalar(..))
+import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Models.Diagram as DiagramModel
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
@@ -27,7 +27,6 @@ import Models.Email as Email exposing (Email)
 import Models.IpAddress as IpAddress exposing (IpAddress)
 import Models.Text as Text
 import Models.Title as Title
-import Route exposing (Route(..))
 
 
 type alias ShareCondition =

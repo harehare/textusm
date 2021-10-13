@@ -1,7 +1,6 @@
 module Models.DiagramType exposing (defaultText, fromString, toDiagram, toLongString, toString)
 
 import Graphql.Enum.Diagram exposing (Diagram(..))
-import Models.Diagram.SequenceDiagram exposing (SequenceDiagram)
 
 
 toString : Diagram -> String

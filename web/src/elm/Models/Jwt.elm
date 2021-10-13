@@ -1,4 +1,4 @@
-module Models.Jwt exposing (Jwt, decoder, fromString)
+module Models.Jwt exposing (Jwt, fromString)
 
 import Base64
 import Json.Decode as D

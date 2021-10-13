@@ -4,7 +4,6 @@ module Message exposing
     , fromString
     , messagEerrorOccurred
     , messageBadRequest
-    , messageFailedLoadSettings
     , messageFailedPublished
     , messageFailedRevokeToken
     , messageFailedSaveSettings
@@ -12,20 +11,17 @@ module Message exposing
     , messageFailedSharing
     , messageImportCompleted
     , messageInternalServerError
-    , messageInvalidParameter
     , messageInvalidUrl
     , messageNetworkError
     , messageNotAuthorized
     , messageNotFound
     , messagePublished
-    , messageRequestTimeout
     , messageSuccessfullySaved
     , messageTimeout
     , messageUnknown
     , messageUrlExpired
     , toolPrivate
     , toolPublic
-    , toolTipBack
     , toolTipExport
     , toolTipHelp
     , toolTipImport
@@ -34,7 +30,6 @@ module Message exposing
     , toolTipSave
     , toolTipSettings
     , toolTipShare
-    , toolTipTags
     )
 
 
@@ -65,16 +60,6 @@ toolTipNewFile lang =
 
         _ ->
             "New File"
-
-
-toolTipBack : Lang -> String
-toolTipBack lang =
-    case lang of
-        Ja ->
-            "戻る"
-
-        _ ->
-            "Back"
 
 
 toolTipOpenFile : Lang -> String
@@ -127,16 +112,6 @@ toolTipSettings lang =
             "Settings"
 
 
-toolTipTags : Lang -> String
-toolTipTags lang =
-    case lang of
-        Ja ->
-            "タグ"
-
-        _ ->
-            "Tags"
-
-
 toolPublic : Lang -> String
 toolPublic lang =
     case lang of
@@ -185,16 +160,6 @@ messagEerrorOccurred lang =
 
         _ ->
             "An error occurred"
-
-
-messageRequestTimeout : Lang -> String
-messageRequestTimeout lang =
-    case lang of
-        Ja ->
-            "リクエストがタイムアウトしました"
-
-        _ ->
-            "Request timeout"
 
 
 messageNetworkError : Lang -> String
@@ -307,16 +272,6 @@ messageUrlExpired lang =
             "URL has expired"
 
 
-messageInvalidParameter : Lang -> String
-messageInvalidParameter lang =
-    case lang of
-        Ja ->
-            "不正なパラメタが指定されました"
-
-        _ ->
-            "Invalid parameters"
-
-
 messageUnknown : Lang -> String
 messageUnknown lang =
     case lang of
@@ -365,16 +320,6 @@ messageFailedRevokeToken lang =
 
         _ ->
             "Failed to revoke the token"
-
-
-messageFailedLoadSettings : Lang -> String
-messageFailedLoadSettings lang =
-    case lang of
-        Ja ->
-            "設定の読み込みに失敗しました"
-
-        _ ->
-            "Failed to load settings"
 
 
 messageFailedSaveSettings : Lang -> String

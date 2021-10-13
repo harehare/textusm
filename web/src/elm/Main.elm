@@ -1,4 +1,4 @@
-module Main exposing (init, main, view)
+module Main exposing (main)
 
 import Action
 import Api.RequestError as RequestError
@@ -25,7 +25,6 @@ import Html.Attributes exposing (alt, attribute, class, id, style)
 import Html.Events as E
 import Html.Lazy as Lazy
 import Json.Decode as D
-import Json.Encode as E
 import Maybe.Extra exposing (isJust)
 import Message
 import Models.Diagram as DiagramModel
@@ -57,8 +56,7 @@ import Page.New as New
 import Page.NotFound as NotFound
 import Page.Settings as Settings
 import Ports
-import RemoteData exposing (RemoteData(..))
-import Return as Return exposing (Return)
+import Return exposing (Return)
 import Route exposing (Route(..), toRoute)
 import Settings
     exposing

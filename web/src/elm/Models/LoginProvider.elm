@@ -1,4 +1,4 @@
-module Models.LoginProvider exposing (LoginProvider(..), decoder, isGithubLogin, isGoogleLogin, toString)
+module Models.LoginProvider exposing (LoginProvider(..), decoder, isGithubLogin, toString)
 
 import Json.Decode as D
 
@@ -20,16 +20,6 @@ isGithubLogin provider =
 
         Github _ ->
             True
-
-
-isGoogleLogin : LoginProvider -> Bool
-isGoogleLogin provider =
-    case provider of
-        Google ->
-            True
-
-        Github _ ->
-            False
 
 
 toString : LoginProvider -> String

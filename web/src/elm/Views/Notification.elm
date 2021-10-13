@@ -2,7 +2,6 @@ module Views.Notification exposing (view)
 
 import Html exposing (Html)
 import Html.Attributes as Attr
-import Models.Model exposing (Msg(..))
 import Models.Notification as Notification
 import Views.Icon as Icon
 

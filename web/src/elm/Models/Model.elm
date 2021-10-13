@@ -4,7 +4,6 @@ module Models.Model exposing
     , Msg(..)
     , SwitchWindow(..)
     , Window
-    , modelOfDiagramModel
     , windowOfFullscreen
     , windowOfMoveStart
     , windowOfMoveX
@@ -20,7 +19,6 @@ import Dialog.Share as Share
 import Json.Decode as D
 import Message exposing (Lang, Message)
 import Models.Diagram as Diagram
-import Models.Diagram.ER exposing (ColumnType(..))
 import Models.DiagramItem exposing (DiagramItem)
 import Models.Dialog exposing (ConfirmDialog)
 import Models.FileType exposing (FileType)
@@ -34,7 +32,7 @@ import Models.Title exposing (Title)
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
-import Route exposing (Route(..))
+import Route exposing (Route)
 import Url
 
 
@@ -139,11 +137,6 @@ type alias Model =
     , snackbar : Snackbar Msg
     , notification : Notification
     }
-
-
-modelOfDiagramModel : Lens Model Diagram.Model
-modelOfDiagramModel =
-    Lens .diagramModel (\b a -> { a | diagramModel = b })
 
 
 windowOfShowEditor : Lens Window Bool

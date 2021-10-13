@@ -13,7 +13,6 @@ module Settings exposing
     , settingsOfHeight
     , settingsOfLabelColor
     , settingsOfLineColor
-    , settingsOfScale
     , settingsOfShowLineNumber
     , settingsOfStoryBackgroundColor
     , settingsOfStoryColor
@@ -208,11 +207,6 @@ settingsOfStoryBackgroundColor =
 settingsOfFont : Lens Settings String
 settingsOfFont =
     Compose.lensWithLens Diagram.settingsOfFont storyMapOfSettings
-
-
-settingsOfScale : Lens Settings (Maybe Float)
-settingsOfScale =
-    Compose.lensWithLens Diagram.settingsOfScale storyMapOfSettings
 
 
 storyMapOfSettings : Lens Settings Diagram.Settings

@@ -7,9 +7,8 @@ import Maybe.Extra exposing (isNothing)
 import Models.Color as Color exposing (colors)
 import Models.DiagramLocation as DiagramLocation
 import Models.FontSize as FontSize
-import Models.LoginProvider exposing (LoginProvider(..))
 import Models.Session as Session exposing (Session)
-import Return as Return
+import Return
 import Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Switch as Switch

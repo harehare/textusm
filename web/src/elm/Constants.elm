@@ -1,6 +1,5 @@
 module Constants exposing
-    ( commentSize
-    , fontSize
+    ( fontSize
     , fragmentOffset
     , ganttItemSize
     , indentSpace
@@ -14,7 +13,6 @@ module Constants exposing
     , leftMargin
     , messageMargin
     , participantMargin
-    , smallItemMargin
     , space
     , tableMargin
     , tableRowHeight
@@ -41,11 +39,6 @@ itemSpan =
     40
 
 
-commentSize : Int
-commentSize =
-    13
-
-
 itemMargin : Int
 itemMargin =
     16
@@ -54,11 +47,6 @@ itemMargin =
 ganttItemSize : Int
 ganttItemSize =
     32
-
-
-smallItemMargin : Int
-smallItemMargin =
-    itemMargin // 8
 
 
 leftMargin : Int

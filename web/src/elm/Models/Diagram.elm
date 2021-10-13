@@ -20,7 +20,6 @@ module Models.Diagram exposing
     , modelOfFullscreen
     , modelOfPosition
     , modelOfScale
-    , modelOfSelectedItem
     , modelOfSettings
     , modelOfShowZoomControl
     , modelOfText
@@ -66,7 +65,7 @@ import Models.Diagram.UserPersona exposing (UserPersona)
 import Models.Diagram.UserStoryMap exposing (UserStoryMap)
 import Models.FontSize exposing (FontSize)
 import Models.FontStyle exposing (FontStyle)
-import Models.Item exposing (Item, ItemType(..), Items)
+import Models.Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import Models.Size as Size
 import Models.Text exposing (Text)
@@ -140,11 +139,6 @@ modelOfSettings =
     Lens .settings (\b a -> { a | settings = b })
 
 
-modelOfSelectedItem : Lens Model SelectedItem
-modelOfSelectedItem =
-    Lens .selectedItem (\b a -> { a | selectedItem = b })
-
-
 modelOfSvg : Lens Model SvgInfo
 modelOfSvg =
     Lens .svg (\b a -> { a | svg = b })
@@ -171,7 +165,6 @@ type alias Distance =
 
 type Data
     = Empty
-    | Items Items
     | UserStoryMap UserStoryMap
     | MindMap Items Hierarchy
     | ImpactMap Items Hierarchy
@@ -196,8 +189,6 @@ type ContextMenu
     = CloseMenu
     | ColorSelectMenu
     | BackgroundColorSelectMenu
-    | FontBoldMenu
-    | FontItalicMenu
 
 
 type DragStatus

@@ -16,7 +16,6 @@ module Views.Icon exposing
     , edit
     , error
     , expandAlt
-    , export
     , file
     , folderOpen
     , font
@@ -25,28 +24,20 @@ module Views.Icon exposing
     , github
     , globe
     , helpOutline
-    , indent
     , info
     , italic
     , key
-    , link
     , lock
     , lockOpen
     , map
-    , markdown
-    , openInNew
     , people
     , remove
     , save
     , search
     , settings
-    , share
     , strikethrough
-    , tag
     , times
     , unbookmark
-    , viewComfy
-    , viewModule
     , visibility
     , warning
     )
@@ -71,11 +62,6 @@ remove size =
     icon (Color.toString Color.disabledIconColor) size size "0 0 48 48" [ Svg.path [ d "M38 26H10v-4h28v4z" ] [] ]
 
 
-viewComfy : String -> Int -> Svg msg
-viewComfy color size =
-    icon color size size "0 0 48 48" [ Svg.path [ d "M6 18h8v-8H6v8zm0 10h8v-8H6v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zM16 18h8v-8h-8v8zm10-8v8h8v-8h-8zm10 18h8v-8h-8v8zM6 38h8v-8H6v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zm10 0h8v-8h-8v8zm0-28v8h8v-8h-8z" ] [] ]
-
-
 edit : Int -> Svg msg
 edit size =
     icon (Color.toString Color.white) size size "0 0 48 48" [ Svg.path [ d "M6 34.5V42h7.5l22.13-22.13-7.5-7.5L6 34.5zm35.41-20.41c.78-.78.78-2.05 0-2.83l-4.67-4.67c-.78-.78-2.05-.78-2.83 0l-3.66 3.66 7.5 7.5 3.66-3.66z" ] [] ]
@@ -89,11 +75,6 @@ people color size =
 visibility : Int -> Svg msg
 visibility size =
     icon (Color.toString Color.iconColor) size size "0 0 48 48" [ Svg.path [ d "M24 9C14 9 5.46 15.22 2 24c3.46 8.78 12 15 22 15 10.01 0 18.54-6.22 22-15-3.46-8.78-11.99-15-22-15zm0 25c-5.52 0-10-4.48-10-10s4.48-10 10-10 10 4.48 10 10-4.48 10-10 10zm0-16c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z" ] [] ]
-
-
-link : Int -> Svg msg
-link size =
-    icon (Color.toString Color.labelDefalut) size size "0 0 48 48" [ Svg.path [ d "M7.8 24c0-3.42 2.78-6.2 6.2-6.2h8V14h-8C8.48 14 4 18.48 4 24s4.48 10 10 10h8v-3.8h-8c-3.42 0-6.2-2.78-6.2-6.2zm8.2 2h16v-4H16v4zm18-12h-8v3.8h8c3.42 0 6.2 2.78 6.2 6.2s-2.78 6.2-6.2 6.2h-8V34h8c5.52 0 10-4.48 10-10s-4.48-10-10-10z" ] [] ]
 
 
 search : String -> Int -> Svg msg
@@ -136,11 +117,6 @@ settings color size =
     icon color size size "0 0 48 48" [ Svg.path [ d "M38.86 25.95c.08-.64.14-1.29.14-1.95s-.06-1.31-.14-1.95l4.23-3.31c.38-.3.49-.84.24-1.28l-4-6.93c-.25-.43-.77-.61-1.22-.43l-4.98 2.01c-1.03-.79-2.16-1.46-3.38-1.97L29 4.84c-.09-.47-.5-.84-1-.84h-8c-.5 0-.91.37-.99.84l-.75 5.3c-1.22.51-2.35 1.17-3.38 1.97L9.9 10.1c-.45-.17-.97 0-1.22.43l-4 6.93c-.25.43-.14.97.24 1.28l4.22 3.31C9.06 22.69 9 23.34 9 24s.06 1.31.14 1.95l-4.22 3.31c-.38.3-.49.84-.24 1.28l4 6.93c.25.43.77.61 1.22.43l4.98-2.01c1.03.79 2.16 1.46 3.38 1.97l.75 5.3c.08.47.49.84.99.84h8c.5 0 .91-.37.99-.84l.75-5.3c1.22-.51 2.35-1.17 3.38-1.97l4.98 2.01c.45.17.97 0 1.22-.43l4-6.93c.25-.43.14-.97-.24-1.28l-4.22-3.31zM24 31c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" ] [] ]
 
 
-viewModule : Int -> Svg msg
-viewModule size =
-    icon (Color.toString Color.iconColor) size size "0 0 48 48" [ Svg.path [ d "M8 22h10V10H8v12zm0 14h10V24H8v12zm12 0h10V24H20v12zm12 0h10V24H32v12zM20 22h10V10H20v12zm12-12v12h10V10H32z" ] [] ]
-
-
 info : Int -> Svg msg
 info size =
     icon (Color.toString Color.background2Defalut) size size "0 0 48 48" [ Svg.path [ d "M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm2 30h-4V22h4v12zm0-16h-4v-4h4v4z" ] [] ]
@@ -156,29 +132,9 @@ warning size =
     icon "#FECB30" size size "0 0 48 48" [ Svg.path [ d "M2 42h44L24 4 2 42zm24-6h-4v-4h4v4zm0-8h-4v-8h4v8z" ] [] ]
 
 
-openInNew : Int -> Svg msg
-openInNew size =
-    icon "#FECB30" size size "0 0 48 48" [ Svg.path [ d "M38 38H10V10h14V6H10c-2.21 0-4 1.79-4 4v28c0 2.21 1.79 4 4 4h28c2.21 0 4-1.79 4-4V24h-4v14zM28 6v4h7.17L15.51 29.66l2.83 2.83L38 12.83V20h4V6H28z" ] [] ]
-
-
 file : String -> Int -> Svg msg
 file color size =
     icon color size size "0 0 512 512" [ Svg.path [ d "M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm160-14.1v6.1H256V0h6.1c6.4 0 12.5 2.5 17 7l97.9 98c4.5 4.5 7 10.6 7 16.9z" ] [] ]
-
-
-share : String -> Int -> Svg msg
-share color size =
-    icon color size size "0 0 512 512" [ Svg.path [ d "M503.691 189.836L327.687 37.851C312.281 24.546 288 35.347 288 56.015v80.053C127.371 137.907 0 170.1 0 322.326c0 61.441 39.581 122.309 83.333 154.132 13.653 9.931 33.111-2.533 28.077-18.631C66.066 312.814 132.917 274.316 288 272.085V360c0 20.7 24.3 31.453 39.687 18.164l176.004-152c11.071-9.562 11.086-26.753 0-36.328z" ] [] ]
-
-
-indent : Int -> Svg msg
-indent size =
-    icon (Color.toString Color.iconColor) size size "0 0 512 512" [ Svg.path [ d "M0 84V44c0-8.837 7.163-16 16-16h416c8.837 0 16 7.163 16 16v40c0 8.837-7.163 16-16 16H16c-8.837 0-16-7.163-16-16zm176 144h256c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H176c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zM16 484h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm160-128h256c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H176c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm-52.687-111.313l-96-95.984C17.266 138.652 0 145.776 0 160.016v191.975c0 14.329 17.325 21.304 27.313 11.313l96-95.992c6.249-6.247 6.249-16.377 0-22.625z" ] [] ]
-
-
-export : Int -> Int -> Svg msg
-export w h =
-    icon (Color.toString Color.iconColor) w h "0 0 512 512" [ Svg.path [ d "M384 121.9c0-6.3-2.5-12.4-7-16.9L279.1 7c-4.5-4.5-10.6-7-17-7H256v128h128zM571 308l-95.7-96.4c-10.1-10.1-27.4-3-27.4 11.3V288h-64v64h64v65.2c0 14.3 17.3 21.4 27.4 11.3L571 332c6.6-6.6 6.6-17.4 0-24zm-379 28v-32c0-8.8 7.2-16 16-16h176V160H248c-13.2 0-24-10.8-24-24V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V352H208c-8.8 0-16-7.2-16-16z" ] [] ]
 
 
 helpOutline : Int -> Svg msg
@@ -216,19 +172,9 @@ circle color size =
     icon (Color.toString color) size size "0 0 512 512" [ Svg.path [ d "M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z" ] [] ]
 
 
-tag : String -> Int -> Svg msg
-tag color size =
-    icon color size size "0 0 512 512" [ Svg.path [ d "M0 252.118V48C0 21.49 21.49 0 48 0h204.118a48 48 0 0 1 33.941 14.059l211.882 211.882c18.745 18.745 18.745 49.137 0 67.882L293.823 497.941c-18.745 18.745-49.137 18.745-67.882 0L14.059 286.059A48 48 0 0 1 0 252.118zM112 64c-26.51 0-48 21.49-48 48s21.49 48 48 48 48-21.49 48-48-21.49-48-48-48z" ] [] ]
-
-
 expandAlt : Int -> Svg msg
 expandAlt size =
     icon (Color.toString Color.disabledIconColor) size size "0 0 448 512" [ Svg.path [ d "M212.686 315.314L120 408l32.922 31.029c15.12 15.12 4.412 40.971-16.97 40.971h-112C10.697 480 0 469.255 0 456V344c0-21.382 25.803-32.09 40.922-16.971L72 360l92.686-92.686c6.248-6.248 16.379-6.248 22.627 0l25.373 25.373c6.249 6.248 6.249 16.378 0 22.627zm22.628-118.628L328 104l-32.922-31.029C279.958 57.851 290.666 32 312.048 32h112C437.303 32 448 42.745 448 56v112c0 21.382-25.803 32.09-40.922 16.971L376 152l-92.686 92.686c-6.248 6.248-16.379 6.248-22.627 0l-25.373-25.373c-6.249-6.248-6.249-16.378 0-22.627z" ] [] ]
-
-
-markdown : String -> Int -> Svg msg
-markdown color size =
-    icon color size size "0 0 640 512" [ Svg.path [ d "M593.8 59.1H46.2C20.7 59.1 0 79.8 0 105.2v301.5c0 25.5 20.7 46.2 46.2 46.2h547.7c25.5 0 46.2-20.7 46.1-46.1V105.2c0-25.4-20.7-46.1-46.2-46.1zM338.5 360.6H277v-120l-61.5 76.9-61.5-76.9v120H92.3V151.4h61.5l61.5 76.9 61.5-76.9h61.5v209.2zm135.3 3.1L381.5 256H443V151.4h61.5V256H566z" ] [] ]
 
 
 bold : Color -> Int -> Svg msg

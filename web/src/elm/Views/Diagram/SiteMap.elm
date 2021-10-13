@@ -2,7 +2,7 @@ module Views.Diagram.SiteMap exposing (view)
 
 import Constants
 import List.Extra as ListEx
-import Models.Diagram exposing (Model, Msg(..), SelectedItem, Settings)
+import Models.Diagram exposing (Model, Msg, SelectedItem, Settings)
 import Models.Item as Item exposing (Items)
 import Models.Position exposing (Position)
 import Svg exposing (Svg)

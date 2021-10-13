@@ -5,7 +5,7 @@ import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as D
 import Models.Color as Color
-import Models.Model exposing (Msg(..), Window)
+import Models.Model exposing (Window)
 import Views.Icon as Icon
 
 

@@ -2,7 +2,7 @@ module Views.Diagram.SequenceDiagram exposing (view)
 
 import Constants
 import List.Extra as ListEx
-import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings, fontStyle, getTextColor)
+import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings, fontStyle, getTextColor)
 import Models.Diagram.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
 import Models.Position as Position exposing (Position)
 import Models.Size exposing (Size)

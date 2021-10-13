@@ -5,9 +5,9 @@ import Html
 import Html.Attributes as Attr
 import List
 import List.Extra as ListEx
-import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem, Settings)
+import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
 import Models.Diagram.UserStoryMap as UserStoryMap exposing (UserStoryMap)
-import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Models.Item as Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import String
 import Svg exposing (Svg)

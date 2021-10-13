@@ -21,7 +21,6 @@ import Views.Icon as Icon
 
 type MenuItem msg
     = Item (MenuInfo msg)
-    | Separator
 
 
 type alias MenuInfo msg =
@@ -261,13 +260,5 @@ menu top left bottom right items =
                                     [ Html.text menuItem.title
                                     ]
                                 ]
-
-                        Separator ->
-                            Html.div
-                                [ Attr.class "w-full"
-                                , Attr.style "height" "2px"
-                                , Attr.style "border-bottom" "2px solid rgba(0, 0, 0, 0.1)"
-                                ]
-                                []
                 )
         )

@@ -1,4 +1,4 @@
-module Extension.Lib exposing (init, main, view)
+module Extension.Lib exposing (main)
 
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
@@ -9,7 +9,7 @@ import Html.Attributes exposing (style)
 import Html.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
-import Models.Item as Item exposing (ItemType(..))
+import Models.Item as Item
 import Models.Text as Text
 import Task
 

@@ -1,6 +1,6 @@
 module Models.Diagram.Table exposing (Header(..), Row(..), Table(..), from, toString)
 
-import Models.Item as Item exposing (Item, ItemType(..), Items)
+import Models.Item as Item exposing (Item, Items)
 
 
 type Table

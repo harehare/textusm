@@ -1,6 +1,6 @@
 module Api.Http.Request exposing (..)
 
-import Http exposing (Error(..), Header)
+import Http exposing (Header)
 import Json.Decode as D
 import Task exposing (Task)
 import Url.Builder exposing (QueryParameter, crossOrigin)

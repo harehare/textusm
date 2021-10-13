@@ -1,4 +1,4 @@
-module Utils.Parser exposing (byte, hex, intRange)
+module Utils.Parser exposing (byte, intRange)
 
 import Parser exposing (Parser, andThen, problem, succeed)
 
@@ -6,11 +6,6 @@ import Parser exposing (Parser, andThen, problem, succeed)
 digit : Parser String
 digit =
     Parser.getChompedString <| isDigit
-
-
-hex : Parser String
-hex =
-    Parser.getChompedString <| isHexDigit
 
 
 byte : Parser Int
@@ -26,11 +21,6 @@ intRange start end =
 isDigit : Parser ()
 isDigit =
     Parser.chompWhile Char.isDigit
-
-
-isHexDigit : Parser ()
-isHexDigit =
-    Parser.chompWhile Char.isHexDigit
 
 
 parseInt : Int -> Int -> String -> Parser Int

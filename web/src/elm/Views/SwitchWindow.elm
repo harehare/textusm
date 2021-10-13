@@ -3,7 +3,7 @@ module Views.SwitchWindow exposing (view)
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events exposing (onClick)
-import Models.Model exposing (Msg(..), SwitchWindow(..))
+import Models.Model exposing (SwitchWindow(..))
 import Views.Icon as Icon
 
 

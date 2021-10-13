@@ -43,6 +43,7 @@
         "elm": "^0.19.1-5",
         "elm-constants": "^1.0.0",
         "elm-hot-webpack-loader": "^1.1.8",
+        "elm-review": "^2.6.1",
         "elm-test": "^0.19.1-revision7",
         "elm-webpack-loader": "^8.0.0",
         "eslint": "^8.0.0",
@@ -105,7 +106,7 @@
         "generate-elm-types": "elm-graphql http://localhost:8081/graphql --base Graphql --output src/Graphql",
         "generate-elm-constants": "elm-constants --no-dotenv",
         "format": "prettier --write src/**/*.ts",
-        "lint": "eslint --fix src/ts/*.ts",
+        "lint": "eslint --fix src/ts/*.ts && elm-review --template jfmengels/elm-review-unused/example",
         "prepare": "cd .. && husky install"
     },
     "browserslist": [

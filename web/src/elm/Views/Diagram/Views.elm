@@ -8,7 +8,6 @@ module Views.Diagram.Views exposing
     , node
     , plainText
     , rootTextNode
-    , text
     , verticalLine
     )
 

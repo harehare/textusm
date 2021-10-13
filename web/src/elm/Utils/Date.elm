@@ -1,8 +1,8 @@
-module Utils.Date exposing (millisToDateString, millisToString, millisToTimeString, monthToInt, stringToPosix)
+module Utils.Date exposing (millisToDateString, millisToString, millisToTimeString, stringToPosix)
 
 import String exposing (toInt)
-import Time as Time exposing (Month(..), Posix, Zone)
-import Time.Extra as TimeEx exposing (Interval(..))
+import Time exposing (Month(..), Posix, Zone)
+import Time.Extra as TimeEx
 
 
 millisToString : Zone -> Posix -> String

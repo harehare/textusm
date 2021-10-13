@@ -12,8 +12,8 @@ module Models.Diagram.UserStoryMap exposing
 
 import Dict exposing (Dict)
 import List.Extra exposing (scanl)
-import Models.Item as Item exposing (ItemType(..), Items)
-import State as State exposing (Step(..))
+import Models.Item as Item exposing (Items)
+import State exposing (Step(..))
 
 
 type alias CountPerStories =

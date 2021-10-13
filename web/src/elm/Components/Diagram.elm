@@ -32,12 +32,12 @@ import Models.Diagram.UseCaseDiagram as UseCaseDiagramModel
 import Models.Diagram.UserPersona as UserPersonaModel
 import Models.Diagram.UserStoryMap as UserStoryMapModel
 import Models.FontStyle as FontStyle
-import Models.Item as Item exposing (ItemType(..))
+import Models.Item as Item
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
 import Models.Text as Text
-import Return as Return exposing (Return)
+import Return exposing (Return)
 import String
 import Svg exposing (Svg)
 import Svg.Attributes as SvgAttr
