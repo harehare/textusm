@@ -16,14 +16,15 @@ module Models.Diagram exposing
     , fontStyle
     , getTextColor
     , isMoving
-    , modelOfDiagramType
-    , modelOfFullscreen
-    , modelOfPosition
-    , modelOfScale
-    , modelOfSettings
-    , modelOfShowZoomControl
-    , modelOfText
     , moveingItem
+    , ofDiagramType
+    , ofFullscreen
+    , ofPosition
+    , ofScale
+    , ofSettings
+    , ofShowZoomControl
+    , ofSize
+    , ofText
     , settingsOfActivityBackgroundColor
     , settingsOfActivityColor
     , settingsOfBackgroundColor
@@ -109,38 +110,38 @@ type alias Model =
     }
 
 
-modelOfDiagramType : Lens Model Diagram
-modelOfDiagramType =
+ofDiagramType : Lens Model Diagram
+ofDiagramType =
     Lens .diagramType (\b a -> { a | diagramType = b })
 
 
-modelOfText : Lens Model Text
-modelOfText =
+ofText : Lens Model Text
+ofText =
     Lens .text (\b a -> { a | text = b })
 
 
-modelOfShowZoomControl : Lens Model Bool
-modelOfShowZoomControl =
+ofShowZoomControl : Lens Model Bool
+ofShowZoomControl =
     Lens .showZoomControl (\b a -> { a | showZoomControl = b })
 
 
-modelOfFullscreen : Lens Model Bool
-modelOfFullscreen =
+ofFullscreen : Lens Model Bool
+ofFullscreen =
     Lens .fullscreen (\b a -> { a | fullscreen = b })
 
 
-modelOfPosition : Lens Model Position
-modelOfPosition =
+ofPosition : Lens Model Position
+ofPosition =
     Lens .position (\b a -> { a | position = b })
 
 
-modelOfSettings : Lens Model Settings
-modelOfSettings =
+ofSettings : Lens Model Settings
+ofSettings =
     Lens .settings (\b a -> { a | settings = b })
 
 
-modelOfSvg : Lens Model SvgInfo
-modelOfSvg =
+ofSvg : Lens Model SvgInfo
+ofSvg =
     Lens .svg (\b a -> { a | svg = b })
 
 
@@ -149,10 +150,14 @@ svgOfScale =
     Lens .scale (\b a -> { a | scale = b })
 
 
-modelOfScale : Lens Model Float
-modelOfScale =
-    modelOfSvg
-        |> Compose.lensWithLens svgOfScale
+ofScale : Lens Model Float
+ofScale =
+    ofSvg |> Compose.lensWithLens svgOfScale
+
+
+ofSize : Lens Model Size.Size
+ofSize =
+    Lens .size (\b a -> { a | size = b })
 
 
 type alias Hierarchy =

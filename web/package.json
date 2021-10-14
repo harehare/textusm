@@ -107,7 +107,7 @@
         "generate-elm-constants": "elm-constants --no-dotenv",
         "format": "prettier --write src/**/*.ts",
         "lint": "eslint --fix src/ts/*.ts",
-        "lint:elm": "elm-review --template jfmengels/elm-review-unused/example",
+        "lint:elm": "elm-review",
         "prepare": "cd .. && husky install"
     },
     "browserslist": [

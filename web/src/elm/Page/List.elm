@@ -846,14 +846,32 @@ update message =
                 (\m ->
                     case D.decodeValue DiagramItem.decoder diagramJson of
                         Ok diagram ->
-                            Return.return m
-                                (Task.attempt Removed
-                                    (Request.delete (Session.getIdToken m.session)
-                                        (diagram.id |> Maybe.withDefault (DiagramId.fromString "") |> DiagramId.toString)
-                                        False
-                                        |> Task.map identity
-                                    )
-                                )
+                            case diagram.location of
+                                Just DiagramLocation.Gist ->
+                                    case Session.getAccessToken m.session of
+                                        Just accessToken ->
+                                            Return.return m
+                                                (Task.attempt Removed
+                                                    (Request.deleteGist (Session.getIdToken m.session)
+                                                        accessToken
+                                                        (diagram.id |> Maybe.withDefault (DiagramId.fromString "") |> DiagramId.toString)
+                                                        |> Task.map identity
+                                                    )
+                                                )
+
+                                        Nothing ->
+                                            -- TODO: Login to github and get an access token.
+                                            Return.singleton m
+
+                                _ ->
+                                    Return.return m
+                                        (Task.attempt Removed
+                                            (Request.delete (Session.getIdToken m.session)
+                                                (diagram.id |> Maybe.withDefault (DiagramId.fromString "") |> DiagramId.toString)
+                                                False
+                                                |> Task.map identity
+                                            )
+                                        )
 
                         Err _ ->
                             Return.singleton m

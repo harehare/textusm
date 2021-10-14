@@ -416,9 +416,13 @@ changeRouteTo route =
                             | window = m.window |> Model.windowOfFullscreen.set True
                             , diagramModel =
                                 m.diagramModel
-                                    |> DiagramModel.modelOfShowZoomControl.set False
-                                    |> DiagramModel.modelOfDiagramType.set diagram
-                                    |> DiagramModel.modelOfScale.set 1.0
+                                    |> DiagramModel.ofShowZoomControl.set False
+                                    |> DiagramModel.ofDiagramType.set diagram
+                                    |> DiagramModel.ofScale.set 1.0
+                                    |> DiagramModel.ofSize.set
+                                        ( Maybe.withDefault (Size.getWidth m.diagramModel.size) width
+                                        , Maybe.withDefault (Size.getHeight m.diagramModel.size) height
+                                        )
                         }
                 )
                 >> Return.andThen (Action.setTitle title)
@@ -580,7 +584,7 @@ update message =
                     Return.return
                         { m
                             | page = Page.Settings
-                            , diagramModel = m.diagramModel |> DiagramModel.modelOfSettings.set model_.settings.storyMap
+                            , diagramModel = m.diagramModel |> DiagramModel.ofSettings.set model_.settings.storyMap
                             , settingsModel = model_
                         }
                         (cmd_ |> Cmd.map UpdateSettings)
@@ -726,7 +730,7 @@ update message =
                 >> Return.andThen Action.stopProgress
 
         DownloadCompleted ( x, y ) ->
-            Return.andThen (\m -> Return.singleton { m | diagramModel = m.diagramModel |> DiagramModel.modelOfPosition.set ( x, y ) })
+            Return.andThen (\m -> Return.singleton { m | diagramModel = m.diagramModel |> DiagramModel.ofPosition.set ( x, y ) })
 
         Download fileType ->
             Return.andThen

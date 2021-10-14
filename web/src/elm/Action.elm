@@ -215,7 +215,7 @@ setSettings settings model =
     in
     Return.singleton
         { model
-            | diagramModel = model.diagramModel |> DiagramModel.modelOfSettings.set settings
+            | diagramModel = model.diagramModel |> DiagramModel.ofSettings.set settings
             , settingsModel = { newSettings | settings = model.settingsModel.settings |> Settings.storyMapOfSettings.set settings }
         }
 
@@ -441,7 +441,7 @@ hideZoomControl model =
         { model
             | diagramModel =
                 model.diagramModel
-                    |> DiagramModel.modelOfShowZoomControl.set False
+                    |> DiagramModel.ofShowZoomControl.set False
         }
 
 
@@ -451,7 +451,7 @@ showZoomControl model =
         { model
             | diagramModel =
                 model.diagramModel
-                    |> DiagramModel.modelOfShowZoomControl.set True
+                    |> DiagramModel.ofShowZoomControl.set True
         }
 
 
@@ -461,7 +461,7 @@ fullscreenDiagram model =
         { model
             | diagramModel =
                 model.diagramModel
-                    |> DiagramModel.modelOfFullscreen.set True
+                    |> DiagramModel.ofFullscreen.set True
         }
 
 
@@ -471,7 +471,7 @@ setText text model =
         { model
             | diagramModel =
                 model.diagramModel
-                    |> DiagramModel.modelOfText.set (Text.edit model.diagramModel.text text)
+                    |> DiagramModel.ofText.set (Text.edit model.diagramModel.text text)
         }
 
 
@@ -481,7 +481,7 @@ needSaved model =
         { model
             | diagramModel =
                 model.diagramModel
-                    |> DiagramModel.modelOfText.set (Text.change model.diagramModel.text)
+                    |> DiagramModel.ofText.set (Text.change model.diagramModel.text)
         }
 
 
@@ -491,7 +491,7 @@ unchanged model =
         { model
             | diagramModel =
                 model.diagramModel
-                    |> DiagramModel.modelOfText.set (Text.saved model.diagramModel.text)
+                    |> DiagramModel.ofText.set (Text.saved model.diagramModel.text)
         }
 
 
@@ -521,7 +521,7 @@ setDiagramSettings settings model =
         { model
             | diagramModel =
                 model.diagramModel
-                    |> DiagramModel.modelOfSettings.set settings
+                    |> DiagramModel.ofSettings.set settings
         }
 
 
@@ -531,7 +531,7 @@ setDiagramType type_ model =
         { model
             | diagramModel =
                 model.diagramModel
-                    |> DiagramModel.modelOfDiagramType.set type_
+                    |> DiagramModel.ofDiagramType.set type_
         }
 
 
