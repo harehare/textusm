@@ -796,12 +796,7 @@ update message model =
                             Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
 
                         _ ->
-                            Return.andThen <|
-                                \m ->
-                                    Return.singleton
-                                        { m
-                                            | selectedItem = Nothing
-                                        }
+                            Return.zero
                     )
                         >> Return.andThen stopMove
 

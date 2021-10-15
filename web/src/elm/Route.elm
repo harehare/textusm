@@ -1,4 +1,4 @@
-module Route exposing (Route(..), moveTo, replaceRoute, toRoute, toString)
+module Route exposing (Route(..), isViewFile, moveTo, replaceRoute, toRoute, toString)
 
 import Browser.Navigation as Nav
 import Graphql.Enum.Diagram exposing (Diagram)
@@ -72,6 +72,16 @@ shareId =
     custom "SHARE_TOKEN" <|
         \segment ->
             ShareToken.fromString segment
+
+
+isViewFile : Route -> Bool
+isViewFile route =
+    case route of
+        ViewFile _ _ ->
+            True
+
+        _ ->
+            False
 
 
 toRoute : Url -> Route

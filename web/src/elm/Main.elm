@@ -7,6 +7,7 @@ import Browser
 import Browser.Events
     exposing
         ( Visibility(..)
+        , onMouseDown
         , onMouseMove
         , onMouseUp
         , onResize
@@ -186,19 +187,23 @@ view model =
         [ class "relative w-screen"
         , E.onClick CloseMenu
         ]
-        [ Lazy.lazy Header.view
-            { session = model.session
-            , page = model.page
-            , title = model.title
-            , isFullscreen = model.window.fullscreen
-            , currentDiagram = model.currentDiagram
-            , menu = model.openMenu
-            , currentText = model.diagramModel.text
-            , lang = model.lang
-            , route = toRoute model.url
-            , prevRoute = model.prevRoute
-            , isOnline = model.isOnline
-            }
+        [ if model.window.fullscreen then
+            Empty.view
+
+          else
+            Lazy.lazy Header.view
+                { session = model.session
+                , page = model.page
+                , title = model.title
+                , isFullscreen = model.window.fullscreen
+                , currentDiagram = model.currentDiagram
+                , menu = model.openMenu
+                , currentText = model.diagramModel.text
+                , lang = model.lang
+                , route = toRoute model.url
+                , prevRoute = model.prevRoute
+                , isOnline = model.isOnline
+                }
         , Lazy.lazy Notification.view model.notification
         , Lazy.lazy Snackbar.view model.snackbar
         , Lazy.lazy showProgress model.progress
@@ -213,15 +218,18 @@ view model =
               else
                 class "h-content"
             ]
-            [ Lazy.lazy Menu.view
-                { page = model.page
-                , route = toRoute model.url
-                , text = model.diagramModel.text
-                , width = Size.getWidth model.diagramModel.size
-                , fullscreen = model.window.fullscreen
-                , openMenu = model.openMenu
-                , lang = model.lang
-                }
+            [ if Route.isViewFile (toRoute model.url) || model.window.fullscreen then
+                Empty.view
+
+              else
+                Lazy.lazy Menu.view
+                    { page = model.page
+                    , route = toRoute model.url
+                    , text = model.diagramModel.text
+                    , width = Size.getWidth model.diagramModel.size
+                    , openMenu = model.openMenu
+                    , lang = model.lang
+                    }
             , let
                 mainWindow =
                     if Size.getWidth model.diagramModel.size > 0 && Utils.isPhone (Size.getWidth model.diagramModel.size) then

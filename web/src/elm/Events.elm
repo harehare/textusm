@@ -20,19 +20,19 @@ keyEnter =
 
 onMouseDown : (Mouse.Event -> msg) -> Html.Attribute msg
 onMouseDown =
-    { stopPropagation = True, preventDefault = False }
+    { stopPropagation = True, preventDefault = True }
         |> Mouse.onWithOptions "mousedown"
 
 
 onMouseMove : (Mouse.Event -> msg) -> Html.Attribute msg
 onMouseMove =
-    { stopPropagation = True, preventDefault = False }
+    { stopPropagation = True, preventDefault = True }
         |> Mouse.onWithOptions "mousemove"
 
 
 onMouseUp : (Mouse.Event -> msg) -> Html.Attribute msg
 onMouseUp =
-    { stopPropagation = True, preventDefault = False }
+    { stopPropagation = True, preventDefault = True }
         |> Mouse.onWithOptions "mouseup"
 
 

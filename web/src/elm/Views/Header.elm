@@ -8,7 +8,6 @@ import Html.Attributes as Attr
 import Html.Events as Events
 import Html.Lazy as Lazy
 import Json.Decode as D
-import Maybe.Extra exposing (isJust)
 import Message exposing (Lang)
 import Models.Color as Color
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
@@ -41,154 +40,164 @@ type alias Props =
     }
 
 
+isPublic : Props -> Bool
+isPublic props =
+    props.currentDiagram |> Maybe.withDefault DiagramItem.empty |> .isPublic
+
+
+isRemoteDiagram : Props -> Bool
+isRemoteDiagram props =
+    Maybe.andThen .location props.currentDiagram
+        |> Maybe.map DiagramLocation.isRemote
+        |> Maybe.withDefault False
+
+
+canShare : Props -> Bool
+canShare props =
+    Session.isSignedIn props.session && isRemoteDiagram props && canEdit props && props.isOnline
+
+
+canEdit : Props -> Bool
+canEdit props =
+    case props.route of
+        ViewFile _ _ ->
+            False
+
+        _ ->
+            True
+
+
+canChangePublicState : Props -> Bool
+canChangePublicState props =
+    case ( Maybe.andThen .id props.currentDiagram, Maybe.map .isRemote props.currentDiagram ) of
+        ( Just _, Just True ) ->
+            canEdit props && props.isOnline
+
+        _ ->
+            False
+
+
 view : Props -> Html Msg
 view props =
-    let
-        isPublic =
-            props.currentDiagram |> Maybe.withDefault DiagramItem.empty |> .isPublic
-
-        canEdit =
-            case props.route of
-                ViewFile _ _ ->
-                    False
-
-                _ ->
-                    True
-
-        isRemoteDiagram =
-            Maybe.andThen .location props.currentDiagram
-                |> Maybe.map DiagramLocation.isRemote
-                |> Maybe.withDefault False
-
-        canShare =
-            Session.isSignedIn props.session && isRemoteDiagram && canEdit && props.isOnline
-
-        canChangePublicState =
-            (isJust (Maybe.andThen .id props.currentDiagram) && (Maybe.map .isRemote props.currentDiagram |> Maybe.withDefault False)) && canEdit && props.isOnline
-    in
-    if props.isFullscreen then
-        Html.header [] []
-
-    else
-        Html.header
-            [ Attr.class "flex items-center w-screen bg-main"
+    Html.header
+        [ Attr.class "flex items-center w-screen bg-main"
+        , Attr.style "height" "40px"
+        ]
+        (Html.div
+            [ Attr.class "flex items-center lg:w-full w-1/2"
             , Attr.style "height" "40px"
             ]
-            (Html.div
-                [ Attr.class "flex items-center lg:w-full w-1/2"
-                , Attr.style "height" "40px"
-                ]
-                [ case props.page of
-                    Page.Main ->
-                        Html.div
-                            [ Attr.class "flex-center"
-                            , Attr.style "width" "32px"
-                            , Attr.style "height" "32px"
-                            ]
-                            [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ]
-                                [ Html.img
-                                    [ Asset.src Asset.logo
-                                    , Attr.style "width" "28px"
-                                    , Attr.style "height" "28px"
-                                    , Attr.style "margin-left" "4px"
-                                    , Attr.alt "logo"
-                                    ]
-                                    []
-                                ]
-                            ]
-
-                    _ ->
-                        case props.prevRoute of
-                            Just r ->
-                                Html.div
-                                    [ Attr.class "flex-center"
-                                    , Attr.style "padding" "8px 8px 8px 12px"
-                                    , Attr.style "cursor" "pointer"
-                                    , Events.onClick <| MoveTo r
-                                    ]
-                                    [ Icon.arrowLeft Color.iconColor 18 ]
-
-                            Nothing ->
-                                Html.div
-                                    [ Attr.class "flex-center"
-                                    , Attr.style "padding" "8px 8px 8px 12px"
-                                    , Attr.style "cursor" "pointer"
-                                    ]
-                                    [ Icon.arrowLeft Color.disabledIconColor 18 ]
-                , case props.page of
-                    Page.Main ->
-                        if canEdit && Title.isEdit props.title then
-                            Html.input
-                                [ Attr.id "title"
-                                , Attr.class "w-full bg-main border-none font text-base font-bold"
-                                , Attr.style "padding" "8px"
-                                , Attr.style "margin-left" "8px"
-                                , Attr.style "color" <| Color.toString Color.white2
-                                , Attr.value <| Title.toString props.title
-                                , Events.onInput EditTitle
-                                , Events.onBlur EndEditTitle
-                                , E.onEnter EndEditTitle
-                                , Attr.placeholder "UNTITLED"
+            [ case props.page of
+                Page.Main ->
+                    Html.div
+                        [ Attr.class "flex-center"
+                        , Attr.style "width" "32px"
+                        , Attr.style "height" "32px"
+                        ]
+                        [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ]
+                            [ Html.img
+                                [ Asset.src Asset.logo
+                                , Attr.style "width" "28px"
+                                , Attr.style "height" "28px"
+                                , Attr.style "margin-left" "4px"
+                                , Attr.alt "logo"
                                 ]
                                 []
+                            ]
+                        ]
 
-                        else
-                            viewTitle
-                                [ Attr.style "cursor" "pointer"
-                                , Events.onClick StartEditTitle
+                _ ->
+                    case props.prevRoute of
+                        Just r ->
+                            Html.div
+                                [ Attr.class "flex-center"
+                                , Attr.style "padding" "8px 8px 8px 12px"
+                                , Attr.style "cursor" "pointer"
+                                , Events.onClick <| MoveTo r
                                 ]
-                                [ Html.text <| Title.toString props.title
-                                , Html.div
-                                    [ Attr.style "margin-left" "8px" ]
-                                    [ if canEdit && Text.isChanged props.currentText then
-                                        Icon.circle Color.white 10
+                                [ Icon.arrowLeft Color.iconColor 18 ]
 
-                                      else
-                                        Empty.view
-                                    ]
+                        Nothing ->
+                            Html.div
+                                [ Attr.class "flex-center"
+                                , Attr.style "padding" "8px 8px 8px 12px"
+                                , Attr.style "cursor" "pointer"
                                 ]
+                                [ Icon.arrowLeft Color.disabledIconColor 18 ]
+            , case props.page of
+                Page.Main ->
+                    if canEdit props && Title.isEdit props.title then
+                        Html.input
+                            [ Attr.id "title"
+                            , Attr.class "w-full bg-main border-none font text-base font-bold"
+                            , Attr.style "padding" "8px"
+                            , Attr.style "margin-left" "8px"
+                            , Attr.style "color" <| Color.toString Color.white2
+                            , Attr.value <| Title.toString props.title
+                            , Events.onInput EditTitle
+                            , Events.onBlur EndEditTitle
+                            , E.onEnter EndEditTitle
+                            , Attr.placeholder "UNTITLED"
+                            ]
+                            []
 
-                    Page.New ->
-                        viewTitle [] [ Html.text "New Diagram" ]
+                    else
+                        viewTitle
+                            [ Attr.style "cursor" "pointer"
+                            , Events.onClick StartEditTitle
+                            ]
+                            [ Html.text <| Title.toString props.title
+                            , Html.div
+                                [ Attr.style "margin-left" "8px" ]
+                                [ if canEdit props && Text.isChanged props.currentText then
+                                    Icon.circle Color.white 10
 
-                    Page.List ->
-                        viewTitle [] [ Html.text "All Diagrams" ]
-
-                    Page.Settings ->
-                        viewTitle []
-                            [ Html.text <|
-                                case ( Session.isSignedIn props.session, props.currentDiagram ) of
-                                    ( True, Just d ) ->
-                                        DiagramType.toLongString d.diagram ++ " Settings"
-
-                                    _ ->
-                                        "Settings"
+                                  else
+                                    Empty.view
+                                ]
                             ]
 
-                    Page.Help ->
-                        viewTitle [] [ Html.text "Help" ]
+                Page.New ->
+                    viewTitle [] [ Html.text "New Diagram" ]
+
+                Page.List ->
+                    viewTitle [] [ Html.text "All Diagrams" ]
+
+                Page.Settings ->
+                    viewTitle []
+                        [ Html.text <|
+                            case ( Session.isSignedIn props.session, props.currentDiagram ) of
+                                ( True, Just d ) ->
+                                    DiagramType.toLongString d.diagram ++ " Settings"
+
+                                _ ->
+                                    "Settings"
+                        ]
+
+                Page.Help ->
+                    viewTitle [] [ Html.text "Help" ]
+
+                _ ->
+                    Empty.view
+            ]
+            :: (case props.route of
+                    Route.New ->
+                        [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
+
+                    Route.Settings ->
+                        [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
+
+                    Route.DiagramList ->
+                        [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
 
                     _ ->
-                        Empty.view
-                ]
-                :: (case props.route of
-                        Route.New ->
-                            [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
-
-                        Route.Settings ->
-                            [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
-
-                        Route.DiagramList ->
-                            [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
-
-                        _ ->
-                            [ Lazy.lazy3 viewChangePublicStateButton props.lang isPublic canChangePublicState
-                            , Lazy.lazy viewHelpButton props.lang
-                            , Lazy.lazy2 viewShareButton props.lang canShare
-                            , Lazy.lazy2 viewSignInButton props.menu props.session
-                            ]
-                   )
-            )
+                        [ Lazy.lazy3 viewChangePublicStateButton props.lang (isPublic props) (canChangePublicState props)
+                        , Lazy.lazy viewHelpButton props.lang
+                        , Lazy.lazy2 viewShareButton props.lang <| canShare props
+                        , Lazy.lazy2 viewSignInButton props.menu props.session
+                        ]
+               )
+        )
 
 
 viewTitle : List (Html.Attribute msg) -> List (Html msg) -> Html msg
@@ -197,11 +206,11 @@ viewTitle attrs children =
 
 
 viewChangePublicStateButton : Lang -> Bool -> Bool -> Html Msg
-viewChangePublicStateButton lang isPublic canChangePublicState =
-    if canChangePublicState then
+viewChangePublicStateButton lang isPublic_ canChangePublicState_ =
+    if canChangePublicState_ then
         Html.div
-            [ Attr.class "button", Events.onClick <| ChangePublicStatus (not isPublic) ]
-            [ if isPublic then
+            [ Attr.class "button", Events.onClick <| ChangePublicStatus (not isPublic_) ]
+            [ if isPublic_ then
                 Icon.lockOpen Color.iconColor 14
 
               else
@@ -209,7 +218,7 @@ viewChangePublicStateButton lang isPublic canChangePublicState =
             , Html.span [ Attr.class "bottom-tooltip" ]
                 [ Html.span [ Attr.class "text" ]
                     [ Html.text <|
-                        if isPublic then
+                        if isPublic_ then
                             Message.toolPublic lang
 
                         else
@@ -236,8 +245,8 @@ viewHelpButton lang =
 
 
 viewShareButton : Lang -> Bool -> Html Msg
-viewShareButton lang canShare =
-    if canShare then
+viewShareButton lang canShare_ =
+    if canShare_ then
         Html.a
             [ Attr.class "flex"
             , Attr.href <| Route.toString Route.Share

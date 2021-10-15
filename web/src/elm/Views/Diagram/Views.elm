@@ -15,7 +15,7 @@ import Constants
 import Events
 import Html exposing (Html)
 import Html.Attributes as Attr
-import Html.Events exposing (onInput)
+import Html.Events exposing (onBlur, onInput)
 import Markdown
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..), SelectedItem, Settings, settingsOfWidth)
@@ -536,6 +536,7 @@ inputView { settings, fontSize, position, size, color, item } =
             , Attr.style "margin-top" "2px"
             , Attr.value <| " " ++ String.trimLeft (Item.getText item)
             , onInput EditSelectedItem
+            , onBlur <| Select Nothing
             , Events.onEnter <| EndEditSelectedItem item
             ]
             []
