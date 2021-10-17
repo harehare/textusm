@@ -86,7 +86,8 @@ viewColorMenuOnly props =
 view : Width -> MenuDisplay -> Props msg -> Svg msg
 view width display props =
     Svg.foreignObject
-        [ SvgAttr.x <| String.fromInt <| Position.getX props.position
+        [ SvgAttr.class "context-menu"
+        , SvgAttr.x <| String.fromInt <| Position.getX props.position
         , SvgAttr.y <| String.fromInt <| (Position.getY props.position + 8)
         , SvgAttr.width "320"
         , SvgAttr.height "205"
@@ -124,7 +125,8 @@ view width display props =
                 Empty.view
             , if display.backgroundColor then
                 Html.div
-                    [ Attr.style "width" "50px"
+                    [ Attr.class "background-color-menu"
+                    , Attr.style "width" "50px"
                     , Attr.style "height" "48px"
                     , Attr.style "font-size" "1.4rem"
                     , Attr.style "display" "flex"
@@ -255,6 +257,7 @@ colorCircle color msg =
         , Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)"
         , Attr.style "cursor" "pointer"
         , Attr.style "margin" "2px"
+        , Attr.class <| String.toLower <| Color.name color
         , Events.onMouseDown <| \_ -> msg
         ]
         []

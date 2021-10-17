@@ -54,3 +54,5 @@ server/cmd/__debug_bin
 js/**
 
 Env.elm
+
+cypress

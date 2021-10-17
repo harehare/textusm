@@ -106,7 +106,8 @@ card { settings, position, selectedItem, item, canMove } =
 
         view_ =
             Svg.g
-                [ Events.onClickStopPropagation <|
+                [ SvgAttr.class "card"
+                , Events.onClickStopPropagation <|
                     Select <|
                         Just { item = item, position = position, displayAllMenu = True }
                 ]

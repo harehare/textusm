@@ -56,6 +56,12 @@ jobs:
       - name: Run Tests
         working-directory: web
         run: npm run test
+      - uses: cypress-io/github-action@v2
+        with:
+          start: npm run start
+          headless: true
+          working-directory: web
+          wait-on: "http://localhost:3000"
       - name: Archive Production Artifact
         uses: actions/upload-artifact@master
         with:

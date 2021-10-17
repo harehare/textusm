@@ -11,6 +11,7 @@ module.exports = {
         'plugin:@typescript-eslint/recommended',
         'plugin:prettier/recommended',
         'prettier/@typescript-eslint',
+        'plugin:cypress/recommended',
     ],
     rules: {
         'import/prefer-default-export': 'off',
