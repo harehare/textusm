@@ -137,7 +137,7 @@ main : Program InitData Model Msg
 main =
     Browser.element
         { init = init
-        , update = update
+        , update = \msg m -> Return.singleton m |> update msg
         , view = view
         , subscriptions = subscriptions
         }
@@ -149,7 +149,7 @@ main =
 
 updateText : Text -> Model -> Return Msg Model
 updateText text model =
-    ( model, setText (Text.toString text) )
+    Return.return model <| setText (Text.toString text)
 
 
 setLine : Int -> List String -> String -> Model -> Return Msg Model
@@ -171,64 +171,68 @@ setLine lineNo lines line model =
         |> Return.andThen (updateText newDiagramModel.text)
 
 
-update : Msg -> Model -> Return Msg Model
-update message model =
+update : Msg -> Return.ReturnF Msg Model
+update message =
     case message of
         UpdateDiagram subMsg ->
-            let
-                ( model_, cmd_ ) =
-                    Diagram.update subMsg model.diagramModel
-            in
-            case subMsg of
-                DiagramModel.EndEditSelectedItem _ ->
-                    ( { model | diagramModel = model_ }, Cmd.batch [ cmd_ |> Cmd.map UpdateDiagram, setText (Text.toString model_.text) ] )
+            Return.andThen <|
+                \m ->
+                    let
+                        ( model_, cmd_ ) =
+                            Return.singleton m.diagramModel |> Diagram.update subMsg
 
-                DiagramModel.FontStyleChanged _ ->
-                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-                        |> Return.andThen (updateText model_.text)
+                        model =
+                            { m | diagramModel = model_ }
+                    in
+                    Return.return model
+                        (cmd_ |> Cmd.map UpdateDiagram)
+                        |> (case subMsg of
+                                DiagramModel.EndEditSelectedItem _ ->
+                                    Return.andThen (\m_ -> Return.return m_ <| setText (Text.toString model_.text))
 
-                DiagramModel.ColorChanged _ _ ->
-                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-                        |> Return.andThen (updateText model_.text)
+                                DiagramModel.FontStyleChanged _ ->
+                                    Return.andThen (updateText model_.text)
 
-                DiagramModel.FontSizeChanged _ ->
-                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-                        |> Return.andThen (updateText model_.text)
+                                DiagramModel.ColorChanged _ _ ->
+                                    Return.andThen (updateText model_.text)
 
-                DiagramModel.Stop ->
-                    case model.diagramModel.moveState of
-                        DiagramModel.ItemMove target ->
-                            case target of
-                                DiagramModel.TableTarget _ ->
-                                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-                                        |> Return.andThen (updateText model_.text)
+                                DiagramModel.FontSizeChanged _ ->
+                                    Return.andThen (updateText model_.text)
 
-                                DiagramModel.ItemTarget _ ->
-                                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-                                        |> Return.andThen (updateText model_.text)
+                                DiagramModel.Stop ->
+                                    case model.diagramModel.moveState of
+                                        DiagramModel.ItemMove target ->
+                                            case target of
+                                                DiagramModel.TableTarget _ ->
+                                                    Return.andThen (updateText model_.text)
 
-                        DiagramModel.ItemResize item _ ->
-                            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-                                |> Return.andThen (setLine (Item.getLineNo item) (Text.lines model_.text) (Item.toLineString item))
+                                                DiagramModel.ItemTarget _ ->
+                                                    Return.andThen (updateText model_.text)
 
-                        _ ->
-                            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                                        DiagramModel.ItemResize item _ ->
+                                            Return.andThen (setLine (Item.getLineNo item) (Text.lines model_.text) (Item.toLineString item))
 
-                _ ->
-                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+                                        _ ->
+                                            Return.zero
+
+                                _ ->
+                                    Return.zero
+                           )
 
         GetCanvasSize diagramType ->
-            let
-                diagramModel =
-                    model.diagramModel
+            Return.andThen <|
+                \m ->
+                    let
+                        diagramModel =
+                            m.diagramModel
 
-                newDiagramModel =
-                    { diagramModel | diagramType = DiagramType.fromString diagramType }
+                        newDiagramModel =
+                            { diagramModel | diagramType = DiagramType.fromString diagramType }
 
-                size =
-                    DiagramUtils.getCanvasSize newDiagramModel
-            in
-            ( model, onGetCanvasSize size )
+                        size =
+                            DiagramUtils.getCanvasSize newDiagramModel
+                    in
+                    Return.return m <| onGetCanvasSize size
 
 
 

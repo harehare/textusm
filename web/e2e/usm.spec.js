@@ -2,9 +2,9 @@
 
 context('usm', () => {
     beforeEach(() => {
+        cy.viewport(1920, 1880);
         cy.visit('/');
     });
-
     it('change background color of user story map', () => {
         cy.get('.menu-button').first().click().get('.new-item').first().click();
         cy.get('#usm')

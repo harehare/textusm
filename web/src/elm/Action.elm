@@ -55,7 +55,7 @@ loadDiagram diagram model =
             }
 
         ( model_, cmd_ ) =
-            Diagram.update (DiagramModel.OnChangeText <| Text.toString diagram.text) newDiagramModel
+            Return.singleton newDiagramModel |> Diagram.update (DiagramModel.OnChangeText <| Text.toString diagram.text)
     in
     Return.return
         { model

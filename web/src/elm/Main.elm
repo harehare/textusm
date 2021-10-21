@@ -7,7 +7,6 @@ import Browser
 import Browser.Events
     exposing
         ( Visibility(..)
-        , onMouseDown
         , onMouseMove
         , onMouseUp
         , onResize
@@ -556,30 +555,25 @@ update message =
         UpdateShare msg ->
             Return.andThen
                 (\m ->
-                    case toRoute m.url of
-                        Share ->
-                            let
-                                ( model_, cmd_ ) =
-                                    Share.update msg m.shareModel
-                            in
-                            Return.return { m | shareModel = model_ } (cmd_ |> Cmd.map UpdateShare)
-                                |> (case msg of
-                                        Share.Shared (Err e) ->
-                                            Return.andThen <| Action.showErrorMessage e
+                    let
+                        ( model_, cmd_ ) =
+                            Share.update msg m.shareModel
+                    in
+                    Return.return { m | shareModel = model_ } (cmd_ |> Cmd.map UpdateShare)
+                        |> (case msg of
+                                Share.Shared (Err e) ->
+                                    Return.andThen <| Action.showErrorMessage e
 
-                                        Share.Close ->
-                                            Action.historyBack m.key
+                                Share.Close ->
+                                    Action.historyBack m.key
 
-                                        Share.LoadShareCondition (Err e) ->
-                                            Return.andThen <| Action.showErrorMessage e
+                                Share.LoadShareCondition (Err e) ->
+                                    Return.andThen <| Action.showErrorMessage e
 
-                                        _ ->
-                                            Return.zero
-                                   )
-                                >> Return.andThen Action.stopProgress
-
-                        _ ->
-                            Return.singleton m
+                                _ ->
+                                    Return.zero
+                           )
+                        >> Return.andThen Action.stopProgress
                 )
 
         UpdateSettings msg ->
@@ -603,7 +597,7 @@ update message =
                 (\m ->
                     let
                         ( model_, cmd_ ) =
-                            Diagram.update msg m.diagramModel
+                            Return.singleton m.diagramModel |> Diagram.update msg
                     in
                     case msg of
                         DiagramModel.OnResize _ _ ->
@@ -663,34 +657,29 @@ update message =
                     in
                     case subMsg of
                         DiagramList.Select diagram ->
-                            case diagram.id of
-                                Just _ ->
-                                    (case ( diagram.isRemote, diagram.isPublic ) of
-                                        ( True, True ) ->
-                                            Action.pushUrl
-                                                (Route.toString <|
-                                                    ViewPublic diagram.diagram (DiagramItem.getId diagram)
-                                                )
-                                                m
+                            (case ( diagram.isRemote, diagram.isPublic ) of
+                                ( True, True ) ->
+                                    Action.pushUrl
+                                        (Route.toString <|
+                                            ViewPublic diagram.diagram (DiagramItem.getId diagram)
+                                        )
+                                        m
 
-                                        ( True, False ) ->
-                                            Action.pushUrl
-                                                (Route.toString <|
-                                                    EditFile diagram.diagram (DiagramItem.getId diagram)
-                                                )
-                                                m
+                                ( True, False ) ->
+                                    Action.pushUrl
+                                        (Route.toString <|
+                                            EditFile diagram.diagram (DiagramItem.getId diagram)
+                                        )
+                                        m
 
-                                        _ ->
-                                            Action.pushUrl
-                                                (Route.toString <|
-                                                    EditLocalFile diagram.diagram (DiagramItem.getId diagram)
-                                                )
-                                                m
-                                    )
-                                        |> Return.andThen Action.startProgress
-
-                                Nothing ->
-                                    Return.singleton m
+                                _ ->
+                                    Action.pushUrl
+                                        (Route.toString <|
+                                            EditLocalFile diagram.diagram (DiagramItem.getId diagram)
+                                        )
+                                        m
+                            )
+                                |> Return.andThen Action.startProgress
 
                         DiagramList.Removed (Err _) ->
                             Action.showErrorMessage Message.messagEerrorOccurred m
@@ -717,7 +706,7 @@ update message =
                 (\m ->
                     let
                         ( model_, cmd_ ) =
-                            Diagram.update (DiagramModel.Init m.diagramModel.settings window (Text.toString m.diagramModel.text)) m.diagramModel
+                            Return.singleton m.diagramModel |> Diagram.update (DiagramModel.Init m.diagramModel.settings window (Text.toString m.diagramModel.text))
 
                         model__ =
                             case toRoute m.url of
@@ -1175,7 +1164,7 @@ update message =
                 (\m ->
                     let
                         ( model_, cmd_ ) =
-                            Diagram.update DiagramModel.ToggleFullscreen m.diagramModel
+                            Return.singleton m.diagramModel |> Diagram.update DiagramModel.ToggleFullscreen
                     in
                     Return.return { m | window = m.window |> Model.windowOfFullscreen.set False, diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
                 )

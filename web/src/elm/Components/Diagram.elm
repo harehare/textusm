@@ -734,52 +734,53 @@ zoomOut model =
         Return.singleton model
 
 
-update : Msg -> Model -> Return Msg Model
-update message model =
-    Return.singleton model
-        |> (case message of
-                NoOp ->
-                    Return.zero
+update : Msg -> Return.ReturnF Msg Model
+update message =
+    case message of
+        NoOp ->
+            Return.zero
 
-                Init settings window text ->
-                    let
-                        width =
-                            round window.viewport.width
+        Init settings window text ->
+            let
+                width =
+                    round window.viewport.width
 
-                        height =
-                            round window.viewport.height - 50
-                    in
-                    Return.andThen (\m -> Return.singleton <| updateDiagram ( width, height ) m text)
-                        >> Return.andThen (\m -> Return.singleton { m | settings = settings })
+                height =
+                    round window.viewport.height - 50
+            in
+            Return.andThen (\m -> Return.singleton <| updateDiagram ( width, height ) m text)
+                >> Return.andThen (\m -> Return.singleton { m | settings = settings })
 
-                ZoomIn ->
-                    Return.andThen zoomIn
+        ZoomIn ->
+            Return.andThen zoomIn
 
-                ZoomOut ->
-                    Return.andThen zoomOut
+        ZoomOut ->
+            Return.andThen zoomOut
 
-                PinchIn distance ->
-                    Return.andThen (setTouchDistance <| Just distance)
-                        >> Return.andThen zoomIn
+        PinchIn distance ->
+            Return.andThen (setTouchDistance <| Just distance)
+                >> Return.andThen zoomIn
 
-                PinchOut distance ->
-                    Return.andThen (setTouchDistance <| Just distance)
-                        >> Return.andThen zoomOut
+        PinchOut distance ->
+            Return.andThen (setTouchDistance <| Just distance)
+                >> Return.andThen zoomOut
 
-                OnChangeText text ->
-                    Return.andThen <| \m -> Return.singleton <| updateDiagram m.size m text
+        OnChangeText text ->
+            Return.andThen <| \m -> Return.singleton <| updateDiagram m.size m text
 
-                Start moveState pos ->
-                    Return.andThen <|
-                        \m ->
-                            Return.singleton
-                                { m
-                                    | moveState = moveState
-                                    , movePosition = pos
-                                }
+        Start moveState pos ->
+            Return.andThen <|
+                \m ->
+                    Return.singleton
+                        { m
+                            | moveState = moveState
+                            , movePosition = pos
+                        }
 
-                Stop ->
-                    (case model.moveState of
+        Stop ->
+            Return.andThen
+                (\m ->
+                    case m.moveState of
                         Diagram.ItemMove target ->
                             case target of
                                 Diagram.TableTarget table ->
@@ -787,36 +788,36 @@ update message model =
                                         (ErDiagramModel.Table _ _ _ lineNo) =
                                             table
                                     in
-                                    Return.andThen (setLine lineNo (Text.lines model.text) (ErDiagramModel.tableToLineString table))
+                                    setLine lineNo (Text.lines m.text) (ErDiagramModel.tableToLineString table) m
 
                                 Diagram.ItemTarget item ->
-                                    Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
+                                    setLine (Item.getLineNo item) (Text.lines m.text) (Item.toLineString item) m
 
                         Diagram.ItemResize item _ ->
-                            Return.andThen (setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item))
+                            setLine (Item.getLineNo item) (Text.lines m.text) (Item.toLineString item) m
 
                         _ ->
-                            Return.zero
-                    )
-                        >> Return.andThen stopMove
+                            Return.singleton m
+                )
+                >> Return.andThen stopMove
 
-                Move ( x, y ) ->
-                    if not (Diagram.isMoving model.moveState) || (x == Position.getX model.movePosition && y == Position.getY model.movePosition) then
-                        Return.zero
+        Move ( x, y ) ->
+            Return.andThen <|
+                \m ->
+                    if not (Diagram.isMoving m.moveState) || (x == Position.getX m.movePosition && y == Position.getY m.movePosition) then
+                        Return.singleton m
 
                     else
-                        case model.moveState of
+                        case m.moveState of
                             Diagram.BoardMove ->
-                                Return.andThen <|
-                                    \m ->
-                                        Return.singleton
-                                            { m
-                                                | position =
-                                                    ( Position.getX model.position + round (toFloat (x - Position.getX model.movePosition) * model.svg.scale)
-                                                    , Position.getY model.position + round (toFloat (y - Position.getY model.movePosition) * model.svg.scale)
-                                                    )
-                                                , movePosition = ( x, y )
-                                            }
+                                Return.singleton
+                                    { m
+                                        | position =
+                                            ( Position.getX m.position + round (toFloat (x - Position.getX m.movePosition) * m.svg.scale)
+                                            , Position.getY m.position + round (toFloat (y - Position.getY m.movePosition) * m.svg.scale)
+                                            )
+                                        , movePosition = ( x, y )
+                                    }
 
                             Diagram.ItemMove target ->
                                 case target of
@@ -831,22 +832,20 @@ update message model =
                                                         |> Maybe.andThen
                                                             (\p ->
                                                                 Just
-                                                                    ( Position.getX p + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
-                                                                    , Position.getY p + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                                    ( Position.getX p + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
+                                                                    , Position.getY p + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
                                                                     )
                                                             )
-                                                        |> Maybe.withDefault ( x - Position.getX model.movePosition, y - Position.getY model.movePosition )
+                                                        |> Maybe.withDefault ( x - Position.getX m.movePosition, y - Position.getY m.movePosition )
                                                     )
                                         in
-                                        Return.andThen <|
-                                            \m ->
-                                                Return.singleton
-                                                    { m
-                                                        | moveState =
-                                                            Diagram.ItemMove <|
-                                                                Diagram.TableTarget (ErDiagramModel.Table name columns newPosition lineNo)
-                                                        , movePosition = ( x, y )
-                                                    }
+                                        Return.singleton
+                                            { m
+                                                | moveState =
+                                                    Diagram.ItemMove <|
+                                                        Diagram.TableTarget (ErDiagramModel.Table name columns newPosition lineNo)
+                                                , movePosition = ( x, y )
+                                            }
 
                                     Diagram.ItemTarget item ->
                                         let
@@ -854,23 +853,21 @@ update message model =
                                                 Item.getOffset item
 
                                             newPosition =
-                                                ( Position.getX offset + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
-                                                , Position.getY offset + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                ( Position.getX offset + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
+                                                , Position.getY offset + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
                                                 )
 
                                             newItem =
                                                 Item.withOffset newPosition item
                                         in
-                                        Return.andThen <|
-                                            \m ->
-                                                Return.singleton
-                                                    { m
-                                                        | moveState =
-                                                            Diagram.ItemMove <|
-                                                                Diagram.ItemTarget newItem
-                                                        , selectedItem = Just newItem
-                                                        , movePosition = ( x, y )
-                                                    }
+                                        Return.singleton
+                                            { m
+                                                | moveState =
+                                                    Diagram.ItemMove <|
+                                                        Diagram.ItemTarget newItem
+                                                , selectedItem = Just newItem
+                                                , movePosition = ( x, y )
+                                            }
 
                             Diagram.ItemResize item direction ->
                                 let
@@ -883,55 +880,55 @@ update message model =
                                     ( newSize, newPosition ) =
                                         case direction of
                                             Diagram.TopLeft ->
-                                                ( ( Size.getWidth offsetSize + round (toFloat (Position.getX model.movePosition - x) / model.svg.scale)
-                                                  , Size.getHeight offsetSize + round (toFloat (Position.getY model.movePosition - y) / model.svg.scale)
+                                                ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / m.svg.scale)
+                                                  , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / m.svg.scale)
                                                   )
-                                                , ( Position.getX offsetPosition + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
-                                                  , Position.getY offsetPosition + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
+                                                  , Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
                                                   )
                                                 )
 
                                             Diagram.TopRight ->
-                                                ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
-                                                  , Size.getHeight offsetSize + round (toFloat (Position.getY model.movePosition - y) / model.svg.scale)
+                                                ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
+                                                  , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / m.svg.scale)
                                                   )
                                                 , ( Position.getX offsetPosition
-                                                  , Position.getY offsetPosition + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                  , Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
                                                   )
                                                 )
 
                                             Diagram.BottomLeft ->
-                                                ( ( Size.getWidth offsetSize + round (toFloat (Position.getX model.movePosition - x) / model.svg.scale)
-                                                  , Size.getHeight offsetSize + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / m.svg.scale)
+                                                  , Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
                                                   )
-                                                , ( Position.getX offsetPosition + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                                                , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
                                                   , Position.getY offsetPosition
                                                   )
                                                 )
 
                                             Diagram.BottomRight ->
-                                                ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
-                                                  , Size.getHeight offsetSize + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale)
+                                                ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
+                                                  , Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
                                                   )
                                                 , offsetPosition
                                                 )
 
                                             Diagram.Top ->
                                                 ( ( 0
-                                                  , Size.getHeight offsetSize + round (toFloat (Position.getY model.movePosition - y) / model.svg.scale)
+                                                  , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / m.svg.scale)
                                                   )
-                                                , ( Position.getX offsetPosition, Position.getY offsetPosition + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale) )
+                                                , ( Position.getX offsetPosition, Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale) )
                                                 )
 
                                             Diagram.Bottom ->
-                                                ( ( 0, Size.getHeight offsetSize + round (toFloat (y - Position.getY model.movePosition) / model.svg.scale) ), offsetPosition )
+                                                ( ( 0, Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale) ), offsetPosition )
 
                                             Diagram.Right ->
-                                                ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale), 0 ), offsetPosition )
+                                                ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale), 0 ), offsetPosition )
 
                                             Diagram.Left ->
-                                                ( ( Size.getWidth offsetSize + round (toFloat (Position.getX model.movePosition - x) / model.svg.scale), 0 )
-                                                , ( Position.getX offsetPosition + round (toFloat (x - Position.getX model.movePosition) / model.svg.scale)
+                                                ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / m.svg.scale), 0 )
+                                                , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
                                                   , Position.getY offsetPosition
                                                   )
                                                 )
@@ -940,50 +937,50 @@ update message model =
                                         Item.withOffsetSize newSize item
                                             |> Item.withOffset newPosition
                                 in
-                                Return.andThen <|
-                                    \m ->
-                                        Return.singleton
-                                            { m
-                                                | moveState =
-                                                    Diagram.ItemResize newItem direction
-                                                , selectedItem = Just newItem
-                                                , movePosition = ( x, y )
-                                            }
+                                Return.singleton
+                                    { m
+                                        | moveState =
+                                            Diagram.ItemResize newItem direction
+                                        , selectedItem = Just newItem
+                                        , movePosition = ( x, y )
+                                    }
 
                             _ ->
-                                Return.zero
+                                Return.singleton m
 
-                MoveTo position ->
-                    Return.andThen (\m -> Return.singleton { m | position = position })
-                        >> Return.andThen clearPosition
+        MoveTo position ->
+            Return.andThen (\m -> Return.singleton { m | position = position })
+                >> Return.andThen clearPosition
 
-                ToggleFullscreen ->
-                    Return.andThen (\m -> Return.singleton { m | fullscreen = not model.fullscreen })
-                        >> Return.andThen clearPosition
+        ToggleFullscreen ->
+            Return.andThen (\m -> Return.singleton { m | fullscreen = not m.fullscreen })
+                >> Return.andThen clearPosition
 
-                OnResize width height ->
-                    Return.andThen (\m -> Return.singleton { m | size = ( width, height - 56 ) })
-                        >> Return.andThen clearPosition
+        OnResize width height ->
+            Return.andThen (\m -> Return.singleton { m | size = ( width, height - 56 ) })
+                >> Return.andThen clearPosition
 
-                StartPinch distance ->
-                    Return.andThen <| \m -> Return.singleton { m | touchDistance = Just distance }
+        StartPinch distance ->
+            Return.andThen <| \m -> Return.singleton { m | touchDistance = Just distance }
 
-                EditSelectedItem text ->
-                    Return.andThen <| \m -> Return.singleton { m | selectedItem = Maybe.andThen (\item_ -> Just (item_ |> Item.withTextOnly (" " ++ String.trimLeft text))) m.selectedItem }
+        EditSelectedItem text ->
+            Return.andThen <| \m -> Return.singleton { m | selectedItem = Maybe.andThen (\item_ -> Just (item_ |> Item.withTextOnly (" " ++ String.trimLeft text))) m.selectedItem }
 
-                FitToWindow ->
+        FitToWindow ->
+            Return.andThen <|
+                \m ->
                     let
                         ( windowWidth, windowHeight ) =
-                            model.size
+                            m.size
 
                         ( canvasWidth, canvasHeight ) =
-                            DiagramUtils.getCanvasSize model
+                            DiagramUtils.getCanvasSize m
 
                         ( widthRatio, heightRatio ) =
                             ( toFloat (round (toFloat windowWidth / toFloat canvasWidth / 0.05)) * 0.05, toFloat (round (toFloat windowHeight / toFloat canvasHeight / 0.05)) * 0.05 )
 
                         svgModel =
-                            model.svg
+                            m.svg
 
                         newSvgModel =
                             { svgModel | scale = min widthRatio heightRatio }
@@ -991,25 +988,27 @@ update message model =
                         position =
                             ( windowWidth // 2 - round (toFloat canvasWidth / 2 * widthRatio), windowHeight // 2 - round (toFloat canvasHeight / 2 * heightRatio) )
                     in
-                    Return.andThen <| \m -> Return.singleton { m | svg = newSvgModel, position = position }
+                    Return.singleton { m | svg = newSvgModel, position = position }
 
-                Select (Just { item, position, displayAllMenu }) ->
-                    if Item.isImage item then
-                        Return.zero
+        Select (Just { item, position, displayAllMenu }) ->
+            if Item.isImage item then
+                Return.zero
 
-                    else
-                        Return.andThen (\m -> Return.singleton { m | selectedItem = Just item, contextMenu = Just { contextMenu = Diagram.CloseMenu, position = position, displayAllMenu = displayAllMenu } })
-                            >> Return.andThen (setFocus "edit-item")
+            else
+                Return.andThen (\m -> Return.singleton { m | selectedItem = Just item, contextMenu = Just { contextMenu = Diagram.CloseMenu, position = position, displayAllMenu = displayAllMenu } })
+                    >> Return.andThen (setFocus "edit-item")
 
-                Select Nothing ->
-                    Return.andThen <| \m -> Return.singleton { m | selectedItem = Nothing }
+        Select Nothing ->
+            Return.andThen <| \m -> Return.singleton { m | selectedItem = Nothing }
 
-                EndEditSelectedItem item ->
-                    case model.selectedItem of
+        EndEditSelectedItem item ->
+            Return.andThen <|
+                \m ->
+                    case m.selectedItem of
                         Just selectedItem ->
                             let
                                 lines =
-                                    Text.lines model.text
+                                    Text.lines m.text
 
                                 currentText =
                                     getAt (Item.getLineNo item) lines
@@ -1032,31 +1031,34 @@ update message model =
                                         lines
                                         |> String.join "\n"
                             in
-                            Return.andThen (setText text)
-                                >> Return.andThen clearSelectedItem
+                            Return.singleton m
+                                |> Return.andThen (setText text)
+                                |> Return.andThen clearSelectedItem
 
                         Nothing ->
-                            Return.zero
+                            Return.singleton m
 
-                SelectContextMenu menu ->
-                    Return.andThen <|
-                        \m ->
-                            case m.contextMenu of
-                                Just menu_ ->
-                                    Return.singleton { m | contextMenu = Just { menu_ | contextMenu = menu } }
+        SelectContextMenu menu ->
+            Return.andThen <|
+                \m ->
+                    case m.contextMenu of
+                        Just menu_ ->
+                            Return.singleton { m | contextMenu = Just { menu_ | contextMenu = menu } }
 
-                                Nothing ->
-                                    Return.singleton m
-
-                FontSizeChanged size ->
-                    case model.selectedItem of
                         Nothing ->
-                            Return.zero
+                            Return.singleton m
+
+        FontSizeChanged size ->
+            Return.andThen <|
+                \m ->
+                    case m.selectedItem of
+                        Nothing ->
+                            Return.singleton m
 
                         Just item ->
                             let
                                 lines =
-                                    Text.lines model.text
+                                    Text.lines m.text
 
                                 currentText =
                                     getAt (Item.getLineNo item) lines
@@ -1082,34 +1084,32 @@ update message model =
                                     setAt (Item.getLineNo item) (prefix ++ String.trimLeft text) lines
                                         |> String.join "\n"
                             in
-                            case model.selectedItem of
-                                Just item_ ->
-                                    Return.andThen closeDropDown
-                                        >> Return.andThen (setText updateText)
-                                        >> Return.andThen
-                                            (selectItem
-                                                (Just
-                                                    (item_
-                                                        |> Item.withItemSettings
-                                                            (Item.getItemSettings item_
-                                                                |> Maybe.andThen (\s -> Just (ItemSettings.withFontSize size <| s))
-                                                            )
+                            Return.singleton m
+                                |> Return.andThen closeDropDown
+                                |> Return.andThen (setText updateText)
+                                |> Return.andThen
+                                    (selectItem
+                                        (Just
+                                            (item
+                                                |> Item.withItemSettings
+                                                    (Item.getItemSettings item
+                                                        |> Maybe.andThen (\s -> Just (ItemSettings.withFontSize size <| s))
                                                     )
-                                                )
                                             )
+                                        )
+                                    )
 
-                                _ ->
-                                    Return.zero
-
-                ColorChanged menu color ->
-                    case model.selectedItem of
+        ColorChanged menu color ->
+            Return.andThen <|
+                \m ->
+                    case m.selectedItem of
                         Nothing ->
-                            Return.zero
+                            Return.singleton m
 
                         Just item ->
                             let
                                 lines =
-                                    Text.lines model.text
+                                    Text.lines m.text
 
                                 currentText =
                                     getAt (Item.getLineNo item) lines
@@ -1147,62 +1147,58 @@ update message model =
                                     setAt (Item.getLineNo item) (prefix ++ String.trimLeft text) lines
                                         |> String.join "\n"
                             in
-                            case ( model.selectedItem, menu ) of
+                            case ( m.selectedItem, menu ) of
                                 ( Just item_, Diagram.ColorSelectMenu ) ->
-                                    Return.andThen
-                                        (\m ->
-                                            case m.contextMenu of
-                                                Just menu_ ->
-                                                    Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
-                                                        |> Return.andThen (setText updateText)
-                                                        |> Return.andThen
-                                                            (selectItem
-                                                                (Just
-                                                                    (item_
-                                                                        |> Item.withItemSettings
-                                                                            (Item.getItemSettings item_
-                                                                                |> Maybe.andThen (\s -> Just (ItemSettings.withForegroundColor (Just color) s))
-                                                                            )
+                                    case m.contextMenu of
+                                        Just menu_ ->
+                                            Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
+                                                |> Return.andThen (setText updateText)
+                                                |> Return.andThen
+                                                    (selectItem
+                                                        (Just
+                                                            (item_
+                                                                |> Item.withItemSettings
+                                                                    (Item.getItemSettings item_
+                                                                        |> Maybe.andThen (\s -> Just (ItemSettings.withForegroundColor (Just color) s))
                                                                     )
-                                                                )
                                                             )
+                                                        )
+                                                    )
 
-                                                Nothing ->
-                                                    Return.singleton m
-                                        )
+                                        Nothing ->
+                                            Return.singleton m
 
                                 ( Just item_, Diagram.BackgroundColorSelectMenu ) ->
-                                    Return.andThen
-                                        (\m ->
-                                            case m.contextMenu of
-                                                Just menu_ ->
-                                                    Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
-                                                        |> Return.andThen (setText updateText)
-                                                        |> Return.andThen
-                                                            (selectItem
-                                                                (Just
-                                                                    (item_
-                                                                        |> Item.withItemSettings
-                                                                            (Item.getItemSettings item_
-                                                                                |> Maybe.andThen (\s -> Just (ItemSettings.withBackgroundColor (Just color) s))
-                                                                            )
+                                    case m.contextMenu of
+                                        Just menu_ ->
+                                            Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
+                                                |> Return.andThen (setText updateText)
+                                                |> Return.andThen
+                                                    (selectItem
+                                                        (Just
+                                                            (item_
+                                                                |> Item.withItemSettings
+                                                                    (Item.getItemSettings item_
+                                                                        |> Maybe.andThen (\s -> Just (ItemSettings.withBackgroundColor (Just color) s))
                                                                     )
-                                                                )
                                                             )
+                                                        )
+                                                    )
 
-                                                Nothing ->
-                                                    Return.singleton m
-                                        )
+                                        Nothing ->
+                                            Return.singleton m
 
                                 _ ->
-                                    Return.zero
+                                    Return.singleton m
 
-                FontStyleChanged style ->
-                    case model.selectedItem of
+        FontStyleChanged style ->
+            Return.andThen <|
+                \m ->
+                    case m.selectedItem of
                         Just item ->
                             let
                                 lines =
-                                    Text.lines model.text
+                                    Text.lines m.text
 
                                 currentText =
                                     getAt (Item.getLineNo item) lines
@@ -1227,44 +1223,45 @@ update message model =
                                     setAt (Item.getLineNo item) updateLine lines
                                         |> String.join "\n"
                             in
-                            Return.andThen (setText updateText)
+                            setText updateText m
 
                         Nothing ->
-                            Return.zero
+                            Return.singleton m
 
-                DropFiles files ->
-                    Return.andThen <|
-                        \m ->
-                            Return.return
-                                { m | dragStatus = NoDrag }
-                                (List.filter (\file -> File.mime file |> String.startsWith "text/") files
-                                    |> List.head
-                                    |> Maybe.map File.toString
-                                    |> Maybe.withDefault (Task.succeed "")
-                                    |> Task.perform LoadFile
-                                )
+        DropFiles files ->
+            Return.andThen <|
+                \m ->
+                    Return.return
+                        { m | dragStatus = NoDrag }
+                        (List.filter (\file -> File.mime file |> String.startsWith "text/") files
+                            |> List.head
+                            |> Maybe.map File.toString
+                            |> Maybe.withDefault (Task.succeed "")
+                            |> Task.perform LoadFile
+                        )
 
-                LoadFile file ->
-                    if String.isEmpty file then
-                        Return.zero
+        LoadFile file ->
+            if String.isEmpty file then
+                Return.zero
 
-                    else
-                        Return.andThen <| \m -> Return.singleton { m | text = Text.fromString file }
+            else
+                Return.andThen <| \m -> Return.singleton { m | text = Text.fromString file }
 
-                ChangeDragStatus status ->
-                    Return.andThen <| \m -> Return.singleton { m | dragStatus = status }
+        ChangeDragStatus status ->
+            Return.andThen <| \m -> Return.singleton { m | dragStatus = status }
 
-                ToggleDropDownList id ->
+        ToggleDropDownList id ->
+            Return.andThen <|
+                \m ->
                     let
                         activeIndex =
-                            if (model.dropDownIndex |> Maybe.withDefault "") == id then
+                            if (m.dropDownIndex |> Maybe.withDefault "") == id then
                                 Nothing
 
                             else
                                 Just id
                     in
-                    Return.andThen <| \m -> Return.singleton { m | dropDownIndex = activeIndex }
+                    Return.singleton { m | dropDownIndex = activeIndex }
 
-                ToggleMiniMap ->
-                    Return.andThen <| \m -> Return.singleton { m | showMiniMap = not m.showMiniMap }
-           )
+        ToggleMiniMap ->
+            Return.andThen <| \m -> Return.singleton { m | showMiniMap = not m.showMiniMap }

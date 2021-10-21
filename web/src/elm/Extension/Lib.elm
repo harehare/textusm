@@ -11,6 +11,7 @@ import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.Item as Item
 import Models.Text as Text
+import Return
 import Task
 
 
@@ -169,14 +170,14 @@ update message model =
                 DiagramModel.OnChangeText text ->
                     let
                         ( model_, _ ) =
-                            Diagram.update subMsg model.diagramModel
+                            Return.singleton model.diagramModel |> Diagram.update subMsg
                     in
                     ( { model | text = text, diagramModel = model_ }, Cmd.none )
 
                 _ ->
                     let
                         ( model_, cmd_ ) =
-                            Diagram.update subMsg model.diagramModel
+                            Return.singleton model.diagramModel |> Diagram.update subMsg
                     in
                     ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
