@@ -17,6 +17,7 @@ type DiagramLocation
     | Remote
     | Gist
     | GoogleDrive
+    | LocalFileSystem
 
 
 type alias IsGithubUser =
@@ -60,6 +61,9 @@ toString loc =
         GoogleDrive ->
             "googledrive"
 
+        LocalFileSystem ->
+            "localfilesystem"
+
 
 fromString : String -> DiagramLocation
 fromString s =
@@ -75,6 +79,9 @@ fromString s =
 
         "googledrive" ->
             GoogleDrive
+
+        "localfilesystem" ->
+            LocalFileSystem
 
         _ ->
             Local

@@ -17,6 +17,7 @@ import { initDB } from './db';
 import { initDownload } from './download';
 import { setElmApp } from './editor';
 import { ElmApp, Provider } from './elm';
+import { canUseNativeFileSystem } from './file';
 import { Settings } from './model';
 import { loadSettings, saveSettings } from './settings';
 
@@ -34,6 +35,7 @@ const app: ElmApp = Elm.Main.init({
         settings: loadSettings(isDarkMode),
         isOnline: window.navigator.onLine ?? true,
         isDarkMode,
+        canUseNativeFileSystem,
     },
 });
 

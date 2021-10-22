@@ -9,7 +9,27 @@ import Models.DiagramLocation as DiagramLocation
 import Models.FontSize as FontSize
 import Models.Session as Session exposing (Session)
 import Return
-import Settings exposing (Settings, defaultEditorSettings, settingsOfActivityBackgroundColor, settingsOfActivityColor, settingsOfBackgroundColor, settingsOfFontSize, settingsOfHeight, settingsOfLabelColor, settingsOfLineColor, settingsOfShowLineNumber, settingsOfStoryBackgroundColor, settingsOfStoryColor, settingsOfTaskBackgroundColor, settingsOfTaskColor, settingsOfTextColor, settingsOfWidth, settingsOfWordWrap, settingsOfZoomControl)
+import Settings
+    exposing
+        ( Settings
+        , defaultEditorSettings
+        , ofActivityBackgroundColor
+        , ofActivityColor
+        , ofBackgroundColor
+        , ofFontSize
+        , ofHeight
+        , ofLabelColor
+        , ofLineColor
+        , ofShowLineNumber
+        , ofStoryBackgroundColor
+        , ofStoryColor
+        , ofTaskBackgroundColor
+        , ofTaskColor
+        , ofTextColor
+        , ofWidth
+        , ofWordWrap
+        , ofZoomControl
+        )
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Switch as Switch
 
@@ -1088,7 +1108,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfBackgroundColor.set x
+                                    settings |> ofBackgroundColor.set x
                                 )
                             )
                             baseColorItems
@@ -1126,7 +1146,7 @@ view_ dropDownIndex settings session =
                     , Switch.view (Maybe.withDefault True settings.storyMap.zoomControl)
                         (\v ->
                             UpdateSettings
-                                (\_ -> settings |> settingsOfZoomControl.set (Just v))
+                                (\_ -> settings |> ofZoomControl.set (Just v))
                                 ""
                         )
                     ]
@@ -1143,7 +1163,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfFontSize.set (Maybe.withDefault 0 <| String.toInt x)
+                                    settings |> ofFontSize.set (Maybe.withDefault 0 <| String.toInt x)
                                 )
                             )
                             fontSizeItems
@@ -1155,7 +1175,7 @@ view_ dropDownIndex settings session =
                     , Switch.view (settings.editor |> defaultEditorSettings |> .showLineNumber)
                         (\v ->
                             UpdateSettings
-                                (\_ -> settings |> settingsOfShowLineNumber.set v)
+                                (\_ -> settings |> ofShowLineNumber.set v)
                                 ""
                         )
                     ]
@@ -1165,7 +1185,7 @@ view_ dropDownIndex settings session =
                         (\v ->
                             UpdateSettings
                                 (\_ ->
-                                    settings |> settingsOfWordWrap.set v
+                                    settings |> ofWordWrap.set v
                                 )
                                 ""
                         )
@@ -1183,7 +1203,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfWidth.set (String.toInt x |> Maybe.withDefault 150)
+                                    settings |> ofWidth.set (String.toInt x |> Maybe.withDefault 150)
                                 )
                             )
                             baseSizeItems
@@ -1198,7 +1218,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfHeight.set (String.toInt x |> Maybe.withDefault 45)
+                                    settings |> ofHeight.set (String.toInt x |> Maybe.withDefault 45)
                                 )
                             )
                             baseSizeItems
@@ -1218,7 +1238,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfActivityBackgroundColor.set x
+                                    settings |> ofActivityBackgroundColor.set x
                                 )
                             )
                             baseColorItems
@@ -1233,7 +1253,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfActivityColor.set x
+                                    settings |> ofActivityColor.set x
                                 )
                             )
                             baseColorItems
@@ -1251,7 +1271,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfTaskBackgroundColor.set x
+                                    settings |> ofTaskBackgroundColor.set x
                                 )
                             )
                             baseColorItems
@@ -1266,7 +1286,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfTaskColor.set x
+                                    settings |> ofTaskColor.set x
                                 )
                             )
                             baseColorItems
@@ -1284,7 +1304,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfStoryBackgroundColor.set x
+                                    settings |> ofStoryBackgroundColor.set x
                                 )
                             )
                             baseColorItems
@@ -1299,7 +1319,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfStoryColor.set x
+                                    settings |> ofStoryColor.set x
                                 )
                             )
                             baseColorItems
@@ -1318,7 +1338,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfLineColor.set x
+                                    settings |> ofLineColor.set x
                                 )
                             )
                             baseColorItems
@@ -1333,7 +1353,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfLabelColor.set x
+                                    settings |> ofLabelColor.set x
                                 )
                             )
                             baseColorItems
@@ -1348,7 +1368,7 @@ view_ dropDownIndex settings session =
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> settingsOfTextColor.set x
+                                    settings |> ofTextColor.set x
                                 )
                             )
                             baseColorItems

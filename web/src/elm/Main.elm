@@ -87,6 +87,7 @@ type alias Flags =
     , settings : D.Value
     , isOnline : Bool
     , isDarkMode : Bool
+    , canUseNativeFileSystem : Bool
     }
 
 
@@ -974,7 +975,7 @@ update message =
                             if Session.isSignedIn m.session then
                                 let
                                     newStoryMap =
-                                        m.settingsModel.settings |> Settings.settingsOfFont.set m.settingsModel.settings.font
+                                        m.settingsModel.settings |> Settings.ofFont.set m.settingsModel.settings.font
 
                                     newSettings =
                                         { position = Just m.window.position

@@ -3,25 +3,25 @@ module Settings exposing
     , Settings
     , defaultEditorSettings
     , defaultSettings
+    , ofActivityBackgroundColor
+    , ofActivityColor
+    , ofBackgroundColor
+    , ofFont
+    , ofFontSize
+    , ofHeight
+    , ofLabelColor
+    , ofLineColor
+    , ofShowLineNumber
+    , ofStoryBackgroundColor
+    , ofStoryColor
+    , ofTaskBackgroundColor
+    , ofTaskColor
+    , ofTextColor
+    , ofWidth
+    , ofWordWrap
+    , ofZoomControl
     , settingsDecoder
     , settingsEncoder
-    , settingsOfActivityBackgroundColor
-    , settingsOfActivityColor
-    , settingsOfBackgroundColor
-    , settingsOfFont
-    , settingsOfFontSize
-    , settingsOfHeight
-    , settingsOfLabelColor
-    , settingsOfLineColor
-    , settingsOfShowLineNumber
-    , settingsOfStoryBackgroundColor
-    , settingsOfStoryColor
-    , settingsOfTaskBackgroundColor
-    , settingsOfTaskColor
-    , settingsOfTextColor
-    , settingsOfWidth
-    , settingsOfWordWrap
-    , settingsOfZoomControl
     , storyMapOfSettings
     )
 
@@ -124,88 +124,88 @@ editorOfShowLineNumber =
     Lens .showLineNumber (\b a -> { a | showLineNumber = b })
 
 
-settingsOfShowLineNumber : Optional Settings Bool
-settingsOfShowLineNumber =
+ofShowLineNumber : Optional Settings Bool
+ofShowLineNumber =
     Compose.optionalWithLens editorOfShowLineNumber editorOfSettings
 
 
-settingsOfWordWrap : Optional Settings Bool
-settingsOfWordWrap =
+ofWordWrap : Optional Settings Bool
+ofWordWrap =
     Compose.optionalWithLens editorOfWordWrap editorOfSettings
 
 
-settingsOfFontSize : Optional Settings Int
-settingsOfFontSize =
+ofFontSize : Optional Settings Int
+ofFontSize =
     Compose.optionalWithLens editorOfFontSize editorOfSettings
 
 
-settingsOfWidth : Lens Settings Int
-settingsOfWidth =
+ofWidth : Lens Settings Int
+ofWidth =
     Compose.lensWithLens Diagram.settingsOfWidth storyMapOfSettings
 
 
-settingsOfHeight : Lens Settings Int
-settingsOfHeight =
+ofHeight : Lens Settings Int
+ofHeight =
     Compose.lensWithLens Diagram.settingsOfHeight storyMapOfSettings
 
 
-settingsOfBackgroundColor : Lens Settings String
-settingsOfBackgroundColor =
+ofBackgroundColor : Lens Settings String
+ofBackgroundColor =
     Compose.lensWithLens Diagram.settingsOfBackgroundColor storyMapOfSettings
 
 
-settingsOfZoomControl : Lens Settings (Maybe Bool)
-settingsOfZoomControl =
+ofZoomControl : Lens Settings (Maybe Bool)
+ofZoomControl =
     Compose.lensWithLens Diagram.settingsOfZoomControl storyMapOfSettings
 
 
-settingsOfLineColor : Lens Settings String
-settingsOfLineColor =
+ofLineColor : Lens Settings String
+ofLineColor =
     Compose.lensWithLens Diagram.settingsOfLineColor storyMapOfSettings
 
 
-settingsOfLabelColor : Lens Settings String
-settingsOfLabelColor =
+ofLabelColor : Lens Settings String
+ofLabelColor =
     Compose.lensWithLens Diagram.settingsOfLabelColor storyMapOfSettings
 
 
-settingsOfTextColor : Optional Settings String
-settingsOfTextColor =
+ofTextColor : Optional Settings String
+ofTextColor =
     Compose.lensWithOptional Diagram.settingsOfTextColor storyMapOfSettings
 
 
-settingsOfActivityColor : Lens Settings String
-settingsOfActivityColor =
+ofActivityColor : Lens Settings String
+ofActivityColor =
     Compose.lensWithLens Diagram.settingsOfActivityColor storyMapOfSettings
 
 
-settingsOfTaskColor : Lens Settings String
-settingsOfTaskColor =
+ofTaskColor : Lens Settings String
+ofTaskColor =
     Compose.lensWithLens Diagram.settingsOfTaskColor storyMapOfSettings
 
 
-settingsOfStoryColor : Lens Settings String
-settingsOfStoryColor =
+ofStoryColor : Lens Settings String
+ofStoryColor =
     Compose.lensWithLens Diagram.settingsOfStoryColor storyMapOfSettings
 
 
-settingsOfActivityBackgroundColor : Lens Settings String
-settingsOfActivityBackgroundColor =
+ofActivityBackgroundColor : Lens Settings String
+ofActivityBackgroundColor =
     Compose.lensWithLens Diagram.settingsOfActivityBackgroundColor storyMapOfSettings
 
 
-settingsOfTaskBackgroundColor : Lens Settings String
-settingsOfTaskBackgroundColor =
+ofTaskBackgroundColor : Lens Settings String
+ofTaskBackgroundColor =
     Compose.lensWithLens Diagram.settingsOfTaskBackgroundColor storyMapOfSettings
 
 
-settingsOfStoryBackgroundColor : Lens Settings String
-settingsOfStoryBackgroundColor =
+ofStoryBackgroundColor : Lens Settings String
+ofStoryBackgroundColor =
     Compose.lensWithLens Diagram.settingsOfStoryBackgroundColor storyMapOfSettings
 
 
-settingsOfFont : Lens Settings String
-settingsOfFont =
+ofFont : Lens Settings String
+ofFont =
     Compose.lensWithLens Diagram.settingsOfFont storyMapOfSettings
 
 
