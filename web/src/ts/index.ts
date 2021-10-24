@@ -17,7 +17,7 @@ import { initDB } from './db';
 import { initDownload } from './download';
 import { setElmApp } from './editor';
 import { ElmApp, Provider } from './elm';
-import { canUseNativeFileSystem } from './file';
+import { initFile, canUseNativeFileSystem } from './file';
 import { Settings } from './model';
 import { loadSettings, saveSettings } from './settings';
 
@@ -144,11 +144,7 @@ app.ports.getGithubAccessToken.subscribe(async (cmd) => {
     });
 });
 
-const attachApp = (a: ElmApp, list: ((a: ElmApp) => void)[]) => {
-    list.forEach((l) => l(a));
-};
-
-attachApp(app, [initDownload, initDB]);
+[initDownload, initDB, initFile].forEach((l) => l(app));
 
 window.requestIdleCallback(() => {
     pollRefreshToken(app.ports.updateIdToken.send);

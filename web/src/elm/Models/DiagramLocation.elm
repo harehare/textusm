@@ -20,20 +20,36 @@ type DiagramLocation
     | LocalFileSystem
 
 
+type alias CanUseNativeFileSystem =
+    Bool
+
+
 type alias IsGithubUser =
     Bool
 
 
-enabled : IsGithubUser -> List ( String, DiagramLocation )
-enabled isGithubUser =
-    if isGithubUser then
-        [ ( "System", Remote )
-        , ( "Github Gist", Gist )
-        ]
+enabled : CanUseNativeFileSystem -> IsGithubUser -> List ( String, DiagramLocation )
+enabled canUseNativeFileSystem isGithubUser =
+    case ( canUseNativeFileSystem, isGithubUser ) of
+        ( True, True ) ->
+            [ ( "System", Remote )
+            , ( "Github Gist", Gist )
+            , ( "Local File System", LocalFileSystem )
+            ]
 
-    else
-        [ ( "System", Remote )
-        ]
+        ( False, True ) ->
+            [ ( "System", Remote )
+            , ( "Github Gist", Gist )
+            ]
+
+        ( True, False ) ->
+            [ ( "System", Remote )
+            , ( "Local File System", LocalFileSystem )
+            ]
+
+        _ ->
+            [ ( "System", Remote )
+            ]
 
 
 isRemote : DiagramLocation -> Bool

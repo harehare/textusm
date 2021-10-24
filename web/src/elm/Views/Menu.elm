@@ -1,5 +1,6 @@
 module Views.Menu exposing (MenuItem(..), menu, view)
 
+import Events
 import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html exposing (Html)
 import Html.Attributes as Attr
@@ -9,11 +10,13 @@ import List
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color
+import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation(..))
 import Models.FileType as FileType
 import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page
 import Models.Text as Text exposing (Text)
 import Route exposing (Route)
+import Settings exposing (Settings)
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -36,6 +39,7 @@ type alias Props =
     , text : Text
     , width : Int
     , openMenu : Maybe Menu
+    , settings : Settings
     }
 
 
@@ -73,24 +77,40 @@ view props =
             ]
         , Html.div
             [ Attr.class "menu-button list-button" ]
-            [ Html.a
-                [ Attr.href <| Route.toString Route.DiagramList
-                , Attr.attribute "aria-label" "List"
-                ]
-                [ Icon.folderOpen
-                    (if isNothing props.openMenu && props.page == Page.List then
-                        Color.toString Color.iconColor
+            [ case props.settings.location of
+                Just DiagramLocation.LocalFileSystem ->
+                    Html.div
+                        [ Events.onClickPreventDefaultOn OpenLocalFile
+                        , Attr.attribute "aria-label" "List"
+                        ]
+                        [ Icon.folderOpen (Color.toString Color.iconColor) 18
+                        , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile props.lang ] ]
+                        ]
 
-                     else
-                        Color.toString Color.disabledIconColor
-                    )
-                    18
-                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile props.lang ] ]
-                ]
+                _ ->
+                    Html.a
+                        [ Attr.href <| Route.toString Route.DiagramList
+                        , Attr.attribute "aria-label" "List"
+                        ]
+                        [ Icon.folderOpen
+                            (if isNothing props.openMenu && props.page == Page.List then
+                                Color.toString Color.iconColor
+
+                             else
+                                Color.toString Color.disabledIconColor
+                            )
+                            18
+                        , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile props.lang ] ]
+                        ]
             ]
         , if Text.isChanged props.text then
             Html.div
-                [ Events.onClick Save
+                [ case props.settings.location of
+                    Just DiagramLocation.LocalFileSystem ->
+                        Events.onClick SaveLocalFile
+
+                    _ ->
+                        Events.onClick Save
                 , Attr.class "menu-button save-button"
                 ]
                 [ Icon.save (Color.toString Color.iconColor) 22

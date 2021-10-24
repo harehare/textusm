@@ -971,6 +971,7 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
                 , Attr.value <| " " ++ String.trimLeft (Item.getText item)
                 , onInput EditSelectedItem
                 , Events.onEnter <| EndEditSelectedItem item
+                , onBlur <| Select Nothing
                 ]
                 []
             ]

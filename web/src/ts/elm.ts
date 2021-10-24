@@ -32,6 +32,9 @@ type ElmApp = {
         importDiagram: Subscribe<(diagrams: DiagramItem[]) => void>;
         copyText: Subscribe<(text: string) => void>;
         getGithubAccessToken: Subscribe<(cmd: string) => void>;
+        openLocalFile: Subscribe<() => Promise<void>>;
+        saveLocalFile: Subscribe<(diagram: Diagram) => Promise<void>>;
+        closeLocalFile: Subscribe<() => void>;
 
         gotGithubAccessToken: Send<{ cmd: string; accessToken: string | null }>;
         fullscreen: Send<boolean>;
@@ -67,6 +70,8 @@ type ElmApp = {
         } | null>;
         changeNetworkState: Send<boolean>;
         notifyNewVersionAvailable: Send<string>;
+        openedLocalFile: Send<[string, string]>;
+        savedLocalFile: Send<string>;
     };
 };
 

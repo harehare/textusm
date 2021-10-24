@@ -90,6 +90,10 @@ type Msg
     | NotifyNewVersionAvailable String
     | Reload
     | CloseSnackbar
+    | OpenLocalFile
+    | OpenedLocalFile ( String, String )
+    | SaveLocalFile
+    | SavedLocalFile String
 
 
 type Menu
@@ -133,6 +137,7 @@ type alias Model =
     , shareState : ShareState
     , isOnline : Bool
     , isDarkMode : Bool
+    , canUseNativeFileSystem : Bool
     , snackbar : Snackbar Msg
     , notification : Notification
     }

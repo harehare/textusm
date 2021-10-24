@@ -9,6 +9,7 @@ module Models.DiagramItem exposing
     , isRemoteDiagram
     , listToString
     , listToValue
+    , localFile
     , mapToDateTime
     , stringToList
     , toInputGistItem
@@ -120,6 +121,20 @@ empty =
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
     }
+
+
+localFile : String -> String -> DiagramItem
+localFile title text =
+    let
+        tokens =
+            String.split "." title
+    in
+    case tokens of
+        [ _, ext ] ->
+            { empty | title = Title.fromString title, text = Text.fromString text, diagram = DiagramType.fromString ext, location = Just DiagramLocation.LocalFileSystem }
+
+        _ ->
+            { empty | title = Title.fromString title, text = Text.fromString text, location = Just DiagramLocation.LocalFileSystem }
 
 
 isRemoteDiagram : Session -> DiagramItem -> Bool

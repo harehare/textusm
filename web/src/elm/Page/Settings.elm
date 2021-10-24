@@ -1032,6 +1032,7 @@ type alias Model =
     { dropDownIndex : Maybe String
     , settings : Settings
     , session : Session
+    , canUseNativeFileSystem : Bool
     }
 
 
@@ -1041,9 +1042,9 @@ type Msg
     | DropDownClose
 
 
-init : Session -> Settings -> ( Model, Cmd Msg )
-init session settings =
-    ( Model Nothing settings session, Cmd.none )
+init : Bool -> Session -> Settings -> Return.Return Msg Model
+init canUseNativeFileSystem session settings =
+    Return.singleton <| Model Nothing settings session canUseNativeFileSystem
 
 
 update : Msg -> Return.ReturnF Msg Model
@@ -1072,11 +1073,11 @@ update msg =
 
 view : Model -> Html Msg
 view model =
-    view_ model.dropDownIndex model.settings model.session
+    view_ model.dropDownIndex model.canUseNativeFileSystem model.settings model.session
 
 
-view_ : Maybe String -> Settings -> Session -> Html Msg
-view_ dropDownIndex settings session =
+view_ : Maybe String -> Bool -> Settings -> Session -> Html Msg
+view_ dropDownIndex canUseNativeFileSystem settings session =
     div
         [ class "settings"
         , style "user-select" "none"
@@ -1126,12 +1127,15 @@ view_ dropDownIndex settings session =
                                     { settings | location = Just <| DiagramLocation.fromString x }
                                 )
                             )
-                            (List.map (\( k, v ) -> { name = k, value = DropDownList.stringValue (DiagramLocation.toString v) }) <| DiagramLocation.enabled (Session.isGithubUser session))
-                            ((case ( settings.location, Session.isGithubUser session ) of
-                                ( Just DiagramLocation.Gist, True ) ->
+                            (List.map (\( k, v ) -> { name = k, value = DropDownList.stringValue (DiagramLocation.toString v) }) <| DiagramLocation.enabled canUseNativeFileSystem (Session.isGithubUser session))
+                            ((case ( settings.location, canUseNativeFileSystem, Session.isGithubUser session ) of
+                                ( Just DiagramLocation.Gist, _, True ) ->
                                     DiagramLocation.Gist
 
-                                ( _, True ) ->
+                                ( Just DiagramLocation.LocalFileSystem, True, _ ) ->
+                                    DiagramLocation.LocalFileSystem
+
+                                ( _, _, True ) ->
                                     DiagramLocation.Remote
 
                                 _ ->

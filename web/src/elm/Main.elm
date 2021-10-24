@@ -116,7 +116,7 @@ init flags url key =
                 }
 
         ( settingsModel, _ ) =
-            Settings.init Session.guest initSettings
+            Settings.init flags.canUseNativeFileSystem Session.guest initSettings
 
         model =
             { diagramModel = { diagramModel | text = Text.fromString (Maybe.withDefault "" initSettings.text) }
@@ -147,6 +147,7 @@ init flags url key =
             , confirmDialog = Dialog.Hide
             , notification = Notification.Hide
             , snackbar = SnackbarModel.Hide
+            , canUseNativeFileSystem = flags.canUseNativeFileSystem
             }
     in
     Return.singleton model |> changeRouteTo (toRoute url)
@@ -229,6 +230,7 @@ view model =
                     , width = Size.getWidth model.diagramModel.size
                     , openMenu = model.openMenu
                     , lang = model.lang
+                    , settings = model.settingsModel.settings
                     }
             , let
                 mainWindow =
@@ -462,6 +464,7 @@ changeRouteTo route =
                     )
                 >> Return.andThen (Action.switchPage Page.Main)
                 >> Return.andThen Action.changeRouteInit
+                >> Return.andThen Action.closeLocalFile
 
         Route.EditLocalFile _ id_ ->
             Return.andThen (Action.switchPage Page.Main)
@@ -681,6 +684,7 @@ update message =
                                         m
                             )
                                 |> Return.andThen Action.startProgress
+                                |> Return.andThen Action.closeLocalFile
 
                         DiagramList.Removed (Err _) ->
                             Action.showErrorMessage Message.messagEerrorOccurred m
@@ -939,11 +943,15 @@ update message =
                 "save" ->
                     Return.andThen
                         (\m ->
-                            if Text.isChanged m.diagramModel.text then
-                                Return.return m <| Task.perform identity <| Task.succeed Save
+                            case ( m.settingsModel.settings.location, Text.isChanged m.diagramModel.text ) of
+                                ( Just DiagramLocation.LocalFileSystem, True ) ->
+                                    Return.return m <| Task.perform identity <| Task.succeed SaveLocalFile
 
-                            else
-                                Return.singleton m
+                                ( _, True ) ->
+                                    Return.return m <| Task.perform identity <| Task.succeed Save
+
+                                _ ->
+                                    Return.singleton m
                         )
 
                 "open" ->
@@ -990,7 +998,7 @@ update message =
                                         }
 
                                     ( newSettingsModel, _ ) =
-                                        Settings.init m.session newSettings
+                                        Settings.init m.canUseNativeFileSystem m.session newSettings
                                 in
                                 Return.singleton { m | settingsModel = newSettingsModel }
                                     |> Return.command (Ports.saveSettings (settingsEncoder newSettings))
@@ -1256,6 +1264,25 @@ update message =
                 )
                 >> Return.command (Utils.delay 30000 CloseSnackbar)
 
+        OpenLocalFile ->
+            Return.command <| Ports.openLocalFile ()
+
+        OpenedLocalFile ( title, text ) ->
+            Return.andThen <| Action.loadDiagram <| DiagramItem.localFile title text
+
+        SaveLocalFile ->
+            Return.andThen <|
+                \m ->
+                    case m.currentDiagram of
+                        Just d ->
+                            Return.singleton m |> Action.saveLocalFile { d | title = m.title, text = Text.saved m.diagramModel.text }
+
+                        _ ->
+                            Return.singleton m
+
+        SavedLocalFile title ->
+            Return.andThen <| \m -> Action.loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text) m
+
 
 
 -- Subscriptions
@@ -1293,6 +1320,8 @@ subscriptions model =
          , Ports.gotGithubAccessToken GotGithubAccessToken
          , Ports.changeNetworkState ChangeNetworkState
          , Ports.notifyNewVersionAvailable NotifyNewVersionAvailable
+         , Ports.openedLocalFile OpenedLocalFile
+         , Ports.savedLocalFile SavedLocalFile
          ]
             ++ (if model.window.moveStart then
                     [ onMouseUp <| D.succeed MoveStop

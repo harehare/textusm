@@ -1,4 +1,16 @@
-module Events exposing (onChange, onClickStopPropagation, onDrop, onEnter, onMouseDown, onMouseMove, onMouseUp, onTouchStart, onWheel, touchCoordinates)
+module Events exposing
+    ( onChange
+    , onClickPreventDefaultOn
+    , onClickStopPropagation
+    , onDrop
+    , onEnter
+    , onMouseDown
+    , onMouseMove
+    , onMouseUp
+    , onTouchStart
+    , onWheel
+    , touchCoordinates
+    )
 
 import File exposing (File)
 import Html exposing (Attribute)
@@ -45,6 +57,11 @@ onTouchStart =
 onClickStopPropagation : msg -> Html.Attribute msg
 onClickStopPropagation msg =
     stopPropagationOn "click" (D.map alwaysStopPropagation (D.succeed msg))
+
+
+onClickPreventDefaultOn : msg -> Html.Attribute msg
+onClickPreventDefaultOn msg =
+    preventDefaultOn "click" (D.map alwaysPreventDefaultOn (D.succeed msg))
 
 
 alwaysStopPropagation : msg -> ( msg, Bool )

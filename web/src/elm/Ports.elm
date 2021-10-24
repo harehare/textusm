@@ -2,6 +2,7 @@ port module Ports exposing
     ( changeNetworkState
     , changeText
     , closeFullscreen
+    , closeLocalFile
     , downloadCompleted
     , downloadHtml
     , downloadPdf
@@ -19,14 +20,18 @@ port module Ports exposing
     , onNotification
     , onWarnNotification
     , openFullscreen
+    , openLocalFile
+    , openedLocalFile
     , progress
     , refreshToken
     , reload
     , removeRemoteDiagram
     , saveDiagram
+    , saveLocalFile
     , saveSettings
     , saveToLocalCompleted
     , saveToRemote
+    , savedLocalFile
     , sendErrorNotification
     , shortcuts
     , signIn
@@ -151,3 +156,18 @@ port changeNetworkState : (Bool -> msg) -> Sub msg
 
 
 port notifyNewVersionAvailable : (String -> msg) -> Sub msg
+
+
+port openLocalFile : () -> Cmd msg
+
+
+port openedLocalFile : (( String, String ) -> msg) -> Sub msg
+
+
+port saveLocalFile : E.Value -> Cmd msg
+
+
+port savedLocalFile : (String -> msg) -> Sub msg
+
+
+port closeLocalFile : () -> Cmd msg

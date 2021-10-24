@@ -13,6 +13,7 @@ import Models.Diagram as DiagramModel
 import Models.DiagramId as DiagramId exposing (DiagramId)
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
+import Models.DiagramType as DiagramType
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.LoginProvider as LoginProvider
 import Models.Model exposing (Model, Msg(..))
@@ -85,7 +86,7 @@ initSettingsPage : Model -> Return Msg Model
 initSettingsPage model =
     let
         ( model_, cmd_ ) =
-            SettingsPage.init model.session model.settingsModel.settings
+            SettingsPage.init model.canUseNativeFileSystem model.session model.settingsModel.settings
     in
     Return.return { model | settingsModel = model_ } (cmd_ |> Cmd.map UpdateSettings)
 
@@ -365,6 +366,25 @@ saveToLocal item =
     Return.command <| (Ports.saveDiagram <| DiagramItem.encoder { item | isRemote = False })
 
 
+saveLocalFile : DiagramItem -> Return.ReturnF Msg Model
+saveLocalFile item =
+    let
+        ext =
+            DiagramType.toString item.diagram
+
+        d =
+            { item
+                | title =
+                    if String.endsWith ext <| "." ++ Title.toString item.title then
+                        Title.fromString <| Title.toString item.title
+
+                    else
+                        Title.fromString <| Title.toString item.title ++ "." ++ DiagramType.toString item.diagram
+            }
+    in
+    Return.command <| (Ports.saveLocalFile <| DiagramItem.encoder d)
+
+
 changePublicState : DiagramItem -> Bool -> Model -> Return Msg Model
 changePublicState diagram isPublic model =
     Return.return model <|
@@ -566,3 +586,8 @@ showConfirmDialog title message route model =
 closeDialog : Model -> Return Msg Model
 closeDialog model =
     Return.singleton { model | confirmDialog = Hide }
+
+
+closeLocalFile : Model -> Return Msg Model
+closeLocalFile model =
+    Return.return model <| Ports.closeLocalFile ()
