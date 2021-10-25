@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      args:
+    environment:
+      - FIREBASE_API_KEY
+      - FIREBASE_AUTH_DOMAIN
+      - FIREBASE_PROJECT_ID
+      - FIREBASE_STORAGE_BUCKET
+      - FIREBASE_APP_ID
+      - GOOGLE_APPLICATION_CREDENTIALS_JSON
+      - DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON
+      - ENCRYPT_KEY
+      - SHARE_ENCRYPT_KEY
+      - ENCRYPT_PUBLIC_KEY
+      - ENCRYPT_PRIVATE_KEY
+      - GITHUB_CLIENT_ID
+      - GITHUB_CLIENT_SECRET
+      - GO_ENV=production
+      - REPO_URL=https://github.com/harehare/textusm
+      - PORT=3000
+      - FIRESTORE_EMULATOR_HOST="firestore:8080"
+    ports:
+      - "3000:3000"
+    links:
+      - firestore
+  firestore:
+    image: mtlynch/firestore-emulator
+    environment:
+      - FIRESTORE_PROJECT_ID=local-rackany
+      - PORT=8080
