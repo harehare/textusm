@@ -28,7 +28,7 @@
         "@sentry/webpack-plugin": "^1.18.3",
         "@trivago/prettier-plugin-sort-imports": "^2.0.4",
         "@types/jspdf": "^2.0.0",
-        "@types/node": "^16.11.4",
+        "@types/node": "^16.11.5",
         "@types/requestidlecallback": "^0.3.4",
         "@types/svgo": "^2.6.0",
         "@types/uuid": "^8.3.1",
