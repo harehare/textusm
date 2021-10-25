@@ -34,6 +34,7 @@ tests/VerifyExamples
 .well-known
 .history
 .firebase
+.firebaserc
 *.vsix
 *.pem
 elm.js
