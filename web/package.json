@@ -51,7 +51,7 @@
         "eslint-config-airbnb-typescript-prettier": "^4.2.0",
         "eslint-plugin-cypress": "^2.12.1",
         "html-inline-css-webpack-plugin": "^1.11.1",
-        "html-webpack-plugin": "^5.4.0",
+        "html-webpack-plugin": "^5.5.0",
         "husky": "^7.0.4",
         "lint-staged": "^11.2.3",
         "mini-css-extract-plugin": "^2.4.3",
