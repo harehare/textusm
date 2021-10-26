@@ -125,7 +125,7 @@ type alias Model =
     , settingsModel : Settings.Model
     , shareModel : Share.Model
     , session : Session
-    , currentDiagram : Maybe DiagramItem
+    , currentDiagram : DiagramItem
     , openMenu : Maybe Menu
     , window : Window
     , title : Title

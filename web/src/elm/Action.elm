@@ -61,7 +61,7 @@ loadDiagram diagram model =
     Return.return
         { model
             | title = diagram.title
-            , currentDiagram = Just diagram
+            , currentDiagram = diagram
             , diagramModel = model_
         }
         (cmd_ |> Cmd.map UpdateDiagram)
@@ -190,19 +190,18 @@ loadRemoteSettings diagram model =
 
 loadSettings : Model -> Return Msg Model
 loadSettings model =
-    case ( Session.isSignedIn model.session, model.currentDiagram ) of
-        ( True, Just d ) ->
-            loadRemoteSettings d.diagram model
+    if Session.isSignedIn model.session then
+        loadRemoteSettings model.currentDiagram.diagram model
 
-        _ ->
-            Return.singleton model
+    else
+        Return.singleton model
 
 
 saveSettings : Model -> Return Msg Model
 saveSettings model =
-    case ( Route.toRoute model.url, Session.isSignedIn model.session, model.currentDiagram ) of
-        ( Route.Settings, True, Just d ) ->
-            saveSettingsToRemote d.diagram model.settingsModel.settings.storyMap model
+    case ( Route.toRoute model.url, Session.isSignedIn model.session ) of
+        ( Route.Settings, True ) ->
+            saveSettingsToRemote model.currentDiagram.diagram model.settingsModel.settings.storyMap model
 
         _ ->
             Return.singleton model
@@ -530,7 +529,7 @@ startEditTitle model =
     Return.return model <| Task.perform identity <| Task.succeed StartEditTitle
 
 
-setCurrentDiagram : Maybe DiagramItem -> Model -> Return Msg Model
+setCurrentDiagram : DiagramItem -> Model -> Return Msg Model
 setCurrentDiagram currentDiagram model =
     Return.singleton { model | currentDiagram = currentDiagram }
 
@@ -567,8 +566,8 @@ moveTo route model =
 
 redirectToLastEditedFile : Model -> Return Msg Model
 redirectToLastEditedFile model =
-    case ( Maybe.andThen .id model.currentDiagram, Maybe.map .diagram model.currentDiagram ) of
-        ( Just id_, Just diagramType ) ->
+    case ( model.currentDiagram.id, model.currentDiagram.diagram ) of
+        ( Just id_, diagramType ) ->
             moveTo (Route.EditFile diagramType id_) model
 
         _ ->

@@ -123,7 +123,7 @@ init flags url key =
             , diagramListModel = diagramListModel
             , settingsModel = settingsModel
             , shareModel = shareModel
-            , currentDiagram = initSettings.diagram
+            , currentDiagram = initSettings.diagram |> Maybe.withDefault DiagramItem.empty
             , session = Session.guest
             , page = Page.Main
             , openMenu = Nothing
@@ -456,7 +456,7 @@ changeRouteTo route =
                     , updatedAt = Time.millisToPosix 0
                     }
             in
-            Return.andThen (Action.setCurrentDiagram (Just diagram))
+            Return.andThen (Action.setCurrentDiagram diagram)
                 >> Return.andThen Action.loadSettings
                 >> Return.andThen
                     (\m ->
@@ -508,19 +508,18 @@ changeRouteTo route =
         Route.Share ->
             Return.andThen
                 (\m ->
-                    case ( m.currentDiagram, Session.isSignedIn m.session ) of
-                        ( Just diagram, True ) ->
-                            Return.singleton m
-                                |> (if diagram.isRemote then
-                                        Return.andThen (Action.initShareDiagram diagram)
-                                            >> Return.andThen Action.startProgress
+                    if Session.isSignedIn m.session then
+                        Return.singleton m
+                            |> (if m.currentDiagram.isRemote then
+                                    Return.andThen (Action.initShareDiagram m.currentDiagram)
+                                        >> Return.andThen Action.startProgress
 
-                                    else
-                                        Return.andThen <| Action.moveTo Route.Home
-                                   )
+                                else
+                                    Return.andThen <| Action.moveTo Route.Home
+                               )
 
-                        _ ->
-                            Action.moveTo Route.Home m
+                    else
+                        Action.moveTo Route.Home m
                 )
 
         Route.ViewFile _ id_ ->
@@ -727,7 +726,7 @@ update message =
                                     model_
                     in
                     Return.return { m | diagramModel = model__ } (cmd_ |> Cmd.map UpdateDiagram)
-                        |> Return.andThen (Action.loadText (m.currentDiagram |> Maybe.withDefault DiagramItem.empty))
+                        |> Return.andThen (Action.loadText m.currentDiagram)
                 )
                 >> Return.andThen Action.stopProgress
 
@@ -822,8 +821,8 @@ update message =
                     else
                         let
                             location =
-                                if Maybe.andThen .id m.currentDiagram |> isJust then
-                                    Maybe.andThen .location m.currentDiagram
+                                if m.currentDiagram.id |> isJust then
+                                    m.currentDiagram.location
 
                                 else
                                     m.settingsModel.settings.location
@@ -836,7 +835,6 @@ update message =
                                 let
                                     isRemote =
                                         m.currentDiagram
-                                            |> Maybe.withDefault DiagramItem.empty
                                             |> DiagramItem.isRemoteDiagram m.session
 
                                     newDiagramModel =
@@ -848,14 +846,14 @@ update message =
                                         , diagramModel = newDiagramModel
                                     }
                                     |> Action.saveDiagram
-                                        { id = Maybe.andThen .id m.currentDiagram
+                                        { id = m.currentDiagram.id
                                         , title = m.title
                                         , text = newDiagramModel.text
                                         , thumbnail = Nothing
                                         , diagram = newDiagramModel.diagramType
                                         , isRemote = isRemote
                                         , location =
-                                            case Maybe.andThen .location m.currentDiagram of
+                                            case m.currentDiagram.location of
                                                 Just loc ->
                                                     Just loc
 
@@ -865,7 +863,7 @@ update message =
 
                                                     else
                                                         Just DiagramLocation.Local
-                                        , isPublic = Maybe.map .isPublic m.currentDiagram |> Maybe.withDefault False
+                                        , isPublic = m.currentDiagram.isPublic
                                         , isBookmark = False
                                         , updatedAt = Time.millisToPosix 0
                                         , createdAt = Time.millisToPosix 0
@@ -877,7 +875,7 @@ update message =
                 Ok item ->
                     Return.andThen
                         (\m ->
-                            Return.return { m | currentDiagram = Just item } <|
+                            Return.return { m | currentDiagram = item } <|
                                 Route.replaceRoute m.key <|
                                     Route.EditLocalFile item.diagram
                                         (Maybe.withDefault (DiagramId.fromString "") <| item.id)
@@ -919,14 +917,14 @@ update message =
                             , createdAt = Time.millisToPosix 0
                             }
                     in
-                    Action.setCurrentDiagram (Just item) m
+                    Action.setCurrentDiagram item m
                         |> Action.saveToLocal item
                 )
                 >> Return.andThen Action.stopProgress
                 >> Return.andThen (Action.showWarningMessage <| Message.messageFailedSaved)
 
         SaveToRemoteCompleted (Ok diagram) ->
-            Return.andThen (Action.setCurrentDiagram <| Just diagram)
+            Return.andThen (Action.setCurrentDiagram <| diagram)
                 >> Return.andThen
                     (\m ->
                         Return.return m <|
@@ -988,12 +986,12 @@ update message =
                                     newSettings =
                                         { position = Just m.window.position
                                         , font = m.settingsModel.settings.font
-                                        , diagramId = Maybe.andThen (\d -> Maybe.andThen (\i -> Just <| DiagramId.toString i) d.id) m.currentDiagram
+                                        , diagramId = Maybe.andThen (\i -> Just <| DiagramId.toString i) m.currentDiagram.id
                                         , storyMap = newStoryMap.storyMap |> DiagramModel.settingsOfScale.set (Just m.diagramModel.svg.scale)
                                         , text = Just (Text.toString m.diagramModel.text)
                                         , title = Just <| Title.toString m.title
                                         , editor = m.settingsModel.settings.editor
-                                        , diagram = m.currentDiagram
+                                        , diagram = Just m.currentDiagram
                                         , location = m.settingsModel.settings.location
                                         }
 
@@ -1069,7 +1067,7 @@ update message =
         SignOut ->
             Return.andThen Action.revokeGistToken
                 >> Return.andThen (\m -> Return.return { m | session = Session.guest } (Ports.signOut ()))
-                >> Return.andThen (Action.setCurrentDiagram Nothing)
+                >> Return.andThen (Action.setCurrentDiagram DiagramItem.empty)
 
         HandleAuthStateChanged (Just value) ->
             case D.decodeValue Session.decoder value of
@@ -1077,18 +1075,15 @@ update message =
                     Return.andThen (\m -> Return.singleton { m | session = Session.signIn user })
                         >> Return.andThen
                             (\m ->
-                                case ( toRoute m.url, m.currentDiagram ) of
-                                    ( Route.EditFile type_ id_, Just diagram ) ->
-                                        if DiagramItem.getId diagram /= id_ then
+                                case toRoute m.url of
+                                    Route.EditFile type_ id_ ->
+                                        if DiagramItem.getId m.currentDiagram /= id_ then
                                             Action.pushUrl (Route.toString <| Route.EditFile type_ id_) m
 
                                         else
                                             Return.singleton m
 
-                                    ( Route.EditFile type_ id_, _ ) ->
-                                        Action.pushUrl (Route.toString <| Route.EditFile type_ id_) m
-
-                                    ( Route.ViewFile _ id_, _ ) ->
+                                    Route.ViewFile _ id_ ->
                                         case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
                                             Just jwt ->
                                                 if jwt.checkPassword then
@@ -1104,7 +1099,7 @@ update message =
                                             Nothing ->
                                                 Action.switchPage Page.NotFound m
 
-                                    ( Route.DiagramList, _ ) ->
+                                    Route.DiagramList ->
                                         Action.pushUrl (Route.toString <| Route.Home) m
 
                                     _ ->
@@ -1149,18 +1144,13 @@ update message =
         ChangePublicStatus isPublic ->
             Return.andThen
                 (\m ->
-                    case m.currentDiagram of
-                        Just diagram ->
-                            Action.updateIdToken m
-                                |> Return.andThen (Action.changePublicState diagram isPublic)
-                                |> Return.andThen Action.stopProgress
-
-                        _ ->
-                            Return.singleton m
+                    Action.updateIdToken m
+                        |> Return.andThen (Action.changePublicState m.currentDiagram isPublic)
+                        |> Return.andThen Action.stopProgress
                 )
 
         ChangePublicStatusCompleted (Ok d) ->
-            Return.andThen (Action.setCurrentDiagram <| Just d)
+            Return.andThen (Action.setCurrentDiagram d)
                 >> Return.andThen Action.stopProgress
                 >> Return.andThen (Action.showInfoMessage Message.messagePublished)
 
@@ -1273,12 +1263,11 @@ update message =
         SaveLocalFile ->
             Return.andThen <|
                 \m ->
-                    case m.currentDiagram of
-                        Just d ->
-                            Return.singleton m |> Action.saveLocalFile { d | title = m.title, text = Text.saved m.diagramModel.text }
-
-                        _ ->
-                            Return.singleton m
+                    let
+                        diagram =
+                            m.currentDiagram
+                    in
+                    Return.singleton m |> Action.saveLocalFile { diagram | title = m.title, text = Text.saved m.diagramModel.text }
 
         SavedLocalFile title ->
             Return.andThen <| \m -> Action.loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text) m

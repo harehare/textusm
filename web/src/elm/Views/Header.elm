@@ -10,7 +10,7 @@ import Html.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Lang)
 import Models.Color as Color
-import Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
 import Models.DiagramType as DiagramType
 import Models.LoginProvider as LoginProvider exposing (LoginProvider(..))
@@ -30,7 +30,7 @@ type alias Props =
     , page : Page
     , title : Title
     , isFullscreen : Bool
-    , currentDiagram : Maybe DiagramItem
+    , currentDiagram : DiagramItem
     , menu : Maybe Menu
     , currentText : Text
     , lang : Lang
@@ -40,14 +40,9 @@ type alias Props =
     }
 
 
-isPublic : Props -> Bool
-isPublic props =
-    props.currentDiagram |> Maybe.withDefault DiagramItem.empty |> .isPublic
-
-
 isRemoteDiagram : Props -> Bool
 isRemoteDiagram props =
-    Maybe.andThen .location props.currentDiagram
+    props.currentDiagram.location
         |> Maybe.map DiagramLocation.isRemote
         |> Maybe.withDefault False
 
@@ -69,8 +64,8 @@ canEdit props =
 
 canChangePublicState : Props -> Bool
 canChangePublicState props =
-    case ( Maybe.andThen .id props.currentDiagram, Maybe.map .isRemote props.currentDiagram ) of
-        ( Just _, Just True ) ->
+    case ( props.currentDiagram.id, props.currentDiagram.isRemote ) of
+        ( Just _, True ) ->
             canEdit props && props.isOnline
 
         _ ->
@@ -166,12 +161,11 @@ view props =
                 Page.Settings ->
                     viewTitle []
                         [ Html.text <|
-                            case ( Session.isSignedIn props.session, props.currentDiagram ) of
-                                ( True, Just d ) ->
-                                    DiagramType.toLongString d.diagram ++ " Settings"
+                            if Session.isSignedIn props.session then
+                                DiagramType.toLongString props.currentDiagram.diagram ++ " Settings"
 
-                                _ ->
-                                    "Settings"
+                            else
+                                "Settings"
                         ]
 
                 Page.Help ->
@@ -191,7 +185,7 @@ view props =
                         [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
 
                     _ ->
-                        [ Lazy.lazy3 viewChangePublicStateButton props.lang (isPublic props) (canChangePublicState props)
+                        [ Lazy.lazy3 viewChangePublicStateButton props.lang props.currentDiagram.isPublic (canChangePublicState props)
                         , Lazy.lazy viewHelpButton props.lang
                         , Lazy.lazy2 viewShareButton props.lang <| canShare props
                         , Lazy.lazy2 viewSignInButton props.menu props.session
