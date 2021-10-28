@@ -10,7 +10,7 @@ import List
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color
-import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation(..))
+import Models.DiagramLocation as DiagramLocation
 import Models.FileType as FileType
 import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page

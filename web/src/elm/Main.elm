@@ -118,16 +118,18 @@ init flags url key =
         ( settingsModel, _ ) =
             Settings.init flags.canUseNativeFileSystem Session.guest initSettings
 
+        currentDiagram =
+            initSettings.diagram |> Maybe.withDefault DiagramItem.empty
+
         model =
             { diagramModel = { diagramModel | text = Text.fromString (Maybe.withDefault "" initSettings.text) }
             , diagramListModel = diagramListModel
             , settingsModel = settingsModel
             , shareModel = shareModel
-            , currentDiagram = initSettings.diagram |> Maybe.withDefault DiagramItem.empty
+            , currentDiagram = { currentDiagram | title = Title.fromString (Maybe.withDefault "" initSettings.title) }
             , session = Session.guest
             , page = Page.Main
             , openMenu = Nothing
-            , title = Title.fromString (Maybe.withDefault "" initSettings.title)
             , window =
                 { position = initSettings.position |> Maybe.withDefault 0
                 , moveStart = False
@@ -195,7 +197,6 @@ view model =
             Lazy.lazy Header.view
                 { session = model.session
                 , page = model.page
-                , title = model.title
                 , isFullscreen = model.window.fullscreen
                 , currentDiagram = model.currentDiagram
                 , menu = model.openMenu
@@ -360,7 +361,7 @@ main =
         , view =
             \m ->
                 { title =
-                    Title.toString m.title
+                    Title.toString m.currentDiagram.title
                         ++ (if Text.isChanged m.diagramModel.text then
                                 "*"
 
@@ -746,13 +747,13 @@ update message =
                                     List.map ER.tableToString tables
                                         |> String.join "\n"
                             in
-                            Return.return m <| Download.string (Title.toString m.title ++ ex) "text/plain" ddl
+                            Return.return m <| Download.string (Title.toString m.currentDiagram.title ++ ex) "text/plain" ddl
 
                         FileType.Markdown ex ->
-                            Return.return m <| Download.string (Title.toString m.title ++ ex) "text/plain" (Table.toString (Table.from m.diagramModel.items))
+                            Return.return m <| Download.string (Title.toString m.currentDiagram.title ++ ex) "text/plain" (Table.toString (Table.from m.diagramModel.items))
 
                         FileType.PlainText ex ->
-                            Return.return m <| Download.string (Title.toString m.title ++ ex) "text/plain" (Text.toString m.diagramModel.text)
+                            Return.return m <| Download.string (Title.toString m.currentDiagram.title ++ ex) "text/plain" (Text.toString m.diagramModel.text)
 
                         _ ->
                             let
@@ -785,7 +786,7 @@ update message =
                                     { width = width
                                     , height = height
                                     , id = "usm"
-                                    , title = Title.toString m.title ++ extension
+                                    , title = Title.toString m.currentDiagram.title ++ extension
                                     , x = 0
                                     , y = 0
                                     , text = Text.toString m.diagramModel.text
@@ -794,7 +795,7 @@ update message =
                 )
 
         StartDownload info ->
-            Return.andThen (\m -> Return.return m (Download.string (Title.toString m.title ++ info.extension) info.mimeType info.content))
+            Return.andThen (\m -> Return.return m (Download.string (Title.toString m.currentDiagram.title ++ info.extension) info.mimeType info.content))
                 >> Return.andThen Action.closeMenu
 
         OpenMenu menu ->
@@ -815,7 +816,7 @@ update message =
         Save ->
             Return.andThen
                 (\m ->
-                    if Title.isUntitled m.title then
+                    if Title.isUntitled m.currentDiagram.title then
                         Action.startEditTitle m
 
                     else
@@ -847,7 +848,7 @@ update message =
                                     }
                                     |> Action.saveDiagram
                                         { id = m.currentDiagram.id
-                                        , title = m.title
+                                        , title = m.currentDiagram.title
                                         , text = newDiagramModel.text
                                         , thumbnail = Nothing
                                         , diagram = newDiagramModel.diagramType
@@ -905,7 +906,7 @@ update message =
                     let
                         item =
                             { id = Nothing
-                            , title = m.title
+                            , title = m.currentDiagram.title
                             , text = m.diagramModel.text
                             , thumbnail = Nothing
                             , diagram = m.diagramModel.diagramType
@@ -962,15 +963,15 @@ update message =
                     Return.zero
 
         StartEditTitle ->
-            Return.andThen (\m -> Return.singleton { m | title = Title.edit m.title })
+            Return.andThen (\m -> Return.singleton { m | currentDiagram = DiagramItem.ofTitle.set (Title.edit m.currentDiagram.title) m.currentDiagram })
                 >> Return.andThen (Action.setFocus "title")
 
         EndEditTitle ->
-            Return.andThen (\m -> Return.singleton { m | title = Title.view m.title })
+            Return.andThen (\m -> Return.singleton { m | currentDiagram = DiagramItem.ofTitle.set (Title.view m.currentDiagram.title) m.currentDiagram })
                 >> Action.setFocusEditor
 
         EditTitle title ->
-            Return.andThen (\m -> Return.singleton { m | title = Title.edit <| Title.fromString title })
+            Return.andThen (\m -> Return.singleton { m | currentDiagram = DiagramItem.ofTitle.set (Title.edit <| Title.fromString title) m.currentDiagram })
                 >> Return.andThen Action.needSaved
 
         HandleVisibilityChange visible ->
@@ -989,7 +990,7 @@ update message =
                                         , diagramId = Maybe.andThen (\i -> Just <| DiagramId.toString i) m.currentDiagram.id
                                         , storyMap = newStoryMap.storyMap |> DiagramModel.settingsOfScale.set (Just m.diagramModel.svg.scale)
                                         , text = Just (Text.toString m.diagramModel.text)
-                                        , title = Just <| Title.toString m.title
+                                        , title = Just <| Title.toString m.currentDiagram.title
                                         , editor = m.settingsModel.settings.editor
                                         , diagram = Just m.currentDiagram
                                         , location = m.settingsModel.settings.location
@@ -1263,11 +1264,7 @@ update message =
         SaveLocalFile ->
             Return.andThen <|
                 \m ->
-                    let
-                        diagram =
-                            m.currentDiagram
-                    in
-                    Return.singleton m |> Action.saveLocalFile { diagram | title = m.title, text = Text.saved m.diagramModel.text }
+                    Return.singleton m |> Action.saveLocalFile (DiagramItem.ofText.set (Text.saved m.diagramModel.text) m.currentDiagram)
 
         SavedLocalFile title ->
             Return.andThen <| \m -> Action.loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text) m

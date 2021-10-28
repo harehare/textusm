@@ -28,7 +28,6 @@ import Models.Page exposing (Page)
 import Models.Session exposing (Session)
 import Models.ShareState exposing (ShareState)
 import Models.Snackbar exposing (Snackbar)
-import Models.Title exposing (Title)
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
@@ -128,16 +127,15 @@ type alias Model =
     , currentDiagram : DiagramItem
     , openMenu : Maybe Menu
     , window : Window
-    , title : Title
     , switchWindow : SwitchWindow
     , progress : Bool
-    , confirmDialog : ConfirmDialog Msg
     , lang : Lang
     , prevRoute : Maybe Route
     , shareState : ShareState
     , isOnline : Bool
     , isDarkMode : Bool
     , canUseNativeFileSystem : Bool
+    , confirmDialog : ConfirmDialog Msg
     , snackbar : Snackbar Msg
     , notification : Notification
     }

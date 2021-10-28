@@ -11,6 +11,8 @@ module Models.DiagramItem exposing
     , listToValue
     , localFile
     , mapToDateTime
+    , ofText
+    , ofTitle
     , stringToList
     , toInputGistItem
     , toInputItem
@@ -32,6 +34,7 @@ import Models.DiagramType as DiagramType
 import Models.Session as Session exposing (Session)
 import Models.Text as Text exposing (Text)
 import Models.Title as Title exposing (Title)
+import Monocle.Lens exposing (Lens)
 import Time exposing (Posix)
 
 
@@ -229,3 +232,13 @@ listToString items =
 stringToList : String -> Result D.Error (List DiagramItem)
 stringToList json =
     D.decodeString (D.list decoder) json
+
+
+ofTitle : Lens DiagramItem Title
+ofTitle =
+    Lens .title (\b a -> { a | title = b })
+
+
+ofText : Lens DiagramItem Text
+ofText =
+    Lens .text (\b a -> { a | text = b })

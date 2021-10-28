@@ -18,7 +18,7 @@ import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page exposing (Page)
 import Models.Session as Session exposing (Session)
 import Models.Text as Text exposing (Text)
-import Models.Title as Title exposing (Title)
+import Models.Title as Title
 import Route exposing (Route(..))
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -28,7 +28,6 @@ import Views.Menu as Menu
 type alias Props =
     { session : Session
     , page : Page
-    , title : Title
     , isFullscreen : Bool
     , currentDiagram : DiagramItem
     , menu : Maybe Menu
@@ -121,14 +120,14 @@ view props =
                                 [ Icon.arrowLeft Color.disabledIconColor 18 ]
             , case props.page of
                 Page.Main ->
-                    if canEdit props && Title.isEdit props.title then
+                    if canEdit props && Title.isEdit props.currentDiagram.title then
                         Html.input
                             [ Attr.id "title"
                             , Attr.class "w-full bg-main border-none font text-base font-bold"
                             , Attr.style "padding" "8px"
                             , Attr.style "margin-left" "8px"
                             , Attr.style "color" <| Color.toString Color.white2
-                            , Attr.value <| Title.toString props.title
+                            , Attr.value <| Title.toString props.currentDiagram.title
                             , Events.onInput EditTitle
                             , Events.onBlur EndEditTitle
                             , E.onEnter EndEditTitle
@@ -141,7 +140,7 @@ view props =
                             [ Attr.style "cursor" "pointer"
                             , Events.onClick StartEditTitle
                             ]
-                            [ Html.text <| Title.toString props.title
+                            [ Html.text <| Title.toString props.currentDiagram.title
                             , Html.div
                                 [ Attr.style "margin-left" "8px" ]
                                 [ if canEdit props && Text.isChanged props.currentText then

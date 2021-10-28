@@ -107,37 +107,34 @@ view model =
 
                                 useCaseCount =
                                     List.length ul // 2
-
-                                lines =
-                                    List.indexedMap
-                                        (\i (UseCase u) ->
-                                            let
-                                                maybeUseCasePosition =
-                                                    Dict.get (UseCaseDiagram.getName u) useCasePositions
-                                            in
-                                            case ( maybeActorPosition, maybeUseCasePosition ) of
-                                                ( Just ap, Just up ) ->
-                                                    let
-                                                        fromPosition =
-                                                            Tuple.mapBoth
-                                                                (\x -> x + actorSize3)
-                                                                (\y -> y + (actorHeight // 2 + (i - useCaseCount) * actorHalfSize))
-                                                                ap
-
-                                                        toPosition =
-                                                            Tuple.mapBoth
-                                                                (\x -> x + actorBaseSize)
-                                                                (\y -> y + actorBaseSize)
-                                                                up
-                                                    in
-                                                    useCaseLineView { settings = model.settings, from = fromPosition, to = toPosition }
-
-                                                _ ->
-                                                    Svg.g [] []
-                                        )
-                                        ul
                             in
-                            lines
+                            List.indexedMap
+                                (\i (UseCase u) ->
+                                    let
+                                        maybeUseCasePosition =
+                                            Dict.get (UseCaseDiagram.getName u) useCasePositions
+                                    in
+                                    case ( maybeActorPosition, maybeUseCasePosition ) of
+                                        ( Just ap, Just up ) ->
+                                            let
+                                                fromPosition =
+                                                    Tuple.mapBoth
+                                                        (\x -> x + actorSize3)
+                                                        (\y -> y + (actorHeight // 2 + (i - useCaseCount) * actorHalfSize))
+                                                        ap
+
+                                                toPosition =
+                                                    Tuple.mapBoth
+                                                        (\x -> x + actorBaseSize)
+                                                        (\y -> y + actorBaseSize)
+                                                        up
+                                            in
+                                            useCaseLineView { settings = model.settings, from = fromPosition, to = toPosition }
+
+                                        _ ->
+                                            Svg.g [] []
+                                )
+                                ul
                         )
                         actors
                         |> List.concat
