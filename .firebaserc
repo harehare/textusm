@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "textusm"
+  },
+  "targets": {
+    "textusm": {
+      "hosting": {
+        "textusm": [
+          "textusm"
+        ]
+      }
+    }
+  }
+}
