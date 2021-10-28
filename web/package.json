@@ -111,6 +111,7 @@
         "generate-elm-constants": "elm-constants --no-dotenv",
         "format": "prettier --write src/**/*.ts",
         "lint": "eslint --fix src/ts/*.ts",
+        "lint:fix": "elm-review --fix",
         "lint:elm": "elm-review",
         "prepare": "cd .. && husky install"
     },

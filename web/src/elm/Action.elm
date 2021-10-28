@@ -60,8 +60,7 @@ loadDiagram diagram model =
     in
     Return.return
         { model
-            | title = diagram.title
-            , currentDiagram = diagram
+            | currentDiagram = diagram
             , diagramModel = model_
         }
         (cmd_ |> Cmd.map UpdateDiagram)
@@ -99,7 +98,7 @@ initShareDiagram diagramItem model =
                 { diagram = diagramItem.diagram
                 , diagramId = diagramItem.id |> Maybe.withDefault (DiagramId.fromString "")
                 , session = model.session
-                , title = model.title
+                , title = model.currentDiagram.title
                 }
     in
     Return.return { model | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare)
@@ -516,12 +515,12 @@ unchanged model =
 
 setTitle : String -> Model -> Return Msg Model
 setTitle title model =
-    Return.singleton { model | title = Title.fromString <| title }
+    Return.singleton { model | currentDiagram = DiagramItem.ofTitle.set (Title.fromString <| title) model.currentDiagram }
 
 
 untitled : Model -> Return Msg Model
 untitled model =
-    Return.singleton { model | title = Title.untitled }
+    Return.singleton { model | currentDiagram = DiagramItem.ofTitle.set Title.untitled model.currentDiagram }
 
 
 startEditTitle : Model -> Return Msg Model

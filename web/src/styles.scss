@@ -425,12 +425,12 @@
         height: 100px;
     }
     .new-item-text {
-        @apply text-sm text-main font-semibold align-middle;
+        @apply text-sm text-main font-semibold;
     }
 
     &:hover {
         .new-item-text {
-            @apply text-accent font-semibold;
+            @apply text-accent;
         }
     }
 }
