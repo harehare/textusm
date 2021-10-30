@@ -16,11 +16,12 @@ import Models.DiagramLocation as DiagramLocation
 import Models.DiagramType as DiagramType
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.LoginProvider as LoginProvider
-import Models.Model exposing (Model, Msg(..))
+import Models.Model as Model exposing (Model, Msg(..), WindowState(..))
 import Models.Notification as Notification
 import Models.Page exposing (Page)
 import Models.Session as Session
 import Models.ShareToken as ShareToken exposing (ShareToken)
+import Models.Size as Size
 import Models.Text as Text
 import Models.Title as Title
 import Page.List as DiagramList
@@ -589,3 +590,20 @@ closeDialog model =
 closeLocalFile : Model -> Return Msg Model
 closeLocalFile model =
     Return.return model <| Ports.closeLocalFile ()
+
+
+updateWindowState : Model -> Return Msg Model
+updateWindowState model =
+    Return.singleton
+        { model
+            | window =
+                model.window
+                    |> Model.windowOfState.set
+                        (case ( model.window.state, Utils.isPhone (Size.getWidth model.diagramModel.size) ) of
+                            ( _, True ) ->
+                                Editor
+
+                            _ ->
+                                Both
+                        )
+        }
