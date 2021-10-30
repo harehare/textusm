@@ -39,7 +39,7 @@ import Models.FileType as FileType
 import Models.IdToken as IdToken
 import Models.Jwt as Jwt
 import Models.LoginProvider as LoginProdiver
-import Models.Model as Model exposing (Model, Msg(..), SwitchWindow(..))
+import Models.Model as Model exposing (Model, Msg(..), WindowState(..))
 import Models.Notification as Notification
 import Models.Page as Page
 import Models.Session as Session
@@ -134,12 +134,10 @@ init flags url key =
                 { position = initSettings.position |> Maybe.withDefault 0
                 , moveStart = False
                 , moveX = 0
-                , fullscreen = False
-                , showEditor = True
+                , state = Both
                 }
             , url = url
             , key = key
-            , switchWindow = Left
             , progress = False
             , lang = lang
             , prevRoute = Nothing
@@ -190,14 +188,13 @@ view model =
         [ class "relative w-screen"
         , E.onClick CloseMenu
         ]
-        [ if model.window.fullscreen then
+        [ if Model.isFullscreen model.window then
             Empty.view
 
           else
             Lazy.lazy Header.view
                 { session = model.session
                 , page = model.page
-                , isFullscreen = model.window.fullscreen
                 , currentDiagram = model.currentDiagram
                 , menu = model.openMenu
                 , currentText = model.diagramModel.text
@@ -214,13 +211,13 @@ view model =
             , class "overflow-hidden"
             , class "relative"
             , class "w-full"
-            , if model.window.fullscreen then
+            , if Model.isFullscreen model.window then
                 class "h-screen"
 
               else
                 class "h-content"
             ]
-            [ if Route.isViewFile (toRoute model.url) || model.window.fullscreen then
+            [ if Route.isViewFile (toRoute model.url) || Model.isFullscreen model.window then
                 Empty.view
 
               else
@@ -239,7 +236,7 @@ view model =
                         Lazy.lazy5 SwitchWindow.view
                             SwitchWindow
                             model.diagramModel.settings.backgroundColor
-                            model.switchWindow
+                            model.window.state
                             (div
                                 [ class "h-main"
                                 , class "bg-main"
@@ -254,7 +251,6 @@ view model =
                         Lazy.lazy3 SplitWindow.view
                             { onResize = HandleStartWindowResize
                             , onToggleEditor = ShowEditor
-                            , showEditor = model.window.showEditor
                             , backgroundColor = model.diagramModel.settings.backgroundColor
                             , window = model.window
                             }
@@ -424,7 +420,7 @@ changeRouteTo route =
                 (\m ->
                     Return.singleton
                         { m
-                            | window = m.window |> Model.windowOfFullscreen.set True
+                            | window = m.window |> Model.windowOfState.set Fullscreen
                             , diagramModel =
                                 m.diagramModel
                                     |> DiagramModel.ofShowZoomControl.set False
@@ -606,6 +602,7 @@ update message =
                     case msg of
                         DiagramModel.OnResize _ _ ->
                             Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
+                                |> Return.andThen Action.updateWindowState
 
                         DiagramModel.EndEditSelectedItem _ ->
                             Return.singleton { m | diagramModel = model_ }
@@ -637,15 +634,29 @@ update message =
                         DiagramModel.ToggleFullscreen ->
                             Return.return
                                 { m
-                                    | window = m.window |> Model.windowOfFullscreen.set (not m.window.fullscreen)
+                                    | window =
+                                        m.window
+                                            |> Model.windowOfState.set
+                                                (case m.window.state of
+                                                    Fullscreen ->
+                                                        if Utils.isPhone (Size.getWidth m.diagramModel.size) then
+                                                            Editor
+
+                                                        else
+                                                            Both
+
+                                                    _ ->
+                                                        Fullscreen
+                                                )
                                     , diagramModel = model_
                                 }
                                 (cmd_ |> Cmd.map UpdateDiagram)
-                                |> (if not m.window.fullscreen then
-                                        Action.openFullscreen
+                                |> (case m.window.state of
+                                        Fullscreen ->
+                                            Action.closeFullscreen
 
-                                    else
-                                        Action.closeFullscreen
+                                        _ ->
+                                            Action.openFullscreen
                                    )
 
                         _ ->
@@ -728,6 +739,7 @@ update message =
                     in
                     Return.return { m | diagramModel = model__ } (cmd_ |> Cmd.map UpdateDiagram)
                         |> Return.andThen (Action.loadText m.currentDiagram)
+                        |> Return.andThen Action.updateWindowState
                 )
                 >> Return.andThen Action.stopProgress
 
@@ -1024,7 +1036,17 @@ update message =
             Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfMoveStart.set False }
 
         HandleWindowResize x ->
-            Return.andThen <| \m -> Return.singleton { m | window = { position = m.window.position + x - m.window.moveX, moveStart = True, moveX = x, fullscreen = m.window.fullscreen, showEditor = m.window.showEditor } }
+            Return.andThen <|
+                \m ->
+                    Return.singleton
+                        { m
+                            | window =
+                                { position = m.window.position + x - m.window.moveX
+                                , moveStart = True
+                                , moveX = x
+                                , state = m.window.state
+                                }
+                        }
 
         ShowNotification notification ->
             Return.andThen <| \m -> Return.singleton { m | notification = notification }
@@ -1037,7 +1059,7 @@ update message =
             Return.andThen <| \m -> Return.singleton { m | notification = Notification.Hide }
 
         SwitchWindow w ->
-            Return.andThen <| \m -> Return.singleton { m | switchWindow = w }
+            Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfState.set w }
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -1166,7 +1188,20 @@ update message =
                         ( model_, cmd_ ) =
                             Return.singleton m.diagramModel |> Diagram.update DiagramModel.ToggleFullscreen
                     in
-                    Return.return { m | window = m.window |> Model.windowOfFullscreen.set False, diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
+                    Return.return
+                        { m
+                            | window =
+                                m.window
+                                    |> Model.windowOfState.set
+                                        (if Utils.isPhone (Size.getWidth m.diagramModel.size) then
+                                            Editor
+
+                                         else
+                                            Both
+                                        )
+                            , diagramModel = model_
+                        }
+                        (cmd_ |> Cmd.map UpdateDiagram)
                 )
 
         UpdateIdToken token ->
@@ -1231,8 +1266,8 @@ update message =
         ChangeNetworkState isOnline ->
             Return.andThen <| \m -> Return.singleton { m | isOnline = isOnline }
 
-        ShowEditor show ->
-            Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfShowEditor.set show }
+        ShowEditor state ->
+            Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfState.set state }
 
         Reload ->
             Return.command Nav.reload

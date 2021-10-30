@@ -2,12 +2,12 @@ module Models.Model exposing
     ( Menu(..)
     , Model
     , Msg(..)
-    , SwitchWindow(..)
     , Window
-    , windowOfFullscreen
+    , WindowState(..)
+    , isFullscreen
     , windowOfMoveStart
     , windowOfMoveX
-    , windowOfShowEditor
+    , windowOfState
     )
 
 import Api.RequestError exposing (RequestError)
@@ -67,7 +67,7 @@ type Msg
     | HandleCloseNotification
     | HandleAuthStateChanged (Maybe D.Value)
     | ShowNotification Notification
-    | SwitchWindow SwitchWindow
+    | SwitchWindow WindowState
     | Shortcuts String
     | GotLocalDiagramJson D.Value
     | ChangePublicStatus Bool
@@ -85,7 +85,7 @@ type Msg
     | CloseDialog
     | GotGithubAccessToken { cmd : String, accessToken : Maybe String }
     | ChangeNetworkState Bool
-    | ShowEditor Bool
+    | ShowEditor WindowState
     | NotifyNewVersionAvailable String
     | Reload
     | CloseSnackbar
@@ -101,17 +101,18 @@ type Menu
     | LoginMenu
 
 
-type SwitchWindow
-    = Left
-    | Right
+type WindowState
+    = Editor
+    | Preview
+    | Both
+    | Fullscreen
 
 
 type alias Window =
     { position : Int
     , moveStart : Bool
     , moveX : Int
-    , fullscreen : Bool
-    , showEditor : Bool
+    , state : WindowState
     }
 
 
@@ -127,7 +128,6 @@ type alias Model =
     , currentDiagram : DiagramItem
     , openMenu : Maybe Menu
     , window : Window
-    , switchWindow : SwitchWindow
     , progress : Bool
     , lang : Lang
     , prevRoute : Maybe Route
@@ -141,16 +141,6 @@ type alias Model =
     }
 
 
-windowOfShowEditor : Lens Window Bool
-windowOfShowEditor =
-    Lens .showEditor (\b a -> { a | showEditor = b })
-
-
-windowOfFullscreen : Lens Window Bool
-windowOfFullscreen =
-    Lens .fullscreen (\b a -> { a | fullscreen = b })
-
-
 windowOfMoveX : Lens Window Int
 windowOfMoveX =
     Lens .moveX (\b a -> { a | moveX = b })
@@ -159,3 +149,18 @@ windowOfMoveX =
 windowOfMoveStart : Lens Window Bool
 windowOfMoveStart =
     Lens .moveStart (\b a -> { a | moveStart = b })
+
+
+windowOfState : Lens Window WindowState
+windowOfState =
+    Lens .state (\b a -> { a | state = b })
+
+
+isFullscreen : Window -> Bool
+isFullscreen window =
+    case window.state of
+        Fullscreen ->
+            True
+
+        _ ->
+            False

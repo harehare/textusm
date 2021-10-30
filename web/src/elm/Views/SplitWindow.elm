@@ -5,85 +5,86 @@ import Html.Attributes as Attr
 import Html.Events as Events
 import Json.Decode as D
 import Models.Color as Color
-import Models.Model exposing (Window)
+import Models.Model exposing (Window, WindowState(..))
 import Views.Icon as Icon
 
 
 type alias Props msg =
     { backgroundColor : String
     , window : Window
-    , showEditor : Bool
-    , onToggleEditor : Bool -> msg
+    , onToggleEditor : WindowState -> msg
     , onResize : Int -> msg
     }
 
 
 view : Props msg -> Html msg -> Html msg -> Html msg
-view { onToggleEditor, onResize, showEditor, backgroundColor, window } left right =
+view { onToggleEditor, onResize, backgroundColor, window } left right =
     let
         ( leftPos, rightPos ) =
-            if not showEditor then
-                ( "0px", "calc(100vw - 40px)" )
+            case ( window.state, window.position > 0, window.position < 0 ) of
+                ( Preview, _, _ ) ->
+                    ( "0px", "calc(100vw - 40px)" )
 
-            else if window.position > 0 then
-                ( "calc((100vw - 40px) / 2 + "
-                    ++ String.fromInt (abs window.position)
-                    ++ "px)"
-                , "calc((100vw - 40px) / 2 - "
-                    ++ String.fromInt (abs window.position)
-                    ++ "px)"
-                )
+                ( _, True, _ ) ->
+                    ( "calc((100vw - 40px) / 2 + "
+                        ++ String.fromInt (abs window.position)
+                        ++ "px)"
+                    , "calc((100vw - 40px) / 2 - "
+                        ++ String.fromInt (abs window.position)
+                        ++ "px)"
+                    )
 
-            else if window.position < 0 then
-                ( "calc((100vw - 40px) / 2 - "
-                    ++ String.fromInt (abs window.position)
-                    ++ "px)"
-                , "calc((100vw - 40px) / 2 + "
-                    ++ String.fromInt (abs window.position)
-                    ++ "px)"
-                )
+                ( _, _, True ) ->
+                    ( "calc((100vw - 40px) / 2 - "
+                        ++ String.fromInt (abs window.position)
+                        ++ "px)"
+                    , "calc((100vw - 40px) / 2 + "
+                        ++ String.fromInt (abs window.position)
+                        ++ "px)"
+                    )
 
-            else
-                ( "calc((100vw - 40px) / 2)", "calc((100vw - 40px) / 2)" )
+                _ ->
+                    ( "calc((100vw - 40px) / 2)", "calc((100vw - 40px) / 2)" )
     in
-    if window.fullscreen then
-        Html.div
-            [ Attr.class "flex", Attr.style "background-color" backgroundColor ]
-            [ Html.div [ Attr.class "hidden" ] [ left ]
-            , Html.div [ Attr.class "full-screen" ] [ right ]
-            ]
-
-    else
-        Html.div
-            [ Attr.class "flex p-xxs border-content" ]
-            [ Html.div
-                [ Attr.style "width"
-                    leftPos
-                , Attr.class "h-content"
-                , Attr.class "bg-main"
-                , Attr.class "bg-main"
-                , Attr.class "relative"
+    case window.state of
+        Fullscreen ->
+            Html.div
+                [ Attr.class "flex", Attr.style "background-color" backgroundColor ]
+                [ Html.div [ Attr.class "hidden" ] [ left ]
+                , Html.div [ Attr.class "full-screen" ] [ right ]
                 ]
-                [ left, toggleEditorButton showEditor onToggleEditor ]
-            , Html.div
-                [ Attr.class "bg-main"
-                , Attr.style "width" "6px"
-                , Attr.style "cursor" "col-resize"
-                , onStartWindowResize onResize
+
+        _ ->
+            Html.div
+                [ Attr.class "flex p-xxs border-content" ]
+                [ Html.div
+                    [ Attr.style "width"
+                        leftPos
+                    , Attr.class "h-content"
+                    , Attr.class "bg-main"
+                    , Attr.class "bg-main"
+                    , Attr.class "relative"
+                    ]
+                    [ left, toggleEditorButton window.state onToggleEditor ]
+                , Html.div
+                    [ Attr.class "bg-main"
+                    , Attr.style "width" "6px"
+                    , Attr.style "cursor" "col-resize"
+                    , onStartWindowResize onResize
+                    ]
+                    []
+                , Html.div
+                    [ Attr.style "width"
+                        rightPos
+                    , Attr.class "h-content"
+                    , Attr.style "background-color" backgroundColor
+                    ]
+                    [ right ]
                 ]
-                []
-            , Html.div
-                [ Attr.style "width"
-                    rightPos
-                , Attr.class "h-content"
-                , Attr.style "background-color" backgroundColor
-                ]
-                [ right ]
-            ]
 
 
-toggleEditorButton : Bool -> (Bool -> msg) -> Html msg
-toggleEditorButton show onToggleEditor =
+toggleEditorButton : WindowState -> (WindowState -> msg) -> Html msg
+toggleEditorButton state onToggleEditor =
     Html.div
         [ Attr.class "absolute z-50 cursor-pointer"
         , Attr.style "top" "8px"
@@ -94,11 +95,12 @@ toggleEditorButton show onToggleEditor =
         , Attr.style "height" "24px"
         , Attr.style "background-color" "var(--main-color)"
         ]
-        [ if show then
-            hideEditorButton (onToggleEditor False)
+        [ case state of
+            Both ->
+                hideEditorButton (onToggleEditor Preview)
 
-          else
-            showEditorButton (onToggleEditor True)
+            _ ->
+                showEditorButton (onToggleEditor Both)
         ]
 
 

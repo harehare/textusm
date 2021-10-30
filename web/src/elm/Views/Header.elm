@@ -28,7 +28,6 @@ import Views.Menu as Menu
 type alias Props =
     { session : Session
     , page : Page
-    , isFullscreen : Bool
     , currentDiagram : DiagramItem
     , menu : Maybe Menu
     , currentText : Text
