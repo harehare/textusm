@@ -1,7 +1,7 @@
 module github.com/harehare/textusm
 
 require (
-	cloud.google.com/go/firestore v1.6.0
+	cloud.google.com/go/firestore v1.6.1
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.14.0
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
@@ -40,7 +40,7 @@ require (
 	golang.org/x/text v0.3.6 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20211008145708-270636b82663 // indirect
+	google.golang.org/genproto v0.0.0-20211028162531-8db9c33dc351 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
