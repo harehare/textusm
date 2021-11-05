@@ -18,7 +18,7 @@ import (
 	"github.com/harehare/textusm/pkg/domain/model/settings"
 	"github.com/harehare/textusm/pkg/domain/model/share"
 	"github.com/harehare/textusm/pkg/domain/values"
-	"github.com/harehare/textusm/pkg/presentation/graphql/scalar"
+	node "github.com/harehare/textusm/pkg/presentation/graphql/interface"
 	"github.com/harehare/textusm/pkg/presentation/graphql/union"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -79,9 +79,9 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		Bookmark     func(childComplexity int, itemID *values.ItemID, isBookmark bool) int
-		Delete       func(childComplexity int, itemID *values.ItemID, isPublic *bool) int
-		DeleteGist   func(childComplexity int, gistID *values.GistID) int
+		Bookmark     func(childComplexity int, itemID string, isBookmark bool) int
+		Delete       func(childComplexity int, itemID string, isPublic *bool) int
+		DeleteGist   func(childComplexity int, gistID string) int
 		Save         func(childComplexity int, input InputItem, isPublic *bool) int
 		SaveGist     func(childComplexity int, input InputGistItem) int
 		SaveSettings func(childComplexity int, diagram *values.Diagram, input InputSettings) int
@@ -90,12 +90,12 @@ type ComplexityRoot struct {
 
 	Query struct {
 		AllItems       func(childComplexity int, offset *int, limit *int) int
-		GistItem       func(childComplexity int, id *values.GistID) int
+		GistItem       func(childComplexity int, id string) int
 		GistItems      func(childComplexity int, offset *int, limit *int) int
-		Item           func(childComplexity int, id *values.ItemID, isPublic *bool) int
+		Item           func(childComplexity int, id string, isPublic *bool) int
 		Items          func(childComplexity int, offset *int, limit *int, isBookmark *bool, isPublic *bool) int
 		Settings       func(childComplexity int, diagram *values.Diagram) int
-		ShareCondition func(childComplexity int, id *values.ItemID) int
+		ShareCondition func(childComplexity int, id string) int
 		ShareItem      func(childComplexity int, token string, password *string) int
 	}
 
@@ -125,20 +125,20 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	Save(ctx context.Context, input InputItem, isPublic *bool) (*item.Item, error)
-	Delete(ctx context.Context, itemID *values.ItemID, isPublic *bool) (*values.ItemID, error)
-	Bookmark(ctx context.Context, itemID *values.ItemID, isBookmark bool) (*item.Item, error)
+	Delete(ctx context.Context, itemID string, isPublic *bool) (string, error)
+	Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.Item, error)
 	Share(ctx context.Context, input InputShareItem) (string, error)
 	SaveGist(ctx context.Context, input InputGistItem) (*item.GistItem, error)
-	DeleteGist(ctx context.Context, gistID *values.GistID) (*values.GistID, error)
+	DeleteGist(ctx context.Context, gistID string) (string, error)
 	SaveSettings(ctx context.Context, diagram *values.Diagram, input InputSettings) (*settings.Settings, error)
 }
 type QueryResolver interface {
 	AllItems(ctx context.Context, offset *int, limit *int) ([]union.DiagramItem, error)
-	Item(ctx context.Context, id *values.ItemID, isPublic *bool) (*item.Item, error)
+	Item(ctx context.Context, id string, isPublic *bool) (*item.Item, error)
 	Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*item.Item, error)
 	ShareItem(ctx context.Context, token string, password *string) (*item.Item, error)
-	ShareCondition(ctx context.Context, id *values.ItemID) (*share.ShareCondition, error)
-	GistItem(ctx context.Context, id *values.GistID) (*item.GistItem, error)
+	ShareCondition(ctx context.Context, id string) (*share.ShareCondition, error)
+	GistItem(ctx context.Context, id string) (*item.GistItem, error)
 	GistItems(ctx context.Context, offset *int, limit *int) ([]*item.GistItem, error)
 	Settings(ctx context.Context, diagram *values.Diagram) (*settings.Settings, error)
 }
@@ -301,7 +301,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Bookmark(childComplexity, args["itemID"].(*values.ItemID), args["isBookmark"].(bool)), true
+		return e.complexity.Mutation.Bookmark(childComplexity, args["itemID"].(string), args["isBookmark"].(bool)), true
 
 	case "Mutation.delete":
 		if e.complexity.Mutation.Delete == nil {
@@ -313,7 +313,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Delete(childComplexity, args["itemID"].(*values.ItemID), args["isPublic"].(*bool)), true
+		return e.complexity.Mutation.Delete(childComplexity, args["itemID"].(string), args["isPublic"].(*bool)), true
 
 	case "Mutation.deleteGist":
 		if e.complexity.Mutation.DeleteGist == nil {
@@ -325,7 +325,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteGist(childComplexity, args["gistID"].(*values.GistID)), true
+		return e.complexity.Mutation.DeleteGist(childComplexity, args["gistID"].(string)), true
 
 	case "Mutation.save":
 		if e.complexity.Mutation.Save == nil {
@@ -397,7 +397,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GistItem(childComplexity, args["id"].(*values.GistID)), true
+		return e.complexity.Query.GistItem(childComplexity, args["id"].(string)), true
 
 	case "Query.gistItems":
 		if e.complexity.Query.GistItems == nil {
@@ -421,7 +421,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Item(childComplexity, args["id"].(*values.ItemID), args["isPublic"].(*bool)), true
+		return e.complexity.Query.Item(childComplexity, args["id"].(string), args["isPublic"].(*bool)), true
 
 	case "Query.items":
 		if e.complexity.Query.Items == nil {
@@ -457,7 +457,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ShareCondition(childComplexity, args["id"].(*values.ItemID)), true
+		return e.complexity.Query.ShareCondition(childComplexity, args["id"].(string)), true
 
 	case "Query.shareItem":
 		if e.complexity.Query.ShareItem == nil {
@@ -655,8 +655,6 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "graphql/schema.graphql", Input: `scalar Time
-scalar ItemIdScalar
-scalar GistIdScalar
 
 enum Diagram {
   USER_STORY_MAP
@@ -679,8 +677,12 @@ enum Diagram {
   USE_CASE_DIAGRAM
 }
 
-type Item {
-  id: ItemIdScalar!
+interface Node {
+  id: ID!
+}
+
+type Item implements Node {
+  id: ID!
   title: String!
   text: String!
   thumbnail: String
@@ -691,8 +693,8 @@ type Item {
   updatedAt: Time!
 }
 
-type GistItem {
-  id: GistIdScalar!
+type GistItem implements Node {
+  id: ID!
   url: String!
   title: String!
   thumbnail: String
@@ -734,7 +736,7 @@ union DiagramItem = Item | GistItem
 
 type Query {
   allItems(offset: Int = 0, limit: Int = 30): [DiagramItem!]
-  item(id: ItemIdScalar!, isPublic: Boolean = False): Item!
+  item(id: ID!, isPublic: Boolean = False): Item!
   items(
     offset: Int = 0
     limit: Int = 30
@@ -742,14 +744,14 @@ type Query {
     isPublic: Boolean = False
   ): [Item]!
   shareItem(token: String!, password: String): Item!
-  ShareCondition(id: ItemIdScalar!): ShareCondition
-  gistItem(id: GistIdScalar!): GistItem!
+  ShareCondition(id: ID!): ShareCondition
+  gistItem(id: ID!): GistItem!
   gistItems(offset: Int = 0, limit: Int = 30): [GistItem]!
   settings(diagram: Diagram!): Settings!
 }
 
 input InputItem {
-  id: ItemIdScalar
+  id: ID
   title: String!
   text: String!
   thumbnail: String
@@ -759,7 +761,7 @@ input InputItem {
 }
 
 input InputShareItem {
-  itemID: ItemIdScalar!
+  itemID: ID!
   expSecond: Int = 300
   password: String
   allowIPList: [String!] = []
@@ -767,7 +769,7 @@ input InputShareItem {
 }
 
 input InputGistItem {
-  id: GistIdScalar
+  id: ID
   title: String!
   thumbnail: String
   diagram: Diagram!
@@ -797,11 +799,11 @@ input InputColor {
 
 type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
-  delete(itemID: ItemIdScalar!, isPublic: Boolean = False): ItemIdScalar!
-  bookmark(itemID: ItemIdScalar!, isBookmark: Boolean!): Item
+  delete(itemID: ID!, isPublic: Boolean = False): ID!
+  bookmark(itemID: ID!, isBookmark: Boolean!): Item
   share(input: InputShareItem!): String!
   saveGist(input: InputGistItem!): GistItem!
-  deleteGist(gistID: GistIdScalar!): GistIdScalar!
+  deleteGist(gistID: ID!): ID!
   saveSettings(diagram: Diagram!, input: InputSettings!): Settings!
 }
 `, BuiltIn: false},
@@ -815,10 +817,10 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_bookmark_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *values.ItemID
+	var arg0 string
 	if tmp, ok := rawArgs["itemID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
-		arg0, err = ec.unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -839,10 +841,10 @@ func (ec *executionContext) field_Mutation_bookmark_args(ctx context.Context, ra
 func (ec *executionContext) field_Mutation_deleteGist_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *values.GistID
+	var arg0 string
 	if tmp, ok := rawArgs["gistID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("gistID"))
-		arg0, err = ec.unmarshalNGistIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -854,10 +856,10 @@ func (ec *executionContext) field_Mutation_deleteGist_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_delete_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *values.ItemID
+	var arg0 string
 	if tmp, ok := rawArgs["itemID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
-		arg0, err = ec.unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -956,10 +958,10 @@ func (ec *executionContext) field_Mutation_share_args(ctx context.Context, rawAr
 func (ec *executionContext) field_Query_ShareCondition_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *values.ItemID
+	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1010,10 +1012,10 @@ func (ec *executionContext) field_Query_allItems_args(ctx context.Context, rawAr
 func (ec *executionContext) field_Query_gistItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *values.GistID
+	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNGistIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1049,10 +1051,10 @@ func (ec *executionContext) field_Query_gistItems_args(ctx context.Context, rawA
 func (ec *executionContext) field_Query_item_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *values.ItemID
+	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, tmp)
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1289,9 +1291,9 @@ func (ec *executionContext) _GistItem_id(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(values.GistID)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNGistIdScalar2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _GistItem_url(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
@@ -1566,9 +1568,9 @@ func (ec *executionContext) _Item_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(values.ItemID)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNItemIdScalar2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Item_title(ctx context.Context, field graphql.CollectedField, obj *item.Item) (ret graphql.Marshaler) {
@@ -1915,7 +1917,7 @@ func (ec *executionContext) _Mutation_delete(ctx context.Context, field graphql.
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Delete(rctx, args["itemID"].(*values.ItemID), args["isPublic"].(*bool))
+		return ec.resolvers.Mutation().Delete(rctx, args["itemID"].(string), args["isPublic"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1927,9 +1929,9 @@ func (ec *executionContext) _Mutation_delete(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*values.ItemID)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_bookmark(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1957,7 +1959,7 @@ func (ec *executionContext) _Mutation_bookmark(ctx context.Context, field graphq
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Bookmark(rctx, args["itemID"].(*values.ItemID), args["isBookmark"].(bool))
+		return ec.resolvers.Mutation().Bookmark(rctx, args["itemID"].(string), args["isBookmark"].(bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2080,7 +2082,7 @@ func (ec *executionContext) _Mutation_deleteGist(ctx context.Context, field grap
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteGist(rctx, args["gistID"].(*values.GistID))
+		return ec.resolvers.Mutation().DeleteGist(rctx, args["gistID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2092,9 +2094,9 @@ func (ec *executionContext) _Mutation_deleteGist(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*values.GistID)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNGistIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_saveSettings(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2203,7 +2205,7 @@ func (ec *executionContext) _Query_item(ctx context.Context, field graphql.Colle
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Item(rctx, args["id"].(*values.ItemID), args["isPublic"].(*bool))
+		return ec.resolvers.Query().Item(rctx, args["id"].(string), args["isPublic"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2329,7 +2331,7 @@ func (ec *executionContext) _Query_ShareCondition(ctx context.Context, field gra
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ShareCondition(rctx, args["id"].(*values.ItemID))
+		return ec.resolvers.Query().ShareCondition(rctx, args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2368,7 +2370,7 @@ func (ec *executionContext) _Query_gistItem(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GistItem(rctx, args["id"].(*values.GistID))
+		return ec.resolvers.Query().GistItem(rctx, args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3255,6 +3257,41 @@ func (ec *executionContext) ___Directive_args(ctx context.Context, field graphql
 	res := resTmp.([]introspection.InputValue)
 	fc.Result = res
 	return ec.marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐInputValueᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) ___Directive_isRepeatable(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "__Directive",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsRepeatable, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___EnumValue_name(ctx context.Context, field graphql.CollectedField, obj *introspection.EnumValue) (ret graphql.Marshaler) {
@@ -4209,7 +4246,10 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 func (ec *executionContext) unmarshalInputInputColor(ctx context.Context, obj interface{}) (InputColor, error) {
 	var it InputColor
-	var asMap = obj.(map[string]interface{})
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
 
 	for k, v := range asMap {
 		switch k {
@@ -4237,7 +4277,10 @@ func (ec *executionContext) unmarshalInputInputColor(ctx context.Context, obj in
 
 func (ec *executionContext) unmarshalInputInputGistItem(ctx context.Context, obj interface{}) (InputGistItem, error) {
 	var it InputGistItem
-	var asMap = obj.(map[string]interface{})
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
 
 	for k, v := range asMap {
 		switch k {
@@ -4245,7 +4288,7 @@ func (ec *executionContext) unmarshalInputInputGistItem(ctx context.Context, obj
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOGistIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx, v)
+			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4297,7 +4340,10 @@ func (ec *executionContext) unmarshalInputInputGistItem(ctx context.Context, obj
 
 func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj interface{}) (InputItem, error) {
 	var it InputItem
-	var asMap = obj.(map[string]interface{})
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
 
 	for k, v := range asMap {
 		switch k {
@@ -4305,7 +4351,7 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, v)
+			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4365,7 +4411,10 @@ func (ec *executionContext) unmarshalInputInputItem(ctx context.Context, obj int
 
 func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj interface{}) (InputSettings, error) {
 	var it InputSettings
-	var asMap = obj.(map[string]interface{})
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
 
 	if _, present := asMap["scale"]; !present {
 		asMap["scale"] = 1.000000
@@ -4477,7 +4526,10 @@ func (ec *executionContext) unmarshalInputInputSettings(ctx context.Context, obj
 
 func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, obj interface{}) (InputShareItem, error) {
 	var it InputShareItem
-	var asMap = obj.(map[string]interface{})
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
 
 	if _, present := asMap["expSecond"]; !present {
 		asMap["expSecond"] = 300
@@ -4489,7 +4541,7 @@ func (ec *executionContext) unmarshalInputInputShareItem(ctx context.Context, ob
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemID"))
-			it.ItemID, err = ec.unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx, v)
+			it.ItemID, err = ec.unmarshalNID2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4558,6 +4610,29 @@ func (ec *executionContext) _DiagramItem(ctx context.Context, sel ast.SelectionS
 	}
 }
 
+func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj node.Node) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case item.Item:
+		return ec._Item(ctx, sel, &obj)
+	case *item.Item:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Item(ctx, sel, obj)
+	case item.GistItem:
+		return ec._GistItem(ctx, sel, &obj)
+	case *item.GistItem:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._GistItem(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
@@ -4594,7 +4669,7 @@ func (ec *executionContext) _Color(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
-var gistItemImplementors = []string{"GistItem", "DiagramItem"}
+var gistItemImplementors = []string{"GistItem", "Node", "DiagramItem"}
 
 func (ec *executionContext) _GistItem(ctx context.Context, sel ast.SelectionSet, obj *item.GistItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, gistItemImplementors)
@@ -4653,7 +4728,7 @@ func (ec *executionContext) _GistItem(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
-var itemImplementors = []string{"Item", "DiagramItem"}
+var itemImplementors = []string{"Item", "Node", "DiagramItem"}
 
 func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj *item.Item) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, itemImplementors)
@@ -5053,6 +5128,11 @@ func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionS
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "isRepeatable":
+			out.Values[i] = ec.___Directive_isRepeatable(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5335,42 +5415,6 @@ func (ec *executionContext) marshalNDiagramItem2githubᚗcomᚋharehareᚋtextus
 	return ec._DiagramItem(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNGistIdScalar2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx context.Context, v interface{}) (values.GistID, error) {
-	res, err := scalar.UnmarshalGistID(v)
-	return *res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNGistIdScalar2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx context.Context, sel ast.SelectionSet, v values.GistID) graphql.Marshaler {
-	res := scalar.MarshalGistID(&v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNGistIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx context.Context, v interface{}) (*values.GistID, error) {
-	res, err := scalar.UnmarshalGistID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNGistIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx context.Context, sel ast.SelectionSet, v *values.GistID) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := scalar.MarshalGistID(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-	}
-	return res
-}
-
 func (ec *executionContext) marshalNGistItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v item.GistItem) graphql.Marshaler {
 	return ec._GistItem(ctx, sel, &v)
 }
@@ -5409,6 +5453,7 @@ func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtex
 
 	}
 	wg.Wait()
+
 	return ret
 }
 
@@ -5420,6 +5465,21 @@ func (ec *executionContext) marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextus
 		return graphql.Null
 	}
 	return ec._GistItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalID(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalID(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNInputColor2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋpresentationᚋgraphqlᚐInputColor(ctx context.Context, v interface{}) (*InputColor, error) {
@@ -5500,6 +5560,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusm
 
 	}
 	wg.Wait()
+
 	return ret
 }
 
@@ -5511,42 +5572,6 @@ func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋ
 		return graphql.Null
 	}
 	return ec._Item(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNItemIdScalar2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, v interface{}) (values.ItemID, error) {
-	res, err := scalar.UnmarshalItemID(v)
-	return *res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNItemIdScalar2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, sel ast.SelectionSet, v values.ItemID) graphql.Marshaler {
-	res := scalar.MarshalItemID(&v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, v interface{}) (*values.ItemID, error) {
-	res, err := scalar.UnmarshalItemID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, sel ast.SelectionSet, v *values.ItemID) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := scalar.MarshalItemID(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) marshalNSettings2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋsettingsᚐSettings(ctx context.Context, sel ast.SelectionSet, v settings.Settings) graphql.Marshaler {
@@ -5631,6 +5656,13 @@ func (ec *executionContext) marshalN__Directive2ᚕgithubᚗcomᚋ99designsᚋgq
 
 	}
 	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
 	return ret
 }
 
@@ -5704,6 +5736,13 @@ func (ec *executionContext) marshalN__DirectiveLocation2ᚕstringᚄ(ctx context
 
 	}
 	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
 	return ret
 }
 
@@ -5753,6 +5792,13 @@ func (ec *executionContext) marshalN__InputValue2ᚕgithubᚗcomᚋ99designsᚋg
 
 	}
 	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
 	return ret
 }
 
@@ -5794,6 +5840,13 @@ func (ec *executionContext) marshalN__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgen�
 
 	}
 	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
 	return ret
 }
 
@@ -5883,6 +5936,13 @@ func (ec *executionContext) marshalODiagramItem2ᚕgithubᚗcomᚋharehareᚋtex
 
 	}
 	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
 	return ret
 }
 
@@ -5901,26 +5961,26 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	return graphql.MarshalFloat(*v)
 }
 
-func (ec *executionContext) unmarshalOGistIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx context.Context, v interface{}) (*values.GistID, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := scalar.UnmarshalGistID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOGistIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐGistID(ctx context.Context, sel ast.SelectionSet, v *values.GistID) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return scalar.MarshalGistID(v)
-}
-
 func (ec *executionContext) marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *item.GistItem) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._GistItem(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalID(*v)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
@@ -5943,21 +6003,6 @@ func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋ
 		return graphql.Null
 	}
 	return ec._Item(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, v interface{}) (*values.ItemID, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := scalar.UnmarshalItemID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOItemIdScalar2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐItemID(ctx context.Context, sel ast.SelectionSet, v *values.ItemID) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return scalar.MarshalItemID(v)
 }
 
 func (ec *executionContext) marshalOShareCondition2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋshareᚐShareCondition(ctx context.Context, sel ast.SelectionSet, v *share.ShareCondition) graphql.Marshaler {
@@ -6007,6 +6052,12 @@ func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel
 	ret := make(graphql.Array, len(v))
 	for i := range v {
 		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
 	}
 
 	return ret
@@ -6064,6 +6115,13 @@ func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgq
 
 	}
 	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
 	return ret
 }
 
@@ -6104,6 +6162,13 @@ func (ec *executionContext) marshalO__Field2ᚕgithubᚗcomᚋ99designsᚋgqlgen
 
 	}
 	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
 	return ret
 }
 
@@ -6144,6 +6209,13 @@ func (ec *executionContext) marshalO__InputValue2ᚕgithubᚗcomᚋ99designsᚋg
 
 	}
 	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
 	return ret
 }
 
@@ -6191,6 +6263,13 @@ func (ec *executionContext) marshalO__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgen�
 
 	}
 	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
 	return ret
 }
 

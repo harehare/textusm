@@ -6,16 +6,18 @@ module Graphql.Mutation exposing (..)
 
 import Graphql.Enum.Diagram
 import Graphql.InputObject
-import Graphql.Internal.Builder.Argument as Argument
+import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
 import Graphql.Internal.Builder.Object as Object
-import Graphql.Internal.Encode as Encode
+import Graphql.Internal.Encode as Encode exposing (Value)
 import Graphql.Object
-import Graphql.Operation exposing (RootMutation)
+import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
 import Graphql.SelectionSet exposing (SelectionSet)
-import Json.Decode as Decode
+import Graphql.Union
+import Json.Decode as Decode exposing (Decoder)
 
 
 type alias SaveOptionalArguments =
@@ -54,7 +56,7 @@ type alias DeleteOptionalArguments =
 
 
 type alias DeleteRequiredArguments =
-    { itemID : Graphql.ScalarCodecs.ItemIdScalar }
+    { itemID : Graphql.ScalarCodecs.Id }
 
 
 {-|
@@ -66,7 +68,7 @@ type alias DeleteRequiredArguments =
 delete :
     (DeleteOptionalArguments -> DeleteOptionalArguments)
     -> DeleteRequiredArguments
-    -> SelectionSet Graphql.ScalarCodecs.ItemIdScalar RootMutation
+    -> SelectionSet Graphql.ScalarCodecs.Id RootMutation
 delete fillInOptionals____ requiredArgs____ =
     let
         filledInOptionals____ =
@@ -76,11 +78,11 @@ delete fillInOptionals____ requiredArgs____ =
             [ Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
                 |> List.filterMap Basics.identity
     in
-    Object.selectionForField "ScalarCodecs.ItemIdScalar" "delete" (optionalArgs____ ++ [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecItemIdScalar) ]) (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecItemIdScalar |> .decoder)
+    Object.selectionForField "ScalarCodecs.Id" "delete" (optionalArgs____ ++ [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ]) (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
 
 
 type alias BookmarkRequiredArguments =
-    { itemID : Graphql.ScalarCodecs.ItemIdScalar
+    { itemID : Graphql.ScalarCodecs.Id
     , isBookmark : Bool
     }
 
@@ -96,7 +98,7 @@ bookmark :
     -> SelectionSet decodesTo Graphql.Object.Item
     -> SelectionSet (Maybe decodesTo) RootMutation
 bookmark requiredArgs____ object____ =
-    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecItemIdScalar), Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ (Basics.identity >> Decode.nullable)
+    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId), Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ (Basics.identity >> Decode.nullable)
 
 
 type alias ShareRequiredArguments =
@@ -133,7 +135,7 @@ saveGist requiredArgs____ object____ =
 
 
 type alias DeleteGistRequiredArguments =
-    { gistID : Graphql.ScalarCodecs.GistIdScalar }
+    { gistID : Graphql.ScalarCodecs.Id }
 
 
 {-|
@@ -143,9 +145,9 @@ type alias DeleteGistRequiredArguments =
 -}
 deleteGist :
     DeleteGistRequiredArguments
-    -> SelectionSet Graphql.ScalarCodecs.GistIdScalar RootMutation
+    -> SelectionSet Graphql.ScalarCodecs.Id RootMutation
 deleteGist requiredArgs____ =
-    Object.selectionForField "ScalarCodecs.GistIdScalar" "deleteGist" [ Argument.required "gistID" requiredArgs____.gistID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecGistIdScalar) ] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecGistIdScalar |> .decoder)
+    Object.selectionForField "ScalarCodecs.Id" "deleteGist" [ Argument.required "gistID" requiredArgs____.gistID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
 
 
 type alias SaveSettingsRequiredArguments =

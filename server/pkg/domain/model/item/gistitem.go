@@ -7,7 +7,7 @@ import (
 )
 
 type GistItem struct {
-	ID         values.GistID  `json:"id"`
+	ID         string         `json:"id"`
 	URL        string         `json:"url"`
 	Title      string         `json:"title"`
 	Thumbnail  *string        `json:"thumbnail"`

@@ -6,7 +6,6 @@ import (
 	"github.com/harehare/textusm/pkg/context/values"
 	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
 	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
-	v "github.com/harehare/textusm/pkg/domain/values"
 )
 
 type GistService struct {
@@ -38,7 +37,7 @@ func (g *GistService) Find(ctx context.Context, offset, limit int) ([]*itemModel
 	return items, nil
 }
 
-func (g *GistService) FindByID(ctx context.Context, gistID v.GistID) (*itemModel.GistItem, error) {
+func (g *GistService) FindByID(ctx context.Context, gistID string) (*itemModel.GistItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -62,7 +61,7 @@ func (g *GistService) Save(ctx context.Context, gist *itemModel.GistItem) (*item
 	return g.repo.Save(ctx, *userID, gist)
 }
 
-func (g *GistService) Delete(ctx context.Context, gistID v.GistID) error {
+func (g *GistService) Delete(ctx context.Context, gistID string) error {
 	if err := isAuthenticated(ctx); err != nil {
 		return err
 	}

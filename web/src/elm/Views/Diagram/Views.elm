@@ -864,7 +864,7 @@ rootTextNode { settings, position, selectedItem, item } =
                     , SvgAttr.height <| String.fromInt <| settings.size.height - 1
                     , SvgAttr.x <| String.fromInt posX
                     , SvgAttr.y <| String.fromInt posY
-                    , SvgAttr.strokeWidth "2"
+                    , SvgAttr.strokeWidth "3"
                     , SvgAttr.stroke borderColor
                     , SvgAttr.rx "32"
                     , SvgAttr.ry "32"
@@ -884,7 +884,7 @@ rootTextNode { settings, position, selectedItem, item } =
                         , SvgAttr.height <| String.fromInt <| settings.size.height - 1
                         , SvgAttr.x <| String.fromInt posX
                         , SvgAttr.y <| String.fromInt posY
-                        , SvgAttr.strokeWidth "2"
+                        , SvgAttr.strokeWidth "3"
                         , SvgAttr.stroke borderColor
                         , SvgAttr.rx "32"
                         , SvgAttr.ry "32"

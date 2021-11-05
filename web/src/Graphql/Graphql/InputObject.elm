@@ -5,10 +5,17 @@
 module Graphql.InputObject exposing (..)
 
 import Graphql.Enum.Diagram
+import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
+import Graphql.Internal.Builder.Object as Object
 import Graphql.Internal.Encode as Encode exposing (Value)
+import Graphql.Object
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
+import Graphql.SelectionSet exposing (SelectionSet)
+import Graphql.Union
+import Json.Decode as Decode
 
 
 buildInputColor :
@@ -62,7 +69,7 @@ type alias InputGistItemRequiredFields =
 
 
 type alias InputGistItemOptionalFields =
-    { id : OptionalArgument Graphql.ScalarCodecs.GistIdScalar
+    { id : OptionalArgument Graphql.ScalarCodecs.Id
     , thumbnail : OptionalArgument String
     }
 
@@ -70,7 +77,7 @@ type alias InputGistItemOptionalFields =
 {-| Type for the InputGistItem input object.
 -}
 type alias InputGistItem =
-    { id : OptionalArgument Graphql.ScalarCodecs.GistIdScalar
+    { id : OptionalArgument Graphql.ScalarCodecs.Id
     , title : String
     , thumbnail : OptionalArgument String
     , diagram : Graphql.Enum.Diagram.Diagram
@@ -84,7 +91,7 @@ type alias InputGistItem =
 encodeInputGistItem : InputGistItem -> Value
 encodeInputGistItem input____ =
     Encode.maybeObject
-        [ ( "id", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecGistIdScalar) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum Graphql.Enum.Diagram.toString input____.diagram |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ), ( "url", Encode.string input____.url |> Just ) ]
+        [ ( "id", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum Graphql.Enum.Diagram.toString input____.diagram |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ), ( "url", Encode.string input____.url |> Just ) ]
 
 
 buildInputItem :
@@ -110,7 +117,7 @@ type alias InputItemRequiredFields =
 
 
 type alias InputItemOptionalFields =
-    { id : OptionalArgument Graphql.ScalarCodecs.ItemIdScalar
+    { id : OptionalArgument Graphql.ScalarCodecs.Id
     , thumbnail : OptionalArgument String
     }
 
@@ -118,7 +125,7 @@ type alias InputItemOptionalFields =
 {-| Type for the InputItem input object.
 -}
 type alias InputItem =
-    { id : OptionalArgument Graphql.ScalarCodecs.ItemIdScalar
+    { id : OptionalArgument Graphql.ScalarCodecs.Id
     , title : String
     , text : String
     , thumbnail : OptionalArgument String
@@ -133,7 +140,7 @@ type alias InputItem =
 encodeInputItem : InputItem -> Value
 encodeInputItem input____ =
     Encode.maybeObject
-        [ ( "id", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecItemIdScalar) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "text", Encode.string input____.text |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum Graphql.Enum.Diagram.toString input____.diagram |> Just ), ( "isPublic", Encode.bool input____.isPublic |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ) ]
+        [ ( "id", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "text", Encode.string input____.text |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum Graphql.Enum.Diagram.toString input____.diagram |> Just ), ( "isPublic", Encode.bool input____.isPublic |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ) ]
 
 
 buildInputSettings :
@@ -209,7 +216,7 @@ buildInputShareItem required____ fillOptionals____ =
 
 
 type alias InputShareItemRequiredFields =
-    { itemID : Graphql.ScalarCodecs.ItemIdScalar }
+    { itemID : Graphql.ScalarCodecs.Id }
 
 
 type alias InputShareItemOptionalFields =
@@ -223,7 +230,7 @@ type alias InputShareItemOptionalFields =
 {-| Type for the InputShareItem input object.
 -}
 type alias InputShareItem =
-    { itemID : Graphql.ScalarCodecs.ItemIdScalar
+    { itemID : Graphql.ScalarCodecs.Id
     , expSecond : OptionalArgument Int
     , password : OptionalArgument String
     , allowIPList : OptionalArgument (List String)
@@ -236,4 +243,4 @@ type alias InputShareItem =
 encodeInputShareItem : InputShareItem -> Value
 encodeInputShareItem input____ =
     Encode.maybeObject
-        [ ( "itemID", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecItemIdScalar) input____.itemID |> Just ), ( "expSecond", Encode.int |> Encode.optional input____.expSecond ), ( "password", Encode.string |> Encode.optional input____.password ), ( "allowIPList", (Encode.string |> Encode.list) |> Encode.optional input____.allowIPList ), ( "allowEmailList", (Encode.string |> Encode.list) |> Encode.optional input____.allowEmailList ) ]
+        [ ( "itemID", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) input____.itemID |> Just ), ( "expSecond", Encode.int |> Encode.optional input____.expSecond ), ( "password", Encode.string |> Encode.optional input____.password ), ( "allowIPList", (Encode.string |> Encode.list) |> Encode.optional input____.allowIPList ), ( "allowEmailList", (Encode.string |> Encode.list) |> Encode.optional input____.allowEmailList ) ]

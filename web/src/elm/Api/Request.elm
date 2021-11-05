@@ -27,7 +27,7 @@ import Graphql.Enum.Diagram exposing (Diagram)
 import Graphql.Http as Http
 import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
-import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
+import Graphql.Scalar
 import Models.Diagram as DiagramModel
 import Models.DiagramId as DiagramId
 import Models.DiagramItem exposing (DiagramItem)
@@ -114,7 +114,7 @@ delete idToken itemID isPublic =
         |> Http.mutationRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
-        |> Task.map (\(ItemIdScalar id) -> id)
+        |> Task.map (\(Graphql.Scalar.Id id) -> id)
         |> Task.mapError toError
 
 
@@ -138,7 +138,7 @@ share :
     -> Task RequestError String
 share { idToken, itemID, expSecond, password, allowIPList, allowEmailList } =
     Mutation.share
-        { itemID = ItemIdScalar itemID
+        { itemID = Graphql.Scalar.Id itemID
         , expSecond = Present expSecond
         , password =
             case password of
@@ -205,7 +205,7 @@ saveGist idToken accessToken input content =
         saveTask =
             \gist ->
                 Mutation.saveGist
-                    { input | id = Present <| GistIdScalar gist.id, url = gist.url }
+                    { input | id = Present <| Graphql.Scalar.Id gist.id, url = gist.url }
                     |> Http.mutationRequest graphQLUrl
                     |> authHeaders idToken
                     |> Http.toTask
@@ -217,7 +217,7 @@ saveGist idToken accessToken input content =
                 |> Task.mapError RequestError.fromHttpError
                 |> Task.andThen saveTask
 
-        Present (GistIdScalar id_) ->
+        Present (Graphql.Scalar.Id id_) ->
             GithubRequest.updateGist accessToken id_ gistInput
                 |> Task.mapError RequestError.fromHttpError
                 |> Task.andThen saveTask
@@ -238,7 +238,7 @@ deleteGist idToken accessToken gistId =
                     |> Http.mutationRequest graphQLUrl
                     |> authHeaders idToken
                     |> Http.toTask
-                    |> Task.map (\(GistIdScalar id) -> id)
+                    |> Task.map (\(Graphql.Scalar.Id id) -> id)
                     |> Task.mapError toError
             )
 

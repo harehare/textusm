@@ -122,7 +122,7 @@ drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, t
 draw : String -> List Path -> Svg Msg
 draw colour pathList =
     Svg.path
-        [ SvgAttr.strokeWidth "2"
+        [ SvgAttr.strokeWidth "3"
         , SvgAttr.stroke colour
         , SvgAttr.d <| String.join " " pathList
         , SvgAttr.fill "transparent"

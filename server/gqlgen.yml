@@ -23,9 +23,7 @@ models:
     model: github.com/harehare/textusm/pkg/domain/model/settings.Settings
   Color:
     model: github.com/harehare/textusm/pkg/domain/model/settings.Color
-  ItemIdScalar:
-    model: github.com/harehare/textusm/pkg/presentation/graphql/scalar.ItemID
-  GistIdScalar:
-    model: github.com/harehare/textusm/pkg/presentation/graphql/scalar.GistID
   DiagramItem:
     model: github.com/harehare/textusm/pkg/presentation/graphql/union.DiagramItem
+  Node:
+    model: github.com/harehare/textusm/pkg/presentation/graphql/interface.Node

@@ -5,29 +5,20 @@
 module Graphql.ScalarCodecs exposing (..)
 
 import Graphql.Scalar exposing (defaultCodecs)
-
-
-type alias GistIdScalar =
-    Graphql.Scalar.GistIdScalar
+import Json.Decode as Decode exposing (Decoder)
 
 
 type alias Id =
     Graphql.Scalar.Id
 
 
-type alias ItemIdScalar =
-    Graphql.Scalar.ItemIdScalar
-
-
 type alias Time =
     Graphql.Scalar.Time
 
 
-codecs : Graphql.Scalar.Codecs GistIdScalar Id ItemIdScalar Time
+codecs : Graphql.Scalar.Codecs Id Time
 codecs =
     Graphql.Scalar.defineCodecs
-        { codecGistIdScalar = defaultCodecs.codecGistIdScalar
-        , codecId = defaultCodecs.codecId
-        , codecItemIdScalar = defaultCodecs.codecItemIdScalar
+        { codecId = defaultCodecs.codecId
         , codecTime = defaultCodecs.codecTime
         }

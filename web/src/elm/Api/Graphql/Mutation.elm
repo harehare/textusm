@@ -14,7 +14,7 @@ import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings, In
 import Graphql.Mutation as Mutation
 import Graphql.Operation exposing (RootMutation)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
-import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
+import Graphql.Scalar
 import Graphql.SelectionSet exposing (SelectionSet)
 import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramItem)
@@ -26,19 +26,19 @@ save input isPublic =
         Selection.itemSelection
 
 
-delete : String -> Bool -> SelectionSet ItemIdScalar RootMutation
+delete : String -> Bool -> SelectionSet Graphql.Scalar.Id RootMutation
 delete itemID isPublic =
-    Mutation.delete (\optionals -> { optionals | isPublic = Present isPublic }) { itemID = ItemIdScalar itemID }
+    Mutation.delete (\optionals -> { optionals | isPublic = Present isPublic }) { itemID = Graphql.Scalar.Id itemID }
 
 
-deleteGist : String -> SelectionSet GistIdScalar RootMutation
+deleteGist : String -> SelectionSet Graphql.Scalar.Id RootMutation
 deleteGist gistID =
-    Mutation.deleteGist { gistID = GistIdScalar gistID }
+    Mutation.deleteGist { gistID = Graphql.Scalar.Id gistID }
 
 
 bookmark : String -> Bool -> SelectionSet (Maybe DiagramItem) RootMutation
 bookmark itemID isBookmark =
-    Mutation.bookmark { itemID = ItemIdScalar itemID, isBookmark = isBookmark } <|
+    Mutation.bookmark { itemID = Graphql.Scalar.Id itemID, isBookmark = isBookmark } <|
         Selection.itemSelection
 
 

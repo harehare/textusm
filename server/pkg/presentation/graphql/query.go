@@ -7,7 +7,6 @@ import (
 	"github.com/harehare/textusm/pkg/domain/model/settings"
 	shareModel "github.com/harehare/textusm/pkg/domain/model/share"
 	"github.com/harehare/textusm/pkg/domain/values"
-	v "github.com/harehare/textusm/pkg/domain/values"
 	"github.com/harehare/textusm/pkg/presentation/graphql/union"
 )
 
@@ -15,8 +14,8 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }
 
-func (r *queryResolver) Item(ctx context.Context, id *v.ItemID, isPublic *bool) (*itemModel.Item, error) {
-	return r.service.FindByID(ctx, *id, *isPublic)
+func (r *queryResolver) Item(ctx context.Context, id string, isPublic *bool) (*itemModel.Item, error) {
+	return r.service.FindByID(ctx, id, *isPublic)
 }
 
 func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*itemModel.Item, error) {
@@ -33,8 +32,8 @@ func (r *queryResolver) ShareItem(ctx context.Context, token string, password *s
 	return r.service.FindShareItem(ctx, token, p)
 }
 
-func (r *queryResolver) ShareCondition(ctx context.Context, itemID *v.ItemID) (*shareModel.ShareCondition, error) {
-	return r.service.FindShareCondition(ctx, *itemID)
+func (r *queryResolver) ShareCondition(ctx context.Context, itemID string) (*shareModel.ShareCondition, error) {
+	return r.service.FindShareCondition(ctx, itemID)
 }
 
 func (r *queryResolver) AllItems(ctx context.Context, offset, limit *int) ([]union.DiagramItem, error) {
@@ -62,8 +61,8 @@ func (r *queryResolver) AllItems(ctx context.Context, offset, limit *int) ([]uni
 	return diagramItems, nil
 }
 
-func (r *queryResolver) GistItem(ctx context.Context, id *v.GistID) (*itemModel.GistItem, error) {
-	return r.gistService.FindByID(ctx, *id)
+func (r *queryResolver) GistItem(ctx context.Context, id string) (*itemModel.GistItem, error) {
+	return r.gistService.FindByID(ctx, id)
 }
 
 func (r *queryResolver) GistItems(ctx context.Context, offset, limit *int) ([]*itemModel.GistItem, error) {

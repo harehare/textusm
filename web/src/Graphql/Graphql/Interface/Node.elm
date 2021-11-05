@@ -2,7 +2,7 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.Union.DiagramItem exposing (..)
+module Graphql.Interface.Node exposing (..)
 
 import Graphql.InputObject
 import Graphql.Interface
@@ -25,11 +25,11 @@ type alias Fragments decodesTo =
     }
 
 
-{-| Build up a selection for this Union by passing in a Fragments record.
+{-| Build an exhaustive selection of type-specific fragments.
 -}
 fragments :
     Fragments decodesTo
-    -> SelectionSet decodesTo Graphql.Union.DiagramItem
+    -> SelectionSet decodesTo Graphql.Interface.Node
 fragments selections____ =
     Object.exhaustiveFragmentSelection
         [ Object.buildFragment "Item" selections____.onItem
@@ -45,3 +45,9 @@ maybeFragments =
     { onItem = Graphql.SelectionSet.empty |> Graphql.SelectionSet.map (\_ -> Nothing)
     , onGistItem = Graphql.SelectionSet.empty |> Graphql.SelectionSet.map (\_ -> Nothing)
     }
+
+
+{-| -}
+id : SelectionSet Graphql.ScalarCodecs.Id Graphql.Interface.Node
+id =
+    Object.selectionForField "ScalarCodecs.Id" "id" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)

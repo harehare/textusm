@@ -18,9 +18,10 @@ import Graphql.Object.ShareCondition
 import Graphql.Operation exposing (RootQuery)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Query as Query
-import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
+import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Models.Diagram as DiagramModel
+import Models.DiagramId as DiagramId
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
 import Models.Email as Email exposing (Email)
@@ -39,9 +40,9 @@ type alias ShareCondition =
 
 item : String -> Bool -> SelectionSet DiagramItem RootQuery
 item id isPublic =
-    Query.item (\optionals -> { optionals | isPublic = Present isPublic }) { id = ItemIdScalar id } <|
+    Query.item (\optionals -> { optionals | isPublic = Present isPublic }) { id = Graphql.Scalar.Id id } <|
         (SelectionSet.succeed DiagramItem
-            |> with (Graphql.Object.Item.id |> DiagramItem.idToString)
+            |> with (Graphql.Object.Item.id |> SelectionSet.map (\(Graphql.Scalar.Id id_) -> Just <| DiagramId.fromString id_))
             |> with (Graphql.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
             |> with Graphql.Object.Item.diagram
             |> with (Graphql.Object.Item.title |> SelectionSet.map (\value -> Title.fromString value))
@@ -84,7 +85,7 @@ shareItem token password =
         { token = token }
     <|
         (SelectionSet.succeed DiagramItem
-            |> with (Graphql.Object.Item.id |> DiagramItem.idToString)
+            |> with (Graphql.Object.Item.id |> SelectionSet.map (\(Graphql.Scalar.Id id_) -> Just <| DiagramId.fromString id_))
             |> with (Graphql.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
             |> with Graphql.Object.Item.diagram
             |> with (Graphql.Object.Item.title |> SelectionSet.map (\value -> Title.fromString value))
@@ -100,7 +101,7 @@ shareItem token password =
 
 shareCondition : String -> SelectionSet (Maybe ShareCondition) RootQuery
 shareCondition id =
-    Query.shareCondition { id = ItemIdScalar id } <|
+    Query.shareCondition { id = Graphql.Scalar.Id id } <|
         (SelectionSet.succeed ShareCondition
             |> with
                 (Graphql.Object.ShareCondition.allowIPList
@@ -125,9 +126,9 @@ shareCondition id =
 
 gistItem : String -> SelectionSet DiagramItem RootQuery
 gistItem id =
-    Query.gistItem { id = GistIdScalar id } <|
+    Query.gistItem { id = Graphql.Scalar.Id id } <|
         (SelectionSet.succeed DiagramItem
-            |> with (Graphql.Object.GistItem.id |> DiagramItem.gistIdToString)
+            |> with (Graphql.Object.GistItem.id |> SelectionSet.map (\(Graphql.Scalar.Id id_) -> Just <| DiagramId.fromString id_))
             |> hardcoded Text.empty
             |> with Graphql.Object.GistItem.diagram
             |> with (Graphql.Object.GistItem.title |> SelectionSet.map (\value -> Title.fromString value))

@@ -4,8 +4,6 @@ module Models.DiagramItem exposing
     , empty
     , encoder
     , getId
-    , gistIdToString
-    , idToString
     , isRemoteDiagram
     , listToString
     , listToValue
@@ -21,7 +19,7 @@ module Models.DiagramItem exposing
 import Graphql.Enum.Diagram
 import Graphql.InputObject exposing (InputGistItem, InputItem)
 import Graphql.OptionalArgument as OptionalArgument
-import Graphql.Scalar exposing (GistIdScalar(..), ItemIdScalar(..))
+import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
 import Iso8601
 import Json.Decode as D
@@ -68,7 +66,7 @@ toInputItem item =
     { id =
         case item.id of
             Just id ->
-                OptionalArgument.Present (ItemIdScalar <| DiagramId.toString id)
+                OptionalArgument.Present <| Graphql.Scalar.Id <| DiagramId.toString id
 
             Nothing ->
                 OptionalArgument.Absent
@@ -92,7 +90,7 @@ toInputGistItem item =
     { id =
         case item.id of
             Just id ->
-                OptionalArgument.Present (GistIdScalar <| DiagramId.toString id)
+                OptionalArgument.Present <| Graphql.Scalar.Id <| DiagramId.toString id
 
             Nothing ->
                 OptionalArgument.Absent
@@ -200,22 +198,6 @@ mapToDateTime =
                             ++ value
                             ++ " as Iso8601 DateTime."
                     )
-        )
-
-
-idToString : SelectionSet Graphql.Scalar.ItemIdScalar typeLock -> SelectionSet (Maybe DiagramId) typeLock
-idToString =
-    SelectionSet.map
-        (\(Graphql.Scalar.ItemIdScalar value) ->
-            Just (DiagramId.fromString value)
-        )
-
-
-gistIdToString : SelectionSet Graphql.Scalar.GistIdScalar typeLock -> SelectionSet (Maybe DiagramId) typeLock
-gistIdToString =
-    SelectionSet.map
-        (\(Graphql.Scalar.GistIdScalar value) ->
-            Just (DiagramId.fromString value)
         )
 
 

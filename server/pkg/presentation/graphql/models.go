@@ -12,7 +12,7 @@ type InputColor struct {
 }
 
 type InputGistItem struct {
-	ID         *values.GistID  `json:"id"`
+	ID         *string         `json:"id"`
 	Title      string          `json:"title"`
 	Thumbnail  *string         `json:"thumbnail"`
 	Diagram    *values.Diagram `json:"diagram"`
@@ -21,7 +21,7 @@ type InputGistItem struct {
 }
 
 type InputItem struct {
-	ID         *values.ItemID  `json:"id"`
+	ID         *string         `json:"id"`
 	Title      string          `json:"title"`
 	Text       string          `json:"text"`
 	Thumbnail  *string         `json:"thumbnail"`
@@ -46,9 +46,9 @@ type InputSettings struct {
 }
 
 type InputShareItem struct {
-	ItemID         *values.ItemID `json:"itemID"`
-	ExpSecond      *int           `json:"expSecond"`
-	Password       *string        `json:"password"`
-	AllowIPList    []string       `json:"allowIPList"`
-	AllowEmailList []string       `json:"allowEmailList"`
+	ItemID         string   `json:"itemID"`
+	ExpSecond      *int     `json:"expSecond"`
+	Password       *string  `json:"password"`
+	AllowIPList    []string `json:"allowIPList"`
+	AllowEmailList []string `json:"allowEmailList"`
 }

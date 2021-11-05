@@ -5,17 +5,19 @@
 module Graphql.Query exposing (..)
 
 import Graphql.Enum.Diagram
-import Graphql.Internal.Builder.Argument as Argument
+import Graphql.InputObject
+import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
 import Graphql.Internal.Builder.Object as Object
-import Graphql.Internal.Encode as Encode
+import Graphql.Internal.Encode as Encode exposing (Value)
 import Graphql.Object
-import Graphql.Operation exposing (RootQuery)
+import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
 import Graphql.SelectionSet exposing (SelectionSet)
 import Graphql.Union
-import Json.Decode as Decode
+import Json.Decode as Decode exposing (Decoder)
 
 
 type alias AllItemsOptionalArguments =
@@ -51,7 +53,7 @@ type alias ItemOptionalArguments =
 
 
 type alias ItemRequiredArguments =
-    { id : Graphql.ScalarCodecs.ItemIdScalar }
+    { id : Graphql.ScalarCodecs.Id }
 
 
 {-|
@@ -74,7 +76,7 @@ item fillInOptionals____ requiredArgs____ object____ =
             [ Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
                 |> List.filterMap Basics.identity
     in
-    Object.selectionForCompositeField "item" (optionalArgs____ ++ [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecItemIdScalar) ]) object____ Basics.identity
+    Object.selectionForCompositeField "item" (optionalArgs____ ++ [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ]) object____ Basics.identity
 
 
 type alias ItemsOptionalArguments =
@@ -141,7 +143,7 @@ shareItem fillInOptionals____ requiredArgs____ object____ =
 
 
 type alias ShareConditionRequiredArguments =
-    { id : Graphql.ScalarCodecs.ItemIdScalar }
+    { id : Graphql.ScalarCodecs.Id }
 
 
 {-|
@@ -154,11 +156,11 @@ shareCondition :
     -> SelectionSet decodesTo Graphql.Object.ShareCondition
     -> SelectionSet (Maybe decodesTo) RootQuery
 shareCondition requiredArgs____ object____ =
-    Object.selectionForCompositeField "ShareCondition" [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecItemIdScalar) ] object____ (Basics.identity >> Decode.nullable)
+    Object.selectionForCompositeField "ShareCondition" [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ] object____ (Basics.identity >> Decode.nullable)
 
 
 type alias GistItemRequiredArguments =
-    { id : Graphql.ScalarCodecs.GistIdScalar }
+    { id : Graphql.ScalarCodecs.Id }
 
 
 {-|
@@ -171,7 +173,7 @@ gistItem :
     -> SelectionSet decodesTo Graphql.Object.GistItem
     -> SelectionSet decodesTo RootQuery
 gistItem requiredArgs____ object____ =
-    Object.selectionForCompositeField "gistItem" [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecGistIdScalar) ] object____ Basics.identity
+    Object.selectionForCompositeField "gistItem" [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ] object____ Basics.identity
 
 
 type alias GistItemsOptionalArguments =

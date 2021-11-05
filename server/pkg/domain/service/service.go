@@ -18,7 +18,6 @@ import (
 	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
 	shareRepo "github.com/harehare/textusm/pkg/domain/repository/share"
 	userRepo "github.com/harehare/textusm/pkg/domain/repository/user"
-	v "github.com/harehare/textusm/pkg/domain/values"
 	e "github.com/harehare/textusm/pkg/error"
 	uuid "github.com/satori/go.uuid"
 )
@@ -83,7 +82,7 @@ func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool) ([
 	return resultItems, nil
 }
 
-func (s *Service) FindByID(ctx context.Context, itemID v.ItemID, isPublic bool) (*itemModel.Item, error) {
+func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) (*itemModel.Item, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -152,7 +151,7 @@ func (s *Service) Save(ctx context.Context, item *itemModel.Item, isPublic bool)
 	return resultItem, err
 }
 
-func (s *Service) Delete(ctx context.Context, itemID v.ItemID, isPublic bool) error {
+func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) error {
 	if err := isAuthenticated(ctx); err != nil {
 		return err
 	}
@@ -182,7 +181,7 @@ func (s *Service) Delete(ctx context.Context, itemID v.ItemID, isPublic bool) er
 	return s.repo.Delete(ctx, *userID, itemID, false)
 }
 
-func (s *Service) Bookmark(ctx context.Context, itemID v.ItemID, isBookmark bool) (*itemModel.Item, error) {
+func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*itemModel.Item, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -257,7 +256,7 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password stri
 	return item, nil
 }
 
-func (s *Service) FindShareCondition(ctx context.Context, itemID v.ItemID) (*shareModel.ShareCondition, error) {
+func (s *Service) FindShareCondition(ctx context.Context, itemID string) (*shareModel.ShareCondition, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -295,7 +294,7 @@ func (s *Service) FindShareCondition(ctx context.Context, itemID v.ItemID) (*sha
 	}, nil
 }
 
-func (s *Service) Share(ctx context.Context, itemID v.ItemID, expSecond int, password string, allowIPList []string, allowEmailList []string) (*string, error) {
+func (s *Service) Share(ctx context.Context, itemID string, expSecond int, password string, allowIPList []string, allowEmailList []string) (*string, error) {
 	userID := values.GetUID(ctx)
 
 	if userID == nil {
@@ -386,7 +385,7 @@ func verifyToken(ctx context.Context, token string) (*jwt.Token, error) {
 	return verifiedToken, nil
 }
 
-func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID v.ItemID, ownerUserID string) (bool, error) {
+func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID string, ownerUserID string) (bool, error) {
 	if itemID == "" {
 		return true, nil
 	}
@@ -401,9 +400,9 @@ func (s *Service) isPublicDiagramOwner(ctx context.Context, itemID v.ItemID, own
 	return isOwner, err
 }
 
-func itemIDToShareID(itemID v.ItemID) (*string, error) {
+func itemIDToShareID(itemID string) (*string, error) {
 	mac := hmac.New(sha256.New, shareEncryptKey)
-	_, err := mac.Write([]byte(itemID.String()))
+	_, err := mac.Write([]byte(itemID))
 
 	if err != nil {
 		return nil, err

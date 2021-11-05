@@ -10,10 +10,12 @@ import Graphql.Object.Color
 import Graphql.Object.GistItem
 import Graphql.Object.Item
 import Graphql.Object.Settings
+import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Graphql.Union
 import Graphql.Union.DiagramItem
 import Models.Diagram as DiagramModel
+import Models.DiagramId as DiagramId
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
 import Models.Text as Text
@@ -30,7 +32,7 @@ colorSelection =
 itemSelection : SelectionSet DiagramItem Graphql.Object.Item
 itemSelection =
     SelectionSet.succeed DiagramItem
-        |> with (Graphql.Object.Item.id |> DiagramItem.idToString)
+        |> with (Graphql.Object.Item.id |> SelectionSet.map (\(Graphql.Scalar.Id id) -> Just <| DiagramId.fromString id))
         |> hardcoded Text.empty
         |> with Graphql.Object.Item.diagram
         |> with (Graphql.Object.Item.title |> SelectionSet.map Title.fromString)
@@ -46,7 +48,7 @@ itemSelection =
 gistItemSelection : SelectionSet DiagramItem Graphql.Object.GistItem
 gistItemSelection =
     SelectionSet.succeed DiagramItem
-        |> with (Graphql.Object.GistItem.id |> DiagramItem.gistIdToString)
+        |> with (Graphql.Object.GistItem.id |> SelectionSet.map (\(Graphql.Scalar.Id id) -> Just <| DiagramId.fromString id))
         |> hardcoded Text.empty
         |> with Graphql.Object.GistItem.diagram
         |> with (Graphql.Object.GistItem.title |> SelectionSet.map Title.fromString)

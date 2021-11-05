@@ -5,18 +5,25 @@
 module Graphql.Object.GistItem exposing (..)
 
 import Graphql.Enum.Diagram
+import Graphql.InputObject
+import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
 import Graphql.Internal.Builder.Object as Object
+import Graphql.Internal.Encode as Encode exposing (Value)
 import Graphql.Object
+import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
+import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
 import Graphql.SelectionSet exposing (SelectionSet)
+import Graphql.Union
 import Json.Decode as Decode
 
 
 {-| -}
-id : SelectionSet Graphql.ScalarCodecs.GistIdScalar Graphql.Object.GistItem
+id : SelectionSet Graphql.ScalarCodecs.Id Graphql.Object.GistItem
 id =
-    Object.selectionForField "ScalarCodecs.GistIdScalar" "id" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecGistIdScalar |> .decoder)
+    Object.selectionForField "ScalarCodecs.Id" "id" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
 
 
 {-| -}

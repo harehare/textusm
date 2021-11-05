@@ -7,7 +7,6 @@ import (
 	"github.com/harehare/textusm/pkg/context/values"
 	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
 	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
-	v "github.com/harehare/textusm/pkg/domain/values"
 	e "github.com/harehare/textusm/pkg/error"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/api/iterator"
@@ -29,15 +28,15 @@ func NewFirestoreItemRepository(client *firestore.Client) itemRepo.ItemRepositor
 	return &FirestoreItemRepository{client: client}
 }
 
-func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, itemID v.ItemID, isPublic bool) (*itemModel.Item, error) {
+func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, itemID string, isPublic bool) (*itemModel.Item, error) {
 	var (
 		fields *firestore.DocumentSnapshot
 		err    error
 	)
 	if isPublic {
-		fields, err = r.client.Collection(publicCollection).Doc(itemID.String()).Get(ctx)
+		fields, err = r.client.Collection(publicCollection).Doc(itemID).Get(ctx)
 	} else {
-		fields, err = r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID.String()).Get(ctx)
+		fields, err = r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID).Get(ctx)
 	}
 
 	if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
@@ -90,15 +89,15 @@ func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offse
 
 func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item *itemModel.Item, isPublic bool) (*itemModel.Item, error) {
 	if item.ID == "" {
-		item.ID = v.NewItemID(uuid.NewV4().String())
+		item.ID = uuid.NewV4().String()
 	}
 
 	var err error
 
 	if isPublic {
-		_, err = r.client.Collection(publicCollection).Doc(item.ID.String()).Set(ctx, item)
+		_, err = r.client.Collection(publicCollection).Doc(item.ID).Set(ctx, item)
 	} else {
-		_, err = r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(item.ID.String()).Set(ctx, item)
+		_, err = r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(item.ID).Set(ctx, item)
 	}
 
 	if err != nil {
@@ -108,24 +107,24 @@ func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item 
 	return item, nil
 }
 
-func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, itemID v.ItemID, isPublic bool) error {
+func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) error {
 	tx := values.GetTx(ctx)
 
 	if tx == nil {
 		if isPublic {
-			_, err := r.client.Collection(publicCollection).Doc(itemID.String()).Delete(ctx)
+			_, err := r.client.Collection(publicCollection).Doc(itemID).Delete(ctx)
 			return err
 		} else {
-			_, err := r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID.String()).Delete(ctx)
+			_, err := r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID).Delete(ctx)
 			return err
 		}
 	}
 
 	if isPublic {
-		ref := r.client.Collection(publicCollection).Doc(itemID.String())
+		ref := r.client.Collection(publicCollection).Doc(itemID)
 		return tx.Delete(ref)
 	} else {
-		ref := r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID.String())
+		ref := r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID)
 		return tx.Delete(ref)
 	}
 }

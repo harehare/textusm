@@ -1,6 +1,4 @@
 scalar Time
-scalar ItemIdScalar
-scalar GistIdScalar
 
 enum Diagram {
   USER_STORY_MAP
@@ -23,8 +21,12 @@ enum Diagram {
   USE_CASE_DIAGRAM
 }
 
-type Item {
-  id: ItemIdScalar!
+interface Node {
+  id: ID!
+}
+
+type Item implements Node {
+  id: ID!
   title: String!
   text: String!
   thumbnail: String
@@ -35,8 +37,8 @@ type Item {
   updatedAt: Time!
 }
 
-type GistItem {
-  id: GistIdScalar!
+type GistItem implements Node {
+  id: ID!
   url: String!
   title: String!
   thumbnail: String
@@ -78,7 +80,7 @@ union DiagramItem = Item | GistItem
 
 type Query {
   allItems(offset: Int = 0, limit: Int = 30): [DiagramItem!]
-  item(id: ItemIdScalar!, isPublic: Boolean = False): Item!
+  item(id: ID!, isPublic: Boolean = False): Item!
   items(
     offset: Int = 0
     limit: Int = 30
@@ -86,14 +88,14 @@ type Query {
     isPublic: Boolean = False
   ): [Item]!
   shareItem(token: String!, password: String): Item!
-  ShareCondition(id: ItemIdScalar!): ShareCondition
-  gistItem(id: GistIdScalar!): GistItem!
+  ShareCondition(id: ID!): ShareCondition
+  gistItem(id: ID!): GistItem!
   gistItems(offset: Int = 0, limit: Int = 30): [GistItem]!
   settings(diagram: Diagram!): Settings!
 }
 
 input InputItem {
-  id: ItemIdScalar
+  id: ID
   title: String!
   text: String!
   thumbnail: String
@@ -103,7 +105,7 @@ input InputItem {
 }
 
 input InputShareItem {
-  itemID: ItemIdScalar!
+  itemID: ID!
   expSecond: Int = 300
   password: String
   allowIPList: [String!] = []
@@ -111,7 +113,7 @@ input InputShareItem {
 }
 
 input InputGistItem {
-  id: GistIdScalar
+  id: ID
   title: String!
   thumbnail: String
   diagram: Diagram!
@@ -141,10 +143,10 @@ input InputColor {
 
 type Mutation {
   save(input: InputItem!, isPublic: Boolean = False): Item!
-  delete(itemID: ItemIdScalar!, isPublic: Boolean = False): ItemIdScalar!
-  bookmark(itemID: ItemIdScalar!, isBookmark: Boolean!): Item
+  delete(itemID: ID!, isPublic: Boolean = False): ID!
+  bookmark(itemID: ID!, isBookmark: Boolean!): Item
   share(input: InputShareItem!): String!
   saveGist(input: InputGistItem!): GistItem!
-  deleteGist(gistID: GistIdScalar!): GistIdScalar!
+  deleteGist(gistID: ID!): ID!
   saveSettings(diagram: Diagram!, input: InputSettings!): Settings!
 }
