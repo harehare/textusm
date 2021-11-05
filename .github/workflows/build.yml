@@ -95,13 +95,12 @@ jobs:
         with:
           name: dist
           path: web/dist
-      - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
+      - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          args: deploy --only hosting:textusm
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_TEXTUSM }}"
+          projectId: textusm
+          target: textusm
   deploy-server:
     name: deploy-server
     needs: build
