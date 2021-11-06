@@ -1,11 +1,12 @@
 module Views.Diagram.MiniMap exposing (view)
 
 import Constants
+import Events
 import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Models.Color as Color
-import Models.Diagram exposing (Msg)
+import Models.Diagram as DiagramModel exposing (Msg)
 import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
 import Svg exposing (Svg)
@@ -20,9 +21,10 @@ view :
     , svgSize : Size
     , viewport : Size
     , diagramSvg : Svg Msg
+    , moveState : DiagramModel.MoveState
     }
     -> Html Msg
-view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg } =
+view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg, moveState } =
     let
         startPosition =
             case diagramType of
@@ -46,7 +48,19 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg 
          , Attr.style "bottom" "16px"
          , Attr.style "right" "16px"
          , Attr.style "transition" "height 0.15s ease-out"
-         , Attr.style "pointer-events" "none"
+         , Events.onWheel DiagramModel.chooseZoom
+         , case moveState of
+            DiagramModel.MiniMapMove ->
+                Events.onMouseMove <|
+                    \event ->
+                        let
+                            ( x, y ) =
+                                event.pagePos
+                        in
+                        DiagramModel.Move ( round x, round y )
+
+            _ ->
+                Attr.style "" ""
          ]
             ++ (if showMiniMap then
                     [ Attr.style "height" "150px", Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)" ]
@@ -79,6 +93,19 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg 
                         , SvgAttr.strokeWidth "40"
                         , SvgAttr.fill "transparent"
                         , SvgAttr.class "display-rect"
+                        , case moveState of
+                            DiagramModel.MiniMapMove ->
+                                Attr.style "cursor" "grabbing"
+
+                            _ ->
+                                Attr.style "cursor" "grab"
+                        , Events.onMouseDown <|
+                            \event ->
+                                let
+                                    ( x, y ) =
+                                        event.pagePos
+                                in
+                                DiagramModel.Start DiagramModel.MiniMapMove ( round x, round y )
                         ]
                         []
                     ]

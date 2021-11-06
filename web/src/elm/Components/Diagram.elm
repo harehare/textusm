@@ -261,6 +261,7 @@ view model =
             , viewport = model.size
             , position = centerPosition
             , diagramSvg = mainSvg
+            , moveState = model.moveState
             }
         , Lazy.lazy4 svgView model centerPosition ( svgWidth, svgHeight ) mainSvg
         ]
@@ -355,7 +356,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 Attr.style "" ""
 
             Nothing ->
-                Events.onWheel chooseZoom
+                Events.onWheel Diagram.chooseZoom
         , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
         , onDragMove model.touchDistance model.moveState (Utils.isPhone <| Size.getWidth model.size)
         ]
@@ -546,15 +547,6 @@ onDragMove distance moveState isPhone =
                             event.pagePos
                     in
                     Move ( round x, round y )
-
-
-chooseZoom : Wheel.Event -> Msg
-chooseZoom wheelEvent =
-    if wheelEvent.deltaY > 0 then
-        ZoomOut
-
-    else
-        ZoomIn
 
 
 touchCoordinates : Touch.Event -> ( Float, Float )
@@ -815,6 +807,16 @@ update message =
                                         | position =
                                             ( Position.getX m.position + round (toFloat (x - Position.getX m.movePosition) * m.svg.scale)
                                             , Position.getY m.position + round (toFloat (y - Position.getY m.movePosition) * m.svg.scale)
+                                            )
+                                        , movePosition = ( x, y )
+                                    }
+
+                            Diagram.MiniMapMove ->
+                                Return.singleton
+                                    { m
+                                        | position =
+                                            ( Position.getX m.position - round (toFloat (x - Position.getX m.movePosition) * m.svg.scale * (toFloat (Size.getWidth m.size) / 260.0 * 2.0))
+                                            , Position.getY m.position - round (toFloat (y - Position.getY m.movePosition) * m.svg.scale * (toFloat (Size.getWidth m.size) / 260.0 * 2.0))
                                             )
                                         , movePosition = ( x, y )
                                     }

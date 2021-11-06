@@ -12,6 +12,7 @@ module Models.Diagram exposing
     , SelectedItem
     , Settings
     , Size
+    , chooseZoom
     , dragStart
     , fontStyle
     , getTextColor
@@ -47,6 +48,7 @@ import Browser.Dom exposing (Viewport)
 import Events
 import File exposing (File)
 import Graphql.Enum.Diagram exposing (Diagram)
+import Html.Events.Extra.Wheel as Wheel
 import List.Extra exposing (getAt)
 import Models.Color as Color
 import Models.Diagram.BusinessModelCanvas exposing (BusinessModelCanvas)
@@ -86,6 +88,36 @@ type alias ContextMenuProps =
     , position : Position
     , displayAllMenu : Bool
     }
+
+
+type Msg
+    = NoOp
+    | Init Settings Viewport String
+    | OnChangeText String
+    | ZoomIn
+    | ZoomOut
+    | PinchIn Float
+    | PinchOut Float
+    | Stop
+    | Start MoveState Position
+    | Move Position
+    | MoveTo Position
+    | ToggleFullscreen
+    | OnResize Int Int
+    | StartPinch Distance
+    | EditSelectedItem String
+    | EndEditSelectedItem Item
+    | FitToWindow
+    | Select (Maybe SelectedItemInfo)
+    | ColorChanged ContextMenu Color.Color
+    | SelectContextMenu ContextMenu
+    | FontStyleChanged FontStyle
+    | DropFiles (List File)
+    | LoadFile String
+    | ChangeDragStatus DragStatus
+    | FontSizeChanged FontSize
+    | ToggleDropDownList String
+    | ToggleMiniMap
 
 
 type alias Model =
@@ -205,6 +237,7 @@ type MoveState
     = BoardMove
     | ItemMove MoveTarget
     | ItemResize Item ResizeDirection
+    | MiniMapMove
     | NotMove
 
 
@@ -303,36 +336,6 @@ type alias SelectedItemInfo =
     , position : Position
     , displayAllMenu : Bool
     }
-
-
-type Msg
-    = NoOp
-    | Init Settings Viewport String
-    | OnChangeText String
-    | ZoomIn
-    | ZoomOut
-    | PinchIn Float
-    | PinchOut Float
-    | Stop
-    | Start MoveState Position
-    | Move Position
-    | MoveTo Position
-    | ToggleFullscreen
-    | OnResize Int Int
-    | StartPinch Distance
-    | EditSelectedItem String
-    | EndEditSelectedItem Item
-    | FitToWindow
-    | Select (Maybe SelectedItemInfo)
-    | ColorChanged ContextMenu Color.Color
-    | SelectContextMenu ContextMenu
-    | FontStyleChanged FontStyle
-    | DropFiles (List File)
-    | LoadFile String
-    | ChangeDragStatus DragStatus
-    | FontSizeChanged FontSize
-    | ToggleDropDownList String
-    | ToggleMiniMap
 
 
 getTextColor : ColorSettings -> String
@@ -526,3 +529,12 @@ dragStart state isPhone =
                 in
                 Start state ( round x, round y )
             )
+
+
+chooseZoom : Wheel.Event -> Msg
+chooseZoom wheelEvent =
+    if wheelEvent.deltaY > 0 then
+        ZoomOut
+
+    else
+        ZoomIn
