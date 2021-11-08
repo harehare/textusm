@@ -9,13 +9,13 @@ require (
 	github.com/go-chi/cors v1.2.0
 	github.com/go-chi/httprate v0.5.2
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/rs/zerolog v1.25.0
+	github.com/rs/zerolog v1.26.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.7.0
 	github.com/vektah/gqlparser/v2 v2.2.0
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	google.golang.org/api v0.60.0
-	google.golang.org/grpc v1.41.0
+	google.golang.org/grpc v1.42.0
 )
 
 require (
@@ -24,8 +24,8 @@ require (
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
-	github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403 // indirect
-	github.com/cncf/xds/go v0.0.0-20210805033703-aa0b78936158 // indirect
+	github.com/cncf/udpa/go v0.0.0-20210930031921-04548b0d99d4 // indirect
+	github.com/cncf/xds/go v0.0.0-20211011173535-cb28da3451f1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/envoyproxy/go-control-plane v0.9.10-0.20210907150352-cf90f659a021 // indirect
 	github.com/envoyproxy/protoc-gen-validate v0.1.0 // indirect
