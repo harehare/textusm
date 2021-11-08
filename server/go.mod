@@ -9,7 +9,7 @@ require (
 	github.com/go-chi/cors v1.2.0
 	github.com/go-chi/httprate v0.5.2
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/rs/zerolog v1.25.0
+	github.com/rs/zerolog v1.26.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.7.0
 	github.com/vektah/gqlparser/v2 v2.2.0
