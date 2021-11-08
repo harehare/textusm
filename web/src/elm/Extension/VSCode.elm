@@ -264,8 +264,8 @@ subscriptions _ =
         , zoom <|
             \z ->
                 if z then
-                    UpdateDiagram DiagramModel.ZoomIn
+                    UpdateDiagram <| DiagramModel.ZoomIn 0.01
 
                 else
-                    UpdateDiagram DiagramModel.ZoomOut
+                    UpdateDiagram <| DiagramModel.ZoomOut 0.01
         ]

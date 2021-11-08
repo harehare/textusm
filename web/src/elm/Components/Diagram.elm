@@ -9,7 +9,6 @@ import Html exposing (Html, div)
 import Html.Attributes as Attr
 import Html.Events as Event
 import Html.Events.Extra.Touch as Touch
-import Html.Events.Extra.Wheel as Wheel
 import Json.Decode as D
 import List
 import List.Extra exposing (getAt, setAt)
@@ -44,6 +43,7 @@ import Svg.Attributes as SvgAttr
 import Svg.Events exposing (onClick)
 import Svg.Lazy as Lazy
 import Task
+import Time exposing (Month(..))
 import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
@@ -142,7 +142,7 @@ zoomControl isFullscreen scale =
             [ Attr.style "width" "24px"
             , Attr.style "height" "24px"
             , Attr.style "cursor" "pointer"
-            , onClick ZoomOut
+            , onClick <| ZoomOut 0.01
             ]
             [ Icon.remove 24
             ]
@@ -160,7 +160,7 @@ zoomControl isFullscreen scale =
             [ Attr.style "width" "24px"
             , Attr.style "height" "24px"
             , Attr.style "cursor" "pointer"
-            , onClick ZoomIn
+            , onClick <| ZoomIn 0.01
             ]
             [ Icon.add 24
             ]
@@ -356,7 +356,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 Attr.style "" ""
 
             Nothing ->
-                Events.onWheel Diagram.chooseZoom
+                Events.onWheel <| Diagram.chooseZoom 0.01
         , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
         , onDragMove model.touchDistance model.moveState (Utils.isPhone <| Size.getWidth model.size)
         ]
@@ -694,15 +694,15 @@ setTouchDistance distance model =
     Return.singleton { model | touchDistance = distance }
 
 
-zoomIn : Model -> Return Msg Model
-zoomIn model =
+zoomIn : Float -> Model -> Return Msg Model
+zoomIn ratio model =
     if model.svg.scale <= 10.0 then
         Return.singleton
             { model
                 | svg =
                     { width = model.svg.width
                     , height = model.svg.height
-                    , scale = model.svg.scale + 0.01
+                    , scale = model.svg.scale + ratio
                     }
             }
 
@@ -710,15 +710,15 @@ zoomIn model =
         Return.singleton model
 
 
-zoomOut : Model -> Return Msg Model
-zoomOut model =
+zoomOut : Float -> Model -> Return Msg Model
+zoomOut ratio model =
     if model.svg.scale > 0.01 then
         Return.singleton
             { model
                 | svg =
                     { width = model.svg.width
                     , height = model.svg.height
-                    , scale = model.svg.scale - 0.01
+                    , scale = model.svg.scale - ratio
                     }
             }
 
@@ -733,41 +733,28 @@ update message =
             Return.zero
 
         Init settings window text ->
-            let
-                width =
-                    round window.viewport.width
-
-                height =
-                    round window.viewport.height - 50
-            in
-            Return.andThen (\m -> Return.singleton <| updateDiagram ( width, height ) m text)
+            Return.andThen (\m -> Return.singleton <| updateDiagram ( round window.viewport.width, round window.viewport.height - 50 ) m text)
                 >> Return.andThen (\m -> Return.singleton { m | settings = settings })
 
-        ZoomIn ->
-            Return.andThen zoomIn
+        ZoomIn ratio ->
+            Return.andThen <| zoomIn ratio
 
-        ZoomOut ->
-            Return.andThen zoomOut
+        ZoomOut ratio ->
+            Return.andThen <| zoomOut ratio
 
         PinchIn distance ->
             Return.andThen (setTouchDistance <| Just distance)
-                >> Return.andThen zoomIn
+                >> Return.andThen (zoomIn 0.01)
 
         PinchOut distance ->
             Return.andThen (setTouchDistance <| Just distance)
-                >> Return.andThen zoomOut
+                >> Return.andThen (zoomOut 0.01)
 
         OnChangeText text ->
             Return.andThen <| \m -> Return.singleton <| updateDiagram m.size m text
 
         Start moveState pos ->
-            Return.andThen <|
-                \m ->
-                    Return.singleton
-                        { m
-                            | moveState = moveState
-                            , movePosition = pos
-                        }
+            Return.andThen <| \m -> Return.singleton { m | moveState = moveState, movePosition = pos }
 
         Stop ->
             Return.andThen
@@ -981,16 +968,13 @@ update message =
                         ( widthRatio, heightRatio ) =
                             ( toFloat (round (toFloat windowWidth / toFloat canvasWidth / 0.05)) * 0.05, toFloat (round (toFloat windowHeight / toFloat canvasHeight / 0.05)) * 0.05 )
 
-                        svgModel =
-                            m.svg
-
-                        newSvgModel =
-                            { svgModel | scale = min widthRatio heightRatio }
-
                         position =
                             ( windowWidth // 2 - round (toFloat canvasWidth / 2 * widthRatio), windowHeight // 2 - round (toFloat canvasHeight / 2 * heightRatio) )
                     in
-                    Return.singleton { m | svg = newSvgModel, position = position }
+                    m
+                        |> Diagram.ofScale.set (min widthRatio heightRatio)
+                        |> Diagram.ofPosition.set position
+                        |> Return.singleton
 
         Select (Just { item, position, displayAllMenu }) ->
             if Item.isImage item then
@@ -1012,12 +996,8 @@ update message =
                                 lines =
                                     Text.lines m.text
 
-                                currentText =
-                                    getAt (Item.getLineNo item) lines
-
                                 prefix =
-                                    currentText
-                                        |> Maybe.withDefault ""
+                                    Text.getLine (Item.getLineNo item) m.text
                                         |> DiagramUtils.getSpacePrefix
 
                                 text =
@@ -1063,12 +1043,10 @@ update message =
                                     Text.lines m.text
 
                                 currentText =
-                                    getAt (Item.getLineNo item) lines
+                                    Text.getLine (Item.getLineNo item) m.text
 
                                 ( mainText, settings, comment ) =
-                                    currentText
-                                        |> Maybe.withDefault ""
-                                        |> Item.split
+                                    Item.split currentText
 
                                 text =
                                     Item.new
@@ -1077,13 +1055,8 @@ update message =
                                         |> Item.withComments comment
                                         |> Item.toLineString
 
-                                prefix =
-                                    currentText
-                                        |> Maybe.withDefault ""
-                                        |> DiagramUtils.getSpacePrefix
-
                                 updateText =
-                                    setAt (Item.getLineNo item) (prefix ++ String.trimLeft text) lines
+                                    setAt (Item.getLineNo item) (DiagramUtils.getSpacePrefix currentText ++ String.trimLeft text) lines
                                         |> String.join "\n"
                             in
                             Return.singleton m
@@ -1114,12 +1087,10 @@ update message =
                                     Text.lines m.text
 
                                 currentText =
-                                    getAt (Item.getLineNo item) lines
+                                    Text.getLine (Item.getLineNo item) m.text
 
                                 ( mainText, settings, comment ) =
-                                    currentText
-                                        |> Maybe.withDefault ""
-                                        |> Item.split
+                                    Item.split currentText
 
                                 text =
                                     case menu of
@@ -1138,15 +1109,10 @@ update message =
                                                 |> Item.toLineString
 
                                         _ ->
-                                            currentText |> Maybe.withDefault ""
-
-                                prefix =
-                                    currentText
-                                        |> Maybe.withDefault ""
-                                        |> DiagramUtils.getSpacePrefix
+                                            currentText
 
                                 updateText =
-                                    setAt (Item.getLineNo item) (prefix ++ String.trimLeft text) lines
+                                    setAt (Item.getLineNo item) (DiagramUtils.getSpacePrefix currentText ++ String.trimLeft text) lines
                                         |> String.join "\n"
                             in
                             case ( m.selectedItem, menu ) of
@@ -1203,29 +1169,23 @@ update message =
                                     Text.lines m.text
 
                                 currentText =
-                                    getAt (Item.getLineNo item) lines
-                                        |> Maybe.withDefault ""
-
-                                prefix =
-                                    currentText
-                                        |> DiagramUtils.getSpacePrefix
+                                    Text.getLine (Item.getLineNo item) m.text
 
                                 ( text, settings, comment ) =
-                                    currentText
-                                        |> Item.split
+                                    Item.split currentText
 
                                 updateLine =
                                     Item.new
-                                        |> Item.withText (prefix ++ (String.trimLeft text |> FontStyle.apply style))
+                                        |> Item.withText (DiagramUtils.getSpacePrefix currentText ++ (String.trimLeft text |> FontStyle.apply style))
                                         |> Item.withItemSettings (Just settings)
                                         |> Item.withComments comment
                                         |> Item.toLineString
-
-                                updateText =
-                                    setAt (Item.getLineNo item) updateLine lines
-                                        |> String.join "\n"
                             in
-                            setText updateText m
+                            setText
+                                (setAt (Item.getLineNo item) updateLine lines
+                                    |> String.join "\n"
+                                )
+                                m
 
                         Nothing ->
                             Return.singleton m
@@ -1255,15 +1215,15 @@ update message =
         ToggleDropDownList id ->
             Return.andThen <|
                 \m ->
-                    let
-                        activeIndex =
-                            if (m.dropDownIndex |> Maybe.withDefault "") == id then
-                                Nothing
+                    Return.singleton
+                        { m
+                            | dropDownIndex =
+                                if (m.dropDownIndex |> Maybe.withDefault "") == id then
+                                    Nothing
 
-                            else
-                                Just id
-                    in
-                    Return.singleton { m | dropDownIndex = activeIndex }
+                                else
+                                    Just id
+                        }
 
         ToggleMiniMap ->
             Return.andThen <| \m -> Return.singleton { m | showMiniMap = not m.showMiniMap }

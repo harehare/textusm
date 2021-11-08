@@ -94,8 +94,8 @@ type Msg
     = NoOp
     | Init Settings Viewport String
     | OnChangeText String
-    | ZoomIn
-    | ZoomOut
+    | ZoomIn Float
+    | ZoomOut Float
     | PinchIn Float
     | PinchOut Float
     | Stop
@@ -531,10 +531,10 @@ dragStart state isPhone =
             )
 
 
-chooseZoom : Wheel.Event -> Msg
-chooseZoom wheelEvent =
+chooseZoom : Float -> Wheel.Event -> Msg
+chooseZoom ratio wheelEvent =
     if wheelEvent.deltaY > 0 then
-        ZoomOut
+        ZoomOut ratio
 
     else
-        ZoomIn
+        ZoomIn ratio

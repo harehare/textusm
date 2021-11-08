@@ -1,6 +1,20 @@
-module Models.Text exposing (Text, change, decoder, edit, empty, fromString, isChanged, isEmpty, lines, saved, toString)
+module Models.Text exposing
+    ( Text
+    , change
+    , decoder
+    , edit
+    , empty
+    , fromString
+    , getLine
+    , isChanged
+    , isEmpty
+    , lines
+    , saved
+    , toString
+    )
 
 import Json.Decode as D exposing (Decoder)
+import List.Extra exposing (getAt)
 
 
 type Text
@@ -49,6 +63,13 @@ fromString text =
 lines : Text -> List String
 lines text =
     toString text |> String.lines
+
+
+getLine : Int -> Text -> String
+getLine lineNo text =
+    lines text
+        |> getAt lineNo
+        |> Maybe.withDefault ""
 
 
 empty : Text

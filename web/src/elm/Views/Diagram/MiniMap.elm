@@ -48,7 +48,6 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg,
          , Attr.style "bottom" "16px"
          , Attr.style "right" "16px"
          , Attr.style "transition" "height 0.15s ease-out"
-         , Events.onWheel DiagramModel.chooseZoom
          , case moveState of
             DiagramModel.MiniMapMove ->
                 Events.onMouseMove <|
@@ -106,6 +105,7 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg,
                                         event.pagePos
                                 in
                                 DiagramModel.Start DiagramModel.MiniMapMove ( round x, round y )
+                        , Events.onWheel <| DiagramModel.chooseZoom 0.05
                         ]
                         []
                     ]
