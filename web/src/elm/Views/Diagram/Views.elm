@@ -107,9 +107,13 @@ card { settings, position, selectedItem, item, canMove } =
         view_ =
             Svg.g
                 [ SvgAttr.class "card"
-                , Events.onClickStopPropagation <|
-                    Select <|
-                        Just { item = item, position = position, displayAllMenu = True }
+                , if Item.isImage item then
+                    SvgAttr.class ""
+
+                  else
+                    Events.onClickStopPropagation <|
+                        Select <|
+                            Just { item = item, position = position, displayAllMenu = True }
                 ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt width

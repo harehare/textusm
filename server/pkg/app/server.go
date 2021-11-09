@@ -39,6 +39,7 @@ import (
 
 type Env struct {
 	Host                string `envconfig:"API_HOST"`
+	Version             string `envconfig:"API_VERSION"`
 	Port                string `envconfig:"PORT"`
 	Credentials         string `envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`
 	DatabaseCredentials string `envconfig:"DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON"`
@@ -118,6 +119,10 @@ func Run() int {
 		AllowedMethods:   []string{"POST", "OPTIONS", "DELETE"},
 		AllowedHeaders:   []string{"accept", "authorization", "content-type"},
 		AllowCredentials: false,
+	})
+
+	r.Get("/version", func(rw http.ResponseWriter, r *http.Request) {
+		rw.Write([]byte(env.Version))
 	})
 
 	r.Route("/api/v1", func(r chi.Router) {
