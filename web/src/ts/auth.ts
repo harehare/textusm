@@ -64,8 +64,10 @@ export const pollRefreshToken = (callback: (idToken: string) => void): void => {
     setInterval(async () => {
         const user = auth.currentUser;
         if (user) {
-            const idToken = await user.getIdToken(true);
-            if (idToken) {
+            const idToken = await user.getIdToken(true).catch(() => {
+                return false;
+            });
+            if (idToken && typeof idToken === 'string') {
                 callback(idToken);
             }
         }
