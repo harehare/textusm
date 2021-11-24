@@ -19,7 +19,7 @@ func (r *queryResolver) Item(ctx context.Context, id string, isPublic *bool) (*i
 }
 
 func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*itemModel.Item, error) {
-	return r.service.Find(ctx, *offset, *limit, *isPublic)
+	return r.service.Find(ctx, *offset, *limit, *isPublic, *isBookmark)
 }
 
 func (r *queryResolver) ShareItem(ctx context.Context, token string, password *string) (*itemModel.Item, error) {
@@ -38,7 +38,7 @@ func (r *queryResolver) ShareCondition(ctx context.Context, itemID string) (*sha
 
 func (r *queryResolver) AllItems(ctx context.Context, offset, limit *int) ([]union.DiagramItem, error) {
 	var diagramItems []union.DiagramItem
-	items, err := r.service.Find(ctx, *offset, *limit, false)
+	items, err := r.service.Find(ctx, *offset, *limit, false, false)
 
 	if err != nil {
 		return nil, err

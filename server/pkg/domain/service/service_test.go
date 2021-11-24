@@ -32,7 +32,7 @@ func (m *MockItemRepository) FindByID(ctx context.Context, userID string, itemID
 	return ret.Get(0).(*item.Item), ret.Error(1)
 }
 
-func (m *MockItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*item.Item, error) {
+func (m *MockItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool) ([]*item.Item, error) {
 	ret := m.Called(ctx, userID, offset, limit, isPublic)
 	return ret.Get(0).([]*item.Item), ret.Error(1)
 }
@@ -88,7 +88,7 @@ func TestFindDiagrams(t *testing.T) {
 	mockItemRepo.On("Find", ctx, "userID", 0, 10, false).Return(items, nil)
 
 	service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
-	diagrams, err := service.Find(ctx, 0, 10, false)
+	diagrams, err := service.Find(ctx, 0, 10, false, false)
 
 	if err != nil {
 		t.Fatal("failed FindDiagrams")

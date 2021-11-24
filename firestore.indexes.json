@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "items",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "IsBookmark",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "UpdatedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

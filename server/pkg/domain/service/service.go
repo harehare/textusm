@@ -53,13 +53,13 @@ func isAuthenticated(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool) ([]*itemModel.Item, error) {
+func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, isBookmark bool) ([]*itemModel.Item, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
 
 	userID := values.GetUID(ctx)
-	items, err := s.repo.Find(ctx, *userID, offset, limit, isPublic)
+	items, err := s.repo.Find(ctx, *userID, offset, limit, isPublic, isBookmark)
 
 	if err != nil {
 		return nil, err

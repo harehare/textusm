@@ -55,13 +55,15 @@ func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, i
 	return &i, nil
 }
 
-func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool) ([]*itemModel.Item, error) {
+func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool) ([]*itemModel.Item, error) {
 	var (
 		items []*itemModel.Item
 		iter  *firestore.DocumentIterator
 	)
 	if isPublic {
 		iter = r.client.Collection(publicCollection).OrderBy("UpdatedAt", firestore.Desc).Offset(offset).Limit(limit).Documents(ctx)
+	} else if isBookmark {
+		iter = r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Where("IsBookmark", "==", isBookmark).OrderBy("UpdatedAt", firestore.Desc).Offset(offset).Limit(limit).Documents(ctx)
 	} else {
 		iter = r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).OrderBy("UpdatedAt", firestore.Desc).Offset(offset).Limit(limit).Documents(ctx)
 	}
