@@ -1,8 +1,10 @@
 module Page.Settings exposing (Model, Msg, init, update, view)
 
-import Html exposing (Html, div, text)
-import Html.Attributes exposing (class, style)
-import Html.Events exposing (onClick)
+import Css exposing (alignItems, borderTop3, calc, center, column, displayFlex, flexDirection, flexWrap, fontWeight, height, hex, int, justifyContent, margin4, marginBottom, maxWidth, minus, overflowY, padding, padding2, padding4, pct, px, scroll, solid, spaceBetween, vh, width, wrap, zero)
+import Css.Media as Media exposing (withMedia)
+import Html.Styled as Html exposing (Html, div, text)
+import Html.Styled.Attributes exposing (css)
+import Html.Styled.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
 import Models.Color as Color exposing (colors)
 import Models.DiagramLocation as DiagramLocation
@@ -30,6 +32,10 @@ import Settings
         , ofWordWrap
         , ofZoomControl
         )
+import Style.Color as Color
+import Style.Font as Font
+import Style.Style as Style
+import Style.Text as Text
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Switch as Switch
 
@@ -1071,6 +1077,45 @@ update msg =
             Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing })
 
 
+columnView : List (Html msg) -> Html msg
+columnView children =
+    div [ css [ width <| px 300 ] ] children
+
+
+conrtolsView : List (Html msg) -> Html msg
+conrtolsView children =
+    div [ css [ padding2 (px 4) (px 8), marginBottom <| px 8 ] ] children
+
+
+conrtolView : List (Html msg) -> Html msg
+conrtolView children =
+    div [ css [ Style.flexStart, flexDirection column, marginBottom <| px 8 ] ] children
+
+
+conrtolRowView : List (Html msg) -> Html msg
+conrtolRowView children =
+    div
+        [ css
+            [ displayFlex
+            , alignItems center
+            , justifyContent spaceBetween
+            , width <| px 250
+            , padding2 (px 8) zero
+            ]
+        ]
+        children
+
+
+nameView : List (Html msg) -> Html msg
+nameView children =
+    div [ css [ Text.sm, Font.fontBold, padding2 (px 1) (px 8) ] ] children
+
+
+inputAreaView : List (Html msg) -> Html msg
+inputAreaView children =
+    div [ css [ maxWidth <| px 300, width <| pct 90, padding2 (px 4) (px 8) ] ] children
+
+
 view : Model -> Html Msg
 view model =
     view_ model.dropDownIndex model.canUseNativeFileSystem model.settings model.session
@@ -1079,16 +1124,27 @@ view model =
 view_ : Maybe String -> Bool -> Settings -> Session -> Html Msg
 view_ dropDownIndex canUseNativeFileSystem settings session =
     div
-        [ class "settings"
-        , style "user-select" "none"
+        [ css
+            [ Color.bgDefault
+            , Style.widthFull
+            , Color.textColor
+            , overflowY scroll
+            , displayFlex
+            , flexWrap wrap
+            , height <| calc (vh 100) minus (px 35)
+            , withMedia [ Media.all [ Media.maxWidth (px 480) ] ]
+                [ Style.widthScreen
+                , height <| calc (vh 100) minus (px 130)
+                ]
+            ]
         , onClick DropDownClose
         ]
-        [ div [ class "column" ]
+        [ columnView
             [ section (Just "Basic")
-            , div [ class "controls" ]
-                [ div [ class "control" ]
-                    [ div [ class "name" ] [ text "Font Family" ]
-                    , div [ class "input-area" ]
+            , conrtolsView
+                [ conrtolView
+                    [ nameView [ text "Font Family" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "font-family"
                             dropDownIndex
@@ -1101,9 +1157,9 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                             settings.font
                         ]
                     ]
-                , div [ class "control" ]
-                    [ div [ class "name" ] [ text "Background color" ]
-                    , div [ class "input-area" ]
+                , conrtolView
+                    [ nameView [ text "Background color" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "background-color"
                             dropDownIndex
@@ -1116,9 +1172,9 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                             settings.storyMap.backgroundColor
                         ]
                     ]
-                , div [ class "control" ]
-                    [ div [ class "name" ] [ text "Save location" ]
-                    , div [ class "input-area" ]
+                , conrtolView
+                    [ nameView [ text "Save location" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "save-location"
                             dropDownIndex
@@ -1145,8 +1201,8 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                             )
                         ]
                     ]
-                , div [ class "control-row" ]
-                    [ div [ class "name" ] [ text "Zoom Control" ]
+                , conrtolRowView
+                    [ nameView [ text "Zoom Control" ]
                     , Switch.view (Maybe.withDefault True settings.storyMap.zoomControl)
                         (\v ->
                             UpdateSettings
@@ -1156,12 +1212,12 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                     ]
                 ]
             ]
-        , div [ class "column" ]
+        , columnView
             [ section (Just "Editor")
-            , div [ class "controls" ]
-                [ div [ class "control" ]
-                    [ div [ class "name" ] [ text "Font Size" ]
-                    , div [ class "input-area" ]
+            , conrtolsView
+                [ conrtolView
+                    [ nameView [ text "Font Size" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "editor-font-size"
                             dropDownIndex
@@ -1174,8 +1230,8 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                             (String.fromInt <| (settings.editor |> defaultEditorSettings |> .fontSize))
                         ]
                     ]
-                , div [ class "control-row" ]
-                    [ div [ class "name" ] [ text "Show Line Number" ]
+                , conrtolRowView
+                    [ nameView [ text "Show Line Number" ]
                     , Switch.view (settings.editor |> defaultEditorSettings |> .showLineNumber)
                         (\v ->
                             UpdateSettings
@@ -1183,8 +1239,8 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                                 ""
                         )
                     ]
-                , div [ class "control-row" ]
-                    [ div [ class "name" ] [ text "Word Wrap" ]
+                , conrtolRowView
+                    [ nameView [ text "Word Wrap" ]
                     , Switch.view (settings.editor |> defaultEditorSettings |> .wordWrap)
                         (\v ->
                             UpdateSettings
@@ -1196,12 +1252,12 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                     ]
                 ]
             ]
-        , div [ class "column" ]
+        , columnView
             [ section (Just "Card Size")
-            , div [ class "controls" ]
-                [ div [ class "control" ]
-                    [ div [ class "name" ] [ text "Card Width" ]
-                    , div [ class "input-area" ]
+            , conrtolsView
+                [ conrtolView
+                    [ nameView [ text "Card Width" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "card-width"
                             dropDownIndex
@@ -1214,9 +1270,9 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                             (String.fromInt settings.storyMap.size.width)
                         ]
                     ]
-                , div [ class "control" ]
-                    [ div [ class "name" ] [ text "Card Height" ]
-                    , div [ class "input-area" ]
+                , conrtolView
+                    [ nameView [ text "Card Height" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "card-height"
                             dropDownIndex
@@ -1231,12 +1287,12 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                     ]
                 ]
             ]
-        , div [ class "column" ]
+        , columnView
             [ section (Just "Color")
-            , div [ class "controls" ]
-                [ div [ class "control" ]
-                    [ div [ class "name" ] [ text "Background Color1" ]
-                    , div [ class "input-area" ]
+            , conrtolsView
+                [ conrtolView
+                    [ nameView [ text "Background Color1" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "activity-background-color"
                             dropDownIndex
@@ -1249,9 +1305,9 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                             settings.storyMap.color.activity.backgroundColor
                         ]
                     ]
-                , div [ class "control" ]
-                    [ div [ class "name" ] [ text "Foreground Color1" ]
-                    , div [ class "input-area" ]
+                , conrtolView
+                    [ nameView [ text "Foreground Color1" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "activity-foreground-color"
                             dropDownIndex
@@ -1266,10 +1322,10 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                     ]
                 ]
             , section Nothing
-            , div [ class "controls" ]
-                [ div [ class "control" ]
-                    [ div [ class "name" ] [ text "Background Color2" ]
-                    , div [ class "input-area" ]
+            , conrtolsView
+                [ conrtolView
+                    [ nameView [ text "Background Color2" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "task-background-color"
                             dropDownIndex
@@ -1282,9 +1338,9 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                             settings.storyMap.color.task.backgroundColor
                         ]
                     ]
-                , div [ class "control" ]
-                    [ div [ class "name" ] [ text "Foreground Color2" ]
-                    , div [ class "input-area" ]
+                , conrtolView
+                    [ nameView [ text "Foreground Color2" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "task-foreground-color"
                             dropDownIndex
@@ -1299,10 +1355,10 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                     ]
                 ]
             , section Nothing
-            , div [ class "controls" ]
-                [ div [ class "control" ]
-                    [ div [ class "name" ] [ text "Background Color3" ]
-                    , div [ class "input-area" ]
+            , conrtolsView
+                [ conrtolView
+                    [ nameView [ text "Background Color3" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "story-background-color"
                             dropDownIndex
@@ -1315,9 +1371,9 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                             settings.storyMap.color.story.backgroundColor
                         ]
                     ]
-                , div [ class "control" ]
-                    [ div [ class "name" ] [ text "Foreground Color3" ]
-                    , div [ class "input-area" ]
+                , conrtolView
+                    [ nameView [ text "Foreground Color3" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "story-foreground-color"
                             dropDownIndex
@@ -1333,10 +1389,10 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                 ]
             , section Nothing
             , section Nothing
-            , div [ class "controls" ]
-                [ div [ class "control" ]
-                    [ div [ class "name" ] [ text "Line Color" ]
-                    , div [ class "input-area" ]
+            , conrtolsView
+                [ conrtolView
+                    [ nameView [ text "Line Color" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "line-color"
                             dropDownIndex
@@ -1349,9 +1405,9 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                             settings.storyMap.color.line
                         ]
                     ]
-                , div [ class "control" ]
-                    [ div [ class "name" ] [ text "Label Color" ]
-                    , div [ class "input-area" ]
+                , conrtolView
+                    [ nameView [ text "Label Color" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "label-color"
                             dropDownIndex
@@ -1364,9 +1420,9 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                             settings.storyMap.color.label
                         ]
                     ]
-                , div [ class "control" ]
-                    [ div [ class "name" ] [ text "Text Color" ]
-                    , div [ class "input-area" ]
+                , conrtolView
+                    [ nameView [ text "Text Color" ]
+                    , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "text-color"
                             dropDownIndex
@@ -1387,18 +1443,20 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
 section : Maybe String -> Html Msg
 section title =
     div
-        [ if isNothing title then
-            style "" ""
+        [ css
+            [ fontWeight <| int 400
+            , margin4 zero zero (px 16) zero
+            , if isNothing title then
+                Css.batch []
 
-          else
-            style "border-top" <| "1px solid " ++ Color.toString Color.gray
-        , if isNothing title then
-            style "padding" "0px"
+              else
+                Css.batch [ borderTop3 (px 1) solid (hex <| Color.toString Color.gray) ]
+            , if isNothing title then
+                Css.batch [ padding zero ]
 
-          else
-            style "padding" "16px 0 0 16px"
-        , style "font-weight" "400"
-        , style "margin" "0 0 16px 0px"
+              else
+                Css.batch [ padding4 (px 16) zero zero (px 16) ]
+            ]
         ]
-        [ div [ class "label" ] [ text (title |> Maybe.withDefault "") ]
+        [ div [ css [ Text.xl, Font.fontSemiBold ] ] [ text (title |> Maybe.withDefault "") ]
         ]

@@ -12,10 +12,29 @@ module Views.Diagram.Views exposing
     )
 
 import Constants
+import Css
+    exposing
+        ( backgroundColor
+        , borderStyle
+        , breakWord
+        , color
+        , hex
+        , marginLeft
+        , marginTop
+        , none
+        , outline
+        , overflowWrap
+        , padding4
+        , property
+        , px
+        , transparent
+        , zero
+        )
 import Events
-import Html exposing (Html)
-import Html.Attributes as Attr
-import Html.Events exposing (onBlur, onInput)
+import Html.Attributes as LegacyAttr
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Events exposing (onBlur, onInput)
 import Markdown
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..), SelectedItem, Settings, settingsOfWidth)
@@ -25,8 +44,9 @@ import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
 import String
-import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
+import Style.Style as Style
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
 
 
 type alias RgbColor =
@@ -252,14 +272,16 @@ comments settings ( posX, posY ) comments_ =
                     , SvgAttr.width "125"
                     , SvgAttr.height "60"
                     , SvgAttr.color "#f5f5f6"
-                    , FontSize.svgFontSize <| FontSize.fromInt 11
-                    , SvgAttr.class "select-none ts-text"
+                    , FontSize.svgStyledFontSize <| FontSize.fromInt 11
+                    , SvgAttr.class "ts-text"
                     ]
                     [ Html.div
-                        [ Attr.style "font-family" <| Diagram.fontStyle settings
-                        , Attr.style "word-wrap" "break-word"
-                        , Attr.style "overflow-wrap" "break-word"
-                        , Attr.style "padding" "8px"
+                        [ css
+                            [ Diagram.fontFamiliy settings
+                            , property "word-wrap" "break-word"
+                            , overflowWrap breakWord
+                            , Style.paddingSm
+                            ]
                         ]
                         [ Html.text <| String.dropLeft 1 c ]
                     ]
@@ -529,16 +551,18 @@ inputView { settings, fontSize, position, size, color, item } =
             , Attr.type_ "text"
             , Attr.autofocus True
             , Attr.autocomplete False
-            , Attr.style "padding" "8px 8px 8px 0"
-            , Attr.style "font-family" <| Diagram.fontStyle settings
-            , Attr.style "color" color
-            , Attr.style "background-color" "transparent"
-            , Attr.style "border" "none"
-            , Attr.style "outline" "none"
-            , Attr.style "width" (String.fromInt (Size.getWidth size - 20) ++ "px")
-            , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
-            , Attr.style "margin-left" "2px"
-            , Attr.style "margin-top" "2px"
+            , css
+                [ padding4 (px 8) (px 8) (px 8) zero
+                , Diagram.fontFamiliy settings
+                , Css.color <| hex color
+                , Css.backgroundColor transparent
+                , borderStyle none
+                , outline none
+                , Css.width <| px <| toFloat <| Size.getWidth size - 20
+                , Css.fontSize <| px <| toFloat <| FontSize.unwrap fontSize
+                , marginTop <| px 2
+                , marginLeft <| px 2
+                ]
             , Attr.value <| " " ++ String.trimLeft (Item.getText item)
             , onInput EditSelectedItem
             , onBlur <| Select Nothing
@@ -558,8 +582,8 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             , SvgAttr.height <| String.fromInt svgHeight
             , SvgAttr.fill colour
             , SvgAttr.color colour
-            , FontSize.svgFontSize fs
-            , SvgAttr.class "select-none ts-text"
+            , FontSize.svgStyledFontSize fs
+            , SvgAttr.class "ts-text"
             ]
             [ markdown settings
                 colour
@@ -581,14 +605,11 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             , SvgAttr.height <| String.fromInt svgHeight
             , SvgAttr.fill colour
             , SvgAttr.color colour
-            , FontSize.svgFontSize fs
-            , SvgAttr.class "select-none ts-text"
+            , FontSize.svgStyledFontSize fs
+            , SvgAttr.class "ts-text"
             ]
             [ Html.div
-                [ Attr.style "padding" "8px"
-                , Attr.style "font-family" <| Diagram.fontStyle settings
-                , Attr.style "word-wrap" "break-word"
-                ]
+                [ css [ Style.paddingSm, Diagram.fontFamiliy settings, property "word-wrap" "break-word" ] ]
                 [ Html.text <| Item.getText item ]
             ]
 
@@ -606,20 +627,20 @@ plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs t =
         , SvgAttr.fill colour
         , SvgAttr.color colour
         , SvgAttr.fontFamily <| Diagram.fontStyle settings
-        , FontSize.svgFontSize fs
-        , SvgAttr.class "select-none"
+        , FontSize.svgStyledFontSize fs
         ]
         [ Svg.text t ]
 
 
 markdown : Settings -> RgbColor -> String -> Html Msg
 markdown settings colour t =
-    Markdown.toHtml
-        [ Attr.class "md-content"
-        , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-        , Attr.style "color" colour
-        ]
-        t
+    Html.fromUnstyled <|
+        Markdown.toHtml
+            [ LegacyAttr.class "md-content"
+            , LegacyAttr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+            , LegacyAttr.style "color" colour
+            ]
+            t
 
 
 canvas : Settings -> Size -> Position -> SelectedItem -> Item -> Svg Msg
@@ -724,9 +745,9 @@ title settings ( posX, posY ) item =
                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                 |> Maybe.withDefault settings.color.label
             )
-        , FontSize.svgFontSize FontSize.lg
+        , FontSize.svgStyledFontSize FontSize.lg
         , SvgAttr.fontWeight "bold"
-        , SvgAttr.class "select-none ts-title"
+        , SvgAttr.class "ts-title"
         , Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
         ]
         [ Svg.text <| Item.getText item ]
@@ -783,9 +804,11 @@ image ( imageWidth, imageHeight ) ( posX, posY ) url =
         ]
         [ Html.img
             [ Attr.src url
-            , Attr.style "width" <| String.fromInt imageWidth ++ "px"
-            , Attr.style "height" <| String.fromInt imageHeight ++ "px"
-            , Attr.style "object-fit" "cover"
+            , css
+                [ Css.width <| px <| toFloat <| imageWidth
+                , Css.height <| px <| toFloat <| imageHeight
+                , Style.objectFitCover
+                ]
             , SvgAttr.class "ts-image"
             ]
             []
@@ -919,20 +942,19 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
                 |> Maybe.withDefault Color.black
                 |> Color.toString
             )
-        , FontSize.svgFontSize FontSize.default
-        , SvgAttr.class ".select-none"
+        , FontSize.svgStyledFontSize FontSize.default
         ]
         [ Html.div
-            [ Attr.style "width" <| String.fromInt svgWidth ++ "px"
-            , Attr.style "height" <| String.fromInt svgHeight ++ "px"
-            , Attr.style "font-family" <| Diagram.fontStyle settings
-            , Attr.style "word-wrap" "break-word"
-            , Attr.style "display" "flex"
-            , Attr.style "align-items" "center"
-            , Attr.style "justify-content" "center"
+            [ css
+                [ Css.width <| px <| toFloat <| svgWidth
+                , Css.height <| px <| toFloat <| svgHeight
+                , Diagram.fontFamiliy settings
+                , Style.breakWord
+                , Style.flexCenter
+                ]
             , Attr.class "ts-node"
             ]
-            [ Html.div [ FontSize.htmlFontSize <| Item.getFontSize item ] [ Html.text <| Item.getText item ] ]
+            [ Html.div [ css [ FontSize.cssFontSize <| Item.getFontSize item ] ] [ Html.text <| Item.getText item ] ]
         ]
 
 
@@ -945,33 +967,36 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
         , SvgAttr.height <| String.fromInt svgHeight
         ]
         [ Html.div
-            [ Attr.style "background-color" "transparent"
-            , Attr.style "width" (String.fromInt svgWidth ++ "px")
-            , Attr.style "height" (String.fromInt svgHeight ++ "px")
-            , Attr.style "display" "flex"
-            , Attr.style "align-items" "center"
-            , Attr.style "justify-content" "center"
+            [ css
+                [ backgroundColor transparent
+                , Css.width <| px <| toFloat <| svgWidth
+                , Css.height <| px <| toFloat <| svgHeight
+                , Style.flexCenter
+                ]
             ]
             [ Html.input
                 [ Attr.id "edit-item"
                 , Attr.type_ "text"
-                , Attr.style "font-family" <| Diagram.fontStyle settings
                 , Attr.autofocus True
                 , Attr.autocomplete False
                 , Attr.style "padding" "8px 8px 8px 0"
-                , Attr.style "font-family" <| Diagram.fontStyle settings
-                , Attr.style "color"
-                    (Item.getForegroundColor item
-                        |> Maybe.withDefault Color.black
-                        |> Color.toString
-                    )
-                , Attr.style "background-color" "transparent"
-                , Attr.style "border" "none"
-                , Attr.style "outline" "none"
-                , Attr.style "width" (String.fromInt (svgWidth - 20) ++ "px")
-                , FontSize.htmlFontSize <| Item.getFontSize item
-                , Attr.style "margin-left" "2px"
-                , Attr.style "margin-top" "2px"
+                , css
+                    [ Diagram.fontFamiliy settings
+                    , padding4 (px 8) (px 8) (px 8) zero
+                    , borderStyle none
+                    , backgroundColor transparent
+                    , outline none
+                    , FontSize.cssFontSize <| Item.getFontSize item
+                    , Css.width <| px <| toFloat <| svgWidth - 20
+                    , marginTop <| px 2
+                    , marginLeft <| px 2
+                    , color <|
+                        hex
+                            (Item.getForegroundColor item
+                                |> Maybe.withDefault Color.black
+                                |> Color.toString
+                            )
+                    ]
                 , Attr.value <| " " ++ String.trimLeft (Item.getText item)
                 , onInput EditSelectedItem
                 , Events.onEnter <| EndEditSelectedItem item

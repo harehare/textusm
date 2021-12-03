@@ -1,4 +1,4 @@
-module Models.IpAddressTests exposing (..)
+module Models.IpAddressTests exposing (suite)
 
 import Expect
 import Models.IpAddress as IpAddress

@@ -1,25 +1,46 @@
 module Views.Footer exposing (view)
 
+import Css
+    exposing
+        ( alignItems
+        , center
+        , cursor
+        , displayFlex
+        , flexEnd
+        , height
+        , justifyContent
+        , padding
+        , pointer
+        , position
+        , relative
+        , rem
+        )
 import Env
-import Html exposing (Html)
-import Html.Attributes as Attr
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color
+import Style.Color as ColorStyle
+import Style.Font as Font
+import Style.Style as Style
+import Style.Text as Text
 import Views.Icon as Icon
 
 
 view : Html msg
 view =
     Html.div
-        [ Attr.class "h-8"
-        , Attr.class "bg-main"
-        , Attr.class "w-screen"
-        , Attr.class "relative"
-        , Attr.class "shadow-sm"
-        , Attr.class "flex"
-        , Attr.class "items-center"
-        , Attr.class "justify-end"
+        [ css
+            [ height <| rem 2
+            , ColorStyle.bgMain
+            , Style.widthScreen
+            , position relative
+            , Style.shadowSm
+            , displayFlex
+            , alignItems center
+            , justifyContent flexEnd
+            ]
         ]
-        [ Html.div [ Attr.class "p-2", Attr.class "cursor-pointer" ]
+        [ Html.div [ css [ padding <| rem 0.5, cursor pointer ] ]
             [ Html.a
                 [ Attr.href Env.repoUrl
                 , Attr.target "_blank"
@@ -28,10 +49,12 @@ view =
                 [ Icon.github Color.darkIconColor 16 ]
             ]
         , Html.div
-            [ Attr.class "text-secondary-color"
-            , Attr.class "text-xs"
-            , Attr.class "font-bold"
-            , Attr.class "pr-sm"
+            [ css
+                [ ColorStyle.textSecondaryColor
+                , Text.xs
+                , Font.fontBold
+                , Style.paddingRightSm
+                ]
             ]
             [ Html.text Env.appVersion ]
         ]

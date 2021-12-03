@@ -5,8 +5,9 @@ import List.Extra as ListEx
 import Models.Diagram exposing (Model, Msg, SelectedItem, Settings)
 import Models.Item as Item exposing (Items)
 import Models.Position exposing (Position)
-import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
+import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Views as Views
 
 
@@ -25,7 +26,7 @@ view model =
             Svg.g
                 []
                 [ siteView model.settings ( 0, Constants.itemSpan + model.settings.size.height ) model.selectedItem items
-                , Views.card
+                , Lazy.lazy Views.card
                     { settings = model.settings
                     , position = ( 0, 0 )
                     , selectedItem = model.selectedItem

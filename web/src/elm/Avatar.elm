@@ -1,7 +1,7 @@
 module Avatar exposing (Avatar(..), src, toString)
 
-import Html exposing (Attribute)
-import Html.Attributes as Attr
+import Html.Styled exposing (Attribute)
+import Html.Styled.Attributes as Attr
 import MD5
 import Url
 

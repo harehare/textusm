@@ -3,8 +3,8 @@ module Views.Diagram.Kpt exposing (view)
 import Constants
 import Models.Diagram as Diagram exposing (Model, Msg)
 import Models.Diagram.Kpt exposing (KptItem(..))
-import Svg exposing (Svg)
-import Svg.Lazy as Lazy
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Lazy as Lazy
 import Utils.Diagram as DiagramUtils
 import Views.Diagram.Views as Views
 import Views.Empty as Empty

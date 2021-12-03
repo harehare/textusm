@@ -1,17 +1,38 @@
 module Page.NotFound exposing (view)
 
 import Asset
-import Html exposing (Html, div, img, text)
-import Html.Attributes exposing (alt, class, style)
+import Css
+    exposing
+        ( calc
+        , height
+        , margin
+        , minus
+        , padding
+        , px
+        , vh
+        , width
+        )
+import Html.Styled exposing (Html, div, img, text)
+import Html.Styled.Attributes exposing (alt, css)
+import Style.Color as Color
+import Style.Font as Font
+import Style.Style as Style
+import Style.Text as Text
 
 
 view : Html msg
 view =
     div
-        [ class "flex-center text-xl font-semibold w-screen text-color"
-        , style "height" "calc(100vh - 40px)"
-        , style "margin" "8px"
+        [ css
+            [ Style.flexCenter
+            , Text.xl
+            , Font.fontSemiBold
+            , Style.widthScreen
+            , Color.textColor
+            , height <| calc (vh 100) minus (px 40)
+            , margin <| px 8
+            ]
         ]
-        [ img [ class "keyframe anim", Asset.src Asset.logo, style "width" "32px", alt "Not found" ] []
-        , div [ style "padding" "8px" ] [ text "Not found" ]
+        [ img [ Asset.src Asset.logo, css [ width <| px 32 ], alt "Not found" ] []
+        , div [ css [ padding <| px 8 ] ] [ text "Not found" ]
         ]

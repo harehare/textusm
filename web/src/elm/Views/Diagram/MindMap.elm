@@ -6,7 +6,7 @@ import Models.Item as Item exposing (Item, Items)
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Size exposing (Size)
-import Svg exposing (Svg)
+import Svg.Styled as Svg exposing (Svg)
 import Views.Diagram.Path as Path
 import Views.Diagram.Views as Views
 import Views.Empty as Empty

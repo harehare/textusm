@@ -1,8 +1,8 @@
 module Views.Diagram.UserStoryMap exposing (view)
 
 import Constants
-import Html
-import Html.Attributes as Attr
+import Html.Styled as Html
+import Html.Styled.Attributes as Attr
 import List
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
@@ -10,10 +10,10 @@ import Models.Diagram.UserStoryMap as UserStoryMap exposing (UserStoryMap)
 import Models.Item as Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import String
-import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
-import Svg.Keyed as Keyed
-import Svg.Lazy as Lazy
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
+import Svg.Styled.Keyed as Keyed
+import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
@@ -279,7 +279,6 @@ labelTextView settings ( posX, posY ) t =
         , SvgAttr.color settings.color.label
         , SvgAttr.fontSize "12"
         , SvgAttr.fontWeight "bold"
-        , SvgAttr.class "select-none"
         ]
         [ Html.div
             [ Attr.style "font-family" (Diagram.fontStyle settings)

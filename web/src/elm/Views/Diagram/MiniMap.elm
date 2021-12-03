@@ -1,16 +1,43 @@
 module Views.Diagram.MiniMap exposing (view)
 
 import Constants
+import Css
+    exposing
+        ( absolute
+        , backgroundColor
+        , border3
+        , bottom
+        , color
+        , cursor
+        , default
+        , fill
+        , hex
+        , important
+        , int
+        , position
+        , property
+        , px
+        , rgba
+        , right
+        , solid
+        , transparent
+        , width
+        , zIndex
+        , zero
+        )
+import Css.Global exposing (children, class, each, typeSelector)
+import Css.Transitions as Transitions
 import Events
 import Graphql.Enum.Diagram exposing (Diagram(..))
-import Html exposing (Html)
-import Html.Attributes as Attr
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color
 import Models.Diagram as DiagramModel exposing (Msg)
 import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
-import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
+import Style.Style as Style
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
 
 
 view :
@@ -38,17 +65,34 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg,
                     Size.zero
     in
     Html.div
-        ([ Attr.class "mini-map"
-         , Attr.style "position" "absolute"
-         , Attr.style "width" "260px"
-         , Attr.style "background-color" "#fff"
-         , Attr.style "z-index" "1"
-         , Attr.style "cursor" "default"
-         , Attr.style "border-radius" "4px"
-         , Attr.style "bottom" "16px"
-         , Attr.style "right" "16px"
-         , Attr.style "transition" "height 0.15s ease-out"
-         , case moveState of
+        [ css
+            [ Css.position absolute
+            , width <| px 260
+            , backgroundColor <| hex "#ffffff"
+            , zIndex <| int 1
+            , cursor default
+            , Style.roundedSm
+            , bottom <| px 16
+            , right <| px 16
+            , Transitions.transition [ Transitions.height3 0.15 0.15 Transitions.easeOut ]
+            , if showMiniMap then
+                Css.batch [ Css.height <| px 150, border3 (px 1) solid (rgba 0 0 0 0.1) ]
+
+              else
+                Css.batch [ Css.height zero ]
+            , children
+                [ each [ class "ts-card", class "ts-text", class "ts-canvas", class "ts-node", class "ts-grid" ]
+                    [ important <| fill <| rgba 72 169 221 0.2
+                    , important <| property "stroke" "#48a9dd"
+                    , important <| property "stroke-width" "8px"
+                    ]
+                , each [ typeSelector "line", typeSelector "text" ]
+                    [ important <| color transparent
+                    , important <| fill transparent
+                    ]
+                ]
+            ]
+        , case moveState of
             DiagramModel.MiniMapMove ->
                 Events.onMouseMove <|
                     \event ->
@@ -60,14 +104,7 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg,
 
             _ ->
                 Attr.style "" ""
-         ]
-            ++ (if showMiniMap then
-                    [ Attr.style "height" "150px", Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)" ]
-
-                else
-                    [ Attr.style "height" "0px" ]
-               )
-        )
+        ]
         [ if showMiniMap then
             Svg.svg
                 [ SvgAttr.width "270"

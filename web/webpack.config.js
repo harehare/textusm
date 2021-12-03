@@ -96,7 +96,6 @@ const common = {
                             implementation: require('sass'),
                         },
                     },
-                    'postcss-loader',
                 ],
             },
             {
@@ -270,7 +269,6 @@ if (mode === 'production') {
                                 implementation: require('sass'),
                             },
                         },
-                        'postcss-loader',
                     ],
                 },
             ],

@@ -1,32 +1,41 @@
 module Views.SwitchWindow exposing (view)
 
-import Html exposing (Html)
-import Html.Attributes as Attr
-import Html.Events exposing (onClick)
+import Css exposing (backgroundColor, block, bottom, column, display, displayFlex, fixed, flexDirection, hex, int, none, position, px, relative, right, zIndex)
+import Css.Media as Media exposing (withMedia)
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Events exposing (onClick)
 import Models.Model exposing (WindowState(..))
+import Style.Color as Color
+import Style.Style as Style
 import Views.Empty as Empty
 import Views.Icon as Icon
 
 
 view : (WindowState -> msg) -> String -> WindowState -> Html msg -> Html msg -> Html msg
-view onSwitchWindow backgroundColor window view1 view2 =
+view onSwitchWindow background window view1 view2 =
     Html.div
-        [ Attr.class "flex"
-        , Attr.class "flex-col"
-        , Attr.class "relative"
-        , Attr.class "w-screen"
-        , Attr.class "bg-main"
+        [ css
+            [ displayFlex
+            , flexDirection column
+            , position relative
+            , Style.widthScreen
+            , Color.bgMain
+            ]
         ]
         [ Html.div
-            [ Attr.class "fixed"
-            , Attr.class "flex-center"
-            , Attr.class "rounded-full"
-            , Attr.class "bg-accent"
-            , Attr.class "z-50"
-            , Attr.class "p-sm"
-            , Attr.class "shadow-md"
-            , Attr.style "bottom" "72px"
-            , Attr.style "right" "16px"
+            [ css
+                [ displayFlex
+                , position fixed
+                , Style.flexCenter
+                , Style.roundedFull
+                , Color.bgAccent
+                , zIndex <| int 50
+                , Style.paddingSm
+                , Style.shadowSm
+                , bottom <| px 72
+                , right <| px 16
+                ]
             , case window of
                 Editor ->
                     onClick (onSwitchWindow Preview)
@@ -48,32 +57,36 @@ view onSwitchWindow backgroundColor window view1 view2 =
                     Empty.view
             ]
         , Html.div
-            [ Attr.class "h-main lg:h-full w-full" ]
+            [ css
+                [ Style.hMain
+                , Style.widthFull
+                , withMedia [ Media.all [ Media.minWidth <| px 1024 ] ]
+                    [ Style.heightFull ]
+                ]
+            ]
             [ Html.div
-                [ case window of
-                    Editor ->
-                        Attr.class "block"
+                [ css
+                    [ Style.full
+                    , case window of
+                        Preview ->
+                            display none
 
-                    Preview ->
-                        Attr.class "hidden"
-
-                    _ ->
-                        Attr.class ""
-                , Attr.class "full"
+                        _ ->
+                            display block
+                    ]
                 ]
                 [ view1 ]
             , Html.div
-                [ case window of
-                    Preview ->
-                        Attr.class "block"
+                [ css
+                    [ Style.full
+                    , backgroundColor <| hex background
+                    , case window of
+                        Editor ->
+                            display none
 
-                    Editor ->
-                        Attr.class "hidden"
-
-                    _ ->
-                        Attr.class ""
-                , Attr.style "background-color" backgroundColor
-                , Attr.class "full"
+                        _ ->
+                            display block
+                    ]
                 ]
                 [ view2 ]
             ]

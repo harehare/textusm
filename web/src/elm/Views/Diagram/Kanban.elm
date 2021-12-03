@@ -5,9 +5,9 @@ import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings, f
 import Models.Diagram.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import Models.Position exposing (Position)
 import String
-import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
-import Svg.Lazy as Lazy
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
+import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
@@ -73,7 +73,7 @@ listView settings height ( posX, posY ) selectedItem (KanbanList name cards) =
                 []
             :: List.indexedMap
                 (\i (Card item) ->
-                    Views.card
+                    Lazy.lazy Views.card
                         { settings = settings
                         , position =
                             ( posX

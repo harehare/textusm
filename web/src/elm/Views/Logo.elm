@@ -1,15 +1,29 @@
 module Views.Logo exposing (view)
 
 import Asset
-import Html exposing (Html, a, div, img, span, text)
-import Html.Attributes exposing (alt, class, href, rel, style, target)
+import Css exposing (cursor, pointer, px, width)
+import Html.Styled exposing (Html, a, div, img, span, text)
+import Html.Styled.Attributes exposing (alt, css, href, rel, target)
+import Style.Font as Font
+import Style.Style
+import Style.Text as Text
 
 
 view : Html msg
 view =
-    div [ class "cursor-pointer" ]
-        [ a [ class "flex-center", href "https://textusm.com", target "_black", rel "noopener noreferrer" ]
-            [ img [ Asset.src Asset.logo, style "width" "24px", alt "logo" ] []
-            , span [ class "text-xs font-bold" ] [ text "TextUSM" ]
+    div [ css [ cursor pointer ] ]
+        [ a
+            [ css [ Style.Style.flexCenter ]
+            , href "https://textusm.com"
+            , target "_black"
+            , rel "noopener noreferrer"
+            ]
+            [ img
+                [ Asset.src Asset.logo
+                , css [ width <| px 24 ]
+                , alt "logo"
+                ]
+                []
+            , span [ css [ Text.xs, Font.fontBold ] ] [ text "TextUSM" ]
             ]
         ]

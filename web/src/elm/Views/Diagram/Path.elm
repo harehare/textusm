@@ -1,8 +1,8 @@
 module Views.Diagram.Path exposing (view)
 
 import Models.Diagram exposing (Msg)
-import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
 
 
 type alias Path =

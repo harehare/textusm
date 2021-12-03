@@ -11,15 +11,80 @@ port module Page.List exposing
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
+import Css
+    exposing
+        ( absolute
+        , after
+        , alignItems
+        , auto
+        , backgroundColor
+        , backgroundImage
+        , backgroundRepeat
+        , backgroundSize
+        , block
+        , border3
+        , borderRadius4
+        , borderStyle
+        , borderTop3
+        , bottom
+        , calc
+        , center
+        , color
+        , cover
+        , cursor
+        , display
+        , displayFlex
+        , ellipsis
+        , end
+        , height
+        , hex
+        , hidden
+        , hover
+        , justifyContent
+        , left
+        , lineHeight
+        , marginLeft
+        , minus
+        , noRepeat
+        , noWrap
+        , none
+        , overflow
+        , overflowY
+        , padding
+        , padding2
+        , paddingBottom
+        , paddingLeft
+        , pointer
+        , position
+        , property
+        , px
+        , relative
+        , rgba
+        , right
+        , scroll
+        , solid
+        , spaceBetween
+        , textAlign
+        , textOverflow
+        , top
+        , url
+        , vh
+        , whiteSpace
+        , width
+        , zero
+        )
+import Css.Global exposing (children, descendants, typeSelector)
+import Css.Media as Media exposing (withMedia)
+import Css.Transitions as Transitions
 import Dialog.Confirm as ConfirmDialog
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
 import Graphql.Object.GistItem exposing (diagram)
-import Html exposing (Html)
-import Html.Attributes exposing (class, placeholder, style)
-import Html.Events exposing (onClick, onInput, stopPropagationOn)
-import Html.Lazy as Lazy
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes exposing (class, css, placeholder)
+import Html.Styled.Events exposing (onClick, onInput, stopPropagationOn)
+import Html.Styled.Lazy as Lazy
 import Http
 import Json.Decode as D
 import Json.Encode as E
@@ -37,6 +102,10 @@ import Ordering exposing (Ordering)
 import RemoteData exposing (RemoteData(..), WebData)
 import Return exposing (Return)
 import Simple.Fuzzy as Fuzzy
+import Style.Color as ColorStyle
+import Style.Font as FontStyle
+import Style.Style as Style
+import Style.Text as TextStyle
 import Task
 import Time exposing (Zone)
 import Utils.Date as DateUtils
@@ -222,59 +291,97 @@ closeDialog model =
     Return.singleton { model | confirmDialog = Dialog.Hide }
 
 
+itemStyle : Css.Style
+itemStyle =
+    Css.batch
+        [ displayFlex
+        , alignItems center
+        , cursor pointer
+        , TextStyle.sm
+        , ColorStyle.textLight
+        , height <| px 32
+        , lineHeight <| px 30
+        , padding2 (px 8) (px 8)
+        , descendants
+            [ typeSelector "div"
+                [ Style.widthFull
+                , overflow hidden
+                , whiteSpace noWrap
+                , textOverflow ellipsis
+                ]
+            ]
+        , hover [ ColorStyle.textAccent ]
+        ]
+
+
+selectedItemStyle : Css.Style
+selectedItemStyle =
+    Css.batch
+        [ ColorStyle.bgDefault
+        , itemStyle
+        ]
+
+
 sideMenu : Session -> DiagramList -> Bool -> Html Msg
 sideMenu session diagramList isOnline =
-    Html.div [ class "side-menu" ]
+    Html.div
+        [ css
+            [ TextStyle.base
+            , ColorStyle.textDark
+            , ColorStyle.bgMain
+            , overflowY scroll
+            , width <| px 250
+            , height <| calc (vh 100) minus (px 40)
+            , withMedia [ Media.all [ Media.maxWidth (px 480) ] ]
+                [ display none ]
+            ]
+        ]
         [ Html.div
-            [ class <|
-                if isAllList diagramList then
-                    "item selected"
+            [ if isAllList diagramList then
+                css [ selectedItemStyle ]
 
-                else
-                    "item"
+              else
+                css [ itemStyle ]
             , onClick GetDiagrams
             ]
             [ Html.text "All" ]
         , if Session.isSignedIn session && isOnline then
             Html.div
-                [ class <|
-                    if isPublicList diagramList then
-                        "item selected"
+                [ if isPublicList diagramList then
+                    css [ selectedItemStyle ]
 
-                    else
-                        "item"
+                  else
+                    css [ itemStyle ]
                 , onClick <| GetPublicDiagrams 1
                 ]
-                [ Icon.globe (Color.toString Color.iconColor) 16, Html.div [ class "p-sm" ] [ Html.text "Public" ] ]
+                [ Icon.globe (Color.toString Color.iconColor) 16, Html.div [ css [ Style.paddingSm ] ] [ Html.text "Public" ] ]
 
           else
             Empty.view
         , if Session.isSignedIn session then
             Html.div
-                [ class <|
-                    if isBookMarkList diagramList then
-                        "item selected"
+                [ if isBookMarkList diagramList then
+                    css [ selectedItemStyle ]
 
-                    else
-                        "item"
+                  else
+                    css [ itemStyle ]
                 , onClick <| GetBookmarkDiagrams 1
                 ]
-                [ Icon.bookmark Color.iconColor 14, Html.div [ class "p-sm" ] [ Html.text "Bookmarks" ] ]
+                [ Icon.bookmark Color.iconColor 14, Html.div [ css [ Style.paddingSm ] ] [ Html.text "Bookmarks" ] ]
 
           else
             Empty.view
         , if Session.isGithubUser session then
             Html.div
-                [ class <|
-                    if isGistList diagramList then
-                        "item selected"
+                [ if isGistList diagramList then
+                    css [ selectedItemStyle ]
 
-                    else
-                        "item"
+                  else
+                    css [ itemStyle ]
                 , onClick <| GetGistDiagrams 1
                 ]
                 [ Icon.github Color.iconColor 14
-                , Html.div [ class "p-sm" ] [ Html.text "Gist" ]
+                , Html.div [ css [ Style.paddingSm ] ] [ Html.text "Gist" ]
                 ]
 
           else
@@ -282,13 +389,27 @@ sideMenu session diagramList isOnline =
         ]
 
 
+mainView : List (Html msg) -> Html msg
+mainView children =
+    Html.div
+        [ css
+            [ displayFlex
+            , ColorStyle.bgDefault
+            , Style.widthScreen
+            , height <| calc (vh 100) minus (px 40)
+            , position relative
+            , withMedia [ Media.all [ Media.maxWidth (px 480) ] ]
+                [ height <| calc (vh 100) minus (px 128) ]
+            ]
+        ]
+        children
+
+
 view : Model -> Html Msg
 view model =
     case model.diagramList of
         PublicList (Success diagrams) pageNo hasMorePage ->
-            Html.div
-                [ class "diagram-list"
-                ]
+            mainView
                 [ Lazy.lazy3 sideMenu
                     model.session
                     model.diagramList
@@ -306,9 +427,7 @@ view model =
                 ]
 
         BookmarkList (Success diagrams) pageNo hasMorePage ->
-            Html.div
-                [ class "diagram-list"
-                ]
+            mainView
                 [ Lazy.lazy3 sideMenu
                     model.session
                     model.diagramList
@@ -326,9 +445,7 @@ view model =
                 ]
 
         GistList (Success diagrams) pageNo hasMorePage ->
-            Html.div
-                [ class "diagram-list"
-                ]
+            mainView
                 [ Lazy.lazy3 sideMenu
                     model.session
                     model.diagramList
@@ -346,9 +463,7 @@ view model =
                 ]
 
         AllList (Success diagrams) pageNo hasMorePage ->
-            Html.div
-                [ class "diagram-list"
-                ]
+            mainView
                 [ Lazy.lazy3 sideMenu
                     model.session
                     model.diagramList
@@ -378,10 +493,7 @@ view model =
             errorView e
 
         _ ->
-            Html.div
-                [ class "diagram-list"
-                , class "relative"
-                ]
+            mainView
                 [ Lazy.lazy3 sideMenu
                     model.session
                     model.diagramList
@@ -413,45 +525,68 @@ diagramListView :
     -> Html Msg
 diagramListView props =
     Html.div
-        [ style "width" "100%" ]
+        [ css [ Style.widthFull ] ]
         [ Html.div
-            [ class "flex items-center justify-end p-md"
-            , style "color" <| Color.toString Color.white
+            [ css
+                [ displayFlex
+                , alignItems center
+                , justifyContent end
+                , Style.paddingMd
+                , color <| hex <| Color.toString Color.white
+                ]
             ]
-            [ Html.div [ class "flex items-center w-full relative" ]
+            [ Html.div [ css [ displayFlex, alignItems center, Style.widthFull, position relative ] ]
                 [ Html.div
-                    [ class "absolute"
-                    , style "left" "3px"
-                    , style "top" "5px"
+                    [ css [ position absolute, left <| px 3, top <| px 5 ]
                     ]
                     [ Icon.search (Color.toString Color.labelDefalut) 24 ]
                 , Html.input
                     [ placeholder "Search"
-                    , class "w-full text-sm border-none p-sm"
-                    , style "border-radius" "16px"
-                    , style "padding-left" "32px"
-                    , style "color" "#000"
+                    , css
+                        [ Style.widthFull
+                        , TextStyle.sm
+                        , borderStyle none
+                        , Style.paddingSm
+                        , Style.roundedSm
+                        , paddingLeft <| px 32
+                        , color <| hex "#000000"
+                        ]
                     , onInput SearchInput
                     ]
                     []
                 ]
             , Html.div
-                [ class "button"
-                , style "margin-left" "8px"
+                [ css [ Style.button, marginLeft <| px 8 ]
                 , onClick Export
                 ]
                 [ Icon.cloudDownload (Color.toString Color.white) 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ] ]
             , Html.div
-                [ class "button"
+                [ css [ Style.button ]
                 , onClick Import
                 ]
                 [ Icon.cloudUpload (Color.toString Color.white) 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipImport props.lang ] ] ]
             ]
-        , Html.div [ class "overflow-y-auto", style "height" "calc(100vh - 120px - 2rem)" ]
+        , Html.div [ css [ overflowY auto, height <| calc (vh 100) minus (px 148) ] ]
             [ Html.div
-                [ class "grid list p-sm mb-sm"
-                , style "will-change" "transform"
-                , style "border-top" "1px solid #323B46"
+                [ css
+                    [ Style.full
+                    , ColorStyle.bgDefault
+                    , overflowY scroll
+                    , padding <| px 16
+                    , property "display" "grid"
+                    , property "grid-column-gap" "16px"
+                    , property "grid-row-gap" "16px"
+                    , property "grid-template-columns" "repeat(auto-fit, 47%)"
+                    , property "grid-auto-rows" "200px"
+                    , property "will-change" "transform"
+                    , Style.paddingSm
+                    , Style.mbSm
+                    , borderTop3 (px 1) solid (hex "#323B46")
+                    , withMedia [ Media.all [ Media.minWidth (px 768) ] ]
+                        [ property "grid-template-columns" "repeat(auto-fit, 240px)"
+                        , property "grid-auto-rows" "200px"
+                        ]
+                    ]
                 ]
                 (props.diagrams
                     |> (case props.query of
@@ -465,9 +600,9 @@ diagramListView props =
                         (\d -> Lazy.lazy2 diagramView props.timeZone d)
                 )
             , if props.hasMorePage then
-                Html.div [ class "w-full flex-center" ]
+                Html.div [ css [ Style.widthFull, Style.flexCenter ] ]
                     [ Html.div
-                        [ class "button bg-activity text-center m-sm"
+                        [ css [ Style.button, ColorStyle.bgActivity, textAlign center, Style.mSm ]
                         , onClick <| LoadNextPage props.diagramList <| props.pageNo + 1
                         ]
                         [ Html.text "Load more" ]
@@ -480,66 +615,99 @@ diagramListView props =
         ]
 
 
+cloudIconView : List (Html msg) -> Html msg
+cloudIconView children =
+    Html.div [ css [ display block, position absolute, top <| px 5, right <| px 32 ] ] children
+
+
+publicIconView : List (Html msg) -> Html msg
+publicIconView children =
+    Html.div [ css [ display block, position absolute, top <| px 5, right <| px 8 ] ] children
+
+
+bookmarkIconView : DiagramItem -> List (Html Msg) -> Html Msg
+bookmarkIconView diagram children =
+    Html.div [ css [ display block, position absolute, bottom <| px 40, right <| px 8 ], stopPropagationOn "click" (D.succeed ( Bookmark diagram, True )) ] children
+
+
 diagramView : Zone -> DiagramItem -> Html Msg
 diagramView timezone diagram =
     Html.div
-        [ class "diagram-item"
-        , class "bg-cover"
-        , class "bg-no-repeat"
-        , class "relative"
-        , style "background-image" ("url(\"" ++ (diagram.thumbnail |> Maybe.withDefault "") ++ "\")")
+        [ css
+            [ displayFlex
+            , alignItems end
+            , justifyContent end
+            , backgroundSize cover
+            , cursor pointer
+            , Style.shadowSm
+            , Style.roundedSm
+            , Transitions.transition [ Transitions.boxShadow3 100 100 Transitions.easeInOut ]
+            , property "will-change" "box-shadow"
+            , height <| px 200
+            , backgroundRepeat noRepeat
+            , position relative
+            , backgroundImage <| url (diagram.thumbnail |> Maybe.withDefault "")
+            , border3 (px 3) solid ColorStyle.lightBackgroundColor
+            , after
+                [ Style.emptyContent
+                , position absolute
+                , top zero
+                , left zero
+                , Style.widthFull
+                , height <| px 120
+                , Transitions.transition [ Transitions.background3 100 100 Transitions.ease ]
+                , withMedia [ Media.all [ Media.maxWidth (px 480) ] ]
+                    [ height <| px 150 ]
+                ]
+            , hover [ after [ backgroundColor <| rgba 0 0 0 0.2 ] ]
+            ]
         , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
         ]
         [ Html.div
-            [ class "diagram-text"
+            [ css
+                [ TextStyle.sm
+                , Style.widthFull
+                , textOverflow ellipsis
+                , whiteSpace noWrap
+                , overflow hidden
+                , ColorStyle.bgLight
+                , height <| px 64
+                , padding <| px 8
+                , borderRadius4 zero zero (px 2) (px 2)
+                ]
             ]
             [ Html.div
-                [ class "overflow-hidden"
-                , class "overflow-ellipsis"
-                , class "text-base"
-                , class "font-semibold"
-                ]
+                [ css [ overflow hidden, textOverflow ellipsis, TextStyle.base, FontStyle.fontSemiBold ] ]
                 [ Html.text (Title.toString diagram.title) ]
             , Html.div
-                [ class "flex"
-                , class "items-center"
-                , class "justify-between"
-                ]
-                [ Html.div [ class "date-time" ] [ Html.text (DateUtils.millisToString timezone diagram.updatedAt) ] ]
+                [ css [ displayFlex, alignItems center, justifyContent spaceBetween ] ]
+                [ Html.div [ css [ TextStyle.xs, display block, ColorStyle.textDark ] ] [ Html.text (DateUtils.millisToString timezone diagram.updatedAt) ] ]
             ]
         , case diagram.location of
             Just DiagramLocation.Gist ->
-                Html.div [ class "cloud" ] [ Icon.github Color.gray 14 ]
+                cloudIconView [ Icon.github Color.gray 14 ]
 
             Just DiagramLocation.Remote ->
-                Html.div [ class "cloud" ] [ Icon.cloudOn 14 ]
+                cloudIconView [ Icon.cloudOn 14 ]
 
             _ ->
-                Html.div [ class "cloud" ] [ Icon.cloudOff 14 ]
+                cloudIconView [ Icon.cloudOff 14 ]
         , if diagram.isPublic then
-            Html.div [ class "public" ] [ Icon.lockOpen Color.gray 14 ]
+            publicIconView [ Icon.lockOpen Color.gray 14 ]
 
           else
-            Html.div [ class "public" ] [ Icon.lock Color.gray 14 ]
+            publicIconView [ Icon.lock Color.gray 14 ]
         , if diagram.isPublic then
             Empty.view
 
           else
-            Html.div [ class "remove button", stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True )) ] [ Icon.clear "#333" 18 ]
+            Html.div [ css [ bottom <| px -4, right <| px -1, Style.button, position absolute ], stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True )) ] [ Icon.clear "#333" 18 ]
         , case ( diagram.isBookmark, diagram.isRemote ) of
             ( True, True ) ->
-                Html.div
-                    [ class "bookmark"
-                    , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
-                    ]
-                    [ Icon.bookmark Color.background2Defalut 16 ]
+                bookmarkIconView diagram [ Icon.bookmark Color.background2Defalut 16 ]
 
             ( False, True ) ->
-                Html.div
-                    [ class "bookmark"
-                    , stopPropagationOn "click" (D.succeed ( Bookmark diagram, True ))
-                    ]
-                    [ Icon.unbookmark Color.background2Defalut 16 ]
+                bookmarkIconView diagram [ Icon.unbookmark Color.background2Defalut 16 ]
 
             _ ->
                 Empty.view
@@ -548,18 +716,17 @@ diagramView timezone diagram =
 
 errorView : Http.Error -> Html Msg
 errorView e =
-    Html.div
-        [ class "diagram-list"
-        , class "w-screen"
-        ]
+    mainView
         [ Html.div
-            [ class "flex-center"
-            , class "h-full"
-            , class "text-2xl"
-            , style "padding-bottom" "32px"
-            , style "color" <| Color.toString Color.labelDefalut
+            [ css
+                [ Style.flexCenter
+                , Style.heightFull
+                , TextStyle.xl2
+                , paddingBottom <| px 32
+                , color <| hex <| Color.toString Color.labelDefalut
+                ]
             ]
-            [ Html.div [ class "mb-sm" ]
+            [ Html.div [ css [ Style.mbSm ] ]
                 [ Html.text ("Failed " ++ Utils.httpErrorToString e)
                 ]
             ]

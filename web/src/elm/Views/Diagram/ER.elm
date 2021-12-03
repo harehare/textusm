@@ -1,11 +1,12 @@
 module Views.Diagram.ER exposing (view)
 
 import Constants
+import Css exposing (alignItems, center, color, displayFlex, hex, int, justifyContent, marginLeft, marginRight, marginTop, px, rem, spaceBetween)
 import Dict exposing (Dict)
 import Events
-import Html
-import Html.Attributes as Attr
-import Html.Lazy as Lazy
+import Html.Styled as Html
+import Html.Styled.Attributes exposing (css)
+import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
@@ -14,8 +15,8 @@ import Models.Position as Position exposing (Position, getX, getY)
 import Models.Size as Size exposing (Size, getHeight, getWidth)
 import State exposing (Step(..))
 import String
-import Svg exposing (Svg)
-import Svg.Attributes exposing (class, fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, y)
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes exposing (fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, y)
 import Utils.Utils as Utils
 import Views.Diagram.Path as Path
 import Views.Empty as Empty
@@ -374,7 +375,6 @@ tableHeaderView settings headerText headerWidth ( posX, posY ) =
             , fill settings.color.activity.color
             , fontSize "16"
             , fontWeight "bold"
-            , class "select-none"
             ]
             [ Svg.text headerText ]
         ]
@@ -403,10 +403,10 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
 
         style =
             if isPrimaryKey then
-                [ Attr.style "font-weight" "600", Attr.style "color" settings.color.story.color ]
+                Css.batch [ Css.fontWeight <| int 600, color <| hex settings.color.story.color ]
 
             else
-                [ Attr.style "font-weight" "400", Attr.style "color" settings.color.label ]
+                Css.batch [ Css.fontWeight <| int 400, color <| hex settings.color.label ]
     in
     Svg.g []
         [ Svg.rect
@@ -424,39 +424,30 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
             , height <| String.fromInt Constants.tableRowHeight
             ]
             [ Html.div
-                ([ Attr.style "width" (String.fromInt columnWidth ++ "px")
-                 , Attr.style "display" "flex"
-                 , Attr.style "align-items" "center"
-                 , Attr.style "justify-content" "space-between"
-                 , Attr.style "font-size" "0.9rem"
-                 , Attr.style "height" (String.fromInt Constants.tableRowHeight ++ "px")
-                 , Attr.style "color" settings.color.story.color
-                 ]
-                    ++ style
-                )
+                [ css
+                    [ Css.width <| px <| toFloat columnWidth
+                    , Css.height <| px <| toFloat Constants.tableRowHeight
+                    , displayFlex
+                    , alignItems center
+                    , justifyContent spaceBetween
+                    , Css.fontSize <| rem 0.9
+                    , color <| hex settings.color.story.color
+                    , style
+                    ]
+                ]
                 [ Html.div
-                    [ Attr.style "margin-left" "8px"
-                    ]
-                    [ Html.text name_
-                    ]
+                    [ css [ marginLeft <| px 8 ] ]
+                    [ Html.text name_ ]
                 , Html.div
-                    [ Attr.style "margin-right" "8px"
-                    , Attr.style "display" "flex"
-                    , Attr.style "align-items" "center"
-                    , Attr.style "font-size" "0.8rem"
-                    ]
+                    [ css [ marginRight <| px 8, displayFlex, alignItems center, Css.fontSize <| rem 0.8 ] ]
                     [ if isPrimaryKey then
-                        Html.div [ Attr.style "margin-right" "8px" ]
-                            [ Icon.key settings.color.story.color 12
-                            ]
+                        Html.div [ css [ marginRight <| px 8 ] ]
+                            [ Icon.key settings.color.story.color 12 ]
 
                       else if isIndex then
                         Html.div
-                            [ Attr.style "margin-right" "8px"
-                            , Attr.style "margin-top" "5px"
-                            ]
-                            [ Icon.search settings.color.story.color 16
-                            ]
+                            [ css [ marginRight <| px 8, marginTop <| px 5 ] ]
+                            [ Icon.search settings.color.story.color 16 ]
 
                       else
                         Empty.view

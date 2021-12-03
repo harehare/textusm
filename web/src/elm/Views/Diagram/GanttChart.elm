@@ -1,17 +1,17 @@
 module Views.Diagram.GanttChart exposing (view)
 
 import Constants
-import Html
-import Html.Attributes as Attr
+import Html.Styled as Html
+import Html.Styled.Attributes as Attr
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg, Settings)
 import Models.Diagram.GanttChart as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
 import Models.FontSize as FontSize
 import Models.Position exposing (Position)
 import Models.Size exposing (Size)
-import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
-import Svg.Keyed as Keyed
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
+import Svg.Styled.Keyed as Keyed
 import Time exposing (Posix)
 import Time.Extra as TimeEx exposing (Interval(..))
 import Tuple exposing (first, second)
@@ -136,7 +136,6 @@ daysView settings svgHeight ( from, to ) =
                                     , SvgAttr.fontSize "11"
                                     , SvgAttr.fontWeight "bold"
                                     , SvgAttr.fontFamily <| Diagram.fontStyle settings
-                                    , SvgAttr.class "select-none"
                                     ]
                                     [ Html.div
                                         [ Attr.style "font-family" (Diagram.fontStyle settings)
@@ -183,7 +182,6 @@ weekView settings ( from, to ) =
                                 , SvgAttr.y <| String.fromInt <| Constants.ganttItemSize - 32
                                 , SvgAttr.width <| String.fromInt <| sectionMargin
                                 , SvgAttr.height "30"
-                                , SvgAttr.class ".select-none"
                                 ]
                                 [ Html.div
                                     [ Attr.style "font-family" (Diagram.fontStyle settings)
@@ -221,7 +219,6 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from s
             , SvgAttr.y <| String.fromInt <| posY
             , SvgAttr.width <| String.fromInt <| sectionMargin - 2
             , SvgAttr.height <| String.fromInt <| sectionHeight
-            , SvgAttr.class "select-none"
             ]
             [ Html.div
                 [ Attr.style "font-family" (Diagram.fontStyle settings)
@@ -264,7 +261,6 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task t
             , SvgAttr.y <| String.fromInt <| posY
             , SvgAttr.width <| String.fromInt <| sectionMargin - posX - 2
             , SvgAttr.height <| String.fromInt <| sectionHeight
-            , SvgAttr.class "select-none"
             ]
             [ Html.div
                 [ Attr.style "font-family" (Diagram.fontStyle settings)

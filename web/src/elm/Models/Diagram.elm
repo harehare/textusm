@@ -14,6 +14,7 @@ module Models.Diagram exposing
     , Size
     , chooseZoom
     , dragStart
+    , fontFamiliy
     , fontStyle
     , getTextColor
     , isMoving
@@ -45,6 +46,7 @@ module Models.Diagram exposing
     )
 
 import Browser.Dom exposing (Viewport)
+import Css exposing (fontFamilies)
 import Events
 import File exposing (File)
 import Graphql.Enum.Diagram exposing (Diagram)
@@ -75,7 +77,7 @@ import Models.Text exposing (Text)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
-import Svg
+import Svg.Styled as Svg
 import Utils.Utils as Utils
 
 
@@ -295,6 +297,23 @@ moveingItem model =
 fontStyle : Settings -> String
 fontStyle settings =
     "'" ++ settings.font ++ "', sans-serif"
+
+
+fontFamiliy : Settings -> Css.Style
+fontFamiliy settings =
+    fontFamilies
+        [ Css.qt settings.font
+        , "apple-system"
+        , "BlinkMacSystemFont"
+        , "Helvetica Neue"
+        , "Hiragino Kaku Gothic ProN"
+        , "游ゴシック Medium"
+        , "YuGothic"
+        , "YuGothicM"
+        , "メイリオ"
+        , "Meiryo"
+        , "sans-serif"
+        ]
 
 
 updatedText : Model -> Text -> Model

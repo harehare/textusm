@@ -2,13 +2,48 @@ module Components.Diagram exposing (init, update, view)
 
 import Browser.Dom as Dom
 import Constants
+import Css
+    exposing
+        ( absolute
+        , alignItems
+        , backgroundColor
+        , border3
+        , center
+        , color
+        , cursor
+        , disc
+        , displayFlex
+        , fontWeight
+        , grab
+        , grabbing
+        , height
+        , hex
+        , important
+        , int
+        , justifyContent
+        , listStyleType
+        , padding2
+        , pointer
+        , position
+        , px
+        , relative
+        , rem
+        , rgba
+        , right
+        , solid
+        , spaceBetween
+        , top
+        , width
+        )
+import Css.Global as Global exposing (global)
 import Events
 import File
 import Graphql.Enum.Diagram exposing (Diagram(..))
-import Html exposing (Html, div)
-import Html.Attributes as Attr
-import Html.Events as Event
 import Html.Events.Extra.Touch as Touch
+import Html.Styled as Html exposing (Html, div)
+import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Events as Event
+import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import List
 import List.Extra exposing (getAt, setAt)
@@ -37,11 +72,10 @@ import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
 import Models.Text as Text
 import Return exposing (Return)
-import String
-import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
-import Svg.Events exposing (onClick)
-import Svg.Lazy as Lazy
+import Style.Style as Style
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
+import Svg.Styled.Events exposing (onClick)
 import Task
 import Time exposing (Month(..))
 import Utils.Diagram as DiagramUtils
@@ -106,68 +140,81 @@ zoomControl isFullscreen scale =
     in
     div
         [ Attr.id "zoom-control"
-        , Attr.style "position" "absolute"
-        , Attr.style "align-items" "center"
-        , Attr.style "right" "16px"
-        , Attr.style "top" "5px"
-        , Attr.style "display" "flex"
-        , Attr.style "width" "240px"
-        , Attr.style "justify-content" "space-between"
-        , Attr.style "background-color" <| Color.toString Color.white2
-        , Attr.style "border-radius" "4px"
-        , Attr.style "padding" "8px 16px"
-        , Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)"
+        , css
+            [ position absolute
+            , alignItems center
+            , displayFlex
+            , justifyContent spaceBetween
+            , top <| px 5
+            , right <| px 16
+            , width <| px 240
+            , backgroundColor <| hex <| Color.toString Color.white2
+            , Style.roundedSm
+            , padding2 (px 8) (px 16)
+            , border3 (px 1) solid (rgba 0 0 0 0.1)
+            ]
         ]
         [ div
-            [ Attr.style "width" "24px"
-            , Attr.style "height" "24px"
-            , Attr.style "cursor" "pointer"
-            , Attr.style "display" "flex"
-            , Attr.style "align-items" "center"
+            [ css
+                [ width <| px 24
+                , height <| px 24
+                , cursor pointer
+                , displayFlex
+                , alignItems center
+                ]
             , onClick FitToWindow
             ]
             [ Icon.expandAlt 14
             ]
         , div
-            [ Attr.style "width" "24px"
-            , Attr.style "height" "24px"
-            , Attr.style "cursor" "pointer"
-            , Attr.style "display" "flex"
-            , Attr.style "align-items" "center"
+            [ css
+                [ width <| px 24
+                , height <| px 24
+                , cursor pointer
+                , displayFlex
+                , alignItems center
+                ]
             , onClick ToggleMiniMap
             ]
             [ Icon.map 14
             ]
         , div
-            [ Attr.style "width" "24px"
-            , Attr.style "height" "24px"
-            , Attr.style "cursor" "pointer"
+            [ css
+                [ width <| px 24
+                , height <| px 24
+                , cursor pointer
+                ]
             , onClick <| ZoomOut 0.01
             ]
             [ Icon.remove 24
             ]
         , div
-            [ Attr.style "font-size" "0.7rem"
-            , Attr.style "color" <| Color.toString Color.labelDefalut
-            , Attr.style "cursor" "pointer"
-            , Attr.style "font-weight" "600"
-            , Attr.class ".select-none"
-            , Attr.style "width" "32px"
+            [ css
+                [ Css.fontSize <| rem 0.7
+                , color <| hex <| Color.toString Color.labelDefalut
+                , cursor pointer
+                , fontWeight <| int 600
+                , width <| px 32
+                ]
             ]
             [ Html.text (String.fromInt s ++ "%")
             ]
         , div
-            [ Attr.style "width" "24px"
-            , Attr.style "height" "24px"
-            , Attr.style "cursor" "pointer"
+            [ css
+                [ width <| px 24
+                , height <| px 24
+                , cursor pointer
+                ]
             , onClick <| ZoomIn 0.01
             ]
             [ Icon.add 24
             ]
         , div
-            [ Attr.style "width" "24px"
-            , Attr.style "height" "24px"
-            , Attr.style "cursor" "pointer"
+            [ css
+                [ width <| px 24
+                , height <| px 24
+                , cursor pointer
+                ]
             , onClick ToggleFullscreen
             ]
             [ if isFullscreen then
@@ -227,28 +274,41 @@ view model =
     in
     div
         [ Attr.id "usm-area"
-        , Attr.style "position" "relative"
-        , Attr.style "height" "100%"
-        , case model.moveState of
-            Diagram.BoardMove ->
-                Attr.style "cursor" "grabbing"
+        , css
+            [ position relative
+            , Style.heightFull
+            , case model.moveState of
+                Diagram.BoardMove ->
+                    Css.batch [ cursor grabbing ]
 
-            _ ->
-                Attr.style "cursor" "grab"
+                _ ->
+                    Css.batch [ cursor grab ]
+            , case model.dragStatus of
+                DragOver ->
+                    Css.batch [ backgroundColor <| rgba 0 0 0 0.3 ]
+
+                NoDrag ->
+                    Css.batch []
+            ]
         , Events.onDrop DropFiles
         , Events.onMouseUp <| \_ -> Stop
         , Event.preventDefaultOn "dragover" <|
             D.succeed ( ChangeDragStatus DragOver, True )
         , Event.preventDefaultOn "dragleave" <|
             D.succeed ( ChangeDragStatus NoDrag, True )
-        , case model.dragStatus of
-            DragOver ->
-                Attr.style "background-color" "rgba(0, 0, 0, 0.3)"
-
-            NoDrag ->
-                Attr.class ""
         ]
-        [ if model.settings.zoomControl |> Maybe.withDefault model.showZoomControl then
+        [ global
+            [ Global.class "md-content"
+                [ Style.paddingSm
+                , Global.children
+                    [ Global.typeSelector "li"
+                        [ listStyleType disc
+                        , important <| Css.paddingLeft Css.zero
+                        ]
+                    ]
+                ]
+            ]
+        , if model.settings.zoomControl |> Maybe.withDefault model.showZoomControl then
             Lazy.lazy2 zoomControl model.fullscreen model.svg.scale
 
           else
@@ -457,28 +517,29 @@ onDragStart : SelectedItem -> Bool -> Svg.Attribute Msg
 onDragStart item isPhone =
     case ( item, isPhone ) of
         ( Nothing, True ) ->
-            Touch.onStart <|
-                \event ->
-                    if List.length event.changedTouches > 1 then
-                        let
-                            p1 =
-                                getAt 0 event.changedTouches
-                                    |> Maybe.map .pagePos
-                                    |> Maybe.withDefault ( 0, 0 )
+            Attr.fromUnstyled <|
+                Touch.onStart <|
+                    \event ->
+                        if List.length event.changedTouches > 1 then
+                            let
+                                p1 =
+                                    getAt 0 event.changedTouches
+                                        |> Maybe.map .pagePos
+                                        |> Maybe.withDefault ( 0, 0 )
 
-                            p2 =
-                                getAt 1 event.changedTouches
-                                    |> Maybe.map .pagePos
-                                    |> Maybe.withDefault ( 0, 0 )
-                        in
-                        StartPinch (Utils.calcDistance p1 p2)
+                                p2 =
+                                    getAt 1 event.changedTouches
+                                        |> Maybe.map .pagePos
+                                        |> Maybe.withDefault ( 0, 0 )
+                            in
+                            StartPinch (Utils.calcDistance p1 p2)
 
-                    else
-                        let
-                            ( x, y ) =
-                                touchCoordinates event
-                        in
-                        Start Diagram.BoardMove ( round x, round y )
+                        else
+                            let
+                                ( x, y ) =
+                                    touchCoordinates event
+                            in
+                            Start Diagram.BoardMove ( round x, round y )
 
         ( Nothing, False ) ->
             Events.onMouseDown <|
@@ -500,44 +561,45 @@ onDragMove distance moveState isPhone =
             Attr.style "" ""
 
         ( _, True ) ->
-            Touch.onMove <|
-                \event ->
-                    if List.length event.changedTouches > 1 then
-                        let
-                            p1 =
-                                getAt 0 event.changedTouches
-                                    |> Maybe.map .pagePos
-                                    |> Maybe.withDefault ( 0, 0 )
+            Attr.fromUnstyled <|
+                Touch.onMove <|
+                    \event ->
+                        if List.length event.changedTouches > 1 then
+                            let
+                                p1 =
+                                    getAt 0 event.changedTouches
+                                        |> Maybe.map .pagePos
+                                        |> Maybe.withDefault ( 0, 0 )
 
-                            p2 =
-                                getAt 1 event.changedTouches
-                                    |> Maybe.map .pagePos
-                                    |> Maybe.withDefault ( 0, 0 )
-                        in
-                        case distance of
-                            Just x ->
-                                let
-                                    newDistance =
-                                        Utils.calcDistance p1 p2
-                                in
-                                if newDistance / x > 1.0 then
-                                    PinchIn newDistance
+                                p2 =
+                                    getAt 1 event.changedTouches
+                                        |> Maybe.map .pagePos
+                                        |> Maybe.withDefault ( 0, 0 )
+                            in
+                            case distance of
+                                Just x ->
+                                    let
+                                        newDistance =
+                                            Utils.calcDistance p1 p2
+                                    in
+                                    if newDistance / x > 1.0 then
+                                        PinchIn newDistance
 
-                                else if newDistance / x < 1.0 then
-                                    PinchOut newDistance
+                                    else if newDistance / x < 1.0 then
+                                        PinchOut newDistance
 
-                                else
-                                    NoOp
+                                    else
+                                        NoOp
 
-                            Nothing ->
-                                StartPinch (Utils.calcDistance p1 p2)
+                                Nothing ->
+                                    StartPinch (Utils.calcDistance p1 p2)
 
-                    else
-                        let
-                            ( x, y ) =
-                                touchCoordinates event
-                        in
-                        Move ( round x, round y )
+                        else
+                            let
+                                ( x, y ) =
+                                    touchCoordinates event
+                            in
+                            Move ( round x, round y )
 
         ( _, False ) ->
             Events.onMouseMove <|

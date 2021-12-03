@@ -22,8 +22,8 @@ module Asset exposing
     , userStoryMap
     )
 
-import Html exposing (Attribute)
-import Html.Attributes as Attr
+import Html.Styled exposing (Attribute)
+import Html.Styled.Attributes as Attr
 
 
 type Asset

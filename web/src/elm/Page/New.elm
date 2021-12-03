@@ -1,10 +1,34 @@
 module Page.New exposing (view)
 
 import Asset exposing (Asset)
+import Css
+    exposing
+        ( border3
+        , borderBox
+        , boxSizing
+        , column
+        , cursor
+        , flexDirection
+        , height
+        , hover
+        , overflowY
+        , padding
+        , pointer
+        , property
+        , px
+        , scroll
+        , solid
+        , transparent
+        )
+import Css.Media as Media exposing (withMedia)
 import Graphql.Enum.Diagram exposing (Diagram(..))
-import Html exposing (Html, a, div, img, text)
-import Html.Attributes exposing (attribute, class, href, style)
+import Html.Styled exposing (Html, a, div, img, text)
+import Html.Styled.Attributes exposing (attribute, css, href)
 import Route
+import Style.Color as Color
+import Style.Font as Font
+import Style.Style as Style
+import Style.Text as Text
 
 
 type alias NewItem =
@@ -39,21 +63,49 @@ newItems =
 
 view : Html msg
 view =
-    div
-        [ class "grid new"
-        , style "margin" "16px"
-        ]
-    <|
-        List.map
-            (\item ->
-                a [ href item.url, attribute "aria-label" item.name ]
-                    [ div [ class "new-item" ]
-                        [ img [ Asset.src item.image, class "new-item-image" ] []
-                        , div
-                            [ class "new-item-text"
-                            ]
-                            [ text item.name ]
-                        ]
+    div [ css [ Style.full ] ]
+        [ div
+            [ css
+                [ Style.full
+                , Color.bgDefault
+                , overflowY scroll
+                , padding <| px 16
+                , property "display" "grid"
+                , property "grid-column-gap" "16px"
+                , property "grid-row-gap" "16px"
+                , property "grid-template-columns" "repeat(auto-fit, minmax(45%, 1fr))"
+                , property "grid-auto-rows" "120px"
+                , withMedia [ Media.all [ Media.minWidth (px 768) ] ]
+                    [ property "grid-template-columns" "repeat(auto-fit, minmax(240px, 1fr))"
+                    , property "grid-auto-rows" "150px"
                     ]
-            )
-            newItems
+                ]
+            ]
+          <|
+            List.map
+                (\item ->
+                    a [ href item.url, attribute "aria-label" item.name ]
+                        [ div
+                            [ css
+                                [ Style.flexCenter
+                                , flexDirection column
+                                , cursor pointer
+                                , Color.bgLight
+                                , Color.textMain
+                                , Style.roundedSm
+                                , border3 (px 3) solid transparent
+                                , boxSizing borderBox
+                                , hover
+                                    [ Color.textAccent ]
+                                ]
+                            ]
+                            [ img [ Asset.src item.image, css [ property "object-fit" "contain", Style.widthFull, height <| px 100 ] ] []
+                            , div
+                                [ css [ Text.sm, Font.fontSemiBold ]
+                                ]
+                                [ text item.name ]
+                            ]
+                        ]
+                )
+                newItems
+        ]

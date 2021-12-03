@@ -1,4 +1,4 @@
-module Models.IdTokenTests exposing (..)
+module Models.IdTokenTests exposing (suite)
 
 import Expect
 import Models.IdToken as IdToken
