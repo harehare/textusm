@@ -163,7 +163,7 @@ itemView item onActive =
                 , width zero
                 , height zero
                 , position absolute
-                , right <| px 8
+                , right <| px 16
                 , top <| pct 50
                 , borderStyle solid
                 , borderWidth3 (px 6) (px 6) zero
