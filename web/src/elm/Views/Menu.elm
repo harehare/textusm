@@ -140,7 +140,8 @@ view props =
             ]
         ]
         [ Html.a
-            [ Attr.href <| Route.toString <| Route.New
+            [ Attr.class "new-menu"
+            , Attr.href <| Route.toString <| Route.New
             , Attr.attribute "aria-label" "New"
             ]
             [ Html.div

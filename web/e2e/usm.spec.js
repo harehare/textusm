@@ -6,10 +6,8 @@ context('usm', () => {
         cy.visit('/');
     });
     it('change background color of user story map', () => {
-        cy.get('.menu-button').first().click().get('.new-item').first().click();
-        cy.get('#usm')
-            .find('text:nth-child(2)')
-            .should('contain', 'USER ACTIVITY');
+        cy.get('.new-menu').first().click().get('.new-item').first().click();
+        cy.get('#usm').find('text').next().should('contain', 'USER ACTIVITY');
         cy.get('#usm')
             .find('.card')
             .first()

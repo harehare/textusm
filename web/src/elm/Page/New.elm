@@ -23,7 +23,7 @@ import Css
 import Css.Media as Media exposing (withMedia)
 import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html.Styled exposing (Html, a, div, img, text)
-import Html.Styled.Attributes exposing (attribute, css, href)
+import Html.Styled.Attributes exposing (attribute, class, css, href)
 import Route
 import Style.Color as Color
 import Style.Font as Font
@@ -86,7 +86,8 @@ view =
                 (\item ->
                     a [ href item.url, attribute "aria-label" item.name ]
                         [ div
-                            [ css
+                            [ class "new-item"
+                            , css
                                 [ Style.flexCenter
                                 , flexDirection column
                                 , cursor pointer
