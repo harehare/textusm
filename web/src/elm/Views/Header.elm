@@ -2,11 +2,47 @@ module Views.Header exposing (view)
 
 import Asset
 import Avatar exposing (Avatar(..))
+import Css
+    exposing
+        ( alignItems
+        , borderStyle
+        , center
+        , color
+        , cursor
+        , displayFlex
+        , ellipsis
+        , flexStart
+        , height
+        , hex
+        , hidden
+        , justifyContent
+        , left
+        , marginLeft
+        , marginRight
+        , marginTop
+        , noWrap
+        , none
+        , overflow
+        , padding
+        , padding4
+        , pct
+        , pointer
+        , position
+        , property
+        , px
+        , relative
+        , rem
+        , textAlign
+        , textOverflow
+        , whiteSpace
+        , width
+        )
+import Css.Media as Media exposing (withMedia)
 import Events as E
-import Html exposing (Html)
-import Html.Attributes as Attr
-import Html.Events as Events
-import Html.Lazy as Lazy
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Events as Events
+import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Lang)
 import Models.Color as Color
@@ -20,9 +56,14 @@ import Models.Session as Session exposing (Session)
 import Models.Text as Text exposing (Text)
 import Models.Title as Title
 import Route exposing (Route(..))
+import Style.Color as ColorStyle
+import Style.Font as Font
+import Style.Style as Style
+import Style.Text as Text
 import Views.Empty as Empty
 import Views.Icon as Icon
 import Views.Menu as Menu
+import Views.Tooltip as Tooltip
 
 
 type alias Props =
@@ -73,26 +114,26 @@ canChangePublicState props =
 view : Props -> Html Msg
 view props =
     Html.header
-        [ Attr.class "flex items-center w-screen bg-main"
-        , Attr.style "height" "40px"
+        [ css [ displayFlex, alignItems center, Style.widthScreen, ColorStyle.bgMain, height <| px 40 ]
         ]
         (Html.div
-            [ Attr.class "flex items-center lg:w-full w-1/2"
-            , Attr.style "height" "40px"
+            [ css
+                [ displayFlex
+                , alignItems center
+                , width <| pct 50
+                , height <| px 40
+                , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
+                    [ Style.widthFull ]
+                ]
             ]
             [ case props.page of
                 Page.Main ->
                     Html.div
-                        [ Attr.class "flex-center"
-                        , Attr.style "width" "32px"
-                        , Attr.style "height" "32px"
-                        ]
+                        [ css [ Style.flexCenter, width <| px 32, height <| px 32, marginTop <| px 8 ] ]
                         [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ]
                             [ Html.img
                                 [ Asset.src Asset.logo
-                                , Attr.style "width" "28px"
-                                , Attr.style "height" "28px"
-                                , Attr.style "margin-left" "4px"
+                                , css [ width <| px 28, height <| px 28, marginLeft <| px 4 ]
                                 , Attr.alt "logo"
                                 ]
                                 []
@@ -103,29 +144,31 @@ view props =
                     case props.prevRoute of
                         Just r ->
                             Html.div
-                                [ Attr.class "flex-center"
-                                , Attr.style "padding" "8px 8px 8px 12px"
-                                , Attr.style "cursor" "pointer"
+                                [ css [ Style.flexCenter, padding4 (px 8) (px 8) (px 8) (px 12), cursor pointer ]
                                 , Events.onClick <| MoveTo r
                                 ]
                                 [ Icon.arrowLeft Color.iconColor 18 ]
 
                         Nothing ->
                             Html.div
-                                [ Attr.class "flex-center"
-                                , Attr.style "padding" "8px 8px 8px 12px"
-                                , Attr.style "cursor" "pointer"
-                                ]
+                                [ css [ Style.flexCenter, padding4 (px 8) (px 8) (px 8) (px 12), cursor pointer ] ]
                                 [ Icon.arrowLeft Color.disabledIconColor 18 ]
             , case props.page of
                 Page.Main ->
                     if canEdit props && Title.isEdit props.currentDiagram.title then
                         Html.input
                             [ Attr.id "title"
-                            , Attr.class "w-full bg-main border-none font text-base font-bold"
-                            , Attr.style "padding" "8px"
-                            , Attr.style "margin-left" "8px"
-                            , Attr.style "color" <| Color.toString Color.white2
+                            , css
+                                [ Style.widthFull
+                                , ColorStyle.bgMain
+                                , borderStyle none
+                                , Font.fontFamily
+                                , Text.base
+                                , Font.fontBold
+                                , padding <| px 8
+                                , marginLeft <| px 8
+                                , color <| hex <| Color.toString Color.white2
+                                ]
                             , Attr.value <| Title.toString props.currentDiagram.title
                             , Events.onInput EditTitle
                             , Events.onBlur EndEditTitle
@@ -136,12 +179,12 @@ view props =
 
                     else
                         viewTitle
-                            [ Attr.style "cursor" "pointer"
+                            [ css [ cursor pointer ]
                             , Events.onClick StartEditTitle
                             ]
                             [ Html.text <| Title.toString props.currentDiagram.title
                             , Html.div
-                                [ Attr.style "margin-left" "8px" ]
+                                [ css [ marginLeft <| px 8 ] ]
                                 [ if canEdit props && Text.isChanged props.currentText then
                                     Icon.circle Color.white 10
 
@@ -194,44 +237,58 @@ view props =
 
 viewTitle : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 viewTitle attrs children =
-    Html.div ([ Attr.class "w-full header-title", Attr.style "padding" "8px" ] ++ attrs) children
+    Html.div
+        (css
+            [ Style.widthFull
+            , displayFlex
+            , Text.base
+            , Font.fontBold
+            , overflow hidden
+            , alignItems center
+            , justifyContent flexStart
+            , whiteSpace noWrap
+            , ColorStyle.textColor
+            , textOverflow ellipsis
+            , textAlign left
+            , padding <| px 8
+            , marginLeft <| px 8
+            ]
+            :: attrs
+        )
+        children
 
 
 viewChangePublicStateButton : Lang -> Bool -> Bool -> Html Msg
 viewChangePublicStateButton lang isPublic_ canChangePublicState_ =
     if canChangePublicState_ then
         Html.div
-            [ Attr.class "button", Events.onClick <| ChangePublicStatus (not isPublic_) ]
+            [ css [ Style.button ], Events.onClick <| ChangePublicStatus (not isPublic_) ]
             [ if isPublic_ then
                 Icon.lockOpen Color.iconColor 14
 
               else
                 Icon.lock Color.iconColor 14
-            , Html.span [ Attr.class "bottom-tooltip" ]
-                [ Html.span [ Attr.class "text" ]
-                    [ Html.text <|
-                        if isPublic_ then
-                            Message.toolPublic lang
+            , Tooltip.view <|
+                if isPublic_ then
+                    Message.toolPublic lang
 
-                        else
-                            Message.toolPrivate lang
-                    ]
-                ]
+                else
+                    Message.toolPrivate lang
             ]
 
     else
-        Html.div [ Attr.class "button" ]
+        Html.div [ css [ Style.button ] ]
             [ Icon.lock Color.disabledIconColor 14
-            , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolPrivate lang ] ]
+            , Tooltip.view <| Message.toolPrivate lang
             ]
 
 
 viewHelpButton : Lang -> Html Msg
 viewHelpButton lang =
-    Html.a [ Attr.attribute "aria-label" "Help", Attr.style "display" "flex", Attr.href <| Route.toString Route.Help ]
-        [ Html.div [ Attr.class "button" ]
+    Html.a [ Attr.attribute "aria-label" "Help", css [ displayFlex ], Attr.href <| Route.toString Route.Help ]
+        [ Html.div [ css [ Style.button ] ]
             [ Icon.helpOutline 16
-            , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipHelp lang ] ]
+            , Tooltip.view <| Message.toolTipHelp lang
             ]
         ]
 
@@ -240,20 +297,20 @@ viewShareButton : Lang -> Bool -> Html Msg
 viewShareButton lang canShare_ =
     if canShare_ then
         Html.a
-            [ Attr.class "flex"
+            [ css [ displayFlex ]
             , Attr.href <| Route.toString Route.Share
             , Attr.attribute "aria-label" "Share"
             ]
-            [ Html.div [ Attr.class "button" ]
+            [ Html.div [ css [ Style.button ] ]
                 [ Icon.people Color.iconColor 20
-                , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipShare lang ] ]
+                , Tooltip.view <| Message.toolTipShare lang
                 ]
             ]
 
     else
-        Html.div [ Attr.class "button" ]
+        Html.div [ css [ Style.button ] ]
             [ Icon.people Color.disabledIconColor 20
-            , Html.span [ Attr.class "bottom-tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipShare lang ] ]
+            , Tooltip.view <| Message.toolTipShare lang
             ]
 
 
@@ -265,18 +322,24 @@ viewSignInButton menu session =
                 Session.getUser session
         in
         Html.div
-            [ Attr.class "button"
-            , Attr.style "width" "96px;"
-            , Attr.style "height" "50px"
+            [ css [ Style.button, width <| px 96, height <| px 50 ]
             , Events.stopPropagationOn "click" (D.succeed ( OpenMenu HeaderMenu, True ))
             ]
             [ Html.div
-                [ Attr.class "text-sm"
-                , Attr.style "margin-right" "4px"
+                [ css [ Text.sm, marginRight <| px 4 ]
                 ]
                 [ Html.img
                     [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
-                    , Attr.class "h-5 w-5 object-cover rounded-full lg:w-7 lg:h-7 h-full mt-xs"
+                    , css
+                        [ width <| rem 1.25
+                        , Style.heightFull
+                        , property "object-fit" "cover"
+                        , Style.roundedFull
+                        , Style.mtXs
+                        , position relative
+                        , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
+                            [ width <| rem 1.75, height <| rem 1.75 ]
+                        ]
                     , Attr.alt "avatar"
                     ]
                     []
@@ -294,10 +357,10 @@ viewSignInButton menu session =
                                     )
                                     user
                         in
-                        Menu.menu (Just "36px")
+                        Menu.menu (Just 40)
                             Nothing
                             Nothing
-                            (Just "5px")
+                            (Just 0)
                             (case user_ of
                                 Just u ->
                                     [ Menu.Item
@@ -325,19 +388,17 @@ viewSignInButton menu session =
 
     else
         Html.div
-            [ Attr.class "button"
-            , Attr.style "width" "96px"
-            , Attr.style "height" "50px"
+            [ css [ Style.button, width <| px 96, height <| px 50 ]
             , Events.stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
             ]
-            [ Html.div [ Attr.class "text-base font-bold" ]
+            [ Html.div [ css [ Text.base, Font.fontBold ] ]
                 [ Html.text "SIGN IN" ]
             , case menu of
                 Just LoginMenu ->
-                    Menu.menu (Just "30px")
+                    Menu.menu (Just 30)
                         Nothing
                         Nothing
-                        (Just "5px")
+                        (Just 5)
                         [ Menu.Item
                             { e = SignIn Google
                             , title = LoginProvider.toString Google

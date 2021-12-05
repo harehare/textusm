@@ -1,10 +1,57 @@
 module Views.Menu exposing (MenuItem(..), menu, view)
 
+import Css
+    exposing
+        ( absolute
+        , alignItems
+        , backgroundColor
+        , bottom
+        , calc
+        , center
+        , column
+        , cursor
+        , displayFlex
+        , fixed
+        , flexDirection
+        , height
+        , hidden
+        , hover
+        , int
+        , justifyContent
+        , left
+        , marginBottom
+        , maxHeight
+        , minWidth
+        , minus
+        , opacity
+        , overflow
+        , padding
+        , padding2
+        , paddingTop
+        , pointer
+        , position
+        , px
+        , relative
+        , rgba
+        , right
+        , row
+        , spaceBetween
+        , start
+        , top
+        , vh
+        , visibility
+        , visible
+        , zIndex
+        , zero
+        )
+import Css.Global exposing (class, descendants)
+import Css.Media as Media exposing (withMedia)
+import Css.Transitions as Transitions
 import Events
 import Graphql.Enum.Diagram exposing (Diagram(..))
-import Html exposing (Html)
-import Html.Attributes as Attr
-import Html.Events as Events
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Events as Events
 import Json.Decode as D
 import List
 import Maybe.Extra exposing (isNothing)
@@ -17,6 +64,10 @@ import Models.Page as Page
 import Models.Text as Text exposing (Text)
 import Route exposing (Route)
 import Settings exposing (Settings)
+import Style.Color as Color
+import Style.Font as FontStyle
+import Style.Style as Style
+import Style.Text as TextStyle
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -43,40 +94,64 @@ type alias Props =
     }
 
 
+menuButtonStyle : Css.Style
+menuButtonStyle =
+    Css.batch
+        [ cursor pointer
+        , paddingTop <| px 16
+        , marginBottom <| px 8
+        , withMedia [ Media.all [ Media.maxWidth <| px 480 ] ]
+            [ padding <| px 24 ]
+        , hover
+            [ position relative
+            , descendants
+                [ class "tooltip"
+                    [ visibility visible
+                    , opacity <| int 100
+                    , Color.textColor
+                    ]
+                ]
+            ]
+        ]
+
+
 view : Props -> Html Msg
 view props =
     Html.nav
-        [ Attr.class "flex"
-        , Attr.class "flex-row"
-        , Attr.class "items-center"
-        , Attr.class "justify-between"
-        , Attr.class "bg-main"
-        , Attr.class "shadow-sm"
-        , Attr.class "bottom-0"
-        , Attr.class "w-screen"
-        , Attr.class "fixed"
-        , Attr.class "lg:justify-start"
-        , Attr.class "lg:h-screen"
-        , Attr.class "lg:relative"
-        , Attr.class "lg:flex-col"
-        , Attr.class "lg:w-menu"
-        , Attr.class "z-10"
-        , Attr.style "min-width" "40px"
+        [ css
+            [ displayFlex
+            , flexDirection row
+            , alignItems center
+            , justifyContent spaceBetween
+            , Color.bgMain
+            , Style.shadowSm
+            , bottom zero
+            , Style.widthScreen
+            , position fixed
+            , zIndex <| int 10
+            , minWidth <| px 40
+            , withMedia [ Media.all [ Media.minWidth <| px 1024 ] ]
+                [ justifyContent start
+                , Style.heightScreen
+                , position relative
+                , flexDirection column
+                , Style.wMenu
+                ]
+            ]
         ]
         [ Html.a
             [ Attr.href <| Route.toString <| Route.New
             , Attr.attribute "aria-label" "New"
             ]
             [ Html.div
-                [ Attr.class "ml-xs"
-                , Attr.class "menu-button"
+                [ css [ Style.mlXs, menuButtonStyle ]
                 ]
                 [ Icon.file (Color.toString Color.iconColor) 18
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipNewFile props.lang ] ]
                 ]
             ]
         , Html.div
-            [ Attr.class "menu-button list-button" ]
+            [ css [ menuButtonStyle ] ]
             [ case props.settings.location of
                 Just DiagramLocation.LocalFileSystem ->
                     Html.div
@@ -111,7 +186,7 @@ view props =
 
                     _ ->
                         Events.onClick Save
-                , Attr.class "menu-button save-button"
+                , css [ menuButtonStyle ]
                 ]
                 [ Icon.save (Color.toString Color.iconColor) 22
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave props.lang ] ]
@@ -119,12 +194,12 @@ view props =
 
           else
             Html.div
-                [ Attr.class "menu-button save-button" ]
+                [ css [ menuButtonStyle ] ]
                 [ Icon.save (Color.toString Color.disabledIconColor) 22
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave props.lang ] ]
                 ]
         , Html.div
-            [ Events.stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )), Attr.class "menu-button" ]
+            [ Events.stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )), css [ menuButtonStyle ] ]
             [ Icon.download
                 (case props.openMenu of
                     Just Export ->
@@ -137,7 +212,7 @@ view props =
             , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ]
             ]
         , Html.div
-            [ Attr.class "menu-button" ]
+            [ css [ menuButtonStyle ] ]
             [ Html.a [ Attr.href <| Route.toString Route.Settings, Attr.attribute "aria-label" "Settings" ]
                 [ Icon.settings
                     (if isNothing props.openMenu && props.page == Page.Settings then
@@ -153,7 +228,7 @@ view props =
         , if Utils.isPhone props.width then
             case props.openMenu of
                 Just Export ->
-                    menu Nothing (Just (String.fromInt (props.width // 5 * 3) ++ "px")) (Just "50px") Nothing (exportMenu props.route)
+                    menu Nothing (Just (props.width // 5 * 3)) (Just 50) Nothing (exportMenu props.route)
 
                 _ ->
                     Empty.view
@@ -161,7 +236,7 @@ view props =
           else
             case props.openMenu of
                 Just Export ->
-                    menu (Just "125px") (Just "40px") Nothing Nothing (exportMenu props.route)
+                    menu (Just 125) (Just 40) Nothing Nothing (exportMenu props.route)
 
                 _ ->
                     Empty.view
@@ -228,23 +303,25 @@ baseExportMenu =
     ]
 
 
-menu : Maybe String -> Maybe String -> Maybe String -> Maybe String -> List (MenuItem msg) -> Html msg
-menu top left bottom right items =
+menu : Maybe Int -> Maybe Int -> Maybe Int -> Maybe Int -> List (MenuItem msg) -> Html msg
+menu posTop posLeft posBottom posRight items =
     Html.div
-        [ Attr.style "top" (top |> Maybe.withDefault "none")
-        , Attr.style "left" (left |> Maybe.withDefault "none")
-        , Attr.style "right" (right |> Maybe.withDefault "none")
-        , Attr.style "bottom" (bottom |> Maybe.withDefault "none")
-        , Attr.style "min-width" "120px"
-        , Attr.style "max-height" "calc(100vh - 40px)"
-        , Attr.style "transition" "all 0.2s ease-out"
-        , Attr.class "m-1"
-        , Attr.class "overflow-hidden"
-        , Attr.class "bg-main"
-        , Attr.class "absolute"
-        , Attr.class "rounded"
-        , Attr.class "z-10"
-        , Attr.class "shadow-md"
+        [ css
+            [ Maybe.map (\p -> Css.batch [ top <| px <| toFloat <| p ]) posTop |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ left <| px <| toFloat <| p ]) posLeft |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ right <| px <| toFloat <| p ]) posRight |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ bottom <| px <| toFloat <| p ]) posBottom |> Maybe.withDefault (Css.batch [])
+            , minWidth <| px 120
+            , maxHeight <| calc (vh 100) minus (px 40)
+            , Transitions.transition [ Transitions.boxShadow3 200 200 Transitions.easeOut ]
+            , Style.m1
+            , overflow hidden
+            , Color.bgMain
+            , position absolute
+            , Style.rounded
+            , zIndex <| int 10
+            , Style.shadowSm
+            ]
         ]
         (items
             |> List.map
@@ -252,10 +329,31 @@ menu top left bottom right items =
                     case item of
                         Item menuItem ->
                             Html.div
-                                [ Attr.class "menu-item-container"
+                                [ css
+                                    [ TextStyle.base
+                                    , Color.textColor
+                                    , cursor pointer
+                                    , displayFlex
+                                    , alignItems center
+                                    , height <| px 40
+                                    , hover
+                                        [ backgroundColor <| rgba 0 0 0 0.3
+                                        ]
+                                    , withMedia [ Media.all [ Media.maxWidth <| px 480 ] ]
+                                        [ height <| px 40 ]
+                                    ]
                                 , Events.onClick menuItem.e
                                 ]
-                                [ Html.div [ Attr.class "menu-item" ]
+                                [ Html.div
+                                    [ css
+                                        [ cursor pointer
+                                        , TextStyle.sm
+                                        , FontStyle.fontBold
+                                        , padding <| px 16
+                                        , withMedia [ Media.all [ Media.maxWidth <| px 480 ] ]
+                                            [ padding2 zero (px 16), Style.mt0 ]
+                                        ]
+                                    ]
                                     [ Html.text menuItem.title
                                     ]
                                 ]

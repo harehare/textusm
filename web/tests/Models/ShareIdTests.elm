@@ -1,4 +1,4 @@
-module Models.ShareIdTests exposing (..)
+module Models.ShareIdTests exposing (suite)
 
 import Expect
 import Maybe.Extra as MaybeEx

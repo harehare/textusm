@@ -1,11 +1,23 @@
 module Views.Progress exposing (view)
 
-import Html exposing (Html)
-import Html.Attributes as Attr
+import Css exposing (absolute, backgroundColor, int, left, position, px, rgba, top, zIndex)
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes exposing (css)
+import Style.Style as Style
 import Views.Loading as Loading
 
 
 view : Html msg
 view =
-    Html.div [ Attr.class "absolute top-0 left-0 full-screen z-40 flex-center", Attr.style "background-color" "rgba(39,48,55,0.7)" ]
+    Html.div
+        [ css
+            [ position absolute
+            , top <| px 0
+            , left <| px 0
+            , Style.fullScreen
+            , Style.flexCenter
+            , zIndex <| int 40
+            , backgroundColor <| rgba 39 48 55 0.7
+            ]
+        ]
         [ Loading.view ]

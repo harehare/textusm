@@ -2,13 +2,49 @@ port module Dialog.Share exposing (Model, Msg(..), init, update, view)
 
 import Api.Graphql.Query exposing (ShareCondition)
 import Api.Request as Request
+import Css
+    exposing
+        ( absolute
+        , alignItems
+        , border3
+        , borderStyle
+        , center
+        , color
+        , cursor
+        , displayFlex
+        , height
+        , hex
+        , justifyContent
+        , left
+        , none
+        , padding
+        , padding3
+        , paddingTop
+        , pct
+        , pointer
+        , position
+        , px
+        , relative
+        , rem
+        , resize
+        , right
+        , solid
+        , start
+        , textAlign
+        , top
+        , transforms
+        , translateX
+        , translateY
+        , width
+        )
+import Css.Media as Media exposing (withMedia)
 import Env
 import Events
 import Graphql.Enum.Diagram exposing (Diagram)
-import Html exposing (Html, div, input, text, textarea)
-import Html.Attributes as Attr exposing (class, id, maxlength, placeholder, readonly, style, type_, value)
-import Html.Events exposing (onClick, onFocus, onInput)
-import Html.Lazy as Lazy
+import Html.Styled exposing (Html, div, input, text, textarea)
+import Html.Styled.Attributes as Attr exposing (css, id, maxlength, placeholder, readonly, type_, value)
+import Html.Styled.Events exposing (onClick, onFocus, onInput)
+import Html.Styled.Lazy as Lazy
 import Maybe.Extra as MaybeEx
 import Message exposing (Message)
 import Models.Color as Color
@@ -21,6 +57,10 @@ import Models.Size as Size exposing (Size)
 import Models.Title as Title exposing (Title)
 import RemoteData exposing (RemoteData(..))
 import Return exposing (Return)
+import Style.Color as Color
+import Style.Font as Font
+import Style.Style as Style
+import Style.Text as Text
 import Task exposing (Task)
 import Time exposing (Posix, Zone)
 import Time.Extra as TimeEx
@@ -598,13 +638,22 @@ update msg model =
 copyButton : CopyState -> Msg -> Html Msg
 copyButton copy msg =
     div
-        [ class "copy-button"
-        , case copy of
-            Copied ->
-                style "width" "64px"
+        [ css
+            [ Style.flexCenter
+            , cursor pointer
+            , position absolute
+            , top <| px 8
+            , right <| px 8
+            , height <| px 8
+            , Color.bgActivity
+            , height <| px 32
+            , case copy of
+                Copied ->
+                    width <| px 64
 
-            _ ->
-                style "width" "32px"
+                _ ->
+                    width <| px 32
+            ]
         , onClick msg
         ]
         [ case copy of
@@ -621,45 +670,59 @@ copyButton copy msg =
 
 view : Model -> Html Msg
 view model =
-    div [ class "dialog" ]
-        [ div [ class "share p-4 fixed bg-main text-color full-screen rounded-none md:w-auto md:h-auto md:rounded" ]
-            [ div
-                [ class "flex items-center justify-start font-semibold"
+    div [ css [ Style.dialogBackdrop ] ]
+        [ div
+            [ css
+                [ Style.shadowSm
+                , top <| pct 50
+                , left <| pct 50
+                , transforms [ translateX <| pct -50, translateY <| pct -50 ]
+                , padding <| rem 1
+                , displayFlex
+                , Color.bgMain
+                , Color.textColor
+                , Style.fullScreen
+                , Style.roundedNone
+                , position absolute
+                , withMedia [ Media.all [ Media.minWidth <| px 768 ] ]
+                    [ Style.widthAuto, Style.heightAuto, Style.rounded ]
                 ]
-                [ div [ class "w-full" ]
+            ]
+            [ div
+                [ css [ displayFlex, alignItems center, justifyContent start, Font.fontSemiBold ]
+                ]
+                [ div [ css [ Style.widthFull ] ]
                     [ div []
-                        [ div [ class "label", style "padding" "8px 8px 16px" ] [ text "Link to share" ]
-                        , div [ class "flex-h-center p-sm" ]
-                            [ div [ class "text-sm mr-sm" ] [ text "Expire in" ]
+                        [ div [ css [ Style.label, padding3 (px 8) (px 8) (px 16) ] ] [ text "Link to share" ]
+                        , div [ css [ Style.flexHCenter, Style.paddingSm ] ]
+                            [ div [ css [ Text.sm, Style.mrSm ] ] [ text "Expire in" ]
                             , input
-                                [ class "input-light text-sm p-xs"
+                                [ css [ Style.inputLight, Text.sm, Style.paddingXs ]
                                 , type_ "date"
                                 , Attr.min <| DateUtils.millisToDateString model.timeZone model.now
                                 , value <| model.expireDate
-                                , Events.onChange DateChange
+                                , Events.onChangeStyled DateChange
                                 ]
                                 []
                             , input
-                                [ class "input-light text-sm p-xs"
+                                [ css [ Style.inputLight, Text.sm, Style.paddingXs ]
                                 , type_ "time"
                                 , value <| model.expireTime
-                                , Events.onChange TimeChange
+                                , Events.onChangeStyled TimeChange
                                 ]
                                 []
                             ]
-                        , div [ class "flex-space p-sm" ]
-                            [ div [ class "text-sm" ] [ text "Password protection" ]
+                        , div [ css [ Style.flexSpace, Style.paddingSm ] ]
+                            [ div [ css [ Text.sm ] ] [ text "Password protection" ]
                             , Switch.view (MaybeEx.isJust model.password) UsePassword
                             ]
                         , case model.password of
                             Just p ->
-                                div [ class "p-sm" ]
+                                div [ css [ Style.paddingSm ] ]
                                     [ input
-                                        [ class "input-light text-sm"
+                                        [ css [ Style.inputLight, Text.sm, color <| hex "#555555", width <| px 305 ]
                                         , type_ "password"
                                         , placeholder "Password"
-                                        , style "color" "#555"
-                                        , style "width" "305px"
                                         , value p
                                         , maxlength 72
                                         , onInput EditPassword
@@ -669,30 +732,35 @@ view model =
 
                             Nothing ->
                                 Empty.view
-                        , div [ class "flex-space p-sm" ]
-                            [ div [ class "text-sm" ] [ text "Limit access by ip address" ]
+                        , div [ css [ Style.flexSpace, Style.paddingSm ] ]
+                            [ div [ css [ Text.sm ] ] [ text "Limit access by ip address" ]
                             , Switch.view (MaybeEx.isJust model.ip.input) UseLimitByIP
                             ]
                         , case model.ip.input of
                             Just i ->
-                                div [ class "p-sm" ]
+                                div [ css [ Style.paddingSm ] ]
                                     [ textarea
-                                        [ class "input-light text-sm resize-none"
-                                        , placeholder "127.0.0.1"
-                                        , style "color" "#555"
-                                        , style "width" "305px"
-                                        , style "height" "100px"
-                                        , if model.ip.error then
-                                            style "border" "3px solid var(--error-color)"
+                                        [ css
+                                            [ Style.inputLight
+                                            , Text.sm
+                                            , resize none
+                                            , color <| hex "#555555"
+                                            , width <| px 305
+                                            , height <| px 100
+                                            , if model.ip.error then
+                                                border3 (px 3) solid Color.errorColor
 
-                                          else
-                                            style "" ""
+                                              else
+                                                borderStyle none
+                                            ]
+                                        , placeholder "127.0.0.1"
                                         , maxlength 150
                                         , onInput EditIP
                                         ]
                                         [ text i ]
                                     , if model.ip.error then
-                                        div [ class "w-full text-sm font-bold text-right text-error" ] [ text "Invalid ip address entered" ]
+                                        div [ css [ Style.widthFull, Text.sm, Font.fontBold, textAlign right, Color.textError ] ]
+                                            [ text "Invalid ip address entered" ]
 
                                       else
                                         Empty.view
@@ -700,30 +768,35 @@ view model =
 
                             Nothing ->
                                 Empty.view
-                        , div [ class "flex-space p-sm" ]
-                            [ div [ class "text-sm" ] [ text "Limit access by mail address" ]
+                        , div [ css [ Style.flexSpace, Style.paddingSm ] ]
+                            [ div [ css [ Text.sm ] ] [ text "Limit access by mail address" ]
                             , Switch.view (MaybeEx.isJust model.email.input) UseLimitByEmail
                             ]
                         , case model.email.input of
                             Just m ->
-                                div [ class "p-sm" ]
+                                div [ css [ Style.paddingSm ] ]
                                     [ textarea
-                                        [ class "input-light text-sm resize-none"
-                                        , placeholder "textusm@textusm.com"
-                                        , style "color" "#555"
-                                        , style "width" "305px"
-                                        , style "height" "100px"
-                                        , if model.email.error then
-                                            style "border" "3px solid var(--error-color)"
+                                        [ css
+                                            [ Style.inputLight
+                                            , Text.sm
+                                            , resize none
+                                            , color <| hex "#555555"
+                                            , width <| px 305
+                                            , height <| px 100
+                                            , if model.email.error then
+                                                border3 (px 3) solid Color.errorColor
 
-                                          else
-                                            style "" ""
+                                              else
+                                                borderStyle none
+                                            ]
+                                        , placeholder "example@textusm.com"
                                         , maxlength 150
                                         , onInput EditEmail
                                         ]
                                         [ text m ]
                                     , if model.email.error then
-                                        div [ class "w-full text-sm font-bold text-right text-error" ] [ text "Invalid mail address entered" ]
+                                        div [ css [ Style.widthFull, Text.sm, Font.fontBold, textAlign right, Color.textError ] ]
+                                            [ text "Invalid mail address entered" ]
 
                                       else
                                         Empty.view
@@ -731,11 +804,14 @@ view model =
 
                             Nothing ->
                                 Empty.view
-                        , div [ class "relative p-sm" ]
+                        , div [ css [ position relative, Style.paddingSm ] ]
                             [ input
-                                [ class "input-light text-sm"
-                                , style "color" "#555"
-                                , style "width" "305px"
+                                [ css
+                                    [ Style.inputLight
+                                    , Text.sm
+                                    , color <| hex "#555555"
+                                    , width <| px 305
+                                    ]
                                 , readonly True
                                 , value <| sharUrl model.token model.diagramType
                                 , id "share-url"
@@ -746,40 +822,49 @@ view model =
                             , Lazy.lazy2 copyButton model.urlCopyState UrlCopy
                             ]
                         ]
-                    , div [ style "padding-top" "24px" ]
-                        [ div [ class "label flex items-center", style "padding" "8px 8px 16px" ]
+                    , div [ css [ paddingTop <| px 24 ] ]
+                        [ div [ css [ Style.label, displayFlex, alignItems center, padding3 (px 8) (px 8) (px 16) ] ]
                             [ text "Embed"
                             ]
-                        , div [ class "flex items-center p-sm" ]
-                            [ div [ class "text-sm mr-sm" ] [ text "Embed size" ]
+                        , div [ css [ displayFlex, alignItems center, Style.paddingSm ] ]
+                            [ div [ css [ Text.sm, Style.mrSm ] ] [ text "Embed size" ]
                             , input
-                                [ class "input-light text-sm"
+                                [ css
+                                    [ Style.inputLight
+                                    , Text.sm
+                                    , color <| hex "#555555"
+                                    , width <| px 60
+                                    , height <| px 32
+                                    ]
                                 , type_ "number"
-                                , style "color" "#555"
-                                , style "width" "60px"
-                                , style "height" "32px"
                                 , value <| String.fromInt (Size.getWidth model.embedSize)
                                 , onInput ChangeEmbedWidth
                                 ]
                                 []
                             , div [] [ text "x" ]
                             , input
-                                [ class "input-light text-sm"
+                                [ css
+                                    [ Style.inputLight
+                                    , Text.sm
+                                    , color <| hex "#555555"
+                                    , width <| px 60
+                                    , height <| px 32
+                                    ]
                                 , type_ "number"
-                                , style "color" "#555"
-                                , style "width" "60px"
-                                , style "height" "32px"
                                 , value <| String.fromInt (Size.getHeight model.embedSize)
                                 , onInput ChangeEmbedHeight
                                 ]
                                 []
                             , div [] [ text "px" ]
                             ]
-                        , div [ class "relative p-sm" ]
+                        , div [ css [ position relative, Style.paddingSm ] ]
                             [ input
-                                [ class "input-light text-sm"
-                                , style "color" "#555"
-                                , style "width" "305px"
+                                [ css
+                                    [ Style.inputLight
+                                    , Text.sm
+                                    , color <| hex "#555555"
+                                    , width <| px 305
+                                    ]
                                 , readonly True
                                 , value <| embedUrl { token = model.token, diagramType = model.diagramType, title = model.title, embedSize = model.embedSize }
                                 , id "embed"
@@ -793,7 +878,7 @@ view model =
                     ]
                 ]
             , div
-                [ class "absolute cursor-pointer top-4 right-4"
+                [ css [ position absolute, cursor pointer, top <| rem 1, right <| rem 1 ]
                 , onClick Close
                 ]
                 [ Icon.times (Color.toString Color.white) 24 ]

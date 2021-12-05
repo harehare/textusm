@@ -14,16 +14,18 @@ import Browser.Events
         )
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
+import Css exposing (backgroundColor, calc, displayFlex, height, hex, hidden, minus, overflow, position, px, relative, vh, width)
+import Css.Media as Media exposing (withMedia)
 import Dialog.Confirm as ConfirmDialog
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
 import Env
 import File.Download as Download
 import Graphql.Enum.Diagram as Diagram
-import Html exposing (Html, div, img, main_, text)
-import Html.Attributes exposing (alt, attribute, class, id, style)
-import Html.Events as E
-import Html.Lazy as Lazy
+import Html.Styled as Html exposing (Html, div, img, main_, text)
+import Html.Styled.Attributes exposing (alt, attribute, css, id)
+import Html.Styled.Events as E
+import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Maybe.Extra exposing (isJust)
 import Message
@@ -66,6 +68,11 @@ import Settings
         , settingsEncoder
         )
 import String
+import Style.Color as ColorStyle
+import Style.Font as FontStyle
+import Style.Global as GlobalStyle
+import Style.Style as Style
+import Style.Text as TextStyle
 import Task
 import Time
 import Url
@@ -155,7 +162,7 @@ init flags url key =
 
 editor : Model -> Html Msg
 editor model =
-    div [ id "editor", class "full p-sm" ]
+    div [ id "editor", css [ Style.full, Style.paddingSm ] ]
         [ Html.node "monaco-editor"
             [ attribute "value" <| Text.toString model.diagramModel.text
             , attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
@@ -185,10 +192,11 @@ editor model =
 view : Model -> Html Msg
 view model =
     main_
-        [ class "relative w-screen"
+        [ css [ position relative, Style.widthScreen ]
         , E.onClick CloseMenu
         ]
-        [ if Model.isFullscreen model.window then
+        [ GlobalStyle.style
+        , if Model.isFullscreen model.window then
             Empty.view
 
           else
@@ -207,15 +215,17 @@ view model =
         , Lazy.lazy Snackbar.view model.snackbar
         , Lazy.lazy showProgress model.progress
         , div
-            [ class "flex"
-            , class "overflow-hidden"
-            , class "relative"
-            , class "w-full"
-            , if Model.isFullscreen model.window then
-                class "h-screen"
+            [ css
+                [ displayFlex
+                , overflow hidden
+                , position relative
+                , Style.widthFull
+                , if Model.isFullscreen model.window then
+                    Css.batch [ Style.heightScreen ]
 
-              else
-                class "h-content"
+                  else
+                    Css.batch [ Style.hContent ]
+                ]
             ]
             [ if Route.isViewFile (toRoute model.url) || Model.isFullscreen model.window then
                 Empty.view
@@ -238,10 +248,13 @@ view model =
                             model.diagramModel.settings.backgroundColor
                             model.window.state
                             (div
-                                [ class "h-main"
-                                , class "bg-main"
-                                , class "lg:h-full"
-                                , class "w-full"
+                                [ css
+                                    [ Style.hMain
+                                    , Style.widthFull
+                                    , ColorStyle.bgMain
+                                    , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
+                                        [ Style.heightFull ]
+                                    ]
                                 ]
                                 [ editor model
                                 ]
@@ -251,14 +264,17 @@ view model =
                         Lazy.lazy3 SplitWindow.view
                             { onResize = HandleStartWindowResize
                             , onToggleEditor = ShowEditor
-                            , backgroundColor = model.diagramModel.settings.backgroundColor
+                            , background = model.diagramModel.settings.backgroundColor
                             , window = model.window
                             }
                             (div
-                                [ class "bg-main"
-                                , class "w-full"
-                                , class "h-main"
-                                , class "lg:h-full"
+                                [ css
+                                    [ Style.hMain
+                                    , Style.widthFull
+                                    , ColorStyle.bgMain
+                                    , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
+                                        [ Style.heightFull ]
+                                    ]
                                 ]
                                 [ editor model
                                 ]
@@ -290,21 +306,27 @@ view model =
                                 Just jwt ->
                                     if jwt.checkEmail && Session.isGuest model.session then
                                         div
-                                            [ class "flex-center"
-                                            , class "text-xl"
-                                            , class "font-semibold"
-                                            , class "w-screen"
-                                            , class "text-color"
-                                            , class "m-sm"
-                                            , class "text-sm"
-                                            , style "height" "calc(100vh - 40px)"
+                                            [ css
+                                                [ Style.flexCenter
+                                                , TextStyle.xl
+                                                , FontStyle.fontSemiBold
+                                                , Style.widthScreen
+                                                , ColorStyle.textColor
+                                                , Style.mSm
+                                                , height <| calc (vh 100) minus (px 40)
+                                                ]
                                             ]
-                                            [ img [ class "keyframe anim", Asset.src Asset.logo, style "width" "32px", alt "NOT FOUND" ] []
-                                            , div [ class "m-sm" ] [ text "Sign in required" ]
+                                            [ img
+                                                [ Asset.src Asset.logo
+                                                , css [ width <| px 32 ]
+                                                , alt "NOT FOUND"
+                                                ]
+                                                []
+                                            , div [ css [ Style.mSm ] ] [ text "Sign in required" ]
                                             ]
 
                                     else
-                                        div [ class "full", style "background-color" model.settingsModel.settings.storyMap.backgroundColor ]
+                                        div [ css [ Style.full, backgroundColor <| hex model.settingsModel.settings.storyMap.backgroundColor ] ]
                                             [ Lazy.lazy Diagram.view model.diagramModel
                                                 |> Html.map UpdateDiagram
                                             ]
@@ -365,7 +387,7 @@ main =
                                 ""
                            )
                         ++ " | TextUSM"
-                , body = [ view m ]
+                , body = [ Html.toUnstyled <| view m ]
                 }
         , subscriptions = subscriptions
         , onUrlChange = UrlChanged
@@ -637,16 +659,14 @@ update message =
                                     | window =
                                         m.window
                                             |> Model.windowOfState.set
-                                                (case m.window.state of
-                                                    Fullscreen ->
-                                                        if Utils.isPhone (Size.getWidth m.diagramModel.size) then
-                                                            Editor
+                                                (if model_.fullscreen then
+                                                    Fullscreen
 
-                                                        else
-                                                            Both
+                                                 else if Utils.isPhone (Size.getWidth model_.size) then
+                                                    Editor
 
-                                                    _ ->
-                                                        Fullscreen
+                                                 else
+                                                    Both
                                                 )
                                     , diagramModel = model_
                                 }

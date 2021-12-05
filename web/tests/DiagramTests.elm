@@ -4,6 +4,7 @@ import Browser.Dom exposing (Viewport)
 import Components.Diagram exposing (init, update, view)
 import Expect
 import Graphql.Enum.Diagram exposing (Diagram(..))
+import Html.Styled
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
 import Models.DiagramType as DiagramType
 import Models.Item as Item exposing (ItemType(..))
@@ -345,18 +346,21 @@ userStoryMapRenderTest =
         [ test "User Story Map rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 9)
         , test "User Story Map label count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "foreignObject" ]
                     |> Query.count (Expect.equal 6)
         , test "User Story Map line count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "line" ]
                     |> Query.count (Expect.equal 2)
@@ -376,6 +380,7 @@ businessModelCanvasRenderTest =
         [ test "Business Model Canvas rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 10)
@@ -395,6 +400,7 @@ opportunityCanvasRenderTest =
         [ test "Opportunity Canvas rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 11)
@@ -414,6 +420,7 @@ kptRenderTest =
         [ test "KPT rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 4)
@@ -433,6 +440,7 @@ fourlsRenderTest =
         [ test "4Ls rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 5)
@@ -452,6 +460,7 @@ startStopContinueRenderTest =
         [ test "Start, Stop, Continue rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 4)
@@ -471,6 +480,7 @@ userPersonaRenderTest =
         [ test "User Persona rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 9)
@@ -490,6 +500,7 @@ empathyMapRenderTest =
         [ test "Empathy Map rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 5)
@@ -509,6 +520,7 @@ tableRenderTest =
         [ test "Table rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 21)
@@ -528,18 +540,21 @@ kanbanRenderTest =
         [ test "Kanban rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 1)
         , test "Kanban line count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "line" ]
                     |> Query.count (Expect.equal 3)
         , test "Kanban text 1" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "text" ]
                     |> Query.index 0
@@ -547,6 +562,7 @@ kanbanRenderTest =
         , test "Kanban text 2" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "text" ]
                     |> Query.index 1
@@ -554,6 +570,7 @@ kanbanRenderTest =
         , test "Kanban text 3" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "text" ]
                     |> Query.index 2
@@ -561,6 +578,7 @@ kanbanRenderTest =
         , test "Kanban text 4" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "text" ]
                     |> Query.index 3
@@ -581,6 +599,7 @@ ganttChartRenderTest =
         [ test "GanttChart rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 4)
@@ -600,6 +619,7 @@ erDiagramRenderTest =
         [ test "ErDiagram rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 15)
@@ -619,6 +639,7 @@ sequenceDiagramRenderTest =
         [ test "SequenceDiagram rect count" <|
             \() ->
                 view model_
+                    |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "rect" ]
                     |> Query.count (Expect.equal 10)

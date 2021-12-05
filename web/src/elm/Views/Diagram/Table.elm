@@ -4,9 +4,9 @@ import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
 import Models.Diagram.Table exposing (Header(..), Row(..), Table(..))
 import Models.Item as Item exposing (Item, ItemType(..))
 import String
-import Svg exposing (Svg)
-import Svg.Keyed as Keyed
-import Svg.Lazy as Lazy
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Keyed as Keyed
+import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 

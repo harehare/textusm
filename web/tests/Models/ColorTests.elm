@@ -1,4 +1,4 @@
-module Models.ColorTests exposing (..)
+module Models.ColorTests exposing (suite)
 
 import Expect
 import Models.Color as Color

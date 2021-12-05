@@ -1,5 +1,6 @@
 module Events exposing
     ( onChange
+    , onChangeStyled
     , onClickPreventDefaultOn
     , onClickStopPropagation
     , onDrop
@@ -13,11 +14,12 @@ module Events exposing
     )
 
 import File exposing (File)
-import Html exposing (Attribute)
-import Html.Events exposing (keyCode, on, preventDefaultOn, stopPropagationOn)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Touch as Touch
 import Html.Events.Extra.Wheel as Wheel
+import Html.Styled exposing (Attribute)
+import Html.Styled.Attributes as Attr
+import Html.Styled.Events as StyledEvents
 import Json.Decode as D
 
 
@@ -30,38 +32,42 @@ keyEnter =
     13
 
 
-onMouseDown : (Mouse.Event -> msg) -> Html.Attribute msg
+onMouseDown : (Mouse.Event -> msg) -> Attribute msg
 onMouseDown =
-    { stopPropagation = True, preventDefault = True }
-        |> Mouse.onWithOptions "mousedown"
+    \m ->
+        Mouse.onWithOptions "mousedown" { stopPropagation = True, preventDefault = True } m
+            |> Attr.fromUnstyled
 
 
-onMouseMove : (Mouse.Event -> msg) -> Html.Attribute msg
+onMouseMove : (Mouse.Event -> msg) -> Attribute msg
 onMouseMove =
-    { stopPropagation = True, preventDefault = True }
-        |> Mouse.onWithOptions "mousemove"
+    \m ->
+        Mouse.onWithOptions "mousemove" { stopPropagation = True, preventDefault = True } m
+            |> Attr.fromUnstyled
 
 
-onMouseUp : (Mouse.Event -> msg) -> Html.Attribute msg
+onMouseUp : (Mouse.Event -> msg) -> Attribute msg
 onMouseUp =
-    { stopPropagation = True, preventDefault = True }
-        |> Mouse.onWithOptions "mouseup"
+    \m ->
+        Mouse.onWithOptions "mouseup" { stopPropagation = True, preventDefault = True } m
+            |> Attr.fromUnstyled
 
 
-onTouchStart : (Touch.Event -> msg) -> Html.Attribute msg
+onTouchStart : (Touch.Event -> msg) -> Attribute msg
 onTouchStart =
-    { stopPropagation = True, preventDefault = False }
-        |> Touch.onWithOptions "touchstart"
+    \m ->
+        Touch.onWithOptions "touchstart" { stopPropagation = True, preventDefault = False } m
+            |> Attr.fromUnstyled
 
 
-onClickStopPropagation : msg -> Html.Attribute msg
+onClickStopPropagation : msg -> Attribute msg
 onClickStopPropagation msg =
-    stopPropagationOn "click" (D.map alwaysStopPropagation (D.succeed msg))
+    StyledEvents.stopPropagationOn "click" (D.map alwaysStopPropagationStyled (D.succeed msg))
 
 
-onClickPreventDefaultOn : msg -> Html.Attribute msg
+onClickPreventDefaultOn : msg -> Attribute msg
 onClickPreventDefaultOn msg =
-    preventDefaultOn "click" (D.map alwaysPreventDefaultOn (D.succeed msg))
+    StyledEvents.preventDefaultOn "click" (D.map alwaysPreventDefaultOnStyled (D.succeed msg))
 
 
 alwaysStopPropagation : msg -> ( msg, Bool )
@@ -69,9 +75,19 @@ alwaysStopPropagation msg =
     ( msg, True )
 
 
+alwaysStopPropagationStyled : msg -> ( msg, Bool )
+alwaysStopPropagationStyled msg =
+    ( msg, True )
+
+
 alwaysPreventDefaultOn : msg -> ( msg, Bool )
 alwaysPreventDefaultOn msg =
     alwaysStopPropagation msg
+
+
+alwaysPreventDefaultOnStyled : msg -> ( msg, Bool )
+alwaysPreventDefaultOnStyled msg =
+    alwaysStopPropagationStyled msg
 
 
 onEnter : msg -> Attribute msg
@@ -89,7 +105,7 @@ onKeyCodeDown code msg =
             else
                 D.fail "other key"
     in
-    on "keydown"
+    StyledEvents.on "keydown"
         (D.andThen
             (\k ->
                 D.andThen
@@ -98,7 +114,7 @@ onKeyCodeDown code msg =
                     )
                     isComposing
             )
-            keyCode
+            StyledEvents.keyCode
         )
 
 
@@ -109,7 +125,7 @@ isComposing =
 
 onDrop : (List File -> msg) -> Attribute msg
 onDrop msg =
-    preventDefaultOn "drop" (D.map alwaysPreventDefaultOn (D.map msg filesDecoder))
+    StyledEvents.preventDefaultOn "drop" (D.map alwaysPreventDefaultOn (D.map msg filesDecoder))
 
 
 filesDecoder : D.Decoder (List File)
@@ -124,12 +140,18 @@ touchCoordinates touchEvent =
         |> Maybe.withDefault ( 0, 0 )
 
 
-onWheel : (Wheel.Event -> msg) -> Html.Attribute msg
+onWheel : (Wheel.Event -> msg) -> Attribute msg
 onWheel =
-    { stopPropagation = True, preventDefault = False }
-        |> Wheel.onWithOptions
+    \m ->
+        Wheel.onWithOptions { stopPropagation = True, preventDefault = False } m
+            |> Attr.fromUnstyled
 
 
 onChange : (String -> msg) -> Attribute msg
 onChange handler =
-    on "change" <| D.map handler <| D.at [ "target", "value" ] D.string
+    StyledEvents.on "change" <| D.map handler <| D.at [ "target", "value" ] D.string
+
+
+onChangeStyled : (String -> msg) -> Attribute msg
+onChangeStyled handler =
+    StyledEvents.on "change" <| D.map handler <| D.at [ "target", "value" ] D.string

@@ -48,8 +48,8 @@ module Views.Icon exposing
 -}
 
 import Models.Color as Color exposing (Color)
-import Svg exposing (Svg)
-import Svg.Attributes exposing (d, fill, height, viewBox, width)
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes exposing (d, fill, height, viewBox, width)
 
 
 add : Int -> Svg msg

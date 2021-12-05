@@ -181,7 +181,7 @@ export class MonacoEditor extends HTMLElement {
             this.editor.addAction({
                 id: 'open',
                 label: 'open',
-                keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
+                keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyO],
                 contextMenuOrder: 1,
                 run: () => {
                     _app?.ports.shortcuts.send('open');
@@ -191,7 +191,7 @@ export class MonacoEditor extends HTMLElement {
             this.editor.addAction({
                 id: 'save-to-local',
                 label: 'save',
-                keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
+                keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
                 contextMenuOrder: 2,
                 run: () => {
                     _app?.ports.shortcuts.send('save');

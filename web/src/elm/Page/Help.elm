@@ -1,114 +1,200 @@
 module Page.Help exposing (view)
 
 import Asset
-import Html exposing (Html, div, img, span, text)
-import Html.Attributes exposing (alt, class, style)
+import Css
+    exposing
+        ( alignItems
+        , border3
+        , borderBottom3
+        , borderTop3
+        , center
+        , color
+        , column
+        , displayFlex
+        , flexDirection
+        , flexStart
+        , hex
+        , hidden
+        , justifyContent
+        , margin4
+        , overflowX
+        , padding
+        , padding2
+        , padding3
+        , padding4
+        , px
+        , solid
+        , width
+        , zero
+        )
+import Html.Styled exposing (Html, div, img, span, text)
+import Html.Styled.Attributes exposing (alt, css)
 import Maybe.Extra exposing (isNothing)
+import Style.Color as Color
+import Style.Font as Font
+import Style.Style as Style
+import Style.Text as Text
+
+
+textActivityView : List (Html msg) -> Html msg
+textActivityView children =
+    div [ css [ Text.base, Color.textActivity, padding3 zero (px 16) zero ] ] children
+
+
+textTaskStyle : List (Html msg) -> Html msg
+textTaskStyle children =
+    div [ css [ Text.base, Color.textAccent, padding3 zero (px 16) zero ] ] children
+
+
+textCommentView : List (Html msg) -> Html msg
+textCommentView children =
+    div [ css [ Text.base, Color.textComment, padding3 zero (px 16) zero ] ] children
+
+
+activityView : List (Html msg) -> Html msg
+activityView chlldren =
+    div [ css [ Color.textActivity ] ] chlldren
+
+
+taskView : List (Html msg) -> Html msg
+taskView children =
+    div [ css [ Color.textAccent ] ] children
+
+
+storyView : List (Html msg) -> Html msg
+storyView children =
+    div [ css [ color <| hex "#ffffff" ] ] children
+
+
+textView : List (Html msg) -> Html msg
+textView children =
+    div [ css [ Text.base, padding3 zero (px 16) zero ] ] children
+
+
+itemView : List (Html msg) -> Html msg
+itemView children =
+    div [ css [ width <| px 96, Text.sm, Style.flexCenter, border3 (px 1) solid Color.borderColor, Style.paddingSm ] ] children
 
 
 view : Html msg
 view =
     div
-        [ class "help"
+        [ css [ Text.xs, Color.bgDefault, Style.widthFull, Color.textColor, overflowX hidden ]
         ]
-        [ div [ class "font-semibold flex items-center p-3 justify-start", style "padding" "16px 0" ]
-            [ img [ Asset.src Asset.logo, class "ml-2", style "width" "32px", alt "logo" ] []
-            , span [ class "text-2xl ml-2" ] [ text "TextUSM" ]
+        [ div
+            [ css
+                [ Font.fontSemiBold
+                , displayFlex
+                , alignItems center
+                , justifyContent flexStart
+                , padding2 (px 16) zero
+                , Style.padding3
+                ]
             ]
-        , div [ class "text-sm", style "padding" "0 16px" ]
+            [ img [ Asset.src Asset.logo, css [ Style.ml2, width <| px 32 ], alt "logo" ] []
+            , span [ css [ Text.xl2, Style.ml2 ] ] [ text "TextUSM" ]
+            ]
+        , div [ css [ Text.sm, padding2 zero (px 16) ] ]
             [ text "TextUSM is a simple tool. Help you draw user story map using indented text."
             ]
 
         -- Text Syntax
         , section (Just "Text Syntax")
-        , div [ class "text activity", style "padding" "0 16px 16px" ]
-            [ div [ class "activity" ] [ text "md: **Markdown Text**" ]
-            , div [ class "task" ] [ indentedText "User Task" 1 ]
-            , div [ class "story" ] [ indentedText "User Story Release 1" 2 ]
-            , div [ class "story" ] [ indentedText "User Story Release 2..." 3 ]
-            , div [ class "story" ] [ indentedText "Add Images" 4 ]
-            , div [ class "story" ] [ indentedText "https://app.textusm.com/images/logo.svg" 5 ]
-            , div [ class "story" ] [ indentedText "Change font size, font color or background color." 1 ]
-            , div [ class "story" ] [ indentedText "test|{\"b\":\"#CEE5F2\",\"f\":\"#EE8A8B\",\"o\":[0,0],\"s\":9}" 2 ]
+        , textActivityView
+            [ activityView [ text "md: **Markdown Text**" ]
+            , taskView [ indentedText "User Task" 1 ]
+            , storyView [ indentedText "User Story Release 1" 2 ]
+            , storyView [ indentedText "User Story Release 2..." 3 ]
+            , storyView [ indentedText "Add Images" 4 ]
+            , storyView [ indentedText "https://app.textusm.com/images/logo.svg" 5 ]
+            , storyView [ indentedText "Change font size, font color or background color." 1 ]
+            , storyView [ indentedText "test|{\"b\":\"#CEE5F2\",\"f\":\"#EE8A8B\",\"o\":[0,0],\"s\":9}" 2 ]
             ]
 
         -- Comment Syntax
         , section (Just "Comment Syntax")
-        , div [ class "text comment", style "padding" "0 16px 16px" ] [ text "# Comment..." ]
+        , textCommentView [ text "# Comment..." ]
 
         -- User Story Map Syntax
         , section (Just "User Story Map Syntax")
-        , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# user_activities: Changed text" ]
-        , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# user_tasks: Changed text" ]
-        , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# user_stories: Changed text" ]
-        , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# release1: Changed text" ]
+        , textCommentView [ text "# user_activities: Changed text" ]
+        , textCommentView [ text "# user_tasks: Changed text" ]
+        , textCommentView [ text "# user_stories: Changed text" ]
+        , textCommentView [ text "# release1: Changed text" ]
 
         -- Free form
         , section (Just "Freeform")
-        , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# Vertical line" ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ text "/" ]
-        , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# Horizontal line" ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ text "---" ]
-        , div [ class "text comment", style "padding" "0 16px 0px" ] [ text "# Item" ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ text "freeform" ]
+        , textCommentView [ text "# Vertical line" ]
+        , textView [ text "/" ]
+        , textCommentView [ text "# Horizontal line" ]
+        , textView [ text "---" ]
+        , textCommentView [ text "# Item" ]
+        , textView [ text "freeform" ]
 
         -- Use Case Diagram
         , section (Just "Use Case Diagram Syntax")
-        , div [ class "text activity", style "padding" "0 16px 0px" ] [ text "[Actor Name]" ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "Use Caser" 1 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "Use Case2" 1 ]
-        , div [ class "text activity", style "padding" "0 16px 0px" ] [ text "(Use Case Name1)" ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "<extend" 1 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText ">include" 1 ]
-        , div [ class "text activity", style "padding" "0 16px 0px" ] [ text "(Use Case Name2)" ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "<extend" 1 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText ">include" 1 ]
+        , textActivityView [ text "[Actor Name]" ]
+        , textView [ indentedText "Use Caser" 1 ]
+        , textView [ indentedText "Use Case2" 1 ]
+        , textActivityView [ text "(Use Case Name1)" ]
+        , textView [ indentedText "<extend" 1 ]
+        , textView [ indentedText ">include" 1 ]
+        , textActivityView [ text "(Use Case Name2)" ]
+        , textView [ indentedText "<extend" 1 ]
+        , textView [ indentedText ">include" 1 ]
 
         -- Gantt Chart
         , section (Just "Gantt Chart Syntax")
-        , div [ class "text activity", style "padding" "0 16px 0px" ] [ text "YYYY-MM-DD YYYY-MM-DD" ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "Section" 1 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "Task" 2 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "YYYY-MM-DD YYYY-MM-DD" 3 ]
+        , textActivityView [ text "YYYY-MM-DD YYYY-MM-DD" ]
+        , textView [ indentedText "Section" 1 ]
+        , textView [ indentedText "Task" 2 ]
+        , textView [ indentedText "YYYY-MM-DD YYYY-MM-DD" 3 ]
 
         -- ER Diagram
         , section (Just "ER Diagram Syntax")
 
         -- relations
-        , div [ class "text activity", style "padding" "0 16px 0px" ] [ text "relations" ]
-        , div [ class "text comment", style "padding" "0 16px 0px" ] [ indentedText "# one to one" 1 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "table1 - table2" 1 ]
-        , div [ class "text comment", style "padding" "0 16px 0px" ] [ indentedText "# one to many" 1 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "table1 < table2" 1 ]
-        , div [ class "text comment", style "padding" "0 16px 0px" ] [ indentedText "# meny to many" 1 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "table1 = table2" 1 ]
+        , textActivityView [ text "relations" ]
+        , textCommentView [ indentedText "# one to one" 1 ]
+        , textView [ indentedText "table1 - table2" 1 ]
+        , textCommentView [ indentedText "# one to many" 1 ]
+        , textView [ indentedText "table1 < table2" 1 ]
+        , textCommentView [ indentedText "# meny to many" 1 ]
+        , textView [ indentedText "table1 = table2" 1 ]
 
         -- tables
-        , div [ class "text activity", style "padding" "0 16px 0px" ] [ text "tables" ]
-        , div [ class "text task", style "padding" "0 16px 0px" ] [ indentedText "table1" 1 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "id int pk auto_increment" 2 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "name varchar(255) unique" 2 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "json json null" 2 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "value double not null" 2 ]
-        , div [ class "text", style "padding" "0 16px 0px" ] [ indentedText "enum enum(value1,value2) not null" 2 ]
+        , textActivityView [ text "tables" ]
+        , textTaskStyle [ indentedText "table1" 1 ]
+        , textView [ indentedText "id int pk auto_increment" 2 ]
+        , textView [ indentedText "name varchar(255) unique" 2 ]
+        , textView [ indentedText "json json null" 2 ]
+        , textView [ indentedText "value double not null" 2 ]
+        , textView [ indentedText "enum enum(value1,value2) not null" 2 ]
 
         -- Hot Keys
         , section (Just "Hotkeys")
-        , div [ class "rows" ]
-            [ div [ class "row header" ]
-                [ div [ class "item" ] [ text "Windows" ]
-                , div [ class "item" ] [ text "Mac" ]
-                , div [ class "item" ] [ text "Action" ]
+        , div
+            [ css
+                [ displayFlex
+                , Text.base
+                , flexDirection column
+                , padding <| px 16
                 ]
-            , div [ class "row" ]
-                [ div [ class "item" ] [ text "Ctrl+S" ]
-                , div [ class "item" ] [ text "Command+S" ]
-                , div [ class "item" ] [ text "Save" ]
+            ]
+            [ div [ css [ Font.fontSemiBold, displayFlex ] ]
+                [ itemView [ text "Windows" ]
+                , itemView [ text "Mac" ]
+                , itemView [ text "Action" ]
                 ]
-            , div [ class "row" ]
-                [ div [ class "item" ] [ text "Ctrl+O" ]
-                , div [ class "item" ] [ text "Command+O" ]
-                , div [ class "item" ] [ text "Open" ]
+            , div [ css [ displayFlex ] ]
+                [ itemView [ text "Ctrl+S" ]
+                , itemView [ text "Command+S" ]
+                , itemView [ text "Save" ]
+                ]
+            , div [ css [ displayFlex ] ]
+                [ itemView [ text "Ctrl+O" ]
+                , itemView [ text "Command+O" ]
+                , itemView [ text "Open" ]
                 ]
             ]
         ]
@@ -117,19 +203,19 @@ view =
 section : Maybe String -> Html msg
 section title =
     div
-        [ if isNothing title then
-            style "" ""
+        [ css
+            [ if isNothing title then
+                Css.batch []
 
-          else
-            style "border-top" "1px solid #323B46"
-        , if isNothing title then
-            style "padding" "0px"
+              else
+                Css.batch [ borderTop3 (px 1) solid (hex "#323B46") ]
+            , if isNothing title then
+                Css.batch [ padding <| px 0 ]
 
-          else
-            style "padding" "32px 0px 8px 0px"
-        , class "font-semibold"
-        , style "border-bottom" "1px solid #666"
-        , style "margin" "8px 16px 8px 16px"
+              else
+                Css.batch [ padding4 (px 32) zero (px 8) zero ]
+            , Css.batch [ Font.fontSemiBold, borderBottom3 (px 1) solid (hex "#666666"), margin4 (px 8) (px 16) (px 8) (px 16) ]
+            ]
         ]
         [ div [] [ text (title |> Maybe.withDefault "") ]
         ]

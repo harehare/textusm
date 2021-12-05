@@ -1,8 +1,30 @@
 module Dialog.Confirm exposing (view)
 
-import Html exposing (Html, button, div, text)
-import Html.Attributes exposing (class, style, type_)
-import Html.Events exposing (onClick)
+import Css
+    exposing
+        ( fixed
+        , left
+        , marginTop
+        , maxWidth
+        , padding
+        , paddingBottom
+        , paddingTop
+        , pct
+        , position
+        , px
+        , rem
+        , top
+        , transforms
+        , translateX
+        , translateY
+        )
+import Html.Styled exposing (Html, button, div, text)
+import Html.Styled.Attributes exposing (css, type_)
+import Html.Styled.Events exposing (onClick)
+import Style.Color as Color
+import Style.Font as Font
+import Style.Style as Style
+import Style.Text as Text
 
 
 type alias ButtonConfig msg =
@@ -21,24 +43,47 @@ type alias Props msg =
 
 view : Props msg -> Html msg
 view { title, message, okButton, cancelButton } =
-    div [ class "dialog" ]
-        [ div [ class "confirm-dialog" ]
-            [ div [ class "text-lg font-bold py-2" ] [ text title ]
-            , div [ class "py-3" ] [ text message ]
-            , div [ class "flex items-center justify-center gap-4" ]
+    div [ css [ Style.dialogBackdrop ] ]
+        [ div
+            [ css
+                [ Color.bgDefault
+                , Color.textColor
+                , Style.shadowSm
+                , position fixed
+                , top <| pct 50
+                , left <| pct 50
+                , maxWidth <| px 320
+                , transforms [ translateX <| pct -50, translateY <| pct -50 ]
+                , padding <| px 16
+                , Style.roundedSm
+                ]
+            ]
+            [ div
+                [ css
+                    [ Text.lg
+                    , Font.fontBold
+                    , paddingTop <| rem 0.5
+                    , paddingBottom <| rem 0.5
+                    ]
+                ]
+                [ text title ]
+            , div
+                [ css
+                    [ paddingTop <| rem 0.75
+                    , paddingBottom <| rem 0.75
+                    ]
+                ]
+                [ text message ]
+            , div [ css [ Style.flexCenter, Style.gap4 ] ]
                 [ button
                     [ type_ "button"
-                    , class "button submit"
-                    , style "margin-top" "8px"
-                    , style "border-radius" "8px"
+                    , css [ Style.submit, marginTop <| px 8, Style.roundedSm ]
                     , onClick okButton.onClick
                     ]
                     [ text okButton.text ]
                 , button
                     [ type_ "button"
-                    , class "button submit bg-disabled text-dark"
-                    , style "margin-top" "8px"
-                    , style "border-radius" "8px"
+                    , css [ Style.submit, Color.bgDisabled, Color.textDark, marginTop <| px 8, Style.roundedSm ]
                     , onClick cancelButton.onClick
                     ]
                     [ text cancelButton.text ]

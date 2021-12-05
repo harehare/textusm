@@ -1,8 +1,37 @@
 module Views.Diagram.ContextMenu exposing (viewAllMenu, viewColorMenuOnly)
 
+import Css as Css
+    exposing
+        ( absolute
+        , backgroundColor
+        , border3
+        , borderRadius
+        , borderRight3
+        , bottom
+        , cursor
+        , displayFlex
+        , flexWrap
+        , fontSize
+        , hex
+        , int
+        , justifyContent
+        , left
+        , margin
+        , padding
+        , pointer
+        , position
+        , px
+        , rem
+        , rgba
+        , solid
+        , spaceBetween
+        , wrap
+        , zIndex
+        , zero
+        )
 import Events
-import Html exposing (Html)
-import Html.Attributes as Attr
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color exposing (Color)
 import Models.Diagram exposing (ContextMenu(..))
 import Models.Dialog exposing (display)
@@ -11,8 +40,9 @@ import Models.FontStyle as FontStyle exposing (FontStyle)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
 import Models.Size exposing (Width)
-import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
+import Style.Style as Style
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -101,14 +131,14 @@ view width display props =
             ]
             [ if display.color then
                 Html.div
-                    [ Attr.style "width" "50px"
-                    , Attr.style "height" "48px"
-                    , Attr.style "font-size" "1.2rem"
-                    , Attr.style "display" "flex"
-                    , Attr.style "align-items" "center"
-                    , Attr.style "justify-content" "center"
-                    , Attr.style "border-right" "1px solid rgba(0, 0, 0, 0.1)"
-                    , Attr.style "cursor" "pointer"
+                    [ css
+                        [ Css.width <| px 50
+                        , Css.height <| px 48
+                        , fontSize <| rem 1.2
+                        , Style.flexCenter
+                        , borderRight3 (px 1) solid (rgba 0 0 0 0.1)
+                        , cursor pointer
+                        ]
                     , Events.onMouseDown <| \_ -> props.onMenuSelect ColorSelectMenu
                     ]
                     [ Html.div []
@@ -126,13 +156,13 @@ view width display props =
             , if display.backgroundColor then
                 Html.div
                     [ Attr.class "background-color-menu"
-                    , Attr.style "width" "50px"
-                    , Attr.style "height" "48px"
-                    , Attr.style "font-size" "1.4rem"
-                    , Attr.style "display" "flex"
-                    , Attr.style "align-items" "center"
-                    , Attr.style "justify-content" "center"
-                    , Attr.style "border-right" "1px solid rgba(0, 0, 0, 0.1)"
+                    , css
+                        [ Css.width <| px 50
+                        , Css.height <| px 48
+                        , fontSize <| rem 1.4
+                        , Style.flexCenter
+                        , borderRight3 (px 1) solid (rgba 0 0 0 0.1)
+                        ]
                     ]
                     [ colorCircle
                         (Item.getBackgroundColor props.item
@@ -145,14 +175,14 @@ view width display props =
                 Empty.view
             , if display.fontSize then
                 Html.div
-                    [ Attr.style "width" "72px"
-                    , Attr.style "height" "48px"
-                    , Attr.style "font-size" "1.2rem"
-                    , Attr.style "display" "flex"
-                    , Attr.style "align-items" "center"
-                    , Attr.style "justify-content" "center"
-                    , Attr.style "cursor" "pointer"
-                    , Attr.style "border-right" "1px solid rgba(0, 0, 0, 0.1)"
+                    [ css
+                        [ Css.width <| px 72
+                        , Css.height <| px 48
+                        , fontSize <| rem 1.2
+                        , Style.flexCenter
+                        , cursor pointer
+                        , borderRight3 (px 1) solid (rgba 0 0 0 0.1)
+                        ]
                     , Events.onMouseDown <| \_ -> props.onMenuSelect CloseMenu
                     ]
                     [ DropDownList.view props.onToggleDropDownList
@@ -167,13 +197,13 @@ view width display props =
                 Empty.view
             , if display.fontStyleBold then
                 Html.div
-                    [ Attr.style "width" "50px"
-                    , Attr.style "height" "48px"
-                    , Attr.style "font-size" "1.2rem"
-                    , Attr.style "display" "flex"
-                    , Attr.style "align-items" "center"
-                    , Attr.style "justify-content" "center"
-                    , Attr.style "cursor" "pointer"
+                    [ css
+                        [ Css.width <| px 50
+                        , Css.height <| px 48
+                        , fontSize <| rem 1.2
+                        , Style.flexCenter
+                        , cursor pointer
+                        ]
                     , Events.onMouseDown <| \_ -> props.onFontStyleChanged FontStyle.Bold
                     ]
                     [ Html.div
@@ -190,13 +220,13 @@ view width display props =
                 Empty.view
             , if display.fontStyleItalic then
                 Html.div
-                    [ Attr.style "width" "50px"
-                    , Attr.style "height" "48px"
-                    , Attr.style "font-size" "1.2rem"
-                    , Attr.style "display" "flex"
-                    , Attr.style "align-items" "center"
-                    , Attr.style "justify-content" "center"
-                    , Attr.style "cursor" "pointer"
+                    [ css
+                        [ Css.width <| px 50
+                        , Css.height <| px 48
+                        , fontSize <| rem 1.2
+                        , Style.flexCenter
+                        , cursor pointer
+                        ]
                     , Events.onMouseDown <| \_ -> props.onFontStyleChanged FontStyle.Italic
                     ]
                     [ Html.div
@@ -213,13 +243,13 @@ view width display props =
                 Empty.view
             , if display.fontStyleStrikethrough then
                 Html.div
-                    [ Attr.style "width" "50px"
-                    , Attr.style "height" "48px"
-                    , Attr.style "font-size" "1.2rem"
-                    , Attr.style "display" "flex"
-                    , Attr.style "align-items" "center"
-                    , Attr.style "justify-content" "center"
-                    , Attr.style "cursor" "pointer"
+                    [ css
+                        [ Css.width <| px 50
+                        , Css.height <| px 48
+                        , fontSize <| rem 1.2
+                        , Style.flexCenter
+                        , cursor pointer
+                        ]
                     , Events.onMouseDown <| \_ -> props.onFontStyleChanged FontStyle.Strikethrough
                     ]
                     [ Html.div
@@ -250,13 +280,15 @@ view width display props =
 colorCircle : Color -> msg -> Html msg
 colorCircle color msg =
     Html.div
-        [ Attr.style "width" "24px"
-        , Attr.style "height" "24px"
-        , Attr.style "border-radius" "100%"
-        , Attr.style "background-color" <| Color.toString color
-        , Attr.style "border" "1px solid rgba(0, 0, 0, 0.1)"
-        , Attr.style "cursor" "pointer"
-        , Attr.style "margin" "2px"
+        [ css
+            [ Css.width <| px 24
+            , Css.height <| px 24
+            , Style.roundedFull
+            , backgroundColor <| hex <| Color.toString color
+            , border3 (px 1) solid (rgba 0 0 0 0.1)
+            , cursor pointer
+            , margin <| px 2
+            ]
         , Attr.class <| String.toLower <| Color.name color
         , Events.onMouseDown <| \_ -> msg
         ]
@@ -266,19 +298,21 @@ colorCircle color msg =
 colorPicker : Int -> List Color -> (Color -> msg) -> Html msg
 colorPicker x colors onColorChanged =
     Html.div
-        [ Attr.style "width" "140px"
-        , Attr.style "height" "150px"
-        , Attr.style "background-color" <| Color.toString Color.white
-        , Attr.style "box-shadow" "0 8px 16px 0 rgba(0, 0, 0, 0.12)"
-        , Attr.style "border-radius" "2px"
-        , Attr.style "position" "absolute"
-        , Attr.style "bottom" "0"
-        , Attr.style "left" <| String.fromInt x ++ "px"
-        , Attr.style "z-index" "100"
-        , Attr.style "display" "flex"
-        , Attr.style "flex-wrap" "wrap"
-        , Attr.style "justify-content" "space-between"
-        , Attr.style "padding" "8px"
+        [ css
+            [ Css.width <| px 140
+            , Css.height <| px 150
+            , backgroundColor <| hex <| Color.toString Color.white
+            , Style.shadowSm
+            , borderRadius <| px 2
+            , position absolute
+            , bottom zero
+            , left <| px <| toFloat x
+            , zIndex <| int 100
+            , displayFlex
+            , flexWrap wrap
+            , justifyContent spaceBetween
+            , padding <| px 8
+            ]
         ]
     <|
         List.map (\color -> colorCircle color <| onColorChanged color) colors

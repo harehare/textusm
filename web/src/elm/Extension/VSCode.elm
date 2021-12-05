@@ -3,9 +3,9 @@ port module Extension.VSCode exposing (main)
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
 import Components.Diagram as Diagram
-import Html exposing (Html, div)
-import Html.Attributes exposing (style)
-import Html.Lazy exposing (lazy)
+import Html.Styled as Html exposing (Html, div)
+import Html.Styled.Attributes exposing (style)
+import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import List.Extra exposing (setAt)
 import Models.Diagram as DiagramModel
@@ -138,7 +138,7 @@ main =
     Browser.element
         { init = init
         , update = \msg m -> Return.singleton m |> update msg
-        , view = view
+        , view = \m -> Html.toUnstyled <| view m
         , subscriptions = subscriptions
         }
 

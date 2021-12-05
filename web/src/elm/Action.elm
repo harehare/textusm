@@ -600,6 +600,9 @@ updateWindowState model =
                 model.window
                     |> Model.windowOfState.set
                         (case ( model.window.state, Utils.isPhone (Size.getWidth model.diagramModel.size) ) of
+                            ( Fullscreen, _ ) ->
+                                Fullscreen
+
                             ( _, True ) ->
                                 Editor
 

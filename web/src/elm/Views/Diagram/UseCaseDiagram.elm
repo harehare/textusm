@@ -1,10 +1,11 @@
 module Views.Diagram.UseCaseDiagram exposing (view)
 
+import Css exposing (backgroundColor, color, hex, padding4, px, transparent, zero)
 import Dict exposing (Dict)
 import Events
-import Html
-import Html.Attributes as Attr
-import Html.Lazy as Lazy
+import Html.Styled as Html
+import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
@@ -21,8 +22,8 @@ import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
 import Set exposing (Set)
 import State exposing (Step(..))
-import Svg exposing (Svg)
-import Svg.Attributes as SvgAttr
+import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
 import Views.Empty as Empty
 
 
@@ -441,17 +442,21 @@ relationLineView { settings, from, to, relation, reverse } =
             , SvgAttr.style "overflow: visible"
             ]
             [ Html.div
-                [ if diffY < 10 then
-                    Attr.style "padding" "32px 0 0 0"
+                [ css
+                    [ if diffY < 10 then
+                        padding4 (px 32) zero zero zero
 
-                  else
-                    Attr.style "padding" "28px 0 0 24px"
-                , Attr.style "font-family" <| Diagram.fontStyle settings
-                , Attr.style "background-color" "transparent"
+                      else
+                        padding4 (px 28) zero zero (px 24)
+                    , Diagram.fontFamiliy settings
+                    , backgroundColor transparent
+                    ]
                 ]
                 [ Html.div
-                    [ Attr.style "color" <| Diagram.getTextColor settings.color
-                    , FontSize.htmlFontSize FontSize.xs
+                    [ css
+                        [ color <| hex <| Diagram.getTextColor settings.color
+                        , FontSize.cssFontSize FontSize.xs
+                        ]
                     ]
                     [ Html.text <| "<<" ++ relationToString relation ++ ">>" ]
                 ]
