@@ -33,7 +33,7 @@ import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color exposing (Color)
-import Models.Diagram exposing (ContextMenu(..))
+import Models.Diagram exposing (ContextMenu(..), Settings)
 import Models.Dialog exposing (display)
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.FontStyle as FontStyle exposing (FontStyle)
@@ -43,6 +43,7 @@ import Models.Size exposing (Width)
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
+import Views.Diagram.Views as Views
 import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Empty as Empty
 import Views.Icon as Icon
@@ -51,6 +52,7 @@ import Views.Icon as Icon
 type alias Props msg =
     { state : ContextMenu
     , item : Item
+    , settings : Settings
     , position : Position
     , dropDownIndex : Maybe String
     , onMenuSelect : ContextMenu -> msg
@@ -144,7 +146,7 @@ view width display props =
                     [ Html.div []
                         [ Icon.font
                             (Item.getForegroundColor props.item
-                                |> Maybe.withDefault Color.black
+                                |> Maybe.withDefault (Views.getItemColor props.settings props.item |> Tuple.first)
                                 |> Color.toString
                             )
                             16
@@ -166,7 +168,7 @@ view width display props =
                     ]
                     [ colorCircle
                         (Item.getBackgroundColor props.item
-                            |> Maybe.withDefault Color.black
+                            |> Maybe.withDefault (Views.getItemColor props.settings props.item |> Tuple.second)
                         )
                         (props.onMenuSelect BackgroundColorSelectMenu)
                     ]

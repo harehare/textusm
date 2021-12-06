@@ -495,6 +495,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 )
                     { state = contextMenu
                     , item = item_
+                    , settings = model.settings
                     , position =
                         ( floor <| toFloat (Position.getX pos) * model.svg.scale
                         , floor <| toFloat (Position.getY pos + h + 8) * model.svg.scale

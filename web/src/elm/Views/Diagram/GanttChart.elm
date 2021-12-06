@@ -4,6 +4,7 @@ import Constants
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr
 import List.Extra as ListEx
+import Models.Color as Color
 import Models.Diagram as Diagram exposing (Model, Msg, Settings)
 import Models.Diagram.GanttChart as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
 import Models.FontSize as FontSize
@@ -331,7 +332,7 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
             , SvgAttr.ry "3"
             ]
             []
-        , Views.plainText settings ( svgWidth, -3 ) ( textWidth, Constants.ganttItemSize ) colour FontSize.default text
+        , Views.plainText settings ( svgWidth, -3 ) ( textWidth, Constants.ganttItemSize ) (Color.fromString colour) FontSize.default text
         ]
 
 
@@ -399,5 +400,5 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
             , SvgAttr.fill backgroundColor
             ]
             []
-        , Views.plainText settings ( svgWidth, -3 ) ( textWidth, Constants.ganttItemSize ) colour FontSize.default text
+        , Views.plainText settings ( svgWidth, -3 ) ( textWidth, Constants.ganttItemSize ) (Color.fromString colour) FontSize.default text
         ]

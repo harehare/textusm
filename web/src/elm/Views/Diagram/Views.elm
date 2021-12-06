@@ -9,6 +9,7 @@ module Views.Diagram.Views exposing
     , plainText
     , rootTextNode
     , verticalLine
+    , getItemColor
     )
 
 import Constants
@@ -36,7 +37,7 @@ import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Markdown
-import Models.Color as Color
+import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..), SelectedItem, Settings, settingsOfWidth)
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item, ItemType(..), Items)
@@ -49,11 +50,7 @@ import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 
 
-type alias RgbColor =
-    String
-
-
-getItemColor : Settings -> Item -> ( RgbColor, RgbColor )
+getItemColor : Settings -> Item -> ( Color, Color )
 getItemColor settings item =
     case
         ( Item.getItemType item
@@ -62,44 +59,39 @@ getItemColor settings item =
         )
     of
         ( _, Just c, Just b ) ->
-            ( Color.toString c, Color.toString b )
+            ( c, b )
 
         ( Activities, Just c, Nothing ) ->
-            ( Color.toString c, settings.color.activity.backgroundColor )
+            ( c, Color.fromString settings.color.activity.backgroundColor )
 
         ( Activities, Nothing, Just b ) ->
-            ( settings.color.activity.color, Color.toString b )
+            ( Color.fromString settings.color.activity.color, b )
 
         ( Activities, Nothing, Nothing ) ->
-            ( settings.color.activity.color, settings.color.activity.backgroundColor )
+            ( Color.fromString settings.color.activity.color, Color.fromString settings.color.activity.backgroundColor )
 
         ( Tasks, Just c, Nothing ) ->
-            ( Color.toString c, settings.color.task.backgroundColor )
+            ( c, Color.fromString settings.color.task.backgroundColor )
 
         ( Tasks, Nothing, Just b ) ->
-            ( settings.color.task.color, Color.toString b )
+            ( Color.fromString settings.color.task.color, b )
 
         ( Tasks, Nothing, Nothing ) ->
-            ( settings.color.task.color, settings.color.task.backgroundColor )
+            ( Color.fromString settings.color.task.color, Color.fromString settings.color.task.backgroundColor )
 
         ( _, Just c, Nothing ) ->
-            ( Color.toString c, settings.color.story.backgroundColor )
+            ( c, Color.fromString settings.color.story.backgroundColor )
 
         ( _, Nothing, Just b ) ->
-            ( settings.color.story.color, Color.toString b )
+            ( Color.fromString settings.color.story.color, b )
 
         _ ->
-            ( settings.color.story.color, settings.color.story.backgroundColor )
+            ( Color.fromString settings.color.story.color, Color.fromString settings.color.story.backgroundColor )
 
 
-getLineColor : Settings -> Item -> RgbColor
+getLineColor : Settings -> Item -> Color
 getLineColor settings item =
-    case Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getBackgroundColor of
-        Just c ->
-            Color.toString c
-
-        Nothing ->
-            settings.color.line
+    Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getBackgroundColor |> Maybe.withDefault (Color.fromString settings.color.line)
 
 
 card : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item, canMove : Bool } -> Svg Msg
@@ -140,7 +132,7 @@ card { settings, position, selectedItem, item, canMove } =
                     , SvgAttr.height <| String.fromInt height
                     , SvgAttr.x <| String.fromInt posX
                     , SvgAttr.y <| String.fromInt posY
-                    , SvgAttr.fill backgroundColor
+                    , SvgAttr.fill <| Color.toString backgroundColor
                     , SvgAttr.rx "1"
                     , SvgAttr.ry "1"
                     , SvgAttr.style "filter:url(#shadow)"
@@ -206,7 +198,7 @@ card { settings, position, selectedItem, item, canMove } =
                         , SvgAttr.y (String.fromInt <| y_ - 2)
                         , SvgAttr.rx "1"
                         , SvgAttr.ry "1"
-                        , SvgAttr.fill backgroundColor
+                        , SvgAttr.fill <| Color.toString backgroundColor
                         , SvgAttr.style "filter:url(#shadow)"
                         ]
                         []
@@ -324,7 +316,7 @@ horizontalLine { settings, position, selectedItem, item } =
                     , SvgAttr.y1 <| String.fromInt posY
                     , SvgAttr.x2 <| String.fromInt <| posX + width
                     , SvgAttr.y2 <| String.fromInt posY
-                    , SvgAttr.stroke color
+                    , SvgAttr.stroke <| Color.toString color
                     , SvgAttr.strokeWidth "6"
                     , SvgAttr.class "ts-line"
                     ]
@@ -376,7 +368,7 @@ horizontalLine { settings, position, selectedItem, item } =
                         , SvgAttr.x2 (String.fromInt <| x_ + Size.getWidth selectedItemSize + 4)
                         , SvgAttr.y2 (String.fromInt <| y_)
                         , SvgAttr.fill "transparent"
-                        , SvgAttr.stroke color
+                        , SvgAttr.stroke <| Color.toString color
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
@@ -424,7 +416,7 @@ verticalLine { settings, position, selectedItem, item } =
                     , SvgAttr.y1 <| String.fromInt posY
                     , SvgAttr.x2 <| String.fromInt <| posX
                     , SvgAttr.y2 <| String.fromInt <| posY + height
-                    , SvgAttr.stroke color
+                    , SvgAttr.stroke <| Color.toString color
                     , SvgAttr.strokeWidth "6"
                     , SvgAttr.class "ts-line"
                     ]
@@ -476,7 +468,7 @@ verticalLine { settings, position, selectedItem, item } =
                         , SvgAttr.x2 (String.fromInt <| x_)
                         , SvgAttr.y2 (String.fromInt <| y_ + Size.getHeight selectedItemSize + 8)
                         , SvgAttr.fill "transparent"
-                        , SvgAttr.stroke color
+                        , SvgAttr.stroke <| Color.toString color
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
@@ -535,7 +527,7 @@ inputView :
     , fontSize : FontSize
     , position : Position
     , size : Size
-    , color : RgbColor
+    , color : Color
     , item : Item
     }
     -> Svg Msg
@@ -554,7 +546,7 @@ inputView { settings, fontSize, position, size, color, item } =
             , css
                 [ padding4 (px 8) (px 8) (px 8) zero
                 , Diagram.fontFamiliy settings
-                , Css.color <| hex color
+                , Css.color <| hex <| Color.toString color
                 , Css.backgroundColor transparent
                 , borderStyle none
                 , outline none
@@ -572,7 +564,7 @@ inputView { settings, fontSize, position, size, color, item } =
         ]
 
 
-text : Settings -> Position -> Size -> RgbColor -> FontSize -> Item -> Svg Msg
+text : Settings -> Position -> Size -> Color -> FontSize -> Item -> Svg Msg
 text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
     if Item.isMarkdown item then
         Svg.foreignObject
@@ -580,8 +572,8 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             , SvgAttr.y <| String.fromInt posY
             , SvgAttr.width <| String.fromInt svgWidth
             , SvgAttr.height <| String.fromInt svgHeight
-            , SvgAttr.fill colour
-            , SvgAttr.color colour
+            , SvgAttr.fill <| Color.toString colour
+            , SvgAttr.color <| Color.toString colour
             , FontSize.svgStyledFontSize fs
             , SvgAttr.class "ts-text"
             ]
@@ -603,8 +595,8 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             , SvgAttr.y <| String.fromInt posY
             , SvgAttr.width <| String.fromInt svgWidth
             , SvgAttr.height <| String.fromInt svgHeight
-            , SvgAttr.fill colour
-            , SvgAttr.color colour
+            , SvgAttr.fill <| Color.toString colour
+            , SvgAttr.color <| Color.toString colour
             , FontSize.svgStyledFontSize fs
             , SvgAttr.class "ts-text"
             ]
@@ -617,28 +609,28 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
         plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs <| Item.getText item
 
 
-plainText : Settings -> Position -> Size -> RgbColor -> FontSize -> String -> Svg Msg
+plainText : Settings -> Position -> Size -> Color -> FontSize -> String -> Svg Msg
 plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs t =
     Svg.text_
         [ SvgAttr.x <| String.fromInt <| posX + 6
         , SvgAttr.y <| String.fromInt <| posY + 24
         , SvgAttr.width <| String.fromInt svgWidth
         , SvgAttr.height <| String.fromInt svgHeight
-        , SvgAttr.fill colour
-        , SvgAttr.color colour
+        , SvgAttr.fill <| Color.toString colour
+        , SvgAttr.color <| Color.toString colour
         , SvgAttr.fontFamily <| Diagram.fontStyle settings
         , FontSize.svgStyledFontSize fs
         ]
         [ Svg.text t ]
 
 
-markdown : Settings -> RgbColor -> String -> Html Msg
+markdown : Settings -> Color -> String -> Html Msg
 markdown settings colour t =
     Html.fromUnstyled <|
         Markdown.toHtml
             [ LegacyAttr.class "md-content"
             , LegacyAttr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-            , LegacyAttr.style "color" colour
+            , LegacyAttr.style "color" <| Color.toString colour
             ]
             t
 
@@ -664,6 +656,7 @@ canvas settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                                 |> ItemSettings.getForegroundColor
                                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                                 |> Maybe.withDefault settings.color.label
+                                |> Color.fromString
                         , item = item_
                         }
                     , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
@@ -698,7 +691,7 @@ canvasBottom settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                                 |> Maybe.withDefault FontSize.lg
                         , position = ( posX, posY )
                         , size = ( svgWidth, settings.size.height )
-                        , color = settings.color.label
+                        , color = Color.fromString settings.color.label
                         , item = item_
                         }
                     , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
@@ -880,6 +873,7 @@ rootTextNode { settings, position, selectedItem, item } =
             Item.getForegroundColor item
                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                 |> Maybe.withDefault settings.color.activity.color
+                |> Color.fromString
 
         view_ =
             Svg.g
@@ -929,14 +923,14 @@ rootTextNode { settings, position, selectedItem, item } =
             view_
 
 
-textNode : Settings -> Position -> Size -> RgbColor -> Item -> Svg Msg
+textNode : Settings -> Position -> Size -> Color -> Item -> Svg Msg
 textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt posX
         , SvgAttr.y <| String.fromInt posY
         , SvgAttr.width <| String.fromInt svgWidth
         , SvgAttr.height <| String.fromInt svgHeight
-        , SvgAttr.fill colour
+        , SvgAttr.fill <| Color.toString colour
         , SvgAttr.color
             (Item.getForegroundColor item
                 |> Maybe.withDefault Color.black
@@ -1020,7 +1014,7 @@ grid settings ( posX, posY ) selectedItem item =
                     , SvgAttr.height <| String.fromInt <| settings.size.height - 1
                     , SvgAttr.x (String.fromInt posX)
                     , SvgAttr.y (String.fromInt posY)
-                    , SvgAttr.fill backgroundColor
+                    , SvgAttr.fill <| Color.toString backgroundColor
                     , SvgAttr.stroke settings.color.line
                     , SvgAttr.strokeWidth "1"
                     ]
@@ -1043,7 +1037,7 @@ grid settings ( posX, posY ) selectedItem item =
                         , SvgAttr.x (String.fromInt posX)
                         , SvgAttr.y (String.fromInt posY)
                         , SvgAttr.stroke "rgba(0, 0, 0, 0.1)"
-                        , SvgAttr.fill backgroundColor
+                        , SvgAttr.fill <| Color.toString backgroundColor
                         , SvgAttr.stroke settings.color.line
                         , SvgAttr.strokeWidth "1"
                         , SvgAttr.class "ts-grid"
