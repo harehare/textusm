@@ -25,3 +25,6 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           working-directory: server
+      - name: Run Tests
+        working-directory: web
+        run: npm run test

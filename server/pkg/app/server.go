@@ -122,7 +122,10 @@ func Run() int {
 	})
 
 	r.Get("/version", func(rw http.ResponseWriter, r *http.Request) {
-		rw.Write([]byte(env.Version))
+		_, err := rw.Write([]byte(env.Version))
+		if err != nil {
+			rw.WriteHeader(http.StatusInternalServerError)
+		}
 	})
 
 	r.Route("/api/v1", func(r chi.Router) {
