@@ -31,13 +31,12 @@ view : Model -> Svg Msg
 view model =
     case model.data of
         Diagram.MindMap items _ ->
-            let
-                moveingItem =
-                    Diagram.moveingItem model
-            in
             case Item.head items of
                 Just root ->
                     let
+                        moveingItem =
+                            Diagram.moveingItem model
+
                         mindMapItems =
                             Item.unwrapChildren <| Item.getChildren root
 

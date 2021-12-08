@@ -1,4 +1,4 @@
-module Views.SplitWindow exposing (view)
+module Views.SplitWindow exposing (Props, view)
 
 import Css exposing (absolute, alignItems, backgroundColor, borderBottomRightRadius, borderTopRightRadius, calc, center, colResize, cursor, display, displayFlex, height, hex, int, minus, none, plus, pointer, position, px, relative, right, top, vw, width, zIndex)
 import Html.Styled as Html exposing (Attribute, Html)

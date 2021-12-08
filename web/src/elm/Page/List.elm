@@ -36,6 +36,7 @@ import Css
         , displayFlex
         , ellipsis
         , end
+        , focus
         , height
         , hex
         , hidden
@@ -48,6 +49,7 @@ import Css
         , noRepeat
         , noWrap
         , none
+        , outline
         , overflow
         , overflowY
         , padding
@@ -358,7 +360,7 @@ sideMenu session diagramList isOnline =
 
           else
             Empty.view
-        , if Session.isSignedIn session then
+        , if Session.isSignedIn session && isOnline then
             Html.div
                 [ if isBookMarkList diagramList then
                     css [ selectedItemStyle ]
@@ -371,7 +373,7 @@ sideMenu session diagramList isOnline =
 
           else
             Empty.view
-        , if Session.isGithubUser session then
+        , if Session.isGithubUser session && isOnline then
             Html.div
                 [ if isGistList diagramList then
                     css [ selectedItemStyle ]
@@ -550,6 +552,9 @@ diagramListView props =
                         , Style.roundedSm
                         , paddingLeft <| px 32
                         , color <| hex "#000000"
+                        , focus
+                            [ outline none
+                            ]
                         ]
                     , onInput SearchInput
                     ]

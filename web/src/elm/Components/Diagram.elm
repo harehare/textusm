@@ -77,7 +77,6 @@ import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Events exposing (onClick)
 import Task
-import Time exposing (Month(..))
 import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas

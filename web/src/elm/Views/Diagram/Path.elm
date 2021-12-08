@@ -1,4 +1,4 @@
-module Views.Diagram.Path exposing (view)
+module Views.Diagram.Path exposing (Position, Size, view)
 
 import Models.Diagram exposing (Msg)
 import Svg.Styled as Svg exposing (Svg)

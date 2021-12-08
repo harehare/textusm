@@ -1,4 +1,4 @@
-module Style.Global exposing (..)
+module Style.Global exposing (style)
 
 import Css
     exposing

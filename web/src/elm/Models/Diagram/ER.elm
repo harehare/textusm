@@ -1,4 +1,4 @@
-module Models.Diagram.ER exposing (Attribute(..), Column(..), ColumnType(..), ErDiagram, Relationship(..), Table(..), columnTypeToString, from, relationshipToString, tableToLineString, tableToString, tableWidth)
+module Models.Diagram.ER exposing (Attribute(..), Column(..), ColumnLength, ColumnType(..), ErDiagram, LineNo, Name, RelationShipString, Relationship(..), Table(..), TableName, columnTypeToString, from, relationshipToString, tableToLineString, tableToString, tableWidth)
 
 import Constants
 import Dict exposing (Dict)

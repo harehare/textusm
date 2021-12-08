@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Main exposing (Flags, main)
 
 import Action
 import Api.RequestError as RequestError
@@ -240,47 +240,7 @@ view model =
                     , lang = model.lang
                     , settings = model.settingsModel.settings
                     }
-            , let
-                mainWindow =
-                    if Size.getWidth model.diagramModel.size > 0 && Utils.isPhone (Size.getWidth model.diagramModel.size) then
-                        Lazy.lazy5 SwitchWindow.view
-                            SwitchWindow
-                            model.diagramModel.settings.backgroundColor
-                            model.window.state
-                            (div
-                                [ css
-                                    [ Style.hMain
-                                    , Style.widthFull
-                                    , ColorStyle.bgMain
-                                    , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
-                                        [ Style.heightFull ]
-                                    ]
-                                ]
-                                [ editor model
-                                ]
-                            )
-
-                    else
-                        Lazy.lazy3 SplitWindow.view
-                            { onResize = HandleStartWindowResize
-                            , onToggleEditor = ShowEditor
-                            , background = model.diagramModel.settings.backgroundColor
-                            , window = model.window
-                            }
-                            (div
-                                [ css
-                                    [ Style.hMain
-                                    , Style.widthFull
-                                    , ColorStyle.bgMain
-                                    , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
-                                        [ Style.heightFull ]
-                                    ]
-                                ]
-                                [ editor model
-                                ]
-                            )
-              in
-              case model.page of
+            , case model.page of
                 Page.List ->
                     Lazy.lazy DiagramList.view model.diagramListModel |> Html.map UpdateDiagramList
 
@@ -335,6 +295,46 @@ view model =
                                     NotFound.view
 
                         _ ->
+                            let
+                                mainWindow =
+                                    if Size.getWidth model.diagramModel.size > 0 && Utils.isPhone (Size.getWidth model.diagramModel.size) then
+                                        Lazy.lazy5 SwitchWindow.view
+                                            SwitchWindow
+                                            model.diagramModel.settings.backgroundColor
+                                            model.window.state
+                                            (div
+                                                [ css
+                                                    [ Style.hMain
+                                                    , Style.widthFull
+                                                    , ColorStyle.bgMain
+                                                    , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
+                                                        [ Style.heightFull ]
+                                                    ]
+                                                ]
+                                                [ editor model
+                                                ]
+                                            )
+
+                                    else
+                                        Lazy.lazy3 SplitWindow.view
+                                            { onResize = HandleStartWindowResize
+                                            , onToggleEditor = ShowEditor
+                                            , background = model.diagramModel.settings.backgroundColor
+                                            , window = model.window
+                                            }
+                                            (div
+                                                [ css
+                                                    [ Style.hMain
+                                                    , Style.widthFull
+                                                    , ColorStyle.bgMain
+                                                    , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
+                                                        [ Style.heightFull ]
+                                                    ]
+                                                ]
+                                                [ editor model
+                                                ]
+                                            )
+                            in
                             mainWindow
                                 (Lazy.lazy Diagram.view model.diagramModel
                                     |> Html.map UpdateDiagram

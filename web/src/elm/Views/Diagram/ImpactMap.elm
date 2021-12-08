@@ -29,13 +29,13 @@ view model =
             let
                 rootItem =
                     Item.head items
-
-                moveingItem =
-                    Diagram.moveingItem model
             in
             case rootItem of
                 Just root ->
                     let
+                        moveingItem =
+                            Diagram.moveingItem model
+
                         impactMapItems =
                             Item.unwrapChildren <| Item.getChildren root
                     in

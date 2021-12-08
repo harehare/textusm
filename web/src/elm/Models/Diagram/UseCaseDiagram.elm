@@ -132,14 +132,15 @@ itemToUseCase item =
         originalText =
             Item.getText item
                 |> String.trim
-
-        name =
-            originalText
-                |> String.dropLeft 1
-                |> String.dropRight 1
     in
     case ( String.left 1 originalText, String.right 1 originalText ) of
         ( "(", ")" ) ->
+            let
+                name =
+                    originalText
+                        |> String.dropLeft 1
+                        |> String.dropRight 1
+            in
             Just <| Dict.fromList [ ( name, Item.map itemToRelation (Item.getChildrenItems item) ) ]
 
         _ ->

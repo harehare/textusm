@@ -1,4 +1,4 @@
-module Dialog.Confirm exposing (view)
+module Dialog.Confirm exposing (ButtonConfig, Props, view)
 
 import Css
     exposing

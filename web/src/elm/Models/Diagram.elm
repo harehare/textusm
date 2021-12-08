@@ -2,16 +2,21 @@ module Models.Diagram exposing
     ( Color
     , ColorSettings
     , ContextMenu(..)
+    , ContextMenuProps
     , Data(..)
+    , Distance
     , DragStatus(..)
+    , Hierarchy
     , Model
     , MoveState(..)
     , MoveTarget(..)
     , Msg(..)
     , ResizeDirection(..)
     , SelectedItem
+    , SelectedItemInfo
     , Settings
     , Size
+    , SvgInfo
     , chooseZoom
     , dragStart
     , fontFamiliy

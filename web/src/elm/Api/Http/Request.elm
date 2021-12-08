@@ -1,4 +1,4 @@
-module Api.Http.Request exposing (..)
+module Api.Http.Request exposing (Request, delete, emptyResolver, get, jsonResolver, patch, post)
 
 import Http exposing (Header)
 import Json.Decode as D

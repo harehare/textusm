@@ -2,20 +2,13 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.InputObject exposing (..)
+module Graphql.InputObject exposing (InputColor, InputColorRequiredFields, InputGistItem, InputGistItemOptionalFields, InputGistItemRequiredFields, InputItem, InputItemOptionalFields, InputItemRequiredFields, InputSettings, InputSettingsOptionalFields, InputSettingsRequiredFields, InputShareItem, InputShareItemOptionalFields, InputShareItemRequiredFields, buildInputColor, buildInputGistItem, buildInputItem, buildInputSettings, buildInputShareItem, encodeInputColor, encodeInputGistItem, encodeInputItem, encodeInputSettings, encodeInputShareItem)
 
 import Graphql.Enum.Diagram
-import Graphql.Interface
-import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
-import Graphql.Internal.Builder.Object as Object
 import Graphql.Internal.Encode as Encode exposing (Value)
-import Graphql.Object
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
-import Graphql.SelectionSet exposing (SelectionSet)
-import Graphql.Union
-import Json.Decode as Decode
 
 
 buildInputColor :

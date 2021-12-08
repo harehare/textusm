@@ -1,4 +1,4 @@
-module Api.External.Github.GistInput exposing (GistInput, encoder)
+module Api.External.Github.GistInput exposing (File, FileContent, GistInput, encoder)
 
 import Json.Encode as E
 
@@ -20,7 +20,6 @@ type alias FileContent =
     }
 
 
-
 encoder : GistInput -> E.Value
 encoder gist =
     E.object
@@ -30,7 +29,7 @@ encoder gist =
         ]
 
 
-fileContentEncorder: FileContent -> E.Value
+fileContentEncorder : FileContent -> E.Value
 fileContentEncorder content =
     E.object
         [ ( "content", E.string content.content )

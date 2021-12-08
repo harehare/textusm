@@ -1,4 +1,4 @@
-module Models.Diagram.SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..), fragmentToString, from, messageCountAll, messagesCount, participantCount, sequenceItemCount, sequenceItemMessages, unwrapMessageType)
+module Models.Diagram.SequenceDiagram exposing (AltMessage, Fragment(..), FragmentText, Message(..), MessageType(..), ParMessage, Participant(..), SequenceDiagram(..), SequenceItem(..), fragmentToString, from, messageCountAll, messagesCount, participantCount, sequenceItemCount, sequenceItemMessages, unwrapMessageType)
 
 import Dict exposing (Dict)
 import Models.Item as Item exposing (Item, Items)
@@ -268,12 +268,13 @@ itemToMessage item participantDict =
                 let
                     participant1 =
                         Dict.get c1 participantDict
-
-                    (Participant _ order) =
-                        Maybe.withDefault emptyParticipant participant1
                 in
                 case participant1 of
                     Just participantFrom ->
+                        let
+                            (Participant _ order) =
+                                Maybe.withDefault emptyParticipant participant1
+                        in
                         Just <| Message (Lost text) participantFrom (Participant Item.new (order + 1))
 
                     _ ->
@@ -283,12 +284,13 @@ itemToMessage item participantDict =
                 let
                     participant1 =
                         Dict.get c1 participantDict
-
-                    (Participant _ order) =
-                        Maybe.withDefault emptyParticipant participant1
                 in
                 case participant1 of
                     Just participantTo ->
+                        let
+                            (Participant _ order) =
+                                Maybe.withDefault emptyParticipant participant1
+                        in
                         Just <| Message (Found text) (Participant Item.new (order + 1)) participantTo
 
                     _ ->

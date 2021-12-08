@@ -2,7 +2,7 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.Union exposing (..)
+module Graphql.Union exposing (DiagramItem(..))
 
 
 type DiagramItem

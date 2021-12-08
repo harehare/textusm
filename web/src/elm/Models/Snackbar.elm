@@ -1,4 +1,4 @@
-module Models.Snackbar exposing (Snackbar(..))
+module Models.Snackbar exposing (Model, Snackbar(..))
 
 
 type Snackbar msg

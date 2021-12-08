@@ -2,7 +2,7 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.Enum.Diagram exposing (..)
+module Graphql.Enum.Diagram exposing (Diagram(..), decoder, fromString, list, toString)
 
 import Json.Decode as Decode exposing (Decoder)
 

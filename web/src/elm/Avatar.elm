@@ -1,4 +1,4 @@
-module Avatar exposing (Avatar(..), src, toString)
+module Avatar exposing (Avatar(..), Email, ImageUrl, src, toString)
 
 import Html.Styled exposing (Attribute)
 import Html.Styled.Attributes as Attr

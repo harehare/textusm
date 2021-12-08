@@ -7,7 +7,6 @@ import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
-import List.Extra exposing (setAt)
 import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
 import Models.Item as Item
@@ -152,25 +151,6 @@ updateText text model =
     Return.return model <| setText (Text.toString text)
 
 
-setLine : Int -> List String -> String -> Model -> Return Msg Model
-setLine lineNo lines line model =
-    let
-        model_ =
-            model.diagramModel
-
-        newDiagramModel =
-            { model_
-                | text =
-                    Text.fromString <|
-                        (setAt lineNo line lines
-                            |> String.join "\n"
-                        )
-            }
-    in
-    Return.singleton { model | diagramModel = newDiagramModel }
-        |> Return.andThen (updateText newDiagramModel.text)
-
-
 update : Msg -> Return.ReturnF Msg Model
 update message =
     case message of
@@ -188,7 +168,7 @@ update message =
                         (cmd_ |> Cmd.map UpdateDiagram)
                         |> (case subMsg of
                                 DiagramModel.EndEditSelectedItem _ ->
-                                    Return.andThen (\m_ -> Return.return m_ <| setText (Text.toString model_.text))
+                                    Return.andThen (updateText model_.text)
 
                                 DiagramModel.FontStyleChanged _ ->
                                     Return.andThen (updateText model_.text)
@@ -200,7 +180,7 @@ update message =
                                     Return.andThen (updateText model_.text)
 
                                 DiagramModel.Stop ->
-                                    case model.diagramModel.moveState of
+                                    case m.diagramModel.moveState of
                                         DiagramModel.ItemMove target ->
                                             case target of
                                                 DiagramModel.TableTarget _ ->
@@ -209,8 +189,8 @@ update message =
                                                 DiagramModel.ItemTarget _ ->
                                                     Return.andThen (updateText model_.text)
 
-                                        DiagramModel.ItemResize item _ ->
-                                            Return.andThen (setLine (Item.getLineNo item) (Text.lines model_.text) (Item.toLineString item))
+                                        DiagramModel.ItemResize _ _ ->
+                                            Return.andThen (updateText model_.text)
 
                                         _ ->
                                             Return.zero

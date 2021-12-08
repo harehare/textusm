@@ -2,7 +2,7 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.Object exposing (..)
+module Graphql.Object exposing (Color(..), GistItem(..), Item(..), Settings(..), ShareCondition(..))
 
 
 type Color

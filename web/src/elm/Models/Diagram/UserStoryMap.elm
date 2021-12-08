@@ -1,5 +1,7 @@
 module Models.Diagram.UserStoryMap exposing
-    ( UserStoryMap
+    ( CountPerTasks
+    , Hierarchy
+    , UserStoryMap
     , countPerReleaseLevel
     , countPerTasks
     , from

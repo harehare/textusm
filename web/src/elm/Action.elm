@@ -1,4 +1,4 @@
-module Action exposing (..)
+module Action exposing (changePublicState, changeRouteInit, closeDialog, closeFullscreen, closeLocalFile, closeMenu, closeNotification, fullscreenDiagram, hideZoomControl, historyBack, initListPage, initSettingsPage, initShareDiagram, loadDiagram, loadItem, loadLocalDiagram, loadPublicItem, loadRemoteSettings, loadSettings, loadShareItem, loadText, loadWithPasswordShareItem, moveTo, needSaved, openFullscreen, pushUrl, redirectToLastEditedFile, revokeGistToken, saveDiagram, saveLocalFile, saveSettings, saveSettingsToRemote, saveToLocal, saveToRemote, setCurrentDiagram, setDiagramSettings, setDiagramType, setFocus, setFocusEditor, setSettings, setText, setTitle, showConfirmDialog, showErrorMessage, showInfoMessage, showWarningMessage, showZoomControl, startEditTitle, startProgress, stopProgress, switchPage, unchanged, untitled, updateIdToken, updateWindowState)
 
 import Api.Http.Token as TokenApi
 import Api.Request as Request
@@ -129,17 +129,17 @@ loadWithPasswordShareItem token password model =
 
 loadItem : DiagramId -> Model -> Return Msg Model
 loadItem id_ model =
-    let
-        loadFromRemote =
-            Return.return model
-                (Task.attempt Load <|
-                    Request.item
-                        (Session.getIdToken model.session)
-                        (DiagramId.toString id_)
-                )
-    in
     case model.session of
         Session.SignedIn user ->
+            let
+                loadFromRemote =
+                    Return.return model
+                        (Task.attempt Load <|
+                            Request.item
+                                (Session.getIdToken model.session)
+                                (DiagramId.toString id_)
+                        )
+            in
             case user.loginProvider of
                 LoginProvider.Github (Just accessToken) ->
                     if DiagramId.isGithubId id_ then

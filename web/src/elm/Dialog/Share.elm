@@ -1,4 +1,4 @@
-port module Dialog.Share exposing (Model, Msg(..), init, update, view)
+port module Dialog.Share exposing (CopyState, InputCondition, Model, Msg(..), init, update, view)
 
 import Api.Graphql.Query exposing (ShareCondition)
 import Api.Request as Request

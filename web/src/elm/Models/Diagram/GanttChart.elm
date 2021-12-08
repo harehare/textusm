@@ -1,4 +1,4 @@
-module Models.Diagram.GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..), from, sectionSchedule)
+module Models.Diagram.GanttChart exposing (From, GanttChart(..), Schedule(..), Section(..), Task(..), Title, To, from, sectionSchedule)
 
 import Basics.Extra as BasicEx
 import List
@@ -209,15 +209,19 @@ from items =
     let
         rootItem =
             Item.head items |> Maybe.withDefault Item.new
-
-        sectionList =
-            Item.getChildren rootItem
-                |> Item.unwrapChildren
-                |> sectionFromItems
     in
     Item.getText rootItem
         |> extractDateValues
-        |> Maybe.map (\( f, t ) -> GanttChart (Schedule f t <| diff f t) sectionList)
+        |> Maybe.map
+            (\( f, t ) ->
+                let
+                    sectionList =
+                        Item.getChildren rootItem
+                            |> Item.unwrapChildren
+                            |> sectionFromItems
+                in
+                GanttChart (Schedule f t <| diff f t) sectionList
+            )
 
 
 sectionFromItems : Items -> List Section

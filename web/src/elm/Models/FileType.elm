@@ -1,4 +1,4 @@
-module Models.FileType exposing (FileType(..), ddl, html, markdown, pdf, plainText, png, svg, toString)
+module Models.FileType exposing (Extension, FileType(..), ddl, html, markdown, pdf, plainText, png, svg, toString)
 
 
 type alias Extension =

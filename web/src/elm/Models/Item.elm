@@ -1,5 +1,6 @@
 module Models.Item exposing
     ( Children
+    , Hierarchy
     , Item
     , ItemType(..)
     , Items
@@ -621,14 +622,14 @@ leafCount (Items items) =
 
 hasIndent : Int -> String -> Bool
 hasIndent indent text =
-    let
-        lineinputPrefix =
-            String.repeat indent inputPrefix
-    in
     if indent == 0 then
         String.left 1 text /= " "
 
     else
+        let
+            lineinputPrefix =
+                String.repeat indent inputPrefix
+        in
         String.startsWith lineinputPrefix text
             && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
 

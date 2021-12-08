@@ -52,18 +52,6 @@ view :
     }
     -> Html Msg
 view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg, moveState } =
-    let
-        startPosition =
-            case diagramType of
-                MindMap ->
-                    ( Size.getWidth svgSize // 3, Size.getHeight svgSize // 3 )
-
-                ImpactMap ->
-                    ( Constants.itemMargin, Size.getHeight svgSize // 3 )
-
-                _ ->
-                    Size.zero
-    in
     Html.div
         [ css
             [ Css.position absolute
@@ -106,6 +94,18 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg,
                 Attr.style "" ""
         ]
         [ if showMiniMap then
+            let
+                startPosition =
+                    case diagramType of
+                        MindMap ->
+                            ( Size.getWidth svgSize // 3, Size.getHeight svgSize // 3 )
+
+                        ImpactMap ->
+                            ( Constants.itemMargin, Size.getHeight svgSize // 3 )
+
+                        _ ->
+                            Size.zero
+            in
             Svg.svg
                 [ SvgAttr.width "270"
                 , SvgAttr.height "150"

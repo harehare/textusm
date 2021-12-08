@@ -1,4 +1,4 @@
-module Models.LoginProvider exposing (LoginProvider(..), decoder, isGithubLogin, toString)
+module Models.LoginProvider exposing (AccessToken, LoginProvider(..), decoder, isGithubLogin, toString)
 
 import Json.Decode as D
 

@@ -3,13 +3,13 @@ module Views.Diagram.Views exposing
     , canvasBottom
     , canvasImage
     , card
+    , getItemColor
     , grid
     , horizontalLine
     , node
     , plainText
     , rootTextNode
     , verticalLine
-    , getItemColor
     )
 
 import Constants
@@ -19,6 +19,7 @@ import Css
         , borderStyle
         , breakWord
         , color
+        , focus
         , hex
         , marginLeft
         , marginTop
@@ -554,6 +555,9 @@ inputView { settings, fontSize, position, size, color, item } =
                 , Css.fontSize <| px <| toFloat <| FontSize.unwrap fontSize
                 , marginTop <| px 2
                 , marginLeft <| px 2
+                , focus
+                    [ outline none
+                    ]
                 ]
             , Attr.value <| " " ++ String.trimLeft (Item.getText item)
             , onInput EditSelectedItem
@@ -990,6 +994,9 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
                                 |> Maybe.withDefault Color.black
                                 |> Color.toString
                             )
+                    , focus
+                        [ outline none
+                        ]
                     ]
                 , Attr.value <| " " ++ String.trimLeft (Item.getText item)
                 , onInput EditSelectedItem

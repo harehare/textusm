@@ -1,4 +1,4 @@
-module Style.Text exposing (..)
+module Style.Text exposing (base, lg, sm, xl, xl2, xs)
 
 import Css exposing (fontSize, lineHeight, rem)
 

@@ -1,6 +1,6 @@
-module Views.Diagram.ContextMenu exposing (viewAllMenu, viewColorMenuOnly)
+module Views.Diagram.ContextMenu exposing (Props, viewAllMenu, viewColorMenuOnly)
 
-import Css as Css
+import Css
     exposing
         ( absolute
         , backgroundColor
@@ -178,7 +178,7 @@ view width display props =
             , if display.fontSize then
                 Html.div
                     [ css
-                        [ Css.width <| px 72
+                        [ Css.width <| px 64
                         , Css.height <| px 48
                         , fontSize <| rem 1.2
                         , Style.flexCenter

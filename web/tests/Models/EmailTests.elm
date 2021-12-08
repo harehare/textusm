@@ -1,4 +1,4 @@
-module Models.EmailTests exposing (..)
+module Models.EmailTests exposing (suite)
 
 import Expect
 import Models.Email as Email

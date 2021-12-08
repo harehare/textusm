@@ -1,7 +1,7 @@
-module Api.External.Github.Gist exposing (Gist, decoder)
+module Api.External.Github.Gist exposing (File, Gist, decoder)
 
 import Json.Decode as D
-import Json.Decode.Pipeline exposing (required, optional)
+import Json.Decode.Pipeline exposing (optional, required)
 
 
 type alias Gist =

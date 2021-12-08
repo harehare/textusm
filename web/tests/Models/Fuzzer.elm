@@ -1,4 +1,4 @@
-module Models.Fuzzer exposing (..)
+module Models.Fuzzer exposing (childrenFuzzer, colorFuzzer, customColorFuzzer, diagramIdFuzzer, diagramItemFuzzer, diagramLocationFuzzer, diagramTypeFuzzer, fontSizeFuzzer, hexFuzzer, itemFuzzer, itemSettingsFuzzer, itemTypeFuzzer, itemsFuzzer, positionFuzzer, posixFuzzer, rgbFuzzer, textFuzzer, titleFuzzer)
 
 import Fuzz exposing (Fuzzer)
 import Graphql.Enum.Diagram exposing (Diagram(..))

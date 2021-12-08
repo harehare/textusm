@@ -2,7 +2,7 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.VerifyScalarCodecs exposing (..)
+module Graphql.VerifyScalarCodecs exposing (placeholder)
 
 
 placeholder : String

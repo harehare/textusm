@@ -2,7 +2,7 @@ module Page.Settings exposing (Model, Msg, init, update, view)
 
 import Css exposing (alignItems, borderTop3, calc, center, column, displayFlex, flexDirection, flexWrap, fontWeight, height, hex, int, justifyContent, margin4, marginBottom, maxWidth, minus, overflowY, padding, padding2, padding4, pct, px, scroll, solid, spaceBetween, vh, width, wrap, zero)
 import Css.Media as Media exposing (withMedia)
-import Html.Styled as Html exposing (Html, div, text)
+import Html.Styled exposing (Html, div, text)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)

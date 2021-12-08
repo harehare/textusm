@@ -2,7 +2,7 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.Interface exposing (..)
+module Graphql.Interface exposing (Node(..))
 
 
 type Node

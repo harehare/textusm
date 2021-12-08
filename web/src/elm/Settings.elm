@@ -1,5 +1,6 @@
 module Settings exposing
     ( EditorSettings
+    , IsDarkMode
     , Settings
     , defaultEditorSettings
     , defaultSettings

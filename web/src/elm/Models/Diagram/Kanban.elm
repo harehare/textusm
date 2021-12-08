@@ -1,4 +1,4 @@
-module Models.Diagram.Kanban exposing (Card(..), Kanban(..), KanbanList(..), from, getCardCount, getListCount)
+module Models.Diagram.Kanban exposing (Card(..), Kanban(..), KanbanList(..), Name, from, getCardCount, getListCount)
 
 import Models.Item as Item exposing (Item, Items)
 

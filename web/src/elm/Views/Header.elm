@@ -1,4 +1,4 @@
-module Views.Header exposing (view)
+module Views.Header exposing (Props, view)
 
 import Asset
 import Avatar exposing (Avatar(..))
@@ -12,6 +12,7 @@ import Css
         , displayFlex
         , ellipsis
         , flexStart
+        , focus
         , height
         , hex
         , hidden
@@ -22,6 +23,7 @@ import Css
         , marginTop
         , noWrap
         , none
+        , outline
         , overflow
         , padding
         , padding4
@@ -168,6 +170,9 @@ view props =
                                 , padding <| px 8
                                 , marginLeft <| px 8
                                 , color <| hex <| Color.toString Color.white2
+                                , focus
+                                    [ outline none
+                                    ]
                                 ]
                             , Attr.value <| Title.toString props.currentDiagram.title
                             , Events.onInput EditTitle

@@ -1,5 +1,7 @@
 module Models.DiagramLocation exposing
-    ( DiagramLocation(..)
+    ( CanUseNativeFileSystem
+    , DiagramLocation(..)
+    , IsGithubUser
     , decoder
     , enabled
     , encoder

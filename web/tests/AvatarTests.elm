@@ -1,4 +1,4 @@
-module AvatarTests exposing (..)
+module AvatarTests exposing (suite)
 
 import Avatar
 import Expect

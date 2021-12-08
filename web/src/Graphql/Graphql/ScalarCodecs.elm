@@ -2,10 +2,9 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.ScalarCodecs exposing (..)
+module Graphql.ScalarCodecs exposing (Id, Time, codecs)
 
 import Graphql.Scalar exposing (defaultCodecs)
-import Json.Decode as Decode exposing (Decoder)
 
 
 type alias Id =

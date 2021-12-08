@@ -1,6 +1,7 @@
 module Models.Diagram.FreeForm exposing
     ( FreeForm
     , FreeFormItem(..)
+    , FreeFormItems
     , from
     , getItems
     , unwrap

@@ -1,4 +1,4 @@
-module Dialog.Input exposing (view)
+module Dialog.Input exposing (Props, view)
 
 import Css
     exposing

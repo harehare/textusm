@@ -1,4 +1,4 @@
-module Extension.Lib exposing (main)
+module Extension.Lib exposing (InitData, Model, Msg, main)
 
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)

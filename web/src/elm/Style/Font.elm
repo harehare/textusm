@@ -1,4 +1,4 @@
-module Style.Font exposing (..)
+module Style.Font exposing (fontBold, fontFamily, fontSemiBold)
 
 import Css exposing (fontFamilies, fontWeight, int, qt)
 

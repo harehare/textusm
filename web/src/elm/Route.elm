@@ -1,4 +1,4 @@
-module Route exposing (Route(..), isViewFile, moveTo, replaceRoute, toRoute, toString)
+module Route exposing (Route(..), Title, isViewFile, moveTo, replaceRoute, toRoute, toString)
 
 import Browser.Navigation as Nav
 import Graphql.Enum.Diagram exposing (Diagram)

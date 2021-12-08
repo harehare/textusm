@@ -1,4 +1,4 @@
-module Views.Menu exposing (MenuItem(..), menu, view)
+module Views.Menu exposing (MenuInfo, MenuItem(..), Props, menu, view)
 
 import Css
     exposing
