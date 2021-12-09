@@ -8,7 +8,7 @@
   "publisher": "harehare",
   "version": "0.10.0",
   "engines": {
-    "vscode": "^1.62.0"
+    "vscode": "^1.63.0"
   },
   "homepage": "https://textusm.com",
   "galleryBanner": {
@@ -28,8 +28,7 @@
     "mindmap"
   ],
   "activationEvents": [
-    "onCommand:extension.showPreview",
-    "onCommand:extension.newDiagram"
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -206,7 +205,7 @@
     "@types/node": "^16.11.12",
     "@types/svgo": "^2.6.0",
     "@types/uuid": "^8.3.3",
-    "@types/vscode": "^1.62.0",
+    "@types/vscode": "^1.63.0",
     "clean-webpack-plugin": "^4.0.0",
     "terser-webpack-plugin": "^5.2.5",
     "ts-loader": "^9.2.6",
