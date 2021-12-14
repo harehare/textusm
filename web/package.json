@@ -20,7 +20,7 @@
         "workbox-window": "^6.4.2"
     },
     "devDependencies": {
-        "@babel/core": "^7.16.0",
+        "@babel/core": "^7.16.5",
         "@babel/preset-env": "^7.16.4",
         "@commitlint/cli": "^15.0.0",
         "@commitlint/config-conventional": "^15.0.0",
