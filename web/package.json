@@ -24,7 +24,7 @@
         "@babel/preset-env": "^7.16.5",
         "@commitlint/cli": "^15.0.0",
         "@commitlint/config-conventional": "^15.0.0",
-        "@dillonkearns/elm-graphql": "^4.2.2",
+        "@dillonkearns/elm-graphql": "^4.2.3",
         "@sentry/webpack-plugin": "^1.18.3",
         "@trivago/prettier-plugin-sort-imports": "^3.1.1",
         "@types/jspdf": "^2.0.0",
