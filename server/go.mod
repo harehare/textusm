@@ -9,11 +9,11 @@ require (
 	github.com/go-chi/cors v1.2.0
 	github.com/go-chi/httprate v0.5.2
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/rs/zerolog v1.26.0
+	github.com/rs/zerolog v1.26.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.7.0
 	github.com/vektah/gqlparser/v2 v2.2.0
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
 	google.golang.org/api v0.62.0
 	google.golang.org/grpc v1.42.0
 )
