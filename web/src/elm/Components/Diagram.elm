@@ -69,6 +69,7 @@ import Models.FontStyle as FontStyle
 import Models.Item as Item
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
+import Models.Property as Property
 import Models.Size as Size exposing (Size)
 import Models.Text as Text
 import Return exposing (Return)
@@ -128,6 +129,7 @@ init settings =
         , contextMenu = Nothing
         , dragStatus = NoDrag
         , dropDownIndex = Nothing
+        , property = Property.empty
         }
 
 
@@ -409,7 +411,10 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     Size.getHeight model.size
             )
         , SvgAttr.viewBox ("0 0 " ++ String.fromInt svgWidth ++ " " ++ String.fromInt svgHeight)
-        , Attr.style "background-color" model.settings.backgroundColor
+        , Property.getBackgroundColor model.property
+            |> Maybe.map Color.toString
+            |> Maybe.withDefault model.settings.backgroundColor
+            |> Attr.style "background-color"
         , case model.selectedItem of
             Just _ ->
                 Attr.style "" ""
@@ -699,6 +704,7 @@ updateDiagram ( width, height ) base text =
             }
         , movePosition = Position.zero
         , text = Text.edit base.text text
+        , property = Property.fromString text
     }
 
 

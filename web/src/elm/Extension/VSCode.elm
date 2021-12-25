@@ -10,6 +10,7 @@ import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
 import Models.Item as Item
+import Models.Property as Property
 import Models.Text as Text exposing (Text)
 import Return exposing (Return)
 import Task
@@ -102,6 +103,7 @@ init flags =
             , text = Text.empty
             , dragStatus = DiagramModel.NoDrag
             , dropDownIndex = Nothing
+            , property = Property.empty
             }
       , text = flags.text
       , backgroundColor = flags.backgroundColor

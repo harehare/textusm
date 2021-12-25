@@ -114,6 +114,7 @@ view =
         -- Comment Syntax
         , section (Just "Comment Syntax")
         , textCommentView [ text "# Comment..." ]
+        , textCommentView [ text "# backgroundColor: #FFFFFF" ]
 
         -- User Story Map Syntax
         , section (Just "User Story Map Syntax")

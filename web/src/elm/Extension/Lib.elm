@@ -10,6 +10,7 @@ import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.Item as Item
+import Models.Property as Property
 import Models.Text as Text
 import Return
 import Task
@@ -119,6 +120,7 @@ init flags =
             , touchDistance = Nothing
             , dragStatus = DiagramModel.NoDrag
             , dropDownIndex = Nothing
+            , property = Property.empty
             }
       , text = flags.text
       , backgroundColor = flags.settings.backgroundColor

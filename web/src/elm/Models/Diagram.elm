@@ -77,6 +77,7 @@ import Models.FontSize exposing (FontSize)
 import Models.FontStyle exposing (FontStyle)
 import Models.Item exposing (Item, Items)
 import Models.Position exposing (Position)
+import Models.Property exposing (Property)
 import Models.Size as Size
 import Models.Text exposing (Text)
 import Monocle.Compose as Compose
@@ -146,6 +147,7 @@ type alias Model =
     , contextMenu : Maybe ContextMenuProps
     , dragStatus : DragStatus
     , dropDownIndex : Maybe String
+    , property : Property
     }
 
 
