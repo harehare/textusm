@@ -1,6 +1,7 @@
 module Views.Diagram.UserStoryMap exposing (view)
 
 import Constants
+import Html.Attributes exposing (property)
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr
 import List
@@ -9,6 +10,7 @@ import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
 import Models.Diagram.UserStoryMap as UserStoryMap exposing (UserStoryMap)
 import Models.Item as Item exposing (Item, Items)
 import Models.Position exposing (Position)
+import Models.Property as Property exposing (Property)
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
@@ -28,6 +30,7 @@ view model =
                     { settings = model.settings
                     , width = model.svg.width
                     , userStoryMap = userStoryMap
+                    , property = model.property
                     }
                 , Lazy.lazy mainView
                     { settings = model.settings
@@ -35,6 +38,7 @@ view model =
                     , items = UserStoryMap.getItems userStoryMap
                     , countByTasks = UserStoryMap.countPerTasks userStoryMap
                     , countByReleaseLevel = UserStoryMap.countPerReleaseLevel userStoryMap
+                    , property = model.property
                     }
                 ]
 
@@ -42,7 +46,7 @@ view model =
             Empty.view
 
 
-mainView : { settings : Settings, selectedItem : SelectedItem, items : Items, countByTasks : List Int, countByReleaseLevel : List Int } -> Svg Msg
+mainView : { settings : Settings, property : Property, selectedItem : SelectedItem, items : Items, countByTasks : List Int, countByReleaseLevel : List Int } -> Svg Msg
 mainView { settings, selectedItem, items, countByTasks, countByReleaseLevel } =
     Keyed.node "g"
         []
@@ -56,8 +60,8 @@ mainView { settings, selectedItem, items, countByTasks, countByReleaseLevel } =
         )
 
 
-labelView : { settings : Settings, width : Int, userStoryMap : UserStoryMap } -> Svg Msg
-labelView { settings, width, userStoryMap } =
+labelView : { settings : Settings, property : Property, width : Int, userStoryMap : UserStoryMap } -> Svg Msg
+labelView { settings, property, width, userStoryMap } =
     let
         posX =
             16
@@ -83,19 +87,19 @@ labelView { settings, width, userStoryMap } =
             else
                 Svg.line [] []
           , if hierarchy > 0 then
-                labelTextView settings ( posX, 10 ) (UserStoryMap.getReleaseLevel userStoryMap "user_activities" "USER ACTIVITIES")
+                labelTextView settings ( posX, 10 ) (Property.getUserActivity property |> Maybe.withDefault "USER ACTIVITIES")
 
             else
                 Svg.g [] []
           , if hierarchy > 0 then
-                labelTextView settings ( posX, settings.size.height + 25 ) (UserStoryMap.getReleaseLevel userStoryMap "user_tasks" "USER TASKS")
+                labelTextView settings ( posX, settings.size.height + 25 ) (Property.getUserTask property |> Maybe.withDefault "USER TASKS")
 
             else
                 Svg.g [] []
           ]
             ++ (if hierarchy > 1 then
-                    [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) (UserStoryMap.getReleaseLevel userStoryMap "user_stories" "USER STORIES")
-                    , labelTextView settings ( posX, settings.size.height * 2 + 80 ) (UserStoryMap.getReleaseLevel userStoryMap "release1" "RELEASE 1")
+                    [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) (Property.getUserStory property |> Maybe.withDefault "USER STORIES")
+                    , labelTextView settings ( posX, settings.size.height * 2 + 80 ) (Property.getReleaseLevel property 1 |> Maybe.withDefault "RELEASE 1")
                     ]
 
                 else
@@ -128,7 +132,7 @@ labelView { settings, width, userStoryMap } =
                                     , SvgAttr.strokeWidth "2"
                                     ]
                                     []
-                                , labelTextView settings ( posX, releaseY + Constants.itemMargin ) (UserStoryMap.getReleaseLevel userStoryMap ("release" ++ String.fromInt (xx + 1)) ("RELEASE " ++ String.fromInt (xx + 1)))
+                                , labelTextView settings ( posX, releaseY + Constants.itemMargin ) (Property.getReleaseLevel property (xx + 1) |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1)))
                                 ]
 
                             else

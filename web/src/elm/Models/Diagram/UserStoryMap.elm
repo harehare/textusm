@@ -7,14 +7,14 @@ module Models.Diagram.UserStoryMap exposing
     , from
     , getHierarchy
     , getItems
-    , getReleaseLevel
     , storyCount
     , taskCount
     )
 
-import Dict exposing (Dict)
+import Dict
 import List.Extra exposing (scanl)
 import Models.Item as Item exposing (Items)
+import Models.Property as Property exposing (Property)
 import State exposing (Step(..))
 
 
@@ -30,17 +30,13 @@ type alias CountPerTasks =
     List Int
 
 
-type alias ReleaseLevel =
-    Dict String String
-
-
 type UserStoryMap
     = UserStoryMap
         { items : Items
         , countPerReleaseLevel : CountPerStories
         , countPerTasks : CountPerTasks
-        , releaseLevel : ReleaseLevel
         , hierarchy : Int
+        , property : Property
         }
 
 
@@ -50,14 +46,9 @@ from text hierarchy items =
         { items = items
         , countPerTasks = countByTasks items
         , countPerReleaseLevel = countByStories text
-        , releaseLevel = parseComment text
         , hierarchy = hierarchy
+        , property = Property.empty
         }
-
-
-getReleaseLevel : UserStoryMap -> String -> String -> String
-getReleaseLevel (UserStoryMap userStoryMap) key default =
-    Dict.get key userStoryMap.releaseLevel |> Maybe.withDefault default
 
 
 getItems : UserStoryMap -> Items
@@ -89,22 +80,6 @@ taskCount (UserStoryMap userStoryMap) =
 storyCount : UserStoryMap -> Int
 storyCount (UserStoryMap userStoryMap) =
     List.sum userStoryMap.countPerReleaseLevel
-
-
-parseComment : String -> ReleaseLevel
-parseComment text =
-    String.lines text
-        |> List.filter (\t -> String.trim t |> String.startsWith "#")
-        |> List.map
-            (\line ->
-                case String.split ":" line of
-                    [ name, value ] ->
-                        ( String.replace "#" "" name |> String.trim |> String.toLower, String.trim value )
-
-                    _ ->
-                        ( "", "" )
-            )
-        |> Dict.fromList
 
 
 countByTasks : Items -> CountPerTasks

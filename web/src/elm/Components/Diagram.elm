@@ -443,7 +443,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 ]
             ]
         , case model.data of
-            Diagram.UserStoryMap userStoryMap ->
+            Diagram.UserStoryMap _ ->
                 Svg.text_
                     [ SvgAttr.x "8"
                     , SvgAttr.y "8"
@@ -451,7 +451,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     , SvgAttr.fontFamily <| Diagram.fontStyle model.settings
                     , SvgAttr.fill (model.settings.color.text |> Maybe.withDefault model.settings.color.label)
                     ]
-                    [ Svg.text <| UserStoryMapModel.getReleaseLevel userStoryMap "title" "" ]
+                    [ Svg.text (Property.getTitle model.property |> Maybe.withDefault "") ]
 
             _ ->
                 Svg.g [] []
