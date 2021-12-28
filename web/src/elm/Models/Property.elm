@@ -8,6 +8,7 @@ module Models.Property exposing
     , getUserActivity
     , getUserStory
     , getUserTask
+    , getZoomControl
     )
 
 import Dict exposing (Dict)
@@ -21,6 +22,7 @@ type Key
     | UserTask
     | UserStory
     | ReleaseLevel Int
+    | ZoomControl
 
 
 type alias Property =
@@ -32,8 +34,8 @@ getBackgroundColor property =
     Dict.get (toKeyString BackgroundColor) property |> Maybe.map Color.fromString
 
 
-getReleaseLevel : Property -> Int -> Maybe String
-getReleaseLevel property level =
+getReleaseLevel : Int -> Property -> Maybe String
+getReleaseLevel level property =
     Dict.get (toKeyString <| ReleaseLevel level) property
 
 
@@ -55,6 +57,11 @@ getUserStory property =
 getTitle : Property -> Maybe String
 getTitle property =
     Dict.get (toKeyString Title) property
+
+
+getZoomControl : Property -> Maybe Bool
+getZoomControl property =
+    Dict.get (toKeyString ZoomControl) property |> Maybe.map (\b -> String.toLower b == "true")
 
 
 empty : Property
@@ -102,6 +109,9 @@ enabledKey s =
         "title" ->
             Just Title
 
+        "zoom_control" ->
+            Just ZoomControl
+
         _ ->
             if String.startsWith "release" s then
                 String.dropLeft 7 s |> String.toInt |> Maybe.map (\v -> ReleaseLevel v)
@@ -130,3 +140,6 @@ toKeyString key =
 
         UserStory ->
             "user_stories"
+
+        ZoomControl ->
+            "zoom_control"

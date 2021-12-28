@@ -309,7 +309,7 @@ view model =
                     ]
                 ]
             ]
-        , if model.settings.zoomControl |> Maybe.withDefault model.showZoomControl then
+        , if Property.getZoomControl model.property |> Maybe.withDefault (model.settings.zoomControl |> Maybe.withDefault model.showZoomControl) then
             Lazy.lazy2 zoomControl model.fullscreen model.svg.scale
 
           else

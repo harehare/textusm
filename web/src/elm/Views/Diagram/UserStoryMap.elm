@@ -99,7 +99,7 @@ labelView { settings, property, width, userStoryMap } =
           ]
             ++ (if hierarchy > 1 then
                     [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) (Property.getUserStory property |> Maybe.withDefault "USER STORIES")
-                    , labelTextView settings ( posX, settings.size.height * 2 + 80 ) (Property.getReleaseLevel property 1 |> Maybe.withDefault "RELEASE 1")
+                    , labelTextView settings ( posX, settings.size.height * 2 + 80 ) (Property.getReleaseLevel 1 property |> Maybe.withDefault "RELEASE 1")
                     ]
 
                 else
@@ -132,7 +132,7 @@ labelView { settings, property, width, userStoryMap } =
                                     , SvgAttr.strokeWidth "2"
                                     ]
                                     []
-                                , labelTextView settings ( posX, releaseY + Constants.itemMargin ) (Property.getReleaseLevel property (xx + 1) |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1)))
+                                , labelTextView settings ( posX, releaseY + Constants.itemMargin ) (Property.getReleaseLevel (xx + 1) property |> Maybe.withDefault ("RELEASE " ++ String.fromInt (xx + 1)))
                                 ]
 
                             else

@@ -53,7 +53,7 @@ func isAuthenticated(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, isBookmark bool) ([]*itemModel.Item, error) {
+func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, isBookmark bool, fields map[string]struct{}) ([]*itemModel.Item, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, is
 	resultItems := make([]*itemModel.Item, len(items))
 
 	for i, item := range items {
-		if item.Text != "" {
+		if _, ok := fields["text"]; ok && item.Text != "" {
 			text, err := Decrypt(encryptKey, item.Text)
 			if err != nil {
 				return nil, e.DecryptionFailedError(err)

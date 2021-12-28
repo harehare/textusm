@@ -88,7 +88,7 @@ func TestFindDiagrams(t *testing.T) {
 	mockItemRepo.On("Find", ctx, "userID", 0, 10, false).Return(items, nil)
 
 	service := NewService(mockItemRepo, mockShareRepo, mockUserRepo)
-	diagrams, err := service.Find(ctx, 0, 10, false, false)
+	diagrams, err := service.Find(ctx, 0, 10, false, false, map[string]struct{}{})
 
 	if err != nil {
 		t.Fatal("failed FindDiagrams")
