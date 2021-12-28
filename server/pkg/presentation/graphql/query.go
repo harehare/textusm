@@ -24,7 +24,7 @@ func getNestedPreloads(ctx *graphql.OperationContext, fields []graphql.Collected
 	for _, column := range fields {
 		prefixColumn := getPreloadString(prefix, column.Name)
 		preloads[prefixColumn] = struct{}{}
-		for k, _ := range getNestedPreloads(ctx, graphql.CollectFields(ctx, column.Selections, nil), prefixColumn) {
+		for k := range getNestedPreloads(ctx, graphql.CollectFields(ctx, column.Selections, nil), prefixColumn) {
 			preloads[k] = struct{}{}
 		}
 	}
