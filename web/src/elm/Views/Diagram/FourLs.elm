@@ -4,6 +4,7 @@ import Constants
 import Models.Diagram as Diagram exposing (Model, Msg)
 import Models.Diagram.FourLs exposing (FourLsItem(..))
 import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Lazy as Lazy
 import Utils.Diagram as DiagramUtils
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
@@ -31,22 +32,30 @@ view model =
             in
             Svg.g
                 []
-                [ Views.canvas model.settings
+                [ Lazy.lazy6 Views.canvas
+                    model.settings
+                    model.property
                     ( Constants.largeItemWidth, itemHeight )
                     ( 0, 0 )
                     model.selectedItem
                     liked
-                , Views.canvas model.settings
+                , Lazy.lazy6 Views.canvas
+                    model.settings
+                    model.property
                     ( Constants.largeItemWidth, itemHeight )
                     ( Constants.largeItemWidth - 5, 0 )
                     model.selectedItem
                     learned
-                , Views.canvas model.settings
+                , Lazy.lazy6 Views.canvas
+                    model.settings
+                    model.property
                     ( Constants.largeItemWidth, itemHeight + 5 )
                     ( 0, itemHeight - 5 )
                     model.selectedItem
                     lacked
-                , Views.canvas model.settings
+                , Lazy.lazy6 Views.canvas
+                    model.settings
+                    model.property
                     ( Constants.largeItemWidth, itemHeight + 5 )
                     ( Constants.largeItemWidth - 5, itemHeight - 5 )
                     model.selectedItem

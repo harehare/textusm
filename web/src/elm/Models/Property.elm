@@ -3,6 +3,8 @@ module Models.Property exposing
     , empty
     , fromString
     , getBackgroundColor
+    , getLineColor
+    , getLineSize
     , getReleaseLevel
     , getTitle
     , getUserActivity
@@ -13,6 +15,7 @@ module Models.Property exposing
 
 import Dict exposing (Dict)
 import Models.Color as Color exposing (Color)
+import String exposing (toInt)
 
 
 type Key
@@ -23,6 +26,8 @@ type Key
     | UserStory
     | ReleaseLevel Int
     | ZoomControl
+    | LineColor
+    | LineSize
 
 
 type alias Property =
@@ -32,6 +37,16 @@ type alias Property =
 getBackgroundColor : Property -> Maybe Color
 getBackgroundColor property =
     Dict.get (toKeyString BackgroundColor) property |> Maybe.map Color.fromString
+
+
+getLineColor : Property -> Maybe Color
+getLineColor property =
+    Dict.get (toKeyString LineColor) property |> Maybe.map Color.fromString
+
+
+getLineSize : Property -> Maybe Int
+getLineSize property =
+    Dict.get (toKeyString LineSize) property |> Maybe.andThen toInt
 
 
 getReleaseLevel : Int -> Property -> Maybe String
@@ -97,6 +112,12 @@ enabledKey s =
         "background_color" ->
             Just BackgroundColor
 
+        "line_color" ->
+            Just LineColor
+
+        "line_size" ->
+            Just LineSize
+
         "user_activities" ->
             Just UserActivity
 
@@ -126,6 +147,9 @@ toKeyString key =
         BackgroundColor ->
             "background_color"
 
+        LineColor ->
+            "line_color"
+
         Title ->
             "title"
 
@@ -143,3 +167,6 @@ toKeyString key =
 
         ZoomControl ->
             "zoom_control"
+
+        LineSize ->
+            "line_size"

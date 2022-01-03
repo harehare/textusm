@@ -44,6 +44,7 @@ import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item, ItemType(..), Items)
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
+import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
 import String
 import Style.Style as Style
@@ -639,14 +640,14 @@ markdown settings colour t =
             t
 
 
-canvas : Settings -> Size -> Position -> SelectedItem -> Item -> Svg Msg
-canvas settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
+canvas : Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
+canvas settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
     Svg.g
         []
         (case selectedItem of
             Just item_ ->
                 if Item.getLineNo item_ == Item.getLineNo item then
-                    [ canvasRect settings ( posX, posY ) ( svgWidth, svgHeight )
+                    [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
                     , inputView
                         { settings = settings
                         , fontSize =
@@ -667,27 +668,27 @@ canvas settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                     ]
 
                 else
-                    [ canvasRect settings ( posX, posY ) ( svgWidth, svgHeight )
+                    [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
                     , title settings ( posX + 20, posY + 20 ) item
                     , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                     ]
 
             Nothing ->
-                [ canvasRect settings ( posX, posY ) ( svgWidth, svgHeight )
+                [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
                 , title settings ( posX + 20, posY + 20 ) item
                 , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                 ]
         )
 
 
-canvasBottom : Settings -> Size -> Position -> SelectedItem -> Item -> Svg Msg
-canvasBottom settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
+canvasBottom : Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
+canvasBottom settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
     Svg.g
         []
         (case selectedItem of
             Just item_ ->
                 if Item.getLineNo item_ == Item.getLineNo item then
-                    [ canvasRect settings ( posX, posY ) ( svgWidth, svgHeight )
+                    [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
                     , inputView
                         { settings = settings
                         , fontSize =
@@ -702,26 +703,26 @@ canvasBottom settings ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
                     ]
 
                 else
-                    [ canvasRect settings ( posX, posY ) ( svgWidth, svgHeight )
+                    [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
                     , title settings ( posX + 20, posY + svgHeight - 25 ) item
                     , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                     ]
 
             Nothing ->
-                [ canvasRect settings ( posX, posY ) ( svgWidth, svgHeight )
+                [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
                 , title settings ( posX + 20, posY + svgHeight - 25 ) item
                 , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                 ]
         )
 
 
-canvasRect : Settings -> Position -> Size -> Svg msg
-canvasRect settings ( posX, posY ) ( rectWidth, rectHeight ) =
+canvasRect : Settings -> Property -> Position -> Size -> Svg msg
+canvasRect settings property ( posX, posY ) ( rectWidth, rectHeight ) =
     Svg.rect
         [ SvgAttr.width <| String.fromInt rectWidth
         , SvgAttr.height <| String.fromInt rectHeight
-        , SvgAttr.stroke settings.color.line
-        , SvgAttr.strokeWidth "10"
+        , SvgAttr.stroke (Property.getLineColor property |> Maybe.map Color.toString |> Maybe.withDefault settings.color.line)
+        , SvgAttr.strokeWidth (Property.getLineSize property |> Maybe.map String.fromInt |> Maybe.withDefault "10")
         , SvgAttr.x <| String.fromInt posX
         , SvgAttr.y <| String.fromInt posY
         , SvgAttr.class "ts-canvas"
@@ -774,11 +775,11 @@ canvasText { settings, svgWidth, position, selectedItem, items } =
         )
 
 
-canvasImage : Settings -> Size -> Position -> Item -> Svg Msg
-canvasImage settings ( svgWidth, svgHeight ) ( posX, posY ) item =
+canvasImage : Settings -> Property -> Size -> Position -> Item -> Svg Msg
+canvasImage settings property ( svgWidth, svgHeight ) ( posX, posY ) item =
     Svg.g
         []
-        [ canvasRect settings ( posX, posY ) ( svgWidth, svgHeight )
+        [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
         , image ( Constants.itemWidth - 5, svgHeight )
             ( posX + 5, posY + 5 )
             (Item.getChildren item

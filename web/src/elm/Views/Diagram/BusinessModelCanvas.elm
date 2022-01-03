@@ -47,56 +47,65 @@ view model =
             in
             Svg.g
                 []
-                [ Lazy.lazy5 Views.canvas
+                [ Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight * 2 )
                     ( 0, 0 )
                     model.selectedItem
                     keyPartners
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth - 5, 0 )
                     model.selectedItem
                     keyActivities
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight + 5 )
                     ( Constants.itemWidth - 5, itemHeight - 5 )
                     model.selectedItem
                     keyResources
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight * 2 )
                     ( Constants.itemWidth * 2 - 10, 0 )
                     model.selectedItem
                     valuePropotion
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth * 3 - 15, 0 )
                     model.selectedItem
                     customerRelationships
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight + 5 )
                     ( Constants.itemWidth * 3 - 15, itemHeight - 5 )
                     model.selectedItem
                     channels
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight * 2 )
                     ( Constants.itemWidth * 4 - 20, 0 )
                     model.selectedItem
                     customerSegments
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( round (toFloat Constants.itemWidth * 2.5) - 10, itemHeight + 5 )
                     ( 0, itemHeight * 2 - 5 )
                     model.selectedItem
                     costStructure
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( round (toFloat Constants.itemWidth * 2.5) - 5, itemHeight + 5 )
                     ( round (toFloat Constants.itemWidth * 2.5) - 15, itemHeight * 2 - 5 )
                     model.selectedItem

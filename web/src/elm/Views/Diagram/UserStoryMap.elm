@@ -6,6 +6,7 @@ import Html.Styled as Html
 import Html.Styled.Attributes as Attr
 import List
 import List.Extra as ListEx
+import Models.Color as Color
 import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
 import Models.Diagram.UserStoryMap as UserStoryMap exposing (UserStoryMap)
 import Models.Item as Item exposing (Item, Items)
@@ -79,7 +80,7 @@ labelView { settings, property, width, userStoryMap } =
                     , SvgAttr.y1 <| String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2)
                     , SvgAttr.x2 <| String.fromInt width
                     , SvgAttr.y2 <| String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2)
-                    , SvgAttr.stroke settings.color.line
+                    , SvgAttr.stroke (Property.getLineColor property |> Maybe.map Color.toString |> Maybe.withDefault settings.color.line)
                     , SvgAttr.strokeWidth "2"
                     ]
                     []
@@ -128,7 +129,7 @@ labelView { settings, property, width, userStoryMap } =
                                     , SvgAttr.y1 <| String.fromInt releaseY
                                     , SvgAttr.x2 <| String.fromInt width
                                     , SvgAttr.y2 <| String.fromInt releaseY
-                                    , SvgAttr.stroke settings.color.line
+                                    , SvgAttr.stroke (Property.getLineColor property |> Maybe.map Color.toString |> Maybe.withDefault settings.color.line)
                                     , SvgAttr.strokeWidth "2"
                                     ]
                                     []

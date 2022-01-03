@@ -29,20 +29,23 @@ view model =
             in
             Svg.g
                 []
-                [ Lazy.lazy5 Views.canvas
+                [ Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( 0, 0 )
                     model.selectedItem
                     start
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth - 5, 0 )
                     model.selectedItem
                     stop
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth * 2 - 10, 0 )
                     model.selectedItem

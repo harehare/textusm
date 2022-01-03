@@ -47,55 +47,64 @@ view model =
             in
             Svg.g
                 []
-                [ Lazy.lazy4 Views.canvasImage
+                [ Lazy.lazy5 Views.canvasImage
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( 0, 0 )
                     name
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth - 5, 0 )
                     model.selectedItem
                     whoAmI
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( round (toFloat Constants.itemWidth * 1.5 - 5), itemHeight )
                     ( round (toFloat Constants.itemWidth * 2) - 10, 0 )
                     model.selectedItem
                     threeReasonsToUseYourProduct
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( round (toFloat Constants.itemWidth * 1.5), itemHeight )
                     ( round (toFloat Constants.itemWidth * 3.5) - 20, 0 )
                     model.selectedItem
                     threeReasonsToBuyYourProduct
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( 0, itemHeight - 5 )
                     model.selectedItem
                     myInterests
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth - 5, itemHeight - 5 )
                     model.selectedItem
                     myPersonality
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth * 2 - 10, itemHeight - 5 )
                     model.selectedItem
                     mySkils
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth * 3 - 15, itemHeight - 5 )
                     model.selectedItem
                     myDreams
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth * 4 - 20, itemHeight - 5 )
                     model.selectedItem

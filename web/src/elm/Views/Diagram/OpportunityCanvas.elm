@@ -50,62 +50,72 @@ view model =
             in
             Svg.g
                 []
-                [ Lazy.lazy5 Views.canvas
+                [ Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight * 2 )
                     ( 0, 0 )
                     model.selectedItem
                     usersAndCustomers
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth - 5, 0 )
                     model.selectedItem
                     problems
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight + 5 )
                     ( Constants.itemWidth - 5, itemHeight - 5 )
                     model.selectedItem
                     solutionsToday
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight * 2 )
                     ( Constants.itemWidth * 2 - 10, 0 )
                     model.selectedItem
                     solutionIdeas
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight )
                     ( Constants.itemWidth * 3 - 15, 0 )
                     model.selectedItem
                     howWillUsersUseSolution
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight + 5 )
                     ( Constants.itemWidth * 3 - 15, itemHeight - 5 )
                     model.selectedItem
                     adoptionStrategy
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight * 2 )
                     ( Constants.itemWidth * 4 - 20, 0 )
                     model.selectedItem
                     userMetrics
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( round (toFloat Constants.itemWidth * 2) - 5, itemHeight + 5 )
                     ( 0, itemHeight * 2 - 5 )
                     model.selectedItem
                     businessChallenges
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.itemWidth, itemHeight + 5 )
                     ( round (toFloat Constants.itemWidth * 2) - 10, itemHeight * 2 - 5 )
                     model.selectedItem
                     budget
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( round (toFloat Constants.itemWidth * 2) - 5, itemHeight + 5 )
                     ( round (toFloat Constants.itemWidth * 3) - 15, itemHeight * 2 - 5 )
                     model.selectedItem

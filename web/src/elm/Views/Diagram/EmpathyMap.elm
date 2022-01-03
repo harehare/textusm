@@ -32,26 +32,30 @@ view model =
             in
             Svg.g
                 []
-                [ Lazy.lazy5 Views.canvas
+                [ Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.largeItemWidth, itemHeight )
                     ( 0, 0 )
                     model.selectedItem
                     says
-                , Lazy.lazy5 Views.canvas
+                , Lazy.lazy6 Views.canvas
                     model.settings
+                    model.property
                     ( Constants.largeItemWidth, itemHeight )
                     ( Constants.largeItemWidth - 5, 0 )
                     model.selectedItem
                     thinks
-                , Lazy.lazy5 Views.canvasBottom
+                , Lazy.lazy6 Views.canvasBottom
                     model.settings
+                    model.property
                     ( Constants.largeItemWidth, itemHeight + 5 )
                     ( 0, itemHeight - 5 )
                     model.selectedItem
                     does
-                , Lazy.lazy5 Views.canvasBottom
+                , Lazy.lazy6 Views.canvasBottom
                     model.settings
+                    model.property
                     ( Constants.largeItemWidth, itemHeight + 5 )
                     ( Constants.largeItemWidth - 5, itemHeight - 5 )
                     model.selectedItem
