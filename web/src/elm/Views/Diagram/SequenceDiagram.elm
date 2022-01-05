@@ -5,6 +5,7 @@ import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings, fontStyle, getTextColor)
 import Models.Diagram.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
 import Models.Position as Position exposing (Position)
+import Models.Property exposing (Property)
 import Models.Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
@@ -32,7 +33,7 @@ view model =
             in
             Svg.g []
                 [ markerView model.settings
-                , Svg.g [] (List.indexedMap (\i item -> participantView model.settings model.selectedItem ( participantX model.settings i, 8 ) item messageHeight) participants)
+                , Svg.g [] (List.indexedMap (\i item -> participantView model.settings model.property model.selectedItem ( participantX model.settings i, 8 ) item messageHeight) participants)
                 , Svg.g []
                     (ListEx.zip items messageYList
                         |> List.map
@@ -56,8 +57,8 @@ messageX width order =
     width // 2 + (width + Constants.participantMargin) * order + 8
 
 
-participantView : Settings -> SelectedItem -> Position -> Participant -> Int -> Svg Msg
-participantView settings selectedItem pos (Participant item _) messageHeight =
+participantView : Settings -> Property -> SelectedItem -> Position -> Participant -> Int -> Svg Msg
+participantView settings property selectedItem pos (Participant item _) messageHeight =
     let
         lineX =
             Position.getX pos + settings.size.width // 2
@@ -71,6 +72,7 @@ participantView settings selectedItem pos (Participant item _) messageHeight =
     Svg.g []
         [ Lazy.lazy Views.card
             { settings = settings
+            , property = property
             , position = ( Position.getX pos, toY )
             , selectedItem = selectedItem
             , item = item
@@ -79,6 +81,7 @@ participantView settings selectedItem pos (Participant item _) messageHeight =
         , Lazy.lazy3 lineView settings ( lineX, fromY ) ( lineX, toY )
         , Lazy.lazy Views.card
             { settings = settings
+            , property = property
             , position = pos
             , selectedItem = selectedItem
             , item = item

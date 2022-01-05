@@ -1,10 +1,12 @@
 module Views.Diagram.MindMap exposing (view)
 
+import Html.Attributes exposing (property)
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
 import Models.Item as Item exposing (Item, Items)
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
+import Models.Property exposing (Property)
 import Models.Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
 import Views.Diagram.Path as Path
@@ -62,6 +64,7 @@ view model =
                         []
                         [ nodesView
                             { settings = model.settings
+                            , property = model.property
                             , hierarchy = 2
                             , position = Position.zero
                             , direction = Left
@@ -71,6 +74,7 @@ view model =
                             }
                         , nodesView
                             { settings = model.settings
+                            , property = model.property
                             , hierarchy = 2
                             , position = Position.zero
                             , direction = Right
@@ -95,6 +99,7 @@ view model =
 
 nodesView :
     { settings : Settings
+    , property : Property
     , hierarchy : Int
     , position : Position
     , direction : Direction
@@ -103,7 +108,7 @@ nodesView :
     , items : Items
     }
     -> Svg Msg
-nodesView { settings, hierarchy, position, direction, selectedItem, items, moveingItem } =
+nodesView { settings, property, hierarchy, position, direction, selectedItem, items, moveingItem } =
     let
         svgWidth =
             settings.size.width
@@ -195,6 +200,7 @@ nodesView { settings, hierarchy, position, direction, selectedItem, items, movei
                         ( itemX, itemY )
                     , nodesView
                         { settings = settings
+                        , property = property
                         , hierarchy = hierarchy + 1
                         , position =
                             ( itemX
@@ -206,6 +212,7 @@ nodesView { settings, hierarchy, position, direction, selectedItem, items, movei
                         , items = Item.unwrapChildren <| Item.getChildren item
                         }
                     , Views.node settings
+                        property
                         ( itemX, itemY )
                         selectedItem
                         item

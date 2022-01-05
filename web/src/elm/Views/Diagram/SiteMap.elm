@@ -5,6 +5,7 @@ import List.Extra as ListEx
 import Models.Diagram exposing (Model, Msg, SelectedItem, Settings)
 import Models.Item as Item exposing (Items)
 import Models.Position exposing (Position)
+import Models.Property exposing (Property)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
@@ -25,9 +26,10 @@ view model =
             in
             Svg.g
                 []
-                [ siteView model.settings ( 0, Constants.itemSpan + model.settings.size.height ) model.selectedItem items
+                [ siteView model.settings model.property ( 0, Constants.itemSpan + model.settings.size.height ) model.selectedItem items
                 , Lazy.lazy Views.card
                     { settings = model.settings
+                    , property = model.property
                     , position = ( 0, 0 )
                     , selectedItem = model.selectedItem
                     , item = root
@@ -39,8 +41,8 @@ view model =
             Svg.g [] []
 
 
-siteView : Settings -> ( Int, Int ) -> SelectedItem -> Items -> Svg Msg
-siteView settings ( posX, posY ) selectedItem items =
+siteView : Settings -> Property -> ( Int, Int ) -> SelectedItem -> Items -> Svg Msg
+siteView settings property ( posX, posY ) selectedItem items =
     let
         hierarchyCountList =
             0
@@ -67,6 +69,7 @@ siteView settings ( posX, posY ) selectedItem items =
                     in
                     [ Views.card
                         { settings = settings
+                        , property = property
                         , position = ( x, posY )
                         , selectedItem = selectedItem
                         , item = item
@@ -74,6 +77,7 @@ siteView settings ( posX, posY ) selectedItem items =
                         }
                     , siteLineView settings ( 0, 0 ) ( x, posY )
                     , siteTreeView settings
+                        property
                         ( x
                         , posY + settings.size.height + Constants.itemSpan
                         )
@@ -85,8 +89,8 @@ siteView settings ( posX, posY ) selectedItem items =
         )
 
 
-siteTreeView : Settings -> Position -> SelectedItem -> Items -> Svg Msg
-siteTreeView settings ( posX, posY ) selectedItem items =
+siteTreeView : Settings -> Property -> Position -> SelectedItem -> Items -> Svg Msg
+siteTreeView settings property ( posX, posY ) selectedItem items =
     let
         childrenCountList =
             0
@@ -119,12 +123,14 @@ siteTreeView settings ( posX, posY ) selectedItem items =
                     [ siteTreeLineView settings ( posX, posY - Constants.itemSpan ) ( posX, y )
                     , Views.card
                         { settings = settings
+                        , property = property
                         , position = ( x, y )
                         , selectedItem = selectedItem
                         , item = item
                         , canMove = True
                         }
                     , siteTreeView settings
+                        property
                         ( x
                         , y + (settings.size.height + Constants.itemSpan)
                         )

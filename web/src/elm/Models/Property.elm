@@ -3,6 +3,12 @@ module Models.Property exposing
     , empty
     , fromString
     , getBackgroundColor
+    , getCardBackgroundColor1
+    , getCardBackgroundColor2
+    , getCardBackgroundColor3
+    , getCardForegroundColor1
+    , getCardForegroundColor2
+    , getCardForegroundColor3
     , getLineColor
     , getLineSize
     , getReleaseLevel
@@ -28,6 +34,12 @@ type Key
     | ZoomControl
     | LineColor
     | LineSize
+    | CardForegroundColor1
+    | CardBackgroundColor1
+    | CardForegroundColor2
+    | CardBackgroundColor2
+    | CardForegroundColor3
+    | CardBackgroundColor3
 
 
 type alias Property =
@@ -42,6 +54,36 @@ getBackgroundColor property =
 getLineColor : Property -> Maybe Color
 getLineColor property =
     Dict.get (toKeyString LineColor) property |> Maybe.map Color.fromString
+
+
+getCardForegroundColor1 : Property -> Maybe Color
+getCardForegroundColor1 property =
+    Dict.get (toKeyString CardForegroundColor1) property |> Maybe.map Color.fromString
+
+
+getCardForegroundColor2 : Property -> Maybe Color
+getCardForegroundColor2 property =
+    Dict.get (toKeyString CardForegroundColor2) property |> Maybe.map Color.fromString
+
+
+getCardForegroundColor3 : Property -> Maybe Color
+getCardForegroundColor3 property =
+    Dict.get (toKeyString CardForegroundColor3) property |> Maybe.map Color.fromString
+
+
+getCardBackgroundColor1 : Property -> Maybe Color
+getCardBackgroundColor1 property =
+    Dict.get (toKeyString CardBackgroundColor1) property |> Maybe.map Color.fromString
+
+
+getCardBackgroundColor2 : Property -> Maybe Color
+getCardBackgroundColor2 property =
+    Dict.get (toKeyString CardBackgroundColor2) property |> Maybe.map Color.fromString
+
+
+getCardBackgroundColor3 : Property -> Maybe Color
+getCardBackgroundColor3 property =
+    Dict.get (toKeyString CardBackgroundColor3) property |> Maybe.map Color.fromString
 
 
 getLineSize : Property -> Maybe Int
@@ -133,6 +175,24 @@ enabledKey s =
         "zoom_control" ->
             Just ZoomControl
 
+        "card_foreground_color1" ->
+            Just CardForegroundColor1
+
+        "card_foreground_color2" ->
+            Just CardForegroundColor2
+
+        "card_foreground_color3" ->
+            Just CardForegroundColor3
+
+        "card_background_color1" ->
+            Just CardBackgroundColor1
+
+        "card_background_color2" ->
+            Just CardBackgroundColor2
+
+        "card_background_color3" ->
+            Just CardBackgroundColor3
+
         _ ->
             if String.startsWith "release" s then
                 String.dropLeft 7 s |> String.toInt |> Maybe.map (\v -> ReleaseLevel v)
@@ -170,3 +230,21 @@ toKeyString key =
 
         LineSize ->
             "line_size"
+
+        CardForegroundColor1 ->
+            "card_foreground_color1"
+
+        CardForegroundColor2 ->
+            "card_foreground_color2"
+
+        CardForegroundColor3 ->
+            "card_foreground_color3"
+
+        CardBackgroundColor1 ->
+            "card_background_color1"
+
+        CardBackgroundColor2 ->
+            "card_background_color2"
+
+        CardBackgroundColor3 ->
+            "card_background_color3"

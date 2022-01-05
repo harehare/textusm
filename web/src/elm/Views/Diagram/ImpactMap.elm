@@ -5,6 +5,7 @@ import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
 import Models.Item as Item exposing (Item, Items)
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
+import Models.Property exposing (Property)
 import Models.Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
 import Views.Diagram.Path as Path
@@ -43,6 +44,7 @@ view model =
                         []
                         [ nodesView
                             { settings = model.settings
+                            , property = model.property
                             , hierarchy = 2
                             , position = Position.zero
                             , selectedItem = model.selectedItem
@@ -66,6 +68,7 @@ view model =
 
 nodesView :
     { settings : Settings
+    , property : Property
     , hierarchy : Int
     , position : Position
     , selectedItem : SelectedItem
@@ -73,7 +76,7 @@ nodesView :
     , items : Items
     }
     -> Svg Msg
-nodesView { settings, hierarchy, position, selectedItem, items, moveingItem } =
+nodesView { settings, property, hierarchy, position, selectedItem, items, moveingItem } =
     let
         svgWidth =
             settings.size.width
@@ -156,6 +159,7 @@ nodesView { settings, hierarchy, position, selectedItem, items, moveingItem } =
                         ( itemX, itemY )
                     , nodesView
                         { settings = settings
+                        , property = property
                         , hierarchy = hierarchy + 1
                         , position =
                             ( itemX
@@ -166,6 +170,7 @@ nodesView { settings, hierarchy, position, selectedItem, items, moveingItem } =
                         , items = Item.unwrapChildren <| Item.getChildren item
                         }
                     , Views.node settings
+                        property
                         ( itemX, itemY )
                         selectedItem
                         item

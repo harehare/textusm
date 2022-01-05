@@ -52,8 +52,8 @@ import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 
 
-getItemColor : Settings -> Item -> ( Color, Color )
-getItemColor settings item =
+getItemColor : Settings -> Property -> Item -> ( Color, Color )
+getItemColor settings property item =
     case
         ( Item.getItemType item
         , Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getForegroundColor
@@ -64,31 +64,61 @@ getItemColor settings item =
             ( c, b )
 
         ( Activities, Just c, Nothing ) ->
-            ( c, Color.fromString settings.color.activity.backgroundColor )
+            ( c
+            , Property.getCardBackgroundColor1 property
+                |> Maybe.withDefault (Color.fromString settings.color.activity.backgroundColor)
+            )
 
         ( Activities, Nothing, Just b ) ->
-            ( Color.fromString settings.color.activity.color, b )
+            ( Property.getCardForegroundColor1 property
+                |> Maybe.withDefault (Color.fromString settings.color.activity.color)
+            , b
+            )
 
         ( Activities, Nothing, Nothing ) ->
-            ( Color.fromString settings.color.activity.color, Color.fromString settings.color.activity.backgroundColor )
+            ( Property.getCardForegroundColor1 property
+                |> Maybe.withDefault (Color.fromString settings.color.activity.color)
+            , Property.getCardBackgroundColor1 property
+                |> Maybe.withDefault (Color.fromString settings.color.activity.backgroundColor)
+            )
 
         ( Tasks, Just c, Nothing ) ->
-            ( c, Color.fromString settings.color.task.backgroundColor )
+            ( c
+            , Property.getCardBackgroundColor2 property
+                |> Maybe.withDefault (Color.fromString settings.color.task.backgroundColor)
+            )
 
         ( Tasks, Nothing, Just b ) ->
-            ( Color.fromString settings.color.task.color, b )
+            ( Property.getCardForegroundColor2 property
+                |> Maybe.withDefault (Color.fromString settings.color.task.color)
+            , b
+            )
 
         ( Tasks, Nothing, Nothing ) ->
-            ( Color.fromString settings.color.task.color, Color.fromString settings.color.task.backgroundColor )
+            ( Property.getCardForegroundColor2 property
+                |> Maybe.withDefault (Color.fromString settings.color.task.color)
+            , Property.getCardBackgroundColor2 property
+                |> Maybe.withDefault (Color.fromString settings.color.task.backgroundColor)
+            )
 
         ( _, Just c, Nothing ) ->
-            ( c, Color.fromString settings.color.story.backgroundColor )
+            ( c
+            , Property.getCardBackgroundColor3 property
+                |> Maybe.withDefault (Color.fromString settings.color.story.backgroundColor)
+            )
 
         ( _, Nothing, Just b ) ->
-            ( Color.fromString settings.color.story.color, b )
+            ( Property.getCardForegroundColor3 property
+                |> Maybe.withDefault (Color.fromString settings.color.story.color)
+            , b
+            )
 
         _ ->
-            ( Color.fromString settings.color.story.color, Color.fromString settings.color.story.backgroundColor )
+            ( Property.getCardForegroundColor3 property
+                |> Maybe.withDefault (Color.fromString settings.color.story.color)
+            , Property.getCardBackgroundColor3 property
+                |> Maybe.withDefault (Color.fromString settings.color.story.backgroundColor)
+            )
 
 
 getLineColor : Settings -> Item -> Color
@@ -96,11 +126,11 @@ getLineColor settings item =
     Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getBackgroundColor |> Maybe.withDefault (Color.fromString settings.color.line)
 
 
-card : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item, canMove : Bool } -> Svg Msg
-card { settings, position, selectedItem, item, canMove } =
+card : { settings : Settings, property : Property, position : Position, selectedItem : SelectedItem, item : Item, canMove : Bool } -> Svg Msg
+card { settings, property, position, selectedItem, item, canMove } =
     let
         ( color, backgroundColor ) =
-            getItemColor settings item
+            getItemColor settings property item
 
         ( offsetX, offsetY ) =
             Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
@@ -664,19 +694,33 @@ canvas settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem ite
                                 |> Color.fromString
                         , item = item_
                         }
-                    , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
+                    , canvasText
+                        { settings = settings
+                        , property = property
+                        , svgWidth = svgWidth
+                        , position = ( posX, posY )
+                        , selectedItem = selectedItem
+                        , items = Item.unwrapChildren <| Item.getChildren item
+                        }
                     ]
 
                 else
                     [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
                     , title settings ( posX + 20, posY + 20 ) item
-                    , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
+                    , canvasText
+                        { settings = settings
+                        , property = property
+                        , svgWidth = svgWidth
+                        , position = ( posX, posY )
+                        , selectedItem = selectedItem
+                        , items = Item.unwrapChildren <| Item.getChildren item
+                        }
                     ]
 
             Nothing ->
                 [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
                 , title settings ( posX + 20, posY + 20 ) item
-                , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
+                , canvasText { settings = settings, property = property, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                 ]
         )
 
@@ -699,19 +743,40 @@ canvasBottom settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedIt
                         , color = Color.fromString settings.color.label
                         , item = item_
                         }
-                    , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
+                    , canvasText
+                        { settings = settings
+                        , property = property
+                        , svgWidth = svgWidth
+                        , position = ( posX, posY )
+                        , selectedItem = selectedItem
+                        , items = Item.unwrapChildren <| Item.getChildren item
+                        }
                     ]
 
                 else
                     [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
                     , title settings ( posX + 20, posY + svgHeight - 25 ) item
-                    , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
+                    , canvasText
+                        { settings = settings
+                        , property = property
+                        , svgWidth = svgWidth
+                        , position = ( posX, posY )
+                        , selectedItem = selectedItem
+                        , items = Item.unwrapChildren <| Item.getChildren item
+                        }
                     ]
 
             Nothing ->
                 [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
                 , title settings ( posX + 20, posY + svgHeight - 25 ) item
-                , canvasText { settings = settings, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
+                , canvasText
+                    { settings = settings
+                    , property = property
+                    , svgWidth = svgWidth
+                    , position = ( posX, posY )
+                    , selectedItem = selectedItem
+                    , items = Item.unwrapChildren <| Item.getChildren item
+                    }
                 ]
         )
 
@@ -751,8 +816,8 @@ title settings ( posX, posY ) item =
         [ Svg.text <| Item.getText item ]
 
 
-canvasText : { settings : Settings, svgWidth : Int, position : Position, selectedItem : SelectedItem, items : Items } -> Svg Msg
-canvasText { settings, svgWidth, position, selectedItem, items } =
+canvasText : { settings : Settings, property : Property, svgWidth : Int, position : Position, selectedItem : SelectedItem, items : Items } -> Svg Msg
+canvasText { settings, property, svgWidth, position, selectedItem, items } =
     let
         ( posX, posY ) =
             position
@@ -765,6 +830,7 @@ canvasText { settings, svgWidth, position, selectedItem, items } =
             (\i item ->
                 card
                     { settings = newSettings
+                    , property = property
                     , position = ( posX + 16, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin + 35 )
                     , selectedItem = selectedItem
                     , item = item
@@ -813,11 +879,11 @@ image ( imageWidth, imageHeight ) ( posX, posY ) url =
         ]
 
 
-node : Settings -> Position -> SelectedItem -> Item -> Svg Msg
-node settings ( posX, posY ) selectedItem item =
+node : Settings -> Property -> Position -> SelectedItem -> Item -> Svg Msg
+node settings property ( posX, posY ) selectedItem item =
     let
         ( color, _ ) =
-            getItemColor settings item
+            getItemColor settings property item
 
         nodeWidth =
             settings.size.width
@@ -1009,11 +1075,11 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
         ]
 
 
-grid : Settings -> Position -> SelectedItem -> Item -> Svg Msg
-grid settings ( posX, posY ) selectedItem item =
+grid : Settings -> Property -> Position -> SelectedItem -> Item -> Svg Msg
+grid settings property ( posX, posY ) selectedItem item =
     let
         ( forgroundColor, backgroundColor ) =
-            getItemColor settings item
+            getItemColor settings property item
 
         view_ =
             Svg.g [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]

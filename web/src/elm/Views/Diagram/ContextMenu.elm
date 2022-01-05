@@ -39,6 +39,7 @@ import Models.FontSize as FontSize exposing (FontSize)
 import Models.FontStyle as FontStyle exposing (FontStyle)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
+import Models.Property as Property
 import Models.Size exposing (Width)
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
@@ -146,7 +147,7 @@ view width display props =
                     [ Html.div []
                         [ Icon.font
                             (Item.getForegroundColor props.item
-                                |> Maybe.withDefault (Views.getItemColor props.settings props.item |> Tuple.first)
+                                |> Maybe.withDefault (Views.getItemColor props.settings Property.empty props.item |> Tuple.first)
                                 |> Color.toString
                             )
                             16
@@ -168,7 +169,7 @@ view width display props =
                     ]
                     [ colorCircle
                         (Item.getBackgroundColor props.item
-                            |> Maybe.withDefault (Views.getItemColor props.settings props.item |> Tuple.second)
+                            |> Maybe.withDefault (Views.getItemColor props.settings Property.empty props.item |> Tuple.second)
                         )
                         (props.onMenuSelect BackgroundColorSelectMenu)
                     ]

@@ -48,7 +48,7 @@ view model =
 
 
 mainView : { settings : Settings, property : Property, selectedItem : SelectedItem, items : Items, countByTasks : List Int, countByReleaseLevel : List Int } -> Svg Msg
-mainView { settings, selectedItem, items, countByTasks, countByReleaseLevel } =
+mainView { settings, property, selectedItem, items, countByTasks, countByReleaseLevel } =
     Keyed.node "g"
         []
         (ListEx.zip
@@ -56,7 +56,7 @@ mainView { settings, selectedItem, items, countByTasks, countByReleaseLevel } =
             (Item.unwrap items)
             |> List.indexedMap
                 (\i ( count, item ) ->
-                    ( "activity-" ++ String.fromInt i, activityView settings (List.drop 2 countByReleaseLevel) ( Constants.leftMargin + count * (settings.size.width + Constants.itemMargin), 10 ) selectedItem item )
+                    ( "activity-" ++ String.fromInt i, activityView settings property (List.drop 2 countByReleaseLevel) ( Constants.leftMargin + count * (settings.size.width + Constants.itemMargin), 10 ) selectedItem item )
                 )
         )
 
@@ -144,13 +144,14 @@ labelView { settings, property, width, userStoryMap } =
         )
 
 
-activityView : Settings -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
-activityView settings verticalCount ( posX, posY ) selectedItem item =
+activityView : Settings -> Property -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
+activityView settings property verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "activity-" ++ Item.getText item
          , Lazy.lazy Views.card
             { settings = settings
+            , property = property
             , position = ( posX, posY )
             , selectedItem = selectedItem
             , item = item
@@ -163,6 +164,7 @@ activityView settings verticalCount ( posX, posY ) selectedItem item =
                             ( "task-" ++ Item.getText it
                             , taskView
                                 settings
+                                property
                                 verticalCount
                                 ( posX
                                     + (i * settings.size.width)
@@ -182,8 +184,8 @@ activityView settings verticalCount ( posX, posY ) selectedItem item =
         )
 
 
-taskView : Settings -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
-taskView settings verticalCount ( posX, posY ) selectedItem item =
+taskView : Settings -> Property -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
+taskView settings property verticalCount ( posX, posY ) selectedItem item =
     let
         children =
             Item.unwrapChildren <| Item.getChildren item
@@ -193,6 +195,7 @@ taskView settings verticalCount ( posX, posY ) selectedItem item =
         (( "task-" ++ Item.getText item
          , Lazy.lazy Views.card
             { settings = settings
+            , property = property
             , position = ( posX, posY )
             , selectedItem = selectedItem
             , item = item
@@ -204,6 +207,7 @@ taskView settings verticalCount ( posX, posY ) selectedItem item =
                         (\i it ->
                             ( "story-" ++ Item.getText it
                             , storyView settings
+                                property
                                 verticalCount
                                 (Item.length children)
                                 ( posX
@@ -225,8 +229,8 @@ taskView settings verticalCount ( posX, posY ) selectedItem item =
         )
 
 
-storyView : Settings -> List Int -> Int -> Position -> SelectedItem -> Item -> Svg Msg
-storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
+storyView : Settings -> Property -> List Int -> Int -> Position -> SelectedItem -> Item -> Svg Msg
+storyView settings property verticalCount parentCount ( posX, posY ) selectedItem item =
     let
         itemCount =
             List.head verticalCount |> Maybe.withDefault 1
@@ -245,6 +249,7 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
         (( "story-" ++ Item.getText item
          , Lazy.lazy Views.card
             { settings = settings
+            , property = property
             , position = ( posX, posY )
             , selectedItem = selectedItem
             , item = item
@@ -257,6 +262,7 @@ storyView settings verticalCount parentCount ( posX, posY ) selectedItem item =
                             ( "story-" ++ Item.getText item
                             , storyView
                                 settings
+                                property
                                 tail
                                 childrenLength
                                 ( posX

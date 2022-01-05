@@ -3,6 +3,7 @@ module Views.Diagram.Table exposing (view)
 import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
 import Models.Diagram.Table exposing (Header(..), Row(..), Table(..))
 import Models.Item as Item exposing (Item, ItemType(..))
+import Models.Property exposing (Property)
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Keyed as Keyed
@@ -24,15 +25,17 @@ view model =
             in
             Svg.g
                 []
-                (Lazy.lazy3 headerView
+                (Lazy.lazy4 headerView
                     model.settings
+                    model.property
                     model.selectedItem
                     header
                     :: (rows
                             |> List.indexedMap
                                 (\i (Row item) ->
-                                    Lazy.lazy4 rowView
+                                    Lazy.lazy5 rowView
                                         model.settings
+                                        model.property
                                         model.selectedItem
                                         (i + 1)
                                         item
@@ -44,24 +47,25 @@ view model =
             Empty.view
 
 
-headerView : Settings -> SelectedItem -> Item -> Svg Msg
-headerView settings selectedItem item =
+headerView : Settings -> Property -> SelectedItem -> Item -> Svg Msg
+headerView settings property selectedItem item =
     Svg.g []
         (Item.indexedMap
             (\i ii ->
-                Lazy.lazy4 Views.grid settings ( settings.size.width * i, 0 ) selectedItem (Item.withItemType Activities ii)
+                Lazy.lazy5 Views.grid settings property ( settings.size.width * i, 0 ) selectedItem (Item.withItemType Activities ii)
             )
             (Item.cons item (Item.unwrapChildren <| Item.getChildren item))
         )
 
 
-rowView : Settings -> SelectedItem -> Int -> Item -> Svg Msg
-rowView settings selectedItem rowNo item =
+rowView : Settings -> Property -> SelectedItem -> Int -> Item -> Svg Msg
+rowView settings property selectedItem rowNo item =
     Keyed.node "g"
         []
         (( "row" ++ String.fromInt rowNo
-         , Lazy.lazy4 Views.grid
+         , Lazy.lazy5 Views.grid
             settings
+            property
             ( 0, settings.size.height * rowNo )
             selectedItem
             (Item.withItemType Tasks item)
@@ -69,8 +73,9 @@ rowView settings selectedItem rowNo item =
             :: Item.indexedMap
                 (\i childItem ->
                     ( "row" ++ String.fromInt (Item.getLineNo childItem)
-                    , Lazy.lazy4 Views.grid
+                    , Lazy.lazy5 Views.grid
                         settings
+                        property
                         ( settings.size.width * (i + 1), settings.size.height * rowNo )
                         selectedItem
                         (Item.withItemType Stories childItem)

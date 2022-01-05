@@ -4,6 +4,7 @@ import Constants
 import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings, fontStyle)
 import Models.Diagram.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import Models.Position exposing (Position)
+import Models.Property exposing (Property)
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
@@ -23,14 +24,14 @@ view model =
         Diagram.Kanban k ->
             Svg.g
                 []
-                [ Lazy.lazy3 kanbanView model.settings model.selectedItem k ]
+                [ Lazy.lazy4 kanbanView model.settings model.property model.selectedItem k ]
 
         _ ->
             Empty.view
 
 
-kanbanView : Settings -> SelectedItem -> Kanban -> Svg Msg
-kanbanView settings selectedItem kanban =
+kanbanView : Settings -> Property -> SelectedItem -> Kanban -> Svg Msg
+kanbanView settings property selectedItem kanban =
     let
         (Kanban lists) =
             kanban
@@ -44,14 +45,14 @@ kanbanView settings selectedItem kanban =
     Svg.g []
         (List.indexedMap
             (\i list ->
-                listView settings height ( i * listWidth + Constants.itemMargin, 0 ) selectedItem list
+                listView settings property height ( i * listWidth + Constants.itemMargin, 0 ) selectedItem list
             )
             lists
         )
 
 
-listView : Settings -> Int -> Position -> SelectedItem -> KanbanList -> Svg Msg
-listView settings height ( posX, posY ) selectedItem (KanbanList name cards) =
+listView : Settings -> Property -> Int -> Position -> SelectedItem -> KanbanList -> Svg Msg
+listView settings property height ( posX, posY ) selectedItem (KanbanList name cards) =
     Svg.g []
         (Svg.text_
             [ SvgAttr.x <| String.fromInt <| posX + 8
@@ -75,6 +76,7 @@ listView settings height ( posX, posY ) selectedItem (KanbanList name cards) =
                 (\i (Card item) ->
                     Lazy.lazy Views.card
                         { settings = settings
+                        , property = property
                         , position =
                             ( posX
                             , posY + kanbanMargin + Constants.itemMargin + (settings.size.height + Constants.itemMargin) * i

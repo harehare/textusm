@@ -116,6 +116,8 @@ view =
         , textCommentView [ text "# Comment..." ]
         , textCommentView [ text "# backgroundColor: #FFFFFF" ]
         , textCommentView [ text "# zoom_control: true" ]
+        , textCommentView [ text "# line_color: #FF0000" ]
+        , textCommentView [ text "# line_size: 4" ]
 
         -- User Story Map Syntax
         , section (Just "User Story Map Syntax")

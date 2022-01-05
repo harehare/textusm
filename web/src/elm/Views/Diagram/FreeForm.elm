@@ -75,6 +75,7 @@ view model =
                             FreeForm.Card item_ ->
                                 Views.card
                                     { settings = model.settings
+                                    , property = model.property
                                     , position =
                                         ( 16 + modBy 4 i * (model.settings.size.width + 16)
                                         , (i // 4) * (model.settings.size.height + 16)
