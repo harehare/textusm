@@ -6,7 +6,7 @@
     "name": "harehare"
   },
   "publisher": "harehare",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "engines": {
     "vscode": "^1.63.0"
   },
