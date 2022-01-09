@@ -19,6 +19,7 @@ import (
 	shareRepo "github.com/harehare/textusm/pkg/domain/repository/share"
 	userRepo "github.com/harehare/textusm/pkg/domain/repository/user"
 	e "github.com/harehare/textusm/pkg/error"
+	"github.com/harehare/textusm/pkg/util"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -69,7 +70,7 @@ func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, is
 
 	for i, item := range items {
 		if _, ok := fields["text"]; ok && item.Text != "" {
-			text, err := Decrypt(encryptKey, item.Text)
+			text, err := util.Decrypt(encryptKey, item.Text)
 			if err != nil {
 				return nil, e.DecryptionFailedError(err)
 			}
@@ -94,7 +95,7 @@ func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) (*
 		return nil, err
 	}
 
-	text, err := Decrypt(encryptKey, item.Text)
+	text, err := util.Decrypt(encryptKey, item.Text)
 
 	if err != nil {
 		return nil, e.DecryptionFailedError(err)
@@ -111,7 +112,7 @@ func (s *Service) Save(ctx context.Context, item *itemModel.Item, isPublic bool)
 
 	userID := values.GetUID(ctx)
 	currentText := item.Text
-	text, err := Encrypt(encryptKey, item.Text)
+	text, err := util.Encrypt(encryptKey, item.Text)
 
 	if err != nil {
 		return nil, e.EncryptionFailedError(err)
@@ -246,7 +247,7 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password stri
 		}
 	}
 
-	text, err := Decrypt(encryptKey, item.Text)
+	text, err := util.Decrypt(encryptKey, item.Text)
 
 	if err != nil {
 		return nil, err

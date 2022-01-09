@@ -7,7 +7,7 @@ import (
 )
 
 type Item struct {
-	ID         string  `json:"id"`
+	ID         string         `json:"id"`
 	Title      string         `json:"title"`
 	Text       string         `json:"text"`
 	Thumbnail  *string        `json:"thumbnail"`

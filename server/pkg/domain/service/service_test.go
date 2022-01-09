@@ -11,6 +11,7 @@ import (
 	"github.com/harehare/textusm/pkg/domain/model/item"
 	sm "github.com/harehare/textusm/pkg/domain/model/share"
 	um "github.com/harehare/textusm/pkg/domain/model/user"
+	"github.com/harehare/textusm/pkg/util"
 	"github.com/stretchr/testify/mock"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -76,7 +77,7 @@ func TestFindDiagrams(t *testing.T) {
 
 	encryptKey = []byte("000000000X000000000X000000000X12")
 	baseText := "test"
-	text, err := Encrypt(encryptKey, baseText)
+	text, err := util.Encrypt(encryptKey, baseText)
 
 	if err != nil {
 		t.Fatal("failed test")
@@ -105,7 +106,7 @@ func TestFindDiagram(t *testing.T) {
 
 	encryptKey = []byte("000000000X000000000X000000000X12")
 	baseText := "test"
-	text, err := Encrypt(encryptKey, baseText)
+	text, err := util.Encrypt(encryptKey, baseText)
 
 	if err != nil {
 		t.Fatal("failed test")
@@ -310,7 +311,7 @@ func TestFindShareItem(t *testing.T) {
 
 	for _, test := range tests {
 		ctx = values.WithIP(ctx, test.ip)
-		text, _ := Encrypt(encryptKey, "test")
+		text, _ := util.Encrypt(encryptKey, "test")
 		item := item.Item{ID: itemID, Text: text}
 		shareInfo := sm.Share{
 			Token:          token,
