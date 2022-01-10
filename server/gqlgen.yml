@@ -12,7 +12,7 @@ resolver:
 autobind: []
 models:
   Item:
-    model: github.com/harehare/textusm/pkg/domain/model/item.Item
+    model: github.com/harehare/textusm/pkg/domain/model/item.DiagramItem
   GistItem:
     model: github.com/harehare/textusm/pkg/domain/model/item.GistItem
   ShareCondition:

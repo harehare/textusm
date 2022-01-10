@@ -15,20 +15,17 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 
-func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *bool) (*itemModel.Item, error) {
+func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *bool) (*itemModel.DiagramItem, error) {
+	currentTime := time.Now()
 	if input.ID == nil {
-		saveItem := itemModel.Item{
-			ID:         "",
-			Title:      input.Title,
-			Text:       input.Text,
-			Thumbnail:  input.Thumbnail,
-			Diagram:    *input.Diagram,
-			IsPublic:   input.IsPublic,
-			IsBookmark: input.IsBookmark,
-			CreatedAt:  time.Now(),
-			UpdatedAt:  time.Now(),
+		saveItem, err := itemModel.NewDiagramItem().WithID("").WithTitle(input.Title).WithPlainText(input.Text).WithThumbnail(input.Thumbnail).
+			WithDiagram(*input.Diagram).WithIsPublic(input.IsPublic).WithIsBookmark(input.IsBookmark).WithCreatedAt(currentTime).WithUpdatedAt(currentTime).Build()
+
+		if err != nil {
+			return nil, err
 		}
-		return r.service.Save(ctx, &saveItem, *isPublic)
+
+		return r.service.Save(ctx, saveItem, *isPublic)
 	}
 	baseItem, err := r.service.FindByID(ctx, *input.ID, false)
 
@@ -36,19 +33,14 @@ func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *
 		return nil, err
 	}
 
-	saveItem := itemModel.Item{
-		ID:         baseItem.ID,
-		Title:      input.Title,
-		Text:       input.Text,
-		Thumbnail:  input.Thumbnail,
-		Diagram:    *input.Diagram,
-		IsPublic:   input.IsPublic,
-		IsBookmark: input.IsBookmark,
-		CreatedAt:  baseItem.CreatedAt,
-		UpdatedAt:  time.Now(),
+	saveItem, err := itemModel.NewDiagramItem().WithID(baseItem.ID()).WithTitle(input.Title).WithPlainText(input.Text).WithThumbnail(input.Thumbnail).
+		WithDiagram(*input.Diagram).WithIsPublic(input.IsPublic).WithIsBookmark(input.IsBookmark).WithCreatedAt(baseItem.CreatedAt()).WithUpdatedAt(currentTime).Build()
+
+	if err != nil {
+		return nil, err
 	}
 
-	return r.service.Save(ctx, &saveItem, *isPublic)
+	return r.service.Save(ctx, saveItem, *isPublic)
 }
 
 func (r *mutationResolver) Delete(ctx context.Context, itemID string, isPublic *bool) (string, error) {
@@ -64,7 +56,7 @@ func (r *mutationResolver) Delete(ctx context.Context, itemID string, isPublic *
 	return itemID, nil
 }
 
-func (r *mutationResolver) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*itemModel.Item, error) {
+func (r *mutationResolver) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*itemModel.DiagramItem, error) {
 	return r.service.Bookmark(ctx, itemID, isBookmark)
 }
 

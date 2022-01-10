@@ -19,12 +19,10 @@ import (
 	shareRepo "github.com/harehare/textusm/pkg/domain/repository/share"
 	userRepo "github.com/harehare/textusm/pkg/domain/repository/user"
 	e "github.com/harehare/textusm/pkg/error"
-	"github.com/harehare/textusm/pkg/util"
 	uuid "github.com/satori/go.uuid"
 )
 
 var (
-	encryptKey      = []byte(os.Getenv("ENCRYPT_KEY"))
 	shareEncryptKey = []byte(os.Getenv("SHARE_ENCRYPT_KEY"))
 	pubKey          = os.Getenv("ENCRYPT_PUBLIC_KEY")
 	priKey          = os.Getenv("ENCRYPT_PRIVATE_KEY")
@@ -54,7 +52,7 @@ func isAuthenticated(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, isBookmark bool, fields map[string]struct{}) ([]*itemModel.Item, error) {
+func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, isBookmark bool, fields map[string]struct{}) ([]*itemModel.DiagramItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -66,24 +64,13 @@ func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, is
 		return nil, err
 	}
 
-	resultItems := make([]*itemModel.Item, len(items))
-
-	for i, item := range items {
-		if _, ok := fields["text"]; ok && item.Text != "" {
-			text, err := util.Decrypt(encryptKey, item.Text)
-			if err != nil {
-				return nil, e.DecryptionFailedError(err)
-			}
-			item.Text = text
-		}
-
-		resultItems[i] = item
-	}
+	resultItems := make([]*itemModel.DiagramItem, len(items))
+	copy(resultItems, items)
 
 	return resultItems, nil
 }
 
-func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) (*itemModel.Item, error) {
+func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) (*itemModel.DiagramItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -95,34 +82,19 @@ func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) (*
 		return nil, err
 	}
 
-	text, err := util.Decrypt(encryptKey, item.Text)
-
-	if err != nil {
-		return nil, e.DecryptionFailedError(err)
-	}
-
-	item.Text = text
 	return item, nil
 }
 
-func (s *Service) Save(ctx context.Context, item *itemModel.Item, isPublic bool) (*itemModel.Item, error) {
+func (s *Service) Save(ctx context.Context, item *itemModel.DiagramItem, isPublic bool) (*itemModel.DiagramItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
 
 	userID := values.GetUID(ctx)
-	currentText := item.Text
-	text, err := util.Encrypt(encryptKey, item.Text)
-
-	if err != nil {
-		return nil, e.EncryptionFailedError(err)
-	}
-
-	item.Text = text
-	item.IsPublic = isPublic
 
 	if isPublic {
-		isOwner, err := s.isPublicDiagramOwner(ctx, item.ID, *userID)
+		publishItem := item.Publish()
+		isOwner, err := s.isPublicDiagramOwner(ctx, publishItem.ID(), *userID)
 
 		if !isOwner {
 			return nil, e.NoAuthorizationError(err)
@@ -133,11 +105,11 @@ func (s *Service) Save(ctx context.Context, item *itemModel.Item, isPublic bool)
 			return nil, err
 		}
 
-	} else if item.ID != "" {
-		_, err := s.repo.FindByID(ctx, *userID, item.ID, true)
+	} else {
+		_, err := s.repo.FindByID(ctx, *userID, item.ID(), true)
 
 		if err == nil || e.GetCode(err) != e.NotFound {
-			err := s.repo.Delete(ctx, *userID, item.ID, true)
+			err := s.repo.Delete(ctx, *userID, item.ID(), true)
 
 			if err != nil {
 				return nil, err
@@ -146,8 +118,6 @@ func (s *Service) Save(ctx context.Context, item *itemModel.Item, isPublic bool)
 	}
 
 	resultItem, err := s.repo.Save(ctx, *userID, item, false)
-	item.Text = currentText
-	resultItem.IsPublic = isPublic
 
 	return resultItem, err
 }
@@ -182,7 +152,7 @@ func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) erro
 	return s.repo.Delete(ctx, *userID, itemID, false)
 }
 
-func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*itemModel.Item, error) {
+func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*itemModel.DiagramItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -192,11 +162,11 @@ func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) 
 	if err != nil {
 		return nil, err
 	}
-	diagramItem.IsBookmark = isBookmark
-	return s.Save(ctx, diagramItem, false)
+
+	return s.Save(ctx, diagramItem.Bookmark(isBookmark), false)
 }
 
-func (s *Service) FindShareItem(ctx context.Context, token string, password string) (*itemModel.Item, error) {
+func (s *Service) FindShareItem(ctx context.Context, token string, password string) (*itemModel.DiagramItem, error) {
 	t, err := base64.RawURLEncoding.DecodeString(token)
 
 	if err != nil {
@@ -247,13 +217,6 @@ func (s *Service) FindShareItem(ctx context.Context, token string, password stri
 		}
 	}
 
-	text, err := util.Decrypt(encryptKey, item.Text)
-
-	if err != nil {
-		return nil, err
-	}
-
-	item.Text = text
 	return item, nil
 }
 
@@ -308,7 +271,7 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 		return nil, err
 	}
 
-	shareID, err := itemIDToShareID(item.ID)
+	shareID, err := itemIDToShareID(item.ID())
 
 	if err != nil {
 		return nil, err

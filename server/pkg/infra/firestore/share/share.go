@@ -26,7 +26,7 @@ func NewFirestoreShareRepository(client *firestore.Client) shareRepo.ShareReposi
 	return &FirestoreShareRepository{client: client}
 }
 
-func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*item.Item, *share.Share, error) {
+func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*item.DiagramItem, *share.Share, error) {
 	fields, err := r.client.Collection(shareCollection).Doc(hashKey).Get(ctx)
 
 	if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
@@ -37,9 +37,8 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 		return nil, nil, err
 	}
 
-	var i item.Item
-
-	if err := fields.DataTo(&i); err != nil {
+	i, err := item.MapToDiagramItem(fields.Data())
+	if err != nil {
 		return nil, nil, err
 	}
 
@@ -79,10 +78,10 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 		AllowIPList:    allowIPList,
 		AllowEmailList: allowEmailList,
 	}
-	return &i, &shareInfo, nil
+	return i, &shareInfo, nil
 }
 
-func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.Item, shareInfo *share.Share) error {
+func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.DiagramItem, shareInfo *share.Share) error {
 	var savePassword string
 
 	if shareInfo.Password != "" {
@@ -104,7 +103,6 @@ func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, ite
 		"diagram":        item.Diagram,
 		"isPublic":       item.IsPublic,
 		"isBookmark":     item.IsBookmark,
-		"tags":           item.Tags,
 		"createdAt":      item.CreatedAt,
 		"updatedAt":      item.UpdatedAt,
 		"password":       savePassword,

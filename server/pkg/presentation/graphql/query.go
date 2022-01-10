@@ -42,15 +42,15 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }
 
-func (r *queryResolver) Item(ctx context.Context, id string, isPublic *bool) (*itemModel.Item, error) {
+func (r *queryResolver) Item(ctx context.Context, id string, isPublic *bool) (*itemModel.DiagramItem, error) {
 	return r.service.FindByID(ctx, id, *isPublic)
 }
 
-func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*itemModel.Item, error) {
+func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*itemModel.DiagramItem, error) {
 	return r.service.Find(ctx, *offset, *limit, *isPublic, *isBookmark, getPreloads(ctx))
 }
 
-func (r *queryResolver) ShareItem(ctx context.Context, token string, password *string) (*itemModel.Item, error) {
+func (r *queryResolver) ShareItem(ctx context.Context, token string, password *string) (*itemModel.DiagramItem, error) {
 	var p string
 	if password == nil {
 		p = ""

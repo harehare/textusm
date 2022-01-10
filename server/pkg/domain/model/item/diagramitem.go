@@ -1,12 +1,14 @@
 package item
 
 import (
+	"errors"
 	"os"
 	"time"
 
 	"github.com/harehare/textusm/pkg/domain/values"
 	e "github.com/harehare/textusm/pkg/error"
 	"github.com/harehare/textusm/pkg/util"
+	uuid "github.com/satori/go.uuid"
 )
 
 var (
@@ -18,8 +20,9 @@ type DiagramItemBuilder interface {
 	WithTitle(title string) DiagramItemBuilder
 	WithEncryptedText(text string) DiagramItemBuilder
 	WithPlainText(text string) DiagramItemBuilder
-	WithThumbnail(thumbnail string) DiagramItemBuilder
-	WithDiagram(diagram string) DiagramItemBuilder
+	WithThumbnail(thumbnail *string) DiagramItemBuilder
+	WithDiagramString(diagram string) DiagramItemBuilder
+	WithDiagram(diagram values.Diagram) DiagramItemBuilder
 	WithIsPublic(isPublic bool) DiagramItemBuilder
 	WithIsBookmark(isPublic bool) DiagramItemBuilder
 	WithCreatedAt(createdAt time.Time) DiagramItemBuilder
@@ -45,7 +48,11 @@ func NewDiagramItem() DiagramItemBuilder {
 }
 
 func (b *builder) WithID(id string) DiagramItemBuilder {
-	b.id = id
+	if id == "" {
+		b.id = uuid.NewV4().String()
+	} else {
+		b.id = id
+	}
 	return b
 }
 
@@ -72,14 +79,18 @@ func (b *builder) WithPlainText(text string) DiagramItemBuilder {
 	return b
 }
 
-func (b *builder) WithThumbnail(thumbnail string) DiagramItemBuilder {
-	b.thumbnail = &thumbnail
+func (b *builder) WithThumbnail(thumbnail *string) DiagramItemBuilder {
+	b.thumbnail = thumbnail
 	return b
 }
 
-func (b *builder) WithDiagram(diagram string) DiagramItemBuilder {
-	var d interface{} = diagram
-	b.diagram = d.(values.Diagram)
+func (b *builder) WithDiagramString(diagram string) DiagramItemBuilder {
+	b.diagram = values.Diagram(diagram)
+	return b
+}
+
+func (b *builder) WithDiagram(diagram values.Diagram) DiagramItemBuilder {
+	b.diagram = diagram
 	return b
 }
 
@@ -113,6 +124,7 @@ func (b *builder) Build() (*DiagramItem, error) {
 		id:            b.id,
 		title:         b.title,
 		encryptedText: b.encryptedtext,
+		diagram:       b.diagram,
 		thumbnail:     b.thumbnail,
 		isPublic:      b.isPublic,
 		isBookmark:    b.isBookmark,
@@ -134,6 +146,10 @@ type DiagramItem struct {
 }
 
 func (i *DiagramItem) ID() string {
+	if i.id == "" {
+		i.id = uuid.NewV4().String()
+	}
+
 	return i.id
 }
 
@@ -175,6 +191,90 @@ func (i *DiagramItem) UpdatedAt() time.Time {
 
 func (i *DiagramItem) IsTextEmpty() bool {
 	return i.encryptedText == ""
+}
+
+func (i *DiagramItem) Publish() *DiagramItem {
+	i.isPublic = true
+	return i
+}
+
+func (i *DiagramItem) Bookmark(isBookmark bool) *DiagramItem {
+	i.isBookmark = isBookmark
+	return i
+}
+
+func MapToDiagramItem(v map[string]interface{}) (*DiagramItem, error) {
+	id, ok := v["ID"].(string)
+
+	if !ok {
+		return nil, e.InvalidParameterError(errors.New("invalid id"))
+	}
+
+	title, ok := v["Title"].(string)
+
+	if !ok {
+		return nil, e.InvalidParameterError(errors.New("invalid title"))
+	}
+
+	text, ok := v["Text"].(string)
+
+	if !ok {
+		return nil, e.InvalidParameterError(errors.New("invalid text"))
+	}
+
+	var thumbnail *string
+
+	if v["Thumbnail"] == nil {
+		thumbnail = nil
+	} else {
+		t, ok := v["Thumbnail"].(string)
+		if !ok {
+			return nil, e.InvalidParameterError(errors.New("invalid thumbnail"))
+		}
+		thumbnail = &t
+	}
+
+	diagram, ok := v["Diagram"].(string)
+
+	if !ok {
+		return nil, e.InvalidParameterError(errors.New("invalid diagram"))
+	}
+
+	isPublic, ok := v["IsPublic"].(bool)
+
+	if !ok {
+		return nil, e.InvalidParameterError(errors.New("invalid isPublic"))
+	}
+
+	isBookmark, ok := v["IsBookmark"].(bool)
+
+	if !ok {
+		return nil, e.InvalidParameterError(errors.New("invalid isBookmark"))
+	}
+
+	createdAt, ok := v["CreatedAt"].(time.Time)
+
+	if !ok {
+		return nil, e.InvalidParameterError(errors.New("invalid createdAt"))
+	}
+
+	updatedAt, ok := v["UpdatedAt"].(time.Time)
+
+	if !ok {
+		return nil, e.InvalidParameterError(errors.New("invalid updatedat"))
+	}
+
+	return NewDiagramItem().
+		WithID(id).
+		WithTitle(title).
+		WithEncryptedText(text).
+		WithThumbnail(thumbnail).
+		WithDiagramString(diagram).
+		WithIsPublic(isPublic).
+		WithIsBookmark(isBookmark).
+		WithCreatedAt(createdAt).
+		WithUpdatedAt(updatedAt).
+		Build()
 }
 
 func (i *DiagramItem) ToMap() map[string]interface{} {

@@ -41,7 +41,7 @@ func (e ServiceError) Error() string {
 }
 
 func (e DomainError) Error() string {
-	return fmt.Sprintf("DomainError: %s", e.code)
+	return fmt.Sprintf("DomainError: %s, %s", e.code, e.err.Error())
 }
 
 func NotFoundError(err error) RepositoryError {
