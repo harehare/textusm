@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/firestore"
-	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/item/gistitem"
 	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
 	e "github.com/harehare/textusm/pkg/error"
 	"google.golang.org/api/iterator"
@@ -28,7 +28,7 @@ func NewFirestoreGistItemRepository(client *firestore.Client) itemRepo.GistItemR
 	return &FirestoreGistItemRepository{client: client}
 }
 
-func (r *FirestoreGistItemRepository) FindByID(ctx context.Context, userID string, itemID string) (*itemModel.GistItem, error) {
+func (r *FirestoreGistItemRepository) FindByID(ctx context.Context, userID string, itemID string) (*gistitem.GistItem, error) {
 	fields, err := r.client.Collection(usersCollection).Doc(userID).Collection(gistItemsCollection).Doc(itemID).Get(ctx)
 
 	if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
@@ -39,16 +39,16 @@ func (r *FirestoreGistItemRepository) FindByID(ctx context.Context, userID strin
 		return nil, err
 	}
 
-	var i itemModel.GistItem
-	if err := fields.DataTo(&i); err != nil {
+	i, err := gistitem.MapToGistItem(fields.Data())
+	if err != nil {
 		return nil, err
 	}
 
-	return &i, nil
+	return i, nil
 }
 
-func (r *FirestoreGistItemRepository) Find(ctx context.Context, userID string, offset, limit int) ([]*itemModel.GistItem, error) {
-	var items []*itemModel.GistItem
+func (r *FirestoreGistItemRepository) Find(ctx context.Context, userID string, offset, limit int) ([]*gistitem.GistItem, error) {
+	var items []*gistitem.GistItem
 	iter := r.client.Collection(usersCollection).Doc(userID).Collection(gistItemsCollection).OrderBy("UpdatedAt", firestore.Desc).Offset(offset).Limit(limit).Documents(ctx)
 
 	for {
@@ -61,19 +61,19 @@ func (r *FirestoreGistItemRepository) Find(ctx context.Context, userID string, o
 			return nil, err
 		}
 
-		var i itemModel.GistItem
-		if err := doc.DataTo(&i); err != nil {
+		i, err := gistitem.MapToGistItem(doc.Data())
+		if err != nil {
 			return nil, err
 		}
 
-		items = append(items, &i)
+		items = append(items, i)
 	}
 
 	return items, nil
 }
 
-func (r *FirestoreGistItemRepository) Save(ctx context.Context, userID string, item *itemModel.GistItem) (*itemModel.GistItem, error) {
-	_, err := r.client.Collection(usersCollection).Doc(userID).Collection(gistItemsCollection).Doc(item.ID).Set(ctx, item)
+func (r *FirestoreGistItemRepository) Save(ctx context.Context, userID string, item *gistitem.GistItem) (*gistitem.GistItem, error) {
+	_, err := r.client.Collection(usersCollection).Doc(userID).Collection(gistItemsCollection).Doc(item.ID()).Set(ctx, item.ToMap())
 
 	if err != nil {
 		return nil, err

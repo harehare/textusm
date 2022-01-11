@@ -12,9 +12,9 @@ resolver:
 autobind: []
 models:
   Item:
-    model: github.com/harehare/textusm/pkg/domain/model/item.DiagramItem
+    model: github.com/harehare/textusm/pkg/domain/model/item/diagramitem.DiagramItem
   GistItem:
-    model: github.com/harehare/textusm/pkg/domain/model/item.GistItem
+    model: github.com/harehare/textusm/pkg/domain/model/item/gistitem.GistItem
   ShareCondition:
     model: github.com/harehare/textusm/pkg/domain/model/share.ShareCondition
   Diagram:

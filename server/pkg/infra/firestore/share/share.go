@@ -5,7 +5,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/harehare/textusm/pkg/context/values"
-	"github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/item/diagramitem"
 	"github.com/harehare/textusm/pkg/domain/model/share"
 	shareRepo "github.com/harehare/textusm/pkg/domain/repository/share"
 	e "github.com/harehare/textusm/pkg/error"
@@ -26,7 +26,7 @@ func NewFirestoreShareRepository(client *firestore.Client) shareRepo.ShareReposi
 	return &FirestoreShareRepository{client: client}
 }
 
-func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*item.DiagramItem, *share.Share, error) {
+func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*diagramitem.DiagramItem, *share.Share, error) {
 	fields, err := r.client.Collection(shareCollection).Doc(hashKey).Get(ctx)
 
 	if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
@@ -37,7 +37,7 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 		return nil, nil, err
 	}
 
-	i, err := item.MapToDiagramItem(fields.Data())
+	i, err := diagramitem.MapToDiagramItem(fields.Data())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -81,7 +81,7 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*i
 	return i, &shareInfo, nil
 }
 
-func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *item.DiagramItem, shareInfo *share.Share) error {
+func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *share.Share) error {
 	var savePassword string
 
 	if shareInfo.Password != "" {

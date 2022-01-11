@@ -1,9 +1,9 @@
-package item
+package diagramitem
 
 import "testing"
 
 func TestEncryptedTextBuild(t *testing.T) {
-	d, err := NewDiagramItem().WithID("id").WithEncryptedText("encryptedText").Build()
+	d, err := New().WithID("id").WithEncryptedText("encryptedText").Build()
 
 	if err != nil {
 		t.Fatal("Failed build")
@@ -20,7 +20,7 @@ func TestEncryptedTextBuild(t *testing.T) {
 
 func TestPlainTextBuild(t *testing.T) {
 	encryptKey = []byte("000000000X000000000X000000000X12")
-	d, err := NewDiagramItem().WithID("id").WithPlainText("plainText").Build()
+	d, err := New().WithID("id").WithPlainText("plainText").Build()
 
 	if err != nil {
 		t.Fatal("Failed build")

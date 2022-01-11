@@ -4,7 +4,8 @@ import (
 	"context"
 
 	"github.com/99designs/gqlgen/graphql"
-	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/item/diagramitem"
+	"github.com/harehare/textusm/pkg/domain/model/item/gistitem"
 	"github.com/harehare/textusm/pkg/domain/model/settings"
 	shareModel "github.com/harehare/textusm/pkg/domain/model/share"
 	"github.com/harehare/textusm/pkg/domain/values"
@@ -42,15 +43,15 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }
 
-func (r *queryResolver) Item(ctx context.Context, id string, isPublic *bool) (*itemModel.DiagramItem, error) {
+func (r *queryResolver) Item(ctx context.Context, id string, isPublic *bool) (*diagramitem.DiagramItem, error) {
 	return r.service.FindByID(ctx, id, *isPublic)
 }
 
-func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*itemModel.DiagramItem, error) {
+func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*diagramitem.DiagramItem, error) {
 	return r.service.Find(ctx, *offset, *limit, *isPublic, *isBookmark, getPreloads(ctx))
 }
 
-func (r *queryResolver) ShareItem(ctx context.Context, token string, password *string) (*itemModel.DiagramItem, error) {
+func (r *queryResolver) ShareItem(ctx context.Context, token string, password *string) (*diagramitem.DiagramItem, error) {
 	var p string
 	if password == nil {
 		p = ""
@@ -89,11 +90,11 @@ func (r *queryResolver) AllItems(ctx context.Context, offset, limit *int) ([]uni
 	return diagramItems, nil
 }
 
-func (r *queryResolver) GistItem(ctx context.Context, id string) (*itemModel.GistItem, error) {
+func (r *queryResolver) GistItem(ctx context.Context, id string) (*gistitem.GistItem, error) {
 	return r.gistService.FindByID(ctx, id)
 }
 
-func (r *queryResolver) GistItems(ctx context.Context, offset, limit *int) ([]*itemModel.GistItem, error) {
+func (r *queryResolver) GistItems(ctx context.Context, offset, limit *int) ([]*gistitem.GistItem, error) {
 	return r.gistService.Find(ctx, *offset, *limit)
 }
 

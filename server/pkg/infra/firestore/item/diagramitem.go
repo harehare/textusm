@@ -5,7 +5,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/harehare/textusm/pkg/context/values"
-	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/item/diagramitem"
 	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
 	e "github.com/harehare/textusm/pkg/error"
 	"google.golang.org/api/iterator"
@@ -27,7 +27,7 @@ func NewFirestoreItemRepository(client *firestore.Client) itemRepo.ItemRepositor
 	return &FirestoreItemRepository{client: client}
 }
 
-func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, itemID string, isPublic bool) (*itemModel.DiagramItem, error) {
+func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, itemID string, isPublic bool) (*diagramitem.DiagramItem, error) {
 	var (
 		fields *firestore.DocumentSnapshot
 		err    error
@@ -46,7 +46,7 @@ func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, i
 		return nil, err
 	}
 
-	i, err := itemModel.MapToDiagramItem(fields.Data())
+	i, err := diagramitem.MapToDiagramItem(fields.Data())
 
 	if err != nil {
 		return nil, err
@@ -55,9 +55,9 @@ func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, i
 	return i, nil
 }
 
-func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool) ([]*itemModel.DiagramItem, error) {
+func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool) ([]*diagramitem.DiagramItem, error) {
 	var (
-		items []*itemModel.DiagramItem
+		items []*diagramitem.DiagramItem
 		iter  *firestore.DocumentIterator
 	)
 	if isPublic {
@@ -78,7 +78,7 @@ func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offse
 			return nil, err
 		}
 
-		i, err := itemModel.MapToDiagramItem(doc.Data())
+		i, err := diagramitem.MapToDiagramItem(doc.Data())
 		if err != nil {
 			return nil, err
 		}
@@ -89,7 +89,7 @@ func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offse
 	return items, nil
 }
 
-func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item *itemModel.DiagramItem, isPublic bool) (*itemModel.DiagramItem, error) {
+func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item *diagramitem.DiagramItem, isPublic bool) (*diagramitem.DiagramItem, error) {
 	var err error
 
 	if isPublic {

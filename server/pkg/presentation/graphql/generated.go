@@ -14,7 +14,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/item/diagramitem"
+	"github.com/harehare/textusm/pkg/domain/model/item/gistitem"
 	"github.com/harehare/textusm/pkg/domain/model/settings"
 	"github.com/harehare/textusm/pkg/domain/model/share"
 	"github.com/harehare/textusm/pkg/domain/values"
@@ -124,22 +125,22 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Save(ctx context.Context, input InputItem, isPublic *bool) (*item.DiagramItem, error)
+	Save(ctx context.Context, input InputItem, isPublic *bool) (*diagramitem.DiagramItem, error)
 	Delete(ctx context.Context, itemID string, isPublic *bool) (string, error)
-	Bookmark(ctx context.Context, itemID string, isBookmark bool) (*item.DiagramItem, error)
+	Bookmark(ctx context.Context, itemID string, isBookmark bool) (*diagramitem.DiagramItem, error)
 	Share(ctx context.Context, input InputShareItem) (string, error)
-	SaveGist(ctx context.Context, input InputGistItem) (*item.GistItem, error)
+	SaveGist(ctx context.Context, input InputGistItem) (*gistitem.GistItem, error)
 	DeleteGist(ctx context.Context, gistID string) (string, error)
 	SaveSettings(ctx context.Context, diagram *values.Diagram, input InputSettings) (*settings.Settings, error)
 }
 type QueryResolver interface {
 	AllItems(ctx context.Context, offset *int, limit *int) ([]union.DiagramItem, error)
-	Item(ctx context.Context, id string, isPublic *bool) (*item.DiagramItem, error)
-	Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*item.DiagramItem, error)
-	ShareItem(ctx context.Context, token string, password *string) (*item.DiagramItem, error)
+	Item(ctx context.Context, id string, isPublic *bool) (*diagramitem.DiagramItem, error)
+	Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*diagramitem.DiagramItem, error)
+	ShareItem(ctx context.Context, token string, password *string) (*diagramitem.DiagramItem, error)
 	ShareCondition(ctx context.Context, id string) (*share.ShareCondition, error)
-	GistItem(ctx context.Context, id string) (*item.GistItem, error)
-	GistItems(ctx context.Context, offset *int, limit *int) ([]*item.GistItem, error)
+	GistItem(ctx context.Context, id string) (*gistitem.GistItem, error)
+	GistItems(ctx context.Context, offset *int, limit *int) ([]*gistitem.GistItem, error)
 	Settings(ctx context.Context, diagram *values.Diagram) (*settings.Settings, error)
 }
 
@@ -1261,7 +1262,7 @@ func (ec *executionContext) _Color_backgroundColor(ctx context.Context, field gr
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _GistItem_id(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _GistItem_id(ctx context.Context, field graphql.CollectedField, obj *gistitem.GistItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1272,14 +1273,14 @@ func (ec *executionContext) _GistItem_id(ctx context.Context, field graphql.Coll
 		Object:     "GistItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.ID(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1296,7 +1297,7 @@ func (ec *executionContext) _GistItem_id(ctx context.Context, field graphql.Coll
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _GistItem_url(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _GistItem_url(ctx context.Context, field graphql.CollectedField, obj *gistitem.GistItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1307,14 +1308,14 @@ func (ec *executionContext) _GistItem_url(ctx context.Context, field graphql.Col
 		Object:     "GistItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.URL, nil
+		return obj.URL(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1331,7 +1332,7 @@ func (ec *executionContext) _GistItem_url(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _GistItem_title(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _GistItem_title(ctx context.Context, field graphql.CollectedField, obj *gistitem.GistItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1342,14 +1343,14 @@ func (ec *executionContext) _GistItem_title(ctx context.Context, field graphql.C
 		Object:     "GistItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
+		return obj.Title(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1366,7 +1367,7 @@ func (ec *executionContext) _GistItem_title(ctx context.Context, field graphql.C
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _GistItem_thumbnail(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _GistItem_thumbnail(ctx context.Context, field graphql.CollectedField, obj *gistitem.GistItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1377,14 +1378,14 @@ func (ec *executionContext) _GistItem_thumbnail(ctx context.Context, field graph
 		Object:     "GistItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Thumbnail, nil
+		return obj.Thumbnail(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1398,7 +1399,7 @@ func (ec *executionContext) _GistItem_thumbnail(ctx context.Context, field graph
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _GistItem_diagram(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _GistItem_diagram(ctx context.Context, field graphql.CollectedField, obj *gistitem.GistItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1409,14 +1410,14 @@ func (ec *executionContext) _GistItem_diagram(ctx context.Context, field graphql
 		Object:     "GistItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Diagram, nil
+		return obj.Diagram(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1433,7 +1434,7 @@ func (ec *executionContext) _GistItem_diagram(ctx context.Context, field graphql
 	return ec.marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _GistItem_isBookmark(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _GistItem_isBookmark(ctx context.Context, field graphql.CollectedField, obj *gistitem.GistItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1444,14 +1445,14 @@ func (ec *executionContext) _GistItem_isBookmark(ctx context.Context, field grap
 		Object:     "GistItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IsBookmark, nil
+		return obj.IsBookmark(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1468,7 +1469,7 @@ func (ec *executionContext) _GistItem_isBookmark(ctx context.Context, field grap
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _GistItem_createdAt(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _GistItem_createdAt(ctx context.Context, field graphql.CollectedField, obj *gistitem.GistItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1479,14 +1480,14 @@ func (ec *executionContext) _GistItem_createdAt(ctx context.Context, field graph
 		Object:     "GistItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
+		return obj.CreatedAt(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1503,7 +1504,7 @@ func (ec *executionContext) _GistItem_createdAt(ctx context.Context, field graph
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _GistItem_updatedAt(ctx context.Context, field graphql.CollectedField, obj *item.GistItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _GistItem_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gistitem.GistItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1514,14 +1515,14 @@ func (ec *executionContext) _GistItem_updatedAt(ctx context.Context, field graph
 		Object:     "GistItem",
 		Field:      field,
 		Args:       nil,
-		IsMethod:   false,
+		IsMethod:   true,
 		IsResolver: false,
 	}
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
+		return obj.UpdatedAt(), nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1538,7 +1539,7 @@ func (ec *executionContext) _GistItem_updatedAt(ctx context.Context, field graph
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Item_id(ctx context.Context, field graphql.CollectedField, obj *item.DiagramItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _Item_id(ctx context.Context, field graphql.CollectedField, obj *diagramitem.DiagramItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1573,7 +1574,7 @@ func (ec *executionContext) _Item_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Item_title(ctx context.Context, field graphql.CollectedField, obj *item.DiagramItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _Item_title(ctx context.Context, field graphql.CollectedField, obj *diagramitem.DiagramItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1608,7 +1609,7 @@ func (ec *executionContext) _Item_title(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Item_text(ctx context.Context, field graphql.CollectedField, obj *item.DiagramItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _Item_text(ctx context.Context, field graphql.CollectedField, obj *diagramitem.DiagramItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1643,7 +1644,7 @@ func (ec *executionContext) _Item_text(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Item_thumbnail(ctx context.Context, field graphql.CollectedField, obj *item.DiagramItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _Item_thumbnail(ctx context.Context, field graphql.CollectedField, obj *diagramitem.DiagramItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1675,7 +1676,7 @@ func (ec *executionContext) _Item_thumbnail(ctx context.Context, field graphql.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Item_diagram(ctx context.Context, field graphql.CollectedField, obj *item.DiagramItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _Item_diagram(ctx context.Context, field graphql.CollectedField, obj *diagramitem.DiagramItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1710,7 +1711,7 @@ func (ec *executionContext) _Item_diagram(ctx context.Context, field graphql.Col
 	return ec.marshalNDiagram2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋvaluesᚐDiagram(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Item_isPublic(ctx context.Context, field graphql.CollectedField, obj *item.DiagramItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _Item_isPublic(ctx context.Context, field graphql.CollectedField, obj *diagramitem.DiagramItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1745,7 +1746,7 @@ func (ec *executionContext) _Item_isPublic(ctx context.Context, field graphql.Co
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Item_isBookmark(ctx context.Context, field graphql.CollectedField, obj *item.DiagramItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _Item_isBookmark(ctx context.Context, field graphql.CollectedField, obj *diagramitem.DiagramItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1780,7 +1781,7 @@ func (ec *executionContext) _Item_isBookmark(ctx context.Context, field graphql.
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Item_createdAt(ctx context.Context, field graphql.CollectedField, obj *item.DiagramItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _Item_createdAt(ctx context.Context, field graphql.CollectedField, obj *diagramitem.DiagramItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1815,7 +1816,7 @@ func (ec *executionContext) _Item_createdAt(ctx context.Context, field graphql.C
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Item_updatedAt(ctx context.Context, field graphql.CollectedField, obj *item.DiagramItem) (ret graphql.Marshaler) {
+func (ec *executionContext) _Item_updatedAt(ctx context.Context, field graphql.CollectedField, obj *diagramitem.DiagramItem) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1887,9 +1888,9 @@ func (ec *executionContext) _Mutation_save(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*item.DiagramItem)
+	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_delete(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1968,9 +1969,9 @@ func (ec *executionContext) _Mutation_bookmark(ctx context.Context, field graphq
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*item.DiagramItem)
+	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_share(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2052,9 +2053,9 @@ func (ec *executionContext) _Mutation_saveGist(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*item.GistItem)
+	res := resTmp.(*gistitem.GistItem)
 	fc.Result = res
-	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐGistItem(ctx, field.Selections, res)
+	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_deleteGist(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2217,9 +2218,9 @@ func (ec *executionContext) _Query_item(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*item.DiagramItem)
+	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_items(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2259,9 +2260,9 @@ func (ec *executionContext) _Query_items(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*item.DiagramItem)
+	res := resTmp.([]*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_shareItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2301,9 +2302,9 @@ func (ec *executionContext) _Query_shareItem(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*item.DiagramItem)
+	res := resTmp.(*diagramitem.DiagramItem)
 	fc.Result = res
-	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐDiagramItem(ctx, field.Selections, res)
+	return ec.marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_ShareCondition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2382,9 +2383,9 @@ func (ec *executionContext) _Query_gistItem(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*item.GistItem)
+	res := resTmp.(*gistitem.GistItem)
 	fc.Result = res
-	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐGistItem(ctx, field.Selections, res)
+	return ec.marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_gistItems(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2424,9 +2425,9 @@ func (ec *executionContext) _Query_gistItems(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*item.GistItem)
+	res := resTmp.([]*gistitem.GistItem)
 	fc.Result = res
-	return ec.marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐGistItem(ctx, field.Selections, res)
+	return ec.marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_settings(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -4591,16 +4592,16 @@ func (ec *executionContext) _DiagramItem(ctx context.Context, sel ast.SelectionS
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case item.DiagramItem:
+	case diagramitem.DiagramItem:
 		return ec._Item(ctx, sel, &obj)
-	case *item.DiagramItem:
+	case *diagramitem.DiagramItem:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._Item(ctx, sel, obj)
-	case item.GistItem:
+	case gistitem.GistItem:
 		return ec._GistItem(ctx, sel, &obj)
-	case *item.GistItem:
+	case *gistitem.GistItem:
 		if obj == nil {
 			return graphql.Null
 		}
@@ -4614,16 +4615,16 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 	switch obj := (obj).(type) {
 	case nil:
 		return graphql.Null
-	case item.DiagramItem:
+	case diagramitem.DiagramItem:
 		return ec._Item(ctx, sel, &obj)
-	case *item.DiagramItem:
+	case *diagramitem.DiagramItem:
 		if obj == nil {
 			return graphql.Null
 		}
 		return ec._Item(ctx, sel, obj)
-	case item.GistItem:
+	case gistitem.GistItem:
 		return ec._GistItem(ctx, sel, &obj)
-	case *item.GistItem:
+	case *gistitem.GistItem:
 		if obj == nil {
 			return graphql.Null
 		}
@@ -4671,7 +4672,7 @@ func (ec *executionContext) _Color(ctx context.Context, sel ast.SelectionSet, ob
 
 var gistItemImplementors = []string{"GistItem", "Node", "DiagramItem"}
 
-func (ec *executionContext) _GistItem(ctx context.Context, sel ast.SelectionSet, obj *item.GistItem) graphql.Marshaler {
+func (ec *executionContext) _GistItem(ctx context.Context, sel ast.SelectionSet, obj *gistitem.GistItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, gistItemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4730,7 +4731,7 @@ func (ec *executionContext) _GistItem(ctx context.Context, sel ast.SelectionSet,
 
 var itemImplementors = []string{"Item", "Node", "DiagramItem"}
 
-func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj *item.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) _Item(ctx context.Context, sel ast.SelectionSet, obj *diagramitem.DiagramItem) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, itemImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -5415,11 +5416,11 @@ func (ec *executionContext) marshalNDiagramItem2githubᚗcomᚋharehareᚋtextus
 	return ec._DiagramItem(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNGistItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v item.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalNGistItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v gistitem.GistItem) graphql.Marshaler {
 	return ec._GistItem(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v []*item.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v []*gistitem.GistItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -5443,7 +5444,7 @@ func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtex
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐGistItem(ctx, sel, v[i])
+			ret[i] = ec.marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5457,7 +5458,7 @@ func (ec *executionContext) marshalNGistItem2ᚕᚖgithubᚗcomᚋharehareᚋtex
 	return ret
 }
 
-func (ec *executionContext) marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *item.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalNGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *gistitem.GistItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -5522,11 +5523,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v item.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2githubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v diagramitem.DiagramItem) graphql.Marshaler {
 	return ec._Item(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v []*item.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v []*diagramitem.DiagramItem) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -5550,7 +5551,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusm
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐDiagramItem(ctx, sel, v[i])
+			ret[i] = ec.marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5564,7 +5565,7 @@ func (ec *executionContext) marshalNItem2ᚕᚖgithubᚗcomᚋharehareᚋtextusm
 	return ret
 }
 
-func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *item.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalNItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *diagramitem.DiagramItem) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -5961,7 +5962,7 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	return graphql.MarshalFloat(*v)
 }
 
-func (ec *executionContext) marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *item.GistItem) graphql.Marshaler {
+func (ec *executionContext) marshalOGistItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋgistitemᚐGistItem(ctx context.Context, sel ast.SelectionSet, v *gistitem.GistItem) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5998,7 +5999,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return graphql.MarshalInt(*v)
 }
 
-func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *item.DiagramItem) graphql.Marshaler {
+func (ec *executionContext) marshalOItem2ᚖgithubᚗcomᚋharehareᚋtextusmᚋpkgᚋdomainᚋmodelᚋitemᚋdiagramitemᚐDiagramItem(ctx context.Context, sel ast.SelectionSet, v *diagramitem.DiagramItem) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

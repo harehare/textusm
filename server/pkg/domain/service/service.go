@@ -13,7 +13,7 @@ import (
 
 	jwt "github.com/form3tech-oss/jwt-go"
 	"github.com/harehare/textusm/pkg/context/values"
-	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/item/diagramitem"
 	shareModel "github.com/harehare/textusm/pkg/domain/model/share"
 	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
 	shareRepo "github.com/harehare/textusm/pkg/domain/repository/share"
@@ -52,7 +52,7 @@ func isAuthenticated(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, isBookmark bool, fields map[string]struct{}) ([]*itemModel.DiagramItem, error) {
+func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, isBookmark bool, fields map[string]struct{}) ([]*diagramitem.DiagramItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -64,13 +64,13 @@ func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, is
 		return nil, err
 	}
 
-	resultItems := make([]*itemModel.DiagramItem, len(items))
+	resultItems := make([]*diagramitem.DiagramItem, len(items))
 	copy(resultItems, items)
 
 	return resultItems, nil
 }
 
-func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) (*itemModel.DiagramItem, error) {
+func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) (*diagramitem.DiagramItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) (*
 	return item, nil
 }
 
-func (s *Service) Save(ctx context.Context, item *itemModel.DiagramItem, isPublic bool) (*itemModel.DiagramItem, error) {
+func (s *Service) Save(ctx context.Context, item *diagramitem.DiagramItem, isPublic bool) (*diagramitem.DiagramItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) erro
 	return s.repo.Delete(ctx, *userID, itemID, false)
 }
 
-func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*itemModel.DiagramItem, error) {
+func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*diagramitem.DiagramItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -166,7 +166,7 @@ func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) 
 	return s.Save(ctx, diagramItem.Bookmark(isBookmark), false)
 }
 
-func (s *Service) FindShareItem(ctx context.Context, token string, password string) (*itemModel.DiagramItem, error) {
+func (s *Service) FindShareItem(ctx context.Context, token string, password string) (*diagramitem.DiagramItem, error) {
 	t, err := base64.RawURLEncoding.DecodeString(token)
 
 	if err != nil {

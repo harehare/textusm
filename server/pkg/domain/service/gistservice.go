@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/harehare/textusm/pkg/context/values"
-	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/item/gistitem"
 	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
 )
 
@@ -22,7 +22,7 @@ func NewGistService(r itemRepo.GistItemRepository, clientID, clientSecret string
 	}
 }
 
-func (g *GistService) Find(ctx context.Context, offset, limit int) ([]*itemModel.GistItem, error) {
+func (g *GistService) Find(ctx context.Context, offset, limit int) ([]*gistitem.GistItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (g *GistService) Find(ctx context.Context, offset, limit int) ([]*itemModel
 	return items, nil
 }
 
-func (g *GistService) FindByID(ctx context.Context, gistID string) (*itemModel.GistItem, error) {
+func (g *GistService) FindByID(ctx context.Context, gistID string) (*gistitem.GistItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (g *GistService) FindByID(ctx context.Context, gistID string) (*itemModel.G
 	return item, nil
 }
 
-func (g *GistService) Save(ctx context.Context, gist *itemModel.GistItem) (*itemModel.GistItem, error) {
+func (g *GistService) Save(ctx context.Context, gist *gistitem.GistItem) (*gistitem.GistItem, error) {
 	if err := isAuthenticated(ctx); err != nil {
 		return nil, err
 	}

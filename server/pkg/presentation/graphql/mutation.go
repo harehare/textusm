@@ -6,7 +6,8 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"github.com/harehare/textusm/pkg/context/values"
-	itemModel "github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/item/diagramitem"
+	"github.com/harehare/textusm/pkg/domain/model/item/gistitem"
 	settingsModel "github.com/harehare/textusm/pkg/domain/model/settings"
 	v "github.com/harehare/textusm/pkg/domain/values"
 )
@@ -15,10 +16,10 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 
-func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *bool) (*itemModel.DiagramItem, error) {
+func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *bool) (*diagramitem.DiagramItem, error) {
 	currentTime := time.Now()
 	if input.ID == nil {
-		saveItem, err := itemModel.NewDiagramItem().WithID("").WithTitle(input.Title).WithPlainText(input.Text).WithThumbnail(input.Thumbnail).
+		saveItem, err := diagramitem.New().WithID("").WithTitle(input.Title).WithPlainText(input.Text).WithThumbnail(input.Thumbnail).
 			WithDiagram(*input.Diagram).WithIsPublic(input.IsPublic).WithIsBookmark(input.IsBookmark).WithCreatedAt(currentTime).WithUpdatedAt(currentTime).Build()
 
 		if err != nil {
@@ -33,7 +34,7 @@ func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *
 		return nil, err
 	}
 
-	saveItem, err := itemModel.NewDiagramItem().WithID(baseItem.ID()).WithTitle(input.Title).WithPlainText(input.Text).WithThumbnail(input.Thumbnail).
+	saveItem, err := diagramitem.New().WithID(baseItem.ID()).WithTitle(input.Title).WithPlainText(input.Text).WithThumbnail(input.Thumbnail).
 		WithDiagram(*input.Diagram).WithIsPublic(input.IsPublic).WithIsBookmark(input.IsBookmark).WithCreatedAt(baseItem.CreatedAt()).WithUpdatedAt(currentTime).Build()
 
 	if err != nil {
@@ -56,7 +57,7 @@ func (r *mutationResolver) Delete(ctx context.Context, itemID string, isPublic *
 	return itemID, nil
 }
 
-func (r *mutationResolver) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*itemModel.DiagramItem, error) {
+func (r *mutationResolver) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*diagramitem.DiagramItem, error) {
 	return r.service.Bookmark(ctx, itemID, isBookmark)
 }
 
@@ -71,17 +72,24 @@ func (r *mutationResolver) Share(ctx context.Context, input InputShareItem) (str
 	return *jwtToken, err
 }
 
-func (r *mutationResolver) SaveGist(ctx context.Context, input InputGistItem) (*itemModel.GistItem, error) {
-	gist := itemModel.GistItem{
-		ID:         *input.ID,
-		Title:      input.Title,
-		Thumbnail:  input.Thumbnail,
-		Diagram:    *input.Diagram,
-		IsBookmark: input.IsBookmark,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+func (r *mutationResolver) SaveGist(ctx context.Context, input InputGistItem) (*gistitem.GistItem, error) {
+	currentTime := time.Now()
+	gist, err := gistitem.New().
+		WithID(*input.ID).
+		WithURL(input.URL).
+		WithTitle(input.Title).
+		WithThumbnail(input.Thumbnail).
+		WithDiagram(*input.Diagram).
+		WithIsBookmark(input.IsBookmark).
+		WithCreatedAt(currentTime).
+		WithUpdatedAt(currentTime).
+		Build()
+
+	if err != nil {
+		return nil, err
 	}
-	return r.gistService.Save(ctx, &gist)
+
+	return r.gistService.Save(ctx, gist)
 }
 
 func (r *mutationResolver) DeleteGist(ctx context.Context, gistID string) (string, error) {

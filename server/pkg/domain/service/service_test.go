@@ -9,7 +9,7 @@ import (
 
 	jwt "github.com/form3tech-oss/jwt-go"
 	"github.com/harehare/textusm/pkg/context/values"
-	"github.com/harehare/textusm/pkg/domain/model/item"
+	"github.com/harehare/textusm/pkg/domain/model/item/diagramitem"
 	sm "github.com/harehare/textusm/pkg/domain/model/share"
 	um "github.com/harehare/textusm/pkg/domain/model/user"
 	"github.com/stretchr/testify/mock"
@@ -28,19 +28,19 @@ type MockUserRepository struct {
 	mock.Mock
 }
 
-func (m *MockItemRepository) FindByID(ctx context.Context, userID string, itemID string, isPublic bool) (*item.DiagramItem, error) {
+func (m *MockItemRepository) FindByID(ctx context.Context, userID string, itemID string, isPublic bool) (*diagramitem.DiagramItem, error) {
 	ret := m.Called(ctx, userID, itemID, isPublic)
-	return ret.Get(0).(*item.DiagramItem), ret.Error(1)
+	return ret.Get(0).(*diagramitem.DiagramItem), ret.Error(1)
 }
 
-func (m *MockItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool) ([]*item.DiagramItem, error) {
+func (m *MockItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool) ([]*diagramitem.DiagramItem, error) {
 	ret := m.Called(ctx, userID, offset, limit, isPublic)
-	return ret.Get(0).([]*item.DiagramItem), ret.Error(1)
+	return ret.Get(0).([]*diagramitem.DiagramItem), ret.Error(1)
 }
 
-func (m *MockItemRepository) Save(ctx context.Context, userID string, i *item.DiagramItem, isPublic bool) (*item.DiagramItem, error) {
+func (m *MockItemRepository) Save(ctx context.Context, userID string, i *diagramitem.DiagramItem, isPublic bool) (*diagramitem.DiagramItem, error) {
 	ret := m.Called(ctx, userID, i, isPublic)
-	return ret.Get(0).(*item.DiagramItem), ret.Error(1)
+	return ret.Get(0).(*diagramitem.DiagramItem), ret.Error(1)
 }
 
 func (m *MockItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) error {
@@ -48,12 +48,12 @@ func (m *MockItemRepository) Delete(ctx context.Context, userID string, itemID s
 	return ret.Error(0)
 }
 
-func (m *MockShareRepository) Find(ctx context.Context, hashKey string) (*item.DiagramItem, *sm.Share, error) {
+func (m *MockShareRepository) Find(ctx context.Context, hashKey string) (*diagramitem.DiagramItem, *sm.Share, error) {
 	ret := m.Called(ctx, hashKey)
-	return ret.Get(0).(*item.DiagramItem), ret.Get(1).(*sm.Share), ret.Error(2)
+	return ret.Get(0).(*diagramitem.DiagramItem), ret.Get(1).(*sm.Share), ret.Error(2)
 }
 
-func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *item.DiagramItem, shareInfo *sm.Share) error {
+func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *sm.Share) error {
 	ret := m.Called(ctx, hashKey, item, shareInfo)
 	return ret.Error(0)
 }
@@ -80,8 +80,8 @@ func TestFindDiagrams(t *testing.T) {
 	ctx = values.WithUID(ctx, "userID")
 	baseText := "test"
 
-	i, _ := item.NewDiagramItem().WithID("id").WithPlainText(baseText).Build()
-	items := []*item.DiagramItem{i}
+	i, _ := diagramitem.New().WithID("id").WithPlainText(baseText).Build()
+	items := []*diagramitem.DiagramItem{i}
 
 	mockItemRepo.On("Find", ctx, "userID", 0, 10, false).Return(items, nil)
 
@@ -102,7 +102,7 @@ func TestFindDiagram(t *testing.T) {
 	ctx = values.WithUID(ctx, "userID")
 
 	baseText := "test"
-	item, _ := item.NewDiagramItem().WithID("id").WithPlainText(baseText).Build()
+	item, _ := diagramitem.New().WithID("id").WithPlainText(baseText).Build()
 
 	mockItemRepo.On("FindByID", ctx, "userID", "testID", false).Return(&item, nil)
 
@@ -122,7 +122,7 @@ func TestSaveDiagram(t *testing.T) {
 	ctx = values.WithUID(ctx, "userID")
 
 	baseText := "test"
-	item, _ := item.NewDiagramItem().WithID("").WithPlainText(baseText).Build()
+	item, _ := diagramitem.New().WithID("").WithPlainText(baseText).Build()
 
 	mockItemRepo.On("Save", ctx, "userID", &item, false).Return(&item, nil)
 
@@ -180,7 +180,7 @@ func TestShare(t *testing.T) {
 
 	for _, test := range tests {
 		shareEncryptKey = []byte(test.key)
-		item, _ := item.NewDiagramItem().WithID(test.id).WithPlainText("").Build()
+		item, _ := diagramitem.New().WithID(test.id).WithPlainText("").Build()
 		a := []string{}
 		mockItemRepo.On("FindByID", ctx, "userID", test.id, false).Return(&item, nil)
 		mockShareRepo.On("Save", ctx, test.hashKey, &item, mock.Anything).Return(nil)
@@ -300,7 +300,7 @@ func TestFindShareItem(t *testing.T) {
 
 	for _, test := range tests {
 		ctx = values.WithIP(ctx, test.ip)
-		item, _ := item.NewDiagramItem().WithID(itemID).WithPlainText("test").Build()
+		item, _ := diagramitem.New().WithID(itemID).WithPlainText("test").Build()
 		shareInfo := sm.Share{
 			Token:          token,
 			Password:       test.hashedPassword,

@@ -1,4 +1,4 @@
-package item
+package diagramitem
 
 import (
 	"errors"
@@ -43,7 +43,7 @@ type builder struct {
 	errors        []error
 }
 
-func NewDiagramItem() DiagramItemBuilder {
+func New() DiagramItemBuilder {
 	return &builder{}
 }
 
@@ -264,7 +264,7 @@ func MapToDiagramItem(v map[string]interface{}) (*DiagramItem, error) {
 		return nil, e.InvalidParameterError(errors.New("invalid updatedat"))
 	}
 
-	return NewDiagramItem().
+	return New().
 		WithID(id).
 		WithTitle(title).
 		WithEncryptedText(text).
