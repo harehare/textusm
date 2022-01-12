@@ -131,8 +131,10 @@ export const signInGithubWithGist = (): Promise<{
                     reject(new Error('Failed sigIn'));
                     return;
                 }
-                // @ts-expect-error
-                resolve({ accessToken: result?.credential?.accessToken });
+                resolve({
+                    // @ts-expect-error
+                    accessToken: result?._tokenResponse?.oauthAccessToken,
+                });
             })
             .catch((err) => {
                 reject(err);

@@ -135,7 +135,7 @@ app.ports.copyText.subscribe((text: string) => {
 
 app.ports.getGithubAccessToken.subscribe(async (cmd) => {
     const result = await signInGithubWithGist().catch(() => {
-        app.ports.sendErrorNotification.send('Failed sign out.');
+        app.ports.sendErrorNotification.send('Failed sign in.');
         return { accessToken: null };
     });
     app.ports.gotGithubAccessToken.send({
