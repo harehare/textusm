@@ -8,6 +8,7 @@ module Models.Model exposing
     , windowOfMoveStart
     , windowOfMoveX
     , windowOfState
+    , ofIsOnline
     )
 
 import Api.RequestError exposing (RequestError)
@@ -116,6 +117,13 @@ type alias Window =
     }
 
 
+type alias BrowserStatus =
+    { isOnline : Bool
+    , isDarkMode : Bool
+    , canUseNativeFileSystem : Bool
+    }
+
+
 type alias Model =
     { key : Nav.Key
     , url : Url.Url
@@ -132,9 +140,7 @@ type alias Model =
     , lang : Lang
     , prevRoute : Maybe Route
     , shareState : ShareState
-    , isOnline : Bool
-    , isDarkMode : Bool
-    , canUseNativeFileSystem : Bool
+    , browserStatus : BrowserStatus
     , confirmDialog : ConfirmDialog Msg
     , snackbar : Snackbar Msg
     , notification : Notification
@@ -154,6 +160,11 @@ windowOfMoveStart =
 windowOfState : Lens Window WindowState
 windowOfState =
     Lens .state (\b a -> { a | state = b })
+
+
+ofIsOnline : Lens BrowserStatus Bool
+ofIsOnline =
+    Lens .isOnline (\b a -> { a | isOnline = b })
 
 
 isFullscreen : Window -> Bool

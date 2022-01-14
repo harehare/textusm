@@ -149,12 +149,14 @@ init flags url key =
             , lang = lang
             , prevRoute = Nothing
             , shareState = ShareState.unauthorized
-            , isOnline = flags.isOnline
-            , isDarkMode = flags.isDarkMode
+            , browserStatus =
+                { isOnline = flags.isOnline
+                , isDarkMode = flags.isDarkMode
+                , canUseNativeFileSystem = flags.canUseNativeFileSystem
+                }
             , confirmDialog = Dialog.Hide
             , notification = Notification.Hide
             , snackbar = SnackbarModel.Hide
-            , canUseNativeFileSystem = flags.canUseNativeFileSystem
             }
     in
     Return.singleton model |> changeRouteTo (toRoute url)
@@ -209,7 +211,7 @@ view model =
                 , lang = model.lang
                 , route = toRoute model.url
                 , prevRoute = model.prevRoute
-                , isOnline = model.isOnline
+                , isOnline = model.browserStatus.isOnline
                 }
         , Lazy.lazy Notification.view model.notification
         , Lazy.lazy Snackbar.view model.snackbar
@@ -494,7 +496,7 @@ changeRouteTo route =
             Return.andThen
                 (\m ->
                     Return.singleton m
-                        |> (if Session.isSignedIn m.session && m.isOnline then
+                        |> (if Session.isSignedIn m.session && m.browserStatus.isOnline then
                                 Return.andThen Action.updateIdToken
                                     >> Return.andThen (Action.switchPage Page.Main)
                                     >> Return.andThen Action.loadSettings
@@ -854,14 +856,10 @@ update message =
                     else
                         let
                             location =
-                                if m.currentDiagram.id |> isJust then
-                                    m.currentDiagram.location
-
-                                else
-                                    m.settingsModel.settings.location
+                                m.currentDiagram.id |> Maybe.map (\_ -> m.currentDiagram.location) |> Maybe.withDefault m.settingsModel.settings.location
                         in
-                        case ( location, Session.getAccessToken m.session ) of
-                            ( Just DiagramLocation.Gist, Nothing ) ->
+                        case ( location, Session.isGithubUser m.session, Session.getAccessToken m.session ) of
+                            ( Just DiagramLocation.Gist, True, Nothing ) ->
                                 Return.return m <| Ports.getGithubAccessToken "save"
 
                             _ ->
@@ -1029,7 +1027,7 @@ update message =
                                         }
 
                                     ( newSettingsModel, _ ) =
-                                        Settings.init m.canUseNativeFileSystem m.session newSettings
+                                        Settings.init m.browserStatus.canUseNativeFileSystem m.session newSettings
                                 in
                                 Return.singleton { m | settingsModel = newSettingsModel }
                                     |> Return.command (Ports.saveSettings (settingsEncoder newSettings))
@@ -1273,7 +1271,7 @@ update message =
                 >> Return.andThen (Action.setSettings settings)
 
         LoadSettings (Err _) ->
-            Return.andThen (\m -> Action.setSettings (.storyMap (Settings.defaultSettings m.isDarkMode)) m)
+            Return.andThen (\m -> Action.setSettings (.storyMap (Settings.defaultSettings m.browserStatus.isDarkMode)) m)
                 >> Return.andThen Action.stopProgress
 
         SaveSettings (Ok _) ->
@@ -1284,7 +1282,7 @@ update message =
                 >> Return.andThen Action.stopProgress
 
         ChangeNetworkState isOnline ->
-            Return.andThen <| \m -> Return.singleton { m | isOnline = isOnline }
+            Return.andThen <| \m -> Return.singleton { m | browserStatus = m.browserStatus |> Model.ofIsOnline.set isOnline }
 
         ShowEditor state ->
             Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfState.set state }

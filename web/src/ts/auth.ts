@@ -131,6 +131,14 @@ export const signInGithubWithGist = (): Promise<{
                     reject(new Error('Failed sigIn'));
                     return;
                 }
+
+                // @ts-expect-error
+                if (!result?._tokenResponse?.oauthAccessToken) {
+                    throw new Error(
+                        'Could not get oauthAccessToken for Github gist oauthAccessToken.'
+                    );
+                }
+
                 resolve({
                     // @ts-expect-error
                     accessToken: result?._tokenResponse?.oauthAccessToken,

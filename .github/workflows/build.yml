@@ -48,7 +48,7 @@ jobs:
           NODE_ENV: ${{ secrets.NODE_ENV }}
           SENTRY_ENABLE: ${{ secrets.SENTRY_ENABLE }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_RELEASE: ${{ secrets.SENTRY_RELEASE }}
+          SENTRY_RELEASE: ${{ steps.package-version.outputs.current-version}}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
@@ -69,7 +69,7 @@ jobs:
           NODE_ENV: development
           SENTRY_ENABLE: 0
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-          SENTRY_RELEASE: ${{ secrets.SENTRY_RELEASE }}
+          SENTRY_RELEASE: ${{ steps.package-version.outputs.current-version}}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}

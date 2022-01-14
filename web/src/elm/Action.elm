@@ -1,4 +1,60 @@
-module Action exposing (changePublicState, changeRouteInit, closeDialog, closeFullscreen, closeLocalFile, closeMenu, closeNotification, fullscreenDiagram, hideZoomControl, historyBack, initListPage, initSettingsPage, initShareDiagram, loadDiagram, loadItem, loadLocalDiagram, loadPublicItem, loadRemoteSettings, loadSettings, loadShareItem, loadText, loadWithPasswordShareItem, moveTo, needSaved, openFullscreen, pushUrl, redirectToLastEditedFile, revokeGistToken, saveDiagram, saveLocalFile, saveSettings, saveSettingsToRemote, saveToLocal, saveToRemote, setCurrentDiagram, setDiagramSettings, setDiagramType, setFocus, setFocusEditor, setSettings, setText, setTitle, showConfirmDialog, showErrorMessage, showInfoMessage, showWarningMessage, showZoomControl, startEditTitle, startProgress, stopProgress, switchPage, unchanged, untitled, updateIdToken, updateWindowState)
+module Action exposing
+    ( changePublicState
+    , changeRouteInit
+    , closeDialog
+    , closeFullscreen
+    , closeLocalFile
+    , closeMenu
+    , closeNotification
+    , fullscreenDiagram
+    , hideZoomControl
+    , historyBack
+    , initListPage
+    , initSettingsPage
+    , initShareDiagram
+    , loadDiagram
+    , loadItem
+    , loadLocalDiagram
+    , loadPublicItem
+    , loadRemoteSettings
+    , loadSettings
+    , loadShareItem
+    , loadText
+    , loadWithPasswordShareItem
+    , moveTo
+    , needSaved
+    , openFullscreen
+    , pushUrl
+    , redirectToLastEditedFile
+    , revokeGistToken
+    , saveDiagram
+    , saveLocalFile
+    , saveSettings
+    , saveSettingsToRemote
+    , saveToLocal
+    , saveToRemote
+    , setCurrentDiagram
+    , setDiagramSettings
+    , setDiagramType
+    , setFocus
+    , setFocusEditor
+    , setSettings
+    , setText
+    , setTitle
+    , showConfirmDialog
+    , showErrorMessage
+    , showInfoMessage
+    , showWarningMessage
+    , showZoomControl
+    , startEditTitle
+    , startProgress
+    , stopProgress
+    , switchPage
+    , unchanged
+    , untitled
+    , updateIdToken
+    , updateWindowState
+    )
 
 import Api.Http.Token as TokenApi
 import Api.Request as Request
@@ -77,7 +133,7 @@ initListPage : Model -> Return Msg Model
 initListPage model =
     let
         ( model_, cmd_ ) =
-            DiagramList.init model.session model.lang model.diagramListModel.apiRoot model.isOnline
+            DiagramList.init model.session model.lang model.diagramListModel.apiRoot model.browserStatus.isOnline
     in
     Return.return { model | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
 
@@ -86,7 +142,7 @@ initSettingsPage : Model -> Return Msg Model
 initSettingsPage model =
     let
         ( model_, cmd_ ) =
-            SettingsPage.init model.canUseNativeFileSystem model.session model.settingsModel.settings
+            SettingsPage.init model.browserStatus.canUseNativeFileSystem model.session model.settingsModel.settings
     in
     Return.return { model | settingsModel = model_ } (cmd_ |> Cmd.map UpdateSettings)
 
