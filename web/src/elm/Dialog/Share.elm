@@ -50,6 +50,7 @@ import Message exposing (Message)
 import Models.Color as Color
 import Models.DiagramId as DiagramId exposing (DiagramId)
 import Models.DiagramType as DiagramType
+import Models.Duration as Duration exposing (Duration)
 import Models.Email as Email exposing (Email)
 import Models.IpAddress as IpAddress exposing (IpAddress)
 import Models.Session as Session exposing (Session)
@@ -87,7 +88,7 @@ type alias Model =
     , diagramId : DiagramId
     , expireDate : String
     , expireTime : String
-    , expireSecond : Int
+    , expireSecond : Duration
     , timeZone : Zone
     , urlCopyState : CopyState
     , embedCopyState : CopyState
@@ -177,13 +178,16 @@ embedUrl { token, diagramType, title, embedSize } =
         Loading ->
             "Loading..."
 
-        _ ->
-            "Loading..."
+        Failure _ ->
+            "Load error"
+
+        NotAsked ->
+            "Not working"
 
 
 share :
     { diagramId : DiagramId
-    , expireSecond : Int
+    , expireSecond : Duration
     , password : Maybe String
     , allowIPList : List IpAddress
     , allowEmail : List Email
@@ -238,7 +242,7 @@ init { diagram, diagramId, session, title } =
                             <|
                                 share
                                     { diagramId = diagramId
-                                    , expireSecond = 300
+                                    , expireSecond = Duration.seconds 300
                                     , password = Nothing
                                     , allowIPList = []
                                     , allowEmail = []
@@ -267,7 +271,7 @@ init { diagram, diagramId, session, title } =
         , diagramId = diagramId
         , expireDate = ""
         , expireTime = ""
-        , expireSecond = 300
+        , expireSecond = Duration.seconds 300
         , timeZone = Time.utc
         , urlCopyState = NotCopy
         , embedCopyState = NotCopy
@@ -375,7 +379,7 @@ update msg model =
                         (\m ->
                             let
                                 d =
-                                    TimeEx.add TimeEx.Second m.expireSecond m.timeZone now
+                                    TimeEx.add TimeEx.Second (Duration.toInt m.expireSecond) m.timeZone now
                             in
                             Return.singleton
                                 { m
@@ -497,7 +501,7 @@ update msg model =
                                     Return.singleton
                                         { m
                                             | expireDate = date
-                                            , expireSecond = diffSecond
+                                            , expireSecond = Duration.seconds diffSecond
                                         }
                                 )
 
@@ -516,7 +520,7 @@ update msg model =
                                     Return.singleton
                                         { m
                                             | expireTime = time
-                                            , expireSecond = diffSecond
+                                            , expireSecond = Duration.seconds diffSecond
                                         }
                                 )
 

@@ -31,6 +31,7 @@ import Graphql.Scalar
 import Models.Diagram as DiagramModel
 import Models.DiagramId as DiagramId
 import Models.DiagramItem exposing (DiagramItem)
+import Models.Duration as Duration exposing (Duration)
 import Models.Email as Email exposing (Email)
 import Models.IdToken as IdToken exposing (IdToken)
 import Models.IpAddress as IpAddress exposing (IpAddress)
@@ -130,7 +131,7 @@ bookmark idToken itemID isBookmark =
 share :
     { idToken : Maybe IdToken
     , itemID : String
-    , expSecond : Int
+    , expSecond : Duration
     , password : Maybe String
     , allowIPList : List IpAddress
     , allowEmailList : List Email
@@ -139,7 +140,7 @@ share :
 share { idToken, itemID, expSecond, password, allowIPList, allowEmailList } =
     Mutation.share
         { itemID = Graphql.Scalar.Id itemID
-        , expSecond = Present expSecond
+        , expSecond = Present <| Duration.toInt expSecond
         , password =
             case password of
                 Just p ->

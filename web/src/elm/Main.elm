@@ -27,7 +27,6 @@ import Html.Styled.Attributes exposing (alt, attribute, css, id)
 import Html.Styled.Events as E
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
-import Maybe.Extra exposing (isJust)
 import Message
 import Models.Diagram as DiagramModel
 import Models.Diagram.ER as ER

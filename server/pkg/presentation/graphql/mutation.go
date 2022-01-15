@@ -69,6 +69,11 @@ func (r *mutationResolver) Share(ctx context.Context, input InputShareItem) (str
 		p = *input.Password
 	}
 	jwtToken, err := r.service.Share(ctx, input.ItemID, *input.ExpSecond, p, input.AllowIPList, input.AllowEmailList)
+
+	if err != nil {
+		return "", err
+	}
+
 	return *jwtToken, err
 }
 
