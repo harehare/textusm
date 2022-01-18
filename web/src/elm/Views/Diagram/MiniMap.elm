@@ -95,6 +95,7 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg,
         ]
         [ if showMiniMap then
             let
+                startPosition : Size
                 startPosition =
                     case diagramType of
                         MindMap ->

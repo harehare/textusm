@@ -134,10 +134,12 @@ withText text (Item item) =
 
             else
                 let
+                    tokens : List (List Char)
                     tokens =
                         String.split textSeparator text
                             |> List.map String.toList
 
+                    tuple : ( String, Maybe String )
                     tuple =
                         case tokens of
                             [ x, '{' :: xs ] ->
@@ -437,6 +439,7 @@ getLeafCount (Item item) =
 toLineString : Item -> String
 toLineString item =
     let
+        comment : String
         comment =
             Maybe.withDefault "" (getComments item)
     in
@@ -451,6 +454,7 @@ toLineString item =
 split : String -> ( String, ItemSettings, Maybe String )
 split text =
     let
+        tokens : List String
         tokens =
             String.split textSeparator text
     in
@@ -506,6 +510,7 @@ fromString text =
                             ( otherIndents, otherItems ) =
                                 loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
 
+                            itemType : ItemType
                             itemType =
                                 createItemType x indent
                         in
@@ -553,11 +558,13 @@ fromString text =
 parse : Int -> String -> ( List String, List String )
 parse indent text =
     let
+        l : List String
         l =
             String.lines text
                 |> List.filter
                     (\x ->
                         let
+                            str : String
                             str =
                                 x |> String.trim
                         in
@@ -627,6 +634,7 @@ hasIndent indent text =
 
     else
         let
+            lineinputPrefix : String
             lineinputPrefix =
                 String.repeat indent inputPrefix
         in

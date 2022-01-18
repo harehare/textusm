@@ -10,6 +10,7 @@ type FontStyle
 apply : FontStyle -> String -> String
 apply fontStyle text =
     let
+        rawText : String
         rawText =
             if String.startsWith "md:" text then
                 String.dropLeft 3 text

@@ -122,6 +122,7 @@ updateAccessToken session accessToken =
             case user.loginProvider of
                 LoginProvider.Github _ ->
                     let
+                        privider : LoginProvider
                         privider =
                             LoginProvider.Github (Just accessToken)
                     in

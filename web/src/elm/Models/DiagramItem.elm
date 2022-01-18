@@ -127,6 +127,7 @@ empty =
 localFile : String -> String -> DiagramItem
 localFile title text =
     let
+        tokens : List String
         tokens =
             String.split "." title
     in

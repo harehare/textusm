@@ -40,6 +40,7 @@ toString table =
         (Header headerItem) =
             h
 
+        header : String
         header =
             "|"
                 ++ ((Item.getText headerItem
@@ -52,6 +53,7 @@ toString table =
                    )
                 ++ "|"
 
+        section : String
         section =
             "|"
                 ++ ((" " ++ String.repeat (Item.getText headerItem |> String.trim |> String.length) "-" ++ " ")
@@ -66,6 +68,7 @@ toString table =
                    )
                 ++ "|"
 
+        row : String
         row =
             rows
                 |> List.map

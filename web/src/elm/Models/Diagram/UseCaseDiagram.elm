@@ -43,9 +43,11 @@ type Relation
 getName : Item -> String
 getName item =
     let
+        text : String
         text =
             String.trim <| Item.getText item
 
+        trimText : String -> String
         trimText v =
             v
                 |> String.dropLeft 1
@@ -71,9 +73,11 @@ getName item =
 relationCount : Item -> UseCaseRelation -> Int
 relationCount item relations =
     let
+        childrens : Maybe (List Relation)
         childrens =
             Dict.get (Item.getText item |> String.trim) relations
 
+        relationName : Relation -> Item
         relationName relation =
             case relation of
                 Extend e ->
@@ -114,6 +118,7 @@ getRelationName r =
 itemToActor : Item -> Maybe Actor
 itemToActor item =
     let
+        originalText : String
         originalText =
             Item.getText item
                 |> String.trim
@@ -129,6 +134,7 @@ itemToActor item =
 itemToUseCase : Item -> Maybe UseCaseRelation
 itemToUseCase item =
     let
+        originalText : String
         originalText =
             Item.getText item
                 |> String.trim
@@ -136,6 +142,7 @@ itemToUseCase item =
     case ( String.left 1 originalText, String.right 1 originalText ) of
         ( "(", ")" ) ->
             let
+                name : String
                 name =
                     originalText
                         |> String.dropLeft 1
@@ -150,6 +157,7 @@ itemToUseCase item =
 itemToRelation : Item -> Relation
 itemToRelation item =
     let
+        text : String
         text =
             Item.getText item
     in

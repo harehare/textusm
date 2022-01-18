@@ -36,9 +36,11 @@ kanbanView settings property selectedItem kanban =
         (Kanban lists) =
             kanban
 
+        listWidth : Int
         listWidth =
             settings.size.width + Constants.itemMargin * 3
 
+        height : Int
         height =
             Kanban.getCardCount kanban * (settings.size.height + Constants.itemMargin) + Constants.itemMargin
     in

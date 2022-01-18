@@ -108,27 +108,26 @@ edit currentText newText =
     if isChanged currentText then
         Changed newText
 
+    else if String.isEmpty newText then
+        Empty
+
+    else if
+        (case currentText of
+            Empty ->
+                ""
+
+            Changed t ->
+                t
+
+            Saved t ->
+                t
+        )
+            == newText
+    then
+        Saved newText
+
     else
-        let
-            text =
-                case currentText of
-                    Empty ->
-                        ""
-
-                    Changed t ->
-                        t
-
-                    Saved t ->
-                        t
-        in
-        if String.isEmpty newText then
-            Empty
-
-        else if text == newText then
-            Saved newText
-
-        else
-            Changed newText
+        Changed newText
 
 
 decoder : Decoder Text

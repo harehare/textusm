@@ -1,14 +1,15 @@
 module Models.Model exposing
-    ( Menu(..)
+    ( BrowserStatus
+    , Menu(..)
     , Model
     , Msg(..)
     , Window
     , WindowState(..)
     , isFullscreen
+    , ofIsOnline
     , windowOfMoveStart
     , windowOfMoveX
     , windowOfState
-    , ofIsOnline
     )
 
 import Api.RequestError exposing (RequestError)

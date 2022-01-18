@@ -148,6 +148,7 @@ card { settings, property, position, selectedItem, item, canMove } =
         ( width, height ) =
             ( settings.size.width, settings.size.height - 1 ) |> Tuple.mapBoth (\w -> w + offsetWidth) (\h -> h + offsetHeight)
 
+        view_: Svg Msg
         view_ =
             Svg.g
                 [ SvgAttr.class "card"
@@ -183,18 +184,22 @@ card { settings, property, position, selectedItem, item, canMove } =
         Just item_ ->
             if Item.getLineNo item_ == Item.getLineNo item then
                 let
+                    selectedItemOffsetSize: Size
                     selectedItemOffsetSize =
                         Item.getOffsetSize item_
 
+                    selectedItemOffsetPosition: Position
                     selectedItemOffsetPosition =
                         Item.getOffset item_
 
+                    selectedItemPosition: Position
                     selectedItemPosition =
                         position
                             |> Tuple.mapBoth
                                 (\x -> x + Position.getX selectedItemOffsetPosition)
                                 (\y -> y + Position.getY selectedItemOffsetPosition)
 
+                    selectedItemSize: Size
                     selectedItemSize =
                         ( settings.size.width, settings.size.height - 1 )
                             |> Tuple.mapBoth
@@ -318,6 +323,7 @@ comments settings ( posX, posY ) comments_ =
 horizontalLine : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
 horizontalLine { settings, position, selectedItem, item } =
     let
+        color : Color
         color =
             getLineColor settings item
 
@@ -334,9 +340,11 @@ horizontalLine { settings, position, selectedItem, item } =
             else
                 position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
 
+        width : Int
         width =
             settings.size.width + offsetWidth
 
+        view_ : Svg Msg
         view_ =
             Svg.g
                 [ Events.onClickStopPropagation <|
@@ -359,18 +367,22 @@ horizontalLine { settings, position, selectedItem, item } =
         Just item_ ->
             if Item.getLineNo item_ == Item.getLineNo item then
                 let
+                    selectedItemOffsetSize : Size
                     selectedItemOffsetSize =
                         Item.getOffsetSize item_
 
+                    selectedItemOffsetPosition : Position
                     selectedItemOffsetPosition =
                         Item.getOffset item_
 
+                    selectedItemPosition : Position
                     selectedItemPosition =
                         position
                             |> Tuple.mapBoth
                                 (\x -> x + Position.getX selectedItemOffsetPosition)
                                 (\y -> y + Position.getY selectedItemOffsetPosition)
 
+                    selectedItemSize : Position
                     selectedItemSize =
                         ( settings.size.width, settings.size.height - 1 )
                             |> Tuple.mapBoth
@@ -418,6 +430,7 @@ horizontalLine { settings, position, selectedItem, item } =
 verticalLine : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
 verticalLine { settings, position, selectedItem, item } =
     let
+        color : Color
         color =
             getLineColor settings item
 
@@ -434,9 +447,11 @@ verticalLine { settings, position, selectedItem, item } =
             else
                 position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
 
+        height : Int
         height =
             settings.size.height + offsetHeight
 
+        view_: Svg Msg
         view_ =
             Svg.g
                 [ Events.onClickStopPropagation <|
@@ -459,18 +474,22 @@ verticalLine { settings, position, selectedItem, item } =
         Just item_ ->
             if Item.getLineNo item_ == Item.getLineNo item then
                 let
+                    selectedItemOffsetSize : Size
                     selectedItemOffsetSize =
                         Item.getOffsetSize item_
 
+                    selectedItemOffsetPosition : Position
                     selectedItemOffsetPosition =
                         Item.getOffset item_
 
+                    selectedItemPosition : Position
                     selectedItemPosition =
                         position
                             |> Tuple.mapBoth
                                 (\x -> x + Position.getX selectedItemOffsetPosition)
                                 (\y -> y + Position.getY selectedItemOffsetPosition)
 
+                    selectedItemSize: Size
                     selectedItemSize =
                         ( settings.size.width, settings.size.height - 1 )
                             |> Tuple.mapBoth
@@ -822,6 +841,7 @@ canvasText { settings, property, svgWidth, position, selectedItem, items } =
         ( posX, posY ) =
             position
 
+        newSettings : Settings
         newSettings =
             settings |> settingsOfWidth.set (svgWidth - Constants.itemMargin * 2)
     in
@@ -885,9 +905,11 @@ node settings property ( posX, posY ) selectedItem item =
         ( color, _ ) =
             getItemColor settings property item
 
+        nodeWidth : Int
         nodeWidth =
             settings.size.width
 
+        view_: Svg Msg
         view_ =
             Svg.g
                 [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
@@ -935,17 +957,20 @@ rootTextNode { settings, position, selectedItem, item } =
         ( posX, posY ) =
             position
 
+        borderColor : String
         borderColor =
             Item.getBackgroundColor item
                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                 |> Maybe.withDefault settings.color.activity.backgroundColor
 
+        textColor : Color
         textColor =
             Item.getForegroundColor item
                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                 |> Maybe.withDefault settings.color.activity.color
                 |> Color.fromString
 
+        view_ : Svg Msg
         view_ =
             Svg.g
                 [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
@@ -1081,6 +1106,7 @@ grid settings property ( posX, posY ) selectedItem item =
         ( forgroundColor, backgroundColor ) =
             getItemColor settings property item
 
+        view_: Svg Msg
         view_ =
             Svg.g [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
                 [ Svg.rect
