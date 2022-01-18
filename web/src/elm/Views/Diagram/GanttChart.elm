@@ -33,6 +33,7 @@ view model =
                 (GanttChart (Schedule scheduleFrom scheduleTo interval) sections) =
                     gantt
 
+                nodeCounts : List Int
                 nodeCounts =
                     0
                         :: (sections
@@ -47,9 +48,11 @@ view model =
                                 |> ListEx.scanl1 (+)
                            )
 
+                svgHeight : Int
                 svgHeight =
                     (ListEx.last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length sections
 
+                lineWidth : Int
                 lineWidth =
                     Constants.itemMargin
                         + interval
@@ -63,6 +66,7 @@ view model =
                             |> List.concatMap
                                 (\( count, section ) ->
                                     let
+                                        posY : Int
                                         posY =
                                             count * Constants.ganttItemSize
 
@@ -108,6 +112,7 @@ view model =
 daysView : Settings -> Int -> ( Posix, Posix ) -> Svg Msg
 daysView settings svgHeight ( from, to ) =
     let
+        daysNum : Int
         daysNum =
             TimeEx.diff Day Time.utc from to
     in
@@ -116,12 +121,15 @@ daysView settings svgHeight ( from, to ) =
             |> List.map
                 (\i ->
                     let
+                        posX : Int
                         posX =
                             i * Constants.ganttItemSize + sectionMargin - 1
 
+                        currentDay : Posix
                         currentDay =
                             TimeEx.add Day i Time.utc from
 
+                        day : Int
                         day =
                             Time.toDay Time.utc currentDay
                     in
@@ -164,6 +172,7 @@ daysView settings svgHeight ( from, to ) =
 weekView : Settings -> ( Posix, Posix ) -> Svg Msg
 weekView settings ( from, to ) =
     let
+        weekNum : Int
         weekNum =
             TimeEx.diff Day Time.utc from to // 7
     in
@@ -172,6 +181,7 @@ weekView settings ( from, to ) =
             |> List.map
                 (\i ->
                     let
+                        posX : String
                         posX =
                             String.fromInt <| i * 7 * Constants.ganttItemSize + sectionMargin - 1
                     in
@@ -289,6 +299,7 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task t
 itemView : Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
 itemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     let
+        interval : Int
         interval =
             TimeEx.diff Day Time.utc baseFrom from
     in
@@ -298,6 +309,7 @@ itemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
 headerItemView : Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
 headerItemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     let
+        interval : Int
         interval =
             TimeEx.diff Day Time.utc baseFrom from
     in
@@ -307,12 +319,15 @@ headerItemView settings colour ( posX, posY ) baseFrom text (Schedule from to _)
 taskView : Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
 taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
     let
+        interval : Int
         interval =
             TimeEx.diff Day Time.utc from to
 
+        svgWidth : Int
         svgWidth =
             Constants.ganttItemSize * interval
 
+        textWidth : Int
         textWidth =
             String.length text * 20
     in
@@ -339,29 +354,37 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
 headerTaskView : Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
 headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
     let
+        interval : Int
         interval =
             TimeEx.diff Day Time.utc from to
 
+        svgWidth : Int
         svgWidth =
             Constants.ganttItemSize * interval
 
+        textWidth : Int
         textWidth =
             String.length text * 20
 
+        triPosY : Int
         triPosY =
             Constants.ganttItemSize // 4
 
+        startFromY : Int
         startFromY =
             triPosY + 1
 
+        startTo : Int
         startTo =
             triPosY + 12
 
+        polygonToString : List ( Int, Int ) -> String
         polygonToString pol =
             pol
                 |> List.map (\i -> String.fromInt (first i) ++ "," ++ String.fromInt (second i))
                 |> String.join " "
 
+        fromPolygon : String
         fromPolygon =
             [ ( 0, startFromY )
             , ( 0, startTo )
@@ -369,6 +392,7 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
             ]
                 |> polygonToString
 
+        toPolygon : String
         toPolygon =
             [ ( svgWidth - 20, startFromY )
             , ( svgWidth, startFromY )

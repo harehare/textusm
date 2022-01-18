@@ -19,10 +19,12 @@ view model =
     case model.data of
         Diagram.SequenceDiagram (SequenceDiagram participants items) ->
             let
+                messageHeight : Int
                 messageHeight =
                     SequenceDiagram.sequenceItemCount items
                         * Constants.messageMargin
 
+                messageYList : List Int
                 messageYList =
                     ListEx.scanl
                         (\item y ->
@@ -60,12 +62,15 @@ messageX width order =
 participantView : Settings -> Property -> SelectedItem -> Position -> Participant -> Int -> Svg Msg
 participantView settings property selectedItem pos (Participant item _) messageHeight =
     let
+        lineX : Int
         lineX =
             Position.getX pos + settings.size.width // 2
 
+        fromY : Int
         fromY =
             Position.getY pos + settings.size.height
 
+        toY : Int
         toY =
             fromY + messageHeight + settings.size.height + Constants.messageMargin
     in
@@ -93,6 +98,7 @@ participantView settings property selectedItem pos (Participant item _) messageH
 fragmentRect : Size -> Int -> Int -> List Message -> ( Position, Position )
 fragmentRect ( itemWidth, itemHeight ) baseY level messages =
     let
+        orderList : List Int
         orderList =
             List.concatMap
                 (\message ->
@@ -105,12 +111,14 @@ fragmentRect ( itemWidth, itemHeight ) baseY level messages =
                 )
                 messages
 
+        fragmentFromX : Int
         fragmentFromX =
             orderList
                 |> List.minimum
                 |> Maybe.withDefault 0
                 |> messageX itemWidth
 
+        fragmentToX : Int
         fragmentToX =
             (orderList
                 |> List.maximum
@@ -120,12 +128,15 @@ fragmentRect ( itemWidth, itemHeight ) baseY level messages =
                 + itemHeight
                 // 2
 
+        messagesLength : Int
         messagesLength =
             SequenceDiagram.messagesCount messages
 
+        offset : Int
         offset =
             level * 8
 
+        fragmentYBase : Int
         fragmentYBase =
             baseY - Constants.messageMargin + 24
     in
@@ -144,6 +155,7 @@ mesageViewList settings level y messages =
         (List.indexedMap
             (\i message ->
                 let
+                    messageY : Int
                     messageY =
                         y + i * Constants.messageMargin
                 in
@@ -183,9 +195,11 @@ sequenceItemView settings level y item =
 
         Fragment (Alt ( ifText, ifMessages ) ( elseText, elseMessages )) ->
             let
+                messages : List Message
                 messages =
                     ifMessages ++ elseMessages
 
+                elseY : Int
                 elseY =
                     y + SequenceDiagram.messagesCount ifMessages * Constants.messageMargin - Constants.messageMargin + 16
 
@@ -214,12 +228,14 @@ sequenceItemView settings level y item =
 
         Fragment (Par parMessages) ->
             let
+                messages : List Message
                 messages =
                     List.concatMap (\( _, m ) -> m) parMessages
 
                 ( ( fromX, fromY ), ( toX, toY ) ) =
                     fragmentRect ( settings.size.width, settings.size.height ) y level messages
 
+                messageYList : List Int
                 messageYList =
                     ListEx.scanl
                         (\( _, m ) messageY ->
@@ -229,6 +245,7 @@ sequenceItemView settings level y item =
                         parMessages
                         |> List.take (List.length parMessages)
 
+                lines : List (Svg msg)
                 lines =
                     messageYList
                         |> List.tail
@@ -247,6 +264,7 @@ sequenceItemView settings level y item =
                                     []
                             )
 
+                textList : List (Svg Msg)
                 textList =
                     ListEx.zip messageYList parMessages
                         |> List.map
@@ -369,6 +387,7 @@ markerView settings =
 selfMessageView : Settings -> Position -> MessageType -> Svg Msg
 selfMessageView settings ( posX, posY ) messageType =
     let
+        messagePoints : String
         messagePoints =
             [ [ String.fromInt posX, String.fromInt posY ] |> String.join ","
             , [ String.fromInt <| posX + Constants.participantMargin // 2, String.fromInt posY ] |> String.join ","
@@ -393,6 +412,7 @@ selfMessageView settings ( posX, posY ) messageType =
 messageView : Settings -> Position -> Position -> MessageType -> Svg Msg
 messageView settings ( fromX, fromY ) ( toX, toY ) messageType =
     let
+        isReverse : Bool
         isReverse =
             fromX - toX > 0
 
@@ -470,9 +490,11 @@ textView settings ( posX, posY ) ( textWidth, textHeight ) message =
 fragmentView : Settings -> Position -> Position -> String -> Fragment -> Svg Msg
 fragmentView settings ( fromX, fromY ) ( toX, toY ) backgroundColor fragment =
     let
+        fragmentWidth : Int
         fragmentWidth =
             toX - fromX
 
+        fragmentHeight : Int
         fragmentHeight =
             toY - fromY
     in
@@ -482,6 +504,7 @@ fragmentView settings ( fromX, fromY ) ( toX, toY ) backgroundColor fragment =
 fragmentTextView : Settings -> Position -> String -> Svg Msg
 fragmentTextView settings ( fromX, fromY ) fragmentText =
     let
+        offset : Int
         offset =
             settings.size.width
                 // 2

@@ -5,7 +5,7 @@ import Graphql.Enum.Diagram as Diagram
 import List.Extra as ListEx
 import Models.Diagram as DiagramModel
 import Models.Diagram.ER as ER exposing (Table(..))
-import Models.Diagram.FreeForm as FreeForm
+import Models.Diagram.FreeForm as FreeForm exposing (FreeFormItems)
 import Models.Diagram.GanttChart exposing (GanttChart(..), Schedule(..), Section(..))
 import Models.Diagram.Kanban as Kanban
 import Models.Diagram.SequenceDiagram as SequenceDiagram
@@ -16,13 +16,14 @@ import Models.Diagram.UseCaseDiagram as UseCaseDiagram
         , UseCaseDiagram(..)
         )
 import Models.Diagram.UserStoryMap as UserStoryMap
-import Models.Item as Item exposing (Items)
+import Models.Item as Item exposing (Item, Items)
 import Tuple
 
 
 getCanvasHeight : DiagramModel.Settings -> Items -> Int
 getCanvasHeight settings items =
     let
+        taskCount : Maybe Int
         taskCount =
             Item.map (\i -> Item.getChildren i |> Item.unwrapChildren |> Item.length) items
                 |> List.maximum
@@ -61,6 +62,7 @@ getCanvasSize model =
                         ( _, tables ) =
                             ER.from model.items
 
+                        sizeList : List ( Int, Int )
                         sizeList =
                             List.map
                                 (\table ->
@@ -106,6 +108,7 @@ getCanvasSize model =
                     case model.data of
                         DiagramModel.SiteMap siteMapitems hierarchy ->
                             let
+                                items : Items
                                 items =
                                     siteMapitems
                                         |> Item.head
@@ -113,6 +116,7 @@ getCanvasSize model =
                                         |> Item.getChildren
                                         |> Item.unwrapChildren
 
+                                svgWidth : Int
                                 svgWidth =
                                     (model.settings.size.width
                                         + Constants.itemSpan
@@ -121,6 +125,7 @@ getCanvasSize model =
                                         + Constants.itemSpan
                                         * hierarchy
 
+                                maxChildrenCount : Int
                                 maxChildrenCount =
                                     items
                                         |> Item.map
@@ -134,6 +139,7 @@ getCanvasSize model =
                                         |> List.maximum
                                         |> Maybe.withDefault 0
 
+                                svgHeight : Int
                                 svgHeight =
                                     (model.settings.size.height
                                         + Constants.itemSpan
@@ -179,6 +185,7 @@ getCanvasSize model =
                                 (GanttChart (Schedule _ _ interval) sections) =
                                     gantt
 
+                                nodeCounts : List Int
                                 nodeCounts =
                                     0
                                         :: (sections
@@ -193,6 +200,7 @@ getCanvasSize model =
                                                 |> ListEx.scanl1 (+)
                                            )
 
+                                svgHeight : Int
                                 svgHeight =
                                     (ListEx.last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length sections
                             in
@@ -213,9 +221,11 @@ getCanvasSize model =
                     case model.data of
                         DiagramModel.SequenceDiagram sequenceDiagram ->
                             let
+                                diagramWidth : Int
                                 diagramWidth =
                                     SequenceDiagram.participantCount sequenceDiagram * (model.settings.size.width + Constants.participantMargin) + 8
 
+                                diagramHeight : Int
                                 diagramHeight =
                                     SequenceDiagram.messageCountAll sequenceDiagram
                                         * Constants.messageMargin
@@ -233,10 +243,12 @@ getCanvasSize model =
                     case model.data of
                         DiagramModel.FreeForm freeForm ->
                             let
+                                items : FreeFormItems
                                 items =
                                     freeForm
                                         |> FreeForm.unwrap
 
+                                positionList : List ( Int, Int )
                                 positionList =
                                     List.indexedMap
                                         (\i item ->
@@ -254,6 +266,7 @@ getCanvasSize model =
                                         )
                                         items
 
+                                freeFormWidth : Int
                                 freeFormWidth =
                                     List.map
                                         (\( w, _ ) ->
@@ -263,6 +276,7 @@ getCanvasSize model =
                                         |> List.maximum
                                         |> Maybe.withDefault 0
 
+                                freeFormHeight : Int
                                 freeFormHeight =
                                     List.map
                                         (\( _, h ) ->
@@ -281,14 +295,17 @@ getCanvasSize model =
                     case model.data of
                         DiagramModel.UseCaseDiagram (UseCaseDiagram actors relations) ->
                             let
+                                useCases : List Item
                                 useCases =
                                     List.map (\(Actor _ a) -> List.map (\(UseCase u) -> u) a) actors
                                         |> List.concat
                                         |> ListEx.uniqueBy Item.getText
 
+                                count : Int
                                 count =
                                     UseCaseDiagram.allRelationCount useCases relations
 
+                                hierarchy : Int
                                 hierarchy =
                                     UseCaseDiagram.hierarchy useCases relations
                             in

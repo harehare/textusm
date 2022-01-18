@@ -40,6 +40,7 @@ view colour ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( to
 
     else if abs (fromY - toY) <= 15 && fromX < toX then
         let
+            y : Float
             y =
                 fromY + fromHeight / 2
         in
@@ -51,6 +52,7 @@ view colour ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( to
 
     else if abs (fromY - toY) <= 15 && fromX > toX then
         let
+            y : Float
             y =
                 fromY + fromHeight / 2
         in
@@ -81,12 +83,15 @@ drawLines : ( Position, Size ) -> ( Position, Size ) -> List Path
 drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, toHeight ) ) =
     if fromY < toY then
         let
+            interval : Float
             interval =
                 (toX - (fromX + fromWidth)) / 2
 
+            fromMargin : Float
             fromMargin =
                 fromHeight / 2
 
+            toMargin : Float
             toMargin =
                 toHeight / 2
         in
@@ -100,12 +105,15 @@ drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, t
 
     else
         let
+            interval : Float
             interval =
                 (toX - (fromX + fromWidth)) / 2
 
+            fromMargin : Float
             fromMargin =
                 fromHeight / 2
 
+            toMargin : Float
             toMargin =
                 toHeight
                     / 2

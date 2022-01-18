@@ -63,9 +63,11 @@ emptyParticipant =
 from : Items -> SequenceDiagram
 from items =
     let
+        participants : List ( String, Participant )
         participants =
             itemToParticipant <| Item.head items
 
+        messages : List SequenceItem
         messages =
             Item.map (itemToSequenceItem (Dict.fromList participants)) items
                 |> List.filterMap identity
@@ -171,22 +173,27 @@ itemsToMessages participantDict items =
 itemToSequenceItem : Dict String Participant -> Item -> Maybe SequenceItem
 itemToSequenceItem participants item =
     let
+        children : Items
         children =
             Item.getChildren item |> Item.unwrapChildren
 
+        childrenHead : Item
         childrenHead =
             Item.getChildren item |> Item.unwrapChildren |> Item.head |> Maybe.withDefault Item.new
 
+        grandChild : Items
         grandChild =
             childrenHead |> Item.getChildren |> Item.unwrapChildren
     in
     case Item.getText item |> String.trim |> String.toLower of
         "alt" ->
             let
+                altIf : Item
                 altIf =
                     Item.head children
                         |> Maybe.withDefault Item.new
 
+                altElse : Item
                 altElse =
                     Item.getAt 1 children
                         |> Maybe.withDefault Item.new
@@ -298,12 +305,14 @@ itemToMessage item participantDict =
 
             [ c1, m, c2 ] ->
                 let
+                    participant1 : Maybe Participant
                     participant1 =
                         Dict.get c1 participantDict
 
                     ( messageType, isReverse ) =
                         textToMessageType m text
 
+                    participant2 : Maybe Participant
                     participant2 =
                         Dict.get c2 participantDict
                 in

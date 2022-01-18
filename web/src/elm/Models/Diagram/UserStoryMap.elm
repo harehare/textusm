@@ -97,6 +97,7 @@ countByStories text =
     let
         loop { currentCount, currentIndent, result, head, tail } =
             let
+                indent : Int
                 indent =
                     getTextIndent head
 

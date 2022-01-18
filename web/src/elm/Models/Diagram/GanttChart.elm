@@ -75,9 +75,11 @@ sectionSchedule (Section _ tasks) =
 stringToPosix : String -> Maybe Posix
 stringToPosix str =
     let
+        tokens : List String
         tokens =
             String.split "-" str
 
+        year : Maybe Int
         year =
             ListEx.getAt 0 tokens
                 |> Maybe.andThen
@@ -89,6 +91,7 @@ stringToPosix str =
                             Nothing
                     )
 
+        month : Maybe Month
         month =
             ListEx.getAt 1 tokens
                 |> Maybe.andThen
@@ -104,6 +107,7 @@ stringToPosix str =
                             Nothing
                     )
 
+        day : Maybe Int
         day =
             ListEx.getAt 2 tokens
                 |> Maybe.andThen
@@ -176,9 +180,11 @@ intToMonth month =
 extractDateValues : String -> Maybe ( Posix, Posix )
 extractDateValues s =
     let
+        rangeValues : List String
         rangeValues =
             String.split " " (String.trim s)
 
+        fromDate : Maybe Posix
         fromDate =
             ListEx.getAt 0 rangeValues
                 |> Maybe.andThen
@@ -186,6 +192,7 @@ extractDateValues s =
                         stringToPosix (String.trim vv)
                     )
 
+        toDate : Maybe Posix
         toDate =
             ListEx.getAt 1 rangeValues
                 |> Maybe.andThen
@@ -207,6 +214,7 @@ extractDateValues s =
 from : Items -> Maybe GanttChart
 from items =
     let
+        rootItem : Item
         rootItem =
             Item.head items |> Maybe.withDefault Item.new
     in
@@ -215,6 +223,7 @@ from items =
         |> Maybe.map
             (\( f, t ) ->
                 let
+                    sectionList : List Section
                     sectionList =
                         Item.getChildren rootItem
                             |> Item.unwrapChildren
@@ -229,6 +238,7 @@ sectionFromItems items =
     Item.map
         (\item ->
             let
+                taskItems : List (Maybe Task)
                 taskItems =
                     Item.getChildren item
                         |> Item.unwrapChildren
@@ -243,6 +253,7 @@ sectionFromItems items =
 taskFromItem : Item -> Maybe Task
 taskFromItem item =
     let
+        schedule : Maybe ( Posix, Posix )
         schedule =
             Item.getChildren item
                 |> Item.unwrapChildren

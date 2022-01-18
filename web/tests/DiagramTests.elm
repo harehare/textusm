@@ -84,6 +84,7 @@ moveStartTest =
         [ test "Move start" <|
             \() ->
                 let
+                    newModel : Model
                     newModel =
                         Return.singleton defInit
                             |> update (Start Diagram.BoardMove ( 10, 20 ))
@@ -99,6 +100,7 @@ moveStopTest =
         [ test "move stop " <|
             \() ->
                 let
+                    newModel : Model
                     newModel =
                         Return.singleton defInit
                             |> update Stop
@@ -114,6 +116,7 @@ moveTest =
         [ test "Did not move" <|
             \() ->
                 let
+                    newModel : Model
                     newModel =
                         Return.singleton defInit
                             |> update (Move ( 10, 20 ))
@@ -123,6 +126,7 @@ moveTest =
         , test "Same as previous position" <|
             \() ->
                 let
+                    newModel : Model
                     newModel =
                         Return.singleton defInit
                             |> update (Move ( 0, 0 ))
@@ -132,11 +136,13 @@ moveTest =
         , test "Moved" <|
             \() ->
                 let
+                    newModel : Model
                     newModel =
                         Return.singleton defInit
                             |> update (Start Diagram.BoardMove ( 0, 0 ))
                             |> Tuple.first
 
+                    moveModel : Model
                     moveModel =
                         Return.singleton newModel
                             |> update (Move ( 10, 20 ))
@@ -152,6 +158,7 @@ moveToTest =
         [ test "Move to specified position" <|
             \() ->
                 let
+                    newModel : Model
                     newModel =
                         Return.singleton defInit
                             |> update (MoveTo ( 10, 20 ))
@@ -167,6 +174,7 @@ toggleFullscreenText =
         [ test "Fullscreen" <|
             \() ->
                 let
+                    newModel : Model
                     newModel =
                         Return.singleton defInit
                             |> update ToggleFullscreen
@@ -176,6 +184,7 @@ toggleFullscreenText =
         , test "Exit fullscreen" <|
             \() ->
                 let
+                    newModel : Model
                     newModel =
                         Return.singleton defInit
                             |> update ToggleFullscreen

@@ -15,6 +15,7 @@ view model =
     case model.data of
         Diagram.FourLs f ->
             let
+                itemHeight : Int
                 itemHeight =
                     Basics.max Constants.largeItemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
 

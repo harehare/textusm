@@ -36,18 +36,22 @@ view model =
             case Item.head items of
                 Just root ->
                     let
+                        moveingItem : Maybe Item
                         moveingItem =
                             Diagram.moveingItem model
 
+                        mindMapItems : Items
                         mindMapItems =
                             Item.unwrapChildren <| Item.getChildren root
 
+                        itemsCount : Int
                         itemsCount =
                             Item.length mindMapItems
 
                         ( right, left ) =
                             Item.splitAt (itemsCount // 2) mindMapItems
 
+                        rootItem : Item
                         rootItem =
                             Maybe.map
                                 (\m ->
@@ -110,15 +114,18 @@ nodesView :
     -> Svg Msg
 nodesView { settings, property, hierarchy, position, direction, selectedItem, items, moveingItem } =
     let
+        svgWidth : Int
         svgWidth =
             settings.size.width
 
+        svgHeight : Int
         svgHeight =
             settings.size.height
 
         ( x, y ) =
             position
 
+        tmpNodeCounts : List Int
         tmpNodeCounts =
             items
                 |> Item.map
@@ -132,6 +139,7 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                 |> List.concatMap
                     (\count ->
                         let
+                            v: Int
                             v =
                                 round <| toFloat count / 2.0
                         in
@@ -139,6 +147,7 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                     )
                 |> ListEx.scanl1 (+)
 
+        nodeCounts : List Int
         nodeCounts =
             tmpNodeCounts
                 |> List.indexedMap (\i _ -> i)
@@ -152,9 +161,11 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                     )
                 |> List.indexedMap (\i v -> v + i + 1)
 
+        yOffset : Int
         yOffset =
             List.sum nodeCounts // List.length nodeCounts * svgHeight
 
+        range : List Int
         range =
             List.range 0 (List.length nodeCounts)
     in
@@ -163,6 +174,7 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
             |> List.concatMap
                 (\( i, nodeCount, item ) ->
                     let
+                        offset : Position
                         offset =
                             Maybe.map
                                 (\m ->
@@ -178,6 +190,7 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                                 |> Maybe.map ItemSettings.getOffset
                                 |> Maybe.withDefault Position.zero
 
+                        itemX : Int
                         itemX =
                             (if direction == Left then
                                 x - (svgWidth + xMargin)
@@ -187,6 +200,7 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                             )
                                 + Position.getX offset
 
+                        itemY : Int
                         itemY =
                             y
                                 + (nodeCount * svgHeight - yOffset)
@@ -227,6 +241,7 @@ nodeLineView ( width, height ) colour fromBase toBase =
         ( fromPoint, toPoint ) =
             ( Tuple.mapBoth toFloat toFloat fromBase, Tuple.mapBoth toFloat toFloat toBase )
 
+        size : ( Float, Float )
         size =
             ( toFloat width, toFloat height )
     in

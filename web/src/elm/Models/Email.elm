@@ -15,6 +15,7 @@ empty =
 fromString : String -> Maybe Email
 fromString s =
     let
+        match : Maybe Regex.Match
         match =
             Regex.find
                 (Maybe.withDefault Regex.never <|

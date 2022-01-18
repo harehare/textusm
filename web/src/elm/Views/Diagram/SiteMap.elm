@@ -3,7 +3,7 @@ module Views.Diagram.SiteMap exposing (view)
 import Constants
 import List.Extra as ListEx
 import Models.Diagram exposing (Model, Msg, SelectedItem, Settings)
-import Models.Item as Item exposing (Items)
+import Models.Item as Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import Models.Property exposing (Property)
 import Svg.Styled as Svg exposing (Svg)
@@ -15,12 +15,14 @@ import Views.Diagram.Views as Views
 view : Model -> Svg Msg
 view model =
     let
+        rootItem : Maybe Item
         rootItem =
             Item.head model.items
     in
     case rootItem of
         Just root ->
             let
+                items : Items
                 items =
                     Item.unwrapChildren <| Item.getChildren root
             in
@@ -44,6 +46,7 @@ view model =
 siteView : Settings -> Property -> ( Int, Int ) -> SelectedItem -> Items -> Svg Msg
 siteView settings property ( posX, posY ) selectedItem items =
     let
+        hierarchyCountList : List Int
         hierarchyCountList =
             0
                 :: Item.map (\item -> Item.getHierarchyCount item - 1) items
@@ -54,12 +57,15 @@ siteView settings property ( posX, posY ) selectedItem items =
             |> List.indexedMap
                 (\i ( hierarchyCount, item ) ->
                     let
+                        children : Items
                         children =
                             Item.unwrapChildren <| Item.getChildren item
 
+                        cardWidth : Int
                         cardWidth =
                             settings.size.width + Constants.itemSpan
 
+                        x : Int
                         x =
                             posX
                                 + i
@@ -92,6 +98,7 @@ siteView settings property ( posX, posY ) selectedItem items =
 siteTreeView : Settings -> Property -> Position -> SelectedItem -> Items -> Svg Msg
 siteTreeView settings property ( posX, posY ) selectedItem items =
     let
+        childrenCountList : List Int
         childrenCountList =
             0
                 :: (items
@@ -111,12 +118,15 @@ siteTreeView settings property ( posX, posY ) selectedItem items =
             |> List.indexedMap
                 (\i ( childrenCount, item ) ->
                     let
+                        children : Items
                         children =
                             Item.unwrapChildren <| Item.getChildren item
 
+                        x : Int
                         x =
                             posX + Constants.itemSpan
 
+                        y : Int
                         y =
                             posY + i * (settings.size.height + Constants.itemSpan) + childrenCount * (settings.size.height + Constants.itemSpan)
                     in
@@ -145,6 +155,7 @@ siteTreeView settings property ( posX, posY ) selectedItem items =
 siteLineView : Settings -> Position -> Position -> Svg Msg
 siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
     let
+        centerX : Int
         centerX =
             settings.size.width // 2
     in
@@ -185,6 +196,7 @@ siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
 siteTreeLineView : Settings -> Position -> Position -> Svg Msg
 siteTreeLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
     let
+        itemPadding : Int
         itemPadding =
             Constants.itemSpan // 2
     in

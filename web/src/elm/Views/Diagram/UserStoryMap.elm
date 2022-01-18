@@ -8,7 +8,7 @@ import List
 import List.Extra as ListEx
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
-import Models.Diagram.UserStoryMap as UserStoryMap exposing (UserStoryMap)
+import Models.Diagram.UserStoryMap as UserStoryMap exposing (CountPerTasks, UserStoryMap)
 import Models.Item as Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import Models.Property as Property exposing (Property)
@@ -64,12 +64,15 @@ mainView { settings, property, selectedItem, items, countByTasks, countByRelease
 labelView : { settings : Settings, property : Property, width : Int, userStoryMap : UserStoryMap } -> Svg Msg
 labelView { settings, property, width, userStoryMap } =
     let
+        posX : Int
         posX =
             16
 
+        hierarchy : Int
         hierarchy =
             UserStoryMap.getHierarchy userStoryMap
 
+        countPerReleaseLevel : CountPerTasks
         countPerReleaseLevel =
             UserStoryMap.countPerReleaseLevel userStoryMap
     in
@@ -112,6 +115,7 @@ labelView { settings, property, width, userStoryMap } =
                         (\xx ->
                             if List.length countPerReleaseLevel - 2 > xx then
                                 let
+                                    releaseY : Int
                                     releaseY =
                                         Constants.itemMargin
                                             // 2
@@ -187,6 +191,7 @@ activityView settings property verticalCount ( posX, posY ) selectedItem item =
 taskView : Settings -> Property -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
 taskView settings property verticalCount ( posX, posY ) selectedItem item =
     let
+        children : Items
         children =
             Item.unwrapChildren <| Item.getChildren item
     in
@@ -232,15 +237,19 @@ taskView settings property verticalCount ( posX, posY ) selectedItem item =
 storyView : Settings -> Property -> List Int -> Int -> Position -> SelectedItem -> Item -> Svg Msg
 storyView settings property verticalCount parentCount ( posX, posY ) selectedItem item =
     let
+        itemCount : Int
         itemCount =
             List.head verticalCount |> Maybe.withDefault 1
 
+        children : Items
         children =
             Item.unwrapChildren <| Item.getChildren item
 
+        childrenLength : Int
         childrenLength =
             Item.length children
 
+        tail : List Int
         tail =
             List.tail verticalCount |> Maybe.withDefault []
     in

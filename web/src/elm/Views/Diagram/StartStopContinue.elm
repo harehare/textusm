@@ -15,6 +15,7 @@ view model =
     case model.data of
         Diagram.StartStopContinue s ->
             let
+                itemHeight : Int
                 itemHeight =
                     Basics.max Constants.itemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
 

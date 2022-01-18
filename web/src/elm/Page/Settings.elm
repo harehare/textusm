@@ -63,6 +63,8 @@ fontSizeItems =
     List.map
         (\f ->
             let
+                size : Int
+
                 size =
                     FontSize.unwrap f
             in

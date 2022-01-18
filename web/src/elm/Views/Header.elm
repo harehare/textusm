@@ -323,6 +323,7 @@ viewSignInButton : Maybe Menu -> Session -> Html Msg
 viewSignInButton menu session =
     if Session.isSignedIn session then
         let
+            user : Maybe Session.User
             user =
                 Session.getUser session
         in
@@ -351,6 +352,7 @@ viewSignInButton menu session =
                 , case menu of
                     Just HeaderMenu ->
                         let
+                            user_ : Maybe Session.User
                             user_ =
                                 Maybe.andThen
                                     (\u ->

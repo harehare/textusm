@@ -772,6 +772,7 @@ update message =
             Return.andThen
                 (\m ->
                     let
+                        remoteTask : Task.Task RequestError (List DiagramItem)
                         remoteTask =
                             Request.items (Session.getIdToken m.session) (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
                                 |> Task.map (\i -> List.filterMap identity i)
@@ -783,6 +784,7 @@ update message =
             Return.andThen
                 (\m ->
                     let
+                        remoteTask : Task.Task RequestError (List DiagramItem)
                         remoteTask =
                             Request.items (Session.getIdToken m.session) (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = True }
                                 |> Task.map (\i -> List.filterMap identity i)
@@ -794,6 +796,7 @@ update message =
             Return.andThen
                 (\m ->
                     let
+                        remoteTask : Task.Task RequestError (List DiagramItem)
                         remoteTask =
                             Request.gistItems (Session.getIdToken m.session) (pageOffsetAndLimit pageNo)
                                 |> Task.map (\i -> List.filterMap identity i)
@@ -805,6 +808,7 @@ update message =
             Return.andThen
                 (\m ->
                     let
+                        hasMorePage : Bool
                         hasMorePage =
                             case m.diagramList of
                                 PublicList _ _ h ->
@@ -813,6 +817,7 @@ update message =
                                 _ ->
                                     False
 
+                        remoteTask : Task.Task RequestError (List DiagramItem)
                         remoteTask =
                             Request.items (Session.getIdToken m.session) (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
                                 |> Task.map (\i -> List.filterMap identity i)
@@ -824,6 +829,7 @@ update message =
             Return.andThen
                 (\m ->
                     let
+                        hasMorePage : Bool
                         hasMorePage =
                             List.length diagrams >= pageSize
 
@@ -848,6 +854,7 @@ update message =
             Return.andThen
                 (\m ->
                     let
+                        hasMorePage : Bool
                         hasMorePage =
                             case m.diagramList of
                                 BookmarkList _ _ h ->
@@ -856,6 +863,7 @@ update message =
                                 _ ->
                                     False
 
+                        remoteTask : Task.Task RequestError (List DiagramItem)
                         remoteTask =
                             Request.items (Session.getIdToken m.session) (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = True }
                                 |> Task.map (\i -> List.filterMap identity i)
@@ -870,6 +878,7 @@ update message =
             Return.andThen
                 (\m ->
                     let
+                        hasMorePage : Bool
                         hasMorePage =
                             List.length diagrams >= pageSize
 
@@ -894,6 +903,7 @@ update message =
             Return.andThen
                 (\m ->
                     let
+                        hasMorePage : Bool
                         hasMorePage =
                             case m.diagramList of
                                 GistList _ _ h ->
@@ -902,6 +912,7 @@ update message =
                                 _ ->
                                     False
 
+                        remoteTask : Task.Task RequestError (List DiagramItem)
                         remoteTask =
                             Request.gistItems (Session.getIdToken m.session) (pageOffsetAndLimit pageNo)
                                 |> Task.map (\i -> List.filterMap identity i)
@@ -913,6 +924,7 @@ update message =
             Return.andThen
                 (\m ->
                     let
+                        hasMorePage : Bool
                         hasMorePage =
                             List.length diagrams >= pageSize
 
@@ -942,16 +954,19 @@ update message =
 
                         AllList _ pageNo _ ->
                             let
+                                localItems : List DiagramItem
                                 localItems =
                                     Result.withDefault [] <|
                                         D.decodeValue (D.list DiagramItem.decoder) json
                             in
                             if Session.isSignedIn m.session && m.isOnline then
                                 let
+                                    remoteItems : Task.Task RequestError (List DiagramItem)
                                     remoteItems =
                                         Request.allItems (Session.getIdToken m.session) (pageOffsetAndLimit pageNo)
                                             |> Task.map (\i -> i |> Maybe.withDefault [])
 
+                                    items : Task.Task RequestError (List DiagramItem)
                                     items =
                                         remoteItems
                                             |> Task.map
@@ -987,6 +1002,7 @@ update message =
             Return.andThen
                 (\m ->
                     let
+                        hasMorePage : Bool
                         hasMorePage =
                             List.length items >= pageSize
 
@@ -1076,6 +1092,7 @@ update message =
                                 BookmarkList r p h ->
                                     ( r, p, h )
 
+                        diagramList : List DiagramItem
                         diagramList =
                             RemoteData.withDefault [] remoteData |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark })
                     in

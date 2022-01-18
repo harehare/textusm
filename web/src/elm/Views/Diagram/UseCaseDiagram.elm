@@ -81,6 +81,7 @@ view model =
     case model.data of
         Diagram.UseCaseDiagram (UseCaseDiagram actors relation) ->
             let
+                useCases : List Item
                 useCases =
                     List.map (\(Actor _ a) -> List.map (\(UseCase u) -> u) a) actors
                         |> List.concat
@@ -99,31 +100,37 @@ view model =
                         , allUseCaseName = useCases |> List.map (\v -> Item.getText v |> String.trim) |> Set.fromList
                         }
 
+                actorLine : List (Svg Msg)
                 actorLine =
                     List.map
                         (\(Actor a ul) ->
                             let
+                                maybeActorPosition : Maybe Position
                                 maybeActorPosition =
                                     Dict.get (UseCaseDiagram.getName a) actorMargins
 
+                                useCaseCount : Int
                                 useCaseCount =
                                     List.length ul // 2
                             in
                             List.indexedMap
                                 (\i (UseCase u) ->
                                     let
+                                        maybeUseCasePosition : Maybe Position
                                         maybeUseCasePosition =
                                             Dict.get (UseCaseDiagram.getName u) useCasePositions
                                     in
                                     case ( maybeActorPosition, maybeUseCasePosition ) of
                                         ( Just ap, Just up ) ->
                                             let
+                                                fromPosition : Position
                                                 fromPosition =
                                                     Tuple.mapBoth
                                                         (\x -> x + actorSize3)
                                                         (\y -> y + (actorHeight // 2 + (i - useCaseCount) * actorHalfSize))
                                                         ap
 
+                                                toPosition : Position
                                                 toPosition =
                                                     Tuple.mapBoth
                                                         (\x -> x + actorBaseSize)
@@ -151,10 +158,12 @@ view model =
 actorsView : Settings -> List Actor -> ( UseCasePosition, List (Svg Msg) )
 actorsView settings actors =
     let
+        a : List ( ( String, ( Int, Int ) ), Svg Msg )
         a =
             List.indexedMap
                 (\i (Actor item _) ->
                     let
+                        p : Position
                         p =
                             ( actorSize2, actorMargin * i )
                     in
@@ -194,14 +203,35 @@ useCasesView :
     -> ( UseCasePosition, List (Svg Msg) )
 useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUseCaseName } =
     let
+        loop :
+            { a
+                | hierarchy : Int
+                , nextPosition : Position
+                , index : Int
+                , result : List ( ( String, Position ), List (Svg Msg) )
+                , head : Item
+                , tail : f
+            }
+            ->
+                Step
+                    { nextPosition : Position
+                    , hierarchy : Int
+                    , index : Int
+                    , result : List ( ( String, Position ), List (Svg Msg) )
+                    , restUseCases : f
+                    }
+                    b
         loop { hierarchy, nextPosition, index, result, head, tail } =
             let
+                name : String
                 name =
                     UseCaseDiagram.getName head
 
+                relationCount : Int
                 relationCount =
                     max (UseCaseDiagram.relationCount head relation) 1
 
+                position : Position
                 position =
                     useCasePosition
                         { hierarchy = hierarchy
@@ -209,6 +239,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                         , nextPosition = nextPosition
                         }
 
+                newPosition : Position
                 newPosition =
                     useCasePosition
                         { hierarchy = hierarchy
@@ -216,18 +247,22 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                         , nextPosition = nextPosition
                         }
 
+                relationUseCases : List ( ( String, Position ), List (Svg Msg) )
                 relationUseCases =
                     case UseCaseDiagram.getRelations head relation of
                         Just relationItems ->
                             List.indexedMap
                                 (\i relationItem ->
                                     let
+                                        relationName : String
                                         relationName =
                                             UseCaseDiagram.getRelationName relationItem
 
+                                        ri : Item
                                         ri =
                                             UseCaseDiagram.getRelationItem relationItem
 
+                                        subPosition : Position
                                         subPosition =
                                             useCasePosition
                                                 { hierarchy = hierarchy + 1
@@ -235,6 +270,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                                                 , nextPosition = position
                                                 }
 
+                                        subRelations : List Relation
                                         subRelations =
                                             UseCaseDiagram.getRelations ri relation
                                                 |> Maybe.withDefault []
@@ -260,6 +296,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                                                 , allUseCaseName = allUseCaseName
                                                 }
 
+                                        subLines : List (Svg Msg)
                                         subLines =
                                             List.indexedMap
                                                 (\j v ->
@@ -300,6 +337,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                         Nothing ->
                             []
 
+                r : List ( ( String, Position ), List (Svg Msg) )
                 r =
                     relationUseCases
                         ++ [ ( ( name, position )
@@ -322,6 +360,23 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                 , restUseCases = tail
                 }
 
+        go :
+            { a
+                | nextPosition : Position
+                , hierarchy : Int
+                , index : Int
+                , result : List ( ( String, Position ), List (Svg Msg) )
+                , restUseCases : List Item
+            }
+            ->
+                Step
+                    { nextPosition : Position
+                    , hierarchy : Int
+                    , index : Int
+                    , result : List ( ( String, Position ), List (Svg Msg) )
+                    , restUseCases : List Item
+                    }
+                    (List ( ( String, Position ), List (Svg Msg) ))
         go { nextPosition, hierarchy, index, result, restUseCases } =
             case restUseCases of
                 x :: [] ->
@@ -347,6 +402,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                 _ ->
                     Done result
 
+        a : List ( ( String, Position ), List (Svg Msg) )
         a =
             State.tailRec go
                 { nextPosition = basePosition
@@ -414,6 +470,7 @@ relationLineView { settings, from, to, relation, reverse } =
         ( centerX, centerY ) =
             ( fromX + (toX - fromX) // 5 * 3, fromY + (toY - fromY) // 5 * 3 - actorHalfSize )
 
+        diffY : Int
         diffY =
             toY - fromY
     in

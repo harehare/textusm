@@ -1,7 +1,7 @@
-module Models.DurationTests exposing (..)
+module Models.DurationTests exposing (suite)
 
 import Expect
-import Fuzz as Fuzz
+import Fuzz
 import Models.Duration as Duration
 import Test exposing (Test, fuzz)
 

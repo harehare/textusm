@@ -1,7 +1,22 @@
 module Views.Diagram.ER exposing (view)
 
 import Constants
-import Css exposing (alignItems, center, color, displayFlex, hex, int, justifyContent, marginLeft, marginRight, marginTop, px, rem, spaceBetween)
+import Css
+    exposing
+        ( alignItems
+        , center
+        , color
+        , displayFlex
+        , hex
+        , int
+        , justifyContent
+        , marginLeft
+        , marginRight
+        , marginTop
+        , px
+        , rem
+        , spaceBetween
+        )
 import Dict exposing (Dict)
 import Events
 import Html.Styled as Html
@@ -45,6 +60,7 @@ view model =
                 ( relationships, tables ) =
                     e
 
+                baseDict : TableViewDict
                 baseDict =
                     tablesToDict tables
                         |> adjustTablePosition relationships
@@ -58,6 +74,7 @@ view model =
                                         (Table name _ position _) =
                                             table
 
+                                        currentTable : Maybe TableViewInfo
                                         currentTable =
                                             Dict.get name baseDict
                                     in
@@ -200,6 +217,7 @@ calcTablePosition { tableSize1, tableSize2, pos, nextPosition, relationCount } =
         ( tableWidth2, tableHeight2 ) =
             tableSize2
 
+        n : Int
         n =
             if relationCount // 8 > 0 then
                 relationCount // 8
@@ -207,9 +225,11 @@ calcTablePosition { tableSize1, tableSize2, pos, nextPosition, relationCount } =
             else
                 1
 
+        w : Int
         w =
             max tableWidth1 Constants.tableMargin * n
 
+        h : Int
         h =
             max tableHeight1 Constants.tableMargin * n
 
@@ -264,15 +284,19 @@ tablesToDict tables =
                     (Table name columns position _) =
                         table
 
+                    offsetX : Int
                     offsetX =
                         Position.getX (position |> Maybe.withDefault Position.zero)
 
+                    offsetY : Int
                     offsetY =
                         Position.getY (position |> Maybe.withDefault Position.zero)
 
+                    width : Int
                     width =
                         ER.tableWidth table
 
+                    height : Int
                     height =
                         Constants.tableRowHeight * (List.length columns + 1)
                 in
@@ -295,9 +319,11 @@ tableView { settings, svgSize, pos, tableSize, table } =
         (Table tableName columns position _) =
             table
 
+        tableX : Int
         tableX =
             Position.getX pos + Position.getX (position |> Maybe.withDefault Position.zero)
 
+        tableY : Int
         tableY =
             Position.getY pos + Position.getY (position |> Maybe.withDefault Position.zero)
     in
@@ -326,15 +352,17 @@ onDragStart table isPhone =
             (\event ->
                 if List.length event.changedTouches > 1 then
                     let
+                        p1 : ( Float, Float )
                         p1 =
                             ListEx.getAt 0 event.changedTouches
                                 |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0, 0 )
+                                |> Maybe.withDefault ( 0.0, 0.0 )
 
+                        p2 : ( Float, Float )
                         p2 =
                             ListEx.getAt 1 event.changedTouches
                                 |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0, 0 )
+                                |> Maybe.withDefault ( 0.0, 0.0 )
                     in
                     StartPinch (Utils.calcDistance p1 p2)
 
@@ -383,24 +411,27 @@ tableHeaderView settings headerText headerWidth ( posX, posY ) =
 columnView : Settings -> Int -> Position -> Column -> Svg Msg
 columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
     let
+        colX : String
         colX =
             String.fromInt posX
 
+        colY : String
         colY =
             String.fromInt posY
 
+        isPrimaryKey : Bool
         isPrimaryKey =
             ListEx.find (\i -> i == PrimaryKey) attrs |> MaybeEx.isJust
 
+        isNull : Bool
         isNull =
             ListEx.find (\i -> i == Null) attrs |> MaybeEx.isJust
 
-        isIndex =
-            ListEx.find (\i -> i == Index) attrs |> MaybeEx.isJust
-
+        isNotNull : Bool
         isNotNull =
             ListEx.find (\i -> i == NotNull) attrs |> MaybeEx.isJust
 
+        style : Css.Style
         style =
             if isPrimaryKey then
                 Css.batch [ Css.fontWeight <| int 600, color <| hex settings.color.story.color ]
@@ -444,7 +475,7 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
                         Html.div [ css [ marginRight <| px 8 ] ]
                             [ Icon.key settings.color.story.color 12 ]
 
-                      else if isIndex then
+                      else if ListEx.find (\i -> i == Index) attrs |> MaybeEx.isJust then
                         Html.div
                             [ css [ marginRight <| px 8, marginTop <| px 5 ] ]
                             [ Icon.search settings.color.story.color 16 ]
@@ -494,18 +525,22 @@ relationshipView settings relationships tables =
                             NoRelation ->
                                 ( "", "" )
 
+                    table1 : Maybe TableViewInfo
                     table1 =
                         Dict.get tableName1 tables
 
+                    table2 : Maybe TableViewInfo
                     table2 =
                         Dict.get tableName2 tables
                 in
                 case ( table1, table2 ) of
                     ( Just t1, Just t2 ) ->
                         let
+                            t1rel : Maybe String
                             t1rel =
                                 Dict.get tableName2 t1.releations
 
+                            t2rel : Maybe String
                             t2rel =
                                 Dict.get tableName1 t2.releations
                         in
@@ -617,15 +652,19 @@ pathView settings from to =
         ( toOffsetX, toOffsetY ) =
             to.offset
 
+        fromPosition : ( Float, Float )
         fromPosition =
             Tuple.mapBoth (\x -> toFloat (x + fromOffsetX)) (\y -> toFloat (y + fromOffsetY)) (getPosition from.position)
 
+        fromSize : ( Float, Float )
         fromSize =
             Tuple.mapBoth toFloat toFloat from.size
 
+        toPosition : ( Float, Float )
         toPosition =
             Tuple.mapBoth (\x -> toFloat (x + toOffsetX)) (\y -> toFloat (y + toOffsetY)) (getPosition to.position)
 
+        toSize : ( Float, Float )
         toSize =
             Tuple.mapBoth toFloat toFloat to.size
     in

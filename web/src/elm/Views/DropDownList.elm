@@ -99,6 +99,7 @@ getColor value =
 view : (String -> msg) -> String -> Maybe String -> (String -> msg) -> List DropDownItem -> String -> Html msg
 view onToggleDropDownList dropDownId currentId onChange items selectedValue =
     let
+        selectedItem : DropDownItem
         selectedItem =
             items
                 |> ListEx.find (\item -> unwrapValue item.value == selectedValue)
