@@ -53,7 +53,7 @@
         "html-inline-css-webpack-plugin": "^1.11.1",
         "html-webpack-plugin": "^5.5.0",
         "husky": "^7.0.4",
-        "lint-staged": "^12.1.7",
+        "lint-staged": "^12.2.0",
         "mini-css-extract-plugin": "^2.5.1",
         "monaco-editor-webpack-plugin": "^7.0.1",
         "node-sass": "^7.0.1",
