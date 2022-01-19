@@ -32,8 +32,8 @@ import Models.Diagram as DiagramModel
 import Models.Diagram.ER as ER
 import Models.Diagram.Table as Table
 import Models.DiagramId as DiagramId
-import Models.DiagramItem as DiagramItem
-import Models.DiagramLocation as DiagramLocation
+import Models.DiagramItem as DiagramItem exposing (DiagramItem)
+import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Models.DiagramType as DiagramType
 import Models.Dialog as Dialog
 import Models.FileType as FileType
@@ -61,7 +61,8 @@ import Return exposing (Return)
 import Route exposing (Route(..), toRoute)
 import Settings
     exposing
-        ( defaultEditorSettings
+        ( Settings
+        , defaultEditorSettings
         , defaultSettings
         , settingsDecoder
         , settingsEncoder
@@ -100,10 +101,12 @@ type alias Flags =
 init : Flags -> Url.Url -> Nav.Key -> Return Msg Model
 init flags url key =
     let
+        initSettings : Settings
         initSettings =
             D.decodeValue settingsDecoder flags.settings
                 |> Result.withDefault (defaultSettings flags.isDarkMode)
 
+        lang : Message.Lang
         lang =
             Message.fromString flags.lang
 
@@ -124,6 +127,7 @@ init flags url key =
         ( settingsModel, _ ) =
             Settings.init flags.canUseNativeFileSystem Session.guest initSettings
 
+        currentDiagram : DiagramItem
         currentDiagram =
             initSettings.diagram |> Maybe.withDefault DiagramItem.empty
 
@@ -297,6 +301,7 @@ view model =
 
                         _ ->
                             let
+                                mainWindow : Html Msg -> Html Msg
                                 mainWindow =
                                     if Size.getWidth model.diagramModel.size > 0 && Utils.isPhone (Size.getWidth model.diagramModel.size) then
                                         Lazy.lazy5 SwitchWindow.view
@@ -462,6 +467,7 @@ changeRouteTo route =
 
         Route.Edit diagramType ->
             let
+                diagram : DiagramItem
                 diagram =
                     { id = Nothing
                     , text = Text.fromString <| DiagramType.defaultText diagramType
@@ -745,6 +751,7 @@ update message =
                         ( model_, cmd_ ) =
                             Return.singleton m.diagramModel |> Diagram.update (DiagramModel.Init m.diagramModel.settings window (Text.toString m.diagramModel.text))
 
+                        model__ : DiagramModel.Model
                         model__ =
                             case toRoute m.url of
                                 Route.Embed _ _ _ (Just w) (Just h) ->
@@ -776,6 +783,7 @@ update message =
                                 ( _, tables ) =
                                     ER.from m.diagramModel.items
 
+                                ddl : String
                                 ddl =
                                     List.map ER.tableToString tables
                                         |> String.join "\n"
@@ -854,6 +862,7 @@ update message =
 
                     else
                         let
+                            location : Maybe DiagramLocation
                             location =
                                 m.currentDiagram.id |> Maybe.map (\_ -> m.currentDiagram.location) |> Maybe.withDefault m.settingsModel.settings.location
                         in
@@ -863,10 +872,12 @@ update message =
 
                             _ ->
                                 let
+                                    isRemote : Bool
                                     isRemote =
                                         m.currentDiagram
                                             |> DiagramItem.isRemoteDiagram m.session
 
+                                    newDiagramModel : DiagramModel.Model
                                     newDiagramModel =
                                         DiagramModel.updatedText m.diagramModel (Text.saved m.diagramModel.text)
                                 in
@@ -917,6 +928,7 @@ update message =
 
         SaveToRemote diagramJson ->
             let
+                result : Result D.Error DiagramItem
                 result =
                     D.decodeValue DiagramItem.decoder diagramJson
             in
@@ -933,6 +945,7 @@ update message =
             Return.andThen
                 (\m ->
                     let
+                        item : DiagramItem
                         item =
                             { id = Nothing
                             , title = m.currentDiagram.title
@@ -1010,9 +1023,11 @@ update message =
                         (\m ->
                             if Session.isSignedIn m.session then
                                 let
+                                    newStoryMap : Settings
                                     newStoryMap =
                                         m.settingsModel.settings |> Settings.ofFont.set m.settingsModel.settings.font
 
+                                    newSettings : Settings
                                     newSettings =
                                         { position = Just m.window.position
                                         , font = m.settingsModel.settings.font

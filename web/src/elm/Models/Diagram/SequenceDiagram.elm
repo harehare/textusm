@@ -207,6 +207,7 @@ itemToSequenceItem participants item =
 
         "par" ->
             let
+                parMesssages : List ( String, List Message )
                 parMesssages =
                     Item.map (\child -> ( Item.getText child, itemsToMessages participants <| Item.unwrapChildren <| Item.getChildren child )) children
             in
@@ -262,6 +263,7 @@ itemToMessage item participantDict =
 
     else
         let
+            text : String
             text =
                 Item.getChildren item
                     |> Item.unwrapChildren
@@ -273,6 +275,7 @@ itemToMessage item participantDict =
         case String.split " " (String.trim <| Item.getText item) of
             [ c1, "->o" ] ->
                 let
+                    participant1 : Maybe Participant
                     participant1 =
                         Dict.get c1 participantDict
                 in
@@ -289,6 +292,7 @@ itemToMessage item participantDict =
 
             [ "o->", c1 ] ->
                 let
+                    participant1 : Maybe Participant
                     participant1 =
                         Dict.get c1 participantDict
                 in

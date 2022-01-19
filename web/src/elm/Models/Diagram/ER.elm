@@ -93,12 +93,14 @@ tableWidth (Table name columns _ _) =
 from : Items -> ErDiagram
 from items =
     let
+        relationships : Items
         relationships =
             Item.getAt 0 items
                 |> Maybe.withDefault Item.new
                 |> Item.getChildren
                 |> Item.unwrapChildren
 
+        tables : Items
         tables =
             Item.getAt 1 items
                 |> Maybe.withDefault Item.new
@@ -116,6 +118,7 @@ itemsToRelationships items =
 itemToRelationship : Item -> Relationship
 itemToRelationship item =
     let
+        text : String
         text =
             Item.getText item |> String.trim
     in
@@ -163,10 +166,12 @@ itemsToTables items =
 itemToTable : Item -> Table
 itemToTable item =
     let
+        text : String
         text =
             Item.getText item
                 |> String.trim
 
+        tableInfo : List String
         tableInfo =
             text
                 |> String.split "|"
@@ -186,9 +191,11 @@ itemToTable item =
                 _ ->
                     ( text, Nothing )
 
+        items : Items
         items =
             Item.getChildren item |> Item.unwrapChildren
 
+        columns : List Column
         columns =
             Item.map itemToColumn items
     in
@@ -198,12 +205,14 @@ itemToTable item =
 itemToColumn : Item -> Column
 itemToColumn item =
     let
+        tokens : List String
         tokens =
             Item.getText item
                 |> String.trim
                 |> String.split " "
                 |> List.map (\i -> String.trim i)
 
+        columnName : String
         columnName =
             getAt 0 tokens
                 |> Maybe.withDefault ""
@@ -229,6 +238,7 @@ textToColumnAttribute attrDict =
         getkAttributeIndex attrName =
             Dict.get attrName attrDict
 
+        primaryKey : Attribute
         primaryKey =
             if isJust <| getkAttributeIndex "pk" then
                 PrimaryKey
@@ -236,6 +246,7 @@ textToColumnAttribute attrDict =
             else
                 None
 
+        notNull : Attribute
         notNull =
             getkAttributeIndex "not"
                 |> Maybe.andThen
@@ -252,6 +263,7 @@ textToColumnAttribute attrDict =
                     )
                 |> Maybe.withDefault None
 
+        unique : Attribute
         unique =
             if isJust <| getkAttributeIndex "Unique" then
                 Unique
@@ -259,6 +271,7 @@ textToColumnAttribute attrDict =
             else
                 None
 
+        null : Attribute
         null =
             getkAttributeIndex "null"
                 |> Maybe.andThen
@@ -271,6 +284,7 @@ textToColumnAttribute attrDict =
                     )
                 |> Maybe.withDefault None
 
+        increment : Attribute
         increment =
             if isJust <| getkAttributeIndex "increment" then
                 Increment
@@ -278,6 +292,7 @@ textToColumnAttribute attrDict =
             else
                 None
 
+        index : Attribute
         index =
             if isJust <| getkAttributeIndex "index" then
                 Index
@@ -285,6 +300,7 @@ textToColumnAttribute attrDict =
             else
                 None
 
+        default : Attribute
         default =
             getkAttributeIndex "default"
                 |> Maybe.andThen
@@ -303,6 +319,7 @@ textToColumnAttribute attrDict =
 textToColumnType : String -> ColumnType
 textToColumnType text =
     let
+        tokens : List ( String, Bool )
         tokens =
             String.split "(" text
                 |> List.map (\i -> ( String.trim i |> String.toLower |> String.replace ")" "", String.endsWith ")" i ))
@@ -505,6 +522,7 @@ columnTypeToString type_ =
 tableToString : Table -> String
 tableToString (Table name columns _ _) =
     let
+        columnStrings : List String
         columnStrings =
             List.map (\c -> columnToString c |> String.trimRight) columns
     in
@@ -527,6 +545,7 @@ tableToString (Table name columns _ _) =
 primaryKeyToString : List Column -> Maybe String
 primaryKeyToString columns =
     let
+        primaryKeys : List String
         primaryKeys =
             List.filterMap
                 (\(Column name _ attrs) ->
@@ -548,6 +567,7 @@ primaryKeyToString columns =
 indexToString : String -> List Column -> Maybe String
 indexToString tableName columns =
     let
+        indexes : List Column
         indexes =
             List.filter
                 (\(Column _ _ attrs) ->

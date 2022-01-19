@@ -90,42 +90,34 @@ stringToPosix str =
                         else
                             Nothing
                     )
-
-        month : Maybe Month
-        month =
-            ListEx.getAt 1 tokens
-                |> Maybe.andThen
-                    (\v ->
-                        if String.length v == 2 then
-                            String.toInt v
-                                |> Maybe.andThen
-                                    (\vv ->
-                                        Just <| intToMonth vv
-                                    )
-
-                        else
-                            Nothing
-                    )
-
-        day : Maybe Int
-        day =
-            ListEx.getAt 2 tokens
-                |> Maybe.andThen
-                    (\v ->
-                        if String.length v == 2 then
-                            String.toInt v
-
-                        else
-                            Nothing
-                    )
     in
     year
         |> Maybe.andThen
             (\yearValue ->
-                month
+                ListEx.getAt 1 tokens
+                    |> Maybe.andThen
+                        (\v ->
+                            if String.length v == 2 then
+                                String.toInt v
+                                    |> Maybe.andThen
+                                        (\vv ->
+                                            Just <| intToMonth vv
+                                        )
+
+                            else
+                                Nothing
+                        )
                     |> Maybe.andThen
                         (\monthValue ->
-                            day
+                            ListEx.getAt 2 tokens
+                                |> Maybe.andThen
+                                    (\v ->
+                                        if String.length v == 2 then
+                                            String.toInt v
+
+                                        else
+                                            Nothing
+                                    )
                                 |> Maybe.andThen
                                     (\dayValue ->
                                         Just <| TimeEx.partsToPosix Time.utc (TimeEx.Parts yearValue monthValue dayValue 0 0 0 0)
@@ -191,19 +183,15 @@ extractDateValues s =
                     (\vv ->
                         stringToPosix (String.trim vv)
                     )
-
-        toDate : Maybe Posix
-        toDate =
-            ListEx.getAt 1 rangeValues
-                |> Maybe.andThen
-                    (\vv ->
-                        stringToPosix (String.trim vv)
-                    )
     in
     fromDate
         |> Maybe.andThen
             (\f ->
-                toDate
+                ListEx.getAt 1 rangeValues
+                    |> Maybe.andThen
+                        (\vv ->
+                            stringToPosix (String.trim vv)
+                        )
                     |> Maybe.andThen
                         (\to ->
                             Just ( f, to )

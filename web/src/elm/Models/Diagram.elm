@@ -526,15 +526,17 @@ dragStart state isPhone =
             (\event ->
                 if List.length event.changedTouches > 1 then
                     let
+                        p1 : ( Float, Float )
                         p1 =
                             getAt 0 event.changedTouches
                                 |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0, 0 )
+                                |> Maybe.withDefault ( 0.0, 0.0 )
 
+                        p2 : ( Float, Float )
                         p2 =
                             getAt 1 event.changedTouches
                                 |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0, 0 )
+                                |> Maybe.withDefault ( 0.0, 0.0 )
                     in
                     StartPinch (Utils.calcDistance p1 p2)
 
