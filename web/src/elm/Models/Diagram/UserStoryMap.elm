@@ -95,6 +95,22 @@ getTextIndent text =
 countByStories : String -> List Int
 countByStories text =
     let
+        loop :
+            { a
+                | currentCount : Int
+                , currentIndent : Int
+                , result : Dict.Dict Int Int
+                , head : String
+                , tail : List String
+            }
+            ->
+                Step
+                    { currentCount : Int
+                    , currentIndent : Int
+                    , lines : List String
+                    , result : Dict.Dict Int Int
+                    }
+                    b
         loop { currentCount, currentIndent, result, head, tail } =
             let
                 indent : Int
@@ -131,6 +147,21 @@ countByStories text =
                 , result = nextResult
                 }
 
+        go :
+            { a
+                | currentCount : Int
+                , currentIndent : Int
+                , lines : List String
+                , result : Dict.Dict Int Int
+            }
+            ->
+                Step
+                    { currentCount : Int
+                    , currentIndent : Int
+                    , lines : List String
+                    , result : Dict.Dict Int Int
+                    }
+                    (Dict.Dict Int Int)
         go { currentCount, currentIndent, lines, result } =
             case lines of
                 x :: [] ->

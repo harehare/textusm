@@ -21,7 +21,7 @@ config =
     [ NoDebug.Log.rule
     , NoDebug.TodoOrToString.rule
     , NoUnused.Variables.rule
-    -- , NoUnoptimizedRecursion.rule (NoUnoptimizedRecursion.optOutWithComment "IGNORE")
+    , NoUnoptimizedRecursion.rule (NoUnoptimizedRecursion.optOutWithComment "IGNORE")
     , NoSimpleLetBody.rule
     , CognitiveComplexity.rule 15
     , NoExposingEverything.rule
@@ -30,4 +30,5 @@ config =
     , NoMissingTypeAnnotationInLetIn.rule
     , NoMissingTypeExpose.rule
     , NoPrematureLetComputation.rule
+    
     ]

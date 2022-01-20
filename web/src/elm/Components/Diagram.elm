@@ -66,7 +66,7 @@ import Models.Diagram.UseCaseDiagram as UseCaseDiagramModel
 import Models.Diagram.UserPersona as UserPersonaModel
 import Models.Diagram.UserStoryMap as UserStoryMapModel
 import Models.FontStyle as FontStyle
-import Models.Item as Item
+import Models.Item as Item exposing (Item)
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Property as Property
@@ -136,6 +136,8 @@ init settings =
 zoomControl : Bool -> Float -> Html Msg
 zoomControl isFullscreen scale =
     let
+        s : Int
+
         s =
             round <| scale * 100.0
     in
@@ -234,6 +236,8 @@ zoomControl isFullscreen scale =
 view : Model -> Html Msg
 view model =
     let
+        svgWidth : Int
+
         svgWidth =
             if model.fullscreen then
                 Basics.toFloat
@@ -245,6 +249,8 @@ view model =
                     (Size.getWidth model.size)
                     |> round
 
+        svgHeight : Int
+
         svgHeight =
             if model.fullscreen then
                 Basics.toFloat
@@ -255,6 +261,8 @@ view model =
                 Basics.toFloat
                     (Size.getHeight model.size)
                     |> round
+
+        centerPosition : Position
 
         centerPosition =
             case model.diagramType of
@@ -269,6 +277,8 @@ view model =
 
                 _ ->
                     model.position
+
+        mainSvg : Html Msg
 
         mainSvg =
             Lazy.lazy (diagramView model.diagramType) model
@@ -485,6 +495,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
         , case ( model.selectedItem, model.contextMenu ) of
             ( Just item_, Just { contextMenu, position, displayAllMenu } ) ->
                 let
+                    pos : Position
                     pos =
                         Item.getPosition item_ <| Position.concat position centerPosition
 
@@ -527,15 +538,17 @@ onDragStart item isPhone =
                     \event ->
                         if List.length event.changedTouches > 1 then
                             let
+                                p1 : ( Float, Float )
                                 p1 =
                                     getAt 0 event.changedTouches
                                         |> Maybe.map .pagePos
-                                        |> Maybe.withDefault ( 0, 0 )
+                                        |> Maybe.withDefault ( 0.0, 0.0 )
 
+                                p2 : ( Float, Float )
                                 p2 =
                                     getAt 1 event.changedTouches
                                         |> Maybe.map .pagePos
-                                        |> Maybe.withDefault ( 0, 0 )
+                                        |> Maybe.withDefault ( 0.0, 0.0 )
                             in
                             StartPinch (Utils.calcDistance p1 p2)
 
@@ -571,19 +584,23 @@ onDragMove distance moveState isPhone =
                     \event ->
                         if List.length event.changedTouches > 1 then
                             let
+                                p1 : ( Float, Float )
                                 p1 =
                                     getAt 0 event.changedTouches
                                         |> Maybe.map .pagePos
-                                        |> Maybe.withDefault ( 0, 0 )
+                                        |> Maybe.withDefault ( 0.0, 0.0 )
 
+                                p2 : ( Float, Float )
                                 p2 =
                                     getAt 1 event.changedTouches
                                         |> Maybe.map .pagePos
-                                        |> Maybe.withDefault ( 0, 0 )
+                                        |> Maybe.withDefault ( 0.0, 0.0 )
                             in
                             case distance of
                                 Just x ->
                                     let
+                                        newDistance : Float
+
                                         newDistance =
                                             Utils.calcDistance p1 p2
                                     in
@@ -632,6 +649,8 @@ updateDiagram ( width, height ) base text =
     let
         ( hierarchy, items ) =
             Item.fromString text
+
+        data : Diagram.Data
 
         data =
             case base.diagramType of
@@ -689,7 +708,10 @@ updateDiagram ( width, height ) base text =
                 UseCaseDiagram ->
                     Diagram.UseCaseDiagram <| UseCaseDiagramModel.from items
 
+        newModel : Model
+
         newModel =
+
             { base | items = items, data = data }
 
         ( svgWidth, svgHeight ) =
@@ -772,6 +794,8 @@ move ( x, y ) m =
                         (ErDiagramModel.Table name columns position lineNo) =
                             table
 
+                        newPosition : Maybe Position
+
                         newPosition =
                             Just
                                 (position
@@ -795,14 +819,17 @@ move ( x, y ) m =
 
                 Diagram.ItemTarget item ->
                     let
+                        offset : Position
                         offset =
                             Item.getOffset item
 
+                        newPosition : Position
                         newPosition =
                             ( Position.getX offset + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
                             , Position.getY offset + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
                             )
 
+                        newItem : Item
                         newItem =
                             Item.withOffset newPosition item
                     in
@@ -817,9 +844,11 @@ move ( x, y ) m =
 
         Diagram.ItemResize item direction ->
             let
+                offsetPosition : Position
                 offsetPosition =
                     Item.getOffset item
 
+                offsetSize : Size
                 offsetSize =
                     Item.getOffsetSize item
 
@@ -879,6 +908,7 @@ move ( x, y ) m =
                               )
                             )
 
+                newItem : Item
                 newItem =
                     Item.withOffsetSize newSize item
                         |> Item.withOffset newPosition
@@ -1035,6 +1065,7 @@ update message =
                         ( widthRatio, heightRatio ) =
                             ( toFloat (round (toFloat windowWidth / toFloat canvasWidth / 0.05)) * 0.05, toFloat (round (toFloat windowHeight / toFloat canvasHeight / 0.05)) * 0.05 )
 
+                        position : Position
                         position =
                             ( windowWidth // 2 - round (toFloat canvasWidth / 2 * widthRatio), windowHeight // 2 - round (toFloat canvasHeight / 2 * heightRatio) )
                     in
@@ -1057,13 +1088,16 @@ update message =
                         |> Maybe.map
                             (\selectedItem ->
                                 let
+                                    lines : List String
                                     lines =
                                         Text.lines m.text
 
+                                    prefix : String
                                     prefix =
                                         Text.getLine (Item.getLineNo item) m.text
                                             |> DiagramUtils.getSpacePrefix
 
+                                    text : String
                                     text =
                                         setAt (Item.getLineNo item)
                                             (prefix
@@ -1097,15 +1131,18 @@ update message =
                         |> Maybe.map
                             (\item ->
                                 let
+                                    lines : List String
                                     lines =
                                         Text.lines m.text
 
+                                    currentText : String
                                     currentText =
                                         Text.getLine (Item.getLineNo item) m.text
 
                                     ( mainText, settings, comment ) =
                                         Item.split currentText
 
+                                    text : String
                                     text =
                                         Item.new
                                             |> Item.withText mainText
@@ -1113,6 +1150,7 @@ update message =
                                             |> Item.withComments comment
                                             |> Item.toLineString
 
+                                    updateText : String
                                     updateText =
                                         setAt (Item.getLineNo item) (DiagramUtils.getSpacePrefix currentText ++ String.trimLeft text) lines
                                             |> String.join "\n"
@@ -1141,15 +1179,18 @@ update message =
                         |> Maybe.map
                             (\item ->
                                 let
+                                    lines : List String
                                     lines =
                                         Text.lines m.text
 
+                                    currentText : String
                                     currentText =
                                         Text.getLine (Item.getLineNo item) m.text
 
                                     ( mainText, settings, comment ) =
                                         Item.split currentText
 
+                                    text : String
                                     text =
                                         case menu of
                                             Diagram.ColorSelectMenu ->
@@ -1169,6 +1210,7 @@ update message =
                                             _ ->
                                                 currentText
 
+                                    updateText : String
                                     updateText =
                                         setAt (Item.getLineNo item) (DiagramUtils.getSpacePrefix currentText ++ String.trimLeft text) lines
                                             |> String.join "\n"
@@ -1226,15 +1268,18 @@ update message =
                         |> Maybe.map
                             (\item ->
                                 let
+                                    lines : List String
                                     lines =
                                         Text.lines m.text
 
+                                    currentText : String
                                     currentText =
                                         Text.getLine (Item.getLineNo item) m.text
 
                                     ( text, settings, comment ) =
                                         Item.split currentText
 
+                                    updateLine : String
                                     updateLine =
                                         Item.new
                                             |> Item.withText (DiagramUtils.getSpacePrefix currentText ++ (String.trimLeft text |> FontStyle.apply style))

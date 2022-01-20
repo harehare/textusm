@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "automatically created by": "elm-review suppress",
+  "learn more": "elm-review suppress --help",
+  "suppressions": [
+    { "count": 10, "filePath": "src/Graphql/Graphql/Query.elm" },
+    { "count": 6, "filePath": "src/elm/Views/Diagram/ER.elm" },
+    { "count": 4, "filePath": "src/Graphql/Graphql/InputObject.elm" },
+    { "count": 4, "filePath": "src/Graphql/Graphql/Mutation.elm" }
+  ]
+}

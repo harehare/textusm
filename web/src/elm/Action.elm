@@ -58,6 +58,7 @@ module Action exposing
 
 import Api.Http.Token as TokenApi
 import Api.Request as Request
+import Api.RequestError exposing (RequestError)
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
@@ -103,9 +104,11 @@ loadLocalDiagram diagramId model =
 loadDiagram : DiagramItem -> Model -> Return Msg Model
 loadDiagram diagram model =
     let
+        diagramModel : DiagramModel.Model
         diagramModel =
             model.diagramModel
 
+        newDiagramModel : DiagramModel.Model
         newDiagramModel =
             { diagramModel
                 | diagramType = diagram.diagram
@@ -188,6 +191,7 @@ loadItem id_ model =
     case model.session of
         Session.SignedIn user ->
             let
+                loadFromRemote : Return Msg Model
                 loadFromRemote =
                     Return.return model
                         (Task.attempt Load <|
@@ -266,6 +270,7 @@ saveSettings model =
 setSettings : DiagramModel.Settings -> Model -> Return Msg Model
 setSettings settings model =
     let
+        newSettings : SettingsPage.Model
         newSettings =
             model.settingsModel
     in
@@ -424,9 +429,11 @@ saveToLocal item =
 saveLocalFile : DiagramItem -> Return.ReturnF Msg Model
 saveLocalFile item =
     let
+        ext : String
         ext =
             DiagramType.toString item.diagram
 
+        d : DiagramItem
         d =
             { item
                 | title =
@@ -459,6 +466,7 @@ saveToRemote diagram model =
             case ( diagram.location, model.settingsModel.settings.location, user.loginProvider ) of
                 ( Just DiagramLocation.Gist, _, LoginProvider.Github (Just accessToken) ) ->
                     let
+                        saveTask : Task.Task RequestError DiagramItem
                         saveTask =
                             Request.saveGist (Session.getIdToken model.session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
                     in
@@ -466,6 +474,7 @@ saveToRemote diagram model =
 
                 ( _, Just DiagramLocation.Gist, LoginProvider.Github (Just accessToken) ) ->
                     let
+                        saveTask : Task.Task RequestError DiagramItem
                         saveTask =
                             Request.saveGist (Session.getIdToken model.session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
                     in
@@ -473,6 +482,7 @@ saveToRemote diagram model =
 
                 _ ->
                     let
+                        saveTask : Task.Task RequestError DiagramItem
                         saveTask =
                             Request.save (Session.getIdToken model.session) (DiagramItem.toInputItem diagram) diagram.isPublic
                     in

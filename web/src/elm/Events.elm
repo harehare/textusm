@@ -98,6 +98,7 @@ onEnter msg =
 onKeyCodeDown : Int -> msg -> Attribute msg
 onKeyCodeDown code msg =
     let
+        input : Int -> Bool -> D.Decoder msg
         input inputCode currentComposing =
             if inputCode == code && not currentComposing then
                 D.succeed msg

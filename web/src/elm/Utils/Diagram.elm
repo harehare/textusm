@@ -253,6 +253,7 @@ getCanvasSize model =
                                     List.indexedMap
                                         (\i item ->
                                             let
+                                                item_ : Item
                                                 item_ =
                                                     FreeForm.unwrapItem item
 

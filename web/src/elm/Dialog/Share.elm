@@ -158,12 +158,15 @@ embedUrl { token, diagramType, title, embedSize } =
     case token of
         Success t ->
             let
+                w: Int
                 w =
                     Size.getWidth embedSize
 
+                h : Int
                 h =
                     Size.getHeight embedSize
 
+                embed : String
                 embed =
                     crossOrigin Env.webRoot
                         [ "embed"
@@ -221,10 +224,26 @@ init :
     -> Return Msg Model
 init { diagram, diagramId, session, title } =
     let
+        initTask :
+            Task
+                Message
+                { allowIPList : List IpAddress
+                , token : String
+                , expireTime : Int
+                , allowEmail : List Email
+                }
         initTask =
             Task.andThen
                 (\cond ->
                     let
+                        shareReqTask :
+                            Task
+                                Message
+                                { allowIPList : List IpAddress
+                                , token : String
+                                , expireTime : Int
+                                , allowEmail : List Email
+                                }
                         shareReqTask =
                             Task.andThen
                                 (\s ->
@@ -378,6 +397,7 @@ update msg model =
                     Return.andThen
                         (\m ->
                             let
+                                d : Posix
                                 d =
                                     TimeEx.add TimeEx.Second (Duration.toInt m.expireSecond) m.timeZone now
                             in
@@ -395,16 +415,20 @@ update msg model =
 
                     else
                         let
+                            validIP : List IpAddress
                             validIP =
                                 validIPList model.ip.input
 
+                            ipList : String
                             ipList =
                                 List.map IpAddress.toString validIP
                                     |> String.join "\n"
 
+                            validMail : List Email
                             validMail =
                                 validEmail model.email.input
 
+                            email : String
                             email =
                                 List.map Email.toString validMail
                                     |> String.join "\n"
@@ -445,16 +469,20 @@ update msg model =
 
                     else
                         let
+                            validIP : List IpAddress
                             validIP =
                                 validIPList model.ip.input
 
+                            ipList : String
                             ipList =
                                 List.map IpAddress.toString validIP
                                     |> String.join "\n"
 
+                            validMail : List Email
                             validMail =
                                 validEmail model.email.input
 
+                            email : String
                             email =
                                 List.map Email.toString validMail
                                     |> String.join "\n"
@@ -493,6 +521,7 @@ update msg model =
                     case DateUtils.stringToPosix model.timeZone date model.expireTime of
                         Just d ->
                             let
+                                diffSecond : Int
                                 diffSecond =
                                     TimeEx.diff TimeEx.Second model.timeZone model.now d
                             in
@@ -512,6 +541,7 @@ update msg model =
                     case DateUtils.stringToPosix model.timeZone model.expireDate time of
                         Just d ->
                             let
+                                diffSecond : Int
                                 diffSecond =
                                     TimeEx.diff TimeEx.Second model.timeZone model.now d
                             in

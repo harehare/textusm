@@ -131,6 +131,7 @@ init flags url key =
         currentDiagram =
             initSettings.diagram |> Maybe.withDefault DiagramItem.empty
 
+        model : Model
         model =
             { diagramModel = { diagramModel | text = Text.fromString (Maybe.withDefault "" initSettings.text) }
             , diagramListModel = diagramListModel
@@ -756,6 +757,7 @@ update message =
                             case toRoute m.url of
                                 Route.Embed _ _ _ (Just w) (Just h) ->
                                     let
+                                        scale : Float
                                         scale =
                                             toFloat w
                                                 / toFloat model_.svg.width

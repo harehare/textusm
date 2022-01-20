@@ -217,11 +217,13 @@ itemToColumn item =
             getAt 0 tokens
                 |> Maybe.withDefault ""
 
+        columnType : ColumnType
         columnType =
             getAt 1 tokens
                 |> Maybe.map textToColumnType
                 |> Maybe.withDefault (Int NoLimit)
 
+        columnAttributes : List Attribute
         columnAttributes =
             List.drop 2 tokens
                 |> List.indexedMap (\i v -> ( String.toLower v, i ))

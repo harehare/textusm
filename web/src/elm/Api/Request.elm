@@ -17,6 +17,7 @@ module Api.Request exposing
     , shareItem
     )
 
+import Api.External.Github.GistInput exposing (GistInput)
 import Api.External.Github.Request as GithubRequest exposing (AccessToken, GistId)
 import Api.Graphql.Mutation as Mutation
 import Api.Graphql.Query as Query
@@ -170,6 +171,7 @@ gistItem idToken accessToken gistId =
                     |> Task.map
                         (\x ->
                             let
+                                content : String
                                 content =
                                     Dict.fromList gist.files
                                         |> Dict.get (Title.toString x.title)
@@ -197,12 +199,14 @@ gistItems idToken ( offset, limit ) =
 saveGist : Maybe IdToken -> AccessToken -> InputGistItem -> String -> Task RequestError DiagramItem
 saveGist idToken accessToken input content =
     let
+        gistInput : GistInput
         gistInput =
             { description = "This text is created by TextUSM"
             , files = [ ( input.title, { content = { content = content } } ) ]
             , public = False
             }
 
+        saveTask : { a | id : String, url : String } -> Task RequestError DiagramItem
         saveTask =
             \gist ->
                 Mutation.saveGist

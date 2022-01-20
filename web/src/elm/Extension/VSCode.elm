@@ -1,4 +1,4 @@
-port module Extension.VSCode exposing (main)
+port module Extension.VSCode exposing (InitData, Model, Msg, main)
 
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
@@ -11,6 +11,7 @@ import Models.Diagram as DiagramModel
 import Models.DiagramType as DiagramType
 import Models.Item as Item
 import Models.Property as Property
+import Models.Size exposing (Size)
 import Models.Text as Text exposing (Text)
 import Return exposing (Return)
 import Task
@@ -163,6 +164,7 @@ update message =
                         ( model_, cmd_ ) =
                             Return.singleton m.diagramModel |> Diagram.update subMsg
 
+                        model : Model
                         model =
                             { m | diagramModel = model_ }
                     in
@@ -205,12 +207,15 @@ update message =
             Return.andThen <|
                 \m ->
                     let
+                        diagramModel : DiagramModel.Model
                         diagramModel =
                             m.diagramModel
 
+                        newDiagramModel : DiagramModel.Model
                         newDiagramModel =
                             { diagramModel | diagramType = DiagramType.fromString diagramType }
 
+                        size : Size
                         size =
                             DiagramUtils.getCanvasSize newDiagramModel
                     in

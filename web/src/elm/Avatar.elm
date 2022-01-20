@@ -23,9 +23,11 @@ toString (Avatar email imageUrl) =
     case ( email, imageUrl ) of
         ( Just mail, Just url ) ->
             let
+                defaultImageUrl : String
                 defaultImageUrl =
                     Url.percentEncode url
 
+                digest : String
                 digest =
                     MD5.hex mail
             in

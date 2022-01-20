@@ -12,6 +12,7 @@ type ShareToken
 fromString : String -> Maybe ShareToken
 fromString token =
     let
+        match : Maybe Regex.Match
         match =
             Regex.find
                 (Maybe.withDefault Regex.never <|
