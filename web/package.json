@@ -22,7 +22,7 @@
     "devDependencies": {
         "@babel/core": "^7.16.7",
         "@babel/preset-env": "^7.16.10",
-        "@commitlint/cli": "^16.0.2",
+        "@commitlint/cli": "^16.1.0",
         "@commitlint/config-conventional": "^16.0.0",
         "@dillonkearns/elm-graphql": "^4.2.3",
         "@sentry/webpack-plugin": "^1.18.3",
