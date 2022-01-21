@@ -25,7 +25,7 @@
         "@commitlint/cli": "^16.1.0",
         "@commitlint/config-conventional": "^16.0.0",
         "@dillonkearns/elm-graphql": "^4.2.3",
-        "@sentry/webpack-plugin": "^1.18.3",
+        "@sentry/webpack-plugin": "^1.18.4",
         "@trivago/prettier-plugin-sort-imports": "^3.1.1",
         "@types/jspdf": "^2.0.0",
         "@types/node": "^17.0.10",
