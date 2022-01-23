@@ -9,6 +9,8 @@ import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
+import Models.DiagramData as DiagramData
+import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item
 import Models.Property as Property
 import Models.Text as Text
@@ -31,7 +33,7 @@ type alias InitData =
     { text : String
     , width : Int
     , height : Int
-    , settings : DiagramModel.Settings
+    , settings : DiagramSettings.Settings
     , showZoomControl : Bool
     , diagramType : String
     , scale : Float
@@ -46,7 +48,7 @@ init : InitData -> ( Model, Cmd Msg )
 init flags =
     ( { diagramModel =
             { items = Item.empty
-            , data = DiagramModel.Empty
+            , data = DiagramData.Empty
             , size = ( flags.width, flags.height )
             , svg =
                 { width = flags.settings.size.width

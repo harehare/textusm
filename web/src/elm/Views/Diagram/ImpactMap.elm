@@ -1,7 +1,9 @@
 module Views.Diagram.ImpactMap exposing (view)
 
 import List.Extra as ListEx
-import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
+import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem)
+import Models.DiagramData as DiagramData
+import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
@@ -26,7 +28,7 @@ yMargin =
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.ImpactMap items _ ->
+        DiagramData.ImpactMap items _ ->
             let
                 rootItem : Maybe Item
                 rootItem =
@@ -70,7 +72,7 @@ view model =
 
 
 nodesView :
-    { settings : Settings
+    { settings : DiagramSettings.Settings
     , property : Property
     , hierarchy : Int
     , position : Position

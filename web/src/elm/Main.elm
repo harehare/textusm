@@ -34,6 +34,7 @@ import Models.Diagram.Table as Table
 import Models.DiagramId as DiagramId
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
+import Models.DiagramSettings as DiagramSettings
 import Models.DiagramType as DiagramType
 import Models.Dialog as Dialog
 import Models.FileType as FileType
@@ -76,7 +77,6 @@ import Style.Text as TextStyle
 import Task
 import Time
 import Url
-import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Footer as Footer
@@ -804,7 +804,7 @@ update message =
                                     m.diagramModel.position
 
                                 ( width, height ) =
-                                    DiagramUtils.getCanvasSize m.diagramModel
+                                    DiagramModel.size m.diagramModel
                                         |> Tuple.mapBoth (\x -> x + posX) (\y -> y + posY)
 
                                 ( download, extension ) =
@@ -1034,7 +1034,7 @@ update message =
                                         { position = Just m.window.position
                                         , font = m.settingsModel.settings.font
                                         , diagramId = Maybe.andThen (\i -> Just <| DiagramId.toString i) m.currentDiagram.id
-                                        , storyMap = newStoryMap.storyMap |> DiagramModel.settingsOfScale.set (Just m.diagramModel.svg.scale)
+                                        , storyMap = newStoryMap.storyMap |> DiagramSettings.ofScale.set (Just m.diagramModel.svg.scale)
                                         , text = Just (Text.toString m.diagramModel.text)
                                         , title = Just <| Title.toString m.currentDiagram.title
                                         , editor = m.settingsModel.settings.editor

@@ -70,6 +70,7 @@ import Models.Diagram as DiagramModel
 import Models.DiagramId as DiagramId exposing (DiagramId)
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
+import Models.DiagramSettings as DiagramSettings
 import Models.DiagramType as DiagramType
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.LoginProvider as LoginProvider
@@ -267,7 +268,7 @@ saveSettings model =
             Return.singleton model
 
 
-setSettings : DiagramModel.Settings -> Model -> Return Msg Model
+setSettings : DiagramSettings.Settings -> Model -> Return Msg Model
 setSettings settings model =
     let
         newSettings : SettingsPage.Model
@@ -281,7 +282,7 @@ setSettings settings model =
         }
 
 
-saveSettingsToRemote : Diagram -> DiagramModel.Settings -> Model -> Return Msg Model
+saveSettingsToRemote : Diagram -> DiagramSettings.Settings -> Model -> Return Msg Model
 saveSettingsToRemote diagram settings model =
     Return.return model
         (Task.attempt SaveSettings <|
@@ -600,7 +601,7 @@ setCurrentDiagram currentDiagram model =
     Return.singleton { model | currentDiagram = currentDiagram }
 
 
-setDiagramSettings : DiagramModel.Settings -> Model -> Return Msg Model
+setDiagramSettings : DiagramSettings.Settings -> Model -> Return Msg Model
 setDiagramSettings settings model =
     Return.singleton
         { model

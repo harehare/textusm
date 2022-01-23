@@ -31,9 +31,9 @@ import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import Models.Color as Color
-import Models.Diagram as Diagram exposing (Color, ColorSettings, Settings, Size)
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
+import Models.DiagramSettings as DiagramSettings
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
@@ -47,7 +47,7 @@ type alias Settings =
     { position : Maybe Int
     , font : String
     , diagramId : Maybe String
-    , storyMap : Diagram.Settings
+    , storyMap : DiagramSettings.Settings
     , text : Maybe String
     , title : Maybe String
     , editor : Maybe EditorSettings
@@ -142,75 +142,75 @@ ofFontSize =
 
 ofWidth : Lens Settings Int
 ofWidth =
-    Compose.lensWithLens Diagram.settingsOfWidth storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofWidth storyMapOfSettings
 
 
 ofHeight : Lens Settings Int
 ofHeight =
-    Compose.lensWithLens Diagram.settingsOfHeight storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofHeight storyMapOfSettings
 
 
 ofBackgroundColor : Lens Settings String
 ofBackgroundColor =
-    Compose.lensWithLens Diagram.settingsOfBackgroundColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofBackgroundColor storyMapOfSettings
 
 
 ofZoomControl : Lens Settings (Maybe Bool)
 ofZoomControl =
-    Compose.lensWithLens Diagram.settingsOfZoomControl storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofZoomControl storyMapOfSettings
 
 
 ofLineColor : Lens Settings String
 ofLineColor =
-    Compose.lensWithLens Diagram.settingsOfLineColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofLineColor storyMapOfSettings
 
 
 ofLabelColor : Lens Settings String
 ofLabelColor =
-    Compose.lensWithLens Diagram.settingsOfLabelColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofLabelColor storyMapOfSettings
 
 
 ofTextColor : Optional Settings String
 ofTextColor =
-    Compose.lensWithOptional Diagram.settingsOfTextColor storyMapOfSettings
+    Compose.lensWithOptional DiagramSettings.ofTextColor storyMapOfSettings
 
 
 ofActivityColor : Lens Settings String
 ofActivityColor =
-    Compose.lensWithLens Diagram.settingsOfActivityColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofActivityColor storyMapOfSettings
 
 
 ofTaskColor : Lens Settings String
 ofTaskColor =
-    Compose.lensWithLens Diagram.settingsOfTaskColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofTaskColor storyMapOfSettings
 
 
 ofStoryColor : Lens Settings String
 ofStoryColor =
-    Compose.lensWithLens Diagram.settingsOfStoryColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofStoryColor storyMapOfSettings
 
 
 ofActivityBackgroundColor : Lens Settings String
 ofActivityBackgroundColor =
-    Compose.lensWithLens Diagram.settingsOfActivityBackgroundColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofActivityBackgroundColor storyMapOfSettings
 
 
 ofTaskBackgroundColor : Lens Settings String
 ofTaskBackgroundColor =
-    Compose.lensWithLens Diagram.settingsOfTaskBackgroundColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofTaskBackgroundColor storyMapOfSettings
 
 
 ofStoryBackgroundColor : Lens Settings String
 ofStoryBackgroundColor =
-    Compose.lensWithLens Diagram.settingsOfStoryBackgroundColor storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofStoryBackgroundColor storyMapOfSettings
 
 
 ofFont : Lens Settings String
 ofFont =
-    Compose.lensWithLens Diagram.settingsOfFont storyMapOfSettings
+    Compose.lensWithLens DiagramSettings.ofFont storyMapOfSettings
 
 
-storyMapOfSettings : Lens Settings Diagram.Settings
+storyMapOfSettings : Lens Settings DiagramSettings.Settings
 storyMapOfSettings =
     Lens .storyMap (\b a -> { a | storyMap = b })
 
@@ -239,9 +239,9 @@ settingsDecoder =
         |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
 
 
-diagramDecoder : D.Decoder Diagram.Settings
+diagramDecoder : D.Decoder DiagramSettings.Settings
 diagramDecoder =
-    D.map6 Diagram.Settings
+    D.map6 DiagramSettings.Settings
         (D.field "font" D.string)
         (D.field "size" sizeDecoder)
         (D.field "color" colorSettingsDecoder)
@@ -258,9 +258,9 @@ editorSettingsDecoder =
         (D.field "showLineNumber" D.bool)
 
 
-colorSettingsDecoder : D.Decoder ColorSettings
+colorSettingsDecoder : D.Decoder DiagramSettings.ColorSettings
 colorSettingsDecoder =
-    D.map6 ColorSettings
+    D.map6 DiagramSettings.ColorSettings
         (D.field "activity" colorDecoder)
         (D.field "task" colorDecoder)
         (D.field "story" colorDecoder)
@@ -269,16 +269,16 @@ colorSettingsDecoder =
         (D.maybe (D.field "text" D.string))
 
 
-colorDecoder : D.Decoder Color
+colorDecoder : D.Decoder DiagramSettings.Color
 colorDecoder =
-    D.map2 Color
+    D.map2 DiagramSettings.Color
         (D.field "color" D.string)
         (D.field "backgroundColor" D.string)
 
 
-sizeDecoder : D.Decoder Size
+sizeDecoder : D.Decoder DiagramSettings.Size
 sizeDecoder =
-    D.map2 Size
+    D.map2 DiagramSettings.Size
         (D.field "width" D.int)
         (D.field "height" D.int)
 
@@ -298,7 +298,7 @@ settingsEncoder settings =
         ]
 
 
-diagramEncoder : Diagram.Settings -> E.Value
+diagramEncoder : DiagramSettings.Settings -> E.Value
 diagramEncoder settings =
     E.object
         [ ( "font", E.string settings.font )
@@ -319,7 +319,7 @@ editorSettingsEncoder editorSettings =
         ]
 
 
-colorSettingsEncoder : ColorSettings -> E.Value
+colorSettingsEncoder : DiagramSettings.ColorSettings -> E.Value
 colorSettingsEncoder colorSettings =
     E.object
         [ ( "activity", colorEncoder colorSettings.activity )
@@ -331,7 +331,7 @@ colorSettingsEncoder colorSettings =
         ]
 
 
-colorEncoder : Color -> E.Value
+colorEncoder : DiagramSettings.Color -> E.Value
 colorEncoder color =
     E.object
         [ ( "color", E.string color.color )
@@ -339,7 +339,7 @@ colorEncoder color =
         ]
 
 
-sizeEncoder : Size -> E.Value
+sizeEncoder : DiagramSettings.Size -> E.Value
 sizeEncoder size =
     E.object
         [ ( "width", E.int size.width )

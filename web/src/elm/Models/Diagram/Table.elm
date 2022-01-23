@@ -1,6 +1,16 @@
-module Models.Diagram.Table exposing (Header(..), Row(..), Table(..), from, toString)
+module Models.Diagram.Table exposing
+    ( Header(..)
+    , Row(..)
+    , Table(..)
+    , from
+    , size
+    , toString
+    )
 
+import Constants
+import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
+import Models.Size exposing (Size)
 
 
 type Table
@@ -87,3 +97,10 @@ toString table =
                 |> String.join "\n"
     in
     String.join "\n" [ header, section, row ]
+
+
+size : DiagramSettings.Settings -> Items -> Size
+size settings items =
+    ( settings.size.width * ((items |> Item.head |> Maybe.withDefault Item.new |> Item.getChildren |> Item.unwrapChildren |> Item.length) + 1)
+    , settings.size.height * Item.length items + Constants.itemMargin
+    )

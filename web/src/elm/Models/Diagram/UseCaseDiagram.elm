@@ -12,11 +12,14 @@ module Models.Diagram.UseCaseDiagram exposing
     , getRelations
     , hierarchy
     , relationCount
+    , size
     )
 
 import Dict exposing (Dict)
+import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.Item as Item exposing (Item, Items)
+import Models.Size exposing (Size)
 
 
 type UseCaseDiagram
@@ -235,3 +238,23 @@ hierarchyHelper h items relations =
 
         _ ->
             h
+
+
+size : UseCaseDiagram -> Size
+size (UseCaseDiagram actors relations) =
+    let
+        useCases : List Item
+        useCases =
+            List.map (\(Actor _ a) -> List.map (\(UseCase u) -> u) a) actors
+                |> List.concat
+                |> ListEx.uniqueBy Item.getText
+
+        count : Int
+        count =
+            allRelationCount useCases relations
+
+        h : Int
+        h =
+            hierarchy useCases relations
+    in
+    ( (h + 1) * 320, count * 70 )

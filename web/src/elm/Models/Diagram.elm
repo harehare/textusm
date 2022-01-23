@@ -1,9 +1,6 @@
 module Models.Diagram exposing
-    ( Color
-    , ColorSettings
-    , ContextMenu(..)
+    ( ContextMenu(..)
     , ContextMenuProps
-    , Data(..)
     , Distance
     , DragStatus(..)
     , Hierarchy
@@ -14,14 +11,9 @@ module Models.Diagram exposing
     , ResizeDirection(..)
     , SelectedItem
     , SelectedItemInfo
-    , Settings
-    , Size
     , SvgInfo
     , chooseZoom
     , dragStart
-    , fontFamiliy
-    , fontStyle
-    , getTextColor
     , isMoving
     , moveingItem
     , ofDiagramType
@@ -32,57 +24,46 @@ module Models.Diagram exposing
     , ofShowZoomControl
     , ofSize
     , ofText
-    , settingsOfActivityBackgroundColor
-    , settingsOfActivityColor
-    , settingsOfBackgroundColor
-    , settingsOfFont
-    , settingsOfHeight
-    , settingsOfLabelColor
-    , settingsOfLineColor
-    , settingsOfScale
-    , settingsOfStoryBackgroundColor
-    , settingsOfStoryColor
-    , settingsOfTaskBackgroundColor
-    , settingsOfTaskColor
-    , settingsOfTextColor
-    , settingsOfWidth
-    , settingsOfZoomControl
+    , size
     , updatedText
     )
 
 import Browser.Dom exposing (Viewport)
-import Css exposing (fontFamilies)
 import Events
 import File exposing (File)
-import Graphql.Enum.Diagram exposing (Diagram)
+import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html.Events.Extra.Wheel as Wheel
 import List.Extra exposing (getAt)
 import Models.Color as Color
-import Models.Diagram.BusinessModelCanvas exposing (BusinessModelCanvas)
-import Models.Diagram.ER as ER exposing (ErDiagram)
-import Models.Diagram.EmpathyMap exposing (EmpathyMap)
-import Models.Diagram.FourLs exposing (FourLs)
-import Models.Diagram.FreeForm exposing (FreeForm)
-import Models.Diagram.GanttChart exposing (GanttChart)
-import Models.Diagram.Kanban exposing (Kanban)
-import Models.Diagram.Kpt exposing (Kpt)
-import Models.Diagram.OpportunityCanvas exposing (OpportunityCanvas)
-import Models.Diagram.SequenceDiagram exposing (SequenceDiagram)
-import Models.Diagram.StartStopContinue exposing (StartStopContinue)
-import Models.Diagram.Table exposing (Table)
-import Models.Diagram.UseCaseDiagram exposing (UseCaseDiagram)
-import Models.Diagram.UserPersona exposing (UserPersona)
-import Models.Diagram.UserStoryMap exposing (UserStoryMap)
+import Models.Diagram.BusinessModelCanvas as BusinessModelCanvasModel
+import Models.Diagram.ER as ERModel
+import Models.Diagram.EmpathyMap as EmpathyMapModel
+import Models.Diagram.FourLs as FourLsModel
+import Models.Diagram.FreeForm as FreeFormModel
+import Models.Diagram.GanttChart as GanttChartModel
+import Models.Diagram.ImpactMap as ImpactMapModel
+import Models.Diagram.Kanban as KanbanModel
+import Models.Diagram.Kpt as KptModel
+import Models.Diagram.MindMap as MindMapModel
+import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
+import Models.Diagram.SequenceDiagram as SequenceDiagramModel
+import Models.Diagram.SiteMap as SiteMapModel
+import Models.Diagram.StartStopContinue as StartStopContinueModel
+import Models.Diagram.Table as TableModel
+import Models.Diagram.UseCaseDiagram as UseCaseDiagramModel
+import Models.Diagram.UserPersona as UserPersonaModel
+import Models.Diagram.UserStoryMap as UserStoryMapModel
+import Models.DiagramData as DiagramData exposing (DiagramData)
+import Models.DiagramSettings as DiagramSettings
 import Models.FontSize exposing (FontSize)
 import Models.FontStyle exposing (FontStyle)
 import Models.Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import Models.Property exposing (Property)
-import Models.Size as Size
+import Models.Size as Size exposing (Size)
 import Models.Text exposing (Text)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
-import Monocle.Optional exposing (Optional)
 import Svg.Styled as Svg
 import Utils.Utils as Utils
 
@@ -100,7 +81,7 @@ type alias ContextMenuProps =
 
 type Msg
     = NoOp
-    | Init Settings Viewport String
+    | Init DiagramSettings.Settings Viewport String
     | OnChangeText String
     | ZoomIn Float
     | ZoomOut Float
@@ -130,14 +111,14 @@ type Msg
 
 type alias Model =
     { items : Items
-    , data : Data
+    , data : DiagramData
     , size : Size.Size
     , svg : SvgInfo
     , moveState : MoveState
     , position : Position
     , movePosition : Position
     , fullscreen : Bool
-    , settings : Settings
+    , settings : DiagramSettings.Settings
     , showZoomControl : Bool
     , showMiniMap : Bool
     , touchDistance : Maybe Float
@@ -176,7 +157,7 @@ ofPosition =
     Lens .position (\b a -> { a | position = b })
 
 
-ofSettings : Lens Model Settings
+ofSettings : Lens Model DiagramSettings.Settings
 ofSettings =
     Lens .settings (\b a -> { a | settings = b })
 
@@ -209,28 +190,6 @@ type alias Distance =
     Float
 
 
-type Data
-    = Empty
-    | UserStoryMap UserStoryMap
-    | MindMap Items Hierarchy
-    | ImpactMap Items Hierarchy
-    | SiteMap Items Hierarchy
-    | Table Table
-    | Kpt Kpt
-    | FourLs FourLs
-    | Kanban Kanban
-    | BusinessModelCanvas BusinessModelCanvas
-    | EmpathyMap EmpathyMap
-    | OpportunityCanvas OpportunityCanvas
-    | UserPersona UserPersona
-    | StartStopContinue StartStopContinue
-    | ErDiagram ErDiagram
-    | SequenceDiagram SequenceDiagram
-    | FreeForm FreeForm
-    | GanttChart (Maybe GanttChart)
-    | UseCaseDiagram UseCaseDiagram
-
-
 type ContextMenu
     = CloseMenu
     | ColorSelectMenu
@@ -251,7 +210,7 @@ type MoveState
 
 
 type MoveTarget
-    = TableTarget ER.Table
+    = TableTarget ERModel.Table
     | ItemTarget Item
 
 
@@ -264,16 +223,6 @@ type ResizeDirection
     | Bottom
     | Left
     | Right
-
-
-type alias Settings =
-    { font : String
-    , size : Size
-    , color : ColorSettings
-    , backgroundColor : String
-    , zoomControl : Maybe Bool
-    , scale : Maybe Float
-    }
 
 
 isMoving : MoveState -> Bool
@@ -301,53 +250,9 @@ moveingItem model =
             Nothing
 
 
-fontStyle : Settings -> String
-fontStyle settings =
-    "'" ++ settings.font ++ "', sans-serif"
-
-
-fontFamiliy : Settings -> Css.Style
-fontFamiliy settings =
-    fontFamilies
-        [ Css.qt settings.font
-        , "apple-system"
-        , "BlinkMacSystemFont"
-        , "Helvetica Neue"
-        , "Hiragino Kaku Gothic ProN"
-        , "游ゴシック Medium"
-        , "YuGothic"
-        , "YuGothicM"
-        , "メイリオ"
-        , "Meiryo"
-        , "sans-serif"
-        ]
-
-
 updatedText : Model -> Text -> Model
 updatedText model text =
     { model | text = text }
-
-
-type alias ColorSettings =
-    { activity : Color
-    , task : Color
-    , story : Color
-    , line : String
-    , label : String
-    , text : Maybe String
-    }
-
-
-type alias Color =
-    { color : String
-    , backgroundColor : String
-    }
-
-
-type alias Size =
-    { width : Int
-    , height : Int
-    }
 
 
 type alias SvgInfo =
@@ -362,161 +267,6 @@ type alias SelectedItemInfo =
     , position : Position
     , displayAllMenu : Bool
     }
-
-
-getTextColor : ColorSettings -> String
-getTextColor settings =
-    settings.text |> Maybe.withDefault (Color.toString Color.textDefalut)
-
-
-settingsOfFont : Lens Settings String
-settingsOfFont =
-    Lens .font (\b a -> { a | font = b })
-
-
-settingsOfZoomControl : Lens Settings (Maybe Bool)
-settingsOfZoomControl =
-    Lens .zoomControl (\b a -> { a | zoomControl = b })
-
-
-settingsOfScale : Lens Settings (Maybe Float)
-settingsOfScale =
-    Lens .scale (\b a -> { a | scale = b })
-
-
-settingsOfBackgroundColor : Lens Settings String
-settingsOfBackgroundColor =
-    Lens .backgroundColor (\b a -> { a | backgroundColor = b })
-
-
-settingsOfSize : Lens Settings Size
-settingsOfSize =
-    Lens .size (\b a -> { a | size = b })
-
-
-settingsOfWidth : Lens Settings Int
-settingsOfWidth =
-    Compose.lensWithLens sizeOfWidth settingsOfSize
-
-
-settingsOfHeight : Lens Settings Int
-settingsOfHeight =
-    Compose.lensWithLens sizeOfHeight settingsOfSize
-
-
-settingsOfLineColor : Lens Settings String
-settingsOfLineColor =
-    settingsOfColor
-        |> Compose.lensWithLens colorSettingsOfLine
-
-
-settingsOfTextColor : Optional Settings String
-settingsOfTextColor =
-    settingsOfColor
-        |> Compose.lensWithOptional colorSettingsOfText
-
-
-settingsOfLabelColor : Lens Settings String
-settingsOfLabelColor =
-    settingsOfColor
-        |> Compose.lensWithLens colorSettingsOfLabel
-
-
-settingsOfActivityColor : Lens Settings String
-settingsOfActivityColor =
-    settingsOfColor
-        |> Compose.lensWithLens colorSettingsOfActivity
-        |> Compose.lensWithLens colorOfColor
-
-
-settingsOfTaskColor : Lens Settings String
-settingsOfTaskColor =
-    settingsOfColor
-        |> Compose.lensWithLens colorSettingsOfTask
-        |> Compose.lensWithLens colorOfColor
-
-
-settingsOfStoryColor : Lens Settings String
-settingsOfStoryColor =
-    settingsOfColor
-        |> Compose.lensWithLens colorSettingsOfStory
-        |> Compose.lensWithLens colorOfColor
-
-
-settingsOfActivityBackgroundColor : Lens Settings String
-settingsOfActivityBackgroundColor =
-    settingsOfColor
-        |> Compose.lensWithLens colorSettingsOfActivity
-        |> Compose.lensWithLens colorOfBackgroundColor
-
-
-settingsOfTaskBackgroundColor : Lens Settings String
-settingsOfTaskBackgroundColor =
-    settingsOfColor
-        |> Compose.lensWithLens colorSettingsOfTask
-        |> Compose.lensWithLens colorOfBackgroundColor
-
-
-settingsOfStoryBackgroundColor : Lens Settings String
-settingsOfStoryBackgroundColor =
-    settingsOfColor
-        |> Compose.lensWithLens colorSettingsOfStory
-        |> Compose.lensWithLens colorOfBackgroundColor
-
-
-settingsOfColor : Lens Settings ColorSettings
-settingsOfColor =
-    Lens .color (\b a -> { a | color = b })
-
-
-colorOfColor : Lens Color String
-colorOfColor =
-    Lens .color (\b a -> { a | color = b })
-
-
-colorOfBackgroundColor : Lens Color String
-colorOfBackgroundColor =
-    Lens .backgroundColor (\b a -> { a | backgroundColor = b })
-
-
-colorSettingsOfActivity : Lens ColorSettings Color
-colorSettingsOfActivity =
-    Lens .activity (\b a -> { a | activity = b })
-
-
-colorSettingsOfTask : Lens ColorSettings Color
-colorSettingsOfTask =
-    Lens .task (\b a -> { a | task = b })
-
-
-colorSettingsOfStory : Lens ColorSettings Color
-colorSettingsOfStory =
-    Lens .story (\b a -> { a | story = b })
-
-
-colorSettingsOfLine : Lens ColorSettings String
-colorSettingsOfLine =
-    Lens .line (\b a -> { a | line = b })
-
-
-colorSettingsOfLabel : Lens ColorSettings String
-colorSettingsOfLabel =
-    Lens .label (\b a -> { a | label = b })
-
-
-colorSettingsOfText : Optional ColorSettings String
-colorSettingsOfText =
-    Optional .text (\b a -> { a | text = Just b })
-
-
-sizeOfWidth : Lens Size Int
-sizeOfWidth =
-    Lens .width (\b a -> { a | width = b })
-
-
-sizeOfHeight : Lens Size Int
-sizeOfHeight =
-    Lens .height (\b a -> { a | height = b })
 
 
 dragStart : MoveState -> Bool -> Svg.Attribute Msg
@@ -566,3 +316,106 @@ chooseZoom ratio wheelEvent =
 
     else
         ZoomIn ratio
+
+
+size : Model -> Size
+size model =
+    case model.diagramType of
+        Fourls ->
+            FourLsModel.size model.settings model.items
+
+        EmpathyMap ->
+            EmpathyMapModel.size model.settings model.items
+
+        OpportunityCanvas ->
+            OpportunityCanvasModel.size model.settings model.items
+
+        BusinessModelCanvas ->
+            BusinessModelCanvasModel.size model.settings model.items
+
+        Kpt ->
+            KptModel.size model.settings model.items
+
+        StartStopContinue ->
+            StartStopContinueModel.size model.settings model.items
+
+        UserPersona ->
+            UserPersonaModel.size model.settings model.items
+
+        ErDiagram ->
+            ERModel.size model.items
+
+        MindMap ->
+            case model.data of
+                DiagramData.MindMap items_ hierarchy_ ->
+                    MindMapModel.size model.settings items_ hierarchy_
+
+                _ ->
+                    ( 0, 0 )
+
+        Table ->
+            TableModel.size model.settings model.items
+
+        SiteMap ->
+            case model.data of
+                DiagramData.SiteMap siteMapitems hierarchy_ ->
+                    SiteMapModel.size model.settings siteMapitems hierarchy_
+
+                _ ->
+                    ( 0, 0 )
+
+        UserStoryMap ->
+            case model.data of
+                DiagramData.UserStoryMap userStoryMap ->
+                    UserStoryMapModel.size model.settings userStoryMap
+
+                _ ->
+                    ( 0, 0 )
+
+        ImpactMap ->
+            case model.data of
+                DiagramData.ImpactMap items_ hierarchy_ ->
+                    ImpactMapModel.size model.settings items_ hierarchy_
+
+                _ ->
+                    ( 0, 0 )
+
+        GanttChart ->
+            case model.data of
+                DiagramData.GanttChart (Just gantt) ->
+                    GanttChartModel.size gantt
+
+                _ ->
+                    ( 0, 0 )
+
+        Kanban ->
+            case model.data of
+                DiagramData.Kanban kanban ->
+                    KanbanModel.size model.settings kanban
+
+                _ ->
+                    ( 0, 0 )
+
+        SequenceDiagram ->
+            case model.data of
+                DiagramData.SequenceDiagram sequenceDiagram ->
+                    SequenceDiagramModel.size model.settings sequenceDiagram
+
+                _ ->
+                    ( 0, 0 )
+
+        Freeform ->
+            case model.data of
+                DiagramData.FreeForm freeForm ->
+                    FreeFormModel.size model.settings freeForm
+
+                _ ->
+                    ( 0, 0 )
+
+        UseCaseDiagram ->
+            case model.data of
+                DiagramData.UseCaseDiagram useCaseDiagram ->
+                    UseCaseDiagramModel.size useCaseDiagram
+
+                _ ->
+                    ( 0, 0 )

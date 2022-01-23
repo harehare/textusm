@@ -1,10 +1,23 @@
-module Models.Diagram.GanttChart exposing (From, GanttChart(..), Schedule(..), Section(..), Task(..), Title, To, from, sectionSchedule)
+module Models.Diagram.GanttChart exposing
+    ( From
+    , GanttChart(..)
+    , Schedule(..)
+    , Section(..)
+    , Task(..)
+    , Title
+    , To
+    , from
+    , sectionSchedule
+    , size
+    )
 
 import Basics.Extra as BasicEx
+import Constants
 import List
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.Item as Item exposing (Item, Items)
+import Models.Size exposing (Size)
 import Time exposing (Month(..), Posix)
 import Time.Extra as TimeEx exposing (Interval(..))
 
@@ -251,3 +264,31 @@ taskFromItem item =
                 |> extractDateValues
     in
     Maybe.map (\( f, t ) -> Task (String.trim <| Item.getText item) (Schedule f t (diff f t))) schedule
+
+
+size : GanttChart -> Size
+size gantt =
+    let
+        (GanttChart (Schedule _ _ interval) sections) =
+            gantt
+
+        nodeCounts : List Int
+        nodeCounts =
+            0
+                :: (sections
+                        |> List.map
+                            (\(Section _ tasks) ->
+                                if List.isEmpty tasks then
+                                    0
+
+                                else
+                                    List.length tasks + 1
+                            )
+                        |> ListEx.scanl1 (+)
+                   )
+
+        svgHeight : Int
+        svgHeight =
+            (ListEx.last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length sections
+    in
+    ( Constants.leftMargin + 20 + Constants.ganttItemSize + interval * Constants.ganttItemSize, svgHeight + Constants.ganttItemSize )

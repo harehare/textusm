@@ -1,4 +1,23 @@
-module Models.Diagram.ER exposing (Attribute(..), Column(..), ColumnLength, ColumnType(..), ErDiagram, LineNo, Name, RelationShipString, Relationship(..), Table(..), TableName, columnTypeToString, from, relationshipToString, tableToLineString, tableToString, tableWidth)
+module Models.Diagram.ER exposing
+    ( Attribute(..)
+    , Column(..)
+    , ColumnLength
+    , ColumnType(..)
+    , ErDiagram
+    , LineNo
+    , Name
+    , RelationShipString
+    , Relationship(..)
+    , Table(..)
+    , TableName
+    , columnTypeToString
+    , from
+    , relationshipToString
+    , size
+    , tableToLineString
+    , tableToString
+    , tableWidth
+    )
 
 import Constants
 import Dict exposing (Dict)
@@ -7,6 +26,7 @@ import List.Extra as ListEx exposing (getAt)
 import Maybe.Extra exposing (isJust)
 import Models.Item as Item exposing (Item, Items)
 import Models.Position as Position exposing (Position)
+import Models.Size exposing (Size)
 
 
 type alias ErDiagram =
@@ -330,8 +350,8 @@ textToColumnType text =
         [ ( "tinyint", False ) ] ->
             TinyInt NoLimit
 
-        [ ( "tinyint", False ), ( size, True ) ] ->
-            case String.toInt size of
+        [ ( "tinyint", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
                 Just v ->
                     TinyInt (Length v)
 
@@ -341,8 +361,8 @@ textToColumnType text =
         [ ( "int", False ) ] ->
             Int NoLimit
 
-        [ ( "int", False ), ( size, True ) ] ->
-            case String.toInt size of
+        [ ( "int", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
                 Just v ->
                     Int (Length v)
 
@@ -352,8 +372,8 @@ textToColumnType text =
         [ ( "float", False ) ] ->
             Float NoLimit
 
-        [ ( "float", False ), ( size, True ) ] ->
-            case String.toInt size of
+        [ ( "float", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
                 Just v ->
                     Float (Length v)
 
@@ -363,8 +383,8 @@ textToColumnType text =
         [ ( "double", False ) ] ->
             Double NoLimit
 
-        [ ( "double", False ), ( size, True ) ] ->
-            case String.toInt size of
+        [ ( "double", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
                 Just v ->
                     Double (Length v)
 
@@ -374,8 +394,8 @@ textToColumnType text =
         [ ( "decimal", False ) ] ->
             Decimal NoLimit
 
-        [ ( "decimal", False ), ( size, True ) ] ->
-            case String.toInt size of
+        [ ( "decimal", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
                 Just v ->
                     Decimal (Length v)
 
@@ -385,8 +405,8 @@ textToColumnType text =
         [ ( "char", False ) ] ->
             Char NoLimit
 
-        [ ( "char", False ), ( size, True ) ] ->
-            case String.toInt size of
+        [ ( "char", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
                 Just v ->
                     Char (Length v)
 
@@ -402,8 +422,8 @@ textToColumnType text =
         [ ( "varchar", False ) ] ->
             VarChar NoLimit
 
-        [ ( "varchar", False ), ( size, True ) ] ->
-            case String.toInt size of
+        [ ( "varchar", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
                 Just v ->
                     VarChar (Length v)
 
@@ -700,3 +720,29 @@ tableToLineString (Table name _ position _) =
             Maybe.withDefault Position.zero position
     in
     Constants.space ++ name ++ "|" ++ String.fromInt x ++ "|" ++ String.fromInt y
+
+
+size : Items -> Size
+size items =
+    let
+        ( _, tables ) =
+            from items
+
+        sizeList : List ( Int, Int )
+        sizeList =
+            List.map
+                (\table ->
+                    let
+                        (Table _ columns _ _) =
+                            table
+                    in
+                    ( tableWidth table, (List.length columns + 1) * Constants.tableRowHeight )
+                )
+                tables
+    in
+    List.foldl
+        (\( w1, h1 ) ( w2, h2 ) ->
+            ( w1 + w2 + Constants.tableMargin, h1 + h2 + Constants.tableMargin )
+        )
+        ( 0, 0 )
+        sizeList

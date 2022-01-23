@@ -24,8 +24,10 @@ import Html.Styled.Attributes exposing (css)
 import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Diagram.ER as ER exposing (Attribute(..), Column(..), Relationship(..), Table(..))
+import Models.DiagramData as DiagramData
+import Models.DiagramSettings as DiagramSettings
 import Models.Position as Position exposing (Position, getX, getY)
 import Models.Size as Size exposing (Size, getHeight, getWidth)
 import State exposing (Step(..))
@@ -55,7 +57,7 @@ type alias TableViewDict =
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.ErDiagram e ->
+        DiagramData.ErDiagram e ->
             let
                 ( relationships, tables ) =
                     e
@@ -313,7 +315,14 @@ tablesToDict tables =
         |> Dict.fromList
 
 
-tableView : { settings : Settings, svgSize : Size, pos : Position, tableSize : Size, table : Table } -> Svg Msg
+tableView :
+    { settings : DiagramSettings.Settings
+    , svgSize : Size
+    , pos : Position
+    , tableSize : Size
+    , table : Table
+    }
+    -> Svg Msg
 tableView { settings, svgSize, pos, tableSize, table } =
     let
         (Table tableName columns position _) =
@@ -385,7 +394,7 @@ onDragStart table isPhone =
             )
 
 
-tableHeaderView : Settings -> String -> Int -> Position -> Svg Msg
+tableHeaderView : DiagramSettings.Settings -> String -> Int -> Position -> Svg Msg
 tableHeaderView settings headerText headerWidth ( posX, posY ) =
     Svg.g []
         [ Svg.rect
@@ -399,7 +408,7 @@ tableHeaderView settings headerText headerWidth ( posX, posY ) =
         , Svg.text_
             [ x <| String.fromInt <| posX + 8
             , y <| String.fromInt <| posY + 24
-            , fontFamily (Diagram.fontStyle settings)
+            , fontFamily (DiagramSettings.fontStyle settings)
             , fill settings.color.activity.color
             , fontSize "16"
             , fontWeight "bold"
@@ -408,7 +417,7 @@ tableHeaderView settings headerText headerWidth ( posX, posY ) =
         ]
 
 
-columnView : Settings -> Int -> Position -> Column -> Svg Msg
+columnView : DiagramSettings.Settings -> Int -> Position -> Column -> Svg Msg
 columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
     let
         colX : String
@@ -502,7 +511,7 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
         ]
 
 
-relationshipView : Settings -> List Relationship -> TableViewDict -> Svg Msg
+relationshipView : DiagramSettings.Settings -> List Relationship -> TableViewDict -> Svg Msg
 relationshipView settings relationships tables =
     Svg.g [] <|
         List.map
@@ -561,7 +570,7 @@ getPosition pos =
     Maybe.withDefault ( 0, 0 ) pos
 
 
-relationLabelView : Settings -> TableViewInfo -> TableViewInfo -> String -> Svg Msg
+relationLabelView : DiagramSettings.Settings -> TableViewInfo -> TableViewInfo -> String -> Svg Msg
 relationLabelView settings table1 table2 label =
     let
         ( table1OffsetX, table1OffsetY ) =
@@ -580,7 +589,7 @@ relationLabelView settings table1 table2 label =
         Svg.text_
             [ x <| String.fromInt <| tableX1 + getWidth table1.size // 2 + 10
             , y <| String.fromInt <| tableY1 + getHeight table1.size + 15
-            , fontFamily (Diagram.fontStyle settings)
+            , fontFamily (DiagramSettings.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
@@ -591,7 +600,7 @@ relationLabelView settings table1 table2 label =
         Svg.text_
             [ x <| String.fromInt <| tableX1 + getWidth table1.size // 2 + 10
             , y <| String.fromInt <| tableY1 - 15
-            , fontFamily (Diagram.fontStyle settings)
+            , fontFamily (DiagramSettings.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
@@ -602,7 +611,7 @@ relationLabelView settings table1 table2 label =
         Svg.text_
             [ x <| String.fromInt <| tableX1 + getWidth table1.size + 10
             , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 - 15
-            , fontFamily (Diagram.fontStyle settings)
+            , fontFamily (DiagramSettings.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
@@ -613,7 +622,7 @@ relationLabelView settings table1 table2 label =
         Svg.text_
             [ x <| String.fromInt <| tableX1 - 15
             , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 + 15
-            , fontFamily (Diagram.fontStyle settings)
+            , fontFamily (DiagramSettings.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
@@ -624,7 +633,7 @@ relationLabelView settings table1 table2 label =
         Svg.text_
             [ x <| String.fromInt <| tableX1 + getWidth table1.size + 10
             , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 + 15
-            , fontFamily (Diagram.fontStyle settings)
+            , fontFamily (DiagramSettings.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
@@ -635,7 +644,7 @@ relationLabelView settings table1 table2 label =
         Svg.text_
             [ x <| String.fromInt <| tableX1 - 15
             , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 - 10
-            , fontFamily (Diagram.fontStyle settings)
+            , fontFamily (DiagramSettings.fontStyle settings)
             , fill settings.color.label
             , fontSize "14"
             , fontWeight "bold"
@@ -643,7 +652,7 @@ relationLabelView settings table1 table2 label =
             [ Svg.text label ]
 
 
-pathView : Settings -> TableViewInfo -> TableViewInfo -> Svg Msg
+pathView : DiagramSettings.Settings -> TableViewInfo -> TableViewInfo -> Svg Msg
 pathView settings from to =
     let
         ( fromOffsetX, fromOffsetY ) =

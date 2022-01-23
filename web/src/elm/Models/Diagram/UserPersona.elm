@@ -1,6 +1,10 @@
-module Models.Diagram.UserPersona exposing (UserPersona, UserPersonaItem(..), from)
+module Models.Diagram.UserPersona exposing (UserPersona, UserPersonaItem(..), from, size)
 
+import Constants
+import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
+import Models.Size exposing (Size)
+import Utils.Diagram as Utils
 
 
 type alias UserPersona =
@@ -31,3 +35,8 @@ from items =
         (items |> Item.getAt 6 |> Maybe.withDefault Item.new |> UserPersonaItem)
         (items |> Item.getAt 7 |> Maybe.withDefault Item.new |> UserPersonaItem)
         (items |> Item.getAt 8 |> Maybe.withDefault Item.new |> UserPersonaItem)
+
+
+size : DiagramSettings.Settings -> Items -> Size
+size settings items =
+    ( Constants.itemWidth * 5 + 25, Basics.max Constants.itemHeight (Utils.getCanvasHeight settings items) * 2 + 50 )

@@ -16,8 +16,8 @@ import Graphql.Operation exposing (RootMutation)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.SelectionSet exposing (SelectionSet)
-import Models.Diagram as DiagramModel
 import Models.DiagramItem exposing (DiagramItem)
+import Models.DiagramSettings as DiagramSettings
 
 
 save : InputItem -> Bool -> SelectionSet DiagramItem RootMutation
@@ -53,7 +53,7 @@ saveGist input =
         Selection.gistItemSelection
 
 
-saveSettings : Diagram -> InputSettings -> SelectionSet DiagramModel.Settings RootMutation
+saveSettings : Diagram -> InputSettings -> SelectionSet DiagramSettings.Settings RootMutation
 saveSettings diagram input =
     Mutation.saveSettings { diagram = diagram, input = input } <|
         Selection.settingsSelection

@@ -2,8 +2,10 @@ module Views.Diagram.SequenceDiagram exposing (view)
 
 import Constants
 import List.Extra as ListEx
-import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings, fontStyle, getTextColor)
+import Models.Diagram exposing (Model, Msg, SelectedItem)
 import Models.Diagram.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
+import Models.DiagramData as DiagramData
+import Models.DiagramSettings as DiagramSettings
 import Models.Position as Position exposing (Position)
 import Models.Property exposing (Property)
 import Models.Size exposing (Size)
@@ -17,7 +19,7 @@ import Views.Empty as Empty
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.SequenceDiagram (SequenceDiagram participants items) ->
+        DiagramData.SequenceDiagram (SequenceDiagram participants items) ->
             let
                 messageHeight : Int
                 messageHeight =
@@ -49,7 +51,7 @@ view model =
             Empty.view
 
 
-participantX : Settings -> Int -> Int
+participantX : DiagramSettings.Settings -> Int -> Int
 participantX settings order =
     (settings.size.width + Constants.participantMargin) * order + 8
 
@@ -59,7 +61,7 @@ messageX width order =
     width // 2 + (width + Constants.participantMargin) * order + 8
 
 
-participantView : Settings -> Property -> SelectedItem -> Position -> Participant -> Int -> Svg Msg
+participantView : DiagramSettings.Settings -> Property -> SelectedItem -> Position -> Participant -> Int -> Svg Msg
 participantView settings property selectedItem pos (Participant item _) messageHeight =
     let
         lineX : Int
@@ -149,7 +151,7 @@ fragmentRect ( itemWidth, itemHeight ) baseY level messages =
     )
 
 
-mesageViewList : Settings -> Int -> Int -> List Message -> Svg Msg
+mesageViewList : DiagramSettings.Settings -> Int -> Int -> List Message -> Svg Msg
 mesageViewList settings level y messages =
     Svg.g []
         (List.indexedMap
@@ -174,7 +176,7 @@ mesageViewList settings level y messages =
         )
 
 
-fragmentAndMessageView : Settings -> Int -> Int -> List Message -> String -> Fragment -> Svg Msg
+fragmentAndMessageView : DiagramSettings.Settings -> Int -> Int -> List Message -> String -> Fragment -> Svg Msg
 fragmentAndMessageView settings level y messages fragmentText fragment =
     let
         ( ( fromX, fromY ), ( toX, toY ) ) =
@@ -187,7 +189,7 @@ fragmentAndMessageView settings level y messages fragmentText fragment =
         ]
 
 
-sequenceItemView : Settings -> Int -> Int -> SequenceItem -> Svg Msg
+sequenceItemView : DiagramSettings.Settings -> Int -> Int -> SequenceItem -> Svg Msg
 sequenceItemView settings level y item =
     case item of
         Messages messages ->
@@ -305,7 +307,7 @@ sequenceItemView settings level y item =
             fragmentAndMessageView settings level y messages t (Consider t messages)
 
 
-markerView : Settings -> Svg Msg
+markerView : DiagramSettings.Settings -> Svg Msg
 markerView settings =
     Svg.g []
         [ Svg.marker
@@ -384,7 +386,7 @@ markerView settings =
         ]
 
 
-selfMessageView : Settings -> Position -> MessageType -> Svg Msg
+selfMessageView : DiagramSettings.Settings -> Position -> MessageType -> Svg Msg
 selfMessageView settings ( posX, posY ) messageType =
     let
         messagePoints : String
@@ -409,7 +411,7 @@ selfMessageView settings ( posX, posY ) messageType =
         ]
 
 
-messageView : Settings -> Position -> Position -> MessageType -> Svg Msg
+messageView : DiagramSettings.Settings -> Position -> Position -> MessageType -> Svg Msg
 messageView settings ( fromX, fromY ) ( toX, toY ) messageType =
     let
         isReverse : Bool
@@ -473,21 +475,21 @@ messageView settings ( fromX, fromY ) ( toX, toY ) messageType =
         ]
 
 
-textView : Settings -> Position -> Size -> String -> Svg Msg
+textView : DiagramSettings.Settings -> Position -> Size -> String -> Svg Msg
 textView settings ( posX, posY ) ( textWidth, textHeight ) message =
     Svg.text_
         [ SvgAttr.x <| String.fromInt <| posX
         , SvgAttr.y <| String.fromInt <| posY
-        , SvgAttr.fontFamily (fontStyle settings)
+        , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
         , SvgAttr.width <| String.fromInt textWidth
         , SvgAttr.height <| String.fromInt textHeight
-        , SvgAttr.fill <| getTextColor settings.color
+        , SvgAttr.fill <| DiagramSettings.textColor settings
         , SvgAttr.fontSize Constants.fontSize
         ]
         [ Svg.text message ]
 
 
-fragmentView : Settings -> Position -> Position -> String -> Fragment -> Svg Msg
+fragmentView : DiagramSettings.Settings -> Position -> Position -> String -> Fragment -> Svg Msg
 fragmentView settings ( fromX, fromY ) ( toX, toY ) backgroundColor fragment =
     let
         fragmentWidth : Int
@@ -501,7 +503,7 @@ fragmentView settings ( fromX, fromY ) ( toX, toY ) backgroundColor fragment =
     Lazy.lazy5 fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) backgroundColor (SequenceDiagram.fragmentToString fragment)
 
 
-fragmentTextView : Settings -> Position -> String -> Svg Msg
+fragmentTextView : DiagramSettings.Settings -> Position -> String -> Svg Msg
 fragmentTextView settings ( fromX, fromY ) fragmentText =
     let
         offset : Int
@@ -513,15 +515,15 @@ fragmentTextView settings ( fromX, fromY ) fragmentText =
     Svg.text_
         [ SvgAttr.x <| String.fromInt <| fromX + offset
         , SvgAttr.y <| String.fromInt <| fromY
-        , SvgAttr.fontFamily (fontStyle settings)
-        , SvgAttr.fill <| getTextColor settings.color
+        , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
+        , SvgAttr.fill <| DiagramSettings.textColor settings
         , SvgAttr.fontSize Constants.fontSize
         , SvgAttr.fontWeight "bold"
         ]
         [ Svg.text <| "[" ++ fragmentText ++ "]" ]
 
 
-fragmentRectView : Settings -> Position -> Size -> String -> String -> Svg Msg
+fragmentRectView : DiagramSettings.Settings -> Position -> Size -> String -> String -> Svg Msg
 fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) backgroundColor label =
     Svg.g []
         [ Svg.rect
@@ -546,7 +548,7 @@ fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) bac
         , Svg.text_
             [ SvgAttr.x <| String.fromInt <| fromX + 8
             , SvgAttr.y <| String.fromInt <| fromY + 14
-            , SvgAttr.fontFamily (fontStyle settings)
+            , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
             , SvgAttr.fill settings.color.task.color
             , SvgAttr.fontSize Constants.fontSize
             , SvgAttr.fontWeight "bold"
@@ -555,7 +557,7 @@ fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) bac
         ]
 
 
-lineView : Settings -> Position -> Position -> Svg Msg
+lineView : DiagramSettings.Settings -> Position -> Position -> Svg Msg
 lineView settings ( fromX, fromY ) ( toX, toY ) =
     Svg.line
         [ SvgAttr.x1 <| String.fromInt fromX

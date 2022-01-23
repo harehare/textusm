@@ -20,10 +20,10 @@ import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Query as Query
 import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
-import Models.Diagram as DiagramModel
 import Models.DiagramId as DiagramId
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
+import Models.DiagramSettings as DiagramSettings
 import Models.Email as Email exposing (Email)
 import Models.IpAddress as IpAddress exposing (IpAddress)
 import Models.Text as Text
@@ -148,7 +148,7 @@ gistItems ( offset, limit ) =
         Selection.gistItemSelection
 
 
-settings : Diagram -> SelectionSet DiagramModel.Settings RootQuery
+settings : Diagram -> SelectionSet DiagramSettings.Settings RootQuery
 settings diagram =
     Query.settings { diagram = diagram } <|
         Selection.settingsSelection

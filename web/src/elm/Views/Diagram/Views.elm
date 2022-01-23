@@ -39,7 +39,8 @@ import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Markdown
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..), SelectedItem, Settings, settingsOfWidth)
+import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..), SelectedItem)
+import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item, ItemType(..), Items)
 import Models.ItemSettings as ItemSettings
@@ -52,7 +53,7 @@ import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 
 
-getItemColor : Settings -> Property -> Item -> ( Color, Color )
+getItemColor : DiagramSettings.Settings -> Property -> Item -> ( Color, Color )
 getItemColor settings property item =
     case
         ( Item.getItemType item
@@ -121,12 +122,20 @@ getItemColor settings property item =
             )
 
 
-getLineColor : Settings -> Item -> Color
+getLineColor : DiagramSettings.Settings -> Item -> Color
 getLineColor settings item =
     Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getBackgroundColor |> Maybe.withDefault (Color.fromString settings.color.line)
 
 
-card : { settings : Settings, property : Property, position : Position, selectedItem : SelectedItem, item : Item, canMove : Bool } -> Svg Msg
+card :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , canMove : Bool
+    }
+    -> Svg Msg
 card { settings, property, position, selectedItem, item, canMove } =
     let
         ( color, backgroundColor ) =
@@ -148,7 +157,7 @@ card { settings, property, position, selectedItem, item, canMove } =
         ( width, height ) =
             ( settings.size.width, settings.size.height - 1 ) |> Tuple.mapBoth (\w -> w + offsetWidth) (\h -> h + offsetHeight)
 
-        view_: Svg Msg
+        view_ : Svg Msg
         view_ =
             Svg.g
                 [ SvgAttr.class "card"
@@ -184,22 +193,22 @@ card { settings, property, position, selectedItem, item, canMove } =
         Just item_ ->
             if Item.getLineNo item_ == Item.getLineNo item then
                 let
-                    selectedItemOffsetSize: Size
+                    selectedItemOffsetSize : Size
                     selectedItemOffsetSize =
                         Item.getOffsetSize item_
 
-                    selectedItemOffsetPosition: Position
+                    selectedItemOffsetPosition : Position
                     selectedItemOffsetPosition =
                         Item.getOffset item_
 
-                    selectedItemPosition: Position
+                    selectedItemPosition : Position
                     selectedItemPosition =
                         position
                             |> Tuple.mapBoth
                                 (\x -> x + Position.getX selectedItemOffsetPosition)
                                 (\y -> y + Position.getY selectedItemOffsetPosition)
 
-                    selectedItemSize: Size
+                    selectedItemSize : Size
                     selectedItemSize =
                         ( settings.size.width, settings.size.height - 1 )
                             |> Tuple.mapBoth
@@ -261,7 +270,7 @@ card { settings, property, position, selectedItem, item, canMove } =
             view_
 
 
-comments : Settings -> Position -> Maybe String -> Svg Msg
+comments : DiagramSettings.Settings -> Position -> Maybe String -> Svg Msg
 comments settings ( posX, posY ) comments_ =
     case comments_ of
         Just c ->
@@ -306,7 +315,7 @@ comments settings ( posX, posY ) comments_ =
                     ]
                     [ Html.div
                         [ css
-                            [ Diagram.fontFamiliy settings
+                            [ DiagramSettings.fontFamiliy settings
                             , property "word-wrap" "break-word"
                             , overflowWrap breakWord
                             , Style.paddingSm
@@ -320,7 +329,13 @@ comments settings ( posX, posY ) comments_ =
             Svg.g [] []
 
 
-horizontalLine : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
+horizontalLine :
+    { settings : DiagramSettings.Settings
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    }
+    -> Svg Msg
 horizontalLine { settings, position, selectedItem, item } =
     let
         color : Color
@@ -427,7 +442,13 @@ horizontalLine { settings, position, selectedItem, item } =
             view_
 
 
-verticalLine : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
+verticalLine :
+    { settings : DiagramSettings.Settings
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    }
+    -> Svg Msg
 verticalLine { settings, position, selectedItem, item } =
     let
         color : Color
@@ -451,7 +472,7 @@ verticalLine { settings, position, selectedItem, item } =
         height =
             settings.size.height + offsetHeight
 
-        view_: Svg Msg
+        view_ : Svg Msg
         view_ =
             Svg.g
                 [ Events.onClickStopPropagation <|
@@ -489,7 +510,7 @@ verticalLine { settings, position, selectedItem, item } =
                                 (\x -> x + Position.getX selectedItemOffsetPosition)
                                 (\y -> y + Position.getY selectedItemOffsetPosition)
 
-                    selectedItemSize: Size
+                    selectedItemSize : Size
                     selectedItemSize =
                         ( settings.size.width, settings.size.height - 1 )
                             |> Tuple.mapBoth
@@ -574,7 +595,7 @@ resizeRect item direction ( x, y ) =
 
 
 inputView :
-    { settings : Settings
+    { settings : DiagramSettings.Settings
     , fontSize : FontSize
     , position : Position
     , size : Size
@@ -596,7 +617,7 @@ inputView { settings, fontSize, position, size, color, item } =
             , Attr.autocomplete False
             , css
                 [ padding4 (px 8) (px 8) (px 8) zero
-                , Diagram.fontFamiliy settings
+                , DiagramSettings.fontFamiliy settings
                 , Css.color <| hex <| Color.toString color
                 , Css.backgroundColor transparent
                 , borderStyle none
@@ -618,7 +639,7 @@ inputView { settings, fontSize, position, size, color, item } =
         ]
 
 
-text : Settings -> Position -> Size -> Color -> FontSize -> Item -> Svg Msg
+text : DiagramSettings.Settings -> Position -> Size -> Color -> FontSize -> Item -> Svg Msg
 text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
     if Item.isMarkdown item then
         Svg.foreignObject
@@ -655,7 +676,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             , SvgAttr.class "ts-text"
             ]
             [ Html.div
-                [ css [ Style.paddingSm, Diagram.fontFamiliy settings, property "word-wrap" "break-word" ] ]
+                [ css [ Style.paddingSm, DiagramSettings.fontFamiliy settings, property "word-wrap" "break-word" ] ]
                 [ Html.text <| Item.getText item ]
             ]
 
@@ -663,7 +684,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
         plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs <| Item.getText item
 
 
-plainText : Settings -> Position -> Size -> Color -> FontSize -> String -> Svg Msg
+plainText : DiagramSettings.Settings -> Position -> Size -> Color -> FontSize -> String -> Svg Msg
 plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs t =
     Svg.text_
         [ SvgAttr.x <| String.fromInt <| posX + 6
@@ -672,13 +693,13 @@ plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs t =
         , SvgAttr.height <| String.fromInt svgHeight
         , SvgAttr.fill <| Color.toString colour
         , SvgAttr.color <| Color.toString colour
-        , SvgAttr.fontFamily <| Diagram.fontStyle settings
+        , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
         , FontSize.svgStyledFontSize fs
         ]
         [ Svg.text t ]
 
 
-markdown : Settings -> Color -> String -> Html Msg
+markdown : DiagramSettings.Settings -> Color -> String -> Html Msg
 markdown settings colour t =
     Html.fromUnstyled <|
         Markdown.toHtml
@@ -689,7 +710,7 @@ markdown settings colour t =
             t
 
 
-canvas : Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
+canvas : DiagramSettings.Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
 canvas settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
     Svg.g
         []
@@ -744,7 +765,7 @@ canvas settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem ite
         )
 
 
-canvasBottom : Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
+canvasBottom : DiagramSettings.Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
 canvasBottom settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
     Svg.g
         []
@@ -800,7 +821,7 @@ canvasBottom settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedIt
         )
 
 
-canvasRect : Settings -> Property -> Position -> Size -> Svg msg
+canvasRect : DiagramSettings.Settings -> Property -> Position -> Size -> Svg msg
 canvasRect settings property ( posX, posY ) ( rectWidth, rectHeight ) =
     Svg.rect
         [ SvgAttr.width <| String.fromInt rectWidth
@@ -814,12 +835,12 @@ canvasRect settings property ( posX, posY ) ( rectWidth, rectHeight ) =
         []
 
 
-title : Settings -> Position -> Item -> Svg Msg
+title : DiagramSettings.Settings -> Position -> Item -> Svg Msg
 title settings ( posX, posY ) item =
     Svg.text_
         [ SvgAttr.x <| String.fromInt posX
         , SvgAttr.y <| String.fromInt <| posY + 14
-        , SvgAttr.fontFamily <| Diagram.fontStyle settings
+        , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
         , SvgAttr.fill
             (Item.getItemSettings item
                 |> Maybe.withDefault ItemSettings.new
@@ -835,15 +856,15 @@ title settings ( posX, posY ) item =
         [ Svg.text <| Item.getText item ]
 
 
-canvasText : { settings : Settings, property : Property, svgWidth : Int, position : Position, selectedItem : SelectedItem, items : Items } -> Svg Msg
+canvasText : { settings : DiagramSettings.Settings, property : Property, svgWidth : Int, position : Position, selectedItem : SelectedItem, items : Items } -> Svg Msg
 canvasText { settings, property, svgWidth, position, selectedItem, items } =
     let
         ( posX, posY ) =
             position
 
-        newSettings : Settings
+        newSettings : DiagramSettings.Settings
         newSettings =
-            settings |> settingsOfWidth.set (svgWidth - Constants.itemMargin * 2)
+            settings |> DiagramSettings.ofWidth.set (svgWidth - Constants.itemMargin * 2)
     in
     Svg.g []
         (Item.indexedMap
@@ -861,7 +882,7 @@ canvasText { settings, property, svgWidth, position, selectedItem, items } =
         )
 
 
-canvasImage : Settings -> Property -> Size -> Position -> Item -> Svg Msg
+canvasImage : DiagramSettings.Settings -> Property -> Size -> Position -> Item -> Svg Msg
 canvasImage settings property ( svgWidth, svgHeight ) ( posX, posY ) item =
     Svg.g
         []
@@ -899,7 +920,7 @@ image ( imageWidth, imageHeight ) ( posX, posY ) url =
         ]
 
 
-node : Settings -> Property -> Position -> SelectedItem -> Item -> Svg Msg
+node : DiagramSettings.Settings -> Property -> Position -> SelectedItem -> Item -> Svg Msg
 node settings property ( posX, posY ) selectedItem item =
     let
         ( color, _ ) =
@@ -909,7 +930,7 @@ node settings property ( posX, posY ) selectedItem item =
         nodeWidth =
             settings.size.width
 
-        view_: Svg Msg
+        view_ : Svg Msg
         view_ =
             Svg.g
                 [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
@@ -951,7 +972,7 @@ node settings property ( posX, posY ) selectedItem item =
             view_
 
 
-rootTextNode : { settings : Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
+rootTextNode : { settings : DiagramSettings.Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
 rootTextNode { settings, position, selectedItem, item } =
     let
         ( posX, posY ) =
@@ -1019,7 +1040,7 @@ rootTextNode { settings, position, selectedItem, item } =
             view_
 
 
-textNode : Settings -> Position -> Size -> Color -> Item -> Svg Msg
+textNode : DiagramSettings.Settings -> Position -> Size -> Color -> Item -> Svg Msg
 textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt posX
@@ -1038,7 +1059,7 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
             [ css
                 [ Css.width <| px <| toFloat <| svgWidth
                 , Css.height <| px <| toFloat <| svgHeight
-                , Diagram.fontFamiliy settings
+                , DiagramSettings.fontFamiliy settings
                 , Style.breakWord
                 , Style.flexCenter
                 ]
@@ -1048,7 +1069,7 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
         ]
 
 
-textNodeInput : Settings -> Position -> Size -> Item -> Svg Msg
+textNodeInput : DiagramSettings.Settings -> Position -> Size -> Item -> Svg Msg
 textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt posX
@@ -1071,7 +1092,7 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
                 , Attr.autocomplete False
                 , Attr.style "padding" "8px 8px 8px 0"
                 , css
-                    [ Diagram.fontFamiliy settings
+                    [ DiagramSettings.fontFamiliy settings
                     , padding4 (px 8) (px 8) (px 8) zero
                     , borderStyle none
                     , backgroundColor transparent
@@ -1100,13 +1121,13 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
         ]
 
 
-grid : Settings -> Property -> Position -> SelectedItem -> Item -> Svg Msg
+grid : DiagramSettings.Settings -> Property -> Position -> SelectedItem -> Item -> Svg Msg
 grid settings property ( posX, posY ) selectedItem item =
     let
         ( forgroundColor, backgroundColor ) =
             getItemColor settings property item
 
-        view_: Svg Msg
+        view_ : Svg Msg
         view_ =
             Svg.g [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
                 [ Svg.rect

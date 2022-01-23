@@ -2,6 +2,7 @@ module Views.Diagram.FreeForm exposing (view)
 
 import Models.Diagram as Diagram exposing (Model, MoveState, Msg)
 import Models.Diagram.FreeForm as FreeForm exposing (FreeFormItem)
+import Models.DiagramData as DiagramData
 import Models.Item as Item exposing (Item)
 import Svg.Styled as Svg exposing (Svg)
 import Views.Diagram.Views as Views
@@ -11,7 +12,7 @@ import Views.Empty as Empty
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.FreeForm f ->
+        DiagramData.FreeForm f ->
             Svg.g []
                 (List.indexedMap
                     (formView model)

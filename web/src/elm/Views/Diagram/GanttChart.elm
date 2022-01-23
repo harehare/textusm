@@ -5,8 +5,9 @@ import Html.Styled as Html
 import Html.Styled.Attributes as Attr
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram as Diagram exposing (Model, Msg, Settings)
+import Models.Diagram  exposing (Model, Msg)
 import Models.Diagram.GanttChart as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
+import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Position exposing (Position)
 import Models.Size exposing (Size)
@@ -18,6 +19,7 @@ import Time.Extra as TimeEx exposing (Interval(..))
 import Tuple exposing (first, second)
 import Utils.Date as DateUtils
 import Views.Diagram.Views as Views
+import Models.DiagramData as DiagramData
 
 
 sectionMargin : Int
@@ -28,7 +30,7 @@ sectionMargin =
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.GanttChart (Just gantt) ->
+        DiagramData.GanttChart (Just gantt) ->
             let
                 (GanttChart (Schedule scheduleFrom scheduleTo interval) sections) =
                     gantt
@@ -109,7 +111,7 @@ view model =
             Svg.g [] []
 
 
-daysView : Settings -> Int -> ( Posix, Posix ) -> Svg Msg
+daysView : DiagramSettings.Settings -> Int -> ( Posix, Posix ) -> Svg Msg
 daysView settings svgHeight ( from, to ) =
     let
         daysNum : Int
@@ -144,10 +146,10 @@ daysView settings svgHeight ( from, to ) =
                                     , SvgAttr.height "30"
                                     , SvgAttr.fontSize "11"
                                     , SvgAttr.fontWeight "bold"
-                                    , SvgAttr.fontFamily <| Diagram.fontStyle settings
+                                    , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
                                     ]
                                     [ Html.div
-                                        [ Attr.style "font-family" (Diagram.fontStyle settings)
+                                        [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
                                         , Attr.style "word-wrap" "break-word"
                                         , Attr.style "color" settings.color.label
                                         ]
@@ -169,7 +171,7 @@ daysView settings svgHeight ( from, to ) =
         )
 
 
-weekView : Settings -> ( Posix, Posix ) -> Svg Msg
+weekView : DiagramSettings.Settings -> ( Posix, Posix ) -> Svg Msg
 weekView settings ( from, to ) =
     let
         weekNum : Int
@@ -195,7 +197,7 @@ weekView settings ( from, to ) =
                                 , SvgAttr.height "30"
                                 ]
                                 [ Html.div
-                                    [ Attr.style "font-family" (Diagram.fontStyle settings)
+                                    [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
                                     , Attr.style "word-wrap" "break-word"
                                     , Attr.style "color" settings.color.label
                                     , Attr.style "font-size" "11px"
@@ -209,7 +211,7 @@ weekView settings ( from, to ) =
         )
 
 
-headerSectionView : Settings -> Size -> Position -> Posix -> Section -> Svg Msg
+headerSectionView : DiagramSettings.Settings -> Size -> Position -> Posix -> Section -> Svg Msg
 headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from section =
     let
         (Section title _) =
@@ -232,7 +234,7 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from s
             , SvgAttr.height <| String.fromInt <| sectionHeight
             ]
             [ Html.div
-                [ Attr.style "font-family" (Diagram.fontStyle settings)
+                [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
                 , Attr.style "word-wrap" "break-word"
                 , Attr.style "padding" "8px"
                 , Attr.style "color" settings.color.label
@@ -255,7 +257,7 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from s
         ]
 
 
-sectionView : Settings -> Size -> Position -> Posix -> Task -> Svg Msg
+sectionView : DiagramSettings.Settings -> Size -> Position -> Posix -> Task -> Svg Msg
 sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task title schedule) =
     Svg.g []
         [ Svg.line
@@ -274,7 +276,7 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task t
             , SvgAttr.height <| String.fromInt <| sectionHeight
             ]
             [ Html.div
-                [ Attr.style "font-family" (Diagram.fontStyle settings)
+                [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
                 , Attr.style "word-wrap" "break-word"
                 , Attr.style "padding" "8px"
                 , Attr.style "color" settings.color.label
@@ -296,7 +298,7 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task t
         ]
 
 
-itemView : Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
+itemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
 itemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     let
         interval : Int
@@ -306,7 +308,7 @@ itemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     taskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
 
 
-headerItemView : Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
+headerItemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
 headerItemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     let
         interval : Int
@@ -316,7 +318,7 @@ headerItemView settings colour ( posX, posY ) baseFrom text (Schedule from to _)
     headerTaskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
 
 
-taskView : Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
+taskView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
 taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
     let
         interval : Int
@@ -351,7 +353,7 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
         ]
 
 
-headerTaskView : Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
+headerTaskView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
 headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
     let
         interval : Int

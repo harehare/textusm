@@ -1,7 +1,9 @@
 module Views.Diagram.Table exposing (view)
 
-import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
+import Models.Diagram exposing (Model, Msg, SelectedItem)
 import Models.Diagram.Table exposing (Header(..), Row(..), Table(..))
+import Models.DiagramData as DiagramData
+import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, ItemType(..))
 import Models.Property exposing (Property)
 import String
@@ -15,7 +17,7 @@ import Views.Empty as Empty
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.Table t ->
+        DiagramData.Table t ->
             let
                 (Table h rows) =
                     t
@@ -47,7 +49,7 @@ view model =
             Empty.view
 
 
-headerView : Settings -> Property -> SelectedItem -> Item -> Svg Msg
+headerView : DiagramSettings.Settings -> Property -> SelectedItem -> Item -> Svg Msg
 headerView settings property selectedItem item =
     Svg.g []
         (Item.indexedMap
@@ -58,7 +60,7 @@ headerView settings property selectedItem item =
         )
 
 
-rowView : Settings -> Property -> SelectedItem -> Int -> Item -> Svg Msg
+rowView : DiagramSettings.Settings -> Property -> SelectedItem -> Int -> Item -> Svg Msg
 rowView settings property selectedItem rowNo item =
     Keyed.node "g"
         []

@@ -1,8 +1,9 @@
 module Views.Diagram.StartStopContinue exposing (view)
 
 import Constants
-import Models.Diagram as Diagram exposing (Model, Msg)
+import Models.Diagram exposing (Model, Msg)
 import Models.Diagram.StartStopContinue exposing (StartStopContinueItem(..))
+import Models.DiagramData as DiagramData
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Lazy as Lazy
 import Utils.Diagram as DiagramUtils
@@ -13,7 +14,7 @@ import Views.Empty as Empty
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.StartStopContinue s ->
+        DiagramData.StartStopContinue s ->
             let
                 itemHeight : Int
                 itemHeight =

@@ -33,7 +33,8 @@ import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color exposing (Color)
-import Models.Diagram exposing (ContextMenu(..), Settings)
+import Models.Diagram exposing (ContextMenu(..))
+import Models.DiagramSettings as DiagramSettings
 import Models.Dialog exposing (display)
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.FontStyle as FontStyle exposing (FontStyle)
@@ -53,7 +54,7 @@ import Views.Icon as Icon
 type alias Props msg =
     { state : ContextMenu
     , item : Item
-    , settings : Settings
+    , settings : DiagramSettings.Settings
     , position : Position
     , dropDownIndex : Maybe String
     , onMenuSelect : ContextMenu -> msg

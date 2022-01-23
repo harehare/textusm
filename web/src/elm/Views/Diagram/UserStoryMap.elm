@@ -7,8 +7,10 @@ import Html.Styled.Attributes as Attr
 import List
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings)
+import Models.Diagram exposing (Model, Msg, SelectedItem)
 import Models.Diagram.UserStoryMap as UserStoryMap exposing (CountPerTasks, UserStoryMap)
+import Models.DiagramData as DiagramData
+import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import Models.Property as Property exposing (Property)
@@ -24,7 +26,7 @@ import Views.Empty as Empty
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.UserStoryMap userStoryMap ->
+        DiagramData.UserStoryMap userStoryMap ->
             Svg.g
                 []
                 [ Lazy.lazy labelView
@@ -47,7 +49,15 @@ view model =
             Empty.view
 
 
-mainView : { settings : Settings, property : Property, selectedItem : SelectedItem, items : Items, countByTasks : List Int, countByReleaseLevel : List Int } -> Svg Msg
+mainView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , selectedItem : SelectedItem
+    , items : Items
+    , countByTasks : List Int
+    , countByReleaseLevel : List Int
+    }
+    -> Svg Msg
 mainView { settings, property, selectedItem, items, countByTasks, countByReleaseLevel } =
     Keyed.node "g"
         []
@@ -61,7 +71,13 @@ mainView { settings, property, selectedItem, items, countByTasks, countByRelease
         )
 
 
-labelView : { settings : Settings, property : Property, width : Int, userStoryMap : UserStoryMap } -> Svg Msg
+labelView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , width : Int
+    , userStoryMap : UserStoryMap
+    }
+    -> Svg Msg
 labelView { settings, property, width, userStoryMap } =
     let
         posX : Int
@@ -148,7 +164,7 @@ labelView { settings, property, width, userStoryMap } =
         )
 
 
-activityView : Settings -> Property -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
+activityView : DiagramSettings.Settings -> Property -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
 activityView settings property verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
@@ -188,7 +204,7 @@ activityView settings property verticalCount ( posX, posY ) selectedItem item =
         )
 
 
-taskView : Settings -> Property -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
+taskView : DiagramSettings.Settings -> Property -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
 taskView settings property verticalCount ( posX, posY ) selectedItem item =
     let
         children : Items
@@ -234,7 +250,7 @@ taskView settings property verticalCount ( posX, posY ) selectedItem item =
         )
 
 
-storyView : Settings -> Property -> List Int -> Int -> Position -> SelectedItem -> Item -> Svg Msg
+storyView : DiagramSettings.Settings -> Property -> List Int -> Int -> Position -> SelectedItem -> Item -> Svg Msg
 storyView settings property verticalCount parentCount ( posX, posY ) selectedItem item =
     let
         itemCount : Int
@@ -289,7 +305,7 @@ storyView settings property verticalCount parentCount ( posX, posY ) selectedIte
         )
 
 
-labelTextView : Settings -> Position -> String -> Svg Msg
+labelTextView : DiagramSettings.Settings -> Position -> String -> Svg Msg
 labelTextView settings ( posX, posY ) t =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt posX
@@ -301,7 +317,7 @@ labelTextView settings ( posX, posY ) t =
         , SvgAttr.fontWeight "bold"
         ]
         [ Html.div
-            [ Attr.style "font-family" (Diagram.fontStyle settings)
+            [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
             , Attr.style "word-wrap" "break-word"
             ]
             [ Html.text t ]

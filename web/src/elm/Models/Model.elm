@@ -22,6 +22,7 @@ import Json.Decode as D
 import Message exposing (Lang, Message)
 import Models.Diagram as Diagram
 import Models.DiagramItem exposing (DiagramItem)
+import Models.DiagramSettings as DiagramSettings
 import Models.Dialog exposing (ConfirmDialog)
 import Models.FileType exposing (FileType)
 import Models.LoginProvider exposing (LoginProvider)
@@ -75,8 +76,8 @@ type Msg
     | ChangePublicStatus Bool
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
     | Load (Result RequestError DiagramItem)
-    | LoadSettings (Result RequestError Diagram.Settings)
-    | SaveSettings (Result RequestError Diagram.Settings)
+    | LoadSettings (Result RequestError DiagramSettings.Settings)
+    | SaveSettings (Result RequestError DiagramSettings.Settings)
     | CallApi (Result Message ())
     | CloseFullscreen
     | UpdateIdToken String

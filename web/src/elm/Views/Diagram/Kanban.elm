@@ -1,8 +1,10 @@
 module Views.Diagram.Kanban exposing (view)
 
 import Constants
-import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem, Settings, fontStyle)
+import Models.Diagram exposing (Model, Msg, SelectedItem)
 import Models.Diagram.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
+import Models.DiagramData as DiagramData
+import Models.DiagramSettings as DiagramSettings
 import Models.Position exposing (Position)
 import Models.Property exposing (Property)
 import String
@@ -21,7 +23,7 @@ kanbanMargin =
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.Kanban k ->
+        DiagramData.Kanban k ->
             Svg.g
                 []
                 [ Lazy.lazy4 kanbanView model.settings model.property model.selectedItem k ]
@@ -30,7 +32,7 @@ view model =
             Empty.view
 
 
-kanbanView : Settings -> Property -> SelectedItem -> Kanban -> Svg Msg
+kanbanView : DiagramSettings.Settings -> Property -> SelectedItem -> Kanban -> Svg Msg
 kanbanView settings property selectedItem kanban =
     let
         (Kanban lists) =
@@ -53,13 +55,13 @@ kanbanView settings property selectedItem kanban =
         )
 
 
-listView : Settings -> Property -> Int -> Position -> SelectedItem -> KanbanList -> Svg Msg
+listView : DiagramSettings.Settings -> Property -> Int -> Position -> SelectedItem -> KanbanList -> Svg Msg
 listView settings property height ( posX, posY ) selectedItem (KanbanList name cards) =
     Svg.g []
         (Svg.text_
             [ SvgAttr.x <| String.fromInt <| posX + 8
             , SvgAttr.y <| String.fromInt <| posY + kanbanMargin
-            , SvgAttr.fontFamily (fontStyle settings)
+            , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
             , SvgAttr.fill settings.color.label
             , SvgAttr.fontSize "16"
             , SvgAttr.fontWeight "bold"

@@ -49,7 +49,7 @@ import List
 import List.Extra exposing (getAt, setAt)
 import Maybe
 import Models.Color as Color
-import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, Settings)
+import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem)
 import Models.Diagram.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Diagram.ER as ErDiagramModel
 import Models.Diagram.EmpathyMap as EmpathyMapModel
@@ -65,6 +65,8 @@ import Models.Diagram.Table as TableModel
 import Models.Diagram.UseCaseDiagram as UseCaseDiagramModel
 import Models.Diagram.UserPersona as UserPersonaModel
 import Models.Diagram.UserStoryMap as UserStoryMapModel
+import Models.DiagramData as DiagramData
+import Models.DiagramSettings as DiagramSettings
 import Models.FontStyle as FontStyle
 import Models.Item as Item exposing (Item)
 import Models.ItemSettings as ItemSettings
@@ -104,11 +106,11 @@ import Views.Empty as Empty
 import Views.Icon as Icon
 
 
-init : Settings -> Return Msg Model
+init : DiagramSettings.Settings -> Return Msg Model
 init settings =
     Return.singleton
         { items = Item.empty
-        , data = Diagram.Empty
+        , data = DiagramData.Empty
         , size = ( 0, 0 )
         , svg =
             { width = 0
@@ -137,7 +139,6 @@ zoomControl : Bool -> Float -> Html Msg
 zoomControl isFullscreen scale =
     let
         s : Int
-
         s =
             round <| scale * 100.0
     in
@@ -237,7 +238,6 @@ view : Model -> Html Msg
 view model =
     let
         svgWidth : Int
-
         svgWidth =
             if model.fullscreen then
                 Basics.toFloat
@@ -250,7 +250,6 @@ view model =
                     |> round
 
         svgHeight : Int
-
         svgHeight =
             if model.fullscreen then
                 Basics.toFloat
@@ -263,7 +262,6 @@ view model =
                     |> round
 
         centerPosition : Position
-
         centerPosition =
             case model.diagramType of
                 MindMap ->
@@ -279,7 +277,6 @@ view model =
                     model.position
 
         mainSvg : Html Msg
-
         mainSvg =
             Lazy.lazy (diagramView model.diagramType) model
     in
@@ -453,12 +450,12 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 ]
             ]
         , case model.data of
-            Diagram.UserStoryMap _ ->
+            DiagramData.UserStoryMap _ ->
                 Svg.text_
                     [ SvgAttr.x "8"
                     , SvgAttr.y "8"
                     , SvgAttr.fontSize "12"
-                    , SvgAttr.fontFamily <| Diagram.fontStyle model.settings
+                    , SvgAttr.fontFamily <| DiagramSettings.fontStyle model.settings
                     , SvgAttr.fill (model.settings.color.text |> Maybe.withDefault model.settings.color.label)
                     ]
                     [ Svg.text (Property.getTitle model.property |> Maybe.withDefault "") ]
@@ -600,7 +597,6 @@ onDragMove distance moveState isPhone =
                                 Just x ->
                                     let
                                         newDistance : Float
-
                                         newDistance =
                                             Utils.calcDistance p1 p2
                                     in
@@ -650,72 +646,69 @@ updateDiagram ( width, height ) base text =
         ( hierarchy, items ) =
             Item.fromString text
 
-        data : Diagram.Data
-
+        data : DiagramData.DiagramData
         data =
             case base.diagramType of
                 UserStoryMap ->
-                    Diagram.UserStoryMap <| UserStoryMapModel.from text hierarchy items
+                    DiagramData.UserStoryMap <| UserStoryMapModel.from text hierarchy items
 
                 Table ->
-                    Diagram.Table <| TableModel.from items
+                    DiagramData.Table <| TableModel.from items
 
                 Kpt ->
-                    Diagram.Kpt <| KptModel.from items
+                    DiagramData.Kpt <| KptModel.from items
 
                 BusinessModelCanvas ->
-                    Diagram.BusinessModelCanvas <| BusinessModelCanvasModel.from items
+                    DiagramData.BusinessModelCanvas <| BusinessModelCanvasModel.from items
 
                 EmpathyMap ->
-                    Diagram.EmpathyMap <| EmpathyMapModel.from items
+                    DiagramData.EmpathyMap <| EmpathyMapModel.from items
 
                 Fourls ->
-                    Diagram.FourLs <| FourLsModel.from items
+                    DiagramData.FourLs <| FourLsModel.from items
 
                 Kanban ->
-                    Diagram.Kanban <| KanbanModel.from items
+                    DiagramData.Kanban <| KanbanModel.from items
 
                 OpportunityCanvas ->
-                    Diagram.OpportunityCanvas <| OpportunityCanvasModel.from items
+                    DiagramData.OpportunityCanvas <| OpportunityCanvasModel.from items
 
                 StartStopContinue ->
-                    Diagram.StartStopContinue <| StartStopContinueModel.from items
+                    DiagramData.StartStopContinue <| StartStopContinueModel.from items
 
                 UserPersona ->
-                    Diagram.UserPersona <| UserPersonaModel.from items
+                    DiagramData.UserPersona <| UserPersonaModel.from items
 
                 ErDiagram ->
-                    Diagram.ErDiagram <| ErDiagramModel.from items
+                    DiagramData.ErDiagram <| ErDiagramModel.from items
 
                 MindMap ->
-                    Diagram.MindMap items hierarchy
+                    DiagramData.MindMap items hierarchy
 
                 ImpactMap ->
-                    Diagram.ImpactMap items hierarchy
+                    DiagramData.ImpactMap items hierarchy
 
                 SiteMap ->
-                    Diagram.SiteMap items hierarchy
+                    DiagramData.SiteMap items hierarchy
 
                 SequenceDiagram ->
-                    Diagram.SequenceDiagram <| SequenceDiagramModel.from items
+                    DiagramData.SequenceDiagram <| SequenceDiagramModel.from items
 
                 Freeform ->
-                    Diagram.FreeForm <| FreeFormModel.from items
+                    DiagramData.FreeForm <| FreeFormModel.from items
 
                 GanttChart ->
-                    Diagram.GanttChart <| GanttChartModel.from items
+                    DiagramData.GanttChart <| GanttChartModel.from items
 
                 UseCaseDiagram ->
-                    Diagram.UseCaseDiagram <| UseCaseDiagramModel.from items
+                    DiagramData.UseCaseDiagram <| UseCaseDiagramModel.from items
 
         newModel : Model
-
         newModel =
-
             { base | items = items, data = data }
 
         ( svgWidth, svgHeight ) =
-            DiagramUtils.getCanvasSize newModel
+            Diagram.size newModel
     in
     { newModel
         | size = ( width, height )
@@ -795,7 +788,6 @@ move ( x, y ) m =
                             table
 
                         newPosition : Maybe Position
-
                         newPosition =
                             Just
                                 (position
@@ -1060,7 +1052,7 @@ update message =
                             m.size
 
                         ( canvasWidth, canvasHeight ) =
-                            DiagramUtils.getCanvasSize m
+                            Diagram.size m
 
                         ( widthRatio, heightRatio ) =
                             ( toFloat (round (toFloat windowWidth / toFloat canvasWidth / 0.05)) * 0.05, toFloat (round (toFloat windowHeight / toFloat canvasHeight / 0.05)) * 0.05 )

@@ -8,7 +8,7 @@ import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram exposing (Model, Msg(..))
 import Models.Diagram.UseCaseDiagram as UseCaseDiagram
     exposing
         ( Actor(..)
@@ -17,6 +17,8 @@ import Models.Diagram.UseCaseDiagram as UseCaseDiagram
         , UseCaseDiagram(..)
         , UseCaseRelation
         )
+import Models.DiagramData as DiagramData
+import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
@@ -79,7 +81,7 @@ type alias UseCasePosition =
 view : Model -> Svg Msg
 view model =
     case model.data of
-        Diagram.UseCaseDiagram (UseCaseDiagram actors relation) ->
+        DiagramData.UseCaseDiagram (UseCaseDiagram actors relation) ->
             let
                 useCases : List Item
                 useCases =
@@ -155,7 +157,7 @@ view model =
             Empty.view
 
 
-actorsView : Settings -> List Actor -> ( UseCasePosition, List (Svg Msg) )
+actorsView : DiagramSettings.Settings -> List Actor -> ( UseCasePosition, List (Svg Msg) )
 actorsView settings actors =
     let
         a : List ( ( String, ( Int, Int ) ), Svg Msg )
@@ -193,7 +195,7 @@ adjustmentLinePosition position index =
 
 
 useCasesView :
-    { settings : Settings
+    { settings : DiagramSettings.Settings
     , basePosition : Position
     , baseHierarchy : Int
     , relation : UseCaseRelation
@@ -417,7 +419,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
     )
 
 
-arrowView : Settings -> Svg Msg
+arrowView : DiagramSettings.Settings -> Svg Msg
 arrowView settings =
     Svg.g []
         [ Svg.marker
@@ -448,7 +450,7 @@ relationToString r =
             "include"
 
 
-relationLineView : { settings : Settings, from : Position, to : Position, relation : Relation, reverse : Bool } -> Svg Msg
+relationLineView : { settings : DiagramSettings.Settings, from : Position, to : Position, relation : Relation, reverse : Bool } -> Svg Msg
 relationLineView { settings, from, to, relation, reverse } =
     let
         ( fromX, fromY ) =
@@ -505,13 +507,13 @@ relationLineView { settings, from, to, relation, reverse } =
 
                       else
                         padding4 (px 28) zero zero (px 24)
-                    , Diagram.fontFamiliy settings
+                    , DiagramSettings.fontFamiliy settings
                     , backgroundColor transparent
                     ]
                 ]
                 [ Html.div
                     [ css
-                        [ color <| hex <| Diagram.getTextColor settings.color
+                        [ color <| hex <| DiagramSettings.textColor settings
                         , FontSize.cssFontSize FontSize.xs
                         ]
                     ]
@@ -521,7 +523,7 @@ relationLineView { settings, from, to, relation, reverse } =
         ]
 
 
-useCaseLineView : { settings : Settings, from : Position, to : Position } -> Svg Msg
+useCaseLineView : { settings : DiagramSettings.Settings, from : Position, to : Position } -> Svg Msg
 useCaseLineView { settings, from, to } =
     Svg.line
         [ SvgAttr.x1 <| String.fromInt <| Position.getX from
@@ -534,7 +536,7 @@ useCaseLineView { settings, from, to } =
         []
 
 
-useCaseView : { settings : Settings, item : Item, fontSize : FontSize, name : String, position : Position } -> Svg Msg
+useCaseView : { settings : DiagramSettings.Settings, item : Item, fontSize : FontSize, name : String, position : Position } -> Svg Msg
 useCaseView { settings, item, fontSize, name, position } =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt <| Position.getX position
@@ -550,7 +552,7 @@ useCaseView { settings, item, fontSize, name, position } =
         [ Html.div
             [ Attr.style "display" "block"
             , Attr.style "padding" "16px 24px"
-            , Attr.style "font-family" <| Diagram.fontStyle settings
+            , Attr.style "font-family" <| DiagramSettings.fontStyle settings
             , Attr.style "word-wrap" "break-word"
             , Attr.style "border-radius" "50%"
             , Attr.style "max-height" "100px"
@@ -563,7 +565,7 @@ useCaseView { settings, item, fontSize, name, position } =
         ]
 
 
-actorView : Settings -> FontSize -> String -> Position -> Svg Msg
+actorView : DiagramSettings.Settings -> FontSize -> String -> Position -> Svg Msg
 actorView settings fontSize name ( x, y ) =
     Svg.g []
         [ Svg.circle
@@ -631,14 +633,14 @@ actorView settings fontSize name ( x, y ) =
                 , Attr.style "align-items" "center"
                 , Attr.style "justify-content" "center"
                 , Attr.style "padding" "8px"
-                , Attr.style "font-family" <| Diagram.fontStyle settings
+                , Attr.style "font-family" <| DiagramSettings.fontStyle settings
                 , Attr.style "word-wrap" "break-word"
                 , Attr.style "width" "160px"
                 , Attr.style "height" "100%"
                 , Attr.style "text-align" "center"
                 ]
                 [ Html.div
-                    [ Attr.style "color" <| Diagram.getTextColor settings.color
+                    [ Attr.style "color" <| DiagramSettings.textColor settings
                     , Attr.style "padding" "8px"
                     , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
                     ]

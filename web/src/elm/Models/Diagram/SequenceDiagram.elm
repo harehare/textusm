@@ -1,7 +1,29 @@
-module Models.Diagram.SequenceDiagram exposing (AltMessage, Fragment(..), FragmentText, Message(..), MessageType(..), ParMessage, Participant(..), SequenceDiagram(..), SequenceItem(..), fragmentToString, from, messageCountAll, messagesCount, participantCount, sequenceItemCount, sequenceItemMessages, unwrapMessageType)
+module Models.Diagram.SequenceDiagram exposing
+    ( AltMessage
+    , Fragment(..)
+    , FragmentText
+    , Message(..)
+    , MessageType(..)
+    , ParMessage
+    , Participant(..)
+    , SequenceDiagram(..)
+    , SequenceItem(..)
+    , fragmentToString
+    , from
+    , messageCountAll
+    , messagesCount
+    , participantCount
+    , sequenceItemCount
+    , sequenceItemMessages
+    , size
+    , unwrapMessageType
+    )
 
+import Constants
 import Dict exposing (Dict)
+import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
+import Models.Size exposing (Size)
 
 
 type SequenceDiagram
@@ -425,3 +447,22 @@ unwrapMessageType messageType =
 
         Lost text ->
             text
+
+
+size : DiagramSettings.Settings -> SequenceDiagram -> Size
+size settings sequenceDiagram =
+    let
+        diagramWidth : Int
+        diagramWidth =
+            participantCount sequenceDiagram * (settings.size.width + Constants.participantMargin) + 8
+
+        diagramHeight : Int
+        diagramHeight =
+            messageCountAll sequenceDiagram
+                * Constants.messageMargin
+                + settings.size.height
+                * 4
+                + Constants.messageMargin
+                + 8
+    in
+    ( diagramWidth, diagramHeight )

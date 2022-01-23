@@ -5,7 +5,8 @@ import Components.Diagram exposing (init, update, view)
 import Expect
 import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html.Styled
-import Models.Diagram as Diagram exposing (Model, Msg(..), Settings)
+import Models.Diagram as Diagram exposing (Model, Msg(..))
+import Models.DiagramSettings as DiagramSettings
 import Models.DiagramType as DiagramType
 import Models.Item as Item exposing (ItemType(..))
 import Models.Position as Position
@@ -15,7 +16,7 @@ import Test.Html.Query as Query
 import Test.Html.Selector exposing (tag, text)
 
 
-defaultSettings : Settings
+defaultSettings : DiagramSettings.Settings
 defaultSettings =
     { font = "apple-system, BlinkMacSystemFont, Helvetica Neue, Hiragino Kaku Gothic ProN, 游ゴシック Medium, YuGothic, YuGothicM, メイリオ, Meiryo, sans-serif"
     , size =

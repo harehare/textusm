@@ -4,11 +4,14 @@ module Models.Diagram.FreeForm exposing
     , FreeFormItems
     , from
     , getItems
+    , size
     , unwrap
     , unwrapItem
     )
 
+import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
+import Models.Size exposing (Size)
 
 
 type FreeForm
@@ -66,3 +69,53 @@ unwrapItem item =
 
         VerticalLine item_ ->
             item_
+
+
+size : DiagramSettings.Settings -> FreeForm -> Size
+size settings freeForm =
+    let
+        items : FreeFormItems
+        items =
+            freeForm
+                |> unwrap
+
+        positionList : List ( Int, Int )
+        positionList =
+            List.indexedMap
+                (\i item ->
+                    let
+                        item_ : Item
+                        item_ =
+                            unwrapItem item
+
+                        ( offsetX, offsetY ) =
+                            Item.getOffset item_
+                    in
+                    ( 16 + (modBy 4 i + 1) * (settings.size.width + 32)
+                    , (i // 4 + 1) * (settings.size.height + 32)
+                    )
+                        |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+                )
+                items
+
+        freeFormWidth : Int
+        freeFormWidth =
+            List.map
+                (\( w, _ ) ->
+                    w
+                )
+                positionList
+                |> List.maximum
+                |> Maybe.withDefault 0
+
+        freeFormHeight : Int
+        freeFormHeight =
+            List.map
+                (\( _, h ) ->
+                    h
+                )
+                positionList
+                |> List.maximum
+                |> Maybe.withDefault 0
+    in
+    ( freeFormWidth, freeFormHeight )

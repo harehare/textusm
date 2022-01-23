@@ -8,6 +8,7 @@ import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
+import Models.DiagramData as DiagramData
 import Models.DiagramType as DiagramType
 import Models.Item as Item
 import Models.Property as Property
@@ -15,7 +16,6 @@ import Models.Size exposing (Size)
 import Models.Text as Text exposing (Text)
 import Return exposing (Return)
 import Task
-import Utils.Diagram as DiagramUtils
 
 
 
@@ -57,7 +57,7 @@ init : InitData -> ( Model, Cmd Msg )
 init flags =
     ( { diagramModel =
             { items = Item.empty
-            , data = DiagramModel.Empty
+            , data = DiagramData.Empty
             , size = ( 1024, 1024 )
             , svg =
                 { width = 0
@@ -217,7 +217,7 @@ update message =
 
                         size : Size
                         size =
-                            DiagramUtils.getCanvasSize newDiagramModel
+                            DiagramModel.size newDiagramModel
                     in
                     Return.return m <| onGetCanvasSize size
 

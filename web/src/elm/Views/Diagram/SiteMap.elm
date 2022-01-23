@@ -2,7 +2,8 @@ module Views.Diagram.SiteMap exposing (view)
 
 import Constants
 import List.Extra as ListEx
-import Models.Diagram exposing (Model, Msg, SelectedItem, Settings)
+import Models.Diagram exposing (Model, Msg, SelectedItem)
+import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import Models.Property exposing (Property)
@@ -43,7 +44,7 @@ view model =
             Svg.g [] []
 
 
-siteView : Settings -> Property -> ( Int, Int ) -> SelectedItem -> Items -> Svg Msg
+siteView : DiagramSettings.Settings -> Property -> ( Int, Int ) -> SelectedItem -> Items -> Svg Msg
 siteView settings property ( posX, posY ) selectedItem items =
     let
         hierarchyCountList : List Int
@@ -95,7 +96,7 @@ siteView settings property ( posX, posY ) selectedItem items =
         )
 
 
-siteTreeView : Settings -> Property -> Position -> SelectedItem -> Items -> Svg Msg
+siteTreeView : DiagramSettings.Settings -> Property -> Position -> SelectedItem -> Items -> Svg Msg
 siteTreeView settings property ( posX, posY ) selectedItem items =
     let
         childrenCountList : List Int
@@ -152,7 +153,7 @@ siteTreeView settings property ( posX, posY ) selectedItem items =
         )
 
 
-siteLineView : Settings -> Position -> Position -> Svg Msg
+siteLineView : DiagramSettings.Settings -> Position -> Position -> Svg Msg
 siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
     let
         centerX : Int
@@ -193,7 +194,7 @@ siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
             ]
 
 
-siteTreeLineView : Settings -> Position -> Position -> Svg Msg
+siteTreeLineView : DiagramSettings.Settings -> Position -> Position -> Svg Msg
 siteTreeLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
     let
         itemPadding : Int

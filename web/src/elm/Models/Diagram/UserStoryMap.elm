@@ -7,14 +7,18 @@ module Models.Diagram.UserStoryMap exposing
     , from
     , getHierarchy
     , getItems
+    , size
     , storyCount
     , taskCount
     )
 
+import Constants
 import Dict
 import List.Extra exposing (scanl)
+import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Items)
 import Models.Property as Property exposing (Property)
+import Models.Size exposing (Size)
 import State exposing (Step(..))
 
 
@@ -194,3 +198,10 @@ countByStories text =
                 |> Dict.values
                 |> List.drop 2
            )
+
+
+size : DiagramSettings.Settings -> UserStoryMap -> Size
+size settings userStoryMap =
+    ( Constants.leftMargin + (settings.size.width + Constants.itemMargin * 2) * (taskCount userStoryMap + 1)
+    , (settings.size.height + Constants.itemMargin) * (storyCount userStoryMap + 2)
+    )

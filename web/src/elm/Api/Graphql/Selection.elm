@@ -14,17 +14,17 @@ import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Graphql.Union
 import Graphql.Union.DiagramItem
-import Models.Diagram as DiagramModel
 import Models.DiagramId as DiagramId
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
+import Models.DiagramSettings as DiagramSettings
 import Models.Text as Text
 import Models.Title as Title
 
 
-colorSelection : SelectionSet DiagramModel.Color Graphql.Object.Color
+colorSelection : SelectionSet DiagramSettings.Color Graphql.Object.Color
 colorSelection =
-    SelectionSet.succeed DiagramModel.Color
+    SelectionSet.succeed DiagramSettings.Color
         |> with Graphql.Object.Color.foregroundColor
         |> with Graphql.Object.Color.backgroundColor
 
@@ -69,13 +69,13 @@ allItemsSelection =
         }
 
 
-settingsSelection : SelectionSet DiagramModel.Settings Graphql.Object.Settings
+settingsSelection : SelectionSet DiagramSettings.Settings Graphql.Object.Settings
 settingsSelection =
-    SelectionSet.succeed DiagramModel.Settings
+    SelectionSet.succeed DiagramSettings.Settings
         |> with Graphql.Object.Settings.font
         |> with (SelectionSet.map2 (\w h -> { width = w, height = h }) Graphql.Object.Settings.width Graphql.Object.Settings.height)
         |> with
-            (SelectionSet.succeed DiagramModel.ColorSettings
+            (SelectionSet.succeed DiagramSettings.ColorSettings
                 |> with (Graphql.Object.Settings.activityColor colorSelection)
                 |> with (Graphql.Object.Settings.taskColor colorSelection)
                 |> with (Graphql.Object.Settings.storyColor colorSelection)
