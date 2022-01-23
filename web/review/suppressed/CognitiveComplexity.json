@@ -1,19 +1,16 @@
 {
-    "version": 1,
-    "automatically created by": "elm-review suppress",
-    "learn more": "elm-review suppress --help",
-    "suppressions": [
-        { "count": 3, "filePath": "src/elm/Main.elm" },
-        { "count": 2, "filePath": "src/elm/Components/Diagram.elm" },
-        { "count": 1, "filePath": "src/elm/Dialog/Share.elm" },
-        { "count": 1, "filePath": "src/elm/Extension/Lib.elm" },
-        { "count": 1, "filePath": "src/elm/Models/Diagram.elm" },
-        {
-            "count": 1,
-            "filePath": "src/elm/Models/Diagram/SequenceDiagram.elm"
-        },
-        { "count": 1, "filePath": "src/elm/Models/Diagram/UserStoryMap.elm" },
-        { "count": 1, "filePath": "src/elm/Page/List.elm" },
-        { "count": 1, "filePath": "src/elm/Views/Diagram/ER.elm" }
-    ]
+  "version": 1,
+  "automatically created by": "elm-review suppress",
+  "learn more": "elm-review suppress --help",
+  "suppressions": [
+    { "count": 3, "filePath": "src/elm/Main.elm" },
+    { "count": 2, "filePath": "src/elm/Components/Diagram.elm" },
+    { "count": 1, "filePath": "src/elm/Dialog/Share.elm" },
+    { "count": 1, "filePath": "src/elm/Extension/Lib.elm" },
+    { "count": 1, "filePath": "src/elm/Models/Diagram.elm" },
+    { "count": 1, "filePath": "src/elm/Models/Diagram/SequenceDiagram.elm" },
+    { "count": 1, "filePath": "src/elm/Models/Diagram/UserStoryMap.elm" },
+    { "count": 1, "filePath": "src/elm/Page/List.elm" },
+    { "count": 1, "filePath": "src/elm/Views/Diagram/ER.elm" }
+  ]
 }
