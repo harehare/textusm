@@ -320,102 +320,60 @@ chooseZoom ratio wheelEvent =
 
 size : Model -> Size
 size model =
-    case model.diagramType of
-        Fourls ->
+    case ( model.diagramType, model.data ) of
+        ( Fourls, _ ) ->
             FourLsModel.size model.settings model.items
 
-        EmpathyMap ->
+        ( EmpathyMap, _ ) ->
             EmpathyMapModel.size model.settings model.items
 
-        OpportunityCanvas ->
+        ( OpportunityCanvas, _ ) ->
             OpportunityCanvasModel.size model.settings model.items
 
-        BusinessModelCanvas ->
+        ( BusinessModelCanvas, _ ) ->
             BusinessModelCanvasModel.size model.settings model.items
 
-        Kpt ->
+        ( Kpt, _ ) ->
             KptModel.size model.settings model.items
 
-        StartStopContinue ->
+        ( StartStopContinue, _ ) ->
             StartStopContinueModel.size model.settings model.items
 
-        UserPersona ->
+        ( UserPersona, _ ) ->
             UserPersonaModel.size model.settings model.items
 
-        ErDiagram ->
+        ( ErDiagram, _ ) ->
             ERModel.size model.items
 
-        MindMap ->
-            case model.data of
-                DiagramData.MindMap items_ hierarchy_ ->
-                    MindMapModel.size model.settings items_ hierarchy_
+        ( MindMap, DiagramData.MindMap items_ hierarchy_ ) ->
+            MindMapModel.size model.settings items_ hierarchy_
 
-                _ ->
-                    ( 0, 0 )
-
-        Table ->
+        ( Table, _ ) ->
             TableModel.size model.settings model.items
 
-        SiteMap ->
-            case model.data of
-                DiagramData.SiteMap siteMapitems hierarchy_ ->
-                    SiteMapModel.size model.settings siteMapitems hierarchy_
+        ( SiteMap, DiagramData.SiteMap siteMapitems hierarchy_ ) ->
+            SiteMapModel.size model.settings siteMapitems hierarchy_
 
-                _ ->
-                    ( 0, 0 )
+        ( UserStoryMap, DiagramData.UserStoryMap userStoryMap ) ->
+            UserStoryMapModel.size model.settings userStoryMap
 
-        UserStoryMap ->
-            case model.data of
-                DiagramData.UserStoryMap userStoryMap ->
-                    UserStoryMapModel.size model.settings userStoryMap
+        ( ImpactMap, DiagramData.ImpactMap items_ hierarchy_ ) ->
+            ImpactMapModel.size model.settings items_ hierarchy_
 
-                _ ->
-                    ( 0, 0 )
+        ( GanttChart, DiagramData.GanttChart (Just gantt) ) ->
+            GanttChartModel.size gantt
 
-        ImpactMap ->
-            case model.data of
-                DiagramData.ImpactMap items_ hierarchy_ ->
-                    ImpactMapModel.size model.settings items_ hierarchy_
+        ( Kanban, DiagramData.Kanban kanban ) ->
+            KanbanModel.size model.settings kanban
 
-                _ ->
-                    ( 0, 0 )
+        ( SequenceDiagram, DiagramData.SequenceDiagram sequenceDiagram ) ->
+            SequenceDiagramModel.size model.settings sequenceDiagram
 
-        GanttChart ->
-            case model.data of
-                DiagramData.GanttChart (Just gantt) ->
-                    GanttChartModel.size gantt
+        ( Freeform, DiagramData.FreeForm freeForm ) ->
+            FreeFormModel.size model.settings freeForm
 
-                _ ->
-                    ( 0, 0 )
+        ( UseCaseDiagram, DiagramData.UseCaseDiagram useCaseDiagram ) ->
+            UseCaseDiagramModel.size useCaseDiagram
 
-        Kanban ->
-            case model.data of
-                DiagramData.Kanban kanban ->
-                    KanbanModel.size model.settings kanban
-
-                _ ->
-                    ( 0, 0 )
-
-        SequenceDiagram ->
-            case model.data of
-                DiagramData.SequenceDiagram sequenceDiagram ->
-                    SequenceDiagramModel.size model.settings sequenceDiagram
-
-                _ ->
-                    ( 0, 0 )
-
-        Freeform ->
-            case model.data of
-                DiagramData.FreeForm freeForm ->
-                    FreeFormModel.size model.settings freeForm
-
-                _ ->
-                    ( 0, 0 )
-
-        UseCaseDiagram ->
-            case model.data of
-                DiagramData.UseCaseDiagram useCaseDiagram ->
-                    UseCaseDiagramModel.size useCaseDiagram
-
-                _ ->
-                    ( 0, 0 )
+        _ ->
+            ( 0, 0 )
