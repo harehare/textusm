@@ -34,22 +34,22 @@ view model =
                 [ Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( 0, 0 )
                     model.selectedItem
                     start
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
-                    ( Constants.itemWidth - 5, 0 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( Constants.itemWidth - Constants.canvasOffset, 0 )
                     model.selectedItem
                     stop
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
-                    ( Constants.itemWidth * 2 - 10, 0 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( Constants.itemWidth * 2 - Constants.canvasOffset * 2, 0 )
                     model.selectedItem
                     continue
                 ]

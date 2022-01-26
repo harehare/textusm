@@ -55,71 +55,71 @@ view model =
                 [ Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight * 2 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight * 2 - Constants.canvasOffset )
                     ( 0, 0 )
                     model.selectedItem
                     usersAndCustomers
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
-                    ( Constants.itemWidth - 5, 0 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( Constants.itemWidth - Constants.canvasOffset, 0 )
                     model.selectedItem
                     problems
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight + 5 )
-                    ( Constants.itemWidth - 5, itemHeight - 5 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     solutionsToday
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight * 2 )
-                    ( Constants.itemWidth * 2 - 10, 0 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight * 2 - Constants.canvasOffset )
+                    ( Constants.itemWidth * 2 - Constants.canvasOffset * 2, 0 )
                     model.selectedItem
                     solutionIdeas
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
-                    ( Constants.itemWidth * 3 - 15, 0 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( Constants.itemWidth * 3 - Constants.canvasOffset * 3, 0 )
                     model.selectedItem
                     howWillUsersUseSolution
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight + 5 )
-                    ( Constants.itemWidth * 3 - 15, itemHeight - 5 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight )
+                    ( Constants.itemWidth * 3 - Constants.canvasOffset * 3, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     adoptionStrategy
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight * 2 )
-                    ( Constants.itemWidth * 4 - 20, 0 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight * 2 - Constants.canvasOffset )
+                    ( Constants.itemWidth * 4 - Constants.canvasOffset * 4, 0 )
                     model.selectedItem
                     userMetrics
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( round (toFloat Constants.itemWidth * 2) - 5, itemHeight + 5 )
-                    ( 0, itemHeight * 2 - 5 )
+                    ( round (toFloat Constants.itemWidth * 2) - Constants.canvasOffset * 2, itemHeight )
+                    ( 0, itemHeight * 2 - Constants.canvasOffset )
                     model.selectedItem
                     businessChallenges
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight + 5 )
-                    ( round (toFloat Constants.itemWidth * 2) - 10, itemHeight * 2 - 5 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight )
+                    ( round (toFloat Constants.itemWidth * 2) - Constants.canvasOffset * 2, itemHeight * 2 - Constants.canvasOffset )
                     model.selectedItem
                     budget
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( round (toFloat Constants.itemWidth * 2) - 5, itemHeight + 5 )
-                    ( round (toFloat Constants.itemWidth * 3) - 15, itemHeight * 2 - 5 )
+                    ( round (toFloat Constants.itemWidth * 2) - Constants.canvasOffset * 2, itemHeight )
+                    ( round (toFloat Constants.itemWidth * 3) - Constants.canvasOffset * 3, itemHeight * 2 - Constants.canvasOffset )
                     model.selectedItem
                     businessBenefitsAndMetrics
                 ]

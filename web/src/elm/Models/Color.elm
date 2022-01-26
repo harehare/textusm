@@ -28,6 +28,7 @@ module Models.Color exposing
     , teal
     , textDefalut
     , toString
+    , transparent
     , white
     , white2
     , yellow
@@ -179,6 +180,11 @@ darkIconColor =
     Color "Icon color" "#b9b9b9"
 
 
+transparent : Color
+transparent =
+    Color "transparent" "transparent"
+
+
 colors : List Color
 colors =
     [ white
@@ -276,6 +282,9 @@ fromString rgb =
 
         "#323D46" ->
             backgroundDarkDefalut
+
+        "transparent" ->
+            transparent
 
         _ ->
             case

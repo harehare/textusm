@@ -1,5 +1,6 @@
 module Constants exposing
-    ( fontSize
+    ( canvasOffset
+    , fontSize
     , fragmentOffset
     , ganttItemSize
     , indentSpace
@@ -102,3 +103,8 @@ messageMargin =
 fragmentOffset : Int
 fragmentOffset =
     70
+
+
+canvasOffset : Int
+canvasOffset =
+    5

@@ -3,6 +3,7 @@ module Models.Property exposing
     , empty
     , fromString
     , getBackgroundColor
+    , getCanvasBackgroundColor
     , getCardBackgroundColor1
     , getCardBackgroundColor2
     , getCardBackgroundColor3
@@ -40,6 +41,7 @@ type Key
     | CardBackgroundColor2
     | CardForegroundColor3
     | CardBackgroundColor3
+    | CanvasBackgroundColor
 
 
 type alias Property =
@@ -121,6 +123,11 @@ getZoomControl property =
     Dict.get (toKeyString ZoomControl) property |> Maybe.map (\b -> String.toLower b == "true")
 
 
+getCanvasBackgroundColor : Property -> Maybe Color
+getCanvasBackgroundColor property =
+    Dict.get (toKeyString CanvasBackgroundColor) property |> Maybe.map Color.fromString
+
+
 empty : Property
 empty =
     Dict.empty
@@ -193,6 +200,9 @@ enabledKey s =
         "card_background_color3" ->
             Just CardBackgroundColor3
 
+        "canvas_background_color" ->
+            Just CanvasBackgroundColor
+
         _ ->
             if String.startsWith "release" s then
                 String.dropLeft 7 s |> String.toInt |> Maybe.map (\v -> ReleaseLevel v)
@@ -248,3 +258,6 @@ toKeyString key =
 
         CardBackgroundColor3 ->
             "card_background_color3"
+
+        CanvasBackgroundColor ->
+            "canvas_background_color"

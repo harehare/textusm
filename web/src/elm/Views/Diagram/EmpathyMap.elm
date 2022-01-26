@@ -37,29 +37,29 @@ view model =
                 [ Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.largeItemWidth, itemHeight )
+                    ( Constants.largeItemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( 0, 0 )
                     model.selectedItem
                     says
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.largeItemWidth, itemHeight )
+                    ( Constants.largeItemWidth, itemHeight - Constants.canvasOffset )
                     ( Constants.largeItemWidth - 5, 0 )
                     model.selectedItem
                     thinks
                 , Lazy.lazy6 Views.canvasBottom
                     model.settings
                     model.property
-                    ( Constants.largeItemWidth, itemHeight + 5 )
-                    ( 0, itemHeight - 5 )
+                    ( Constants.largeItemWidth - Constants.canvasOffset, itemHeight + Constants.canvasOffset )
+                    ( 0, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     does
                 , Lazy.lazy6 Views.canvasBottom
                     model.settings
                     model.property
-                    ( Constants.largeItemWidth, itemHeight + 5 )
-                    ( Constants.largeItemWidth - 5, itemHeight - 5 )
+                    ( Constants.largeItemWidth, itemHeight + Constants.canvasOffset )
+                    ( Constants.largeItemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     feels
                 ]

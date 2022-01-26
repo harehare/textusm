@@ -122,6 +122,36 @@ getItemColor settings property item =
             )
 
 
+getCanvasColor : DiagramSettings.Settings -> Property -> Item -> ( Color, Color )
+getCanvasColor settings property item =
+    case
+        ( Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getForegroundColor
+        , Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getBackgroundColor
+        )
+    of
+        ( Just f, Just b ) ->
+            ( f, b )
+
+        ( Just f, Nothing ) ->
+            ( f
+            , Property.getCanvasBackgroundColor property
+                |> Maybe.withDefault Color.transparent
+            )
+
+        ( Nothing, Just b ) ->
+            ( Property.getLineColor property
+                |> Maybe.withDefault (Color.fromString settings.color.line)
+            , b
+            )
+
+        _ ->
+            ( Property.getLineColor property
+                |> Maybe.withDefault (Color.fromString settings.color.line)
+            , Property.getCanvasBackgroundColor property
+                |> Maybe.withDefault Color.transparent
+            )
+
+
 getLineColor : DiagramSettings.Settings -> Item -> Color
 getLineColor settings item =
     Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getBackgroundColor |> Maybe.withDefault (Color.fromString settings.color.line)
@@ -712,12 +742,17 @@ markdown settings colour t =
 
 canvas : DiagramSettings.Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
 canvas settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
+    let
+        colors : ( Color, Color )
+        colors =
+            getCanvasColor settings property item
+    in
     Svg.g
         []
         (case selectedItem of
             Just item_ ->
                 if Item.getLineNo item_ == Item.getLineNo item then
-                    [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
+                    [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
                     , inputView
                         { settings = settings
                         , fontSize =
@@ -745,7 +780,7 @@ canvas settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem ite
                     ]
 
                 else
-                    [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
+                    [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
                     , title settings ( posX + 20, posY + 20 ) item
                     , canvasText
                         { settings = settings
@@ -758,7 +793,7 @@ canvas settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem ite
                     ]
 
             Nothing ->
-                [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
+                [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
                 , title settings ( posX + 20, posY + 20 ) item
                 , canvasText { settings = settings, property = property, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                 ]
@@ -767,12 +802,17 @@ canvas settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem ite
 
 canvasBottom : DiagramSettings.Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
 canvasBottom settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
+    let
+        colors : ( Color, Color )
+        colors =
+            getCanvasColor settings property item
+    in
     Svg.g
         []
         (case selectedItem of
             Just item_ ->
                 if Item.getLineNo item_ == Item.getLineNo item then
-                    [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
+                    [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
                     , inputView
                         { settings = settings
                         , fontSize =
@@ -794,7 +834,7 @@ canvasBottom settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedIt
                     ]
 
                 else
-                    [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
+                    [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
                     , title settings ( posX + 20, posY + svgHeight - 25 ) item
                     , canvasText
                         { settings = settings
@@ -807,7 +847,7 @@ canvasBottom settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedIt
                     ]
 
             Nothing ->
-                [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
+                [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
                 , title settings ( posX + 20, posY + svgHeight - 25 ) item
                 , canvasText
                     { settings = settings
@@ -821,12 +861,13 @@ canvasBottom settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedIt
         )
 
 
-canvasRect : DiagramSettings.Settings -> Property -> Position -> Size -> Svg msg
-canvasRect settings property ( posX, posY ) ( rectWidth, rectHeight ) =
+canvasRect : ( Color, Color ) -> Property -> Position -> Size -> Svg msg
+canvasRect ( foregroundColor, backgroundColor ) property ( posX, posY ) ( rectWidth, rectHeight ) =
     Svg.rect
         [ SvgAttr.width <| String.fromInt rectWidth
         , SvgAttr.height <| String.fromInt rectHeight
-        , SvgAttr.stroke (Property.getLineColor property |> Maybe.map Color.toString |> Maybe.withDefault settings.color.line)
+        , SvgAttr.stroke (Property.getLineColor property |> Maybe.map Color.toString |> Maybe.withDefault (foregroundColor |> Color.toString))
+        , SvgAttr.fill <| Color.toString backgroundColor
         , SvgAttr.strokeWidth (Property.getLineSize property |> Maybe.map String.fromInt |> Maybe.withDefault "10")
         , SvgAttr.x <| String.fromInt posX
         , SvgAttr.y <| String.fromInt posY
@@ -884,9 +925,14 @@ canvasText { settings, property, svgWidth, position, selectedItem, items } =
 
 canvasImage : DiagramSettings.Settings -> Property -> Size -> Position -> Item -> Svg Msg
 canvasImage settings property ( svgWidth, svgHeight ) ( posX, posY ) item =
+    let
+        colors : ( Color, Color )
+        colors =
+            getCanvasColor settings property item
+    in
     Svg.g
         []
-        [ canvasRect settings property ( posX, posY ) ( svgWidth, svgHeight )
+        [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
         , image ( Constants.itemWidth - 5, svgHeight )
             ( posX + 5, posY + 5 )
             (Item.getChildren item

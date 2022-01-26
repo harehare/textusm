@@ -52,63 +52,63 @@ view model =
                 [ Lazy.lazy5 Views.canvasImage
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( 0, 0 )
                     name
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
-                    ( Constants.itemWidth - 5, 0 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( Constants.itemWidth - Constants.canvasOffset, 0 )
                     model.selectedItem
                     whoAmI
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( round (toFloat Constants.itemWidth * 1.5 - 5), itemHeight )
-                    ( round (toFloat Constants.itemWidth * 2) - 10, 0 )
+                    ( round (toFloat Constants.itemWidth * 1.5) - Constants.canvasOffset * 2, itemHeight - Constants.canvasOffset )
+                    ( round (toFloat Constants.itemWidth * 2) - Constants.canvasOffset * 2, 0 )
                     model.selectedItem
                     threeReasonsToUseYourProduct
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( round (toFloat Constants.itemWidth * 1.5), itemHeight )
-                    ( round (toFloat Constants.itemWidth * 3.5) - 20, 0 )
+                    ( round (toFloat Constants.itemWidth * 1.5) - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( round (toFloat Constants.itemWidth * 3.5) - Constants.canvasOffset * 4, 0 )
                     model.selectedItem
                     threeReasonsToBuyYourProduct
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
-                    ( 0, itemHeight - 5 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( 0, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     myInterests
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
-                    ( Constants.itemWidth - 5, itemHeight - 5 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     myPersonality
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
-                    ( Constants.itemWidth * 2 - 10, itemHeight - 5 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( Constants.itemWidth * 2 - Constants.canvasOffset * 2, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     mySkils
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
-                    ( Constants.itemWidth * 3 - 15, itemHeight - 5 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( Constants.itemWidth * 3 - Constants.canvasOffset * 3, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     myDreams
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.itemWidth, itemHeight )
-                    ( Constants.itemWidth * 4 - 20, itemHeight - 5 )
+                    ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( Constants.itemWidth * 4 - Constants.canvasOffset * 4, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     myRelationshipWithTechnology
                 ]

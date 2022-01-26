@@ -37,29 +37,29 @@ view model =
                 [ Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.largeItemWidth, itemHeight )
+                    ( Constants.largeItemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( 0, 0 )
                     model.selectedItem
                     liked
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.largeItemWidth, itemHeight )
-                    ( Constants.largeItemWidth - 5, 0 )
+                    ( Constants.largeItemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
+                    ( Constants.largeItemWidth - Constants.canvasOffset, 0 )
                     model.selectedItem
                     learned
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.largeItemWidth, itemHeight + 5 )
-                    ( 0, itemHeight - 5 )
+                    ( Constants.largeItemWidth - Constants.canvasOffset, itemHeight )
+                    ( 0, itemHeight - Constants.canvasOffset)
                     model.selectedItem
                     lacked
                 , Lazy.lazy6 Views.canvas
                     model.settings
                     model.property
-                    ( Constants.largeItemWidth, itemHeight + 5 )
-                    ( Constants.largeItemWidth - 5, itemHeight - 5 )
+                    ( Constants.largeItemWidth - Constants.canvasOffset, itemHeight )
+                    ( Constants.largeItemWidth - Constants.canvasOffset, itemHeight - 5 )
                     model.selectedItem
                     longedFor
                 ]
