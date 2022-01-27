@@ -25,6 +25,7 @@ import Css
         , rgba
         , solid
         , spaceBetween
+        , top
         , wrap
         , zIndex
         , zero
@@ -125,7 +126,7 @@ view width display props =
         , SvgAttr.x <| String.fromInt <| Position.getX props.position
         , SvgAttr.y <| String.fromInt <| (Position.getY props.position + 8)
         , SvgAttr.width "320"
-        , SvgAttr.height "205"
+        , SvgAttr.height "285"
         ]
         [ Html.div
             [ Attr.style "background-color" (Color.toString Color.white)
@@ -148,11 +149,11 @@ view width display props =
                     ]
                     [ Html.div []
                         [ Icon.font
+                            Color.gray
                             (Item.getForegroundColor props.item
                                 |> Maybe.withDefault (Views.getItemColor props.settings Property.empty props.item |> Tuple.first)
-                                |> Color.toString
                             )
-                            16
+                            18
                         ]
                     ]
 
@@ -271,7 +272,7 @@ view width display props =
                 Empty.view
             , case props.state of
                 ColorSelectMenu ->
-                    colorPicker 0 Color.colors props.onColorChanged
+                    colorPicker 10 Color.colors props.onColorChanged
 
                 BackgroundColorSelectMenu ->
                     colorPicker 10 Color.colors props.onBackgroundColorChanged
@@ -305,12 +306,13 @@ colorPicker x colors onColorChanged =
     Html.div
         [ css
             [ Css.width <| px 140
-            , Css.height <| px 150
+            , Css.height <| px 200
             , backgroundColor <| hex <| Color.toString Color.white
             , Style.shadowSm
             , borderRadius <| px 2
             , position absolute
             , bottom zero
+            , top <| px 50
             , left <| px <| toFloat x
             , zIndex <| int 100
             , displayFlex

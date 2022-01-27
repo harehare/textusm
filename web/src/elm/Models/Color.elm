@@ -13,6 +13,7 @@ module Models.Color exposing
     , fromString
     , gray
     , green
+    , green2
     , iconColor
     , labelDefalut
     , lightGray
@@ -24,6 +25,7 @@ module Models.Color exposing
     , orange
     , pink
     , purple
+    , purple2
     , red
     , teal
     , textDefalut
@@ -32,6 +34,7 @@ module Models.Color exposing
     , white
     , white2
     , yellow
+    , yellow2
     )
 
 import Json.Decode as D
@@ -80,9 +83,19 @@ yellow =
     Color "Yellow" "#FFF9B2"
 
 
+yellow2 : Color
+yellow2 =
+    Color "Yellow2" "#F9D188"
+
+
 green : Color
 green =
     Color "Green" "#D3F8E2"
+
+
+green2 : Color
+green2 =
+    Color "Green2" "#258F9B"
 
 
 blue : Color
@@ -108,6 +121,11 @@ red =
 purple : Color
 purple =
     Color "Purple" "#CD89F7"
+
+
+purple2 : Color
+purple2 =
+    Color "Purple2" "#7C48A5"
 
 
 navy : Color
@@ -207,6 +225,10 @@ colors =
     , teal
     , olive
     , lime
+    , green2
+    , transparent
+    , purple2
+    , yellow2
     ]
 
 
@@ -240,6 +262,9 @@ fromString rgb =
 
         "#D3F8E2" ->
             green
+
+        "#258F9B" ->
+            green2
 
         "#CEE5F2" ->
             blue
@@ -282,6 +307,12 @@ fromString rgb =
 
         "#323D46" ->
             backgroundDarkDefalut
+
+        "#7C48A5" ->
+            purple2
+
+        "#F9D188" ->
+            yellow2
 
         "transparent" ->
             transparent

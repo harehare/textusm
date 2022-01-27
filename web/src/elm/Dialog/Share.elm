@@ -692,7 +692,7 @@ copyButton copy msg =
         ]
         [ case copy of
             NotCopy ->
-                Icon.copy (Color.toString Color.white) 16
+                Icon.copy Color.white 16
 
             Copying ->
                 Spinner.small
@@ -915,6 +915,6 @@ view model =
                 [ css [ position absolute, cursor pointer, top <| rem 1, right <| rem 1 ]
                 , onClick Close
                 ]
-                [ Icon.times (Color.toString Color.white) 24 ]
+                [ Icon.times Color.white 24 ]
             ]
         ]

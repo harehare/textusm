@@ -147,7 +147,7 @@ view props =
             [ Html.div
                 [ css [ Style.mlXs, menuButtonStyle ]
                 ]
-                [ Icon.file (Color.toString Color.iconColor) 18
+                [ Icon.file Color.iconColor 18
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipNewFile props.lang ] ]
                 ]
             ]
@@ -217,10 +217,10 @@ view props =
             [ Html.a [ Attr.href <| Route.toString Route.Settings, Attr.attribute "aria-label" "Settings" ]
                 [ Icon.settings
                     (if isNothing props.openMenu && props.page == Page.Settings then
-                        Color.toString Color.iconColor
+                        Color.iconColor
 
                      else
-                        Color.toString Color.disabledIconColor
+                        Color.disabledIconColor
                     )
                     20
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSettings props.lang ] ]

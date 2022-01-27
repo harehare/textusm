@@ -356,7 +356,7 @@ sideMenu session diagramList isOnline =
                     css [ itemStyle ]
                 , onClick <| GetPublicDiagrams 1
                 ]
-                [ Icon.globe (Color.toString Color.iconColor) 16, Html.div [ css [ Style.paddingSm ] ] [ Html.text "Public" ] ]
+                [ Icon.globe Color.iconColor 16, Html.div [ css [ Style.paddingSm ] ] [ Html.text "Public" ] ]
 
           else
             Empty.view
@@ -564,12 +564,12 @@ diagramListView props =
                 [ css [ Style.button, marginLeft <| px 8 ]
                 , onClick Export
                 ]
-                [ Icon.cloudDownload (Color.toString Color.white) 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ] ]
+                [ Icon.cloudDownload Color.white 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ] ]
             , Html.div
                 [ css [ Style.button ]
                 , onClick Import
                 ]
-                [ Icon.cloudUpload (Color.toString Color.white) 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipImport props.lang ] ] ]
+                [ Icon.cloudUpload Color.white 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipImport props.lang ] ] ]
             ]
         , Html.div [ css [ overflowY auto, height <| calc (vh 100) minus (px 148) ] ]
             [ Html.div
