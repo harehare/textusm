@@ -741,25 +741,64 @@ markdown settings colour t =
 
 
 canvas : DiagramSettings.Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
-canvas settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
+canvas settings property svgSize position selectedItem item =
     let
         colors : ( Color, Color )
         colors =
             getCanvasColor settings property item
+
+        ( offsetWidth, offsetHeight ) =
+            Item.getOffsetSize item
+
+        ( offsetX, offsetY ) =
+            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
+
+        ( posX, posY ) =
+            if ( offsetX, offsetY ) == Position.zero then
+                position
+
+            else
+                position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+
+        ( svgWidth, svgHeight ) =
+            svgSize |> Tuple.mapBoth (\w -> w + offsetWidth) (\h -> h + offsetHeight)
     in
-    Svg.g
-        []
-        (case selectedItem of
-            Just item_ ->
-                if Item.getLineNo item_ == Item.getLineNo item then
-                    [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
+    case selectedItem of
+        Just item_ ->
+            if Item.getLineNo item_ == Item.getLineNo item then
+                let
+                    selectedItemOffsetPosition : Position
+                    selectedItemOffsetPosition =
+                        Item.getOffset item_
+
+                    selectedItemPosition : Position
+                    selectedItemPosition =
+                        position
+                            |> Tuple.mapBoth
+                                (\x -> x + Position.getX selectedItemOffsetPosition)
+                                (\y -> y + Position.getY selectedItemOffsetPosition)
+
+                    selectedItemOffsetSize : Size
+                    selectedItemOffsetSize =
+                        Item.getOffsetSize item_
+
+                    selectedItemSize : Size
+                    selectedItemSize =
+                        svgSize
+                            |> Tuple.mapBoth
+                                (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
+                                (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
+                in
+                Svg.g
+                    [ Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
+                    [ canvasRect colors property selectedItemPosition selectedItemSize
                     , inputView
                         { settings = settings
                         , fontSize =
                             Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
                                 |> Maybe.withDefault FontSize.lg
-                        , position = ( posX, posY )
-                        , size = ( svgWidth, settings.size.height )
+                        , position = selectedItemPosition
+                        , size = ( Size.getWidth selectedItemSize, settings.size.height )
                         , color =
                             Item.getItemSettings item
                                 |> Maybe.withDefault ItemSettings.new
@@ -772,14 +811,19 @@ canvas settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem ite
                     , canvasText
                         { settings = settings
                         , property = property
-                        , svgWidth = svgWidth
-                        , position = ( posX, posY )
+                        , svgWidth = Size.getWidth selectedItemSize
+                        , position = selectedItemPosition
                         , selectedItem = selectedItem
                         , items = Item.unwrapChildren <| Item.getChildren item
                         }
+                    , resizeRect item TopLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
+                    , resizeRect item TopRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition )
+                    , resizeRect item BottomRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
+                    , resizeRect item BottomLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
                     ]
 
-                else
+            else
+                Svg.g []
                     [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
                     , title settings ( posX + 20, posY + 20 ) item
                     , canvasText
@@ -792,48 +836,93 @@ canvas settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem ite
                         }
                     ]
 
-            Nothing ->
+        Nothing ->
+            Svg.g
+                []
                 [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
                 , title settings ( posX + 20, posY + 20 ) item
                 , canvasText { settings = settings, property = property, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
                 ]
-        )
 
 
 canvasBottom : DiagramSettings.Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
-canvasBottom settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedItem item =
+canvasBottom settings property svgSize position selectedItem item =
     let
         colors : ( Color, Color )
         colors =
             getCanvasColor settings property item
+
+        ( offsetWidth, offsetHeight ) =
+            Item.getOffsetSize item
+
+        ( offsetX, offsetY ) =
+            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
+
+        ( posX, posY ) =
+            if ( offsetX, offsetY ) == Position.zero then
+                position
+
+            else
+                position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+
+        ( svgWidth, svgHeight ) =
+            svgSize |> Tuple.mapBoth (\w -> w + offsetWidth) (\h -> h + offsetHeight)
     in
-    Svg.g
-        []
-        (case selectedItem of
-            Just item_ ->
-                if Item.getLineNo item_ == Item.getLineNo item then
-                    [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
+    case selectedItem of
+        Just item_ ->
+            if Item.getLineNo item_ == Item.getLineNo item then
+                let
+                    selectedItemOffsetPosition : Position
+                    selectedItemOffsetPosition =
+                        Item.getOffset item_
+
+                    selectedItemPosition : Position
+                    selectedItemPosition =
+                        position
+                            |> Tuple.mapBoth
+                                (\x -> x + Position.getX selectedItemOffsetPosition)
+                                (\y -> y + Position.getY selectedItemOffsetPosition)
+
+                    selectedItemOffsetSize : Size
+                    selectedItemOffsetSize =
+                        Item.getOffsetSize item_
+
+                    selectedItemSize : Size
+                    selectedItemSize =
+                        svgSize
+                            |> Tuple.mapBoth
+                                (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
+                                (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
+                in
+                Svg.g
+                    [ Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
+                    [ canvasRect colors property selectedItemPosition selectedItemSize
                     , inputView
                         { settings = settings
                         , fontSize =
                             Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
                                 |> Maybe.withDefault FontSize.lg
-                        , position = ( posX, posY )
-                        , size = ( svgWidth, settings.size.height )
+                        , position = selectedItemPosition
+                        , size = ( Size.getWidth selectedItemSize, settings.size.height )
                         , color = Color.fromString settings.color.label
                         , item = item_
                         }
                     , canvasText
                         { settings = settings
                         , property = property
-                        , svgWidth = svgWidth
-                        , position = ( posX, posY )
+                        , svgWidth = Size.getWidth selectedItemSize
+                        , position = selectedItemPosition
                         , selectedItem = selectedItem
                         , items = Item.unwrapChildren <| Item.getChildren item
                         }
+                    , resizeRect item TopLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
+                    , resizeRect item TopRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition )
+                    , resizeRect item BottomRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
+                    , resizeRect item BottomLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
                     ]
 
-                else
+            else
+                Svg.g []
                     [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
                     , title settings ( posX + 20, posY + svgHeight - 25 ) item
                     , canvasText
@@ -846,7 +935,8 @@ canvasBottom settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedIt
                         }
                     ]
 
-            Nothing ->
+        Nothing ->
+            Svg.g []
                 [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
                 , title settings ( posX + 20, posY + svgHeight - 25 ) item
                 , canvasText
@@ -858,7 +948,6 @@ canvasBottom settings property ( svgWidth, svgHeight ) ( posX, posY ) selectedIt
                     , items = Item.unwrapChildren <| Item.getChildren item
                     }
                 ]
-        )
 
 
 canvasRect : ( Color, Color ) -> Property -> Position -> Size -> Svg msg
