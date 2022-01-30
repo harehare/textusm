@@ -278,10 +278,10 @@ card { settings, property, position, selectedItem, item, canMove } =
                         , SvgAttr.style "filter:url(#shadow)"
                         ]
                         []
-                    , resizeRect item TopLeft ( x_ - 8, y_ - 8 )
-                    , resizeRect item TopRight ( x_ + Size.getWidth selectedItemSize + 8, y_ - 8 )
-                    , resizeRect item BottomRight ( x_ + Size.getWidth selectedItemSize + 8, y_ + Size.getHeight selectedItemSize + 8 )
-                    , resizeRect item BottomLeft ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 )
+                    , resizeCircle item TopLeft ( x_ - 8, y_ - 8 )
+                    , resizeCircle item TopRight ( x_ + Size.getWidth selectedItemSize + 8, y_ - 8 )
+                    , resizeCircle item BottomRight ( x_ + Size.getWidth selectedItemSize + 8, y_ + Size.getHeight selectedItemSize + 8 )
+                    , resizeCircle item BottomLeft ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 )
                     , inputView
                         { settings = settings
                         , fontSize = Item.getFontSize item
@@ -461,8 +461,8 @@ horizontalLine { settings, position, selectedItem, item } =
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
-                    , resizeRect item Left ( x_ - 8, y_ )
-                    , resizeRect item Right ( x_ + Size.getWidth selectedItemSize + 8, y_ )
+                    , resizeCircle item Left ( x_ - 8, y_ )
+                    , resizeCircle item Right ( x_ + Size.getWidth selectedItemSize + 8, y_ )
                     ]
 
             else
@@ -574,8 +574,8 @@ verticalLine { settings, position, selectedItem, item } =
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
-                    , resizeRect item Top ( x_, y_ - 8 )
-                    , resizeRect item Bottom ( x_, y_ + Size.getHeight selectedItemSize + 8 )
+                    , resizeCircle item Top ( x_, y_ - 8 )
+                    , resizeCircle item Bottom ( x_, y_ + Size.getHeight selectedItemSize + 8 )
                     ]
 
             else
@@ -585,12 +585,22 @@ verticalLine { settings, position, selectedItem, item } =
             view_
 
 
-resizeRect : Item -> ResizeDirection -> Position -> Svg Msg
-resizeRect item direction ( x, y ) =
+resizeCircle : Item -> ResizeDirection -> Position -> Svg Msg
+resizeCircle item direction ( x, y ) =
+    resizeCircleBase 5 item direction ( x, y )
+
+
+resizeCircleForCanvas : Item -> ResizeDirection -> Position -> Svg Msg
+resizeCircleForCanvas item direction ( x, y ) =
+    resizeCircleBase 8 item direction ( x, y )
+
+
+resizeCircleBase : Int -> Item -> ResizeDirection -> Position -> Svg Msg
+resizeCircleBase size item direction ( x, y ) =
     Svg.circle
         [ SvgAttr.cx <| String.fromInt x
         , SvgAttr.cy <| String.fromInt y
-        , SvgAttr.r "5"
+        , SvgAttr.r <| String.fromInt size
         , SvgAttr.style <|
             case direction of
                 TopLeft ->
@@ -742,6 +752,16 @@ markdown settings colour t =
 
 canvas : DiagramSettings.Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
 canvas settings property svgSize position selectedItem item =
+    canvasBase settings property False svgSize position selectedItem item
+
+
+canvasBottom : DiagramSettings.Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
+canvasBottom settings property svgSize position selectedItem item =
+    canvasBase settings property True svgSize position selectedItem item
+
+
+canvasBase : DiagramSettings.Settings -> Property -> Bool -> Size -> Position -> SelectedItem -> Item -> Svg Msg
+canvasBase settings property isTitleBottom svgSize position selectedItem item =
     let
         colors : ( Color, Color )
         colors =
@@ -797,7 +817,19 @@ canvas settings property svgSize position selectedItem item =
                         , fontSize =
                             Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
                                 |> Maybe.withDefault FontSize.lg
-                        , position = selectedItemPosition
+                        , position =
+                            selectedItemPosition
+                                |> Tuple.mapBoth
+                                    (\x -> x + 14)
+                                    (\y ->
+                                        y
+                                            + (if isTitleBottom then
+                                                svgHeight - 38
+
+                                               else
+                                                4
+                                              )
+                                    )
                         , size = ( Size.getWidth selectedItemSize, settings.size.height )
                         , color =
                             Item.getItemSettings item
@@ -816,16 +848,26 @@ canvas settings property svgSize position selectedItem item =
                         , selectedItem = selectedItem
                         , items = Item.unwrapChildren <| Item.getChildren item
                         }
-                    , resizeRect item TopLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
-                    , resizeRect item TopRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition )
-                    , resizeRect item BottomRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
-                    , resizeRect item BottomLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
+                    , resizeCircleForCanvas item TopLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
+                    , resizeCircleForCanvas item TopRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition )
+                    , resizeCircleForCanvas item BottomRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
+                    , resizeCircleForCanvas item BottomLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
                     ]
 
             else
                 Svg.g []
                     [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
-                    , title settings ( posX + 20, posY + 20 ) item
+                    , title settings
+                        ( posX + 20
+                        , posY
+                            + (if isTitleBottom then
+                                svgHeight - 20
+
+                               else
+                                20
+                              )
+                        )
+                        item
                     , canvasText
                         { settings = settings
                         , property = property
@@ -838,115 +880,20 @@ canvas settings property svgSize position selectedItem item =
 
         Nothing ->
             Svg.g
-                []
+                [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
                 [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
-                , title settings ( posX + 20, posY + 20 ) item
+                , title settings
+                    ( posX + 20
+                    , posY
+                        + (if isTitleBottom then
+                            svgHeight - 20
+
+                           else
+                            20
+                          )
+                    )
+                    item
                 , canvasText { settings = settings, property = property, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
-                ]
-
-
-canvasBottom : DiagramSettings.Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
-canvasBottom settings property svgSize position selectedItem item =
-    let
-        colors : ( Color, Color )
-        colors =
-            getCanvasColor settings property item
-
-        ( offsetWidth, offsetHeight ) =
-            Item.getOffsetSize item
-
-        ( offsetX, offsetY ) =
-            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
-
-        ( posX, posY ) =
-            if ( offsetX, offsetY ) == Position.zero then
-                position
-
-            else
-                position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
-
-        ( svgWidth, svgHeight ) =
-            svgSize |> Tuple.mapBoth (\w -> w + offsetWidth) (\h -> h + offsetHeight)
-    in
-    case selectedItem of
-        Just item_ ->
-            if Item.getLineNo item_ == Item.getLineNo item then
-                let
-                    selectedItemOffsetPosition : Position
-                    selectedItemOffsetPosition =
-                        Item.getOffset item_
-
-                    selectedItemPosition : Position
-                    selectedItemPosition =
-                        position
-                            |> Tuple.mapBoth
-                                (\x -> x + Position.getX selectedItemOffsetPosition)
-                                (\y -> y + Position.getY selectedItemOffsetPosition)
-
-                    selectedItemOffsetSize : Size
-                    selectedItemOffsetSize =
-                        Item.getOffsetSize item_
-
-                    selectedItemSize : Size
-                    selectedItemSize =
-                        svgSize
-                            |> Tuple.mapBoth
-                                (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
-                                (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
-                in
-                Svg.g
-                    [ Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
-                    [ canvasRect colors property selectedItemPosition selectedItemSize
-                    , inputView
-                        { settings = settings
-                        , fontSize =
-                            Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
-                                |> Maybe.withDefault FontSize.lg
-                        , position = selectedItemPosition
-                        , size = ( Size.getWidth selectedItemSize, settings.size.height )
-                        , color = Color.fromString settings.color.label
-                        , item = item_
-                        }
-                    , canvasText
-                        { settings = settings
-                        , property = property
-                        , svgWidth = Size.getWidth selectedItemSize
-                        , position = selectedItemPosition
-                        , selectedItem = selectedItem
-                        , items = Item.unwrapChildren <| Item.getChildren item
-                        }
-                    , resizeRect item TopLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
-                    , resizeRect item TopRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition )
-                    , resizeRect item BottomRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
-                    , resizeRect item BottomLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
-                    ]
-
-            else
-                Svg.g []
-                    [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
-                    , title settings ( posX + 20, posY + svgHeight - 25 ) item
-                    , canvasText
-                        { settings = settings
-                        , property = property
-                        , svgWidth = svgWidth
-                        , position = ( posX, posY )
-                        , selectedItem = selectedItem
-                        , items = Item.unwrapChildren <| Item.getChildren item
-                        }
-                    ]
-
-        Nothing ->
-            Svg.g []
-                [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
-                , title settings ( posX + 20, posY + svgHeight - 25 ) item
-                , canvasText
-                    { settings = settings
-                    , property = property
-                    , svgWidth = svgWidth
-                    , position = ( posX, posY )
-                    , selectedItem = selectedItem
-                    , items = Item.unwrapChildren <| Item.getChildren item
-                    }
                 ]
 
 
