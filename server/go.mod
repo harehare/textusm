@@ -15,7 +15,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.2.0
 	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
 	google.golang.org/api v0.65.0
-	google.golang.org/grpc v1.43.0
+	google.golang.org/grpc v1.44.0
 )
 
 require (
