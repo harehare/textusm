@@ -12,7 +12,7 @@ require (
 	github.com/rs/zerolog v1.26.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.7.0
-	github.com/vektah/gqlparser/v2 v2.2.0
+	github.com/vektah/gqlparser/v2 v2.3.1
 	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
 	google.golang.org/api v0.65.0
 	google.golang.org/grpc v1.43.0
