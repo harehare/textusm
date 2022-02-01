@@ -1,10 +1,12 @@
 module Views.Diagram.FreeForm exposing (view)
 
+import Constants
 import Models.Diagram as Diagram exposing (Model, MoveState, Msg)
 import Models.Diagram.FreeForm as FreeForm exposing (FreeFormItem)
 import Models.DiagramData as DiagramData
 import Models.Item as Item exposing (Item)
 import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
@@ -36,6 +38,10 @@ moveingItem state =
 
         _ ->
             Nothing
+
+
+
+-- TODO: reversive
 
 
 formView : Model -> Int -> FreeFormItem -> Svg Msg
@@ -108,3 +114,12 @@ formView model i item =
                         |> Maybe.withDefault item_
                 , canMove = True
                 }
+
+        FreeForm.Canvas item_ ->
+            Lazy.lazy6 Views.canvas
+                model.settings
+                model.property
+                ( Constants.itemWidth, Constants.itemHeight )
+                ( 0, 0 )
+                model.selectedItem
+                item_

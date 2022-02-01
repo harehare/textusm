@@ -26,6 +26,7 @@ type FreeFormItem
     = Card Item
     | HorizontalLine Item
     | VerticalLine Item
+    | Canvas Item
 
 
 getItems : FreeForm -> FreeFormItems
@@ -33,23 +34,39 @@ getItems (FreeForm items) =
     items
 
 
-itemToFreeFormItem : Item -> FreeFormItem
+itemToFreeFormItem : Item -> FreeFormItems
 itemToFreeFormItem item =
     if Item.isHorizontalLine item then
-        HorizontalLine item
+        Item.cons
+            (item |> Item.withChildren Item.emptyChildren)
+            (Item.getChildren item |> Item.unwrapChildren)
+            |> Item.flatten
+            |> Item.map HorizontalLine
 
     else if Item.isVerticalLine item then
-        VerticalLine item
+        Item.cons
+            (item |> Item.withChildren Item.emptyChildren)
+            (Item.getChildren item |> Item.unwrapChildren)
+            |> Item.flatten
+            |> Item.map VerticalLine
+
+    else if Item.isCanvas item then
+        [ Canvas item ]
 
     else
-        Card item
+        Item.cons
+            (item |> Item.withChildren Item.emptyChildren)
+            (Item.getChildren item |> Item.unwrapChildren)
+            |> Item.flatten
+            |> Item.map Card
 
 
 from : Items -> FreeForm
 from items =
     FreeForm
-        (Item.flatten items
+        (items
             |> Item.map itemToFreeFormItem
+            |> List.concat
         )
 
 
@@ -68,6 +85,9 @@ unwrapItem item =
             item_
 
         VerticalLine item_ ->
+            item_
+
+        Canvas item_ ->
             item_
 
 

@@ -31,6 +31,7 @@ module Models.Item exposing
     , getText
     , head
     , indexedMap
+    , isCanvas
     , isEmpty
     , isHorizontalLine
     , isImage
@@ -327,6 +328,11 @@ isMarkdown item =
 isHorizontalLine : Item -> Bool
 isHorizontalLine item =
     getText item |> String.trim |> String.toLower |> String.startsWith "---"
+
+
+isCanvas : Item -> Bool
+isCanvas item =
+    getComments item |> Maybe.map (\comments -> String.replace " " "" comments == "#canvas") |> Maybe.withDefault False
 
 
 isVerticalLine : Item -> Bool
