@@ -92,28 +92,60 @@ formView model i item =
                 }
 
         FreeForm.Card item_ ->
-            Views.card
-                { settings = model.settings
-                , property = model.property
-                , position =
-                    ( 16 + modBy 4 i * (model.settings.size.width + 16)
-                    , (i // 4) * (model.settings.size.height + 16)
-                    )
-                , selectedItem = model.selectedItem
-                , item =
-                    model.moveState
-                        |> moveingItem
-                        |> Maybe.map
-                            (\v ->
-                                if Item.getLineNo v == Item.getLineNo item_ then
-                                    v
+            Svg.g [] <|
+                Views.card
+                    { settings = model.settings
+                    , property = model.property
+                    , position =
+                        ( 16 + modBy 4 i * (model.settings.size.width + 16)
+                        , (i // 4) * (model.settings.size.height + 16)
+                        )
+                    , selectedItem = model.selectedItem
+                    , item =
+                        model.moveState
+                            |> moveingItem
+                            |> Maybe.map
+                                (\v ->
+                                    if Item.getLineNo v == Item.getLineNo item_ then
+                                        v
 
-                                else
-                                    item_
+                                    else
+                                        item_
+                                )
+                            |> Maybe.withDefault item_
+                    , canMove = True
+                    }
+                    :: (Item.indexedMap
+                            (\i_ childItem ->
+                                Views.card
+                                    { settings = model.settings
+                                    , property = model.property
+                                    , position =
+                                        ( 16 + modBy 4 i * (model.settings.size.width + 16)
+                                        , (i + i_ + 1) * (model.settings.size.height + 16)
+                                        )
+                                    , selectedItem = model.selectedItem
+                                    , item =
+                                        model.moveState
+                                            |> moveingItem
+                                            |> Maybe.map
+                                                (\v ->
+                                                    if Item.getLineNo v == Item.getLineNo childItem then
+                                                        v
+
+                                                    else
+                                                        childItem
+                                                )
+                                            |> Maybe.withDefault childItem
+                                    , canMove = True
+                                    }
                             )
-                        |> Maybe.withDefault item_
-                , canMove = True
-                }
+                        <|
+                            (item_
+                                |> Item.getChildren
+                                |> Item.unwrapChildren
+                            )
+                       )
 
         FreeForm.Canvas item_ ->
             Lazy.lazy6 Views.canvas

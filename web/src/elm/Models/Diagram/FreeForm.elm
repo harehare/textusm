@@ -37,28 +37,26 @@ getItems (FreeForm items) =
 itemToFreeFormItem : Item -> FreeFormItems
 itemToFreeFormItem item =
     if Item.isHorizontalLine item then
-        Item.cons
-            (item |> Item.withChildren Item.emptyChildren)
-            (Item.getChildren item |> Item.unwrapChildren)
-            |> Item.flatten
-            |> Item.map HorizontalLine
+        [ HorizontalLine item ]
 
     else if Item.isVerticalLine item then
-        Item.cons
-            (item |> Item.withChildren Item.emptyChildren)
-            (Item.getChildren item |> Item.unwrapChildren)
-            |> Item.flatten
-            |> Item.map VerticalLine
+        [ VerticalLine item ]
 
     else if Item.isCanvas item then
         [ Canvas item ]
 
     else
-        Item.cons
-            (item |> Item.withChildren Item.emptyChildren)
-            (Item.getChildren item |> Item.unwrapChildren)
-            |> Item.flatten
-            |> Item.map Card
+        [ Card <|
+            Item.withChildren
+                (Item.getChildren item
+                    |> Item.unwrapChildren
+                    |> Item.flatten
+                    |> Item.map (\childItem -> Item.withItemSettings (Item.getItemSettings item) childItem)
+                    |> Item.fromList
+                    |> Item.childrenFromItems
+                )
+                item
+        ]
 
 
 from : Items -> FreeForm
