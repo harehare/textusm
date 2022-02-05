@@ -18,11 +18,17 @@ export const initDownload = (app: ElmApp): void => {
         }
 
         // @ts-expect-error
-        const svgoImport = await import('svgo/dist/svgo.browser.js').catch(() =>
+        const svgoImport = await import('svgo/dist/svgo.browser.js').catch(
+            () => null
+        );
+
+        if (!svgoImport) {
             app.ports.sendErrorNotification.send(
                 'Failed to load chunks. Please reload.'
-            )
-        );
+            );
+            return '';
+        }
+
         const svgo = svgoImport.default;
         const optimizedSvg = await svgo.optimize(
             new XMLSerializer().serializeToString(svg),
