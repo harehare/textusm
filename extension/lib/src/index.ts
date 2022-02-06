@@ -120,7 +120,6 @@ function render(
   config.color = { ...defaultConfig.color, ...config.color };
   config.size = { ...defaultConfig.size, ...config.size };
 
-  console.log({ ...defaultConfig, ...config });
   Elm.Extension.Lib.init({
     node: elm,
     flags: {

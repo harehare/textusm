@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as puppeteer from "puppeteer";
 import { html, DiagramType, Settings } from "./html";
-import { optimize, extendDefaultPlugins } from "svgo";
+import { optimize } from "svgo";
 
 type DiagramSettings = {
   width: number;
@@ -285,38 +285,44 @@ const writeResult = (output: string | null, result: string): void => {
       const svg = await page.$eval("#usm", (items) => {
         return items.outerHTML;
       });
-      writeResult(
-        output,
-        optimize(
-          svg
-            .replace("<div></div>", "")
-            .replace(
-              "<svg",
-              '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
-            )
-            .split("<div")
-            .join('<div xmlns="http://www.w3.org/1999/xhtml"')
-            .split("<img")
-            .join('<img xmlns="http://www.w3.org/1999/xhtml"'),
-          {
-            plugins: [
-              {
-                name: "preset-default",
-                params: {
-                  overrides: {
-                    convertShapeToPath: {
-                      convertArcs: true,
-                    },
-                    convertPathData: false,
+      const optimizedSvg = optimize(
+        svg
+          .replace("<div></div>", "")
+          .replace(
+            "<svg",
+            '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+          )
+          .split("<div")
+          .join('<div xmlns="http://www.w3.org/1999/xhtml"')
+          .split("<img")
+          .join('<img xmlns="http://www.w3.org/1999/xhtml"'),
+        {
+          plugins: [
+            {
+              name: "preset-default",
+              params: {
+                overrides: {
+                  convertShapeToPath: {
+                    convertArcs: true,
                   },
+                  convertPathData: false,
                 },
               },
-            ],
-          }
-        )
-          .data.split("&quot;")
-          .join("'")
+            },
+          ],
+        }
       );
+
+      if (
+        optimizedSvg.error !== undefined &&
+        optimizedSvg.modernError !== undefined
+      ) {
+        console.error("Failed to optimize svg");
+        return;
+      }
+
+      // @ts-ignore
+      writeResult(output, optimizedSvg.data.split("&quot;").join("'"));
     } else if (output.endsWith(".png")) {
       const clip = await page.$eval("#usm", (svg) => {
         const rect = svg.getBoundingClientRect();

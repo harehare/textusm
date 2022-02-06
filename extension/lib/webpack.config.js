@@ -1,6 +1,5 @@
 const { merge } = require("webpack-merge");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
 
 const common = {
   entry: {
@@ -35,19 +34,6 @@ if (process.env.NODE_ENV === "production") {
         dry: false,
       }),
     ],
-    optimization: {
-      minimizer: [
-        new TerserPlugin({
-          test: /\.(js|ts)$/i,
-          parallel: true,
-          terserOptions: {
-            compress: {
-              drop_console: true,
-            },
-          },
-        }),
-      ],
-    },
   });
 } else {
   module.exports = common;
