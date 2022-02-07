@@ -621,6 +621,13 @@ update message =
                         }
                         (cmd_ |> Cmd.map UpdateSettings)
                 )
+                >> (case msg of
+                        Settings.UpdateSettings _ _ ->
+                            Return.andThen Action.saveSettings
+
+                        _ ->
+                            Return.zero
+                   )
 
         UpdateDiagram msg ->
             Return.andThen
@@ -1243,7 +1250,6 @@ update message =
 
         MoveTo route ->
             Return.andThen Action.unchanged
-                >> Return.andThen Action.saveSettings
                 >> Return.andThen Action.closeDialog
                 >> Return.andThen (Action.moveTo route)
 
