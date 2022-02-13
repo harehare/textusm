@@ -27,6 +27,7 @@ type FreeFormItem
     | HorizontalLine Item
     | VerticalLine Item
     | Canvas Item
+    | Text Item
 
 
 getItems : FreeForm -> FreeFormItems
@@ -44,6 +45,9 @@ itemToFreeFormItem item =
 
     else if Item.isCanvas item then
         [ Canvas item ]
+
+    else if Item.isText item then
+        [ Text item ]
 
     else
         [ Card <|
@@ -86,6 +90,9 @@ unwrapItem item =
             item_
 
         Canvas item_ ->
+            item_
+
+        Text item_ ->
             item_
 
 

@@ -16,10 +16,11 @@ view model =
     case model.data of
         DiagramData.FreeForm f ->
             Svg.g []
-                (List.indexedMap
-                    (formView model)
-                    (FreeForm.getItems f)
-                )
+                [ Svg.g [] <|
+                    List.indexedMap
+                        (formView model)
+                        (FreeForm.getItems f)
+                ]
 
         _ ->
             Empty.view
@@ -38,10 +39,6 @@ moveingItem state =
 
         _ ->
             Nothing
-
-
-
--- TODO: reversive
 
 
 formView : Model -> Int -> FreeFormItem -> Svg Msg
@@ -155,3 +152,27 @@ formView model i item =
                 ( 0, 0 )
                 model.selectedItem
                 item_
+
+        FreeForm.Text item_ ->
+            Views.text
+                { settings = model.settings
+                , property = model.property
+                , position =
+                    ( 16 + modBy 4 i * (model.settings.size.width + 16)
+                    , (i // 4) * (model.settings.size.height + 16)
+                    )
+                , selectedItem = model.selectedItem
+                , item =
+                    model.moveState
+                        |> moveingItem
+                        |> Maybe.map
+                            (\v ->
+                                if Item.getLineNo v == Item.getLineNo item_ then
+                                    v
+
+                                else
+                                    item_
+                            )
+                        |> Maybe.withDefault item_
+                , canMove = True
+                }

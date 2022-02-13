@@ -10,6 +10,7 @@
     { "count": 1, "filePath": "src/elm/Models/Diagram/SequenceDiagram.elm" },
     { "count": 1, "filePath": "src/elm/Models/Diagram/UserStoryMap.elm" },
     { "count": 1, "filePath": "src/elm/Page/List.elm" },
-    { "count": 1, "filePath": "src/elm/Views/Diagram/ER.elm" }
+    { "count": 1, "filePath": "src/elm/Views/Diagram/ER.elm" },
+    { "count": 1, "filePath": "src/elm/Views/Diagram/FreeForm.elm" }
   ]
 }

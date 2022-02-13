@@ -107,6 +107,7 @@ type Msg
     | FontSizeChanged FontSize
     | ToggleDropDownList String
     | ToggleMiniMap
+    | ToolbarClick Item
 
 
 type alias Model =

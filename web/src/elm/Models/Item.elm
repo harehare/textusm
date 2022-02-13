@@ -36,6 +36,7 @@ module Models.Item exposing
     , isHorizontalLine
     , isImage
     , isMarkdown
+    , isText
     , isVerticalLine
     , length
     , map
@@ -333,6 +334,11 @@ isHorizontalLine item =
 isCanvas : Item -> Bool
 isCanvas item =
     getComments item |> Maybe.map (\comments -> String.replace " " "" comments == "#canvas") |> Maybe.withDefault False
+
+
+isText : Item -> Bool
+isText item =
+    getComments item |> Maybe.map (\comments -> String.replace " " "" comments == "#text") |> Maybe.withDefault False
 
 
 isVerticalLine : Item -> Bool

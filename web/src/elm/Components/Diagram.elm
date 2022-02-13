@@ -99,6 +99,7 @@ import Views.Diagram.SequenceDiagram as SequenceDiagram
 import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.Table as Table
+import Views.Diagram.Toolbar as Toolbar
 import Views.Diagram.UseCaseDiagram as UseCaseDiagram
 import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
@@ -149,7 +150,7 @@ zoomControl isFullscreen scale =
             , alignItems center
             , displayFlex
             , justifyContent spaceBetween
-            , top <| px 5
+            , top <| px 16
             , right <| px 16
             , width <| px 240
             , backgroundColor <| hex <| Color.toString Color.white2
@@ -316,6 +317,12 @@ view model =
                     ]
                 ]
             ]
+        , case model.diagramType of
+            Freeform ->
+                Lazy.lazy Toolbar.viewForFreeForm ToolbarClick
+
+            _ ->
+                Empty.view
         , if Property.getZoomControl model.property |> Maybe.withDefault (model.settings.zoomControl |> Maybe.withDefault model.showZoomControl) then
             Lazy.lazy2 zoomControl model.fullscreen model.svg.scale
 
@@ -1324,3 +1331,6 @@ update message =
 
         ToggleMiniMap ->
             Return.andThen <| \m -> Return.singleton { m | showMiniMap = not m.showMiniMap }
+
+        ToolbarClick item ->
+            Return.andThen <| \m -> setText (Text.addLine m.text (Item.toLineString item) |> Text.toString) m

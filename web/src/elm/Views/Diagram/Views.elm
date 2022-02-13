@@ -9,6 +9,7 @@ module Views.Diagram.Views exposing
     , node
     , plainText
     , rootTextNode
+    , text
     , verticalLine
     )
 
@@ -211,7 +212,7 @@ card { settings, property, position, selectedItem, item, canMove } =
                     , SvgAttr.class "ts-card"
                     ]
                     []
-                , text settings
+                , cardText settings
                     ( posX, posY )
                     ( width, height )
                     color
@@ -298,6 +299,30 @@ card { settings, property, position, selectedItem, item, canMove } =
 
         Nothing ->
             view_
+
+
+text :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , canMove : Bool
+    }
+    -> Svg Msg
+text { settings, property, position, selectedItem, item, canMove } =
+    let
+        item_: Item
+        item_ =
+            item
+                |> Item.withItemSettings
+                    (Item.getItemSettings item
+                        |> Maybe.withDefault ItemSettings.new
+                        |> ItemSettings.withBackgroundColor (Just Color.transparent)
+                        |> Just
+                    )
+    in
+    card { settings = settings, property = property, position = position, selectedItem = selectedItem, item = item_, canMove = canMove }
 
 
 comments : DiagramSettings.Settings -> Position -> Maybe String -> Svg Msg
@@ -679,8 +704,8 @@ inputView { settings, fontSize, position, size, color, item } =
         ]
 
 
-text : DiagramSettings.Settings -> Position -> Size -> Color -> FontSize -> Item -> Svg Msg
-text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
+cardText : DiagramSettings.Settings -> Position -> Size -> Color -> FontSize -> Item -> Svg Msg
+cardText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
     if Item.isMarkdown item then
         Svg.foreignObject
             [ SvgAttr.x <| String.fromInt posX
@@ -1222,7 +1247,7 @@ grid settings property ( posX, posY ) selectedItem item =
                     , SvgAttr.strokeWidth "1"
                     ]
                     []
-                , text settings
+                , cardText settings
                     ( posX, posY )
                     ( settings.size.width, settings.size.height )
                     forgroundColor

@@ -1,4 +1,9 @@
-module Views.Diagram.ContextMenu exposing (Props, viewAllMenu, viewColorMenuOnly)
+module Views.Diagram.ContextMenu exposing
+    ( Props
+    , viewAllMenu
+    , viewColorMenuOnly
+    , viewWithoutBackgroundColor
+    )
 
 import Css
     exposing
@@ -97,6 +102,20 @@ viewAllMenu props =
         320
         { color = True
         , backgroundColor = True
+        , fontStyleBold = True
+        , fontStyleItalic = True
+        , fontStyleStrikethrough = True
+        , fontSize = True
+        }
+        props
+
+
+viewWithoutBackgroundColor : Props msg -> Svg msg
+viewWithoutBackgroundColor props =
+    view
+        320
+        { color = True
+        , backgroundColor = False
         , fontStyleBold = True
         , fontStyleItalic = True
         , fontStyleStrikethrough = True
