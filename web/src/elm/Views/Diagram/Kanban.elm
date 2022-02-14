@@ -11,7 +11,7 @@ import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
-import Views.Diagram.Views as Views
+import Views.Diagram.Card as Card
 import Views.Empty as Empty
 
 
@@ -78,7 +78,7 @@ listView settings property height ( posX, posY ) selectedItem (KanbanList name c
                 []
             :: List.indexedMap
                 (\i (Card item) ->
-                    Lazy.lazy Views.card
+                    Lazy.lazy Card.view
                         { settings = settings
                         , property = property
                         , position =

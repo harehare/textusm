@@ -7,7 +7,11 @@ import Models.DiagramData as DiagramData
 import Models.Item as Item exposing (Item)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Lazy as Lazy
-import Views.Diagram.Views as Views
+import Views.Diagram.Canvas as Canvas
+import Views.Diagram.Card as Card
+import Views.Diagram.HorizontalLine as HorizontalLine
+import Views.Diagram.Text as TextView
+import Views.Diagram.VerticalLine as VerticalLine
 import Views.Empty as Empty
 
 
@@ -45,7 +49,7 @@ formView : Model -> Int -> FreeFormItem -> Svg Msg
 formView model i item =
     case item of
         FreeForm.HorizontalLine item_ ->
-            Views.horizontalLine
+            HorizontalLine.view
                 { settings = model.settings
                 , position =
                     ( 16 + modBy 4 i * (model.settings.size.width + 16)
@@ -67,7 +71,7 @@ formView model i item =
                 }
 
         FreeForm.VerticalLine item_ ->
-            Views.verticalLine
+            VerticalLine.view
                 { settings = model.settings
                 , position =
                     ( 16 + modBy 4 i * (model.settings.size.width + 16)
@@ -90,7 +94,7 @@ formView model i item =
 
         FreeForm.Card item_ ->
             Svg.g [] <|
-                Views.card
+                Card.view
                     { settings = model.settings
                     , property = model.property
                     , position =
@@ -114,7 +118,7 @@ formView model i item =
                     }
                     :: (Item.indexedMap
                             (\i_ childItem ->
-                                Views.card
+                                Card.view
                                     { settings = model.settings
                                     , property = model.property
                                     , position =
@@ -145,7 +149,7 @@ formView model i item =
                        )
 
         FreeForm.Canvas item_ ->
-            Lazy.lazy6 Views.canvas
+            Lazy.lazy6 Canvas.view
                 model.settings
                 model.property
                 ( Constants.itemWidth, Constants.itemHeight )
@@ -154,7 +158,7 @@ formView model i item =
                 item_
 
         FreeForm.Text item_ ->
-            Views.text
+            TextView.view
                 { settings = model.settings
                 , property = model.property
                 , position =

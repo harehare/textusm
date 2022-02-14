@@ -10,7 +10,7 @@ import Models.Property exposing (Property)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
-import Views.Diagram.Views as Views
+import Views.Diagram.Card as Card
 
 
 view : Model -> Svg Msg
@@ -30,7 +30,7 @@ view model =
             Svg.g
                 []
                 [ siteView model.settings model.property ( 0, Constants.itemSpan + model.settings.size.height ) model.selectedItem items
-                , Lazy.lazy Views.card
+                , Lazy.lazy Card.view
                     { settings = model.settings
                     , property = model.property
                     , position = ( 0, 0 )
@@ -74,7 +74,7 @@ siteView settings property ( posX, posY ) selectedItem items =
                                 + hierarchyCount
                                 * Constants.itemSpan
                     in
-                    [ Views.card
+                    [ Card.view
                         { settings = settings
                         , property = property
                         , position = ( x, posY )
@@ -132,7 +132,7 @@ siteTreeView settings property ( posX, posY ) selectedItem items =
                             posY + i * (settings.size.height + Constants.itemSpan) + childrenCount * (settings.size.height + Constants.itemSpan)
                     in
                     [ siteTreeLineView settings ( posX, posY - Constants.itemSpan ) ( posX, y )
-                    , Views.card
+                    , Card.view
                         { settings = settings
                         , property = property
                         , position = ( x, y )

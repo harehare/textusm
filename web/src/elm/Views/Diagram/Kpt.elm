@@ -7,7 +7,7 @@ import Models.DiagramData as DiagramData
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Lazy as Lazy
 import Utils.Diagram as DiagramUtils
-import Views.Diagram.Views as Views
+import Views.Diagram.Canvas as Canvas
 import Views.Empty as Empty
 
 
@@ -31,21 +31,21 @@ view model =
             in
             Svg.g
                 []
-                [ Lazy.lazy6 Views.canvas
+                [ Lazy.lazy6 Canvas.view
                     model.settings
                     model.property
                     ( Constants.largeItemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( 0, 0 )
                     model.selectedItem
                     keep
-                , Lazy.lazy6 Views.canvas
+                , Lazy.lazy6 Canvas.view
                     model.settings
                     model.property
                     ( Constants.largeItemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( 0, itemHeight - 5 )
                     model.selectedItem
                     problem
-                , Lazy.lazy6 Views.canvas
+                , Lazy.lazy6 Canvas.view
                     model.settings
                     model.property
                     ( Constants.largeItemWidth - Constants.canvasOffset, itemHeight * 2 - Constants.canvasOffset * 2 )

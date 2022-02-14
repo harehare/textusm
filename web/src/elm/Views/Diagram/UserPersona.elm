@@ -7,7 +7,7 @@ import Models.DiagramData as DiagramData
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Lazy as Lazy
 import Utils.Diagram as DiagramUtils
-import Views.Diagram.Views as Views
+import Views.Diagram.Canvas as Canvas
 import Views.Empty as Empty
 
 
@@ -49,62 +49,62 @@ view model =
             in
             Svg.g
                 []
-                [ Lazy.lazy5 Views.canvasImage
+                [ Lazy.lazy5 Canvas.viewImage
                     model.settings
                     model.property
                     ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( 0, 0 )
                     name
-                , Lazy.lazy6 Views.canvas
+                , Lazy.lazy6 Canvas.view
                     model.settings
                     model.property
                     ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( Constants.itemWidth - Constants.canvasOffset, 0 )
                     model.selectedItem
                     whoAmI
-                , Lazy.lazy6 Views.canvas
+                , Lazy.lazy6 Canvas.view
                     model.settings
                     model.property
                     ( round (toFloat Constants.itemWidth * 1.5) - Constants.canvasOffset * 2, itemHeight - Constants.canvasOffset )
                     ( round (toFloat Constants.itemWidth * 2) - Constants.canvasOffset * 2, 0 )
                     model.selectedItem
                     threeReasonsToUseYourProduct
-                , Lazy.lazy6 Views.canvas
+                , Lazy.lazy6 Canvas.view
                     model.settings
                     model.property
                     ( round (toFloat Constants.itemWidth * 1.5) - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( round (toFloat Constants.itemWidth * 3.5) - Constants.canvasOffset * 4, 0 )
                     model.selectedItem
                     threeReasonsToBuyYourProduct
-                , Lazy.lazy6 Views.canvas
+                , Lazy.lazy6 Canvas.view
                     model.settings
                     model.property
                     ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( 0, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     myInterests
-                , Lazy.lazy6 Views.canvas
+                , Lazy.lazy6 Canvas.view
                     model.settings
                     model.property
                     ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     myPersonality
-                , Lazy.lazy6 Views.canvas
+                , Lazy.lazy6 Canvas.view
                     model.settings
                     model.property
                     ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( Constants.itemWidth * 2 - Constants.canvasOffset * 2, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     mySkils
-                , Lazy.lazy6 Views.canvas
+                , Lazy.lazy6 Canvas.view
                     model.settings
                     model.property
                     ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )
                     ( Constants.itemWidth * 3 - Constants.canvasOffset * 3, itemHeight - Constants.canvasOffset )
                     model.selectedItem
                     myDreams
-                , Lazy.lazy6 Views.canvas
+                , Lazy.lazy6 Canvas.view
                     model.settings
                     model.property
                     ( Constants.itemWidth - Constants.canvasOffset, itemHeight - Constants.canvasOffset )

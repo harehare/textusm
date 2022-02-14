@@ -10,7 +10,7 @@ import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Keyed as Keyed
 import Svg.Styled.Lazy as Lazy
-import Views.Diagram.Views as Views
+import Views.Diagram.Grid as Grid
 import Views.Empty as Empty
 
 
@@ -54,7 +54,7 @@ headerView settings property selectedItem item =
     Svg.g []
         (Item.indexedMap
             (\i ii ->
-                Lazy.lazy5 Views.grid settings property ( settings.size.width * i, 0 ) selectedItem (Item.withItemType Activities ii)
+                Lazy.lazy5 Grid.view settings property ( settings.size.width * i, 0 ) selectedItem (Item.withItemType Activities ii)
             )
             (Item.cons item (Item.unwrapChildren <| Item.getChildren item))
         )
@@ -65,7 +65,7 @@ rowView settings property selectedItem rowNo item =
     Keyed.node "g"
         []
         (( "row" ++ String.fromInt rowNo
-         , Lazy.lazy5 Views.grid
+         , Lazy.lazy5 Grid.view
             settings
             property
             ( 0, settings.size.height * rowNo )
@@ -75,7 +75,7 @@ rowView settings property selectedItem rowNo item =
             :: Item.indexedMap
                 (\i childItem ->
                     ( "row" ++ String.fromInt (Item.getLineNo childItem)
-                    , Lazy.lazy5 Views.grid
+                    , Lazy.lazy5 Grid.view
                         settings
                         property
                         ( settings.size.width * (i + 1), settings.size.height * rowNo )

@@ -12,7 +12,7 @@ import Models.Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
-import Views.Diagram.Views as Views
+import Views.Diagram.Card as Card
 import Views.Empty as Empty
 
 
@@ -77,7 +77,7 @@ participantView settings property selectedItem pos (Participant item _) messageH
             fromY + messageHeight + settings.size.height + Constants.messageMargin
     in
     Svg.g []
-        [ Lazy.lazy Views.card
+        [ Lazy.lazy Card.view
             { settings = settings
             , property = property
             , position = ( Position.getX pos, toY )
@@ -86,7 +86,7 @@ participantView settings property selectedItem pos (Participant item _) messageH
             , canMove = False
             }
         , Lazy.lazy3 lineView settings ( lineX, fromY ) ( lineX, toY )
-        , Lazy.lazy Views.card
+        , Lazy.lazy Card.view
             { settings = settings
             , property = property
             , position = pos

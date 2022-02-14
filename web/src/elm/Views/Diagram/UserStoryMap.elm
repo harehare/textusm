@@ -19,7 +19,7 @@ import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Keyed as Keyed
 import Svg.Styled.Lazy as Lazy
-import Views.Diagram.Views as Views
+import Views.Diagram.Card as Card
 import Views.Empty as Empty
 
 
@@ -169,7 +169,7 @@ activityView settings property verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "activity-" ++ Item.getText item
-         , Lazy.lazy Views.card
+         , Lazy.lazy Card.view
             { settings = settings
             , property = property
             , position = ( posX, posY )
@@ -214,7 +214,7 @@ taskView settings property verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "task-" ++ Item.getText item
-         , Lazy.lazy Views.card
+         , Lazy.lazy Card.view
             { settings = settings
             , property = property
             , position = ( posX, posY )
@@ -272,7 +272,7 @@ storyView settings property verticalCount parentCount ( posX, posY ) selectedIte
     Keyed.node "g"
         []
         (( "story-" ++ Item.getText item
-         , Lazy.lazy Views.card
+         , Lazy.lazy Card.view
             { settings = settings
             , property = property
             , position = ( posX, posY )
