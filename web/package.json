@@ -9,7 +9,7 @@
     "dependencies": {
         "@sentry/browser": "^6.17.8",
         "clipboard-copy": "^4.0.1",
-        "dexie": "^3.2.0",
+        "dexie": "^3.2.1",
         "firebase": "^9.6.6",
         "html2canvas": "^1.4.1",
         "jspdf": "^2.5.1",
