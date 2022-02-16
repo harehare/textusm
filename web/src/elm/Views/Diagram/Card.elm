@@ -1,4 +1,4 @@
-module Views.Diagram.Card exposing (view, text)
+module Views.Diagram.Card exposing (text, view)
 
 import Css
     exposing
@@ -7,8 +7,10 @@ import Css
         , property
         )
 import Events
-import Html.Styled as Html
+import Html.Attributes as LegacyAttr
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
+import Markdown
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)
 import Models.DiagramSettings as DiagramSettings
@@ -180,7 +182,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             , FontSize.svgStyledFontSize fs
             , SvgAttr.class "ts-text"
             ]
-            [ Views.markdown settings
+            [ markdown settings
                 colour
                 (Item.getText item
                     |> String.trim
@@ -210,3 +212,14 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
 
     else
         Views.plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs <| Item.getText item
+
+
+markdown : DiagramSettings.Settings -> Color -> String -> Html Msg
+markdown settings colour t =
+    Html.fromUnstyled <|
+        Markdown.toHtml
+            [ LegacyAttr.class "md-content"
+            , LegacyAttr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+            , LegacyAttr.style "color" <| Color.toString colour
+            ]
+            t

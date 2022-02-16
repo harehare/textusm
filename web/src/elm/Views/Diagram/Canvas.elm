@@ -46,7 +46,7 @@ viewImage settings property ( svgWidth, svgHeight ) ( posX, posY ) item =
                 |> List.head
                 |> Maybe.withDefault ""
             )
-        , Views.title settings ( posX + 10, posY + 10 ) item
+        , title settings ( posX + 10, posY + 10 ) item
         ]
 
 
@@ -138,16 +138,16 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                         , selectedItem = selectedItem
                         , items = Item.unwrapChildren <| Item.getChildren item
                         }
-                    , Views.resizeCircleForCanvas item TopLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
-                    , Views.resizeCircleForCanvas item TopRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition )
-                    , Views.resizeCircleForCanvas item BottomRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
-                    , Views.resizeCircleForCanvas item BottomLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
+                    , resizeCircle item TopLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
+                    , resizeCircle item TopRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition )
+                    , resizeCircle item BottomRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
+                    , resizeCircle item BottomLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
                     ]
 
             else
                 Svg.g []
                     [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
-                    , Views.title settings
+                    , title settings
                         ( posX + 20
                         , posY
                             + (if isTitleBottom then
@@ -172,7 +172,7 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
             Svg.g
                 [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
                 [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
-                , Views.title settings
+                , title settings
                     ( posX + 20
                     , posY
                         + (if isTitleBottom then
@@ -256,3 +256,29 @@ getCanvasColor settings property item =
             , Property.getCanvasBackgroundColor property
                 |> Maybe.withDefault Color.transparent
             )
+
+
+title : DiagramSettings.Settings -> Position -> Item -> Svg Msg
+title settings ( posX, posY ) item =
+    Svg.text_
+        [ SvgAttr.x <| String.fromInt posX
+        , SvgAttr.y <| String.fromInt <| posY + 14
+        , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
+        , SvgAttr.fill
+            (Item.getItemSettings item
+                |> Maybe.withDefault ItemSettings.new
+                |> ItemSettings.getForegroundColor
+                |> Maybe.andThen (\c -> Just <| Color.toString c)
+                |> Maybe.withDefault settings.color.label
+            )
+        , FontSize.svgStyledFontSize FontSize.lg
+        , SvgAttr.fontWeight "bold"
+        , SvgAttr.class "ts-title"
+        , Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
+        ]
+        [ Svg.text <| Item.getText item ]
+
+
+resizeCircle : Item -> ResizeDirection -> Position -> Svg Msg
+resizeCircle item direction ( x, y ) =
+    Views.resizeCircleBase 8 item direction ( x, y )

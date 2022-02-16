@@ -10,8 +10,9 @@ import Models.Position as Position exposing (Position)
 import Models.Property exposing (Property)
 import Models.Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Path as Path
-import Views.Diagram.Views as Views
+import Views.Diagram.TextNode as TextNode
 import Views.Empty as Empty
 
 
@@ -56,7 +57,7 @@ view model =
                             , moveingItem = moveingItem
                             , items = impactMapItems
                             }
-                        , Views.rootTextNode
+                        , TextNode.root
                             { settings = model.settings
                             , position = Position.zero
                             , selectedItem = model.selectedItem
@@ -167,12 +168,12 @@ nodesView { settings, property, hierarchy, position, selectedItem, items, movein
                         itemY =
                             y + (nodeCount * svgHeight - yOffset) + (i * yMargin) + Position.getY offset
                     in
-                    [ nodeLineView
+                    [ Lazy.lazy4 nodeLineView
                         ( settings.size.width, settings.size.height )
                         settings.color.task.backgroundColor
                         ( x, y )
                         ( itemX, itemY )
-                    , nodesView
+                    , Lazy.lazy nodesView
                         { settings = settings
                         , property = property
                         , hierarchy = hierarchy + 1
@@ -184,7 +185,8 @@ nodesView { settings, property, hierarchy, position, selectedItem, items, movein
                         , moveingItem = moveingItem
                         , items = Item.unwrapChildren <| Item.getChildren item
                         }
-                    , Views.node settings
+                    , Lazy.lazy5 TextNode.view
+                        settings
                         property
                         ( itemX, itemY )
                         selectedItem

@@ -9,9 +9,8 @@ import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Canvas as Canvas
 import Views.Diagram.Card as Card
-import Views.Diagram.HorizontalLine as HorizontalLine
+import Views.Diagram.Line as Line
 import Views.Diagram.Text as TextView
-import Views.Diagram.VerticalLine as VerticalLine
 import Views.Empty as Empty
 
 
@@ -49,7 +48,7 @@ formView : Model -> Int -> FreeFormItem -> Svg Msg
 formView model i item =
     case item of
         FreeForm.HorizontalLine item_ ->
-            HorizontalLine.view
+            Line.horizontal
                 { settings = model.settings
                 , position =
                     ( 16 + modBy 4 i * (model.settings.size.width + 16)
@@ -71,7 +70,7 @@ formView model i item =
                 }
 
         FreeForm.VerticalLine item_ ->
-            VerticalLine.view
+            Line.vertical
                 { settings = model.settings
                 , position =
                     ( 16 + modBy 4 i * (model.settings.size.width + 16)
