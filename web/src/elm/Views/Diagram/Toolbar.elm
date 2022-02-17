@@ -7,6 +7,7 @@ import Css
         , bold
         , border3
         , borderRadius
+        , borderRight3
         , center
         , cursor
         , displayFlex
@@ -33,6 +34,11 @@ import Models.ItemSettings as ItemSettings
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg, svg)
 import Svg.Styled.Attributes as SvgAttr exposing (stroke, strokeWidth, x1, x2, y1, y2)
+
+
+type ToolbarButton msg
+    = Button (Html msg)
+    | Separator (Html msg)
 
 
 type alias ClickEvent msg =
@@ -68,26 +74,28 @@ createHorizontalLineItem =
         |> Item.withTextOnly "---"
 
 
-freeForm : ClickEvent msg -> List (Html msg)
+freeForm : ClickEvent msg -> List (ToolbarButton msg)
 freeForm e =
-    [ cardView Color.white (createColorItem Color.white) e
-    , cardView Color.yellow (createColorItem Color.yellow) e
-    , cardView Color.green (createColorItem Color.green) e
-    , cardView Color.blue (createColorItem Color.blue) e
-    , cardView Color.orange (createColorItem Color.orange) e
-    , cardView Color.pink (createColorItem Color.pink) e
-    , cardView Color.red (createColorItem Color.red) e
-    , cardView Color.purple (createColorItem Color.purple) e
-    , iconView
-        (Svg.g []
-            [ Svg.line [ x1 "4", y1 "4", x2 "26", y2 "4", stroke <| Color.toString Color.lineDefalut, strokeWidth "4" ] []
-            , Svg.line [ x1 "14", y1 "2", x2 "14", y2 "22", stroke <| Color.toString Color.lineDefalut, strokeWidth "4" ] []
-            ]
-        )
-        createTextItem
-        e
-    , iconView (Svg.line [ x1 "14", y1 "2", x2 "14", y2 "22", stroke <| Color.toString Color.lineDefalut, strokeWidth "4" ] []) createVerticalLineItem e
-    , iconView (Svg.line [ x1 "0", y1 "12", x2 "24", y2 "12", stroke <| Color.toString Color.lineDefalut, strokeWidth "3" ] []) createHorizontalLineItem e
+    [ Button <| cardView Color.white (createColorItem Color.white) e
+    , Button <| cardView Color.yellow (createColorItem Color.yellow) e
+    , Button <| cardView Color.green (createColorItem Color.green) e
+    , Button <| cardView Color.blue (createColorItem Color.blue) e
+    , Button <| cardView Color.orange (createColorItem Color.orange) e
+    , Button <| cardView Color.pink (createColorItem Color.pink) e
+    , Button <| cardView Color.red (createColorItem Color.red) e
+    , Button <| cardView Color.purple (createColorItem Color.purple) e
+    , Separator <| separator
+    , Button <|
+        iconView
+            (Svg.g []
+                [ Svg.line [ x1 "4", y1 "4", x2 "26", y2 "4", stroke <| Color.toString Color.lineDefalut, strokeWidth "4" ] []
+                , Svg.line [ x1 "14", y1 "2", x2 "14", y2 "22", stroke <| Color.toString Color.lineDefalut, strokeWidth "4" ] []
+                ]
+            )
+            createTextItem
+            e
+    , Button <| iconView (Svg.line [ x1 "14", y1 "2", x2 "14", y2 "22", stroke <| Color.toString Color.lineDefalut, strokeWidth "4" ] []) createVerticalLineItem e
+    , Button <| iconView (Svg.line [ x1 "0", y1 "12", x2 "24", y2 "12", stroke <| Color.toString Color.lineDefalut, strokeWidth "3" ] []) createHorizontalLineItem e
     ]
 
 
@@ -96,7 +104,7 @@ viewForFreeForm e =
     view <| freeForm e
 
 
-view : List (Html msg) -> Html msg
+view : List (ToolbarButton msg) -> Html msg
 view items =
     Html.div
         [ css
@@ -114,16 +122,30 @@ view items =
     <|
         List.map
             (\item ->
-                Html.div
-                    [ css
-                        [ Css.width <| px 40
-                        , Css.height <| px 40
-                        , fontSize <| rem 1.2
-                        , Style.flexCenter
-                        , cursor pointer
-                        ]
-                    ]
-                    [ item ]
+                case item of
+                    Button view_ ->
+                        Html.div
+                            [ css
+                                [ Css.width <| px 40
+                                , Css.height <| px 40
+                                , fontSize <| rem 1.2
+                                , Style.flexCenter
+                                , cursor pointer
+                                ]
+                            ]
+                            [ view_ ]
+
+                    Separator view_ ->
+                        Html.div
+                            [ css
+                                [ Css.width <| px 8
+                                , Css.height <| px 40
+                                , fontSize <| rem 1.2
+                                , Style.flexCenter
+                                , cursor pointer
+                                ]
+                            ]
+                            [ view_ ]
             )
             items
 
@@ -159,3 +181,15 @@ iconView icon item event =
         , Events.onClickStopPropagation <| event item
         ]
         [ svg [ SvgAttr.width "24" ] [ icon ] ]
+
+
+separator : Html msg
+separator =
+    Html.div
+        [ css
+            [ borderRight3 (px 1) solid (rgba 0 0 0 0.1)
+            , Css.width <| px 1
+            , Css.height <| px 40
+            ]
+        ]
+        []
