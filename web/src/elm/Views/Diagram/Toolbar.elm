@@ -1,4 +1,4 @@
-module Views.Diagram.Toolbar exposing (ClickEvent, view, viewForFreeForm)
+module Views.Diagram.Toolbar exposing (ClickEvent, ToolbarButton, view, viewForFreeForm)
 
 import Css
     exposing
