@@ -62,6 +62,12 @@ createTextItem =
         |> Item.withTextOnly "Click to edit # text"
 
 
+createCanvas : Item
+createCanvas =
+    Item.new
+        |> Item.withTextOnly "Click to edit # canvas"
+
+
 createVerticalLineItem : Item
 createVerticalLineItem =
     Item.new
@@ -84,6 +90,8 @@ freeForm e =
     , Button <| cardView Color.pink (createColorItem Color.pink) e
     , Button <| cardView Color.red (createColorItem Color.red) e
     , Button <| cardView Color.purple (createColorItem Color.purple) e
+    , Separator <| separator
+    , Button <| canvasView createCanvas e
     , Separator <| separator
     , Button <|
         iconView
@@ -159,6 +167,22 @@ cardView color item event =
             , Style.roundedSm
             , backgroundColor <| hex <| Color.toString color
             , border3 (px 1) solid (rgba 0 0 0 0.1)
+            , cursor pointer
+            , margin <| px 2
+            ]
+        , Events.onClickStopPropagation <| event item
+        ]
+        []
+
+
+canvasView : Item -> ClickEvent msg -> Html msg
+canvasView item event =
+    Html.div
+        [ css
+            [ Css.width <| px 20
+            , Css.height <| px 20
+            , Style.roundedSm
+            , border3 (px 4) solid (hex <| Color.toString Color.lineDefalut)
             , cursor pointer
             , margin <| px 2
             ]

@@ -505,6 +505,19 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
 
                     ( _, h ) =
                         Item.getSize item_ ( model.settings.size.width, model.settings.size.height )
+
+                    offsetY =
+                        if Item.isVerticalLine item_ then
+                            24
+
+                        else if Item.isHorizontalLine item_ then
+                            8
+
+                        else if Item.isCanvas item_ then
+                            8
+
+                        else
+                            8
                 in
                 (if displayAllMenu then
                     ContextMenu.viewAllMenu
@@ -517,7 +530,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     , settings = model.settings
                     , position =
                         ( floor <| toFloat (Position.getX pos) * model.svg.scale
-                        , floor <| toFloat (Position.getY pos + h + 8) * model.svg.scale
+                        , floor <| toFloat (Position.getY pos + h + offsetY) * model.svg.scale
                         )
                     , dropDownIndex = model.dropDownIndex
                     , onMenuSelect = SelectContextMenu
