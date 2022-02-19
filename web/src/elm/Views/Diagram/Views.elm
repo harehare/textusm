@@ -1,6 +1,7 @@
 module Views.Diagram.Views exposing
     ( getItemColor
     , image
+    , inputBoldView
     , inputView
     , plainText
     , resizeCircle
@@ -13,11 +14,13 @@ import Css
         , color
         , focus
         , hex
+        , int
         , marginLeft
         , marginTop
         , none
         , outline
         , padding4
+        , position
         , property
         , px
         , transparent
@@ -165,6 +168,49 @@ inputView :
     }
     -> Svg Msg
 inputView { settings, fontSize, position, size, color, item } =
+    inputBase
+        { settings = settings
+        , fontSize = fontSize
+        , position = position
+        , size = size
+        , color = color
+        , item = item
+        , fontWeight = 400
+        }
+
+
+inputBoldView :
+    { settings : DiagramSettings.Settings
+    , fontSize : FontSize
+    , position : Position
+    , size : Size
+    , color : Color
+    , item : Item
+    }
+    -> Svg Msg
+inputBoldView { settings, fontSize, position, size, color, item } =
+    inputBase
+        { settings = settings
+        , fontSize = fontSize
+        , position = position
+        , size = size
+        , color = color
+        , item = item
+        , fontWeight = 600
+        }
+
+
+inputBase :
+    { settings : DiagramSettings.Settings
+    , fontSize : FontSize
+    , position : Position
+    , size : Size
+    , color : Color
+    , item : Item
+    , fontWeight : Int
+    }
+    -> Svg Msg
+inputBase { settings, fontSize, position, size, color, item, fontWeight } =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt <| Position.getX position
         , SvgAttr.y <| String.fromInt <| Position.getY position
@@ -183,6 +229,7 @@ inputView { settings, fontSize, position, size, color, item } =
                 , Css.backgroundColor transparent
                 , borderStyle none
                 , outline none
+                , Css.fontWeight <| int fontWeight
                 , Css.width <| px <| toFloat <| Size.getWidth size - 20
                 , Css.fontSize <| px <| toFloat <| FontSize.unwrap fontSize
                 , marginTop <| px 2

@@ -102,7 +102,7 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                 Svg.g
                     [ Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
                     [ canvasRect colors property selectedItemPosition selectedItemSize
-                    , Views.inputView
+                    , Views.inputBoldView
                         { settings = settings
                         , fontSize =
                             Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
@@ -117,7 +117,7 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                                                 svgHeight - 38
 
                                                else
-                                                4
+                                                6
                                               )
                                     )
                         , size = ( Size.getWidth selectedItemSize, settings.size.height )
@@ -271,7 +271,7 @@ title settings ( posX, posY ) item =
                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                 |> Maybe.withDefault settings.color.label
             )
-        , FontSize.svgStyledFontSize FontSize.lg
+        , FontSize.svgStyledFontSize (Item.getItemSettings item |> Maybe.map ItemSettings.getFontSize |> Maybe.withDefault FontSize.lg)
         , SvgAttr.fontWeight "bold"
         , SvgAttr.class "ts-title"
         , Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }

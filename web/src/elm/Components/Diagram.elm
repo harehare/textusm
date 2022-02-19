@@ -506,18 +506,26 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     ( _, h ) =
                         Item.getSize item_ ( model.settings.size.width, model.settings.size.height )
 
-                    offsetY =
+                    contextMenuPosition =
                         if Item.isVerticalLine item_ then
-                            24
+                            ( floor <| toFloat (Position.getX pos) * model.svg.scale
+                            , floor <| toFloat (Position.getY pos + h + 24) * model.svg.scale
+                            )
 
                         else if Item.isHorizontalLine item_ then
-                            8
+                            ( floor <| toFloat (Position.getX pos) * model.svg.scale
+                            , floor <| toFloat (Position.getY pos + h + 8) * model.svg.scale
+                            )
 
                         else if Item.isCanvas item_ then
-                            8
+                            ( floor <| toFloat (Position.getX position) * model.svg.scale
+                            , floor <| toFloat (Position.getY position) * model.svg.scale
+                            )
 
                         else
-                            8
+                            ( floor <| toFloat (Position.getX pos) * model.svg.scale
+                            , floor <| toFloat (Position.getY pos + h + 8) * model.svg.scale
+                            )
                 in
                 (if displayAllMenu then
                     ContextMenu.viewAllMenu
@@ -528,10 +536,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     { state = contextMenu
                     , item = item_
                     , settings = model.settings
-                    , position =
-                        ( floor <| toFloat (Position.getX pos) * model.svg.scale
-                        , floor <| toFloat (Position.getY pos + h + offsetY) * model.svg.scale
-                        )
+                    , position = contextMenuPosition
                     , dropDownIndex = model.dropDownIndex
                     , onMenuSelect = SelectContextMenu
                     , onColorChanged = ColorChanged Diagram.ColorSelectMenu
