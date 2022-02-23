@@ -16,6 +16,7 @@ module Models.Diagram.SequenceDiagram exposing
     , sequenceItemCount
     , sequenceItemMessages
     , size
+    , toMermaidString
     , unwrapMessageType
     )
 
@@ -466,3 +467,132 @@ size settings sequenceDiagram =
                 + 8
     in
     ( diagramWidth, diagramHeight )
+
+
+
+-- mermaid
+
+
+toMermaidString : SequenceDiagram -> String
+toMermaidString (SequenceDiagram participants sequenceItems) =
+    let
+        sequenceLines : List String
+        sequenceLines =
+            List.map
+                (\item ->
+                    case item of
+                        Fragment fragment ->
+                            fragmentToMermaidString fragment
+
+                        Messages messages ->
+                            List.concatMap messageToMermaidString messages |> String.join "\n"
+                )
+                sequenceItems
+    in
+    "sequenceDiagram"
+        :: List.map participantToMermaidString participants
+        ++ sequenceLines
+        |> String.join "\n"
+
+
+participantToMermaidString : Participant -> String
+participantToMermaidString (Participant item _) =
+    "participant " ++ Item.getText item
+
+
+fragmentToMermaidString : Fragment -> String
+fragmentToMermaidString fragment =
+    case fragment of
+        Alt ( ifText, ifMessages ) ( elseText, elseMessags ) ->
+            (("    alt " ++ ifText)
+                :: List.map
+                    (\l ->
+                        messageToMermaidString l
+                            |> List.map (\l_ -> "    " ++ l_)
+                            |> String.join "\n"
+                    )
+                    ifMessages
+            )
+                ++ (("else  " ++ elseText) :: List.map (\l -> messageToMermaidString l |> String.join "\n") elseMessags)
+                |> String.join "\n"
+
+        Opt text messages ->
+            ("    opt " ++ text)
+                :: List.map
+                    (\l ->
+                        messageToMermaidString l
+                            |> List.map (\l_ -> "    " ++ l_)
+                            |> String.join "\n"
+                    )
+                    messages
+                |> String.join "\n"
+
+        Par parMessages ->
+            case parMessages of
+                ( parText, messages ) :: rest ->
+                    let
+                        parAndMessage : ParMessage -> List String
+                        parAndMessage ( parText_, parMessages_ ) =
+                            ("and " ++ parText_)
+                                :: List.map
+                                    (\l ->
+                                        messageToMermaidString l
+                                            |> List.map (\l_ -> "    " ++ l_)
+                                            |> String.join "\n"
+                                    )
+                                    parMessages_
+                    in
+                    (("par " ++ parText)
+                        :: List.map
+                            (\l ->
+                                messageToMermaidString l
+                                    |> List.map (\l_ -> "    " ++ l_)
+                                    |> String.join "\n"
+                            )
+                            messages
+                    )
+                        ++ (List.map parAndMessage rest |> List.concat)
+                        |> String.join "\n"
+
+                [] ->
+                    ""
+
+        Loop text messages ->
+            ("loop " ++ text)
+                :: List.map
+                    (\l ->
+                        messageToMermaidString l
+                            |> List.map (\l_ -> "    " ++ l_)
+                            |> String.join "\n"
+                    )
+                    messages
+                |> String.join "\n"
+
+        _ ->
+            ""
+
+
+messageToMermaidString : Message -> List String
+messageToMermaidString message =
+    case message of
+        Message messageType (Participant fromItem _) (Participant toItem _) ->
+            case messageType of
+                Sync m ->
+                    [ "    " ++ Item.getText fromItem ++ " -> " ++ Item.getText toItem ++ ": " ++ m ]
+
+                Async m ->
+                    [ "    " ++ Item.getText fromItem ++ " -) " ++ Item.getText toItem ++ ": " ++ m ]
+
+                _ ->
+                    []
+
+        SubMessage sequenceItem ->
+            case sequenceItem of
+                Fragment fragment ->
+                    [ fragmentToMermaidString fragment ]
+
+                Messages [] ->
+                    []
+
+                Messages (firstMessages :: restMessages) ->
+                    messageToMermaidString firstMessages ++ List.concatMap messageToMermaidString restMessages

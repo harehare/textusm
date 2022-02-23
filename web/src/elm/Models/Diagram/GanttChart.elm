@@ -1,6 +1,7 @@
 module Models.Diagram.GanttChart exposing
     ( From
     , GanttChart(..)
+    , GanttTitle
     , Schedule(..)
     , Section(..)
     , Task(..)
@@ -9,7 +10,6 @@ module Models.Diagram.GanttChart exposing
     , sectionSchedule
     , size
     , toMermaidString
-    , GanttTitle
     )
 
 import Basics.Extra as BasicEx
@@ -298,7 +298,7 @@ size gantt =
 
 
 
--- to mermaid
+-- mermaid
 
 
 toMermaidString : Title -> Zone -> GanttChart -> String
