@@ -478,14 +478,14 @@ toMermaidString (SequenceDiagram participants sequenceItems) =
     let
         sequenceLines : List String
         sequenceLines =
-            List.map
+            List.concatMap
                 (\item ->
                     case item of
                         Fragment fragment ->
                             fragmentToMermaidString fragment
 
                         Messages messages ->
-                            List.concatMap messageToMermaidString messages |> String.join "\n"
+                            List.concatMap messageToMermaidString messages
                 )
                 sequenceItems
     in
@@ -497,14 +497,14 @@ toMermaidString (SequenceDiagram participants sequenceItems) =
 
 participantToMermaidString : Participant -> String
 participantToMermaidString (Participant item _) =
-    "participant " ++ Item.getText item
+    "    participant " ++ Item.getTrimmedText item
 
 
-fragmentToMermaidString : Fragment -> String
+fragmentToMermaidString : Fragment -> List String
 fragmentToMermaidString fragment =
     case fragment of
         Alt ( ifText, ifMessages ) ( elseText, elseMessags ) ->
-            (("    alt " ++ ifText)
+            (ifText
                 :: List.map
                     (\l ->
                         messageToMermaidString l
@@ -513,11 +513,11 @@ fragmentToMermaidString fragment =
                     )
                     ifMessages
             )
-                ++ (("else  " ++ elseText) :: List.map (\l -> messageToMermaidString l |> String.join "\n") elseMessags)
-                |> String.join "\n"
+                ++ (elseText :: List.map (\l -> messageToMermaidString l |> String.join "\n") elseMessags)
+                ++ [ "    end" ]
 
         Opt text messages ->
-            ("    opt " ++ text)
+            text
                 :: List.map
                     (\l ->
                         messageToMermaidString l
@@ -525,7 +525,7 @@ fragmentToMermaidString fragment =
                             |> String.join "\n"
                     )
                     messages
-                |> String.join "\n"
+                ++ [ "    end" ]
 
         Par parMessages ->
             case parMessages of
@@ -533,7 +533,7 @@ fragmentToMermaidString fragment =
                     let
                         parAndMessage : ParMessage -> List String
                         parAndMessage ( parText_, parMessages_ ) =
-                            ("and " ++ parText_)
+                            "    and "
                                 :: List.map
                                     (\l ->
                                         messageToMermaidString l
@@ -542,7 +542,7 @@ fragmentToMermaidString fragment =
                                     )
                                     parMessages_
                     in
-                    (("par " ++ parText)
+                    (parText
                         :: List.map
                             (\l ->
                                 messageToMermaidString l
@@ -552,13 +552,13 @@ fragmentToMermaidString fragment =
                             messages
                     )
                         ++ (List.map parAndMessage rest |> List.concat)
-                        |> String.join "\n"
+                        ++ [ "    end" ]
 
                 [] ->
-                    ""
+                    []
 
         Loop text messages ->
-            ("loop " ++ text)
+            text
                 :: List.map
                     (\l ->
                         messageToMermaidString l
@@ -566,10 +566,10 @@ fragmentToMermaidString fragment =
                             |> String.join "\n"
                     )
                     messages
-                |> String.join "\n"
+                ++ [ "    end" ]
 
         _ ->
-            ""
+            []
 
 
 messageToMermaidString : Message -> List String
@@ -578,10 +578,10 @@ messageToMermaidString message =
         Message messageType (Participant fromItem _) (Participant toItem _) ->
             case messageType of
                 Sync m ->
-                    [ "    " ++ Item.getText fromItem ++ " -> " ++ Item.getText toItem ++ ": " ++ m ]
+                    [ Item.getText fromItem ++ "->" ++ Item.getTrimmedText toItem ++ ": " ++ m ]
 
                 Async m ->
-                    [ "    " ++ Item.getText fromItem ++ " -) " ++ Item.getText toItem ++ ": " ++ m ]
+                    [ Item.getText fromItem ++ "-)" ++ Item.getTrimmedText toItem ++ ": " ++ m ]
 
                 _ ->
                     []
@@ -589,7 +589,7 @@ messageToMermaidString message =
         SubMessage sequenceItem ->
             case sequenceItem of
                 Fragment fragment ->
-                    [ fragmentToMermaidString fragment ]
+                    fragmentToMermaidString fragment
 
                 Messages [] ->
                     []

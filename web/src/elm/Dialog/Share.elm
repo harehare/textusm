@@ -56,6 +56,7 @@ import Models.IpAddress as IpAddress exposing (IpAddress)
 import Models.Session as Session exposing (Session)
 import Models.Size as Size exposing (Size)
 import Models.Title as Title exposing (Title)
+import Ports
 import RemoteData exposing (RemoteData(..))
 import Return exposing (Return)
 import Style.Color as Color
@@ -132,9 +133,6 @@ type CopyState
 port selectTextById : String -> Cmd msg
 
 
-port copyText : String -> Cmd msg
-
-
 sharUrl : RemoteData Message String -> Diagram -> String
 sharUrl token diagramType =
     case token of
@@ -158,7 +156,7 @@ embedUrl { token, diagramType, title, embedSize } =
     case token of
         Success t ->
             let
-                w: Int
+                w : Int
                 w =
                     Size.getWidth embedSize
 
@@ -376,12 +374,12 @@ update msg model =
                                 ( Copying, _ ) ->
                                     Return.command (Utils.delay 500 UrlCopied)
                                         >> Return.andThen (\m -> Return.singleton { m | urlCopyState = Copied })
-                                        >> Return.command (copyText <| sharUrl (Success token) model.diagramType)
+                                        >> Return.command (Ports.copyText <| sharUrl (Success token) model.diagramType)
 
                                 ( _, Copying ) ->
                                     Return.command (Utils.delay 500 EmbedCopied)
                                         >> Return.andThen (\m -> Return.singleton { m | embedCopyState = Copied })
-                                        >> Return.command (copyText <| embedUrl { token = Success token, diagramType = model.diagramType, title = model.title, embedSize = model.embedSize })
+                                        >> Return.command (Ports.copyText <| embedUrl { token = Success token, diagramType = model.diagramType, title = model.title, embedSize = model.embedSize })
 
                                 _ ->
                                     Return.zero

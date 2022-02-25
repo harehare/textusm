@@ -30,7 +30,10 @@ import Json.Decode as D
 import Message
 import Models.Diagram as DiagramModel
 import Models.Diagram.ER as ER
+import Models.Diagram.GanttChart as GanttChart
+import Models.Diagram.SequenceDiagram as SequenceDiagram
 import Models.Diagram.Table as Table
+import Models.DiagramData as DiagramData
 import Models.DiagramId as DiagramId
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
@@ -804,6 +807,30 @@ update message =
 
                         FileType.PlainText ex ->
                             Return.return m <| Download.string (Title.toString m.currentDiagram.title ++ ex) "text/plain" (Text.toString m.diagramModel.text)
+
+                        FileType.Mermaid _ ->
+                            let
+                                mermaidString =
+                                    case m.diagramModel.data of
+                                        DiagramData.SequenceDiagram data ->
+                                            Just <| SequenceDiagram.toMermaidString data
+
+                                        DiagramData.GanttChart data ->
+                                            Maybe.map (\data_ -> GanttChart.toMermaidString m.currentDiagram.title Time.utc data_) data
+
+                                        DiagramData.ErDiagram data ->
+                                            Just <| ER.toMermaidString data
+
+                                        _ ->
+                                            Nothing
+                            in
+                            case mermaidString of
+                                Just s ->
+                                    (Return.return m <| Ports.copyText s)
+                                        |> Return.andThen (Action.showInfoMessage Message.messageCopiedMermaidText)
+
+                                Nothing ->
+                                    Return.singleton m
 
                         _ ->
                             let

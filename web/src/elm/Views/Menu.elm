@@ -252,12 +252,48 @@ exportMenu route =
                 { e = Download <| FileType.ddl
                 , title = "DDL"
                 }
+                :: Item
+                    { e = Download <| FileType.mermaid
+                    , title = "Mermaid"
+                    }
                 :: baseExportMenu
 
         Route.EditFile ErDiagram _ ->
             Item
                 { e = Download <| FileType.ddl
                 , title = "DDL"
+                }
+                :: Item
+                    { e = Download <| FileType.mermaid
+                    , title = "Mermaid"
+                    }
+                :: baseExportMenu
+
+        Route.Edit SequenceDiagram ->
+            Item
+                { e = Download <| FileType.mermaid
+                , title = "Mermaid"
+                }
+                :: baseExportMenu
+
+        Route.EditFile SequenceDiagram _ ->
+            Item
+                { e = Download <| FileType.mermaid
+                , title = "Mermaid"
+                }
+                :: baseExportMenu
+
+        Route.Edit GanttChart ->
+            Item
+                { e = Download <| FileType.mermaid
+                , title = "Mermaid"
+                }
+                :: baseExportMenu
+
+        Route.EditFile GanttChart _ ->
+            Item
+                { e = Download <| FileType.mermaid
+                , title = "Mermaid"
                 }
                 :: baseExportMenu
 
