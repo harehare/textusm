@@ -869,6 +869,8 @@ update message =
 
                                 FileType.Mermaid _ ->
                                     let
+
+                                        mermaidString: Maybe String
                                         mermaidString =
                                             case m.diagramModel.data of
                                                 DiagramData.SequenceDiagram data ->

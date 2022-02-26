@@ -24,7 +24,7 @@ import Models.Diagram as Diagram
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramSettings as DiagramSettings
 import Models.Dialog exposing (ConfirmDialog)
-import Models.FileType exposing (FileType)
+import Models.ExportDiagram exposing (ExportDiagram)
 import Models.LoginProvider exposing (LoginProvider)
 import Models.Notification exposing (Notification)
 import Models.Page exposing (Page)
@@ -36,7 +36,6 @@ import Page.List as DiagramList
 import Page.Settings as Settings
 import Route exposing (Route)
 import Url
-import Models.ExportDiagram exposing (ExportDiagram)
 
 
 type Msg
