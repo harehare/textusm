@@ -319,7 +319,7 @@ sectiontomermaidstring zone (Section title tasks) =
                 |> List.filterMap (\v_ -> v_)
                 |> List.map
                     (\(Task taskTitle (Schedule from_ to_ _)) ->
-                        taskTitle ++ ":" ++ DateUtils.millisToDateString zone from_ ++ "," ++ DateUtils.millisToDateString zone to_
+                        "    " ++ taskTitle ++ ":" ++ DateUtils.millisToDateString zone from_ ++ "," ++ DateUtils.millisToDateString zone to_
                     )
            )
         |> String.join "\n"

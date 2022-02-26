@@ -4,7 +4,7 @@ module Message exposing
     , fromString
     , messagEerrorOccurred
     , messageBadRequest
-    , messageCopiedMermaidText
+    , messageCopiedText
     , messageFailedPublished
     , messageFailedRevokeToken
     , messageFailedSaveSettings
@@ -333,11 +333,11 @@ messageFailedSaveSettings lang =
             "Failed to save settings"
 
 
-messageCopiedMermaidText : Lang -> String
-messageCopiedMermaidText lang =
+messageCopiedText : Lang -> String
+messageCopiedText lang =
     case lang of
         Ja ->
-            "Mermaid 形式のテキストをクリップボードにコピーしました"
+            "テキストをクリップボードにコピーしました"
 
         _ ->
-            "Copied the mermaid text to clipboard"
+            "Copied the text to clipboard"

@@ -767,16 +767,16 @@ relationshipToMermaidString : Relationship -> List String
 relationshipToMermaidString relationship =
     case relationship of
         ManyToMany table1 table2 ->
-            [ table1 ++ "}|..|{" ++ table2 ]
+            [ table1 ++ "}|..|{" ++ table2 ++ " : relation" ]
 
         OneToMany table1 table2 ->
-            [ table1 ++ "||--o{" ++ table2 ]
+            [ table1 ++ "||--o{" ++ table2 ++ " : relation" ]
 
         ManyToOne table1 table2 ->
-            [ table1 ++ "}o--||" ++ table2 ]
+            [ table1 ++ "}o--||" ++ table2 ++ " : relation" ]
 
         OneToOne table1 table2 ->
-            [ table1 ++ "||--||" ++ table2 ]
+            [ table1 ++ "||--||" ++ table2 ++ " : relation" ]
 
         NoRelation ->
             []
@@ -784,10 +784,9 @@ relationshipToMermaidString relationship =
 
 tableToMermaidString : Table -> String
 tableToMermaidString (Table name columns _ _) =
-    name
-        :: "{"
+    (name ++ "{")
         :: List.map columnToMermaidString columns
-        ++ [ "}" ]
+        ++ [ "    }" ]
         |> String.join "\n"
 
 

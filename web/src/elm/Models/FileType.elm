@@ -2,6 +2,7 @@ module Models.FileType exposing
     ( Extension
     , FileType(..)
     , ddl
+    , extension
     , html
     , markdown
     , mermaid
@@ -26,6 +27,34 @@ type FileType
     | Markdown Extension
     | PlainText Extension
     | Mermaid Extension
+
+
+extension : FileType -> Extension
+extension fileType =
+    case fileType of
+        Png ex ->
+            ex
+
+        Svg ex ->
+            ex
+
+        Pdf ex ->
+            ex
+
+        Html ex ->
+            ex
+
+        Ddl ex ->
+            ex
+
+        Markdown ex ->
+            ex
+
+        PlainText ex ->
+            ex
+
+        Mermaid ex ->
+            ex
 
 
 toString : FileType -> String

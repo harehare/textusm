@@ -36,6 +36,7 @@ import Page.List as DiagramList
 import Page.Settings as Settings
 import Route exposing (Route)
 import Url
+import Models.ExportDiagram exposing (ExportDiagram)
 
 
 type Msg
@@ -48,7 +49,7 @@ type Msg
     | OpenMenu Menu
     | MoveStop
     | CloseMenu
-    | Download FileType
+    | Download ExportDiagram
     | DownloadCompleted ( Int, Int )
     | StartDownload { extension : String, mimeType : String, content : String }
     | Save

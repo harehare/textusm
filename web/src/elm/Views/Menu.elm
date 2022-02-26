@@ -71,6 +71,7 @@ import Style.Text as TextStyle
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
+import Models.ExportDiagram as ExportDiagram
 
 
 type MenuItem msg
@@ -249,64 +250,64 @@ exportMenu route =
     case route of
         Route.Edit ErDiagram ->
             Item
-                { e = Download <| FileType.ddl
+                { e = Download <| ExportDiagram.copyable FileType.ddl
                 , title = "DDL"
                 }
                 :: Item
-                    { e = Download <| FileType.mermaid
+                    { e = Download <| ExportDiagram.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
                 :: baseExportMenu
 
         Route.EditFile ErDiagram _ ->
             Item
-                { e = Download <| FileType.ddl
+                { e = Download <| ExportDiagram.copyable FileType.ddl
                 , title = "DDL"
                 }
                 :: Item
-                    { e = Download <| FileType.mermaid
+                    { e = Download <| ExportDiagram.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
                 :: baseExportMenu
 
         Route.Edit SequenceDiagram ->
             Item
-                { e = Download <| FileType.mermaid
+                { e = Download <| ExportDiagram.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu
 
         Route.EditFile SequenceDiagram _ ->
             Item
-                { e = Download <| FileType.mermaid
+                { e = Download <| ExportDiagram.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu
 
         Route.Edit GanttChart ->
             Item
-                { e = Download <| FileType.mermaid
+                { e = Download <| ExportDiagram.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu
 
         Route.EditFile GanttChart _ ->
             Item
-                { e = Download <| FileType.mermaid
+                { e = Download <| ExportDiagram.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu
 
         Route.Edit Table ->
             Item
-                { e = Download <| FileType.markdown
+                { e = Download <| ExportDiagram.copyable FileType.markdown
                 , title = "Markdown"
                 }
                 :: baseExportMenu
 
         Route.EditFile Table _ ->
             Item
-                { e = Download <| FileType.markdown
+                { e = Download <| ExportDiagram.copyable FileType.markdown
                 , title = "Markdown"
                 }
                 :: baseExportMenu
@@ -318,23 +319,23 @@ exportMenu route =
 baseExportMenu : List (MenuItem Msg)
 baseExportMenu =
     [ Item
-        { e = Download <| FileType.svg
+        { e = Download <| ExportDiagram.downloadable FileType.svg
         , title = FileType.toString FileType.svg
         }
     , Item
-        { e = Download <| FileType.png
+        { e = Download <| ExportDiagram.downloadable FileType.png
         , title = FileType.toString FileType.png
         }
     , Item
-        { e = Download <| FileType.pdf
+        { e = Download <| ExportDiagram.downloadable FileType.pdf
         , title = FileType.toString FileType.pdf
         }
     , Item
-        { e = Download <| FileType.plainText
+        { e = Download <| ExportDiagram.downloadable FileType.plainText
         , title = FileType.toString FileType.plainText
         }
     , Item
-        { e = Download <| FileType.html
+        { e = Download <| ExportDiagram.downloadable FileType.html
         , title = FileType.toString FileType.html
         }
     ]
