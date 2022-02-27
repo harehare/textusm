@@ -1357,6 +1357,7 @@ update message =
             Return.andThen <|
                 \m ->
                     let
+                        prefix : String
                         prefix =
                             Text.lines m.text
                                 |> last
