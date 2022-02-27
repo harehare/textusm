@@ -5,7 +5,7 @@
   "suppressions": [
     { "count": 6, "filePath": "src/elm/Models/Item.elm" },
     { "count": 4, "filePath": "src/elm/Models/Diagram/UseCaseDiagram.elm" },
-    { "count": 1, "filePath": "src/elm/Models/Diagram/SequenceDiagram.elm" },
+    { "count": 3, "filePath": "src/elm/Models/Diagram/SequenceDiagram.elm" },
     { "count": 1, "filePath": "src/elm/Views/Diagram/ImpactMap.elm" },
     { "count": 1, "filePath": "src/elm/Views/Diagram/MindMap.elm" },
     { "count": 1, "filePath": "src/elm/Views/Diagram/SiteMap.elm" },

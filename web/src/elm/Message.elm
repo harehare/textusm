@@ -4,6 +4,7 @@ module Message exposing
     , fromString
     , messagEerrorOccurred
     , messageBadRequest
+    , messageCopiedText
     , messageFailedPublished
     , messageFailedRevokeToken
     , messageFailedSaveSettings
@@ -330,3 +331,13 @@ messageFailedSaveSettings lang =
 
         _ ->
             "Failed to save settings"
+
+
+messageCopiedText : Lang -> String
+messageCopiedText lang =
+    case lang of
+        Ja ->
+            "テキストをクリップボードにコピーしました"
+
+        _ ->
+            "Copied the text to clipboard"

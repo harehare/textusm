@@ -1,14 +1,15 @@
 module Models.Diagram.GanttChart exposing
     ( From
     , GanttChart(..)
+    , GanttTitle
     , Schedule(..)
     , Section(..)
     , Task(..)
-    , Title
     , To
     , from
     , sectionSchedule
     , size
+    , toMermaidString
     )
 
 import Basics.Extra as BasicEx
@@ -18,8 +19,10 @@ import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.Item as Item exposing (Item, Items)
 import Models.Size exposing (Size)
-import Time exposing (Month(..), Posix)
+import Models.Title as Title exposing (Title)
+import Time exposing (Month(..), Posix, Zone)
 import Time.Extra as TimeEx exposing (Interval(..))
+import Utils.Date as DateUtils
 
 
 type GanttChart
@@ -38,16 +41,16 @@ type alias To =
     Posix
 
 
-type alias Title =
+type alias GanttTitle =
     String
 
 
 type Section
-    = Section Title (List (Maybe Task))
+    = Section GanttTitle (List (Maybe Task))
 
 
 type Task
-    = Task Title Schedule
+    = Task GanttTitle Schedule
 
 
 diff : From -> To -> Int
@@ -292,3 +295,33 @@ size gantt =
             (ListEx.last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length sections
     in
     ( Constants.leftMargin + 20 + Constants.ganttItemSize + interval * Constants.ganttItemSize, svgHeight + Constants.ganttItemSize )
+
+
+
+-- mermaid
+
+
+toMermaidString : Title -> Zone -> GanttChart -> String
+toMermaidString title zone (GanttChart _ sections) =
+    "gantt"
+        ++ "\n"
+        ++ ([ "dateFormat  YYYY-MM-DD", "title " ++ Title.toString title ]
+                ++ List.map (sectiontomermaidstring zone) sections
+                |> List.map (\s -> "    " ++ s)
+                |> String.join "\n"
+           )
+
+
+sectiontomermaidstring : Zone -> Section -> String
+sectiontomermaidstring zone (Section title tasks) =
+    (("section " ++ title)
+        :: (tasks
+                |> List.filterMap (\v_ -> v_)
+                |> List.map
+                    (\(Task taskTitle (Schedule from_ to_ _)) ->
+                        "    " ++ taskTitle ++ ":" ++ DateUtils.millisToDateString zone from_ ++ "," ++ DateUtils.millisToDateString zone to_
+                    )
+           )
+        |> String.join "\n"
+    )
+        ++ "\n"

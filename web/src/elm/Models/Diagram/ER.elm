@@ -17,6 +17,7 @@ module Models.Diagram.ER exposing
     , tableToLineString
     , tableToString
     , tableWidth
+    , toMermaidString
     )
 
 import Constants
@@ -746,3 +747,98 @@ size items =
         )
         ( 0, 0 )
         sizeList
+
+
+
+-- mermaid
+
+
+toMermaidString : ErDiagram -> String
+toMermaidString ( relationshipList, tableList ) =
+    "erDiagram"
+        :: (List.concatMap relationshipToMermaidString relationshipList
+                ++ List.map tableToMermaidString tableList
+                |> List.map (\line -> "    " ++ line)
+           )
+        |> String.join "\n"
+
+
+relationshipToMermaidString : Relationship -> List String
+relationshipToMermaidString relationship =
+    case relationship of
+        ManyToMany table1 table2 ->
+            [ table1 ++ "}|..|{" ++ table2 ++ " : relation" ]
+
+        OneToMany table1 table2 ->
+            [ table1 ++ "||--o{" ++ table2 ++ " : relation" ]
+
+        ManyToOne table1 table2 ->
+            [ table1 ++ "}o--||" ++ table2 ++ " : relation" ]
+
+        OneToOne table1 table2 ->
+            [ table1 ++ "||--||" ++ table2 ++ " : relation" ]
+
+        NoRelation ->
+            []
+
+
+tableToMermaidString : Table -> String
+tableToMermaidString (Table name columns _ _) =
+    (name ++ "{")
+        :: List.map columnToMermaidString columns
+        ++ [ "    }" ]
+        |> String.join "\n"
+
+
+columnToMermaidString : Column -> String
+columnToMermaidString (Column name columnType _) =
+    "        " ++ columnTypeToMermaidString columnType ++ " " ++ name
+
+
+columnTypeToMermaidString : ColumnType -> String
+columnTypeToMermaidString column =
+    case column of
+        TinyInt _ ->
+            "tinyint"
+
+        Int _ ->
+            "int"
+
+        Float _ ->
+            "float"
+
+        Double _ ->
+            "double"
+
+        Decimal _ ->
+            "decimal"
+
+        Char _ ->
+            "char"
+
+        Text ->
+            "text"
+
+        Blob ->
+            "blob"
+
+        VarChar _ ->
+            "varchar"
+
+        Boolean ->
+            "boolean"
+
+        Timestamp ->
+            "Timestamp"
+
+        Date ->
+            "Date"
+
+        DateTime ->
+            "datetime"
+
+        Enum _ ->
+            "enum"
+
+        Json ->
+            "json"

@@ -29,6 +29,7 @@ module Models.Item exposing
     , getPosition
     , getSize
     , getText
+    , getTrimmedText
     , head
     , indexedMap
     , isCanvas
@@ -235,6 +236,11 @@ getChildrenItems (Item i) =
 getText : Item -> String
 getText (Item i) =
     Text.toString i.text
+
+
+getTrimmedText : Item -> String
+getTrimmedText item =
+    getText item |> String.trim
 
 
 getComments : Item -> Maybe String

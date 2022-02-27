@@ -1,4 +1,11 @@
-module Views.Diagram.Toolbar exposing (ClickEvent, ToolbarButton, view, viewForFreeForm)
+module Views.Diagram.Toolbar exposing
+    ( ClickEvent
+    , ToolbarButton
+    , userStoryMap
+    , view
+    , viewColorOnly
+    , viewForFreeForm
+    )
 
 import Css
     exposing
@@ -54,6 +61,7 @@ createColorItem color =
                 |> ItemSettings.withForegroundColor (Just Color.black)
                 |> Just
             )
+        |> Item.withTextOnly "Click to edit"
 
 
 createTextItem : Item
@@ -107,9 +115,27 @@ freeForm e =
     ]
 
 
+userStoryMap : ClickEvent msg -> List (ToolbarButton msg)
+userStoryMap e =
+    [ Button <| cardView Color.white (createColorItem Color.white) e
+    , Button <| cardView Color.yellow (createColorItem Color.yellow) e
+    , Button <| cardView Color.green (createColorItem Color.green) e
+    , Button <| cardView Color.blue (createColorItem Color.blue) e
+    , Button <| cardView Color.orange (createColorItem Color.orange) e
+    , Button <| cardView Color.pink (createColorItem Color.pink) e
+    , Button <| cardView Color.red (createColorItem Color.red) e
+    , Button <| cardView Color.purple (createColorItem Color.purple) e
+    ]
+
+
 viewForFreeForm : ClickEvent msg -> Html msg
 viewForFreeForm e =
     view <| freeForm e
+
+
+viewColorOnly : ClickEvent msg -> Html msg
+viewColorOnly e =
+    view <| userStoryMap e
 
 
 view : List (ToolbarButton msg) -> Html msg

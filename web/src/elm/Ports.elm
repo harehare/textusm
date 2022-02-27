@@ -3,6 +3,7 @@ port module Ports exposing
     , changeText
     , closeFullscreen
     , closeLocalFile
+    , copyText
     , downloadCompleted
     , downloadHtml
     , downloadPdf
@@ -171,3 +172,6 @@ port savedLocalFile : (String -> msg) -> Sub msg
 
 
 port closeLocalFile : () -> Cmd msg
+
+
+port copyText : String -> Cmd msg

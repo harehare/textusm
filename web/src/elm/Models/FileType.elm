@@ -1,4 +1,17 @@
-module Models.FileType exposing (Extension, FileType(..), ddl, html, markdown, pdf, plainText, png, svg, toString)
+module Models.FileType exposing
+    ( Extension
+    , FileType(..)
+    , ddl
+    , extension
+    , html
+    , markdown
+    , mermaid
+    , pdf
+    , plainText
+    , png
+    , svg
+    , toString
+    )
 
 
 type alias Extension =
@@ -13,6 +26,35 @@ type FileType
     | Ddl Extension
     | Markdown Extension
     | PlainText Extension
+    | Mermaid Extension
+
+
+extension : FileType -> Extension
+extension fileType =
+    case fileType of
+        Png ex ->
+            ex
+
+        Svg ex ->
+            ex
+
+        Pdf ex ->
+            ex
+
+        Html ex ->
+            ex
+
+        Ddl ex ->
+            ex
+
+        Markdown ex ->
+            ex
+
+        PlainText ex ->
+            ex
+
+        Mermaid ex ->
+            ex
 
 
 toString : FileType -> String
@@ -28,16 +70,19 @@ toString fileType =
             "PDF"
 
         Html _ ->
-            "Html"
+            "HTML"
 
         Ddl _ ->
             "DDL"
 
         Markdown _ ->
-            "Markdown"
+            "MARKDOWN"
 
         PlainText _ ->
-            "Text"
+            "TEXT"
+
+        Mermaid _ ->
+            "Mermaid"
 
 
 png : FileType
@@ -73,3 +118,8 @@ markdown =
 plainText : FileType
 plainText =
     PlainText ".txt"
+
+
+mermaid : FileType
+mermaid =
+    Mermaid ".mermaid"

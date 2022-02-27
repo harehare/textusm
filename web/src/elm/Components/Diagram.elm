@@ -46,7 +46,7 @@ import Html.Styled.Events as Event
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import List
-import List.Extra exposing (getAt, setAt)
+import List.Extra exposing (getAt, last, setAt)
 import Maybe
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem)
@@ -320,6 +320,9 @@ view model =
         , case model.diagramType of
             Freeform ->
                 Lazy.lazy Toolbar.viewForFreeForm ToolbarClick
+
+            UserStoryMap ->
+                Lazy.lazy Toolbar.viewColorOnly ToolbarClick
 
             _ ->
                 Empty.view
@@ -1351,4 +1354,14 @@ update message =
             Return.andThen <| \m -> Return.singleton { m | showMiniMap = not m.showMiniMap }
 
         ToolbarClick item ->
-            Return.andThen <| \m -> setText (Text.addLine m.text (Item.toLineString item) |> Text.toString) m
+            Return.andThen <|
+                \m ->
+                    let
+                        prefix : String
+                        prefix =
+                            Text.lines m.text
+                                |> last
+                                |> Maybe.map DiagramUtils.getSpacePrefix
+                                |> Maybe.withDefault Constants.inputPrefix
+                    in
+                    setText (Text.addLine m.text (prefix ++ Item.toLineString item) |> Text.toString) m
