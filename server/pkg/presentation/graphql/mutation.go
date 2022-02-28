@@ -116,6 +116,7 @@ func (r *mutationResolver) SaveSettings(ctx context.Context, diagram *v.Diagram,
 		TextColor:       input.TextColor,
 		ZoomControl:     input.ZoomControl,
 		Scale:           input.Scale,
+		Toolbar:         input.Toolbar,
 	}
 	return r.settingsService.Save(ctx, *diagram, &settings)
 }

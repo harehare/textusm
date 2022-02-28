@@ -30,6 +30,7 @@ const getDefaultSettings = (isDarkMode: boolean) => ({
         backgroundColor: isDarkMode ? '#323d46' : '#F4F4F5',
         zoomControl: true,
         scale: 1.0,
+        toolbar: true,
     },
     position: -10,
     text: '',

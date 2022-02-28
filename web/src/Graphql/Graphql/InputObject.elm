@@ -2,13 +2,20 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.InputObject exposing (InputColor, InputColorRequiredFields, InputGistItem, InputGistItemOptionalFields, InputGistItemRequiredFields, InputItem, InputItemOptionalFields, InputItemRequiredFields, InputSettings, InputSettingsOptionalFields, InputSettingsRequiredFields, InputShareItem, InputShareItemOptionalFields, InputShareItemRequiredFields, buildInputColor, buildInputGistItem, buildInputItem, buildInputSettings, buildInputShareItem, encodeInputColor, encodeInputGistItem, encodeInputItem, encodeInputSettings, encodeInputShareItem)
+module Graphql.InputObject exposing (..)
 
 import Graphql.Enum.Diagram
+import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
+import Graphql.Internal.Builder.Object as Object
 import Graphql.Internal.Encode as Encode exposing (Value)
+import Graphql.Object
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
+import Graphql.SelectionSet exposing (SelectionSet)
+import Graphql.Union
+import Json.Decode as Decode
 
 
 buildInputColor :
@@ -144,9 +151,9 @@ buildInputSettings required____ fillOptionals____ =
     let
         optionals____ =
             fillOptionals____
-                { textColor = Absent, zoomControl = Absent, scale = Absent }
+                { textColor = Absent, zoomControl = Absent, scale = Absent, toolbar = Absent }
     in
-    { font = required____.font, width = required____.width, height = required____.height, backgroundColor = required____.backgroundColor, activityColor = required____.activityColor, taskColor = required____.taskColor, storyColor = required____.storyColor, lineColor = required____.lineColor, labelColor = required____.labelColor, textColor = optionals____.textColor, zoomControl = optionals____.zoomControl, scale = optionals____.scale }
+    { font = required____.font, width = required____.width, height = required____.height, backgroundColor = required____.backgroundColor, activityColor = required____.activityColor, taskColor = required____.taskColor, storyColor = required____.storyColor, lineColor = required____.lineColor, labelColor = required____.labelColor, textColor = optionals____.textColor, zoomControl = optionals____.zoomControl, scale = optionals____.scale, toolbar = optionals____.toolbar }
 
 
 type alias InputSettingsRequiredFields =
@@ -166,6 +173,7 @@ type alias InputSettingsOptionalFields =
     { textColor : OptionalArgument String
     , zoomControl : OptionalArgument Bool
     , scale : OptionalArgument Float
+    , toolbar : OptionalArgument Bool
     }
 
 
@@ -184,6 +192,7 @@ type alias InputSettings =
     , textColor : OptionalArgument String
     , zoomControl : OptionalArgument Bool
     , scale : OptionalArgument Float
+    , toolbar : OptionalArgument Bool
     }
 
 
@@ -192,7 +201,7 @@ type alias InputSettings =
 encodeInputSettings : InputSettings -> Value
 encodeInputSettings input____ =
     Encode.maybeObject
-        [ ( "font", Encode.string input____.font |> Just ), ( "width", Encode.int input____.width |> Just ), ( "height", Encode.int input____.height |> Just ), ( "backgroundColor", Encode.string input____.backgroundColor |> Just ), ( "activityColor", encodeInputColor input____.activityColor |> Just ), ( "taskColor", encodeInputColor input____.taskColor |> Just ), ( "storyColor", encodeInputColor input____.storyColor |> Just ), ( "lineColor", Encode.string input____.lineColor |> Just ), ( "labelColor", Encode.string input____.labelColor |> Just ), ( "textColor", Encode.string |> Encode.optional input____.textColor ), ( "zoomControl", Encode.bool |> Encode.optional input____.zoomControl ), ( "scale", Encode.float |> Encode.optional input____.scale ) ]
+        [ ( "font", Encode.string input____.font |> Just ), ( "width", Encode.int input____.width |> Just ), ( "height", Encode.int input____.height |> Just ), ( "backgroundColor", Encode.string input____.backgroundColor |> Just ), ( "activityColor", encodeInputColor input____.activityColor |> Just ), ( "taskColor", encodeInputColor input____.taskColor |> Just ), ( "storyColor", encodeInputColor input____.storyColor |> Just ), ( "lineColor", Encode.string input____.lineColor |> Just ), ( "labelColor", Encode.string input____.labelColor |> Just ), ( "textColor", Encode.string |> Encode.optional input____.textColor ), ( "zoomControl", Encode.bool |> Encode.optional input____.zoomControl ), ( "scale", Encode.float |> Encode.optional input____.scale ), ( "toolbar", Encode.bool |> Encode.optional input____.toolbar ) ]
 
 
 buildInputShareItem :

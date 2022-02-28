@@ -43,6 +43,7 @@ defaultSettings =
         , label = "#8C9FAE"
         , text = Just "#111111"
         }
+    , toolbar = Just True
     }
 
 

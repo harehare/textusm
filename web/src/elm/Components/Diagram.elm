@@ -317,15 +317,43 @@ view model =
                     ]
                 ]
             ]
-        , case model.diagramType of
-            Freeform ->
-                Lazy.lazy Toolbar.viewForFreeForm ToolbarClick
+        , if model.settings.toolbar |> Maybe.withDefault True then
+            case model.diagramType of
+                Freeform ->
+                    Lazy.lazy Toolbar.viewForFreeForm ToolbarClick
 
-            UserStoryMap ->
-                Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+                UserStoryMap ->
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
 
-            _ ->
-                Empty.view
+                BusinessModelCanvas ->
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+
+                OpportunityCanvas ->
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+
+                Kanban ->
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+
+                StartStopContinue ->
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+
+                Fourls ->
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+
+                Kpt ->
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+
+                UserPersona ->
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+
+                EmpathyMap ->
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+
+                _ ->
+                    Empty.view
+
+          else
+            Empty.view
         , if Property.getZoomControl model.property |> Maybe.withDefault (model.settings.zoomControl |> Maybe.withDefault model.showZoomControl) then
             Lazy.lazy2 zoomControl model.fullscreen model.svg.scale
 

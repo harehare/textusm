@@ -2,14 +2,21 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.Object.GistItem exposing (createdAt, diagram, id, isBookmark, thumbnail, title, updatedAt, url)
+module Graphql.Object.GistItem exposing (..)
 
 import Graphql.Enum.Diagram
+import Graphql.InputObject
+import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
 import Graphql.Internal.Builder.Object as Object
+import Graphql.Internal.Encode as Encode exposing (Value)
 import Graphql.Object
+import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
+import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
 import Graphql.SelectionSet exposing (SelectionSet)
+import Graphql.Union
 import Json.Decode as Decode
 
 

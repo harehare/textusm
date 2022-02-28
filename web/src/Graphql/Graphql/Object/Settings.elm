@@ -2,11 +2,20 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.Object.Settings exposing (activityColor, backgroundColor, font, height, labelColor, lineColor, scale, storyColor, taskColor, textColor, width, zoomControl)
+module Graphql.Object.Settings exposing (..)
 
+import Graphql.InputObject
+import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
 import Graphql.Internal.Builder.Object as Object
+import Graphql.Internal.Encode as Encode exposing (Value)
 import Graphql.Object
+import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
+import Graphql.OptionalArgument exposing (OptionalArgument(..))
+import Graphql.Scalar
+import Graphql.ScalarCodecs
 import Graphql.SelectionSet exposing (SelectionSet)
+import Graphql.Union
 import Json.Decode as Decode
 
 
@@ -86,3 +95,9 @@ zoomControl =
 scale : SelectionSet (Maybe Float) Graphql.Object.Settings
 scale =
     Object.selectionForField "(Maybe Float)" "scale" [] (Decode.float |> Decode.nullable)
+
+
+{-| -}
+toolbar : SelectionSet (Maybe Bool) Graphql.Object.Settings
+toolbar =
+    Object.selectionForField "(Maybe Bool)" "toolbar" [] (Decode.bool |> Decode.nullable)

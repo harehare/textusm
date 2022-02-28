@@ -43,6 +43,7 @@ type InputSettings struct {
 	TextColor       *string     `json:"textColor"`
 	ZoomControl     *bool       `json:"zoomControl"`
 	Scale           *float64    `json:"scale"`
+	Toolbar         *bool       `json:"toolbar"`
 }
 
 type InputShareItem struct {

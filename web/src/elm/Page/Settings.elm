@@ -28,6 +28,7 @@ import Settings
         , ofTaskBackgroundColor
         , ofTaskColor
         , ofTextColor
+        , ofToolbar
         , ofWidth
         , ofWordWrap
         , ofZoomControl
@@ -64,7 +65,6 @@ fontSizeItems =
         (\f ->
             let
                 size : Int
-
                 size =
                     FontSize.unwrap f
             in
@@ -1079,7 +1079,6 @@ update msg =
             Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing })
 
 
-
 columnView : List (Html msg) -> Html msg
 columnView children =
     div [ css [ width <| px 300 ] ] children
@@ -1210,6 +1209,15 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                         (\v ->
                             UpdateSettings
                                 (\_ -> settings |> ofZoomControl.set (Just v))
+                                ""
+                        )
+                    ]
+                , conrtolRowView
+                    [ nameView [ text "Toolbar" ]
+                    , Switch.view (Maybe.withDefault True settings.storyMap.toolbar)
+                        (\v ->
+                            UpdateSettings
+                                (\_ -> settings |> ofToolbar.set (Just v))
                                 ""
                         )
                     ]

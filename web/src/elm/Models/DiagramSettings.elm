@@ -20,6 +20,7 @@ module Models.DiagramSettings exposing
     , ofTaskBackgroundColor
     , ofTaskColor
     , ofTextColor
+    , ofToolbar
     , ofWidth
     , ofZoomControl
     , textColor
@@ -39,6 +40,7 @@ type alias Settings =
     , backgroundColor : String
     , zoomControl : Maybe Bool
     , scale : Maybe Float
+    , toolbar : Maybe Bool
     }
 
 
@@ -99,6 +101,11 @@ ofFont =
 ofZoomControl : Lens Settings (Maybe Bool)
 ofZoomControl =
     Lens .zoomControl (\b a -> { a | zoomControl = b })
+
+
+ofToolbar : Lens Settings (Maybe Bool)
+ofToolbar =
+    Lens .toolbar (\b a -> { a | toolbar = b })
 
 
 ofScale : Lens Settings (Maybe Float)

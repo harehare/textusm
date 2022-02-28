@@ -328,6 +328,13 @@ saveSettingsToRemote diagram settings model =
 
                         Nothing ->
                             OptionalArgument.Absent
+                , toolbar =
+                    case settings.toolbar of
+                        Just z ->
+                            OptionalArgument.Present z
+
+                        Nothing ->
+                            OptionalArgument.Absent
                 }
         )
 

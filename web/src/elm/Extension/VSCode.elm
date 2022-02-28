@@ -99,6 +99,7 @@ init flags =
                     , label = flags.labelColor
                     , text = Just flags.textColor
                     }
+                , toolbar = Just False
                 }
             , touchDistance = Nothing
             , text = Text.empty

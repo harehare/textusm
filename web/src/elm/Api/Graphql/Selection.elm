@@ -86,3 +86,4 @@ settingsSelection =
         |> with Graphql.Object.Settings.backgroundColor
         |> with Graphql.Object.Settings.zoomControl
         |> with Graphql.Object.Settings.scale
+        |> with Graphql.Object.Settings.toolbar

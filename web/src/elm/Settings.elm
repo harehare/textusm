@@ -24,6 +24,7 @@ module Settings exposing
     , settingsDecoder
     , settingsEncoder
     , storyMapOfSettings
+    , ofToolbar
     )
 
 import Json.Decode as D
@@ -96,6 +97,7 @@ defaultSettings isDarkMode =
                 Color.toString Color.backgroundDefalut
         , zoomControl = Just True
         , scale = Just 1.0
+        , toolbar = Nothing
         }
     , text = Nothing
     , title = Nothing
@@ -158,6 +160,11 @@ ofBackgroundColor =
 ofZoomControl : Lens Settings (Maybe Bool)
 ofZoomControl =
     Compose.lensWithLens DiagramSettings.ofZoomControl storyMapOfSettings
+
+
+ofToolbar : Lens Settings (Maybe Bool)
+ofToolbar =
+    Compose.lensWithLens DiagramSettings.ofToolbar storyMapOfSettings
 
 
 ofLineColor : Lens Settings String
@@ -241,13 +248,14 @@ settingsDecoder =
 
 diagramDecoder : D.Decoder DiagramSettings.Settings
 diagramDecoder =
-    D.map6 DiagramSettings.Settings
+    D.map7 DiagramSettings.Settings
         (D.field "font" D.string)
         (D.field "size" sizeDecoder)
         (D.field "color" colorSettingsDecoder)
         (D.field "backgroundColor" D.string)
         (D.maybe (D.field "zoomControl" D.bool))
         (D.maybe (D.field "scale" D.float))
+        (D.maybe (D.field "toolbar" D.bool))
 
 
 editorSettingsDecoder : D.Decoder EditorSettings

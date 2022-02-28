@@ -2,20 +2,22 @@
 -- https://github.com/dillonkearns/elm-graphql
 
 
-module Graphql.Mutation exposing (BookmarkRequiredArguments, DeleteGistRequiredArguments, DeleteOptionalArguments, DeleteRequiredArguments, SaveGistRequiredArguments, SaveOptionalArguments, SaveRequiredArguments, SaveSettingsRequiredArguments, ShareRequiredArguments, bookmark, delete, deleteGist, save, saveGist, saveSettings, share)
+module Graphql.Mutation exposing (..)
 
 import Graphql.Enum.Diagram
 import Graphql.InputObject
-import Graphql.Internal.Builder.Argument as Argument
+import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
 import Graphql.Internal.Builder.Object as Object
-import Graphql.Internal.Encode as Encode
+import Graphql.Internal.Encode as Encode exposing (Value)
 import Graphql.Object
-import Graphql.Operation exposing (RootMutation)
+import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
 import Graphql.SelectionSet exposing (SelectionSet)
-import Json.Decode as Decode
+import Graphql.Union
+import Json.Decode as Decode exposing (Decoder)
 
 
 type alias SaveOptionalArguments =
