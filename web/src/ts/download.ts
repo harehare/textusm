@@ -99,8 +99,16 @@ export const initDownload = (app: ElmApp): void => {
 
     app.ports.downloadPdf.subscribe(
         async ({ id, width, height, title, x, y }: DownloadInfo) => {
+            const html2canvas = await import('html2canvas').catch(() => null);
+
+            if (!html2canvas) {
+                app.ports.sendErrorNotification.send(
+                    'Failed to load chunks. Please reload.'
+                );
+            }
+
             // @ts-ignore
-            window.html2canvas = (await import('html2canvas')).default;
+            window.html2canvas = html2canvas.default;
             const JsPdf = (await import('jspdf')).default;
 
             if (window.location.pathname === '/md') {
