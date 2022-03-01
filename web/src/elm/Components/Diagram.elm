@@ -317,7 +317,7 @@ view model =
                     ]
                 ]
             ]
-        , if model.settings.toolbar |> Maybe.withDefault True then
+        , if Property.getToolbar model.property |> Maybe.withDefault (model.settings.toolbar |> Maybe.withDefault True) then
             case model.diagramType of
                 Freeform ->
                     Lazy.lazy Toolbar.viewForFreeForm ToolbarClick

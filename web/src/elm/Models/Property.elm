@@ -14,6 +14,7 @@ module Models.Property exposing
     , getLineSize
     , getReleaseLevel
     , getTitle
+    , getToolbar
     , getUserActivity
     , getUserStory
     , getUserTask
@@ -33,6 +34,7 @@ type Key
     | UserStory
     | ReleaseLevel Int
     | ZoomControl
+    | Toolbar
     | LineColor
     | LineSize
     | CardForegroundColor1
@@ -123,6 +125,11 @@ getZoomControl property =
     Dict.get (toKeyString ZoomControl) property |> Maybe.map (\b -> String.toLower b == "true")
 
 
+getToolbar : Property -> Maybe Bool
+getToolbar property =
+    Dict.get (toKeyString Toolbar) property |> Maybe.map (\b -> String.toLower b == "true")
+
+
 getCanvasBackgroundColor : Property -> Maybe Color
 getCanvasBackgroundColor property =
     Dict.get (toKeyString CanvasBackgroundColor) property |> Maybe.map Color.fromString
@@ -182,6 +189,9 @@ enabledKey s =
         "zoom_control" ->
             Just ZoomControl
 
+        "toolbar" ->
+            Just Toolbar
+
         "card_foreground_color1" ->
             Just CardForegroundColor1
 
@@ -237,6 +247,9 @@ toKeyString key =
 
         ZoomControl ->
             "zoom_control"
+
+        Toolbar ->
+            "toolbar"
 
         LineSize ->
             "line_size"

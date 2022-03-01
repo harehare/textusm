@@ -63,4 +63,10 @@ suite =
         , test "If invalid card_background_color3 exists" <|
             \() ->
                 Expect.equal (Property.getCardBackgroundColor3 (Property.fromString "#card_background_color3: #FF0000")) (Just <| Color.fromString "#FF0000")
+        , test "If valid toolbar exists" <|
+            \() ->
+                Expect.equal (Property.getToolbar (Property.fromString "#toolbar: true")) (Just True)
+        , test "If invalid toolbar exists" <|
+            \() ->
+                Expect.equal (Property.getToolbar (Property.fromString "#toolbar: v")) (Just False)
         ]
