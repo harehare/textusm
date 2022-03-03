@@ -4,10 +4,9 @@ on:
     types: [opened, synchronize]
     branches:
       - release
-
 jobs:
-  build:
-    name: build
+  ci:
+    name: CI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -25,6 +24,46 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           working-directory: server
+      - uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/web/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install Dependencies
+        working-directory: web
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm install
+      - name: Generate elm-constants
+        working-directory: web
+        run: npm run generate-elm-constants
+        env:
+          API_ROOT: ${{ secrets.API_ROOT }}
+          WEB_ROOT: ${{ secrets.WEB_ROOT }}
+          APP_VERSION: ${{ steps.package-version.outputs.current-version}}
+          REPO_URL: ${{ secrets.REPO_URL }}
       - name: Run Tests
         working-directory: web
         run: npm run test
+      - uses: cypress-io/github-action@v2
+        env:
+          API_ROOT: ${{ secrets.API_ROOT }}
+          WEB_ROOT: ${{ secrets.WEB_ROOT }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_AUTH_EMULATOR_URL: ""
+          NODE_ENV: development
+          SENTRY_ENABLE: 0
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_RELEASE: ${{ steps.package-version.outputs.current-version}}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          start: npm run dev:web
+          headless: true
+          working-directory: web
+          wait-on: "http://localhost:3000"

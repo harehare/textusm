@@ -86,7 +86,7 @@ const html = (
   <script type="text/javascript">
       textusm.render(
         "target",
-\`${text.replace(/(`|\/)/g, "\\$1").replace("`", "")}\`,
+\`${text.replace(/(`|\/)/g, "\\$1").replace(/`/g, "``")}\`,
         {
           diagramType: "${escape(settings.diagramType)}",
           size: { width: ${width}, height: ${height},
