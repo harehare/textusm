@@ -11,7 +11,6 @@ import Css
         , marginTop
         , none
         , outline
-        , padding
         , padding4
         , property
         , px
