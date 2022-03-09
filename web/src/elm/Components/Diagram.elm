@@ -46,7 +46,7 @@ import Html.Styled.Events as Event
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import List
-import List.Extra exposing (getAt, last, setAt)
+import List.Extra exposing (getAt, setAt)
 import Maybe
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem)
