@@ -16,6 +16,7 @@ port module Ports exposing
     , gotGithubAccessToken
     , gotLocalDiagramJson
     , gotLocalDiagramsJson
+    , insertText
     , notifyNewVersionAvailable
     , onAuthStateChanged
     , onNotification
@@ -175,3 +176,6 @@ port closeLocalFile : () -> Cmd msg
 
 
 port copyText : String -> Cmd msg
+
+
+port insertText : String -> Cmd msg

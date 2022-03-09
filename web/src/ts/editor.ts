@@ -12,12 +12,42 @@ const focusEditor = () => {
     }, 100);
 };
 
+const insertText = (text: string) => {
+    if (!monacoEditor) {
+        return;
+    }
+
+    const position = monacoEditor.getPosition();
+    const lines = monacoEditor.getValue().split('\n');
+    if (!position) {
+        return;
+    }
+
+    if (lines[position.lineNumber - 1]) {
+        const t = lines[position.lineNumber - 1] || '';
+        lines.splice(
+            position.lineNumber - 1,
+            0,
+            `${' '.repeat(t.length - t.trim().length)}` + text
+        );
+    } else {
+        lines.splice(position.lineNumber - 1, 0, text);
+    }
+
+    monacoEditor.setValue(lines.join('\n'));
+    monacoEditor.setPosition(
+        new monaco.Position(position.lineNumber + 1, position.column)
+    );
+};
+
 export const setElmApp = (app: ElmApp): void => {
     if (_app) {
         _app.ports.focusEditor.unsubscribe(focusEditor);
+        _app.ports.insertText.unsubscribe(insertText);
     }
     _app = app;
     _app.ports.focusEditor.subscribe(focusEditor);
+    _app.ports.insertText.subscribe(insertText);
 };
 
 monaco.languages.register({

@@ -74,6 +74,7 @@ import Models.Position as Position exposing (Position)
 import Models.Property as Property
 import Models.Size as Size exposing (Size)
 import Models.Text as Text
+import Ports
 import Return exposing (Return)
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
@@ -1384,12 +1385,4 @@ update message =
         ToolbarClick item ->
             Return.andThen <|
                 \m ->
-                    let
-                        prefix : String
-                        prefix =
-                            Text.lines m.text
-                                |> last
-                                |> Maybe.map DiagramUtils.getSpacePrefix
-                                |> Maybe.withDefault Constants.inputPrefix
-                    in
-                    setText (Text.addLine m.text (prefix ++ Item.toLineString item) |> Text.toString) m
+                    Return.return m <| Ports.insertText <| Item.toLineString item

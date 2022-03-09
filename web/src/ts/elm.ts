@@ -35,6 +35,7 @@ type ElmApp = {
         openLocalFile: Subscribe<() => Promise<void>>;
         saveLocalFile: Subscribe<(diagram: Diagram) => Promise<void>>;
         closeLocalFile: Subscribe<() => void>;
+        insertText: Subscribe<(text: string) => void>;
 
         gotGithubAccessToken: Send<{ cmd: string; accessToken: string | null }>;
         fullscreen: Send<boolean>;
