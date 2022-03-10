@@ -11,6 +11,7 @@ module Models.Diagram.FreeForm exposing
 
 import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
+import Models.ItemSettings as ItemSettings
 import Models.Size exposing (Size)
 
 
@@ -50,12 +51,35 @@ itemToFreeFormItem item =
         [ Text item ]
 
     else
+        let
+            size_ =
+                Item.getItemSettings item
+                    |> Maybe.withDefault ItemSettings.new
+                    |> ItemSettings.getOffsetSize
+
+            offset =
+                Item.getItemSettings item
+                    |> Maybe.withDefault ItemSettings.new
+                    |> ItemSettings.getOffset
+        in
         [ Card <|
             Item.withChildren
                 (Item.getChildren item
                     |> Item.unwrapChildren
                     |> Item.flatten
-                    |> Item.map (\childItem -> Item.withItemSettings (Item.getItemSettings item) childItem)
+                    |> Item.map
+                        (\childItem ->
+                            Item.withItemSettings
+                                (Item.getItemSettings childItem
+                                    |> Maybe.map
+                                        (\s ->
+                                            s
+                                                |> ItemSettings.withOffset offset
+                                                |> ItemSettings.withOffsetSize size_
+                                        )
+                                )
+                                childItem
+                        )
                     |> Item.fromList
                     |> Item.childrenFromItems
                 )
