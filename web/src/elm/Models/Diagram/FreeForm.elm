@@ -12,6 +12,7 @@ module Models.Diagram.FreeForm exposing
 import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.ItemSettings as ItemSettings
+import Models.Position exposing (Position)
 import Models.Size exposing (Size)
 
 
@@ -52,11 +53,13 @@ itemToFreeFormItem item =
 
     else
         let
+            size_ : Maybe Size
             size_ =
                 Item.getItemSettings item
                     |> Maybe.withDefault ItemSettings.new
                     |> ItemSettings.getOffsetSize
 
+            offset : Position
             offset =
                 Item.getItemSettings item
                     |> Maybe.withDefault ItemSettings.new

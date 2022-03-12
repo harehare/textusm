@@ -16,7 +16,6 @@ module Action exposing
     , loadItem
     , loadLocalDiagram
     , loadPublicItem
-    , loadRemoteSettings
     , loadSettings
     , loadShareItem
     , loadText

@@ -106,6 +106,11 @@ textSeparator =
     "|"
 
 
+commentPrefix : String
+commentPrefix =
+    "#"
+
+
 new : Item
 new =
     Item
@@ -245,7 +250,7 @@ getTrimmedText item =
 
 getComments : Item -> Maybe String
 getComments (Item i) =
-    Maybe.map (\c -> "#" ++ c) i.comments
+    Maybe.map (\c -> commentPrefix ++ c) i.comments
 
 
 getItemType : Item -> ItemType
@@ -607,7 +612,7 @@ parse indent text =
 
 splitLine : String -> ( String, Maybe String )
 splitLine text =
-    case String.split "#" text of
+    case String.split commentPrefix text of
         [ _ ] ->
             ( text, Nothing )
 
@@ -662,7 +667,7 @@ hasIndent indent text =
 
 createItemType : String -> Int -> ItemType
 createItemType text indent =
-    if text |> String.trim |> String.startsWith "#" then
+    if text |> String.trim |> String.startsWith commentPrefix then
         Comments
 
     else

@@ -488,6 +488,7 @@ changeRouteTo route =
                     }
             in
             Return.andThen (Action.setCurrentDiagram diagram)
+                >> Return.andThen Action.startProgress
                 >> Return.andThen Action.loadSettings
                 >> Return.andThen
                     (\m ->
@@ -509,6 +510,7 @@ changeRouteTo route =
                         |> (if Session.isSignedIn m.session && m.browserStatus.isOnline then
                                 Return.andThen Action.updateIdToken
                                     >> Return.andThen (Action.switchPage Page.Main)
+                                    >> Return.andThen Action.startProgress
                                     >> Return.andThen Action.loadSettings
                                     >> Return.andThen (Action.loadItem id_)
 
