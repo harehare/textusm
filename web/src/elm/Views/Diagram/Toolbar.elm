@@ -147,8 +147,8 @@ view items =
             , border3 (px 1) solid (rgba 0 0 0 0.1)
             , displayFlex
             , position absolute
-            , top <| px 16
-            , right <| px 300
+            , top <| px 66
+            , right <| px 16
             , Style.shadowSm
             , Style.roundedSm
             ]
