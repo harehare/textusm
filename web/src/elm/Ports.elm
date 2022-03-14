@@ -4,6 +4,7 @@ port module Ports exposing
     , closeFullscreen
     , closeLocalFile
     , copyText
+    , copyToClipboardPng
     , downloadCompleted
     , downloadHtml
     , downloadPdf
@@ -86,6 +87,9 @@ port removeRemoteDiagram : (D.Value -> msg) -> Sub msg
 
 
 port downloadPng : DownloadInfo -> Cmd msg
+
+
+port copyToClipboardPng : DownloadInfo -> Cmd msg
 
 
 port downloadSvg : DownloadInfo -> Cmd msg

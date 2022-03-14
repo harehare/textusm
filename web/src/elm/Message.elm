@@ -4,6 +4,7 @@ module Message exposing
     , fromString
     , messagEerrorOccurred
     , messageBadRequest
+    , messageCopiedImage
     , messageCopiedText
     , messageFailedPublished
     , messageFailedRevokeToken
@@ -341,3 +342,13 @@ messageCopiedText lang =
 
         _ ->
             "Copied the text to clipboard"
+
+
+messageCopiedImage : Lang -> String
+messageCopiedImage lang =
+    case lang of
+        Ja ->
+            "イメージをクリップボードにコピーしました"
+
+        _ ->
+            "Copied the png to clipboard"

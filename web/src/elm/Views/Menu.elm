@@ -58,6 +58,7 @@ import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color
 import Models.DiagramLocation as DiagramLocation
+import Models.ExportDiagram as ExportDiagram
 import Models.FileType as FileType
 import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page
@@ -71,7 +72,6 @@ import Style.Text as TextStyle
 import Utils.Utils as Utils
 import Views.Empty as Empty
 import Views.Icon as Icon
-import Models.ExportDiagram as ExportDiagram
 
 
 type MenuItem msg
@@ -338,6 +338,10 @@ baseExportMenu =
         { e = Download <| ExportDiagram.downloadable FileType.html
         , title = FileType.toString FileType.html
         }
+    , Item
+        { e = Download <| ExportDiagram.copyable FileType.png
+        , title = "Copy " ++ FileType.toString FileType.png
+        }
     ]
 
 
@@ -349,7 +353,7 @@ menu posTop posLeft posBottom posRight items =
             , Maybe.map (\p -> Css.batch [ left <| px <| toFloat <| p ]) posLeft |> Maybe.withDefault (Css.batch [])
             , Maybe.map (\p -> Css.batch [ right <| px <| toFloat <| p ]) posRight |> Maybe.withDefault (Css.batch [])
             , Maybe.map (\p -> Css.batch [ bottom <| px <| toFloat <| p ]) posBottom |> Maybe.withDefault (Css.batch [])
-            , minWidth <| px 120
+            , minWidth <| px 128
             , maxHeight <| calc (vh 100) minus (px 40)
             , Transitions.transition [ Transitions.boxShadow3 200 200 Transitions.easeOut ]
             , Style.m1

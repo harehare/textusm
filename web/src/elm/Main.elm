@@ -857,6 +857,7 @@ update message =
                                         Just cmd ->
                                             Return.return m cmd
                                                 |> Return.andThen (Action.showInfoMessage Message.messageCopiedText)
+
                                         Nothing ->
                                             Return.singleton m
 
@@ -871,8 +872,7 @@ update message =
 
                                 FileType.Mermaid _ ->
                                     let
-
-                                        mermaidString: Maybe String
+                                        mermaidString : Maybe String
                                         mermaidString =
                                             case m.diagramModel.data of
                                                 DiagramData.SequenceDiagram data ->
@@ -894,6 +894,29 @@ update message =
 
                                         Nothing ->
                                             Return.singleton m
+
+                                FileType.Png _ ->
+                                    let
+                                        ( posX, posY ) =
+                                            m.diagramModel.position
+
+                                        ( width, height ) =
+                                            DiagramModel.size m.diagramModel
+                                                |> Tuple.mapBoth (\x -> x + posX) (\y -> y + posY)
+                                    in
+                                    Return.return m
+                                        (Ports.copyToClipboardPng
+                                            { width = width
+                                            , height = height
+                                            , id = "usm"
+                                            , title = ""
+                                            , x = 0
+                                            , y = 0
+                                            , text = Text.toString m.diagramModel.text
+                                            , diagramType = DiagramType.toString m.diagramModel.diagramType
+                                            }
+                                        )
+                                        |> Return.andThen (Action.showInfoMessage Message.messageCopiedImage)
 
                                 _ ->
                                     Return.singleton m

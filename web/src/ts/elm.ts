@@ -25,6 +25,7 @@ type ElmApp = {
         downloadPdf: Subscribe<(download: DownloadInfo) => void>;
         downloadPng: Subscribe<(download: DownloadInfo) => void>;
         downloadHtml: Subscribe<(download: DownloadInfo) => void>;
+        copyToClipboardPng: Subscribe<(download: DownloadInfo) => void>;
         saveDiagram: Subscribe<(diagram: Diagram) => void>;
         removeDiagrams: Subscribe<(diagram: Diagram) => Promise<void>>;
         getDiagram: Subscribe<(diagramId: string) => Promise<void>>;

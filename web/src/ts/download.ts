@@ -214,6 +214,44 @@ export const initDownload = (app: ElmApp): void => {
         }
     );
 
+    app.ports.copyToClipboardPng.subscribe(
+        ({ id, width, height, x, y }: DownloadInfo) => {
+            createImage({
+                id,
+                width,
+                height,
+                scale: 2,
+                callback: async (url: string) => {
+                    const dataUrl = url.split(',')[1];
+                    if (!dataUrl) {
+                        // TODO: error
+                        return;
+                    }
+
+                    const bin = atob(dataUrl);
+                    const buffer = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++) {
+                        buffer[i] = bin.charCodeAt(i);
+                    }
+
+                    const blob = new Blob([buffer.buffer], {
+                        type: 'image/png',
+                    });
+                    await navigator.clipboard.write([
+                        new ClipboardItem({
+                            [blob.type]: blob,
+                        }),
+                    ]);
+                    window.URL.revokeObjectURL(url);
+                    app.ports.downloadCompleted.send([
+                        Math.floor(x),
+                        Math.floor(y),
+                    ]);
+                },
+            });
+        }
+    );
+
     app.ports.downloadHtml.subscribe(() => {
         const doc = document.documentElement;
 
