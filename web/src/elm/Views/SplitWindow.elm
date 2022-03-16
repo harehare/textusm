@@ -56,7 +56,7 @@ view { onToggleEditor, onResize, background, window } left right =
                     [ css [ width leftPos, Style.hContent, Color.bgMain, position relative ] ]
                     [ left, toggleEditorButton window.state onToggleEditor ]
                 , Html.div
-                    [ css [ Color.bgMain, width <| px 6, cursor colResize ]
+                    [ css [ Color.bgMain, width <| px 20, cursor colResize ]
                     , onStartWindowResize onResize
                     ]
                     []
@@ -74,7 +74,7 @@ toggleEditorButton state onToggleEditor =
             , zIndex <| int 50
             , cursor pointer
             , top <| px 8
-            , right <| px -22
+            , right <| px -36
             , borderTopRightRadius <| px 4
             , borderBottomRightRadius <| px 4
             , width <| px 16
