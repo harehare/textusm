@@ -11,7 +11,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/rs/zerolog v1.26.1
 	github.com/satori/go.uuid v1.2.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	github.com/vektah/gqlparser/v2 v2.4.1
 	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
 	google.golang.org/api v0.71.0
