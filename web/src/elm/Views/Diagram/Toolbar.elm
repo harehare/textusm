@@ -148,7 +148,7 @@ view items =
             , displayFlex
             , position absolute
             , top <| px 66
-            , right <| px 16
+            , right <| px 32
             , Style.shadowSm
             , Style.roundedSm
             ]

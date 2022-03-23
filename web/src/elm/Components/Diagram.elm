@@ -152,7 +152,7 @@ zoomControl isFullscreen scale =
             , displayFlex
             , justifyContent spaceBetween
             , top <| px 16
-            , right <| px 16
+            , right <| px 32
             , width <| px 240
             , backgroundColor <| hex <| Color.toString Color.white2
             , Style.roundedSm

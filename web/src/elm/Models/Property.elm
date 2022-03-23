@@ -10,19 +10,25 @@ module Models.Property exposing
     , getCardForegroundColor1
     , getCardForegroundColor2
     , getCardForegroundColor3
+    , getCardHeight
+    , getCardWidth
+    , getFontSize
     , getLineColor
     , getLineSize
     , getReleaseLevel
+    , getShowLineNumber
     , getTitle
     , getToolbar
     , getUserActivity
     , getUserStory
     , getUserTask
+    , getWordWrap
     , getZoomControl
     )
 
 import Dict exposing (Dict)
 import Models.Color as Color exposing (Color)
+import Models.FontSize as FontSize exposing (FontSize)
 import String exposing (toInt)
 
 
@@ -44,6 +50,11 @@ type Key
     | CardForegroundColor3
     | CardBackgroundColor3
     | CanvasBackgroundColor
+    | CardWidth
+    | CardHeight
+    | FontSize
+    | ShowLineNumber
+    | WordWrap
 
 
 type alias Property =
@@ -135,6 +146,36 @@ getCanvasBackgroundColor property =
     Dict.get (toKeyString CanvasBackgroundColor) property |> Maybe.map Color.fromString
 
 
+getCardWidth : Property -> Maybe Int
+getCardWidth property =
+    Dict.get (toKeyString CardWidth) property |> Maybe.andThen toInt
+
+
+getCardHeight : Property -> Maybe Int
+getCardHeight property =
+    Dict.get (toKeyString CardHeight) property |> Maybe.andThen toInt
+
+
+getShowLineNumber : Property -> Maybe Bool
+getShowLineNumber property =
+    Dict.get (toKeyString ShowLineNumber) property |> Maybe.map (\b -> String.toLower b == "true")
+
+
+getWordWrap : Property -> Maybe Bool
+getWordWrap property =
+    Dict.get (toKeyString WordWrap) property |> Maybe.map (\b -> String.toLower b == "true")
+
+
+getFontSize : Property -> Maybe FontSize
+getFontSize property =
+    Dict.get (toKeyString FontSize) property
+        |> Maybe.andThen
+            (\b ->
+                toInt b
+                    |> Maybe.map (\f -> FontSize.fromInt f)
+            )
+
+
 empty : Property
 empty =
     Dict.empty
@@ -213,6 +254,21 @@ enabledKey s =
         "canvas_background_color" ->
             Just CanvasBackgroundColor
 
+        "card_width" ->
+            Just CardWidth
+
+        "card_height" ->
+            Just CardHeight
+
+        "font_size" ->
+            Just FontSize
+
+        "show_line_number" ->
+            Just ShowLineNumber
+
+        "word_wrap" ->
+            Just WordWrap
+
         _ ->
             if String.startsWith "release" s then
                 String.dropLeft 7 s |> String.toInt |> Maybe.map (\v -> ReleaseLevel v)
@@ -274,3 +330,18 @@ toKeyString key =
 
         CanvasBackgroundColor ->
             "canvas_background_color"
+
+        CardWidth ->
+            "card_width"
+
+        CardHeight ->
+            "card_height"
+
+        FontSize ->
+            "font_size"
+
+        ShowLineNumber ->
+            "show_line_number"
+
+        WordWrap ->
+            "word_wrap"

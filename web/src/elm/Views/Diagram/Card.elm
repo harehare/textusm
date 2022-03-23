@@ -18,7 +18,7 @@ import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
-import Models.Property exposing (Property)
+import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
 import String
 import Style.Style as Style
@@ -55,7 +55,13 @@ view { settings, property, position, selectedItem, item, canMove } =
                 position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
 
         ( width, height ) =
-            ( settings.size.width, settings.size.height - 1 ) |> Tuple.mapBoth (\w -> w + offsetWidth) (\h -> h + offsetHeight)
+            ( Property.getCardWidth property, Property.getCardHeight property )
+                |> Tuple.mapBoth
+                    (\w -> Maybe.withDefault settings.size.width w)
+                    (\h -> Maybe.withDefault (settings.size.height - 1) h)
+                |> Tuple.mapBoth
+                    (\w -> w + offsetWidth)
+                    (\h -> h + offsetHeight)
 
         view_ : Svg Msg
         view_ =
