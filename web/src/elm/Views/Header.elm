@@ -16,6 +16,7 @@ import Css
         , height
         , hex
         , hidden
+        , hover
         , justifyContent
         , left
         , marginLeft
@@ -184,7 +185,10 @@ view props =
 
                     else
                         viewTitle
-                            [ css [ cursor pointer ]
+                            [ css
+                                [ cursor pointer
+                                , hover []
+                                ]
                             , Events.onClick StartEditTitle
                             ]
                             [ Html.text <| Title.toString props.currentDiagram.title

@@ -1,10 +1,23 @@
-module Models.Title exposing (Title, edit, fromString, isEdit, isUntitled, isView, toString, untitled, view)
+module Models.Title exposing (Title, edit, fromString, isEdit, isUntitled, isView, map, toString, untitled, view)
 
 
 type Title
     = UnTitled
     | Edit String
     | View String
+
+
+map : (String -> Title) -> Title -> Title
+map f title =
+    case title of
+        Edit title_ ->
+            f title_
+
+        View title_ ->
+            f title_
+
+        UnTitled ->
+            title
 
 
 isUntitled : Title -> Bool

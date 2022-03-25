@@ -2,7 +2,6 @@ module Models.PropertyTests exposing (suite)
 
 import Expect
 import Models.Color as Color
-import Models.FontSize as FontSize
 import Models.Property as Property
 import Test exposing (Test, describe, test)
 
@@ -82,22 +81,4 @@ suite =
         , test "If invalid card_height not exists" <|
             \() ->
                 Expect.equal (Property.getCardHeight (Property.fromString "#card_height: a")) Nothing
-        , test "If invalid show_line_number exists" <|
-            \() ->
-                Expect.equal (Property.getShowLineNumber (Property.fromString "#show_line_number: true")) (Just True)
-        , test "If invalid show_line_number not exists" <|
-            \() ->
-                Expect.equal (Property.getShowLineNumber (Property.fromString "#show_line_number: v")) (Just False)
-        , test "If invalid word_wrap exists" <|
-            \() ->
-                Expect.equal (Property.getWordWrap (Property.fromString "#word_wrap: true")) (Just True)
-        , test "If invalid word_wrap not exists" <|
-            \() ->
-                Expect.equal (Property.getWordWrap (Property.fromString "#word_wrap : v")) (Just False)
-        , test "If invalid font_size exists" <|
-            \() ->
-                Expect.equal (Property.getFontSize (Property.fromString "#font_size: 10")) (Just <| FontSize.fromInt 10)
-        , test "If invalid font_size not exists" <|
-            \() ->
-                Expect.equal (Property.getFontSize (Property.fromString "#font_size: v")) Nothing
         ]

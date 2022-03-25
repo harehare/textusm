@@ -63,12 +63,15 @@ import Css
         , relative
         , rgba
         , right
+        , scale
         , scroll
         , solid
         , spaceBetween
         , textAlign
         , textOverflow
         , top
+        , transform
+        , transforms
         , url
         , vh
         , whiteSpace
@@ -79,6 +82,7 @@ import Css.Global exposing (children, descendants, typeSelector)
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transitions
 import Dialog.Confirm as ConfirmDialog
+import Events
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
@@ -120,9 +124,11 @@ import Views.Progress as Progress
 type Msg
     = SearchInput String
     | Select DiagramItem
+    | Bookmark DiagramItem
+    | CloseDialog
+    | Copy DiagramItem
     | Reload
     | Remove DiagramItem
-    | Bookmark DiagramItem
     | RemoveRemote D.Value
     | Removed (Result RequestError String)
     | Bookmarked (Result RequestError ())
@@ -142,7 +148,6 @@ type Msg
     | ImportFile File
     | ImportComplete String
     | ShowConfirmDialog DiagramItem
-    | CloseDialog
 
 
 type DiagramList
@@ -635,6 +640,21 @@ bookmarkIconView diagram children =
     Html.div [ css [ display block, position absolute, bottom <| px 40, right <| px 8 ], stopPropagationOn "click" (D.succeed ( Bookmark diagram, True )) ] children
 
 
+copyIconView : DiagramItem -> Html Msg
+copyIconView diagram =
+    Html.div
+        [ css
+            [ display block
+            , position absolute
+            , bottom zero
+            , left <| px 2
+            , hover [ transforms [ scale 1.1 ] ]
+            ]
+        , Events.onClickStopPropagation <| Copy diagram
+        ]
+        [ Icon.copy Color.gray 16 ]
+
+
 diagramView : Zone -> DiagramItem -> Html Msg
 diagramView timezone diagram =
     Html.div
@@ -706,7 +726,17 @@ diagramView timezone diagram =
             Empty.view
 
           else
-            Html.div [ css [ bottom <| px -4, right <| px -1, Style.button, position absolute ], stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True )) ] [ Icon.clear "#333" 18 ]
+            Html.div
+                [ css
+                    [ bottom <| px -4
+                    , right <| px -1
+                    , Style.button
+                    , position absolute
+                    , hover [ transforms [ scale 1.1 ] ]
+                    ]
+                , stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True ))
+                ]
+                [ Icon.clear "#333" 18 ]
         , case ( diagram.isBookmark, diagram.isRemote ) of
             ( True, True ) ->
                 bookmarkIconView diagram [ Icon.bookmark Color.background2Defalut 16 ]
@@ -716,6 +746,7 @@ diagramView timezone diagram =
 
             _ ->
                 Empty.view
+        , copyIconView diagram
         ]
 
 

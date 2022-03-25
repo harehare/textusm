@@ -172,18 +172,23 @@ init flags url key =
 
 editor : Model -> Html Msg
 editor model =
+    let
+        editorSettings : Settings.EditorSettings
+        editorSettings =
+            defaultEditorSettings model.settingsModel.settings.editor
+    in
     div [ id "editor", css [ Style.full, Style.paddingSm ] ]
         [ Html.node "monaco-editor"
             [ attribute "value" <| Text.toString model.diagramModel.text
             , attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
             , attribute "wordWrap" <|
-                if .wordWrap <| defaultEditorSettings model.settingsModel.settings.editor then
+                if editorSettings.wordWrap then
                     "true"
 
                 else
                     "false"
             , attribute "showLineNumber" <|
-                if .showLineNumber <| defaultEditorSettings model.settingsModel.settings.editor then
+                if editorSettings.showLineNumber then
                     "true"
 
                 else
@@ -737,6 +742,16 @@ update message =
                             )
                                 |> Return.andThen Action.startProgress
                                 |> Return.andThen Action.closeLocalFile
+
+                        DiagramList.Copy diagram ->
+                            Action.pushUrl
+                                (Route.toString <|
+                                    Edit diagram.diagram
+                                )
+                                m
+                                |> Return.andThen Action.startProgress
+                                |> Return.andThen Action.closeLocalFile
+                                |> Return.command (Utils.delay 100 <| CopyDiagram diagram)
 
                         DiagramList.Removed (Err _) ->
                             Action.showErrorMessage Message.messagEerrorOccurred m
@@ -1421,6 +1436,9 @@ update message =
 
         SavedLocalFile title ->
             Return.andThen <| \m -> Action.loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text) m
+
+        CopyDiagram diagram ->
+            Return.andThen <| Action.loadDiagram <| DiagramItem.copy diagram
 
 
 

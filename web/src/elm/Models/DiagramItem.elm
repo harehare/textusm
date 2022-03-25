@@ -1,5 +1,6 @@
 module Models.DiagramItem exposing
     ( DiagramItem
+    , copy
     , decoder
     , empty
     , encoder
@@ -82,6 +83,22 @@ toInputItem item =
     , diagram = item.diagram
     , isPublic = item.isPublic
     , isBookmark = item.isBookmark
+    }
+
+
+copy : DiagramItem -> DiagramItem
+copy diagram =
+    { id = Nothing
+    , text = diagram.text
+    , diagram = diagram.diagram
+    , title = Title.map (\t ->  Title.fromString <| "Copy of " ++ t ) diagram.title
+    , thumbnail = diagram.thumbnail
+    , isPublic = False
+    , isBookmark = False
+    , isRemote = False
+    , location = Nothing
+    , createdAt = Time.millisToPosix 0
+    , updatedAt = Time.millisToPosix 0
     }
 
 

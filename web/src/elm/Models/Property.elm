@@ -12,23 +12,19 @@ module Models.Property exposing
     , getCardForegroundColor3
     , getCardHeight
     , getCardWidth
-    , getFontSize
     , getLineColor
     , getLineSize
     , getReleaseLevel
-    , getShowLineNumber
     , getTitle
     , getToolbar
     , getUserActivity
     , getUserStory
     , getUserTask
-    , getWordWrap
     , getZoomControl
     )
 
 import Dict exposing (Dict)
 import Models.Color as Color exposing (Color)
-import Models.FontSize as FontSize exposing (FontSize)
 import String exposing (toInt)
 
 
@@ -52,9 +48,6 @@ type Key
     | CanvasBackgroundColor
     | CardWidth
     | CardHeight
-    | FontSize
-    | ShowLineNumber
-    | WordWrap
 
 
 type alias Property =
@@ -156,26 +149,6 @@ getCardHeight property =
     Dict.get (toKeyString CardHeight) property |> Maybe.andThen toInt
 
 
-getShowLineNumber : Property -> Maybe Bool
-getShowLineNumber property =
-    Dict.get (toKeyString ShowLineNumber) property |> Maybe.map (\b -> String.toLower b == "true")
-
-
-getWordWrap : Property -> Maybe Bool
-getWordWrap property =
-    Dict.get (toKeyString WordWrap) property |> Maybe.map (\b -> String.toLower b == "true")
-
-
-getFontSize : Property -> Maybe FontSize
-getFontSize property =
-    Dict.get (toKeyString FontSize) property
-        |> Maybe.andThen
-            (\b ->
-                toInt b
-                    |> Maybe.map (\f -> FontSize.fromInt f)
-            )
-
-
 empty : Property
 empty =
     Dict.empty
@@ -260,15 +233,6 @@ enabledKey s =
         "card_height" ->
             Just CardHeight
 
-        "font_size" ->
-            Just FontSize
-
-        "show_line_number" ->
-            Just ShowLineNumber
-
-        "word_wrap" ->
-            Just WordWrap
-
         _ ->
             if String.startsWith "release" s then
                 String.dropLeft 7 s |> String.toInt |> Maybe.map (\v -> ReleaseLevel v)
@@ -336,12 +300,3 @@ toKeyString key =
 
         CardHeight ->
             "card_height"
-
-        FontSize ->
-            "font_size"
-
-        ShowLineNumber ->
-            "show_line_number"
-
-        WordWrap ->
-            "word_wrap"
