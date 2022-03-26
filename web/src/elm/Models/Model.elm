@@ -48,7 +48,8 @@ type Msg
     | OpenMenu Menu
     | MoveStop
     | CloseMenu
-    | CopyDiagram DiagramItem
+    | Copy
+    | Copied DiagramItem
     | Download ExportDiagram
     | DownloadCompleted ( Int, Int )
     | StartDownload { extension : String, mimeType : String, content : String }

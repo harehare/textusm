@@ -81,7 +81,6 @@ import Css.Global exposing (children, descendants, typeSelector)
 import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transitions
 import Dialog.Confirm as ConfirmDialog
-import Events
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
@@ -125,7 +124,6 @@ type Msg
     | Select DiagramItem
     | Bookmark DiagramItem
     | CloseDialog
-    | Copy DiagramItem
     | Reload
     | Remove DiagramItem
     | RemoveRemote D.Value
@@ -639,21 +637,6 @@ bookmarkIconView diagram children =
     Html.div [ css [ display block, position absolute, bottom <| px 40, right <| px 8 ], stopPropagationOn "click" (D.succeed ( Bookmark diagram, True )) ] children
 
 
-copyIconView : DiagramItem -> Html Msg
-copyIconView diagram =
-    Html.div
-        [ css
-            [ display block
-            , position absolute
-            , bottom zero
-            , left <| px 2
-            , hover [ transforms [ scale 1.1 ] ]
-            ]
-        , Events.onClickStopPropagation <| Copy diagram
-        ]
-        [ Icon.copy Color.gray 16 ]
-
-
 diagramView : Zone -> DiagramItem -> Html Msg
 diagramView timezone diagram =
     Html.div
@@ -745,7 +728,6 @@ diagramView timezone diagram =
 
             _ ->
                 Empty.view
-        , copyIconView diagram
         ]
 
 

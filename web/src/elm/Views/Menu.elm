@@ -213,6 +213,18 @@ view props =
                 18
             , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ]
             ]
+        , if Text.isChanged props.text then
+            Html.div [ css [ menuButtonStyle ] ]
+                [ Icon.copy Color.disabledIconColor 19
+                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy props.lang ] ]
+                ]
+
+          else
+            Html.div
+                [ css [ menuButtonStyle ], Events.onClickStopPropagation Copy ]
+                [ Icon.copy Color.iconColor 19
+                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy props.lang ] ]
+                ]
         , Html.div
             [ css [ menuButtonStyle ] ]
             [ Html.a [ Attr.href <| Route.toString Route.Settings, Attr.attribute "aria-label" "Settings" ]

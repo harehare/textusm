@@ -38,6 +38,22 @@ type alias NewItem =
     }
 
 
+newItemStyle : Html.Styled.Attribute msg
+newItemStyle =
+    css
+        [ Style.flexCenter
+        , flexDirection column
+        , cursor pointer
+        , Color.bgLight
+        , Color.textMain
+        , Style.roundedSm
+        , border3 (px 3) solid transparent
+        , boxSizing borderBox
+        , hover
+            [ Color.textAccent ]
+        ]
+
+
 newItems : List NewItem
 newItems =
     [ NewItem "User Story Map" Asset.userStoryMap (Route.toString <| Route.Edit UserStoryMap)
@@ -87,18 +103,7 @@ view =
                     a [ href item.url, attribute "aria-label" item.name ]
                         [ div
                             [ class "new-item"
-                            , css
-                                [ Style.flexCenter
-                                , flexDirection column
-                                , cursor pointer
-                                , Color.bgLight
-                                , Color.textMain
-                                , Style.roundedSm
-                                , border3 (px 3) solid transparent
-                                , boxSizing borderBox
-                                , hover
-                                    [ Color.textAccent ]
-                                ]
+                            , newItemStyle
                             ]
                             [ img [ Asset.src item.image, css [ property "object-fit" "contain", Style.widthFull, height <| px 100 ] ] []
                             , div

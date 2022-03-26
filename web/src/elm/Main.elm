@@ -743,16 +743,6 @@ update message =
                                 |> Return.andThen Action.startProgress
                                 |> Return.andThen Action.closeLocalFile
 
-                        DiagramList.Copy diagram ->
-                            Action.pushUrl
-                                (Route.toString <|
-                                    Edit diagram.diagram
-                                )
-                                m
-                                |> Return.andThen Action.startProgress
-                                |> Return.andThen Action.closeLocalFile
-                                |> Return.command (Utils.delay 100 <| CopyDiagram diagram)
-
                         DiagramList.Removed (Err _) ->
                             Action.showErrorMessage Message.messagEerrorOccurred m
 
@@ -1437,8 +1427,14 @@ update message =
         SavedLocalFile title ->
             Return.andThen <| \m -> Action.loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text) m
 
-        CopyDiagram diagram ->
-            Return.andThen <| Action.loadDiagram <| DiagramItem.copy diagram
+        Copy ->
+            Return.andThen (\m -> Action.pushUrl (Route.toString <| Edit m.currentDiagram.diagram) m)
+                >> Return.andThen Action.startProgress
+                >> Return.andThen Action.closeLocalFile
+                >> Return.andThen (\m -> Return.return m <| Utils.delay 100 <| Copied <| DiagramItem.copy m.currentDiagram)
+
+        Copied diagram ->
+            Return.andThen <| Action.loadDiagram diagram
 
 
 

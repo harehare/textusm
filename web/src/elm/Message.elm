@@ -24,6 +24,7 @@ module Message exposing
     , messageUrlExpired
     , toolPrivate
     , toolPublic
+    , toolTipCopy
     , toolTipExport
     , toolTipHelp
     , toolTipImport
@@ -82,6 +83,16 @@ toolTipSave lang =
 
         _ ->
             "Save"
+
+
+toolTipCopy : Lang -> String
+toolTipCopy lang =
+    case lang of
+        Ja ->
+            "コピー"
+
+        _ ->
+            "Copy"
 
 
 toolTipImport : Lang -> String
