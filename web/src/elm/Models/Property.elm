@@ -12,9 +12,11 @@ module Models.Property exposing
     , getCardForegroundColor3
     , getCardHeight
     , getCardWidth
+    , getFontSize
     , getLineColor
     , getLineSize
     , getReleaseLevel
+    , getTextColor
     , getTitle
     , getToolbar
     , getUserActivity
@@ -25,20 +27,12 @@ module Models.Property exposing
 
 import Dict exposing (Dict)
 import Models.Color as Color exposing (Color)
+import Models.FontSize as FontSize exposing (FontSize)
 import String exposing (toInt)
 
 
 type Key
     = BackgroundColor
-    | Title
-    | UserActivity
-    | UserTask
-    | UserStory
-    | ReleaseLevel Int
-    | ZoomControl
-    | Toolbar
-    | LineColor
-    | LineSize
     | CardForegroundColor1
     | CardBackgroundColor1
     | CardForegroundColor2
@@ -48,6 +42,17 @@ type Key
     | CanvasBackgroundColor
     | CardWidth
     | CardHeight
+    | Title
+    | UserActivity
+    | UserTask
+    | UserStory
+    | ReleaseLevel Int
+    | Toolbar
+    | TextColor
+    | FontSize
+    | LineColor
+    | LineSize
+    | ZoomControl
 
 
 type alias Property =
@@ -149,6 +154,16 @@ getCardHeight property =
     Dict.get (toKeyString CardHeight) property |> Maybe.andThen toInt
 
 
+getFontSize : Property -> Maybe FontSize
+getFontSize property =
+    Dict.get (toKeyString FontSize) property |> Maybe.andThen (\v -> toInt v |> Maybe.map FontSize.fromInt)
+
+
+getTextColor : Property -> Maybe Color
+getTextColor property =
+    Dict.get (toKeyString TextColor) property |> Maybe.map Color.fromString
+
+
 empty : Property
 empty =
     Dict.empty
@@ -233,6 +248,12 @@ enabledKey s =
         "card_height" ->
             Just CardHeight
 
+        "text_color" ->
+            Just TextColor
+
+        "font_size" ->
+            Just FontSize
+
         _ ->
             if String.startsWith "release" s then
                 String.dropLeft 7 s |> String.toInt |> Maybe.map (\v -> ReleaseLevel v)
@@ -300,3 +321,9 @@ toKeyString key =
 
         CardHeight ->
             "card_height"
+
+        TextColor ->
+            "text_color"
+
+        FontSize ->
+            "font_size"

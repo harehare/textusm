@@ -2,6 +2,7 @@ module Models.PropertyTests exposing (suite)
 
 import Expect
 import Models.Color as Color
+import Models.FontSize as FontSize
 import Models.Property as Property
 import Test exposing (Test, describe, test)
 
@@ -45,22 +46,22 @@ suite =
         , test "If invalid zoom_control exists" <|
             \() ->
                 Expect.equal (Property.getZoomControl (Property.fromString "#zoom_control: v")) (Just False)
-        , test "If invalid card_foreground_color1 exists" <|
+        , test "If valid card_foreground_color1 exists" <|
             \() ->
                 Expect.equal (Property.getCardForegroundColor1 (Property.fromString "#card_foreground_color1: #FF0000")) (Just <| Color.fromString "#FF0000")
-        , test "If invalid card_foreground_color2 exists" <|
+        , test "If valid card_foreground_color2 exists" <|
             \() ->
                 Expect.equal (Property.getCardForegroundColor2 (Property.fromString "#card_foreground_color2: #FF0000")) (Just <| Color.fromString "#FF0000")
-        , test "If invalid card_foreground_color3 exists" <|
+        , test "If valid card_foreground_color3 exists" <|
             \() ->
                 Expect.equal (Property.getCardForegroundColor3 (Property.fromString "#card_foreground_color3: #FF0000")) (Just <| Color.fromString "#FF0000")
-        , test "If invalid card_background_color1 exists" <|
+        , test "If valid card_background_color1 exists" <|
             \() ->
                 Expect.equal (Property.getCardBackgroundColor1 (Property.fromString "#card_background_color1: #FF0000")) (Just <| Color.fromString "#FF0000")
-        , test "If invalid card_background_color2 exists" <|
+        , test "If valid card_background_color2 exists" <|
             \() ->
                 Expect.equal (Property.getCardBackgroundColor2 (Property.fromString "#card_background_color2: #FF0000")) (Just <| Color.fromString "#FF0000")
-        , test "If invalid card_background_color3 exists" <|
+        , test "If valid card_background_color3 exists" <|
             \() ->
                 Expect.equal (Property.getCardBackgroundColor3 (Property.fromString "#card_background_color3: #FF0000")) (Just <| Color.fromString "#FF0000")
         , test "If valid toolbar exists" <|
@@ -69,16 +70,28 @@ suite =
         , test "If invalid toolbar exists" <|
             \() ->
                 Expect.equal (Property.getToolbar (Property.fromString "#toolbar: v")) (Just False)
-        , test "If invalid card_width exists" <|
+        , test "If valid card_width exists" <|
             \() ->
                 Expect.equal (Property.getCardWidth (Property.fromString "#card_width: 10")) (Just 10)
         , test "If invalid card_width not exists" <|
             \() ->
                 Expect.equal (Property.getCardWidth (Property.fromString "#card_width: a")) Nothing
-        , test "If invalid card_height  exists" <|
+        , test "If valid card_height exists" <|
             \() ->
                 Expect.equal (Property.getCardHeight (Property.fromString "#card_height: 10")) (Just 10)
-        , test "If invalid card_height not exists" <|
+        , test "If invalid card_height exists" <|
             \() ->
                 Expect.equal (Property.getCardHeight (Property.fromString "#card_height: a")) Nothing
+        , test "If valid font_size exists" <|
+            \() ->
+                Expect.equal (Property.getFontSize (Property.fromString "#font_size: 10")) (Just <| FontSize.fromInt 10)
+        , test "If invalid font_size exists" <|
+            \() ->
+                Expect.equal (Property.getFontSize (Property.fromString "#font_size: a")) Nothing
+        , test "If valid text_color exists" <|
+            \() ->
+                Expect.equal (Property.getTextColor (Property.fromString "#text_color: #FF0000")) (Just <| Color.fromString "#FF0000")
+        , test "If invalid text_color exists" <|
+            \() ->
+                Expect.equal (Property.getTextColor (Property.fromString "#text_color: a")) (Just <| Color.background1Defalut)
         ]
