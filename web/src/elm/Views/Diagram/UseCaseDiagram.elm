@@ -22,6 +22,7 @@ import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
+import Models.Property exposing (Property)
 import Set exposing (Set)
 import State exposing (Step(..))
 import Svg.Styled as Svg exposing (Svg)
@@ -90,7 +91,7 @@ view model =
                         |> ListEx.uniqueBy Item.getText
 
                 ( actorMargins, actorViews ) =
-                    actorsView model.settings actors
+                    actorsView model.settings model.property actors
 
                 ( useCasePositions, useCaseViews ) =
                     useCasesView
@@ -100,6 +101,7 @@ view model =
                         , relation = relation
                         , useCases = useCases
                         , allUseCaseName = useCases |> List.map (\v -> Item.getText v |> String.trim) |> Set.fromList
+                        , property = model.property
                         }
 
                 actorLine : List (Svg Msg)
@@ -157,8 +159,8 @@ view model =
             Empty.view
 
 
-actorsView : DiagramSettings.Settings -> List Actor -> ( UseCasePosition, List (Svg Msg) )
-actorsView settings actors =
+actorsView : DiagramSettings.Settings -> Property -> List Actor -> ( UseCasePosition, List (Svg Msg) )
+actorsView settings property actors =
     let
         a : List ( ( String, ( Int, Int ) ), Svg Msg )
         a =
@@ -170,8 +172,9 @@ actorsView settings actors =
                             ( actorSize2, actorMargin * i )
                     in
                     ( ( UseCaseDiagram.getName item, p )
-                    , Lazy.lazy4 actorView
+                    , Lazy.lazy5 actorView
                         settings
+                        property
                         (Item.getFontSize item)
                         (UseCaseDiagram.getName item)
                         p
@@ -201,9 +204,10 @@ useCasesView :
     , relation : UseCaseRelation
     , useCases : List Item
     , allUseCaseName : Set String
+    , property : Property
     }
     -> ( UseCasePosition, List (Svg Msg) )
-useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUseCaseName } =
+useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUseCaseName, property } =
     let
         loop :
             { a
@@ -296,6 +300,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                                                 , relation = relation
                                                 , useCases = subRelations |> List.map UseCaseDiagram.getRelationItem
                                                 , allUseCaseName = allUseCaseName
+                                                , property = property
                                                 }
 
                                         subLines : List (Svg Msg)
@@ -310,6 +315,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                                                                 |> Maybe.withDefault Position.zero
                                                         , relation = v
                                                         , reverse = not <| Set.member relationName allUseCaseName
+                                                        , property = property
                                                         }
                                                 )
                                                 subRelations
@@ -323,6 +329,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                                                 , to = subPosition
                                                 , relation = relationItem
                                                 , reverse = not <| Set.member name allUseCaseName
+                                                , property = property
                                                 }
                                            , Lazy.lazy useCaseView
                                                 { settings = settings
@@ -450,8 +457,8 @@ relationToString r =
             "include"
 
 
-relationLineView : { settings : DiagramSettings.Settings, from : Position, to : Position, relation : Relation, reverse : Bool } -> Svg Msg
-relationLineView { settings, from, to, relation, reverse } =
+relationLineView : { settings : DiagramSettings.Settings, property : Property, from : Position, to : Position, relation : Relation, reverse : Bool } -> Svg Msg
+relationLineView { settings, property, from, to, relation, reverse } =
     let
         ( fromX, fromY ) =
             ( Position.getX from
@@ -513,7 +520,7 @@ relationLineView { settings, from, to, relation, reverse } =
                 ]
                 [ Html.div
                     [ css
-                        [ color <| hex <| DiagramSettings.textColor settings
+                        [ color <| hex <| Color.toString <| DiagramSettings.getTextColor settings property
                         , FontSize.cssFontSize FontSize.xs
                         ]
                     ]
@@ -565,8 +572,8 @@ useCaseView { settings, item, fontSize, name, position } =
         ]
 
 
-actorView : DiagramSettings.Settings -> FontSize -> String -> Position -> Svg Msg
-actorView settings fontSize name ( x, y ) =
+actorView : DiagramSettings.Settings -> Property -> FontSize -> String -> Position -> Svg Msg
+actorView settings property fontSize name ( x, y ) =
     Svg.g []
         [ Svg.circle
             [ SvgAttr.cx <| String.fromInt (x + actorBaseSize)
@@ -640,7 +647,7 @@ actorView settings fontSize name ( x, y ) =
                 , Attr.style "text-align" "center"
                 ]
                 [ Html.div
-                    [ Attr.style "color" <| DiagramSettings.textColor settings
+                    [ Attr.style "color" <| Color.toString <| DiagramSettings.getTextColor settings property
                     , Attr.style "padding" "8px"
                     , Attr.style "font-size" <| String.fromInt (FontSize.unwrap fontSize) ++ "px"
                     ]

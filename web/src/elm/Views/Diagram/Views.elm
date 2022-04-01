@@ -37,7 +37,7 @@ import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item, ItemType(..))
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
-import Models.Property as Property exposing (Property)
+import Models.Property exposing (Property)
 import Models.Size as Size exposing (Size)
 import String
 import Style.Style as Style
@@ -57,60 +57,36 @@ getItemColor settings property item =
             ( c, b )
 
         ( Activities, Just c, Nothing ) ->
-            ( c
-            , Property.getCardBackgroundColor1 property
-                |> Maybe.withDefault (Color.fromString settings.color.activity.backgroundColor)
-            )
+            ( c, DiagramSettings.getCardBackgroundColor1 settings property )
 
         ( Activities, Nothing, Just b ) ->
-            ( Property.getCardForegroundColor1 property
-                |> Maybe.withDefault (Color.fromString settings.color.activity.color)
-            , b
-            )
+            ( DiagramSettings.getCardForegroundColor1 settings property, b )
 
         ( Activities, Nothing, Nothing ) ->
-            ( Property.getCardForegroundColor1 property
-                |> Maybe.withDefault (Color.fromString settings.color.activity.color)
-            , Property.getCardBackgroundColor1 property
-                |> Maybe.withDefault (Color.fromString settings.color.activity.backgroundColor)
+            ( DiagramSettings.getCardForegroundColor1 settings property
+            , DiagramSettings.getCardBackgroundColor1 settings property
             )
 
         ( Tasks, Just c, Nothing ) ->
-            ( c
-            , Property.getCardBackgroundColor2 property
-                |> Maybe.withDefault (Color.fromString settings.color.task.backgroundColor)
-            )
+            ( c, DiagramSettings.getCardBackgroundColor2 settings property )
 
         ( Tasks, Nothing, Just b ) ->
-            ( Property.getCardForegroundColor2 property
-                |> Maybe.withDefault (Color.fromString settings.color.task.color)
-            , b
-            )
+            ( DiagramSettings.getCardForegroundColor2 settings property, b )
 
         ( Tasks, Nothing, Nothing ) ->
-            ( Property.getCardForegroundColor2 property
-                |> Maybe.withDefault (Color.fromString settings.color.task.color)
-            , Property.getCardBackgroundColor2 property
-                |> Maybe.withDefault (Color.fromString settings.color.task.backgroundColor)
+            ( DiagramSettings.getCardForegroundColor2 settings property
+            , DiagramSettings.getCardBackgroundColor2 settings property
             )
 
         ( _, Just c, Nothing ) ->
-            ( c
-            , Property.getCardBackgroundColor3 property
-                |> Maybe.withDefault (Color.fromString settings.color.story.backgroundColor)
-            )
+            ( c, DiagramSettings.getCardBackgroundColor3 settings property )
 
         ( _, Nothing, Just b ) ->
-            ( Property.getCardForegroundColor3 property
-                |> Maybe.withDefault (Color.fromString settings.color.story.color)
-            , b
-            )
+            ( DiagramSettings.getCardForegroundColor3 settings property, b )
 
         _ ->
-            ( Property.getCardForegroundColor3 property
-                |> Maybe.withDefault (Color.fromString settings.color.story.color)
-            , Property.getCardBackgroundColor3 property
-                |> Maybe.withDefault (Color.fromString settings.color.story.backgroundColor)
+            ( DiagramSettings.getCardForegroundColor3 settings property
+            , DiagramSettings.getCardBackgroundColor3 settings property
             )
 
 

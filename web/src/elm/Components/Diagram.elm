@@ -457,9 +457,8 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     Size.getHeight model.size
             )
         , SvgAttr.viewBox ("0 0 " ++ String.fromInt svgWidth ++ " " ++ String.fromInt svgHeight)
-        , Property.getBackgroundColor model.property
-            |> Maybe.map Color.toString
-            |> Maybe.withDefault model.settings.backgroundColor
+        , DiagramSettings.getBackgroundColor model.settings model.property
+            |> Color.toString
             |> Attr.style "background-color"
         , case model.selectedItem of
             Just _ ->

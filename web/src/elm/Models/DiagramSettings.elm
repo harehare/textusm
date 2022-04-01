@@ -5,6 +5,15 @@ module Models.DiagramSettings exposing
     , Size
     , fontFamiliy
     , fontStyle
+    , getBackgroundColor
+    , getCardBackgroundColor1
+    , getCardBackgroundColor2
+    , getCardBackgroundColor3
+    , getCardForegroundColor1
+    , getCardForegroundColor2
+    , getCardForegroundColor3
+    , getLineColor
+    , getTextColor
     , ofActivityBackgroundColor
     , ofActivityColor
     , ofBackgroundColor
@@ -23,11 +32,11 @@ module Models.DiagramSettings exposing
     , ofToolbar
     , ofWidth
     , ofZoomControl
-    , textColor
     )
 
 import Css exposing (fontFamilies)
 import Models.Color as Color
+import Models.Property as Property exposing (Property)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
@@ -66,9 +75,65 @@ type alias Size =
     }
 
 
-textColor : Settings -> String
-textColor settings =
-    settings.color.text |> Maybe.withDefault (Color.toString Color.textDefalut)
+getTextColor : Settings -> Property -> Color.Color
+getTextColor settings property =
+    Property.getTextColor property
+        |> Maybe.withDefault
+            (settings.color.text
+                |> Maybe.withDefault
+                    (Color.textDefalut
+                        |> Color.toString
+                    )
+                |> Color.fromString
+            )
+
+
+getLineColor : Settings -> Property -> Color.Color
+getLineColor settings property =
+    Property.getLineColor property
+        |> Maybe.withDefault (settings.color.line |> Color.fromString)
+
+
+getBackgroundColor : Settings -> Property -> Color.Color
+getBackgroundColor settings property =
+    Property.getBackgroundColor property
+        |> Maybe.withDefault (settings.backgroundColor |> Color.fromString)
+
+
+getCardForegroundColor1 : Settings -> Property -> Color.Color
+getCardForegroundColor1 settings property =
+    Property.getCardForegroundColor1 property
+        |> Maybe.withDefault (settings.color.activity.color |> Color.fromString)
+
+
+getCardForegroundColor2 : Settings -> Property -> Color.Color
+getCardForegroundColor2 settings property =
+    Property.getCardForegroundColor2 property
+        |> Maybe.withDefault (settings.color.task.color |> Color.fromString)
+
+
+getCardForegroundColor3 : Settings -> Property -> Color.Color
+getCardForegroundColor3 settings property =
+    Property.getCardForegroundColor3 property
+        |> Maybe.withDefault (settings.color.story.color |> Color.fromString)
+
+
+getCardBackgroundColor1 : Settings -> Property -> Color.Color
+getCardBackgroundColor1 settings property =
+    Property.getCardBackgroundColor1 property
+        |> Maybe.withDefault (settings.color.activity.backgroundColor |> Color.fromString)
+
+
+getCardBackgroundColor2 : Settings -> Property -> Color.Color
+getCardBackgroundColor2 settings property =
+    Property.getCardBackgroundColor2 property
+        |> Maybe.withDefault (settings.color.task.backgroundColor |> Color.fromString)
+
+
+getCardBackgroundColor3 : Settings -> Property -> Color.Color
+getCardBackgroundColor3 settings property =
+    Property.getCardBackgroundColor3 property
+        |> Maybe.withDefault (settings.color.story.backgroundColor |> Color.fromString)
 
 
 fontStyle : Settings -> String

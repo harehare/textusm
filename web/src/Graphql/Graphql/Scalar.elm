@@ -7,7 +7,7 @@ module Graphql.Scalar exposing (Codecs, Id(..), Time(..), defaultCodecs, defineC
 import Graphql.Codec exposing (Codec)
 import Graphql.Internal.Builder.Object as Object
 import Graphql.Internal.Encode
-import Json.Decode as Decode exposing (Decoder)
+import Json.Decode as Decode
 import Json.Encode as Encode
 
 

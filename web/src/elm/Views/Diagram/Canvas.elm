@@ -245,14 +245,12 @@ getCanvasColor settings property item =
             )
 
         ( Nothing, Just b ) ->
-            ( Property.getLineColor property
-                |> Maybe.withDefault (Color.fromString settings.color.line)
+            ( DiagramSettings.getLineColor settings property
             , b
             )
 
         _ ->
-            ( Property.getLineColor property
-                |> Maybe.withDefault (Color.fromString settings.color.line)
+            ( DiagramSettings.getLineColor settings property
             , Property.getCanvasBackgroundColor property
                 |> Maybe.withDefault Color.transparent
             )
