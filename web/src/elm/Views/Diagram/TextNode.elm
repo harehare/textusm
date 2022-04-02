@@ -60,7 +60,7 @@ view settings property ( posX, posY ) selectedItem item =
                     , SvgAttr.fill settings.backgroundColor
                     ]
                     []
-                , textNode settings ( posX, posY ) ( nodeWidth, settings.size.height ) color item
+                , textNode settings property ( posX, posY ) ( nodeWidth, settings.size.height ) color item
                 ]
     in
     case selectedItem of
@@ -88,8 +88,8 @@ view settings property ( posX, posY ) selectedItem item =
             view_
 
 
-textNode : DiagramSettings.Settings -> Position -> Size -> Color -> Item -> Svg Msg
-textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
+textNode : DiagramSettings.Settings -> Property -> Position -> Size -> Color -> Item -> Svg Msg
+textNode settings property ( posX, posY ) ( svgWidth, svgHeight ) colour item =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt posX
         , SvgAttr.y <| String.fromInt posY
@@ -113,7 +113,7 @@ textNode settings ( posX, posY ) ( svgWidth, svgHeight ) colour item =
                 ]
             , Attr.class "ts-node"
             ]
-            [ Html.div [ css [ FontSize.cssFontSize <| Item.getFontSize item ] ] [ Html.text <| Item.getText item ] ]
+            [ Html.div [ css [ FontSize.cssFontSize <| Item.getFontSizeWithProperty item property ] ] [ Html.text <| Item.getText item ] ]
         ]
 
 
@@ -169,8 +169,8 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
         ]
 
 
-root : { settings : DiagramSettings.Settings, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
-root { settings, position, selectedItem, item } =
+root : { settings : DiagramSettings.Settings, property : Property, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
+root { settings, property, position, selectedItem, item } =
     let
         ( posX, posY ) =
             position
@@ -207,7 +207,7 @@ root { settings, position, selectedItem, item } =
                     , SvgAttr.class "ts-node"
                     ]
                     []
-                , textNode settings ( posX, posY ) ( settings.size.width, settings.size.height ) textColor item
+                , textNode settings property ( posX, posY ) ( settings.size.width, settings.size.height ) textColor item
                 ]
     in
     case selectedItem of

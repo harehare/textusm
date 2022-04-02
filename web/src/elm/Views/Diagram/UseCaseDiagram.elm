@@ -175,7 +175,7 @@ actorsView settings property actors =
                     , Lazy.lazy5 actorView
                         settings
                         property
-                        (Item.getFontSize item)
+                        (Item.getFontSizeWithProperty item property)
                         (UseCaseDiagram.getName item)
                         p
                     )

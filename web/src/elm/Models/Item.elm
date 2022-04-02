@@ -18,6 +18,7 @@ module Models.Item exposing
     , getChildrenItems
     , getComments
     , getFontSize
+    , getFontSizeWithProperty
     , getForegroundColor
     , getHierarchyCount
     , getItemSettings
@@ -60,13 +61,15 @@ module Models.Item exposing
     )
 
 import Constants exposing (indentSpace, inputPrefix)
+import Html.Attributes exposing (property)
 import Json.Decode as D
 import List.Extra as ListEx
 import Maybe
 import Models.Color exposing (Color)
-import Models.FontSize exposing (FontSize)
+import Models.FontSize as FontSize exposing (FontSize)
 import Models.ItemSettings as ItemSettings exposing (ItemSettings)
 import Models.Position exposing (Position)
+import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
 import Models.Text as Text exposing (Text)
 
@@ -285,6 +288,19 @@ getFontSize item =
         |> getItemSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getFontSize
+
+
+getFontSizeWithProperty : Item -> Property -> FontSize
+getFontSizeWithProperty item property =
+    case ( Property.getFontSize property, item |> getItemSettings |> Maybe.map ItemSettings.getFontSize ) of
+        ( _, Just f ) ->
+            f
+
+        ( Just f, _ ) ->
+            f
+
+        _ ->
+            FontSize.default
 
 
 getOffset : Item -> Position

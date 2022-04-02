@@ -46,7 +46,7 @@ import Models.FontSize as FontSize exposing (FontSize)
 import Models.FontStyle as FontStyle exposing (FontStyle)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
-import Models.Property as Property
+import Models.Property as Property exposing (Property)
 import Models.Size exposing (Width)
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
@@ -61,6 +61,7 @@ type alias Props msg =
     { state : ContextMenu
     , item : Item
     , settings : DiagramSettings.Settings
+    , property : Property
     , position : Position
     , dropDownIndex : Maybe String
     , onMenuSelect : ContextMenu -> msg
@@ -215,7 +216,7 @@ view width display props =
                         props.dropDownIndex
                         (\s -> props.onFontSizeChanged <| FontSize.fromInt (String.toInt s |> Maybe.withDefault (FontSize.unwrap FontSize.default)))
                         fontSizeItems
-                        (Item.getFontSize props.item |> FontSize.unwrap |> String.fromInt)
+                        (Item.getFontSizeWithProperty props.item props.property |> FontSize.unwrap |> String.fromInt)
                     ]
 
               else

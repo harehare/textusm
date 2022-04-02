@@ -119,6 +119,17 @@ view =
         , textCommentView [ text "# line_color: #FF0000" ]
         , textCommentView [ text "# line_size: 4" ]
         , textCommentView [ text "# toolbar: true" ]
+        , textCommentView [ text "# card_foreground_color1: #FFFFFF" ]
+        , textCommentView [ text "# card_foreground_color2: #FFFFFF" ]
+        , textCommentView [ text "# card_foreground_color3: #333333" ]
+        , textCommentView [ text "# card_background_color1: #266B9A" ]
+        , textCommentView [ text "# card_background_color2: #3E9BCD" ]
+        , textCommentView [ text "# card_background_color3: #FFFFFF" ]
+        , textCommentView [ text "# canvas_background_color: #434343" ]
+        , textCommentView [ text "# card_height: 120" ]
+        , textCommentView [ text "# card_height: 70" ]
+        , textCommentView [ text "# text_color: #111111" ]
+        , textCommentView [ text "# font_size: 14" ]
 
         -- User Story Map Syntax
         , section (Just "User Story Map Syntax")

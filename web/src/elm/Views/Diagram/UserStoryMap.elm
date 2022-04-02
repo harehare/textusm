@@ -149,7 +149,7 @@ labelView { settings, property, width, userStoryMap } =
                                     , SvgAttr.y1 <| String.fromInt releaseY
                                     , SvgAttr.x2 <| String.fromInt width
                                     , SvgAttr.y2 <| String.fromInt releaseY
-                                    , SvgAttr.stroke (Property.getLineColor property |> Maybe.map Color.toString |> Maybe.withDefault settings.color.line)
+                                    , SvgAttr.stroke <| Color.toString <| DiagramSettings.getLineColor settings property
                                     , SvgAttr.strokeWidth "2"
                                     ]
                                     []

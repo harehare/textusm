@@ -567,6 +567,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     { state = contextMenu
                     , item = item_
                     , settings = model.settings
+                    , property = model.property
                     , position = contextMenuPosition
                     , dropDownIndex = model.dropDownIndex
                     , onMenuSelect = SelectContextMenu

@@ -59,6 +59,7 @@ view model =
                             }
                         , TextNode.root
                             { settings = model.settings
+                            , property = model.property
                             , position = Position.zero
                             , selectedItem = model.selectedItem
                             , item = root

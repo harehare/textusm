@@ -91,7 +91,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                     ( posX, posY )
                     ( width, height )
                     color
-                    (Item.getFontSize item)
+                    (Item.getFontSizeWithProperty item property)
                     item
                 ]
     in
@@ -160,7 +160,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                     , Views.resizeCircle item BottomLeft ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 )
                     , Views.inputView
                         { settings = settings
-                        , fontSize = Item.getFontSize item
+                        , fontSize = Item.getFontSizeWithProperty item property
                         , position = ( x_, y_ )
                         , size = selectedItemSize
                         , color = color
