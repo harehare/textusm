@@ -316,6 +316,16 @@ class DiagramPanel {
           }
         );
 
+        if (
+          optimizedSvg.error !== undefined &&
+          optimizedSvg.modernError !== undefined
+        ) {
+          vscode.window.showErrorMessage(`Export failed: ${filePath}`, {
+            modal: false,
+          });
+          return;
+        }
+
         try {
           fs.writeFileSync(filePath, optimizedSvg.data);
           vscode.window.showInformationMessage(`Exported: ${filePath}`, {
