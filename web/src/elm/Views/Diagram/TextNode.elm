@@ -39,12 +39,12 @@ import Views.Diagram.Views as Views
 view : DiagramSettings.Settings -> Property -> Position -> SelectedItem -> Item -> Svg Msg
 view settings property position selectedItem item =
     let
-        ( color, _ ) =
-            Views.getItemColor settings property item
-
         view_ : Svg Msg
         view_ =
             let
+                ( color, _ ) =
+                    Views.getItemColor settings property item
+
                 ( offsetX, offsetY ) =
                     Item.getOffset item
 
