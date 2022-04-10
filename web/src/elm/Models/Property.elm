@@ -42,16 +42,18 @@ type Key
     | CanvasBackgroundColor
     | CardWidth
     | CardHeight
+    | FontSize
+    | LineColor
+    | LineSize
+    | NodeWidth
+    | NodeHeight
+    | ReleaseLevel Int
     | Title
     | UserActivity
     | UserTask
     | UserStory
-    | ReleaseLevel Int
     | Toolbar
     | TextColor
-    | FontSize
-    | LineColor
-    | LineSize
     | ZoomControl
 
 
@@ -321,6 +323,12 @@ toKeyString key =
 
         CardHeight ->
             "card_height"
+
+        NodeWidth ->
+            "node_width"
+
+        NodeHeight ->
+            "node_heigh"
 
         TextColor ->
             "text_color"

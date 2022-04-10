@@ -196,26 +196,21 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
 
                         itemX : Int
                         itemX =
-                            (if direction == Left then
+                            if direction == Left then
                                 x - (svgWidth + xMargin)
 
-                             else
+                            else
                                 x + (svgWidth + xMargin)
-                            )
-                                + Position.getX offset
 
                         itemY : Int
                         itemY =
-                            y
-                                + (nodeCount * svgHeight - yOffset)
-                                + (i * yMargin)
-                                + Position.getY offset
+                            y + (nodeCount * svgHeight - yOffset) + (i * yMargin)
                     in
                     [ Lazy.lazy4 nodeLineView
                         ( settings.size.width, settings.size.height )
                         settings.color.task.backgroundColor
                         ( x, y )
-                        ( itemX, itemY )
+                        ( itemX + Position.getX offset, itemY + Position.getY offset )
                     , Lazy.lazy nodesView
                         { settings = settings
                         , property = property

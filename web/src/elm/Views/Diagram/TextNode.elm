@@ -22,13 +22,13 @@ import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (Msg(..), SelectedItem)
+import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)
 import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
-import Models.Position exposing (Position)
-import Models.Property exposing (Property)
-import Models.Size exposing (Size)
+import Models.Position as Position exposing (Position)
+import Models.Property as Property exposing (Property)
+import Models.Size as Size exposing (Size)
 import String
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
@@ -37,48 +37,99 @@ import Views.Diagram.Views as Views
 
 
 view : DiagramSettings.Settings -> Property -> Position -> SelectedItem -> Item -> Svg Msg
-view settings property ( posX, posY ) selectedItem item =
+view settings property position selectedItem item =
     let
         ( color, _ ) =
             Views.getItemColor settings property item
 
-        nodeWidth : Int
-        nodeWidth =
-            settings.size.width
-
         view_ : Svg Msg
         view_ =
+            let
+                ( offsetX, offsetY ) =
+                    Item.getOffset item
+
+                ( offsetWidth, offsetHeight ) =
+                    Item.getOffsetSize item
+
+                ( posX, posY ) =
+                    if ( offsetX, offsetY ) == Position.zero then
+                        position
+
+                    else
+                        position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+
+                ( width, height ) =
+                    ( Property.getCardWidth property, Property.getCardHeight property )
+                        |> Tuple.mapBoth
+                            (\w -> Maybe.withDefault settings.size.width w)
+                            (\h -> Maybe.withDefault (settings.size.height - 1) h)
+                        |> Tuple.mapBoth
+                            (\w -> w + offsetWidth)
+                            (\h -> h + offsetHeight)
+            in
             Svg.g
-                [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
-                , Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
-                ]
+                [ Events.onClickStopPropagation <| Select <| Just { item = item, position = position, displayAllMenu = True } ]
                 [ Svg.rect
-                    [ SvgAttr.width <| String.fromInt nodeWidth
-                    , SvgAttr.height <| String.fromInt <| settings.size.height - 1
+                    [ SvgAttr.width <| String.fromInt width
+                    , SvgAttr.height <| String.fromInt <| height - 1
                     , SvgAttr.x <| String.fromInt posX
                     , SvgAttr.y <| String.fromInt posY
                     , SvgAttr.fill settings.backgroundColor
                     ]
                     []
-                , textNode settings property ( posX, posY ) ( nodeWidth, settings.size.height ) color item
+                , textNode settings property ( posX, posY ) ( width, height ) color item
                 ]
     in
     case selectedItem of
         Just item_ ->
             if Item.getLineNo item_ == Item.getLineNo item then
-                Svg.g []
+                let
+                    selectedItemOffsetSize : Size
+                    selectedItemOffsetSize =
+                        Item.getOffsetSize item_
+
+                    selectedItemOffsetPosition : Position
+                    selectedItemOffsetPosition =
+                        Item.getOffset item_
+
+                    selectedItemPosition : Position
+                    selectedItemPosition =
+                        position
+                            |> Tuple.mapBoth
+                                (\x -> x + Position.getX selectedItemOffsetPosition)
+                                (\y -> y + Position.getY selectedItemOffsetPosition)
+
+                    selectedItemSize : Size
+                    selectedItemSize =
+                        ( settings.size.width, settings.size.height - 1 )
+                            |> Tuple.mapBoth
+                                (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
+                                (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
+
+                    ( x_, y_ ) =
+                        selectedItemPosition
+
+                    ( width_, height_ ) =
+                        selectedItemSize
+                in
+                Svg.g
+                    [ Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
                     [ Svg.rect
-                        [ SvgAttr.width <| String.fromInt nodeWidth
-                        , SvgAttr.height <| String.fromInt <| settings.size.height - 1
-                        , SvgAttr.x <| String.fromInt posX
-                        , SvgAttr.y <| String.fromInt posY
+                        [ SvgAttr.width <| String.fromInt width_
+                        , SvgAttr.height <| String.fromInt <| height_ - 1
+                        , SvgAttr.x <| String.fromInt x_
+                        , SvgAttr.y <| String.fromInt y_
                         , SvgAttr.strokeWidth "1"
                         , SvgAttr.stroke "transparent"
                         , SvgAttr.fill settings.backgroundColor
                         , SvgAttr.class "ts-node"
                         ]
                         []
-                    , textNodeInput settings ( posX, posY ) ( nodeWidth, settings.size.height ) item_
+                    , Views.resizeCircle item TopLeft ( x_ - 8, y_ - 8 )
+                    , Views.resizeCircle item TopRight ( x_ + width_ + 8, y_ - 8 )
+                    , Views.resizeCircle item BottomRight ( x_ + width_ + 8, y_ + height_ + 8 )
+                    , Views.resizeCircle item BottomLeft ( x_ - 8, y_ + height_ + 8 )
+                    , textNodeInput settings ( x_, y_ ) ( width_, height_ ) item_
                     ]
 
             else
@@ -110,10 +161,11 @@ textNode settings property ( posX, posY ) ( svgWidth, svgHeight ) colour item =
                 , DiagramSettings.fontFamiliy settings
                 , Style.breakWord
                 , Style.flexCenter
+                , FontSize.cssFontSize <| Item.getFontSizeWithProperty item property
                 ]
             , Attr.class "ts-node"
             ]
-            [ Html.div [ css [ FontSize.cssFontSize <| Item.getFontSizeWithProperty item property ] ] [ Html.text <| Item.getText item ] ]
+            [ Html.text <| Item.getText item ]
         ]
 
 
@@ -191,9 +243,7 @@ root { settings, property, position, selectedItem, item } =
         view_ : Svg Msg
         view_ =
             Svg.g
-                [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
-                , Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
-                ]
+                [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt settings.size.width
                     , SvgAttr.height <| String.fromInt <| settings.size.height - 1

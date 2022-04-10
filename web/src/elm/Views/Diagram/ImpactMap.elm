@@ -163,17 +163,17 @@ nodesView { settings, property, hierarchy, position, selectedItem, items, movein
 
                         itemX : Int
                         itemX =
-                            x + (svgWidth + xMargin) + Position.getX offset
+                            x + (svgWidth + xMargin)
 
                         itemY : Int
                         itemY =
-                            y + (nodeCount * svgHeight - yOffset) + (i * yMargin) + Position.getY offset
+                            y + (nodeCount * svgHeight - yOffset) + (i * yMargin)
                     in
                     [ Lazy.lazy4 nodeLineView
                         ( settings.size.width, settings.size.height )
                         settings.color.task.backgroundColor
                         ( x, y )
-                        ( itemX, itemY )
+                        ( itemX + Position.getX offset, itemY + Position.getY offset )
                     , Lazy.lazy nodesView
                         { settings = settings
                         , property = property

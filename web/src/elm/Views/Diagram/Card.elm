@@ -16,7 +16,6 @@ import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), Selecte
 import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
-import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
@@ -41,30 +40,31 @@ view { settings, property, position, selectedItem, item, canMove } =
         ( color, backgroundColor ) =
             Views.getItemColor settings property item
 
-        ( offsetX, offsetY ) =
-            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
-
-        ( offsetWidth, offsetHeight ) =
-            Item.getOffsetSize item
-
-        ( posX, posY ) =
-            if ( offsetX, offsetY ) == Position.zero then
-                position
-
-            else
-                position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
-
-        ( width, height ) =
-            ( Property.getCardWidth property, Property.getCardHeight property )
-                |> Tuple.mapBoth
-                    (\w -> Maybe.withDefault settings.size.width w)
-                    (\h -> Maybe.withDefault (settings.size.height - 1) h)
-                |> Tuple.mapBoth
-                    (\w -> w + offsetWidth)
-                    (\h -> h + offsetHeight)
-
         view_ : Svg Msg
         view_ =
+            let
+                ( offsetX, offsetY ) =
+                    Item.getOffset item
+
+                ( offsetWidth, offsetHeight ) =
+                    Item.getOffsetSize item
+
+                ( posX, posY ) =
+                    if ( offsetX, offsetY ) == Position.zero then
+                        position
+
+                    else
+                        position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+
+                ( width, height ) =
+                    ( Property.getCardWidth property, Property.getCardHeight property )
+                        |> Tuple.mapBoth
+                            (\w -> Maybe.withDefault settings.size.width w)
+                            (\h -> Maybe.withDefault (settings.size.height - 1) h)
+                        |> Tuple.mapBoth
+                            (\w -> w + offsetWidth)
+                            (\h -> h + offsetHeight)
+            in
             Svg.g
                 [ SvgAttr.class "card"
                 , if Item.isImage item then
@@ -122,7 +122,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                                 (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
 
                     ( x_, y_ ) =
-                        ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
+                        selectedItemPosition
                 in
                 Svg.g
                     [ if canMove then
@@ -161,7 +161,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                     , Views.inputView
                         { settings = settings
                         , fontSize = Item.getFontSizeWithProperty item property
-                        , position = ( x_, y_ )
+                        , position = selectedItemPosition
                         , size = selectedItemSize
                         , color = color
                         , item = item_
