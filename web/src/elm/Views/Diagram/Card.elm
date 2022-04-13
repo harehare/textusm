@@ -43,18 +43,11 @@ view { settings, property, position, selectedItem, item, canMove } =
         view_ : Svg Msg
         view_ =
             let
-                ( offsetX, offsetY ) =
-                    Item.getOffset item
+                ( posX, posY ) =
+                    Item.getPosition item position
 
                 ( offsetWidth, offsetHeight ) =
                     Item.getOffsetSize item
-
-                ( posX, posY ) =
-                    if ( offsetX, offsetY ) == Position.zero then
-                        position
-
-                    else
-                        position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
 
                 ( width, height ) =
                     ( Property.getCardWidth property, Property.getCardHeight property )

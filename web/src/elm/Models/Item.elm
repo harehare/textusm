@@ -282,12 +282,11 @@ getBackgroundColor item =
         |> ItemSettings.getBackgroundColor
 
 
-getFontSize : Item -> FontSize
+getFontSize : Item -> Maybe FontSize
 getFontSize item =
     item
         |> getItemSettings
-        |> Maybe.withDefault ItemSettings.new
-        |> ItemSettings.getFontSize
+        |> Maybe.map ItemSettings.getFontSize
 
 
 getFontSizeWithProperty : Item -> Property -> FontSize

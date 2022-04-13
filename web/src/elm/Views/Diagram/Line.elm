@@ -27,18 +27,11 @@ vertical { settings, position, selectedItem, item } =
         color =
             getLineColor settings item
 
-        ( offsetX, offsetY ) =
-            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
+        ( posX, posY ) =
+            Item.getPosition item position
 
         ( _, offsetHeight ) =
             Item.getOffsetSize item
-
-        ( posX, posY ) =
-            if ( offsetX, offsetY ) == Position.zero then
-                position
-
-            else
-                position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
 
         height : Int
         height =
@@ -242,4 +235,6 @@ horizontal { settings, position, selectedItem, item } =
 
 getLineColor : DiagramSettings.Settings -> Item -> Color
 getLineColor settings item =
-    Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getBackgroundColor |> Maybe.withDefault (Color.fromString settings.color.line)
+    item
+        |> Item.getBackgroundColor
+        |> Maybe.withDefault (Color.fromString settings.color.line)

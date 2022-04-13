@@ -35,7 +35,6 @@ import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirecti
 import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item, ItemType(..))
-import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Property exposing (Property)
 import Models.Size as Size exposing (Size)
@@ -47,12 +46,7 @@ import Svg.Styled.Attributes as SvgAttr
 
 getItemColor : DiagramSettings.Settings -> Property -> Item -> ( Color, Color )
 getItemColor settings property item =
-    case
-        ( Item.getItemType item
-        , Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getForegroundColor
-        , Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getBackgroundColor
-        )
-    of
+    case ( Item.getItemType item, Item.getForegroundColor item, Item.getBackgroundColor item ) of
         ( _, Just c, Just b ) ->
             ( c, b )
 

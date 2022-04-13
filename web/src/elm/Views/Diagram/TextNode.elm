@@ -45,18 +45,11 @@ view settings property position selectedItem item =
                 ( color, _ ) =
                     Views.getItemColor settings property item
 
-                ( offsetX, offsetY ) =
-                    Item.getOffset item
+                ( posX, posY ) =
+                    Item.getPosition item position
 
                 ( offsetWidth, offsetHeight ) =
                     Item.getOffsetSize item
-
-                ( posX, posY ) =
-                    if ( offsetX, offsetY ) == Position.zero then
-                        position
-
-                    else
-                        position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
 
                 ( width, height ) =
                     ( Property.getCardWidth property, Property.getCardHeight property )
@@ -197,7 +190,7 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
                     , borderStyle none
                     , backgroundColor transparent
                     , outline none
-                    , FontSize.cssFontSize <| Item.getFontSize item
+                    , FontSize.cssFontSize <| Maybe.withDefault FontSize.default <| Item.getFontSize item
                     , Css.width <| px <| toFloat <| svgWidth - 20
                     , marginTop <| px 2
                     , marginLeft <| px 2

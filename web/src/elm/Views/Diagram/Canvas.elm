@@ -8,7 +8,6 @@ import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), Selecte
 import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item, Items)
-import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
@@ -60,15 +59,8 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
         ( offsetWidth, offsetHeight ) =
             Item.getOffsetSize item
 
-        ( offsetX, offsetY ) =
-            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
-
         ( posX, posY ) =
-            if ( offsetX, offsetY ) == Position.zero then
-                position
-
-            else
-                position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+            Item.getPosition item position
 
         ( svgWidth, svgHeight ) =
             svgSize |> Tuple.mapBoth (\w -> w + offsetWidth) (\h -> h + offsetHeight)
@@ -105,7 +97,7 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                     , Views.inputBoldView
                         { settings = settings
                         , fontSize =
-                            Maybe.andThen (\f -> Just <| ItemSettings.getFontSize f) (Item.getItemSettings item)
+                            Item.getFontSize item
                                 |> Maybe.withDefault FontSize.lg
                         , position =
                             selectedItemPosition
@@ -122,9 +114,7 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                                     )
                         , size = ( Size.getWidth selectedItemSize, settings.size.height )
                         , color =
-                            Item.getItemSettings item
-                                |> Maybe.withDefault ItemSettings.new
-                                |> ItemSettings.getForegroundColor
+                            Item.getForegroundColor item
                                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                                 |> Maybe.withDefault settings.color.label
                                 |> Color.fromString
@@ -230,11 +220,7 @@ canvasRect ( foregroundColor, backgroundColor ) property ( posX, posY ) ( rectWi
 
 getCanvasColor : DiagramSettings.Settings -> Property -> Item -> ( Color, Color )
 getCanvasColor settings property item =
-    case
-        ( Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getForegroundColor
-        , Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getBackgroundColor
-        )
-    of
+    case ( Item.getForegroundColor item, Item.getBackgroundColor item ) of
         ( Just f, Just b ) ->
             ( f, b )
 
@@ -263,13 +249,11 @@ title settings ( posX, posY ) item =
         , SvgAttr.y <| String.fromInt <| posY + 14
         , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
         , SvgAttr.fill
-            (Item.getItemSettings item
-                |> Maybe.withDefault ItemSettings.new
-                |> ItemSettings.getForegroundColor
+            (Item.getForegroundColor item
                 |> Maybe.andThen (\c -> Just <| Color.toString c)
                 |> Maybe.withDefault settings.color.label
             )
-        , FontSize.svgStyledFontSize (Item.getItemSettings item |> Maybe.map ItemSettings.getFontSize |> Maybe.withDefault FontSize.lg)
+        , FontSize.svgStyledFontSize (Item.getFontSize item |> Maybe.withDefault FontSize.lg)
         , SvgAttr.fontWeight "bold"
         , SvgAttr.class "ts-title"
         , Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }

@@ -9,8 +9,8 @@ import Events
 import Models.Color as Color
 import Models.Diagram exposing (Msg(..), SelectedItem)
 import Models.DiagramSettings as DiagramSettings
+import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
-import Models.ItemSettings as ItemSettings
 import Models.Position exposing (Position)
 import Models.Property exposing (Property)
 import String
@@ -43,7 +43,7 @@ view settings property ( posX, posY ) selectedItem item =
                     ( posX, posY )
                     ( settings.size.width, settings.size.height )
                     forgroundColor
-                    (Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize)
+                    (Item.getFontSize item |> Maybe.withDefault FontSize.default)
                     item
                 ]
     in
@@ -65,7 +65,7 @@ view settings property ( posX, posY ) selectedItem item =
                         []
                     , Views.inputView
                         { settings = settings
-                        , fontSize = Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize
+                        , fontSize = Item.getFontSize item |> Maybe.withDefault FontSize.default
                         , position = ( posX, posY )
                         , size = ( settings.size.width, settings.size.height )
                         , color = forgroundColor
