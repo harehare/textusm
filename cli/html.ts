@@ -1,4 +1,4 @@
-import { escape } from "html-escaper";
+import { render } from "mustache";
 
 interface Size {
   width: number;
@@ -74,7 +74,9 @@ const html = (
   width: number,
   height: number,
   settings: Settings
-) => `<html>
+) => {
+  return render(
+    `<html>
   <head>
     <script>${javaScript}</script>
   </head>
@@ -84,20 +86,29 @@ const html = (
     </div>
   </body>
   <script type="text/javascript">
-      textusm.render(
-        "target",
-\`${text.replace(/`/g, "``").replace(/(`|\/)/g, "\\$1")}\`,
-        {
-          diagramType: "${escape(settings.diagramType)}",
-          size: { width: ${width}, height: ${height},
-          showZoomControl: false,
-          scale: ${settings.scale},
-        }
+    textusm.render(
+      "target", "{{ text }}",
+      {
+        diagramType: "{{ diagramType }}",
+        size: { width: {{ width }}, height: {{ height }} },
+        showZoomControl: false,
+        scale: {{ scale }},
       },
-      ${JSON.stringify(settings)}
-      );
-    </script>
+      {{{ settings }}}
+    );
+  </script>
 </html>
-`;
+`,
+    {
+      javaScript,
+      text: text.split("\n").join("\\n"),
+      diagramType: settings.diagramType,
+      width,
+      height,
+      scale: settings.scale,
+      settings: JSON.stringify(settings),
+    }
+  );
+};
 
 export { html, DiagramType, Settings };
