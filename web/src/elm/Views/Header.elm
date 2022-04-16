@@ -6,6 +6,7 @@ import Css
     exposing
         ( alignItems
         , borderStyle
+        , calc
         , center
         , color
         , cursor
@@ -22,6 +23,7 @@ import Css
         , marginLeft
         , marginRight
         , marginTop
+        , minus
         , noWrap
         , none
         , outline
@@ -123,10 +125,8 @@ view props =
             [ css
                 [ displayFlex
                 , alignItems center
-                , width <| pct 50
+                , width <| calc (pct 100) minus (px 156)
                 , height <| px 40
-                , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
-                    [ Style.widthFull ]
                 ]
             ]
             [ case props.page of
@@ -332,7 +332,13 @@ viewSignInButton menu session =
                 Session.getUser session
         in
         Html.div
-            [ css [ Style.button, width <| px 96, height <| px 50 ]
+            [ css
+                [ Style.button
+                , width <| px 96
+                , height <| px 50
+                , withMedia [ Media.all [ Media.maxWidth (px 480) ] ]
+                    [ width <| px 32 ]
+                ]
             , Events.stopPropagationOn "click" (D.succeed ( OpenMenu HeaderMenu, True ))
             ]
             [ Html.div

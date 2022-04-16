@@ -82,7 +82,8 @@ view =
     div [ css [ Style.full ] ]
         [ div
             [ css
-                [ Style.full
+                [ Style.widthScreen
+                , Style.hMobileContent
                 , Color.bgDefault
                 , overflowY scroll
                 , padding <| px 16
@@ -94,6 +95,7 @@ view =
                 , withMedia [ Media.all [ Media.minWidth (px 768) ] ]
                     [ property "grid-template-columns" "repeat(auto-fit, minmax(240px, 1fr))"
                     , property "grid-auto-rows" "150px"
+                    , Style.full
                     ]
                 ]
             ]

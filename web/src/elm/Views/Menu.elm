@@ -102,7 +102,7 @@ menuButtonStyle =
         , paddingTop <| px 16
         , marginBottom <| px 8
         , withMedia [ Media.all [ Media.maxWidth <| px 480 ] ]
-            [ padding <| px 24 ]
+            [ padding <| px 16, marginBottom zero ]
         , hover
             [ position relative
             , descendants
