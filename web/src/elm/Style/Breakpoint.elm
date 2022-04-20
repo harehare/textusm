@@ -1,4 +1,4 @@
-module Style.Breakpoint exposing (large, small, style)
+module Style.Breakpoint exposing (Breakpoint, large, small, style)
 
 import Css
 import Css.Media as Media exposing (withMedia)
