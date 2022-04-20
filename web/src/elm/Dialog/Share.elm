@@ -37,7 +37,6 @@ import Css
         , translateY
         , width
         )
-import Css.Media as Media exposing (withMedia)
 import Env
 import Events
 import Graphql.Enum.Diagram exposing (Diagram)
@@ -59,6 +58,7 @@ import Models.Title as Title exposing (Title)
 import Ports
 import RemoteData exposing (RemoteData(..))
 import Return exposing (Return)
+import Style.Breakpoint as Breakpoint
 import Style.Color as Color
 import Style.Font as Font
 import Style.Style as Style
@@ -705,19 +705,20 @@ view model =
     div [ css [ Style.dialogBackdrop ] ]
         [ div
             [ css
-                [ Style.shadowSm
-                , top <| pct 50
-                , left <| pct 50
-                , transforms [ translateX <| pct -50, translateY <| pct -50 ]
-                , padding <| rem 1
-                , displayFlex
-                , Color.bgMain
-                , Color.textColor
-                , Style.fullScreen
-                , Style.roundedNone
-                , position absolute
-                , withMedia [ Media.all [ Media.minWidth <| px 768 ] ]
-                    [ Style.widthAuto, Style.heightAuto, Style.rounded ]
+                [ Breakpoint.style
+                    [ Style.shadowSm
+                    , top <| pct 50
+                    , left <| pct 50
+                    , transforms [ translateX <| pct -50, translateY <| pct -50 ]
+                    , padding <| rem 1
+                    , displayFlex
+                    , Color.bgMain
+                    , Color.textColor
+                    , Style.fullScreen
+                    , Style.roundedNone
+                    , position absolute
+                    ]
+                    [ Breakpoint.small [ Style.widthAuto, Style.heightAuto, Style.rounded ] ]
                 ]
             ]
             [ div

@@ -20,11 +20,11 @@ import Css
         , solid
         , transparent
         )
-import Css.Media as Media exposing (withMedia)
 import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html.Styled exposing (Html, a, div, img, text)
 import Html.Styled.Attributes exposing (attribute, class, css, href)
 import Route
+import Style.Breakpoint as Breakpoint
 import Style.Color as Color
 import Style.Font as Font
 import Style.Style as Style
@@ -82,20 +82,23 @@ view =
     div [ css [ Style.full ] ]
         [ div
             [ css
-                [ Style.widthScreen
-                , Style.hMobileContent
-                , Color.bgDefault
-                , overflowY scroll
-                , padding <| px 16
-                , property "display" "grid"
-                , property "grid-column-gap" "16px"
-                , property "grid-row-gap" "16px"
-                , property "grid-template-columns" "repeat(auto-fit, minmax(45%, 1fr))"
-                , property "grid-auto-rows" "120px"
-                , withMedia [ Media.all [ Media.minWidth (px 768) ] ]
-                    [ property "grid-template-columns" "repeat(auto-fit, minmax(240px, 1fr))"
-                    , property "grid-auto-rows" "150px"
-                    , Style.full
+                [ Breakpoint.style
+                    [ Style.widthScreen
+                    , Style.hMobileContent
+                    , Color.bgDefault
+                    , overflowY scroll
+                    , padding <| px 8
+                    , property "display" "grid"
+                    , property "grid-column-gap" "16px"
+                    , property "grid-row-gap" "16px"
+                    , property "grid-template-columns" "repeat(auto-fit, minmax(45%, 1fr))"
+                    , property "grid-auto-rows" "120px"
+                    ]
+                    [ Breakpoint.small
+                        [ property "grid-template-columns" "repeat(auto-fit, minmax(240px, 1fr))"
+                        , property "grid-auto-rows" "150px"
+                        , Style.full
+                        ]
                     ]
                 ]
             ]

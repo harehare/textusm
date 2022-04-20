@@ -1,7 +1,38 @@
 module Page.Settings exposing (Model, Msg(..), init, update, view)
 
-import Css exposing (alignItems, borderTop3, calc, center, column, displayFlex, flexDirection, flexWrap, fontWeight, height, hex, int, justifyContent, margin4, marginBottom, maxWidth, minus, overflowY, padding, padding2, padding4, pct, px, scroll, solid, spaceBetween, vh, width, wrap, zero)
-import Css.Media as Media exposing (withMedia)
+import Css
+    exposing
+        ( alignItems
+        , borderTop3
+        , calc
+        , center
+        , column
+        , displayFlex
+        , flexDirection
+        , flexWrap
+        , fontWeight
+        , height
+        , hex
+        , int
+        , justifyContent
+        , margin4
+        , marginBottom
+        , maxWidth
+        , minus
+        , overflowY
+        , padding
+        , padding2
+        , padding4
+        , pct
+        , px
+        , scroll
+        , solid
+        , spaceBetween
+        , vh
+        , width
+        , wrap
+        , zero
+        )
 import Html.Styled exposing (Html, div, text)
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Events exposing (onClick)
@@ -33,6 +64,7 @@ import Settings
         , ofWordWrap
         , ofZoomControl
         )
+import Style.Breakpoint as Breakpoint
 import Style.Color as Color
 import Style.Font as Font
 import Style.Style as Style
@@ -1127,16 +1159,19 @@ view_ : Maybe String -> Bool -> Settings -> Session -> Html Msg
 view_ dropDownIndex canUseNativeFileSystem settings session =
     div
         [ css
-            [ Color.bgDefault
-            , Style.widthFull
-            , Color.textColor
-            , overflowY scroll
-            , displayFlex
-            , flexWrap wrap
-            , height <| calc (vh 100) minus (px 35)
-            , withMedia [ Media.all [ Media.maxWidth (px 480) ] ]
-                [ Style.widthScreen
+            [ Breakpoint.style
+                [ Color.bgDefault
+                , Style.widthFull
+                , Color.textColor
+                , overflowY scroll
+                , displayFlex
+                , flexWrap wrap
                 , height <| calc (vh 100) minus (px 130)
+                ]
+                [ Breakpoint.large
+                    [ Style.widthScreen
+                    , height <| calc (vh 100) minus (px 35)
+                    ]
                 ]
             ]
         , onClick DropDownClose

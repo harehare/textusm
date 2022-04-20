@@ -15,7 +15,6 @@ import Browser.Events
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Css exposing (backgroundColor, calc, displayFlex, height, hex, hidden, minus, overflow, position, px, relative, vh, width)
-import Css.Media as Media exposing (withMedia)
 import Dialog.Confirm as ConfirmDialog
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
@@ -73,6 +72,7 @@ import Settings
         , settingsEncoder
         )
 import String
+import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
 import Style.Font as FontStyle
 import Style.Global as GlobalStyle
@@ -320,11 +320,12 @@ view model =
                                             model.window.state
                                             (div
                                                 [ css
-                                                    [ Style.hMain
-                                                    , Style.widthFull
-                                                    , ColorStyle.bgMain
-                                                    , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
-                                                        [ Style.heightFull ]
+                                                    [ Breakpoint.style
+                                                        [ Style.hMain
+                                                        , Style.widthFull
+                                                        , ColorStyle.bgMain
+                                                        ]
+                                                        [ Breakpoint.large [ Style.heightFull ] ]
                                                     ]
                                                 ]
                                                 [ editor model
@@ -340,11 +341,12 @@ view model =
                                             }
                                             (div
                                                 [ css
-                                                    [ Style.hMain
-                                                    , Style.widthFull
-                                                    , ColorStyle.bgMain
-                                                    , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
-                                                        [ Style.heightFull ]
+                                                    [ Breakpoint.style
+                                                        [ Style.hMain
+                                                        , Style.widthFull
+                                                        , ColorStyle.bgMain
+                                                        ]
+                                                        [ Breakpoint.large [ Style.heightFull ] ]
                                                     ]
                                                 ]
                                                 [ editor model

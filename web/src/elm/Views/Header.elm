@@ -42,7 +42,6 @@ import Css
         , whiteSpace
         , width
         )
-import Css.Media as Media exposing (withMedia)
 import Events as E
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
@@ -61,6 +60,7 @@ import Models.Session as Session exposing (Session)
 import Models.Text as Text exposing (Text)
 import Models.Title as Title
 import Route exposing (Route(..))
+import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
 import Style.Font as Font
 import Style.Style as Style
@@ -333,11 +333,13 @@ viewSignInButton menu session =
         in
         Html.div
             [ css
-                [ Style.button
-                , width <| px 96
-                , height <| px 50
-                , withMedia [ Media.all [ Media.maxWidth (px 480) ] ]
-                    [ width <| px 32 ]
+                [ Breakpoint.style [ width <| px 32 ]
+                    [ Breakpoint.small
+                        [ Style.button
+                        , width <| px 96
+                        , height <| px 50
+                        ]
+                    ]
                 ]
             , Events.stopPropagationOn "click" (D.succeed ( OpenMenu HeaderMenu, True ))
             ]
@@ -347,14 +349,15 @@ viewSignInButton menu session =
                 [ Html.img
                     [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
                     , css
-                        [ width <| rem 1.25
-                        , Style.heightFull
-                        , property "object-fit" "cover"
-                        , Style.roundedFull
-                        , Style.mtXs
-                        , position relative
-                        , withMedia [ Media.all [ Media.minWidth (px 1024) ] ]
-                            [ width <| rem 1.75, height <| rem 1.75 ]
+                        [ Breakpoint.style
+                            [ width <| rem 1.25
+                            , Style.heightFull
+                            , property "object-fit" "cover"
+                            , Style.roundedFull
+                            , Style.mtXs
+                            , position relative
+                            ]
+                            [ Breakpoint.large [ width <| rem 1.75, height <| rem 1.75 ] ]
                         ]
                     , Attr.alt "avatar"
                     ]

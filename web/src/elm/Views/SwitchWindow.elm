@@ -1,11 +1,11 @@
 module Views.SwitchWindow exposing (view)
 
 import Css exposing (backgroundColor, block, bottom, column, display, displayFlex, fixed, flexDirection, hex, int, none, position, px, relative, right, zIndex)
-import Css.Media as Media exposing (withMedia)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onClick)
 import Models.Model exposing (WindowState(..))
+import Style.Breakpoint as Breakpoint
 import Style.Color as Color
 import Style.Style as Style
 import Views.Empty as Empty
@@ -58,10 +58,11 @@ view onSwitchWindow background window view1 view2 =
             ]
         , Html.div
             [ css
-                [ Style.hMain
-                , Style.widthFull
-                , withMedia [ Media.all [ Media.minWidth <| px 1024 ] ]
-                    [ Style.heightFull ]
+                [ Breakpoint.style
+                    [ Style.hMain
+                    , Style.widthFull
+                    ]
+                    [ Breakpoint.large [ Style.heightFull ] ]
                 ]
             ]
             [ Html.div

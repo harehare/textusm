@@ -45,7 +45,6 @@ import Css
         , zero
         )
 import Css.Global exposing (class, descendants)
-import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transitions
 import Events
 import Graphql.Enum.Diagram exposing (Diagram(..))
@@ -65,6 +64,7 @@ import Models.Page as Page
 import Models.Text as Text exposing (Text)
 import Route exposing (Route)
 import Settings exposing (Settings)
+import Style.Breakpoint as Breakpoint
 import Style.Color as Color
 import Style.Font as FontStyle
 import Style.Style as Style
@@ -98,11 +98,13 @@ type alias Props =
 menuButtonStyle : Css.Style
 menuButtonStyle =
     Css.batch
-        [ cursor pointer
-        , paddingTop <| px 16
-        , marginBottom <| px 8
-        , withMedia [ Media.all [ Media.maxWidth <| px 480 ] ]
-            [ padding <| px 16, marginBottom zero ]
+        [ Breakpoint.style
+            [ cursor pointer
+            , marginBottom <| px 8
+            , padding <| px 16
+            , marginBottom zero
+            ]
+            [ Breakpoint.large [ padding <| px 0, paddingTop <| px 16 ] ]
         , hover
             [ position relative
             , descendants
@@ -120,23 +122,26 @@ view : Props -> Html Msg
 view props =
     Html.nav
         [ css
-            [ displayFlex
-            , flexDirection row
-            , alignItems center
-            , justifyContent spaceBetween
-            , Color.bgMain
-            , Style.shadowSm
-            , bottom zero
-            , Style.widthScreen
-            , position fixed
-            , zIndex <| int 10
-            , minWidth <| px 40
-            , withMedia [ Media.all [ Media.minWidth <| px 1024 ] ]
-                [ justifyContent start
-                , Style.heightScreen
-                , position relative
-                , flexDirection column
-                , Style.wMenu
+            [ Breakpoint.style
+                [ displayFlex
+                , flexDirection row
+                , alignItems center
+                , justifyContent spaceBetween
+                , Color.bgMain
+                , Style.shadowSm
+                , bottom zero
+                , Style.widthScreen
+                , position fixed
+                , zIndex <| int 10
+                , minWidth <| px 40
+                ]
+                [ Breakpoint.large
+                    [ justifyContent start
+                    , Style.heightScreen
+                    , position relative
+                    , flexDirection column
+                    , Style.wMenu
+                    ]
                 ]
             ]
         ]
@@ -393,19 +398,20 @@ menu posTop posLeft posBottom posRight items =
                                     , hover
                                         [ backgroundColor <| rgba 0 0 0 0.3
                                         ]
-                                    , withMedia [ Media.all [ Media.maxWidth <| px 480 ] ]
-                                        [ height <| px 40 ]
                                     ]
                                 , Events.onClick menuItem.e
                                 ]
                                 [ Html.div
                                     [ css
-                                        [ cursor pointer
-                                        , TextStyle.sm
-                                        , FontStyle.fontBold
-                                        , padding <| px 16
-                                        , withMedia [ Media.all [ Media.maxWidth <| px 480 ] ]
-                                            [ padding2 zero (px 16), Style.mt0 ]
+                                        [ Breakpoint.style
+                                            [ cursor pointer
+                                            , TextStyle.sm
+                                            , FontStyle.fontBold
+                                            , padding2 zero (px 16)
+                                            , Style.mt0
+                                            ]
+                                            [ Breakpoint.large [ padding <| px 16 ]
+                                            ]
                                         ]
                                     ]
                                     [ Html.text menuItem.title

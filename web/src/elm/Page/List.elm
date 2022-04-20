@@ -78,7 +78,6 @@ import Css
         , zero
         )
 import Css.Global exposing (children, descendants, typeSelector)
-import Css.Media as Media exposing (withMedia)
 import Css.Transitions as Transitions
 import Dialog.Confirm as ConfirmDialog
 import File exposing (File)
@@ -106,6 +105,7 @@ import Ordering exposing (Ordering)
 import RemoteData exposing (RemoteData(..), WebData)
 import Return exposing (Return)
 import Simple.Fuzzy as Fuzzy
+import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
 import Style.Font as FontStyle
 import Style.Style as Style
@@ -330,14 +330,17 @@ sideMenu : Session -> DiagramList -> Bool -> Html Msg
 sideMenu session diagramList isOnline =
     Html.div
         [ css
-            [ TextStyle.base
-            , ColorStyle.textDark
-            , ColorStyle.bgMain
-            , overflowY scroll
-            , width <| px 250
-            , height <| calc (vh 100) minus (px 40)
-            , withMedia [ Media.all [ Media.maxWidth (px 480) ] ]
-                [ display none ]
+            [ Breakpoint.style [ display none ]
+                [ Breakpoint.large
+                    [ TextStyle.base
+                    , ColorStyle.textDark
+                    , ColorStyle.bgMain
+                    , overflowY scroll
+                    , display block
+                    , width <| px 250
+                    , height <| calc (vh 100) minus (px 40)
+                    ]
+                ]
             ]
         ]
         [ Html.div
@@ -397,13 +400,18 @@ mainView : List (Html msg) -> Html msg
 mainView children =
     Html.div
         [ css
-            [ displayFlex
-            , ColorStyle.bgDefault
-            , Style.widthScreen
-            , height <| calc (vh 100) minus (px 40)
-            , position relative
-            , withMedia [ Media.all [ Media.maxWidth (px 480) ] ]
-                [ height <| calc (vh 100) minus (px 128) ]
+            [ Breakpoint.style
+                [ Style.widthFull
+                , height <| calc (vh 100) minus (px 128)
+                ]
+                [ Breakpoint.large
+                    [ displayFlex
+                    , ColorStyle.bgDefault
+                    , Style.widthScreen
+                    , height <| calc (vh 100) minus (px 40)
+                    , position relative
+                    ]
+                ]
             ]
         ]
         children
@@ -576,22 +584,25 @@ diagramListView props =
         , Html.div [ css [ overflowY auto, height <| calc (vh 100) minus (px 148) ] ]
             [ Html.div
                 [ css
-                    [ Style.full
-                    , ColorStyle.bgDefault
-                    , overflowY scroll
-                    , padding <| px 16
-                    , property "display" "grid"
-                    , property "grid-column-gap" "16px"
-                    , property "grid-row-gap" "16px"
-                    , property "grid-template-columns" "repeat(auto-fit, 47%)"
-                    , property "grid-auto-rows" "200px"
-                    , property "will-change" "transform"
-                    , Style.paddingSm
-                    , Style.mbSm
-                    , borderTop3 (px 1) solid (hex "#323B46")
-                    , withMedia [ Media.all [ Media.minWidth (px 768) ] ]
-                        [ property "grid-template-columns" "repeat(auto-fit, 240px)"
+                    [ Breakpoint.style
+                        [ Style.full
+                        , ColorStyle.bgDefault
+                        , overflowY scroll
+                        , padding <| px 16
+                        , property "display" "grid"
+                        , property "grid-column-gap" "16px"
+                        , property "grid-row-gap" "16px"
+                        , property "grid-template-columns" "repeat(auto-fit, 47%)"
                         , property "grid-auto-rows" "200px"
+                        , property "will-change" "transform"
+                        , Style.paddingSm
+                        , Style.mbSm
+                        , borderTop3 (px 1) solid (hex "#323B46")
+                        ]
+                        [ Breakpoint.small
+                            [ property "grid-template-columns" "repeat(auto-fit, 240px)"
+                            , property "grid-auto-rows" "200px"
+                            ]
                         ]
                     ]
                 ]
@@ -656,15 +667,19 @@ diagramView timezone diagram =
             , backgroundImage <| url (diagram.thumbnail |> Maybe.withDefault "")
             , border3 (px 3) solid ColorStyle.lightBackgroundColor
             , after
-                [ Style.emptyContent
-                , position absolute
-                , top zero
-                , left zero
-                , Style.widthFull
-                , height <| px 120
-                , Transitions.transition [ Transitions.background3 100 100 Transitions.ease ]
-                , withMedia [ Media.all [ Media.maxWidth (px 480) ] ]
-                    [ height <| px 150 ]
+                [ Breakpoint.style
+                    [ Style.emptyContent
+                    , position absolute
+                    , top zero
+                    , left zero
+                    , Style.widthFull
+                    , height <| px 120
+                    , Transitions.transition [ Transitions.background3 100 100 Transitions.ease ]
+                    ]
+                    [ Breakpoint.large
+                        [ height <| px 150
+                        ]
+                    ]
                 ]
             , hover [ after [ backgroundColor <| rgba 0 0 0 0.2 ] ]
             ]
