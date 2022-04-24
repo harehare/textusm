@@ -23,15 +23,15 @@ type GistItemBuilder interface {
 }
 
 type builder struct {
-	id         string
-	url        string
-	title      string
-	thumbnail  *string
-	diagram    values.Diagram
-	isBookmark bool
 	createdAt  time.Time
 	updatedAt  time.Time
+	thumbnail  *string
+	title      string
+	diagram    values.Diagram
+	id         string
+	url        string
 	errors     []error
+	isBookmark bool
 }
 
 func New() GistItemBuilder {
@@ -106,14 +106,14 @@ func (b *builder) Build() (*GistItem, error) {
 }
 
 type GistItem struct {
-	id         string
-	url        string
-	title      string
-	thumbnail  *string
-	diagram    values.Diagram
-	isBookmark bool
 	createdAt  time.Time
 	updatedAt  time.Time
+	thumbnail  *string
+	title      string
+	diagram    values.Diagram
+	id         string
+	url        string
+	isBookmark bool
 }
 
 func (i *GistItem) ID() string {

@@ -537,6 +537,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     ( _, h ) =
                         Item.getSize item_ ( model.settings.size.width, model.settings.size.height )
 
+                    contextMenuPosition : ( Int, Int )
                     contextMenuPosition =
                         if Item.isVerticalLine item_ then
                             ( floor <| toFloat (Position.getX pos) * model.svg.scale
@@ -848,12 +849,11 @@ move ( x, y ) m =
                         newPosition =
                             Just
                                 (position
-                                    |> Maybe.andThen
+                                    |> Maybe.map
                                         (\p ->
-                                            Just
-                                                ( Position.getX p + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
-                                                , Position.getY p + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
-                                                )
+                                            ( Position.getX p + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
+                                            , Position.getY p + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
+                                            )
                                         )
                                     |> Maybe.withDefault ( x - Position.getX m.movePosition, y - Position.getY m.movePosition )
                                 )
@@ -1099,7 +1099,7 @@ update message =
             Return.andThen <| \m -> Return.singleton { m | touchDistance = Just distance }
 
         EditSelectedItem text ->
-            Return.andThen <| \m -> Return.singleton { m | selectedItem = Maybe.andThen (\item_ -> Just (item_ |> Item.withTextOnly (" " ++ String.trimLeft text))) m.selectedItem }
+            Return.andThen <| \m -> Return.singleton { m | selectedItem = Maybe.map (\item_ -> item_ |> Item.withTextOnly (" " ++ String.trimLeft text)) m.selectedItem }
 
         FitToWindow ->
             Return.andThen <|
@@ -1213,7 +1213,7 @@ update message =
                                                 (item
                                                     |> Item.withItemSettings
                                                         (Item.getItemSettings item
-                                                            |> Maybe.andThen (\s -> Just (ItemSettings.withFontSize size <| s))
+                                                            |> Maybe.map (\s -> ItemSettings.withFontSize size <| s)
                                                         )
                                                 )
                                             )
@@ -1276,7 +1276,7 @@ update message =
                                                                 (item_
                                                                     |> Item.withItemSettings
                                                                         (Item.getItemSettings item_
-                                                                            |> Maybe.andThen (\s -> Just (ItemSettings.withForegroundColor (Just color) s))
+                                                                            |> Maybe.map (\s -> ItemSettings.withForegroundColor (Just color) s)
                                                                         )
                                                                 )
                                                             )
@@ -1296,7 +1296,7 @@ update message =
                                                                 (item_
                                                                     |> Item.withItemSettings
                                                                         (Item.getItemSettings item_
-                                                                            |> Maybe.andThen (\s -> Just (ItemSettings.withBackgroundColor (Just color) s))
+                                                                            |> Maybe.map (\s -> ItemSettings.withBackgroundColor (Just color) s)
                                                                         )
                                                                 )
                                                             )

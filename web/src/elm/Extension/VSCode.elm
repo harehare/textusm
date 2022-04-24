@@ -186,13 +186,8 @@ update message =
 
                                 DiagramModel.Stop ->
                                     case m.diagramModel.moveState of
-                                        DiagramModel.ItemMove target ->
-                                            case target of
-                                                DiagramModel.TableTarget _ ->
-                                                    Return.andThen (updateText model_.text)
-
-                                                DiagramModel.ItemTarget _ ->
-                                                    Return.andThen (updateText model_.text)
+                                        DiagramModel.ItemMove _ ->
+                                            Return.andThen (updateText model_.text)
 
                                         DiagramModel.ItemResize _ _ ->
                                             Return.andThen (updateText model_.text)

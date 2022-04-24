@@ -6,8 +6,6 @@ module Action exposing
     , closeLocalFile
     , closeMenu
     , closeNotification
-    , fullscreenDiagram
-    , hideZoomControl
     , historyBack
     , initListPage
     , initSettingsPage
@@ -29,28 +27,22 @@ module Action exposing
     , saveDiagram
     , saveLocalFile
     , saveSettings
-    , saveSettingsToRemote
     , saveToLocal
     , saveToRemote
     , setCurrentDiagram
-    , setDiagramSettings
-    , setDiagramType
     , setFocus
     , setFocusEditor
     , setSettings
-    , setText
     , setTitle
     , showConfirmDialog
     , showErrorMessage
     , showInfoMessage
     , showWarningMessage
-    , showZoomControl
     , startEditTitle
     , startProgress
     , stopProgress
     , switchPage
     , unchanged
-    , untitled
     , updateIdToken
     , updateWindowState
     )
@@ -527,46 +519,6 @@ switchPage page model =
     Return.singleton { model | page = page }
 
 
-hideZoomControl : Model -> Return Msg Model
-hideZoomControl model =
-    Return.singleton
-        { model
-            | diagramModel =
-                model.diagramModel
-                    |> DiagramModel.ofShowZoomControl.set False
-        }
-
-
-showZoomControl : Model -> Return Msg Model
-showZoomControl model =
-    Return.singleton
-        { model
-            | diagramModel =
-                model.diagramModel
-                    |> DiagramModel.ofShowZoomControl.set True
-        }
-
-
-fullscreenDiagram : Model -> Return Msg Model
-fullscreenDiagram model =
-    Return.singleton
-        { model
-            | diagramModel =
-                model.diagramModel
-                    |> DiagramModel.ofFullscreen.set True
-        }
-
-
-setText : String -> Model -> Return Msg Model
-setText text model =
-    Return.singleton
-        { model
-            | diagramModel =
-                model.diagramModel
-                    |> DiagramModel.ofText.set (Text.edit model.diagramModel.text text)
-        }
-
-
 needSaved : Model -> Return Msg Model
 needSaved model =
     Return.singleton
@@ -592,11 +544,6 @@ setTitle title model =
     Return.singleton { model | currentDiagram = DiagramItem.ofTitle.set (Title.fromString <| title) model.currentDiagram }
 
 
-untitled : Model -> Return Msg Model
-untitled model =
-    Return.singleton { model | currentDiagram = DiagramItem.ofTitle.set Title.untitled model.currentDiagram }
-
-
 startEditTitle : Model -> Return Msg Model
 startEditTitle model =
     Return.return model <| Task.perform identity <| Task.succeed StartEditTitle
@@ -605,26 +552,6 @@ startEditTitle model =
 setCurrentDiagram : DiagramItem -> Model -> Return Msg Model
 setCurrentDiagram currentDiagram model =
     Return.singleton { model | currentDiagram = currentDiagram }
-
-
-setDiagramSettings : DiagramSettings.Settings -> Model -> Return Msg Model
-setDiagramSettings settings model =
-    Return.singleton
-        { model
-            | diagramModel =
-                model.diagramModel
-                    |> DiagramModel.ofSettings.set settings
-        }
-
-
-setDiagramType : Diagram -> Model -> Return Msg Model
-setDiagramType type_ model =
-    Return.singleton
-        { model
-            | diagramModel =
-                model.diagramModel
-                    |> DiagramModel.ofDiagramType.set type_
-        }
 
 
 historyBack : Nav.Key -> Return.ReturnF Msg Model

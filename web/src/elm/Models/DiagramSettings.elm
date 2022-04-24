@@ -17,13 +17,11 @@ module Models.DiagramSettings exposing
     , ofActivityBackgroundColor
     , ofActivityColor
     , ofBackgroundColor
-    , ofColor
     , ofFont
     , ofHeight
     , ofLabelColor
     , ofLineColor
     , ofScale
-    , ofSize
     , ofStoryBackgroundColor
     , ofStoryColor
     , ofTaskBackgroundColor

@@ -1,4 +1,4 @@
-module Api.External.Github.Request exposing (AccessToken, GistId, createGist, deleteGist, getGist, gistPath, headers, hostName, updateGist)
+module Api.External.Github.Request exposing (AccessToken, GistId, createGist, deleteGist, getGist, updateGist)
 
 import Api.External.Github.Gist as Gist exposing (Gist)
 import Api.External.Github.GistInput as GistInput exposing (GistInput)

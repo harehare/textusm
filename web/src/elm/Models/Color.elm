@@ -13,7 +13,6 @@ module Models.Color exposing
     , fromString
     , gray
     , green
-    , green2
     , iconColor
     , labelDefalut
     , lightGray
@@ -25,7 +24,6 @@ module Models.Color exposing
     , orange
     , pink
     , purple
-    , purple2
     , red
     , teal
     , textDefalut
@@ -34,7 +32,6 @@ module Models.Color exposing
     , white
     , white2
     , yellow
-    , yellow2
     )
 
 import Json.Decode as D

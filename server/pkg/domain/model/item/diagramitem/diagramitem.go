@@ -31,16 +31,16 @@ type DiagramItemBuilder interface {
 }
 
 type builder struct {
-	id            string
-	title         string
-	encryptedtext string
-	thumbnail     *string
-	diagram       values.Diagram
-	isPublic      bool
-	isBookmark    bool
 	createdAt     time.Time
 	updatedAt     time.Time
+	thumbnail     *string
+	id            string
+	diagram       values.Diagram
+	title         string
+	encryptedtext string
 	errors        []error
+	isPublic      bool
+	isBookmark    bool
 }
 
 func New() DiagramItemBuilder {
@@ -134,15 +134,15 @@ func (b *builder) Build() (*DiagramItem, error) {
 }
 
 type DiagramItem struct {
-	id            string
-	title         string
-	encryptedText string
-	thumbnail     *string
-	diagram       values.Diagram
-	isPublic      bool
-	isBookmark    bool
 	createdAt     time.Time
 	updatedAt     time.Time
+	thumbnail     *string
+	id            string
+	diagram       values.Diagram
+	title         string
+	encryptedText string
+	isPublic      bool
+	isBookmark    bool
 }
 
 func (i *DiagramItem) ID() string {

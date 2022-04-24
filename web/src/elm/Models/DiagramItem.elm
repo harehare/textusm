@@ -91,7 +91,7 @@ copy diagram =
     { id = Nothing
     , text = diagram.text
     , diagram = diagram.diagram
-    , title = Title.map (\t ->  Title.fromString <| "Copy of " ++ t ) diagram.title
+    , title = Title.map (\t -> Title.fromString <| "Copy of " ++ t) diagram.title
     , thumbnail = diagram.thumbnail
     , isPublic = False
     , isBookmark = False
@@ -175,7 +175,7 @@ isRemoteDiagram session diagram =
 encoder : DiagramItem -> E.Value
 encoder diagram =
     E.object
-        [ ( "id", maybe E.string (Maybe.andThen (\id -> Just <| DiagramId.toString id) diagram.id) )
+        [ ( "id", maybe E.string (Maybe.map DiagramId.toString diagram.id) )
         , ( "text", E.string <| Text.toString diagram.text )
         , ( "diagram", E.string <| DiagramType.toString diagram.diagram )
         , ( "title", E.string (Title.toString diagram.title) )

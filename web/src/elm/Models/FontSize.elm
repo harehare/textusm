@@ -4,10 +4,8 @@ module Models.FontSize exposing
     , decoder
     , default
     , fromInt
-    , htmlFontSize
     , lg
     , list
-    , svgFontSize
     , svgStyledFontSize
     , toInt
     , unwrap
@@ -15,10 +13,7 @@ module Models.FontSize exposing
     )
 
 import Css exposing (px)
-import Html.Attributes as HtmlAttr
 import Json.Decode as D
-import Svg
-import Svg.Attributes as SvgAttr
 import Svg.Styled as SvgStyled
 import Svg.Styled.Attributes as SvgStyledAttr
 
@@ -78,16 +73,6 @@ decoder =
 svgStyledFontSize : FontSize -> SvgStyled.Attribute msg
 svgStyledFontSize fontSize =
     SvgStyledAttr.fontSize <| String.fromInt <| unwrap <| fontSize
-
-
-svgFontSize : FontSize -> Svg.Attribute msg
-svgFontSize fontSize =
-    SvgAttr.fontSize <| String.fromInt <| unwrap <| fontSize
-
-
-htmlFontSize : FontSize -> Svg.Attribute msg
-htmlFontSize fontSize =
-    HtmlAttr.style "font-size" <| (fontSize |> unwrap |> String.fromInt) ++ "px"
 
 
 cssFontSize : FontSize -> Css.Style

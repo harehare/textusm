@@ -115,7 +115,7 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                         , size = ( Size.getWidth selectedItemSize, settings.size.height )
                         , color =
                             Item.getForegroundColor item
-                                |> Maybe.andThen (\c -> Just <| Color.toString c)
+                                |> Maybe.map Color.toString
                                 |> Maybe.withDefault settings.color.label
                                 |> Color.fromString
                         , item = item_
@@ -250,7 +250,7 @@ title settings ( posX, posY ) item =
         , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
         , SvgAttr.fill
             (Item.getForegroundColor item
-                |> Maybe.andThen (\c -> Just <| Color.toString c)
+                |> Maybe.map Color.toString
                 |> Maybe.withDefault settings.color.label
             )
         , FontSize.svgStyledFontSize (Item.getFontSize item |> Maybe.withDefault FontSize.lg)

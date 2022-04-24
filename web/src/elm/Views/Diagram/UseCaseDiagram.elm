@@ -86,8 +86,7 @@ view model =
             let
                 useCases : List Item
                 useCases =
-                    List.map (\(Actor _ a) -> List.map (\(UseCase u) -> u) a) actors
-                        |> List.concat
+                    List.concatMap (\(Actor _ a) -> List.map (\(UseCase u) -> u) a) actors
                         |> ListEx.uniqueBy Item.getText
 
                 ( actorMargins, actorViews ) =
@@ -106,7 +105,7 @@ view model =
 
                 actorLine : List (Svg Msg)
                 actorLine =
-                    List.map
+                    List.concatMap
                         (\(Actor a ul) ->
                             let
                                 maybeActorPosition : Maybe Position
@@ -149,7 +148,6 @@ view model =
                                 ul
                         )
                         actors
-                        |> List.concat
             in
             Svg.g [] <|
                 arrowView model.settings
@@ -422,7 +420,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                 }
     in
     ( a |> List.map Tuple.first |> Dict.fromList
-    , a |> List.map Tuple.second |> List.concat
+    , a |> List.concatMap Tuple.second
     )
 
 

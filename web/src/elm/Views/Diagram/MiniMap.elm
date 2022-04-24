@@ -124,8 +124,8 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg,
                     , Svg.rect
                         [ SvgAttr.width <| String.fromInt <| round <| (toFloat <| Size.getWidth viewport) / scale
                         , SvgAttr.height <| String.fromInt <| round <| (toFloat <| Size.getHeight viewport) / scale
-                        , SvgAttr.x <| String.fromInt <| 0 - Position.getX position
-                        , SvgAttr.y <| String.fromInt <| 0 - Position.getY position
+                        , SvgAttr.x <| String.fromInt <| -(Position.getX position)
+                        , SvgAttr.y <| String.fromInt <| -(Position.getY position)
                         , SvgAttr.stroke <| Color.toString Color.gray
                         , SvgAttr.strokeWidth "40"
                         , SvgAttr.fill "transparent"

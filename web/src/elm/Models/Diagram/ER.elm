@@ -203,7 +203,7 @@ itemToTable item =
                 [ name, xString, yString ] ->
                     ( name
                     , String.toInt xString
-                        |> Maybe.andThen (\x -> Maybe.andThen (\y -> Just ( x, y )) (String.toInt yString))
+                        |> Maybe.andThen (\x -> Maybe.map (\y -> ( x, y )) (String.toInt yString))
                     )
 
                 [ name, _ ] ->
@@ -329,10 +329,7 @@ textToColumnAttribute attrDict =
                 |> Maybe.andThen
                     (\d ->
                         find (\_ value -> value == d + 1) attrDict
-                            |> Maybe.andThen
-                                (\( k, _ ) ->
-                                    Just <| Default k
-                                )
+                            |> Maybe.map (\( k, _ ) -> Default k)
                     )
                 |> Maybe.withDefault None
     in
@@ -560,7 +557,7 @@ tableToString (Table name columns _ _) =
                 |> Maybe.withDefault (String.join ",\n" columnStrings)
            )
         ++ "\n);\n"
-        ++ (Maybe.andThen (\v -> Just <| v ++ "\n") (indexToString name columns)
+        ++ (Maybe.map (\v -> v ++ "\n") (indexToString name columns)
                 |> Maybe.withDefault ""
            )
 

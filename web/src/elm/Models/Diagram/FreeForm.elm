@@ -5,8 +5,6 @@ module Models.Diagram.FreeForm exposing
     , from
     , getItems
     , size
-    , unwrap
-    , unwrapItem
     )
 
 import Models.DiagramSettings as DiagramSettings

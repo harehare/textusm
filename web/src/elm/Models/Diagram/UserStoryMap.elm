@@ -8,8 +8,6 @@ module Models.Diagram.UserStoryMap exposing
     , getHierarchy
     , getItems
     , size
-    , storyCount
-    , taskCount
     )
 
 import Constants

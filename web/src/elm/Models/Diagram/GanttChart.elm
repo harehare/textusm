@@ -115,10 +115,7 @@ stringToPosix str =
                         (\v ->
                             if String.length v == 2 then
                                 String.toInt v
-                                    |> Maybe.andThen
-                                        (\vv ->
-                                            Just <| intToMonth vv
-                                        )
+                                    |> Maybe.map intToMonth
 
                             else
                                 Nothing
@@ -134,9 +131,9 @@ stringToPosix str =
                                         else
                                             Nothing
                                     )
-                                |> Maybe.andThen
+                                |> Maybe.map
                                     (\dayValue ->
-                                        Just <| TimeEx.partsToPosix Time.utc (TimeEx.Parts yearValue monthValue dayValue 0 0 0 0)
+                                        TimeEx.partsToPosix Time.utc (TimeEx.Parts yearValue monthValue dayValue 0 0 0 0)
                                     )
                         )
             )
@@ -208,10 +205,7 @@ extractDateValues s =
                         (\vv ->
                             stringToPosix (String.trim vv)
                         )
-                    |> Maybe.andThen
-                        (\to ->
-                            Just ( f, to )
-                        )
+                    |> Maybe.map (\to -> ( f, to ))
             )
 
 

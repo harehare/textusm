@@ -13,37 +13,37 @@ type InputColor struct {
 
 type InputGistItem struct {
 	ID         *string         `json:"id"`
-	Title      string          `json:"title"`
 	Thumbnail  *string         `json:"thumbnail"`
 	Diagram    *values.Diagram `json:"diagram"`
-	IsBookmark bool            `json:"isBookmark"`
+	Title      string          `json:"title"`
 	URL        string          `json:"url"`
+	IsBookmark bool            `json:"isBookmark"`
 }
 
 type InputItem struct {
 	ID         *string         `json:"id"`
-	Title      string          `json:"title"`
-	Text       string          `json:"text"`
 	Thumbnail  *string         `json:"thumbnail"`
 	Diagram    *values.Diagram `json:"diagram"`
+	Title      string          `json:"title"`
+	Text       string          `json:"text"`
 	IsPublic   bool            `json:"isPublic"`
 	IsBookmark bool            `json:"isBookmark"`
 }
 
 type InputSettings struct {
-	Font            string      `json:"font"`
-	Width           int         `json:"width"`
-	Height          int         `json:"height"`
-	BackgroundColor string      `json:"backgroundColor"`
+	StoryColor      *InputColor `json:"storyColor"`
+	Scale           *float64    `json:"scale"`
+	ZoomControl     *bool       `json:"zoomControl"`
+	TextColor       *string     `json:"textColor"`
 	ActivityColor   *InputColor `json:"activityColor"`
 	TaskColor       *InputColor `json:"taskColor"`
-	StoryColor      *InputColor `json:"storyColor"`
+	Toolbar         *bool       `json:"toolbar"`
 	LineColor       string      `json:"lineColor"`
 	LabelColor      string      `json:"labelColor"`
-	TextColor       *string     `json:"textColor"`
-	ZoomControl     *bool       `json:"zoomControl"`
-	Scale           *float64    `json:"scale"`
-	Toolbar         *bool       `json:"toolbar"`
+	BackgroundColor string      `json:"backgroundColor"`
+	Font            string      `json:"font"`
+	Height          int         `json:"height"`
+	Width           int         `json:"width"`
 }
 
 type InputShareItem struct {

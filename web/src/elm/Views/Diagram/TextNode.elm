@@ -223,13 +223,13 @@ root { settings, property, position, selectedItem, item } =
         borderColor : String
         borderColor =
             Item.getBackgroundColor item
-                |> Maybe.andThen (\c -> Just <| Color.toString c)
+                |> Maybe.map Color.toString
                 |> Maybe.withDefault settings.color.activity.backgroundColor
 
         textColor : Color
         textColor =
             Item.getForegroundColor item
-                |> Maybe.andThen (\c -> Just <| Color.toString c)
+                |> Maybe.map Color.toString
                 |> Maybe.withDefault settings.color.activity.color
                 |> Color.fromString
 

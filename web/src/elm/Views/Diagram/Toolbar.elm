@@ -1,8 +1,6 @@
 module Views.Diagram.Toolbar exposing
     ( ClickEvent
     , ToolbarButton
-    , userStoryMap
-    , view
     , viewColorOnly
     , viewForFreeForm
     )

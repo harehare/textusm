@@ -43,7 +43,7 @@ allItems fillInOptionals____ object____ =
             [ Argument.optional "offset" filledInOptionals____.offset Encode.int, Argument.optional "limit" filledInOptionals____.limit Encode.int ]
                 |> List.filterMap Basics.identity
     in
-    Object.selectionForCompositeField "allItems" optionalArgs____ object____ (Basics.identity >> Decode.list >> Decode.nullable)
+    Object.selectionForCompositeField "allItems" optionalArgs____ object____ (Decode.list >> Decode.nullable)
 
 
 type alias ItemOptionalArguments =
@@ -106,7 +106,7 @@ items fillInOptionals____ object____ =
             [ Argument.optional "offset" filledInOptionals____.offset Encode.int, Argument.optional "limit" filledInOptionals____.limit Encode.int, Argument.optional "isBookmark" filledInOptionals____.isBookmark Encode.bool, Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
                 |> List.filterMap Basics.identity
     in
-    Object.selectionForCompositeField "items" optionalArgs____ object____ (Basics.identity >> Decode.nullable >> Decode.list)
+    Object.selectionForCompositeField "items" optionalArgs____ object____ (Decode.nullable >> Decode.list)
 
 
 type alias ShareItemOptionalArguments =
@@ -154,7 +154,7 @@ shareCondition :
     -> SelectionSet decodesTo Graphql.Object.ShareCondition
     -> SelectionSet (Maybe decodesTo) RootQuery
 shareCondition requiredArgs____ object____ =
-    Object.selectionForCompositeField "ShareCondition" [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ] object____ (Basics.identity >> Decode.nullable)
+    Object.selectionForCompositeField "ShareCondition" [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ] object____ Decode.nullable
 
 
 type alias GistItemRequiredArguments =
@@ -199,7 +199,7 @@ gistItems fillInOptionals____ object____ =
             [ Argument.optional "offset" filledInOptionals____.offset Encode.int, Argument.optional "limit" filledInOptionals____.limit Encode.int ]
                 |> List.filterMap Basics.identity
     in
-    Object.selectionForCompositeField "gistItems" optionalArgs____ object____ (Basics.identity >> Decode.nullable >> Decode.list)
+    Object.selectionForCompositeField "gistItems" optionalArgs____ object____ (Decode.nullable >> Decode.list)
 
 
 type alias SettingsRequiredArguments =

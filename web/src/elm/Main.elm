@@ -548,15 +548,10 @@ changeRouteTo route =
         Route.Share ->
             Return.andThen
                 (\m ->
-                    if Session.isSignedIn m.session then
+                    if Session.isSignedIn m.session && m.currentDiagram.isRemote then
                         Return.singleton m
-                            |> (if m.currentDiagram.isRemote then
-                                    Return.andThen (Action.initShareDiagram m.currentDiagram)
-                                        >> Return.andThen Action.startProgress
-
-                                else
-                                    Return.andThen <| Action.moveTo Route.Home
-                               )
+                            |> Return.andThen (Action.initShareDiagram m.currentDiagram)
+                            >> Return.andThen Action.startProgress
 
                     else
                         Action.moveTo Route.Home m
@@ -1125,7 +1120,7 @@ update message =
                                     newSettings =
                                         { position = Just m.window.position
                                         , font = m.settingsModel.settings.font
-                                        , diagramId = Maybe.andThen (\i -> Just <| DiagramId.toString i) m.currentDiagram.id
+                                        , diagramId = Maybe.map DiagramId.toString m.currentDiagram.id
                                         , storyMap = newStoryMap.storyMap |> DiagramSettings.ofScale.set (Just m.diagramModel.svg.scale)
                                         , text = Just (Text.toString m.diagramModel.text)
                                         , title = Just <| Title.toString m.currentDiagram.title

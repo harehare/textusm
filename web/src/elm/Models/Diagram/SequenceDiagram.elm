@@ -10,9 +10,7 @@ module Models.Diagram.SequenceDiagram exposing
     , SequenceItem(..)
     , fragmentToString
     , from
-    , messageCountAll
     , messagesCount
-    , participantCount
     , sequenceItemCount
     , sequenceItemMessages
     , size
@@ -258,7 +256,7 @@ itemToSequenceItem participants item =
             Just <| Fragment <| Consider (Item.getText childrenHead) <| itemsToMessages participants <| grandChild
 
         _ ->
-            Maybe.andThen (\v -> Just <| Messages [ v ]) (itemToMessage item participants)
+            Maybe.map (\v -> Messages [ v ]) (itemToMessage item participants)
 
 
 isFragmentText : String -> Bool
@@ -282,7 +280,7 @@ itemToMessage : Item -> Dict String Participant -> Maybe Message
 itemToMessage item participantDict =
     if isFragmentText <| Item.getText item then
         itemToSequenceItem participantDict item
-            |> Maybe.andThen (\m -> Just <| SubMessage m)
+            |> Maybe.map SubMessage
 
     else
         let
@@ -532,7 +530,7 @@ fragmentToMermaidString fragment =
                 ( parText, messages ) :: rest ->
                     let
                         parAndMessage : ParMessage -> List String
-                        parAndMessage ( parText_, parMessages_ ) =
+                        parAndMessage ( _, parMessages_ ) =
                             "    and "
                                 :: List.map
                                     (\l ->
@@ -551,7 +549,7 @@ fragmentToMermaidString fragment =
                             )
                             messages
                     )
-                        ++ (List.map parAndMessage rest |> List.concat)
+                        ++ List.concatMap parAndMessage rest
                         ++ [ "    end" ]
 
                 [] ->

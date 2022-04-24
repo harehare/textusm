@@ -312,11 +312,10 @@ init { diagram, diagramId, session, title } =
 validIPList : Maybe String -> List IpAddress
 validIPList ipList =
     case
-        Maybe.andThen
+        Maybe.map
             (\i ->
                 String.lines i
                     |> List.filterMap IpAddress.fromString
-                    |> Just
             )
             ipList
     of
@@ -330,11 +329,10 @@ validIPList ipList =
 validEmail : Maybe String -> List Email
 validEmail email =
     case
-        Maybe.andThen
+        Maybe.map
             (\i ->
                 String.lines i
                     |> List.filterMap Email.fromString
-                    |> Just
             )
             email
     of
@@ -437,11 +435,11 @@ update msg model =
                                     { m
                                         | urlCopyState = Copying
                                         , ip =
-                                            { input = Maybe.andThen (\_ -> Just ipList) m.ip.input
+                                            { input = Maybe.map (\_ -> ipList) m.ip.input
                                             , error = False
                                             }
                                         , email =
-                                            { input = Maybe.andThen (\_ -> Just email) m.email.input
+                                            { input = Maybe.map (\_ -> email) m.email.input
                                             , error = False
                                             }
                                     }
@@ -491,11 +489,11 @@ update msg model =
                                     { m
                                         | embedCopyState = Copying
                                         , ip =
-                                            { input = Maybe.andThen (\_ -> Just ipList) m.ip.input
+                                            { input = Maybe.map (\_ -> ipList) m.ip.input
                                             , error = False
                                             }
                                         , email =
-                                            { input = Maybe.andThen (\_ -> Just email) m.email.input
+                                            { input = Maybe.map (\_ -> email) m.email.input
                                             , error = False
                                             }
                                     }

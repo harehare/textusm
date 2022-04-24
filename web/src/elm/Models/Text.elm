@@ -1,6 +1,5 @@
 module Models.Text exposing
     ( Text
-    , addLine
     , change
     , decoder
     , edit
@@ -71,15 +70,6 @@ getLine lineNo text =
     lines text
         |> getAt lineNo
         |> Maybe.withDefault ""
-
-
-addLine : Text -> String -> Text
-addLine text line =
-    if isEmpty text then
-        Saved line
-
-    else
-        Saved <| toString text ++ "\n" ++ line
 
 
 empty : Text

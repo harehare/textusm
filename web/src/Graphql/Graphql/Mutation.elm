@@ -96,7 +96,7 @@ bookmark :
     -> SelectionSet decodesTo Graphql.Object.Item
     -> SelectionSet (Maybe decodesTo) RootMutation
 bookmark requiredArgs____ object____ =
-    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId), Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ (Basics.identity >> Decode.nullable)
+    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId), Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ Decode.nullable
 
 
 type alias ShareRequiredArguments =

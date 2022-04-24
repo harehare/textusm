@@ -83,7 +83,7 @@ view model =
                                     Dict.update name
                                         (\_ ->
                                             currentTable
-                                                |> Maybe.andThen (\t -> Just { t | table = table, offset = position |> Maybe.withDefault Position.zero })
+                                                |> Maybe.map (\t -> { t | table = table, offset = position |> Maybe.withDefault Position.zero })
                                         )
                                         baseDict
 

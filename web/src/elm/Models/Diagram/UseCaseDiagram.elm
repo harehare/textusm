@@ -4,13 +4,11 @@ module Models.Diagram.UseCaseDiagram exposing
     , UseCase(..)
     , UseCaseDiagram(..)
     , UseCaseRelation
-    , allRelationCount
     , from
     , getName
     , getRelationItem
     , getRelationName
     , getRelations
-    , hierarchy
     , relationCount
     , size
     )
@@ -245,8 +243,7 @@ size (UseCaseDiagram actors relations) =
     let
         useCases : List Item
         useCases =
-            List.map (\(Actor _ a) -> List.map (\(UseCase u) -> u) a) actors
-                |> List.concat
+            List.concatMap (\(Actor _ a) -> List.map (\(UseCase u) -> u) a) actors
                 |> ListEx.uniqueBy Item.getText
 
         count : Int

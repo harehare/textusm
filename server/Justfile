@@ -15,6 +15,7 @@ target := "./..."
 setup:
   {{ go }} get honnef.co/go/tools/cmd/staticcheck
   {{ go }} get github.com/securego/gosec/v2/cmd/gosec
+  go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
 
 run:
 	{{ run }} {{ main }}
@@ -41,3 +42,8 @@ lint:
 
 clean:
 	{{ go }} mod tidy
+
+fix:
+	fieldalignment -fix pkg/domain/model/item/gistitem/gistitem.go
+	fieldalignment -fix pkg/domain/model/item/gistitem/gistitem.go
+	fieldalignment -fix pkg/presentation/graphql/models.go

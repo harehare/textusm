@@ -3,7 +3,6 @@ module Models.Diagram exposing
     , ContextMenuProps
     , Distance
     , DragStatus(..)
-    , Hierarchy
     , Model
     , MoveState(..)
     , MoveTarget(..)
@@ -14,10 +13,8 @@ module Models.Diagram exposing
     , SvgInfo
     , chooseZoom
     , dragStart
-    , isMoving
     , moveingItem
     , ofDiagramType
-    , ofFullscreen
     , ofPosition
     , ofScale
     , ofSettings
@@ -148,11 +145,6 @@ ofShowZoomControl =
     Lens .showZoomControl (\b a -> { a | showZoomControl = b })
 
 
-ofFullscreen : Lens Model Bool
-ofFullscreen =
-    Lens .fullscreen (\b a -> { a | fullscreen = b })
-
-
 ofPosition : Lens Model Position
 ofPosition =
     Lens .position (\b a -> { a | position = b })
@@ -181,10 +173,6 @@ ofScale =
 ofSize : Lens Model Size.Size
 ofSize =
     Lens .size (\b a -> { a | size = b })
-
-
-type alias Hierarchy =
-    Int
 
 
 type alias Distance =
@@ -224,16 +212,6 @@ type ResizeDirection
     | Bottom
     | Left
     | Right
-
-
-isMoving : MoveState -> Bool
-isMoving moveState =
-    case moveState of
-        NotMove ->
-            False
-
-        _ ->
-            True
 
 
 moveingItem : Model -> Maybe Item

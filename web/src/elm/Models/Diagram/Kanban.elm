@@ -5,7 +5,6 @@ module Models.Diagram.Kanban exposing
     , Name
     , from
     , getCardCount
-    , getListCount
     , size
     )
 

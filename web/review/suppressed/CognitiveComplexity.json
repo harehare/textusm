@@ -4,7 +4,7 @@
   "learn more": "elm-review suppress --help",
   "suppressions": [
     { "count": 3, "filePath": "src/elm/Components/Diagram.elm" },
-    { "count": 3, "filePath": "src/elm/Main.elm" },
+    { "count": 2, "filePath": "src/elm/Main.elm" },
     { "count": 1, "filePath": "src/elm/Dialog/Share.elm" },
     { "count": 1, "filePath": "src/elm/Extension/Lib.elm" },
     { "count": 1, "filePath": "src/elm/Models/Diagram/SequenceDiagram.elm" },

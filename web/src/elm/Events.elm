@@ -1,6 +1,5 @@
 module Events exposing
-    ( onChange
-    , onChangeStyled
+    ( onChangeStyled
     , onClickPreventDefaultOn
     , onClickStopPropagation
     , onDrop
@@ -146,11 +145,6 @@ onWheel =
     \m ->
         Wheel.onWithOptions { stopPropagation = True, preventDefault = False } m
             |> Attr.fromUnstyled
-
-
-onChange : (String -> msg) -> Attribute msg
-onChange handler =
-    StyledEvents.on "change" <| D.map handler <| D.at [ "target", "value" ] D.string
 
 
 onChangeStyled : (String -> msg) -> Attribute msg

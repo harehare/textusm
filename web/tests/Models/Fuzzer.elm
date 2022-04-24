@@ -1,4 +1,4 @@
-module Models.Fuzzer exposing (childrenFuzzer, colorFuzzer, customColorFuzzer, diagramIdFuzzer, diagramItemFuzzer, diagramLocationFuzzer, diagramTypeFuzzer, fontSizeFuzzer, hexFuzzer, itemFuzzer, itemSettingsFuzzer, itemTypeFuzzer, itemsFuzzer, positionFuzzer, posixFuzzer, rgbFuzzer, textFuzzer, titleFuzzer)
+module Models.Fuzzer exposing (colorFuzzer, diagramItemFuzzer, diagramTypeFuzzer, itemFuzzer, itemSettingsFuzzer)
 
 import Fuzz exposing (Fuzzer)
 import Graphql.Enum.Diagram exposing (Diagram(..))
@@ -7,7 +7,7 @@ import Models.DiagramId as DiagramId exposing (DiagramId)
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Models.FontSize as FontSize exposing (FontSize)
-import Models.Item as Item exposing (Children, Item, ItemType(..), Items)
+import Models.Item as Item exposing (Children, Item, ItemType(..))
 import Models.ItemSettings as ItemSettings exposing (ItemSettings)
 import Models.Position exposing (Position)
 import Models.Text as Text exposing (Text)
@@ -64,11 +64,6 @@ itemFuzzer =
         |> Fuzz.andMap itemTypeFuzzer
         |> Fuzz.andMap (Fuzz.maybe itemSettingsFuzzer)
         |> Fuzz.andMap childrenFuzzer
-
-
-itemsFuzzer : Fuzzer Items
-itemsFuzzer =
-    Fuzz.map Item.fromList (Fuzz.list itemFuzzer)
 
 
 childrenFuzzer : Fuzzer Children

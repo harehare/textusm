@@ -127,7 +127,7 @@ labelView { settings, property, width, userStoryMap } =
                )
          )
             ++ (List.range 1 (hierarchy - 2)
-                    |> List.map
+                    |> List.concatMap
                         (\xx ->
                             if List.length countPerReleaseLevel - 2 > xx then
                                 let
@@ -159,7 +159,6 @@ labelView { settings, property, width, userStoryMap } =
                             else
                                 [ Svg.line [] [] ]
                         )
-                    |> List.concat
                )
         )
 

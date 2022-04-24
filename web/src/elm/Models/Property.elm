@@ -182,7 +182,7 @@ fromString text =
                             String.replace "#" "" name
                                 |> String.trim
                                 |> enabledKey
-                                |> Maybe.andThen (\v -> Just ( toKeyString v, String.trim value ))
+                                |> Maybe.map (\v -> ( toKeyString v, String.trim value ))
 
                         _ ->
                             Nothing

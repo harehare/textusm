@@ -53,19 +53,18 @@ stringToPosix zone date time =
                                                     |> Maybe.andThen
                                                         (\hour ->
                                                             toInt mi
-                                                                |> Maybe.andThen
+                                                                |> Maybe.map
                                                                     (\minute ->
-                                                                        Just <|
-                                                                            TimeEx.partsToPosix
-                                                                                zone
-                                                                                { year = year
-                                                                                , month = toMonth month
-                                                                                , day = day
-                                                                                , hour = hour
-                                                                                , minute = minute
-                                                                                , second = 0
-                                                                                , millisecond = 0
-                                                                                }
+                                                                        TimeEx.partsToPosix
+                                                                            zone
+                                                                            { year = year
+                                                                            , month = toMonth month
+                                                                            , day = day
+                                                                            , hour = hour
+                                                                            , minute = minute
+                                                                            , second = 0
+                                                                            , millisecond = 0
+                                                                            }
                                                                     )
                                                         )
                                             )
