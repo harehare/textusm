@@ -6,7 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.3
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/go-chi/chi/v5 v5.0.7
-	github.com/go-chi/cors v1.2.0
+	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/httprate v0.5.3
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/rs/zerolog v1.26.1
