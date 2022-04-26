@@ -52,7 +52,7 @@ view settings property position selectedItem item =
                     Item.getOffsetSize item
 
                 ( width, height ) =
-                    ( Property.getCardWidth property, Property.getCardHeight property )
+                    ( Property.getNodeWidth property, Property.getNodeHeight property )
                         |> Tuple.mapBoth
                             (\w -> Maybe.withDefault settings.size.width w)
                             (\h -> Maybe.withDefault (settings.size.height - 1) h)
@@ -94,7 +94,10 @@ view settings property position selectedItem item =
 
                     selectedItemSize : Size
                     selectedItemSize =
-                        ( settings.size.width, settings.size.height - 1 )
+                        ( Property.getNodeWidth property, Property.getNodeHeight property )
+                            |> Tuple.mapBoth
+                                (\w -> Maybe.withDefault settings.size.width w)
+                                (\h -> Maybe.withDefault (settings.size.height - 1) h)
                             |> Tuple.mapBoth
                                 (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
                                 (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
@@ -233,13 +236,19 @@ root { settings, property, position, selectedItem, item } =
                 |> Maybe.withDefault settings.color.activity.color
                 |> Color.fromString
 
+        ( width, height ) =
+            ( Property.getNodeWidth property, Property.getNodeHeight property )
+                |> Tuple.mapBoth
+                    (\w -> Maybe.withDefault settings.size.width w)
+                    (\h -> Maybe.withDefault (settings.size.height - 1) h)
+
         view_ : Svg Msg
         view_ =
             Svg.g
                 [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
                 [ Svg.rect
-                    [ SvgAttr.width <| String.fromInt settings.size.width
-                    , SvgAttr.height <| String.fromInt <| settings.size.height - 1
+                    [ SvgAttr.width <| String.fromInt width
+                    , SvgAttr.height <| String.fromInt <| height
                     , SvgAttr.x <| String.fromInt posX
                     , SvgAttr.y <| String.fromInt posY
                     , SvgAttr.strokeWidth "3"

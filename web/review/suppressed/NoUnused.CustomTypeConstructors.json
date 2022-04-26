@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "automatically created by": "elm-review suppress",
+  "learn more": "elm-review suppress --help",
+  "suppressions": [
+    { "count": 5, "filePath": "src/Graphql/Graphql/Object.elm" },
+    { "count": 1, "filePath": "src/Graphql/Graphql/Interface.elm" },
+    { "count": 1, "filePath": "src/Graphql/Graphql/Union.elm" }
+  ]
+}

@@ -94,4 +94,16 @@ suite =
         , test "If invalid text_color exists" <|
             \() ->
                 Expect.equal (Property.getTextColor (Property.fromString "#text_color: a")) (Just <| Color.background1Defalut)
+        , test "If valid node_width exists" <|
+            \() ->
+                Expect.equal (Property.getNodeWidth (Property.fromString "#node_width: 10")) (Just 10)
+        , test "If invalid node_width not exists" <|
+            \() ->
+                Expect.equal (Property.getNodeWidth (Property.fromString "#node_width: a")) Nothing
+        , test "If valid node_height exists" <|
+            \() ->
+                Expect.equal (Property.getNodeHeight (Property.fromString "#node_height: 10")) (Just 10)
+        , test "If invalid node_height exists" <|
+            \() ->
+                Expect.equal (Property.getNodeHeight (Property.fromString "#node_height: a")) Nothing
         ]

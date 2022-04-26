@@ -15,6 +15,8 @@ module Models.Property exposing
     , getFontSize
     , getLineColor
     , getLineSize
+    , getNodeHeight
+    , getNodeWidth
     , getReleaseLevel
     , getTextColor
     , getTitle
@@ -166,6 +168,16 @@ getTextColor property =
     Dict.get (toKeyString TextColor) property |> Maybe.map Color.fromString
 
 
+getNodeWidth : Property -> Maybe Int
+getNodeWidth property =
+    Dict.get (toKeyString NodeWidth) property |> Maybe.andThen toInt
+
+
+getNodeHeight : Property -> Maybe Int
+getNodeHeight property =
+    Dict.get (toKeyString NodeHeight) property |> Maybe.andThen toInt
+
+
 empty : Property
 empty =
     Dict.empty
@@ -249,6 +261,12 @@ enabledKey s =
 
         "card_height" ->
             Just CardHeight
+
+        "node_width" ->
+            Just NodeWidth
+
+        "node_height" ->
+            Just NodeHeight
 
         "text_color" ->
             Just TextColor
