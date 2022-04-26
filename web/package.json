@@ -44,7 +44,7 @@
         "elm": "^0.19.1-5",
         "elm-constants": "^1.0.0",
         "elm-hot-webpack-loader": "^1.1.8",
-        "elm-review": "^2.7.1",
+        "elm-review": "^2.7.2",
         "elm-test": "^0.19.1-revision7",
         "elm-webpack-loader": "^8.0.0",
         "eslint": "^8.14.0",
