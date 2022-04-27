@@ -2,7 +2,6 @@ module Action exposing
     ( changePublicState
     , changeRouteInit
     , closeDialog
-    , closeFullscreen
     , closeLocalFile
     , closeMenu
     , closeNotification
@@ -20,7 +19,6 @@ module Action exposing
     , loadWithPasswordShareItem
     , moveTo
     , needSaved
-    , openFullscreen
     , pushUrl
     , redirectToLastEditedFile
     , revokeGistToken
