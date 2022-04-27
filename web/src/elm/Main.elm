@@ -44,13 +44,13 @@ import Models.FileType as FileType
 import Models.IdToken as IdToken
 import Models.Jwt as Jwt
 import Models.LoginProvider as LoginProdiver
-import Models.Model as Model exposing (Model, Msg(..), WindowState(..))
+import Models.Model as Model exposing (Model, Msg(..), WindowState(..), isFullscreen)
 import Models.Notification as Notification
 import Models.Page as Page
 import Models.Session as Session
 import Models.ShareState as ShareState
 import Models.ShareToken as ShareToken
-import Models.Size as Size
+import Models.Size as Size exposing (Size)
 import Models.Snackbar as SnackbarModel
 import Models.Text as Text
 import Models.Title as Title
@@ -584,6 +584,46 @@ changeRouteTo route =
                     Return.andThen <| Action.switchPage Page.NotFound
 
 
+windowState : Bool -> Size -> WindowState
+windowState isFullscreen size =
+    if isFullscreen then
+        Fullscreen
+
+    else if Utils.isPhone (Size.getWidth size) then
+        Editor
+
+    else
+        Both
+
+
+updateShare : Model -> Share.Msg -> Return.ReturnF Msg Model
+updateShare m msg =
+    (case msg of
+        Share.Shared (Err e) ->
+            Return.andThen <| Action.showErrorMessage e
+
+        Share.Close ->
+            Action.historyBack m.key
+
+        Share.LoadShareCondition (Err e) ->
+            Return.andThen <| Action.showErrorMessage e
+
+        _ ->
+            Return.zero
+    )
+        >> Return.andThen Action.stopProgress
+
+
+updateSettings : Settings.Msg -> Return.ReturnF Msg Model
+updateSettings msg =
+    case msg of
+        Settings.UpdateSettings _ _ ->
+            Return.andThen Action.saveSettings
+
+        _ ->
+            Return.zero
+
+
 update : Msg -> Return.ReturnF Msg Model
 update message =
     case message of
@@ -598,20 +638,7 @@ update message =
                             Share.update msg m.shareModel
                     in
                     Return.return { m | shareModel = model_ } (cmd_ |> Cmd.map UpdateShare)
-                        |> (case msg of
-                                Share.Shared (Err e) ->
-                                    Return.andThen <| Action.showErrorMessage e
-
-                                Share.Close ->
-                                    Action.historyBack m.key
-
-                                Share.LoadShareCondition (Err e) ->
-                                    Return.andThen <| Action.showErrorMessage e
-
-                                _ ->
-                                    Return.zero
-                           )
-                        >> Return.andThen Action.stopProgress
+                        |> updateShare m msg
                 )
 
         UpdateSettings msg ->
@@ -629,13 +656,7 @@ update message =
                         }
                         (cmd_ |> Cmd.map UpdateSettings)
                 )
-                >> (case msg of
-                        Settings.UpdateSettings _ _ ->
-                            Return.andThen Action.saveSettings
-
-                        _ ->
-                            Return.zero
-                   )
+                >> updateSettings msg
 
         UpdateDiagram msg ->
             Return.andThen
@@ -644,66 +665,21 @@ update message =
                         ( model_, cmd_ ) =
                             Return.singleton m.diagramModel |> Diagram.update msg
                     in
-                    case msg of
-                        DiagramModel.OnResize _ _ ->
-                            Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
-                                |> Return.andThen Action.updateWindowState
+                    Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
+                        |> (case msg of
+                                DiagramModel.OnResize _ _ ->
+                                    Return.andThen Action.updateWindowState
 
-                        DiagramModel.EndEditSelectedItem _ ->
-                            Return.singleton { m | diagramModel = model_ }
+                                DiagramModel.ToggleFullscreen ->
+                                    Return.andThen
+                                        (\m_ ->
+                                            Return.singleton { m_ | window = m_.window |> Model.windowOfState.set (windowState model_.fullscreen model_.size) }
+                                                |> Action.toggleFullscreen m_.window.state
+                                        )
 
-                        DiagramModel.FontStyleChanged _ ->
-                            case m.diagramModel.selectedItem of
-                                Just _ ->
-                                    Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
-
-                                Nothing ->
-                                    Return.singleton m
-
-                        DiagramModel.ColorChanged _ _ ->
-                            case m.diagramModel.selectedItem of
-                                Just _ ->
-                                    Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
-
-                                Nothing ->
-                                    Return.singleton m
-
-                        DiagramModel.FontSizeChanged _ ->
-                            case m.diagramModel.selectedItem of
-                                Just _ ->
-                                    Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
-
-                                Nothing ->
-                                    Return.singleton m
-
-                        DiagramModel.ToggleFullscreen ->
-                            Return.return
-                                { m
-                                    | window =
-                                        m.window
-                                            |> Model.windowOfState.set
-                                                (if model_.fullscreen then
-                                                    Fullscreen
-
-                                                 else if Utils.isPhone (Size.getWidth model_.size) then
-                                                    Editor
-
-                                                 else
-                                                    Both
-                                                )
-                                    , diagramModel = model_
-                                }
-                                (cmd_ |> Cmd.map UpdateDiagram)
-                                |> (case m.window.state of
-                                        Fullscreen ->
-                                            Action.closeFullscreen
-
-                                        _ ->
-                                            Action.openFullscreen
-                                   )
-
-                        _ ->
-                            Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
+                                _ ->
+                                    Return.zero
+                           )
                 )
 
         UpdateDiagramList subMsg ->
@@ -767,8 +743,8 @@ update message =
                         ( model_, cmd_ ) =
                             Return.singleton m.diagramModel |> Diagram.update (DiagramModel.Init m.diagramModel.settings window (Text.toString m.diagramModel.text))
 
-                        model__ : DiagramModel.Model
-                        model__ =
+                        newModel: DiagramModel.Model
+                        newModel =
                             case toRoute m.url of
                                 Route.Embed _ _ _ (Just w) (Just h) ->
                                     let
@@ -782,7 +758,7 @@ update message =
                                 _ ->
                                     model_
                     in
-                    Return.return { m | diagramModel = model__ } (cmd_ |> Cmd.map UpdateDiagram)
+                    Return.return { m | diagramModel = newModel } (cmd_ |> Cmd.map UpdateDiagram)
                         |> Return.andThen (Action.loadText m.currentDiagram)
                         |> Return.andThen Action.updateWindowState
                 )

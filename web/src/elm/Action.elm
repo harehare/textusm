@@ -42,6 +42,7 @@ module Action exposing
     , startProgress
     , stopProgress
     , switchPage
+    , toggleFullscreen
     , unchanged
     , updateIdToken
     , updateWindowState
@@ -398,6 +399,16 @@ showErrorMessage msg model =
             |> Task.perform identity
         )
         |> closeNotification
+
+
+toggleFullscreen : WindowState -> Return.ReturnF Msg Model
+toggleFullscreen state =
+    case state of
+        Fullscreen ->
+            closeFullscreen
+
+        _ ->
+            openFullscreen
 
 
 openFullscreen : Return.ReturnF Msg Model

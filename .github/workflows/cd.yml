@@ -1,4 +1,4 @@
-name: build_and_deploy
+name: cd
 on:
   push:
     branches:
@@ -107,6 +107,7 @@ jobs:
           path: "./report"
   create-git-tag:
     runs-on: ubuntu-latest
+    needs: [deploy-web, deploy-server]
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -116,5 +117,18 @@ jobs:
         with:
           path: web
       - run: |
-          git tag ${{ steps.package-version.outputs.current-version }}
-          git push origin ${{ steps.package-version.outputs.current-version }}
+          git tag v${{ steps.package-version.outputs.current-version }}
+          git push origin v${{ steps.package-version.outputs.current-version }}
+      - name: Build Changelog
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: v${{ steps.package-version.outputs.current-version }}
+          release_name: v${{ steps.package-version.outputs.current-version }}
+          body: ${{steps.github_release.outputs.changelog}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
