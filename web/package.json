@@ -23,7 +23,7 @@
         "@babel/core": "^7.17.9",
         "@babel/preset-env": "^7.16.11",
         "@commitlint/cli": "^16.2.3",
-        "@commitlint/config-conventional": "^16.2.1",
+        "@commitlint/config-conventional": "^16.2.4",
         "@dillonkearns/elm-graphql": "^4.2.4",
         "@sentry/webpack-plugin": "^1.18.9",
         "@trivago/prettier-plugin-sort-imports": "^3.2.0",
