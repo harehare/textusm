@@ -15,6 +15,7 @@
             "jfmengels/elm-review-performance": "1.0.1",
             "jfmengels/elm-review-simplify": "2.0.14",
             "jfmengels/elm-review-unused": "1.1.17",
+            "sparksp/elm-review-forbidden-words": "1.0.1",
             "stil4m/elm-syntax": "7.2.7"
         },
         "indirect": {
@@ -23,6 +24,7 @@
             "elm/parser": "1.1.0",
             "elm/project-metadata-utils": "1.0.2",
             "elm/random": "1.0.0",
+            "elm/regex": "1.0.0",
             "elm/time": "1.0.0",
             "elm/virtual-dom": "1.0.2",
             "elm-community/list-extra": "8.5.1",

@@ -20,6 +20,7 @@ import NoMissingTypeAnnotation
 import NoMissingTypeAnnotationInLetIn
 import NoMissingTypeExpose
 import NoPrematureLetComputation
+import NoForbiddenWords
 import Simplify
 import Review.Rule exposing (Rule)
 
@@ -32,6 +33,7 @@ config =
     , NoUnused.CustomTypeConstructorArgs.rule
     , NoUnused.Dependencies.rule
     , NoUnused.Exports.rule
+    , NoForbiddenWords.rule [ "REPLACEME" ]
     , NoUnused.Modules.rule
     , NoUnused.Parameters.rule
     , NoUnused.Patterns.rule
