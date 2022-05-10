@@ -35,6 +35,7 @@ module Models.Item exposing
     , indexedMap
     , isCanvas
     , isEmpty
+    , isHighlight
     , isHorizontalLine
     , isImage
     , isMarkdown
@@ -42,6 +43,7 @@ module Models.Item exposing
     , isVerticalLine
     , length
     , map
+    , mapWithRecursive
     , new
     , split
     , splitAt
@@ -51,6 +53,7 @@ module Models.Item exposing
     , unwrapChildren
     , withChildren
     , withComments
+    , withHighlight
     , withItemSettings
     , withItemType
     , withLineNo
@@ -94,6 +97,7 @@ type Item
         , itemType : ItemType
         , itemSettings : Maybe ItemSettings
         , children : Children
+        , highlight : Bool
         }
 
 
@@ -123,6 +127,7 @@ new =
         , itemType = Activities
         , itemSettings = Nothing
         , children = emptyChildren
+        , highlight = False
         }
 
 
@@ -221,6 +226,11 @@ withChildren children (Item item) =
     Item { item | children = children }
 
 
+withHighlight : Bool -> Item -> Item
+withHighlight h (Item item) =
+    Item { item | highlight = h }
+
+
 withOffset : Position -> Item -> Item
 withOffset newPosition item =
     withItemSettings (Just (getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffset newPosition)) item
@@ -236,14 +246,14 @@ getChildren (Item i) =
     i.children
 
 
-getChildrenItems : Item -> Items
-getChildrenItems (Item i) =
-    i.children |> unwrapChildren
-
-
 getText : Item -> String
 getText (Item i) =
     Text.toString i.text
+
+
+isHighlight : Item -> Bool
+isHighlight (Item i) =
+    i.highlight
 
 
 getTrimmedText : Item -> String
@@ -372,6 +382,15 @@ isVerticalLine item =
     getText item |> String.trim |> String.toLower |> String.startsWith "/"
 
 
+
+-- Items
+
+
+getChildrenItems : Item -> Items
+getChildrenItems (Item i) =
+    i.children |> unwrapChildren
+
+
 getAt : Int -> Items -> Maybe Item
 getAt i (Items items) =
     ListEx.getAt i items
@@ -391,6 +410,29 @@ tail (Items items) =
 map : (Item -> a) -> Items -> List a
 map f (Items items) =
     List.map f items
+
+
+mapWithRecursiveHelper : (Item -> Item) -> Item -> Item
+mapWithRecursiveHelper f item =
+    case getChildren item of
+        Children (Items []) ->
+            f item
+
+        _ ->
+            withChildren
+                (getChildren item
+                    |> unwrapChildren
+                    |> unwrap
+                    |> List.map (mapWithRecursiveHelper f)
+                    |> Items
+                    |> Children
+                )
+                (f item)
+
+
+mapWithRecursive : (Item -> Item) -> Items -> Items
+mapWithRecursive f (Items items) =
+    Items <| List.map (mapWithRecursiveHelper f) items
 
 
 filter : (Item -> Bool) -> Items -> Items

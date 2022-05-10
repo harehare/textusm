@@ -93,7 +93,7 @@ formView model i item =
 
         FreeForm.Card item_ ->
             Svg.g [] <|
-                Card.view
+                Card.viewWithDefaultColor
                     { settings = model.settings
                     , property = model.property
                     , position =
@@ -117,7 +117,7 @@ formView model i item =
                     }
                     :: (Item.indexedMap
                             (\i_ childItem ->
-                                Card.view
+                                Card.viewWithDefaultColor
                                     { settings = model.settings
                                     , property = model.property
                                     , position =

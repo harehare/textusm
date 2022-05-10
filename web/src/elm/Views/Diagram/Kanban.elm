@@ -78,7 +78,7 @@ listView settings property height ( posX, posY ) selectedItem (KanbanList name c
                 []
             :: List.indexedMap
                 (\i (Card item) ->
-                    Lazy.lazy Card.view
+                    Lazy.lazy Card.viewWithDefaultColor
                         { settings = settings
                         , property = property
                         , position =

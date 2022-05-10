@@ -33,4 +33,4 @@ view { settings, property, position, selectedItem, item, canMove } =
                         |> Just
                     )
     in
-    Card.view { settings = settings, property = property, position = position, selectedItem = selectedItem, item = item_, canMove = canMove }
+    Card.viewWithDefaultColor { settings = settings, property = property, position = position, selectedItem = selectedItem, item = item_, canMove = canMove }

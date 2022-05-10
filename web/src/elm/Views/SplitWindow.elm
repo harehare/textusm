@@ -51,7 +51,7 @@ view { onToggleEditor, onResize, background, window } left right =
 
         _ ->
             Html.div
-                [ css [ displayFlex, Style.borderContent ] ]
+                [ css [ displayFlex ] ]
                 [ Html.div
                     [ css [ width leftPos, Style.hContent, Color.bgMain, position relative ] ]
                     [ left, toggleEditorButton window.state onToggleEditor ]

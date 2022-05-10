@@ -190,7 +190,7 @@ text { settings, property, svgWidth, position, selectedItem, items } =
     Svg.g []
         (Item.indexedMap
             (\i item ->
-                Card.view
+                Card.viewWithDefaultColor
                     { settings = newSettings
                     , property = property
                     , position = ( posX + 16, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin + 35 )

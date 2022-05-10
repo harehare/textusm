@@ -1,11 +1,6 @@
-module Views.Diagram.Card exposing (text, view)
+module Views.Diagram.Card exposing (text, view, viewWithDefaultColor)
 
-import Css
-    exposing
-        ( backgroundColor
-        , color
-        , property
-        )
+import Css exposing (property)
 import Events
 import Html.Attributes as LegacyAttr
 import Html.Styled as Html exposing (Html)
@@ -26,7 +21,7 @@ import Svg.Styled.Attributes as SvgAttr
 import Views.Diagram.Views as Views
 
 
-view :
+viewWithDefaultColor :
     { settings : DiagramSettings.Settings
     , property : Property
     , position : Position
@@ -35,10 +30,41 @@ view :
     , canMove : Bool
     }
     -> Svg Msg
-view { settings, property, position, selectedItem, item, canMove } =
+viewWithDefaultColor { settings, property, position, selectedItem, item, canMove } =
     let
-        ( color, backgroundColor ) =
+        ( foreColor, backColor ) =
             Views.getItemColor settings property item
+    in
+    view
+        { settings = settings
+        , property = property
+        , position = position
+        , selectedItem = selectedItem
+        , item = item
+        , canMove = canMove
+        , defaultForeColor = foreColor
+        , defaultBackColor = backColor
+        }
+
+
+view :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , canMove : Bool
+    , defaultForeColor : Color
+    , defaultBackColor : Color
+    }
+    -> Svg Msg
+view { settings, property, position, selectedItem, item, canMove, defaultForeColor, defaultBackColor } =
+    let
+        ( foreColor, backColor ) =
+            ( Item.getForegroundColor item, Item.getBackgroundColor item )
+                |> Tuple.mapBoth
+                    (\c -> c |> Maybe.withDefault defaultForeColor)
+                    (\c -> c |> Maybe.withDefault defaultBackColor)
 
         view_ : Svg Msg
         view_ =
@@ -73,7 +99,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                     , SvgAttr.height <| String.fromInt height
                     , SvgAttr.x <| String.fromInt posX
                     , SvgAttr.y <| String.fromInt posY
-                    , SvgAttr.fill <| Color.toString backgroundColor
+                    , SvgAttr.fill <| Color.toString backColor
                     , SvgAttr.rx "1"
                     , SvgAttr.ry "1"
                     , SvgAttr.style "filter:url(#shadow)"
@@ -83,7 +109,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                 , text settings
                     ( posX, posY )
                     ( width, height )
-                    color
+                    foreColor
                     (Item.getFontSizeWithProperty item property)
                     item
                 ]
@@ -143,7 +169,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                         , SvgAttr.y (String.fromInt <| y_ - 2)
                         , SvgAttr.rx "1"
                         , SvgAttr.ry "1"
-                        , SvgAttr.fill <| Color.toString backgroundColor
+                        , SvgAttr.fill <| Color.toString backColor
                         , SvgAttr.style "filter:url(#shadow)"
                         ]
                         []
@@ -156,7 +182,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                         , fontSize = Item.getFontSizeWithProperty item property
                         , position = selectedItemPosition
                         , size = selectedItemSize
-                        , color = color
+                        , color = foreColor
                         , item = item_
                         }
                     ]

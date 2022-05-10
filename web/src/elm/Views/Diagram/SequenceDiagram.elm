@@ -78,7 +78,7 @@ participantView settings property selectedItem pos (Participant item _) messageH
             fromY + messageHeight + settings.size.height + Constants.messageMargin
     in
     Svg.g []
-        [ Lazy.lazy Card.view
+        [ Lazy.lazy Card.viewWithDefaultColor
             { settings = settings
             , property = property
             , position = ( Position.getX pos, toY )
@@ -87,7 +87,7 @@ participantView settings property selectedItem pos (Participant item _) messageH
             , canMove = False
             }
         , Lazy.lazy3 lineView settings ( lineX, fromY ) ( lineX, toY )
-        , Lazy.lazy Card.view
+        , Lazy.lazy Card.viewWithDefaultColor
             { settings = settings
             , property = property
             , position = pos
