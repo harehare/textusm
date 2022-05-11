@@ -164,26 +164,24 @@ main =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update message model =
-    case message of
-        UpdateDiagram subMsg ->
-            case subMsg of
-                DiagramModel.Select _ ->
-                    ( model, Cmd.none )
+update (UpdateDiagram subMsg) model =
+    case subMsg of
+        DiagramModel.Select _ ->
+            ( model, Cmd.none )
 
-                DiagramModel.OnChangeText text ->
-                    let
-                        ( model_, _ ) =
-                            Return.singleton model.diagramModel |> Diagram.update subMsg
-                    in
-                    ( { model | text = text, diagramModel = model_ }, Cmd.none )
+        DiagramModel.OnChangeText text ->
+            let
+                ( model_, _ ) =
+                    Return.singleton model.diagramModel |> Diagram.update subMsg
+            in
+            ( { model | text = text, diagramModel = model_ }, Cmd.none )
 
-                _ ->
-                    let
-                        ( model_, cmd_ ) =
-                            Return.singleton model.diagramModel |> Diagram.update subMsg
-                    in
-                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+        _ ->
+            let
+                ( model_, cmd_ ) =
+                    Return.singleton model.diagramModel |> Diagram.update subMsg
+            in
+            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
 
 subscriptions : Model -> Sub Msg

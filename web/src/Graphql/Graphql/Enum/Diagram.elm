@@ -4,7 +4,7 @@
 
 module Graphql.Enum.Diagram exposing (..)
 
-import Json.Decode as Decode exposing (Decoder)
+import Json.Decode as D exposing (Decoder)
 
 
 {-|
@@ -57,66 +57,66 @@ list =
 
 decoder : Decoder Diagram
 decoder =
-    Decode.string
-        |> Decode.andThen
+    D.string
+        |> D.andThen
             (\string ->
                 case string of
                     "USER_STORY_MAP" ->
-                        Decode.succeed UserStoryMap
+                        D.succeed UserStoryMap
 
                     "OPPORTUNITY_CANVAS" ->
-                        Decode.succeed OpportunityCanvas
+                        D.succeed OpportunityCanvas
 
                     "BUSINESS_MODEL_CANVAS" ->
-                        Decode.succeed BusinessModelCanvas
+                        D.succeed BusinessModelCanvas
 
                     "FOURLS" ->
-                        Decode.succeed Fourls
+                        D.succeed Fourls
 
                     "START_STOP_CONTINUE" ->
-                        Decode.succeed StartStopContinue
+                        D.succeed StartStopContinue
 
                     "KPT" ->
-                        Decode.succeed Kpt
+                        D.succeed Kpt
 
                     "USER_PERSONA" ->
-                        Decode.succeed UserPersona
+                        D.succeed UserPersona
 
                     "MIND_MAP" ->
-                        Decode.succeed MindMap
+                        D.succeed MindMap
 
                     "EMPATHY_MAP" ->
-                        Decode.succeed EmpathyMap
+                        D.succeed EmpathyMap
 
                     "SITE_MAP" ->
-                        Decode.succeed SiteMap
+                        D.succeed SiteMap
 
                     "GANTT_CHART" ->
-                        Decode.succeed GanttChart
+                        D.succeed GanttChart
 
                     "IMPACT_MAP" ->
-                        Decode.succeed ImpactMap
+                        D.succeed ImpactMap
 
                     "ER_DIAGRAM" ->
-                        Decode.succeed ErDiagram
+                        D.succeed ErDiagram
 
                     "KANBAN" ->
-                        Decode.succeed Kanban
+                        D.succeed Kanban
 
                     "TABLE" ->
-                        Decode.succeed Table
+                        D.succeed Table
 
                     "SEQUENCE_DIAGRAM" ->
-                        Decode.succeed SequenceDiagram
+                        D.succeed SequenceDiagram
 
                     "FREEFORM" ->
-                        Decode.succeed Freeform
+                        D.succeed Freeform
 
                     "USE_CASE_DIAGRAM" ->
-                        Decode.succeed UseCaseDiagram
+                        D.succeed UseCaseDiagram
 
                     _ ->
-                        Decode.fail ("Invalid Diagram type, " ++ string ++ " try re-running the @dillonkearns/elm-graphql CLI ")
+                        D.fail ("Invalid Diagram type, " ++ string ++ " try re-running the @dillonkearns/elm-graphql CLI ")
             )
 
 

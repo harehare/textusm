@@ -11,7 +11,6 @@ module Views.Diagram.Views exposing
 import Css
     exposing
         ( borderStyle
-        , color
         , focus
         , hex
         , int
@@ -20,7 +19,6 @@ import Css
         , none
         , outline
         , padding4
-        , position
         , property
         , px
         , transparent

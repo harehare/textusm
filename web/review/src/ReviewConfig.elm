@@ -21,7 +21,12 @@ import NoMissingTypeAnnotationInLetIn
 import NoMissingTypeExpose
 import NoPrematureLetComputation
 import NoForbiddenWords
+import NoInconsistentAliases
+import NoModuleOnExposedNames
+import NoSinglePatternCase
+import Review.Rule exposing (Rule)
 import Simplify
+import UseCamelCase
 import Review.Rule exposing (Rule)
 
 
@@ -47,5 +52,15 @@ config =
     , NoMissingTypeAnnotationInLetIn.rule
     , NoMissingTypeExpose.rule
     , NoPrematureLetComputation.rule
+    , NoInconsistentAliases.config
+        [ ( "Html.Attributes", "Attr" )
+        , ( "Json.Decode", "D" )
+        , ( "Json.Encode", "E" )
+        ]
+        |> NoInconsistentAliases.noMissingAliases
+        |> NoInconsistentAliases.rule
+    , NoModuleOnExposedNames.rule
+    , NoSinglePatternCase.rule NoSinglePatternCase.fixInArgument
+    , UseCamelCase.rule UseCamelCase.default
     , Simplify.rule Simplify.defaults
     ]

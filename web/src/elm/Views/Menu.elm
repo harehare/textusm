@@ -384,38 +384,36 @@ menu posTop posLeft posBottom posRight items =
         ]
         (items
             |> List.map
-                (\item ->
-                    case item of
-                        Item menuItem ->
-                            Html.div
-                                [ css
-                                    [ TextStyle.base
-                                    , Color.textColor
-                                    , cursor pointer
-                                    , displayFlex
-                                    , alignItems center
-                                    , height <| px 40
-                                    , hover
-                                        [ backgroundColor <| rgba 0 0 0 0.3
-                                        ]
-                                    ]
-                                , Events.onClick menuItem.e
+                (\(Item menuItem) ->
+                    Html.div
+                        [ css
+                            [ TextStyle.base
+                            , Color.textColor
+                            , cursor pointer
+                            , displayFlex
+                            , alignItems center
+                            , height <| px 40
+                            , hover
+                                [ backgroundColor <| rgba 0 0 0 0.3
                                 ]
-                                [ Html.div
-                                    [ css
-                                        [ Breakpoint.style
-                                            [ cursor pointer
-                                            , TextStyle.sm
-                                            , FontStyle.fontBold
-                                            , padding2 zero (px 16)
-                                            , Style.mt0
-                                            ]
-                                            [ Breakpoint.large [ padding <| px 16 ]
-                                            ]
-                                        ]
+                            ]
+                        , Events.onClick menuItem.e
+                        ]
+                        [ Html.div
+                            [ css
+                                [ Breakpoint.style
+                                    [ cursor pointer
+                                    , TextStyle.sm
+                                    , FontStyle.fontBold
+                                    , padding2 zero (px 16)
+                                    , Style.mt0
                                     ]
-                                    [ Html.text menuItem.title
+                                    [ Breakpoint.large [ padding <| px 16 ]
                                     ]
                                 ]
+                            ]
+                            [ Html.text menuItem.title
+                            ]
+                        ]
                 )
         )

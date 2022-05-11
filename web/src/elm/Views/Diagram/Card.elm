@@ -2,7 +2,7 @@ module Views.Diagram.Card exposing (text, view, viewWithDefaultColor)
 
 import Css exposing (property)
 import Events
-import Html.Attributes as LegacyAttr
+import Html.Attributes as Attr
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
 import Markdown
@@ -243,8 +243,8 @@ markdown : DiagramSettings.Settings -> Color -> String -> Html Msg
 markdown settings colour t =
     Html.fromUnstyled <|
         Markdown.toHtml
-            [ LegacyAttr.class "md-content"
-            , LegacyAttr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-            , LegacyAttr.style "color" <| Color.toString colour
+            [ Attr.class "md-content"
+            , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+            , Attr.style "color" <| Color.toString colour
             ]
             t

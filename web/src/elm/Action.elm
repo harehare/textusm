@@ -82,7 +82,7 @@ import Task
 import Utils.Utils as Utils
 
 
-loadText : DiagramItem.DiagramItem -> Model -> Return Msg Model
+loadText : DiagramItem -> Model -> Return Msg Model
 loadText diagram model =
     Return.return model (Task.attempt Load <| Task.succeed diagram)
 

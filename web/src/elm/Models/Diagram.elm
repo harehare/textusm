@@ -57,7 +57,7 @@ import Models.FontStyle exposing (FontStyle)
 import Models.Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import Models.Property exposing (Property)
-import Models.Size as Size exposing (Size)
+import Models.Size exposing (Size)
 import Models.Text exposing (Text)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
@@ -110,7 +110,7 @@ type Msg
 type alias Model =
     { items : Items
     , data : DiagramData
-    , size : Size.Size
+    , size : Size
     , svg : SvgInfo
     , moveState : MoveState
     , position : Position
@@ -170,7 +170,7 @@ ofScale =
     ofSvg |> Compose.lensWithLens svgOfScale
 
 
-ofSize : Lens Model Size.Size
+ofSize : Lens Model Size
 ofSize =
     Lens .size (\b a -> { a | size = b })
 

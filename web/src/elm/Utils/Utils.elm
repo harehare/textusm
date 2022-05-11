@@ -16,7 +16,7 @@ delay time msg =
         |> Task.perform (\_ -> msg)
 
 
-httpErrorToString : Http.Error -> String
+httpErrorToString : Error -> String
 httpErrorToString err =
     case err of
         BadUrl url ->

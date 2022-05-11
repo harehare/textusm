@@ -45,6 +45,7 @@ module Models.Item exposing
     , map
     , mapWithRecursive
     , new
+    , search
     , split
     , splitAt
     , tail
@@ -75,6 +76,7 @@ import Models.Position exposing (Position)
 import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
 import Models.Text as Text exposing (Text)
+import Simple.Fuzzy as Fuzzy
 
 
 type alias Hierarchy =
@@ -541,22 +543,22 @@ split text =
     case tokens of
         [ text_ ] ->
             let
-                ( text__, comment ) =
+                ( t, comment ) =
                     splitLine text_
             in
-            ( text__, ItemSettings.new, comment )
+            ( t, ItemSettings.new, comment )
 
         [ text_, settingsString ] ->
             let
-                ( text__, comment ) =
+                ( t, comment ) =
                     splitLine text_
             in
             case D.decodeString ItemSettings.decoder settingsString of
                 Ok settings ->
-                    ( text__, settings, comment )
+                    ( t, settings, comment )
 
                 Err _ ->
-                    ( text__, ItemSettings.new, comment )
+                    ( t, ItemSettings.new, comment )
 
         _ ->
             ( text, ItemSettings.new, Nothing )
@@ -737,3 +739,8 @@ createItemType text indent =
 
             _ ->
                 Stories
+
+
+search : Items -> String -> Items
+search items query =
+    mapWithRecursive (\item -> withHighlight (Fuzzy.match query (getText item)) item) items

@@ -211,7 +211,7 @@ view model =
         , E.onClick CloseMenu
         ]
         [ GlobalStyle.style
-        , if Model.isFullscreen model.window then
+        , if isFullscreen model.window then
             Empty.view
 
           else
@@ -235,14 +235,14 @@ view model =
                 , overflow hidden
                 , position relative
                 , Style.widthFull
-                , if Model.isFullscreen model.window then
+                , if isFullscreen model.window then
                     Css.batch [ Style.heightScreen ]
 
                   else
                     Css.batch [ Style.hContent ]
                 ]
             ]
-            [ if Route.isViewFile (toRoute model.url) || Model.isFullscreen model.window then
+            [ if Route.isViewFile (toRoute model.url) || isFullscreen model.window then
                 Empty.view
 
               else
@@ -1345,7 +1345,7 @@ update message =
                 >> Return.andThen (Action.setSettings settings)
 
         LoadSettings (Err _) ->
-            Return.andThen (\m -> Action.setSettings (.storyMap (Settings.defaultSettings m.browserStatus.isDarkMode)) m)
+            Return.andThen (\m -> Action.setSettings (.storyMap (defaultSettings m.browserStatus.isDarkMode)) m)
                 >> Return.andThen Action.stopProgress
 
         SaveSettings (Ok _) ->
