@@ -59,6 +59,7 @@ import Models.Diagram.GanttChart as GanttChartModel
 import Models.Diagram.Kanban as KanbanModel
 import Models.Diagram.Kpt as KptModel
 import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
+import Models.Diagram.Search as SearchModel
 import Models.Diagram.SequenceDiagram as SequenceDiagramModel
 import Models.Diagram.StartStopContinue as StartStopContinueModel
 import Models.Diagram.Table as TableModel
@@ -68,7 +69,7 @@ import Models.Diagram.UserStoryMap as UserStoryMapModel
 import Models.DiagramData as DiagramData
 import Models.DiagramSettings as DiagramSettings
 import Models.FontStyle as FontStyle
-import Models.Item as Item exposing (Item)
+import Models.Item as Item exposing (Item, Items)
 import Models.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Property as Property
@@ -96,6 +97,7 @@ import Views.Diagram.Kpt as Kpt
 import Views.Diagram.MindMap as MindMap
 import Views.Diagram.MiniMap as MiniMap
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
+import Views.Diagram.Search as Search
 import Views.Diagram.SequenceDiagram as SequenceDiagram
 import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
@@ -125,6 +127,7 @@ init settings =
         , fullscreen = False
         , showZoomControl = True
         , showMiniMap = False
+        , search = SearchModel.close
         , touchDistance = Nothing
         , settings = settings
         , diagramType = UserStoryMap
@@ -161,6 +164,18 @@ zoomControl isFullscreen scale =
             ]
         ]
         [ div
+            [ css
+                [ width <| px 24
+                , height <| px 24
+                , cursor pointer
+                , displayFlex
+                , alignItems center
+                ]
+            , onClick ToggleSearch
+            ]
+            [ Icon.search (Color.toString Color.disabledIconColor) 18
+            ]
+        , div
             [ css
                 [ width <| px 24
                 , height <| px 24
@@ -371,6 +386,18 @@ view model =
             , moveState = model.moveState
             }
         , Lazy.lazy4 svgView model centerPosition ( svgWidth, svgHeight ) mainSvg
+        , if SearchModel.isSearch model.search then
+            div
+                [ css
+                    [ position absolute
+                    , top <| px 62
+                    , right <| px 32
+                    ]
+                ]
+                [ Search.view { query = SearchModel.toString model.search, searchMsg = Search, closeMsg = ToggleSearch } ]
+
+          else
+            Empty.view
         ]
 
 
@@ -432,6 +459,14 @@ diagramView diagramType =
             UseCaseDiagram.view
 
 
+highlightDefs : Svg msg
+highlightDefs =
+    Svg.filter [ SvgAttr.x "0", SvgAttr.y "0", SvgAttr.width "1", SvgAttr.height "1", SvgAttr.id "highlight" ]
+        [ Svg.feFlood [ SvgAttr.floodColor "yellow" ] []
+        , Svg.feComposite [ SvgAttr.in_ "SourceGraphic", SvgAttr.operator "xor" ] []
+        ]
+
+
 svgView : Model -> Position -> Size -> Svg Msg -> Svg Msg
 svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
     Svg.svg
@@ -470,10 +505,10 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
         , onDragMove model.touchDistance model.moveState (Utils.isPhone <| Size.getWidth model.size)
         ]
         [ if String.isEmpty model.settings.font then
-            Svg.g [] []
+            Svg.defs [] [ highlightDefs ]
 
           else
-            Svg.defs [] [ Svg.style [] [ Svg.text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ] ]
+            Svg.defs [] [ highlightDefs, Svg.style [] [ Svg.text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ] ]
         , Svg.defs []
             [ Svg.filter [ SvgAttr.id "shadow", SvgAttr.height "130%" ]
                 [ Svg.feGaussianBlur [ SvgAttr.in_ "SourceAlpha", SvgAttr.stdDeviation "3" ] []
@@ -698,8 +733,69 @@ touchCoordinates touchEvent =
 -- Update
 
 
+updateData : String -> DiagramData.DiagramData -> Items -> DiagramData.DiagramData
+updateData text data items =
+    case data of
+        DiagramData.Empty ->
+            DiagramData.Empty
+
+        DiagramData.UserStoryMap usm ->
+            DiagramData.UserStoryMap <| UserStoryMapModel.from text (UserStoryMapModel.getHierarchy usm) items
+
+        DiagramData.Table _ ->
+            DiagramData.Table <| TableModel.from items
+
+        DiagramData.Kpt _ ->
+            DiagramData.Kpt <| KptModel.from items
+
+        DiagramData.BusinessModelCanvas _ ->
+            DiagramData.BusinessModelCanvas <| BusinessModelCanvasModel.from items
+
+        DiagramData.EmpathyMap _ ->
+            DiagramData.EmpathyMap <| EmpathyMapModel.from items
+
+        DiagramData.FourLs _ ->
+            DiagramData.FourLs <| FourLsModel.from items
+
+        DiagramData.Kanban _ ->
+            DiagramData.Kanban <| KanbanModel.from items
+
+        DiagramData.OpportunityCanvas _ ->
+            DiagramData.OpportunityCanvas <| OpportunityCanvasModel.from items
+
+        DiagramData.StartStopContinue _ ->
+            DiagramData.StartStopContinue <| StartStopContinueModel.from items
+
+        DiagramData.UserPersona _ ->
+            DiagramData.UserPersona <| UserPersonaModel.from items
+
+        DiagramData.ErDiagram _ ->
+            DiagramData.ErDiagram <| ErDiagramModel.from items
+
+        DiagramData.MindMap _ hierarchy ->
+            DiagramData.MindMap items hierarchy
+
+        DiagramData.ImpactMap _ hierarchy ->
+            DiagramData.ImpactMap items hierarchy
+
+        DiagramData.SiteMap _ hierarchy ->
+            DiagramData.SiteMap items hierarchy
+
+        DiagramData.SequenceDiagram _ ->
+            DiagramData.SequenceDiagram <| SequenceDiagramModel.from items
+
+        DiagramData.FreeForm _ ->
+            DiagramData.FreeForm <| FreeFormModel.from items
+
+        DiagramData.GanttChart _ ->
+            DiagramData.GanttChart <| GanttChartModel.from items
+
+        DiagramData.UseCaseDiagram _ ->
+            DiagramData.UseCaseDiagram <| UseCaseDiagramModel.from items
+
+
 updateDiagram : Size -> Model -> String -> Model
-updateDiagram ( width, height ) base text =
+updateDiagram size base text =
     let
         ( hierarchy, items ) =
             Item.fromString text
@@ -769,7 +865,7 @@ updateDiagram ( width, height ) base text =
             Diagram.size newModel
     in
     { newModel
-        | size = ( width, height )
+        | size = size
         , svg =
             { width = svgWidth
             , height = svgHeight
@@ -1033,7 +1129,14 @@ update message =
             Return.zero
 
         Init settings window text ->
-            Return.andThen (\m -> Return.singleton <| updateDiagram ( round window.viewport.width, round window.viewport.height - 50 ) m text)
+            Return.andThen
+                (\m ->
+                    Return.singleton <|
+                        updateDiagram
+                            ( round window.viewport.width, round window.viewport.height - 50 )
+                            m
+                            text
+                )
                 >> Return.andThen (\m -> Return.singleton { m | settings = settings })
 
         ZoomIn ratio ->
@@ -1050,7 +1153,7 @@ update message =
             Return.andThen (setTouchDistance <| Just distance)
                 >> Return.andThen (zoomOut 0.01)
 
-        OnChangeText text ->
+        ChangeText text ->
             Return.andThen <| \m -> Return.singleton <| updateDiagram m.size m text
 
         Start moveState pos ->
@@ -1091,7 +1194,7 @@ update message =
             Return.andThen (\m -> Return.singleton { m | fullscreen = not m.fullscreen })
                 >> Return.andThen clearPosition
 
-        OnResize width height ->
+        Resize width height ->
             Return.andThen (\m -> Return.singleton { m | size = ( width, height - 56 ) })
                 >> Return.andThen clearPosition
 
@@ -1386,3 +1489,35 @@ update message =
             Return.andThen <|
                 \m ->
                     Return.return m <| Ports.insertText <| Item.toLineString item
+
+        Search query ->
+            Return.andThen <|
+                \m ->
+                    let
+                        items : Items
+                        items =
+                            if String.isEmpty query then
+                                Item.searchClear m.items
+
+                            else
+                                Item.search m.items query
+
+                        diagramData : DiagramData.DiagramData
+                        diagramData =
+                            updateData (Text.toString m.text) m.data items
+                    in
+                    Return.singleton { m | search = SearchModel.search query, items = items, data = diagramData }
+
+        ToggleSearch ->
+            Return.andThen <|
+                \m ->
+                    let
+                        items : Items
+                        items =
+                            Item.searchClear m.items
+
+                        diagramData : DiagramData.DiagramData
+                        diagramData =
+                            updateData (Text.toString m.text) m.data items
+                    in
+                    Return.singleton { m | search = SearchModel.toggle m.search, items = items, data = diagramData }

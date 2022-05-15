@@ -717,7 +717,7 @@ update message =
                     in
                     Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
                         |> (case msg of
-                                DiagramModel.OnResize _ _ ->
+                                DiagramModel.Resize _ _ ->
                                     Return.andThen Action.updateWindowState
 
                                 DiagramModel.ToggleFullscreen ->
@@ -1413,12 +1413,12 @@ update message =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        ([ Ports.changeText (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
+        ([ Ports.changeText (\text -> UpdateDiagram (DiagramModel.ChangeText text))
          , Ports.startDownload StartDownload
          , Ports.gotLocalDiagramsJson (\json -> UpdateDiagramList (DiagramList.GotLocalDiagramsJson json))
          , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange HandleVisibilityChange
-         , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
+         , onResize (\width height -> UpdateDiagram (DiagramModel.Resize width height))
          , Ports.shortcuts Shortcuts
          , Ports.onNotification (\n -> HandleAutoCloseNotification (Notification.showInfoNotifcation n))
          , Ports.sendErrorNotification (\n -> HandleAutoCloseNotification (Notification.showErrorNotifcation n))

@@ -46,6 +46,7 @@ module Models.Item exposing
     , mapWithRecursive
     , new
     , search
+    , searchClear
     , split
     , splitAt
     , tail
@@ -744,3 +745,8 @@ createItemType text indent =
 search : Items -> String -> Items
 search items query =
     mapWithRecursive (\item -> withHighlight (Fuzzy.match query (getText item)) item) items
+
+
+searchClear : Items -> Items
+searchClear items =
+    mapWithRecursive (withHighlight False) items

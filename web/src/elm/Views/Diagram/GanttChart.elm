@@ -5,8 +5,9 @@ import Html.Styled as Html
 import Html.Styled.Attributes as Attr
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram  exposing (Model, Msg)
+import Models.Diagram exposing (Model, Msg)
 import Models.Diagram.GanttChart as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
+import Models.DiagramData as DiagramData
 import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Position exposing (Position)
@@ -19,7 +20,6 @@ import Time.Extra as TimeEx exposing (Interval(..))
 import Tuple exposing (first, second)
 import Utils.Date as DateUtils
 import Views.Diagram.Views as Views
-import Models.DiagramData as DiagramData
 
 
 sectionMargin : Int
@@ -349,7 +349,15 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
             , SvgAttr.ry "3"
             ]
             []
-        , Views.plainText settings ( svgWidth, -3 ) ( textWidth, Constants.ganttItemSize ) (Color.fromString colour) FontSize.default text
+        , Views.plainText
+            { settings = settings
+            , position = ( svgWidth, -3 )
+            , size = ( textWidth, Constants.ganttItemSize )
+            , foreColor = Color.fromString colour
+            , fontSize = FontSize.default
+            , text = text
+            , isHighlight = False
+            }
         ]
 
 
@@ -426,5 +434,13 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
             , SvgAttr.fill backgroundColor
             ]
             []
-        , Views.plainText settings ( svgWidth, -3 ) ( textWidth, Constants.ganttItemSize ) (Color.fromString colour) FontSize.default text
+        , Views.plainText
+            { settings = settings
+            , position = ( svgWidth, -3 )
+            , size = ( textWidth, Constants.ganttItemSize )
+            , foreColor = Color.fromString colour
+            , fontSize = FontSize.default
+            , text = text
+            , isHighlight = False
+            }
         ]

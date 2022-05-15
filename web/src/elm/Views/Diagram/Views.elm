@@ -215,19 +215,34 @@ inputBase { settings, fontSize, position, size, color, item, fontWeight } =
         ]
 
 
-plainText : DiagramSettings.Settings -> Position -> Size -> Color -> FontSize -> String -> Svg Msg
-plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs t =
+plainText :
+    { settings : DiagramSettings.Settings
+    , position : Position
+    , size : Size
+    , foreColor : Color
+    , fontSize : FontSize
+    , text : String
+    , isHighlight : Bool
+    }
+    -> Svg Msg
+plainText { settings, position, size, foreColor, fontSize, text, isHighlight } =
     Svg.text_
-        [ SvgAttr.x <| String.fromInt <| posX + 6
-        , SvgAttr.y <| String.fromInt <| posY + 24
-        , SvgAttr.width <| String.fromInt svgWidth
-        , SvgAttr.height <| String.fromInt svgHeight
-        , SvgAttr.fill <| Color.toString colour
-        , SvgAttr.color <| Color.toString colour
+        [ SvgAttr.x <| String.fromInt <| Position.getX position + 6
+        , SvgAttr.y <| String.fromInt <| Position.getY position + 24
+        , SvgAttr.width <| String.fromInt <| Size.getWidth size
+        , SvgAttr.height <| String.fromInt <| Size.getHeight size
+        , SvgAttr.fill <| Color.toString foreColor
+        , SvgAttr.color <| Color.toString foreColor
         , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
-        , FontSize.svgStyledFontSize fs
+        , FontSize.svgStyledFontSize fontSize
+        , SvgAttr.filter <|
+            if isHighlight then
+                "url(#highlight)"
+
+            else
+                ""
         ]
-        [ Svg.text t ]
+        [ Svg.text text ]
 
 
 image : Size -> Position -> String -> Svg msg

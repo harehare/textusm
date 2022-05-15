@@ -733,7 +733,7 @@ diagramView timezone diagram =
                     ]
                 , stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True ))
                 ]
-                [ Icon.clear "#333" 18 ]
+                [ Icon.clear (Color.toString Color.gray) 18 ]
         , case ( diagram.isBookmark, diagram.isRemote ) of
             ( True, True ) ->
                 bookmarkIconView diagram [ Icon.bookmark Color.background2Defalut 16 ]

@@ -43,6 +43,7 @@ import Models.Diagram.Kanban as KanbanModel
 import Models.Diagram.Kpt as KptModel
 import Models.Diagram.MindMap as MindMapModel
 import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
+import Models.Diagram.Search exposing (Search)
 import Models.Diagram.SequenceDiagram as SequenceDiagramModel
 import Models.Diagram.SiteMap as SiteMapModel
 import Models.Diagram.StartStopContinue as StartStopContinueModel
@@ -79,24 +80,17 @@ type alias ContextMenuProps =
 type Msg
     = NoOp
     | Init DiagramSettings.Settings Viewport String
-    | OnChangeText String
     | ZoomIn Float
     | ZoomOut Float
     | PinchIn Float
     | PinchOut Float
-    | Stop
-    | Start MoveState Position
     | Move Position
     | MoveTo Position
     | ToggleFullscreen
-    | OnResize Int Int
-    | StartPinch Distance
     | EditSelectedItem String
     | EndEditSelectedItem Item
     | FitToWindow
-    | Select (Maybe SelectedItemInfo)
     | ColorChanged ContextMenu Color.Color
-    | SelectContextMenu ContextMenu
     | FontStyleChanged FontStyle
     | DropFiles (List File)
     | LoadFile String
@@ -104,7 +98,16 @@ type Msg
     | FontSizeChanged FontSize
     | ToggleDropDownList String
     | ToggleMiniMap
+    | ToggleSearch
     | ToolbarClick Item
+    | ChangeText String
+    | Resize Int Int
+    | Search String
+    | Start MoveState Position
+    | StartPinch Distance
+    | Select (Maybe SelectedItemInfo)
+    | SelectContextMenu ContextMenu
+    | Stop
 
 
 type alias Model =
@@ -119,6 +122,7 @@ type alias Model =
     , settings : DiagramSettings.Settings
     , showZoomControl : Bool
     , showMiniMap : Bool
+    , search : Search
     , touchDistance : Maybe Float
     , diagramType : Diagram
     , text : Text

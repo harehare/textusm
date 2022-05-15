@@ -205,7 +205,7 @@ changeTextTest =
         [ test "load only activity item" <|
             \() ->
                 Return.singleton defInit
-                    |> update (OnChangeText "test1")
+                    |> update (ChangeText "test1")
                     |> Tuple.first
                     |> .items
                     |> Expect.equal
@@ -216,7 +216,7 @@ changeTextTest =
         , test "load activity items" <|
             \() ->
                 Return.singleton defInit
-                    |> update (OnChangeText "test1\ntest2")
+                    |> update (ChangeText "test1\ntest2")
                     |> Tuple.first
                     |> .items
                     |> Expect.equal
@@ -228,7 +228,7 @@ changeTextTest =
         , test "load task item" <|
             \() ->
                 Return.singleton defInit
-                    |> update (OnChangeText "test1\n    test2")
+                    |> update (ChangeText "test1\n    test2")
                     |> Tuple.first
                     |> .items
                     |> Expect.equal
@@ -250,7 +250,7 @@ changeTextTest =
         , test "load task items" <|
             \() ->
                 Return.singleton defInit
-                    |> update (OnChangeText "test1\n    test2\n    test3")
+                    |> update (ChangeText "test1\n    test2\n    test3")
                     |> Tuple.first
                     |> .items
                     |> Expect.equal
@@ -276,7 +276,7 @@ changeTextTest =
         , test "load story item" <|
             \() ->
                 Return.singleton defInit
-                    |> update (OnChangeText "test1\n    test2\n        test3")
+                    |> update (ChangeText "test1\n    test2\n        test3")
                     |> Tuple.first
                     |> .items
                     |> Expect.equal
@@ -308,7 +308,7 @@ changeTextTest =
         , test "load story items" <|
             \() ->
                 Return.singleton defInit
-                    |> update (OnChangeText "test1\n    test2\n        test3\n        test4")
+                    |> update (ChangeText "test1\n    test2\n        test3\n        test4")
                     |> Tuple.first
                     |> .items
                     |> Expect.equal

@@ -1,6 +1,6 @@
 module Views.Diagram.Card exposing (text, view, viewWithDefaultColor)
 
-import Css exposing (property)
+import Css exposing (backgroundColor, property)
 import Events
 import Html.Attributes as Attr
 import Html.Styled as Html exposing (Html)
@@ -208,7 +208,13 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             , SvgAttr.class "ts-text"
             ]
             [ markdown settings
-                colour
+                ( colour
+                , if Item.isHighlight item then
+                    Color.yellow
+
+                  else
+                    Color.transparent
+                )
                 (Item.getText item
                     |> String.trim
                     |> String.dropLeft 3
@@ -231,20 +237,45 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             , SvgAttr.class "ts-text"
             ]
             [ Html.div
-                [ css [ Style.paddingSm, DiagramSettings.fontFamiliy settings, property "word-wrap" "break-word" ] ]
-                [ Html.text <| Item.getText item ]
+                [ css
+                    [ Style.paddingSm
+                    , DiagramSettings.fontFamiliy settings
+                    , property "word-wrap" "break-word"
+                    ]
+                ]
+                [ Html.span
+                    [ css
+                        [ backgroundColor <|
+                            if Item.isHighlight item then
+                                Css.hex <| Color.toString Color.yellow
+
+                            else
+                                Css.hex <| Color.toString Color.transparent
+                        ]
+                    ]
+                    [ Html.text <| Item.getText item ]
+                ]
             ]
 
     else
-        Views.plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs <| Item.getText item
+        Views.plainText
+            { settings = settings
+            , position = ( posX, posY )
+            , size = ( svgWidth, svgHeight )
+            , foreColor = colour
+            , fontSize = fs
+            , text = Item.getText item
+            , isHighlight = Item.isHighlight item
+            }
 
 
-markdown : DiagramSettings.Settings -> Color -> String -> Html Msg
-markdown settings colour t =
+markdown : DiagramSettings.Settings -> ( Color, Color ) -> String -> Html Msg
+markdown settings ( foreColor, backColor ) t =
     Html.fromUnstyled <|
         Markdown.toHtml
             [ Attr.class "md-content"
             , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-            , Attr.style "color" <| Color.toString colour
+            , Attr.style "color" <| Color.toString foreColor
+            , Attr.style "backgroundColor" <| Color.toString backColor
             ]
             t
