@@ -23,7 +23,7 @@ import Css
         , zIndex
         )
 import Css.Transitions as Transitions
-import Html.Styled as Html exposing (Html, text)
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
 import Models.Notification as Notification
 import Style.Breakpoint as Breakpoint

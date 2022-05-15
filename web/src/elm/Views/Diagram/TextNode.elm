@@ -161,7 +161,18 @@ textNode settings property ( posX, posY ) ( svgWidth, svgHeight ) colour item =
                 ]
             , Attr.class "ts-node"
             ]
-            [ Html.text <| Item.getText item ]
+            [ Html.span
+                [ css
+                    [ backgroundColor <|
+                        if Item.isHighlight item then
+                            hex <| Color.toString Color.yellow
+
+                        else
+                            hex <| Color.toString Color.transparent
+                    ]
+                ]
+                [ Html.text <| Item.getText item ]
+            ]
         ]
 
 

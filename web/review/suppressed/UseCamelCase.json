@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "automatically created by": "elm-review suppress",
+  "learn more": "elm-review suppress --help",
+  "suppressions": [
+    { "count": 28, "filePath": "src/Graphql/Graphql/Query.elm" },
+    { "count": 18, "filePath": "src/Graphql/Graphql/InputObject.elm" },
+    { "count": 17, "filePath": "src/Graphql/Graphql/Mutation.elm" },
+    { "count": 3, "filePath": "src/Graphql/Graphql/Object/Settings.elm" },
+    { "count": 2, "filePath": "src/Graphql/Graphql/Enum/Diagram.elm" },
+    { "count": 1, "filePath": "src/Graphql/Graphql/Interface/Node.elm" },
+    { "count": 1, "filePath": "src/Graphql/Graphql/Union/DiagramItem.elm" }
+  ]
+}

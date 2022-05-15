@@ -168,7 +168,7 @@ activityView settings property verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "activity-" ++ Item.getText item
-         , Lazy.lazy Card.view
+         , Lazy.lazy Card.viewWithDefaultColor
             { settings = settings
             , property = property
             , position = ( posX, posY )
@@ -213,7 +213,7 @@ taskView settings property verticalCount ( posX, posY ) selectedItem item =
     Keyed.node "g"
         []
         (( "task-" ++ Item.getText item
-         , Lazy.lazy Card.view
+         , Lazy.lazy Card.viewWithDefaultColor
             { settings = settings
             , property = property
             , position = ( posX, posY )
@@ -271,7 +271,7 @@ storyView settings property verticalCount parentCount ( posX, posY ) selectedIte
     Keyed.node "g"
         []
         (( "story-" ++ Item.getText item
-         , Lazy.lazy Card.view
+         , Lazy.lazy Card.viewWithDefaultColor
             { settings = settings
             , property = property
             , position = ( posX, posY )

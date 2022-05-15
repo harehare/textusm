@@ -9,6 +9,7 @@ import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
+import Models.Diagram.Search as Search
 import Models.DiagramData as DiagramData
 import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item
@@ -123,11 +124,12 @@ init flags =
             , dragStatus = DiagramModel.NoDrag
             , dropDownIndex = Nothing
             , property = Property.empty
+            , search = Search.close
             }
       , text = flags.text
       , backgroundColor = flags.settings.backgroundColor
       }
-    , Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText flags.text)))
+    , Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.ChangeText flags.text)))
     )
 
 
@@ -164,31 +166,29 @@ main =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update message model =
-    case message of
-        UpdateDiagram subMsg ->
-            case subMsg of
-                DiagramModel.Select _ ->
-                    ( model, Cmd.none )
+update (UpdateDiagram subMsg) model =
+    case subMsg of
+        DiagramModel.Select _ ->
+            ( model, Cmd.none )
 
-                DiagramModel.OnChangeText text ->
-                    let
-                        ( model_, _ ) =
-                            Return.singleton model.diagramModel |> Diagram.update subMsg
-                    in
-                    ( { model | text = text, diagramModel = model_ }, Cmd.none )
+        DiagramModel.ChangeText text ->
+            let
+                ( model_, _ ) =
+                    Return.singleton model.diagramModel |> Diagram.update subMsg
+            in
+            ( { model | text = text, diagramModel = model_ }, Cmd.none )
 
-                _ ->
-                    let
-                        ( model_, cmd_ ) =
-                            Return.singleton model.diagramModel |> Diagram.update subMsg
-                    in
-                    ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+        _ ->
+            let
+                ( model_, cmd_ ) =
+                    Return.singleton model.diagramModel |> Diagram.update subMsg
+            in
+            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
+        [ onResize (\width height -> UpdateDiagram (DiagramModel.Resize width height))
         , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
         ]

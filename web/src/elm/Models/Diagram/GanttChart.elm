@@ -299,8 +299,10 @@ toMermaidString : Title -> Zone -> GanttChart -> String
 toMermaidString title zone (GanttChart _ sections) =
     "gantt"
         ++ "\n"
-        ++ ([ "dateFormat  YYYY-MM-DD", "title " ++ Title.toString title ]
-                ++ List.map (sectiontomermaidstring zone) sections
+        ++ ("dateFormat  YYYY-MM-DD"
+                :: "title "
+                :: Title.toString title
+                :: List.map (sectiontomermaidstring zone) sections
                 |> List.map (\s -> "    " ++ s)
                 |> String.join "\n"
            )

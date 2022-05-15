@@ -7,31 +7,31 @@ module Graphql.Object.Settings exposing (..)
 import Graphql.Internal.Builder.Object as Object
 import Graphql.Object
 import Graphql.SelectionSet exposing (SelectionSet)
-import Json.Decode as Decode
+import Json.Decode as D
 
 
 {-| -}
 font : SelectionSet String Graphql.Object.Settings
 font =
-    Object.selectionForField "String" "font" [] Decode.string
+    Object.selectionForField "String" "font" [] D.string
 
 
 {-| -}
 width : SelectionSet Int Graphql.Object.Settings
 width =
-    Object.selectionForField "Int" "width" [] Decode.int
+    Object.selectionForField "Int" "width" [] D.int
 
 
 {-| -}
 height : SelectionSet Int Graphql.Object.Settings
 height =
-    Object.selectionForField "Int" "height" [] Decode.int
+    Object.selectionForField "Int" "height" [] D.int
 
 
 {-| -}
 backgroundColor : SelectionSet String Graphql.Object.Settings
 backgroundColor =
-    Object.selectionForField "String" "backgroundColor" [] Decode.string
+    Object.selectionForField "String" "backgroundColor" [] D.string
 
 
 {-| -}
@@ -61,34 +61,34 @@ storyColor object____ =
 {-| -}
 lineColor : SelectionSet String Graphql.Object.Settings
 lineColor =
-    Object.selectionForField "String" "lineColor" [] Decode.string
+    Object.selectionForField "String" "lineColor" [] D.string
 
 
 {-| -}
 labelColor : SelectionSet String Graphql.Object.Settings
 labelColor =
-    Object.selectionForField "String" "labelColor" [] Decode.string
+    Object.selectionForField "String" "labelColor" [] D.string
 
 
 {-| -}
 textColor : SelectionSet (Maybe String) Graphql.Object.Settings
 textColor =
-    Object.selectionForField "(Maybe String)" "textColor" [] (Decode.string |> Decode.nullable)
+    Object.selectionForField "(Maybe String)" "textColor" [] (D.string |> D.nullable)
 
 
 {-| -}
 zoomControl : SelectionSet (Maybe Bool) Graphql.Object.Settings
 zoomControl =
-    Object.selectionForField "(Maybe Bool)" "zoomControl" [] (Decode.bool |> Decode.nullable)
+    Object.selectionForField "(Maybe Bool)" "zoomControl" [] (D.bool |> D.nullable)
 
 
 {-| -}
 scale : SelectionSet (Maybe Float) Graphql.Object.Settings
 scale =
-    Object.selectionForField "(Maybe Float)" "scale" [] (Decode.float |> Decode.nullable)
+    Object.selectionForField "(Maybe Float)" "scale" [] (D.float |> D.nullable)
 
 
 {-| -}
 toolbar : SelectionSet (Maybe Bool) Graphql.Object.Settings
 toolbar =
-    Object.selectionForField "(Maybe Bool)" "toolbar" [] (Decode.bool |> Decode.nullable)
+    Object.selectionForField "(Maybe Bool)" "toolbar" [] (D.bool |> D.nullable)

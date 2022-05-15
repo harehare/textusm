@@ -211,7 +211,7 @@ view model =
         , E.onClick CloseMenu
         ]
         [ GlobalStyle.style
-        , if Model.isFullscreen model.window then
+        , if isFullscreen model.window then
             Empty.view
 
           else
@@ -235,14 +235,14 @@ view model =
                 , overflow hidden
                 , position relative
                 , Style.widthFull
-                , if Model.isFullscreen model.window then
+                , if isFullscreen model.window then
                     Css.batch [ Style.heightScreen ]
 
                   else
                     Css.batch [ Style.hContent ]
                 ]
             ]
-            [ if Route.isViewFile (toRoute model.url) || Model.isFullscreen model.window then
+            [ if Route.isViewFile (toRoute model.url) || isFullscreen model.window then
                 Empty.view
 
               else
@@ -717,7 +717,7 @@ update message =
                     in
                     Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
                         |> (case msg of
-                                DiagramModel.OnResize _ _ ->
+                                DiagramModel.Resize _ _ ->
                                     Return.andThen Action.updateWindowState
 
                                 DiagramModel.ToggleFullscreen ->
@@ -1345,7 +1345,7 @@ update message =
                 >> Return.andThen (Action.setSettings settings)
 
         LoadSettings (Err _) ->
-            Return.andThen (\m -> Action.setSettings (.storyMap (Settings.defaultSettings m.browserStatus.isDarkMode)) m)
+            Return.andThen (\m -> Action.setSettings (.storyMap (defaultSettings m.browserStatus.isDarkMode)) m)
                 >> Return.andThen Action.stopProgress
 
         SaveSettings (Ok _) ->
@@ -1413,12 +1413,12 @@ update message =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        ([ Ports.changeText (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
+        ([ Ports.changeText (\text -> UpdateDiagram (DiagramModel.ChangeText text))
          , Ports.startDownload StartDownload
          , Ports.gotLocalDiagramsJson (\json -> UpdateDiagramList (DiagramList.GotLocalDiagramsJson json))
          , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange HandleVisibilityChange
-         , onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
+         , onResize (\width height -> UpdateDiagram (DiagramModel.Resize width height))
          , Ports.shortcuts Shortcuts
          , Ports.onNotification (\n -> HandleAutoCloseNotification (Notification.showInfoNotifcation n))
          , Ports.sendErrorNotification (\n -> HandleAutoCloseNotification (Notification.showErrorNotifcation n))

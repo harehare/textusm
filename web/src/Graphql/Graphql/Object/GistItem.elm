@@ -10,7 +10,7 @@ import Graphql.Object
 import Graphql.Scalar
 import Graphql.ScalarCodecs
 import Graphql.SelectionSet exposing (SelectionSet)
-import Json.Decode as Decode
+import Json.Decode as D
 
 
 {-| -}
@@ -22,19 +22,19 @@ id =
 {-| -}
 url : SelectionSet String Graphql.Object.GistItem
 url =
-    Object.selectionForField "String" "url" [] Decode.string
+    Object.selectionForField "String" "url" [] D.string
 
 
 {-| -}
 title : SelectionSet String Graphql.Object.GistItem
 title =
-    Object.selectionForField "String" "title" [] Decode.string
+    Object.selectionForField "String" "title" [] D.string
 
 
 {-| -}
 thumbnail : SelectionSet (Maybe String) Graphql.Object.GistItem
 thumbnail =
-    Object.selectionForField "(Maybe String)" "thumbnail" [] (Decode.string |> Decode.nullable)
+    Object.selectionForField "(Maybe String)" "thumbnail" [] (D.string |> D.nullable)
 
 
 {-| -}
@@ -46,7 +46,7 @@ diagram =
 {-| -}
 isBookmark : SelectionSet Bool Graphql.Object.GistItem
 isBookmark =
-    Object.selectionForField "Bool" "isBookmark" [] Decode.bool
+    Object.selectionForField "Bool" "isBookmark" [] D.bool
 
 
 {-| -}

@@ -1,13 +1,8 @@
-module Views.Diagram.Card exposing (text, view)
+module Views.Diagram.Card exposing (text, view, viewWithDefaultColor)
 
-import Css
-    exposing
-        ( backgroundColor
-        , color
-        , property
-        )
+import Css exposing (backgroundColor, property)
 import Events
-import Html.Attributes as LegacyAttr
+import Html.Attributes as Attr
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
 import Markdown
@@ -26,7 +21,7 @@ import Svg.Styled.Attributes as SvgAttr
 import Views.Diagram.Views as Views
 
 
-view :
+viewWithDefaultColor :
     { settings : DiagramSettings.Settings
     , property : Property
     , position : Position
@@ -35,10 +30,41 @@ view :
     , canMove : Bool
     }
     -> Svg Msg
-view { settings, property, position, selectedItem, item, canMove } =
+viewWithDefaultColor { settings, property, position, selectedItem, item, canMove } =
     let
-        ( color, backgroundColor ) =
+        ( foreColor, backColor ) =
             Views.getItemColor settings property item
+    in
+    view
+        { settings = settings
+        , property = property
+        , position = position
+        , selectedItem = selectedItem
+        , item = item
+        , canMove = canMove
+        , defaultForeColor = foreColor
+        , defaultBackColor = backColor
+        }
+
+
+view :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , canMove : Bool
+    , defaultForeColor : Color
+    , defaultBackColor : Color
+    }
+    -> Svg Msg
+view { settings, property, position, selectedItem, item, canMove, defaultForeColor, defaultBackColor } =
+    let
+        ( foreColor, backColor ) =
+            ( Item.getForegroundColor item, Item.getBackgroundColor item )
+                |> Tuple.mapBoth
+                    (\c -> c |> Maybe.withDefault defaultForeColor)
+                    (\c -> c |> Maybe.withDefault defaultBackColor)
 
         view_ : Svg Msg
         view_ =
@@ -73,7 +99,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                     , SvgAttr.height <| String.fromInt height
                     , SvgAttr.x <| String.fromInt posX
                     , SvgAttr.y <| String.fromInt posY
-                    , SvgAttr.fill <| Color.toString backgroundColor
+                    , SvgAttr.fill <| Color.toString backColor
                     , SvgAttr.rx "1"
                     , SvgAttr.ry "1"
                     , SvgAttr.style "filter:url(#shadow)"
@@ -83,7 +109,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                 , text settings
                     ( posX, posY )
                     ( width, height )
-                    color
+                    foreColor
                     (Item.getFontSizeWithProperty item property)
                     item
                 ]
@@ -143,7 +169,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                         , SvgAttr.y (String.fromInt <| y_ - 2)
                         , SvgAttr.rx "1"
                         , SvgAttr.ry "1"
-                        , SvgAttr.fill <| Color.toString backgroundColor
+                        , SvgAttr.fill <| Color.toString backColor
                         , SvgAttr.style "filter:url(#shadow)"
                         ]
                         []
@@ -156,7 +182,7 @@ view { settings, property, position, selectedItem, item, canMove } =
                         , fontSize = Item.getFontSizeWithProperty item property
                         , position = selectedItemPosition
                         , size = selectedItemSize
-                        , color = color
+                        , color = foreColor
                         , item = item_
                         }
                     ]
@@ -182,7 +208,13 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             , SvgAttr.class "ts-text"
             ]
             [ markdown settings
-                colour
+                ( colour
+                , if Item.isHighlight item then
+                    Color.yellow
+
+                  else
+                    Color.transparent
+                )
                 (Item.getText item
                     |> String.trim
                     |> String.dropLeft 3
@@ -205,20 +237,45 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             , SvgAttr.class "ts-text"
             ]
             [ Html.div
-                [ css [ Style.paddingSm, DiagramSettings.fontFamiliy settings, property "word-wrap" "break-word" ] ]
-                [ Html.text <| Item.getText item ]
+                [ css
+                    [ Style.paddingSm
+                    , DiagramSettings.fontFamiliy settings
+                    , property "word-wrap" "break-word"
+                    ]
+                ]
+                [ Html.span
+                    [ css
+                        [ backgroundColor <|
+                            if Item.isHighlight item then
+                                Css.hex <| Color.toString Color.yellow
+
+                            else
+                                Css.hex <| Color.toString Color.transparent
+                        ]
+                    ]
+                    [ Html.text <| Item.getText item ]
+                ]
             ]
 
     else
-        Views.plainText settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs <| Item.getText item
+        Views.plainText
+            { settings = settings
+            , position = ( posX, posY )
+            , size = ( svgWidth, svgHeight )
+            , foreColor = colour
+            , fontSize = fs
+            , text = Item.getText item
+            , isHighlight = Item.isHighlight item
+            }
 
 
-markdown : DiagramSettings.Settings -> Color -> String -> Html Msg
-markdown settings colour t =
+markdown : DiagramSettings.Settings -> ( Color, Color ) -> String -> Html Msg
+markdown settings ( foreColor, backColor ) t =
     Html.fromUnstyled <|
         Markdown.toHtml
-            [ LegacyAttr.class "md-content"
-            , LegacyAttr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
-            , LegacyAttr.style "color" <| Color.toString colour
+            [ Attr.class "md-content"
+            , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
+            , Attr.style "color" <| Color.toString foreColor
+            , Attr.style "backgroundColor" <| Color.toString backColor
             ]
             t

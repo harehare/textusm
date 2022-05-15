@@ -29,7 +29,7 @@ import Models.Diagram.ER as ER exposing (Attribute(..), Column(..), Relationship
 import Models.DiagramData as DiagramData
 import Models.DiagramSettings as DiagramSettings
 import Models.Position as Position exposing (Position, getX, getY)
-import Models.Size as Size exposing (Size, getHeight, getWidth)
+import Models.Size exposing (Size, getHeight, getWidth)
 import State exposing (Step(..))
 import String
 import Svg.Styled as Svg exposing (Svg)
@@ -288,11 +288,11 @@ tablesToDict tables =
 
                     offsetX : Int
                     offsetX =
-                        Position.getX (position |> Maybe.withDefault Position.zero)
+                        getX (position |> Maybe.withDefault Position.zero)
 
                     offsetY : Int
                     offsetY =
-                        Position.getY (position |> Maybe.withDefault Position.zero)
+                        getY (position |> Maybe.withDefault Position.zero)
 
                     width : Int
                     width =
@@ -330,26 +330,26 @@ tableView { settings, svgSize, pos, tableSize, table } =
 
         tableX : Int
         tableX =
-            Position.getX pos + Position.getX (position |> Maybe.withDefault Position.zero)
+            getX pos + getX (position |> Maybe.withDefault Position.zero)
 
         tableY : Int
         tableY =
-            Position.getY pos + Position.getY (position |> Maybe.withDefault Position.zero)
+            getY pos + getY (position |> Maybe.withDefault Position.zero)
     in
     Svg.g
-        [ onDragStart table (Utils.isPhone (Size.getWidth svgSize)) ]
+        [ onDragStart table (Utils.isPhone (getWidth svgSize)) ]
         (Svg.rect
-            [ width <| String.fromInt <| Size.getWidth tableSize
-            , height <| String.fromInt <| Size.getHeight tableSize
+            [ width <| String.fromInt <| getWidth tableSize
+            , height <| String.fromInt <| getHeight tableSize
             , x (String.fromInt tableX)
             , y (String.fromInt tableY)
             , strokeWidth "1"
             , stroke settings.color.activity.backgroundColor
             ]
             []
-            :: tableHeaderView settings tableName (Size.getWidth tableSize) ( tableX, tableY )
+            :: tableHeaderView settings tableName (getWidth tableSize) ( tableX, tableY )
             :: List.indexedMap
-                (\i column -> columnView settings (Size.getWidth tableSize) ( tableX, tableY + Constants.tableRowHeight * (i + 1) ) column)
+                (\i column -> columnView settings (getWidth tableSize) ( tableX, tableY + Constants.tableRowHeight * (i + 1) ) column)
                 columns
         )
 
@@ -545,18 +545,18 @@ relationshipView settings relationships tables =
                 case ( table1, table2 ) of
                     ( Just t1, Just t2 ) ->
                         let
-                            t1rel : Maybe String
-                            t1rel =
+                            t1Rel : Maybe String
+                            t1Rel =
                                 Dict.get tableName2 t1.releations
 
-                            t2rel : Maybe String
-                            t2rel =
+                            t2Rel : Maybe String
+                            t2Rel =
                                 Dict.get tableName1 t2.releations
                         in
                         Svg.g []
                             [ pathView settings t1 t2
-                            , relationLabelView settings t1 t2 (Maybe.withDefault "" t1rel)
-                            , relationLabelView settings t2 t1 (Maybe.withDefault "" t2rel)
+                            , relationLabelView settings t1 t2 (Maybe.withDefault "" t1Rel)
+                            , relationLabelView settings t2 t1 (Maybe.withDefault "" t2Rel)
                             ]
 
                     _ ->

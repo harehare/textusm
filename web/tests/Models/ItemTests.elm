@@ -210,4 +210,45 @@ suite =
                     Item.withText (Item.toLineString i) i
                         |> Expect.equal i
             ]
+        , describe
+            "mapWithRecursive test"
+            [ test "with highlight" <|
+                \() ->
+                    Expect.equal
+                        (Item.fromList
+                            [ Item.new
+                                |> Item.withChildren
+                                    (Item.childrenFromItems
+                                        (Item.fromList
+                                            [ Item.new
+                                                |> Item.withChildren
+                                                    (Item.childrenFromItems (Item.fromList [ Item.new ]))
+                                            ]
+                                        )
+                                    )
+                            ]
+                            |> Item.mapWithRecursive (\item -> item |> Item.withHighlight True)
+                        )
+                        (Item.fromList
+                            [ Item.new
+                                |> Item.withHighlight True
+                                |> Item.withChildren
+                                    (Item.childrenFromItems
+                                        (Item.fromList
+                                            [ Item.new
+                                                |> Item.withHighlight True
+                                                |> Item.withChildren
+                                                    (Item.childrenFromItems
+                                                        (Item.fromList
+                                                            [ Item.new
+                                                                |> Item.withHighlight True
+                                                            ]
+                                                        )
+                                                    )
+                                            ]
+                                        )
+                                    )
+                            ]
+                        )
+            ]
         ]

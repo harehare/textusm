@@ -276,7 +276,7 @@ enabledKey s =
 
         _ ->
             if String.startsWith "release" s then
-                String.dropLeft 7 s |> String.toInt |> Maybe.map (\v -> ReleaseLevel v)
+                String.dropLeft 7 s |> toInt |> Maybe.map (\v -> ReleaseLevel v)
 
             else
                 Nothing

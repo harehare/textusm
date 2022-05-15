@@ -15,7 +15,7 @@ import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
 import Graphql.SelectionSet exposing (SelectionSet)
-import Json.Decode as Decode
+import Json.Decode as D
 
 
 type alias SaveOptionalArguments =
@@ -96,7 +96,7 @@ bookmark :
     -> SelectionSet decodesTo Graphql.Object.Item
     -> SelectionSet (Maybe decodesTo) RootMutation
 bookmark requiredArgs____ object____ =
-    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId), Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ Decode.nullable
+    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId), Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ D.nullable
 
 
 type alias ShareRequiredArguments =
@@ -112,7 +112,7 @@ share :
     ShareRequiredArguments
     -> SelectionSet String RootMutation
 share requiredArgs____ =
-    Object.selectionForField "String" "share" [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputShareItem ] Decode.string
+    Object.selectionForField "String" "share" [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputShareItem ] D.string
 
 
 type alias SaveGistRequiredArguments =

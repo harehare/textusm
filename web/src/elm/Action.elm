@@ -82,7 +82,7 @@ import Task
 import Utils.Utils as Utils
 
 
-loadText : DiagramItem.DiagramItem -> Model -> Return Msg Model
+loadText : DiagramItem -> Model -> Return Msg Model
 loadText diagram model =
     Return.return model (Task.attempt Load <| Task.succeed diagram)
 
@@ -107,7 +107,7 @@ loadDiagram diagram model =
             }
 
         ( model_, cmd_ ) =
-            Return.singleton newDiagramModel |> Diagram.update (DiagramModel.OnChangeText <| Text.toString diagram.text)
+            Return.singleton newDiagramModel |> Diagram.update (DiagramModel.ChangeText <| Text.toString diagram.text)
     in
     Return.return
         { model

@@ -8,6 +8,7 @@ import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
+import Models.Diagram.Search as Search
 import Models.DiagramData as DiagramData
 import Models.DiagramType as DiagramType
 import Models.Item as Item
@@ -106,11 +107,12 @@ init flags =
             , dragStatus = DiagramModel.NoDrag
             , dropDownIndex = Nothing
             , property = Property.empty
+            , search = Search.close
             }
       , text = flags.text
       , backgroundColor = flags.backgroundColor
       }
-    , Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.OnChangeText flags.text)))
+    , Task.perform identity (Task.succeed (UpdateDiagram (DiagramModel.ChangeText flags.text)))
     )
 
 
@@ -240,9 +242,9 @@ port zoom : (Bool -> msg) -> Sub msg
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ onResize (\width height -> UpdateDiagram (DiagramModel.OnResize width height))
+        [ onResize (\width height -> UpdateDiagram (DiagramModel.Resize width height))
         , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
-        , onTextChanged (\text -> UpdateDiagram (DiagramModel.OnChangeText text))
+        , onTextChanged (\text -> UpdateDiagram (DiagramModel.ChangeText text))
         , getCanvasSize GetCanvasSize
         , zoom <|
             \z ->

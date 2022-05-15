@@ -7,8 +7,8 @@ module Graphql.Scalar exposing (Codecs, Id(..), Time(..), defaultCodecs, defineC
 import Graphql.Codec exposing (Codec)
 import Graphql.Internal.Builder.Object as Object
 import Graphql.Internal.Encode
-import Json.Decode as Decode
-import Json.Encode as Encode
+import Json.Decode as D
+import Json.Encode as E
 
 
 type Id
@@ -60,11 +60,11 @@ type alias RawCodecs valueId valueTime =
 defaultCodecs : RawCodecs Id Time
 defaultCodecs =
     { codecId =
-        { encoder = \(Id raw) -> Encode.string raw
-        , decoder = Object.scalarDecoder |> Decode.map Id
+        { encoder = \(Id raw) -> E.string raw
+        , decoder = Object.scalarDecoder |> D.map Id
         }
     , codecTime =
-        { encoder = \(Time raw) -> Encode.string raw
-        , decoder = Object.scalarDecoder |> Decode.map Time
+        { encoder = \(Time raw) -> E.string raw
+        , decoder = Object.scalarDecoder |> D.map Time
         }
     }
