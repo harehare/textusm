@@ -38,7 +38,7 @@
         "clean-webpack-plugin": "^4.0.0",
         "copy-webpack-plugin": "^11.0.0",
         "css-loader": "^6.7.1",
-        "css-minimizer-webpack-plugin": "^3.4.1",
+        "css-minimizer-webpack-plugin": "^4.0.0",
         "cssnano-preset-advanced": "^5.3.4",
         "cypress": "^9.6.1",
         "elm": "^0.19.1-5",
