@@ -73,16 +73,16 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                     selectedItemOffsetPosition =
                         Item.getOffset item_
 
+                    selectedItemOffsetSize : Size
+                    selectedItemOffsetSize =
+                        Item.getOffsetSize item_
+
                     selectedItemPosition : Position
                     selectedItemPosition =
                         position
                             |> Tuple.mapBoth
                                 (\x -> x + Position.getX selectedItemOffsetPosition)
                                 (\y -> y + Position.getY selectedItemOffsetPosition)
-
-                    selectedItemOffsetSize : Size
-                    selectedItemOffsetSize =
-                        Item.getOffsetSize item_
 
                     selectedItemSize : Size
                     selectedItemSize =
@@ -177,32 +177,6 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                 ]
 
 
-text : { settings : DiagramSettings.Settings, property : Property, svgWidth : Int, position : Position, selectedItem : SelectedItem, items : Items } -> Svg Msg
-text { settings, property, svgWidth, position, selectedItem, items } =
-    let
-        ( posX, posY ) =
-            position
-
-        newSettings : DiagramSettings.Settings
-        newSettings =
-            settings |> DiagramSettings.ofWidth.set (svgWidth - Constants.itemMargin * 2)
-    in
-    Svg.g []
-        (Item.indexedMap
-            (\i item ->
-                Card.viewWithDefaultColor
-                    { settings = newSettings
-                    , property = property
-                    , position = ( posX + 16, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin + 35 )
-                    , selectedItem = selectedItem
-                    , item = item
-                    , canMove = False
-                    }
-            )
-            items
-        )
-
-
 canvasRect : ( Color, Color ) -> Property -> Position -> Size -> Svg msg
 canvasRect ( foregroundColor, backgroundColor ) property ( posX, posY ) ( rectWidth, rectHeight ) =
     Svg.rect
@@ -242,6 +216,37 @@ getCanvasColor settings property item =
             )
 
 
+resizeCircle : Item -> ResizeDirection -> Position -> Svg Msg
+resizeCircle item direction ( x, y ) =
+    Views.resizeCircleBase 8 item direction ( x, y )
+
+
+text : { settings : DiagramSettings.Settings, property : Property, svgWidth : Int, position : Position, selectedItem : SelectedItem, items : Items } -> Svg Msg
+text { settings, property, svgWidth, position, selectedItem, items } =
+    let
+        newSettings : DiagramSettings.Settings
+        newSettings =
+            settings |> DiagramSettings.ofWidth.set (svgWidth - Constants.itemMargin * 2)
+
+        ( posX, posY ) =
+            position
+    in
+    Svg.g []
+        (Item.indexedMap
+            (\i item ->
+                Card.viewWithDefaultColor
+                    { settings = newSettings
+                    , property = property
+                    , position = ( posX + 16, posY + i * (settings.size.height + Constants.itemMargin) + Constants.itemMargin + 35 )
+                    , selectedItem = selectedItem
+                    , item = item
+                    , canMove = False
+                    }
+            )
+            items
+        )
+
+
 title : DiagramSettings.Settings -> Position -> Item -> Svg Msg
 title settings ( posX, posY ) item =
     Svg.text_
@@ -259,8 +264,3 @@ title settings ( posX, posY ) item =
         , Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
         ]
         [ Svg.text <| Item.getText item ]
-
-
-resizeCircle : Item -> ResizeDirection -> Position -> Svg Msg
-resizeCircle item direction ( x, y ) =
-    Views.resizeCircleBase 8 item direction ( x, y )

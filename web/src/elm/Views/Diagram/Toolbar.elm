@@ -41,13 +41,62 @@ import Svg.Styled as Svg exposing (Svg, svg)
 import Svg.Styled.Attributes as SvgAttr exposing (stroke, strokeWidth, x1, x2, y1, y2)
 
 
+type alias ClickEvent msg =
+    Item -> msg
+
+
 type ToolbarButton msg
     = Button (Html msg)
     | Separator (Html msg)
 
 
-type alias ClickEvent msg =
-    Item -> msg
+viewColorOnly : ClickEvent msg -> Html msg
+viewColorOnly e =
+    view <| userStoryMap e
+
+
+viewForFreeForm : ClickEvent msg -> Html msg
+viewForFreeForm e =
+    view <| freeForm e
+
+
+canvasView : Item -> ClickEvent msg -> Html msg
+canvasView item event =
+    Html.div
+        [ css
+            [ Css.width <| px 20
+            , Css.height <| px 20
+            , Style.roundedSm
+            , border3 (px 4) solid (hex <| Color.toString Color.lineDefalut)
+            , cursor pointer
+            , margin <| px 2
+            ]
+        , Events.onClickStopPropagation <| event item
+        ]
+        []
+
+
+cardView : Color -> Item -> ClickEvent msg -> Html msg
+cardView color item event =
+    Html.div
+        [ css
+            [ Css.width <| px 24
+            , Css.height <| px 24
+            , Style.roundedSm
+            , backgroundColor <| hex <| Color.toString color
+            , border3 (px 1) solid (rgba 0 0 0 0.1)
+            , cursor pointer
+            , margin <| px 2
+            ]
+        , Events.onClickStopPropagation <| event item
+        ]
+        []
+
+
+createCanvas : Item
+createCanvas =
+    Item.new
+        |> Item.withTextOnly "Click to edit # canvas"
 
 
 createColorItem : Color -> Item
@@ -62,28 +111,22 @@ createColorItem color =
         |> Item.withTextOnly "Click to edit"
 
 
+createHorizontalLineItem : Item
+createHorizontalLineItem =
+    Item.new
+        |> Item.withTextOnly "---"
+
+
 createTextItem : Item
 createTextItem =
     Item.new
         |> Item.withTextOnly "Click to edit # text"
 
 
-createCanvas : Item
-createCanvas =
-    Item.new
-        |> Item.withTextOnly "Click to edit # canvas"
-
-
 createVerticalLineItem : Item
 createVerticalLineItem =
     Item.new
         |> Item.withTextOnly "/"
-
-
-createHorizontalLineItem : Item
-createHorizontalLineItem =
-    Item.new
-        |> Item.withTextOnly "---"
 
 
 freeForm : ClickEvent msg -> List (ToolbarButton msg)
@@ -113,6 +156,34 @@ freeForm e =
     ]
 
 
+iconView : Svg msg -> Item -> ClickEvent msg -> Html msg
+iconView icon item event =
+    Html.div
+        [ css
+            [ Css.height <| px 24
+            , Style.roundedSm
+            , cursor pointer
+            , margin <| px 2
+            , fontWeight bold
+            , textAlign center
+            ]
+        , Events.onClickStopPropagation <| event item
+        ]
+        [ svg [ SvgAttr.width "24" ] [ icon ] ]
+
+
+separator : Html msg
+separator =
+    Html.div
+        [ css
+            [ borderRight3 (px 1) solid (rgba 0 0 0 0.1)
+            , Css.width <| px 1
+            , Css.height <| px 40
+            ]
+        ]
+        []
+
+
 userStoryMap : ClickEvent msg -> List (ToolbarButton msg)
 userStoryMap e =
     [ Button <| cardView Color.white (createColorItem Color.white) e
@@ -124,16 +195,6 @@ userStoryMap e =
     , Button <| cardView Color.red (createColorItem Color.red) e
     , Button <| cardView Color.purple (createColorItem Color.purple) e
     ]
-
-
-viewForFreeForm : ClickEvent msg -> Html msg
-viewForFreeForm e =
-    view <| freeForm e
-
-
-viewColorOnly : ClickEvent msg -> Html msg
-viewColorOnly e =
-    view <| userStoryMap e
 
 
 view : List (ToolbarButton msg) -> Html msg
@@ -180,64 +241,3 @@ view items =
                             [ view_ ]
             )
             items
-
-
-cardView : Color -> Item -> ClickEvent msg -> Html msg
-cardView color item event =
-    Html.div
-        [ css
-            [ Css.width <| px 24
-            , Css.height <| px 24
-            , Style.roundedSm
-            , backgroundColor <| hex <| Color.toString color
-            , border3 (px 1) solid (rgba 0 0 0 0.1)
-            , cursor pointer
-            , margin <| px 2
-            ]
-        , Events.onClickStopPropagation <| event item
-        ]
-        []
-
-
-canvasView : Item -> ClickEvent msg -> Html msg
-canvasView item event =
-    Html.div
-        [ css
-            [ Css.width <| px 20
-            , Css.height <| px 20
-            , Style.roundedSm
-            , border3 (px 4) solid (hex <| Color.toString Color.lineDefalut)
-            , cursor pointer
-            , margin <| px 2
-            ]
-        , Events.onClickStopPropagation <| event item
-        ]
-        []
-
-
-iconView : Svg msg -> Item -> ClickEvent msg -> Html msg
-iconView icon item event =
-    Html.div
-        [ css
-            [ Css.height <| px 24
-            , Style.roundedSm
-            , cursor pointer
-            , margin <| px 2
-            , fontWeight bold
-            , textAlign center
-            ]
-        , Events.onClickStopPropagation <| event item
-        ]
-        [ svg [ SvgAttr.width "24" ] [ icon ] ]
-
-
-separator : Html msg
-separator =
-    Html.div
-        [ css
-            [ borderRight3 (px 1) solid (rgba 0 0 0 0.1)
-            , Css.width <| px 1
-            , Css.height <| px 40
-            ]
-        ]
-        []

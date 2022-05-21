@@ -3,13 +3,6 @@ module Api.External.Github.GistInput exposing (File, FileContent, GistInput, enc
 import Json.Encode as E
 
 
-type alias GistInput =
-    { description : String
-    , files : List ( String, File )
-    , public : Bool
-    }
-
-
 type alias File =
     { content : FileContent
     }
@@ -17,6 +10,13 @@ type alias File =
 
 type alias FileContent =
     { content : String
+    }
+
+
+type alias GistInput =
+    { description : String
+    , files : List ( String, File )
+    , public : Bool
     }
 
 

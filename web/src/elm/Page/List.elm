@@ -677,7 +677,7 @@ diagramView timezone diagram =
                     , Transitions.transition [ Transitions.background3 100 100 Transitions.ease ]
                     ]
                     [ Breakpoint.large
-                        [ height <| px 150
+                        [ height <| px 120
                         ]
                     ]
                 ]

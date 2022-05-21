@@ -6,11 +6,6 @@ type Search
     | Close
 
 
-search : String -> Search
-search query =
-    Search query
-
-
 close : Search
 close =
     Close
@@ -26,14 +21,9 @@ isSearch s =
             False
 
 
-toggle : Search -> Search
-toggle s =
-    case s of
-        Search _ ->
-            Close
-
-        Close ->
-            Search ""
+search : String -> Search
+search query =
+    Search query
 
 
 toString : Search -> String
@@ -44,3 +34,13 @@ toString s =
 
         Close ->
             ""
+
+
+toggle : Search -> Search
+toggle s =
+    case s of
+        Search _ ->
+            Close
+
+        Close ->
+            Search ""

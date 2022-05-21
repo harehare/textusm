@@ -17,15 +17,6 @@ size settings siteMapitems hierarchy =
                 |> Item.getChildren
                 |> Item.unwrapChildren
 
-        svgWidth : Int
-        svgWidth =
-            (settings.size.width
-                + Constants.itemSpan
-            )
-                * Item.length items
-                + Constants.itemSpan
-                * hierarchy
-
         maxChildrenCount : Int
         maxChildrenCount =
             items
@@ -48,5 +39,14 @@ size settings siteMapitems hierarchy =
                 * (maxChildrenCount
                     + 2
                   )
+
+        svgWidth : Int
+        svgWidth =
+            (settings.size.width
+                + Constants.itemSpan
+            )
+                * Item.length items
+                + Constants.itemSpan
+                * hierarchy
     in
     ( svgWidth + Constants.itemSpan, svgHeight + Constants.itemSpan )

@@ -20,14 +20,14 @@ view model =
                 itemHeight =
                     Basics.max Constants.largeItemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
 
-                (FourLsItem liked) =
-                    f.liked
+                (FourLsItem lacked) =
+                    f.lacked
 
                 (FourLsItem learned) =
                     f.learned
 
-                (FourLsItem lacked) =
-                    f.lacked
+                (FourLsItem liked) =
+                    f.liked
 
                 (FourLsItem longedFor) =
                     f.longedFor

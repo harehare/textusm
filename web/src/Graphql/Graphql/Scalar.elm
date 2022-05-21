@@ -11,12 +11,29 @@ import Json.Decode as D
 import Json.Encode as E
 
 
+type Codecs valueId valueTime
+    = Codecs (RawCodecs valueId valueTime)
+
+
 type Id
     = Id String
 
 
 type Time
     = Time String
+
+
+defaultCodecs : RawCodecs Id Time
+defaultCodecs =
+    { codecId =
+        { encoder = \(Id raw) -> E.string raw
+        , decoder = Object.scalarDecoder |> D.map Id
+        }
+    , codecTime =
+        { encoder = \(Time raw) -> E.string raw
+        , decoder = Object.scalarDecoder |> D.map Time
+        }
+    }
 
 
 defineCodecs :
@@ -47,24 +64,7 @@ unwrapEncoder getter (Codecs unwrappedCodecs) =
     (unwrappedCodecs |> getter |> .encoder) >> Graphql.Internal.Encode.fromJson
 
 
-type Codecs valueId valueTime
-    = Codecs (RawCodecs valueId valueTime)
-
-
 type alias RawCodecs valueId valueTime =
     { codecId : Codec valueId
     , codecTime : Codec valueTime
-    }
-
-
-defaultCodecs : RawCodecs Id Time
-defaultCodecs =
-    { codecId =
-        { encoder = \(Id raw) -> E.string raw
-        , decoder = Object.scalarDecoder |> D.map Id
-        }
-    , codecTime =
-        { encoder = \(Time raw) -> E.string raw
-        , decoder = Object.scalarDecoder |> D.map Time
-        }
     }

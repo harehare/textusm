@@ -64,12 +64,12 @@ view settings property ( posX, posY ) selectedItem item =
                         ]
                         []
                     , Views.inputView
-                        { settings = settings
+                        { color = forgroundColor
                         , fontSize = Item.getFontSize item |> Maybe.withDefault FontSize.default
-                        , position = ( posX, posY )
-                        , size = ( settings.size.width, settings.size.height )
-                        , color = forgroundColor
                         , item = item_
+                        , position = ( posX, posY )
+                        , settings = settings
+                        , size = ( settings.size.width, settings.size.height )
                         }
                     ]
 

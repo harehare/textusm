@@ -23,13 +23,6 @@ import Task
 -- Model
 
 
-type alias Model =
-    { diagramModel : DiagramModel.Model
-    , text : String
-    , backgroundColor : String
-    }
-
-
 type alias InitData =
     { text : String
     , width : Int
@@ -41,8 +34,25 @@ type alias InitData =
     }
 
 
+type alias Model =
+    { diagramModel : DiagramModel.Model
+    , text : String
+    , backgroundColor : String
+    }
+
+
 type Msg
     = UpdateDiagram DiagramModel.Msg
+
+
+main : Program InitData Model Msg
+main =
+    Browser.element
+        { init = init
+        , update = update
+        , view = \m -> Html.toUnstyled <| view m
+        , subscriptions = subscriptions
+        }
 
 
 init : InitData -> ( Model, Cmd Msg )
@@ -133,6 +143,39 @@ init flags =
     )
 
 
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    Sub.batch
+        [ onResize (\width height -> UpdateDiagram (DiagramModel.Resize width height))
+        , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
+        ]
+
+
+
+-- Update
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update (UpdateDiagram subMsg) model =
+    case subMsg of
+        DiagramModel.ChangeText text ->
+            let
+                ( model_, _ ) =
+                    Return.singleton model.diagramModel |> Diagram.update subMsg
+            in
+            ( { model | text = text, diagramModel = model_ }, Cmd.none )
+
+        DiagramModel.Select _ ->
+            ( model, Cmd.none )
+
+        _ ->
+            let
+                ( model_, cmd_ ) =
+                    Return.singleton model.diagramModel |> Diagram.update subMsg
+            in
+            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
+
+
 view : Model -> Html Msg
 view model =
     div
@@ -148,47 +191,4 @@ view model =
             [ lazy Diagram.view model.diagramModel
                 |> Html.map UpdateDiagram
             ]
-        ]
-
-
-main : Program InitData Model Msg
-main =
-    Browser.element
-        { init = init
-        , update = update
-        , view = \m -> Html.toUnstyled <| view m
-        , subscriptions = subscriptions
-        }
-
-
-
--- Update
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update (UpdateDiagram subMsg) model =
-    case subMsg of
-        DiagramModel.Select _ ->
-            ( model, Cmd.none )
-
-        DiagramModel.ChangeText text ->
-            let
-                ( model_, _ ) =
-                    Return.singleton model.diagramModel |> Diagram.update subMsg
-            in
-            ( { model | text = text, diagramModel = model_ }, Cmd.none )
-
-        _ ->
-            let
-                ( model_, cmd_ ) =
-                    Return.singleton model.diagramModel |> Diagram.update subMsg
-            in
-            ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
-
-
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.batch
-        [ onResize (\width height -> UpdateDiagram (DiagramModel.Resize width height))
-        , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
         ]

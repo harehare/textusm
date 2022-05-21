@@ -3,11 +3,6 @@ module Utils.Parser exposing (byte, intRange)
 import Parser exposing (Parser, andThen, problem, succeed)
 
 
-digit : Parser String
-digit =
-    Parser.getChompedString <| isDigit
-
-
 byte : Parser Int
 byte =
     andThen (parseInt 0 255) <| digit
@@ -16,6 +11,11 @@ byte =
 intRange : Int -> Int -> Parser Int
 intRange start end =
     andThen (parseInt start end) <| digit
+
+
+digit : Parser String
+digit =
+    Parser.getChompedString <| isDigit
 
 
 isDigit : Parser ()

@@ -8,9 +8,20 @@ type IpAddress
     = IpAddress Int Int Int Int Int
 
 
+fromString : String -> Maybe IpAddress
+fromString s =
+    Result.toMaybe <|
+        Parser.run ipParser s
+
+
 localhost : IpAddress
 localhost =
     IpAddress 127 0 0 1 32
+
+
+toString : IpAddress -> String
+toString (IpAddress p1 p2 p3 p4 cidr) =
+    String.fromInt p1 ++ "." ++ String.fromInt p2 ++ "." ++ String.fromInt p3 ++ "." ++ String.fromInt p4 ++ "/" ++ String.fromInt cidr
 
 
 ipParser : Parser IpAddress
@@ -30,14 +41,3 @@ ipParser =
                 |= intRange 0 32
                 |. end
             ]
-
-
-fromString : String -> Maybe IpAddress
-fromString s =
-    Result.toMaybe <|
-        Parser.run ipParser s
-
-
-toString : IpAddress -> String
-toString (IpAddress p1 p2 p3 p4 cidr) =
-    String.fromInt p1 ++ "." ++ String.fromInt p2 ++ "." ++ String.fromInt p3 ++ "." ++ String.fromInt p4 ++ "/" ++ String.fromInt cidr

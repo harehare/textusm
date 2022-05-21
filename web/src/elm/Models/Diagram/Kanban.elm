@@ -14,8 +14,8 @@ import Models.Item as Item exposing (Item, Items)
 import Models.Size exposing (Size)
 
 
-type alias Name =
-    String
+type Card
+    = Card Item
 
 
 type Kanban
@@ -26,13 +26,13 @@ type KanbanList
     = KanbanList Name (List Card)
 
 
-type Card
-    = Card Item
+type alias Name =
+    String
 
 
-getListCount : Kanban -> Int
-getListCount (Kanban lists) =
-    List.length lists
+from : Items -> Kanban
+from items =
+    Kanban (Item.map fromItemsList items)
 
 
 getCardCount : Kanban -> Int
@@ -43,9 +43,11 @@ getCardCount (Kanban lists) =
         |> Maybe.withDefault 0
 
 
-from : Items -> Kanban
-from items =
-    Kanban (Item.map fromItemsList items)
+size : DiagramSettings.Settings -> Kanban -> Size
+size settings kanban =
+    ( getListCount kanban * (settings.size.width + Constants.itemMargin * 3)
+    , getCardCount kanban * (settings.size.height + Constants.itemMargin) + Constants.itemMargin * 2
+    )
 
 
 fromItemsList : Item -> KanbanList
@@ -53,13 +55,11 @@ fromItemsList item =
     KanbanList (Item.getText item) (Item.map itemToCard (Item.unwrapChildren <| Item.getChildren item))
 
 
+getListCount : Kanban -> Int
+getListCount (Kanban lists) =
+    List.length lists
+
+
 itemToCard : Item -> Card
 itemToCard item =
     Card item
-
-
-size : DiagramSettings.Settings -> Kanban -> Size
-size settings kanban =
-    ( getListCount kanban * (settings.size.width + Constants.itemMargin * 3)
-    , getCardCount kanban * (settings.size.height + Constants.itemMargin) + Constants.itemMargin * 2
-    )

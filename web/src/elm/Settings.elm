@@ -18,13 +18,13 @@ module Settings exposing
     , ofTaskBackgroundColor
     , ofTaskColor
     , ofTextColor
+    , ofToolbar
     , ofWidth
     , ofWordWrap
     , ofZoomControl
     , settingsDecoder
     , settingsEncoder
     , storyMapOfSettings
-    , ofToolbar
     )
 
 import Json.Decode as D
@@ -38,6 +38,13 @@ import Models.DiagramSettings as DiagramSettings
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
+
+
+type alias EditorSettings =
+    { fontSize : Int
+    , wordWrap : Bool
+    , showLineNumber : Bool
+    }
 
 
 type alias IsDarkMode =
@@ -57,11 +64,14 @@ type alias Settings =
     }
 
 
-type alias EditorSettings =
-    { fontSize : Int
-    , wordWrap : Bool
-    , showLineNumber : Bool
-    }
+defaultEditorSettings : Maybe EditorSettings -> EditorSettings
+defaultEditorSettings settings =
+    Maybe.withDefault
+        { fontSize = 14
+        , wordWrap = False
+        , showLineNumber = True
+        }
+        settings
 
 
 defaultSettings : IsDarkMode -> Settings
@@ -107,79 +117,9 @@ defaultSettings isDarkMode =
     }
 
 
-editorOfSettings : Optional Settings EditorSettings
-editorOfSettings =
-    Optional .editor (\b a -> { a | editor = Just b })
-
-
-editorOfFontSize : Lens EditorSettings Int
-editorOfFontSize =
-    Lens .fontSize (\b a -> { a | fontSize = b })
-
-
-editorOfWordWrap : Lens EditorSettings Bool
-editorOfWordWrap =
-    Lens .wordWrap (\b a -> { a | wordWrap = b })
-
-
-editorOfShowLineNumber : Lens EditorSettings Bool
-editorOfShowLineNumber =
-    Lens .showLineNumber (\b a -> { a | showLineNumber = b })
-
-
-ofShowLineNumber : Optional Settings Bool
-ofShowLineNumber =
-    Compose.optionalWithLens editorOfShowLineNumber editorOfSettings
-
-
-ofWordWrap : Optional Settings Bool
-ofWordWrap =
-    Compose.optionalWithLens editorOfWordWrap editorOfSettings
-
-
-ofFontSize : Optional Settings Int
-ofFontSize =
-    Compose.optionalWithLens editorOfFontSize editorOfSettings
-
-
-ofWidth : Lens Settings Int
-ofWidth =
-    Compose.lensWithLens DiagramSettings.ofWidth storyMapOfSettings
-
-
-ofHeight : Lens Settings Int
-ofHeight =
-    Compose.lensWithLens DiagramSettings.ofHeight storyMapOfSettings
-
-
-ofBackgroundColor : Lens Settings String
-ofBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofBackgroundColor storyMapOfSettings
-
-
-ofZoomControl : Lens Settings (Maybe Bool)
-ofZoomControl =
-    Compose.lensWithLens DiagramSettings.ofZoomControl storyMapOfSettings
-
-
-ofToolbar : Lens Settings (Maybe Bool)
-ofToolbar =
-    Compose.lensWithLens DiagramSettings.ofToolbar storyMapOfSettings
-
-
-ofLineColor : Lens Settings String
-ofLineColor =
-    Compose.lensWithLens DiagramSettings.ofLineColor storyMapOfSettings
-
-
-ofLabelColor : Lens Settings String
-ofLabelColor =
-    Compose.lensWithLens DiagramSettings.ofLabelColor storyMapOfSettings
-
-
-ofTextColor : Optional Settings String
-ofTextColor =
-    Compose.lensWithOptional DiagramSettings.ofTextColor storyMapOfSettings
+ofActivityBackgroundColor : Lens Settings String
+ofActivityBackgroundColor =
+    Compose.lensWithLens DiagramSettings.ofActivityBackgroundColor storyMapOfSettings
 
 
 ofActivityColor : Lens Settings String
@@ -187,29 +127,9 @@ ofActivityColor =
     Compose.lensWithLens DiagramSettings.ofActivityColor storyMapOfSettings
 
 
-ofTaskColor : Lens Settings String
-ofTaskColor =
-    Compose.lensWithLens DiagramSettings.ofTaskColor storyMapOfSettings
-
-
-ofStoryColor : Lens Settings String
-ofStoryColor =
-    Compose.lensWithLens DiagramSettings.ofStoryColor storyMapOfSettings
-
-
-ofActivityBackgroundColor : Lens Settings String
-ofActivityBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofActivityBackgroundColor storyMapOfSettings
-
-
-ofTaskBackgroundColor : Lens Settings String
-ofTaskBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofTaskBackgroundColor storyMapOfSettings
-
-
-ofStoryBackgroundColor : Lens Settings String
-ofStoryBackgroundColor =
-    Compose.lensWithLens DiagramSettings.ofStoryBackgroundColor storyMapOfSettings
+ofBackgroundColor : Lens Settings String
+ofBackgroundColor =
+    Compose.lensWithLens DiagramSettings.ofBackgroundColor storyMapOfSettings
 
 
 ofFont : Lens Settings String
@@ -217,19 +137,74 @@ ofFont =
     Compose.lensWithLens DiagramSettings.ofFont storyMapOfSettings
 
 
-storyMapOfSettings : Lens Settings DiagramSettings.Settings
-storyMapOfSettings =
-    Lens .storyMap (\b a -> { a | storyMap = b })
+ofFontSize : Optional Settings Int
+ofFontSize =
+    Compose.optionalWithLens editorOfFontSize editorOfSettings
 
 
-defaultEditorSettings : Maybe EditorSettings -> EditorSettings
-defaultEditorSettings settings =
-    Maybe.withDefault
-        { fontSize = 14
-        , wordWrap = False
-        , showLineNumber = True
-        }
-        settings
+ofHeight : Lens Settings Int
+ofHeight =
+    Compose.lensWithLens DiagramSettings.ofHeight storyMapOfSettings
+
+
+ofLabelColor : Lens Settings String
+ofLabelColor =
+    Compose.lensWithLens DiagramSettings.ofLabelColor storyMapOfSettings
+
+
+ofLineColor : Lens Settings String
+ofLineColor =
+    Compose.lensWithLens DiagramSettings.ofLineColor storyMapOfSettings
+
+
+ofShowLineNumber : Optional Settings Bool
+ofShowLineNumber =
+    Compose.optionalWithLens editorOfShowLineNumber editorOfSettings
+
+
+ofStoryBackgroundColor : Lens Settings String
+ofStoryBackgroundColor =
+    Compose.lensWithLens DiagramSettings.ofStoryBackgroundColor storyMapOfSettings
+
+
+ofStoryColor : Lens Settings String
+ofStoryColor =
+    Compose.lensWithLens DiagramSettings.ofStoryColor storyMapOfSettings
+
+
+ofTaskBackgroundColor : Lens Settings String
+ofTaskBackgroundColor =
+    Compose.lensWithLens DiagramSettings.ofTaskBackgroundColor storyMapOfSettings
+
+
+ofTaskColor : Lens Settings String
+ofTaskColor =
+    Compose.lensWithLens DiagramSettings.ofTaskColor storyMapOfSettings
+
+
+ofTextColor : Optional Settings String
+ofTextColor =
+    Compose.lensWithOptional DiagramSettings.ofTextColor storyMapOfSettings
+
+
+ofToolbar : Lens Settings (Maybe Bool)
+ofToolbar =
+    Compose.lensWithLens DiagramSettings.ofToolbar storyMapOfSettings
+
+
+ofWidth : Lens Settings Int
+ofWidth =
+    Compose.lensWithLens DiagramSettings.ofWidth storyMapOfSettings
+
+
+ofWordWrap : Optional Settings Bool
+ofWordWrap =
+    Compose.optionalWithLens editorOfWordWrap editorOfSettings
+
+
+ofZoomControl : Lens Settings (Maybe Bool)
+ofZoomControl =
+    Compose.lensWithLens DiagramSettings.ofZoomControl storyMapOfSettings
 
 
 settingsDecoder : D.Decoder Settings
@@ -244,51 +219,6 @@ settingsDecoder =
         |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
         |> optional "diagram" (D.map Just DiagramItem.decoder) Nothing
         |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
-
-
-diagramDecoder : D.Decoder DiagramSettings.Settings
-diagramDecoder =
-    D.map7 DiagramSettings.Settings
-        (D.field "font" D.string)
-        (D.field "size" sizeDecoder)
-        (D.field "color" colorSettingsDecoder)
-        (D.field "backgroundColor" D.string)
-        (D.maybe (D.field "zoomControl" D.bool))
-        (D.maybe (D.field "scale" D.float))
-        (D.maybe (D.field "toolbar" D.bool))
-
-
-editorSettingsDecoder : D.Decoder EditorSettings
-editorSettingsDecoder =
-    D.map3 EditorSettings
-        (D.field "fontSize" D.int)
-        (D.field "wordWrap" D.bool)
-        (D.field "showLineNumber" D.bool)
-
-
-colorSettingsDecoder : D.Decoder DiagramSettings.ColorSettings
-colorSettingsDecoder =
-    D.map6 DiagramSettings.ColorSettings
-        (D.field "activity" colorDecoder)
-        (D.field "task" colorDecoder)
-        (D.field "story" colorDecoder)
-        (D.field "line" D.string)
-        (D.field "label" D.string)
-        (D.maybe (D.field "text" D.string))
-
-
-colorDecoder : D.Decoder DiagramSettings.Color
-colorDecoder =
-    D.map2 DiagramSettings.Color
-        (D.field "color" D.string)
-        (D.field "backgroundColor" D.string)
-
-
-sizeDecoder : D.Decoder DiagramSettings.Size
-sizeDecoder =
-    D.map2 DiagramSettings.Size
-        (D.field "width" D.int)
-        (D.field "height" D.int)
 
 
 settingsEncoder : Settings -> E.Value
@@ -306,25 +236,35 @@ settingsEncoder settings =
         ]
 
 
-diagramEncoder : DiagramSettings.Settings -> E.Value
-diagramEncoder settings =
+storyMapOfSettings : Lens Settings DiagramSettings.Settings
+storyMapOfSettings =
+    Lens .storyMap (\b a -> { a | storyMap = b })
+
+
+colorDecoder : D.Decoder DiagramSettings.Color
+colorDecoder =
+    D.map2 DiagramSettings.Color
+        (D.field "color" D.string)
+        (D.field "backgroundColor" D.string)
+
+
+colorEncoder : DiagramSettings.Color -> E.Value
+colorEncoder color =
     E.object
-        [ ( "font", E.string settings.font )
-        , ( "size", sizeEncoder settings.size )
-        , ( "color", colorSettingsEncoder settings.color )
-        , ( "backgroundColor", E.string settings.backgroundColor )
-        , ( "zoomControl", maybe E.bool settings.zoomControl )
-        , ( "scale", maybe E.float settings.scale )
+        [ ( "color", E.string color.color )
+        , ( "backgroundColor", E.string color.backgroundColor )
         ]
 
 
-editorSettingsEncoder : EditorSettings -> E.Value
-editorSettingsEncoder editorSettings =
-    E.object
-        [ ( "fontSize", E.int editorSettings.fontSize )
-        , ( "wordWrap", E.bool editorSettings.wordWrap )
-        , ( "showLineNumber", E.bool editorSettings.showLineNumber )
-        ]
+colorSettingsDecoder : D.Decoder DiagramSettings.ColorSettings
+colorSettingsDecoder =
+    D.map6 DiagramSettings.ColorSettings
+        (D.field "activity" colorDecoder)
+        (D.field "task" colorDecoder)
+        (D.field "story" colorDecoder)
+        (D.field "line" D.string)
+        (D.field "label" D.string)
+        (D.maybe (D.field "text" D.string))
 
 
 colorSettingsEncoder : DiagramSettings.ColorSettings -> E.Value
@@ -339,12 +279,72 @@ colorSettingsEncoder colorSettings =
         ]
 
 
-colorEncoder : DiagramSettings.Color -> E.Value
-colorEncoder color =
+diagramDecoder : D.Decoder DiagramSettings.Settings
+diagramDecoder =
+    D.map7 DiagramSettings.Settings
+        (D.field "font" D.string)
+        (D.field "size" sizeDecoder)
+        (D.field "color" colorSettingsDecoder)
+        (D.field "backgroundColor" D.string)
+        (D.maybe (D.field "zoomControl" D.bool))
+        (D.maybe (D.field "scale" D.float))
+        (D.maybe (D.field "toolbar" D.bool))
+
+
+diagramEncoder : DiagramSettings.Settings -> E.Value
+diagramEncoder settings =
     E.object
-        [ ( "color", E.string color.color )
-        , ( "backgroundColor", E.string color.backgroundColor )
+        [ ( "font", E.string settings.font )
+        , ( "size", sizeEncoder settings.size )
+        , ( "color", colorSettingsEncoder settings.color )
+        , ( "backgroundColor", E.string settings.backgroundColor )
+        , ( "zoomControl", maybe E.bool settings.zoomControl )
+        , ( "scale", maybe E.float settings.scale )
         ]
+
+
+editorOfFontSize : Lens EditorSettings Int
+editorOfFontSize =
+    Lens .fontSize (\b a -> { a | fontSize = b })
+
+
+editorOfSettings : Optional Settings EditorSettings
+editorOfSettings =
+    Optional .editor (\b a -> { a | editor = Just b })
+
+
+editorOfShowLineNumber : Lens EditorSettings Bool
+editorOfShowLineNumber =
+    Lens .showLineNumber (\b a -> { a | showLineNumber = b })
+
+
+editorOfWordWrap : Lens EditorSettings Bool
+editorOfWordWrap =
+    Lens .wordWrap (\b a -> { a | wordWrap = b })
+
+
+editorSettingsDecoder : D.Decoder EditorSettings
+editorSettingsDecoder =
+    D.map3 EditorSettings
+        (D.field "fontSize" D.int)
+        (D.field "wordWrap" D.bool)
+        (D.field "showLineNumber" D.bool)
+
+
+editorSettingsEncoder : EditorSettings -> E.Value
+editorSettingsEncoder editorSettings =
+    E.object
+        [ ( "fontSize", E.int editorSettings.fontSize )
+        , ( "wordWrap", E.bool editorSettings.wordWrap )
+        , ( "showLineNumber", E.bool editorSettings.showLineNumber )
+        ]
+
+
+sizeDecoder : D.Decoder DiagramSettings.Size
+sizeDecoder =
+    D.map2 DiagramSettings.Size
+        (D.field "width" D.int)
+        (D.field "height" D.int)
 
 
 sizeEncoder : DiagramSettings.Size -> E.Value

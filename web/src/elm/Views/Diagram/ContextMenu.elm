@@ -72,30 +72,6 @@ type alias Props msg =
     }
 
 
-type alias MenuDisplay =
-    { color : Bool
-    , backgroundColor : Bool
-    , fontStyleBold : Bool
-    , fontStyleItalic : Bool
-    , fontStyleStrikethrough : Bool
-    , fontSize : Bool
-    }
-
-
-fontSizeItems : List { name : String, value : DropDownValue }
-fontSizeItems =
-    List.map
-        (\f ->
-            let
-                size : Int
-                size =
-                    FontSize.unwrap f
-            in
-            { name = String.fromInt size, value = DropDownList.stringValue <| String.fromInt size }
-        )
-        FontSize.list
-
-
 viewAllMenu : Props msg -> Svg msg
 viewAllMenu props =
     view
@@ -122,6 +98,72 @@ viewColorMenuOnly props =
         , fontSize = False
         }
         props
+
+
+colorCircle : Color -> msg -> Html msg
+colorCircle color msg =
+    Html.div
+        [ css
+            [ Css.width <| px 24
+            , Css.height <| px 24
+            , Style.roundedFull
+            , backgroundColor <| hex <| Color.toString color
+            , border3 (px 1) solid (rgba 0 0 0 0.1)
+            , cursor pointer
+            , margin <| px 2
+            ]
+        , Attr.class <| String.toLower <| Color.name color
+        , Events.onMouseDown <| \_ -> msg
+        ]
+        []
+
+
+colorPicker : Int -> List Color -> (Color -> msg) -> Html msg
+colorPicker x colors onColorChanged =
+    Html.div
+        [ css
+            [ Css.width <| px 140
+            , Css.height <| px 200
+            , backgroundColor <| hex <| Color.toString Color.white
+            , Style.shadowSm
+            , borderRadius <| px 2
+            , position absolute
+            , bottom zero
+            , top <| px 50
+            , left <| px <| toFloat x
+            , zIndex <| int 100
+            , displayFlex
+            , flexWrap wrap
+            , justifyContent spaceBetween
+            , padding <| px 8
+            ]
+        ]
+    <|
+        List.map (\color -> colorCircle color <| onColorChanged color) colors
+
+
+fontSizeItems : List { name : String, value : DropDownValue }
+fontSizeItems =
+    List.map
+        (\f ->
+            let
+                size : Int
+                size =
+                    FontSize.unwrap f
+            in
+            { name = String.fromInt size, value = DropDownList.stringValue <| String.fromInt size }
+        )
+        FontSize.list
+
+
+type alias MenuDisplay =
+    { color : Bool
+    , backgroundColor : Bool
+    , fontStyleBold : Bool
+    , fontStyleItalic : Bool
+    , fontStyleStrikethrough : Bool
+    , fontSize : Bool
+    }
 
 
 view : Width -> MenuDisplay -> Props msg -> Svg msg
@@ -286,45 +328,3 @@ view width display props =
                     Empty.view
             ]
         ]
-
-
-colorCircle : Color -> msg -> Html msg
-colorCircle color msg =
-    Html.div
-        [ css
-            [ Css.width <| px 24
-            , Css.height <| px 24
-            , Style.roundedFull
-            , backgroundColor <| hex <| Color.toString color
-            , border3 (px 1) solid (rgba 0 0 0 0.1)
-            , cursor pointer
-            , margin <| px 2
-            ]
-        , Attr.class <| String.toLower <| Color.name color
-        , Events.onMouseDown <| \_ -> msg
-        ]
-        []
-
-
-colorPicker : Int -> List Color -> (Color -> msg) -> Html msg
-colorPicker x colors onColorChanged =
-    Html.div
-        [ css
-            [ Css.width <| px 140
-            , Css.height <| px 200
-            , backgroundColor <| hex <| Color.toString Color.white
-            , Style.shadowSm
-            , borderRadius <| px 2
-            , position absolute
-            , bottom zero
-            , top <| px 50
-            , left <| px <| toFloat x
-            , zIndex <| int 100
-            , displayFlex
-            , flexWrap wrap
-            , justifyContent spaceBetween
-            , padding <| px 8
-            ]
-        ]
-    <|
-        List.map (\color -> colorCircle color <| onColorChanged color) colors

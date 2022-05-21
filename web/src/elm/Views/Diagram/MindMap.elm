@@ -17,21 +17,6 @@ import Views.Diagram.TextNode as TextNode
 import Views.Empty as Empty
 
 
-type Direction
-    = Left
-    | Right
-
-
-xMargin : Int
-xMargin =
-    100
-
-
-yMargin : Int
-yMargin =
-    10
-
-
 view : Model -> Svg Msg
 view model =
     case model.data of
@@ -39,20 +24,20 @@ view model =
             case Item.head items of
                 Just root ->
                     let
-                        moveingItem : Maybe Item
-                        moveingItem =
-                            Diagram.moveingItem model
-
-                        mindMapItems : Items
-                        mindMapItems =
-                            Item.unwrapChildren <| Item.getChildren root
-
                         itemsCount : Int
                         itemsCount =
                             Item.length mindMapItems
 
                         ( right, left ) =
                             Item.splitAt (itemsCount // 2) mindMapItems
+
+                        mindMapItems : Items
+                        mindMapItems =
+                            Item.unwrapChildren <| Item.getChildren root
+
+                        moveingItem : Maybe Item
+                        moveingItem =
+                            Diagram.moveingItem model
 
                         rootItem : Item
                         rootItem =
@@ -105,6 +90,26 @@ view model =
             Empty.view
 
 
+type Direction
+    = Left
+    | Right
+
+
+nodeLineView : Size -> String -> Position -> Position -> Svg Msg
+nodeLineView ( width, height ) colour fromBase toBase =
+    let
+        ( fromPoint, toPoint ) =
+            ( Tuple.mapBoth toFloat toFloat fromBase, Tuple.mapBoth toFloat toFloat toBase )
+
+        size : ( Float, Float )
+        size =
+            ( toFloat width, toFloat height )
+    in
+    Path.view colour
+        ( fromPoint, size )
+        ( toPoint, size )
+
+
 nodesView :
     { settings : DiagramSettings.Settings
     , property : Property
@@ -118,16 +123,31 @@ nodesView :
     -> Svg Msg
 nodesView { settings, property, hierarchy, position, direction, selectedItem, items, moveingItem } =
     let
-        svgWidth : Int
-        svgWidth =
-            settings.size.width
+        nodeCounts : List Int
+        nodeCounts =
+            tmpNodeCounts
+                |> List.indexedMap (\i _ -> i)
+                |> List.filterMap
+                    (\i ->
+                        if i == 0 || modBy 2 i == 0 then
+                            ListEx.getAt i tmpNodeCounts
+
+                        else
+                            Nothing
+                    )
+                |> List.indexedMap (\i v -> v + i + 1)
+
+        range : List Int
+        range =
+            List.range 0 (List.length nodeCounts)
 
         svgHeight : Int
         svgHeight =
             settings.size.height
 
-        ( x, y ) =
-            position
+        svgWidth : Int
+        svgWidth =
+            settings.size.width
 
         tmpNodeCounts : List Int
         tmpNodeCounts =
@@ -151,33 +171,30 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                     )
                 |> ListEx.scanl1 (+)
 
-        nodeCounts : List Int
-        nodeCounts =
-            tmpNodeCounts
-                |> List.indexedMap (\i _ -> i)
-                |> List.filterMap
-                    (\i ->
-                        if i == 0 || modBy 2 i == 0 then
-                            ListEx.getAt i tmpNodeCounts
-
-                        else
-                            Nothing
-                    )
-                |> List.indexedMap (\i v -> v + i + 1)
+        ( x, y ) =
+            position
 
         yOffset : Int
         yOffset =
             List.sum nodeCounts // List.length nodeCounts * svgHeight
-
-        range : List Int
-        range =
-            List.range 0 (List.length nodeCounts)
     in
     Svg.g []
         (ListEx.zip3 range nodeCounts (Item.unwrap items)
             |> List.concatMap
                 (\( i, nodeCount, item ) ->
                     let
+                        itemX : Int
+                        itemX =
+                            if direction == Left then
+                                x - (svgWidth + xMargin)
+
+                            else
+                                x + (svgWidth + xMargin)
+
+                        itemY : Int
+                        itemY =
+                            y + (nodeCount * svgHeight - yOffset) + (i * yMargin)
+
                         offset : Position
                         offset =
                             Maybe.map
@@ -193,18 +210,6 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                                 |> Item.getItemSettings
                                 |> Maybe.map ItemSettings.getOffset
                                 |> Maybe.withDefault Position.zero
-
-                        itemX : Int
-                        itemX =
-                            if direction == Left then
-                                x - (svgWidth + xMargin)
-
-                            else
-                                x + (svgWidth + xMargin)
-
-                        itemY : Int
-                        itemY =
-                            y + (nodeCount * svgHeight - yOffset) + (i * yMargin)
                     in
                     [ Lazy.lazy4 nodeLineView
                         ( settings.size.width, settings.size.height )
@@ -235,16 +240,11 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
         )
 
 
-nodeLineView : Size -> String -> Position -> Position -> Svg Msg
-nodeLineView ( width, height ) colour fromBase toBase =
-    let
-        ( fromPoint, toPoint ) =
-            ( Tuple.mapBoth toFloat toFloat fromBase, Tuple.mapBoth toFloat toFloat toBase )
+xMargin : Int
+xMargin =
+    100
 
-        size : ( Float, Float )
-        size =
-            ( toFloat width, toFloat height )
-    in
-    Path.view colour
-        ( fromPoint, size )
-        ( toPoint, size )
+
+yMargin : Int
+yMargin =
+    10

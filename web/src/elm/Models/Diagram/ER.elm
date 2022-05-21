@@ -30,40 +30,24 @@ import Models.Position as Position exposing (Position)
 import Models.Size exposing (Size)
 
 
-type alias ErDiagram =
-    ( List Relationship, List Table )
-
-
-type alias Name =
-    String
-
-
-type alias TableName =
-    String
-
-
-type alias RelationShipString =
-    String
-
-
-type alias LineNo =
-    Int
-
-
-type Relationship
-    = ManyToMany TableName TableName
-    | OneToMany TableName TableName
-    | ManyToOne TableName TableName
-    | OneToOne TableName TableName
-    | NoRelation
-
-
-type Table
-    = Table Name (List Column) (Maybe Position) LineNo
+type Attribute
+    = PrimaryKey
+    | NotNull
+    | Null
+    | Unique
+    | Increment
+    | Default String
+    | Index
+    | None
 
 
 type Column
     = Column Name ColumnType (List Attribute)
+
+
+type ColumnLength
+    = Length Int
+    | NoLimit
 
 
 type ColumnType
@@ -84,389 +68,36 @@ type ColumnType
     | Json
 
 
-type ColumnLength
-    = Length Int
-    | NoLimit
+type alias ErDiagram =
+    ( List Relationship, List Table )
 
 
-type Attribute
-    = PrimaryKey
-    | NotNull
-    | Null
-    | Unique
-    | Increment
-    | Default String
-    | Index
-    | None
+type alias LineNo =
+    Int
 
 
-tableWidth : Table -> Int
-tableWidth (Table name columns _ _) =
-    String.length name
-        :: List.map (\(Column colName _ _) -> String.length colName)
-            columns
-        |> List.maximum
-        |> Maybe.map (\maxLength -> 14 * maxLength + 20)
-        |> Maybe.withDefault 180
-        |> max 180
+type alias Name =
+    String
 
 
-from : Items -> ErDiagram
-from items =
-    let
-        relationships : Items
-        relationships =
-            Item.getAt 0 items
-                |> Maybe.withDefault Item.new
-                |> Item.getChildren
-                |> Item.unwrapChildren
+type alias RelationShipString =
+    String
 
-        tables : Items
-        tables =
-            Item.getAt 1 items
-                |> Maybe.withDefault Item.new
-                |> Item.getChildren
-                |> Item.unwrapChildren
-    in
-    ( itemsToRelationships relationships, itemsToTables tables )
 
+type Relationship
+    = ManyToMany TableName TableName
+    | OneToMany TableName TableName
+    | ManyToOne TableName TableName
+    | OneToOne TableName TableName
+    | NoRelation
 
-itemsToRelationships : Items -> List Relationship
-itemsToRelationships items =
-    Item.map itemToRelationship items
 
+type Table
+    = Table Name (List Column) (Maybe Position) LineNo
 
-itemToRelationship : Item -> Relationship
-itemToRelationship item =
-    let
-        text : String
-        text =
-            Item.getText item |> String.trim
-    in
-    if String.contains " < " text then
-        case String.split " < " text of
-            [ table1, table2 ] ->
-                OneToMany table1 table2
 
-            _ ->
-                NoRelation
-
-    else if String.contains " > " text then
-        case String.split " > " text of
-            [ table1, table2 ] ->
-                ManyToOne table1 table2
-
-            _ ->
-                NoRelation
-
-    else if String.contains " - " text then
-        case String.split " - " text of
-            [ table1, table2 ] ->
-                OneToOne table1 table2
-
-            _ ->
-                NoRelation
-
-    else if String.contains " = " text then
-        case String.split " = " text of
-            [ table1, table2 ] ->
-                ManyToMany table1 table2
-
-            _ ->
-                NoRelation
-
-    else
-        NoRelation
-
-
-itemsToTables : Items -> List Table
-itemsToTables items =
-    Item.map itemToTable items
-
-
-itemToTable : Item -> Table
-itemToTable item =
-    let
-        text : String
-        text =
-            Item.getText item
-                |> String.trim
-
-        tableInfo : List String
-        tableInfo =
-            text
-                |> String.split "|"
-                |> List.map String.trim
-
-        ( tableName, position ) =
-            case tableInfo of
-                [ name, xString, yString ] ->
-                    ( name
-                    , String.toInt xString
-                        |> Maybe.andThen (\x -> Maybe.map (\y -> ( x, y )) (String.toInt yString))
-                    )
-
-                [ name, _ ] ->
-                    ( name, Nothing )
-
-                _ ->
-                    ( text, Nothing )
-
-        items : Items
-        items =
-            Item.getChildren item |> Item.unwrapChildren
-
-        columns : List Column
-        columns =
-            Item.map itemToColumn items
-    in
-    Table tableName columns position (Item.getLineNo item)
-
-
-itemToColumn : Item -> Column
-itemToColumn item =
-    let
-        tokens : List String
-        tokens =
-            Item.getText item
-                |> String.trim
-                |> String.split " "
-                |> List.map (\i -> String.trim i)
-
-        columnName : String
-        columnName =
-            getAt 0 tokens
-                |> Maybe.withDefault ""
-
-        columnType : ColumnType
-        columnType =
-            getAt 1 tokens
-                |> Maybe.map textToColumnType
-                |> Maybe.withDefault (Int NoLimit)
-
-        columnAttributes : List Attribute
-        columnAttributes =
-            List.drop 2 tokens
-                |> List.indexedMap (\i v -> ( String.toLower v, i ))
-                |> Dict.fromList
-                |> textToColumnAttribute
-    in
-    Column columnName columnType columnAttributes
-
-
-textToColumnAttribute : Dict String Int -> List Attribute
-textToColumnAttribute attrDict =
-    let
-        getkAttributeIndex : String -> Maybe Int
-        getkAttributeIndex attrName =
-            Dict.get attrName attrDict
-
-        primaryKey : Attribute
-        primaryKey =
-            if isJust <| getkAttributeIndex "pk" then
-                PrimaryKey
-
-            else
-                None
-
-        notNull : Attribute
-        notNull =
-            getkAttributeIndex "not"
-                |> Maybe.andThen
-                    (\no ->
-                        getkAttributeIndex "null"
-                            |> Maybe.andThen
-                                (\nu ->
-                                    if nu - no == 1 then
-                                        Just NotNull
-
-                                    else
-                                        Nothing
-                                )
-                    )
-                |> Maybe.withDefault None
-
-        unique : Attribute
-        unique =
-            if isJust <| getkAttributeIndex "Unique" then
-                Unique
-
-            else
-                None
-
-        null : Attribute
-        null =
-            getkAttributeIndex "null"
-                |> Maybe.andThen
-                    (\_ ->
-                        if isJust <| getkAttributeIndex "not" then
-                            Nothing
-
-                        else
-                            Just Null
-                    )
-                |> Maybe.withDefault None
-
-        increment : Attribute
-        increment =
-            if isJust <| getkAttributeIndex "increment" then
-                Increment
-
-            else
-                None
-
-        index : Attribute
-        index =
-            if isJust <| getkAttributeIndex "index" then
-                Index
-
-            else
-                None
-
-        default : Attribute
-        default =
-            getkAttributeIndex "default"
-                |> Maybe.andThen
-                    (\d ->
-                        find (\_ value -> value == d + 1) attrDict
-                            |> Maybe.map (\( k, _ ) -> Default k)
-                    )
-                |> Maybe.withDefault None
-    in
-    [ primaryKey, notNull, unique, increment, default, index, null ]
-
-
-textToColumnType : String -> ColumnType
-textToColumnType text =
-    let
-        tokens : List ( String, Bool )
-        tokens =
-            String.split "(" text
-                |> List.map (\i -> ( String.trim i |> String.toLower |> String.replace ")" "", String.endsWith ")" i ))
-    in
-    case tokens of
-        [ ( "tinyint", False ) ] ->
-            TinyInt NoLimit
-
-        [ ( "tinyint", False ), ( size_, True ) ] ->
-            case String.toInt size_ of
-                Just v ->
-                    TinyInt (Length v)
-
-                Nothing ->
-                    TinyInt NoLimit
-
-        [ ( "int", False ) ] ->
-            Int NoLimit
-
-        [ ( "int", False ), ( size_, True ) ] ->
-            case String.toInt size_ of
-                Just v ->
-                    Int (Length v)
-
-                Nothing ->
-                    Int NoLimit
-
-        [ ( "float", False ) ] ->
-            Float NoLimit
-
-        [ ( "float", False ), ( size_, True ) ] ->
-            case String.toInt size_ of
-                Just v ->
-                    Float (Length v)
-
-                Nothing ->
-                    Float NoLimit
-
-        [ ( "double", False ) ] ->
-            Double NoLimit
-
-        [ ( "double", False ), ( size_, True ) ] ->
-            case String.toInt size_ of
-                Just v ->
-                    Double (Length v)
-
-                Nothing ->
-                    Double NoLimit
-
-        [ ( "decimal", False ) ] ->
-            Decimal NoLimit
-
-        [ ( "decimal", False ), ( size_, True ) ] ->
-            case String.toInt size_ of
-                Just v ->
-                    Decimal (Length v)
-
-                Nothing ->
-                    Decimal NoLimit
-
-        [ ( "char", False ) ] ->
-            Char NoLimit
-
-        [ ( "char", False ), ( size_, True ) ] ->
-            case String.toInt size_ of
-                Just v ->
-                    Char (Length v)
-
-                Nothing ->
-                    Char NoLimit
-
-        [ ( "text", False ) ] ->
-            Text
-
-        [ ( "blob", False ) ] ->
-            Blob
-
-        [ ( "varchar", False ) ] ->
-            VarChar NoLimit
-
-        [ ( "varchar", False ), ( size_, True ) ] ->
-            case String.toInt size_ of
-                Just v ->
-                    VarChar (Length v)
-
-                Nothing ->
-                    VarChar NoLimit
-
-        [ ( "boolean", False ) ] ->
-            Boolean
-
-        [ ( "timestamp", False ) ] ->
-            Timestamp
-
-        [ ( "date", False ) ] ->
-            Date
-
-        [ ( "date-time", False ) ] ->
-            DateTime
-
-        [ ( "enum", False ), ( values, True ) ] ->
-            Enum (String.split "," values |> List.map String.trim)
-
-        [ ( "json", False ) ] ->
-            Json
-
-        _ ->
-            Int NoLimit
-
-
-relationshipToString : Relationship -> Maybe ( ( TableName, RelationShipString ), ( TableName, RelationShipString ) )
-relationshipToString relationship =
-    case relationship of
-        ManyToMany table1 table2 ->
-            Just ( ( table1, "*" ), ( table2, "*" ) )
-
-        OneToMany table1 table2 ->
-            Just ( ( table1, "1" ), ( table2, "*" ) )
-
-        ManyToOne table1 table2 ->
-            Just ( ( table1, "*" ), ( table2, "1" ) )
-
-        OneToOne table1 table2 ->
-            Just ( ( table1, "1" ), ( table2, "1" ) )
-
-        NoRelation ->
-            Nothing
+type alias TableName =
+    String
 
 
 columnTypeToString : ColumnType -> String
@@ -539,6 +170,80 @@ columnTypeToString type_ =
             "json"
 
 
+from : Items -> ErDiagram
+from items =
+    let
+        relationships : Items
+        relationships =
+            Item.getAt 0 items
+                |> Maybe.withDefault Item.new
+                |> Item.getChildren
+                |> Item.unwrapChildren
+
+        tables : Items
+        tables =
+            Item.getAt 1 items
+                |> Maybe.withDefault Item.new
+                |> Item.getChildren
+                |> Item.unwrapChildren
+    in
+    ( itemsToRelationships relationships, itemsToTables tables )
+
+
+relationshipToString : Relationship -> Maybe ( ( TableName, RelationShipString ), ( TableName, RelationShipString ) )
+relationshipToString relationship =
+    case relationship of
+        ManyToMany table1 table2 ->
+            Just ( ( table1, "*" ), ( table2, "*" ) )
+
+        OneToMany table1 table2 ->
+            Just ( ( table1, "1" ), ( table2, "*" ) )
+
+        ManyToOne table1 table2 ->
+            Just ( ( table1, "*" ), ( table2, "1" ) )
+
+        OneToOne table1 table2 ->
+            Just ( ( table1, "1" ), ( table2, "1" ) )
+
+        NoRelation ->
+            Nothing
+
+
+size : Items -> Size
+size items =
+    let
+        sizeList : List ( Int, Int )
+        sizeList =
+            List.map
+                (\table ->
+                    let
+                        (Table _ columns _ _) =
+                            table
+                    in
+                    ( tableWidth table, (List.length columns + 1) * Constants.tableRowHeight )
+                )
+                tables
+
+        ( _, tables ) =
+            from items
+    in
+    List.foldl
+        (\( w1, h1 ) ( w2, h2 ) ->
+            ( w1 + w2 + Constants.tableMargin, h1 + h2 + Constants.tableMargin )
+        )
+        ( 0, 0 )
+        sizeList
+
+
+tableToLineString : Table -> String
+tableToLineString (Table name _ position _) =
+    let
+        ( x, y ) =
+            Maybe.withDefault Position.zero position
+    in
+    Constants.space ++ name ++ "|" ++ String.fromInt x ++ "|" ++ String.fromInt y
+
+
 tableToString : Table -> String
 tableToString (Table name columns _ _) =
     let
@@ -562,51 +267,52 @@ tableToString (Table name columns _ _) =
            )
 
 
-primaryKeyToString : List Column -> Maybe String
-primaryKeyToString columns =
-    let
-        primaryKeys : List String
-        primaryKeys =
-            List.filterMap
-                (\(Column name _ attrs) ->
-                    ListEx.find (\i -> i == PrimaryKey) attrs |> Maybe.map (\_ -> "`" ++ name ++ "`")
-                )
-                columns
-    in
-    if List.isEmpty primaryKeys then
-        Nothing
-
-    else
-        Just <|
-            "    PRIMARY KEY (\n"
-                ++ "    "
-                ++ String.join "," primaryKeys
-                ++ "\n    )"
+tableWidth : Table -> Int
+tableWidth (Table name columns _ _) =
+    String.length name
+        :: List.map (\(Column colName _ _) -> String.length colName)
+            columns
+        |> List.maximum
+        |> Maybe.map (\maxLength -> 14 * maxLength + 20)
+        |> Maybe.withDefault 180
+        |> max 180
 
 
-indexToString : String -> List Column -> Maybe String
-indexToString tableName columns =
-    let
-        indexes : List Column
-        indexes =
-            List.filter
-                (\(Column _ _ attrs) ->
-                    ListEx.find (\i -> i == Index) attrs |> isJust
-                )
-                columns
-    in
-    if List.isEmpty indexes then
-        Nothing
+toMermaidString : ErDiagram -> String
+toMermaidString ( relationshipList, tableList ) =
+    "erDiagram"
+        :: (List.concatMap relationshipToMermaidString relationshipList
+                ++ List.map tableToMermaidString tableList
+                |> List.map (\line -> "    " ++ line)
+           )
+        |> String.join "\n"
 
-    else
-        Just
-            (indexes
-                |> List.map
-                    (\(Column name _ _) ->
-                        "CREATE INDEX `idx_" ++ tableName ++ "_" ++ name ++ "` ON `" ++ tableName ++ "` (`" ++ name ++ "`);"
-                    )
-                |> String.join "\n"
-            )
+
+columnAttributeToString : Attribute -> String
+columnAttributeToString attr =
+    case attr of
+        NotNull ->
+            "NOT NULL"
+
+        Null ->
+            "NULL"
+
+        Unique ->
+            "UNIQUE"
+
+        Increment ->
+            "AUTO_INCREMENT"
+
+        Default v ->
+            "DEFAULT " ++ v
+
+        _ ->
+            ""
+
+
+columnToMermaidString : Column -> String
+columnToMermaidString (Column name columnType _) =
+    "        " ++ columnTypeToMermaidString columnType ++ " " ++ name
 
 
 columnToString : Column -> String
@@ -689,109 +395,6 @@ columnTypeToFullString type_ =
             "json"
 
 
-columnAttributeToString : Attribute -> String
-columnAttributeToString attr =
-    case attr of
-        NotNull ->
-            "NOT NULL"
-
-        Null ->
-            "NULL"
-
-        Unique ->
-            "UNIQUE"
-
-        Increment ->
-            "AUTO_INCREMENT"
-
-        Default v ->
-            "DEFAULT " ++ v
-
-        _ ->
-            ""
-
-
-tableToLineString : Table -> String
-tableToLineString (Table name _ position _) =
-    let
-        ( x, y ) =
-            Maybe.withDefault Position.zero position
-    in
-    Constants.space ++ name ++ "|" ++ String.fromInt x ++ "|" ++ String.fromInt y
-
-
-size : Items -> Size
-size items =
-    let
-        ( _, tables ) =
-            from items
-
-        sizeList : List ( Int, Int )
-        sizeList =
-            List.map
-                (\table ->
-                    let
-                        (Table _ columns _ _) =
-                            table
-                    in
-                    ( tableWidth table, (List.length columns + 1) * Constants.tableRowHeight )
-                )
-                tables
-    in
-    List.foldl
-        (\( w1, h1 ) ( w2, h2 ) ->
-            ( w1 + w2 + Constants.tableMargin, h1 + h2 + Constants.tableMargin )
-        )
-        ( 0, 0 )
-        sizeList
-
-
-
--- mermaid
-
-
-toMermaidString : ErDiagram -> String
-toMermaidString ( relationshipList, tableList ) =
-    "erDiagram"
-        :: (List.concatMap relationshipToMermaidString relationshipList
-                ++ List.map tableToMermaidString tableList
-                |> List.map (\line -> "    " ++ line)
-           )
-        |> String.join "\n"
-
-
-relationshipToMermaidString : Relationship -> List String
-relationshipToMermaidString relationship =
-    case relationship of
-        ManyToMany table1 table2 ->
-            [ table1 ++ "}|..|{" ++ table2 ++ " : relation" ]
-
-        OneToMany table1 table2 ->
-            [ table1 ++ "||--o{" ++ table2 ++ " : relation" ]
-
-        ManyToOne table1 table2 ->
-            [ table1 ++ "}o--||" ++ table2 ++ " : relation" ]
-
-        OneToOne table1 table2 ->
-            [ table1 ++ "||--||" ++ table2 ++ " : relation" ]
-
-        NoRelation ->
-            []
-
-
-tableToMermaidString : Table -> String
-tableToMermaidString (Table name columns _ _) =
-    (name ++ "{")
-        :: List.map columnToMermaidString columns
-        ++ [ "    }" ]
-        |> String.join "\n"
-
-
-columnToMermaidString : Column -> String
-columnToMermaidString (Column name columnType _) =
-    "        " ++ columnTypeToMermaidString columnType ++ " " ++ name
-
-
 columnTypeToMermaidString : ColumnType -> String
 columnTypeToMermaidString column =
     case column of
@@ -839,3 +442,400 @@ columnTypeToMermaidString column =
 
         Json ->
             "json"
+
+
+indexToString : String -> List Column -> Maybe String
+indexToString tableName columns =
+    let
+        indexes : List Column
+        indexes =
+            List.filter
+                (\(Column _ _ attrs) ->
+                    ListEx.find (\i -> i == Index) attrs |> isJust
+                )
+                columns
+    in
+    if List.isEmpty indexes then
+        Nothing
+
+    else
+        Just
+            (indexes
+                |> List.map
+                    (\(Column name _ _) ->
+                        "CREATE INDEX `idx_" ++ tableName ++ "_" ++ name ++ "` ON `" ++ tableName ++ "` (`" ++ name ++ "`);"
+                    )
+                |> String.join "\n"
+            )
+
+
+itemToColumn : Item -> Column
+itemToColumn item =
+    let
+        columnAttributes : List Attribute
+        columnAttributes =
+            List.drop 2 tokens
+                |> List.indexedMap (\i v -> ( String.toLower v, i ))
+                |> Dict.fromList
+                |> textToColumnAttribute
+
+        columnName : String
+        columnName =
+            getAt 0 tokens
+                |> Maybe.withDefault ""
+
+        columnType : ColumnType
+        columnType =
+            getAt 1 tokens
+                |> Maybe.map textToColumnType
+                |> Maybe.withDefault (Int NoLimit)
+
+        tokens : List String
+        tokens =
+            Item.getText item
+                |> String.trim
+                |> String.split " "
+                |> List.map (\i -> String.trim i)
+    in
+    Column columnName columnType columnAttributes
+
+
+itemToRelationship : Item -> Relationship
+itemToRelationship item =
+    let
+        text : String
+        text =
+            Item.getText item |> String.trim
+    in
+    if String.contains " < " text then
+        case String.split " < " text of
+            [ table1, table2 ] ->
+                OneToMany table1 table2
+
+            _ ->
+                NoRelation
+
+    else if String.contains " > " text then
+        case String.split " > " text of
+            [ table1, table2 ] ->
+                ManyToOne table1 table2
+
+            _ ->
+                NoRelation
+
+    else if String.contains " - " text then
+        case String.split " - " text of
+            [ table1, table2 ] ->
+                OneToOne table1 table2
+
+            _ ->
+                NoRelation
+
+    else if String.contains " = " text then
+        case String.split " = " text of
+            [ table1, table2 ] ->
+                ManyToMany table1 table2
+
+            _ ->
+                NoRelation
+
+    else
+        NoRelation
+
+
+itemToTable : Item -> Table
+itemToTable item =
+    let
+        columns : List Column
+        columns =
+            Item.map itemToColumn items
+
+        items : Items
+        items =
+            Item.getChildren item |> Item.unwrapChildren
+
+        ( tableName, position ) =
+            case tableInfo of
+                [ name, xString, yString ] ->
+                    ( name
+                    , String.toInt xString
+                        |> Maybe.andThen (\x -> Maybe.map (\y -> ( x, y )) (String.toInt yString))
+                    )
+
+                [ name, _ ] ->
+                    ( name, Nothing )
+
+                _ ->
+                    ( text, Nothing )
+
+        tableInfo : List String
+        tableInfo =
+            text
+                |> String.split "|"
+                |> List.map String.trim
+
+        text : String
+        text =
+            Item.getText item
+                |> String.trim
+    in
+    Table tableName columns position (Item.getLineNo item)
+
+
+itemsToRelationships : Items -> List Relationship
+itemsToRelationships items =
+    Item.map itemToRelationship items
+
+
+itemsToTables : Items -> List Table
+itemsToTables items =
+    Item.map itemToTable items
+
+
+
+-- mermaid
+
+
+primaryKeyToString : List Column -> Maybe String
+primaryKeyToString columns =
+    let
+        primaryKeys : List String
+        primaryKeys =
+            List.filterMap
+                (\(Column name _ attrs) ->
+                    ListEx.find (\i -> i == PrimaryKey) attrs |> Maybe.map (\_ -> "`" ++ name ++ "`")
+                )
+                columns
+    in
+    if List.isEmpty primaryKeys then
+        Nothing
+
+    else
+        Just <|
+            "    PRIMARY KEY (\n"
+                ++ "    "
+                ++ String.join "," primaryKeys
+                ++ "\n    )"
+
+
+relationshipToMermaidString : Relationship -> List String
+relationshipToMermaidString relationship =
+    case relationship of
+        ManyToMany table1 table2 ->
+            [ table1 ++ "}|..|{" ++ table2 ++ " : relation" ]
+
+        OneToMany table1 table2 ->
+            [ table1 ++ "||--o{" ++ table2 ++ " : relation" ]
+
+        ManyToOne table1 table2 ->
+            [ table1 ++ "}o--||" ++ table2 ++ " : relation" ]
+
+        OneToOne table1 table2 ->
+            [ table1 ++ "||--||" ++ table2 ++ " : relation" ]
+
+        NoRelation ->
+            []
+
+
+tableToMermaidString : Table -> String
+tableToMermaidString (Table name columns _ _) =
+    (name ++ "{")
+        :: List.map columnToMermaidString columns
+        ++ [ "    }" ]
+        |> String.join "\n"
+
+
+textToColumnAttribute : Dict String Int -> List Attribute
+textToColumnAttribute attrDict =
+    let
+        default : Attribute
+        default =
+            getkAttributeIndex "default"
+                |> Maybe.andThen
+                    (\d ->
+                        find (\_ value -> value == d + 1) attrDict
+                            |> Maybe.map (\( k, _ ) -> Default k)
+                    )
+                |> Maybe.withDefault None
+
+        getkAttributeIndex : String -> Maybe Int
+        getkAttributeIndex attrName =
+            Dict.get attrName attrDict
+
+        increment : Attribute
+        increment =
+            if isJust <| getkAttributeIndex "increment" then
+                Increment
+
+            else
+                None
+
+        index : Attribute
+        index =
+            if isJust <| getkAttributeIndex "index" then
+                Index
+
+            else
+                None
+
+        notNull : Attribute
+        notNull =
+            getkAttributeIndex "not"
+                |> Maybe.andThen
+                    (\no ->
+                        getkAttributeIndex "null"
+                            |> Maybe.andThen
+                                (\nu ->
+                                    if nu - no == 1 then
+                                        Just NotNull
+
+                                    else
+                                        Nothing
+                                )
+                    )
+                |> Maybe.withDefault None
+
+        null : Attribute
+        null =
+            getkAttributeIndex "null"
+                |> Maybe.andThen
+                    (\_ ->
+                        if isJust <| getkAttributeIndex "not" then
+                            Nothing
+
+                        else
+                            Just Null
+                    )
+                |> Maybe.withDefault None
+
+        primaryKey : Attribute
+        primaryKey =
+            if isJust <| getkAttributeIndex "pk" then
+                PrimaryKey
+
+            else
+                None
+
+        unique : Attribute
+        unique =
+            if isJust <| getkAttributeIndex "Unique" then
+                Unique
+
+            else
+                None
+    in
+    [ primaryKey, notNull, unique, increment, default, index, null ]
+
+
+textToColumnType : String -> ColumnType
+textToColumnType text =
+    let
+        tokens : List ( String, Bool )
+        tokens =
+            String.split "(" text
+                |> List.map (\i -> ( String.trim i |> String.toLower |> String.replace ")" "", String.endsWith ")" i ))
+    in
+    case tokens of
+        [ ( "blob", False ) ] ->
+            Blob
+
+        [ ( "boolean", False ) ] ->
+            Boolean
+
+        [ ( "char", False ) ] ->
+            Char NoLimit
+
+        [ ( "char", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
+                Just v ->
+                    Char (Length v)
+
+                Nothing ->
+                    Char NoLimit
+
+        [ ( "date", False ) ] ->
+            Date
+
+        [ ( "date-time", False ) ] ->
+            DateTime
+
+        [ ( "decimal", False ) ] ->
+            Decimal NoLimit
+
+        [ ( "decimal", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
+                Just v ->
+                    Decimal (Length v)
+
+                Nothing ->
+                    Decimal NoLimit
+
+        [ ( "double", False ) ] ->
+            Double NoLimit
+
+        [ ( "double", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
+                Just v ->
+                    Double (Length v)
+
+                Nothing ->
+                    Double NoLimit
+
+        [ ( "enum", False ), ( values, True ) ] ->
+            Enum (String.split "," values |> List.map String.trim)
+
+        [ ( "float", False ) ] ->
+            Float NoLimit
+
+        [ ( "float", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
+                Just v ->
+                    Float (Length v)
+
+                Nothing ->
+                    Float NoLimit
+
+        [ ( "int", False ) ] ->
+            Int NoLimit
+
+        [ ( "int", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
+                Just v ->
+                    Int (Length v)
+
+                Nothing ->
+                    Int NoLimit
+
+        [ ( "json", False ) ] ->
+            Json
+
+        [ ( "text", False ) ] ->
+            Text
+
+        [ ( "timestamp", False ) ] ->
+            Timestamp
+
+        [ ( "tinyint", False ) ] ->
+            TinyInt NoLimit
+
+        [ ( "tinyint", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
+                Just v ->
+                    TinyInt (Length v)
+
+                Nothing ->
+                    TinyInt NoLimit
+
+        [ ( "varchar", False ) ] ->
+            VarChar NoLimit
+
+        [ ( "varchar", False ), ( size_, True ) ] ->
+            case String.toInt size_ of
+                Just v ->
+                    VarChar (Length v)
+
+                Nothing ->
+                    VarChar NoLimit
+
+        _ ->
+            Int NoLimit

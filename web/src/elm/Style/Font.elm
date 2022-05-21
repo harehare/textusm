@@ -3,6 +3,13 @@ module Style.Font exposing (fontBold, fontFamily, fontSemiBold)
 import Css exposing (fontFamilies, fontWeight, int, qt)
 
 
+fontBold : Css.Style
+fontBold =
+    Css.batch
+        [ fontWeight <| int 700
+        ]
+
+
 fontFamily : Css.Style
 fontFamily =
     fontFamilies
@@ -17,13 +24,6 @@ fontFamily =
         , "メイリオ"
         , "Meiryo"
         , "sans-serif"
-        ]
-
-
-fontBold : Css.Style
-fontBold =
-    Css.batch
-        [ fontWeight <| int 700
         ]
 
 

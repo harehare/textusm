@@ -3,244 +3,6 @@ module Models.DiagramType exposing (defaultText, fromString, toDiagram, toLongSt
 import Graphql.Enum.Diagram exposing (Diagram(..))
 
 
-toString : Diagram -> String
-toString diagramType =
-    case diagramType of
-        UserStoryMap ->
-            "usm"
-
-        OpportunityCanvas ->
-            "opc"
-
-        BusinessModelCanvas ->
-            "bmc"
-
-        Fourls ->
-            "4ls"
-
-        StartStopContinue ->
-            "ssc"
-
-        Kpt ->
-            "kpt"
-
-        UserPersona ->
-            "persona"
-
-        MindMap ->
-            "mmp"
-
-        EmpathyMap ->
-            "emm"
-
-        Table ->
-            "table"
-
-        SiteMap ->
-            "smp"
-
-        GanttChart ->
-            "gct"
-
-        ImpactMap ->
-            "imm"
-
-        ErDiagram ->
-            "erd"
-
-        Kanban ->
-            "kanban"
-
-        SequenceDiagram ->
-            "sed"
-
-        Freeform ->
-            "free"
-
-        UseCaseDiagram ->
-            "ucd"
-
-
-toLongString : Diagram -> String
-toLongString diagramType =
-    case diagramType of
-        UserStoryMap ->
-            "User Story Map"
-
-        OpportunityCanvas ->
-            "Opportunity Canvas"
-
-        BusinessModelCanvas ->
-            "Business Model Canvas"
-
-        Fourls ->
-            "4Ls"
-
-        StartStopContinue ->
-            "Start, Stop, Continue"
-
-        Kpt ->
-            "KPT"
-
-        UserPersona ->
-            "User Persona"
-
-        MindMap ->
-            "Mind Map"
-
-        EmpathyMap ->
-            "Empathy Map"
-
-        Table ->
-            "Table"
-
-        SiteMap ->
-            "Site Map"
-
-        GanttChart ->
-            "Gantt Chart"
-
-        ImpactMap ->
-            "Impact Map"
-
-        ErDiagram ->
-            "ER Diagram"
-
-        Kanban ->
-            "Kanban"
-
-        SequenceDiagram ->
-            "Sequence Diagram"
-
-        Freeform ->
-            "Freeform"
-
-        UseCaseDiagram ->
-            "UseCaseDiagram"
-
-
-toDiagram : String -> Maybe Diagram
-toDiagram s =
-    case s of
-        "usm" ->
-            Just UserStoryMap
-
-        "opc" ->
-            Just OpportunityCanvas
-
-        "bmc" ->
-            Just BusinessModelCanvas
-
-        "4ls" ->
-            Just Fourls
-
-        "ssc" ->
-            Just StartStopContinue
-
-        "kpt" ->
-            Just Kpt
-
-        "persona" ->
-            Just UserPersona
-
-        "mmp" ->
-            Just MindMap
-
-        "emm" ->
-            Just EmpathyMap
-
-        "table" ->
-            Just Table
-
-        "smp" ->
-            Just SiteMap
-
-        "gct" ->
-            Just GanttChart
-
-        "imm" ->
-            Just ImpactMap
-
-        "erd" ->
-            Just ErDiagram
-
-        "kanban" ->
-            Just Kanban
-
-        "sed" ->
-            Just SequenceDiagram
-
-        "free" ->
-            Just Freeform
-
-        "ucd" ->
-            Just UseCaseDiagram
-
-        _ ->
-            Nothing
-
-
-fromString : String -> Diagram
-fromString s =
-    case s of
-        "usm" ->
-            UserStoryMap
-
-        "opc" ->
-            OpportunityCanvas
-
-        "bmc" ->
-            BusinessModelCanvas
-
-        "4ls" ->
-            Fourls
-
-        "ssc" ->
-            StartStopContinue
-
-        "kpt" ->
-            Kpt
-
-        "persona" ->
-            UserPersona
-
-        "mmp" ->
-            MindMap
-
-        "emm" ->
-            EmpathyMap
-
-        "table" ->
-            Table
-
-        "smp" ->
-            SiteMap
-
-        "gct" ->
-            GanttChart
-
-        "imm" ->
-            ImpactMap
-
-        "erd" ->
-            ErDiagram
-
-        "kanban" ->
-            Kanban
-
-        "sed" ->
-            SequenceDiagram
-
-        "free" ->
-            Freeform
-
-        "ucd" ->
-            UseCaseDiagram
-
-        _ ->
-            UserStoryMap
-
-
 defaultText : Diagram -> String
 defaultText diagram =
     case diagram of
@@ -288,3 +50,241 @@ defaultText diagram =
 
         _ ->
             ""
+
+
+fromString : String -> Diagram
+fromString s =
+    case s of
+        "4ls" ->
+            Fourls
+
+        "bmc" ->
+            BusinessModelCanvas
+
+        "emm" ->
+            EmpathyMap
+
+        "erd" ->
+            ErDiagram
+
+        "free" ->
+            Freeform
+
+        "gct" ->
+            GanttChart
+
+        "imm" ->
+            ImpactMap
+
+        "kanban" ->
+            Kanban
+
+        "kpt" ->
+            Kpt
+
+        "mmp" ->
+            MindMap
+
+        "opc" ->
+            OpportunityCanvas
+
+        "persona" ->
+            UserPersona
+
+        "sed" ->
+            SequenceDiagram
+
+        "smp" ->
+            SiteMap
+
+        "ssc" ->
+            StartStopContinue
+
+        "table" ->
+            Table
+
+        "ucd" ->
+            UseCaseDiagram
+
+        "usm" ->
+            UserStoryMap
+
+        _ ->
+            UserStoryMap
+
+
+toDiagram : String -> Maybe Diagram
+toDiagram s =
+    case s of
+        "4ls" ->
+            Just Fourls
+
+        "bmc" ->
+            Just BusinessModelCanvas
+
+        "emm" ->
+            Just EmpathyMap
+
+        "erd" ->
+            Just ErDiagram
+
+        "free" ->
+            Just Freeform
+
+        "gct" ->
+            Just GanttChart
+
+        "imm" ->
+            Just ImpactMap
+
+        "kanban" ->
+            Just Kanban
+
+        "kpt" ->
+            Just Kpt
+
+        "mmp" ->
+            Just MindMap
+
+        "opc" ->
+            Just OpportunityCanvas
+
+        "persona" ->
+            Just UserPersona
+
+        "sed" ->
+            Just SequenceDiagram
+
+        "smp" ->
+            Just SiteMap
+
+        "ssc" ->
+            Just StartStopContinue
+
+        "table" ->
+            Just Table
+
+        "ucd" ->
+            Just UseCaseDiagram
+
+        "usm" ->
+            Just UserStoryMap
+
+        _ ->
+            Nothing
+
+
+toLongString : Diagram -> String
+toLongString diagramType =
+    case diagramType of
+        UserStoryMap ->
+            "User Story Map"
+
+        OpportunityCanvas ->
+            "Opportunity Canvas"
+
+        BusinessModelCanvas ->
+            "Business Model Canvas"
+
+        Fourls ->
+            "4Ls"
+
+        StartStopContinue ->
+            "Start, Stop, Continue"
+
+        Kpt ->
+            "KPT"
+
+        UserPersona ->
+            "User Persona"
+
+        MindMap ->
+            "Mind Map"
+
+        EmpathyMap ->
+            "Empathy Map"
+
+        SiteMap ->
+            "Site Map"
+
+        GanttChart ->
+            "Gantt Chart"
+
+        ImpactMap ->
+            "Impact Map"
+
+        ErDiagram ->
+            "ER Diagram"
+
+        Kanban ->
+            "Kanban"
+
+        Table ->
+            "Table"
+
+        SequenceDiagram ->
+            "Sequence Diagram"
+
+        Freeform ->
+            "Freeform"
+
+        UseCaseDiagram ->
+            "UseCaseDiagram"
+
+
+toString : Diagram -> String
+toString diagramType =
+    case diagramType of
+        UserStoryMap ->
+            "usm"
+
+        OpportunityCanvas ->
+            "opc"
+
+        BusinessModelCanvas ->
+            "bmc"
+
+        Fourls ->
+            "4ls"
+
+        StartStopContinue ->
+            "ssc"
+
+        Kpt ->
+            "kpt"
+
+        UserPersona ->
+            "persona"
+
+        MindMap ->
+            "mmp"
+
+        EmpathyMap ->
+            "emm"
+
+        SiteMap ->
+            "smp"
+
+        GanttChart ->
+            "gct"
+
+        ImpactMap ->
+            "imm"
+
+        ErDiagram ->
+            "erd"
+
+        Kanban ->
+            "kanban"
+
+        Table ->
+            "table"
+
+        SequenceDiagram ->
+            "sed"
+
+        Freeform ->
+            "free"
+
+        UseCaseDiagram ->
+            "ucd"

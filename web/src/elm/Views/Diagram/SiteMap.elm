@@ -44,115 +44,6 @@ view model =
             Svg.g [] []
 
 
-siteView : DiagramSettings.Settings -> Property -> ( Int, Int ) -> SelectedItem -> Items -> Svg Msg
-siteView settings property ( posX, posY ) selectedItem items =
-    let
-        hierarchyCountList : List Int
-        hierarchyCountList =
-            0
-                :: Item.map (\item -> Item.getHierarchyCount item - 1) items
-                |> ListEx.scanl1 (+)
-    in
-    Svg.g []
-        (ListEx.zip hierarchyCountList (Item.unwrap items)
-            |> List.indexedMap
-                (\i ( hierarchyCount, item ) ->
-                    let
-                        children : Items
-                        children =
-                            Item.unwrapChildren <| Item.getChildren item
-
-                        cardWidth : Int
-                        cardWidth =
-                            settings.size.width + Constants.itemSpan
-
-                        x : Int
-                        x =
-                            posX
-                                + i
-                                * (cardWidth + Constants.itemSpan)
-                                + hierarchyCount
-                                * Constants.itemSpan
-                    in
-                    [ Card.viewWithDefaultColor
-                        { settings = settings
-                        , property = property
-                        , position = ( x, posY )
-                        , selectedItem = selectedItem
-                        , item = item
-                        , canMove = True
-                        }
-                    , siteLineView settings ( 0, 0 ) ( x, posY )
-                    , siteTreeView settings
-                        property
-                        ( x
-                        , posY + settings.size.height + Constants.itemSpan
-                        )
-                        selectedItem
-                        children
-                    ]
-                )
-            |> List.concat
-        )
-
-
-siteTreeView : DiagramSettings.Settings -> Property -> Position -> SelectedItem -> Items -> Svg Msg
-siteTreeView settings property ( posX, posY ) selectedItem items =
-    let
-        childrenCountList : List Int
-        childrenCountList =
-            0
-                :: (items
-                        |> Item.map
-                            (\i ->
-                                if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i) then
-                                    0
-
-                                else
-                                    Item.getChildrenCount i
-                            )
-                        |> ListEx.scanl1 (+)
-                   )
-    in
-    Svg.g []
-        (ListEx.zip childrenCountList (Item.unwrap items)
-            |> List.indexedMap
-                (\i ( childrenCount, item ) ->
-                    let
-                        children : Items
-                        children =
-                            Item.unwrapChildren <| Item.getChildren item
-
-                        x : Int
-                        x =
-                            posX + Constants.itemSpan
-
-                        y : Int
-                        y =
-                            posY + i * (settings.size.height + Constants.itemSpan) + childrenCount * (settings.size.height + Constants.itemSpan)
-                    in
-                    [ siteTreeLineView settings ( posX, posY - Constants.itemSpan ) ( posX, y )
-                    , Card.viewWithDefaultColor
-                        { settings = settings
-                        , property = property
-                        , position = ( x, y )
-                        , selectedItem = selectedItem
-                        , item = item
-                        , canMove = True
-                        }
-                    , siteTreeView settings
-                        property
-                        ( x
-                        , y + (settings.size.height + Constants.itemSpan)
-                        )
-                        selectedItem
-                        children
-                    ]
-                )
-            |> List.concat
-        )
-
-
 siteLineView : DiagramSettings.Settings -> Position -> Position -> Svg Msg
 siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
     let
@@ -221,3 +112,112 @@ siteTreeLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
             ]
             []
         ]
+
+
+siteTreeView : DiagramSettings.Settings -> Property -> Position -> SelectedItem -> Items -> Svg Msg
+siteTreeView settings property ( posX, posY ) selectedItem items =
+    let
+        childrenCountList : List Int
+        childrenCountList =
+            0
+                :: (items
+                        |> Item.map
+                            (\i ->
+                                if Item.isEmpty (Item.unwrapChildren <| Item.getChildren i) then
+                                    0
+
+                                else
+                                    Item.getChildrenCount i
+                            )
+                        |> ListEx.scanl1 (+)
+                   )
+    in
+    Svg.g []
+        (ListEx.zip childrenCountList (Item.unwrap items)
+            |> List.indexedMap
+                (\i ( childrenCount, item ) ->
+                    let
+                        children : Items
+                        children =
+                            Item.unwrapChildren <| Item.getChildren item
+
+                        x : Int
+                        x =
+                            posX + Constants.itemSpan
+
+                        y : Int
+                        y =
+                            posY + i * (settings.size.height + Constants.itemSpan) + childrenCount * (settings.size.height + Constants.itemSpan)
+                    in
+                    [ siteTreeLineView settings ( posX, posY - Constants.itemSpan ) ( posX, y )
+                    , Card.viewWithDefaultColor
+                        { settings = settings
+                        , property = property
+                        , position = ( x, y )
+                        , selectedItem = selectedItem
+                        , item = item
+                        , canMove = True
+                        }
+                    , siteTreeView settings
+                        property
+                        ( x
+                        , y + (settings.size.height + Constants.itemSpan)
+                        )
+                        selectedItem
+                        children
+                    ]
+                )
+            |> List.concat
+        )
+
+
+siteView : DiagramSettings.Settings -> Property -> ( Int, Int ) -> SelectedItem -> Items -> Svg Msg
+siteView settings property ( posX, posY ) selectedItem items =
+    let
+        hierarchyCountList : List Int
+        hierarchyCountList =
+            0
+                :: Item.map (\item -> Item.getHierarchyCount item - 1) items
+                |> ListEx.scanl1 (+)
+    in
+    Svg.g []
+        (ListEx.zip hierarchyCountList (Item.unwrap items)
+            |> List.indexedMap
+                (\i ( hierarchyCount, item ) ->
+                    let
+                        cardWidth : Int
+                        cardWidth =
+                            settings.size.width + Constants.itemSpan
+
+                        children : Items
+                        children =
+                            Item.unwrapChildren <| Item.getChildren item
+
+                        x : Int
+                        x =
+                            posX
+                                + i
+                                * (cardWidth + Constants.itemSpan)
+                                + hierarchyCount
+                                * Constants.itemSpan
+                    in
+                    [ Card.viewWithDefaultColor
+                        { settings = settings
+                        , property = property
+                        , position = ( x, posY )
+                        , selectedItem = selectedItem
+                        , item = item
+                        , canMove = True
+                        }
+                    , siteLineView settings ( 0, 0 ) ( x, posY )
+                    , siteTreeView settings
+                        property
+                        ( x
+                        , posY + settings.size.height + Constants.itemSpan
+                        )
+                        selectedItem
+                        children
+                    ]
+                )
+            |> List.concat
+        )

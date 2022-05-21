@@ -16,6 +16,12 @@ view model =
     case model.data of
         DiagramData.EmpathyMap e ->
             let
+                (EmpathyMapItem does) =
+                    e.does
+
+                (EmpathyMapItem feels) =
+                    e.feels
+
                 itemHeight : Int
                 itemHeight =
                     Basics.max Constants.itemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
@@ -25,12 +31,6 @@ view model =
 
                 (EmpathyMapItem thinks) =
                     e.thinks
-
-                (EmpathyMapItem does) =
-                    e.does
-
-                (EmpathyMapItem feels) =
-                    e.feels
             in
             Svg.g
                 []

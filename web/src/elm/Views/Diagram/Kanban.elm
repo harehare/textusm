@@ -15,11 +15,6 @@ import Views.Diagram.Card as Card
 import Views.Empty as Empty
 
 
-kanbanMargin : Int
-kanbanMargin =
-    24
-
-
 view : Model -> Svg Msg
 view model =
     case model.data of
@@ -32,19 +27,24 @@ view model =
             Empty.view
 
 
+kanbanMargin : Int
+kanbanMargin =
+    24
+
+
 kanbanView : DiagramSettings.Settings -> Property -> SelectedItem -> Kanban -> Svg Msg
 kanbanView settings property selectedItem kanban =
     let
-        (Kanban lists) =
-            kanban
+        height : Int
+        height =
+            Kanban.getCardCount kanban * (settings.size.height + Constants.itemMargin) + Constants.itemMargin
 
         listWidth : Int
         listWidth =
             settings.size.width + Constants.itemMargin * 3
 
-        height : Int
-        height =
-            Kanban.getCardCount kanban * (settings.size.height + Constants.itemMargin) + Constants.itemMargin
+        (Kanban lists) =
+            kanban
     in
     Svg.g []
         (List.indexedMap
@@ -79,15 +79,15 @@ listView settings property height ( posX, posY ) selectedItem (KanbanList name c
             :: List.indexedMap
                 (\i (Card item) ->
                     Lazy.lazy Card.viewWithDefaultColor
-                        { settings = settings
-                        , property = property
+                        { canMove = True
+                        , item = item
                         , position =
                             ( posX
                             , posY + kanbanMargin + Constants.itemMargin + (settings.size.height + Constants.itemMargin) * i
                             )
+                        , property = property
                         , selectedItem = selectedItem
-                        , item = item
-                        , canMove = True
+                        , settings = settings
                         }
                 )
                 cards

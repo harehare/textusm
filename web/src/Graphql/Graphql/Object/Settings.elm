@@ -11,21 +11,11 @@ import Json.Decode as D
 
 
 {-| -}
-font : SelectionSet String Graphql.Object.Settings
-font =
-    Object.selectionForField "String" "font" [] D.string
-
-
-{-| -}
-width : SelectionSet Int Graphql.Object.Settings
-width =
-    Object.selectionForField "Int" "width" [] D.int
-
-
-{-| -}
-height : SelectionSet Int Graphql.Object.Settings
-height =
-    Object.selectionForField "Int" "height" [] D.int
+activityColor :
+    SelectionSet decodesTo Graphql.Object.Color
+    -> SelectionSet decodesTo Graphql.Object.Settings
+activityColor object____ =
+    Object.selectionForCompositeField "activityColor" [] object____ Basics.identity
 
 
 {-| -}
@@ -35,19 +25,33 @@ backgroundColor =
 
 
 {-| -}
-activityColor :
-    SelectionSet decodesTo Graphql.Object.Color
-    -> SelectionSet decodesTo Graphql.Object.Settings
-activityColor object____ =
-    Object.selectionForCompositeField "activityColor" [] object____ Basics.identity
+font : SelectionSet String Graphql.Object.Settings
+font =
+    Object.selectionForField "String" "font" [] D.string
 
 
 {-| -}
-taskColor :
-    SelectionSet decodesTo Graphql.Object.Color
-    -> SelectionSet decodesTo Graphql.Object.Settings
-taskColor object____ =
-    Object.selectionForCompositeField "taskColor" [] object____ Basics.identity
+height : SelectionSet Int Graphql.Object.Settings
+height =
+    Object.selectionForField "Int" "height" [] D.int
+
+
+{-| -}
+labelColor : SelectionSet String Graphql.Object.Settings
+labelColor =
+    Object.selectionForField "String" "labelColor" [] D.string
+
+
+{-| -}
+lineColor : SelectionSet String Graphql.Object.Settings
+lineColor =
+    Object.selectionForField "String" "lineColor" [] D.string
+
+
+{-| -}
+scale : SelectionSet (Maybe Float) Graphql.Object.Settings
+scale =
+    Object.selectionForField "(Maybe Float)" "scale" [] (D.float |> D.nullable)
 
 
 {-| -}
@@ -59,15 +63,11 @@ storyColor object____ =
 
 
 {-| -}
-lineColor : SelectionSet String Graphql.Object.Settings
-lineColor =
-    Object.selectionForField "String" "lineColor" [] D.string
-
-
-{-| -}
-labelColor : SelectionSet String Graphql.Object.Settings
-labelColor =
-    Object.selectionForField "String" "labelColor" [] D.string
+taskColor :
+    SelectionSet decodesTo Graphql.Object.Color
+    -> SelectionSet decodesTo Graphql.Object.Settings
+taskColor object____ =
+    Object.selectionForCompositeField "taskColor" [] object____ Basics.identity
 
 
 {-| -}
@@ -77,18 +77,18 @@ textColor =
 
 
 {-| -}
-zoomControl : SelectionSet (Maybe Bool) Graphql.Object.Settings
-zoomControl =
-    Object.selectionForField "(Maybe Bool)" "zoomControl" [] (D.bool |> D.nullable)
-
-
-{-| -}
-scale : SelectionSet (Maybe Float) Graphql.Object.Settings
-scale =
-    Object.selectionForField "(Maybe Float)" "scale" [] (D.float |> D.nullable)
-
-
-{-| -}
 toolbar : SelectionSet (Maybe Bool) Graphql.Object.Settings
 toolbar =
     Object.selectionForField "(Maybe Bool)" "toolbar" [] (D.bool |> D.nullable)
+
+
+{-| -}
+width : SelectionSet Int Graphql.Object.Settings
+width =
+    Object.selectionForField "Int" "width" [] D.int
+
+
+{-| -}
+zoomControl : SelectionSet (Maybe Bool) Graphql.Object.Settings
+zoomControl =
+    Object.selectionForField "(Maybe Bool)" "zoomControl" [] (D.bool |> D.nullable)

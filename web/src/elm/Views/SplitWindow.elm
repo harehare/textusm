@@ -21,7 +21,7 @@ type alias Props msg =
 
 
 view : Props msg -> Html msg -> Html msg -> Html msg
-view { onToggleEditor, onResize, background, window } left right =
+view { background, window, onToggleEditor, onResize } left right =
     let
         ( leftPos, rightPos ) =
             case ( window.state, window.position > 0, window.position < 0 ) of
@@ -66,6 +66,26 @@ view { onToggleEditor, onResize, background, window } left right =
                 ]
 
 
+hideEditorButton : msg -> Html msg
+hideEditorButton m =
+    Html.div [ css [ Style.full, displayFlex, alignItems center ], Events.onClick m ] [ Icon.angleLeft Color.white 12 ]
+
+
+onStartWindowResize : (Int -> msg) -> Attribute msg
+onStartWindowResize e =
+    Events.on "mousedown" (D.map e pageX)
+
+
+pageX : D.Decoder Int
+pageX =
+    D.field "pageX" D.int
+
+
+showEditorButton : msg -> Html msg
+showEditorButton m =
+    Html.div [ css [ Style.full, displayFlex, alignItems center ], Events.onClick m ] [ Icon.angleRight Color.white 12 ]
+
+
 toggleEditorButton : WindowState -> (WindowState -> msg) -> Html msg
 toggleEditorButton state onToggleEditor =
     Html.div
@@ -89,23 +109,3 @@ toggleEditorButton state onToggleEditor =
             _ ->
                 showEditorButton (onToggleEditor Both)
         ]
-
-
-showEditorButton : msg -> Html msg
-showEditorButton m =
-    Html.div [ css [ Style.full, displayFlex, alignItems center ], Events.onClick m ] [ Icon.angleRight Color.white 12 ]
-
-
-hideEditorButton : msg -> Html msg
-hideEditorButton m =
-    Html.div [ css [ Style.full, displayFlex, alignItems center ], Events.onClick m ] [ Icon.angleLeft Color.white 12 ]
-
-
-onStartWindowResize : (Int -> msg) -> Attribute msg
-onStartWindowResize e =
-    Events.on "mousedown" (D.map e pageX)
-
-
-pageX : D.Decoder Int
-pageX =
-    D.field "pageX" D.int

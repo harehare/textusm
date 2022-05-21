@@ -9,14 +9,14 @@ type Breakpoint
     | Large (List Css.Style)
 
 
-small : List Css.Style -> Breakpoint
-small s =
-    Small s
-
-
 large : List Css.Style -> Breakpoint
 large s =
     Large s
+
+
+small : List Css.Style -> Breakpoint
+small s =
+    Small s
 
 
 style : List Css.Style -> List Breakpoint -> Css.Style

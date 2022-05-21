@@ -3,79 +3,9 @@ module Style.Color exposing (bgAccent, bgActivity, bgDefault, bgDisabled, bgLigh
 import Css exposing (Color, backgroundColor, color, hex, transparent)
 
 
-textColor : Css.Style
-textColor =
-    color <| hex "#EBEBEF"
-
-
-textActivity : Css.Style
-textActivity =
-    color activityColor
-
-
-textLight : Css.Style
-textLight =
-    color lightBackgroundColor
-
-
-textSecondaryColor : Css.Style
-textSecondaryColor =
-    color <| hex "#b9b9b9"
-
-
-textAccent : Css.Style
-textAccent =
-    color accentColor
-
-
-textComment : Css.Style
-textComment =
-    color <| hex "#008800"
-
-
-textMain : Css.Style
-textMain =
-    color <| hex "#273037"
-
-
-textDark : Css.Style
-textDark =
-    color darkTextColor
-
-
-textError : Css.Style
-textError =
-    color errorColor
-
-
-bgMain : Css.Style
-bgMain =
-    backgroundColor <| hex "#273037"
-
-
-bgDefault : Css.Style
-bgDefault =
-    backgroundColor <| hex "#323d46"
-
-
-bgLight : Css.Style
-bgLight =
-    backgroundColor lightBackgroundColor
-
-
-bgTransparent : Css.Style
-bgTransparent =
-    backgroundColor <| transparent
-
-
 bgAccent : Css.Style
 bgAccent =
     backgroundColor accentColor
-
-
-bgDisabled : Css.Style
-bgDisabled =
-    backgroundColor disabledColor
 
 
 bgActivity : Css.Style
@@ -83,19 +13,39 @@ bgActivity =
     backgroundColor activityColor
 
 
-accentColor : Color
-accentColor =
-    hex "#3e9bcd"
+bgDefault : Css.Style
+bgDefault =
+    backgroundColor <| hex "#323d46"
 
 
-darkTextColor : Color
-darkTextColor =
-    hex "#555555"
+bgDisabled : Css.Style
+bgDisabled =
+    backgroundColor disabledColor
+
+
+bgLight : Css.Style
+bgLight =
+    backgroundColor lightBackgroundColor
+
+
+bgMain : Css.Style
+bgMain =
+    backgroundColor <| hex "#273037"
+
+
+bgTransparent : Css.Style
+bgTransparent =
+    backgroundColor <| transparent
 
 
 borderColor : Color
 borderColor =
     hex "#fefefe"
+
+
+darkTextColor : Color
+darkTextColor =
+    hex "#555555"
 
 
 disabledColor : Color
@@ -108,11 +58,61 @@ errorColor =
     hex "#f55c64"
 
 
-activityColor : Color
-activityColor =
-    hex "#266b9a"
-
-
 lightBackgroundColor : Color
 lightBackgroundColor =
     hex "#fefefe"
+
+
+textAccent : Css.Style
+textAccent =
+    color accentColor
+
+
+textActivity : Css.Style
+textActivity =
+    color activityColor
+
+
+textColor : Css.Style
+textColor =
+    color <| hex "#EBEBEF"
+
+
+textComment : Css.Style
+textComment =
+    color <| hex "#008800"
+
+
+textDark : Css.Style
+textDark =
+    color darkTextColor
+
+
+textError : Css.Style
+textError =
+    color errorColor
+
+
+textLight : Css.Style
+textLight =
+    color lightBackgroundColor
+
+
+textMain : Css.Style
+textMain =
+    color <| hex "#273037"
+
+
+textSecondaryColor : Css.Style
+textSecondaryColor =
+    color <| hex "#b9b9b9"
+
+
+accentColor : Color
+accentColor =
+    hex "#3e9bcd"
+
+
+activityColor : Color
+activityColor =
+    hex "#266b9a"

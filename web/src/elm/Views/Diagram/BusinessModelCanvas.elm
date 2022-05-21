@@ -16,36 +16,36 @@ view model =
     case model.data of
         DiagramData.BusinessModelCanvas b ->
             let
-                itemHeight : Int
-                itemHeight =
-                    Basics.max Constants.itemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
-
-                (BusinessModelCanvasItem keyPartners) =
-                    b.keyPartners
-
-                (BusinessModelCanvasItem keyActivities) =
-                    b.keyActivities
-
-                (BusinessModelCanvasItem keyResources) =
-                    b.keyResources
-
-                (BusinessModelCanvasItem valuePropotion) =
-                    b.valuePropotion
-
-                (BusinessModelCanvasItem customerRelationships) =
-                    b.customerRelationships
-
                 (BusinessModelCanvasItem channels) =
                     b.channels
-
-                (BusinessModelCanvasItem customerSegments) =
-                    b.customerSegments
 
                 (BusinessModelCanvasItem costStructure) =
                     b.costStructure
 
+                (BusinessModelCanvasItem customerRelationships) =
+                    b.customerRelationships
+
+                (BusinessModelCanvasItem customerSegments) =
+                    b.customerSegments
+
+                itemHeight : Int
+                itemHeight =
+                    Basics.max Constants.itemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
+
+                (BusinessModelCanvasItem keyActivities) =
+                    b.keyActivities
+
+                (BusinessModelCanvasItem keyPartners) =
+                    b.keyPartners
+
+                (BusinessModelCanvasItem keyResources) =
+                    b.keyResources
+
                 (BusinessModelCanvasItem revenueStreams) =
                     b.revenueStreams
+
+                (BusinessModelCanvasItem valuePropotion) =
+                    b.valuePropotion
             in
             Svg.g
                 []

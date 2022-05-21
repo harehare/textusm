@@ -29,6 +29,11 @@ type FileType
     | Mermaid Extension
 
 
+ddl : FileType
+ddl =
+    Ddl ".sql"
+
+
 extension : FileType -> Extension
 extension fileType =
     case fileType of
@@ -57,6 +62,41 @@ extension fileType =
             ex
 
 
+html : FileType
+html =
+    Html ".html"
+
+
+markdown : FileType
+markdown =
+    Markdown ".md"
+
+
+mermaid : FileType
+mermaid =
+    Mermaid ".mermaid"
+
+
+pdf : FileType
+pdf =
+    Pdf ".pdf"
+
+
+plainText : FileType
+plainText =
+    PlainText ".txt"
+
+
+png : FileType
+png =
+    Png ".png"
+
+
+svg : FileType
+svg =
+    Svg ".svg"
+
+
 toString : FileType -> String
 toString fileType =
     case fileType of
@@ -83,43 +123,3 @@ toString fileType =
 
         Mermaid _ ->
             "Mermaid"
-
-
-png : FileType
-png =
-    Png ".png"
-
-
-svg : FileType
-svg =
-    Svg ".svg"
-
-
-pdf : FileType
-pdf =
-    Pdf ".pdf"
-
-
-html : FileType
-html =
-    Html ".html"
-
-
-ddl : FileType
-ddl =
-    Ddl ".sql"
-
-
-markdown : FileType
-markdown =
-    Markdown ".md"
-
-
-plainText : FileType
-plainText =
-    PlainText ".txt"
-
-
-mermaid : FileType
-mermaid =
-    Mermaid ".mermaid"

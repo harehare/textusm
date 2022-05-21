@@ -350,6 +350,25 @@ update msg model =
                 SelectAll id ->
                     Return.command (selectTextById id)
 
+                GotTimeZone zone ->
+                    Return.andThen (\m -> Return.singleton { m | timeZone = zone })
+
+                GotNow now ->
+                    Return.andThen
+                        (\m ->
+                            let
+                                d : Posix
+                                d =
+                                    TimeEx.add TimeEx.Second (Duration.toInt m.expireSecond) m.timeZone now
+                            in
+                            Return.singleton
+                                { m
+                                    | expireDate = DateUtils.millisToDateString m.timeZone d
+                                    , expireTime = DateUtils.millisToTimeString m.timeZone d
+                                    , now = now
+                                }
+                        )
+
                 ChangeEmbedWidth width ->
                     case String.toInt width of
                         Just w ->
@@ -362,6 +381,46 @@ update msg model =
                     case String.toInt height of
                         Just h ->
                             Return.andThen <| \m -> Return.singleton { m | embedSize = ( Size.getWidth model.embedSize, h ) }
+
+                        Nothing ->
+                            Return.zero
+
+                DateChange date ->
+                    case DateUtils.stringToPosix model.timeZone date model.expireTime of
+                        Just d ->
+                            let
+                                diffSecond : Int
+                                diffSecond =
+                                    TimeEx.diff TimeEx.Second model.timeZone model.now d
+                            in
+                            Return.andThen
+                                (\m ->
+                                    Return.singleton
+                                        { m
+                                            | expireDate = date
+                                            , expireSecond = Duration.seconds diffSecond
+                                        }
+                                )
+
+                        Nothing ->
+                            Return.zero
+
+                TimeChange time ->
+                    case DateUtils.stringToPosix model.timeZone model.expireDate time of
+                        Just d ->
+                            let
+                                diffSecond : Int
+                                diffSecond =
+                                    TimeEx.diff TimeEx.Second model.timeZone model.now d
+                            in
+                            Return.andThen
+                                (\m ->
+                                    Return.singleton
+                                        { m
+                                            | expireTime = time
+                                            , expireSecond = Duration.seconds diffSecond
+                                        }
+                                )
 
                         Nothing ->
                             Return.zero
@@ -385,25 +444,6 @@ update msg model =
 
                 Shared (Err e) ->
                     Return.andThen (\m -> Return.singleton { m | token = Failure e })
-
-                GotTimeZone zone ->
-                    Return.andThen (\m -> Return.singleton { m | timeZone = zone })
-
-                GotNow now ->
-                    Return.andThen
-                        (\m ->
-                            let
-                                d : Posix
-                                d =
-                                    TimeEx.add TimeEx.Second (Duration.toInt m.expireSecond) m.timeZone now
-                            in
-                            Return.singleton
-                                { m
-                                    | expireDate = DateUtils.millisToDateString m.timeZone d
-                                    , expireTime = DateUtils.millisToTimeString m.timeZone d
-                                    , now = now
-                                }
-                        )
 
                 UrlCopy ->
                     if model.ip.error then
@@ -513,51 +553,8 @@ update msg model =
                 EmbedCopied ->
                     Return.andThen (\m -> Return.singleton { m | embedCopyState = NotCopy })
 
-                DateChange date ->
-                    case DateUtils.stringToPosix model.timeZone date model.expireTime of
-                        Just d ->
-                            let
-                                diffSecond : Int
-                                diffSecond =
-                                    TimeEx.diff TimeEx.Second model.timeZone model.now d
-                            in
-                            Return.andThen
-                                (\m ->
-                                    Return.singleton
-                                        { m
-                                            | expireDate = date
-                                            , expireSecond = Duration.seconds diffSecond
-                                        }
-                                )
-
-                        Nothing ->
-                            Return.zero
-
-                TimeChange time ->
-                    case DateUtils.stringToPosix model.timeZone model.expireDate time of
-                        Just d ->
-                            let
-                                diffSecond : Int
-                                diffSecond =
-                                    TimeEx.diff TimeEx.Second model.timeZone model.now d
-                            in
-                            Return.andThen
-                                (\m ->
-                                    Return.singleton
-                                        { m
-                                            | expireTime = time
-                                            , expireSecond = Duration.seconds diffSecond
-                                        }
-                                )
-
-                        Nothing ->
-                            Return.zero
-
                 Close ->
                     Return.zero
-
-                EditPassword p ->
-                    Return.andThen (\m -> Return.singleton { m | password = Just p })
 
                 UsePassword f ->
                     Return.andThen
@@ -572,6 +569,9 @@ update msg model =
                                             Nothing
                                 }
                         )
+
+                EditPassword p ->
+                    Return.andThen (\m -> Return.singleton { m | password = Just p })
 
                 UseLimitByIP f ->
                     Return.andThen

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "automatically created by": "elm-review suppress",
+  "learn more": "elm-review suppress --help",
+  "suppressions": [
+    { "count": 4, "filePath": "src/elm/Page/List.elm" },
+    { "count": 2, "filePath": "src/elm/Dialog/Share.elm" },
+    { "count": 2, "filePath": "src/elm/Views/Diagram/Views.elm" },
+    { "count": 1, "filePath": "src/elm/Models/DiagramType.elm" }
+  ]
+}

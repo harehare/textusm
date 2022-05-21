@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "automatically created by": "elm-review suppress",
+  "learn more": "elm-review suppress --help",
+  "suppressions": [
+    { "count": 31, "filePath": "src/elm/Views/Diagram/UseCaseDiagram.elm" },
+    { "count": 17, "filePath": "src/elm/Dialog/Share.elm" },
+    { "count": 11, "filePath": "src/elm/Page/List.elm" },
+    { "count": 11, "filePath": "src/elm/Views/Diagram/ER.elm" },
+    { "count": 10, "filePath": "src/elm/Views/Diagram/Views.elm" },
+    { "count": 9, "filePath": "src/elm/Views/Diagram/UserStoryMap.elm" },
+    { "count": 7, "filePath": "src/elm/Views/Diagram/Canvas.elm" },
+    { "count": 7, "filePath": "src/elm/Views/Diagram/Card.elm" },
+    { "count": 6, "filePath": "src/elm/Views/Diagram/MindMap.elm" },
+    { "count": 5, "filePath": "src/elm/Views/Diagram/FreeForm.elm" },
+    { "count": 5, "filePath": "src/elm/Views/Diagram/ImpactMap.elm" },
+    { "count": 4, "filePath": "src/elm/Api/Request.elm" },
+    { "count": 4, "filePath": "src/elm/Views/Diagram/Line.elm" },
+    { "count": 3, "filePath": "src/elm/Extension/Lib.elm" },
+    { "count": 3, "filePath": "src/elm/Extension/VSCode.elm" },
+    { "count": 3, "filePath": "src/elm/Views/Diagram/SiteMap.elm" },
+    { "count": 3, "filePath": "src/elm/Views/Diagram/Text.elm" },
+    { "count": 3, "filePath": "tests/DiagramTests.elm" },
+    { "count": 2, "filePath": "src/elm/Views/Diagram/GanttChart.elm" },
+    { "count": 2, "filePath": "src/elm/Views/Diagram/MiniMap.elm" },
+    { "count": 2, "filePath": "src/elm/Views/Diagram/Search.elm" },
+    { "count": 2, "filePath": "src/elm/Views/Diagram/SequenceDiagram.elm" },
+    { "count": 2, "filePath": "src/elm/Views/Diagram/TextNode.elm" }
+  ]
+}

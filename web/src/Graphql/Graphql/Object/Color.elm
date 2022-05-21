@@ -11,12 +11,12 @@ import Json.Decode as D
 
 
 {-| -}
-foregroundColor : SelectionSet String Graphql.Object.Color
-foregroundColor =
-    Object.selectionForField "String" "foregroundColor" [] D.string
-
-
-{-| -}
 backgroundColor : SelectionSet String Graphql.Object.Color
 backgroundColor =
     Object.selectionForField "String" "backgroundColor" [] D.string
+
+
+{-| -}
+foregroundColor : SelectionSet String Graphql.Object.Color
+foregroundColor =
+    Object.selectionForField "String" "foregroundColor" [] D.string

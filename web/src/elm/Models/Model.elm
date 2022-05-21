@@ -38,6 +38,42 @@ import Route exposing (Route)
 import Url
 
 
+type alias BrowserStatus =
+    { isOnline : Bool
+    , isDarkMode : Bool
+    , canUseNativeFileSystem : Bool
+    }
+
+
+type Menu
+    = Export
+    | HeaderMenu
+    | LoginMenu
+
+
+type alias Model =
+    { key : Nav.Key
+    , url : Url.Url
+    , page : Page
+    , diagramModel : Diagram.Model
+    , diagramListModel : DiagramList.Model
+    , settingsModel : Settings.Model
+    , shareModel : Share.Model
+    , session : Session
+    , currentDiagram : DiagramItem
+    , openMenu : Maybe Menu
+    , window : Window
+    , progress : Bool
+    , lang : Lang
+    , prevRoute : Maybe Route
+    , shareState : ShareState
+    , browserStatus : BrowserStatus
+    , confirmDialog : ConfirmDialog Msg
+    , snackbar : Snackbar Msg
+    , notification : Notification
+    }
+
+
 type Msg
     = NoOp
     | Init Viewport
@@ -100,19 +136,6 @@ type Msg
     | SavedLocalFile String
 
 
-type Menu
-    = Export
-    | HeaderMenu
-    | LoginMenu
-
-
-type WindowState
-    = Editor
-    | Preview
-    | Both
-    | Fullscreen
-
-
 type alias Window =
     { position : Int
     , moveStart : Bool
@@ -121,54 +144,11 @@ type alias Window =
     }
 
 
-type alias BrowserStatus =
-    { isOnline : Bool
-    , isDarkMode : Bool
-    , canUseNativeFileSystem : Bool
-    }
-
-
-type alias Model =
-    { key : Nav.Key
-    , url : Url.Url
-    , page : Page
-    , diagramModel : Diagram.Model
-    , diagramListModel : DiagramList.Model
-    , settingsModel : Settings.Model
-    , shareModel : Share.Model
-    , session : Session
-    , currentDiagram : DiagramItem
-    , openMenu : Maybe Menu
-    , window : Window
-    , progress : Bool
-    , lang : Lang
-    , prevRoute : Maybe Route
-    , shareState : ShareState
-    , browserStatus : BrowserStatus
-    , confirmDialog : ConfirmDialog Msg
-    , snackbar : Snackbar Msg
-    , notification : Notification
-    }
-
-
-windowOfMoveX : Lens Window Int
-windowOfMoveX =
-    Lens .moveX (\b a -> { a | moveX = b })
-
-
-windowOfMoveStart : Lens Window Bool
-windowOfMoveStart =
-    Lens .moveStart (\b a -> { a | moveStart = b })
-
-
-windowOfState : Lens Window WindowState
-windowOfState =
-    Lens .state (\b a -> { a | state = b })
-
-
-ofIsOnline : Lens BrowserStatus Bool
-ofIsOnline =
-    Lens .isOnline (\b a -> { a | isOnline = b })
+type WindowState
+    = Editor
+    | Preview
+    | Both
+    | Fullscreen
 
 
 isFullscreen : Window -> Bool
@@ -179,3 +159,23 @@ isFullscreen window =
 
         _ ->
             False
+
+
+ofIsOnline : Lens BrowserStatus Bool
+ofIsOnline =
+    Lens .isOnline (\b a -> { a | isOnline = b })
+
+
+windowOfMoveStart : Lens Window Bool
+windowOfMoveStart =
+    Lens .moveStart (\b a -> { a | moveStart = b })
+
+
+windowOfMoveX : Lens Window Int
+windowOfMoveX =
+    Lens .moveX (\b a -> { a | moveX = b })
+
+
+windowOfState : Lens Window WindowState
+windowOfState =
+    Lens .state (\b a -> { a | state = b })

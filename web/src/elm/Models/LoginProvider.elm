@@ -12,6 +12,13 @@ type LoginProvider
     | Github (Maybe AccessToken)
 
 
+decoder : D.Decoder LoginProvider
+decoder =
+    D.map2 from
+        (D.field "provider" D.string)
+        (D.maybe (D.field "accessToken" D.string))
+
+
 isGithubLogin : LoginProvider -> Bool
 isGithubLogin provider =
     case provider of
@@ -35,18 +42,11 @@ toString provider =
 from : String -> Maybe AccessToken -> LoginProvider
 from provider accessToken =
     case provider of
-        "google.com" ->
-            Google
-
         "github.com" ->
             Github accessToken
 
-        _ ->
+        "google.com" ->
             Google
 
-
-decoder : D.Decoder LoginProvider
-decoder =
-    D.map2 from
-        (D.field "provider" D.string)
-        (D.maybe (D.field "accessToken" D.string))
+        _ ->
+            Google

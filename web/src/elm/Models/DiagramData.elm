@@ -18,10 +18,6 @@ import Models.Diagram.UserStoryMap exposing (UserStoryMap)
 import Models.Item exposing (Items)
 
 
-type alias Hierarchy =
-    Int
-
-
 type DiagramData
     = Empty
     | UserStoryMap UserStoryMap
@@ -42,3 +38,7 @@ type DiagramData
     | FreeForm FreeForm
     | GanttChart (Maybe GanttChart)
     | UseCaseDiagram UseCaseDiagram
+
+
+type alias Hierarchy =
+    Int

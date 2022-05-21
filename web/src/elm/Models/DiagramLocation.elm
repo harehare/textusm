@@ -14,6 +14,10 @@ import Json.Decode as D
 import Json.Encode as E
 
 
+type alias CanUseNativeFileSystem =
+    Bool
+
+
 type DiagramLocation
     = Local
     | Remote
@@ -22,12 +26,13 @@ type DiagramLocation
     | LocalFileSystem
 
 
-type alias CanUseNativeFileSystem =
-    Bool
-
-
 type alias IsGithubUser =
     Bool
+
+
+decoder : D.Decoder DiagramLocation
+decoder =
+    D.map fromString D.string
 
 
 enabled : CanUseNativeFileSystem -> IsGithubUser -> List ( String, DiagramLocation )
@@ -39,19 +44,46 @@ enabled canUseNativeFileSystem isGithubUser =
             , ( "Local File System", LocalFileSystem )
             ]
 
-        ( False, True ) ->
-            [ ( "System", Remote )
-            , ( "Github Gist", Gist )
-            ]
-
         ( True, False ) ->
             [ ( "System", Remote )
             , ( "Local File System", LocalFileSystem )
             ]
 
+        ( False, True ) ->
+            [ ( "System", Remote )
+            , ( "Github Gist", Gist )
+            ]
+
         _ ->
             [ ( "System", Remote )
             ]
+
+
+encoder : DiagramLocation -> E.Value
+encoder location =
+    E.string <| toString location
+
+
+fromString : String -> DiagramLocation
+fromString s =
+    case s of
+        "gist" ->
+            Gist
+
+        "googledrive" ->
+            GoogleDrive
+
+        "local" ->
+            Local
+
+        "localfilesystem" ->
+            LocalFileSystem
+
+        "remote" ->
+            Remote
+
+        _ ->
+            Local
 
 
 isRemote : DiagramLocation -> Bool
@@ -81,35 +113,3 @@ toString loc =
 
         LocalFileSystem ->
             "localfilesystem"
-
-
-fromString : String -> DiagramLocation
-fromString s =
-    case s of
-        "local" ->
-            Local
-
-        "remote" ->
-            Remote
-
-        "gist" ->
-            Gist
-
-        "googledrive" ->
-            GoogleDrive
-
-        "localfilesystem" ->
-            LocalFileSystem
-
-        _ ->
-            Local
-
-
-decoder : D.Decoder DiagramLocation
-decoder =
-    D.map fromString D.string
-
-
-encoder : DiagramLocation -> E.Value
-encoder location =
-    E.string <| toString location

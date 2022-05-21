@@ -23,84 +23,30 @@ type Text
     | Saved String
 
 
-isEmpty : Text -> Bool
-isEmpty text =
-    text == Empty
-
-
-isChanged : Text -> Bool
-isChanged text =
-    case text of
-        Changed _ ->
-            True
-
-        _ ->
-            False
-
-
-toString : Text -> String
-toString text =
-    case text of
-        Empty ->
-            ""
-
-        Changed t ->
-            t
-
-        Saved t ->
-            t
-
-
-fromString : String -> Text
-fromString text =
-    if text == "" then
-        Empty
-
-    else
-        Saved text
-
-
-lines : Text -> List String
-lines text =
-    toString text |> String.lines
-
-
-getLine : Int -> Text -> String
-getLine lineNo text =
-    lines text
-        |> getAt lineNo
-        |> Maybe.withDefault ""
-
-
-empty : Text
-empty =
-    Empty
-
-
-saved : Text -> Text
-saved text =
-    case text of
-        Saved t ->
-            Saved t
-
-        Changed t ->
-            Saved t
-
-        Empty ->
-            Empty
-
-
 change : Text -> Text
 change text =
     case text of
-        Saved t ->
-            Changed t
+        Empty ->
+            Empty
 
         Changed t ->
             Changed t
 
-        Empty ->
-            Empty
+        Saved t ->
+            Changed t
+
+
+decoder : Decoder Text
+decoder =
+    D.map
+        (\t ->
+            if t == "" then
+                Empty
+
+            else
+                Saved t
+        )
+        D.string
 
 
 edit : Text -> String -> Text
@@ -130,14 +76,68 @@ edit currentText newText =
         Changed newText
 
 
-decoder : Decoder Text
-decoder =
-    D.map
-        (\t ->
-            if t == "" then
-                Empty
+empty : Text
+empty =
+    Empty
 
-            else
-                Saved t
-        )
-        D.string
+
+fromString : String -> Text
+fromString text =
+    if text == "" then
+        Empty
+
+    else
+        Saved text
+
+
+getLine : Int -> Text -> String
+getLine lineNo text =
+    lines text
+        |> getAt lineNo
+        |> Maybe.withDefault ""
+
+
+isChanged : Text -> Bool
+isChanged text =
+    case text of
+        Changed _ ->
+            True
+
+        _ ->
+            False
+
+
+isEmpty : Text -> Bool
+isEmpty text =
+    text == Empty
+
+
+lines : Text -> List String
+lines text =
+    toString text |> String.lines
+
+
+saved : Text -> Text
+saved text =
+    case text of
+        Empty ->
+            Empty
+
+        Changed t ->
+            Saved t
+
+        Saved t ->
+            Saved t
+
+
+toString : Text -> String
+toString text =
+    case text of
+        Empty ->
+            ""
+
+        Changed t ->
+            t
+
+        Saved t ->
+            t

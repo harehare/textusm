@@ -28,6 +28,10 @@ import Review.Rule exposing (Rule)
 import Simplify
 import UseCamelCase
 import Review.Rule exposing (Rule)
+import NoUnsortedCases
+import NoUnsortedLetDeclarations
+import NoUnsortedRecords
+import NoUnsortedTopLevelDeclarations
 
 
 config : List Rule
@@ -63,4 +67,19 @@ config =
     , NoSinglePatternCase.rule NoSinglePatternCase.fixInArgument
     , UseCamelCase.rule UseCamelCase.default
     , Simplify.rule Simplify.defaults
+    , NoUnsortedCases.rule NoUnsortedCases.defaults
+    , NoUnsortedLetDeclarations.rule
+        (NoUnsortedLetDeclarations.sortLetDeclarations
+            |> NoUnsortedLetDeclarations.alphabetically
+        )
+    , NoUnsortedRecords.rule
+        (NoUnsortedRecords.defaults
+            |> NoUnsortedRecords.reportAmbiguousRecordsWithoutFix
+        )
+    , NoUnsortedTopLevelDeclarations.rule
+        (NoUnsortedTopLevelDeclarations.sortTopLevelDeclarations
+            |> NoUnsortedTopLevelDeclarations.portsFirst
+            |> NoUnsortedTopLevelDeclarations.exposedOrderWithPrivateLast
+            |> NoUnsortedTopLevelDeclarations.alphabetically
+        )
     ]

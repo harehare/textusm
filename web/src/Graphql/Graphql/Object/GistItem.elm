@@ -14,27 +14,9 @@ import Json.Decode as D
 
 
 {-| -}
-id : SelectionSet Graphql.ScalarCodecs.Id Graphql.Object.GistItem
-id =
-    Object.selectionForField "ScalarCodecs.Id" "id" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
-
-
-{-| -}
-url : SelectionSet String Graphql.Object.GistItem
-url =
-    Object.selectionForField "String" "url" [] D.string
-
-
-{-| -}
-title : SelectionSet String Graphql.Object.GistItem
-title =
-    Object.selectionForField "String" "title" [] D.string
-
-
-{-| -}
-thumbnail : SelectionSet (Maybe String) Graphql.Object.GistItem
-thumbnail =
-    Object.selectionForField "(Maybe String)" "thumbnail" [] (D.string |> D.nullable)
+createdAt : SelectionSet Graphql.ScalarCodecs.Time Graphql.Object.GistItem
+createdAt =
+    Object.selectionForField "ScalarCodecs.Time" "createdAt" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecTime |> .decoder)
 
 
 {-| -}
@@ -44,18 +26,36 @@ diagram =
 
 
 {-| -}
+id : SelectionSet Graphql.ScalarCodecs.Id Graphql.Object.GistItem
+id =
+    Object.selectionForField "ScalarCodecs.Id" "id" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
+
+
+{-| -}
 isBookmark : SelectionSet Bool Graphql.Object.GistItem
 isBookmark =
     Object.selectionForField "Bool" "isBookmark" [] D.bool
 
 
 {-| -}
-createdAt : SelectionSet Graphql.ScalarCodecs.Time Graphql.Object.GistItem
-createdAt =
-    Object.selectionForField "ScalarCodecs.Time" "createdAt" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecTime |> .decoder)
+thumbnail : SelectionSet (Maybe String) Graphql.Object.GistItem
+thumbnail =
+    Object.selectionForField "(Maybe String)" "thumbnail" [] (D.string |> D.nullable)
+
+
+{-| -}
+title : SelectionSet String Graphql.Object.GistItem
+title =
+    Object.selectionForField "String" "title" [] D.string
 
 
 {-| -}
 updatedAt : SelectionSet Graphql.ScalarCodecs.Time Graphql.Object.GistItem
 updatedAt =
     Object.selectionForField "ScalarCodecs.Time" "updatedAt" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecTime |> .decoder)
+
+
+{-| -}
+url : SelectionSet String Graphql.Object.GistItem
+url =
+    Object.selectionForField "String" "url" [] D.string

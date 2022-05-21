@@ -17,10 +17,6 @@ type FreeForm
     = FreeForm FreeFormItems
 
 
-type alias FreeFormItems =
-    List FreeFormItem
-
-
 type FreeFormItem
     = Card Item
     | HorizontalLine Item
@@ -29,9 +25,72 @@ type FreeFormItem
     | Text Item
 
 
+type alias FreeFormItems =
+    List FreeFormItem
+
+
+from : Items -> FreeForm
+from items =
+    FreeForm
+        (items
+            |> Item.map itemToFreeFormItem
+            |> List.concat
+        )
+
+
 getItems : FreeForm -> FreeFormItems
 getItems (FreeForm items) =
     items
+
+
+size : DiagramSettings.Settings -> FreeForm -> Size
+size settings freeForm =
+    let
+        freeFormHeight : Int
+        freeFormHeight =
+            List.map
+                (\( _, h ) ->
+                    h
+                )
+                positionList
+                |> List.maximum
+                |> Maybe.withDefault 0
+
+        freeFormWidth : Int
+        freeFormWidth =
+            List.map
+                (\( w, _ ) ->
+                    w
+                )
+                positionList
+                |> List.maximum
+                |> Maybe.withDefault 0
+
+        items : FreeFormItems
+        items =
+            freeForm
+                |> unwrap
+
+        positionList : List ( Int, Int )
+        positionList =
+            List.indexedMap
+                (\i item ->
+                    let
+                        item_ : Item
+                        item_ =
+                            unwrapItem item
+
+                        ( offsetX, offsetY ) =
+                            Item.getOffset item_
+                    in
+                    ( 16 + (modBy 4 i + 1) * (settings.size.width + 32)
+                    , (i // 4 + 1) * (settings.size.height + 32)
+                    )
+                        |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
+                )
+                items
+    in
+    ( freeFormWidth, freeFormHeight )
 
 
 itemToFreeFormItem : Item -> FreeFormItems
@@ -74,15 +133,6 @@ itemToFreeFormItem item =
         ]
 
 
-from : Items -> FreeForm
-from items =
-    FreeForm
-        (items
-            |> Item.map itemToFreeFormItem
-            |> List.concat
-        )
-
-
 unwrap : FreeForm -> FreeFormItems
 unwrap (FreeForm items) =
     items
@@ -105,53 +155,3 @@ unwrapItem item =
 
         Text item_ ->
             item_
-
-
-size : DiagramSettings.Settings -> FreeForm -> Size
-size settings freeForm =
-    let
-        items : FreeFormItems
-        items =
-            freeForm
-                |> unwrap
-
-        positionList : List ( Int, Int )
-        positionList =
-            List.indexedMap
-                (\i item ->
-                    let
-                        item_ : Item
-                        item_ =
-                            unwrapItem item
-
-                        ( offsetX, offsetY ) =
-                            Item.getOffset item_
-                    in
-                    ( 16 + (modBy 4 i + 1) * (settings.size.width + 32)
-                    , (i // 4 + 1) * (settings.size.height + 32)
-                    )
-                        |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
-                )
-                items
-
-        freeFormWidth : Int
-        freeFormWidth =
-            List.map
-                (\( w, _ ) ->
-                    w
-                )
-                positionList
-                |> List.maximum
-                |> Maybe.withDefault 0
-
-        freeFormHeight : Int
-        freeFormHeight =
-            List.map
-                (\( _, h ) ->
-                    h
-                )
-                positionList
-                |> List.maximum
-                |> Maybe.withDefault 0
-    in
-    ( freeFormWidth, freeFormHeight )

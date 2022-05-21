@@ -38,6 +38,36 @@ type alias ShareCondition =
     }
 
 
+allItems : ( Int, Int ) -> SelectionSet (Maybe (List DiagramItem)) RootQuery
+allItems ( offset, limit ) =
+    Query.allItems (\optionals -> { optionals | offset = Present offset, limit = Present limit }) <|
+        Selection.allItemsSelection
+
+
+gistItem : String -> SelectionSet DiagramItem RootQuery
+gistItem id =
+    Query.gistItem { id = Graphql.Scalar.Id id } <|
+        (SelectionSet.succeed DiagramItem
+            |> with (Graphql.Object.GistItem.id |> SelectionSet.map (\(Graphql.Scalar.Id id_) -> Just <| DiagramId.fromString id_))
+            |> hardcoded Text.empty
+            |> with Graphql.Object.GistItem.diagram
+            |> with (Graphql.Object.GistItem.title |> SelectionSet.map (\value -> Title.fromString value))
+            |> hardcoded Nothing
+            |> hardcoded False
+            |> hardcoded False
+            |> hardcoded True
+            |> hardcoded (Just DiagramLocation.Gist)
+            |> with (Graphql.Object.GistItem.createdAt |> DiagramItem.mapToDateTime)
+            |> with (Graphql.Object.GistItem.updatedAt |> DiagramItem.mapToDateTime)
+        )
+
+
+gistItems : ( Int, Int ) -> SelectionSet (List (Maybe DiagramItem)) RootQuery
+gistItems ( offset, limit ) =
+    Query.gistItems (\optionals -> { optionals | offset = Present offset, limit = Present limit }) <|
+        Selection.gistItemSelection
+
+
 item : String -> Bool -> SelectionSet DiagramItem RootQuery
 item id isPublic =
     Query.item (\optionals -> { optionals | isPublic = Present isPublic }) { id = Graphql.Scalar.Id id } <|
@@ -62,10 +92,35 @@ items ( offset, limit ) params =
         Selection.itemSelection
 
 
-allItems : ( Int, Int ) -> SelectionSet (Maybe (List DiagramItem)) RootQuery
-allItems ( offset, limit ) =
-    Query.allItems (\optionals -> { optionals | offset = Present offset, limit = Present limit }) <|
-        Selection.allItemsSelection
+settings : Diagram -> SelectionSet DiagramSettings.Settings RootQuery
+settings diagram =
+    Query.settings { diagram = diagram } <|
+        Selection.settingsSelection
+
+
+shareCondition : String -> SelectionSet (Maybe ShareCondition) RootQuery
+shareCondition id =
+    Query.shareCondition { id = Graphql.Scalar.Id id } <|
+        (SelectionSet.succeed ShareCondition
+            |> with
+                (Graphql.Object.ShareCondition.allowIPList
+                    |> SelectionSet.map
+                        (\v ->
+                            Maybe.withDefault [] v
+                                |> List.filterMap IpAddress.fromString
+                        )
+                )
+            |> with
+                (Graphql.Object.ShareCondition.allowEmailList
+                    |> SelectionSet.map
+                        (\v ->
+                            Maybe.withDefault [] v
+                                |> List.filterMap Email.fromString
+                        )
+                )
+            |> with Graphql.Object.ShareCondition.token
+            |> with Graphql.Object.ShareCondition.expireTime
+        )
 
 
 shareItem : String -> Maybe String -> SelectionSet DiagramItem RootQuery
@@ -97,58 +152,3 @@ shareItem token password =
             |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
             |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
         )
-
-
-shareCondition : String -> SelectionSet (Maybe ShareCondition) RootQuery
-shareCondition id =
-    Query.shareCondition { id = Graphql.Scalar.Id id } <|
-        (SelectionSet.succeed ShareCondition
-            |> with
-                (Graphql.Object.ShareCondition.allowIPList
-                    |> SelectionSet.map
-                        (\v ->
-                            Maybe.withDefault [] v
-                                |> List.filterMap IpAddress.fromString
-                        )
-                )
-            |> with
-                (Graphql.Object.ShareCondition.allowEmailList
-                    |> SelectionSet.map
-                        (\v ->
-                            Maybe.withDefault [] v
-                                |> List.filterMap Email.fromString
-                        )
-                )
-            |> with Graphql.Object.ShareCondition.token
-            |> with Graphql.Object.ShareCondition.expireTime
-        )
-
-
-gistItem : String -> SelectionSet DiagramItem RootQuery
-gistItem id =
-    Query.gistItem { id = Graphql.Scalar.Id id } <|
-        (SelectionSet.succeed DiagramItem
-            |> with (Graphql.Object.GistItem.id |> SelectionSet.map (\(Graphql.Scalar.Id id_) -> Just <| DiagramId.fromString id_))
-            |> hardcoded Text.empty
-            |> with Graphql.Object.GistItem.diagram
-            |> with (Graphql.Object.GistItem.title |> SelectionSet.map (\value -> Title.fromString value))
-            |> hardcoded Nothing
-            |> hardcoded False
-            |> hardcoded False
-            |> hardcoded True
-            |> hardcoded (Just DiagramLocation.Gist)
-            |> with (Graphql.Object.GistItem.createdAt |> DiagramItem.mapToDateTime)
-            |> with (Graphql.Object.GistItem.updatedAt |> DiagramItem.mapToDateTime)
-        )
-
-
-gistItems : ( Int, Int ) -> SelectionSet (List (Maybe DiagramItem)) RootQuery
-gistItems ( offset, limit ) =
-    Query.gistItems (\optionals -> { optionals | offset = Present offset, limit = Present limit }) <|
-        Selection.gistItemSelection
-
-
-settings : Diagram -> SelectionSet DiagramSettings.Settings RootQuery
-settings diagram =
-    Query.settings { diagram = diagram } <|
-        Selection.settingsSelection

@@ -16,31 +16,6 @@ type RequestError
     | Network HttpError
 
 
-fromString : String -> RequestError
-fromString s =
-    case s of
-        "RepositoryError: NotFound" ->
-            NotFound
-
-        "ServiceError: Forbidden" ->
-            Forbidden
-
-        "ServiceError: NoAuthorization" ->
-            NoAuthorization
-
-        "ServiceError: DecryptionFailed" ->
-            DecryptionFailed
-
-        "ServiceError: EncryptionFailed" ->
-            EncryptionFailed
-
-        "ServiceError: URLExpired" ->
-            URLExpired
-
-        _ ->
-            Unknown
-
-
 fromHttpError : Http.Error -> RequestError
 fromHttpError err =
     case err of
@@ -52,6 +27,21 @@ fromHttpError err =
 
         _ ->
             Unknown
+
+
+toError : Error a -> RequestError
+toError e =
+    case e of
+        GraphqlError _ errors ->
+            case List.head errors of
+                Just h ->
+                    fromString h.message
+
+                Nothing ->
+                    Unknown
+
+        HttpError httpError ->
+            Network httpError
 
 
 toMessage : RequestError -> Message
@@ -96,16 +86,26 @@ toMessage e =
                     Message.messageBadRequest
 
 
-toError : Error a -> RequestError
-toError e =
-    case e of
-        GraphqlError _ errors ->
-            case List.head errors of
-                Just h ->
-                    fromString h.message
+fromString : String -> RequestError
+fromString s =
+    case s of
+        "RepositoryError: NotFound" ->
+            NotFound
 
-                Nothing ->
-                    Unknown
+        "ServiceError: DecryptionFailed" ->
+            DecryptionFailed
 
-        HttpError httpError ->
-            Network httpError
+        "ServiceError: EncryptionFailed" ->
+            EncryptionFailed
+
+        "ServiceError: Forbidden" ->
+            Forbidden
+
+        "ServiceError: NoAuthorization" ->
+            NoAuthorization
+
+        "ServiceError: URLExpired" ->
+            URLExpired
+
+        _ ->
+            Unknown

@@ -35,53 +35,24 @@ type alias User =
     }
 
 
-isGuest : Session -> Bool
-isGuest session =
-    case session of
-        SignedIn _ ->
-            False
-
-        Guest ->
-            True
-
-
-isGithubUser : Session -> Bool
-isGithubUser session =
-    case session of
-        SignedIn user ->
-            LoginProvider.isGithubLogin user.loginProvider
-
-        Guest ->
-            False
+decoder : D.Decoder User
+decoder =
+    D.succeed User
+        |> required "displayName" D.string
+        |> required "email" D.string
+        |> required "photoURL" D.string
+        |> required "idToken" D.string
+        |> required "id" D.string
+        |> required "loginProvider" LoginProvider.decoder
 
 
-isSignedIn : Session -> Bool
-isSignedIn session =
-    case session of
-        SignedIn _ ->
-            True
+getAccessToken : Session -> Maybe String
+getAccessToken session =
+    case getUser session |> Maybe.map .loginProvider of
+        Just (LoginProvider.Github (Just a)) ->
+            Just a
 
-        Guest ->
-            False
-
-
-guest : Session
-guest =
-    Guest
-
-
-signIn : User -> Session
-signIn user =
-    SignedIn user
-
-
-getUser : Session -> Maybe User
-getUser session =
-    case session of
-        SignedIn u ->
-            Just u
-
-        Guest ->
+        _ ->
             Nothing
 
 
@@ -95,24 +66,54 @@ getIdToken session =
             Nothing
 
 
-getAccessToken : Session -> Maybe String
-getAccessToken session =
-    case getUser session |> Maybe.map .loginProvider of
-        Just (LoginProvider.Github (Just a)) ->
-            Just a
+getUser : Session -> Maybe User
+getUser session =
+    case session of
+        SignedIn u ->
+            Just u
 
-        _ ->
+        Guest ->
             Nothing
 
 
-updateIdToken : Session -> IdToken -> Session
-updateIdToken session idToken =
+guest : Session
+guest =
+    Guest
+
+
+isGithubUser : Session -> Bool
+isGithubUser session =
     case session of
         SignedIn user ->
-            SignedIn { user | idToken = IdToken.unwrap idToken }
+            LoginProvider.isGithubLogin user.loginProvider
 
         Guest ->
-            Guest
+            False
+
+
+isGuest : Session -> Bool
+isGuest session =
+    case session of
+        SignedIn _ ->
+            False
+
+        Guest ->
+            True
+
+
+isSignedIn : Session -> Bool
+isSignedIn session =
+    case session of
+        SignedIn _ ->
+            True
+
+        Guest ->
+            False
+
+
+signIn : User -> Session
+signIn user =
+    SignedIn user
 
 
 updateAccessToken : Session -> String -> Session
@@ -135,12 +136,11 @@ updateAccessToken session accessToken =
             Guest
 
 
-decoder : D.Decoder User
-decoder =
-    D.succeed User
-        |> required "displayName" D.string
-        |> required "email" D.string
-        |> required "photoURL" D.string
-        |> required "idToken" D.string
-        |> required "id" D.string
-        |> required "loginProvider" LoginProvider.decoder
+updateIdToken : Session -> IdToken -> Session
+updateIdToken session idToken =
+    case session of
+        SignedIn user ->
+            SignedIn { user | idToken = IdToken.unwrap idToken }
+
+        Guest ->
+            Guest

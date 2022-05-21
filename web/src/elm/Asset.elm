@@ -30,24 +30,9 @@ type Asset
     = Asset String
 
 
-logo : Asset
-logo =
-    asset "logo.svg"
-
-
-userStoryMap : Asset
-userStoryMap =
-    asset "diagram/usm.svg"
-
-
-mindMap : Asset
-mindMap =
-    asset "diagram/mmp.svg"
-
-
-impactMap : Asset
-impactMap =
-    asset "diagram/imm.svg"
+businessModelCanvas : Asset
+businessModelCanvas =
+    asset "diagram/bmc.svg"
 
 
 empathyMap : Asset
@@ -55,39 +40,9 @@ empathyMap =
     asset "diagram/emm.svg"
 
 
-siteMap : Asset
-siteMap =
-    asset "diagram/smp.svg"
-
-
-businessModelCanvas : Asset
-businessModelCanvas =
-    asset "diagram/bmc.svg"
-
-
-opportunityCanvas : Asset
-opportunityCanvas =
-    asset "diagram/opc.svg"
-
-
-userPersona : Asset
-userPersona =
-    asset "diagram/persona.svg"
-
-
-ganttChart : Asset
-ganttChart =
-    asset "diagram/gct.svg"
-
-
 erDiagram : Asset
 erDiagram =
     asset "diagram/erd.svg"
-
-
-kanban : Asset
-kanban =
-    asset "diagram/kanban.svg"
 
 
 fourLs : Asset
@@ -95,9 +50,24 @@ fourLs =
     asset "diagram/4ls.svg"
 
 
-startStopContinue : Asset
-startStopContinue =
-    asset "diagram/ssc.svg"
+freeform : Asset
+freeform =
+    asset "diagram/free.svg"
+
+
+ganttChart : Asset
+ganttChart =
+    asset "diagram/gct.svg"
+
+
+impactMap : Asset
+impactMap =
+    asset "diagram/imm.svg"
+
+
+kanban : Asset
+kanban =
+    asset "diagram/kanban.svg"
 
 
 kpt : Asset
@@ -105,9 +75,19 @@ kpt =
     asset "diagram/kpt.svg"
 
 
-table : Asset
-table =
-    asset "diagram/table.svg"
+logo : Asset
+logo =
+    asset "logo.svg"
+
+
+mindMap : Asset
+mindMap =
+    asset "diagram/mmp.svg"
+
+
+opportunityCanvas : Asset
+opportunityCanvas =
+    asset "diagram/opc.svg"
 
 
 sequenceDiagram : Asset
@@ -115,21 +95,41 @@ sequenceDiagram =
     asset "diagram/sed.svg"
 
 
-useCaseDiagram : Asset
-useCaseDiagram =
-    asset "diagram/ucd.svg"
-
-
-freeform : Asset
-freeform =
-    asset "diagram/free.svg"
-
-
-asset : String -> Asset
-asset name =
-    Asset ("/images/" ++ name)
+siteMap : Asset
+siteMap =
+    asset "diagram/smp.svg"
 
 
 src : Asset -> Attribute msg
 src (Asset url) =
     Attr.src url
+
+
+startStopContinue : Asset
+startStopContinue =
+    asset "diagram/ssc.svg"
+
+
+table : Asset
+table =
+    asset "diagram/table.svg"
+
+
+useCaseDiagram : Asset
+useCaseDiagram =
+    asset "diagram/ucd.svg"
+
+
+userPersona : Asset
+userPersona =
+    asset "diagram/persona.svg"
+
+
+userStoryMap : Asset
+userStoryMap =
+    asset "diagram/usm.svg"
+
+
+asset : String -> Asset
+asset name =
+    Asset ("/images/" ++ name)

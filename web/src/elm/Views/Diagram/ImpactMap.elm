@@ -16,16 +16,6 @@ import Views.Diagram.TextNode as TextNode
 import Views.Empty as Empty
 
 
-xMargin : Int
-xMargin =
-    100
-
-
-yMargin : Int
-yMargin =
-    10
-
-
 view : Model -> Svg Msg
 view model =
     case model.data of
@@ -38,13 +28,13 @@ view model =
             case rootItem of
                 Just root ->
                     let
-                        moveingItem : Maybe Item
-                        moveingItem =
-                            Diagram.moveingItem model
-
                         impactMapItems : Items
                         impactMapItems =
                             Item.unwrapChildren <| Item.getChildren root
+
+                        moveingItem : Maybe Item
+                        moveingItem =
+                            Diagram.moveingItem model
                     in
                     Svg.g
                         []
@@ -73,6 +63,21 @@ view model =
             Empty.view
 
 
+nodeLineView : Size -> String -> Position -> Position -> Svg Msg
+nodeLineView ( width, height ) colour fromBase toBase =
+    let
+        ( fromPoint, toPoint ) =
+            ( Tuple.mapBoth toFloat toFloat fromBase, Tuple.mapBoth toFloat toFloat toBase )
+
+        size : ( Float, Float )
+        size =
+            ( toFloat width, toFloat height )
+    in
+    Path.view colour
+        ( fromPoint, size )
+        ( toPoint, size )
+
+
 nodesView :
     { settings : DiagramSettings.Settings
     , property : Property
@@ -85,16 +90,31 @@ nodesView :
     -> Svg Msg
 nodesView { settings, property, hierarchy, position, selectedItem, items, moveingItem } =
     let
-        svgWidth : Int
-        svgWidth =
-            settings.size.width
+        nodeCounts : List Int
+        nodeCounts =
+            tmpNodeCounts
+                |> List.indexedMap (\i _ -> i)
+                |> List.filterMap
+                    (\i ->
+                        if i == 0 || modBy 2 i == 0 then
+                            ListEx.getAt i tmpNodeCounts
+
+                        else
+                            Nothing
+                    )
+                |> List.indexedMap (\i v -> v + i + 1)
+
+        range : List Int
+        range =
+            List.range 0 (List.length nodeCounts)
 
         svgHeight : Int
         svgHeight =
             settings.size.height
 
-        ( x, y ) =
-            position
+        svgWidth : Int
+        svgWidth =
+            settings.size.width
 
         tmpNodeCounts : List Int
         tmpNodeCounts =
@@ -118,33 +138,26 @@ nodesView { settings, property, hierarchy, position, selectedItem, items, movein
                     )
                 |> ListEx.scanl1 (+)
 
-        nodeCounts : List Int
-        nodeCounts =
-            tmpNodeCounts
-                |> List.indexedMap (\i _ -> i)
-                |> List.filterMap
-                    (\i ->
-                        if i == 0 || modBy 2 i == 0 then
-                            ListEx.getAt i tmpNodeCounts
-
-                        else
-                            Nothing
-                    )
-                |> List.indexedMap (\i v -> v + i + 1)
+        ( x, y ) =
+            position
 
         yOffset : Int
         yOffset =
             List.sum nodeCounts // List.length nodeCounts * svgHeight
-
-        range : List Int
-        range =
-            List.range 0 (List.length nodeCounts)
     in
     Svg.g []
         (ListEx.zip3 range nodeCounts (Item.unwrap items)
             |> List.concatMap
                 (\( i, nodeCount, item ) ->
                     let
+                        itemX : Int
+                        itemX =
+                            x + (svgWidth + xMargin)
+
+                        itemY : Int
+                        itemY =
+                            y + (nodeCount * svgHeight - yOffset) + (i * yMargin)
+
                         offset : Position
                         offset =
                             Maybe.map
@@ -160,14 +173,6 @@ nodesView { settings, property, hierarchy, position, selectedItem, items, movein
                                 |> Item.getItemSettings
                                 |> Maybe.map ItemSettings.getOffset
                                 |> Maybe.withDefault Position.zero
-
-                        itemX : Int
-                        itemX =
-                            x + (svgWidth + xMargin)
-
-                        itemY : Int
-                        itemY =
-                            y + (nodeCount * svgHeight - yOffset) + (i * yMargin)
                     in
                     [ Lazy.lazy4 nodeLineView
                         ( settings.size.width, settings.size.height )
@@ -197,16 +202,11 @@ nodesView { settings, property, hierarchy, position, selectedItem, items, movein
         )
 
 
-nodeLineView : Size -> String -> Position -> Position -> Svg Msg
-nodeLineView ( width, height ) colour fromBase toBase =
-    let
-        ( fromPoint, toPoint ) =
-            ( Tuple.mapBoth toFloat toFloat fromBase, Tuple.mapBoth toFloat toFloat toBase )
+xMargin : Int
+xMargin =
+    100
 
-        size : ( Float, Float )
-        size =
-            ( toFloat width, toFloat height )
-    in
-    Path.view colour
-        ( fromPoint, size )
-        ( toPoint, size )
+
+yMargin : Int
+yMargin =
+    10

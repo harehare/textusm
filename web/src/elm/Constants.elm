@@ -20,14 +20,9 @@ module Constants exposing
     )
 
 
-space : String
-space =
-    "    "
-
-
-indentSpace : Int
-indentSpace =
-    4
+canvasOffset : Int
+canvasOffset =
+    5
 
 
 fontSize : String
@@ -35,14 +30,9 @@ fontSize =
     "14"
 
 
-itemSpan : Int
-itemSpan =
-    40
-
-
-itemMargin : Int
-itemMargin =
-    16
+fragmentOffset : Int
+fragmentOffset =
+    70
 
 
 ganttItemSize : Int
@@ -50,9 +40,9 @@ ganttItemSize =
     32
 
 
-leftMargin : Int
-leftMargin =
-    140
+indentSpace : Int
+indentSpace =
+    4
 
 
 inputPrefix : String
@@ -60,19 +50,24 @@ inputPrefix =
     "    "
 
 
-itemWidth : Int
-itemWidth =
-    300
-
-
 itemHeight : Int
 itemHeight =
     300
 
 
-largeItemWidth : Int
-largeItemWidth =
-    600
+itemMargin : Int
+itemMargin =
+    16
+
+
+itemSpan : Int
+itemSpan =
+    40
+
+
+itemWidth : Int
+itemWidth =
+    300
 
 
 largeItemHeight : Int
@@ -80,19 +75,14 @@ largeItemHeight =
     600
 
 
-tableRowHeight : Int
-tableRowHeight =
-    40
+largeItemWidth : Int
+largeItemWidth =
+    600
 
 
-tableMargin : Int
-tableMargin =
-    160
-
-
-participantMargin : Int
-participantMargin =
-    150
+leftMargin : Int
+leftMargin =
+    140
 
 
 messageMargin : Int
@@ -100,11 +90,21 @@ messageMargin =
     100
 
 
-fragmentOffset : Int
-fragmentOffset =
-    70
+participantMargin : Int
+participantMargin =
+    150
 
 
-canvasOffset : Int
-canvasOffset =
-    5
+space : String
+space =
+    "    "
+
+
+tableMargin : Int
+tableMargin =
+    160
+
+
+tableRowHeight : Int
+tableRowHeight =
+    40

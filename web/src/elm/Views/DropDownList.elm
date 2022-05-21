@@ -76,26 +76,6 @@ stringValue value =
     StringValue value
 
 
-unwrapValue : DropDownValue -> String
-unwrapValue value =
-    case value of
-        ColorValue val ->
-            val
-
-        StringValue val ->
-            val
-
-
-getColor : DropDownValue -> Maybe String
-getColor value =
-    case value of
-        ColorValue rgb ->
-            Just rgb
-
-        _ ->
-            Nothing
-
-
 view : (String -> msg) -> String -> Maybe String -> (String -> msg) -> List DropDownItem -> String -> Html msg
 view onToggleDropDownList dropDownId currentId onChange items selectedValue =
     let
@@ -126,6 +106,39 @@ view onToggleDropDownList dropDownId currentId onChange items selectedValue =
         ]
 
 
+dropDownItemView : DropDownItem -> (String -> msg) -> Html msg
+dropDownItemView item onChange =
+    Html.div
+        [ css
+            [ Style.widthFull
+            , display block
+            , Style.paddingSm
+            , borderBottom3 (px 1) solid (rgba 0 0 0 0.1)
+            , Color.bgLight
+            , hover
+                [ backgroundColor <| hex "#dddddd"
+                ]
+            ]
+        , Events.onClick (onChange <| unwrapValue item.value)
+        ]
+        [ case getColor item.value of
+            Just rgb ->
+                Html.span
+                    [ css
+                        [ padding2 (px 0) (px 12)
+                        , marginRight <| px 5
+                        , backgroundColor <| hex rgb
+                        , border3 (px 1) solid (hex "#cccccc")
+                        ]
+                    ]
+                    []
+
+            Nothing ->
+                Html.span [] []
+        , Html.span [ css [ Style.paddingSm ] ] [ Html.text item.name ]
+        ]
+
+
 dropdownView : List DropDownItem -> (String -> msg) -> Html msg
 dropdownView items onChange =
     Html.div
@@ -149,6 +162,16 @@ dropdownView items onChange =
         ]
     <|
         List.map (\item -> dropDownItemView item onChange) items
+
+
+getColor : DropDownValue -> Maybe String
+getColor value =
+    case value of
+        ColorValue rgb ->
+            Just rgb
+
+        _ ->
+            Nothing
 
 
 itemView : DropDownItem -> msg -> Html msg
@@ -192,34 +215,11 @@ itemView item onActive =
         ]
 
 
-dropDownItemView : DropDownItem -> (String -> msg) -> Html msg
-dropDownItemView item onChange =
-    Html.div
-        [ css
-            [ Style.widthFull
-            , display block
-            , Style.paddingSm
-            , borderBottom3 (px 1) solid (rgba 0 0 0 0.1)
-            , Color.bgLight
-            , hover
-                [ backgroundColor <| hex "#dddddd"
-                ]
-            ]
-        , Events.onClick (onChange <| unwrapValue item.value)
-        ]
-        [ case getColor item.value of
-            Just rgb ->
-                Html.span
-                    [ css
-                        [ padding2 (px 0) (px 12)
-                        , marginRight <| px 5
-                        , backgroundColor <| hex rgb
-                        , border3 (px 1) solid (hex "#cccccc")
-                        ]
-                    ]
-                    []
+unwrapValue : DropDownValue -> String
+unwrapValue value =
+    case value of
+        ColorValue val ->
+            val
 
-            Nothing ->
-                Html.span [] []
-        , Html.span [ css [ Style.paddingSm ] ] [ Html.text item.name ]
-        ]
+        StringValue val ->
+            val

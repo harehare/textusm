@@ -7,17 +7,17 @@ module Graphql.ScalarCodecs exposing (..)
 import Graphql.Scalar exposing (defaultCodecs)
 
 
-type alias Id =
-    Graphql.Scalar.Id
-
-
-type alias Time =
-    Graphql.Scalar.Time
-
-
 codecs : Graphql.Scalar.Codecs Id Time
 codecs =
     Graphql.Scalar.defineCodecs
         { codecId = defaultCodecs.codecId
         , codecTime = defaultCodecs.codecTime
         }
+
+
+type alias Id =
+    Graphql.Scalar.Id
+
+
+type alias Time =
+    Graphql.Scalar.Time

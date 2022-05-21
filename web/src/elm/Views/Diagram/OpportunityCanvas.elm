@@ -16,39 +16,39 @@ view model =
     case model.data of
         DiagramData.OpportunityCanvas o ->
             let
-                itemHeight : Int
-                itemHeight =
-                    Basics.max Constants.itemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
-
-                (OpportunityCanvasItem usersAndCustomers) =
-                    o.usersAndCustomers
-
-                (OpportunityCanvasItem problems) =
-                    o.problems
-
-                (OpportunityCanvasItem solutionsToday) =
-                    o.solutionsToday
-
-                (OpportunityCanvasItem solutionIdeas) =
-                    o.solutionIdeas
-
-                (OpportunityCanvasItem howWillUsersUseSolution) =
-                    o.howWillUsersUseSolution
-
                 (OpportunityCanvasItem adoptionStrategy) =
                     o.adoptionStrategy
-
-                (OpportunityCanvasItem userMetrics) =
-                    o.userMetrics
-
-                (OpportunityCanvasItem businessChallenges) =
-                    o.businessChallenges
 
                 (OpportunityCanvasItem budget) =
                     o.budget
 
                 (OpportunityCanvasItem businessBenefitsAndMetrics) =
                     o.businessBenefitsAndMetrics
+
+                (OpportunityCanvasItem businessChallenges) =
+                    o.businessChallenges
+
+                (OpportunityCanvasItem howWillUsersUseSolution) =
+                    o.howWillUsersUseSolution
+
+                itemHeight : Int
+                itemHeight =
+                    Basics.max Constants.itemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
+
+                (OpportunityCanvasItem problems) =
+                    o.problems
+
+                (OpportunityCanvasItem solutionIdeas) =
+                    o.solutionIdeas
+
+                (OpportunityCanvasItem solutionsToday) =
+                    o.solutionsToday
+
+                (OpportunityCanvasItem userMetrics) =
+                    o.userMetrics
+
+                (OpportunityCanvasItem usersAndCustomers) =
+                    o.usersAndCustomers
             in
             Svg.g
                 []

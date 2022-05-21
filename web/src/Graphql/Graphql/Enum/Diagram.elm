@@ -7,6 +7,71 @@ module Graphql.Enum.Diagram exposing (..)
 import Json.Decode as D exposing (Decoder)
 
 
+decoder : Decoder Diagram
+decoder =
+    D.string
+        |> D.andThen
+            (\string ->
+                case string of
+                    "BUSINESS_MODEL_CANVAS" ->
+                        D.succeed BusinessModelCanvas
+
+                    "EMPATHY_MAP" ->
+                        D.succeed EmpathyMap
+
+                    "ER_DIAGRAM" ->
+                        D.succeed ErDiagram
+
+                    "FOURLS" ->
+                        D.succeed Fourls
+
+                    "FREEFORM" ->
+                        D.succeed Freeform
+
+                    "GANTT_CHART" ->
+                        D.succeed GanttChart
+
+                    "IMPACT_MAP" ->
+                        D.succeed ImpactMap
+
+                    "KANBAN" ->
+                        D.succeed Kanban
+
+                    "KPT" ->
+                        D.succeed Kpt
+
+                    "MIND_MAP" ->
+                        D.succeed MindMap
+
+                    "OPPORTUNITY_CANVAS" ->
+                        D.succeed OpportunityCanvas
+
+                    "SEQUENCE_DIAGRAM" ->
+                        D.succeed SequenceDiagram
+
+                    "SITE_MAP" ->
+                        D.succeed SiteMap
+
+                    "START_STOP_CONTINUE" ->
+                        D.succeed StartStopContinue
+
+                    "TABLE" ->
+                        D.succeed Table
+
+                    "USER_PERSONA" ->
+                        D.succeed UserPersona
+
+                    "USER_STORY_MAP" ->
+                        D.succeed UserStoryMap
+
+                    "USE_CASE_DIAGRAM" ->
+                        D.succeed UseCaseDiagram
+
+                    _ ->
+                        D.fail ("Invalid Diagram type, " ++ string ++ " try re-running the @dillonkearns/elm-graphql CLI ")
+            )
+
+
 {-|
 
   - UserStoryMap -
@@ -50,74 +115,81 @@ type Diagram
     | UseCaseDiagram
 
 
+{-| Convert from a String representation to an elm representation enum.
+This is the inverse of the Enum `toString` function. So you can call `toString` and then convert back `fromString` safely.
+
+    Swapi.Enum.Episode.NewHope
+        |> Swapi.Enum.Episode.toString
+        |> Swapi.Enum.Episode.fromString
+        == Just NewHope
+
+This can be useful for generating Strings to use for <select> menus to check which item was selected.
+
+-}
+fromString : String -> Maybe Diagram
+fromString enumString____ =
+    case enumString____ of
+        "BUSINESS_MODEL_CANVAS" ->
+            Just BusinessModelCanvas
+
+        "EMPATHY_MAP" ->
+            Just EmpathyMap
+
+        "ER_DIAGRAM" ->
+            Just ErDiagram
+
+        "FOURLS" ->
+            Just Fourls
+
+        "FREEFORM" ->
+            Just Freeform
+
+        "GANTT_CHART" ->
+            Just GanttChart
+
+        "IMPACT_MAP" ->
+            Just ImpactMap
+
+        "KANBAN" ->
+            Just Kanban
+
+        "KPT" ->
+            Just Kpt
+
+        "MIND_MAP" ->
+            Just MindMap
+
+        "OPPORTUNITY_CANVAS" ->
+            Just OpportunityCanvas
+
+        "SEQUENCE_DIAGRAM" ->
+            Just SequenceDiagram
+
+        "SITE_MAP" ->
+            Just SiteMap
+
+        "START_STOP_CONTINUE" ->
+            Just StartStopContinue
+
+        "TABLE" ->
+            Just Table
+
+        "USER_PERSONA" ->
+            Just UserPersona
+
+        "USER_STORY_MAP" ->
+            Just UserStoryMap
+
+        "USE_CASE_DIAGRAM" ->
+            Just UseCaseDiagram
+
+        _ ->
+            Nothing
+
+
 list : List Diagram
 list =
     [ UserStoryMap, OpportunityCanvas, BusinessModelCanvas, Fourls, StartStopContinue, Kpt, UserPersona, MindMap, EmpathyMap, SiteMap, GanttChart, ImpactMap, ErDiagram, Kanban, Table, SequenceDiagram, Freeform, UseCaseDiagram ]
-
-
-decoder : Decoder Diagram
-decoder =
-    D.string
-        |> D.andThen
-            (\string ->
-                case string of
-                    "USER_STORY_MAP" ->
-                        D.succeed UserStoryMap
-
-                    "OPPORTUNITY_CANVAS" ->
-                        D.succeed OpportunityCanvas
-
-                    "BUSINESS_MODEL_CANVAS" ->
-                        D.succeed BusinessModelCanvas
-
-                    "FOURLS" ->
-                        D.succeed Fourls
-
-                    "START_STOP_CONTINUE" ->
-                        D.succeed StartStopContinue
-
-                    "KPT" ->
-                        D.succeed Kpt
-
-                    "USER_PERSONA" ->
-                        D.succeed UserPersona
-
-                    "MIND_MAP" ->
-                        D.succeed MindMap
-
-                    "EMPATHY_MAP" ->
-                        D.succeed EmpathyMap
-
-                    "SITE_MAP" ->
-                        D.succeed SiteMap
-
-                    "GANTT_CHART" ->
-                        D.succeed GanttChart
-
-                    "IMPACT_MAP" ->
-                        D.succeed ImpactMap
-
-                    "ER_DIAGRAM" ->
-                        D.succeed ErDiagram
-
-                    "KANBAN" ->
-                        D.succeed Kanban
-
-                    "TABLE" ->
-                        D.succeed Table
-
-                    "SEQUENCE_DIAGRAM" ->
-                        D.succeed SequenceDiagram
-
-                    "FREEFORM" ->
-                        D.succeed Freeform
-
-                    "USE_CASE_DIAGRAM" ->
-                        D.succeed UseCaseDiagram
-
-                    _ ->
-                        D.fail ("Invalid Diagram type, " ++ string ++ " try re-running the @dillonkearns/elm-graphql CLI ")
-            )
 
 
 {-| Convert from the union type representing the Enum to a string that the GraphQL server will recognize.
@@ -178,75 +250,3 @@ toString enum____ =
 
         UseCaseDiagram ->
             "USE_CASE_DIAGRAM"
-
-
-{-| Convert from a String representation to an elm representation enum.
-This is the inverse of the Enum `toString` function. So you can call `toString` and then convert back `fromString` safely.
-
-    Swapi.Enum.Episode.NewHope
-        |> Swapi.Enum.Episode.toString
-        |> Swapi.Enum.Episode.fromString
-        == Just NewHope
-
-This can be useful for generating Strings to use for <select> menus to check which item was selected.
-
--}
-fromString : String -> Maybe Diagram
-fromString enumString____ =
-    case enumString____ of
-        "USER_STORY_MAP" ->
-            Just UserStoryMap
-
-        "OPPORTUNITY_CANVAS" ->
-            Just OpportunityCanvas
-
-        "BUSINESS_MODEL_CANVAS" ->
-            Just BusinessModelCanvas
-
-        "FOURLS" ->
-            Just Fourls
-
-        "START_STOP_CONTINUE" ->
-            Just StartStopContinue
-
-        "KPT" ->
-            Just Kpt
-
-        "USER_PERSONA" ->
-            Just UserPersona
-
-        "MIND_MAP" ->
-            Just MindMap
-
-        "EMPATHY_MAP" ->
-            Just EmpathyMap
-
-        "SITE_MAP" ->
-            Just SiteMap
-
-        "GANTT_CHART" ->
-            Just GanttChart
-
-        "IMPACT_MAP" ->
-            Just ImpactMap
-
-        "ER_DIAGRAM" ->
-            Just ErDiagram
-
-        "KANBAN" ->
-            Just Kanban
-
-        "TABLE" ->
-            Just Table
-
-        "SEQUENCE_DIAGRAM" ->
-            Just SequenceDiagram
-
-        "FREEFORM" ->
-            Just Freeform
-
-        "USE_CASE_DIAGRAM" ->
-            Just UseCaseDiagram
-
-        _ ->
-            Nothing

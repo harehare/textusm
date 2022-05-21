@@ -16,6 +16,9 @@ view model =
     case model.data of
         DiagramData.StartStopContinue s ->
             let
+                (StartStopContinueItem continue) =
+                    s.continue
+
                 itemHeight : Int
                 itemHeight =
                     Basics.max Constants.itemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
@@ -25,9 +28,6 @@ view model =
 
                 (StartStopContinueItem stop) =
                     s.stop
-
-                (StartStopContinueItem continue) =
-                    s.continue
             in
             Svg.g
                 []

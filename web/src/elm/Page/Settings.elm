@@ -73,6 +73,54 @@ import Views.DropDownList as DropDownList exposing (DropDownValue)
 import Views.Switch as Switch
 
 
+type alias Model =
+    { dropDownIndex : Maybe String
+    , settings : Settings
+    , session : Session
+    , canUseNativeFileSystem : Bool
+    }
+
+
+type Msg
+    = UpdateSettings (String -> Settings) String
+    | ToggleDropDownList String
+    | DropDownClose
+
+
+init : Bool -> Session -> Settings -> Return.Return Msg Model
+init canUseNativeFileSystem session settings =
+    Return.singleton <| Model Nothing settings session canUseNativeFileSystem
+
+
+update : Msg -> Return.ReturnF Msg Model
+update msg =
+    case msg of
+        UpdateSettings getSetting value ->
+            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing, settings = getSetting value })
+
+        ToggleDropDownList id ->
+            Return.andThen
+                (\m ->
+                    Return.singleton
+                        { m
+                            | dropDownIndex =
+                                if (m.dropDownIndex |> Maybe.withDefault "") == id then
+                                    Nothing
+
+                                else
+                                    Just id
+                        }
+                )
+
+        DropDownClose ->
+            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing })
+
+
+view : Model -> Html Msg
+view model =
+    view_ model.dropDownIndex model.canUseNativeFileSystem model.settings model.session
+
+
 baseColorItems : List { name : String, value : DropDownValue }
 baseColorItems =
     List.map
@@ -91,18 +139,33 @@ baseSizeItems =
             )
 
 
-fontSizeItems : List { name : String, value : DropDownValue }
-fontSizeItems =
-    List.map
-        (\f ->
-            let
-                size : Int
-                size =
-                    FontSize.unwrap f
-            in
-            { name = String.fromInt size, value = DropDownList.stringValue <| String.fromInt size }
-        )
-        FontSize.list
+columnView : List (Html msg) -> Html msg
+columnView children =
+    div [ css [ width <| px 300 ] ] children
+
+
+conrtolRowView : List (Html msg) -> Html msg
+conrtolRowView children =
+    div
+        [ css
+            [ displayFlex
+            , alignItems center
+            , justifyContent spaceBetween
+            , width <| px 250
+            , padding2 (px 8) zero
+            ]
+        ]
+        children
+
+
+conrtolView : List (Html msg) -> Html msg
+conrtolView children =
+    div [ css [ Style.flexStart, flexDirection column, marginBottom <| px 8 ] ] children
+
+
+conrtolsView : List (Html msg) -> Html msg
+conrtolsView children =
+    div [ css [ padding2 (px 4) (px 8), marginBottom <| px 8 ] ] children
 
 
 fontFamilyItems : List { name : String, value : DropDownValue }
@@ -1068,81 +1131,18 @@ fontFamilyItems =
     ]
 
 
-type alias Model =
-    { dropDownIndex : Maybe String
-    , settings : Settings
-    , session : Session
-    , canUseNativeFileSystem : Bool
-    }
-
-
-type Msg
-    = UpdateSettings (String -> Settings) String
-    | ToggleDropDownList String
-    | DropDownClose
-
-
-init : Bool -> Session -> Settings -> Return.Return Msg Model
-init canUseNativeFileSystem session settings =
-    Return.singleton <| Model Nothing settings session canUseNativeFileSystem
-
-
-update : Msg -> Return.ReturnF Msg Model
-update msg =
-    case msg of
-        ToggleDropDownList id ->
-            Return.andThen
-                (\m ->
-                    Return.singleton
-                        { m
-                            | dropDownIndex =
-                                if (m.dropDownIndex |> Maybe.withDefault "") == id then
-                                    Nothing
-
-                                else
-                                    Just id
-                        }
-                )
-
-        UpdateSettings getSetting value ->
-            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing, settings = getSetting value })
-
-        DropDownClose ->
-            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing })
-
-
-columnView : List (Html msg) -> Html msg
-columnView children =
-    div [ css [ width <| px 300 ] ] children
-
-
-conrtolsView : List (Html msg) -> Html msg
-conrtolsView children =
-    div [ css [ padding2 (px 4) (px 8), marginBottom <| px 8 ] ] children
-
-
-conrtolView : List (Html msg) -> Html msg
-conrtolView children =
-    div [ css [ Style.flexStart, flexDirection column, marginBottom <| px 8 ] ] children
-
-
-conrtolRowView : List (Html msg) -> Html msg
-conrtolRowView children =
-    div
-        [ css
-            [ displayFlex
-            , alignItems center
-            , justifyContent spaceBetween
-            , width <| px 250
-            , padding2 (px 8) zero
-            ]
-        ]
-        children
-
-
-nameView : List (Html msg) -> Html msg
-nameView children =
-    div [ css [ Text.sm, Font.fontBold, padding2 (px 1) (px 8) ] ] children
+fontSizeItems : List { name : String, value : DropDownValue }
+fontSizeItems =
+    List.map
+        (\f ->
+            let
+                size : Int
+                size =
+                    FontSize.unwrap f
+            in
+            { name = String.fromInt size, value = DropDownList.stringValue <| String.fromInt size }
+        )
+        FontSize.list
 
 
 inputAreaView : List (Html msg) -> Html msg
@@ -1150,9 +1150,31 @@ inputAreaView children =
     div [ css [ maxWidth <| px 300, width <| pct 90, padding2 (px 4) (px 8) ] ] children
 
 
-view : Model -> Html Msg
-view model =
-    view_ model.dropDownIndex model.canUseNativeFileSystem model.settings model.session
+nameView : List (Html msg) -> Html msg
+nameView children =
+    div [ css [ Text.sm, Font.fontBold, padding2 (px 1) (px 8) ] ] children
+
+
+section : Maybe String -> Html Msg
+section title =
+    div
+        [ css
+            [ fontWeight <| int 400
+            , margin4 zero zero (px 16) zero
+            , if isNothing title then
+                Css.batch []
+
+              else
+                Css.batch [ borderTop3 (px 1) solid (hex <| Color.toString Color.gray) ]
+            , if isNothing title then
+                Css.batch [ padding zero ]
+
+              else
+                Css.batch [ padding4 (px 16) zero zero (px 16) ]
+            ]
+        ]
+        [ div [ css [ Text.xl, Font.fontSemiBold ] ] [ text (title |> Maybe.withDefault "") ]
+        ]
 
 
 view_ : Maybe String -> Bool -> Settings -> Session -> Html Msg
@@ -1483,26 +1505,4 @@ view_ dropDownIndex canUseNativeFileSystem settings session =
                     ]
                 ]
             ]
-        ]
-
-
-section : Maybe String -> Html Msg
-section title =
-    div
-        [ css
-            [ fontWeight <| int 400
-            , margin4 zero zero (px 16) zero
-            , if isNothing title then
-                Css.batch []
-
-              else
-                Css.batch [ borderTop3 (px 1) solid (hex <| Color.toString Color.gray) ]
-            , if isNothing title then
-                Css.batch [ padding zero ]
-
-              else
-                Css.batch [ padding4 (px 16) zero zero (px 16) ]
-            ]
-        ]
-        [ div [ css [ Text.xl, Font.fontSemiBold ] ] [ text (title |> Maybe.withDefault "") ]
         ]

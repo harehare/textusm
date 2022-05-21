@@ -22,14 +22,24 @@ type FontSize
     = FontSize Int
 
 
+cssFontSize : FontSize -> Css.Style
+cssFontSize fontSize =
+    Css.fontSize <| px <| toFloat (fontSize |> unwrap)
+
+
+decoder : D.Decoder FontSize
+decoder =
+    D.map FontSize D.int
+
+
 default : FontSize
 default =
     FontSize 14
 
 
-xs : FontSize
-xs =
-    FontSize 8
+fromInt : Int -> FontSize
+fromInt fontSize =
+    FontSize fontSize
 
 
 lg : FontSize
@@ -50,14 +60,9 @@ list =
     ]
 
 
-unwrap : FontSize -> Int
-unwrap (FontSize fontSize) =
-    fontSize
-
-
-fromInt : Int -> FontSize
-fromInt fontSize =
-    FontSize fontSize
+svgStyledFontSize : FontSize -> SvgStyled.Attribute msg
+svgStyledFontSize fontSize =
+    SvgStyledAttr.fontSize <| String.fromInt <| unwrap <| fontSize
 
 
 toInt : FontSize -> Int
@@ -65,16 +70,11 @@ toInt (FontSize fontSize) =
     fontSize
 
 
-decoder : D.Decoder FontSize
-decoder =
-    D.map FontSize D.int
+unwrap : FontSize -> Int
+unwrap (FontSize fontSize) =
+    fontSize
 
 
-svgStyledFontSize : FontSize -> SvgStyled.Attribute msg
-svgStyledFontSize fontSize =
-    SvgStyledAttr.fontSize <| String.fromInt <| unwrap <| fontSize
-
-
-cssFontSize : FontSize -> Css.Style
-cssFontSize fontSize =
-    Css.fontSize <| px <| toFloat (fontSize |> unwrap)
+xs : FontSize
+xs =
+    FontSize 8

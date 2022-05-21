@@ -7,17 +7,42 @@ type Title
     | View String
 
 
-map : (String -> Title) -> Title -> Title
-map f title =
+edit : Title -> Title
+edit title =
     case title of
-        Edit title_ ->
-            f title_
-
-        View title_ ->
-            f title_
-
         UnTitled ->
-            title
+            Edit ""
+
+        Edit "UNTITLED" ->
+            Edit ""
+
+        Edit t ->
+            Edit t
+
+        View "UNTITLED" ->
+            Edit ""
+
+        View t ->
+            Edit t
+
+
+fromString : String -> Title
+fromString title =
+    if String.isEmpty title || title == "UNTITLED" then
+        UnTitled
+
+    else
+        View title
+
+
+isEdit : Title -> Bool
+isEdit title =
+    case title of
+        Edit _ ->
+            True
+
+        _ ->
+            False
 
 
 isUntitled : Title -> Bool
@@ -26,14 +51,14 @@ isUntitled title =
         UnTitled ->
             True
 
-        View "UNTITLED" ->
-            True
-
         Edit "UNTITLED" ->
             True
 
         Edit t ->
             String.isEmpty t
+
+        View "UNTITLED" ->
+            True
 
         View t ->
             String.isEmpty t
@@ -49,57 +74,17 @@ isView title =
             False
 
 
-isEdit : Title -> Bool
-isEdit title =
-    case title of
-        Edit _ ->
-            True
-
-        _ ->
-            False
-
-
-untitled : Title
-untitled =
-    UnTitled
-
-
-edit : Title -> Title
-edit title =
+map : (String -> Title) -> Title -> Title
+map f title =
     case title of
         UnTitled ->
-            Edit ""
+            title
 
-        View "UNTITLED" ->
-            Edit ""
+        Edit title_ ->
+            f title_
 
-        Edit "UNTITLED" ->
-            Edit ""
-
-        View t ->
-            Edit t
-
-        Edit t ->
-            Edit t
-
-
-view : Title -> Title
-view title =
-    case title of
-        UnTitled ->
-            View ""
-
-        View "" ->
-            View "UNTITLED"
-
-        Edit "" ->
-            View "UNTITLED"
-
-        View t ->
-            View t
-
-        Edit t ->
-            View t
+        View title_ ->
+            f title_
 
 
 toString : Title -> String
@@ -108,17 +93,32 @@ toString title =
         UnTitled ->
             "UNTITLED"
 
-        View t ->
-            t
-
         Edit t ->
             t
 
+        View t ->
+            t
 
-fromString : String -> Title
-fromString title =
-    if String.isEmpty title || title == "UNTITLED" then
-        UnTitled
 
-    else
-        View title
+untitled : Title
+untitled =
+    UnTitled
+
+
+view : Title -> Title
+view title =
+    case title of
+        UnTitled ->
+            View ""
+
+        Edit "" ->
+            View "UNTITLED"
+
+        Edit t ->
+            View t
+
+        View "" ->
+            View "UNTITLED"
+
+        View t ->
+            View t

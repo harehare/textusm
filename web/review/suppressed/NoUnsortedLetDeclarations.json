@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "automatically created by": "elm-review suppress",
+  "learn more": "elm-review suppress --help",
+  "suppressions": [
+    { "count": 5, "filePath": "src/elm/Page/List.elm" },
+    { "count": 3, "filePath": "src/elm/Dialog/Share.elm" },
+    { "count": 3, "filePath": "src/elm/Views/Diagram/TextNode.elm" },
+    { "count": 2, "filePath": "src/elm/Views/Diagram/Card.elm" },
+    { "count": 2, "filePath": "src/elm/Views/Diagram/UserStoryMap.elm" }
+  ]
+}

@@ -18,12 +18,70 @@ import Graphql.SelectionSet exposing (SelectionSet)
 import Json.Decode as D
 
 
-type alias SaveOptionalArguments =
+{-|
+
+  - itemID -
+  - isBookmark -
+
+-}
+bookmark :
+    BookmarkRequiredArguments
+    -> SelectionSet decodesTo Graphql.Object.Item
+    -> SelectionSet (Maybe decodesTo) RootMutation
+bookmark requiredArgs____ object____ =
+    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId), Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ D.nullable
+
+
+type alias BookmarkRequiredArguments =
+    { itemID : Graphql.ScalarCodecs.Id
+    , isBookmark : Bool
+    }
+
+
+{-|
+
+  - itemID -
+  - isPublic -
+
+-}
+delete :
+    (DeleteOptionalArguments -> DeleteOptionalArguments)
+    -> DeleteRequiredArguments
+    -> SelectionSet Graphql.ScalarCodecs.Id RootMutation
+delete fillInOptionals____ requiredArgs____ =
+    let
+        filledInOptionals____ =
+            fillInOptionals____ { isPublic = Absent }
+
+        optionalArgs____ =
+            [ Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
+                |> List.filterMap Basics.identity
+    in
+    Object.selectionForField "ScalarCodecs.Id" "delete" (optionalArgs____ ++ [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ]) (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
+
+
+{-|
+
+  - gistID -
+
+-}
+deleteGist :
+    DeleteGistRequiredArguments
+    -> SelectionSet Graphql.ScalarCodecs.Id RootMutation
+deleteGist requiredArgs____ =
+    Object.selectionForField "ScalarCodecs.Id" "deleteGist" [ Argument.required "gistID" requiredArgs____.gistID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
+
+
+type alias DeleteGistRequiredArguments =
+    { gistID : Graphql.ScalarCodecs.Id }
+
+
+type alias DeleteOptionalArguments =
     { isPublic : OptionalArgument Bool }
 
 
-type alias SaveRequiredArguments =
-    { input : Graphql.InputObject.InputItem }
+type alias DeleteRequiredArguments =
+    { itemID : Graphql.ScalarCodecs.Id }
 
 
 {-|
@@ -49,76 +107,6 @@ save fillInOptionals____ requiredArgs____ object____ =
     Object.selectionForCompositeField "save" (optionalArgs____ ++ [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputItem ]) object____ Basics.identity
 
 
-type alias DeleteOptionalArguments =
-    { isPublic : OptionalArgument Bool }
-
-
-type alias DeleteRequiredArguments =
-    { itemID : Graphql.ScalarCodecs.Id }
-
-
-{-|
-
-  - itemID -
-  - isPublic -
-
--}
-delete :
-    (DeleteOptionalArguments -> DeleteOptionalArguments)
-    -> DeleteRequiredArguments
-    -> SelectionSet Graphql.ScalarCodecs.Id RootMutation
-delete fillInOptionals____ requiredArgs____ =
-    let
-        filledInOptionals____ =
-            fillInOptionals____ { isPublic = Absent }
-
-        optionalArgs____ =
-            [ Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
-                |> List.filterMap Basics.identity
-    in
-    Object.selectionForField "ScalarCodecs.Id" "delete" (optionalArgs____ ++ [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ]) (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
-
-
-type alias BookmarkRequiredArguments =
-    { itemID : Graphql.ScalarCodecs.Id
-    , isBookmark : Bool
-    }
-
-
-{-|
-
-  - itemID -
-  - isBookmark -
-
--}
-bookmark :
-    BookmarkRequiredArguments
-    -> SelectionSet decodesTo Graphql.Object.Item
-    -> SelectionSet (Maybe decodesTo) RootMutation
-bookmark requiredArgs____ object____ =
-    Object.selectionForCompositeField "bookmark" [ Argument.required "itemID" requiredArgs____.itemID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId), Argument.required "isBookmark" requiredArgs____.isBookmark Encode.bool ] object____ D.nullable
-
-
-type alias ShareRequiredArguments =
-    { input : Graphql.InputObject.InputShareItem }
-
-
-{-|
-
-  - input -
-
--}
-share :
-    ShareRequiredArguments
-    -> SelectionSet String RootMutation
-share requiredArgs____ =
-    Object.selectionForField "String" "share" [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputShareItem ] D.string
-
-
-type alias SaveGistRequiredArguments =
-    { input : Graphql.InputObject.InputGistItem }
-
-
 {-|
 
   - input -
@@ -132,26 +120,16 @@ saveGist requiredArgs____ object____ =
     Object.selectionForCompositeField "saveGist" [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputGistItem ] object____ Basics.identity
 
 
-type alias DeleteGistRequiredArguments =
-    { gistID : Graphql.ScalarCodecs.Id }
+type alias SaveGistRequiredArguments =
+    { input : Graphql.InputObject.InputGistItem }
 
 
-{-|
-
-  - gistID -
-
--}
-deleteGist :
-    DeleteGistRequiredArguments
-    -> SelectionSet Graphql.ScalarCodecs.Id RootMutation
-deleteGist requiredArgs____ =
-    Object.selectionForField "ScalarCodecs.Id" "deleteGist" [ Argument.required "gistID" requiredArgs____.gistID (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
+type alias SaveOptionalArguments =
+    { isPublic : OptionalArgument Bool }
 
 
-type alias SaveSettingsRequiredArguments =
-    { diagram : Graphql.Enum.Diagram.Diagram
-    , input : Graphql.InputObject.InputSettings
-    }
+type alias SaveRequiredArguments =
+    { input : Graphql.InputObject.InputItem }
 
 
 {-|
@@ -166,3 +144,25 @@ saveSettings :
     -> SelectionSet decodesTo RootMutation
 saveSettings requiredArgs____ object____ =
     Object.selectionForCompositeField "saveSettings" [ Argument.required "diagram" requiredArgs____.diagram (Encode.enum Graphql.Enum.Diagram.toString), Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputSettings ] object____ Basics.identity
+
+
+type alias SaveSettingsRequiredArguments =
+    { diagram : Graphql.Enum.Diagram.Diagram
+    , input : Graphql.InputObject.InputSettings
+    }
+
+
+{-|
+
+  - input -
+
+-}
+share :
+    ShareRequiredArguments
+    -> SelectionSet String RootMutation
+share requiredArgs____ =
+    Object.selectionForField "String" "share" [ Argument.required "input" requiredArgs____.input Graphql.InputObject.encodeInputShareItem ] D.string
+
+
+type alias ShareRequiredArguments =
+    { input : Graphql.InputObject.InputShareItem }

@@ -84,38 +84,6 @@ type alias Props =
     }
 
 
-isRemoteDiagram : Props -> Bool
-isRemoteDiagram props =
-    props.currentDiagram.location
-        |> Maybe.map DiagramLocation.isRemote
-        |> Maybe.withDefault False
-
-
-canShare : Props -> Bool
-canShare props =
-    Session.isSignedIn props.session && isRemoteDiagram props && canEdit props && props.isOnline
-
-
-canEdit : Props -> Bool
-canEdit props =
-    case props.route of
-        ViewFile _ _ ->
-            False
-
-        _ ->
-            True
-
-
-canChangePublicState : Props -> Bool
-canChangePublicState props =
-    case ( props.currentDiagram.id, props.currentDiagram.isRemote ) of
-        ( Just _, True ) ->
-            canEdit props && props.isOnline
-
-        _ ->
-            False
-
-
 view : Props -> Html Msg
 view props =
     Html.header
@@ -205,6 +173,9 @@ view props =
                 Page.New ->
                     viewTitle [] [ Html.text "New Diagram" ]
 
+                Page.Help ->
+                    viewTitle [] [ Html.text "Help" ]
+
                 Page.List ->
                     viewTitle [] [ Html.text "All Diagrams" ]
 
@@ -218,9 +189,6 @@ view props =
                                 "Settings"
                         ]
 
-                Page.Help ->
-                    viewTitle [] [ Html.text "Help" ]
-
                 _ ->
                     Empty.view
             ]
@@ -228,10 +196,10 @@ view props =
                     Route.New ->
                         [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
 
-                    Route.Settings ->
+                    Route.DiagramList ->
                         [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
 
-                    Route.DiagramList ->
+                    Route.Settings ->
                         [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
 
                     _ ->
@@ -244,27 +212,36 @@ view props =
         )
 
 
-viewTitle : List (Html.Attribute msg) -> List (Html msg) -> Html msg
-viewTitle attrs children =
-    Html.div
-        (css
-            [ Style.widthFull
-            , displayFlex
-            , Text.base
-            , Font.fontBold
-            , overflow hidden
-            , alignItems center
-            , justifyContent flexStart
-            , whiteSpace noWrap
-            , ColorStyle.textColor
-            , textOverflow ellipsis
-            , textAlign left
-            , padding <| px 8
-            , marginLeft <| px 8
-            ]
-            :: attrs
-        )
-        children
+canChangePublicState : Props -> Bool
+canChangePublicState props =
+    case ( props.currentDiagram.id, props.currentDiagram.isRemote ) of
+        ( Just _, True ) ->
+            canEdit props && props.isOnline
+
+        _ ->
+            False
+
+
+canEdit : Props -> Bool
+canEdit props =
+    case props.route of
+        ViewFile _ _ ->
+            False
+
+        _ ->
+            True
+
+
+canShare : Props -> Bool
+canShare props =
+    Session.isSignedIn props.session && isRemoteDiagram props && canEdit props && props.isOnline
+
+
+isRemoteDiagram : Props -> Bool
+isRemoteDiagram props =
+    props.currentDiagram.location
+        |> Maybe.map DiagramLocation.isRemote
+        |> Maybe.withDefault False
 
 
 viewChangePublicStateButton : Lang -> Bool -> Bool -> Html Msg
@@ -432,3 +409,26 @@ viewSignInButton menu session =
                 _ ->
                     Empty.view
             ]
+
+
+viewTitle : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+viewTitle attrs children =
+    Html.div
+        (css
+            [ Style.widthFull
+            , displayFlex
+            , Text.base
+            , Font.fontBold
+            , overflow hidden
+            , alignItems center
+            , justifyContent flexStart
+            , whiteSpace noWrap
+            , ColorStyle.textColor
+            , textOverflow ellipsis
+            , textAlign left
+            , padding <| px 8
+            , marginLeft <| px 8
+            ]
+            :: attrs
+        )
+        children

@@ -24,59 +24,6 @@ type ShareState
     | Unauthorized
 
 
-isAuthenticated : ShareState -> Bool
-isAuthenticated state =
-    case state of
-        Authenticated ->
-            True
-
-        _ ->
-            False
-
-
-getPassword : ShareState -> Maybe String
-getPassword state =
-    case state of
-        AuthenticateWithPassword _ password ->
-            Just password
-
-        _ ->
-            Nothing
-
-
-getToken : ShareState -> Maybe ShareToken
-getToken state =
-    case state of
-        AuthenticateWithPassword token _ ->
-            Just token
-
-        AuthenticateNoPassword token ->
-            Just token
-
-        _ ->
-            Nothing
-
-
-getError : ShareState -> Maybe RequestError
-getError state =
-    case state of
-        AuthenticatedError err ->
-            Just err
-
-        _ ->
-            Nothing
-
-
-inputPassword : ShareState -> String -> ShareState
-inputPassword shareState password =
-    case shareState of
-        AuthenticateWithPassword token _ ->
-            AuthenticateWithPassword token password
-
-        _ ->
-            Unauthorized
-
-
 authenticateNoPassword : ShareToken -> ShareState
 authenticateNoPassword token =
     AuthenticateNoPassword token
@@ -85,11 +32,6 @@ authenticateNoPassword token =
 authenticateWithPassword : ShareToken -> ShareState
 authenticateWithPassword token =
     AuthenticateWithPassword token ""
-
-
-unauthorized : ShareState
-unauthorized =
-    Unauthorized
 
 
 authenticated : ShareState -> ShareState
@@ -108,3 +50,61 @@ authenticated state =
 authenticatedError : RequestError -> ShareState
 authenticatedError error =
     AuthenticatedError error
+
+
+getError : ShareState -> Maybe RequestError
+getError state =
+    case state of
+        AuthenticatedError err ->
+            Just err
+
+        _ ->
+            Nothing
+
+
+getPassword : ShareState -> Maybe String
+getPassword state =
+    case state of
+        AuthenticateWithPassword _ password ->
+            Just password
+
+        _ ->
+            Nothing
+
+
+getToken : ShareState -> Maybe ShareToken
+getToken state =
+    case state of
+        AuthenticateNoPassword token ->
+            Just token
+
+        AuthenticateWithPassword token _ ->
+            Just token
+
+        _ ->
+            Nothing
+
+
+inputPassword : ShareState -> String -> ShareState
+inputPassword shareState password =
+    case shareState of
+        AuthenticateWithPassword token _ ->
+            AuthenticateWithPassword token password
+
+        _ ->
+            Unauthorized
+
+
+isAuthenticated : ShareState -> Bool
+isAuthenticated state =
+    case state of
+        Authenticated ->
+            True
+
+        _ ->
+            False
+
+
+unauthorized : ShareState
+unauthorized =
+    Unauthorized

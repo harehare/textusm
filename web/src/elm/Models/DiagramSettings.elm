@@ -40,14 +40,9 @@ import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
 
 
-type alias Settings =
-    { font : String
-    , size : Size
-    , color : ColorSettings
+type alias Color =
+    { color : String
     , backgroundColor : String
-    , zoomControl : Maybe Bool
-    , scale : Maybe Float
-    , toolbar : Maybe Bool
     }
 
 
@@ -61,9 +56,14 @@ type alias ColorSettings =
     }
 
 
-type alias Color =
-    { color : String
+type alias Settings =
+    { font : String
+    , size : Size
+    , color : ColorSettings
     , backgroundColor : String
+    , zoomControl : Maybe Bool
+    , scale : Maybe Float
+    , toolbar : Maybe Bool
     }
 
 
@@ -73,47 +73,32 @@ type alias Size =
     }
 
 
-getTextColor : Settings -> Property -> Color.Color
-getTextColor settings property =
-    Property.getTextColor property
-        |> Maybe.withDefault
-            (settings.color.text
-                |> Maybe.withDefault
-                    (Color.textDefalut
-                        |> Color.toString
-                    )
-                |> Color.fromString
-            )
+fontFamiliy : Settings -> Css.Style
+fontFamiliy settings =
+    fontFamilies
+        [ Css.qt settings.font
+        , "apple-system"
+        , "BlinkMacSystemFont"
+        , "Helvetica Neue"
+        , "Hiragino Kaku Gothic ProN"
+        , "游ゴシック Medium"
+        , "YuGothic"
+        , "YuGothicM"
+        , "メイリオ"
+        , "Meiryo"
+        , "sans-serif"
+        ]
 
 
-getLineColor : Settings -> Property -> Color.Color
-getLineColor settings property =
-    Property.getLineColor property
-        |> Maybe.withDefault (settings.color.line |> Color.fromString)
+fontStyle : Settings -> String
+fontStyle settings =
+    "'" ++ settings.font ++ "', sans-serif"
 
 
 getBackgroundColor : Settings -> Property -> Color.Color
 getBackgroundColor settings property =
     Property.getBackgroundColor property
         |> Maybe.withDefault (settings.backgroundColor |> Color.fromString)
-
-
-getCardForegroundColor1 : Settings -> Property -> Color.Color
-getCardForegroundColor1 settings property =
-    Property.getCardForegroundColor1 property
-        |> Maybe.withDefault (settings.color.activity.color |> Color.fromString)
-
-
-getCardForegroundColor2 : Settings -> Property -> Color.Color
-getCardForegroundColor2 settings property =
-    Property.getCardForegroundColor2 property
-        |> Maybe.withDefault (settings.color.task.color |> Color.fromString)
-
-
-getCardForegroundColor3 : Settings -> Property -> Color.Color
-getCardForegroundColor3 settings property =
-    Property.getCardForegroundColor3 property
-        |> Maybe.withDefault (settings.color.story.color |> Color.fromString)
 
 
 getCardBackgroundColor1 : Settings -> Property -> Color.Color
@@ -134,105 +119,41 @@ getCardBackgroundColor3 settings property =
         |> Maybe.withDefault (settings.color.story.backgroundColor |> Color.fromString)
 
 
-fontStyle : Settings -> String
-fontStyle settings =
-    "'" ++ settings.font ++ "', sans-serif"
+getCardForegroundColor1 : Settings -> Property -> Color.Color
+getCardForegroundColor1 settings property =
+    Property.getCardForegroundColor1 property
+        |> Maybe.withDefault (settings.color.activity.color |> Color.fromString)
 
 
-fontFamiliy : Settings -> Css.Style
-fontFamiliy settings =
-    fontFamilies
-        [ Css.qt settings.font
-        , "apple-system"
-        , "BlinkMacSystemFont"
-        , "Helvetica Neue"
-        , "Hiragino Kaku Gothic ProN"
-        , "游ゴシック Medium"
-        , "YuGothic"
-        , "YuGothicM"
-        , "メイリオ"
-        , "Meiryo"
-        , "sans-serif"
-        ]
+getCardForegroundColor2 : Settings -> Property -> Color.Color
+getCardForegroundColor2 settings property =
+    Property.getCardForegroundColor2 property
+        |> Maybe.withDefault (settings.color.task.color |> Color.fromString)
 
 
-ofFont : Lens Settings String
-ofFont =
-    Lens .font (\b a -> { a | font = b })
+getCardForegroundColor3 : Settings -> Property -> Color.Color
+getCardForegroundColor3 settings property =
+    Property.getCardForegroundColor3 property
+        |> Maybe.withDefault (settings.color.story.color |> Color.fromString)
 
 
-ofZoomControl : Lens Settings (Maybe Bool)
-ofZoomControl =
-    Lens .zoomControl (\b a -> { a | zoomControl = b })
+getLineColor : Settings -> Property -> Color.Color
+getLineColor settings property =
+    Property.getLineColor property
+        |> Maybe.withDefault (settings.color.line |> Color.fromString)
 
 
-ofToolbar : Lens Settings (Maybe Bool)
-ofToolbar =
-    Lens .toolbar (\b a -> { a | toolbar = b })
-
-
-ofScale : Lens Settings (Maybe Float)
-ofScale =
-    Lens .scale (\b a -> { a | scale = b })
-
-
-ofBackgroundColor : Lens Settings String
-ofBackgroundColor =
-    Lens .backgroundColor (\b a -> { a | backgroundColor = b })
-
-
-ofSize : Lens Settings Size
-ofSize =
-    Lens .size (\b a -> { a | size = b })
-
-
-ofWidth : Lens Settings Int
-ofWidth =
-    Compose.lensWithLens sizeOfWidth ofSize
-
-
-ofHeight : Lens Settings Int
-ofHeight =
-    Compose.lensWithLens sizeOfHeight ofSize
-
-
-ofLineColor : Lens Settings String
-ofLineColor =
-    ofColor
-        |> Compose.lensWithLens colorSettingsOfLine
-
-
-ofTextColor : Optional Settings String
-ofTextColor =
-    ofColor
-        |> Compose.lensWithOptional colorSettingsOfText
-
-
-ofLabelColor : Lens Settings String
-ofLabelColor =
-    ofColor
-        |> Compose.lensWithLens colorSettingsOfLabel
-
-
-ofActivityColor : Lens Settings String
-ofActivityColor =
-    ofColor
-        |> Compose.lensWithLens colorSettingsOfActivity
-        |> Compose.lensWithLens colorOfColor
-
-
-ofTaskColor : Lens Settings String
-ofTaskColor =
-    ofColor
-        |> Compose.lensWithLens colorSettingsOfTask
-        |> Compose.lensWithLens colorOfColor
-
-
-ofStoryColor : Lens Settings String
-ofStoryColor =
-    ofColor
-        |> Compose.lensWithLens colorSettingsOfStory
-        |> Compose.lensWithLens colorOfColor
+getTextColor : Settings -> Property -> Color.Color
+getTextColor settings property =
+    Property.getTextColor property
+        |> Maybe.withDefault
+            (settings.color.text
+                |> Maybe.withDefault
+                    (Color.textDefalut
+                        |> Color.toString
+                    )
+                |> Color.fromString
+            )
 
 
 ofActivityBackgroundColor : Lens Settings String
@@ -242,11 +163,43 @@ ofActivityBackgroundColor =
         |> Compose.lensWithLens colorOfBackgroundColor
 
 
-ofTaskBackgroundColor : Lens Settings String
-ofTaskBackgroundColor =
+ofActivityColor : Lens Settings String
+ofActivityColor =
     ofColor
-        |> Compose.lensWithLens colorSettingsOfTask
-        |> Compose.lensWithLens colorOfBackgroundColor
+        |> Compose.lensWithLens colorSettingsOfActivity
+        |> Compose.lensWithLens colorOfColor
+
+
+ofBackgroundColor : Lens Settings String
+ofBackgroundColor =
+    Lens .backgroundColor (\b a -> { a | backgroundColor = b })
+
+
+ofFont : Lens Settings String
+ofFont =
+    Lens .font (\b a -> { a | font = b })
+
+
+ofHeight : Lens Settings Int
+ofHeight =
+    Compose.lensWithLens sizeOfHeight ofSize
+
+
+ofLabelColor : Lens Settings String
+ofLabelColor =
+    ofColor
+        |> Compose.lensWithLens colorSettingsOfLabel
+
+
+ofLineColor : Lens Settings String
+ofLineColor =
+    ofColor
+        |> Compose.lensWithLens colorSettingsOfLine
+
+
+ofScale : Lens Settings (Maybe Float)
+ofScale =
+    Lens .scale (\b a -> { a | scale = b })
 
 
 ofStoryBackgroundColor : Lens Settings String
@@ -256,14 +209,46 @@ ofStoryBackgroundColor =
         |> Compose.lensWithLens colorOfBackgroundColor
 
 
-ofColor : Lens Settings ColorSettings
-ofColor =
-    Lens .color (\b a -> { a | color = b })
+ofStoryColor : Lens Settings String
+ofStoryColor =
+    ofColor
+        |> Compose.lensWithLens colorSettingsOfStory
+        |> Compose.lensWithLens colorOfColor
 
 
-colorOfColor : Lens Color String
-colorOfColor =
-    Lens .color (\b a -> { a | color = b })
+ofTaskBackgroundColor : Lens Settings String
+ofTaskBackgroundColor =
+    ofColor
+        |> Compose.lensWithLens colorSettingsOfTask
+        |> Compose.lensWithLens colorOfBackgroundColor
+
+
+ofTaskColor : Lens Settings String
+ofTaskColor =
+    ofColor
+        |> Compose.lensWithLens colorSettingsOfTask
+        |> Compose.lensWithLens colorOfColor
+
+
+ofTextColor : Optional Settings String
+ofTextColor =
+    ofColor
+        |> Compose.lensWithOptional colorSettingsOfText
+
+
+ofToolbar : Lens Settings (Maybe Bool)
+ofToolbar =
+    Lens .toolbar (\b a -> { a | toolbar = b })
+
+
+ofWidth : Lens Settings Int
+ofWidth =
+    Compose.lensWithLens sizeOfWidth ofSize
+
+
+ofZoomControl : Lens Settings (Maybe Bool)
+ofZoomControl =
+    Lens .zoomControl (\b a -> { a | zoomControl = b })
 
 
 colorOfBackgroundColor : Lens Color String
@@ -271,24 +256,14 @@ colorOfBackgroundColor =
     Lens .backgroundColor (\b a -> { a | backgroundColor = b })
 
 
+colorOfColor : Lens Color String
+colorOfColor =
+    Lens .color (\b a -> { a | color = b })
+
+
 colorSettingsOfActivity : Lens ColorSettings Color
 colorSettingsOfActivity =
     Lens .activity (\b a -> { a | activity = b })
-
-
-colorSettingsOfTask : Lens ColorSettings Color
-colorSettingsOfTask =
-    Lens .task (\b a -> { a | task = b })
-
-
-colorSettingsOfStory : Lens ColorSettings Color
-colorSettingsOfStory =
-    Lens .story (\b a -> { a | story = b })
-
-
-colorSettingsOfLine : Lens ColorSettings String
-colorSettingsOfLine =
-    Lens .line (\b a -> { a | line = b })
 
 
 colorSettingsOfLabel : Lens ColorSettings String
@@ -296,16 +271,41 @@ colorSettingsOfLabel =
     Lens .label (\b a -> { a | label = b })
 
 
+colorSettingsOfLine : Lens ColorSettings String
+colorSettingsOfLine =
+    Lens .line (\b a -> { a | line = b })
+
+
+colorSettingsOfStory : Lens ColorSettings Color
+colorSettingsOfStory =
+    Lens .story (\b a -> { a | story = b })
+
+
+colorSettingsOfTask : Lens ColorSettings Color
+colorSettingsOfTask =
+    Lens .task (\b a -> { a | task = b })
+
+
 colorSettingsOfText : Optional ColorSettings String
 colorSettingsOfText =
     Optional .text (\b a -> { a | text = Just b })
 
 
-sizeOfWidth : Lens Size Int
-sizeOfWidth =
-    Lens .width (\b a -> { a | width = b })
+ofColor : Lens Settings ColorSettings
+ofColor =
+    Lens .color (\b a -> { a | color = b })
+
+
+ofSize : Lens Settings Size
+ofSize =
+    Lens .size (\b a -> { a | size = b })
 
 
 sizeOfHeight : Lens Size Int
 sizeOfHeight =
     Lens .height (\b a -> { a | height = b })
+
+
+sizeOfWidth : Lens Size Int
+sizeOfWidth =
+    Lens .width (\b a -> { a | width = b })

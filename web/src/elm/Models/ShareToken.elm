@@ -32,11 +32,11 @@ fromString token =
         match
 
 
-unwrap : ShareToken -> Maybe String
-unwrap (ShareToken token) =
-    UrlBase64.decode Base64.decode token |> Result.toMaybe
-
-
 toString : ShareToken -> String
 toString (ShareToken token) =
     token
+
+
+unwrap : ShareToken -> Maybe String
+unwrap (ShareToken token) =
+    UrlBase64.decode Base64.decode token |> Result.toMaybe

@@ -20,17 +20,8 @@ view model =
                 itemHeight =
                     Basics.max Constants.itemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
 
-                (UserPersonaItem name) =
-                    u.name
-
-                (UserPersonaItem whoAmI) =
-                    u.whoAmI
-
-                (UserPersonaItem threeReasonsToUseYourProduct) =
-                    u.threeReasonsToUseYourProduct
-
-                (UserPersonaItem threeReasonsToBuyYourProduct) =
-                    u.threeReasonsToBuyYourProduct
+                (UserPersonaItem myDreams) =
+                    u.myDreams
 
                 (UserPersonaItem myInterests) =
                     u.myInterests
@@ -38,14 +29,23 @@ view model =
                 (UserPersonaItem myPersonality) =
                     u.myPersonality
 
+                (UserPersonaItem myRelationshipWithTechnology) =
+                    u.myRelationshipWithTechnology
+
                 (UserPersonaItem mySkils) =
                     u.mySkils
 
-                (UserPersonaItem myDreams) =
-                    u.myDreams
+                (UserPersonaItem name) =
+                    u.name
 
-                (UserPersonaItem myRelationshipWithTechnology) =
-                    u.myRelationshipWithTechnology
+                (UserPersonaItem threeReasonsToBuyYourProduct) =
+                    u.threeReasonsToBuyYourProduct
+
+                (UserPersonaItem threeReasonsToUseYourProduct) =
+                    u.threeReasonsToUseYourProduct
+
+                (UserPersonaItem whoAmI) =
+                    u.whoAmI
             in
             Svg.g
                 []

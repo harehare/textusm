@@ -40,32 +40,18 @@ import Views.Empty as Empty
 import Views.Icon as Icon
 
 
-type alias TableViewInfo =
-    { table : Table
-    , size : Size
-    , position : Maybe Position
-    , releationCount : Int
-    , releations : Dict String String
-    , offset : Position
-    }
-
-
-type alias TableViewDict =
-    Dict String TableViewInfo
-
-
 view : Model -> Svg Msg
 view model =
     case model.data of
         DiagramData.ErDiagram e ->
             let
-                ( relationships, tables ) =
-                    e
-
                 baseDict : TableViewDict
                 baseDict =
                     tablesToDict tables
                         |> adjustTablePosition relationships
+
+                ( relationships, tables ) =
+                    e
 
                 tableDict =
                     case model.moveState of
@@ -73,12 +59,12 @@ view model =
                             case target of
                                 Diagram.TableTarget table ->
                                     let
-                                        (Table name _ position _) =
-                                            table
-
                                         currentTable : Maybe TableViewInfo
                                         currentTable =
                                             Dict.get name baseDict
+
+                                        (Table name _ position _) =
+                                            table
                                     in
                                     Dict.update name
                                         (\_ ->
@@ -130,13 +116,6 @@ adjustTablePosition r t =
                                 case ( maybeTable1, maybeTable2 ) of
                                     ( Just t1, Just t2 ) ->
                                         let
-                                            ( ( table1, name1, rel1 ), ( table2, name2, rel2 ) ) =
-                                                if t1.releationCount >= t2.releationCount && MaybeEx.isNothing t2.position then
-                                                    ( ( t1, tableName1, relationString1 ), ( t2, tableName2, relationString2 ) )
-
-                                                else
-                                                    ( ( t2, tableName2, relationString2 ), ( t1, tableName1, relationString1 ) )
-
                                             ( next, childPosition ) =
                                                 calcTablePosition
                                                     { tableSize1 = table1.size
@@ -145,6 +124,13 @@ adjustTablePosition r t =
                                                     , nextPosition = nextPosition
                                                     , relationCount = table1.releationCount + 1
                                                     }
+
+                                            ( ( table1, name1, rel1 ), ( table2, name2, rel2 ) ) =
+                                                if t1.releationCount >= t2.releationCount && MaybeEx.isNothing t2.position then
+                                                    ( ( t1, tableName1, relationString1 ), ( t2, tableName2, relationString2 ) )
+
+                                                else
+                                                    ( ( t2, tableName2, relationString2 ), ( t1, tableName1, relationString1 ) )
 
                                             table1Updated =
                                                 Dict.update
@@ -213,11 +199,9 @@ calcTablePosition :
     -> ( Maybe Position, Position )
 calcTablePosition { tableSize1, tableSize2, pos, nextPosition, relationCount } =
     let
-        ( tableWidth1, tableHeight1 ) =
-            tableSize1
-
-        ( tableWidth2, tableHeight2 ) =
-            tableSize2
+        h : Int
+        h =
+            max tableHeight1 Constants.tableMargin * n
 
         n : Int
         n =
@@ -226,14 +210,6 @@ calcTablePosition { tableSize1, tableSize2, pos, nextPosition, relationCount } =
 
             else
                 1
-
-        w : Int
-        w =
-            max tableWidth1 Constants.tableMargin * n
-
-        h : Int
-        h =
-            max tableHeight1 Constants.tableMargin * n
 
         ( next, ( posX, posY ) ) =
             case pos of
@@ -247,6 +223,16 @@ calcTablePosition { tableSize1, tableSize2, pos, nextPosition, relationCount } =
 
                         Nothing ->
                             ( Just ( tableWidth1 + w, 0 ), ( 0, 0 ) )
+
+        ( tableWidth1, tableHeight1 ) =
+            tableSize1
+
+        ( tableWidth2, tableHeight2 ) =
+            tableSize2
+
+        w : Int
+        w =
+            max tableWidth1 Constants.tableMargin * n
     in
     case modBy 8 relationCount of
         1 ->
@@ -277,146 +263,6 @@ calcTablePosition { tableSize1, tableSize2, pos, nextPosition, relationCount } =
             ( next, ( posX, posY - h - tableHeight2 ) )
 
 
-tablesToDict : List Table -> TableViewDict
-tablesToDict tables =
-    tables
-        |> List.map
-            (\table ->
-                let
-                    (Table name columns position _) =
-                        table
-
-                    offsetX : Int
-                    offsetX =
-                        getX (position |> Maybe.withDefault Position.zero)
-
-                    offsetY : Int
-                    offsetY =
-                        getY (position |> Maybe.withDefault Position.zero)
-
-                    width : Int
-                    width =
-                        ER.tableWidth table
-
-                    height : Int
-                    height =
-                        Constants.tableRowHeight * (List.length columns + 1)
-                in
-                ( name
-                , { table = table
-                  , size = ( width, height )
-                  , position = Nothing
-                  , releationCount = 0
-                  , releations = Dict.empty
-                  , offset = ( offsetX, offsetY )
-                  }
-                )
-            )
-        |> Dict.fromList
-
-
-tableView :
-    { settings : DiagramSettings.Settings
-    , svgSize : Size
-    , pos : Position
-    , tableSize : Size
-    , table : Table
-    }
-    -> Svg Msg
-tableView { settings, svgSize, pos, tableSize, table } =
-    let
-        (Table tableName columns position _) =
-            table
-
-        tableX : Int
-        tableX =
-            getX pos + getX (position |> Maybe.withDefault Position.zero)
-
-        tableY : Int
-        tableY =
-            getY pos + getY (position |> Maybe.withDefault Position.zero)
-    in
-    Svg.g
-        [ onDragStart table (Utils.isPhone (getWidth svgSize)) ]
-        (Svg.rect
-            [ width <| String.fromInt <| getWidth tableSize
-            , height <| String.fromInt <| getHeight tableSize
-            , x (String.fromInt tableX)
-            , y (String.fromInt tableY)
-            , strokeWidth "1"
-            , stroke settings.color.activity.backgroundColor
-            ]
-            []
-            :: tableHeaderView settings tableName (getWidth tableSize) ( tableX, tableY )
-            :: List.indexedMap
-                (\i column -> columnView settings (getWidth tableSize) ( tableX, tableY + Constants.tableRowHeight * (i + 1) ) column)
-                columns
-        )
-
-
-onDragStart : Table -> Bool -> Svg.Attribute Msg
-onDragStart table isPhone =
-    if isPhone then
-        Events.onTouchStart
-            (\event ->
-                if List.length event.changedTouches > 1 then
-                    let
-                        p1 : ( Float, Float )
-                        p1 =
-                            ListEx.getAt 0 event.changedTouches
-                                |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0.0, 0.0 )
-
-                        p2 : ( Float, Float )
-                        p2 =
-                            ListEx.getAt 1 event.changedTouches
-                                |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0.0, 0.0 )
-                    in
-                    StartPinch (Utils.calcDistance p1 p2)
-
-                else
-                    let
-                        ( x, y ) =
-                            Events.touchCoordinates event
-                    in
-                    Start (Diagram.ItemMove (Diagram.TableTarget table)) ( round x, round y )
-            )
-
-    else
-        Events.onMouseDown
-            (\event ->
-                let
-                    ( x, y ) =
-                        event.pagePos
-                in
-                Start (Diagram.ItemMove (Diagram.TableTarget table)) ( round x, round y )
-            )
-
-
-tableHeaderView : DiagramSettings.Settings -> String -> Int -> Position -> Svg Msg
-tableHeaderView settings headerText headerWidth ( posX, posY ) =
-    Svg.g []
-        [ Svg.rect
-            [ width <| String.fromInt headerWidth
-            , height <| String.fromInt Constants.tableRowHeight
-            , x (String.fromInt posX)
-            , y (String.fromInt posY)
-            , fill settings.color.activity.backgroundColor
-            ]
-            []
-        , Svg.text_
-            [ x <| String.fromInt <| posX + 8
-            , y <| String.fromInt <| posY + 24
-            , fontFamily (DiagramSettings.fontStyle settings)
-            , fill settings.color.activity.color
-            , fontSize "16"
-            , fontWeight "bold"
-            ]
-            [ Svg.text headerText ]
-        ]
-
-
 columnView : DiagramSettings.Settings -> Int -> Position -> Column -> Svg Msg
 columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
     let
@@ -428,17 +274,17 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
         colY =
             String.fromInt posY
 
-        isPrimaryKey : Bool
-        isPrimaryKey =
-            ListEx.find (\i -> i == PrimaryKey) attrs |> MaybeEx.isJust
+        isNotNull : Bool
+        isNotNull =
+            ListEx.find (\i -> i == NotNull) attrs |> MaybeEx.isJust
 
         isNull : Bool
         isNull =
             ListEx.find (\i -> i == Null) attrs |> MaybeEx.isJust
 
-        isNotNull : Bool
-        isNotNull =
-            ListEx.find (\i -> i == NotNull) attrs |> MaybeEx.isJust
+        isPrimaryKey : Bool
+        isPrimaryKey =
+            ListEx.find (\i -> i == PrimaryKey) attrs |> MaybeEx.isJust
 
         style : Css.Style
         style =
@@ -511,63 +357,77 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
         ]
 
 
-relationshipView : DiagramSettings.Settings -> List Relationship -> TableViewDict -> Svg Msg
-relationshipView settings relationships tables =
-    Svg.g [] <|
-        List.map
-            (\relationship ->
-                let
-                    ( tableName1, tableName2 ) =
-                        case relationship of
-                            ManyToMany t1 t2 ->
-                                ( t1, t2 )
-
-                            OneToMany t1 t2 ->
-                                ( t1, t2 )
-
-                            ManyToOne t1 t2 ->
-                                ( t1, t2 )
-
-                            OneToOne t1 t2 ->
-                                ( t1, t2 )
-
-                            NoRelation ->
-                                ( "", "" )
-
-                    table1 : Maybe TableViewInfo
-                    table1 =
-                        Dict.get tableName1 tables
-
-                    table2 : Maybe TableViewInfo
-                    table2 =
-                        Dict.get tableName2 tables
-                in
-                case ( table1, table2 ) of
-                    ( Just t1, Just t2 ) ->
-                        let
-                            t1Rel : Maybe String
-                            t1Rel =
-                                Dict.get tableName2 t1.releations
-
-                            t2Rel : Maybe String
-                            t2Rel =
-                                Dict.get tableName1 t2.releations
-                        in
-                        Svg.g []
-                            [ pathView settings t1 t2
-                            , relationLabelView settings t1 t2 (Maybe.withDefault "" t1Rel)
-                            , relationLabelView settings t2 t1 (Maybe.withDefault "" t2Rel)
-                            ]
-
-                    _ ->
-                        Svg.g [] []
-            )
-            relationships
-
-
 getPosition : Maybe Position -> Position
 getPosition pos =
     Maybe.withDefault ( 0, 0 ) pos
+
+
+onDragStart : Table -> Bool -> Svg.Attribute Msg
+onDragStart table isPhone =
+    if isPhone then
+        Events.onTouchStart
+            (\event ->
+                if List.length event.changedTouches > 1 then
+                    let
+                        p1 : ( Float, Float )
+                        p1 =
+                            ListEx.getAt 0 event.changedTouches
+                                |> Maybe.map .pagePos
+                                |> Maybe.withDefault ( 0.0, 0.0 )
+
+                        p2 : ( Float, Float )
+                        p2 =
+                            ListEx.getAt 1 event.changedTouches
+                                |> Maybe.map .pagePos
+                                |> Maybe.withDefault ( 0.0, 0.0 )
+                    in
+                    StartPinch (Utils.calcDistance p1 p2)
+
+                else
+                    let
+                        ( x, y ) =
+                            Events.touchCoordinates event
+                    in
+                    Start (Diagram.ItemMove (Diagram.TableTarget table)) ( round x, round y )
+            )
+
+    else
+        Events.onMouseDown
+            (\event ->
+                let
+                    ( x, y ) =
+                        event.pagePos
+                in
+                Start (Diagram.ItemMove (Diagram.TableTarget table)) ( round x, round y )
+            )
+
+
+pathView : DiagramSettings.Settings -> TableViewInfo -> TableViewInfo -> Svg Msg
+pathView settings from to =
+    let
+        ( fromOffsetX, fromOffsetY ) =
+            from.offset
+
+        fromPosition : ( Float, Float )
+        fromPosition =
+            Tuple.mapBoth (\x -> toFloat (x + fromOffsetX)) (\y -> toFloat (y + fromOffsetY)) (getPosition from.position)
+
+        fromSize : ( Float, Float )
+        fromSize =
+            Tuple.mapBoth toFloat toFloat from.size
+
+        ( toOffsetX, toOffsetY ) =
+            to.offset
+
+        toPosition : ( Float, Float )
+        toPosition =
+            Tuple.mapBoth (\x -> toFloat (x + toOffsetX)) (\y -> toFloat (y + toOffsetY)) (getPosition to.position)
+
+        toSize : ( Float, Float )
+        toSize =
+            Tuple.mapBoth toFloat toFloat to.size
+    in
+    Path.view settings.color.line ( fromPosition, fromSize ) ( toPosition, toSize )
 
 
 relationLabelView : DiagramSettings.Settings -> TableViewInfo -> TableViewInfo -> String -> Svg Msg
@@ -652,29 +512,169 @@ relationLabelView settings table1 table2 label =
             [ Svg.text label ]
 
 
-pathView : DiagramSettings.Settings -> TableViewInfo -> TableViewInfo -> Svg Msg
-pathView settings from to =
+relationshipView : DiagramSettings.Settings -> List Relationship -> TableViewDict -> Svg Msg
+relationshipView settings relationships tables =
+    Svg.g [] <|
+        List.map
+            (\relationship ->
+                let
+                    table1 : Maybe TableViewInfo
+                    table1 =
+                        Dict.get tableName1 tables
+
+                    table2 : Maybe TableViewInfo
+                    table2 =
+                        Dict.get tableName2 tables
+
+                    ( tableName1, tableName2 ) =
+                        case relationship of
+                            ManyToMany t1 t2 ->
+                                ( t1, t2 )
+
+                            OneToMany t1 t2 ->
+                                ( t1, t2 )
+
+                            ManyToOne t1 t2 ->
+                                ( t1, t2 )
+
+                            OneToOne t1 t2 ->
+                                ( t1, t2 )
+
+                            NoRelation ->
+                                ( "", "" )
+                in
+                case ( table1, table2 ) of
+                    ( Just t1, Just t2 ) ->
+                        let
+                            t1Rel : Maybe String
+                            t1Rel =
+                                Dict.get tableName2 t1.releations
+
+                            t2Rel : Maybe String
+                            t2Rel =
+                                Dict.get tableName1 t2.releations
+                        in
+                        Svg.g []
+                            [ pathView settings t1 t2
+                            , relationLabelView settings t1 t2 (Maybe.withDefault "" t1Rel)
+                            , relationLabelView settings t2 t1 (Maybe.withDefault "" t2Rel)
+                            ]
+
+                    _ ->
+                        Svg.g [] []
+            )
+            relationships
+
+
+tableHeaderView : DiagramSettings.Settings -> String -> Int -> Position -> Svg Msg
+tableHeaderView settings headerText headerWidth ( posX, posY ) =
+    Svg.g []
+        [ Svg.rect
+            [ width <| String.fromInt headerWidth
+            , height <| String.fromInt Constants.tableRowHeight
+            , x (String.fromInt posX)
+            , y (String.fromInt posY)
+            , fill settings.color.activity.backgroundColor
+            ]
+            []
+        , Svg.text_
+            [ x <| String.fromInt <| posX + 8
+            , y <| String.fromInt <| posY + 24
+            , fontFamily (DiagramSettings.fontStyle settings)
+            , fill settings.color.activity.color
+            , fontSize "16"
+            , fontWeight "bold"
+            ]
+            [ Svg.text headerText ]
+        ]
+
+
+tableView :
+    { settings : DiagramSettings.Settings
+    , svgSize : Size
+    , pos : Position
+    , tableSize : Size
+    , table : Table
+    }
+    -> Svg Msg
+tableView { settings, svgSize, pos, tableSize, table } =
     let
-        ( fromOffsetX, fromOffsetY ) =
-            from.offset
+        (Table tableName columns position _) =
+            table
 
-        ( toOffsetX, toOffsetY ) =
-            to.offset
+        tableX : Int
+        tableX =
+            getX pos + getX (position |> Maybe.withDefault Position.zero)
 
-        fromPosition : ( Float, Float )
-        fromPosition =
-            Tuple.mapBoth (\x -> toFloat (x + fromOffsetX)) (\y -> toFloat (y + fromOffsetY)) (getPosition from.position)
-
-        fromSize : ( Float, Float )
-        fromSize =
-            Tuple.mapBoth toFloat toFloat from.size
-
-        toPosition : ( Float, Float )
-        toPosition =
-            Tuple.mapBoth (\x -> toFloat (x + toOffsetX)) (\y -> toFloat (y + toOffsetY)) (getPosition to.position)
-
-        toSize : ( Float, Float )
-        toSize =
-            Tuple.mapBoth toFloat toFloat to.size
+        tableY : Int
+        tableY =
+            getY pos + getY (position |> Maybe.withDefault Position.zero)
     in
-    Path.view settings.color.line ( fromPosition, fromSize ) ( toPosition, toSize )
+    Svg.g
+        [ onDragStart table (Utils.isPhone (getWidth svgSize)) ]
+        (Svg.rect
+            [ width <| String.fromInt <| getWidth tableSize
+            , height <| String.fromInt <| getHeight tableSize
+            , x (String.fromInt tableX)
+            , y (String.fromInt tableY)
+            , strokeWidth "1"
+            , stroke settings.color.activity.backgroundColor
+            ]
+            []
+            :: tableHeaderView settings tableName (getWidth tableSize) ( tableX, tableY )
+            :: List.indexedMap
+                (\i column -> columnView settings (getWidth tableSize) ( tableX, tableY + Constants.tableRowHeight * (i + 1) ) column)
+                columns
+        )
+
+
+type alias TableViewDict =
+    Dict String TableViewInfo
+
+
+type alias TableViewInfo =
+    { table : Table
+    , size : Size
+    , position : Maybe Position
+    , releationCount : Int
+    , releations : Dict String String
+    , offset : Position
+    }
+
+
+tablesToDict : List Table -> TableViewDict
+tablesToDict tables =
+    tables
+        |> List.map
+            (\table ->
+                let
+                    (Table name columns position _) =
+                        table
+
+                    height : Int
+                    height =
+                        Constants.tableRowHeight * (List.length columns + 1)
+
+                    offsetX : Int
+                    offsetX =
+                        getX (position |> Maybe.withDefault Position.zero)
+
+                    offsetY : Int
+                    offsetY =
+                        getY (position |> Maybe.withDefault Position.zero)
+
+                    width : Int
+                    width =
+                        ER.tableWidth table
+                in
+                ( name
+                , { table = table
+                  , size = ( width, height )
+                  , position = Nothing
+                  , releationCount = 0
+                  , releations = Dict.empty
+                  , offset = ( offsetX, offsetY )
+                  }
+                )
+            )
+        |> Dict.fromList

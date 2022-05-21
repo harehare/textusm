@@ -4,6 +4,17 @@ import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional, required)
 
 
+type alias File =
+    { filename : String
+    , type_ : String
+    , language : Maybe String
+    , rawUrl : String
+    , size : Int
+    , truncated : Bool
+    , content : String
+    }
+
+
 type alias Gist =
     { url : String
     , forksUrl : String
@@ -19,17 +30,6 @@ type alias Gist =
     , description : String
     , comments : Int
     , commentsUrl : String
-    }
-
-
-type alias File =
-    { filename : String
-    , type_ : String
-    , language : Maybe String
-    , rawUrl : String
-    , size : Int
-    , truncated : Bool
-    , content : String
     }
 
 

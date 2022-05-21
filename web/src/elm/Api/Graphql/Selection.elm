@@ -22,27 +22,12 @@ import Models.Text as Text
 import Models.Title as Title
 
 
-colorSelection : SelectionSet DiagramSettings.Color Graphql.Object.Color
-colorSelection =
-    SelectionSet.succeed DiagramSettings.Color
-        |> with Graphql.Object.Color.foregroundColor
-        |> with Graphql.Object.Color.backgroundColor
-
-
-itemSelection : SelectionSet DiagramItem Graphql.Object.Item
-itemSelection =
-    SelectionSet.succeed DiagramItem
-        |> with (Graphql.Object.Item.id |> SelectionSet.map (\(Graphql.Scalar.Id id) -> Just <| DiagramId.fromString id))
-        |> hardcoded Text.empty
-        |> with Graphql.Object.Item.diagram
-        |> with (Graphql.Object.Item.title |> SelectionSet.map Title.fromString)
-        |> with Graphql.Object.Item.thumbnail
-        |> with Graphql.Object.Item.isPublic
-        |> with Graphql.Object.Item.isBookmark
-        |> hardcoded True
-        |> hardcoded (Just DiagramLocation.Remote)
-        |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
-        |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
+allItemsSelection : SelectionSet DiagramItem Graphql.Union.DiagramItem
+allItemsSelection =
+    Graphql.Union.DiagramItem.fragments
+        { onItem = itemSelection
+        , onGistItem = gistItemSelection
+        }
 
 
 gistItemSelection : SelectionSet DiagramItem Graphql.Object.GistItem
@@ -61,12 +46,20 @@ gistItemSelection =
         |> with (Graphql.Object.GistItem.updatedAt |> DiagramItem.mapToDateTime)
 
 
-allItemsSelection : SelectionSet DiagramItem Graphql.Union.DiagramItem
-allItemsSelection =
-    Graphql.Union.DiagramItem.fragments
-        { onItem = itemSelection
-        , onGistItem = gistItemSelection
-        }
+itemSelection : SelectionSet DiagramItem Graphql.Object.Item
+itemSelection =
+    SelectionSet.succeed DiagramItem
+        |> with (Graphql.Object.Item.id |> SelectionSet.map (\(Graphql.Scalar.Id id) -> Just <| DiagramId.fromString id))
+        |> hardcoded Text.empty
+        |> with Graphql.Object.Item.diagram
+        |> with (Graphql.Object.Item.title |> SelectionSet.map Title.fromString)
+        |> with Graphql.Object.Item.thumbnail
+        |> with Graphql.Object.Item.isPublic
+        |> with Graphql.Object.Item.isBookmark
+        |> hardcoded True
+        |> hardcoded (Just DiagramLocation.Remote)
+        |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
+        |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
 
 
 settingsSelection : SelectionSet DiagramSettings.Settings Graphql.Object.Settings
@@ -87,3 +80,10 @@ settingsSelection =
         |> with Graphql.Object.Settings.zoomControl
         |> with Graphql.Object.Settings.scale
         |> with Graphql.Object.Settings.toolbar
+
+
+colorSelection : SelectionSet DiagramSettings.Color Graphql.Object.Color
+colorSelection =
+    SelectionSet.succeed DiagramSettings.Color
+        |> with Graphql.Object.Color.foregroundColor
+        |> with Graphql.Object.Color.backgroundColor

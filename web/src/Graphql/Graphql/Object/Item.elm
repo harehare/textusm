@@ -14,15 +14,33 @@ import Json.Decode as D
 
 
 {-| -}
+createdAt : SelectionSet Graphql.ScalarCodecs.Time Graphql.Object.Item
+createdAt =
+    Object.selectionForField "ScalarCodecs.Time" "createdAt" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecTime |> .decoder)
+
+
+{-| -}
+diagram : SelectionSet Graphql.Enum.Diagram.Diagram Graphql.Object.Item
+diagram =
+    Object.selectionForField "Enum.Diagram.Diagram" "diagram" [] Graphql.Enum.Diagram.decoder
+
+
+{-| -}
 id : SelectionSet Graphql.ScalarCodecs.Id Graphql.Object.Item
 id =
     Object.selectionForField "ScalarCodecs.Id" "id" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
 
 
 {-| -}
-title : SelectionSet String Graphql.Object.Item
-title =
-    Object.selectionForField "String" "title" [] D.string
+isBookmark : SelectionSet Bool Graphql.Object.Item
+isBookmark =
+    Object.selectionForField "Bool" "isBookmark" [] D.bool
+
+
+{-| -}
+isPublic : SelectionSet Bool Graphql.Object.Item
+isPublic =
+    Object.selectionForField "Bool" "isPublic" [] D.bool
 
 
 {-| -}
@@ -38,27 +56,9 @@ thumbnail =
 
 
 {-| -}
-diagram : SelectionSet Graphql.Enum.Diagram.Diagram Graphql.Object.Item
-diagram =
-    Object.selectionForField "Enum.Diagram.Diagram" "diagram" [] Graphql.Enum.Diagram.decoder
-
-
-{-| -}
-isPublic : SelectionSet Bool Graphql.Object.Item
-isPublic =
-    Object.selectionForField "Bool" "isPublic" [] D.bool
-
-
-{-| -}
-isBookmark : SelectionSet Bool Graphql.Object.Item
-isBookmark =
-    Object.selectionForField "Bool" "isBookmark" [] D.bool
-
-
-{-| -}
-createdAt : SelectionSet Graphql.ScalarCodecs.Time Graphql.Object.Item
-createdAt =
-    Object.selectionForField "ScalarCodecs.Time" "createdAt" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecTime |> .decoder)
+title : SelectionSet String Graphql.Object.Item
+title =
+    Object.selectionForField "String" "title" [] D.string
 
 
 {-| -}

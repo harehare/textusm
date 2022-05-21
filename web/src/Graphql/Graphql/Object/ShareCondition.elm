@@ -11,21 +11,9 @@ import Json.Decode as D
 
 
 {-| -}
-token : SelectionSet String Graphql.Object.ShareCondition
-token =
-    Object.selectionForField "String" "token" [] D.string
-
-
-{-| -}
-usePassword : SelectionSet Bool Graphql.Object.ShareCondition
-usePassword =
-    Object.selectionForField "Bool" "usePassword" [] D.bool
-
-
-{-| -}
-expireTime : SelectionSet Int Graphql.Object.ShareCondition
-expireTime =
-    Object.selectionForField "Int" "expireTime" [] D.int
+allowEmailList : SelectionSet (Maybe (List String)) Graphql.Object.ShareCondition
+allowEmailList =
+    Object.selectionForField "(Maybe (List String))" "allowEmailList" [] (D.string |> D.list |> D.nullable)
 
 
 {-| -}
@@ -35,6 +23,18 @@ allowIPList =
 
 
 {-| -}
-allowEmailList : SelectionSet (Maybe (List String)) Graphql.Object.ShareCondition
-allowEmailList =
-    Object.selectionForField "(Maybe (List String))" "allowEmailList" [] (D.string |> D.list |> D.nullable)
+expireTime : SelectionSet Int Graphql.Object.ShareCondition
+expireTime =
+    Object.selectionForField "Int" "expireTime" [] D.int
+
+
+{-| -}
+token : SelectionSet String Graphql.Object.ShareCondition
+token =
+    Object.selectionForField "String" "token" [] D.string
+
+
+{-| -}
+usePassword : SelectionSet Bool Graphql.Object.ShareCondition
+usePassword =
+    Object.selectionForField "Bool" "usePassword" [] D.bool

@@ -36,46 +36,6 @@ import Style.Style as Style
 import Style.Text as Text
 
 
-textActivityView : List (Html msg) -> Html msg
-textActivityView children =
-    div [ css [ Text.base, Color.textActivity, padding3 zero (px 16) zero ] ] children
-
-
-textTaskStyle : List (Html msg) -> Html msg
-textTaskStyle children =
-    div [ css [ Text.base, Color.textAccent, padding3 zero (px 16) zero ] ] children
-
-
-textCommentView : List (Html msg) -> Html msg
-textCommentView children =
-    div [ css [ Text.base, Color.textComment, padding3 zero (px 16) zero ] ] children
-
-
-activityView : List (Html msg) -> Html msg
-activityView chlldren =
-    div [ css [ Color.textActivity ] ] chlldren
-
-
-taskView : List (Html msg) -> Html msg
-taskView children =
-    div [ css [ Color.textAccent ] ] children
-
-
-storyView : List (Html msg) -> Html msg
-storyView children =
-    div [ css [ color <| hex "#ffffff" ] ] children
-
-
-textView : List (Html msg) -> Html msg
-textView children =
-    div [ css [ Text.base, padding3 zero (px 16) zero ] ] children
-
-
-itemView : List (Html msg) -> Html msg
-itemView children =
-    div [ css [ width <| px 96, Text.sm, Style.flexCenter, border3 (px 1) solid Color.borderColor, Style.paddingSm ] ] children
-
-
 view : Html msg
 view =
     div
@@ -216,6 +176,23 @@ view =
         ]
 
 
+activityView : List (Html msg) -> Html msg
+activityView chlldren =
+    div [ css [ Color.textActivity ] ] chlldren
+
+
+indentedText : String -> Int -> Html msg
+indentedText s indent =
+    text <|
+        (String.fromChar '\u{00A0}' |> String.repeat (4 * indent))
+            ++ s
+
+
+itemView : List (Html msg) -> Html msg
+itemView children =
+    div [ css [ width <| px 96, Text.sm, Style.flexCenter, border3 (px 1) solid Color.borderColor, Style.paddingSm ] ] children
+
+
 section : Maybe String -> Html msg
 section title =
     div
@@ -237,8 +214,31 @@ section title =
         ]
 
 
-indentedText : String -> Int -> Html msg
-indentedText s indent =
-    text <|
-        (String.fromChar '\u{00A0}' |> String.repeat (4 * indent))
-            ++ s
+storyView : List (Html msg) -> Html msg
+storyView children =
+    div [ css [ color <| hex "#ffffff" ] ] children
+
+
+taskView : List (Html msg) -> Html msg
+taskView children =
+    div [ css [ Color.textAccent ] ] children
+
+
+textActivityView : List (Html msg) -> Html msg
+textActivityView children =
+    div [ css [ Text.base, Color.textActivity, padding3 zero (px 16) zero ] ] children
+
+
+textCommentView : List (Html msg) -> Html msg
+textCommentView children =
+    div [ css [ Text.base, Color.textComment, padding3 zero (px 16) zero ] ] children
+
+
+textTaskStyle : List (Html msg) -> Html msg
+textTaskStyle children =
+    div [ css [ Text.base, Color.textAccent, padding3 zero (px 16) zero ] ] children
+
+
+textView : List (Html msg) -> Html msg
+textView children =
+    div [ css [ Text.base, padding3 zero (px 16) zero ] ] children

@@ -15,61 +15,30 @@ import Models.Title as Title exposing (Title)
 import Time exposing (Posix)
 
 
-itemSettingsFuzzer : Fuzzer ItemSettings
-itemSettingsFuzzer =
-    Fuzz.map4
-        (\bg fg offset fontSize ->
-            ItemSettings.new
-                |> ItemSettings.withBackgroundColor bg
-                |> ItemSettings.withForegroundColor fg
-                |> ItemSettings.withOffset offset
-                |> ItemSettings.withFontSize fontSize
-        )
-        (Fuzz.maybe colorFuzzer)
-        (Fuzz.maybe colorFuzzer)
-        positionFuzzer
-        fontSizeFuzzer
-
-
-itemTypeFuzzer : Fuzzer ItemType
-itemTypeFuzzer =
-    Fuzz.constant Activities
-
-
-itemFuzzer : Fuzzer Item
-itemFuzzer =
-    Fuzz.map
-        (\lineNo text comments itemType itemSettings children ->
-            Item.new
-                |> Item.withLineNo lineNo
-                |> Item.withText text
-                |> Item.withComments comments
-                |> Item.withItemType itemType
-                |> Item.withItemSettings itemSettings
-                |> Item.withChildren children
-        )
-        (Fuzz.intRange 0 100)
-        |> Fuzz.andMap (Fuzz.map (\s -> String.replace "#" "" s |> String.replace "|" "" |> String.trim) Fuzz.string)
-        |> Fuzz.andMap
-            (Fuzz.string
-                |> Fuzz.map
-                    (\s ->
-                        if s |> String.trim |> String.isEmpty then
-                            Nothing
-
-                        else
-                            Just (String.replace "#" "" s |> String.replace "|" "")
-                    )
-            )
-        |> Fuzz.andMap itemTypeFuzzer
-        |> Fuzz.andMap (Fuzz.maybe itemSettingsFuzzer)
-        |> Fuzz.andMap childrenFuzzer
-
-
-childrenFuzzer : Fuzzer Children
-childrenFuzzer =
+colorFuzzer : Fuzzer Color
+colorFuzzer =
     Fuzz.oneOf
-        [ Fuzz.constant Item.emptyChildren
+        [ Fuzz.constant Color.white
+        , Fuzz.constant Color.black
+        , Fuzz.constant Color.gray
+        , Fuzz.constant Color.lightGray
+        , Fuzz.constant Color.yellow
+        , Fuzz.constant Color.green
+        , Fuzz.constant Color.blue
+        , Fuzz.constant Color.orange
+        , Fuzz.constant Color.pink
+        , Fuzz.constant Color.red
+        , Fuzz.constant Color.purple
+        , Fuzz.constant Color.background1Defalut
+        , Fuzz.constant Color.background2Defalut
+        , Fuzz.constant Color.lineDefalut
+        , Fuzz.constant Color.labelDefalut
+        , Fuzz.constant Color.backgroundDefalut
+        , Fuzz.constant Color.backgroundDarkDefalut
+        , Fuzz.constant Color.teal
+        , Fuzz.constant Color.olive
+        , Fuzz.constant Color.lime
+        , customColorFuzzer
         ]
 
 
@@ -111,64 +80,67 @@ diagramTypeFuzzer =
         ]
 
 
-positionFuzzer : Fuzzer Position
-positionFuzzer =
-    Fuzz.tuple
-        ( Fuzz.intRange -100 100
-        , Fuzz.intRange -100 100
+itemFuzzer : Fuzzer Item
+itemFuzzer =
+    Fuzz.map
+        (\lineNo text comments itemType itemSettings children ->
+            Item.new
+                |> Item.withLineNo lineNo
+                |> Item.withText text
+                |> Item.withComments comments
+                |> Item.withItemType itemType
+                |> Item.withItemSettings itemSettings
+                |> Item.withChildren children
         )
+        (Fuzz.intRange 0 100)
+        |> Fuzz.andMap (Fuzz.map (\s -> String.replace "#" "" s |> String.replace "|" "" |> String.trim) Fuzz.string)
+        |> Fuzz.andMap
+            (Fuzz.string
+                |> Fuzz.map
+                    (\s ->
+                        if s |> String.trim |> String.isEmpty then
+                            Nothing
+
+                        else
+                            Just (String.replace "#" "" s |> String.replace "|" "")
+                    )
+            )
+        |> Fuzz.andMap itemTypeFuzzer
+        |> Fuzz.andMap (Fuzz.maybe itemSettingsFuzzer)
+        |> Fuzz.andMap childrenFuzzer
 
 
-fontSizeFuzzer : Fuzzer FontSize
-fontSizeFuzzer =
-    Fuzz.map (\i -> FontSize.fromInt i) (Fuzz.intRange 8 48)
+itemSettingsFuzzer : Fuzzer ItemSettings
+itemSettingsFuzzer =
+    Fuzz.map4
+        (\bg fg offset fontSize ->
+            ItemSettings.new
+                |> ItemSettings.withBackgroundColor bg
+                |> ItemSettings.withForegroundColor fg
+                |> ItemSettings.withOffset offset
+                |> ItemSettings.withFontSize fontSize
+        )
+        (Fuzz.maybe colorFuzzer)
+        (Fuzz.maybe colorFuzzer)
+        positionFuzzer
+        fontSizeFuzzer
 
 
-colorFuzzer : Fuzzer Color
-colorFuzzer =
+childrenFuzzer : Fuzzer Children
+childrenFuzzer =
     Fuzz.oneOf
-        [ Fuzz.constant Color.white
-        , Fuzz.constant Color.black
-        , Fuzz.constant Color.gray
-        , Fuzz.constant Color.lightGray
-        , Fuzz.constant Color.yellow
-        , Fuzz.constant Color.green
-        , Fuzz.constant Color.blue
-        , Fuzz.constant Color.orange
-        , Fuzz.constant Color.pink
-        , Fuzz.constant Color.red
-        , Fuzz.constant Color.purple
-        , Fuzz.constant Color.background1Defalut
-        , Fuzz.constant Color.background2Defalut
-        , Fuzz.constant Color.lineDefalut
-        , Fuzz.constant Color.labelDefalut
-        , Fuzz.constant Color.backgroundDefalut
-        , Fuzz.constant Color.backgroundDarkDefalut
-        , Fuzz.constant Color.teal
-        , Fuzz.constant Color.olive
-        , Fuzz.constant Color.lime
-        , customColorFuzzer
+        [ Fuzz.constant Item.emptyChildren
         ]
+
+
+customColorFuzzer : Fuzzer Color
+customColorFuzzer =
+    Fuzz.map Color.fromString rgbFuzzer
 
 
 diagramIdFuzzer : Fuzzer DiagramId
 diagramIdFuzzer =
     Fuzz.map DiagramId.fromString Fuzz.string
-
-
-textFuzzer : Fuzzer Text
-textFuzzer =
-    Fuzz.map Text.fromString Fuzz.string
-
-
-titleFuzzer : Fuzzer Title
-titleFuzzer =
-    Fuzz.map Title.fromString Fuzz.string
-
-
-posixFuzzer : Fuzzer Posix
-posixFuzzer =
-    Fuzz.map Time.millisToPosix (Fuzz.intRange 0 100000)
 
 
 diagramLocationFuzzer : Fuzzer DiagramLocation
@@ -181,23 +153,9 @@ diagramLocationFuzzer =
         ]
 
 
-customColorFuzzer : Fuzzer Color
-customColorFuzzer =
-    Fuzz.map Color.fromString rgbFuzzer
-
-
-rgbFuzzer : Fuzzer String
-rgbFuzzer =
-    Fuzz.map
-        (\c1 c2 c3 c4 c5 c6 ->
-            "#" ++ c1 ++ c2 ++ c3 ++ c4 ++ c5 ++ c6
-        )
-        hexFuzzer
-        |> Fuzz.andMap hexFuzzer
-        |> Fuzz.andMap hexFuzzer
-        |> Fuzz.andMap hexFuzzer
-        |> Fuzz.andMap hexFuzzer
-        |> Fuzz.andMap hexFuzzer
+fontSizeFuzzer : Fuzzer FontSize
+fontSizeFuzzer =
+    Fuzz.map (\i -> FontSize.fromInt i) (Fuzz.intRange 8 48)
 
 
 hexFuzzer : Fuzzer String
@@ -220,3 +178,45 @@ hexFuzzer =
         , Fuzz.constant "8"
         , Fuzz.constant "9"
         ]
+
+
+itemTypeFuzzer : Fuzzer ItemType
+itemTypeFuzzer =
+    Fuzz.constant Activities
+
+
+positionFuzzer : Fuzzer Position
+positionFuzzer =
+    Fuzz.tuple
+        ( Fuzz.intRange -100 100
+        , Fuzz.intRange -100 100
+        )
+
+
+posixFuzzer : Fuzzer Posix
+posixFuzzer =
+    Fuzz.map Time.millisToPosix (Fuzz.intRange 0 100000)
+
+
+rgbFuzzer : Fuzzer String
+rgbFuzzer =
+    Fuzz.map
+        (\c1 c2 c3 c4 c5 c6 ->
+            "#" ++ c1 ++ c2 ++ c3 ++ c4 ++ c5 ++ c6
+        )
+        hexFuzzer
+        |> Fuzz.andMap hexFuzzer
+        |> Fuzz.andMap hexFuzzer
+        |> Fuzz.andMap hexFuzzer
+        |> Fuzz.andMap hexFuzzer
+        |> Fuzz.andMap hexFuzzer
+
+
+textFuzzer : Fuzzer Text
+textFuzzer =
+    Fuzz.map Text.fromString Fuzz.string
+
+
+titleFuzzer : Fuzzer Title
+titleFuzzer =
+    Fuzz.map Title.fromString Fuzz.string

@@ -3,22 +3,6 @@ module Style.Text exposing (base, lg, sm, xl, xl2, xs)
 import Css exposing (fontSize, lineHeight, rem)
 
 
-xs : Css.Style
-xs =
-    Css.batch
-        [ fontSize <| rem 0.75
-        , lineHeight <| rem 1
-        ]
-
-
-sm : Css.Style
-sm =
-    Css.batch
-        [ fontSize <| rem 0.875
-        , lineHeight <| rem 1.25
-        ]
-
-
 base : Css.Style
 base =
     Css.batch
@@ -35,6 +19,14 @@ lg =
         ]
 
 
+sm : Css.Style
+sm =
+    Css.batch
+        [ fontSize <| rem 0.875
+        , lineHeight <| rem 1.25
+        ]
+
+
 xl : Css.Style
 xl =
     Css.batch
@@ -48,4 +40,12 @@ xl2 =
     Css.batch
         [ fontSize <| rem 1.5
         , lineHeight <| rem 2
+        ]
+
+
+xs : Css.Style
+xs =
+    Css.batch
+        [ fontSize <| rem 0.75
+        , lineHeight <| rem 1
         ]

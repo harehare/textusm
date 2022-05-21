@@ -66,8 +66,10 @@ import Svg.Styled as Svg
 import Utils.Utils as Utils
 
 
-type alias SelectedItem =
-    Maybe Item
+type ContextMenu
+    = CloseMenu
+    | ColorSelectMenu
+    | BackgroundColorSelectMenu
 
 
 type alias ContextMenuProps =
@@ -75,6 +77,52 @@ type alias ContextMenuProps =
     , position : Position
     , displayAllMenu : Bool
     }
+
+
+type alias Distance =
+    Float
+
+
+type DragStatus
+    = NoDrag
+    | DragOver
+
+
+type alias Model =
+    { items : Items
+    , data : DiagramData
+    , size : Size
+    , svg : SvgInfo
+    , moveState : MoveState
+    , position : Position
+    , movePosition : Position
+    , fullscreen : Bool
+    , settings : DiagramSettings.Settings
+    , showZoomControl : Bool
+    , showMiniMap : Bool
+    , search : Search
+    , touchDistance : Maybe Float
+    , diagramType : Diagram
+    , text : Text
+    , selectedItem : SelectedItem
+    , contextMenu : Maybe ContextMenuProps
+    , dragStatus : DragStatus
+    , dropDownIndex : Maybe String
+    , property : Property
+    }
+
+
+type MoveState
+    = BoardMove
+    | ItemMove MoveTarget
+    | ItemResize Item ResizeDirection
+    | MiniMapMove
+    | NotMove
+
+
+type MoveTarget
+    = TableTarget ERModel.Table
+    | ItemTarget Item
 
 
 type Msg
@@ -110,103 +158,6 @@ type Msg
     | Stop
 
 
-type alias Model =
-    { items : Items
-    , data : DiagramData
-    , size : Size
-    , svg : SvgInfo
-    , moveState : MoveState
-    , position : Position
-    , movePosition : Position
-    , fullscreen : Bool
-    , settings : DiagramSettings.Settings
-    , showZoomControl : Bool
-    , showMiniMap : Bool
-    , search : Search
-    , touchDistance : Maybe Float
-    , diagramType : Diagram
-    , text : Text
-    , selectedItem : SelectedItem
-    , contextMenu : Maybe ContextMenuProps
-    , dragStatus : DragStatus
-    , dropDownIndex : Maybe String
-    , property : Property
-    }
-
-
-ofDiagramType : Lens Model Diagram
-ofDiagramType =
-    Lens .diagramType (\b a -> { a | diagramType = b })
-
-
-ofText : Lens Model Text
-ofText =
-    Lens .text (\b a -> { a | text = b })
-
-
-ofShowZoomControl : Lens Model Bool
-ofShowZoomControl =
-    Lens .showZoomControl (\b a -> { a | showZoomControl = b })
-
-
-ofPosition : Lens Model Position
-ofPosition =
-    Lens .position (\b a -> { a | position = b })
-
-
-ofSettings : Lens Model DiagramSettings.Settings
-ofSettings =
-    Lens .settings (\b a -> { a | settings = b })
-
-
-ofSvg : Lens Model SvgInfo
-ofSvg =
-    Lens .svg (\b a -> { a | svg = b })
-
-
-svgOfScale : Lens SvgInfo Float
-svgOfScale =
-    Lens .scale (\b a -> { a | scale = b })
-
-
-ofScale : Lens Model Float
-ofScale =
-    ofSvg |> Compose.lensWithLens svgOfScale
-
-
-ofSize : Lens Model Size
-ofSize =
-    Lens .size (\b a -> { a | size = b })
-
-
-type alias Distance =
-    Float
-
-
-type ContextMenu
-    = CloseMenu
-    | ColorSelectMenu
-    | BackgroundColorSelectMenu
-
-
-type DragStatus
-    = NoDrag
-    | DragOver
-
-
-type MoveState
-    = BoardMove
-    | ItemMove MoveTarget
-    | ItemResize Item ResizeDirection
-    | MiniMapMove
-    | NotMove
-
-
-type MoveTarget
-    = TableTarget ERModel.Table
-    | ItemTarget Item
-
-
 type ResizeDirection
     = TopLeft
     | TopRight
@@ -218,24 +169,15 @@ type ResizeDirection
     | Right
 
 
-moveingItem : Model -> Maybe Item
-moveingItem model =
-    case model.moveState of
-        ItemMove target ->
-            case target of
-                ItemTarget item ->
-                    Just item
-
-                _ ->
-                    Nothing
-
-        _ ->
-            Nothing
+type alias SelectedItem =
+    Maybe Item
 
 
-updatedText : Model -> Text -> Model
-updatedText model text =
-    { model | text = text }
+type alias SelectedItemInfo =
+    { item : Item
+    , position : Position
+    , displayAllMenu : Bool
+    }
 
 
 type alias SvgInfo =
@@ -245,11 +187,13 @@ type alias SvgInfo =
     }
 
 
-type alias SelectedItemInfo =
-    { item : Item
-    , position : Position
-    , displayAllMenu : Bool
-    }
+chooseZoom : Float -> Wheel.Event -> Msg
+chooseZoom ratio wheelEvent =
+    if wheelEvent.deltaY > 0 then
+        ZoomOut ratio
+
+    else
+        ZoomIn ratio
 
 
 dragStart : MoveState -> Bool -> Svg.Attribute Msg
@@ -292,23 +236,61 @@ dragStart state isPhone =
             )
 
 
-chooseZoom : Float -> Wheel.Event -> Msg
-chooseZoom ratio wheelEvent =
-    if wheelEvent.deltaY > 0 then
-        ZoomOut ratio
+moveingItem : Model -> Maybe Item
+moveingItem model =
+    case model.moveState of
+        ItemMove target ->
+            case target of
+                ItemTarget item ->
+                    Just item
 
-    else
-        ZoomIn ratio
+                _ ->
+                    Nothing
+
+        _ ->
+            Nothing
+
+
+ofDiagramType : Lens Model Diagram
+ofDiagramType =
+    Lens .diagramType (\b a -> { a | diagramType = b })
+
+
+ofPosition : Lens Model Position
+ofPosition =
+    Lens .position (\b a -> { a | position = b })
+
+
+ofScale : Lens Model Float
+ofScale =
+    ofSvg |> Compose.lensWithLens svgOfScale
+
+
+ofSettings : Lens Model DiagramSettings.Settings
+ofSettings =
+    Lens .settings (\b a -> { a | settings = b })
+
+
+ofShowZoomControl : Lens Model Bool
+ofShowZoomControl =
+    Lens .showZoomControl (\b a -> { a | showZoomControl = b })
+
+
+ofSize : Lens Model Size
+ofSize =
+    Lens .size (\b a -> { a | size = b })
+
+
+ofText : Lens Model Text
+ofText =
+    Lens .text (\b a -> { a | text = b })
 
 
 size : Model -> Size
 size model =
     case ( model.diagramType, model.data ) of
-        ( Fourls, _ ) ->
-            FourLsModel.size model.settings model.items
-
-        ( EmpathyMap, _ ) ->
-            EmpathyMapModel.size model.settings model.items
+        ( UserStoryMap, DiagramData.UserStoryMap userStoryMap ) ->
+            UserStoryMapModel.size model.settings userStoryMap
 
         ( OpportunityCanvas, _ ) ->
             OpportunityCanvasModel.size model.settings model.items
@@ -316,38 +298,41 @@ size model =
         ( BusinessModelCanvas, _ ) ->
             BusinessModelCanvasModel.size model.settings model.items
 
-        ( Kpt, _ ) ->
-            KptModel.size model.settings model.items
+        ( Fourls, _ ) ->
+            FourLsModel.size model.settings model.items
 
         ( StartStopContinue, _ ) ->
             StartStopContinueModel.size model.settings model.items
 
+        ( Kpt, _ ) ->
+            KptModel.size model.settings model.items
+
         ( UserPersona, _ ) ->
             UserPersonaModel.size model.settings model.items
-
-        ( ErDiagram, _ ) ->
-            ERModel.size model.items
 
         ( MindMap, DiagramData.MindMap items_ hierarchy_ ) ->
             MindMapModel.size model.settings items_ hierarchy_
 
-        ( Table, _ ) ->
-            TableModel.size model.settings model.items
+        ( EmpathyMap, _ ) ->
+            EmpathyMapModel.size model.settings model.items
 
         ( SiteMap, DiagramData.SiteMap siteMapitems hierarchy_ ) ->
             SiteMapModel.size model.settings siteMapitems hierarchy_
 
-        ( UserStoryMap, DiagramData.UserStoryMap userStoryMap ) ->
-            UserStoryMapModel.size model.settings userStoryMap
+        ( GanttChart, DiagramData.GanttChart (Just gantt) ) ->
+            GanttChartModel.size gantt
 
         ( ImpactMap, DiagramData.ImpactMap items_ hierarchy_ ) ->
             ImpactMapModel.size model.settings items_ hierarchy_
 
-        ( GanttChart, DiagramData.GanttChart (Just gantt) ) ->
-            GanttChartModel.size gantt
+        ( ErDiagram, _ ) ->
+            ERModel.size model.items
 
         ( Kanban, DiagramData.Kanban kanban ) ->
             KanbanModel.size model.settings kanban
+
+        ( Table, _ ) ->
+            TableModel.size model.settings model.items
 
         ( SequenceDiagram, DiagramData.SequenceDiagram sequenceDiagram ) ->
             SequenceDiagramModel.size model.settings sequenceDiagram
@@ -360,3 +345,18 @@ size model =
 
         _ ->
             ( 0, 0 )
+
+
+updatedText : Model -> Text -> Model
+updatedText model text =
+    { model | text = text }
+
+
+ofSvg : Lens Model SvgInfo
+ofSvg =
+    Lens .svg (\b a -> { a | svg = b })
+
+
+svgOfScale : Lens SvgInfo Float
+svgOfScale =
+    Lens .scale (\b a -> { a | scale = b })

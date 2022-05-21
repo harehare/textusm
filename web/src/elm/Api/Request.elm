@@ -42,38 +42,6 @@ import Task exposing (Task)
 import Url.Builder exposing (crossOrigin)
 
 
-graphQLUrl : String
-graphQLUrl =
-    crossOrigin Env.apiRoot [ "graphql" ] []
-
-
-item : Maybe IdToken -> String -> Task RequestError DiagramItem
-item idToken id =
-    Query.item id False
-        |> Http.queryRequest graphQLUrl
-        |> authHeaders idToken
-        |> Http.toTask
-        |> Task.mapError toError
-
-
-publicItem : Maybe IdToken -> String -> Task RequestError DiagramItem
-publicItem idToken id =
-    Query.item id True
-        |> Http.queryRequest graphQLUrl
-        |> authHeaders idToken
-        |> Http.toTask
-        |> Task.mapError toError
-
-
-items : Maybe IdToken -> ( Int, Int ) -> { isPublic : Bool, isBookmark : Bool } -> Task RequestError (List (Maybe DiagramItem))
-items idToken ( offset, limit ) params =
-    Query.items ( offset, limit ) params
-        |> Http.queryRequest graphQLUrl
-        |> authHeaders idToken
-        |> Http.toTask
-        |> Task.mapError toError
-
-
 allItems : Maybe IdToken -> ( Int, Int ) -> Task RequestError (Maybe (List DiagramItem))
 allItems idToken ( offset, limit ) =
     Query.allItems ( offset, limit )
@@ -83,27 +51,9 @@ allItems idToken ( offset, limit ) =
         |> Task.mapError toError
 
 
-shareItem : Maybe IdToken -> String -> Maybe String -> Task RequestError DiagramItem
-shareItem idToken id password =
-    Query.shareItem id password
-        |> Http.queryRequest graphQLUrl
-        |> authHeaders idToken
-        |> Http.toTask
-        |> Task.mapError toError
-
-
-shareCondition : Maybe IdToken -> String -> Task RequestError (Maybe Query.ShareCondition)
-shareCondition idToken id =
-    Query.shareCondition id
-        |> Http.queryRequest graphQLUrl
-        |> authHeaders idToken
-        |> Http.toTask
-        |> Task.mapError toError
-
-
-save : Maybe IdToken -> InputItem -> Bool -> Task RequestError DiagramItem
-save idToken input isPublic =
-    Mutation.save input isPublic
+bookmark : Maybe IdToken -> String -> Bool -> Task RequestError (Maybe DiagramItem)
+bookmark idToken itemID isBookmark =
+    Mutation.bookmark itemID isBookmark
         |> Http.mutationRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
@@ -120,42 +70,19 @@ delete idToken itemID isPublic =
         |> Task.mapError toError
 
 
-bookmark : Maybe IdToken -> String -> Bool -> Task RequestError (Maybe DiagramItem)
-bookmark idToken itemID isBookmark =
-    Mutation.bookmark itemID isBookmark
-        |> Http.mutationRequest graphQLUrl
-        |> authHeaders idToken
-        |> Http.toTask
-        |> Task.mapError toError
-
-
-share :
-    { idToken : Maybe IdToken
-    , itemID : String
-    , expSecond : Duration
-    , password : Maybe String
-    , allowIPList : List IpAddress
-    , allowEmailList : List Email
-    }
-    -> Task RequestError String
-share { idToken, itemID, expSecond, password, allowIPList, allowEmailList } =
-    Mutation.share
-        { itemID = Graphql.Scalar.Id itemID
-        , expSecond = Present <| Duration.toInt expSecond
-        , password =
-            case password of
-                Just p ->
-                    Present p
-
-                Nothing ->
-                    Null
-        , allowIPList = Present <| List.map IpAddress.toString allowIPList
-        , allowEmailList = Present <| List.map Email.toString allowEmailList
-        }
-        |> Http.mutationRequest graphQLUrl
-        |> authHeaders idToken
-        |> Http.toTask
-        |> Task.mapError toError
+deleteGist : Maybe IdToken -> AccessToken -> GistId -> Task RequestError String
+deleteGist idToken accessToken gistId =
+    GithubRequest.deleteGist accessToken gistId
+        |> Task.mapError RequestError.fromHttpError
+        |> Task.andThen
+            (\_ ->
+                Mutation.deleteGist gistId
+                    |> Http.mutationRequest graphQLUrl
+                    |> authHeaders idToken
+                    |> Http.toTask
+                    |> Task.map (\(Graphql.Scalar.Id id) -> id)
+                    |> Task.mapError toError
+            )
 
 
 gistItem : Maybe IdToken -> AccessToken -> GistId -> Task RequestError DiagramItem
@@ -196,6 +123,42 @@ gistItems idToken ( offset, limit ) =
         |> Task.mapError toError
 
 
+item : Maybe IdToken -> String -> Task RequestError DiagramItem
+item idToken id =
+    Query.item id False
+        |> Http.queryRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+items : Maybe IdToken -> ( Int, Int ) -> { isPublic : Bool, isBookmark : Bool } -> Task RequestError (List (Maybe DiagramItem))
+items idToken ( offset, limit ) params =
+    Query.items ( offset, limit ) params
+        |> Http.queryRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+publicItem : Maybe IdToken -> String -> Task RequestError DiagramItem
+publicItem idToken id =
+    Query.item id True
+        |> Http.queryRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+save : Maybe IdToken -> InputItem -> Bool -> Task RequestError DiagramItem
+save idToken input isPublic =
+    Mutation.save input isPublic
+        |> Http.mutationRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
 saveGist : Maybe IdToken -> AccessToken -> InputGistItem -> String -> Task RequestError DiagramItem
 saveGist idToken accessToken input content =
     let
@@ -217,13 +180,13 @@ saveGist idToken accessToken input content =
                     |> Task.mapError toError
     in
     case input.id of
-        Null ->
-            GithubRequest.createGist accessToken gistInput
+        Present (Graphql.Scalar.Id id_) ->
+            GithubRequest.updateGist accessToken id_ gistInput
                 |> Task.mapError RequestError.fromHttpError
                 |> Task.andThen saveTask
 
-        Present (Graphql.Scalar.Id id_) ->
-            GithubRequest.updateGist accessToken id_ gistInput
+        Null ->
+            GithubRequest.createGist accessToken gistInput
                 |> Task.mapError RequestError.fromHttpError
                 |> Task.andThen saveTask
 
@@ -233,19 +196,13 @@ saveGist idToken accessToken input content =
                 |> Task.andThen saveTask
 
 
-deleteGist : Maybe IdToken -> AccessToken -> GistId -> Task RequestError String
-deleteGist idToken accessToken gistId =
-    GithubRequest.deleteGist accessToken gistId
-        |> Task.mapError RequestError.fromHttpError
-        |> Task.andThen
-            (\_ ->
-                Mutation.deleteGist gistId
-                    |> Http.mutationRequest graphQLUrl
-                    |> authHeaders idToken
-                    |> Http.toTask
-                    |> Task.map (\(Graphql.Scalar.Id id) -> id)
-                    |> Task.mapError toError
-            )
+saveSettings : Maybe IdToken -> Diagram -> InputSettings -> Task RequestError DiagramSettings.Settings
+saveSettings idToken diagram input =
+    Mutation.saveSettings diagram input
+        |> Http.mutationRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
 
 
 settings : Maybe IdToken -> Diagram -> Task RequestError DiagramSettings.Settings
@@ -257,10 +214,48 @@ settings idToken diagram =
         |> Task.mapError toError
 
 
-saveSettings : Maybe IdToken -> Diagram -> InputSettings -> Task RequestError DiagramSettings.Settings
-saveSettings idToken diagram input =
-    Mutation.saveSettings diagram input
+share :
+    { idToken : Maybe IdToken
+    , itemID : String
+    , expSecond : Duration
+    , password : Maybe String
+    , allowIPList : List IpAddress
+    , allowEmailList : List Email
+    }
+    -> Task RequestError String
+share { idToken, itemID, expSecond, password, allowIPList, allowEmailList } =
+    Mutation.share
+        { itemID = Graphql.Scalar.Id itemID
+        , expSecond = Present <| Duration.toInt expSecond
+        , password =
+            case password of
+                Just p ->
+                    Present p
+
+                Nothing ->
+                    Null
+        , allowIPList = Present <| List.map IpAddress.toString allowIPList
+        , allowEmailList = Present <| List.map Email.toString allowEmailList
+        }
         |> Http.mutationRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+shareCondition : Maybe IdToken -> String -> Task RequestError (Maybe Query.ShareCondition)
+shareCondition idToken id =
+    Query.shareCondition id
+        |> Http.queryRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+shareItem : Maybe IdToken -> String -> Maybe String -> Task RequestError DiagramItem
+shareItem idToken id password =
+    Query.shareItem id password
+        |> Http.queryRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
         |> Task.mapError toError
@@ -274,3 +269,8 @@ authHeaders idToken =
 
         Nothing ->
             Http.withOperationName ""
+
+
+graphQLUrl : String
+graphQLUrl =
+    crossOrigin Env.apiRoot [ "graphql" ] []

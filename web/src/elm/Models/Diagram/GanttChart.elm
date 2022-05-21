@@ -25,24 +25,20 @@ import Time.Extra as TimeEx exposing (Interval(..))
 import Utils.Date as DateUtils
 
 
-type GanttChart
-    = GanttChart Schedule (List Section)
-
-
-type Schedule
-    = Schedule From To Int
-
-
 type alias From =
     Posix
 
 
-type alias To =
-    Posix
+type GanttChart
+    = GanttChart Schedule (List Section)
 
 
 type alias GanttTitle =
     String
+
+
+type Schedule
+    = Schedule From To Int
 
 
 type Section
@@ -53,9 +49,30 @@ type Task
     = Task GanttTitle Schedule
 
 
-diff : From -> To -> Int
-diff fromDate toDate =
-    TimeEx.diff Day Time.utc fromDate toDate
+type alias To =
+    Posix
+
+
+from : Items -> Maybe GanttChart
+from items =
+    let
+        rootItem : Item
+        rootItem =
+            Item.head items |> Maybe.withDefault Item.new
+    in
+    Item.getText rootItem
+        |> extractDateValues
+        |> Maybe.map
+            (\( f, t ) ->
+                let
+                    sectionList : List Section
+                    sectionList =
+                        Item.getChildren rootItem
+                            |> Item.unwrapChildren
+                            |> sectionFromItems
+                in
+                GanttChart (Schedule f t <| diff f t) sectionList
+            )
 
 
 sectionSchedule : Section -> Schedule
@@ -66,9 +83,6 @@ sectionSchedule (Section _ tasks) =
                 |> List.foldl
                     (\task ( sf, st ) ->
                         case task of
-                            Nothing ->
-                                ( sf, st )
-
                             Just (Task _ (Schedule f t _)) ->
                                 ( if sf > Time.posixToMillis f then
                                     Time.posixToMillis <| f
@@ -81,11 +95,166 @@ sectionSchedule (Section _ tasks) =
                                   else
                                     st
                                 )
+
+                            Nothing ->
+                                ( sf, st )
                     )
                     ( BasicEx.maxSafeInteger, 0 )
                 |> Tuple.mapBoth Time.millisToPosix Time.millisToPosix
     in
     Schedule sectionFrom sectionTo (diff sectionFrom sectionTo)
+
+
+size : GanttChart -> Size
+size gantt =
+    let
+        (GanttChart (Schedule _ _ interval) sections) =
+            gantt
+
+        nodeCounts : List Int
+        nodeCounts =
+            0
+                :: (sections
+                        |> List.map
+                            (\(Section _ tasks) ->
+                                if List.isEmpty tasks then
+                                    0
+
+                                else
+                                    List.length tasks + 1
+                            )
+                        |> ListEx.scanl1 (+)
+                   )
+
+        svgHeight : Int
+        svgHeight =
+            (ListEx.last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length sections
+    in
+    ( Constants.leftMargin + 20 + Constants.ganttItemSize + interval * Constants.ganttItemSize, svgHeight + Constants.ganttItemSize )
+
+
+toMermaidString : Title -> Zone -> GanttChart -> String
+toMermaidString title zone (GanttChart _ sections) =
+    "gantt"
+        ++ "\n"
+        ++ ("dateFormat  YYYY-MM-DD"
+                :: "title "
+                :: Title.toString title
+                :: List.map (sectiontomermaidstring zone) sections
+                |> List.map (\s -> "    " ++ s)
+                |> String.join "\n"
+           )
+
+
+diff : From -> To -> Int
+diff fromDate toDate =
+    TimeEx.diff Day Time.utc fromDate toDate
+
+
+extractDateValues : String -> Maybe ( Posix, Posix )
+extractDateValues s =
+    let
+        fromDate : Maybe Posix
+        fromDate =
+            ListEx.getAt 0 rangeValues
+                |> Maybe.andThen
+                    (\vv ->
+                        stringToPosix (String.trim vv)
+                    )
+
+        rangeValues : List String
+        rangeValues =
+            String.split " " (String.trim s)
+    in
+    fromDate
+        |> Maybe.andThen
+            (\f ->
+                ListEx.getAt 1 rangeValues
+                    |> Maybe.andThen
+                        (\vv ->
+                            stringToPosix (String.trim vv)
+                        )
+                    |> Maybe.map (\to -> ( f, to ))
+            )
+
+
+intToMonth : Int -> Month
+intToMonth month =
+    case month of
+        1 ->
+            Jan
+
+        2 ->
+            Feb
+
+        3 ->
+            Mar
+
+        4 ->
+            Apr
+
+        5 ->
+            May
+
+        6 ->
+            Jun
+
+        7 ->
+            Jul
+
+        8 ->
+            Aug
+
+        9 ->
+            Sep
+
+        10 ->
+            Oct
+
+        11 ->
+            Nov
+
+        12 ->
+            Dec
+
+        _ ->
+            Jan
+
+
+sectionFromItems : Items -> List Section
+sectionFromItems items =
+    Item.map
+        (\item ->
+            let
+                taskItems : List (Maybe Task)
+                taskItems =
+                    Item.getChildren item
+                        |> Item.unwrapChildren
+                        |> Item.map taskFromItem
+                        |> List.filter MaybeEx.isJust
+            in
+            Section (String.trim <| Item.getText item) taskItems
+        )
+        items
+
+
+sectiontomermaidstring : Zone -> Section -> String
+sectiontomermaidstring zone (Section title tasks) =
+    (("section " ++ title)
+        :: (tasks
+                |> List.filterMap (\v_ -> v_)
+                |> List.map
+                    (\(Task taskTitle (Schedule from_ to_ _)) ->
+                        "    " ++ taskTitle ++ ":" ++ DateUtils.millisToDateString zone from_ ++ "," ++ DateUtils.millisToDateString zone to_
+                    )
+           )
+        |> String.join "\n"
+    )
+        ++ "\n"
+
+
+
+-- mermaid
 
 
 stringToPosix : String -> Maybe Posix
@@ -139,115 +308,6 @@ stringToPosix str =
             )
 
 
-intToMonth : Int -> Month
-intToMonth month =
-    case month of
-        1 ->
-            Jan
-
-        2 ->
-            Feb
-
-        3 ->
-            Mar
-
-        4 ->
-            Apr
-
-        5 ->
-            May
-
-        6 ->
-            Jun
-
-        7 ->
-            Jul
-
-        8 ->
-            Aug
-
-        9 ->
-            Sep
-
-        10 ->
-            Oct
-
-        11 ->
-            Nov
-
-        12 ->
-            Dec
-
-        _ ->
-            Jan
-
-
-extractDateValues : String -> Maybe ( Posix, Posix )
-extractDateValues s =
-    let
-        rangeValues : List String
-        rangeValues =
-            String.split " " (String.trim s)
-
-        fromDate : Maybe Posix
-        fromDate =
-            ListEx.getAt 0 rangeValues
-                |> Maybe.andThen
-                    (\vv ->
-                        stringToPosix (String.trim vv)
-                    )
-    in
-    fromDate
-        |> Maybe.andThen
-            (\f ->
-                ListEx.getAt 1 rangeValues
-                    |> Maybe.andThen
-                        (\vv ->
-                            stringToPosix (String.trim vv)
-                        )
-                    |> Maybe.map (\to -> ( f, to ))
-            )
-
-
-from : Items -> Maybe GanttChart
-from items =
-    let
-        rootItem : Item
-        rootItem =
-            Item.head items |> Maybe.withDefault Item.new
-    in
-    Item.getText rootItem
-        |> extractDateValues
-        |> Maybe.map
-            (\( f, t ) ->
-                let
-                    sectionList : List Section
-                    sectionList =
-                        Item.getChildren rootItem
-                            |> Item.unwrapChildren
-                            |> sectionFromItems
-                in
-                GanttChart (Schedule f t <| diff f t) sectionList
-            )
-
-
-sectionFromItems : Items -> List Section
-sectionFromItems items =
-    Item.map
-        (\item ->
-            let
-                taskItems : List (Maybe Task)
-                taskItems =
-                    Item.getChildren item
-                        |> Item.unwrapChildren
-                        |> Item.map taskFromItem
-                        |> List.filter MaybeEx.isJust
-            in
-            Section (String.trim <| Item.getText item) taskItems
-        )
-        items
-
-
 taskFromItem : Item -> Maybe Task
 taskFromItem item =
     let
@@ -261,63 +321,3 @@ taskFromItem item =
                 |> extractDateValues
     in
     Maybe.map (\( f, t ) -> Task (String.trim <| Item.getText item) (Schedule f t (diff f t))) schedule
-
-
-size : GanttChart -> Size
-size gantt =
-    let
-        (GanttChart (Schedule _ _ interval) sections) =
-            gantt
-
-        nodeCounts : List Int
-        nodeCounts =
-            0
-                :: (sections
-                        |> List.map
-                            (\(Section _ tasks) ->
-                                if List.isEmpty tasks then
-                                    0
-
-                                else
-                                    List.length tasks + 1
-                            )
-                        |> ListEx.scanl1 (+)
-                   )
-
-        svgHeight : Int
-        svgHeight =
-            (ListEx.last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length sections
-    in
-    ( Constants.leftMargin + 20 + Constants.ganttItemSize + interval * Constants.ganttItemSize, svgHeight + Constants.ganttItemSize )
-
-
-
--- mermaid
-
-
-toMermaidString : Title -> Zone -> GanttChart -> String
-toMermaidString title zone (GanttChart _ sections) =
-    "gantt"
-        ++ "\n"
-        ++ ("dateFormat  YYYY-MM-DD"
-                :: "title "
-                :: Title.toString title
-                :: List.map (sectiontomermaidstring zone) sections
-                |> List.map (\s -> "    " ++ s)
-                |> String.join "\n"
-           )
-
-
-sectiontomermaidstring : Zone -> Section -> String
-sectiontomermaidstring zone (Section title tasks) =
-    (("section " ++ title)
-        :: (tasks
-                |> List.filterMap (\v_ -> v_)
-                |> List.map
-                    (\(Task taskTitle (Schedule from_ to_ _)) ->
-                        "    " ++ taskTitle ++ ":" ++ DateUtils.millisToDateString zone from_ ++ "," ++ DateUtils.millisToDateString zone to_
-                    )
-           )
-        |> String.join "\n"
-    )
-        ++ "\n"

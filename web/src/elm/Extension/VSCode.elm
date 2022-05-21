@@ -23,11 +23,19 @@ import Task
 -- Model
 
 
-type alias Model =
-    { diagramModel : DiagramModel.Model
-    , text : String
-    , backgroundColor : String
-    }
+port getCanvasSize : (String -> msg) -> Sub msg
+
+
+port onGetCanvasSize : ( Int, Int ) -> Cmd msg
+
+
+port onTextChanged : (String -> msg) -> Sub msg
+
+
+port setText : String -> Cmd msg
+
+
+port zoom : (Bool -> msg) -> Sub msg
 
 
 type alias InitData =
@@ -49,9 +57,34 @@ type alias InitData =
     }
 
 
+
+-- Update
+
+
+type alias Model =
+    { diagramModel : DiagramModel.Model
+    , text : String
+    , backgroundColor : String
+    }
+
+
 type Msg
     = UpdateDiagram DiagramModel.Msg
     | GetCanvasSize String
+
+
+
+-- Subscription
+
+
+main : Program InitData Model Msg
+main =
+    Browser.element
+        { init = init
+        , update = \msg m -> Return.singleton m |> update msg
+        , view = \m -> Html.toUnstyled <| view m
+        , subscriptions = subscriptions
+        }
 
 
 init : InitData -> ( Model, Cmd Msg )
@@ -116,45 +149,21 @@ init flags =
     )
 
 
-view : Model -> Html Msg
-view model =
-    div
-        [ style "position" "relative"
-        , style "width" "100%"
-        , style "height" "100%"
-        , style "overflow" "hidden"
-        , style "background-color" model.backgroundColor
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    Sub.batch
+        [ onResize (\width height -> UpdateDiagram (DiagramModel.Resize width height))
+        , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
+        , onTextChanged (\text -> UpdateDiagram (DiagramModel.ChangeText text))
+        , getCanvasSize GetCanvasSize
+        , zoom <|
+            \z ->
+                if z then
+                    UpdateDiagram <| DiagramModel.ZoomIn 0.01
+
+                else
+                    UpdateDiagram <| DiagramModel.ZoomOut 0.01
         ]
-        [ div
-            [ style "display" "flex"
-            , style "overflow" "hidden"
-            , style "position" "relative"
-            , style "width" "100%"
-            , style "height" "100%"
-            ]
-            [ lazy Diagram.view model.diagramModel
-                |> Html.map UpdateDiagram
-            ]
-        ]
-
-
-main : Program InitData Model Msg
-main =
-    Browser.element
-        { init = init
-        , update = \msg m -> Return.singleton m |> update msg
-        , view = \m -> Html.toUnstyled <| view m
-        , subscriptions = subscriptions
-        }
-
-
-
--- Update
-
-
-updateText : Text -> Model -> Return Msg Model
-updateText text model =
-    Return.return model <| setText (Text.toString text)
 
 
 update : Msg -> Return.ReturnF Msg Model
@@ -177,10 +186,10 @@ update message =
                                 DiagramModel.EndEditSelectedItem _ ->
                                     Return.andThen (updateText model_.text)
 
-                                DiagramModel.FontStyleChanged _ ->
+                                DiagramModel.ColorChanged _ _ ->
                                     Return.andThen (updateText model_.text)
 
-                                DiagramModel.ColorChanged _ _ ->
+                                DiagramModel.FontStyleChanged _ ->
                                     Return.andThen (updateText model_.text)
 
                                 DiagramModel.FontSizeChanged _ ->
@@ -220,37 +229,28 @@ update message =
                     Return.return m <| onGetCanvasSize size
 
 
-
--- Subscription
-
-
-port setText : String -> Cmd msg
+updateText : Text -> Model -> Return Msg Model
+updateText text model =
+    Return.return model <| setText (Text.toString text)
 
 
-port onGetCanvasSize : ( Int, Int ) -> Cmd msg
-
-
-port onTextChanged : (String -> msg) -> Sub msg
-
-
-port getCanvasSize : (String -> msg) -> Sub msg
-
-
-port zoom : (Bool -> msg) -> Sub msg
-
-
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.batch
-        [ onResize (\width height -> UpdateDiagram (DiagramModel.Resize width height))
-        , onMouseUp (D.succeed (UpdateDiagram DiagramModel.Stop))
-        , onTextChanged (\text -> UpdateDiagram (DiagramModel.ChangeText text))
-        , getCanvasSize GetCanvasSize
-        , zoom <|
-            \z ->
-                if z then
-                    UpdateDiagram <| DiagramModel.ZoomIn 0.01
-
-                else
-                    UpdateDiagram <| DiagramModel.ZoomOut 0.01
+view : Model -> Html Msg
+view model =
+    div
+        [ style "position" "relative"
+        , style "width" "100%"
+        , style "height" "100%"
+        , style "overflow" "hidden"
+        , style "background-color" model.backgroundColor
+        ]
+        [ div
+            [ style "display" "flex"
+            , style "overflow" "hidden"
+            , style "position" "relative"
+            , style "width" "100%"
+            , style "height" "100%"
+            ]
+            [ lazy Diagram.view model.diagramModel
+                |> Html.map UpdateDiagram
+            ]
         ]

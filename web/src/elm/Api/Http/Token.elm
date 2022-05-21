@@ -10,13 +10,6 @@ import Platform exposing (Task)
 import Task
 
 
-accessTokenRequestEncorder : String -> E.Value
-accessTokenRequestEncorder accessToken =
-    E.object
-        [ ( "access_token", E.string accessToken )
-        ]
-
-
 revokeGistToken : Maybe IdToken -> String -> Task RequestError ()
 revokeGistToken idToken accessToken =
     HttpRequest.delete
@@ -28,6 +21,13 @@ revokeGistToken idToken accessToken =
         (Http.jsonBody <| accessTokenRequestEncorder accessToken)
         HttpRequest.emptyResolver
         |> Task.mapError RequestError.fromHttpError
+
+
+accessTokenRequestEncorder : String -> E.Value
+accessTokenRequestEncorder accessToken =
+    E.object
+        [ ( "access_token", E.string accessToken )
+        ]
 
 
 headers : Maybe IdToken -> List Http.Header

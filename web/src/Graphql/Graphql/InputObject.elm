@@ -18,28 +18,6 @@ buildInputColor required____ =
     { foregroundColor = required____.foregroundColor, backgroundColor = required____.backgroundColor }
 
 
-type alias InputColorRequiredFields =
-    { foregroundColor : String
-    , backgroundColor : String
-    }
-
-
-{-| Type for the InputColor input object.
--}
-type alias InputColor =
-    { foregroundColor : String
-    , backgroundColor : String
-    }
-
-
-{-| Encode a InputColor into a value that can be used as an argument.
--}
-encodeInputColor : InputColor -> Value
-encodeInputColor input____ =
-    Encode.maybeObject
-        [ ( "foregroundColor", Encode.string input____.foregroundColor |> Just ), ( "backgroundColor", Encode.string input____.backgroundColor |> Just ) ]
-
-
 buildInputGistItem :
     InputGistItemRequiredFields
     -> (InputGistItemOptionalFields -> InputGistItemOptionalFields)
@@ -51,40 +29,6 @@ buildInputGistItem required____ fillOptionals____ =
                 { id = Absent, thumbnail = Absent }
     in
     { id = optionals____.id, title = required____.title, thumbnail = optionals____.thumbnail, diagram = required____.diagram, isBookmark = required____.isBookmark, url = required____.url }
-
-
-type alias InputGistItemRequiredFields =
-    { title : String
-    , diagram : Graphql.Enum.Diagram.Diagram
-    , isBookmark : Bool
-    , url : String
-    }
-
-
-type alias InputGistItemOptionalFields =
-    { id : OptionalArgument Graphql.ScalarCodecs.Id
-    , thumbnail : OptionalArgument String
-    }
-
-
-{-| Type for the InputGistItem input object.
--}
-type alias InputGistItem =
-    { id : OptionalArgument Graphql.ScalarCodecs.Id
-    , title : String
-    , thumbnail : OptionalArgument String
-    , diagram : Graphql.Enum.Diagram.Diagram
-    , isBookmark : Bool
-    , url : String
-    }
-
-
-{-| Encode a InputGistItem into a value that can be used as an argument.
--}
-encodeInputGistItem : InputGistItem -> Value
-encodeInputGistItem input____ =
-    Encode.maybeObject
-        [ ( "id", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum Graphql.Enum.Diagram.toString input____.diagram |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ), ( "url", Encode.string input____.url |> Just ) ]
 
 
 buildInputItem :
@@ -100,18 +44,109 @@ buildInputItem required____ fillOptionals____ =
     { id = optionals____.id, title = required____.title, text = required____.text, thumbnail = optionals____.thumbnail, diagram = required____.diagram, isPublic = required____.isPublic, isBookmark = required____.isBookmark }
 
 
-type alias InputItemRequiredFields =
-    { title : String
-    , text : String
-    , diagram : Graphql.Enum.Diagram.Diagram
-    , isPublic : Bool
-    , isBookmark : Bool
+buildInputSettings :
+    InputSettingsRequiredFields
+    -> (InputSettingsOptionalFields -> InputSettingsOptionalFields)
+    -> InputSettings
+buildInputSettings required____ fillOptionals____ =
+    let
+        optionals____ =
+            fillOptionals____
+                { textColor = Absent, zoomControl = Absent, scale = Absent, toolbar = Absent }
+    in
+    { font = required____.font, width = required____.width, height = required____.height, backgroundColor = required____.backgroundColor, activityColor = required____.activityColor, taskColor = required____.taskColor, storyColor = required____.storyColor, lineColor = required____.lineColor, labelColor = required____.labelColor, textColor = optionals____.textColor, zoomControl = optionals____.zoomControl, scale = optionals____.scale, toolbar = optionals____.toolbar }
+
+
+buildInputShareItem :
+    InputShareItemRequiredFields
+    -> (InputShareItemOptionalFields -> InputShareItemOptionalFields)
+    -> InputShareItem
+buildInputShareItem required____ fillOptionals____ =
+    let
+        optionals____ =
+            fillOptionals____
+                { expSecond = Absent, password = Absent, allowIPList = Absent, allowEmailList = Absent }
+    in
+    { itemID = required____.itemID, expSecond = optionals____.expSecond, password = optionals____.password, allowIPList = optionals____.allowIPList, allowEmailList = optionals____.allowEmailList }
+
+
+{-| Encode a InputColor into a value that can be used as an argument.
+-}
+encodeInputColor : InputColor -> Value
+encodeInputColor input____ =
+    Encode.maybeObject
+        [ ( "foregroundColor", Encode.string input____.foregroundColor |> Just ), ( "backgroundColor", Encode.string input____.backgroundColor |> Just ) ]
+
+
+{-| Encode a InputGistItem into a value that can be used as an argument.
+-}
+encodeInputGistItem : InputGistItem -> Value
+encodeInputGistItem input____ =
+    Encode.maybeObject
+        [ ( "id", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum Graphql.Enum.Diagram.toString input____.diagram |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ), ( "url", Encode.string input____.url |> Just ) ]
+
+
+{-| Encode a InputItem into a value that can be used as an argument.
+-}
+encodeInputItem : InputItem -> Value
+encodeInputItem input____ =
+    Encode.maybeObject
+        [ ( "id", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "text", Encode.string input____.text |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum Graphql.Enum.Diagram.toString input____.diagram |> Just ), ( "isPublic", Encode.bool input____.isPublic |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ) ]
+
+
+{-| Encode a InputSettings into a value that can be used as an argument.
+-}
+encodeInputSettings : InputSettings -> Value
+encodeInputSettings input____ =
+    Encode.maybeObject
+        [ ( "font", Encode.string input____.font |> Just ), ( "width", Encode.int input____.width |> Just ), ( "height", Encode.int input____.height |> Just ), ( "backgroundColor", Encode.string input____.backgroundColor |> Just ), ( "activityColor", encodeInputColor input____.activityColor |> Just ), ( "taskColor", encodeInputColor input____.taskColor |> Just ), ( "storyColor", encodeInputColor input____.storyColor |> Just ), ( "lineColor", Encode.string input____.lineColor |> Just ), ( "labelColor", Encode.string input____.labelColor |> Just ), ( "textColor", Encode.string |> Encode.optional input____.textColor ), ( "zoomControl", Encode.bool |> Encode.optional input____.zoomControl ), ( "scale", Encode.float |> Encode.optional input____.scale ), ( "toolbar", Encode.bool |> Encode.optional input____.toolbar ) ]
+
+
+{-| Encode a InputShareItem into a value that can be used as an argument.
+-}
+encodeInputShareItem : InputShareItem -> Value
+encodeInputShareItem input____ =
+    Encode.maybeObject
+        [ ( "itemID", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) input____.itemID |> Just ), ( "expSecond", Encode.int |> Encode.optional input____.expSecond ), ( "password", Encode.string |> Encode.optional input____.password ), ( "allowIPList", (Encode.string |> Encode.list) |> Encode.optional input____.allowIPList ), ( "allowEmailList", (Encode.string |> Encode.list) |> Encode.optional input____.allowEmailList ) ]
+
+
+{-| Type for the InputColor input object.
+-}
+type alias InputColor =
+    { foregroundColor : String
+    , backgroundColor : String
     }
 
 
-type alias InputItemOptionalFields =
+type alias InputColorRequiredFields =
+    { foregroundColor : String
+    , backgroundColor : String
+    }
+
+
+{-| Type for the InputGistItem input object.
+-}
+type alias InputGistItem =
+    { id : OptionalArgument Graphql.ScalarCodecs.Id
+    , title : String
+    , thumbnail : OptionalArgument String
+    , diagram : Graphql.Enum.Diagram.Diagram
+    , isBookmark : Bool
+    , url : String
+    }
+
+
+type alias InputGistItemOptionalFields =
     { id : OptionalArgument Graphql.ScalarCodecs.Id
     , thumbnail : OptionalArgument String
+    }
+
+
+type alias InputGistItemRequiredFields =
+    { title : String
+    , diagram : Graphql.Enum.Diagram.Diagram
+    , isBookmark : Bool
+    , url : String
     }
 
 
@@ -128,45 +163,18 @@ type alias InputItem =
     }
 
 
-{-| Encode a InputItem into a value that can be used as an argument.
--}
-encodeInputItem : InputItem -> Value
-encodeInputItem input____ =
-    Encode.maybeObject
-        [ ( "id", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) |> Encode.optional input____.id ), ( "title", Encode.string input____.title |> Just ), ( "text", Encode.string input____.text |> Just ), ( "thumbnail", Encode.string |> Encode.optional input____.thumbnail ), ( "diagram", Encode.enum Graphql.Enum.Diagram.toString input____.diagram |> Just ), ( "isPublic", Encode.bool input____.isPublic |> Just ), ( "isBookmark", Encode.bool input____.isBookmark |> Just ) ]
-
-
-buildInputSettings :
-    InputSettingsRequiredFields
-    -> (InputSettingsOptionalFields -> InputSettingsOptionalFields)
-    -> InputSettings
-buildInputSettings required____ fillOptionals____ =
-    let
-        optionals____ =
-            fillOptionals____
-                { textColor = Absent, zoomControl = Absent, scale = Absent, toolbar = Absent }
-    in
-    { font = required____.font, width = required____.width, height = required____.height, backgroundColor = required____.backgroundColor, activityColor = required____.activityColor, taskColor = required____.taskColor, storyColor = required____.storyColor, lineColor = required____.lineColor, labelColor = required____.labelColor, textColor = optionals____.textColor, zoomControl = optionals____.zoomControl, scale = optionals____.scale, toolbar = optionals____.toolbar }
-
-
-type alias InputSettingsRequiredFields =
-    { font : String
-    , width : Int
-    , height : Int
-    , backgroundColor : String
-    , activityColor : InputColor
-    , taskColor : InputColor
-    , storyColor : InputColor
-    , lineColor : String
-    , labelColor : String
+type alias InputItemOptionalFields =
+    { id : OptionalArgument Graphql.ScalarCodecs.Id
+    , thumbnail : OptionalArgument String
     }
 
 
-type alias InputSettingsOptionalFields =
-    { textColor : OptionalArgument String
-    , zoomControl : OptionalArgument Bool
-    , scale : OptionalArgument Float
-    , toolbar : OptionalArgument Bool
+type alias InputItemRequiredFields =
+    { title : String
+    , text : String
+    , diagram : Graphql.Enum.Diagram.Diagram
+    , isPublic : Bool
+    , isBookmark : Bool
     }
 
 
@@ -189,36 +197,24 @@ type alias InputSettings =
     }
 
 
-{-| Encode a InputSettings into a value that can be used as an argument.
--}
-encodeInputSettings : InputSettings -> Value
-encodeInputSettings input____ =
-    Encode.maybeObject
-        [ ( "font", Encode.string input____.font |> Just ), ( "width", Encode.int input____.width |> Just ), ( "height", Encode.int input____.height |> Just ), ( "backgroundColor", Encode.string input____.backgroundColor |> Just ), ( "activityColor", encodeInputColor input____.activityColor |> Just ), ( "taskColor", encodeInputColor input____.taskColor |> Just ), ( "storyColor", encodeInputColor input____.storyColor |> Just ), ( "lineColor", Encode.string input____.lineColor |> Just ), ( "labelColor", Encode.string input____.labelColor |> Just ), ( "textColor", Encode.string |> Encode.optional input____.textColor ), ( "zoomControl", Encode.bool |> Encode.optional input____.zoomControl ), ( "scale", Encode.float |> Encode.optional input____.scale ), ( "toolbar", Encode.bool |> Encode.optional input____.toolbar ) ]
+type alias InputSettingsOptionalFields =
+    { textColor : OptionalArgument String
+    , zoomControl : OptionalArgument Bool
+    , scale : OptionalArgument Float
+    , toolbar : OptionalArgument Bool
+    }
 
 
-buildInputShareItem :
-    InputShareItemRequiredFields
-    -> (InputShareItemOptionalFields -> InputShareItemOptionalFields)
-    -> InputShareItem
-buildInputShareItem required____ fillOptionals____ =
-    let
-        optionals____ =
-            fillOptionals____
-                { expSecond = Absent, password = Absent, allowIPList = Absent, allowEmailList = Absent }
-    in
-    { itemID = required____.itemID, expSecond = optionals____.expSecond, password = optionals____.password, allowIPList = optionals____.allowIPList, allowEmailList = optionals____.allowEmailList }
-
-
-type alias InputShareItemRequiredFields =
-    { itemID : Graphql.ScalarCodecs.Id }
-
-
-type alias InputShareItemOptionalFields =
-    { expSecond : OptionalArgument Int
-    , password : OptionalArgument String
-    , allowIPList : OptionalArgument (List String)
-    , allowEmailList : OptionalArgument (List String)
+type alias InputSettingsRequiredFields =
+    { font : String
+    , width : Int
+    , height : Int
+    , backgroundColor : String
+    , activityColor : InputColor
+    , taskColor : InputColor
+    , storyColor : InputColor
+    , lineColor : String
+    , labelColor : String
     }
 
 
@@ -233,9 +229,13 @@ type alias InputShareItem =
     }
 
 
-{-| Encode a InputShareItem into a value that can be used as an argument.
--}
-encodeInputShareItem : InputShareItem -> Value
-encodeInputShareItem input____ =
-    Encode.maybeObject
-        [ ( "itemID", (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) input____.itemID |> Just ), ( "expSecond", Encode.int |> Encode.optional input____.expSecond ), ( "password", Encode.string |> Encode.optional input____.password ), ( "allowIPList", (Encode.string |> Encode.list) |> Encode.optional input____.allowIPList ), ( "allowEmailList", (Encode.string |> Encode.list) |> Encode.optional input____.allowEmailList ) ]
+type alias InputShareItemOptionalFields =
+    { expSecond : OptionalArgument Int
+    , password : OptionalArgument String
+    , allowIPList : OptionalArgument (List String)
+    , allowEmailList : OptionalArgument (List String)
+    }
+
+
+type alias InputShareItemRequiredFields =
+    { itemID : Graphql.ScalarCodecs.Id }

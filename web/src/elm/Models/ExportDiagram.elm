@@ -11,9 +11,14 @@ type ExportDiagram
     | Copyable FileType
 
 
-downloadable : FileType -> ExportDiagram
-downloadable fileType =
-    Downloadable fileType
+copy : ExportDiagram -> String -> Maybe (Cmd msg)
+copy exportDiagram content =
+    case exportDiagram of
+        Downloadable _ ->
+            Nothing
+
+        Copyable _ ->
+            Just <| Ports.copyText content
 
 
 copyable : FileType -> ExportDiagram
@@ -31,11 +36,6 @@ download exportDiagram title content =
             Nothing
 
 
-copy : ExportDiagram -> String -> Maybe (Cmd msg)
-copy exportDiagram content =
-    case exportDiagram of
-        Copyable _ ->
-            Just <| Ports.copyText content
-
-        Downloadable _ ->
-            Nothing
+downloadable : FileType -> ExportDiagram
+downloadable fileType =
+    Downloadable fileType

@@ -5,21 +5,12 @@ import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 
 
-type alias Path =
-    String
-
-
 type alias Position =
     ( Float, Float )
 
 
 type alias Size =
     ( Float, Float )
-
-
-cornerSize : Float
-cornerSize =
-    8.0
 
 
 view : String -> ( Position, Size ) -> ( Position, Size ) -> Svg Msg
@@ -79,17 +70,38 @@ view colour ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( to
             )
 
 
+bottomLeftcorner : Position -> Path
+bottomLeftcorner ( posX, posY ) =
+    "A8,8,0,0,0," ++ String.fromFloat posX ++ "," ++ String.fromFloat posY
+
+
+cornerSize : Float
+cornerSize =
+    8.0
+
+
+draw : String -> List Path -> Svg Msg
+draw colour pathList =
+    Svg.path
+        [ SvgAttr.strokeWidth "3"
+        , SvgAttr.stroke colour
+        , SvgAttr.d <| String.join " " pathList
+        , SvgAttr.fill "transparent"
+        ]
+        []
+
+
 drawLines : ( Position, Size ) -> ( Position, Size ) -> List Path
 drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, toHeight ) ) =
     if fromY < toY then
         let
-            interval : Float
-            interval =
-                (toX - (fromX + fromWidth)) / 2
-
             fromMargin : Float
             fromMargin =
                 fromHeight / 2
+
+            interval : Float
+            interval =
+                (toX - (fromX + fromWidth)) / 2
 
             toMargin : Float
             toMargin =
@@ -105,13 +117,13 @@ drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, t
 
     else
         let
-            interval : Float
-            interval =
-                (toX - (fromX + fromWidth)) / 2
-
             fromMargin : Float
             fromMargin =
                 fromHeight / 2
+
+            interval : Float
+            interval =
+                (toX - (fromX + fromWidth)) / 2
 
             toMargin : Float
             toMargin =
@@ -127,15 +139,13 @@ drawLines ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( _, t
         ]
 
 
-draw : String -> List Path -> Svg Msg
-draw colour pathList =
-    Svg.path
-        [ SvgAttr.strokeWidth "3"
-        , SvgAttr.stroke colour
-        , SvgAttr.d <| String.join " " pathList
-        , SvgAttr.fill "transparent"
-        ]
-        []
+line : Position -> Path
+line ( posX, posY ) =
+    "L" ++ String.fromFloat posX ++ "," ++ String.fromFloat posY
+
+
+type alias Path =
+    String
 
 
 start : Position -> Path
@@ -143,16 +153,6 @@ start ( posX, posY ) =
     "M" ++ String.fromFloat posX ++ "," ++ String.fromFloat posY
 
 
-line : Position -> Path
-line ( posX, posY ) =
-    "L" ++ String.fromFloat posX ++ "," ++ String.fromFloat posY
-
-
 topRightcorner : Position -> Path
 topRightcorner ( posX, posY ) =
     "A8,8,0,0,1," ++ String.fromFloat posX ++ "," ++ String.fromFloat posY
-
-
-bottomLeftcorner : Position -> Path
-bottomLeftcorner ( posX, posY ) =
-    "A8,8,0,0,0," ++ String.fromFloat posX ++ "," ++ String.fromFloat posY

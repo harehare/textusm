@@ -29,68 +29,9 @@ view model =
             Empty.view
 
 
-moveingItem : MoveState -> Maybe Item
-moveingItem state =
-    case state of
-        Diagram.ItemMove target ->
-            case target of
-                Diagram.ItemTarget item ->
-                    Just item
-
-                _ ->
-                    Nothing
-
-        _ ->
-            Nothing
-
-
 formView : Model -> Int -> FreeFormItem -> Svg Msg
 formView model i item =
     case item of
-        FreeForm.HorizontalLine item_ ->
-            Line.horizontal
-                { settings = model.settings
-                , position =
-                    ( 16 + modBy 4 i * (model.settings.size.width + 16)
-                    , (i // 4) * (model.settings.size.height + 16)
-                    )
-                , selectedItem = model.selectedItem
-                , item =
-                    model.moveState
-                        |> moveingItem
-                        |> Maybe.map
-                            (\v ->
-                                if Item.getLineNo v == Item.getLineNo item_ then
-                                    v
-
-                                else
-                                    item_
-                            )
-                        |> Maybe.withDefault item_
-                }
-
-        FreeForm.VerticalLine item_ ->
-            Line.vertical
-                { settings = model.settings
-                , position =
-                    ( 16 + modBy 4 i * (model.settings.size.width + 16)
-                    , (i // 4) * (model.settings.size.height + 16)
-                    )
-                , selectedItem = model.selectedItem
-                , item =
-                    model.moveState
-                        |> moveingItem
-                        |> Maybe.map
-                            (\v ->
-                                if Item.getLineNo v == Item.getLineNo item_ then
-                                    v
-
-                                else
-                                    item_
-                            )
-                        |> Maybe.withDefault item_
-                }
-
         FreeForm.Card item_ ->
             Svg.g [] <|
                 Card.viewWithDefaultColor
@@ -147,6 +88,50 @@ formView model i item =
                             )
                        )
 
+        FreeForm.HorizontalLine item_ ->
+            Line.horizontal
+                { settings = model.settings
+                , position =
+                    ( 16 + modBy 4 i * (model.settings.size.width + 16)
+                    , (i // 4) * (model.settings.size.height + 16)
+                    )
+                , selectedItem = model.selectedItem
+                , item =
+                    model.moveState
+                        |> moveingItem
+                        |> Maybe.map
+                            (\v ->
+                                if Item.getLineNo v == Item.getLineNo item_ then
+                                    v
+
+                                else
+                                    item_
+                            )
+                        |> Maybe.withDefault item_
+                }
+
+        FreeForm.VerticalLine item_ ->
+            Line.vertical
+                { settings = model.settings
+                , position =
+                    ( 16 + modBy 4 i * (model.settings.size.width + 16)
+                    , (i // 4) * (model.settings.size.height + 16)
+                    )
+                , selectedItem = model.selectedItem
+                , item =
+                    model.moveState
+                        |> moveingItem
+                        |> Maybe.map
+                            (\v ->
+                                if Item.getLineNo v == Item.getLineNo item_ then
+                                    v
+
+                                else
+                                    item_
+                            )
+                        |> Maybe.withDefault item_
+                }
+
         FreeForm.Canvas item_ ->
             Lazy.lazy6 Canvas.view
                 model.settings
@@ -179,3 +164,18 @@ formView model i item =
                         |> Maybe.withDefault item_
                 , canMove = True
                 }
+
+
+moveingItem : MoveState -> Maybe Item
+moveingItem state =
+    case state of
+        Diagram.ItemMove target ->
+            case target of
+                Diagram.ItemTarget item ->
+                    Just item
+
+                _ ->
+                    Nothing
+
+        _ ->
+            Nothing

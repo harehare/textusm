@@ -14,51 +14,48 @@ type alias Request =
     }
 
 
-get : Request -> Http.Resolver Http.Error a -> Task Http.Error a
-get req resolver =
-    Http.task
-        { method = "GET"
-        , headers = req.headers
-        , url = crossOrigin req.url req.path req.query
-        , body = Http.emptyBody
-        , resolver = resolver
-        , timeout = Nothing
-        }
-
-
-post : Request -> Http.Body -> Http.Resolver Http.Error a -> Task Http.Error a
-post req body resolver =
-    Http.task
-        { method = "POST"
-        , headers = req.headers
-        , url = crossOrigin req.url req.path []
-        , body = body
-        , resolver = resolver
-        , timeout = Nothing
-        }
-
-
-patch : Request -> Http.Body -> Http.Resolver Http.Error a -> Task Http.Error a
-patch req body resolver =
-    Http.task
-        { method = "PATCH"
-        , headers = req.headers
-        , url = crossOrigin req.url req.path []
-        , body = body
-        , resolver = resolver
-        , timeout = Nothing
-        }
-
-
 delete : Request -> Http.Body -> Http.Resolver Http.Error a -> Task Http.Error a
 delete req body resolver =
     Http.task
-        { method = "DELETE"
+        { body = body
         , headers = req.headers
-        , url = crossOrigin req.url req.path req.query
-        , body = body
+        , method = "DELETE"
         , resolver = resolver
         , timeout = Nothing
+        , url = crossOrigin req.url req.path req.query
+        }
+
+
+emptyResolver : Http.Resolver Http.Error ()
+emptyResolver =
+    Http.stringResolver <|
+        \response ->
+            case response of
+                Http.BadUrl_ url ->
+                    Err (Http.BadUrl url)
+
+                Http.Timeout_ ->
+                    Err Http.Timeout
+
+                Http.NetworkError_ ->
+                    Err Http.NetworkError
+
+                Http.BadStatus_ metadata _ ->
+                    Err (Http.BadStatus metadata.statusCode)
+
+                Http.GoodStatus_ _ _ ->
+                    Ok ()
+
+
+get : Request -> Http.Resolver Http.Error a -> Task Http.Error a
+get req resolver =
+    Http.task
+        { body = Http.emptyBody
+        , headers = req.headers
+        , method = "GET"
+        , resolver = resolver
+        , timeout = Nothing
+        , url = crossOrigin req.url req.path req.query
         }
 
 
@@ -88,22 +85,25 @@ jsonResolver decoder =
                             Err (Http.BadBody (D.errorToString err))
 
 
-emptyResolver : Http.Resolver Http.Error ()
-emptyResolver =
-    Http.stringResolver <|
-        \response ->
-            case response of
-                Http.BadUrl_ url ->
-                    Err (Http.BadUrl url)
+patch : Request -> Http.Body -> Http.Resolver Http.Error a -> Task Http.Error a
+patch req body resolver =
+    Http.task
+        { body = body
+        , headers = req.headers
+        , method = "PATCH"
+        , resolver = resolver
+        , timeout = Nothing
+        , url = crossOrigin req.url req.path []
+        }
 
-                Http.Timeout_ ->
-                    Err Http.Timeout
 
-                Http.NetworkError_ ->
-                    Err Http.NetworkError
-
-                Http.BadStatus_ metadata _ ->
-                    Err (Http.BadStatus metadata.statusCode)
-
-                Http.GoodStatus_ _ _ ->
-                    Ok ()
+post : Request -> Http.Body -> Http.Resolver Http.Error a -> Task Http.Error a
+post req body resolver =
+    Http.task
+        { body = body
+        , headers = req.headers
+        , method = "POST"
+        , resolver = resolver
+        , timeout = Nothing
+        , url = crossOrigin req.url req.path []
+        }

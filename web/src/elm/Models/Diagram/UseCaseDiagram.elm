@@ -20,25 +20,38 @@ import Models.Item as Item exposing (Item, Items)
 import Models.Size exposing (Size)
 
 
-type UseCaseDiagram
-    = UseCaseDiagram (List Actor) UseCaseRelation
+type Actor
+    = Actor Item (List UseCase)
+
+
+type Relation
+    = Extend Item
+    | Include Item
 
 
 type UseCase
     = UseCase Item
 
 
-type Actor
-    = Actor Item (List UseCase)
+type UseCaseDiagram
+    = UseCaseDiagram (List Actor) UseCaseRelation
 
 
 type alias UseCaseRelation =
     Dict String (List Relation)
 
 
-type Relation
-    = Extend Item
-    | Include Item
+from : Items -> UseCaseDiagram
+from items =
+    UseCaseDiagram
+        (Item.map itemToActor items
+            |> List.filter MaybeEx.isJust
+            |> List.map (Maybe.withDefault emptyActor)
+        )
+        (Item.map itemToUseCase items
+            |> List.filterMap identity
+            |> List.foldl Dict.union Dict.empty
+        )
 
 
 getName : Item -> String
@@ -55,9 +68,6 @@ getName item =
                 |> String.trim
     in
     case String.left 1 <| text of
-        "[" ->
-            trimText text |> String.dropRight 1
-
         "(" ->
             trimText text |> String.dropRight 1
 
@@ -67,8 +77,32 @@ getName item =
         ">" ->
             trimText text
 
+        "[" ->
+            trimText text |> String.dropRight 1
+
         _ ->
             text
+
+
+getRelationItem : Relation -> Item
+getRelationItem r =
+    case r of
+        Extend n ->
+            n
+
+        Include n ->
+            n
+
+
+getRelationName : Relation -> String
+getRelationName r =
+    getName <|
+        getRelationItem r
+
+
+getRelations : Item -> UseCaseRelation -> Maybe (List Relation)
+getRelations item relation =
+    Dict.get (getName item) relation
 
 
 relationCount : Item -> UseCaseRelation -> Int
@@ -95,100 +129,23 @@ relationCount item relations =
             0
 
 
-getRelations : Item -> UseCaseRelation -> Maybe (List Relation)
-getRelations item relation =
-    Dict.get (getName item) relation
-
-
-getRelationItem : Relation -> Item
-getRelationItem r =
-    case r of
-        Extend n ->
-            n
-
-        Include n ->
-            n
-
-
-getRelationName : Relation -> String
-getRelationName r =
-    getName <|
-        getRelationItem r
-
-
-itemToActor : Item -> Maybe Actor
-itemToActor item =
+size : UseCaseDiagram -> Size
+size (UseCaseDiagram actors relations) =
     let
-        originalText : String
-        originalText =
-            Item.getText item
-                |> String.trim
+        count : Int
+        count =
+            allRelationCount useCases relations
+
+        h : Int
+        h =
+            hierarchy useCases relations
+
+        useCases : List Item
+        useCases =
+            List.concatMap (\(Actor _ a) -> List.map (\(UseCase u) -> u) a) actors
+                |> ListEx.uniqueBy Item.getText
     in
-    case ( String.left 1 originalText, String.right 1 originalText ) of
-        ( "[", "]" ) ->
-            Just <| Actor item <| (Item.map (\i -> UseCase <| i) <| Item.getChildrenItems item)
-
-        _ ->
-            Nothing
-
-
-itemToUseCase : Item -> Maybe UseCaseRelation
-itemToUseCase item =
-    let
-        originalText : String
-        originalText =
-            Item.getText item
-                |> String.trim
-    in
-    case ( String.left 1 originalText, String.right 1 originalText ) of
-        ( "(", ")" ) ->
-            let
-                name : String
-                name =
-                    originalText
-                        |> String.dropLeft 1
-                        |> String.dropRight 1
-            in
-            Just <| Dict.fromList [ ( name, Item.map itemToRelation (Item.getChildrenItems item) ) ]
-
-        _ ->
-            Nothing
-
-
-itemToRelation : Item -> Relation
-itemToRelation item =
-    let
-        text : String
-        text =
-            Item.getText item
-    in
-    case String.left 1 <| String.trim <| text of
-        "<" ->
-            Extend item
-
-        ">" ->
-            Include item
-
-        _ ->
-            Extend item
-
-
-emptyActor : Actor
-emptyActor =
-    Actor Item.new []
-
-
-from : Items -> UseCaseDiagram
-from items =
-    UseCaseDiagram
-        (Item.map itemToActor items
-            |> List.filter MaybeEx.isJust
-            |> List.map (Maybe.withDefault emptyActor)
-        )
-        (Item.map itemToUseCase items
-            |> List.filterMap identity
-            |> List.foldl Dict.union Dict.empty
-        )
+    ( (h + 1) * 320, count * 70 )
 
 
 allRelationCount : List Item -> UseCaseRelation -> Int
@@ -204,6 +161,11 @@ allRelationCount items relations =
         )
         items
         |> List.sum
+
+
+emptyActor : Actor
+emptyActor =
+    Actor Item.new []
 
 
 hierarchy : List Item -> UseCaseRelation -> Int
@@ -238,20 +200,58 @@ hierarchyHelper h items relations =
             h
 
 
-size : UseCaseDiagram -> Size
-size (UseCaseDiagram actors relations) =
+itemToActor : Item -> Maybe Actor
+itemToActor item =
     let
-        useCases : List Item
-        useCases =
-            List.concatMap (\(Actor _ a) -> List.map (\(UseCase u) -> u) a) actors
-                |> ListEx.uniqueBy Item.getText
-
-        count : Int
-        count =
-            allRelationCount useCases relations
-
-        h : Int
-        h =
-            hierarchy useCases relations
+        originalText : String
+        originalText =
+            Item.getText item
+                |> String.trim
     in
-    ( (h + 1) * 320, count * 70 )
+    case ( String.left 1 originalText, String.right 1 originalText ) of
+        ( "[", "]" ) ->
+            Just <| Actor item <| (Item.map (\i -> UseCase <| i) <| Item.getChildrenItems item)
+
+        _ ->
+            Nothing
+
+
+itemToRelation : Item -> Relation
+itemToRelation item =
+    let
+        text : String
+        text =
+            Item.getText item
+    in
+    case String.left 1 <| String.trim <| text of
+        "<" ->
+            Extend item
+
+        ">" ->
+            Include item
+
+        _ ->
+            Extend item
+
+
+itemToUseCase : Item -> Maybe UseCaseRelation
+itemToUseCase item =
+    let
+        originalText : String
+        originalText =
+            Item.getText item
+                |> String.trim
+    in
+    case ( String.left 1 originalText, String.right 1 originalText ) of
+        ( "(", ")" ) ->
+            let
+                name : String
+                name =
+                    originalText
+                        |> String.dropLeft 1
+                        |> String.dropRight 1
+            in
+            Just <| Dict.fromList [ ( name, Item.map itemToRelation (Item.getChildrenItems item) ) ]
+
+        _ ->
+            Nothing

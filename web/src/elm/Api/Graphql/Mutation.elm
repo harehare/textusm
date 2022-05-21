@@ -20,9 +20,9 @@ import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramSettings as DiagramSettings
 
 
-save : InputItem -> Bool -> SelectionSet DiagramItem RootMutation
-save input isPublic =
-    Mutation.save (\optionals -> { optionals | isPublic = Present isPublic }) { input = input } <|
+bookmark : String -> Bool -> SelectionSet (Maybe DiagramItem) RootMutation
+bookmark itemID isBookmark =
+    Mutation.bookmark { itemID = Graphql.Scalar.Id itemID, isBookmark = isBookmark } <|
         Selection.itemSelection
 
 
@@ -36,15 +36,10 @@ deleteGist gistID =
     Mutation.deleteGist { gistID = Graphql.Scalar.Id gistID }
 
 
-bookmark : String -> Bool -> SelectionSet (Maybe DiagramItem) RootMutation
-bookmark itemID isBookmark =
-    Mutation.bookmark { itemID = Graphql.Scalar.Id itemID, isBookmark = isBookmark } <|
+save : InputItem -> Bool -> SelectionSet DiagramItem RootMutation
+save input isPublic =
+    Mutation.save (\optionals -> { optionals | isPublic = Present isPublic }) { input = input } <|
         Selection.itemSelection
-
-
-share : InputShareItem -> SelectionSet String RootMutation
-share input =
-    Mutation.share { input = input }
 
 
 saveGist : InputGistItem -> SelectionSet DiagramItem RootMutation
@@ -57,3 +52,8 @@ saveSettings : Diagram -> InputSettings -> SelectionSet DiagramSettings.Settings
 saveSettings diagram input =
     Mutation.saveSettings { diagram = diagram, input = input } <|
         Selection.settingsSelection
+
+
+share : InputShareItem -> SelectionSet String RootMutation
+share input =
+    Mutation.share { input = input }

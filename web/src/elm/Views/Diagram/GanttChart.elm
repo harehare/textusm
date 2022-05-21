@@ -22,11 +22,6 @@ import Utils.Date as DateUtils
 import Views.Diagram.Views as Views
 
 
-sectionMargin : Int
-sectionMargin =
-    Constants.leftMargin + 20
-
-
 view : Model -> Svg Msg
 view model =
     case model.data of
@@ -34,6 +29,12 @@ view model =
             let
                 (GanttChart (Schedule scheduleFrom scheduleTo interval) sections) =
                     gantt
+
+                lineWidth : Int
+                lineWidth =
+                    Constants.itemMargin
+                        + interval
+                        * Constants.ganttItemSize
 
                 nodeCounts : List Int
                 nodeCounts =
@@ -53,12 +54,6 @@ view model =
                 svgHeight : Int
                 svgHeight =
                     (ListEx.last nodeCounts |> Maybe.withDefault 1) * Constants.ganttItemSize + List.length sections
-
-                lineWidth : Int
-                lineWidth =
-                    Constants.itemMargin
-                        + interval
-                        * Constants.ganttItemSize
             in
             Svg.g
                 []
@@ -87,9 +82,6 @@ view model =
                                                 |> List.indexedMap
                                                     (\i task ->
                                                         case task of
-                                                            Nothing ->
-                                                                []
-
                                                             Just t ->
                                                                 [ sectionView
                                                                     model.settings
@@ -100,6 +92,9 @@ view model =
                                                                     scheduleFrom
                                                                     t
                                                                 ]
+
+                                                            Nothing ->
+                                                                []
                                                     )
                                                 |> List.concat
                                            )
@@ -123,10 +118,6 @@ daysView settings svgHeight ( from, to ) =
             |> List.map
                 (\i ->
                     let
-                        posX : Int
-                        posX =
-                            i * Constants.ganttItemSize + sectionMargin - 1
-
                         currentDay : Posix
                         currentDay =
                             TimeEx.add Day i Time.utc from
@@ -134,6 +125,10 @@ daysView settings svgHeight ( from, to ) =
                         day : Int
                         day =
                             Time.toDay Time.utc currentDay
+
+                        posX : Int
+                        posX =
+                            i * Constants.ganttItemSize + sectionMargin - 1
                     in
                     Keyed.node "g"
                         []
@@ -171,44 +166,14 @@ daysView settings svgHeight ( from, to ) =
         )
 
 
-weekView : DiagramSettings.Settings -> ( Posix, Posix ) -> Svg Msg
-weekView settings ( from, to ) =
+headerItemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
+headerItemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     let
-        weekNum : Int
-        weekNum =
-            TimeEx.diff Day Time.utc from to // 7
+        interval : Int
+        interval =
+            TimeEx.diff Day Time.utc baseFrom from
     in
-    Svg.g []
-        (List.range 0 weekNum
-            |> List.map
-                (\i ->
-                    let
-                        posX : String
-                        posX =
-                            String.fromInt <| i * 7 * Constants.ganttItemSize + sectionMargin - 1
-                    in
-                    Keyed.node "g"
-                        []
-                        [ ( "week_" ++ String.fromInt i
-                          , Svg.foreignObject
-                                [ SvgAttr.x posX
-                                , SvgAttr.y <| String.fromInt <| Constants.ganttItemSize - 32
-                                , SvgAttr.width <| String.fromInt <| sectionMargin
-                                , SvgAttr.height "30"
-                                ]
-                                [ Html.div
-                                    [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
-                                    , Attr.style "word-wrap" "break-word"
-                                    , Attr.style "color" settings.color.label
-                                    , Attr.style "font-size" "11px"
-                                    , Attr.style "font-weight" "bold"
-                                    ]
-                                    [ Html.text <| "Week " ++ (String.fromInt <| i + 1) ]
-                                ]
-                          )
-                        ]
-                )
-        )
+    headerTaskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
 
 
 headerSectionView : DiagramSettings.Settings -> Size -> Position -> Posix -> Section -> Svg Msg
@@ -257,6 +222,106 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from s
         ]
 
 
+headerTaskView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
+headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
+    let
+        fromPolygon : String
+        fromPolygon =
+            [ ( 0, startFromY )
+            , ( 0, startTo )
+            , ( startTo, startFromY )
+            ]
+                |> polygonToString
+
+        interval : Int
+        interval =
+            TimeEx.diff Day Time.utc from to
+
+        polygonToString : List ( Int, Int ) -> String
+        polygonToString pol =
+            pol
+                |> List.map (\i -> String.fromInt (first i) ++ "," ++ String.fromInt (second i))
+                |> String.join " "
+
+        startFromY : Int
+        startFromY =
+            triPosY + 1
+
+        startTo : Int
+        startTo =
+            triPosY + 12
+
+        svgWidth : Int
+        svgWidth =
+            Constants.ganttItemSize * interval
+
+        textWidth : Int
+        textWidth =
+            String.length text * 20
+
+        toPolygon : String
+        toPolygon =
+            [ ( svgWidth - 20, startFromY )
+            , ( svgWidth, startFromY )
+            , ( svgWidth, startTo )
+            ]
+                |> polygonToString
+
+        triPosY : Int
+        triPosY =
+            Constants.ganttItemSize // 4
+    in
+    Svg.svg
+        [ SvgAttr.width <| String.fromInt (svgWidth + textWidth)
+        , SvgAttr.height <| String.fromInt Constants.ganttItemSize
+        , SvgAttr.x <| String.fromInt posX
+        , SvgAttr.y <| String.fromInt posY
+        ]
+        [ Svg.rect
+            [ SvgAttr.width <| String.fromInt <| svgWidth
+            , SvgAttr.height <| String.fromInt <| Constants.ganttItemSize // 2 - 8
+            , SvgAttr.x "0"
+            , SvgAttr.y <| String.fromInt <| Constants.ganttItemSize // 4
+            , SvgAttr.fill backgroundColor
+            ]
+            []
+        , Svg.polygon
+            [ SvgAttr.points fromPolygon
+            , SvgAttr.fill backgroundColor
+            ]
+            []
+        , Svg.polygon
+            [ SvgAttr.points toPolygon
+            , SvgAttr.fill backgroundColor
+            ]
+            []
+        , Views.plainText
+            { settings = settings
+            , position = ( svgWidth, -3 )
+            , size = ( textWidth, Constants.ganttItemSize )
+            , foreColor = Color.fromString colour
+            , fontSize = FontSize.default
+            , text = text
+            , isHighlight = False
+            }
+        ]
+
+
+itemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
+itemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
+    let
+        interval : Int
+        interval =
+            TimeEx.diff Day Time.utc baseFrom from
+    in
+    taskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
+
+
+sectionMargin : Int
+sectionMargin =
+    Constants.leftMargin + 20
+
+
 sectionView : DiagramSettings.Settings -> Size -> Position -> Posix -> Task -> Svg Msg
 sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task title schedule) =
     Svg.g []
@@ -296,26 +361,6 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task t
             title
             schedule
         ]
-
-
-itemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
-itemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
-    let
-        interval : Int
-        interval =
-            TimeEx.diff Day Time.utc baseFrom from
-    in
-    taskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
-
-
-headerItemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
-headerItemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
-    let
-        interval : Int
-        interval =
-            TimeEx.diff Day Time.utc baseFrom from
-    in
-    headerTaskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
 
 
 taskView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
@@ -361,86 +406,41 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
         ]
 
 
-headerTaskView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
-headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
+weekView : DiagramSettings.Settings -> ( Posix, Posix ) -> Svg Msg
+weekView settings ( from, to ) =
     let
-        interval : Int
-        interval =
-            TimeEx.diff Day Time.utc from to
-
-        svgWidth : Int
-        svgWidth =
-            Constants.ganttItemSize * interval
-
-        textWidth : Int
-        textWidth =
-            String.length text * 20
-
-        triPosY : Int
-        triPosY =
-            Constants.ganttItemSize // 4
-
-        startFromY : Int
-        startFromY =
-            triPosY + 1
-
-        startTo : Int
-        startTo =
-            triPosY + 12
-
-        polygonToString : List ( Int, Int ) -> String
-        polygonToString pol =
-            pol
-                |> List.map (\i -> String.fromInt (first i) ++ "," ++ String.fromInt (second i))
-                |> String.join " "
-
-        fromPolygon : String
-        fromPolygon =
-            [ ( 0, startFromY )
-            , ( 0, startTo )
-            , ( startTo, startFromY )
-            ]
-                |> polygonToString
-
-        toPolygon : String
-        toPolygon =
-            [ ( svgWidth - 20, startFromY )
-            , ( svgWidth, startFromY )
-            , ( svgWidth, startTo )
-            ]
-                |> polygonToString
+        weekNum : Int
+        weekNum =
+            TimeEx.diff Day Time.utc from to // 7
     in
-    Svg.svg
-        [ SvgAttr.width <| String.fromInt (svgWidth + textWidth)
-        , SvgAttr.height <| String.fromInt Constants.ganttItemSize
-        , SvgAttr.x <| String.fromInt posX
-        , SvgAttr.y <| String.fromInt posY
-        ]
-        [ Svg.rect
-            [ SvgAttr.width <| String.fromInt <| svgWidth
-            , SvgAttr.height <| String.fromInt <| Constants.ganttItemSize // 2 - 8
-            , SvgAttr.x "0"
-            , SvgAttr.y <| String.fromInt <| Constants.ganttItemSize // 4
-            , SvgAttr.fill backgroundColor
-            ]
-            []
-        , Svg.polygon
-            [ SvgAttr.points fromPolygon
-            , SvgAttr.fill backgroundColor
-            ]
-            []
-        , Svg.polygon
-            [ SvgAttr.points toPolygon
-            , SvgAttr.fill backgroundColor
-            ]
-            []
-        , Views.plainText
-            { settings = settings
-            , position = ( svgWidth, -3 )
-            , size = ( textWidth, Constants.ganttItemSize )
-            , foreColor = Color.fromString colour
-            , fontSize = FontSize.default
-            , text = text
-            , isHighlight = False
-            }
-        ]
+    Svg.g []
+        (List.range 0 weekNum
+            |> List.map
+                (\i ->
+                    let
+                        posX : String
+                        posX =
+                            String.fromInt <| i * 7 * Constants.ganttItemSize + sectionMargin - 1
+                    in
+                    Keyed.node "g"
+                        []
+                        [ ( "week_" ++ String.fromInt i
+                          , Svg.foreignObject
+                                [ SvgAttr.x posX
+                                , SvgAttr.y <| String.fromInt <| Constants.ganttItemSize - 32
+                                , SvgAttr.width <| String.fromInt <| sectionMargin
+                                , SvgAttr.height "30"
+                                ]
+                                [ Html.div
+                                    [ Attr.style "font-family" (DiagramSettings.fontStyle settings)
+                                    , Attr.style "word-wrap" "break-word"
+                                    , Attr.style "color" settings.color.label
+                                    , Attr.style "font-size" "11px"
+                                    , Attr.style "font-weight" "bold"
+                                    ]
+                                    [ Html.text <| "Week " ++ (String.fromInt <| i + 1) ]
+                                ]
+                          )
+                        ]
+                )
+        )

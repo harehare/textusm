@@ -81,16 +81,12 @@ import Models.Text as Text exposing (Text)
 import Simple.Fuzzy as Fuzzy
 
 
-type alias Hierarchy =
-    Int
-
-
 type Children
     = Children Items
 
 
-type Items
-    = Items (List Item)
+type alias Hierarchy =
+    Int
 
 
 type Item
@@ -112,180 +108,112 @@ type ItemType
     | Comments
 
 
-textSeparator : String
-textSeparator =
-    "|"
+type Items
+    = Items (List Item)
 
 
-commentPrefix : String
-commentPrefix =
-    "#"
+childrenFromItems : Items -> Children
+childrenFromItems (Items items) =
+    Children (Items items)
 
 
-new : Item
-new =
-    Item
-        { lineNo = 0
-        , text = Text.empty
-        , comments = Nothing
-        , itemType = Activities
-        , itemSettings = Nothing
-        , children = emptyChildren
-        , highlight = False
-        }
+cons : Item -> Items -> Items
+cons item (Items items) =
+    Items (item :: items)
 
 
-withLineNo : Int -> Item -> Item
-withLineNo lineNo (Item item) =
-    Item { item | lineNo = lineNo }
+count : (Item -> Bool) -> Items -> Int
+count f items =
+    items |> flatten |> unwrap |> ListEx.count f
 
 
-withTextOnly : String -> Item -> Item
-withTextOnly text (Item item) =
-    Item { item | text = Text.fromString text }
+empty : Items
+empty =
+    Items []
 
 
-withText : String -> Item -> Item
-withText text (Item item) =
-    let
-        ( displayText, settings, comments ) =
-            if isImage <| withTextOnly text (Item item) then
-                ( text, Nothing, Nothing )
+emptyChildren : Children
+emptyChildren =
+    Children empty
 
-            else
-                let
-                    tokens : List (List Char)
-                    tokens =
-                        String.split textSeparator text
-                            |> List.map String.toList
 
-                    tuple : ( String, Maybe String )
-                    tuple =
-                        case tokens of
-                            [ x, '{' :: xs ] ->
-                                ( String.fromList x, Just <| String.fromList <| '{' :: xs )
+flatten : Items -> Items
+flatten (Items items) =
+    case items of
+        [] ->
+            Items items
 
-                            _ :: _ :: _ ->
-                                ( List.take (List.length tokens - 1) tokens
-                                    |> List.map String.fromList
-                                    |> String.join textSeparator
-                                , ListEx.last tokens |> Maybe.map String.fromList
+        _ ->
+            Items (items ++ List.concatMap (\(Item item) -> unwrap <| flatten <| unwrapChildren item.children) items)
+
+
+fromList : List Item -> Items
+fromList items =
+    Items items
+
+
+fromString : String -> ( Hierarchy, Items )
+fromString text =
+    if text == "" then
+        ( 0, empty )
+
+    else
+        let
+            loadText : Int -> Int -> String -> ( List Hierarchy, Items )
+            loadText lineNo indent input =
+                case parse indent input of
+                    ( [], _ ) ->
+                        ( [ indent ], empty )
+
+                    ( x :: xs, other ) ->
+                        let
+                            itemType : ItemType
+                            itemType =
+                                createItemType x indent
+
+                            ( otherIndents, otherItems ) =
+                                loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
+
+                            ( xsIndent, xsItems ) =
+                                loadText (lineNo + 1) (indent + 1) (String.join "\n" xs)
+                        in
+                        case itemType of
+                            Comments ->
+                                ( indent :: xsIndent ++ otherIndents
+                                , filter (\item -> getItemType item /= Comments) otherItems
                                 )
 
                             _ ->
-                                ( text, Nothing )
-                in
-                case tuple of
-                    ( _, Nothing ) ->
-                        let
-                            ( text_, comments_ ) =
-                                splitLine text
-                        in
-                        ( text_, Nothing, comments_ )
+                                ( indent :: xsIndent ++ otherIndents
+                                , cons
+                                    (new
+                                        |> withLineNo lineNo
+                                        |> withText x
+                                        |> withItemType itemType
+                                        |> withChildren (childrenFromItems xsItems)
+                                    )
+                                    (filter (\item -> getItemType item /= Comments) otherItems)
+                                )
+        in
+        if String.isEmpty text then
+            ( 0, empty )
 
-                    ( t, Just s ) ->
-                        let
-                            ( text_, comments_ ) =
-                                splitLine t
-                        in
-                        case D.decodeString ItemSettings.decoder s of
-                            Ok settings_ ->
-                                ( text_, Just settings_, comments_ )
-
-                            Err _ ->
-                                ( text_ ++ textSeparator ++ s, Nothing, comments_ )
-    in
-    Item { item | text = Text.fromString displayText, itemSettings = settings, comments = comments }
-
-
-withItemSettings : Maybe ItemSettings -> Item -> Item
-withItemSettings itemSettings (Item item) =
-    Item { item | itemSettings = itemSettings }
+        else
+            let
+                ( indentList, loadedItems ) =
+                    loadText 0 0 text
+            in
+            ( indentList
+                |> List.maximum
+                |> Maybe.map (\x -> x - 1)
+                |> Maybe.withDefault 0
+            , loadedItems
+            )
 
 
-withComments : Maybe String -> Item -> Item
-withComments comments (Item item) =
-    Item
-        { item
-            | comments =
-                comments
-                    |> Maybe.andThen
-                        (\c ->
-                            if c |> String.trim |> String.isEmpty then
-                                Nothing
-
-                            else
-                                Just c
-                        )
-        }
-
-
-withItemType : ItemType -> Item -> Item
-withItemType itemType (Item item) =
-    Item { item | itemType = itemType }
-
-
-withChildren : Children -> Item -> Item
-withChildren children (Item item) =
-    Item { item | children = children }
-
-
-withHighlight : Bool -> Item -> Item
-withHighlight h (Item item) =
-    Item { item | highlight = h }
-
-
-withOffset : Position -> Item -> Item
-withOffset newPosition item =
-    withItemSettings (Just (getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffset newPosition)) item
-
-
-withOffsetSize : Size -> Item -> Item
-withOffsetSize newSize item =
-    withItemSettings (Just (getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffsetSize (Just newSize))) item
-
-
-getChildren : Item -> Children
-getChildren (Item i) =
-    i.children
-
-
-getText : Item -> String
-getText (Item i) =
-    Text.toString i.text
-
-
-isHighlight : Item -> Bool
-isHighlight (Item i) =
-    i.highlight
-
-
-getTrimmedText : Item -> String
-getTrimmedText item =
-    getText item |> String.trim
-
-
-getComments : Item -> Maybe String
-getComments (Item i) =
-    Maybe.map (\c -> commentPrefix ++ c) i.comments
-
-
-getItemType : Item -> ItemType
-getItemType (Item i) =
-    i.itemType
-
-
-getItemSettings : Item -> Maybe ItemSettings
-getItemSettings (Item i) =
-    i.itemSettings
-
-
-getForegroundColor : Item -> Maybe Color
-getForegroundColor item =
-    item
-        |> getItemSettings
-        |> Maybe.withDefault ItemSettings.new
-        |> ItemSettings.getForegroundColor
+getAt : Int -> Items -> Maybe Item
+getAt i (Items items) =
+    ListEx.getAt i items
 
 
 getBackgroundColor : Item -> Maybe Color
@@ -294,6 +222,26 @@ getBackgroundColor item =
         |> getItemSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getBackgroundColor
+
+
+getChildren : Item -> Children
+getChildren (Item i) =
+    i.children
+
+
+getChildrenCount : Item -> Int
+getChildrenCount (Item item) =
+    childrenCount <| unwrapChildren item.children
+
+
+getChildrenItems : Item -> Items
+getChildrenItems (Item i) =
+    i.children |> unwrapChildren
+
+
+getComments : Item -> Maybe String
+getComments (Item i) =
+    Maybe.map (\c -> commentPrefix ++ c) i.comments
 
 
 getFontSize : Item -> Maybe FontSize
@@ -316,12 +264,56 @@ getFontSizeWithProperty item property =
             FontSize.default
 
 
+getForegroundColor : Item -> Maybe Color
+getForegroundColor item =
+    item
+        |> getItemSettings
+        |> Maybe.withDefault ItemSettings.new
+        |> ItemSettings.getForegroundColor
+
+
+getHierarchyCount : Item -> Int
+getHierarchyCount (Item item) =
+    unwrapChildren item.children
+        |> hierarchyCount
+        |> List.length
+
+
+getItemSettings : Item -> Maybe ItemSettings
+getItemSettings (Item i) =
+    i.itemSettings
+
+
+getItemType : Item -> ItemType
+getItemType (Item i) =
+    i.itemType
+
+
+getLeafCount : Item -> Int
+getLeafCount (Item item) =
+    leafCount <| unwrapChildren item.children
+
+
+getLineNo : Item -> Int
+getLineNo (Item i) =
+    i.lineNo
+
+
 getOffset : Item -> Position
 getOffset item =
     item
         |> getItemSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getOffset
+
+
+getOffsetSize : Item -> Size
+getOffsetSize item =
+    item
+        |> getItemSettings
+        |> Maybe.withDefault ItemSettings.new
+        |> ItemSettings.getOffsetSize
+        |> Maybe.withDefault Size.zero
 
 
 getPosition : Item -> Position -> Position
@@ -342,28 +334,39 @@ getSize item baseSize =
     Tuple.mapBoth (\x -> x + offsetWidth) (\y -> y + offsetHeight) baseSize
 
 
-getOffsetSize : Item -> Size
-getOffsetSize item =
-    item
-        |> getItemSettings
-        |> Maybe.withDefault ItemSettings.new
-        |> ItemSettings.getOffsetSize
-        |> Maybe.withDefault Size.zero
+getText : Item -> String
+getText (Item i) =
+    Text.toString i.text
 
 
-getLineNo : Item -> Int
-getLineNo (Item i) =
-    i.lineNo
+getTrimmedText : Item -> String
+getTrimmedText item =
+    getText item |> String.trim
 
 
-isImage : Item -> Bool
-isImage item =
-    getText item |> String.trim |> String.toLower |> String.startsWith "data:image/"
+head : Items -> Maybe Item
+head (Items items) =
+    List.head items
 
 
-isMarkdown : Item -> Bool
-isMarkdown item =
-    getText item |> String.trim |> String.toLower |> String.startsWith "md:"
+indexedMap : (Int -> Item -> b) -> Items -> List b
+indexedMap f (Items items) =
+    List.indexedMap f items
+
+
+isCanvas : Item -> Bool
+isCanvas item =
+    getComments item |> Maybe.map (\comments -> String.replace " " "" comments == "#canvas") |> Maybe.withDefault False
+
+
+isEmpty : Items -> Bool
+isEmpty (Items items) =
+    List.isEmpty items
+
+
+isHighlight : Item -> Bool
+isHighlight (Item i) =
+    i.highlight
 
 
 isHorizontalLine : Item -> Bool
@@ -371,9 +374,18 @@ isHorizontalLine item =
     getText item |> String.trim |> String.toLower |> String.startsWith "---"
 
 
-isCanvas : Item -> Bool
-isCanvas item =
-    getComments item |> Maybe.map (\comments -> String.replace " " "" comments == "#canvas") |> Maybe.withDefault False
+isImage : Item -> Bool
+isImage item =
+    getText item |> String.trim |> String.toLower |> String.startsWith "data:image/"
+
+
+
+-- Items
+
+
+isMarkdown : Item -> Bool
+isMarkdown item =
+    getText item |> String.trim |> String.toLower |> String.startsWith "md:"
 
 
 isText : Item -> Bool
@@ -386,29 +398,9 @@ isVerticalLine item =
     getText item |> String.trim |> String.toLower |> String.startsWith "/"
 
 
-
--- Items
-
-
-getChildrenItems : Item -> Items
-getChildrenItems (Item i) =
-    i.children |> unwrapChildren
-
-
-getAt : Int -> Items -> Maybe Item
-getAt i (Items items) =
-    ListEx.getAt i items
-
-
-head : Items -> Maybe Item
-head (Items items) =
-    List.head items
-
-
-tail : Items -> Maybe Items
-tail (Items items) =
-    List.tail items
-        |> Maybe.map (\i -> Items i)
+length : Items -> Int
+length (Items items) =
+    List.length items
 
 
 map : (Item -> a) -> Items -> List a
@@ -416,123 +408,32 @@ map f (Items items) =
     List.map f items
 
 
-mapWithRecursiveHelper : (Item -> Item) -> Item -> Item
-mapWithRecursiveHelper f item =
-    case getChildren item of
-        Children (Items []) ->
-            f item
-
-        _ ->
-            withChildren
-                (getChildren item
-                    |> unwrapChildren
-                    |> unwrap
-                    |> List.map (mapWithRecursiveHelper f)
-                    |> Items
-                    |> Children
-                )
-                (f item)
-
-
 mapWithRecursive : (Item -> Item) -> Items -> Items
 mapWithRecursive f (Items items) =
     Items <| List.map (mapWithRecursiveHelper f) items
 
 
-filter : (Item -> Bool) -> Items -> Items
-filter f (Items items) =
-    Items (List.filter f items)
+new : Item
+new =
+    Item
+        { lineNo = 0
+        , text = Text.empty
+        , comments = Nothing
+        , itemType = Activities
+        , itemSettings = Nothing
+        , children = emptyChildren
+        , highlight = False
+        }
 
 
-empty : Items
-empty =
-    Items []
+search : Items -> String -> Items
+search items query =
+    mapWithRecursive (\item -> withHighlight (Fuzzy.match query (getText item)) item) items
 
 
-cons : Item -> Items -> Items
-cons item (Items items) =
-    Items (item :: items)
-
-
-indexedMap : (Int -> Item -> b) -> Items -> List b
-indexedMap f (Items items) =
-    List.indexedMap f items
-
-
-length : Items -> Int
-length (Items items) =
-    List.length items
-
-
-isEmpty : Items -> Bool
-isEmpty (Items items) =
-    List.isEmpty items
-
-
-unwrap : Items -> List Item
-unwrap (Items items) =
-    items
-
-
-splitAt : Int -> Items -> ( Items, Items )
-splitAt i (Items items) =
-    let
-        ( left, right ) =
-            ListEx.splitAt i items
-    in
-    ( Items left, Items right )
-
-
-childrenFromItems : Items -> Children
-childrenFromItems (Items items) =
-    Children (Items items)
-
-
-fromList : List Item -> Items
-fromList items =
-    Items items
-
-
-emptyChildren : Children
-emptyChildren =
-    Children empty
-
-
-unwrapChildren : Children -> Items
-unwrapChildren (Children (Items items)) =
-    Items (items |> List.filter (\(Item i) -> i.itemType /= Comments))
-
-
-getChildrenCount : Item -> Int
-getChildrenCount (Item item) =
-    childrenCount <| unwrapChildren item.children
-
-
-getHierarchyCount : Item -> Int
-getHierarchyCount (Item item) =
-    unwrapChildren item.children
-        |> hierarchyCount
-        |> List.length
-
-
-getLeafCount : Item -> Int
-getLeafCount (Item item) =
-    leafCount <| unwrapChildren item.children
-
-
-toLineString : Item -> String
-toLineString item =
-    let
-        comment : String
-        comment =
-            Maybe.withDefault "" (getComments item)
-    in
-    case getItemSettings item of
-        Just s ->
-            getText item ++ comment ++ textSeparator ++ ItemSettings.toString s
-
-        Nothing ->
-            getText item ++ comment
+searchClear : Items -> Items
+searchClear items =
+    mapWithRecursive (withHighlight False) items
 
 
 split : String -> ( String, ItemSettings, Maybe String )
@@ -566,77 +467,245 @@ split text =
             ( text, ItemSettings.new, Nothing )
 
 
-flatten : Items -> Items
-flatten (Items items) =
-    case items of
-        [] ->
-            Items items
+splitAt : Int -> Items -> ( Items, Items )
+splitAt i (Items items) =
+    let
+        ( left, right ) =
+            ListEx.splitAt i items
+    in
+    ( Items left, Items right )
 
-        _ ->
-            Items (items ++ List.concatMap (\(Item item) -> unwrap <| flatten <| unwrapChildren item.children) items)
+
+tail : Items -> Maybe Items
+tail (Items items) =
+    List.tail items
+        |> Maybe.map (\i -> Items i)
 
 
-fromString : String -> ( Hierarchy, Items )
-fromString text =
-    if text == "" then
-        ( 0, empty )
+toLineString : Item -> String
+toLineString item =
+    let
+        comment : String
+        comment =
+            Maybe.withDefault "" (getComments item)
+    in
+    case getItemSettings item of
+        Just s ->
+            getText item ++ comment ++ textSeparator ++ ItemSettings.toString s
 
-    else
-        let
-            loadText : Int -> Int -> String -> ( List Hierarchy, Items )
-            loadText lineNo indent input =
-                case parse indent input of
-                    ( x :: xs, other ) ->
-                        let
-                            ( xsIndent, xsItems ) =
-                                loadText (lineNo + 1) (indent + 1) (String.join "\n" xs)
+        Nothing ->
+            getText item ++ comment
 
-                            ( otherIndents, otherItems ) =
-                                loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
 
-                            itemType : ItemType
-                            itemType =
-                                createItemType x indent
-                        in
-                        case itemType of
-                            Comments ->
-                                ( indent :: xsIndent ++ otherIndents
-                                , filter (\item -> getItemType item /= Comments) otherItems
+unwrap : Items -> List Item
+unwrap (Items items) =
+    items
+
+
+unwrapChildren : Children -> Items
+unwrapChildren (Children (Items items)) =
+    Items (items |> List.filter (\(Item i) -> i.itemType /= Comments))
+
+
+withChildren : Children -> Item -> Item
+withChildren children (Item item) =
+    Item { item | children = children }
+
+
+withComments : Maybe String -> Item -> Item
+withComments comments (Item item) =
+    Item
+        { item
+            | comments =
+                comments
+                    |> Maybe.andThen
+                        (\c ->
+                            if c |> String.trim |> String.isEmpty then
+                                Nothing
+
+                            else
+                                Just c
+                        )
+        }
+
+
+withHighlight : Bool -> Item -> Item
+withHighlight h (Item item) =
+    Item { item | highlight = h }
+
+
+withItemSettings : Maybe ItemSettings -> Item -> Item
+withItemSettings itemSettings (Item item) =
+    Item { item | itemSettings = itemSettings }
+
+
+withItemType : ItemType -> Item -> Item
+withItemType itemType (Item item) =
+    Item { item | itemType = itemType }
+
+
+withLineNo : Int -> Item -> Item
+withLineNo lineNo (Item item) =
+    Item { item | lineNo = lineNo }
+
+
+withOffset : Position -> Item -> Item
+withOffset newPosition item =
+    withItemSettings (Just (getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffset newPosition)) item
+
+
+withOffsetSize : Size -> Item -> Item
+withOffsetSize newSize item =
+    withItemSettings (Just (getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffsetSize (Just newSize))) item
+
+
+withText : String -> Item -> Item
+withText text (Item item) =
+    let
+        ( displayText, settings, comments ) =
+            if isImage <| withTextOnly text (Item item) then
+                ( text, Nothing, Nothing )
+
+            else
+                let
+                    tokens : List (List Char)
+                    tokens =
+                        String.split textSeparator text
+                            |> List.map String.toList
+
+                    tuple : ( String, Maybe String )
+                    tuple =
+                        case tokens of
+                            [ x, '{' :: xs ] ->
+                                ( String.fromList x, Just <| String.fromList <| '{' :: xs )
+
+                            _ :: _ :: _ ->
+                                ( List.take (List.length tokens - 1) tokens
+                                    |> List.map String.fromList
+                                    |> String.join textSeparator
+                                , ListEx.last tokens |> Maybe.map String.fromList
                                 )
 
                             _ ->
-                                ( indent :: xsIndent ++ otherIndents
-                                , cons
-                                    (new
-                                        |> withLineNo lineNo
-                                        |> withText x
-                                        |> withItemType itemType
-                                        |> withChildren (childrenFromItems xsItems)
-                                    )
-                                    (filter (\item -> getItemType item /= Comments) otherItems)
-                                )
+                                ( text, Nothing )
+                in
+                case tuple of
+                    ( t, Just s ) ->
+                        let
+                            ( text_, comments_ ) =
+                                splitLine t
+                        in
+                        case D.decodeString ItemSettings.decoder s of
+                            Ok settings_ ->
+                                ( text_, Just settings_, comments_ )
 
-                    ( [], _ ) ->
-                        ( [ indent ], empty )
-        in
-        if String.isEmpty text then
-            ( 0, empty )
+                            Err _ ->
+                                ( text_ ++ textSeparator ++ s, Nothing, comments_ )
 
-        else
-            let
-                ( indentList, loadedItems ) =
-                    loadText 0 0 text
-            in
-            ( indentList
-                |> List.maximum
-                |> Maybe.map (\x -> x - 1)
-                |> Maybe.withDefault 0
-            , loadedItems
-            )
+                    ( _, Nothing ) ->
+                        let
+                            ( text_, comments_ ) =
+                                splitLine text
+                        in
+                        ( text_, Nothing, comments_ )
+    in
+    Item { item | text = Text.fromString displayText, comments = comments, itemSettings = settings }
+
+
+withTextOnly : String -> Item -> Item
+withTextOnly text (Item item) =
+    Item { item | text = Text.fromString text }
+
+
+childrenCount : Items -> Int
+childrenCount (Items items) =
+    if List.isEmpty items then
+        0
+
+    else
+        List.length items + (items |> List.map (\(Item i) -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
 
 
 
 -- private
+
+
+commentPrefix : String
+commentPrefix =
+    "#"
+
+
+createItemType : String -> Int -> ItemType
+createItemType text indent =
+    if text |> String.trim |> String.startsWith commentPrefix then
+        Comments
+
+    else
+        case indent of
+            0 ->
+                Activities
+
+            1 ->
+                Tasks
+
+            _ ->
+                Stories
+
+
+filter : (Item -> Bool) -> Items -> Items
+filter f (Items items) =
+    Items (List.filter f items)
+
+
+hasIndent : Int -> String -> Bool
+hasIndent indent text =
+    if indent == 0 then
+        String.left 1 text /= " "
+
+    else
+        let
+            lineinputPrefix : String
+            lineinputPrefix =
+                String.repeat indent inputPrefix
+        in
+        String.startsWith lineinputPrefix text
+            && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
+
+
+hierarchyCount : Items -> List Int
+hierarchyCount (Items items) =
+    if List.isEmpty items then
+        []
+
+    else
+        1 :: List.concatMap (\(Item i) -> hierarchyCount <| unwrapChildren i.children) items
+
+
+leafCount : Items -> Int
+leafCount (Items items) =
+    if List.isEmpty items then
+        1
+
+    else
+        items |> List.map (\(Item i) -> leafCount <| unwrapChildren i.children) |> List.sum
+
+
+mapWithRecursiveHelper : (Item -> Item) -> Item -> Item
+mapWithRecursiveHelper f item =
+    case getChildren item of
+        Children (Items []) ->
+            f item
+
+        _ ->
+            withChildren
+                (getChildren item
+                    |> unwrapChildren
+                    |> unwrap
+                    |> List.map (mapWithRecursiveHelper f)
+                    |> Items
+                    |> Children
+                )
+                (f item)
 
 
 parse : Int -> String -> ( List String, List String )
@@ -684,75 +753,6 @@ splitLine text =
             ( "", Nothing )
 
 
-childrenCount : Items -> Int
-childrenCount (Items items) =
-    if List.isEmpty items then
-        0
-
-    else
-        List.length items + (items |> List.map (\(Item i) -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
-
-
-hierarchyCount : Items -> List Int
-hierarchyCount (Items items) =
-    if List.isEmpty items then
-        []
-
-    else
-        1 :: List.concatMap (\(Item i) -> hierarchyCount <| unwrapChildren i.children) items
-
-
-leafCount : Items -> Int
-leafCount (Items items) =
-    if List.isEmpty items then
-        1
-
-    else
-        items |> List.map (\(Item i) -> leafCount <| unwrapChildren i.children) |> List.sum
-
-
-hasIndent : Int -> String -> Bool
-hasIndent indent text =
-    if indent == 0 then
-        String.left 1 text /= " "
-
-    else
-        let
-            lineinputPrefix : String
-            lineinputPrefix =
-                String.repeat indent inputPrefix
-        in
-        String.startsWith lineinputPrefix text
-            && (String.slice (indent * indentSpace) (indent * indentSpace + 1) text /= " ")
-
-
-createItemType : String -> Int -> ItemType
-createItemType text indent =
-    if text |> String.trim |> String.startsWith commentPrefix then
-        Comments
-
-    else
-        case indent of
-            0 ->
-                Activities
-
-            1 ->
-                Tasks
-
-            _ ->
-                Stories
-
-
-search : Items -> String -> Items
-search items query =
-    mapWithRecursive (\item -> withHighlight (Fuzzy.match query (getText item)) item) items
-
-
-searchClear : Items -> Items
-searchClear items =
-    mapWithRecursive (withHighlight False) items
-
-
-count : (Item -> Bool) -> Items -> Int
-count f items =
-    items |> flatten |> unwrap |> ListEx.count f
+textSeparator : String
+textSeparator =
+    "|"

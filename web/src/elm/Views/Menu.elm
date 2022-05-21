@@ -74,14 +74,14 @@ import Views.Empty as Empty
 import Views.Icon as Icon
 
 
-type MenuItem msg
-    = Item (MenuInfo msg)
-
-
 type alias MenuInfo msg =
     { e : msg
     , title : String
     }
+
+
+type MenuItem msg
+    = Item (MenuInfo msg)
 
 
 type alias Props =
@@ -95,27 +95,61 @@ type alias Props =
     }
 
 
-menuButtonStyle : Css.Style
-menuButtonStyle =
-    Css.batch
-        [ Breakpoint.style
-            [ cursor pointer
-            , marginBottom <| px 8
-            , padding <| px 16
-            , marginBottom zero
-            ]
-            [ Breakpoint.large [ padding <| px 0, paddingTop <| px 16 ] ]
-        , hover
-            [ position relative
-            , descendants
-                [ class "tooltip"
-                    [ visibility visible
-                    , opacity <| int 100
-                    , Color.textColor
-                    ]
-                ]
+menu : Maybe Int -> Maybe Int -> Maybe Int -> Maybe Int -> List (MenuItem msg) -> Html msg
+menu posTop posLeft posBottom posRight items =
+    Html.div
+        [ css
+            [ Maybe.map (\p -> Css.batch [ top <| px <| toFloat <| p ]) posTop |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ left <| px <| toFloat <| p ]) posLeft |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ right <| px <| toFloat <| p ]) posRight |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ bottom <| px <| toFloat <| p ]) posBottom |> Maybe.withDefault (Css.batch [])
+            , minWidth <| px 128
+            , maxHeight <| calc (vh 100) minus (px 40)
+            , Transitions.transition [ Transitions.boxShadow3 200 200 Transitions.easeOut ]
+            , Style.m1
+            , overflow hidden
+            , Color.bgMain
+            , position absolute
+            , Style.rounded
+            , zIndex <| int 10
+            , Style.shadowSm
             ]
         ]
+        (items
+            |> List.map
+                (\(Item menuItem) ->
+                    Html.div
+                        [ css
+                            [ TextStyle.base
+                            , Color.textColor
+                            , cursor pointer
+                            , displayFlex
+                            , alignItems center
+                            , height <| px 40
+                            , hover
+                                [ backgroundColor <| rgba 0 0 0 0.3
+                                ]
+                            ]
+                        , Events.onClick menuItem.e
+                        ]
+                        [ Html.div
+                            [ css
+                                [ Breakpoint.style
+                                    [ cursor pointer
+                                    , TextStyle.sm
+                                    , FontStyle.fontBold
+                                    , padding2 zero (px 16)
+                                    , Style.mt0
+                                    ]
+                                    [ Breakpoint.large [ padding <| px 16 ]
+                                    ]
+                                ]
+                            ]
+                            [ Html.text menuItem.title
+                            ]
+                        ]
+                )
+        )
 
 
 view : Props -> Html Msg
@@ -262,77 +296,6 @@ view props =
         ]
 
 
-exportMenu : Route -> List (MenuItem Msg)
-exportMenu route =
-    case route of
-        Route.Edit ErDiagram ->
-            Item
-                { e = Download <| ExportDiagram.copyable FileType.ddl
-                , title = "DDL"
-                }
-                :: Item
-                    { e = Download <| ExportDiagram.copyable FileType.mermaid
-                    , title = "Mermaid"
-                    }
-                :: baseExportMenu
-
-        Route.EditFile ErDiagram _ ->
-            Item
-                { e = Download <| ExportDiagram.copyable FileType.ddl
-                , title = "DDL"
-                }
-                :: Item
-                    { e = Download <| ExportDiagram.copyable FileType.mermaid
-                    , title = "Mermaid"
-                    }
-                :: baseExportMenu
-
-        Route.Edit SequenceDiagram ->
-            Item
-                { e = Download <| ExportDiagram.copyable FileType.mermaid
-                , title = "Mermaid"
-                }
-                :: baseExportMenu
-
-        Route.EditFile SequenceDiagram _ ->
-            Item
-                { e = Download <| ExportDiagram.copyable FileType.mermaid
-                , title = "Mermaid"
-                }
-                :: baseExportMenu
-
-        Route.Edit GanttChart ->
-            Item
-                { e = Download <| ExportDiagram.copyable FileType.mermaid
-                , title = "Mermaid"
-                }
-                :: baseExportMenu
-
-        Route.EditFile GanttChart _ ->
-            Item
-                { e = Download <| ExportDiagram.copyable FileType.mermaid
-                , title = "Mermaid"
-                }
-                :: baseExportMenu
-
-        Route.Edit Table ->
-            Item
-                { e = Download <| ExportDiagram.copyable FileType.markdown
-                , title = "Markdown"
-                }
-                :: baseExportMenu
-
-        Route.EditFile Table _ ->
-            Item
-                { e = Download <| ExportDiagram.copyable FileType.markdown
-                , title = "Markdown"
-                }
-                :: baseExportMenu
-
-        _ ->
-            baseExportMenu
-
-
 baseExportMenu : List (MenuItem Msg)
 baseExportMenu =
     [ Item
@@ -362,58 +325,95 @@ baseExportMenu =
     ]
 
 
-menu : Maybe Int -> Maybe Int -> Maybe Int -> Maybe Int -> List (MenuItem msg) -> Html msg
-menu posTop posLeft posBottom posRight items =
-    Html.div
-        [ css
-            [ Maybe.map (\p -> Css.batch [ top <| px <| toFloat <| p ]) posTop |> Maybe.withDefault (Css.batch [])
-            , Maybe.map (\p -> Css.batch [ left <| px <| toFloat <| p ]) posLeft |> Maybe.withDefault (Css.batch [])
-            , Maybe.map (\p -> Css.batch [ right <| px <| toFloat <| p ]) posRight |> Maybe.withDefault (Css.batch [])
-            , Maybe.map (\p -> Css.batch [ bottom <| px <| toFloat <| p ]) posBottom |> Maybe.withDefault (Css.batch [])
-            , minWidth <| px 128
-            , maxHeight <| calc (vh 100) minus (px 40)
-            , Transitions.transition [ Transitions.boxShadow3 200 200 Transitions.easeOut ]
-            , Style.m1
-            , overflow hidden
-            , Color.bgMain
-            , position absolute
-            , Style.rounded
-            , zIndex <| int 10
-            , Style.shadowSm
+exportMenu : Route -> List (MenuItem Msg)
+exportMenu route =
+    case route of
+        Route.Edit GanttChart ->
+            Item
+                { e = Download <| ExportDiagram.copyable FileType.mermaid
+                , title = "Mermaid"
+                }
+                :: baseExportMenu
+
+        Route.Edit ErDiagram ->
+            Item
+                { e = Download <| ExportDiagram.copyable FileType.ddl
+                , title = "DDL"
+                }
+                :: Item
+                    { e = Download <| ExportDiagram.copyable FileType.mermaid
+                    , title = "Mermaid"
+                    }
+                :: baseExportMenu
+
+        Route.Edit Table ->
+            Item
+                { e = Download <| ExportDiagram.copyable FileType.markdown
+                , title = "Markdown"
+                }
+                :: baseExportMenu
+
+        Route.Edit SequenceDiagram ->
+            Item
+                { e = Download <| ExportDiagram.copyable FileType.mermaid
+                , title = "Mermaid"
+                }
+                :: baseExportMenu
+
+        Route.EditFile GanttChart _ ->
+            Item
+                { e = Download <| ExportDiagram.copyable FileType.mermaid
+                , title = "Mermaid"
+                }
+                :: baseExportMenu
+
+        Route.EditFile ErDiagram _ ->
+            Item
+                { e = Download <| ExportDiagram.copyable FileType.ddl
+                , title = "DDL"
+                }
+                :: Item
+                    { e = Download <| ExportDiagram.copyable FileType.mermaid
+                    , title = "Mermaid"
+                    }
+                :: baseExportMenu
+
+        Route.EditFile Table _ ->
+            Item
+                { e = Download <| ExportDiagram.copyable FileType.markdown
+                , title = "Markdown"
+                }
+                :: baseExportMenu
+
+        Route.EditFile SequenceDiagram _ ->
+            Item
+                { e = Download <| ExportDiagram.copyable FileType.mermaid
+                , title = "Mermaid"
+                }
+                :: baseExportMenu
+
+        _ ->
+            baseExportMenu
+
+
+menuButtonStyle : Css.Style
+menuButtonStyle =
+    Css.batch
+        [ Breakpoint.style
+            [ cursor pointer
+            , marginBottom <| px 8
+            , padding <| px 16
+            , marginBottom zero
+            ]
+            [ Breakpoint.large [ padding <| px 0, paddingTop <| px 16 ] ]
+        , hover
+            [ position relative
+            , descendants
+                [ class "tooltip"
+                    [ visibility visible
+                    , opacity <| int 100
+                    , Color.textColor
+                    ]
+                ]
             ]
         ]
-        (items
-            |> List.map
-                (\(Item menuItem) ->
-                    Html.div
-                        [ css
-                            [ TextStyle.base
-                            , Color.textColor
-                            , cursor pointer
-                            , displayFlex
-                            , alignItems center
-                            , height <| px 40
-                            , hover
-                                [ backgroundColor <| rgba 0 0 0 0.3
-                                ]
-                            ]
-                        , Events.onClick menuItem.e
-                        ]
-                        [ Html.div
-                            [ css
-                                [ Breakpoint.style
-                                    [ cursor pointer
-                                    , TextStyle.sm
-                                    , FontStyle.fontBold
-                                    , padding2 zero (px 16)
-                                    , Style.mt0
-                                    ]
-                                    [ Breakpoint.large [ padding <| px 16 ]
-                                    ]
-                                ]
-                            ]
-                            [ Html.text menuItem.title
-                            ]
-                        ]
-                )
-        )

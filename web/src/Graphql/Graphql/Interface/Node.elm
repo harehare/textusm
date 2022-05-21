@@ -30,6 +30,12 @@ fragments selections____ =
         ]
 
 
+{-| -}
+id : SelectionSet Graphql.ScalarCodecs.Id Graphql.Interface.Node
+id =
+    Object.selectionForField "ScalarCodecs.Id" "id" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
+
+
 {-| Can be used to create a non-exhaustive set of fragments by using the record
 update syntax to add `SelectionSet`s for the types you want to handle.
 -}
@@ -38,9 +44,3 @@ maybeFragments =
     { onItem = Graphql.SelectionSet.empty |> Graphql.SelectionSet.map (\_ -> Nothing)
     , onGistItem = Graphql.SelectionSet.empty |> Graphql.SelectionSet.map (\_ -> Nothing)
     }
-
-
-{-| -}
-id : SelectionSet Graphql.ScalarCodecs.Id Graphql.Interface.Node
-id =
-    Object.selectionForField "ScalarCodecs.Id" "id" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)

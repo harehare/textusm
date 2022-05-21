@@ -31,6 +31,51 @@ import Style.Style as Style
 import Style.Text as Text
 
 
+view : Html msg
+view =
+    div [ css [ Style.full ] ]
+        [ div
+            [ css
+                [ Breakpoint.style
+                    [ Style.widthScreen
+                    , Style.hMobileContent
+                    , Color.bgDefault
+                    , overflowY scroll
+                    , padding <| px 8
+                    , property "display" "grid"
+                    , property "grid-column-gap" "16px"
+                    , property "grid-row-gap" "16px"
+                    , property "grid-template-columns" "repeat(auto-fit, minmax(45%, 1fr))"
+                    , property "grid-auto-rows" "120px"
+                    ]
+                    [ Breakpoint.small
+                        [ property "grid-template-columns" "repeat(auto-fit, minmax(240px, 1fr))"
+                        , property "grid-auto-rows" "150px"
+                        , Style.full
+                        ]
+                    ]
+                ]
+            ]
+          <|
+            List.map
+                (\item ->
+                    a [ href item.url, attribute "aria-label" item.name ]
+                        [ div
+                            [ class "new-item"
+                            , newItemStyle
+                            ]
+                            [ img [ Asset.src item.image, css [ property "object-fit" "contain", Style.widthFull, height <| px 100 ] ] []
+                            , div
+                                [ css [ Text.sm, Font.fontSemiBold ]
+                                ]
+                                [ text item.name ]
+                            ]
+                        ]
+                )
+                newItems
+        ]
+
+
 type alias NewItem =
     { name : String
     , image : Asset
@@ -75,48 +120,3 @@ newItems =
     , NewItem "Table" Asset.table (Route.toString <| Route.Edit Table)
     , NewItem "Freeform" Asset.freeform (Route.toString <| Route.Edit Freeform)
     ]
-
-
-view : Html msg
-view =
-    div [ css [ Style.full ] ]
-        [ div
-            [ css
-                [ Breakpoint.style
-                    [ Style.widthScreen
-                    , Style.hMobileContent
-                    , Color.bgDefault
-                    , overflowY scroll
-                    , padding <| px 8
-                    , property "display" "grid"
-                    , property "grid-column-gap" "16px"
-                    , property "grid-row-gap" "16px"
-                    , property "grid-template-columns" "repeat(auto-fit, minmax(45%, 1fr))"
-                    , property "grid-auto-rows" "120px"
-                    ]
-                    [ Breakpoint.small
-                        [ property "grid-template-columns" "repeat(auto-fit, minmax(240px, 1fr))"
-                        , property "grid-auto-rows" "150px"
-                        , Style.full
-                        ]
-                    ]
-                ]
-            ]
-          <|
-            List.map
-                (\item ->
-                    a [ href item.url, attribute "aria-label" item.name ]
-                        [ div
-                            [ class "new-item"
-                            , newItemStyle
-                            ]
-                            [ img [ Asset.src item.image, css [ property "object-fit" "contain", Style.widthFull, height <| px 100 ] ] []
-                            , div
-                                [ css [ Text.sm, Font.fontSemiBold ]
-                                ]
-                                [ text item.name ]
-                            ]
-                        ]
-                )
-                newItems
-        ]

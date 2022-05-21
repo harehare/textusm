@@ -7,11 +7,6 @@ type DiagramId
     = DiagramId String
 
 
-isGithubId : DiagramId -> Bool
-isGithubId diagramId =
-    (diagramId |> toString |> String.length) == 32
-
-
 decoder : Decoder DiagramId
 decoder =
     D.map DiagramId D.string
@@ -20,6 +15,11 @@ decoder =
 fromString : String -> DiagramId
 fromString id =
     DiagramId id
+
+
+isGithubId : DiagramId -> Bool
+isGithubId diagramId =
+    (diagramId |> toString |> String.length) == 32
 
 
 toString : DiagramId -> String

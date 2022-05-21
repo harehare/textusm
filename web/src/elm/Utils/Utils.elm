@@ -5,9 +5,9 @@ import Process
 import Task
 
 
-isPhone : Int -> Bool
-isPhone width =
-    width <= 480
+calcDistance : ( Float, Float ) -> ( Float, Float ) -> Float
+calcDistance ( x1, y1 ) ( x2, y2 ) =
+    sqrt (((x2 - x1) ^ 2) + ((y2 - y1) ^ 2))
 
 
 delay : Float -> msg -> Cmd msg
@@ -32,6 +32,6 @@ httpErrorToString err =
             "Internal server error. Please try again later."
 
 
-calcDistance : ( Float, Float ) -> ( Float, Float ) -> Float
-calcDistance ( x1, y1 ) ( x2, y2 ) =
-    sqrt (((x2 - x1) ^ 2) + ((y2 - y1) ^ 2))
+isPhone : Int -> Bool
+isPhone width =
+    width <= 480

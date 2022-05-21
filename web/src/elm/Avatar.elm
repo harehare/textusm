@@ -6,6 +6,10 @@ import MD5
 import Url
 
 
+type Avatar
+    = Avatar (Maybe Email) (Maybe ImageUrl)
+
+
 type alias Email =
     String
 
@@ -14,8 +18,9 @@ type alias ImageUrl =
     String
 
 
-type Avatar
-    = Avatar (Maybe Email) (Maybe ImageUrl)
+src : Avatar -> Attribute msg
+src avatar =
+    Attr.src <| toString avatar
 
 
 toString : Avatar -> String
@@ -38,8 +43,3 @@ toString (Avatar email imageUrl) =
 
         _ ->
             ""
-
-
-src : Avatar -> Attribute msg
-src avatar =
-    Attr.src <| toString avatar
