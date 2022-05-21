@@ -6,6 +6,7 @@ module Models.Item exposing
     , Items
     , childrenFromItems
     , cons
+    , count
     , empty
     , emptyChildren
     , flatten
@@ -750,3 +751,8 @@ search items query =
 searchClear : Items -> Items
 searchClear items =
     mapWithRecursive (withHighlight False) items
+
+
+count : (Item -> Bool) -> Items -> Int
+count f items =
+    items |> flatten |> unwrap |> ListEx.count f

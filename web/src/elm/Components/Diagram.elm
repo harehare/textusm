@@ -394,7 +394,13 @@ view model =
                     , right <| px 32
                     ]
                 ]
-                [ Search.view { query = SearchModel.toString model.search, searchMsg = Search, closeMsg = ToggleSearch } ]
+                [ Search.view
+                    { query = SearchModel.toString model.search
+                    , count = Item.count Item.isHighlight model.items
+                    , searchMsg = Search
+                    , closeMsg = ToggleSearch
+                    }
+                ]
 
           else
             Empty.view
