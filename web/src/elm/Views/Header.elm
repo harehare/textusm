@@ -313,7 +313,7 @@ viewSignInButton menu session =
                 [ Breakpoint.style [ width <| px 32 ]
                     [ Breakpoint.small
                         [ Style.button
-                        , width <| px 96
+                        , width <| px 48
                         , height <| px 50
                         ]
                     ]

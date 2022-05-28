@@ -33,6 +33,7 @@ module Models.DiagramSettings exposing
     )
 
 import Css exposing (fontFamilies)
+import Graphql.Enum.Diagram exposing (Diagram(..))
 import Models.Color as Color
 import Models.Property as Property exposing (Property)
 import Monocle.Compose as Compose

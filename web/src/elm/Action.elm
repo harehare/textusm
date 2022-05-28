@@ -68,6 +68,7 @@ import Models.Model as Model exposing (Model, Msg(..), WindowState(..))
 import Models.Notification as Notification
 import Models.Page exposing (Page)
 import Models.Session as Session
+import Models.SettingsCache as SettingCache
 import Models.ShareToken as ShareToken exposing (ShareToken)
 import Models.Size as Size
 import Models.Text as Text
@@ -242,7 +243,16 @@ loadPublicItem id_ model =
 loadSettings : Model -> Return Msg Model
 loadSettings model =
     if Session.isSignedIn model.session then
-        loadRemoteSettings model.currentDiagram.diagram model
+        case SettingCache.get model.settingsCache model.currentDiagram.diagram of
+            Just setting ->
+                Ok setting
+                    |> LoadSettings
+                    |> Task.succeed
+                    |> Task.perform identity
+                    |> Return.return model
+
+            Nothing ->
+                loadRemoteSettings model.currentDiagram.diagram model
 
     else
         Return.singleton model
@@ -358,6 +368,7 @@ saveSettings model =
     case ( Route.toRoute model.url, Session.isSignedIn model.session ) of
         ( Route.Settings, True ) ->
             saveSettingsToRemote model.currentDiagram.diagram model.settingsModel.settings.storyMap model
+                |> Return.andThen (setSettingsCache model.settingsModel.settings.storyMap)
 
         _ ->
             Return.singleton model
@@ -431,6 +442,13 @@ setSettings settings model =
             | diagramModel = model.diagramModel |> DiagramModel.ofSettings.set settings
             , settingsModel = { newSettings | settings = model.settingsModel.settings |> Settings.storyMapOfSettings.set settings }
         }
+        |> Return.andThen (setSettingsCache settings)
+
+
+setSettingsCache : DiagramSettings.Settings -> Model -> Return Msg Model
+setSettingsCache settings model =
+    Return.singleton
+        { model | settingsCache = SettingCache.set model.settingsCache model.currentDiagram.diagram settings }
 
 
 setTitle : String -> Model -> Return Msg Model

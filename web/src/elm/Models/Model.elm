@@ -29,6 +29,7 @@ import Models.LoginProvider exposing (LoginProvider)
 import Models.Notification exposing (Notification)
 import Models.Page exposing (Page)
 import Models.Session exposing (Session)
+import Models.SettingsCache exposing (SettingsCache)
 import Models.ShareState exposing (ShareState)
 import Models.Snackbar exposing (Snackbar)
 import Monocle.Lens exposing (Lens)
@@ -71,6 +72,7 @@ type alias Model =
     , confirmDialog : ConfirmDialog Msg
     , snackbar : Snackbar Msg
     , notification : Notification
+    , settingsCache : SettingsCache
     }
 
 

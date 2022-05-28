@@ -48,6 +48,7 @@ import Models.Model as Model exposing (Model, Msg(..), WindowState(..), isFullsc
 import Models.Notification as Notification
 import Models.Page as Page
 import Models.Session as Session
+import Models.SettingsCache as SettingsCache
 import Models.ShareState as ShareState
 import Models.ShareToken as ShareToken
 import Models.Size as Size exposing (Size)
@@ -355,6 +356,7 @@ init flags url key =
             , confirmDialog = Dialog.Hide
             , snackbar = SnackbarModel.Hide
             , notification = Notification.Hide
+            , settingsCache = SettingsCache.new
             }
 
         ( settingsModel, _ ) =
