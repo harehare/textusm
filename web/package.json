@@ -1,7 +1,7 @@
 {
     "name": "textusm",
     "description": "Online tool for Generate a User Story Mapping from indented text.",
-    "version": "0.10.61",
+    "version": "0.10.62",
     "author": "harehare",
     "bugs": {
         "url": "https://github.com/harehare/textusm/issues"
@@ -88,8 +88,6 @@
         "url": "git+https://github.com/harehare/textusm.git"
     },
     "scripts": {
-        "build": "webpack",
-        "deploy": "NODE_ENV=production webpack --mode production && firebase deploy --only hosting:textusm",
         "dev": "run-p dev:*",
         "dev:web": "webpack serve --hot --color --port 3000",
         "dev:server": "cd ../server/ && just run",
@@ -109,10 +107,12 @@
         "generate-elm-constants": "elm-constants --no-dotenv",
         "format": "prettier --write src/**/*.ts",
         "lint": "run-p lint:*",
-        "lint:ts": "eslint --fix src/ts/*.ts",
-        "lint:fix": "elm-review --fix",
-        "lint-elm": "elm-review",
-        "lint-suppress": "elm-review suppress",
+        "lint:ts": "eslint src/ts/*.ts",
+        "lint:elm": "elm-review",
+        "lint:elm:suppress": "elm-review suppress",
+        "lint-fix": "run-p lint-fix:*",
+        "lint-fix:ts": "eslint --fix src/ts/*.ts",
+        "lint-fix:fix": "elm-review --fix",
         "prepare": "cd .. && husky install"
     },
     "browserslist": [
