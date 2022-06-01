@@ -24,7 +24,7 @@ import Models.Diagram as Diagram
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramSettings as DiagramSettings
 import Models.Dialog exposing (ConfirmDialog)
-import Models.ExportDiagram exposing (ExportDiagram)
+import Models.Exporter exposing (Export)
 import Models.LoginProvider exposing (LoginProvider)
 import Models.Notification exposing (Notification)
 import Models.Page exposing (Page)
@@ -88,7 +88,7 @@ type Msg
     | CloseMenu
     | Copy
     | Copied DiagramItem
-    | Download ExportDiagram
+    | Download Export
     | DownloadCompleted ( Int, Int )
     | StartDownload { extension : String, mimeType : String, content : String }
     | Save

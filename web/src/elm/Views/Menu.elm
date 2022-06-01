@@ -57,7 +57,7 @@ import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color
 import Models.DiagramLocation as DiagramLocation
-import Models.ExportDiagram as ExportDiagram
+import Models.Exporter as Exporter
 import Models.FileType as FileType
 import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page
@@ -299,27 +299,27 @@ view props =
 baseExportMenu : List (MenuItem Msg)
 baseExportMenu =
     [ Item
-        { e = Download <| ExportDiagram.downloadable FileType.svg
+        { e = Download <| Exporter.downloadable FileType.svg
         , title = FileType.toString FileType.svg
         }
     , Item
-        { e = Download <| ExportDiagram.downloadable FileType.png
+        { e = Download <| Exporter.downloadable FileType.png
         , title = FileType.toString FileType.png
         }
     , Item
-        { e = Download <| ExportDiagram.downloadable FileType.pdf
+        { e = Download <| Exporter.downloadable FileType.pdf
         , title = FileType.toString FileType.pdf
         }
     , Item
-        { e = Download <| ExportDiagram.downloadable FileType.plainText
+        { e = Download <| Exporter.downloadable FileType.plainText
         , title = FileType.toString FileType.plainText
         }
     , Item
-        { e = Download <| ExportDiagram.downloadable FileType.html
+        { e = Download <| Exporter.downloadable FileType.html
         , title = FileType.toString FileType.html
         }
     , Item
-        { e = Download <| ExportDiagram.copyable FileType.png
+        { e = Download <| Exporter.copyable FileType.png
         , title = "Copy " ++ FileType.toString FileType.png
         }
     ]
@@ -330,64 +330,64 @@ exportMenu route =
     case route of
         Route.Edit GanttChart ->
             Item
-                { e = Download <| ExportDiagram.copyable FileType.mermaid
+                { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu
 
         Route.Edit ErDiagram ->
             Item
-                { e = Download <| ExportDiagram.copyable FileType.ddl
+                { e = Download <| Exporter.copyable FileType.ddl
                 , title = "DDL"
                 }
                 :: Item
-                    { e = Download <| ExportDiagram.copyable FileType.mermaid
+                    { e = Download <| Exporter.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
                 :: baseExportMenu
 
         Route.Edit Table ->
             Item
-                { e = Download <| ExportDiagram.copyable FileType.markdown
+                { e = Download <| Exporter.copyable FileType.markdown
                 , title = "Markdown"
                 }
                 :: baseExportMenu
 
         Route.Edit SequenceDiagram ->
             Item
-                { e = Download <| ExportDiagram.copyable FileType.mermaid
+                { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu
 
         Route.EditFile GanttChart _ ->
             Item
-                { e = Download <| ExportDiagram.copyable FileType.mermaid
+                { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu
 
         Route.EditFile ErDiagram _ ->
             Item
-                { e = Download <| ExportDiagram.copyable FileType.ddl
+                { e = Download <| Exporter.copyable FileType.ddl
                 , title = "DDL"
                 }
                 :: Item
-                    { e = Download <| ExportDiagram.copyable FileType.mermaid
+                    { e = Download <| Exporter.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
                 :: baseExportMenu
 
         Route.EditFile Table _ ->
             Item
-                { e = Download <| ExportDiagram.copyable FileType.markdown
+                { e = Download <| Exporter.copyable FileType.markdown
                 , title = "Markdown"
                 }
                 :: baseExportMenu
 
         Route.EditFile SequenceDiagram _ ->
             Item
-                { e = Download <| ExportDiagram.copyable FileType.mermaid
+                { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu
