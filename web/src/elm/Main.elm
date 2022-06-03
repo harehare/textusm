@@ -28,19 +28,13 @@ import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message
 import Models.Diagram as DiagramModel
-import Models.Diagram.ER as ER
-import Models.Diagram.GanttChart as GanttChart
-import Models.Diagram.SequenceDiagram as SequenceDiagram
-import Models.Diagram.Table as Table
-import Models.DiagramData as DiagramData
 import Models.DiagramId as DiagramId
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Models.DiagramSettings as DiagramSettings
 import Models.DiagramType as DiagramType
 import Models.Dialog as Dialog
-import Models.ExportDiagram as ExportDiagram
-import Models.FileType as FileType
+import Models.Exporter as Exporter
 import Models.IdToken as IdToken
 import Models.Jwt as Jwt
 import Models.LoginProvider as LoginProdiver
@@ -564,134 +558,23 @@ update message =
         Download exportDiagram ->
             Return.andThen
                 (\m ->
-                    case exportDiagram of
-                        ExportDiagram.Downloadable fileType ->
-                            case fileType of
-                                FileType.PlainText _ ->
-                                    case ExportDiagram.download exportDiagram m.currentDiagram.title (Text.toString m.diagramModel.text) of
-                                        Just cmd ->
-                                            Return.return m cmd
-
-                                        Nothing ->
-                                            Return.singleton m
-
-                                _ ->
-                                    let
-                                        ( download, extension ) =
-                                            case fileType of
-                                                FileType.Png ex ->
-                                                    ( Ports.downloadPng, ex )
-
-                                                FileType.Svg ex ->
-                                                    ( Ports.downloadSvg, ex )
-
-                                                FileType.Pdf ex ->
-                                                    ( Ports.downloadPdf, ex )
-
-                                                FileType.Html ex ->
-                                                    ( Ports.downloadHtml, ex )
-
-                                                _ ->
-                                                    ( Ports.downloadSvg, "" )
-
-                                        ( width, height ) =
-                                            DiagramModel.size m.diagramModel
-                                                |> Tuple.mapBoth (\x -> x + posX) (\y -> y + posY)
-
-                                        ( posX, posY ) =
-                                            m.diagramModel.position
-                                    in
-                                    Return.return m <|
-                                        download
-                                            { diagramType = DiagramType.toString m.diagramModel.diagramType
-                                            , height = height
-                                            , id = "usm"
-                                            , text = Text.toString m.diagramModel.text
-                                            , title = Title.toString m.currentDiagram.title ++ extension
-                                            , width = width
-                                            , x = 0
-                                            , y = 0
-                                            }
-
-                        ExportDiagram.Copyable fileType ->
-                            case fileType of
-                                FileType.Png _ ->
-                                    let
-                                        ( width, height ) =
-                                            DiagramModel.size m.diagramModel
-                                                |> Tuple.mapBoth (\x -> x + posX) (\y -> y + posY)
-
-                                        ( posX, posY ) =
-                                            m.diagramModel.position
-                                    in
-                                    Return.return m
-                                        (Ports.copyToClipboardPng
-                                            { diagramType = DiagramType.toString m.diagramModel.diagramType
-                                            , height = height
-                                            , id = "usm"
-                                            , text = Text.toString m.diagramModel.text
-                                            , title = ""
-                                            , width = width
-                                            , x = 0
-                                            , y = 0
-                                            }
-                                        )
-                                        |> Return.andThen (Action.showInfoMessage Message.messageCopiedImage)
-
-                                FileType.Ddl _ ->
-                                    let
-                                        ddl : String
-                                        ddl =
-                                            List.map ER.tableToString tables
-                                                |> String.join "\n"
-
-                                        ( _, tables ) =
-                                            ER.from m.diagramModel.items
-                                    in
-                                    case ExportDiagram.copy exportDiagram ddl of
-                                        Just cmd ->
-                                            Return.return m cmd
-                                                |> Return.andThen (Action.showInfoMessage Message.messageCopiedText)
-
-                                        Nothing ->
-                                            Return.singleton m
-
-                                FileType.Markdown _ ->
-                                    case ExportDiagram.copy exportDiagram (Table.toString (Table.from m.diagramModel.items)) of
-                                        Just cmd ->
-                                            Return.return m cmd
-                                                |> Return.andThen (Action.showInfoMessage Message.messageCopiedText)
-
-                                        Nothing ->
-                                            Return.singleton m
-
-                                FileType.Mermaid _ ->
-                                    let
-                                        mermaidString : Maybe String
-                                        mermaidString =
-                                            case m.diagramModel.data of
-                                                DiagramData.ErDiagram data ->
-                                                    Just <| ER.toMermaidString data
-
-                                                DiagramData.SequenceDiagram data ->
-                                                    Just <| SequenceDiagram.toMermaidString data
-
-                                                DiagramData.GanttChart data ->
-                                                    Maybe.map (\data_ -> GanttChart.toMermaidString m.currentDiagram.title Time.utc data_) data
-
-                                                _ ->
-                                                    Nothing
-                                    in
-                                    case Maybe.andThen (ExportDiagram.copy exportDiagram) mermaidString of
-                                        Just cmd ->
-                                            Return.return m cmd
-                                                |> Return.andThen (Action.showInfoMessage Message.messageCopiedText)
-
-                                        Nothing ->
-                                            Return.singleton m
-
-                                _ ->
-                                    Return.singleton m
+                    let
+                        ( posX, posY ) =
+                            m.diagramModel.position
+                    in
+                    Exporter.export
+                        exportDiagram
+                        { title = m.currentDiagram.title
+                        , text = m.diagramModel.text
+                        , size =
+                            DiagramModel.size m.diagramModel
+                                |> Tuple.mapBoth (\x -> x + posX) (\y -> y + posY)
+                        , diagramType = m.diagramModel.diagramType
+                        , items = m.diagramModel.items
+                        , data = m.diagramModel.data
+                        }
+                        |> Maybe.map (\cmd -> Return.return m cmd)
+                        |> Maybe.withDefault (Return.singleton m)
                 )
 
         DownloadCompleted ( x, y ) ->
