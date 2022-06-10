@@ -3,6 +3,9 @@
   "automatically created by": "elm-review suppress",
   "learn more": "elm-review suppress --help",
   "suppressions": [
+    { "count": 5, "filePath": "src/elm/Ports.elm" },
+    { "count": 3, "filePath": "src/elm/Models/Exporter.elm" },
+    { "count": 2, "filePath": "src/elm/Message.elm" },
     { "count": 1, "filePath": "src/elm/Style/Style.elm" },
     { "count": 1, "filePath": "src/elm/Views/Diagram/Card.elm" }
   ]

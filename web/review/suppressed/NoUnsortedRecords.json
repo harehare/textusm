@@ -21,10 +21,12 @@
     { "count": 3, "filePath": "src/elm/Views/Diagram/SiteMap.elm" },
     { "count": 3, "filePath": "src/elm/Views/Diagram/Text.elm" },
     { "count": 3, "filePath": "tests/DiagramTests.elm" },
+    { "count": 2, "filePath": "src/elm/Models/Exporter.elm" },
     { "count": 2, "filePath": "src/elm/Views/Diagram/GanttChart.elm" },
     { "count": 2, "filePath": "src/elm/Views/Diagram/MiniMap.elm" },
     { "count": 2, "filePath": "src/elm/Views/Diagram/Search.elm" },
     { "count": 2, "filePath": "src/elm/Views/Diagram/SequenceDiagram.elm" },
-    { "count": 2, "filePath": "src/elm/Views/Diagram/TextNode.elm" }
+    { "count": 2, "filePath": "src/elm/Views/Diagram/TextNode.elm" },
+    { "count": 1, "filePath": "src/elm/Main.elm" }
   ]
 }
