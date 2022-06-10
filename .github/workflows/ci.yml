@@ -62,5 +62,6 @@ jobs:
         with:
           start: npm run dev:web
           headless: true
+          install: false
           working-directory: web
           wait-on: "http://localhost:3000"
