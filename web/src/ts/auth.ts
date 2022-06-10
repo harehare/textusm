@@ -10,6 +10,7 @@ import {
     onAuthStateChanged as firebaseOnAuthStateChanged,
     connectAuthEmulator,
 } from 'firebase/auth';
+import { getPerformance } from 'firebase/performance';
 
 export interface User {
     id: string;
@@ -26,8 +27,12 @@ const firebaseConfig = {
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     appId: process.env.FIREBASE_APP_ID,
 };
-initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 const auth = getAuth();
+
+if (process.env.MONITOR_ENABLE === '1') {
+    getPerformance(app);
+}
 
 if (
     process.env.NODE_ENV !== 'production' &&

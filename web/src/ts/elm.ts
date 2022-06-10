@@ -1,4 +1,4 @@
-import { Settings, DownloadInfo, Diagram, DiagramItem } from './model';
+import { Settings, ExportInfo, Diagram, DiagramItem } from './model';
 
 type Provider = 'Google' | 'Github';
 
@@ -21,11 +21,12 @@ type ElmApp = {
         openFullscreen: Subscribe<() => void>;
         closeFullscreen: Subscribe<() => void>;
         focusEditor: Subscribe<() => void>;
-        downloadSvg: Subscribe<(download: DownloadInfo) => void>;
-        downloadPdf: Subscribe<(download: DownloadInfo) => void>;
-        downloadPng: Subscribe<(download: DownloadInfo) => void>;
-        downloadHtml: Subscribe<(download: DownloadInfo) => void>;
-        copyToClipboardPng: Subscribe<(download: DownloadInfo) => void>;
+        downloadSvg: Subscribe<(download: ExportInfo) => void>;
+        downloadPdf: Subscribe<(download: ExportInfo) => void>;
+        downloadPng: Subscribe<(download: ExportInfo) => void>;
+        downloadHtml: Subscribe<(download: ExportInfo) => void>;
+        copyToClipboardPng: Subscribe<(download: ExportInfo) => void>;
+        copyBase64: Subscribe<(download: ExportInfo) => void>;
         saveDiagram: Subscribe<(diagram: Diagram) => void>;
         removeDiagrams: Subscribe<(diagram: Diagram) => Promise<void>>;
         getDiagram: Subscribe<(diagramId: string) => Promise<void>>;

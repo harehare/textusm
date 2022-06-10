@@ -23,7 +23,7 @@ type Diagram = {
     location: 'local' | 'gist' | 'system' | 'googledrive';
 };
 
-type DownloadInfo = {
+type ExportInfo = {
     width: number;
     height: number;
     id: string;
@@ -85,7 +85,7 @@ export {
     ImageInfo,
     Settings,
     Diagram,
-    DownloadInfo,
+    ExportInfo,
     Color,
     ColorSettings,
     Size,

@@ -1,4 +1,4 @@
-port module Models.Exporter exposing (Export(..), ExportInfo, copy, copyable, download, downloadable, export)
+port module Models.Exporter exposing (Export(..), ExportInfo, copy, copyBase64, copyable, download, downloadable, export)
 
 import File.Download as Download
 import Graphql.Enum.Diagram exposing (Diagram)
@@ -47,6 +47,9 @@ port downloadSvg : ExportInfo -> Cmd msg
 
 
 port copyToClipboardPng : ExportInfo -> Cmd msg
+
+
+port copyBase64 : ExportInfo -> Cmd msg
 
 
 copy : Export -> String -> Maybe (Cmd msg)
@@ -179,6 +182,19 @@ export e { title, text, size, diagramType, items, data } =
                                     Nothing
                     in
                     Maybe.andThen (copy e) mermaidString
+
+                FileType.Base64 ->
+                    Just <|
+                        copyBase64
+                            { diagramType = DiagramType.toString diagramType
+                            , height = Size.getHeight size
+                            , id = "usm"
+                            , text = Text.toString text
+                            , title = Title.toString title
+                            , width = Size.getWidth size
+                            , x = 0
+                            , y = 0
+                            }
 
                 _ ->
                     Nothing

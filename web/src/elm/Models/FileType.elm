@@ -27,6 +27,7 @@ type FileType
     | Markdown Extension
     | PlainText Extension
     | Mermaid Extension
+    | Base64
 
 
 ddl : FileType
@@ -60,6 +61,9 @@ extension fileType =
 
         Mermaid ex ->
             ex
+
+        _ ->
+            ""
 
 
 html : FileType
@@ -123,3 +127,6 @@ toString fileType =
 
         Mermaid _ ->
             "Mermaid"
+
+        Base64 ->
+            "Base64"

@@ -1,5 +1,5 @@
 import { ElmApp } from './elm';
-import { DownloadInfo, ImageInfo } from './model';
+import { ExportInfo, ImageInfo } from './model';
 
 export const initDownload = (app: ElmApp): void => {
     const createSvg = async (id: string, width: number, height: number) => {
@@ -87,7 +87,7 @@ export const initDownload = (app: ElmApp): void => {
     };
 
     app.ports.downloadSvg.subscribe(
-        async ({ id, width, height, x, y }: DownloadInfo) => {
+        async ({ id, width, height, x, y }: ExportInfo) => {
             app.ports.startDownload.send({
                 content: await createSvg(id, width, height),
                 extension: '.svg',
@@ -98,7 +98,7 @@ export const initDownload = (app: ElmApp): void => {
     );
 
     app.ports.downloadPdf.subscribe(
-        async ({ id, width, height, title, x, y }: DownloadInfo) => {
+        async ({ id, width, height, title, x, y }: ExportInfo) => {
             const html2canvas = await import('html2canvas').catch(() => null);
 
             if (!html2canvas) {
@@ -188,7 +188,7 @@ export const initDownload = (app: ElmApp): void => {
     );
 
     app.ports.downloadPng.subscribe(
-        ({ id, width, height, title, x, y }: DownloadInfo) => {
+        ({ id, width, height, title, x, y }: ExportInfo) => {
             createImage({
                 id,
                 width,
@@ -215,7 +215,7 @@ export const initDownload = (app: ElmApp): void => {
     );
 
     app.ports.copyToClipboardPng.subscribe(
-        ({ id, width, height, x, y }: DownloadInfo) => {
+        ({ id, width, height, x, y }: ExportInfo) => {
             createImage({
                 id,
                 width,
@@ -280,4 +280,19 @@ export const initDownload = (app: ElmApp): void => {
             });
         }
     });
+
+    app.ports.copyBase64.subscribe(
+        async ({ id, width, height, x, y }: ExportInfo) => {
+            const svg = `data:image/svg+xml;utf8,${encodeURIComponent(
+                await createSvg(id, width, height)
+            )}`;
+            const item = new ClipboardItem({
+                'text/plain': new Blob([svg], {
+                    type: 'text/plain',
+                }),
+            });
+            await navigator.clipboard.write([item]);
+            app.ports.downloadCompleted.send([Math.floor(x), Math.floor(y)]);
+        }
+    );
 };

@@ -322,6 +322,10 @@ baseExportMenu =
         { e = Download <| Exporter.copyable FileType.png
         , title = "Copy " ++ FileType.toString FileType.png
         }
+    , Item
+        { e = Download <| Exporter.copyable FileType.Base64
+        , title = "Copy " ++ FileType.toString FileType.Base64
+        }
     ]
 
 

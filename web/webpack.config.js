@@ -46,6 +46,7 @@ const common = {
             'SENTRY_ENABLE',
             'SENTRY_DSN',
             'SENTRY_RELEASE',
+            'MONITOR_ENABLE',
             'NODE_ENV',
             'FIREBASE_AUTH_EMULATOR_URL',
         ]),
