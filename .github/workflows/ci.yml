@@ -13,10 +13,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: harehare/elm-analyse-action@v1
-        with:
-          working_directory: ./web
-          ignore_error: true
       - uses: actions/labeler@main
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
@@ -33,7 +29,7 @@ jobs:
       - name: Install Dependencies
         working-directory: web
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm install
+        run: npm install -f
       - name: Generate elm-constants
         working-directory: web
         run: npm run generate-elm-constants
@@ -66,5 +62,6 @@ jobs:
         with:
           start: npm run dev:web
           headless: true
+          install: false
           working-directory: web
           wait-on: "http://localhost:3000"
