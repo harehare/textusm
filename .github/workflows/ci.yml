@@ -13,10 +13,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: harehare/elm-analyse-action@v1
-        with:
-          working_directory: ./web
-          ignore_error: true
       - uses: actions/labeler@main
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
