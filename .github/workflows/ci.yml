@@ -33,7 +33,7 @@ jobs:
       - name: Install Dependencies
         working-directory: web
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm install
+        run: npm install -f
       - name: Generate elm-constants
         working-directory: web
         run: npm run generate-elm-constants

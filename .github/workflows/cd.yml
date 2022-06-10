@@ -20,7 +20,7 @@ jobs:
       - name: Install Dependencies
         working-directory: web
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm install
+        run: npm install -f
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
