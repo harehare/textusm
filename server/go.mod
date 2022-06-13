@@ -9,7 +9,7 @@ require (
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/httprate v0.5.3
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/rs/zerolog v1.26.1
+	github.com/rs/zerolog v1.27.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.7.2
 	github.com/vektah/gqlparser/v2 v2.4.4
@@ -34,6 +34,8 @@ require (
 	github.com/googleapis/go-type-adapters v1.0.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
+	github.com/mattn/go-colorable v0.1.12 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.1.1 // indirect
