@@ -64,7 +64,7 @@ import Models.DiagramSettings as DiagramSettings
 import Models.DiagramType as DiagramType
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.LoginProvider as LoginProvider
-import Models.Model as Model exposing (Model, Msg(..), WindowState(..))
+import Models.Model exposing (Model, Msg(..), WindowState(..))
 import Models.Notification as Notification
 import Models.Page exposing (Page)
 import Models.Session as Session
@@ -73,6 +73,7 @@ import Models.ShareToken as ShareToken exposing (ShareToken)
 import Models.Size as Size
 import Models.Text as Text
 import Models.Title as Title
+import Models.Window as Window exposing (Window)
 import Page.List as DiagramList
 import Page.Settings as SettingsPage
 import Ports
@@ -517,14 +518,13 @@ switchPage page model =
     Return.singleton { model | page = page }
 
 
-toggleFullscreen : WindowState -> Return.ReturnF Msg Model
-toggleFullscreen state =
-    case state of
-        Fullscreen ->
-            closeFullscreen
+toggleFullscreen : Window -> Return.ReturnF Msg Model
+toggleFullscreen window =
+    if Window.isFullscreen window then
+        closeFullscreen
 
-        _ ->
-            openFullscreen
+    else
+        openFullscreen
 
 
 unchanged : Model -> Return Msg Model
@@ -548,17 +548,15 @@ updateWindowState model =
         { model
             | window =
                 model.window
-                    |> Model.windowOfState.set
-                        (case ( model.window.state, Utils.isPhone (Size.getWidth model.diagramModel.size) ) of
-                            ( Fullscreen, _ ) ->
-                                Fullscreen
+                    |> (if Utils.isPhone (Size.getWidth model.diagramModel.size) then
+                            Window.showEditor
 
-                            ( _, True ) ->
-                                Editor
+                        else if Window.isFullscreen model.window then
+                            Window.fullscreen
 
-                            _ ->
-                                Both
-                        )
+                        else
+                            Window.showEditorAndPreview
+                       )
         }
 
 

@@ -3,13 +3,8 @@ module Models.Model exposing
     , Menu(..)
     , Model
     , Msg(..)
-    , Window
     , WindowState(..)
-    , isFullscreen
     , ofIsOnline
-    , windowOfMoveStart
-    , windowOfMoveX
-    , windowOfState
     )
 
 import Api.RequestError exposing (RequestError)
@@ -32,6 +27,7 @@ import Models.Session exposing (Session)
 import Models.SettingsCache exposing (SettingsCache)
 import Models.ShareState exposing (ShareState)
 import Models.Snackbar exposing (Snackbar)
+import Models.Window exposing (Window)
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
 import Page.Settings as Settings
@@ -110,7 +106,7 @@ type Msg
     | HandleCloseNotification
     | HandleAuthStateChanged (Maybe D.Value)
     | ShowNotification Notification
-    | SwitchWindow WindowState
+    | SwitchWindow Window
     | Shortcuts String
     | GotLocalDiagramJson D.Value
     | ChangePublicStatus Bool
@@ -128,7 +124,7 @@ type Msg
     | CloseDialog
     | GotGithubAccessToken { cmd : String, accessToken : Maybe String }
     | ChangeNetworkState Bool
-    | ShowEditor WindowState
+    | ShowEditor Window
     | NotifyNewVersionAvailable String
     | Reload
     | CloseSnackbar
@@ -138,14 +134,6 @@ type Msg
     | SavedLocalFile String
 
 
-type alias Window =
-    { position : Int
-    , moveStart : Bool
-    , moveX : Int
-    , state : WindowState
-    }
-
-
 type WindowState
     = Editor
     | Preview
@@ -153,31 +141,6 @@ type WindowState
     | Fullscreen
 
 
-isFullscreen : Window -> Bool
-isFullscreen window =
-    case window.state of
-        Fullscreen ->
-            True
-
-        _ ->
-            False
-
-
 ofIsOnline : Lens BrowserStatus Bool
 ofIsOnline =
     Lens .isOnline (\b a -> { a | isOnline = b })
-
-
-windowOfMoveStart : Lens Window Bool
-windowOfMoveStart =
-    Lens .moveStart (\b a -> { a | moveStart = b })
-
-
-windowOfMoveX : Lens Window Int
-windowOfMoveX =
-    Lens .moveX (\b a -> { a | moveX = b })
-
-
-windowOfState : Lens Window WindowState
-windowOfState =
-    Lens .state (\b a -> { a | state = b })

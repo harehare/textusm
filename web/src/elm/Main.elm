@@ -38,7 +38,7 @@ import Models.Exporter as Exporter
 import Models.IdToken as IdToken
 import Models.Jwt as Jwt
 import Models.LoginProvider as LoginProdiver
-import Models.Model as Model exposing (Model, Msg(..), WindowState(..), isFullscreen)
+import Models.Model as Model exposing (Model, Msg(..))
 import Models.Notification as Notification
 import Models.Page as Page
 import Models.Session as Session
@@ -49,6 +49,7 @@ import Models.Size as Size exposing (Size)
 import Models.Snackbar as SnackbarModel
 import Models.Text as Text
 import Models.Title as Title
+import Models.Window as Window exposing (Window)
 import Page.Embed as Embed
 import Page.Help as Help
 import Page.List as DiagramList
@@ -226,7 +227,7 @@ changeRouteTo route =
                                         ( Maybe.withDefault (Size.getWidth m.diagramModel.size) width
                                         , Maybe.withDefault (Size.getHeight m.diagramModel.size) height
                                         )
-                            , window = m.window |> Model.windowOfState.set Fullscreen
+                            , window = m.window |> Window.fullscreen
                         }
                 )
                 >> Return.andThen (Action.setTitle title)
@@ -332,12 +333,7 @@ init flags url key =
             , session = Session.guest
             , currentDiagram = { currentDiagram | title = Title.fromString (Maybe.withDefault "" initSettings.title) }
             , openMenu = Nothing
-            , window =
-                { position = initSettings.position |> Maybe.withDefault 0
-                , moveStart = False
-                , moveX = 0
-                , state = Both
-                }
+            , window = Window.init <| Maybe.withDefault 0 initSettings.position
             , progress = False
             , lang = lang
             , prevRoute = Nothing
@@ -429,7 +425,7 @@ subscriptions model =
          , Ports.openedLocalFile OpenedLocalFile
          , Ports.savedLocalFile SavedLocalFile
          ]
-            ++ (if model.window.moveStart then
+            ++ (if Window.isResizing model.window then
                     [ onMouseUp <| D.succeed MoveStop
                     , onMouseMove <| D.map HandleWindowResize (D.field "pageX" D.int)
                     ]
@@ -486,8 +482,8 @@ update message =
                                 DiagramModel.ToggleFullscreen ->
                                     Return.andThen
                                         (\m_ ->
-                                            Return.singleton { m_ | window = m_.window |> Model.windowOfState.set (windowState model_.fullscreen model_.size) }
-                                                |> Action.toggleFullscreen m_.window.state
+                                            Return.singleton { m_ | window = windowState m_.window model_.fullscreen model_.size }
+                                                |> Action.toggleFullscreen m_.window
                                         )
 
                                 DiagramModel.Resize _ _ ->
@@ -541,7 +537,7 @@ update message =
             Return.andThen <| \m -> Return.singleton { m | openMenu = Just menu }
 
         MoveStop ->
-            Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfMoveStart.set False }
+            Return.andThen <| \m -> Return.singleton { m | window = Window.resized m.window }
 
         CloseMenu ->
             Return.andThen Action.closeMenu
@@ -787,28 +783,10 @@ update message =
                     Return.zero
 
         HandleStartWindowResize x ->
-            Return.andThen <|
-                \m ->
-                    Return.singleton
-                        { m
-                            | window =
-                                m.window
-                                    |> Model.windowOfMoveStart.set True
-                                    |> Model.windowOfMoveX.set x
-                        }
+            Return.andThen <| \m -> Return.singleton { m | window = Window.startResizing m.window x }
 
         HandleWindowResize x ->
-            Return.andThen <|
-                \m ->
-                    Return.singleton
-                        { m
-                            | window =
-                                { position = m.window.position + x - m.window.moveX
-                                , moveStart = True
-                                , moveX = x
-                                , state = m.window.state
-                                }
-                        }
+            Return.andThen <| \m -> Return.singleton { m | window = Window.resizing m.window x }
 
         HandleAutoCloseNotification notification ->
             Return.andThen (\m -> Return.singleton { m | notification = notification })
@@ -868,7 +846,7 @@ update message =
             Return.andThen <| \m -> Return.singleton { m | notification = notification }
 
         SwitchWindow w ->
-            Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfState.set w }
+            Return.andThen <| \m -> Return.singleton { m | window = w }
 
         Shortcuts x ->
             case x of
@@ -964,13 +942,12 @@ update message =
                             | diagramModel = model_
                             , window =
                                 m.window
-                                    |> Model.windowOfState.set
-                                        (if Utils.isPhone (Size.getWidth m.diagramModel.size) then
-                                            Editor
+                                    |> (if Utils.isPhone (Size.getWidth m.diagramModel.size) then
+                                            Window.showEditor
 
-                                         else
-                                            Both
-                                        )
+                                        else
+                                            Window.showEditorAndPreview
+                                       )
                         }
                         (cmd_ |> Cmd.map UpdateDiagram)
 
@@ -1022,8 +999,8 @@ update message =
         ChangeNetworkState isOnline ->
             Return.andThen <| \m -> Return.singleton { m | browserStatus = m.browserStatus |> Model.ofIsOnline.set isOnline }
 
-        ShowEditor state ->
-            Return.andThen <| \m -> Return.singleton { m | window = m.window |> Model.windowOfState.set state }
+        ShowEditor window ->
+            Return.andThen <| \m -> Return.singleton { m | window = window }
 
         NotifyNewVersionAvailable msg ->
             Return.andThen
@@ -1146,7 +1123,7 @@ view model =
         , E.onClick CloseMenu
         ]
         [ GlobalStyle.style
-        , if isFullscreen model.window then
+        , if Window.isFullscreen model.window then
             Empty.view
 
           else
@@ -1170,14 +1147,14 @@ view model =
                 , overflow hidden
                 , position relative
                 , Style.widthFull
-                , if isFullscreen model.window then
+                , if Window.isFullscreen model.window then
                     Css.batch [ Style.heightScreen ]
 
                   else
                     Css.batch [ Style.hContent ]
                 ]
             ]
-            [ if Route.isViewFile (toRoute model.url) || isFullscreen model.window then
+            [ if Route.isViewFile (toRoute model.url) || Window.isFullscreen model.window then
                 Empty.view
 
               else
@@ -1252,7 +1229,7 @@ view model =
                                         Lazy.lazy5 SwitchWindow.view
                                             SwitchWindow
                                             model.diagramModel.settings.backgroundColor
-                                            model.window.state
+                                            model.window
                                             (div
                                                 [ css
                                                     [ Breakpoint.style
@@ -1328,13 +1305,15 @@ view model =
 -- Subscriptions
 
 
-windowState : Bool -> Size -> WindowState
-windowState isFullscreen size =
-    if isFullscreen then
-        Fullscreen
+windowState : Window -> Bool -> Size -> Window
+windowState window isFullscreen size =
+    window
+        |> (if isFullscreen then
+                Window.fullscreen
 
-    else if Utils.isPhone (Size.getWidth size) then
-        Editor
+            else if Utils.isPhone (Size.getWidth size) then
+                Window.showEditor
 
-    else
-        Both
+            else
+                Window.showEditorAndPreview
+           )

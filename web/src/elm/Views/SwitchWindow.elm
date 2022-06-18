@@ -4,7 +4,7 @@ import Css exposing (backgroundColor, block, bottom, column, display, displayFle
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onClick)
-import Models.Model exposing (WindowState(..))
+import Models.Window as Window exposing (Window)
 import Style.Breakpoint as Breakpoint
 import Style.Color as Color
 import Style.Style as Style
@@ -12,7 +12,7 @@ import Views.Empty as Empty
 import Views.Icon as Icon
 
 
-view : (WindowState -> msg) -> String -> WindowState -> Html msg -> Html msg -> Html msg
+view : (Window -> msg) -> String -> Window -> Html msg -> Html msg -> Html msg
 view onSwitchWindow background window view1 view2 =
     Html.div
         [ css
@@ -36,25 +36,23 @@ view onSwitchWindow background window view1 view2 =
                 , bottom <| px 72
                 , right <| px 16
                 ]
-            , case window of
-                Editor ->
-                    onClick (onSwitchWindow Preview)
+            , if Window.isDisplayEditor window then
+                onClick (onSwitchWindow window)
 
-                Preview ->
-                    onClick (onSwitchWindow Editor)
+              else if Window.isDisplayPreview window then
+                onClick (onSwitchWindow window)
 
-                _ ->
-                    Attr.class ""
+              else
+                Attr.class ""
             ]
-            [ case window of
-                Editor ->
-                    Icon.visibility 20
+            [ if Window.isDisplayEditor window then
+                Icon.visibility 20
 
-                Preview ->
-                    Icon.edit 20
+              else if Window.isDisplayPreview window then
+                Icon.edit 20
 
-                _ ->
-                    Empty.view
+              else
+                Empty.view
             ]
         , Html.div
             [ css
@@ -68,12 +66,11 @@ view onSwitchWindow background window view1 view2 =
             [ Html.div
                 [ css
                     [ Style.full
-                    , case window of
-                        Preview ->
-                            display none
+                    , if Window.isDisplayPreview window then
+                        display none
 
-                        _ ->
-                            display block
+                      else
+                        display block
                     ]
                 ]
                 [ view1 ]
@@ -81,12 +78,11 @@ view onSwitchWindow background window view1 view2 =
                 [ css
                     [ Style.full
                     , backgroundColor <| hex background
-                    , case window of
-                        Editor ->
-                            display none
+                    , if Window.isDisplayEditor window then
+                        display none
 
-                        _ ->
-                            display block
+                      else
+                        display block
                     ]
                 ]
                 [ view2 ]
