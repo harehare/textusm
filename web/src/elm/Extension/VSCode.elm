@@ -13,7 +13,7 @@ import Models.DiagramData as DiagramData
 import Models.DiagramType as DiagramType
 import Models.Item as Item
 import Models.Property as Property
-import Models.Size exposing (Size)
+import Models.Size as Size exposing (Size)
 import Models.Text as Text exposing (Text)
 import Return exposing (Return)
 import Task
@@ -94,14 +94,13 @@ init flags =
             , data = DiagramData.Empty
             , size = ( 1024, 1024 )
             , svg =
-                { width = 0
-                , height = 0
+                { size = Size.zero
                 , scale = 1.0
                 }
             , moveState = DiagramModel.NotMove
             , position = ( 0, 0 )
             , movePosition = ( 0, 0 )
-            , fullscreen = False
+            , isFullscreen = False
             , showZoomControl = False
             , showMiniMap = False
             , selectedItem = Nothing

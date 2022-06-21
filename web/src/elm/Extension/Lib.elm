@@ -62,14 +62,13 @@ init flags =
             , data = DiagramData.Empty
             , size = ( flags.width, flags.height )
             , svg =
-                { width = flags.settings.size.width
-                , height = flags.settings.size.height
+                { size = ( flags.settings.size.width, flags.settings.size.height )
                 , scale = flags.scale
                 }
             , moveState = DiagramModel.NotMove
             , position = ( 0, 0 )
             , movePosition = ( 0, 0 )
-            , fullscreen = False
+            , isFullscreen = False
             , showZoomControl = flags.showZoomControl
             , showMiniMap = False
             , contextMenu = Nothing

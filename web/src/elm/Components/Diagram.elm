@@ -115,16 +115,15 @@ init settings =
     Return.singleton
         { items = Item.empty
         , data = DiagramData.Empty
-        , size = ( 0, 0 )
+        , size = Size.zero
         , svg =
-            { width = 0
-            , height = 0
+            { size = Size.zero
             , scale = Maybe.withDefault 1.0 settings.scale
             }
         , moveState = Diagram.NotMove
         , position = ( 0, 20 )
-        , movePosition = ( 0, 0 )
-        , fullscreen = False
+        , movePosition = Position.zero
+        , isFullscreen = False
         , settings = settings
         , showZoomControl = True
         , showMiniMap = False
@@ -179,7 +178,7 @@ update message =
                 >> Return.andThen clearPosition
 
         ToggleFullscreen ->
-            Return.andThen (\m -> Return.singleton { m | fullscreen = not m.fullscreen })
+            Return.andThen (\m -> Return.singleton { m | isFullscreen = not m.isFullscreen })
                 >> Return.andThen clearPosition
 
         EditSelectedItem text ->
@@ -569,9 +568,9 @@ view model =
 
         svgHeight : Int
         svgHeight =
-            if model.fullscreen then
+            if model.isFullscreen then
                 Basics.toFloat
-                    (Basics.max model.svg.height (Size.getHeight model.size))
+                    (Basics.max (Size.getHeight model.svg.size) (Size.getHeight model.size))
                     |> round
 
             else
@@ -581,9 +580,9 @@ view model =
 
         svgWidth : Int
         svgWidth =
-            if model.fullscreen then
+            if model.isFullscreen then
                 Basics.toFloat
-                    (Basics.max model.svg.width (Size.getWidth model.size))
+                    (Basics.max (Size.getWidth model.svg.size) (Size.getWidth model.size))
                     |> round
 
             else
@@ -665,7 +664,7 @@ view model =
           else
             Empty.view
         , if Property.getZoomControl model.property |> Maybe.withDefault (model.settings.zoomControl |> Maybe.withDefault model.showZoomControl) then
-            Lazy.lazy2 zoomControl model.fullscreen model.svg.scale
+            Lazy.lazy2 zoomControl model.isFullscreen model.svg.scale
 
           else
             Empty.view
@@ -1093,7 +1092,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
         [ Attr.id "usm"
         , SvgAttr.width
             (String.fromInt
-                (if Utils.isPhone (Size.getWidth model.size) || model.fullscreen then
+                (if Utils.isPhone (Size.getWidth model.size) || model.isFullscreen then
                     svgWidth
 
                  else if Size.getWidth model.size - 56 > 0 then
@@ -1105,7 +1104,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
             )
         , SvgAttr.height
             (String.fromInt <|
-                if model.fullscreen then
+                if model.isFullscreen then
                     svgHeight
 
                 else
@@ -1380,8 +1379,7 @@ updateDiagram size base text =
     { newModel
         | size = size
         , svg =
-            { width = svgWidth
-            , height = svgHeight
+            { size = ( svgWidth, svgHeight )
             , scale = base.svg.scale
             }
         , movePosition = Position.zero
@@ -1503,8 +1501,7 @@ zoomIn ratio model =
         Return.singleton
             { model
                 | svg =
-                    { width = model.svg.width
-                    , height = model.svg.height
+                    { size = ( Size.getWidth model.svg.size, Size.getHeight model.svg.size )
                     , scale = model.svg.scale + ratio
                     }
             }
@@ -1519,8 +1516,7 @@ zoomOut ratio model =
         Return.singleton
             { model
                 | svg =
-                    { width = model.svg.width
-                    , height = model.svg.height
+                    { size = ( Size.getWidth model.svg.size, Size.getHeight model.svg.size )
                     , scale = model.svg.scale - ratio
                     }
             }

@@ -457,9 +457,9 @@ update message =
                                         scale : Float
                                         scale =
                                             toFloat w
-                                                / toFloat model_.svg.width
+                                                / toFloat (Size.getWidth model_.svg.size)
                                     in
-                                    { model_ | size = ( w, h ), svg = { width = w, height = h, scale = scale } }
+                                    { model_ | size = ( w, h ), svg = { size = ( w, h ), scale = scale } }
 
                                 _ ->
                                     model_
@@ -482,7 +482,7 @@ update message =
                                 DiagramModel.ToggleFullscreen ->
                                     Return.andThen
                                         (\m_ ->
-                                            Return.singleton { m_ | window = windowState m_.window model_.fullscreen model_.size }
+                                            Return.singleton { m_ | window = windowState m_.window model_.isFullscreen model_.size }
                                                 |> Action.toggleFullscreen m_.window
                                         )
 

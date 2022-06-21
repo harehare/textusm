@@ -14,6 +14,7 @@ import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import Models.Property as Property exposing (Property)
+import Models.Size as Size
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
@@ -31,7 +32,7 @@ view model =
                 []
                 [ Lazy.lazy labelView
                     { settings = model.settings
-                    , width = model.svg.width
+                    , width = Size.getWidth model.svg.size
                     , userStoryMap = userStoryMap
                     , property = model.property
                     }

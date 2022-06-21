@@ -10,7 +10,6 @@ module Models.Diagram exposing
     , ResizeDirection(..)
     , SelectedItem
     , SelectedItemInfo
-    , SvgInfo
     , chooseZoom
     , dragStart
     , moveingItem
@@ -88,15 +87,21 @@ type DragStatus
     | DragOver
 
 
+type alias SvgSize =
+    { size : Size
+    , scale : Float
+    }
+
+
 type alias Model =
     { items : Items
     , data : DiagramData
     , size : Size
-    , svg : SvgInfo
+    , svg : SvgSize
     , moveState : MoveState
     , position : Position
     , movePosition : Position
-    , fullscreen : Bool
+    , isFullscreen : Bool
     , settings : DiagramSettings.Settings
     , showZoomControl : Bool
     , showMiniMap : Bool
@@ -177,13 +182,6 @@ type alias SelectedItemInfo =
     { item : Item
     , position : Position
     , displayAllMenu : Bool
-    }
-
-
-type alias SvgInfo =
-    { width : Int
-    , height : Int
-    , scale : Float
     }
 
 
@@ -352,11 +350,11 @@ updatedText model text =
     { model | text = text }
 
 
-ofSvg : Lens Model SvgInfo
+ofSvg : Lens Model SvgSize
 ofSvg =
     Lens .svg (\b a -> { a | svg = b })
 
 
-svgOfScale : Lens SvgInfo Float
+svgOfScale : Lens SvgSize Float
 svgOfScale =
     Lens .scale (\b a -> { a | scale = b })
