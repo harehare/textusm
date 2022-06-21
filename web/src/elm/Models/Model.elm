@@ -3,7 +3,6 @@ module Models.Model exposing
     , Menu(..)
     , Model
     , Msg(..)
-    , WindowState(..)
     , ofIsOnline
     )
 
@@ -132,13 +131,6 @@ type Msg
     | OpenedLocalFile ( String, String )
     | SaveLocalFile
     | SavedLocalFile String
-
-
-type WindowState
-    = Editor
-    | Preview
-    | Both
-    | Fullscreen
 
 
 ofIsOnline : Lens BrowserStatus Bool

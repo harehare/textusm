@@ -846,7 +846,7 @@ update message =
             Return.andThen <| \m -> Return.singleton { m | notification = notification }
 
         SwitchWindow w ->
-            Return.andThen <| \m -> Return.singleton { m | window = w }
+            Return.andThen <| \m -> Return.singleton { m | window = Window.toggle w }
 
         Shortcuts x ->
             case x of

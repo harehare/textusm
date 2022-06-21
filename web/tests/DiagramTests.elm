@@ -534,7 +534,7 @@ toggleFullscreenText =
                             |> update ToggleFullscreen
                             |> Tuple.first
                 in
-                Expect.equal newModel { defInit | fullscreen = True }
+                Expect.equal newModel { defInit | isFullscreen = True }
         , test "Exit fullscreen" <|
             \() ->
                 let
@@ -547,7 +547,7 @@ toggleFullscreenText =
                             |> update ToggleFullscreen
                             |> Tuple.first
                 in
-                Expect.equal newModel { defInit | fullscreen = False }
+                Expect.equal newModel { defInit | isFullscreen = False }
         ]
 
 

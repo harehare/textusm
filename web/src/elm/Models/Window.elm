@@ -1,5 +1,6 @@
 module Models.Window exposing
-    ( Window
+    ( State
+    , Window
     , fullscreen
     , init
     , isDisplayBoth
@@ -7,7 +8,6 @@ module Models.Window exposing
     , isDisplayPreview
     , isFullscreen
     , isResizing
-    , position
     , resized
     , resizing
     , showEditor
@@ -15,12 +15,6 @@ module Models.Window exposing
     , startResizing
     , toggle
     )
-
-
-type alias Window =
-    { position : Int
-    , state : State
-    }
 
 
 type State
@@ -31,47 +25,10 @@ type State
     | Resize Int
 
 
-init : Int -> Window
-init p =
-    { position = p, state = Both }
-
-
-startResizing : Window -> Int -> Window
-startResizing w pos =
-    { w | state = Resize pos }
-
-
-resizing : Window -> Int -> Window
-resizing window pos =
-    case window.state of
-        Resize prevPos ->
-            { window | position = window.position + pos - prevPos, state = Resize pos }
-
-        _ ->
-            window
-
-
-resized : Window -> Window
-resized window =
-    { window | state = Both }
-
-
-toggle : Window -> Window
-toggle window =
-    case window.state of
-        Preview ->
-            { window | state = Editor }
-
-        Editor ->
-            { window | state = Preview }
-
-        _ ->
-            window
-
-
-showEditor : Window -> Window
-showEditor window =
-    { window | state = Editor }
+type alias Window =
+    { position : Int
+    , state : State
+    }
 
 
 fullscreen : Window -> Window
@@ -79,15 +36,15 @@ fullscreen window =
     { window | state = Fullscreen }
 
 
-showEditorAndPreview : Window -> Window
-showEditorAndPreview window =
-    { window | state = Both }
+init : Int -> Window
+init p =
+    { position = p, state = Both }
 
 
-isFullscreen : Window -> Bool
-isFullscreen window =
+isDisplayBoth : Window -> Bool
+isDisplayBoth window =
     case window.state of
-        Fullscreen ->
+        Both ->
             True
 
         _ ->
@@ -114,10 +71,10 @@ isDisplayPreview window =
             False
 
 
-isDisplayBoth : Window -> Bool
-isDisplayBoth window =
+isFullscreen : Window -> Bool
+isFullscreen window =
     case window.state of
-        Both ->
+        Fullscreen ->
             True
 
         _ ->
@@ -134,6 +91,44 @@ isResizing window =
             False
 
 
-position : Window -> Int
-position window =
-    window.position
+resized : Window -> Window
+resized window =
+    { window | state = Both }
+
+
+resizing : Window -> Int -> Window
+resizing window pos =
+    case window.state of
+        Resize prevPos ->
+            { window | position = window.position + pos - prevPos, state = Resize pos }
+
+        _ ->
+            window
+
+
+showEditor : Window -> Window
+showEditor window =
+    { window | state = Editor }
+
+
+showEditorAndPreview : Window -> Window
+showEditorAndPreview window =
+    { window | state = Both }
+
+
+startResizing : Window -> Int -> Window
+startResizing w pos =
+    { w | state = Resize pos }
+
+
+toggle : Window -> Window
+toggle window =
+    case window.state of
+        Editor ->
+            { window | state = Preview }
+
+        Preview ->
+            { window | state = Editor }
+
+        _ ->
+            window

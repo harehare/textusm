@@ -87,12 +87,6 @@ type DragStatus
     | DragOver
 
 
-type alias SvgSize =
-    { size : Size
-    , scale : Float
-    }
-
-
 type alias Model =
     { items : Items
     , data : DiagramData
@@ -358,3 +352,9 @@ ofSvg =
 svgOfScale : Lens SvgSize Float
 svgOfScale =
     Lens .scale (\b a -> { a | scale = b })
+
+
+type alias SvgSize =
+    { size : Size
+    , scale : Float
+    }

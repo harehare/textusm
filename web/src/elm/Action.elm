@@ -64,7 +64,7 @@ import Models.DiagramSettings as DiagramSettings
 import Models.DiagramType as DiagramType
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.LoginProvider as LoginProvider
-import Models.Model exposing (Model, Msg(..), WindowState(..))
+import Models.Model exposing (Model, Msg(..))
 import Models.Notification as Notification
 import Models.Page exposing (Page)
 import Models.Session as Session
