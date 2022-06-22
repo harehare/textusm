@@ -39,7 +39,6 @@ import Css
         )
 import Env
 import Events
-import Graphql.Enum.Diagram exposing (Diagram)
 import Html.Styled exposing (Html, div, input, text, textarea)
 import Html.Styled.Attributes as Attr exposing (css, id, maxlength, placeholder, readonly, type_, value)
 import Html.Styled.Events exposing (onClick, onFocus, onInput)
@@ -48,7 +47,7 @@ import Maybe.Extra as MaybeEx
 import Message exposing (Message)
 import Models.Color as Color
 import Models.DiagramId as DiagramId exposing (DiagramId)
-import Models.DiagramType as DiagramType
+import Models.DiagramType as DiagramType exposing(DiagramType)
 import Models.Duration as Duration exposing (Duration)
 import Models.Email as Email exposing (Email)
 import Models.IpAddress as IpAddress exposing (IpAddress)
@@ -83,7 +82,7 @@ type alias InputCondition =
 
 type alias Model =
     { embedSize : Size
-    , diagramType : Diagram
+    , diagramType : DiagramType
     , token : RemoteData Message String
     , title : Title
     , diagramId : DiagramId
@@ -133,7 +132,7 @@ type CopyState
 port selectTextById : String -> Cmd msg
 
 
-sharUrl : RemoteData Message String -> Diagram -> String
+sharUrl : RemoteData Message String -> DiagramType -> String
 sharUrl token diagramType =
     case token of
         Success t ->
@@ -151,7 +150,7 @@ sharUrl token diagramType =
             "Loading..."
 
 
-embedUrl : { token : RemoteData Message String, diagramType : Diagram, title : Title, embedSize : Size } -> String
+embedUrl : { token : RemoteData Message String, diagramType : DiagramType, title : Title, embedSize : Size } -> String
 embedUrl { token, diagramType, title, embedSize } =
     case token of
         Success t ->
@@ -214,7 +213,7 @@ shareCondition diagramId session =
 
 
 init :
-    { diagram : Diagram
+    { diagram : DiagramType
     , diagramId : DiagramId
     , session : Session
     , title : Title

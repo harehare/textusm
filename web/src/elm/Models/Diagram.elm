@@ -10,6 +10,7 @@ module Models.Diagram exposing
     , ResizeDirection(..)
     , SelectedItem
     , SelectedItemInfo
+    , SvgSize
     , chooseZoom
     , dragStart
     , moveingItem
@@ -27,7 +28,6 @@ module Models.Diagram exposing
 import Browser.Dom exposing (Viewport)
 import Events
 import File exposing (File)
-import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html.Events.Extra.Wheel as Wheel
 import List.Extra exposing (getAt)
 import Models.Color as Color
@@ -52,6 +52,7 @@ import Models.Diagram.UserPersona as UserPersonaModel
 import Models.Diagram.UserStoryMap as UserStoryMapModel
 import Models.DiagramData as DiagramData exposing (DiagramData)
 import Models.DiagramSettings as DiagramSettings
+import Models.DiagramType exposing (DiagramType(..))
 import Models.FontSize exposing (FontSize)
 import Models.FontStyle exposing (FontStyle)
 import Models.Item exposing (Item, Items)
@@ -101,7 +102,7 @@ type alias Model =
     , showMiniMap : Bool
     , search : Search
     , touchDistance : Maybe Float
-    , diagramType : Diagram
+    , diagramType : DiagramType
     , text : Text
     , selectedItem : SelectedItem
     , contextMenu : Maybe ContextMenuProps
@@ -179,6 +180,12 @@ type alias SelectedItemInfo =
     }
 
 
+type alias SvgSize =
+    { size : Size
+    , scale : Float
+    }
+
+
 chooseZoom : Float -> Wheel.Event -> Msg
 chooseZoom ratio wheelEvent =
     if wheelEvent.deltaY > 0 then
@@ -243,7 +250,7 @@ moveingItem model =
             Nothing
 
 
-ofDiagramType : Lens Model Diagram
+ofDiagramType : Lens Model DiagramType
 ofDiagramType =
     Lens .diagramType (\b a -> { a | diagramType = b })
 
@@ -352,9 +359,3 @@ ofSvg =
 svgOfScale : Lens SvgSize Float
 svgOfScale =
     Lens .scale (\b a -> { a | scale = b })
-
-
-type alias SvgSize =
-    { size : Size
-    , scale : Float
-    }

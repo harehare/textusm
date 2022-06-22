@@ -10,6 +10,7 @@ module Models.DiagramItem exposing
     , listToValue
     , localFile
     , mapToDateTime
+    , new
     , ofText
     , ofTitle
     , stringToList
@@ -17,7 +18,6 @@ module Models.DiagramItem exposing
     , toInputItem
     )
 
-import Graphql.Enum.Diagram
 import Graphql.InputObject exposing (InputGistItem, InputItem)
 import Graphql.OptionalArgument as OptionalArgument
 import Graphql.Scalar
@@ -29,7 +29,7 @@ import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import Models.DiagramId as DiagramId exposing (DiagramId)
 import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
-import Models.DiagramType as DiagramType
+import Models.DiagramType as DiagramType exposing (DiagramType)
 import Models.Session as Session exposing (Session)
 import Models.Text as Text exposing (Text)
 import Models.Title as Title exposing (Title)
@@ -40,7 +40,7 @@ import Time exposing (Posix)
 type alias DiagramItem =
     { id : Maybe DiagramId
     , text : Text
-    , diagram : Graphql.Enum.Diagram.Diagram
+    , diagram : DiagramType
     , title : Title
     , thumbnail : Maybe String
     , isPublic : Bool
@@ -88,7 +88,7 @@ empty : DiagramItem
 empty =
     { id = Nothing
     , text = Text.empty
-    , diagram = Graphql.Enum.Diagram.UserStoryMap
+    , diagram = DiagramType.UserStoryMap
     , title = Title.untitled
     , thumbnail = Nothing
     , isPublic = False
@@ -182,6 +182,22 @@ mapToDateTime =
         )
 
 
+new : DiagramType -> DiagramItem
+new diagramType =
+    { id = Nothing
+    , text = Text.fromString <| DiagramType.defaultText diagramType
+    , diagram = diagramType
+    , title = Title.untitled
+    , thumbnail = Nothing
+    , isPublic = False
+    , isBookmark = False
+    , isRemote = False
+    , location = Just DiagramLocation.Local
+    , createdAt = Time.millisToPosix 0
+    , updatedAt = Time.millisToPosix 0
+    }
+
+
 ofText : Lens DiagramItem Text
 ofText =
     Lens .text (\b a -> { a | text = b })
@@ -214,7 +230,7 @@ toInputGistItem item =
 
             Nothing ->
                 OptionalArgument.Absent
-    , diagram = item.diagram
+    , diagram = DiagramType.toGraphqlValue item.diagram
     , isBookmark = item.isBookmark
     , url = ""
     }
@@ -238,7 +254,7 @@ toInputItem item =
 
             Nothing ->
                 OptionalArgument.Absent
-    , diagram = item.diagram
+    , diagram = DiagramType.toGraphqlValue item.diagram
     , isPublic = item.isPublic
     , isBookmark = item.isBookmark
     }

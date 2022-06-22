@@ -53,7 +53,6 @@ import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
 import Dialog.Share as Share
-import Graphql.Enum.Diagram exposing (Diagram)
 import Graphql.OptionalArgument as OptionalArgument
 import Message exposing (Message)
 import Models.Diagram as DiagramModel
@@ -61,7 +60,7 @@ import Models.DiagramId as DiagramId exposing (DiagramId)
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
 import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType as DiagramType
+import Models.DiagramType as DiagramType exposing (DiagramType)
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.LoginProvider as LoginProvider
 import Models.Model exposing (Model, Msg(..))
@@ -565,7 +564,7 @@ closeFullscreen =
     Return.command <| Ports.closeFullscreen ()
 
 
-loadRemoteSettings : Diagram -> Model -> Return Msg Model
+loadRemoteSettings : DiagramType -> Model -> Return Msg Model
 loadRemoteSettings diagram model =
     Return.return model
         (Task.attempt LoadSettings <|
@@ -580,7 +579,7 @@ openFullscreen =
     Return.command <| Ports.openFullscreen ()
 
 
-saveSettingsToRemote : Diagram -> DiagramSettings.Settings -> Model -> Return Msg Model
+saveSettingsToRemote : DiagramType -> DiagramSettings.Settings -> Model -> Return Msg Model
 saveSettingsToRemote diagram settings model =
     Return.return model
         (Task.attempt SaveSettings <|

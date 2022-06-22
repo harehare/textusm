@@ -24,7 +24,6 @@ import Api.Graphql.Query as Query
 import Api.RequestError as RequestError exposing (RequestError, toError)
 import Dict
 import Env
-import Graphql.Enum.Diagram exposing (Diagram)
 import Graphql.Http as Http
 import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
@@ -32,6 +31,7 @@ import Graphql.Scalar
 import Models.DiagramId as DiagramId
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramSettings as DiagramSettings
+import Models.DiagramType exposing (DiagramType)
 import Models.Duration as Duration exposing (Duration)
 import Models.Email as Email exposing (Email)
 import Models.IdToken as IdToken exposing (IdToken)
@@ -196,7 +196,7 @@ saveGist idToken accessToken input content =
                 |> Task.andThen saveTask
 
 
-saveSettings : Maybe IdToken -> Diagram -> InputSettings -> Task RequestError DiagramSettings.Settings
+saveSettings : Maybe IdToken -> DiagramType -> InputSettings -> Task RequestError DiagramSettings.Settings
 saveSettings idToken diagram input =
     Mutation.saveSettings diagram input
         |> Http.mutationRequest graphQLUrl
@@ -205,7 +205,7 @@ saveSettings idToken diagram input =
         |> Task.mapError toError
 
 
-settings : Maybe IdToken -> Diagram -> Task RequestError DiagramSettings.Settings
+settings : Maybe IdToken -> DiagramType -> Task RequestError DiagramSettings.Settings
 settings idToken diagram =
     Query.settings diagram
         |> Http.queryRequest graphQLUrl

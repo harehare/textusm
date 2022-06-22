@@ -1,9 +1,8 @@
 module Route exposing (Route(..), Title, isViewFile, moveTo, replaceRoute, toRoute, toString)
 
 import Browser.Navigation as Nav
-import Graphql.Enum.Diagram exposing (Diagram)
 import Models.DiagramId as DiagramId exposing (DiagramId)
-import Models.DiagramType as DiagramType
+import Models.DiagramType as DiagramType exposing (DiagramType)
 import Models.ShareToken as ShareToken exposing (ShareToken)
 import Url exposing (Url)
 import Url.Builder as Builder exposing (absolute)
@@ -14,16 +13,16 @@ import Url.Parser.Query as Query
 type Route
     = Home
     | New
-    | Edit Diagram
-    | EditFile Diagram DiagramId
-    | EditLocalFile Diagram DiagramId
-    | ViewPublic Diagram DiagramId
+    | Edit DiagramType
+    | EditFile DiagramType DiagramId
+    | EditLocalFile DiagramType DiagramId
+    | ViewPublic DiagramType DiagramId
     | DiagramList
     | Settings
     | Help
     | Share
-    | Embed Diagram Title ShareToken (Maybe Int) (Maybe Int)
-    | ViewFile Diagram ShareToken
+    | Embed DiagramType Title ShareToken (Maybe Int) (Maybe Int)
+    | ViewFile DiagramType ShareToken
     | NotFound
 
 
@@ -113,7 +112,7 @@ diagramId =
                 Nothing
 
 
-diagramType : Parser (Diagram -> a) a
+diagramType : Parser (DiagramType -> a) a
 diagramType =
     custom "DIAGRAM_TYPE" <|
         \segment ->

@@ -38,7 +38,6 @@ import Css
 import Css.Global as Global exposing (global)
 import Events
 import File
-import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html.Events.Extra.Touch as Touch
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes as Attr exposing (css)
@@ -68,6 +67,7 @@ import Models.Diagram.UserPersona as UserPersonaModel
 import Models.Diagram.UserStoryMap as UserStoryMapModel
 import Models.DiagramData as DiagramData
 import Models.DiagramSettings as DiagramSettings
+import Models.DiagramType exposing (DiagramType(..))
 import Models.FontStyle as FontStyle
 import Models.Item as Item exposing (Item, Items)
 import Models.ItemSettings as ItemSettings
@@ -715,7 +715,7 @@ closeDropDown model =
     Return.singleton { model | dropDownIndex = Nothing }
 
 
-diagramView : Diagram -> Model -> Svg Msg
+diagramView : DiagramType -> Model -> Svg Msg
 diagramView diagramType =
     case diagramType of
         UserStoryMap ->

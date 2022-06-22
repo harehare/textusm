@@ -3,7 +3,6 @@ module Extension.Lib exposing (InitData, Model, Msg, main)
 import Browser
 import Browser.Events exposing (onMouseUp, onResize)
 import Components.Diagram as Diagram
-import Graphql.Enum.Diagram as Diagram
 import Html.Styled as Html exposing (Html, div)
 import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
@@ -12,6 +11,7 @@ import Models.Diagram as DiagramModel
 import Models.Diagram.Search as Search
 import Models.DiagramData as DiagramData
 import Models.DiagramSettings as DiagramSettings
+import Models.DiagramType exposing (DiagramType(..))
 import Models.Item as Item
 import Models.Property as Property
 import Models.Text as Text
@@ -74,58 +74,58 @@ init flags =
             , contextMenu = Nothing
             , diagramType =
                 if flags.diagramType == "BusinessModelCanvas" then
-                    Diagram.BusinessModelCanvas
+                    BusinessModelCanvas
 
                 else if flags.diagramType == "OpportunityCanvas" then
-                    Diagram.OpportunityCanvas
+                    OpportunityCanvas
 
                 else if flags.diagramType == "4Ls" then
-                    Diagram.Fourls
+                    Fourls
 
                 else if flags.diagramType == "StartStopContinue" then
-                    Diagram.StartStopContinue
+                    StartStopContinue
 
                 else if flags.diagramType == "Kpt" then
-                    Diagram.Kpt
+                    Kpt
 
                 else if flags.diagramType == "UserPersona" then
-                    Diagram.UserPersona
+                    UserPersona
 
                 else if flags.diagramType == "MindMap" then
-                    Diagram.MindMap
+                    MindMap
 
                 else if flags.diagramType == "EmpathyMap" then
-                    Diagram.EmpathyMap
+                    EmpathyMap
 
                 else if flags.diagramType == "Table" then
-                    Diagram.Table
+                    Table
 
                 else if flags.diagramType == "SiteMap" then
-                    Diagram.SiteMap
+                    SiteMap
 
                 else if flags.diagramType == "GanttChart" then
-                    Diagram.GanttChart
+                    GanttChart
 
                 else if flags.diagramType == "ImpactMap" then
-                    Diagram.ImpactMap
+                    ImpactMap
 
                 else if flags.diagramType == "ER" then
-                    Diagram.ErDiagram
+                    ErDiagram
 
                 else if flags.diagramType == "Kanban" then
-                    Diagram.Kanban
+                    Kanban
 
                 else if flags.diagramType == "SequenceDiagram" then
-                    Diagram.SequenceDiagram
+                    SequenceDiagram
 
                 else if flags.diagramType == "Freeform" then
-                    Diagram.Freeform
+                    Freeform
 
                 else if flags.diagramType == "UseCaseDiagram" then
-                    Diagram.UseCaseDiagram
+                    UseCaseDiagram
 
                 else
-                    Diagram.UserStoryMap
+                    UserStoryMap
             , text = Text.empty
             , selectedItem = Nothing
             , settings = flags.settings

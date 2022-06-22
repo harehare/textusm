@@ -20,9 +20,9 @@ import Css
         , solid
         , transparent
         )
-import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html.Styled exposing (Html, a, div, img, text)
 import Html.Styled.Attributes exposing (attribute, class, css, href)
+import Models.DiagramType exposing (DiagramType(..))
 import Route
 import Style.Breakpoint as Breakpoint
 import Style.Color as Color

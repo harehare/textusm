@@ -3,11 +3,10 @@ module DiagramTests exposing (businessModelCanvasRenderTest, changeTextTest, emp
 import Browser.Dom exposing (Viewport)
 import Components.Diagram exposing (init, update, view)
 import Expect
-import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html.Styled
 import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType as DiagramType
+import Models.DiagramType as DiagramType exposing (DiagramType(..))
 import Models.Item as Item exposing (ItemType(..))
 import Models.Position as Position
 import Return

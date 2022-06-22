@@ -9,7 +9,6 @@ module Api.Graphql.Mutation exposing
     )
 
 import Api.Graphql.Selection as Selection
-import Graphql.Enum.Diagram exposing (Diagram)
 import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings, InputShareItem)
 import Graphql.Mutation as Mutation
 import Graphql.Operation exposing (RootMutation)
@@ -18,6 +17,7 @@ import Graphql.Scalar
 import Graphql.SelectionSet exposing (SelectionSet)
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramSettings as DiagramSettings
+import Models.DiagramType as DiagramType exposing (DiagramType)
 
 
 bookmark : String -> Bool -> SelectionSet (Maybe DiagramItem) RootMutation
@@ -48,9 +48,9 @@ saveGist input =
         Selection.gistItemSelection
 
 
-saveSettings : Diagram -> InputSettings -> SelectionSet DiagramSettings.Settings RootMutation
+saveSettings : DiagramType -> InputSettings -> SelectionSet DiagramSettings.Settings RootMutation
 saveSettings diagram input =
-    Mutation.saveSettings { diagram = diagram, input = input } <|
+    Mutation.saveSettings { diagram = DiagramType.toGraphqlValue diagram, input = input } <|
         Selection.settingsSelection
 
 

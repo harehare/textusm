@@ -1,9 +1,8 @@
 module Models.SettingsCache exposing (SettingsCache, get, new, set)
 
 import Dict exposing (Dict)
-import Graphql.Enum.Diagram exposing (Diagram(..))
 import Models.DiagramSettings exposing (Settings)
-import Models.DiagramType as DiagramType
+import Models.DiagramType as DiagramType exposing (DiagramType)
 
 
 type SettingsCache
@@ -15,11 +14,11 @@ new =
     SettingsCache <| Dict.empty
 
 
-get : SettingsCache -> Diagram -> Maybe Settings
+get : SettingsCache -> DiagramType -> Maybe Settings
 get (SettingsCache cache) diagram =
     Dict.get (DiagramType.toString diagram) cache
 
 
-set : SettingsCache -> Diagram -> Settings -> SettingsCache
+set : SettingsCache -> DiagramType -> Settings -> SettingsCache
 set (SettingsCache cache) diagram settings =
     SettingsCache <| Dict.update (DiagramType.toString diagram) (\_ -> Just settings) cache

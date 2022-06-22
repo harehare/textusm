@@ -1,13 +1,12 @@
 port module Models.Exporter exposing (Export(..), ExportInfo, copy, copyBase64, copyable, download, downloadable, export)
 
 import File.Download as Download
-import Graphql.Enum.Diagram exposing (Diagram)
 import Models.Diagram.ER as ER
 import Models.Diagram.GanttChart as GanttChart
 import Models.Diagram.SequenceDiagram as SequenceDiagram
 import Models.Diagram.Table as Table
 import Models.DiagramData as DiagramData exposing (DiagramData(..))
-import Models.DiagramType as DiagramType
+import Models.DiagramType as DiagramType exposing (DiagramType)
 import Models.FileType as FileType exposing (FileType)
 import Models.Item exposing (Items)
 import Models.Size as Size exposing (Size)
@@ -88,7 +87,7 @@ export :
         { title : Title
         , text : Text
         , size : Size
-        , diagramType : Diagram
+        , diagramType : DiagramType
         , items : Items
         , data : DiagramData
         }

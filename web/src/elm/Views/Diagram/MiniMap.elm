@@ -27,11 +27,11 @@ import Css
 import Css.Global exposing (children, class, each, typeSelector)
 import Css.Transitions as Transitions
 import Events
-import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color
 import Models.Diagram as DiagramModel exposing (Msg)
+import Models.DiagramType exposing (DiagramType(..))
 import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
 import Style.Style as Style
@@ -41,7 +41,7 @@ import Svg.Styled.Attributes as SvgAttr
 
 view :
     { showMiniMap : Bool
-    , diagramType : Diagram
+    , diagramType : DiagramType
     , scale : Float
     , position : Position
     , svgSize : Size

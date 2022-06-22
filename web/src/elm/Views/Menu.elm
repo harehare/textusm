@@ -47,7 +47,6 @@ import Css
 import Css.Global exposing (class, descendants)
 import Css.Transitions as Transitions
 import Events
-import Graphql.Enum.Diagram exposing (Diagram(..))
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events as Events
@@ -57,6 +56,7 @@ import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color
 import Models.DiagramLocation as DiagramLocation
+import Models.DiagramType exposing (DiagramType(..))
 import Models.Exporter as Exporter
 import Models.FileType as FileType
 import Models.Model exposing (Menu(..), Msg(..))

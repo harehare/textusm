@@ -18,6 +18,7 @@ import Models.DiagramId as DiagramId
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
 import Models.DiagramSettings as DiagramSettings
+import Models.DiagramType as DiagramType
 import Models.Text as Text
 import Models.Title as Title
 
@@ -35,7 +36,7 @@ gistItemSelection =
     SelectionSet.succeed DiagramItem
         |> with (Graphql.Object.GistItem.id |> SelectionSet.map (\(Graphql.Scalar.Id id) -> Just <| DiagramId.fromString id))
         |> hardcoded Text.empty
-        |> with Graphql.Object.GistItem.diagram
+        |> with (Graphql.Object.GistItem.diagram |> SelectionSet.map DiagramType.fromGraphqlValue)
         |> with (Graphql.Object.GistItem.title |> SelectionSet.map Title.fromString)
         |> with Graphql.Object.GistItem.thumbnail
         |> hardcoded False
@@ -51,7 +52,7 @@ itemSelection =
     SelectionSet.succeed DiagramItem
         |> with (Graphql.Object.Item.id |> SelectionSet.map (\(Graphql.Scalar.Id id) -> Just <| DiagramId.fromString id))
         |> hardcoded Text.empty
-        |> with Graphql.Object.Item.diagram
+        |> with (Graphql.Object.Item.diagram |> SelectionSet.map DiagramType.fromGraphqlValue)
         |> with (Graphql.Object.Item.title |> SelectionSet.map Title.fromString)
         |> with Graphql.Object.Item.thumbnail
         |> with Graphql.Object.Item.isPublic

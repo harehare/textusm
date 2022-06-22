@@ -20,7 +20,6 @@ import Dialog.Input as InputDialog
 import Dialog.Share as Share
 import Env
 import File.Download as Download
-import Graphql.Enum.Diagram as Diagram
 import Html.Styled as Html exposing (Html, div, img, main_, text)
 import Html.Styled.Attributes exposing (alt, attribute, css, id)
 import Html.Styled.Events as E
@@ -32,7 +31,7 @@ import Models.DiagramId as DiagramId
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType as DiagramType
+import Models.DiagramType exposing (DiagramType(..))
 import Models.Dialog as Dialog
 import Models.Exporter as Exporter
 import Models.IdToken as IdToken
@@ -137,18 +136,7 @@ changeRouteTo route =
             let
                 diagram : DiagramItem
                 diagram =
-                    { id = Nothing
-                    , text = Text.fromString <| DiagramType.defaultText diagramType
-                    , diagram = diagramType
-                    , title = Title.untitled
-                    , thumbnail = Nothing
-                    , isPublic = False
-                    , isBookmark = False
-                    , isRemote = False
-                    , location = Just DiagramLocation.Local
-                    , createdAt = Time.millisToPosix 0
-                    , updatedAt = Time.millisToPosix 0
-                    }
+                    DiagramItem.new diagramType
             in
             Return.andThen (Action.setCurrentDiagram diagram)
                 >> Return.andThen Action.startProgress
@@ -354,7 +342,7 @@ init flags url key =
 
         ( shareModel, _ ) =
             Share.init
-                { diagram = Diagram.UserStoryMap
+                { diagram = UserStoryMap
                 , diagramId = DiagramId.fromString ""
                 , session = Session.guest
                 , title = Title.untitled

@@ -11,7 +11,6 @@ module Api.Graphql.Query exposing
     )
 
 import Api.Graphql.Selection as Selection
-import Graphql.Enum.Diagram exposing (Diagram)
 import Graphql.Object.GistItem
 import Graphql.Object.Item
 import Graphql.Object.ShareCondition
@@ -24,6 +23,7 @@ import Models.DiagramId as DiagramId
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
 import Models.DiagramSettings as DiagramSettings
+import Models.DiagramType as DiagramType exposing (DiagramType)
 import Models.Email as Email exposing (Email)
 import Models.IpAddress as IpAddress exposing (IpAddress)
 import Models.Text as Text
@@ -50,7 +50,7 @@ gistItem id =
         (SelectionSet.succeed DiagramItem
             |> with (Graphql.Object.GistItem.id |> SelectionSet.map (\(Graphql.Scalar.Id id_) -> Just <| DiagramId.fromString id_))
             |> hardcoded Text.empty
-            |> with Graphql.Object.GistItem.diagram
+            |> with (Graphql.Object.GistItem.diagram |> SelectionSet.map DiagramType.fromGraphqlValue)
             |> with (Graphql.Object.GistItem.title |> SelectionSet.map (\value -> Title.fromString value))
             |> hardcoded Nothing
             |> hardcoded False
@@ -74,7 +74,7 @@ item id isPublic =
         (SelectionSet.succeed DiagramItem
             |> with (Graphql.Object.Item.id |> SelectionSet.map (\(Graphql.Scalar.Id id_) -> Just <| DiagramId.fromString id_))
             |> with (Graphql.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
-            |> with Graphql.Object.Item.diagram
+            |> with (Graphql.Object.Item.diagram |> SelectionSet.map DiagramType.fromGraphqlValue)
             |> with (Graphql.Object.Item.title |> SelectionSet.map (\value -> Title.fromString value))
             |> hardcoded Nothing
             |> with Graphql.Object.Item.isPublic
@@ -92,9 +92,9 @@ items ( offset, limit ) params =
         Selection.itemSelection
 
 
-settings : Diagram -> SelectionSet DiagramSettings.Settings RootQuery
+settings : DiagramType -> SelectionSet DiagramSettings.Settings RootQuery
 settings diagram =
-    Query.settings { diagram = diagram } <|
+    Query.settings { diagram = DiagramType.toGraphqlValue diagram } <|
         Selection.settingsSelection
 
 
@@ -142,7 +142,7 @@ shareItem token password =
         (SelectionSet.succeed DiagramItem
             |> with (Graphql.Object.Item.id |> SelectionSet.map (\(Graphql.Scalar.Id id_) -> Just <| DiagramId.fromString id_))
             |> with (Graphql.Object.Item.text |> SelectionSet.map (\value -> Text.fromString value))
-            |> with Graphql.Object.Item.diagram
+            |> with (Graphql.Object.Item.diagram |> SelectionSet.map DiagramType.fromGraphqlValue)
             |> with (Graphql.Object.Item.title |> SelectionSet.map (\value -> Title.fromString value))
             |> hardcoded Nothing
             |> with Graphql.Object.Item.isPublic

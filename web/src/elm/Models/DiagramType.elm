@@ -1,9 +1,39 @@
-module Models.DiagramType exposing (defaultText, fromString, toDiagram, toLongString, toString)
+module Models.DiagramType exposing
+    ( DiagramType(..)
+    , defaultText
+    , fromGraphqlValue
+    , fromString
+    , toDiagram
+    , toGraphqlValue
+    , toLongString
+    , toString
+    )
 
-import Graphql.Enum.Diagram exposing (Diagram(..))
+import Graphql.Enum.Diagram as Diagram exposing (Diagram)
 
 
-defaultText : Diagram -> String
+type DiagramType
+    = UserStoryMap
+    | OpportunityCanvas
+    | BusinessModelCanvas
+    | Fourls
+    | StartStopContinue
+    | Kpt
+    | UserPersona
+    | MindMap
+    | EmpathyMap
+    | SiteMap
+    | GanttChart
+    | ImpactMap
+    | ErDiagram
+    | Kanban
+    | Table
+    | SequenceDiagram
+    | Freeform
+    | UseCaseDiagram
+
+
+defaultText : DiagramType -> String
 defaultText diagram =
     case diagram of
         UserStoryMap ->
@@ -52,7 +82,65 @@ defaultText diagram =
             ""
 
 
-fromString : String -> Diagram
+fromGraphqlValue : Diagram -> DiagramType
+fromGraphqlValue diagram =
+    case diagram of
+        Diagram.UserStoryMap ->
+            UserStoryMap
+
+        Diagram.OpportunityCanvas ->
+            OpportunityCanvas
+
+        Diagram.BusinessModelCanvas ->
+            BusinessModelCanvas
+
+        Diagram.Fourls ->
+            Fourls
+
+        Diagram.StartStopContinue ->
+            StartStopContinue
+
+        Diagram.Kpt ->
+            Kpt
+
+        Diagram.UserPersona ->
+            UserPersona
+
+        Diagram.MindMap ->
+            MindMap
+
+        Diagram.EmpathyMap ->
+            EmpathyMap
+
+        Diagram.SiteMap ->
+            SiteMap
+
+        Diagram.GanttChart ->
+            GanttChart
+
+        Diagram.ImpactMap ->
+            ImpactMap
+
+        Diagram.ErDiagram ->
+            ErDiagram
+
+        Diagram.Kanban ->
+            Kanban
+
+        Diagram.Table ->
+            Table
+
+        Diagram.SequenceDiagram ->
+            SequenceDiagram
+
+        Diagram.Freeform ->
+            Freeform
+
+        Diagram.UseCaseDiagram ->
+            UseCaseDiagram
+
+
+fromString : String -> DiagramType
 fromString s =
     case s of
         "4ls" ->
@@ -113,7 +201,7 @@ fromString s =
             UserStoryMap
 
 
-toDiagram : String -> Maybe Diagram
+toDiagram : String -> Maybe DiagramType
 toDiagram s =
     case s of
         "4ls" ->
@@ -174,7 +262,65 @@ toDiagram s =
             Nothing
 
 
-toLongString : Diagram -> String
+toGraphqlValue : DiagramType -> Diagram
+toGraphqlValue diagramType =
+    case diagramType of
+        UserStoryMap ->
+            Diagram.UserStoryMap
+
+        OpportunityCanvas ->
+            Diagram.OpportunityCanvas
+
+        BusinessModelCanvas ->
+            Diagram.BusinessModelCanvas
+
+        Fourls ->
+            Diagram.Fourls
+
+        StartStopContinue ->
+            Diagram.StartStopContinue
+
+        Kpt ->
+            Diagram.Kpt
+
+        UserPersona ->
+            Diagram.UserPersona
+
+        MindMap ->
+            Diagram.MindMap
+
+        EmpathyMap ->
+            Diagram.EmpathyMap
+
+        SiteMap ->
+            Diagram.SiteMap
+
+        GanttChart ->
+            Diagram.GanttChart
+
+        ImpactMap ->
+            Diagram.ImpactMap
+
+        ErDiagram ->
+            Diagram.ErDiagram
+
+        Kanban ->
+            Diagram.Kanban
+
+        Table ->
+            Diagram.Table
+
+        SequenceDiagram ->
+            Diagram.SequenceDiagram
+
+        Freeform ->
+            Diagram.Freeform
+
+        UseCaseDiagram ->
+            Diagram.UseCaseDiagram
+
+
+toLongString : DiagramType -> String
 toLongString diagramType =
     case diagramType of
         UserStoryMap ->
@@ -232,7 +378,7 @@ toLongString diagramType =
             "UseCaseDiagram"
 
 
-toString : Diagram -> String
+toString : DiagramType -> String
 toString diagramType =
     case diagramType of
         UserStoryMap ->

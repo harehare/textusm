@@ -1,11 +1,11 @@
 module Models.Fuzzer exposing (colorFuzzer, diagramItemFuzzer, diagramTypeFuzzer, itemFuzzer, itemSettingsFuzzer)
 
 import Fuzz exposing (Fuzzer)
-import Graphql.Enum.Diagram exposing (Diagram(..))
 import Models.Color as Color exposing (Color)
 import Models.DiagramId as DiagramId exposing (DiagramId)
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
+import Models.DiagramType exposing (DiagramType(..))
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Children, Item, ItemType(..))
 import Models.ItemSettings as ItemSettings exposing (ItemSettings)
@@ -57,7 +57,7 @@ diagramItemFuzzer =
         |> Fuzz.andMap posixFuzzer
 
 
-diagramTypeFuzzer : Fuzzer Diagram
+diagramTypeFuzzer : Fuzzer DiagramType
 diagramTypeFuzzer =
     Fuzz.oneOf
         [ Fuzz.constant UserStoryMap
