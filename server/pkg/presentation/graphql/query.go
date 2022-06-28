@@ -10,6 +10,7 @@ import (
 	shareModel "github.com/harehare/textusm/pkg/domain/model/share"
 	"github.com/harehare/textusm/pkg/domain/values"
 	"github.com/harehare/textusm/pkg/presentation/graphql/union"
+	"github.com/harehare/textusm/pkg/util"
 )
 
 func getPreloads(ctx context.Context) map[string]struct{} {
@@ -44,11 +45,11 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 type queryResolver struct{ *Resolver }
 
 func (r *queryResolver) Item(ctx context.Context, id string, isPublic *bool) (*diagramitem.DiagramItem, error) {
-	return r.service.FindByID(ctx, id, *isPublic)
+	return util.ResultToTuple(r.service.FindByID(ctx, id, *isPublic))
 }
 
 func (r *queryResolver) Items(ctx context.Context, offset *int, limit *int, isBookmark *bool, isPublic *bool) ([]*diagramitem.DiagramItem, error) {
-	return r.service.Find(ctx, *offset, *limit, *isPublic, *isBookmark, getPreloads(ctx))
+	return util.ResultToTuple(r.service.Find(ctx, *offset, *limit, *isPublic, *isBookmark, getPreloads(ctx)))
 }
 
 func (r *queryResolver) ShareItem(ctx context.Context, token string, password *string) (*diagramitem.DiagramItem, error) {
@@ -58,22 +59,22 @@ func (r *queryResolver) ShareItem(ctx context.Context, token string, password *s
 	} else {
 		p = *password
 	}
-	return r.service.FindShareItem(ctx, token, p)
+	return util.ResultToTuple(r.service.FindShareItem(ctx, token, p))
 }
 
 func (r *queryResolver) ShareCondition(ctx context.Context, itemID string) (*shareModel.ShareCondition, error) {
-	return r.service.FindShareCondition(ctx, itemID)
+	return util.ResultToTuple(r.service.FindShareCondition(ctx, itemID))
 }
 
 func (r *queryResolver) AllItems(ctx context.Context, offset, limit *int) ([]union.DiagramItem, error) {
 	var diagramItems []union.DiagramItem
-	items, err := r.service.Find(ctx, *offset, *limit, false, false, getPreloads(ctx))
+	items, err := util.ResultToTuple(r.service.Find(ctx, *offset, *limit, false, false, getPreloads(ctx)))
 
 	if err != nil {
 		return nil, err
 	}
 
-	gistItems, err := r.gistService.Find(ctx, *offset, *limit)
+	gistItems := r.gistService.Find(ctx, *offset, *limit)
 
 	if err != nil {
 		return nil, err
@@ -83,7 +84,7 @@ func (r *queryResolver) AllItems(ctx context.Context, offset, limit *int) ([]uni
 		diagramItems = append(diagramItems, item)
 	}
 
-	for _, item := range gistItems {
+	for _, item := range gistItems.OrEmpty() {
 		diagramItems = append(diagramItems, item)
 	}
 
@@ -91,13 +92,13 @@ func (r *queryResolver) AllItems(ctx context.Context, offset, limit *int) ([]uni
 }
 
 func (r *queryResolver) GistItem(ctx context.Context, id string) (*gistitem.GistItem, error) {
-	return r.gistService.FindByID(ctx, id)
+	return util.ResultToTuple(r.gistService.FindByID(ctx, id))
 }
 
 func (r *queryResolver) GistItems(ctx context.Context, offset, limit *int) ([]*gistitem.GistItem, error) {
-	return r.gistService.Find(ctx, *offset, *limit)
+	return util.ResultToTuple(r.gistService.Find(ctx, *offset, *limit))
 }
 
 func (r *queryResolver) Settings(ctx context.Context, diagram *values.Diagram) (*settings.Settings, error) {
-	return r.settingsService.Find(ctx, *diagram)
+	return util.ResultToTuple(r.settingsService.Find(ctx, *diagram))
 }

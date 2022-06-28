@@ -6,6 +6,7 @@ import (
 	"github.com/harehare/textusm/pkg/context/values"
 	"github.com/harehare/textusm/pkg/domain/model/item/gistitem"
 	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
+	"github.com/samber/mo"
 )
 
 type GistService struct {
@@ -22,43 +23,30 @@ func NewGistService(r itemRepo.GistItemRepository, clientID, clientSecret string
 	}
 }
 
-func (g *GistService) Find(ctx context.Context, offset, limit int) ([]*gistitem.GistItem, error) {
+func (g *GistService) Find(ctx context.Context, offset, limit int) mo.Result[[]*gistitem.GistItem] {
 	if err := isAuthenticated(ctx); err != nil {
-		return nil, err
+		return mo.Err[[]*gistitem.GistItem](err)
 	}
 
 	userID := values.GetUID(ctx)
-	items, err := g.repo.Find(ctx, *userID, offset, limit)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
+	return g.repo.Find(ctx, userID.OrEmpty(), offset, limit)
 }
 
-func (g *GistService) FindByID(ctx context.Context, gistID string) (*gistitem.GistItem, error) {
+func (g *GistService) FindByID(ctx context.Context, gistID string) mo.Result[*gistitem.GistItem] {
 	if err := isAuthenticated(ctx); err != nil {
-		return nil, err
+		return mo.Err[*gistitem.GistItem](err)
 	}
 
 	userID := values.GetUID(ctx)
-	item, err := g.repo.FindByID(ctx, *userID, gistID)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return item, nil
+	return g.repo.FindByID(ctx, userID.OrEmpty(), gistID)
 }
 
-func (g *GistService) Save(ctx context.Context, gist *gistitem.GistItem) (*gistitem.GistItem, error) {
+func (g *GistService) Save(ctx context.Context, gist *gistitem.GistItem) mo.Result[*gistitem.GistItem] {
 	if err := isAuthenticated(ctx); err != nil {
-		return nil, err
+		return mo.Err[*gistitem.GistItem](err)
 	}
 
-	userID := values.GetUID(ctx)
-	return g.repo.Save(ctx, *userID, gist)
+	return g.repo.Save(ctx, values.GetUID(ctx).OrEmpty(), gist)
 }
 
 func (g *GistService) Delete(ctx context.Context, gistID string) error {
@@ -66,8 +54,7 @@ func (g *GistService) Delete(ctx context.Context, gistID string) error {
 		return err
 	}
 
-	userID := values.GetUID(ctx)
-	return g.repo.Delete(ctx, *userID, gistID)
+	return g.repo.Delete(ctx, values.GetUID(ctx).OrEmpty(), gistID)
 }
 
 func (g *GistService) RevokeToken(ctx context.Context, accessToken string) error {

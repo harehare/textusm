@@ -3,13 +3,13 @@ package gistitem
 import "testing"
 
 func TestBuild(t *testing.T) {
-	d, err := New().WithID("id").Build()
+	d := New().WithID("id").Build()
 
-	if err != nil {
+	if d.IsError() {
 		t.Fatal("Failed build")
 	}
 
-	if d.id != "id" {
+	if d.OrEmpty().id != "id" {
 		t.Fatal("Failed id build")
 	}
 }

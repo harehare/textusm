@@ -9,6 +9,7 @@ import (
 	"github.com/harehare/textusm/pkg/domain/model/share"
 	shareRepo "github.com/harehare/textusm/pkg/domain/repository/share"
 	e "github.com/harehare/textusm/pkg/error"
+	"github.com/samber/mo"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -26,20 +27,22 @@ func NewFirestoreShareRepository(client *firestore.Client) shareRepo.ShareReposi
 	return &FirestoreShareRepository{client: client}
 }
 
-func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*diagramitem.DiagramItem, *share.Share, error) {
+func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) mo.Result[shareRepo.ShareResponse] {
 	fields, err := r.client.Collection(shareCollection).Doc(hashKey).Get(ctx)
 
 	if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
-		return nil, nil, e.NotFoundError(err)
+		return mo.Err[shareRepo.ShareResponse](e.NotFoundError(err))
 	}
 
 	if err != nil {
-		return nil, nil, err
+		return mo.Err[shareRepo.ShareResponse](err)
 	}
 
-	i, err := diagramitem.MapToDiagramItem(fields.Data())
-	if err != nil {
-		return nil, nil, err
+	data := fields.Data()
+	i := diagramitem.MapToDiagramItem(data)
+
+	if i.IsError() {
+		return mo.Err[shareRepo.ShareResponse](err)
 	}
 
 	var (
@@ -48,7 +51,6 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*d
 		token          string
 		expireTime     int64
 	)
-	data := fields.Data()
 	p := data["password"].(string)
 
 	if v, ok := data["allowIPList"]; ok {
@@ -78,7 +80,7 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) (*d
 		AllowIPList:    allowIPList,
 		AllowEmailList: allowEmailList,
 	}
-	return i, &shareInfo, nil
+	return mo.Ok(shareRepo.ShareResponse{DiagramItem: i.OrEmpty(), ShareInfo: &shareInfo})
 }
 
 func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *share.Share) error {
@@ -95,21 +97,12 @@ func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, ite
 		savePassword = ""
 	}
 
-	v := map[string]interface{}{
-		"id":             item.ID(),
-		"title":          item.Title(),
-		"text":           item.Text(),
-		"thumbnail":      item.Thumbnail(),
-		"diagram":        item.Diagram(),
-		"isPublic":       item.IsPublic(),
-		"isBookmark":     item.IsBookmark(),
-		"createdAt":      item.CreatedAt(),
-		"updatedAt":      item.UpdatedAt(),
-		"password":       savePassword,
-		"allowIPList":    shareInfo.AllowIPList,
-		"token":          shareInfo.Token,
-		"expireTime":     shareInfo.ExpireTime,
-		"allowEmailList": shareInfo.AllowEmailList}
+	v := item.ToMap()
+	v["password"] = savePassword
+	v["allowIPList"] = shareInfo.AllowIPList
+	v["token"] = shareInfo.Token
+	v["expireTime"] = shareInfo.ExpireTime
+	v["allowEmailList"] = shareInfo.AllowEmailList
 	_, err := r.client.Collection(shareCollection).Doc(hashKey).Set(ctx, v)
 	return err
 }
@@ -117,11 +110,11 @@ func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, ite
 func (r *FirestoreShareRepository) Delete(ctx context.Context, hashKey string) error {
 	tx := values.GetTx(ctx)
 
-	if tx == nil {
+	if tx.IsAbsent() {
 		_, err := r.client.Collection(shareCollection).Doc(hashKey).Delete(ctx)
 		return err
 	}
 
 	ref := r.client.Collection(shareCollection).Doc(hashKey)
-	return tx.Delete(ref)
+	return tx.OrEmpty().Delete(ref)
 }

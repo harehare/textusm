@@ -6,6 +6,7 @@ import (
 
 	"github.com/harehare/textusm/pkg/domain/values"
 	e "github.com/harehare/textusm/pkg/error"
+	"github.com/samber/mo"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -13,19 +14,19 @@ type GistItemBuilder interface {
 	WithID(ID string) GistItemBuilder
 	WithURL(url string) GistItemBuilder
 	WithTitle(title string) GistItemBuilder
-	WithThumbnail(thumbnail *string) GistItemBuilder
+	WithThumbnail(thumbnail mo.Option[string]) GistItemBuilder
 	WithDiagramString(diagram string) GistItemBuilder
 	WithDiagram(diagram values.Diagram) GistItemBuilder
 	WithIsBookmark(isPublic bool) GistItemBuilder
 	WithCreatedAt(createdAt time.Time) GistItemBuilder
 	WithUpdatedAt(updatedAt time.Time) GistItemBuilder
-	Build() (*GistItem, error)
+	Build() mo.Result[*GistItem]
 }
 
 type builder struct {
 	createdAt  time.Time
 	updatedAt  time.Time
-	thumbnail  *string
+	thumbnail  mo.Option[string]
 	title      string
 	diagram    values.Diagram
 	id         string
@@ -57,7 +58,7 @@ func (b *builder) WithTitle(title string) GistItemBuilder {
 	return b
 }
 
-func (b *builder) WithThumbnail(thumbnail *string) GistItemBuilder {
+func (b *builder) WithThumbnail(thumbnail mo.Option[string]) GistItemBuilder {
 	b.thumbnail = thumbnail
 	return b
 }
@@ -87,13 +88,13 @@ func (b *builder) WithUpdatedAt(updatedAt time.Time) GistItemBuilder {
 	return b
 }
 
-func (b *builder) Build() (*GistItem, error) {
+func (b *builder) Build() mo.Result[*GistItem] {
 
 	if len(b.errors) > 0 {
-		return nil, e.InvalidParameterError(b.errors[0])
+		return mo.Err[*GistItem](e.InvalidParameterError(b.errors[0]))
 	}
 
-	return &GistItem{
+	return mo.Ok(&GistItem{
 		id:         b.id,
 		url:        b.url,
 		title:      b.title,
@@ -102,13 +103,13 @@ func (b *builder) Build() (*GistItem, error) {
 		isBookmark: b.isBookmark,
 		createdAt:  b.createdAt,
 		updatedAt:  b.updatedAt,
-	}, nil
+	})
 }
 
 type GistItem struct {
 	createdAt  time.Time
 	updatedAt  time.Time
-	thumbnail  *string
+	thumbnail  mo.Option[string]
 	title      string
 	diagram    values.Diagram
 	id         string
@@ -133,7 +134,11 @@ func (i *GistItem) Title() string {
 }
 
 func (i *GistItem) Thumbnail() *string {
-	return i.thumbnail
+	v := i.thumbnail.OrEmpty()
+	if v == "" {
+		return nil
+	}
+	return &v
 }
 
 func (i *GistItem) Diagram() values.Diagram {
@@ -157,59 +162,60 @@ func (i *GistItem) Bookmark(isBookmark bool) *GistItem {
 	return i
 }
 
-func MapToGistItem(v map[string]interface{}) (*GistItem, error) {
+func MapToGistItem(v map[string]interface{}) mo.Result[*GistItem] {
 	id, ok := v["ID"].(string)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid id"))
+		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid id")))
 	}
 
 	url, ok := v["URL"].(string)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid url"))
+		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid url")))
 	}
 
 	title, ok := v["Title"].(string)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid title"))
+		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid title")))
 	}
 
-	var thumbnail *string
+	var thumbnail mo.Option[string]
 
 	if v["Thumbnail"] == nil {
-		thumbnail = nil
+		thumbnail = mo.None[string]()
 	} else {
 		t, ok := v["Thumbnail"].(string)
-		if !ok {
-			return nil, e.InvalidParameterError(errors.New("invalid thumbnail"))
+		if ok {
+			thumbnail = mo.Some(t)
+		} else {
+			thumbnail = mo.None[string]()
 		}
-		thumbnail = &t
 	}
 
 	diagram, ok := v["Diagram"].(string)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid diagram"))
+		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid diagram")))
 	}
 
 	isBookmark, ok := v["IsBookmark"].(bool)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid isBookmark"))
+		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid isBookmark")))
 	}
 
 	createdAt, ok := v["CreatedAt"].(time.Time)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid createdAt"))
+		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid createdAt")))
 	}
 
 	updatedAt, ok := v["UpdatedAt"].(time.Time)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid updatedat"))
+		return mo.Err[*GistItem](e.InvalidParameterError(errors.New("invalid updatedat")))
 	}
 
 	return New().
@@ -228,7 +234,7 @@ func (i *GistItem) ToMap() map[string]interface{} {
 	return map[string]interface{}{"ID": i.id,
 		"URL":        i.url,
 		"Title":      i.title,
-		"Thumbnail":  i.thumbnail,
+		"Thumbnail":  i.thumbnail.OrEmpty(),
 		"Diagram":    i.diagram,
 		"IsBookmark": i.isBookmark,
 		"CreatedAt":  i.createdAt,

@@ -6,7 +6,6 @@ import Css
     exposing
         ( alignItems
         , borderStyle
-        , calc
         , center
         , color
         , cursor
@@ -23,7 +22,6 @@ import Css
         , marginLeft
         , marginRight
         , marginTop
-        , minus
         , noWrap
         , none
         , outline
@@ -93,7 +91,7 @@ view props =
             [ css
                 [ displayFlex
                 , alignItems center
-                , width <| calc (pct 100) minus (px 156)
+                , width <| pct 100
                 , height <| px 40
                 ]
             ]

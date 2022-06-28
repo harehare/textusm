@@ -1,16 +1,19 @@
 package values
 
-import "context"
+import (
+	"context"
+
+	"github.com/samber/mo"
+)
 
 type ipKey struct{}
 
-func GetIP(ctx context.Context) *string {
+func GetIP(ctx context.Context) mo.Option[string] {
 	v := ctx.Value(ipKey{})
 	if v == nil {
-		return nil
+		return mo.None[string]()
 	}
-	r := v.(string)
-	return &r
+	return mo.Some(v.(string))
 }
 
 func WithIP(ctx context.Context, ip string) context.Context {

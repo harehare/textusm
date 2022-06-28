@@ -7,6 +7,7 @@ import (
 	settingsModel "github.com/harehare/textusm/pkg/domain/model/settings"
 	settingsRepo "github.com/harehare/textusm/pkg/domain/repository/settings"
 	v "github.com/harehare/textusm/pkg/domain/values"
+	"github.com/samber/mo"
 )
 
 type SettingsService struct {
@@ -23,26 +24,18 @@ func NewSettingsService(r settingsRepo.SettingsRepository, clientID, clientSecre
 	}
 }
 
-func (s *SettingsService) Find(ctx context.Context, diagram v.Diagram) (*settingsModel.Settings, error) {
+func (s *SettingsService) Find(ctx context.Context, diagram v.Diagram) mo.Result[*settingsModel.Settings] {
 	if err := isAuthenticated(ctx); err != nil {
-		return nil, err
+		return mo.Err[*settingsModel.Settings](err)
 	}
 
-	userID := values.GetUID(ctx)
-	settings, err := s.repo.Find(ctx, *userID, diagram)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return settings, nil
+	return s.repo.Find(ctx, values.GetUID(ctx).OrEmpty(), diagram)
 }
 
-func (s *SettingsService) Save(ctx context.Context, diagram v.Diagram, settings *settingsModel.Settings) (*settingsModel.Settings, error) {
+func (s *SettingsService) Save(ctx context.Context, diagram v.Diagram, settings *settingsModel.Settings) mo.Result[*settingsModel.Settings] {
 	if err := isAuthenticated(ctx); err != nil {
-		return nil, err
+		return mo.Err[*settingsModel.Settings](err)
 	}
 
-	userID := values.GetUID(ctx)
-	return s.repo.Save(ctx, *userID, diagram, *settings)
+	return s.repo.Save(ctx, values.GetUID(ctx).OrEmpty(), diagram, *settings)
 }

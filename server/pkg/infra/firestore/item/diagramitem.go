@@ -8,6 +8,7 @@ import (
 	"github.com/harehare/textusm/pkg/domain/model/item/diagramitem"
 	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
 	e "github.com/harehare/textusm/pkg/error"
+	"github.com/samber/mo"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -27,7 +28,7 @@ func NewFirestoreItemRepository(client *firestore.Client) itemRepo.ItemRepositor
 	return &FirestoreItemRepository{client: client}
 }
 
-func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, itemID string, isPublic bool) (*diagramitem.DiagramItem, error) {
+func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
 	var (
 		fields *firestore.DocumentSnapshot
 		err    error
@@ -39,23 +40,17 @@ func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, i
 	}
 
 	if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
-		return nil, e.NotFoundError(err)
+		return mo.Err[*diagramitem.DiagramItem](e.NotFoundError(err))
 	}
 
 	if err != nil {
-		return nil, err
+		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
-	i, err := diagramitem.MapToDiagramItem(fields.Data())
-
-	if err != nil {
-		return nil, err
-	}
-
-	return i, nil
+	return diagramitem.MapToDiagramItem(fields.Data())
 }
 
-func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool) ([]*diagramitem.DiagramItem, error) {
+func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool) mo.Result[[]*diagramitem.DiagramItem] {
 	var (
 		items []*diagramitem.DiagramItem
 		iter  *firestore.DocumentIterator
@@ -75,21 +70,21 @@ func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offse
 		}
 
 		if err != nil {
-			return nil, err
+			return mo.Err[[]*diagramitem.DiagramItem](err)
 		}
 
-		i, err := diagramitem.MapToDiagramItem(doc.Data())
-		if err != nil {
-			return nil, err
+		i := diagramitem.MapToDiagramItem(doc.Data())
+		if i.IsError() {
+			return mo.Err[[]*diagramitem.DiagramItem](i.Error())
 		}
 
-		items = append(items, i)
+		items = append(items, i.OrEmpty())
 	}
 
-	return items, nil
+	return mo.Ok(items)
 }
 
-func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item *diagramitem.DiagramItem, isPublic bool) (*diagramitem.DiagramItem, error) {
+func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item *diagramitem.DiagramItem, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
 	var err error
 
 	if isPublic {
@@ -99,16 +94,16 @@ func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item 
 	}
 
 	if err != nil {
-		return nil, err
+		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
-	return item, nil
+	return mo.Ok(item)
 }
 
 func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) error {
 	tx := values.GetTx(ctx)
 
-	if tx == nil {
+	if tx.IsAbsent() {
 		if isPublic {
 			_, err := r.client.Collection(publicCollection).Doc(itemID).Delete(ctx)
 			return err
@@ -120,9 +115,9 @@ func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, ite
 
 	if isPublic {
 		ref := r.client.Collection(publicCollection).Doc(itemID)
-		return tx.Delete(ref)
+		return tx.OrEmpty().Delete(ref)
 	} else {
 		ref := r.client.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID)
-		return tx.Delete(ref)
+		return tx.OrEmpty().Delete(ref)
 	}
 }

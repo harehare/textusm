@@ -8,6 +8,7 @@ import (
 	"github.com/harehare/textusm/pkg/domain/values"
 	e "github.com/harehare/textusm/pkg/error"
 	"github.com/harehare/textusm/pkg/util"
+	"github.com/samber/mo"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -20,24 +21,24 @@ type DiagramItemBuilder interface {
 	WithTitle(title string) DiagramItemBuilder
 	WithEncryptedText(text string) DiagramItemBuilder
 	WithPlainText(text string) DiagramItemBuilder
-	WithThumbnail(thumbnail *string) DiagramItemBuilder
+	WithThumbnail(thumbnail mo.Option[string]) DiagramItemBuilder
 	WithDiagramString(diagram string) DiagramItemBuilder
 	WithDiagram(diagram values.Diagram) DiagramItemBuilder
 	WithIsPublic(isPublic bool) DiagramItemBuilder
 	WithIsBookmark(isPublic bool) DiagramItemBuilder
 	WithCreatedAt(createdAt time.Time) DiagramItemBuilder
 	WithUpdatedAt(updatedAt time.Time) DiagramItemBuilder
-	Build() (*DiagramItem, error)
+	Build() mo.Result[*DiagramItem]
 }
 
 type builder struct {
 	createdAt     time.Time
 	updatedAt     time.Time
-	thumbnail     *string
+	thumbnail     mo.Option[string]
 	id            string
 	diagram       values.Diagram
 	title         string
-	encryptedtext string
+	encryptedText string
 	errors        []error
 	isPublic      bool
 	isBookmark    bool
@@ -62,7 +63,7 @@ func (b *builder) WithTitle(title string) DiagramItemBuilder {
 }
 
 func (b *builder) WithEncryptedText(text string) DiagramItemBuilder {
-	b.encryptedtext = text
+	b.encryptedText = text
 	return b
 }
 
@@ -71,15 +72,15 @@ func (b *builder) WithPlainText(text string) DiagramItemBuilder {
 
 	if err != nil {
 		b.errors = append(b.errors, err)
-		b.encryptedtext = "invalid"
+		b.encryptedText = "invalid"
 	} else {
-		b.encryptedtext = *t
+		b.encryptedText = *t
 	}
 
 	return b
 }
 
-func (b *builder) WithThumbnail(thumbnail *string) DiagramItemBuilder {
+func (b *builder) WithThumbnail(thumbnail mo.Option[string]) DiagramItemBuilder {
 	b.thumbnail = thumbnail
 	return b
 }
@@ -114,29 +115,29 @@ func (b *builder) WithUpdatedAt(updatedAt time.Time) DiagramItemBuilder {
 	return b
 }
 
-func (b *builder) Build() (*DiagramItem, error) {
+func (b *builder) Build() mo.Result[*DiagramItem] {
 
 	if len(b.errors) > 0 {
-		return nil, e.InvalidParameterError(b.errors[0])
+		return mo.Err[*DiagramItem](e.InvalidParameterError(b.errors[0]))
 	}
 
-	return &DiagramItem{
+	return mo.Ok(&DiagramItem{
 		id:            b.id,
 		title:         b.title,
-		encryptedText: b.encryptedtext,
+		encryptedText: b.encryptedText,
 		diagram:       b.diagram,
 		thumbnail:     b.thumbnail,
 		isPublic:      b.isPublic,
 		isBookmark:    b.isBookmark,
 		createdAt:     b.createdAt,
 		updatedAt:     b.updatedAt,
-	}, nil
+	})
 }
 
 type DiagramItem struct {
 	createdAt     time.Time
 	updatedAt     time.Time
-	thumbnail     *string
+	thumbnail     mo.Option[string]
 	id            string
 	diagram       values.Diagram
 	title         string
@@ -166,7 +167,11 @@ func (i *DiagramItem) Text() string {
 }
 
 func (i *DiagramItem) Thumbnail() *string {
-	return i.thumbnail
+	v := i.thumbnail.OrEmpty()
+	if v == "" {
+		return nil
+	}
+	return &v
 }
 
 func (i *DiagramItem) Diagram() values.Diagram {
@@ -203,65 +208,66 @@ func (i *DiagramItem) Bookmark(isBookmark bool) *DiagramItem {
 	return i
 }
 
-func MapToDiagramItem(v map[string]interface{}) (*DiagramItem, error) {
+func MapToDiagramItem(v map[string]interface{}) mo.Result[*DiagramItem] {
 	id, ok := v["ID"].(string)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid id"))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid id")))
 	}
 
 	title, ok := v["Title"].(string)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid title"))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid title")))
 	}
 
 	text, ok := v["Text"].(string)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid text"))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid text")))
 	}
 
-	var thumbnail *string
+	var thumbnail mo.Option[string]
 
 	if v["Thumbnail"] == nil {
-		thumbnail = nil
+		thumbnail = mo.None[string]()
 	} else {
 		t, ok := v["Thumbnail"].(string)
-		if !ok {
-			return nil, e.InvalidParameterError(errors.New("invalid thumbnail"))
+		if ok {
+			thumbnail = mo.Some(t)
+		} else {
+			thumbnail = mo.None[string]()
 		}
-		thumbnail = &t
 	}
 
 	diagram, ok := v["Diagram"].(string)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid diagram"))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid diagram")))
 	}
 
 	isPublic, ok := v["IsPublic"].(bool)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid isPublic"))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid isPublic")))
 	}
 
 	isBookmark, ok := v["IsBookmark"].(bool)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid isBookmark"))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid isBookmark")))
 	}
 
 	createdAt, ok := v["CreatedAt"].(time.Time)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid createdAt"))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid createdAt")))
 	}
 
 	updatedAt, ok := v["UpdatedAt"].(time.Time)
 
 	if !ok {
-		return nil, e.InvalidParameterError(errors.New("invalid updatedat"))
+		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid updatedat")))
 	}
 
 	return New().
@@ -281,7 +287,7 @@ func (i *DiagramItem) ToMap() map[string]interface{} {
 	return map[string]interface{}{"ID": i.id,
 		"Title":      i.title,
 		"Text":       i.encryptedText,
-		"Thumbnail":  i.thumbnail,
+		"Thumbnail":  i.thumbnail.OrEmpty(),
 		"Diagram":    i.diagram,
 		"IsPublic":   i.isPublic,
 		"IsBookmark": i.isBookmark,

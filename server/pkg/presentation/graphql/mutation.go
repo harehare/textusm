@@ -10,6 +10,7 @@ import (
 	"github.com/harehare/textusm/pkg/domain/model/item/gistitem"
 	settingsModel "github.com/harehare/textusm/pkg/domain/model/settings"
 	v "github.com/harehare/textusm/pkg/domain/values"
+	"github.com/harehare/textusm/pkg/util"
 )
 
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
@@ -19,29 +20,29 @@ type mutationResolver struct{ *Resolver }
 func (r *mutationResolver) Save(ctx context.Context, input InputItem, isPublic *bool) (*diagramitem.DiagramItem, error) {
 	currentTime := time.Now()
 	if input.ID == nil {
-		saveItem, err := diagramitem.New().WithID("").WithTitle(input.Title).WithPlainText(input.Text).WithThumbnail(input.Thumbnail).
+		saveItem := diagramitem.New().WithID("").WithTitle(input.Title).WithPlainText(input.Text).WithThumbnail(util.ToOption(input.Thumbnail)).
 			WithDiagram(*input.Diagram).WithIsPublic(input.IsPublic).WithIsBookmark(input.IsBookmark).WithCreatedAt(currentTime).WithUpdatedAt(currentTime).Build()
 
-		if err != nil {
-			return nil, err
+		if saveItem.IsError() {
+			return nil, saveItem.Error()
 		}
 
-		return r.service.Save(ctx, saveItem, *isPublic)
+		return util.ResultToTuple(r.service.Save(ctx, saveItem.OrEmpty(), *isPublic))
 	}
-	baseItem, err := r.service.FindByID(ctx, *input.ID, false)
+	baseItem := r.service.FindByID(ctx, *input.ID, false)
 
-	if err != nil {
-		return nil, err
-	}
-
-	saveItem, err := diagramitem.New().WithID(baseItem.ID()).WithTitle(input.Title).WithPlainText(input.Text).WithThumbnail(input.Thumbnail).
-		WithDiagram(*input.Diagram).WithIsPublic(input.IsPublic).WithIsBookmark(input.IsBookmark).WithCreatedAt(baseItem.CreatedAt()).WithUpdatedAt(currentTime).Build()
-
-	if err != nil {
-		return nil, err
+	if baseItem.IsError() {
+		return nil, baseItem.Error()
 	}
 
-	return r.service.Save(ctx, saveItem, *isPublic)
+	saveItem := diagramitem.New().WithID(baseItem.OrEmpty().ID()).WithTitle(input.Title).WithPlainText(input.Text).WithThumbnail(util.ToOption(input.Thumbnail)).
+		WithDiagram(*input.Diagram).WithIsPublic(input.IsPublic).WithIsBookmark(input.IsBookmark).WithCreatedAt(baseItem.OrEmpty().CreatedAt()).WithUpdatedAt(currentTime).Build()
+
+	if saveItem.IsError() {
+		return nil, saveItem.Error()
+	}
+
+	return util.ResultToTuple(r.service.Save(ctx, saveItem.OrEmpty(), *isPublic))
 }
 
 func (r *mutationResolver) Delete(ctx context.Context, itemID string, isPublic *bool) (string, error) {
@@ -58,7 +59,7 @@ func (r *mutationResolver) Delete(ctx context.Context, itemID string, isPublic *
 }
 
 func (r *mutationResolver) Bookmark(ctx context.Context, itemID string, isBookmark bool) (*diagramitem.DiagramItem, error) {
-	return r.service.Bookmark(ctx, itemID, isBookmark)
+	return util.ResultToTuple(r.service.Bookmark(ctx, itemID, isBookmark))
 }
 
 func (r *mutationResolver) Share(ctx context.Context, input InputShareItem) (string, error) {
@@ -68,33 +69,27 @@ func (r *mutationResolver) Share(ctx context.Context, input InputShareItem) (str
 	} else {
 		p = *input.Password
 	}
-	jwtToken, err := r.service.Share(ctx, input.ItemID, *input.ExpSecond, p, input.AllowIPList, input.AllowEmailList)
-
-	if err != nil {
-		return "", err
-	}
-
-	return *jwtToken, err
+	return util.ResultToTuple(r.service.Share(ctx, input.ItemID, *input.ExpSecond, p, input.AllowIPList, input.AllowEmailList))
 }
 
 func (r *mutationResolver) SaveGist(ctx context.Context, input InputGistItem) (*gistitem.GistItem, error) {
 	currentTime := time.Now()
-	gist, err := gistitem.New().
+	gist := gistitem.New().
 		WithID(*input.ID).
 		WithURL(input.URL).
 		WithTitle(input.Title).
-		WithThumbnail(input.Thumbnail).
+		WithThumbnail(util.ToOption(input.Thumbnail)).
 		WithDiagram(*input.Diagram).
 		WithIsBookmark(input.IsBookmark).
 		WithCreatedAt(currentTime).
 		WithUpdatedAt(currentTime).
 		Build()
 
-	if err != nil {
-		return nil, err
+	if gist.IsError() {
+		return nil, gist.Error()
 	}
 
-	return r.gistService.Save(ctx, gist)
+	return util.ResultToTuple(r.gistService.Save(ctx, gist.OrEmpty()))
 }
 
 func (r *mutationResolver) DeleteGist(ctx context.Context, gistID string) (string, error) {
@@ -118,7 +113,7 @@ func (r *mutationResolver) SaveSettings(ctx context.Context, diagram *v.Diagram,
 		Scale:           input.Scale,
 		Toolbar:         input.Toolbar,
 	}
-	return r.settingsService.Save(ctx, *diagram, &settings)
+	return util.ResultToTuple(r.settingsService.Save(ctx, *diagram, &settings))
 }
 
 func inputColorToColor(input InputColor) settingsModel.Color {

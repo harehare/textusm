@@ -3,38 +3,38 @@ package diagramitem
 import "testing"
 
 func TestEncryptedTextBuild(t *testing.T) {
-	d, err := New().WithID("id").WithEncryptedText("encryptedText").Build()
+	d := New().WithID("id").WithEncryptedText("encryptedText").Build()
 
-	if err != nil {
+	if d.IsError() {
 		t.Fatal("Failed build")
 	}
 
-	if d.id != "id" {
+	if d.OrEmpty().id != "id" {
 		t.Fatal("Failed id build")
 	}
 
-	if d.encryptedText != "encryptedText" {
+	if d.OrEmpty().encryptedText != "encryptedText" {
 		t.Fatal("Failed text build")
 	}
 }
 
 func TestPlainTextBuild(t *testing.T) {
 	encryptKey = []byte("000000000X000000000X000000000X12")
-	d, err := New().WithID("id").WithPlainText("plainText").Build()
+	d := New().WithID("id").WithPlainText("plainText").Build()
 
-	if err != nil {
+	if d.IsError() {
 		t.Fatal("Failed build")
 	}
 
-	if d.id != "id" {
+	if d.OrEmpty().id != "id" {
 		t.Fatal("Failed id build")
 	}
 
-	if d.encryptedText == "plainText" {
+	if d.OrEmpty().encryptedText == "plainText" {
 		t.Fatal("Failed text build")
 	}
 
-	if d.Text() != "plainText" {
+	if d.OrEmpty().Text() != "plainText" {
 		t.Fatal("Failed Text()")
 	}
 }

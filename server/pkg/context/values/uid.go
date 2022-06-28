@@ -1,16 +1,19 @@
 package values
 
-import "context"
+import (
+	"context"
+
+	"github.com/samber/mo"
+)
 
 type uidKey struct{}
 
-func GetUID(ctx context.Context) *string {
+func GetUID(ctx context.Context) mo.Option[string] {
 	v := ctx.Value(uidKey{})
 	if v == nil {
-		return nil
+		return mo.None[string]()
 	}
-	r := v.(string)
-	return &r
+	return mo.Some(v.(string))
 }
 
 func WithUID(ctx context.Context, uid string) context.Context {

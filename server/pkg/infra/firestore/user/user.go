@@ -6,6 +6,7 @@ import (
 	firebase "firebase.google.com/go"
 	"github.com/harehare/textusm/pkg/domain/model/user"
 	userRepo "github.com/harehare/textusm/pkg/domain/repository/user"
+	"github.com/samber/mo"
 )
 
 type FirebaseUserRepository struct {
@@ -16,16 +17,16 @@ func NewFirebaseUserRepository(app *firebase.App) userRepo.UserRepository {
 	return &FirebaseUserRepository{app: app}
 }
 
-func (r *FirebaseUserRepository) Find(ctx context.Context, uid string) (*user.User, error) {
+func (r *FirebaseUserRepository) Find(ctx context.Context, uid string) mo.Result[*user.User] {
 	client, err := r.app.Auth(ctx)
 	if err != nil {
-		return nil, err
+		return mo.Err[*user.User](err)
 	}
 	u, err := client.GetUser(ctx, uid)
 	if err != nil {
-		return nil, err
+		return mo.Err[*user.User](err)
 	}
 	user := user.NewUser(u)
 
-	return &user, nil
+	return mo.Ok(&user)
 }

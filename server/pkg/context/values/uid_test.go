@@ -11,7 +11,7 @@ func TestGetUid(t *testing.T) {
 	ctx = WithUID(ctx, v)
 	r := GetUID(ctx)
 
-	if *r != v {
+	if r.OrEmpty() != v {
 		t.Fatal("Failed GetUid")
 	}
 }
