@@ -59,6 +59,7 @@ import Css
         , border3
         , borderBox
         , borderRadius
+        , borderStyle
         , boxShadow3
         , boxShadow5
         , boxSizing
@@ -391,7 +392,12 @@ submit =
     Css.batch
         [ button
         , Css.batch
-            [ Color.bgAccent, width <| px 80, display inlineBlock, textAlign center ]
+            [ Color.bgAccent
+            , width <| px 80
+            , display inlineBlock
+            , textAlign center
+            , borderStyle none
+            ]
         ]
 
 

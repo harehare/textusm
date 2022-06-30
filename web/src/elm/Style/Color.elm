@@ -1,4 +1,26 @@
-module Style.Color exposing (bgAccent, bgActivity, bgDefault, bgDisabled, bgLight, bgMain, bgTransparent, borderColor, darkTextColor, disabledColor, errorColor, lightBackgroundColor, textAccent, textActivity, textColor, textComment, textDark, textError, textLight, textMain, textSecondaryColor)
+module Style.Color exposing
+    ( bgAccent
+    , bgActivity
+    , bgDefault
+    , bgDisabled
+    , bgLight
+    , bgMain
+    , bgTransparent
+    , borderColor
+    , darkTextColor
+    , disabledColor
+    , errorColor
+    , lightBackgroundColor
+    , textAccent
+    , textActivity
+    , textColor
+    , textComment
+    , textDark
+    , textError
+    , textLight
+    , textMain
+    , textSecondaryColor
+    )
 
 import Css exposing (Color, backgroundColor, color, hex, transparent)
 

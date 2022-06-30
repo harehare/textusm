@@ -892,7 +892,7 @@ update message =
                     Return.andThen <| Action.moveTo Route.NotFound
 
                 _ ->
-                    Return.andThen <| Action.moveTo Route.Home
+                    Return.zero
             )
                 >> Return.andThen Action.stopProgress
                 >> Return.andThen (Action.showErrorMessage <| RequestError.toMessage e)

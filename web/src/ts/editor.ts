@@ -66,7 +66,7 @@ monaco.languages.setMonarchTokensProvider('userStoryMap', {
     },
 });
 
-monaco.editor.defineTheme('usmTheme', {
+monaco.editor.defineTheme('userStoryMap', {
     base: 'vs-dark',
     inherit: true,
     colors: {
@@ -188,7 +188,7 @@ export class MonacoEditor extends HTMLElement {
         if (editor) {
             this.editor = monaco.editor.create(editor, {
                 language: 'userStoryMap',
-                theme: 'usmTheme',
+                theme: 'userStoryMap',
                 lineNumbers:
                     this.getAttribute('showLineNumber') === 'true'
                         ? 'on'
