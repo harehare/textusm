@@ -7,6 +7,7 @@ module Models.DiagramType exposing
     , toGraphqlValue
     , toLongString
     , toString
+    , toTypeString
     )
 
 import Graphql.Enum.Diagram as Diagram exposing (Diagram)
@@ -434,3 +435,61 @@ toString diagramType =
 
         UseCaseDiagram ->
             "ucd"
+
+
+toTypeString : DiagramType -> String
+toTypeString diagramType =
+    case diagramType of
+        UserStoryMap ->
+            "UserStoryMap"
+
+        OpportunityCanvas ->
+            "OpportunityCanvas"
+
+        BusinessModelCanvas ->
+            "BusinessModelCanvas"
+
+        Fourls ->
+            "Fourls"
+
+        StartStopContinue ->
+            "StartStopContinue"
+
+        Kpt ->
+            "Kpt"
+
+        UserPersona ->
+            "UserPersona"
+
+        MindMap ->
+            "MindMap"
+
+        EmpathyMap ->
+            "EmpathyMap"
+
+        SiteMap ->
+            "SiteMap"
+
+        GanttChart ->
+            "GanttChart"
+
+        ImpactMap ->
+            "ImpactMap"
+
+        ErDiagram ->
+            "ErDiagram"
+
+        Kanban ->
+            "Kanban"
+
+        Table ->
+            "Table"
+
+        SequenceDiagram ->
+            "SequenceDiagram"
+
+        Freeform ->
+            "Freeform"
+
+        UseCaseDiagram ->
+            "UseCaseDiagram"

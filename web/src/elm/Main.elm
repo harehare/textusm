@@ -31,7 +31,7 @@ import Models.DiagramId as DiagramId
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType exposing (DiagramType(..))
+import Models.DiagramType as DiagramType exposing (DiagramType(..))
 import Models.Dialog as Dialog
 import Models.Exporter as Exporter
 import Models.IdToken as IdToken
@@ -282,6 +282,7 @@ editor model =
 
                 else
                     "false"
+            , attribute "diagramType" <| DiagramType.toTypeString model.currentDiagram.diagram
             ]
             []
         ]

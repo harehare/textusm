@@ -17,7 +17,7 @@ export const initDownload = (app: ElmApp): void => {
             svg.innerHTML = element.innerHTML;
         }
 
-        // @ts-expect-error
+        // @ts-ignore
         const svgoImport = await import('svgo/dist/svgo.browser.js').catch(
             () => null
         );

@@ -1,4 +1,4 @@
-type DiagramItem = {
+export type DiagramItem = {
     id: string;
     title: string;
     text: string;
@@ -12,7 +12,7 @@ type DiagramItem = {
     updatedAt: number;
 };
 
-type Diagram = {
+export type Diagram = {
     id: string;
     title: string;
     text: string;
@@ -23,7 +23,27 @@ type Diagram = {
     location: 'local' | 'gist' | 'system' | 'googledrive';
 };
 
-type ExportInfo = {
+export type DiagramType =
+    | 'UserStoryMap'
+    | 'OpportunityCanvas'
+    | 'BusinessModelCanvas'
+    | 'Fourls'
+    | 'StartStopContinue'
+    | 'Kpt'
+    | 'UserPersona'
+    | 'MindMap'
+    | 'EmpathyMap'
+    | 'SiteMap'
+    | 'GanttChart'
+    | 'ImpactMap'
+    | 'ErDiagram'
+    | 'Kanban'
+    | 'Table'
+    | 'SequenceDiagram'
+    | 'Freeform'
+    | 'UseCaseDiagram';
+
+export type ExportInfo = {
     width: number;
     height: number;
     id: string;
@@ -34,7 +54,7 @@ type ExportInfo = {
     diagramType: string;
 };
 
-type ImageInfo = {
+export type ImageInfo = {
     id: string;
     width: number;
     height: number;
@@ -42,7 +62,7 @@ type ImageInfo = {
     callback: (url: string) => void;
 };
 
-type Settings = {
+export type Settings = {
     font: string;
     position: number;
     text: string;
@@ -52,7 +72,7 @@ type Settings = {
     diagram: Diagram | null;
 };
 
-type DiagramSettings = {
+export type DiagramSettings = {
     font: string;
     size: Size;
     color: ColorSettings;
@@ -62,12 +82,12 @@ type DiagramSettings = {
     toolbar: boolean;
 };
 
-type Size = {
+export type Size = {
     width: number;
     height: number;
 };
 
-type ColorSettings = {
+export type ColorSettings = {
     activity: Color;
     task: Color;
     story: Color;
@@ -76,19 +96,7 @@ type ColorSettings = {
     text: string;
 };
 
-type Color = {
+export type Color = {
     color: string;
     backgroundColor: string;
-};
-
-export {
-    ImageInfo,
-    Settings,
-    Diagram,
-    ExportInfo,
-    Color,
-    ColorSettings,
-    Size,
-    DiagramSettings,
-    DiagramItem,
 };

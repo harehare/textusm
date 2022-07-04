@@ -1,6 +1,9 @@
 import * as monaco from 'monaco-editor';
 
+import { registerLang } from './editor/lang';
+// @ts-ignore
 import { ElmApp } from './elm';
+import { DiagramType } from './model';
 
 let monacoEditor: monaco.editor.IStandaloneCodeEditor | null = null;
 let updateTextInterval: number | null = null;
@@ -50,57 +53,31 @@ export const setElmApp = (app: ElmApp): void => {
     _app.ports.insertText.subscribe(insertText);
 };
 
-monaco.languages.register({
-    id: 'userStoryMap',
-});
+registerLang();
 
-monaco.languages.setMonarchTokensProvider('userStoryMap', {
-    tokenizer: {
-        root: [
-            [/#[^#|]+/, 'comment'],
-            [/^[^ ][^#:||]+/, 'activity'],
-            [/^ {8}[^#:||]+/, 'story'],
-            [/^ {4}[^#:||]+/, 'task'],
-            [/\|[^|]+/, 'color'],
-        ],
-    },
-});
-
-monaco.editor.defineTheme('userStoryMap', {
-    base: 'vs-dark',
-    inherit: true,
-    colors: {
-        'editor.background': '#273037',
-    },
-    rules: [
-        {
-            token: 'comment',
-            foreground: '#008800',
-        },
-        {
-            token: 'color',
-            foreground: '#323d46',
-        },
-        {
-            token: 'activity',
-            foreground: '#439ad9',
-        },
-        {
-            token: 'task',
-            foreground: '#3a5aba',
-        },
-        {
-            token: 'story',
-            foreground: '#c4c0b9',
-        },
-    ],
-});
-
+const ENABLED_LANG_DIAGRAM_TYPE: { [v in DiagramType]: DiagramType } = {
+    UserStoryMap: 'UserStoryMap',
+    MindMap: 'UserStoryMap',
+    ImpactMap: 'UserStoryMap',
+    SiteMap: 'UserStoryMap',
+    SequenceDiagram: 'UserStoryMap',
+    Freeform: 'UserStoryMap',
+    UseCaseDiagram: 'UserStoryMap',
+    ErDiagram: 'UserStoryMap',
+    GanttChart: 'GanttChart',
+    BusinessModelCanvas: 'BusinessModelCanvas',
+    OpportunityCanvas: 'BusinessModelCanvas',
+    Fourls: 'BusinessModelCanvas',
+    StartStopContinue: 'BusinessModelCanvas',
+    Kpt: 'BusinessModelCanvas',
+    UserPersona: 'BusinessModelCanvas',
+    EmpathyMap: 'BusinessModelCanvas',
+    Kanban: 'BusinessModelCanvas',
+    Table: 'BusinessModelCanvas',
+};
 export class MonacoEditor extends HTMLElement {
     init: boolean;
-
     textChanged: boolean;
-
     editor: monaco.editor.IStandaloneCodeEditor | null;
 
     constructor() {
@@ -111,7 +88,14 @@ export class MonacoEditor extends HTMLElement {
     }
 
     static get observedAttributes(): string[] {
-        return ['value', 'fontSize', 'wordWrap', 'showLineNumber', 'changed'];
+        return [
+            'value',
+            'fontSize',
+            'wordWrap',
+            'showLineNumber',
+            'changed',
+            'diagramType',
+        ];
     }
 
     attributeChangedCallback(
@@ -153,6 +137,12 @@ export class MonacoEditor extends HTMLElement {
                     this.changed = newValue === 'true';
                 }
                 break;
+            case 'diagramType':
+                if (oldValue !== newValue) {
+                    this.diagramType = newValue as DiagramType;
+                }
+                break;
+
             default:
                 throw new Error(`Unknown attribute ${name}`);
         }
@@ -183,12 +173,22 @@ export class MonacoEditor extends HTMLElement {
             : null;
     }
 
+    set diagramType(value: DiagramType) {
+        const model = this.editor?.getModel();
+        if (model) {
+            monaco.editor.setModelLanguage(
+                model,
+                ENABLED_LANG_DIAGRAM_TYPE[value]
+            );
+        }
+    }
+
     async connectedCallback(): Promise<void> {
         const editor = document.getElementById('editor') as HTMLElement | null;
         if (editor) {
             this.editor = monaco.editor.create(editor, {
-                language: 'userStoryMap',
-                theme: 'userStoryMap',
+                language: 'UserStoryMap',
+                theme: 'default',
                 lineNumbers:
                     this.getAttribute('showLineNumber') === 'true'
                         ? 'on'
@@ -253,6 +253,13 @@ export class MonacoEditor extends HTMLElement {
                 const fontSize = this.getAttribute('fontSize');
                 if (fontSize) {
                     this.fontSize = parseInt(fontSize, 10);
+                }
+            }
+
+            if (this.hasAttribute('diagramType')) {
+                const d = this.getAttribute('diagramType');
+                if (d) {
+                    this.diagramType = d as DiagramType;
                 }
             }
 
