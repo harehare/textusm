@@ -36,9 +36,10 @@ const showQuickPick = (
     if (selection.length > 0) {
       const label = selection[0].label;
       const values = options.filter((item) => item.label === label);
+      const diagramType = values[0].value as DiagramType;
 
       if (values.length > 0) {
-        DiagramPanel.createOrShow(context, values[0].value);
+        DiagramPanel.createOrShow(context, diagramType);
         callback();
         quickPick.hide();
       }
@@ -67,10 +68,51 @@ const setPreviewActiveContext = (value: boolean) => {
   vscode.commands.executeCommand("setContext", "textUsmPreviewFocus", value);
 };
 
+type DiagramType =
+  | "usm"
+  | "opc"
+  | "bmc"
+  | "4ls"
+  | "ssc"
+  | "kpt"
+  | "persona"
+  | "mmp"
+  | "emm"
+  | "smp"
+  | "gct"
+  | "imm"
+  | "erd"
+  | "kanban"
+  | "table"
+  | "sed"
+  | "free"
+  | "ucd";
+
+const ENABLED_LANG_DIAGRAM_TYPE: { [v in DiagramType]: DiagramType } = {
+  usm: "usm",
+  mmp: "usm",
+  imm: "usm",
+  smp: "usm",
+  bmc: "usm",
+  sed: "usm",
+  free: "usm",
+  ucd: "usm",
+  erd: "usm",
+  gct: "usm",
+  opc: "usm",
+  "4ls": "usm",
+  ssc: "usm",
+  kpt: "usm",
+  persona: "usm",
+  emm: "usm",
+  kanban: "usm",
+  table: "usm",
+};
+
 export function activate(context: vscode.ExtensionContext) {
-  const newTextOpen = async (text: string, diagramType: string) => {
+  const newTextOpen = async (text: string, diagramType: DiagramType) => {
     const doc = await vscode.workspace.openTextDocument({
-      language: "usm",
+      language: ENABLED_LANG_DIAGRAM_TYPE[diagramType],
       content: text,
     });
     const editor = await vscode.window.showTextDocument(doc, -1, true);
@@ -115,86 +157,84 @@ export function activate(context: vscode.ExtensionContext) {
           const editor = vscode.window.activeTextEditor;
 
           if (editor && values.length > 0) {
-            switch (values[0].value) {
+            const diagramType = values[0].value as DiagramType;
+            switch (diagramType) {
               case "usm":
                 newTextOpen(
                   "# user_activities: USER ACTIVITIES\n# user_tasks: USER TASKS\n# user_stories: USER STORIES\n# release1: RELEASE 1\n# release2: RELEASE 2\n# release3: RELEASE 3\nUSER ACTIVITY\n    USER TASK\n        USER STORY",
-                  values[0].value
+                  diagramType
                 );
                 break;
               case "bmc":
                 newTextOpen(
                   "👥 Key Partners\n📊 Customer Segments\n🎁 Value Proposition\n✅ Key Activities\n🚚 Channels\n💰 Revenue Streams\n🏷️ Cost Structure\n💪 Key Resources\n💙 Customer Relationships",
-                  values[0].value
+                  diagramType
                 );
                 break;
               case "opc":
                 newTextOpen(
                   "Problems\nSolution Ideas\nUsers and Customers\nSolutions Today\nBusiness Challenges\nHow will Users use Solution?\nUser Metrics\nAdoption Strategy\nBusiness Benefits and Metrics\nBudget",
-                  values[0].value
+                  diagramType
                 );
                 break;
               case "4ls":
-                newTextOpen(
-                  "Liked\nLearned\nLacked\nLonged for",
-                  values[0].value
-                );
+                newTextOpen("Liked\nLearned\nLacked\nLonged for", diagramType);
                 break;
               case "ssc":
-                newTextOpen("Start\nStop\nContinue", values[0].value);
+                newTextOpen("Start\nStop\nContinue", diagramType);
                 break;
               case "kpt":
-                newTextOpen("K\nP\nT", values[0].value);
+                newTextOpen("K\nP\nT", diagramType);
                 break;
               case "persona":
                 newTextOpen(
                   "Name\n    https://app.textusm.com/images/logo.svg\nWho am i...\nThree reasons to use your product\nThree reasons to buy your product\nMy interests\nMy personality\nMy Skills\nMy dreams\nMy relationship with technology",
-                  values[0].value
+                  diagramType
                 );
                 break;
               case "emm":
                 newTextOpen(
                   "https://app.textusm.com/images/logo.svg\nSAYS\nTHINKS\nDOES\nFEELS",
-                  values[0].value
+                  diagramType
                 );
                 break;
               case "table":
                 newTextOpen(
                   "Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\n    Column7\nRow1\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6\nRow2\n    Column1\n    Column2\n    Column3\n    Column4\n    Column5\n    Column6",
-                  values[0].value
+                  diagramType
                 );
                 break;
               case "gct":
                 newTextOpen(
                   "2019-12-26 2020-01-31\n    title1\n        subtitle1\n            2019-12-26 2019-12-31\n    title2\n        subtitle2\n            2019-12-31 2020-01-04\n",
-                  values[0].value
+                  diagramType
                 );
               case "imm":
-                newTextOpen("", values[0].value);
+                newTextOpen("", diagramType);
                 break;
               case "erd":
                 newTextOpen(
                   "relations\n    # one to one\n    Table1 - Table2\n    # one to many\n    Table1 < Table3\ntables\n    Table1\n        id int pk auto_increment\n        name varchar(255) unique\n        rate float null\n        value double not null\n        values enum(value1,value2) not null\n    Table2\n        id int pk auto_increment\n        name double unique\n    Table3\n        id int pk auto_increment\n        name varchar(255) index\n",
-                  values[0].value
+                  diagramType
                 );
                 break;
               case "kanban":
-                newTextOpen("TODO\nDOING\nDONE", values[0].value);
+                newTextOpen("TODO\nDOING\nDONE", diagramType);
                 break;
               case "sed":
                 newTextOpen(
                   "participant\n    object1\n    object2\n    object3\nobject1 -> object2\n    Sync Message\nobject1 ->> object2\n    Async Message\nobject2 --> object1\n    Reply Message\no-> object1\n    Found Message\nobject1 ->o\n    Stop Message\nloop\n    loop message\n        object1 -> object2\n            Sync Message\n        object1 ->> object2\n            Async Message\nPar\n    par message1\n        object2 -> object3\n            Sync Message\n    par message2\n        object1 -> object2\n            Sync Message\n",
-                  values[0].value
+                  diagramType
                 );
                 break;
               case "ucd":
                 newTextOpen(
                   "[Customer]\n    Sign In\n    Buy Products\n(Buy Products)\n    >Browse Products\n    >Checkout\n(Checkout)\n    <Add New Credit Card\n[Staff]\n    Processs Order\n",
-                  values[0].value
+                  diagramType
                 );
                 break;
               default:
-                newTextOpen("", values[0].value);
+                newTextOpen("", diagramType);
                 break;
             }
           }
@@ -217,7 +257,7 @@ class DiagramPanel {
 
   public static createOrShow(
     context: vscode.ExtensionContext,
-    diagramType: string
+    diagramType: DiagramType
   ) {
     const column = vscode.window.activeTextEditor
       ? vscode.window.activeTextEditor.viewColumn

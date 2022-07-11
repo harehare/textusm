@@ -85,7 +85,7 @@ type alias Props =
 view : Props -> Html Msg
 view props =
     Html.header
-        [ css [ displayFlex, alignItems center, Style.widthScreen, ColorStyle.bgMain, height <| px 40 ]
+        [ css [ displayFlex, alignItems center, Style.widthScreen, ColorStyle.bgMain, height <| px 40, Style.borderBottom0_5 ]
         ]
         (Html.div
             [ css

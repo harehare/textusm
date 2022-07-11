@@ -38,6 +38,7 @@ view =
             , displayFlex
             , alignItems center
             , justifyContent flexEnd
+            , Style.borderTop0_5
             ]
         ]
         [ Html.div [ css [ padding <| rem 0.5, cursor pointer ] ]
