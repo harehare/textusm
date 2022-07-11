@@ -175,6 +175,7 @@ view props =
                     , position relative
                     , flexDirection column
                     , Style.wMenu
+                    , Style.borderRight0_5
                     ]
                 ]
             ]

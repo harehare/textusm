@@ -1,15 +1,8 @@
 module Action exposing
     ( changePublicState
     , changeRouteInit
-    , closeDialog
     , closeLocalFile
-    , closeMenu
-    , closeNotification
     , historyBack
-    , initListPage
-    , initSettingsPage
-    , initShareDiagram
-    , loadDiagram
     , loadItem
     , loadLocalDiagram
     , loadPublicItem
@@ -17,45 +10,25 @@ module Action exposing
     , loadShareItem
     , loadText
     , loadWithPasswordShareItem
-    , moveTo
-    , needSaved
-    , pushUrl
-    , redirectToLastEditedFile
     , revokeGistToken
     , saveDiagram
     , saveLocalFile
     , saveSettings
     , saveToLocal
     , saveToRemote
-    , setCurrentDiagram
     , setFocus
     , setFocusEditor
-    , setSettings
-    , setTitle
-    , showConfirmDialog
-    , showErrorMessage
-    , showInfoMessage
-    , showWarningMessage
-    , startEditTitle
-    , startProgress
-    , stopProgress
-    , switchPage
     , toggleFullscreen
-    , unchanged
     , updateIdToken
-    , updateWindowState
     )
 
 import Api.Http.Token as TokenApi
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
-import Browser.Dom as Dom
+import Browser.Dom as Dom exposing (Viewport)
 import Browser.Navigation as Nav
-import Components.Diagram as Diagram
-import Dialog.Share as Share
 import Graphql.OptionalArgument as OptionalArgument
 import Message exposing (Message)
-import Models.Diagram as DiagramModel
 import Models.DiagramId as DiagramId exposing (DiagramId)
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
@@ -63,286 +36,175 @@ import Models.DiagramSettings as DiagramSettings
 import Models.DiagramType as DiagramType exposing (DiagramType)
 import Models.Dialog exposing (ConfirmDialog(..))
 import Models.LoginProvider as LoginProvider
-import Models.Model exposing (Model, Msg(..))
-import Models.Notification as Notification
-import Models.Page exposing (Page)
-import Models.Session as Session
-import Models.SettingsCache as SettingCache
+import Models.Session as Session exposing (Session)
+import Models.SettingsCache as SettingCache exposing (SettingsCache)
 import Models.ShareToken as ShareToken exposing (ShareToken)
-import Models.Size as Size
 import Models.Text as Text
 import Models.Title as Title
 import Models.Window as Window exposing (Window)
-import Page.List as DiagramList
-import Page.Settings as SettingsPage
 import Ports
 import Return exposing (Return)
-import Route exposing (Route)
+import Route
 import Settings
 import Task
-import Utils.Utils as Utils
+import Url
 
 
-changePublicState : DiagramItem -> Bool -> Model -> Return Msg Model
-changePublicState diagram isPublic model =
-    Return.return model <|
-        Task.attempt ChangePublicStatusCompleted
-            (Request.save
-                (Session.getIdToken model.session)
-                (DiagramItem.toInputItem diagram)
-                isPublic
-                |> Task.mapError (\_ -> diagram)
-            )
+changePublicState : (Result DiagramItem DiagramItem -> msg) -> { item : DiagramItem, isPublic : Bool, session : Session } -> Return.ReturnF msg model
+changePublicState msg { item, isPublic, session } =
+    Request.save
+        (Session.getIdToken session)
+        (DiagramItem.toInputItem item)
+        isPublic
+        |> Task.mapError (\_ -> item)
+        |> Task.attempt msg
+        |> Return.command
 
 
-changeRouteInit : Model -> Return Msg Model
-changeRouteInit model =
-    Return.return model (Task.perform Init Dom.getViewport)
+changeRouteInit : (Viewport -> msg) -> Return.ReturnF msg model
+changeRouteInit msg =
+    Return.command <| Task.perform msg Dom.getViewport
 
 
-closeDialog : Model -> Return Msg Model
-closeDialog model =
-    Return.singleton { model | confirmDialog = Hide }
+closeLocalFile : Return.ReturnF msg model
+closeLocalFile =
+    Return.command <| Ports.closeLocalFile ()
 
 
-closeLocalFile : Model -> Return Msg Model
-closeLocalFile model =
-    Return.return model <| Ports.closeLocalFile ()
-
-
-closeMenu : Model -> Return Msg Model
-closeMenu model =
-    Return.singleton { model | openMenu = Nothing }
-
-
-closeNotification : Return.ReturnF Msg Model
-closeNotification =
-    Return.command (Utils.delay 3000 HandleCloseNotification)
-
-
-historyBack : Nav.Key -> Return.ReturnF Msg Model
+historyBack : Nav.Key -> Return.ReturnF msg model
 historyBack key =
     Return.command <| Nav.back key 1
 
 
-initListPage : Model -> Return Msg Model
-initListPage model =
-    let
-        ( model_, cmd_ ) =
-            DiagramList.init model.session model.lang model.diagramListModel.apiRoot model.browserStatus.isOnline
-    in
-    Return.return { model | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
+loadFromRemote :
+    (Result RequestError DiagramItem -> msg)
+    -> { id : DiagramId, session : Session }
+    -> Return.ReturnF msg model
+loadFromRemote msg { id, session } =
+    Request.item
+        (Session.getIdToken session)
+        (DiagramId.toString id)
+        |> Task.attempt msg
+        |> Return.command
 
 
-initSettingsPage : Model -> Return Msg Model
-initSettingsPage model =
-    let
-        ( model_, cmd_ ) =
-            SettingsPage.init model.browserStatus.canUseNativeFileSystem model.session model.settingsModel.settings
-    in
-    Return.return { model | settingsModel = model_ } (cmd_ |> Cmd.map UpdateSettings)
-
-
-initShareDiagram : DiagramItem -> Model -> Return Msg Model
-initShareDiagram diagramItem model =
-    let
-        ( shareModel, cmd_ ) =
-            Share.init
-                { diagram = diagramItem.diagram
-                , diagramId = diagramItem.id |> Maybe.withDefault (DiagramId.fromString "")
-                , session = model.session
-                , title = model.currentDiagram.title
-                }
-    in
-    Return.return { model | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare)
-
-
-loadDiagram : DiagramItem -> Model -> Return Msg Model
-loadDiagram diagram model =
-    let
-        ( model_, cmd_ ) =
-            Return.singleton newDiagramModel |> Diagram.update (DiagramModel.ChangeText <| Text.toString diagram.text)
-
-        diagramModel : DiagramModel.Model
-        diagramModel =
-            model.diagramModel
-
-        newDiagramModel : DiagramModel.Model
-        newDiagramModel =
-            { diagramModel
-                | diagramType = diagram.diagram
-                , text = diagram.text
-            }
-    in
-    Return.return
-        { model
-            | diagramModel = model_
-            , currentDiagram = diagram
-        }
-        (cmd_ |> Cmd.map UpdateDiagram)
-        |> Return.andThen stopProgress
-
-
-loadItem : DiagramId -> Model -> Return Msg Model
-loadItem id_ model =
-    case model.session of
+loadItem : (Result RequestError DiagramItem -> msg) -> { id : DiagramId, session : Session } -> Return.ReturnF msg model
+loadItem msg { session, id } =
+    case session of
         Session.SignedIn user ->
-            let
-                loadFromRemote : Return Msg Model
-                loadFromRemote =
-                    Return.return model
-                        (Task.attempt Load <|
-                            Request.item
-                                (Session.getIdToken model.session)
-                                (DiagramId.toString id_)
-                        )
-            in
             case user.loginProvider of
                 LoginProvider.Github (Just accessToken) ->
-                    if DiagramId.isGithubId id_ then
-                        Return.return model
-                            (Task.attempt Load <|
-                                Request.gistItem
-                                    (Session.getIdToken model.session)
-                                    accessToken
-                                    (DiagramId.toString id_)
-                            )
+                    if DiagramId.isGithubId id then
+                        Request.gistItem
+                            (Session.getIdToken session)
+                            accessToken
+                            (DiagramId.toString id)
+                            |> Task.attempt msg
+                            |> Return.command
 
                     else
-                        loadFromRemote
+                        loadFromRemote msg { session = session, id = id }
 
                 LoginProvider.Github Nothing ->
-                    if DiagramId.isGithubId id_ then
-                        Return.return model <| Ports.getGithubAccessToken (DiagramId.toString id_)
+                    if DiagramId.isGithubId id then
+                        Return.command <| Ports.getGithubAccessToken (DiagramId.toString id)
 
                     else
-                        loadFromRemote
+                        loadFromRemote msg { session = session, id = id }
 
                 _ ->
-                    loadFromRemote
+                    loadFromRemote msg { session = session, id = id }
 
         Session.Guest ->
-            Return.singleton model
+            Return.zero
 
 
-loadLocalDiagram : DiagramId -> Model -> Return Msg Model
-loadLocalDiagram diagramId model =
-    Return.return model <| Ports.getDiagram (DiagramId.toString diagramId)
+loadLocalDiagram : DiagramId -> Return.ReturnF msg model
+loadLocalDiagram diagramId =
+    Return.command <| Ports.getDiagram (DiagramId.toString diagramId)
 
 
-loadPublicItem : DiagramId -> Model -> Return Msg Model
-loadPublicItem id_ model =
-    Return.return model
-        (Task.attempt Load <|
-            Request.publicItem
-                (Session.getIdToken model.session)
-                (DiagramId.toString id_)
-        )
+loadPublicItem : (Result RequestError DiagramItem -> msg) -> { id : DiagramId, session : Session } -> Return.ReturnF msg model
+loadPublicItem msg { id, session } =
+    Request.publicItem
+        (Session.getIdToken session)
+        (DiagramId.toString id)
+        |> Task.attempt msg
+        |> Return.command
 
 
-loadSettings : Model -> Return Msg Model
-loadSettings model =
-    if Session.isSignedIn model.session then
-        case SettingCache.get model.settingsCache model.currentDiagram.diagram of
+loadSettings : (Result RequestError DiagramSettings.Settings -> msg) -> { diagramType : DiagramType, cache : SettingsCache, session : Session } -> Return.ReturnF msg model
+loadSettings msg { diagramType, cache, session } =
+    if Session.isSignedIn session then
+        case SettingCache.get cache diagramType of
             Just setting ->
                 Ok setting
-                    |> LoadSettings
+                    |> msg
                     |> Task.succeed
                     |> Task.perform identity
-                    |> Return.return model
+                    |> Return.command
 
             Nothing ->
-                loadRemoteSettings model.currentDiagram.diagram model
+                loadRemoteSettings msg { diagramType = diagramType, session = session }
 
     else
-        Return.singleton model
+        Return.zero
 
 
-loadShareItem : ShareToken -> Model -> Return Msg Model
-loadShareItem token model =
-    Return.return model
-        (Task.attempt Load <|
-            Request.shareItem
-                (Session.getIdToken model.session)
-                (ShareToken.toString token)
-                Nothing
-        )
+loadShareItem : (Result RequestError DiagramItem -> msg) -> { token : ShareToken, session : Session } -> Return.ReturnF msg model
+loadShareItem msg { token, session } =
+    Request.shareItem
+        (Session.getIdToken session)
+        (ShareToken.toString token)
+        Nothing
+        |> Task.attempt msg
+        |> Return.command
 
 
-loadText : DiagramItem -> Model -> Return Msg Model
-loadText diagram model =
-    Return.return model (Task.attempt Load <| Task.succeed diagram)
+loadText : (Result RequestError DiagramItem -> msg) -> DiagramItem -> Return.ReturnF msg model
+loadText msg diagram =
+    Task.succeed diagram
+        |> Task.attempt msg
+        |> Return.command
 
 
-loadWithPasswordShareItem : ShareToken -> Maybe String -> Model -> Return Msg Model
-loadWithPasswordShareItem token password model =
-    Return.return model
-        (Task.attempt LoadWithPassword <|
-            Request.shareItem
-                (Session.getIdToken model.session)
-                (ShareToken.toString token)
-                password
-        )
+loadWithPasswordShareItem : (Result RequestError DiagramItem -> msg) -> { token : ShareToken, password : Maybe String, session : Session } -> Return.ReturnF msg model
+loadWithPasswordShareItem msg { token, password, session } =
+    Request.shareItem
+        (Session.getIdToken session)
+        (ShareToken.toString token)
+        password
+        |> Task.attempt msg
+        |> Return.command
 
 
-moveTo : Route -> Model -> Return Msg Model
-moveTo route model =
-    Return.return model <| Route.moveTo model.key route
-
-
-needSaved : Model -> Return Msg Model
-needSaved model =
-    Return.singleton
-        { model
-            | diagramModel =
-                model.diagramModel
-                    |> DiagramModel.ofText.set (Text.change model.diagramModel.text)
-        }
-
-
-pushUrl : String -> Model -> Return Msg Model
-pushUrl url model =
-    Return.return model <| Nav.pushUrl model.key url
-
-
-redirectToLastEditedFile : Model -> Return Msg Model
-redirectToLastEditedFile model =
-    case ( model.currentDiagram.id, model.currentDiagram.diagram ) of
-        ( Just id_, diagramType ) ->
-            moveTo (Route.EditFile diagramType id_) model
-
-        _ ->
-            Return.singleton model
-
-
-revokeGistToken : Model -> Return Msg Model
-revokeGistToken model =
-    case model.session of
+revokeGistToken : (Result Message () -> msg) -> Session -> Return.ReturnF msg model
+revokeGistToken msg session =
+    case session of
         Session.SignedIn user ->
             case user.loginProvider of
                 LoginProvider.Github (Just accessToken) ->
-                    Return.return model
-                        (Task.attempt CallApi
-                            (TokenApi.revokeGistToken
-                                (Session.getIdToken model.session)
-                                accessToken
-                                |> Task.mapError (\_ -> Message.messageFailedRevokeToken)
-                            )
-                        )
+                    (TokenApi.revokeGistToken
+                        (Session.getIdToken session)
+                        accessToken
+                        |> Task.mapError (\_ -> Message.messageFailedRevokeToken)
+                    )
+                        |> Task.attempt msg
+                        |> Return.command
 
                 _ ->
-                    Return.singleton model
+                    Return.zero
 
         Session.Guest ->
-            Return.singleton model
+            Return.zero
 
 
-saveDiagram : DiagramItem -> Return.ReturnF Msg Model
+saveDiagram : DiagramItem -> Return.ReturnF msg model
 saveDiagram item =
     Return.command <| (Ports.saveDiagram <| DiagramItem.encoder item)
 
 
-saveLocalFile : DiagramItem -> Return.ReturnF Msg Model
+saveLocalFile : DiagramItem -> Return.ReturnF msg model
 saveLocalFile item =
     let
         d : DiagramItem
@@ -363,161 +225,67 @@ saveLocalFile item =
     Return.command <| (Ports.saveLocalFile <| DiagramItem.encoder d)
 
 
-saveSettings : Model -> Return Msg Model
-saveSettings model =
-    case ( Route.toRoute model.url, Session.isSignedIn model.session ) of
+saveSettings : (Result RequestError DiagramSettings.Settings -> msg) -> { session : Session, diagramType : DiagramType, url : Url.Url, settings : DiagramSettings.Settings } -> Return.ReturnF msg model
+saveSettings msg { session, diagramType, url, settings } =
+    case ( Route.toRoute url, Session.isSignedIn session ) of
         ( Route.Settings, True ) ->
-            saveSettingsToRemote model.currentDiagram.diagram model.settingsModel.settings.storyMap model
-                |> Return.andThen (setSettingsCache model.settingsModel.settings.storyMap)
+            saveSettingsToRemote msg { diagramType = diagramType, settings = settings, session = session }
 
         _ ->
-            Return.singleton model
+            Return.zero
 
 
-saveToLocal : DiagramItem -> Return.ReturnF Msg Model
+saveToLocal : DiagramItem -> Return.ReturnF msg model
 saveToLocal item =
     Return.command <| (Ports.saveDiagram <| DiagramItem.encoder { item | isRemote = False })
 
 
-saveToRemote : DiagramItem -> Model -> Return Msg Model
-saveToRemote diagram model =
-    case model.session of
+saveToRemote : (Result RequestError DiagramItem -> msg) -> { diagram : DiagramItem, session : Session, settings : Settings.Settings } -> Return.ReturnF msg model
+saveToRemote msg { diagram, session, settings } =
+    case session of
         Session.SignedIn user ->
-            case ( diagram.location, model.settingsModel.settings.location, user.loginProvider ) of
+            case ( diagram.location, settings.location, user.loginProvider ) of
                 ( Just DiagramLocation.Gist, _, LoginProvider.Github (Just accessToken) ) ->
                     let
                         saveTask : Task.Task RequestError DiagramItem
                         saveTask =
-                            Request.saveGist (Session.getIdToken model.session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
+                            Request.saveGist (Session.getIdToken session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
                     in
-                    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+                    Return.command <| Task.attempt msg saveTask
 
                 ( _, Just DiagramLocation.Gist, LoginProvider.Github (Just accessToken) ) ->
                     let
                         saveTask : Task.Task RequestError DiagramItem
                         saveTask =
-                            Request.saveGist (Session.getIdToken model.session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
+                            Request.saveGist (Session.getIdToken session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
                     in
-                    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+                    Return.command <| Task.attempt msg saveTask
 
                 _ ->
                     let
                         saveTask : Task.Task RequestError DiagramItem
                         saveTask =
-                            Request.save (Session.getIdToken model.session) (DiagramItem.toInputItem diagram) diagram.isPublic
+                            Request.save (Session.getIdToken session) (DiagramItem.toInputItem diagram) diagram.isPublic
                     in
-                    Return.return model <| Task.attempt SaveToRemoteCompleted saveTask
+                    Return.command <| Task.attempt msg saveTask
 
         Session.Guest ->
-            Return.singleton model
+            Return.zero
 
 
-setCurrentDiagram : DiagramItem -> Model -> Return Msg Model
-setCurrentDiagram currentDiagram model =
-    Return.singleton { model | currentDiagram = currentDiagram }
+setFocus : msg -> String -> Return.ReturnF msg model
+setFocus msg id =
+    Task.attempt (\_ -> msg)
+        (Dom.focus id)
+        |> Return.command
 
 
-setFocus : String -> Model -> Return Msg Model
-setFocus id model =
-    Return.return model
-        (Task.attempt (\_ -> NoOp)
-            (Dom.focus id)
-        )
-
-
-setFocusEditor : Return.ReturnF Msg Model
+setFocusEditor : Return.ReturnF msg model
 setFocusEditor =
     Return.command <| Ports.focusEditor ()
 
 
-setSettings : DiagramSettings.Settings -> Model -> Return Msg Model
-setSettings settings model =
-    let
-        newSettings : SettingsPage.Model
-        newSettings =
-            model.settingsModel
-    in
-    Return.singleton
-        { model
-            | diagramModel = model.diagramModel |> DiagramModel.ofSettings.set settings
-            , settingsModel = { newSettings | settings = model.settingsModel.settings |> Settings.storyMapOfSettings.set settings }
-        }
-        |> Return.andThen (setSettingsCache settings)
-
-
-setSettingsCache : DiagramSettings.Settings -> Model -> Return Msg Model
-setSettingsCache settings model =
-    Return.singleton
-        { model | settingsCache = SettingCache.set model.settingsCache model.currentDiagram.diagram settings }
-
-
-setTitle : String -> Model -> Return Msg Model
-setTitle title model =
-    Return.singleton { model | currentDiagram = DiagramItem.ofTitle.set (Title.fromString <| title) model.currentDiagram }
-
-
-showConfirmDialog : String -> String -> Route -> Model -> Return Msg Model
-showConfirmDialog title message route model =
-    Return.singleton
-        { model
-            | confirmDialog = Show { title = title, message = message, ok = MoveTo route, cancel = CloseDialog }
-        }
-
-
-showErrorMessage : Message -> Model -> Return Msg Model
-showErrorMessage msg model =
-    Return.return model
-        (Notification.showErrorNotifcation (msg model.lang)
-            |> ShowNotification
-            |> Task.succeed
-            |> Task.perform identity
-        )
-        |> closeNotification
-
-
-showInfoMessage : Message -> Model -> Return Msg Model
-showInfoMessage msg model =
-    Return.return model
-        (Notification.showInfoNotifcation (msg model.lang)
-            |> ShowNotification
-            |> Task.succeed
-            |> Task.perform identity
-        )
-        |> closeNotification
-
-
-showWarningMessage : Message -> Model -> Return Msg Model
-showWarningMessage msg model =
-    Return.return model
-        (Notification.showWarningNotifcation (msg model.lang)
-            |> ShowNotification
-            |> Task.succeed
-            |> Task.perform identity
-        )
-        |> closeNotification
-
-
-startEditTitle : Model -> Return Msg Model
-startEditTitle model =
-    Return.return model <| Task.perform identity <| Task.succeed StartEditTitle
-
-
-startProgress : Model -> Return Msg Model
-startProgress model =
-    Return.singleton { model | progress = True }
-
-
-stopProgress : Model -> Return Msg Model
-stopProgress model =
-    Return.singleton { model | progress = False }
-
-
-switchPage : Page -> Model -> Return Msg Model
-switchPage page model =
-    Return.singleton { model | page = page }
-
-
-toggleFullscreen : Window -> Return.ReturnF Msg Model
+toggleFullscreen : Window -> Return.ReturnF msg model
 toggleFullscreen window =
     if Window.isFullscreen window then
         closeFullscreen
@@ -526,111 +294,81 @@ toggleFullscreen window =
         openFullscreen
 
 
-unchanged : Model -> Return Msg Model
-unchanged model =
-    Return.singleton
-        { model
-            | diagramModel =
-                model.diagramModel
-                    |> DiagramModel.ofText.set (Text.saved model.diagramModel.text)
-        }
+updateIdToken : Return.ReturnF msg model
+updateIdToken =
+    Return.command <| Ports.refreshToken ()
 
 
-updateIdToken : Model -> Return Msg Model
-updateIdToken model =
-    Return.return model <| Ports.refreshToken ()
+loadRemoteSettings : (Result RequestError DiagramSettings.Settings -> msg) -> { diagramType : DiagramType, session : Session } -> Return msg model -> Return msg model
+loadRemoteSettings msg { diagramType, session } =
+    Request.settings
+        (Session.getIdToken session)
+        diagramType
+        |> Task.attempt msg
+        |> Return.command
 
 
-updateWindowState : Model -> Return Msg Model
-updateWindowState model =
-    Return.singleton
-        { model
-            | window =
-                model.window
-                    |> (if Utils.isPhone (Size.getWidth model.diagramModel.size) then
-                            Window.showEditor
-
-                        else if Window.isFullscreen model.window then
-                            Window.fullscreen
-
-                        else
-                            Window.showEditorAndPreview
-                       )
-        }
-
-
-closeFullscreen : Return.ReturnF Msg Model
-closeFullscreen =
-    Return.command <| Ports.closeFullscreen ()
-
-
-loadRemoteSettings : DiagramType -> Model -> Return Msg Model
-loadRemoteSettings diagram model =
-    Return.return model
-        (Task.attempt LoadSettings <|
-            Request.settings
-                (Session.getIdToken model.session)
-                diagram
-        )
-
-
-openFullscreen : Return.ReturnF Msg Model
+openFullscreen : Return.ReturnF msg model
 openFullscreen =
     Return.command <| Ports.openFullscreen ()
 
 
-saveSettingsToRemote : DiagramType -> DiagramSettings.Settings -> Model -> Return Msg Model
-saveSettingsToRemote diagram settings model =
-    Return.return model
-        (Task.attempt SaveSettings <|
-            Request.saveSettings
-                (Session.getIdToken model.session)
-                diagram
-                { font = settings.font
-                , width = settings.size.width
-                , height = settings.size.height
-                , backgroundColor = settings.backgroundColor
-                , activityColor =
-                    { foregroundColor = settings.color.activity.color
-                    , backgroundColor = settings.color.activity.backgroundColor
-                    }
-                , taskColor =
-                    { foregroundColor = settings.color.task.color
-                    , backgroundColor = settings.color.task.backgroundColor
-                    }
-                , storyColor =
-                    { foregroundColor = settings.color.story.color
-                    , backgroundColor = settings.color.story.backgroundColor
-                    }
-                , lineColor = settings.color.line
-                , labelColor = settings.color.label
-                , textColor =
-                    case settings.color.text of
-                        Just c ->
-                            OptionalArgument.Present c
+closeFullscreen : Return.ReturnF msg model
+closeFullscreen =
+    Return.command <| Ports.closeFullscreen ()
 
-                        Nothing ->
-                            OptionalArgument.Absent
-                , zoomControl =
-                    case settings.zoomControl of
-                        Just z ->
-                            OptionalArgument.Present z
 
-                        Nothing ->
-                            OptionalArgument.Absent
-                , scale =
-                    case settings.scale of
-                        Just s ->
-                            OptionalArgument.Present s
+saveSettingsToRemote : (Result RequestError DiagramSettings.Settings -> msg) -> { session : Session, diagramType : DiagramType, settings : DiagramSettings.Settings } -> Return.ReturnF msg model
+saveSettingsToRemote msg { session, diagramType, settings } =
+    Request.saveSettings
+        (Session.getIdToken session)
+        diagramType
+        { font = settings.font
+        , width = settings.size.width
+        , height = settings.size.height
+        , backgroundColor = settings.backgroundColor
+        , activityColor =
+            { foregroundColor = settings.color.activity.color
+            , backgroundColor = settings.color.activity.backgroundColor
+            }
+        , taskColor =
+            { foregroundColor = settings.color.task.color
+            , backgroundColor = settings.color.task.backgroundColor
+            }
+        , storyColor =
+            { foregroundColor = settings.color.story.color
+            , backgroundColor = settings.color.story.backgroundColor
+            }
+        , lineColor = settings.color.line
+        , labelColor = settings.color.label
+        , textColor =
+            case settings.color.text of
+                Just c ->
+                    OptionalArgument.Present c
 
-                        Nothing ->
-                            OptionalArgument.Absent
-                , toolbar =
-                    case settings.toolbar of
-                        Just z ->
-                            OptionalArgument.Present z
+                Nothing ->
+                    OptionalArgument.Absent
+        , zoomControl =
+            case settings.zoomControl of
+                Just z ->
+                    OptionalArgument.Present z
 
-                        Nothing ->
-                            OptionalArgument.Absent
-                }
-        )
+                Nothing ->
+                    OptionalArgument.Absent
+        , scale =
+            case settings.scale of
+                Just s ->
+                    OptionalArgument.Present s
+
+                Nothing ->
+                    OptionalArgument.Absent
+        , toolbar =
+            case settings.toolbar of
+                Just z ->
+                    OptionalArgument.Present z
+
+                Nothing ->
+                    OptionalArgument.Absent
+        }
+        |> Task.attempt msg
+        |> Return.command
