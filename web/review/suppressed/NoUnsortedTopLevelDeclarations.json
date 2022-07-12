@@ -6,6 +6,7 @@
     { "count": 1, "filePath": "src/elm/Action.elm" },
     { "count": 1, "filePath": "src/elm/Dialog/Share.elm" },
     { "count": 1, "filePath": "src/elm/Events.elm" },
+    { "count": 1, "filePath": "src/elm/Main.elm" },
     { "count": 1, "filePath": "src/elm/Models/Exporter.elm" },
     { "count": 1, "filePath": "src/elm/Models/SettingsCache.elm" },
     { "count": 1, "filePath": "src/elm/Page/List.elm" },

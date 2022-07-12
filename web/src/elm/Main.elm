@@ -44,6 +44,7 @@ import Models.Session as Session
 import Models.SettingsCache as SettingsCache
 import Models.ShareState as ShareState
 import Models.ShareToken as ShareToken
+import Models.Shortcuts as Shortcuts
 import Models.Size as Size exposing (Size)
 import Models.Snackbar as SnackbarModel
 import Models.Text as Text
@@ -140,7 +141,7 @@ changeRouteTo route =
             in
             Return.andThen (setCurrentDiagram diagram)
                 >> Return.andThen startProgress
-                >> Return.andThen (\m -> Return.singleton m |> Action.loadSettings LoadSettings { session = m.session, cache = m.settingsCache, diagramType = m.currentDiagram.diagram })
+                >> Return.andThen (\m -> Return.singleton m |> Action.loadSettings LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session })
                 >> Return.andThen (loadDiagram diagram)
                 >> Return.andThen (switchPage Page.Main)
                 >> Action.changeRouteInit Init
@@ -154,8 +155,8 @@ changeRouteTo route =
                                 Action.updateIdToken
                                     >> Return.andThen (switchPage Page.Main)
                                     >> Return.andThen startProgress
-                                    >> Action.loadSettings LoadSettings { session = m.session, cache = m.settingsCache, diagramType = m.currentDiagram.diagram }
-                                    >> Action.loadItem Load { session = m.session, id = id_ }
+                                    >> Action.loadSettings LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
+                                    >> Action.loadItem Load { id = id_, session = m.session }
 
                             else
                                 Return.andThen (switchPage Page.Main)
@@ -216,7 +217,7 @@ changeRouteTo route =
                         }
                 )
                 >> Return.andThen (setTitle title)
-                >> Return.andThen (\m -> Return.singleton m |> Action.loadShareItem Load { token = id_, session = m.session })
+                >> Return.andThen (\m -> Return.singleton m |> Action.loadShareItem Load { session = m.session, token = id_ })
                 >> Return.andThen (switchPage Page.Embed)
                 >> Action.changeRouteInit Init
 
@@ -237,7 +238,7 @@ changeRouteTo route =
                             (\m ->
                                 Return.singleton
                                     { m | shareState = ShareState.authenticateNoPassword id_ }
-                                    |> Action.loadShareItem Load { token = id_, session = m.session }
+                                    |> Action.loadShareItem Load { session = m.session, token = id_ }
                             )
                             >> Return.andThen (switchPage Page.Main)
                             >> Return.andThen startProgress
@@ -613,7 +614,7 @@ subscriptions model =
          , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange HandleVisibilityChange
          , onResize (\width height -> UpdateDiagram (DiagramModel.Resize width height))
-         , Ports.shortcuts Shortcuts
+         , Ports.shortcuts (\cmd -> Shortcuts <| Shortcuts.fromString cmd)
          , Ports.onNotification (\n -> HandleAutoCloseNotification (Notification.showInfoNotifcation n))
          , Ports.sendErrorNotification (\n -> HandleAutoCloseNotification (Notification.showErrorNotifcation n))
          , Ports.onWarnNotification (\n -> HandleAutoCloseNotification (Notification.showWarningNotifcation n))
@@ -773,14 +774,14 @@ update message =
                     in
                     Exporter.export
                         exportDiagram
-                        { title = m.currentDiagram.title
-                        , text = m.diagramModel.text
+                        { data = m.diagramModel.data
+                        , diagramType = m.diagramModel.diagramType
+                        , items = m.diagramModel.items
                         , size =
                             DiagramModel.size m.diagramModel
                                 |> Tuple.mapBoth (\x -> x + posX) (\y -> y + posY)
-                        , diagramType = m.diagramModel.diagramType
-                        , items = m.diagramModel.items
-                        , data = m.diagramModel.data
+                        , text = m.diagramModel.text
+                        , title = m.currentDiagram.title
                         }
                         |> Maybe.map (\cmd -> Return.return m cmd)
                         |> Maybe.withDefault (Return.singleton m)
@@ -960,7 +961,7 @@ update message =
 
                             else
                                 pushUrl (Url.toString url) m
-                                    |> Action.saveSettings SaveSettings { url = m.url, session = m.session, diagramType = m.currentDiagram.diagram, settings = m.settingsModel.settings.storyMap }
+                                    |> Action.saveSettings SaveSettings { diagramType = m.currentDiagram.diagram, session = m.session, settings = m.settingsModel.settings.storyMap, url = m.url }
                                     |> Return.andThen (setSettingsCache m.settingsModel.settings.storyMap)
 
                 Browser.External href ->
@@ -1043,7 +1044,7 @@ update message =
 
                                                 else
                                                     switchPage Page.Main m
-                                                        |> Action.loadShareItem Load { token = id_, session = m.session }
+                                                        |> Action.loadShareItem Load { session = m.session, token = id_ }
                                                         |> Return.andThen startProgress
                                                         |> Action.changeRouteInit Init
 
@@ -1070,14 +1071,14 @@ update message =
         SwitchWindow w ->
             Return.andThen <| \m -> Return.singleton { m | window = Window.toggle w }
 
-        Shortcuts x ->
-            case x of
-                "open" ->
+        Shortcuts cmd ->
+            case cmd of
+                Just Shortcuts.Open ->
                     Return.andThen <|
                         \m ->
                             Return.return m <| Nav.load <| Route.toString (toRoute m.url)
 
-                "save" ->
+                Just Shortcuts.Save ->
                     Return.andThen <|
                         \m ->
                             case ( m.settingsModel.settings.location, Text.isChanged m.diagramModel.text ) of
@@ -1106,7 +1107,7 @@ update message =
                 \m ->
                     Return.singleton m
                         |> Action.updateIdToken
-                        |> Action.changePublicState ChangePublicStatusCompleted { item = m.currentDiagram, isPublic = isPublic, session = m.session }
+                        |> Action.changePublicState ChangePublicStatusCompleted { isPublic = isPublic, item = m.currentDiagram, session = m.session }
                         |> Return.andThen stopProgress
 
         ChangePublicStatusCompleted (Ok d) ->
@@ -1188,7 +1189,7 @@ update message =
                     case ShareState.getToken m.shareState of
                         Just token ->
                             switchPage Page.Main m
-                                |> Action.loadWithPasswordShareItem LoadWithPassword { token = token, password = ShareState.getPassword m.shareState, session = m.session }
+                                |> Action.loadWithPasswordShareItem LoadWithPassword { password = ShareState.getPassword m.shareState, session = m.session, token = token }
                                 |> Return.andThen startProgress
 
                         Nothing ->
