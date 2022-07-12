@@ -34,7 +34,6 @@ import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
 import Models.DiagramSettings as DiagramSettings
 import Models.DiagramType as DiagramType exposing (DiagramType)
-import Models.Dialog exposing (ConfirmDialog(..))
 import Models.LoginProvider as LoginProvider
 import Models.Session as Session exposing (Session)
 import Models.SettingsCache as SettingCache exposing (SettingsCache)
@@ -50,8 +49,8 @@ import Task
 import Url
 
 
-changePublicState : (Result DiagramItem DiagramItem -> msg) -> { item : DiagramItem, isPublic : Bool, session : Session } -> Return.ReturnF msg model
-changePublicState msg { item, isPublic, session } =
+changePublicState : (Result DiagramItem DiagramItem -> msg) -> { isPublic : Bool, item : DiagramItem, session : Session } -> Return.ReturnF msg model
+changePublicState msg { isPublic, item, session } =
     Request.save
         (Session.getIdToken session)
         (DiagramItem.toInputItem item)
@@ -89,7 +88,7 @@ loadFromRemote msg { id, session } =
 
 
 loadItem : (Result RequestError DiagramItem -> msg) -> { id : DiagramId, session : Session } -> Return.ReturnF msg model
-loadItem msg { session, id } =
+loadItem msg { id, session } =
     case session of
         Session.SignedIn user ->
             case user.loginProvider of
@@ -103,17 +102,17 @@ loadItem msg { session, id } =
                             |> Return.command
 
                     else
-                        loadFromRemote msg { session = session, id = id }
+                        loadFromRemote msg { id = id, session = session }
 
                 LoginProvider.Github Nothing ->
                     if DiagramId.isGithubId id then
                         Return.command <| Ports.getGithubAccessToken (DiagramId.toString id)
 
                     else
-                        loadFromRemote msg { session = session, id = id }
+                        loadFromRemote msg { id = id, session = session }
 
                 _ ->
-                    loadFromRemote msg { session = session, id = id }
+                    loadFromRemote msg { id = id, session = session }
 
         Session.Guest ->
             Return.zero
@@ -133,8 +132,8 @@ loadPublicItem msg { id, session } =
         |> Return.command
 
 
-loadSettings : (Result RequestError DiagramSettings.Settings -> msg) -> { diagramType : DiagramType, cache : SettingsCache, session : Session } -> Return.ReturnF msg model
-loadSettings msg { diagramType, cache, session } =
+loadSettings : (Result RequestError DiagramSettings.Settings -> msg) -> { cache : SettingsCache, diagramType : DiagramType, session : Session } -> Return.ReturnF msg model
+loadSettings msg { cache, diagramType, session } =
     if Session.isSignedIn session then
         case SettingCache.get cache diagramType of
             Just setting ->
@@ -151,8 +150,8 @@ loadSettings msg { diagramType, cache, session } =
         Return.zero
 
 
-loadShareItem : (Result RequestError DiagramItem -> msg) -> { token : ShareToken, session : Session } -> Return.ReturnF msg model
-loadShareItem msg { token, session } =
+loadShareItem : (Result RequestError DiagramItem -> msg) -> { session : Session, token : ShareToken } -> Return.ReturnF msg model
+loadShareItem msg { session, token } =
     Request.shareItem
         (Session.getIdToken session)
         (ShareToken.toString token)
@@ -168,8 +167,8 @@ loadText msg diagram =
         |> Return.command
 
 
-loadWithPasswordShareItem : (Result RequestError DiagramItem -> msg) -> { token : ShareToken, password : Maybe String, session : Session } -> Return.ReturnF msg model
-loadWithPasswordShareItem msg { token, password, session } =
+loadWithPasswordShareItem : (Result RequestError DiagramItem -> msg) -> { password : Maybe String, session : Session, token : ShareToken } -> Return.ReturnF msg model
+loadWithPasswordShareItem msg { password, session, token } =
     Request.shareItem
         (Session.getIdToken session)
         (ShareToken.toString token)
@@ -225,11 +224,11 @@ saveLocalFile item =
     Return.command <| (Ports.saveLocalFile <| DiagramItem.encoder d)
 
 
-saveSettings : (Result RequestError DiagramSettings.Settings -> msg) -> { session : Session, diagramType : DiagramType, url : Url.Url, settings : DiagramSettings.Settings } -> Return.ReturnF msg model
-saveSettings msg { session, diagramType, url, settings } =
+saveSettings : (Result RequestError DiagramSettings.Settings -> msg) -> { diagramType : DiagramType, session : Session, settings : DiagramSettings.Settings, url : Url.Url } -> Return.ReturnF msg model
+saveSettings msg { diagramType, session, settings, url } =
     case ( Route.toRoute url, Session.isSignedIn session ) of
         ( Route.Settings, True ) ->
-            saveSettingsToRemote msg { diagramType = diagramType, settings = settings, session = session }
+            saveSettingsToRemote msg { diagramType = diagramType, session = session, settings = settings }
 
         _ ->
             Return.zero
@@ -318,8 +317,8 @@ closeFullscreen =
     Return.command <| Ports.closeFullscreen ()
 
 
-saveSettingsToRemote : (Result RequestError DiagramSettings.Settings -> msg) -> { session : Session, diagramType : DiagramType, settings : DiagramSettings.Settings } -> Return.ReturnF msg model
-saveSettingsToRemote msg { session, diagramType, settings } =
+saveSettingsToRemote : (Result RequestError DiagramSettings.Settings -> msg) -> { diagramType : DiagramType, session : Session, settings : DiagramSettings.Settings } -> Return.ReturnF msg model
+saveSettingsToRemote msg { diagramType, session, settings } =
     Request.saveSettings
         (Session.getIdToken session)
         diagramType

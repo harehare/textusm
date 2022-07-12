@@ -25,6 +25,7 @@ import Models.Page exposing (Page)
 import Models.Session exposing (Session)
 import Models.SettingsCache exposing (SettingsCache)
 import Models.ShareState exposing (ShareState)
+import Models.Shortcuts exposing (Shortcuts)
 import Models.Snackbar exposing (Snackbar)
 import Models.Window exposing (Window)
 import Monocle.Lens exposing (Lens)
@@ -106,7 +107,7 @@ type Msg
     | HandleAuthStateChanged (Maybe D.Value)
     | ShowNotification Notification
     | SwitchWindow Window
-    | Shortcuts String
+    | Shortcuts (Maybe Shortcuts)
     | GotLocalDiagramJson D.Value
     | ChangePublicStatus Bool
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
