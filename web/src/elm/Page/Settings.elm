@@ -39,6 +39,7 @@ import Html.Styled.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
 import Models.Color as Color exposing (colors)
 import Models.DiagramLocation as DiagramLocation
+import Models.DiagramType exposing (DiagramType)
 import Models.FontSize as FontSize
 import Models.Session as Session exposing (Session)
 import Return
@@ -75,6 +76,7 @@ import Views.Switch as Switch
 
 type alias Model =
     { dropDownIndex : Maybe String
+    , diagramType : DiagramType
     , settings : Settings
     , session : Session
     , canUseNativeFileSystem : Bool
@@ -87,9 +89,15 @@ type Msg
     | DropDownClose
 
 
-init : Bool -> Session -> Settings -> Return.Return Msg Model
-init canUseNativeFileSystem session settings =
-    Return.singleton <| Model Nothing settings session canUseNativeFileSystem
+init : { canUseNativeFileSystem : Bool, diagramType : DiagramType, session : Session, settings : Settings } -> Return.Return Msg Model
+init { canUseNativeFileSystem, diagramType, session, settings } =
+    Return.singleton <|
+        { dropDownIndex = Nothing
+        , diagramType = diagramType
+        , settings = settings
+        , session = session
+        , canUseNativeFileSystem = canUseNativeFileSystem
+        }
 
 
 update : Msg -> Return.ReturnF Msg Model

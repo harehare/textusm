@@ -64,7 +64,13 @@ authStateChanged(
     }
 );
 
-app.ports.saveSettings.subscribe((settings: Settings) => {
+app.ports.loadSettingsFromLocal.subscribe((diagramType: string) => {
+    app.ports.loadSettingsFromLocalCompleted.send(
+        loadSettings(isDarkMode, diagramType)
+    );
+});
+
+app.ports.saveSettingsToLocal.subscribe((settings: Settings) => {
     saveSettings(settings);
 });
 

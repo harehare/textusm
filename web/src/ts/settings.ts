@@ -2,6 +2,8 @@ import { Settings } from './model';
 
 const SettingsKey = 'textusm:settings';
 
+const getSettingsKey = (diagram: string) => `${SettingsKey}:${diagram}`;
+
 const getDefaultSettings = (isDarkMode: boolean) => ({
     font: 'Nunito Sans',
     storyMap: {
@@ -44,22 +46,32 @@ const getDefaultSettings = (isDarkMode: boolean) => ({
     diagram: null,
 });
 
-const loadSettings = (isDarkMode: boolean): Settings => {
-    const settings = localStorage.getItem(SettingsKey);
+export const loadSettings = (
+    isDarkMode: boolean,
+    diagram?: string
+): Settings => {
+    const settingsString = localStorage.getItem(SettingsKey);
+    const diagramSettingsString = diagram
+        ? localStorage.getItem(getSettingsKey(diagram))
+        : null;
     const defaultSettings = getDefaultSettings(isDarkMode);
 
-    if (settings) {
-        const settingsObject = JSON.parse(settings);
-
+    if (settingsString) {
+        const diagramSettings = diagramSettingsString
+            ? JSON.parse(diagramSettingsString)
+            : {};
+        const settingsObject = JSON.parse(settingsString);
         return {
             ...defaultSettings,
             ...settingsObject,
             storyMap: {
                 ...defaultSettings.storyMap,
                 ...settingsObject.storyMap,
+                ...diagramSettings,
                 color: {
                     ...defaultSettings.storyMap.color,
                     ...settingsObject.storyMap.color,
+                    ...diagramSettings.color,
                 },
             },
         };
@@ -68,8 +80,25 @@ const loadSettings = (isDarkMode: boolean): Settings => {
     return defaultSettings;
 };
 
-const saveSettings = (settings: Settings): void => {
-    localStorage.setItem(SettingsKey, JSON.stringify(settings));
-};
+export const saveSettings = (settings: Settings): void => {
+    localStorage.setItem(
+        SettingsKey,
+        JSON.stringify({
+            font: settings.font,
+            position: settings.position,
+            text: settings.text,
+            title: settings.title,
+            diagramId: settings.diagramId,
+            storyMap: settings.storyMap,
+            diagram: settings.diagram,
+        })
+    );
 
-export { loadSettings, saveSettings };
+    // TODO:
+    if (settings.diagram?.diagram) {
+        localStorage.setItem(
+            getSettingsKey(settings.diagram?.diagram),
+            JSON.stringify(settings.storyMap)
+        );
+    }
+};

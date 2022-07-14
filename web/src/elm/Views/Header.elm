@@ -186,12 +186,7 @@ view props =
 
                 Page.Settings ->
                     viewTitle []
-                        [ Html.text <|
-                            if Session.isSignedIn props.session then
-                                DiagramType.toLongString props.currentDiagram.diagram ++ " Settings"
-
-                            else
-                                "Settings"
+                        [ Html.text <| DiagramType.toLongString props.currentDiagram.diagram ++ " Settings"
                         ]
 
                 _ ->
@@ -204,7 +199,7 @@ view props =
                     Route.DiagramList ->
                         [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
 
-                    Route.Settings ->
+                    Route.Settings _ ->
                         [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
 
                     _ ->

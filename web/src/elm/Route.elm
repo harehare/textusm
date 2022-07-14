@@ -18,7 +18,7 @@ type Route
     | EditLocalFile DiagramType DiagramId
     | ViewPublic DiagramType DiagramId
     | DiagramList
-    | Settings
+    | Settings DiagramType
     | Help
     | Share
     | Embed DiagramType Title ShareToken (Maybe Int) (Maybe Int)
@@ -79,8 +79,8 @@ toString route =
         DiagramList ->
             absolute [ "list" ] []
 
-        Settings ->
-            absolute [ "settings" ] []
+        Settings type_ ->
+            absolute [ "settings", DiagramType.toString type_ ] []
 
         Help ->
             absolute [ "help" ] []
@@ -125,7 +125,7 @@ parser =
         [ map Home Parser.top
         , map Embed (s "embed" </> diagramType </> string </> shareId <?> Query.int "w" <?> Query.int "h")
         , map DiagramList (s "list")
-        , map Settings (s "settings")
+        , map Settings (s "settings" </> diagramType)
         , map Help (s "help")
         , map New (s "new")
         , map Share (s "share")

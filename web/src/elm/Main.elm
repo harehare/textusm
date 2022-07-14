@@ -155,7 +155,6 @@ changeRouteTo route =
                                 Action.updateIdToken
                                     >> Return.andThen (switchPage Page.Main)
                                     >> Return.andThen startProgress
-                                    >> Action.loadSettings LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
                                     >> Action.loadItem Load { id = id_, session = m.session }
 
                             else
@@ -163,6 +162,7 @@ changeRouteTo route =
                                     >> Action.loadLocalDiagram id_
                                     >> Action.changeRouteInit Init
                            )
+                        >> Action.loadSettings LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
                 )
 
         Route.EditLocalFile _ id_ ->
@@ -180,8 +180,8 @@ changeRouteTo route =
                 >> Return.andThen (switchPage Page.List)
                 >> Return.andThen startProgress
 
-        Route.Settings ->
-            Return.andThen initSettingsPage
+        Route.Settings diagramType ->
+            Return.andThen (initSettingsPage diagramType)
                 >> Return.andThen (switchPage Page.Settings)
 
         Route.Help ->
@@ -337,7 +337,12 @@ init flags url key =
             }
 
         ( settingsModel, _ ) =
-            Settings.init flags.canUseNativeFileSystem Session.guest initSettings
+            Settings.init
+                { canUseNativeFileSystem = flags.canUseNativeFileSystem
+                , diagramType = currentDiagram.diagram
+                , session = Session.guest
+                , settings = initSettings
+                }
 
         ( shareModel, _ ) =
             Share.init
@@ -447,11 +452,16 @@ initListPage model =
     Return.return { model | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
 
 
-initSettingsPage : Model -> Return Msg Model
-initSettingsPage model =
+initSettingsPage : DiagramType -> Model -> Return Msg Model
+initSettingsPage diagramType model =
     let
         ( model_, cmd_ ) =
-            Settings.init model.browserStatus.canUseNativeFileSystem model.session model.settingsModel.settings
+            Settings.init
+                { canUseNativeFileSystem = model.browserStatus.canUseNativeFileSystem
+                , diagramType = diagramType
+                , session = model.session
+                , settings = model.settingsModel.settings
+                }
     in
     Return.return { model | settingsModel = model_ } (cmd_ |> Cmd.map UpdateSettings)
 
@@ -534,8 +544,8 @@ loadDiagram diagram model =
         |> Return.andThen stopProgress
 
 
-setSettings : DiagramSettings.Settings -> Model -> Return Msg Model
-setSettings settings model =
+setDiagramSettings : DiagramSettings.Settings -> Model -> Return Msg Model
+setDiagramSettings settings model =
     let
         newSettings : Settings.Model
         newSettings =
@@ -546,11 +556,11 @@ setSettings settings model =
             | diagramModel = model.diagramModel |> DiagramModel.ofSettings.set settings
             , settingsModel = { newSettings | settings = model.settingsModel.settings |> Settings.storyMapOfSettings.set settings }
         }
-        |> Return.andThen (setSettingsCache settings)
+        |> Return.andThen (setDiagramSettingsCache settings)
 
 
-setSettingsCache : DiagramSettings.Settings -> Model -> Return Msg Model
-setSettingsCache settings model =
+setDiagramSettingsCache : DiagramSettings.Settings -> Model -> Return Msg Model
+setDiagramSettingsCache settings model =
     Return.singleton
         { model | settingsCache = SettingsCache.set model.settingsCache model.currentDiagram.diagram settings }
 
@@ -609,6 +619,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         ([ Ports.changeText (\text -> UpdateDiagram (DiagramModel.ChangeText text))
+         , Ports.loadSettingsFromLocalCompleted LoadSettingsFromLocal
          , Ports.startDownload StartDownload
          , Ports.gotLocalDiagramsJson (\json -> UpdateDiagramList (DiagramList.GotLocalDiagramsJson json))
          , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
@@ -744,8 +755,8 @@ update message =
                             , settingsModel = model_
                         }
                         (cmd_ |> Cmd.map UpdateSettings)
+                        |> updateSettings msg model_.diagramType
                 )
-                >> updateSettings msg
 
         OpenMenu menu ->
             Return.andThen <| \m -> Return.singleton { m | openMenu = Just menu }
@@ -960,9 +971,14 @@ update message =
                                 showConfirmDialog "Confirmation" "Your data has been changed. do you wish to continue?" (toRoute url) m
 
                             else
-                                pushUrl (Url.toString url) m
-                                    |> Action.saveSettings SaveSettings { diagramType = m.currentDiagram.diagram, session = m.session, settings = m.settingsModel.settings.storyMap, url = m.url }
-                                    |> Return.andThen (setSettingsCache m.settingsModel.settings.storyMap)
+                                case toRoute m.url of
+                                    Route.Settings diagramType ->
+                                        pushUrl (Url.toString url) m
+                                            |> Action.saveSettings SaveSettings { session = m.session, diagramType = diagramType, settings = m.settingsModel.settings }
+                                            |> Return.andThen (setDiagramSettingsCache m.settingsModel.settings.storyMap)
+
+                                    _ ->
+                                        pushUrl (Url.toString url) m
 
                 Browser.External href ->
                     Return.command (Nav.load href)
@@ -992,14 +1008,19 @@ update message =
                                     }
 
                                 ( newSettingsModel, _ ) =
-                                    Settings.init m.browserStatus.canUseNativeFileSystem m.session newSettings
+                                    Settings.init
+                                        { canUseNativeFileSystem = m.browserStatus.canUseNativeFileSystem
+                                        , diagramType = m.currentDiagram.diagram
+                                        , session = m.session
+                                        , settings = newSettings
+                                        }
 
                                 newStoryMap : Settings
                                 newStoryMap =
                                     m.settingsModel.settings |> Settings.ofFont.set m.settingsModel.settings.font
                             in
                             Return.singleton { m | settingsModel = newSettingsModel }
-                                |> Return.command (Ports.saveSettings (settingsEncoder newSettings))
+                                |> Return.command (Ports.saveSettingsToLocal (settingsEncoder newSettings))
                         )
 
                 _ ->
@@ -1135,11 +1156,31 @@ update message =
 
         LoadSettings (Ok settings) ->
             Return.andThen stopProgress
-                >> Return.andThen (setSettings settings)
+                >> Return.andThen (setDiagramSettings settings)
 
         LoadSettings (Err _) ->
-            Return.andThen (\m -> setSettings (.storyMap (defaultSettings m.browserStatus.isDarkMode)) m)
+            Return.andThen (\m -> setDiagramSettings (.storyMap (defaultSettings m.browserStatus.isDarkMode)) m)
                 >> Return.andThen stopProgress
+
+        LoadSettingsFromLocal settingsJson ->
+            case D.decodeValue settingsDecoder settingsJson of
+                Ok settings ->
+                    Return.andThen
+                        (\m ->
+                            let
+                                ( newSettingsModel, _ ) =
+                                    Settings.init
+                                        { canUseNativeFileSystem = m.browserStatus.canUseNativeFileSystem
+                                        , diagramType = m.currentDiagram.diagram
+                                        , session = m.session
+                                        , settings = settings
+                                        }
+                            in
+                            Return.singleton { m | settingsModel = newSettingsModel, diagramModel = DiagramModel.ofSettings.set settings.storyMap m.diagramModel }
+                        )
+
+                Err _ ->
+                    Return.andThen (showWarningMessage Message.messageFailedLoadSettings)
 
         SaveSettings (Ok _) ->
             Return.andThen stopProgress
@@ -1315,15 +1356,19 @@ updateDiagramList msg =
             Return.andThen stopProgress
 
 
-updateSettings : Settings.Msg -> Return.ReturnF Msg Model
-updateSettings msg =
+updateSettings : Settings.Msg -> DiagramType -> Return.ReturnF Msg Model
+updateSettings msg diagramType =
     case msg of
         Settings.UpdateSettings _ _ ->
             Return.andThen
                 (\m ->
                     Return.singleton m
-                        |> Action.saveSettings SaveSettings { url = m.url, session = m.session, diagramType = m.currentDiagram.diagram, settings = m.settingsModel.settings.storyMap }
-                        |> Return.andThen (setSettingsCache m.settingsModel.settings.storyMap)
+                        |> Action.saveSettings SaveSettings
+                            { diagramType = diagramType
+                            , session = m.session
+                            , settings = m.settingsModel.settings
+                            }
+                        |> Return.andThen (setDiagramSettingsCache m.settingsModel.settings.storyMap)
                 )
 
         _ ->
@@ -1398,6 +1443,7 @@ view model =
                     , width = Size.getWidth model.diagramModel.size
                     , openMenu = model.openMenu
                     , settings = model.settingsModel.settings
+                    , diagramType = model.currentDiagram.diagram
                     }
             , case model.page of
                 Page.New ->

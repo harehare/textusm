@@ -43,10 +43,8 @@ import Models.Title as Title
 import Models.Window as Window exposing (Window)
 import Ports
 import Return exposing (Return)
-import Route
 import Settings
 import Task
-import Url
 
 
 changePublicState : (Result DiagramItem DiagramItem -> msg) -> { isPublic : Bool, item : DiagramItem, session : Session } -> Return.ReturnF msg model
@@ -147,7 +145,9 @@ loadSettings msg { cache, diagramType, session } =
                 loadRemoteSettings msg { diagramType = diagramType, session = session }
 
     else
-        Return.zero
+        DiagramType.toString diagramType
+            |> Ports.loadSettingsFromLocal
+            |> Return.command
 
 
 loadShareItem : (Result RequestError DiagramItem -> msg) -> { session : Session, token : ShareToken } -> Return.ReturnF msg model
@@ -224,14 +224,33 @@ saveLocalFile item =
     Return.command <| (Ports.saveLocalFile <| DiagramItem.encoder d)
 
 
-saveSettings : (Result RequestError DiagramSettings.Settings -> msg) -> { diagramType : DiagramType, session : Session, settings : DiagramSettings.Settings, url : Url.Url } -> Return.ReturnF msg model
-saveSettings msg { diagramType, session, settings, url } =
-    case ( Route.toRoute url, Session.isSignedIn session ) of
-        ( Route.Settings, True ) ->
-            saveSettingsToRemote msg { diagramType = diagramType, session = session, settings = settings }
+saveSettings :
+    (Result RequestError DiagramSettings.Settings -> msg)
+    ->
+        { diagramType : DiagramType
+        , session : Session
+        , settings : Settings.Settings
+        }
+    -> Return.ReturnF msg model
+saveSettings msg { diagramType, session, settings } =
+    if Session.isSignedIn session then
+        saveSettingsToRemote msg { diagramType = diagramType, session = session, settings = settings.storyMap }
 
-        _ ->
-            Return.zero
+    else
+        let
+            diagram : Maybe DiagramItem
+            diagram =
+                settings.diagram
+
+            newDiagram : Maybe DiagramItem
+            newDiagram =
+                Maybe.map (\d -> { d | diagram = diagramType }) diagram
+
+            newSettings : Settings.Settings
+            newSettings =
+                { settings | diagram = newDiagram }
+        in
+        Return.command <| Ports.saveSettingsToLocal (Settings.settingsEncoder newSettings)
 
 
 saveToLocal : DiagramItem -> Return.ReturnF msg model

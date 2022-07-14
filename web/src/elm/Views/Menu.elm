@@ -92,6 +92,7 @@ type alias Props =
     , width : Int
     , openMenu : Maybe Menu
     , settings : Settings
+    , diagramType : DiagramType
     }
 
 
@@ -267,7 +268,7 @@ view props =
                 ]
         , Html.div
             [ css [ menuButtonStyle ] ]
-            [ Html.a [ Attr.href <| Route.toString Route.Settings, Attr.attribute "aria-label" "Settings" ]
+            [ Html.a [ Attr.href <| Route.toString (Route.Settings props.diagramType), Attr.attribute "aria-label" "Settings" ]
                 [ Icon.settings
                     (if isNothing props.openMenu && props.page == Page.Settings then
                         Color.iconColor
