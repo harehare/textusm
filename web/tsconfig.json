@@ -12,7 +12,8 @@
         "noImplicitAny": true,
         "strictNullChecks": true,
         "noPropertyAccessFromIndexSignature": false,
-        "importsNotUsedAsValues": "remove"
+        "importsNotUsedAsValues": "remove",
+        "typeRoots": ["node_modules/@types", "./src/@types"]
     },
     "exclude": ["node_modules", "**/*.spec.ts"]
 }

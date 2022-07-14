@@ -18,6 +18,8 @@ port module Ports exposing
     , gotLocalDiagramJson
     , gotLocalDiagramsJson
     , insertText
+    , loadSettingsFromLocal
+    , loadSettingsFromLocalCompleted
     , notifyNewVersionAvailable
     , onAuthStateChanged
     , onNotification
@@ -31,7 +33,7 @@ port module Ports exposing
     , removeRemoteDiagram
     , saveDiagram
     , saveLocalFile
-    , saveSettings
+    , saveSettingsToLocal
     , saveToLocalCompleted
     , saveToRemote
     , savedLocalFile
@@ -104,6 +106,12 @@ port gotLocalDiagramsJson : (D.Value -> msg) -> Sub msg
 port insertText : String -> Cmd msg
 
 
+port loadSettingsFromLocal : String -> Cmd msg
+
+
+port loadSettingsFromLocalCompleted : (D.Value -> msg) -> Sub msg
+
+
 port notifyNewVersionAvailable : (String -> msg) -> Sub msg
 
 
@@ -143,7 +151,7 @@ port saveDiagram : E.Value -> Cmd msg
 port saveLocalFile : E.Value -> Cmd msg
 
 
-port saveSettings : E.Value -> Cmd msg
+port saveSettingsToLocal : E.Value -> Cmd msg
 
 
 port saveToLocalCompleted : (D.Value -> msg) -> Sub msg

@@ -6,6 +6,7 @@ module Message exposing
     , messageBadRequest
     , messageCopiedImage
     , messageCopiedText
+    , messageFailedLoadSettings
     , messageFailedPublished
     , messageFailedRevokeToken
     , messageFailedSaveSettings
@@ -113,6 +114,16 @@ messageFailedRevokeToken lang =
 
         _ ->
             "Failed to revoke the token"
+
+
+messageFailedLoadSettings : Lang -> String
+messageFailedLoadSettings lang =
+    case lang of
+        Ja ->
+            "設定の読み込みに失敗しました"
+
+        _ ->
+            "Failed to load settings"
 
 
 messageFailedSaveSettings : Lang -> String

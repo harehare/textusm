@@ -113,6 +113,7 @@ type Msg
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
     | Load (Result RequestError DiagramItem)
     | LoadSettings (Result RequestError DiagramSettings.Settings)
+    | LoadSettingsFromLocal D.Value
     | SaveSettings (Result RequestError DiagramSettings.Settings)
     | CallApi (Result Message ())
     | CloseFullscreen
