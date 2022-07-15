@@ -300,6 +300,7 @@ diagramEncoder settings =
         , ( "backgroundColor", E.string settings.backgroundColor )
         , ( "zoomControl", maybe E.bool settings.zoomControl )
         , ( "scale", maybe E.float settings.scale )
+        , ( "toolbar", maybe E.bool settings.toolbar )
         ]
 
 
