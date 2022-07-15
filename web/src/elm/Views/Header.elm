@@ -185,6 +185,7 @@ view props =
                     viewTitle [] [ Html.text "All Diagrams" ]
 
                 Page.Settings ->
+                    -- TODO:
                     viewTitle []
                         [ Html.text <| DiagramType.toLongString props.currentDiagram.diagram ++ " Settings"
                         ]

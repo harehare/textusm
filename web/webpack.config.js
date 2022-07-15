@@ -14,6 +14,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const HTMLInlineCSSWebpackPlugin =
     require('html-inline-css-webpack-plugin').default;
 const SentryWebpackPlugin = require('@sentry/webpack-plugin');
+const devcert = require('devcert');
 
 const mode =
     process.env.NODE_ENV === 'production' ? 'production' : 'development';
@@ -144,40 +145,44 @@ const common = {
 };
 
 if (mode === 'development') {
-    module.exports = merge(common, {
-        plugins: [],
-        module: {
-            rules: [
-                {
-                    test: /\.elm$/,
-                    exclude: [/elm-stuff/, /node_modules/],
-                    use: [
-                        {
-                            loader: 'elm-hot-webpack-loader',
-                        },
-                        {
-                            loader: 'elm-webpack-loader',
-                            options: {
-                                debug: true,
+    module.exports = async () => {
+        const { key, cert } = await devcert.certificateFor('localhost');
+        fs.mkdirSync('../certs/', { recursive: true });
+        fs.writeFileSync('../certs/localhost.key', key);
+        fs.writeFileSync('../certs/localhost.cert', cert);
+
+        return merge(common, {
+            plugins: [],
+            module: {
+                rules: [
+                    {
+                        test: /\.elm$/,
+                        exclude: [/elm-stuff/, /node_modules/],
+                        use: [
+                            {
+                                loader: 'elm-hot-webpack-loader',
                             },
-                        },
-                    ],
+                            {
+                                loader: 'elm-webpack-loader',
+                                options: {
+                                    debug: true,
+                                },
+                            },
+                        ],
+                    },
+                ],
+            },
+            devServer: {
+                hot: true,
+                historyApiFallback: true,
+                static: path.join(__dirname, 'src/assets'),
+                https: {
+                    key: '../certs/localhost.key',
+                    cert: '../certs/localhost.cert',
                 },
-            ],
-        },
-        devServer: {
-            hot: true,
-            historyApiFallback: true,
-            static: path.join(__dirname, 'src/assets'),
-            https:
-                process.env.TLS_CERT_FILE && process.env.TLS_KEY_FILE
-                    ? {
-                          key: fs.readFileSync(process.env.TLS_KEY_FILE),
-                          cert: fs.readFileSync(process.env.TLS_CERT_FILE),
-                      }
-                    : false,
-        },
-    });
+            },
+        });
+    };
 }
 if (mode === 'production') {
     module.exports = merge(common, {

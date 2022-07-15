@@ -42,6 +42,7 @@
         "css-minimizer-webpack-plugin": "^4.0.0",
         "cssnano-preset-advanced": "^5.3.8",
         "cypress": "^10.4.0",
+        "devcert": "^1.2.2",
         "elm": "^0.19.1-5",
         "elm-constants": "^1.0.0",
         "elm-hot-webpack-loader": "^1.1.8",
