@@ -62,8 +62,8 @@ cloud.google.com/go/storage v1.22.1/go.mod h1:S8N1cAStu7BOeFfE8KAQzmyyLkK8p/vmRq
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 firebase.google.com/go v3.13.0+incompatible h1:3TdYC3DDi6aHn20qoRkxwGqNgdjtblwVAyRLQwGn/+4=
 firebase.google.com/go v3.13.0+incompatible/go.mod h1:xlah6XbEyW6tbfSklcfe5FHJIwjt8toICdV5Wh9ptHs=
-github.com/99designs/gqlgen v0.17.12 h1:lH/H5dTYCY5eLNRKXeq22l0wFMavpOnN6v9GAIw+fxY=
-github.com/99designs/gqlgen v0.17.12/go.mod h1:w1brbeOdqVyNJI553BGwtwdVcYu1LKeYE1opLWN9RgQ=
+github.com/99designs/gqlgen v0.17.13 h1:ETUEqvRg5Zvr1lXtpoRdj026fzVay0ZlJPwI33qXLIw=
+github.com/99designs/gqlgen v0.17.13/go.mod h1:w1brbeOdqVyNJI553BGwtwdVcYu1LKeYE1opLWN9RgQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
