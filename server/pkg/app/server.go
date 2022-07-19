@@ -17,10 +17,10 @@ import (
 	"github.com/kelseyhightower/envconfig"
 
 	"github.com/harehare/textusm/pkg/domain/service"
-	itemRepo "github.com/harehare/textusm/pkg/infra/firestore/item"
-	settingsRepo "github.com/harehare/textusm/pkg/infra/firestore/settings"
-	shareRepo "github.com/harehare/textusm/pkg/infra/firestore/share"
-	userRepo "github.com/harehare/textusm/pkg/infra/firestore/user"
+	itemRepo "github.com/harehare/textusm/pkg/infra/firebase/item"
+	settingsRepo "github.com/harehare/textusm/pkg/infra/firebase/settings"
+	shareRepo "github.com/harehare/textusm/pkg/infra/firebase/share"
+	userRepo "github.com/harehare/textusm/pkg/infra/firebase/user"
 	"github.com/harehare/textusm/pkg/presentation/api"
 	"github.com/harehare/textusm/pkg/presentation/api/middleware"
 	resolver "github.com/harehare/textusm/pkg/presentation/graphql"
@@ -39,15 +39,16 @@ import (
 
 type Env struct {
 	Host                string `envconfig:"API_HOST"`
-	Version             string `envconfig:"API_VERSION"`
-	Port                string `envconfig:"PORT"`
-	Credentials         string `envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`
-	DatabaseCredentials string `envconfig:"DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON"`
+	Version             string `required:"true" envconfig:"API_VERSION"`
+	Port                string `required:"true" envconfig:"PORT"`
+	Credentials         string `required:"true" envconfig:"GOOGLE_APPLICATION_CREDENTIALS_JSON"`
+	DatabaseCredentials string `required:"true" envconfig:"DATABASE_GOOGLE_APPLICATION_CREDENTIALS_JSON"`
 	TlsCertFile         string `envconfig:"TLS_CERT_FILE" default:""`
 	TlsKeyFile          string `envconfig:"TLS_KEY_FILE"  default:""`
 	GithubClientID      string `envconfig:"GITHUB_CLIENT_ID"  default:""`
 	GithubClientSecret  string `envconfig:"GITHUB_CLIENT_SECRET"  default:""`
 	EmbedWebResource    string `envconfig:"EMBED_WEB_RESOURCE"  default:"0"`
+	StorageBucketName   string `required:"true" envconfig:"STORAGE_BUCKET_NAME"`
 }
 
 var (
@@ -55,21 +56,24 @@ var (
 )
 
 func Run() int {
-	err := envconfig.Process("TextUSM", &env)
+	err := envconfig.Process("", &env)
 
 	if err != nil {
+		log.Error().Msg(err.Error())
 		return 1
 	}
 
 	cred, err := base64.StdEncoding.DecodeString(env.Credentials)
 
 	if err != nil {
+		log.Error().Msg(err.Error())
 		return 1
 	}
 
 	dbCred, err := base64.StdEncoding.DecodeString(env.DatabaseCredentials)
 
 	if err != nil {
+		log.Error().Msg(err.Error())
 		return 1
 	}
 
@@ -83,7 +87,10 @@ func Run() int {
 		return 1
 	}
 
-	fbApp, err := firebase.NewApp(ctx, nil, dbOpt)
+	firebaseConfig := &firebase.Config{
+		StorageBucket: env.StorageBucketName,
+	}
+	fbApp, err := firebase.NewApp(ctx, firebaseConfig, dbOpt)
 
 	if err != nil {
 		log.Error().Msg(fmt.Sprintf("error initializing db app: %v\n", err))
@@ -97,7 +104,14 @@ func Run() int {
 		return 1
 	}
 
-	repo := itemRepo.NewFirestoreItemRepository(firestore)
+	storage, err := fbApp.Storage(ctx)
+
+	if err != nil {
+		log.Error().Msg(fmt.Sprintf("error initializing storage: %v\n", err))
+		return 1
+	}
+
+	repo := itemRepo.NewFirestoreItemRepository(firestore, storage)
 	shareRepo := shareRepo.NewFirestoreShareRepository(firestore)
 	userRepo := userRepo.NewFirebaseUserRepository(app)
 	gistRepo := itemRepo.NewFirestoreGistItemRepository(firestore)
@@ -121,7 +135,7 @@ func Run() int {
 		AllowCredentials: false,
 	})
 
-	r.Get("/version", func(rw http.ResponseWriter, r *http.Request) {
+	r.Get("/version", func(rw http.ResponseWriter, _ *http.Request) {
 		_, err := rw.Write([]byte(env.Version))
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)

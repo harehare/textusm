@@ -42,7 +42,6 @@ const common = {
             'FIREBASE_API_KEY',
             'FIREBASE_AUTH_DOMAIN',
             'FIREBASE_PROJECT_ID',
-            'FIREBASE_STORAGE_BUCKET',
             'FIREBASE_APP_ID',
             'SENTRY_ENABLE',
             'SENTRY_DSN',

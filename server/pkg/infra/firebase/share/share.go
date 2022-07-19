@@ -39,6 +39,7 @@ func (r *FirestoreShareRepository) Find(ctx context.Context, hashKey string) mo.
 	}
 
 	data := fields.Data()
+	// TODO: get text from cloud storage
 	i := diagramitem.MapToDiagramItem(data)
 
 	if i.IsError() {
@@ -97,6 +98,7 @@ func (r *FirestoreShareRepository) Save(ctx context.Context, hashKey string, ite
 		savePassword = ""
 	}
 
+	// TODO: save text to cloud storage
 	v := item.ToMap()
 	v["password"] = savePassword
 	v["allowIPList"] = shareInfo.AllowIPList

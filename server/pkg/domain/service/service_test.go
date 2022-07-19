@@ -45,9 +45,9 @@ func (m *MockItemRepository) Save(ctx context.Context, userID string, i *diagram
 	return ret.Get(0).(mo.Result[*diagramitem.DiagramItem])
 }
 
-func (m *MockItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) error {
+func (m *MockItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[bool] {
 	ret := m.Called(ctx, userID, itemID, isPublic)
-	return ret.Error(0)
+	return ret.Get(0).(mo.Result[bool])
 }
 
 func (m *MockShareRepository) Find(ctx context.Context, hashKey string) mo.Result[shareRepo.ShareResponse] {
