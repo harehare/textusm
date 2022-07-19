@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"net"
 	"os"
 	"time"
@@ -19,6 +20,7 @@ import (
 	shareRepo "github.com/harehare/textusm/pkg/domain/repository/share"
 	userRepo "github.com/harehare/textusm/pkg/domain/repository/user"
 	e "github.com/harehare/textusm/pkg/error"
+	"github.com/rs/zerolog/log"
 	"github.com/samber/mo"
 	uuid "github.com/satori/go.uuid"
 )
@@ -70,6 +72,7 @@ func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) mo
 }
 
 func (s *Service) Save(ctx context.Context, item *diagramitem.DiagramItem, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
+	log.Debug().Msg(fmt.Sprintf("Save diagram ID: %v, isPublic: %v", item.ID(), isPublic))
 	if err := isAuthenticated(ctx); err != nil {
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
@@ -87,12 +90,13 @@ func (s *Service) Save(ctx context.Context, item *diagramitem.DiagramItem, isPub
 	} else {
 		ret := s.repo.FindByID(ctx, userID.OrEmpty(), item.ID(), true)
 
-		if ret.IsOk() || e.GetCode(ret.Error()) != e.NotFound {
+		if ret.IsOk() {
 			err := s.repo.Delete(ctx, userID.OrEmpty(), item.ID(), true)
 
-			if err != nil {
-				return mo.Err[*diagramitem.DiagramItem](err)
+			if err.IsError() {
+				return mo.Err[*diagramitem.DiagramItem](err.Error())
 			}
+			log.Debug().Msg(fmt.Sprintf("Delete public diagram ID: %v", item.ID()))
 		}
 	}
 
@@ -117,8 +121,8 @@ func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) erro
 		if !ret.OrElse(false) {
 			return e.NoAuthorizationError(errors.New("not diagram owner"))
 		}
-		if err := s.repo.Delete(ctx, userID.OrEmpty(), itemID, true); err != nil {
-			return err
+		if err := s.repo.Delete(ctx, userID.OrEmpty(), itemID, true); err.IsError() {
+			return err.Error()
 		}
 	}
 
@@ -126,7 +130,7 @@ func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) erro
 		return err
 	}
 
-	return s.repo.Delete(ctx, userID.OrEmpty(), itemID, false)
+	return s.repo.Delete(ctx, userID.OrEmpty(), itemID, false).Error()
 }
 
 func (s *Service) Bookmark(ctx context.Context, itemID string, isBookmark bool) mo.Result[*diagramitem.DiagramItem] {

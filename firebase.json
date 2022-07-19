@@ -71,8 +71,14 @@
       "host": "localhost",
       "port": 9099
     },
+    "storage": {
+      "port": 9199
+    },
     "ui": {
       "enabled": true
     }
+  },
+  "storage": {
+    "rules": "storage.rules"
   }
 }
