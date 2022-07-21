@@ -82,6 +82,7 @@ func (s *CloudStorage) Get(ctx context.Context, uid, itemID string) mo.Result[st
 		return mo.Err[string](err)
 	}
 
+	gr.Multistream(false)
 	defer gr.Close()
 	body, err := io.ReadAll(gr)
 
