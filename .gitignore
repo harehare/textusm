@@ -51,10 +51,10 @@ videos
 migration
 server/cmd/__debug_bin
 
-js/**
+js/**
 
 Env.elm
 
 cypress
 
-certs
+certs/*
