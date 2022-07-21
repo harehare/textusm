@@ -1203,7 +1203,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
 
                         else
                             ( floor <| toFloat (Position.getX pos) * model.svg.scale
-                            , floor <| toFloat (Position.getY pos + h + 8) * model.svg.scale
+                            , floor <| toFloat (Position.getY pos + h + 24) * model.svg.scale
                             )
 
                     ( _, h ) =

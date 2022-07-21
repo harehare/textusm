@@ -4,6 +4,7 @@ import Css
     exposing
         ( backgroundColor
         , borderStyle
+        , center
         , color
         , focus
         , hex
@@ -14,6 +15,7 @@ import Css
         , padding4
         , property
         , px
+        , textAlign
         , transparent
         , zero
         )
@@ -204,6 +206,7 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
                     , borderStyle none
                     , backgroundColor transparent
                     , outline none
+                    , textAlign center
                     , FontSize.cssFontSize <| Maybe.withDefault FontSize.default <| Item.getFontSize item
                     , Css.width <| px <| toFloat <| svgWidth - 20
                     , marginTop <| px 2
