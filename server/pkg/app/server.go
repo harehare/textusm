@@ -112,7 +112,7 @@ func Run() int {
 	}
 
 	repo := itemRepo.NewFirestoreItemRepository(firestore, storage)
-	shareRepo := shareRepo.NewFirestoreShareRepository(firestore)
+	shareRepo := shareRepo.NewFirestoreShareRepository(firestore, storage)
 	userRepo := userRepo.NewFirebaseUserRepository(app)
 	gistRepo := itemRepo.NewFirestoreGistItemRepository(firestore)
 	settingsRepo := settingsRepo.NewFirestoreSettingsRepository(firestore)

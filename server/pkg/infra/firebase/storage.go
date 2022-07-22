@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"context"
 	"io"
+	"strings"
 
 	firebaseStorage "firebase.google.com/go/storage"
 	"github.com/samber/mo"
@@ -18,11 +19,11 @@ func NewCloudStorage(client *firebaseStorage.Client) CloudStorage {
 	return CloudStorage{client: client}
 }
 
-func getObjectName(uid, itemID string) string {
-	return uid + "/" + itemID + ".txt.gz"
+func getObjectName(prefix string, paths ...string) string {
+	return prefix + "/" + strings.Join(paths, "/") + ".txt.gz"
 }
 
-func (s *CloudStorage) Put(ctx context.Context, uid, itemID string, text *string) mo.Result[bool] {
+func (s *CloudStorage) Put(ctx context.Context, text *string, prefix string, paths ...string) mo.Result[bool] {
 	bucket, err := s.client.DefaultBucket()
 
 	if err != nil {
@@ -42,7 +43,7 @@ func (s *CloudStorage) Put(ctx context.Context, uid, itemID string, text *string
 	}
 	gw.Close()
 
-	ow := bucket.Object(getObjectName(uid, itemID)).NewWriter(ctx)
+	ow := bucket.Object(getObjectName(prefix, paths...)).NewWriter(ctx)
 	ow.ContentType = "application/x-gzip"
 	_, err = ow.Write(gb.Bytes())
 
@@ -57,14 +58,14 @@ func (s *CloudStorage) Put(ctx context.Context, uid, itemID string, text *string
 	return mo.Ok(true)
 }
 
-func (s *CloudStorage) Get(ctx context.Context, uid, itemID string) mo.Result[string] {
+func (s *CloudStorage) Get(ctx context.Context, prefix string, paths ...string) mo.Result[string] {
 	bucket, err := s.client.DefaultBucket()
 
 	if err != nil {
 		return mo.Err[string](err)
 	}
 
-	or, err := bucket.Object(getObjectName(uid, itemID)).NewReader(ctx)
+	or, err := bucket.Object(getObjectName(prefix, paths...)).NewReader(ctx)
 
 	if err != nil {
 		return mo.Err[string](err)

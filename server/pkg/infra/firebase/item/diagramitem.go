@@ -33,9 +33,9 @@ func NewFirestoreItemRepository(firestore *firestore.Client, storage *storage.Cl
 }
 
 func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
-	return r.findDiagramItemFromFirestore(ctx, userID, itemID, isPublic).Map(func(i *diagramitem.DiagramItem) (*diagramitem.DiagramItem, error) {
+	return r.findFromFirestore(ctx, userID, itemID, isPublic).Map(func(i *diagramitem.DiagramItem) (*diagramitem.DiagramItem, error) {
 		if i.IsSaveToStorage() {
-			ret := r.findTextFromCloudStorage(ctx, userID, itemID)
+			ret := r.findFromCloudStorage(ctx, userID, itemID)
 			if ret.IsError() {
 				return nil, ret.Error()
 			}
@@ -86,11 +86,11 @@ func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item 
 	eg, ctx := errgroup.WithContext(ctx)
 
 	eg.Go(func() error {
-		return r.saveDiagramItemToFirestore(ctx, userID, item, isPublic).Error()
+		return r.saveToFirestore(ctx, userID, item, isPublic).Error()
 	})
 
 	eg.Go(func() error {
-		return r.saveTextToCloudStorage(ctx, userID, item).Error()
+		return r.saveToCloudStorage(ctx, userID, item).Error()
 	})
 
 	if err := eg.Wait(); err != nil {
@@ -104,11 +104,11 @@ func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, ite
 	eg, ctx := errgroup.WithContext(ctx)
 
 	eg.Go(func() error {
-		return r.deleteDiagramItemToFirestore(ctx, userID, itemID, isPublic).Error()
+		return r.deleteToFirestore(ctx, userID, itemID, isPublic).Error()
 	})
 
 	eg.Go(func() error {
-		return r.deleteTextToCloudStorage(ctx, userID, itemID).Error()
+		return r.deleteToCloudStorage(ctx, userID, itemID).Error()
 	})
 
 	if err := eg.Wait(); err != nil {
@@ -118,7 +118,7 @@ func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, ite
 	return mo.Ok(true)
 }
 
-func (r *FirestoreItemRepository) findDiagramItemFromFirestore(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
+func (r *FirestoreItemRepository) findFromFirestore(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
 	var (
 		fields *firestore.DocumentSnapshot
 		err    error
@@ -140,12 +140,12 @@ func (r *FirestoreItemRepository) findDiagramItemFromFirestore(ctx context.Conte
 	return diagramitem.MapToDiagramItem(fields.Data())
 }
 
-func (r *FirestoreItemRepository) findTextFromCloudStorage(ctx context.Context, userID string, itemID string) mo.Result[string] {
+func (r *FirestoreItemRepository) findFromCloudStorage(ctx context.Context, userID string, itemID string) mo.Result[string] {
 	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Get(ctx, userID, itemID)
+	return storage.Get(ctx, "Users", userID, itemID)
 }
 
-func (r *FirestoreItemRepository) saveDiagramItemToFirestore(ctx context.Context, userID string, item *diagramitem.DiagramItem, isPublic bool) mo.Result[bool] {
+func (r *FirestoreItemRepository) saveToFirestore(ctx context.Context, userID string, item *diagramitem.DiagramItem, isPublic bool) mo.Result[bool] {
 	values := item.ToMap()
 	delete(values, "Text")
 
@@ -164,13 +164,13 @@ func (r *FirestoreItemRepository) saveDiagramItemToFirestore(ctx context.Context
 	return mo.Ok(true)
 }
 
-func (r *FirestoreItemRepository) saveTextToCloudStorage(ctx context.Context, userID string, item *diagramitem.DiagramItem) mo.Result[bool] {
+func (r *FirestoreItemRepository) saveToCloudStorage(ctx context.Context, userID string, item *diagramitem.DiagramItem) mo.Result[bool] {
 	text := item.EncryptedText()
 	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Put(ctx, userID, item.ID(), &text)
+	return storage.Put(ctx, &text, "Users", userID, item.ID())
 }
 
-func (r *FirestoreItemRepository) deleteDiagramItemToFirestore(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[bool] {
+func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[bool] {
 	tx := values.GetTx(ctx)
 
 	if tx.IsAbsent() {
@@ -214,7 +214,7 @@ func (r *FirestoreItemRepository) deleteDiagramItemToFirestore(ctx context.Conte
 	}
 }
 
-func (r *FirestoreItemRepository) deleteTextToCloudStorage(ctx context.Context, userID, itemID string) mo.Result[bool] {
+func (r *FirestoreItemRepository) deleteToCloudStorage(ctx context.Context, userID, itemID string) mo.Result[bool] {
 	storage := firebase.NewCloudStorage(r.storage)
 	return storage.Delete(ctx, userID, itemID)
 }

@@ -126,8 +126,8 @@ func (s *Service) Delete(ctx context.Context, itemID string, isPublic bool) erro
 		}
 	}
 
-	if err := s.shareRepo.Delete(ctx, shareID.OrEmpty()); err != nil {
-		return err
+	if err := s.shareRepo.Delete(ctx, shareID.OrEmpty()); err.IsError() {
+		return err.Error()
 	}
 
 	return s.repo.Delete(ctx, userID.OrEmpty(), itemID, false).Error()
@@ -297,8 +297,8 @@ func (s *Service) Share(ctx context.Context, itemID string, expSecond int, passw
 		ExpireTime:     expireTime * int64(1000),
 	}
 
-	if err := s.shareRepo.Save(ctx, shareID.OrEmpty(), item, &shareInfo); err != nil {
-		return mo.Err[string](err)
+	if err := s.shareRepo.Save(ctx, shareID.OrEmpty(), item, &shareInfo); err.IsError() {
+		return mo.Err[string](err.Error())
 	}
 
 	return mo.Ok(base64.RawURLEncoding.EncodeToString([]byte(tokenString)))
