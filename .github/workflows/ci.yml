@@ -4,7 +4,10 @@ on:
     types: [opened, synchronize]
     branches:
       - release
+      - master
 jobs:
+  assign:
+    if: github.actor != 'dependabot[bot]'
   ci:
     name: CI
     runs-on: ubuntu-latest
