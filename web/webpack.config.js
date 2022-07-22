@@ -175,10 +175,12 @@ if (mode === 'development') {
                 hot: true,
                 historyApiFallback: true,
                 static: path.join(__dirname, 'src/assets'),
-                https: {
-                    key: '../certs/localhost.key',
-                    cert: '../certs/localhost.cert',
-                },
+                https: !!process.env.USE_HTTPS
+                    ? {
+                          key: '../certs/localhost.key',
+                          cert: '../certs/localhost.cert',
+                      }
+                    : false,
             },
         });
     };

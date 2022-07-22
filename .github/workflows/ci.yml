@@ -4,9 +4,11 @@ on:
     types: [opened, synchronize]
     branches:
       - release
+      - master
 jobs:
   ci:
     name: CI
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
