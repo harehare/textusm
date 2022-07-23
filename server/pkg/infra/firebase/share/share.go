@@ -20,6 +20,7 @@ import (
 
 const (
 	shareCollection = "share"
+	storageRoot     = shareCollection
 )
 
 type FirestoreShareRepository struct {
@@ -145,7 +146,7 @@ func (r *FirestoreShareRepository) findFromFirestore(ctx context.Context, hashKe
 
 func (r *FirestoreShareRepository) findFromCloudStorage(ctx context.Context, hashKey string, itemID string) mo.Result[string] {
 	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Get(ctx, "Share", hashKey, itemID)
+	return storage.Get(ctx, storageRoot, hashKey, itemID)
 }
 
 func (r *FirestoreShareRepository) saveToFirestore(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *share.Share) mo.Result[bool] {
@@ -181,5 +182,5 @@ func (r *FirestoreShareRepository) saveToFirestore(ctx context.Context, hashKey 
 func (r *FirestoreShareRepository) saveToCloudStorage(ctx context.Context, hashKey string, item *diagramitem.DiagramItem) mo.Result[bool] {
 	text := item.EncryptedText()
 	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Put(ctx, &text, "Share", hashKey, item.ID())
+	return storage.Put(ctx, &text, storageRoot, hashKey, item.ID())
 }

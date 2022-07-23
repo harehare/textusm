@@ -3,7 +3,7 @@ import { Workbox } from 'workbox-window';
 
 // @ts-ignore
 import { Elm } from '../elm/Main.elm';
-import '../styles.scss';
+import '../styles.css';
 import {
     signOut,
     signIn,

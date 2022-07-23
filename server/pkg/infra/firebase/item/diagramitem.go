@@ -21,6 +21,7 @@ const (
 	itemsCollection  = "items"
 	publicCollection = "public"
 	usersCollection  = "users"
+	storageRoot      = usersCollection
 )
 
 type FirestoreItemRepository struct {
@@ -142,7 +143,7 @@ func (r *FirestoreItemRepository) findFromFirestore(ctx context.Context, userID 
 
 func (r *FirestoreItemRepository) findFromCloudStorage(ctx context.Context, userID string, itemID string) mo.Result[string] {
 	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Get(ctx, "Users", userID, itemID)
+	return storage.Get(ctx, storageRoot, userID, itemID)
 }
 
 func (r *FirestoreItemRepository) saveToFirestore(ctx context.Context, userID string, item *diagramitem.DiagramItem, isPublic bool) mo.Result[bool] {
@@ -167,7 +168,7 @@ func (r *FirestoreItemRepository) saveToFirestore(ctx context.Context, userID st
 func (r *FirestoreItemRepository) saveToCloudStorage(ctx context.Context, userID string, item *diagramitem.DiagramItem) mo.Result[bool] {
 	text := item.EncryptedText()
 	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Put(ctx, &text, "Users", userID, item.ID())
+	return storage.Put(ctx, &text, storageRoot, userID, item.ID())
 }
 
 func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[bool] {

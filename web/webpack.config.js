@@ -61,7 +61,7 @@ const common = {
     ],
     resolve: {
         modules: [path.join(__dirname, 'src'), 'node_modules'],
-        extensions: ['.js', '.ts', '.elm', '.scss', '.css'],
+        extensions: ['.js', '.ts', '.elm', '.css'],
         alias: {
             'monaco-editor': 'monaco-editor/esm/vs/editor/editor.api.js',
         },
@@ -84,20 +84,6 @@ const common = {
                 test: /\.ts$/,
                 exclude: /node_modules/,
                 use: 'ts-loader',
-            },
-            {
-                test: /\.scss$/,
-                exclude: [/elm-stuff/, /node_modules/],
-                use: [
-                    'style-loader',
-                    'css-loader',
-                    {
-                        loader: 'sass-loader',
-                        options: {
-                            implementation: require('sass'),
-                        },
-                    },
-                ],
             },
             {
                 test: /\.css$/,
@@ -263,20 +249,6 @@ if (mode === 'production') {
                     test: /\.css$/,
                     exclude: [/elm-stuff/, /node_modules/],
                     use: [MiniCssExtractPlugin.loader, 'css-loader'],
-                },
-                {
-                    test: /\.scss$/,
-                    exclude: [/elm-stuff/, /node_modules/],
-                    use: [
-                        MiniCssExtractPlugin.loader,
-                        'css-loader',
-                        {
-                            loader: 'sass-loader',
-                            options: {
-                                implementation: require('sass'),
-                            },
-                        },
-                    ],
                 },
             ],
         },
