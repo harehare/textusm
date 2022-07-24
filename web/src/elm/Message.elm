@@ -399,11 +399,6 @@ toolTipLocal lang =
             "Local"
 
 
-toolTipGist : Lang -> String
-toolTipGist lang =
-    case lang of
-        Ja ->
-            "Gist"
-
-        _ ->
-            "Gist"
+toolTipGist : String
+toolTipGist =
+    "Gist"

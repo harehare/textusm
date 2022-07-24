@@ -278,6 +278,31 @@ viewHelpButton lang =
         ]
 
 
+viewLocationButton : Lang -> Session -> Maybe DiagramLocation -> Html Msg
+viewLocationButton lang session location =
+    case ( session, location ) of
+        ( Session.SignedIn _, Just DiagramLocation.Remote ) ->
+            Html.div
+                [ css [ Style.button ] ]
+                [ Icon.cloudOn Color.iconColor 14
+                , Tooltip.view <| Message.toolTipRemote lang
+                ]
+
+        ( Session.SignedIn _, Just DiagramLocation.Gist ) ->
+            Html.div
+                [ css [ Style.button ] ]
+                [ Icon.github Color.iconColor 14
+                , Tooltip.view Message.toolTipGist
+                ]
+
+        _ ->
+            Html.div
+                [ css [ Style.button ] ]
+                [ Icon.cloudOff Color.iconColor 14
+                , Tooltip.view <| Message.toolTipLocal lang
+                ]
+
+
 viewShareButton : Lang -> Bool -> Html Msg
 viewShareButton lang canShare_ =
     if canShare_ then
@@ -408,31 +433,6 @@ viewSignInButton menu session =
                 _ ->
                     Empty.view
             ]
-
-
-viewLocationButton : Lang -> Session -> Maybe DiagramLocation -> Html Msg
-viewLocationButton lang session location =
-    case ( session, location ) of
-        ( Session.SignedIn _, Just DiagramLocation.Remote ) ->
-            Html.div
-                [ css [ Style.button ] ]
-                [ Icon.cloudOn Color.iconColor 14
-                , Tooltip.view <| Message.toolTipRemote lang
-                ]
-
-        ( Session.SignedIn _, Just DiagramLocation.Gist ) ->
-            Html.div
-                [ css [ Style.button ] ]
-                [ Icon.github Color.iconColor 14
-                , Tooltip.view <| Message.toolTipGist lang
-                ]
-
-        _ ->
-            Html.div
-                [ css [ Style.button ] ]
-                [ Icon.cloudOff Color.iconColor 14
-                , Tooltip.view <| Message.toolTipLocal lang
-                ]
 
 
 viewTitle : List (Html.Attribute msg) -> List (Html msg) -> Html msg
