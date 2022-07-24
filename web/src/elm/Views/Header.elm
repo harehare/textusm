@@ -49,7 +49,7 @@ import Json.Decode as D
 import Message exposing (Lang)
 import Models.Color as Color
 import Models.DiagramItem exposing (DiagramItem)
-import Models.DiagramLocation as DiagramLocation
+import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Models.DiagramType as DiagramType
 import Models.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Models.Model exposing (Menu(..), Msg(..))
@@ -185,10 +185,7 @@ view props =
                     viewTitle [] [ Html.text "All Diagrams" ]
 
                 Page.Settings ->
-                    -- TODO:
-                    viewTitle []
-                        [ Html.text <| DiagramType.toLongString props.currentDiagram.diagram ++ " Settings"
-                        ]
+                    viewTitle [] [ Html.text <| DiagramType.toLongString props.currentDiagram.diagram ++ " Settings" ]
 
                 _ ->
                     Empty.view
@@ -204,7 +201,8 @@ view props =
                         [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
 
                     _ ->
-                        [ Lazy.lazy3 viewChangePublicStateButton props.lang props.currentDiagram.isPublic (canChangePublicState props)
+                        [ Lazy.lazy3 viewLocationButton props.lang props.session props.currentDiagram.location
+                        , Lazy.lazy3 viewChangePublicStateButton props.lang props.currentDiagram.isPublic (canChangePublicState props)
                         , Lazy.lazy viewHelpButton props.lang
                         , Lazy.lazy2 viewShareButton props.lang <| canShare props
                         , Lazy.lazy2 viewSignInButton props.menu props.session
@@ -257,16 +255,16 @@ viewChangePublicStateButton lang isPublic_ canChangePublicState_ =
                 Icon.lock Color.iconColor 14
             , Tooltip.view <|
                 if isPublic_ then
-                    Message.toolPublic lang
+                    Message.toolTipPublic lang
 
                 else
-                    Message.toolPrivate lang
+                    Message.toolTipPrivate lang
             ]
 
     else
         Html.div [ css [ Style.button ] ]
             [ Icon.lock Color.disabledIconColor 14
-            , Tooltip.view <| Message.toolPrivate lang
+            , Tooltip.view <| Message.toolTipPrivate lang
             ]
 
 
@@ -410,6 +408,31 @@ viewSignInButton menu session =
                 _ ->
                     Empty.view
             ]
+
+
+viewLocationButton : Lang -> Session -> Maybe DiagramLocation -> Html Msg
+viewLocationButton lang session location =
+    case ( session, location ) of
+        ( Session.SignedIn _, Just DiagramLocation.Remote ) ->
+            Html.div
+                [ css [ Style.button ] ]
+                [ Icon.cloudOn Color.iconColor 14
+                , Tooltip.view <| Message.toolTipRemote lang
+                ]
+
+        ( Session.SignedIn _, Just DiagramLocation.Gist ) ->
+            Html.div
+                [ css [ Style.button ] ]
+                [ Icon.github Color.iconColor 14
+                , Tooltip.view <| Message.toolTipGist lang
+                ]
+
+        _ ->
+            Html.div
+                [ css [ Style.button ] ]
+                [ Icon.cloudOff Color.iconColor 14
+                , Tooltip.view <| Message.toolTipLocal lang
+                ]
 
 
 viewTitle : List (Html.Attribute msg) -> List (Html msg) -> Html msg

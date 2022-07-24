@@ -710,10 +710,10 @@ diagramView timezone diagram =
                 cloudIconView [ Icon.github Color.gray 14 ]
 
             Just DiagramLocation.Remote ->
-                cloudIconView [ Icon.cloudOn 14 ]
+                cloudIconView [ Icon.cloudOn Color.gray 14 ]
 
             _ ->
-                cloudIconView [ Icon.cloudOff 14 ]
+                cloudIconView [ Icon.cloudOff Color.gray 14 ]
         , if diagram.isPublic then
             publicIconView [ Icon.lockOpen Color.gray 14 ]
 

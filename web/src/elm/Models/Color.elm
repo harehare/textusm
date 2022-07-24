@@ -29,6 +29,7 @@ module Models.Color exposing
     , textDefalut
     , toString
     , transparent
+    , warning
     , white
     , white2
     , yellow
@@ -337,3 +338,8 @@ type alias Rgb =
 yellow2 : Color
 yellow2 =
     Color "Yellow2" "#F9D188"
+
+
+warning : Color
+warning =
+    Color "Warning" "#FECB30"

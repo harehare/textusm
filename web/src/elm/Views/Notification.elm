@@ -25,9 +25,10 @@ import Css
 import Css.Transitions as Transitions
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
+import Models.Color as Color
 import Models.Notification as Notification
 import Style.Breakpoint as Breakpoint
-import Style.Color as Color
+import Style.Color as ColorStyle
 import Style.Style as Style
 import Style.Text as Text
 import Views.Icon as Icon
@@ -45,7 +46,7 @@ view notification =
                     ( text, Icon.error 22 )
 
                 Notification.Show (Notification.Warning text) ->
-                    ( text, Icon.warning 22 )
+                    ( text, Icon.warning Color.warning 22 )
 
                 Notification.Hide ->
                     ( "", Icon.info 0 )
@@ -61,7 +62,7 @@ view notification =
                 , minWidth <| px 300
                 , height <| px 40
                 , backgroundColor <| rgba 0 0 0 0.87
-                , Color.textColor
+                , ColorStyle.textColor
                 , Transitions.transition [ Transitions.transform3 100 100 Transitions.easeInOut ]
                 , Style.widthScreen
                 , Style.shadowNone

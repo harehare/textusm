@@ -23,14 +23,17 @@ module Message exposing
     , messageTimeout
     , messageUnknown
     , messageUrlExpired
-    , toolPrivate
-    , toolPublic
     , toolTipCopy
     , toolTipExport
+    , toolTipGist
     , toolTipHelp
     , toolTipImport
+    , toolTipLocal
     , toolTipNewFile
     , toolTipOpenFile
+    , toolTipPrivate
+    , toolTipPublic
+    , toolTipRemote
     , toolTipSave
     , toolTipSettings
     , toolTipShare
@@ -266,8 +269,8 @@ messageUrlExpired lang =
             "URL has expired"
 
 
-toolPrivate : Lang -> String
-toolPrivate lang =
+toolTipPrivate : Lang -> String
+toolTipPrivate lang =
     case lang of
         Ja ->
             "非公開"
@@ -276,8 +279,8 @@ toolPrivate lang =
             "Private"
 
 
-toolPublic : Lang -> String
-toolPublic lang =
+toolTipPublic : Lang -> String
+toolTipPublic lang =
     case lang of
         Ja ->
             "公開"
@@ -374,3 +377,33 @@ toolTipShare lang =
 
         _ ->
             "Share"
+
+
+toolTipRemote : Lang -> String
+toolTipRemote lang =
+    case lang of
+        Ja ->
+            "リモート"
+
+        _ ->
+            "Remote"
+
+
+toolTipLocal : Lang -> String
+toolTipLocal lang =
+    case lang of
+        Ja ->
+            "ローカル"
+
+        _ ->
+            "Local"
+
+
+toolTipGist : Lang -> String
+toolTipGist lang =
+    case lang of
+        Ja ->
+            "Gist"
+
+        _ ->
+            "Gist"
