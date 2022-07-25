@@ -15,7 +15,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/vektah/gqlparser/v2 v2.4.6
 	golang.org/x/crypto v0.0.0-20220313003712-b769efc7c000
-	google.golang.org/api v0.87.0
+	google.golang.org/api v0.88.0
 	google.golang.org/grpc v1.48.0
 )
 
