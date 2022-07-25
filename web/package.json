@@ -45,6 +45,7 @@
         "devcert": "^1.2.2",
         "elm": "^0.19.1-5",
         "elm-constants": "^1.0.0",
+        "elm-format": "^0.8.5",
         "elm-hot-webpack-loader": "^1.1.8",
         "elm-review": "^2.7.3",
         "elm-test": "^0.19.1-revision9",
@@ -54,7 +55,6 @@
         "eslint-plugin-cypress": "^2.12.1",
         "html-inline-css-webpack-plugin": "^1.11.1",
         "html-webpack-plugin": "^5.5.0",
-        "husky": "^8.0.1",
         "lint-staged": "^13.0.3",
         "mini-css-extract-plugin": "^2.6.1",
         "monaco-editor-webpack-plugin": "^7.0.1",
@@ -104,15 +104,18 @@
         "lib:build": "elm make src/elm/Extension/Lib.elm --optimize --output elm.optimized.js && terser elm.optimized.js --compress 'pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe' --mangle --output=elm.js && rimraf elm.optimized.js && mv elm.js ../extension/lib/src/js/",
         "generate-elm-types": "elm-graphql http://localhost:8081/graphql --base Graphql --output src/Graphql",
         "generate-elm-constants": "elm-constants --no-dotenv",
-        "format": "prettier --write src/**/*.ts",
+        "format:ts": "prettier --write src/**/*.ts",
+        "format:elm": "elm-format src/elm/**/*.elm",
+        "format:validate": "run-p format:validate:*",
+        "format:validate:ts": "prettier --check src/**/*.ts",
+        "format:validate:elm": "elm-format --validate src/elm/**/*.elm",
         "lint": "run-p lint:*",
         "lint:ts": "eslint src/ts/*.ts",
         "lint:elm": "elm-review",
         "lint:elm:suppress": "elm-review suppress",
         "lint-fix": "run-p lint-fix:*",
         "lint-fix:ts": "eslint --fix src/ts/*.ts",
-        "lint-fix:fix": "elm-review --fix",
-        "prepare": "cd .. && husky install"
+        "lint-fix:fix": "elm-review --fix"
     },
     "browserslist": [
         "defaults"

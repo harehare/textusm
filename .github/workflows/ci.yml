@@ -40,6 +40,9 @@ jobs:
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
           APP_VERSION: ${{ steps.package-version.outputs.current-version}}
           REPO_URL: ${{ secrets.REPO_URL }}
+      - name: Check format
+        working-directory: web
+        run: npm run format:validate
       - name: Run Tests
         working-directory: web
         run: npm run test
