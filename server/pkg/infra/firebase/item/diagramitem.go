@@ -10,6 +10,7 @@ import (
 	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
 	e "github.com/harehare/textusm/pkg/error"
 	"github.com/harehare/textusm/pkg/infra/firebase"
+	"github.com/rs/zerolog/log"
 	"github.com/samber/mo"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/iterator"
@@ -95,6 +96,14 @@ func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item 
 	})
 
 	if err := eg.Wait(); err != nil {
+		if item.IsNew() {
+			err := r.Delete(ctx, userID, item.ID(), isPublic)
+			if err.IsError() {
+				log.Error().Msg("Delete failed. userID: " + userID + ", itemID:" + item.ID())
+				return mo.Err[*diagramitem.DiagramItem](err.Error())
+			}
+		}
+
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 

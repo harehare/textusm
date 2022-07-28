@@ -42,6 +42,7 @@ type builder struct {
 	errors        []error
 	isPublic      bool
 	isBookmark    bool
+	isNew         bool
 }
 
 func New() DiagramItemBuilder {
@@ -51,8 +52,10 @@ func New() DiagramItemBuilder {
 func (b *builder) WithID(id string) DiagramItemBuilder {
 	if id == "" {
 		b.id = uuid.NewV4().String()
+		b.isNew = true
 	} else {
 		b.id = id
+		b.isNew = false
 	}
 	return b
 }
@@ -131,6 +134,7 @@ func (b *builder) Build() mo.Result[*DiagramItem] {
 		isBookmark:    b.isBookmark,
 		createdAt:     b.createdAt,
 		updatedAt:     b.updatedAt,
+		isNew:         b.isNew,
 	})
 }
 
@@ -145,6 +149,7 @@ type DiagramItem struct {
 	isPublic      bool
 	isBookmark    bool
 	saveToStorage bool
+	isNew         bool
 }
 
 func (i *DiagramItem) ID() string {
@@ -216,6 +221,10 @@ func (i *DiagramItem) Publish() *DiagramItem {
 func (i *DiagramItem) Bookmark(isBookmark bool) *DiagramItem {
 	i.isBookmark = isBookmark
 	return i
+}
+
+func (i *DiagramItem) IsNew() bool {
+	return i.isNew
 }
 
 func MapToDiagramItem(v map[string]interface{}) mo.Result[*DiagramItem] {
