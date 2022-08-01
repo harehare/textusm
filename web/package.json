@@ -48,7 +48,7 @@
         "elm-review": "^2.7.3",
         "elm-test": "^0.19.1-revision9",
         "elm-webpack-loader": "^8.0.0",
-        "eslint": "^8.20.0",
+        "eslint": "^8.21.0",
         "eslint-config-airbnb-typescript-prettier": "^5.0.0",
         "eslint-plugin-cypress": "^2.12.1",
         "html-inline-css-webpack-plugin": "^1.11.1",
