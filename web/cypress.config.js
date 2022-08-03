@@ -5,5 +5,6 @@ module.exports = defineConfig({
         baseUrl: 'http://localhost:3000',
         specPattern: 'e2e/**/*.js',
         supportFile: false,
+        defaultCommandTimeout: 10000,
     },
 });

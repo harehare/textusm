@@ -1,5 +1,6 @@
 module Views.Menu exposing (MenuInfo, MenuItem(..), Props, menu, view)
 
+import Attributes
 import Css
     exposing
         ( absolute
@@ -81,7 +82,7 @@ type alias MenuInfo msg =
 
 
 type MenuItem msg
-    = Item (MenuInfo msg)
+    = MenuItem (MenuInfo msg)
 
 
 type alias Props =
@@ -96,14 +97,14 @@ type alias Props =
     }
 
 
-menu : Maybe Int -> Maybe Int -> Maybe Int -> Maybe Int -> List (MenuItem msg) -> Html msg
-menu posTop posLeft posBottom posRight items =
+menu : { top : Maybe Int, left : Maybe Int, bottom : Maybe Int, right : Maybe Int } -> List (MenuItem msg) -> Html msg
+menu pos items =
     Html.div
         [ css
-            [ Maybe.map (\p -> Css.batch [ top <| px <| toFloat <| p ]) posTop |> Maybe.withDefault (Css.batch [])
-            , Maybe.map (\p -> Css.batch [ left <| px <| toFloat <| p ]) posLeft |> Maybe.withDefault (Css.batch [])
-            , Maybe.map (\p -> Css.batch [ right <| px <| toFloat <| p ]) posRight |> Maybe.withDefault (Css.batch [])
-            , Maybe.map (\p -> Css.batch [ bottom <| px <| toFloat <| p ]) posBottom |> Maybe.withDefault (Css.batch [])
+            [ Maybe.map (\p -> Css.batch [ top <| px <| toFloat <| p ]) pos.top |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ left <| px <| toFloat <| p ]) pos.left |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ right <| px <| toFloat <| p ]) pos.right |> Maybe.withDefault (Css.batch [])
+            , Maybe.map (\p -> Css.batch [ bottom <| px <| toFloat <| p ]) pos.bottom |> Maybe.withDefault (Css.batch [])
             , minWidth <| px 128
             , maxHeight <| calc (vh 100) minus (px 40)
             , Transitions.transition [ Transitions.boxShadow3 200 200 Transitions.easeOut ]
@@ -118,7 +119,7 @@ menu posTop posLeft posBottom posRight items =
         ]
         (items
             |> List.map
-                (\(Item menuItem) ->
+                (\(MenuItem menuItem) ->
                     Html.div
                         [ css
                             [ TextStyle.base
@@ -132,6 +133,11 @@ menu posTop posLeft posBottom posRight items =
                                 ]
                             ]
                         , Events.onClick menuItem.e
+                        , menuItem.title
+                            ++ "-menu-item"
+                            |> String.replace " " ""
+                            |> String.toLower
+                            |> Attributes.dataTest
                         ]
                         [ Html.div
                             [ css
@@ -180,11 +186,13 @@ view props =
                     ]
                 ]
             ]
+        , Attributes.dataTest "menu"
         ]
         [ Html.a
             [ Attr.class "new-menu"
             , Attr.href <| Route.toString <| Route.New
             , Attr.attribute "aria-label" "New"
+            , Attributes.dataTest "new-menu"
             ]
             [ Html.div
                 [ css [ Style.mlXs, menuButtonStyle ]
@@ -200,6 +208,7 @@ view props =
                     Html.div
                         [ Events.onClickPreventDefaultOn OpenLocalFile
                         , Attr.attribute "aria-label" "List"
+                        , Attributes.dataTest "list-menu"
                         ]
                         [ Icon.folderOpen (Color.toString Color.iconColor) 18
                         , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile props.lang ] ]
@@ -209,6 +218,7 @@ view props =
                     Html.a
                         [ Attr.href <| Route.toString Route.DiagramList
                         , Attr.attribute "aria-label" "List"
+                        , Attributes.dataTest "list-menu"
                         ]
                         [ Icon.folderOpen
                             (if isNothing props.openMenu && props.page == Page.List then
@@ -230,6 +240,7 @@ view props =
                     _ ->
                         Events.onClick Save
                 , css [ menuButtonStyle ]
+                , Attributes.dataTest "save-menu"
                 ]
                 [ Icon.save (Color.toString Color.iconColor) 22
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave props.lang ] ]
@@ -237,12 +248,17 @@ view props =
 
           else
             Html.div
-                [ css [ menuButtonStyle ] ]
+                [ css [ menuButtonStyle ]
+                , Attributes.dataTest "disabled-save-menu"
+                ]
                 [ Icon.save (Color.toString Color.disabledIconColor) 22
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave props.lang ] ]
                 ]
         , Html.div
-            [ Events.stopPropagationOn "click" (D.succeed ( OpenMenu Export, True )), css [ menuButtonStyle ] ]
+            [ Events.stopPropagationOn "click" (D.succeed ( OpenMenu Export, True ))
+            , css [ menuButtonStyle ]
+            , Attributes.dataTest "download-menu"
+            ]
             [ Icon.download
                 (case props.openMenu of
                     Just Export ->
@@ -255,19 +271,27 @@ view props =
             , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ]
             ]
         , if Text.isChanged props.text then
-            Html.div [ css [ menuButtonStyle ] ]
+            Html.div
+                [ css [ menuButtonStyle ]
+                , Attributes.dataTest "copy-menu"
+                ]
                 [ Icon.copy Color.disabledIconColor 19
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy props.lang ] ]
                 ]
 
           else
             Html.div
-                [ css [ menuButtonStyle ], Events.onClickStopPropagation Copy ]
+                [ css [ menuButtonStyle ]
+                , Events.onClickStopPropagation Copy
+                , Attributes.dataTest "copy-menu"
+                ]
                 [ Icon.copy Color.iconColor 19
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy props.lang ] ]
                 ]
         , Html.div
-            [ css [ menuButtonStyle ] ]
+            [ css [ menuButtonStyle ]
+            , Attributes.dataTest "settings-menu"
+            ]
             [ Html.a [ Attr.href <| Route.toString (Route.Settings props.diagramType), Attr.attribute "aria-label" "Settings" ]
                 [ Icon.settings
                     (if isNothing props.openMenu && props.page == Page.Settings then
@@ -283,7 +307,7 @@ view props =
         , if Utils.isPhone props.width then
             case props.openMenu of
                 Just Export ->
-                    menu Nothing (Just (props.width // 5 * 3)) (Just 50) Nothing (exportMenu props.route)
+                    menu { top = Nothing, left = Just (props.width // 5 * 3), bottom = Just 50, right = Nothing } (exportMenu props.route)
 
                 _ ->
                     Empty.view
@@ -291,7 +315,7 @@ view props =
           else
             case props.openMenu of
                 Just Export ->
-                    menu (Just 125) (Just 40) Nothing Nothing (exportMenu props.route)
+                    menu { top = Just 125, left = Just 40, bottom = Nothing, right = Nothing } (exportMenu props.route)
 
                 _ ->
                     Empty.view
@@ -300,31 +324,31 @@ view props =
 
 baseExportMenu : List (MenuItem Msg)
 baseExportMenu =
-    [ Item
+    [ MenuItem
         { e = Download <| Exporter.downloadable FileType.svg
         , title = FileType.toString FileType.svg
         }
-    , Item
+    , MenuItem
         { e = Download <| Exporter.downloadable FileType.png
         , title = FileType.toString FileType.png
         }
-    , Item
+    , MenuItem
         { e = Download <| Exporter.downloadable FileType.pdf
         , title = FileType.toString FileType.pdf
         }
-    , Item
+    , MenuItem
         { e = Download <| Exporter.downloadable FileType.plainText
         , title = FileType.toString FileType.plainText
         }
-    , Item
+    , MenuItem
         { e = Download <| Exporter.downloadable FileType.html
         , title = FileType.toString FileType.html
         }
-    , Item
+    , MenuItem
         { e = Download <| Exporter.copyable FileType.png
         , title = "Copy " ++ FileType.toString FileType.png
         }
-    , Item
+    , MenuItem
         { e = Download <| Exporter.copyable FileType.Base64
         , title = "Copy " ++ FileType.toString FileType.Base64
         }
@@ -335,64 +359,64 @@ exportMenu : Route -> List (MenuItem Msg)
 exportMenu route =
     case route of
         Route.Edit GanttChart ->
-            Item
+            MenuItem
                 { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu
 
         Route.Edit ErDiagram ->
-            Item
+            MenuItem
                 { e = Download <| Exporter.copyable FileType.ddl
                 , title = "DDL"
                 }
-                :: Item
+                :: MenuItem
                     { e = Download <| Exporter.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
                 :: baseExportMenu
 
         Route.Edit Table ->
-            Item
+            MenuItem
                 { e = Download <| Exporter.copyable FileType.markdown
                 , title = "Markdown"
                 }
                 :: baseExportMenu
 
         Route.Edit SequenceDiagram ->
-            Item
+            MenuItem
                 { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu
 
         Route.EditFile GanttChart _ ->
-            Item
+            MenuItem
                 { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu
 
         Route.EditFile ErDiagram _ ->
-            Item
+            MenuItem
                 { e = Download <| Exporter.copyable FileType.ddl
                 , title = "DDL"
                 }
-                :: Item
+                :: MenuItem
                     { e = Download <| Exporter.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
                 :: baseExportMenu
 
         Route.EditFile Table _ ->
-            Item
+            MenuItem
                 { e = Download <| Exporter.copyable FileType.markdown
                 , title = "Markdown"
                 }
                 :: baseExportMenu
 
         Route.EditFile SequenceDiagram _ ->
-            Item
+            MenuItem
                 { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }

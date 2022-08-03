@@ -1,6 +1,7 @@
 module Views.Header exposing (Props, view)
 
 import Asset
+import Attributes
 import Avatar exposing (Avatar(..))
 import Css
     exposing
@@ -105,7 +106,9 @@ view props =
             [ case props.page of
                 Page.Main ->
                     Html.div
-                        [ css [ Style.flexCenter, width <| px 32, height <| px 32, marginTop <| px 8 ] ]
+                        [ css [ Style.flexCenter, width <| px 32, height <| px 32, marginTop <| px 8 ]
+                        , Attributes.dataTest "header-logo"
+                        ]
                         [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ]
                             [ Html.img
                                 [ Asset.src Asset.logo
@@ -122,6 +125,7 @@ view props =
                             Html.div
                                 [ css [ Style.flexCenter, padding4 (px 8) (px 8) (px 8) (px 12), cursor pointer ]
                                 , Events.onClick <| MoveTo r
+                                , Attributes.dataTest "header-back"
                                 ]
                                 [ Icon.arrowLeft Color.iconColor 18 ]
 
@@ -153,6 +157,7 @@ view props =
                             , Events.onBlur EndEditTitle
                             , E.onEnter EndEditTitle
                             , Attr.placeholder "UNTITLED"
+                            , Attributes.dataTest "header-input-title"
                             ]
                             []
 
@@ -163,6 +168,7 @@ view props =
                                 , hover []
                                 ]
                             , Events.onClick StartEditTitle
+                            , Attributes.dataTest "header-title"
                             ]
                             [ Html.text <| Title.toString props.currentDiagram.title
                             , Html.div
@@ -176,16 +182,16 @@ view props =
                             ]
 
                 Page.New ->
-                    viewTitle [] [ Html.text "New Diagram" ]
+                    viewTitle [ Attributes.dataTest "header-title" ] [ Html.text "New Diagram" ]
 
                 Page.Help ->
-                    viewTitle [] [ Html.text "Help" ]
+                    viewTitle [ Attributes.dataTest "header-title" ] [ Html.text "Help" ]
 
                 Page.List ->
-                    viewTitle [] [ Html.text "All Diagrams" ]
+                    viewTitle [ Attributes.dataTest "header-title" ] [ Html.text "All Diagrams" ]
 
                 Page.Settings ->
-                    viewTitle [] [ Html.text <| DiagramType.toLongString props.currentDiagram.diagram ++ " Settings" ]
+                    viewTitle [ Attributes.dataTest "header-title" ] [ Html.text <| DiagramType.toLongString props.currentDiagram.diagram ++ " Settings" ]
 
                 _ ->
                     Empty.view
@@ -270,7 +276,12 @@ viewChangePublicStateButton lang isPublic_ canChangePublicState_ =
 
 viewHelpButton : Lang -> Html Msg
 viewHelpButton lang =
-    Html.a [ Attr.attribute "aria-label" "Help", css [ displayFlex ], Attr.href <| Route.toString Route.Help ]
+    Html.a
+        [ Attr.attribute "aria-label" "Help"
+        , css [ displayFlex ]
+        , Attr.href <| Route.toString Route.Help
+        , Attributes.dataTest "header-help"
+        ]
         [ Html.div [ css [ Style.button ] ]
             [ Icon.helpOutline 16
             , Tooltip.view <| Message.toolTipHelp lang
@@ -310,6 +321,7 @@ viewShareButton lang canShare_ =
             [ css [ displayFlex ]
             , Attr.href <| Route.toString Route.Share
             , Attr.attribute "aria-label" "Share"
+            , Attributes.dataTest "header-share"
             ]
             [ Html.div [ css [ Style.button ] ]
                 [ Icon.people Color.iconColor 20
@@ -318,7 +330,10 @@ viewShareButton lang canShare_ =
             ]
 
     else
-        Html.div [ css [ Style.button ] ]
+        Html.div
+            [ css [ Style.button ]
+            , Attributes.dataTest "header-share"
+            ]
             [ Icon.people Color.disabledIconColor 20
             , Tooltip.view <| Message.toolTipShare lang
             ]
@@ -343,6 +358,7 @@ viewSignInButton menu session =
                     ]
                 ]
             , Events.stopPropagationOn "click" (D.succeed ( OpenMenu HeaderMenu, True ))
+            , Attributes.dataTest "header-signin"
             ]
             [ Html.div
                 [ css [ Text.sm, marginRight <| px 4 ]
@@ -378,24 +394,26 @@ viewSignInButton menu session =
                                     )
                                     user
                         in
-                        Menu.menu (Just 40)
-                            Nothing
-                            Nothing
-                            (Just 0)
+                        Menu.menu
+                            { top = Just 40
+                            , left = Nothing
+                            , bottom = Nothing
+                            , right = Just 0
+                            }
                             (case user_ of
                                 Just u ->
-                                    [ Menu.Item
+                                    [ Menu.MenuItem
                                         { e = NoOp
                                         , title = u.email
                                         }
-                                    , Menu.Item
+                                    , Menu.MenuItem
                                         { e = SignOut
                                         , title = "SIGN OUT"
                                         }
                                     ]
 
                                 Nothing ->
-                                    [ Menu.Item
+                                    [ Menu.MenuItem
                                         { e = SignOut
                                         , title = "SIGN OUT"
                                         }
@@ -411,20 +429,23 @@ viewSignInButton menu session =
         Html.div
             [ css [ Style.button, width <| px 96, height <| px 50 ]
             , Events.stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
+            , Attributes.dataTest "header-signin"
             ]
             [ Html.div [ css [ Text.base, Font.fontBold ] ]
                 [ Html.text "SIGN IN" ]
             , case menu of
                 Just LoginMenu ->
-                    Menu.menu (Just 30)
-                        Nothing
-                        Nothing
-                        (Just 5)
-                        [ Menu.Item
+                    Menu.menu
+                        { top = Just 30
+                        , left = Nothing
+                        , bottom = Nothing
+                        , right = Just 5
+                        }
+                        [ Menu.MenuItem
                             { e = SignIn Google
                             , title = LoginProvider.toString Google
                             }
-                        , Menu.Item
+                        , Menu.MenuItem
                             { e = SignIn <| Github Nothing
                             , title = LoginProvider.toString <| Github Nothing
                             }

@@ -1,6 +1,7 @@
 module Page.New exposing (view)
 
 import Asset exposing (Asset)
+import Attributes
 import Css
     exposing
         ( border3
@@ -22,7 +23,7 @@ import Css
         )
 import Html.Styled exposing (Html, a, div, img, text)
 import Html.Styled.Attributes exposing (attribute, class, css, href)
-import Models.DiagramType exposing (DiagramType(..))
+import Models.DiagramType as DiagramType exposing (DiagramType(..))
 import Route
 import Style.Breakpoint as Breakpoint
 import Style.Color as Color
@@ -59,16 +60,17 @@ view =
           <|
             List.map
                 (\item ->
-                    a [ href item.url, attribute "aria-label" item.name ]
+                    a [ href item.url, attribute "aria-label" <| DiagramType.toLongString item.type_ ]
                         [ div
                             [ class "new-item"
                             , newItemStyle
+                            , Attributes.dataTest <| "new-" ++ DiagramType.toString item.type_
                             ]
                             [ img [ Asset.src item.image, css [ property "object-fit" "contain", Style.widthFull, height <| px 100 ] ] []
                             , div
                                 [ css [ Text.sm, Font.fontSemiBold ]
                                 ]
-                                [ text item.name ]
+                                [ text <| DiagramType.toLongString item.type_ ]
                             ]
                         ]
                 )
@@ -77,7 +79,7 @@ view =
 
 
 type alias NewItem =
-    { name : String
+    { type_ : DiagramType
     , image : Asset
     , url : String
     }
@@ -101,22 +103,22 @@ newItemStyle =
 
 newItems : List NewItem
 newItems =
-    [ NewItem "User Story Map" Asset.userStoryMap (Route.toString <| Route.Edit UserStoryMap)
-    , NewItem "Mind Map" Asset.mindMap (Route.toString <| Route.Edit MindMap)
-    , NewItem "Impact Map" Asset.impactMap (Route.toString <| Route.Edit ImpactMap)
-    , NewItem "Empathy Map" Asset.empathyMap (Route.toString <| Route.Edit EmpathyMap)
-    , NewItem "Site Map" Asset.siteMap (Route.toString <| Route.Edit SiteMap)
-    , NewItem "Business Model Canvas" Asset.businessModelCanvas (Route.toString <| Route.Edit BusinessModelCanvas)
-    , NewItem "Opportunity Canvas" Asset.opportunityCanvas (Route.toString <| Route.Edit OpportunityCanvas)
-    , NewItem "User Persona" Asset.userPersona (Route.toString <| Route.Edit UserPersona)
-    , NewItem "Gantt Chart" Asset.ganttChart (Route.toString <| Route.Edit GanttChart)
-    , NewItem "ER Diagram" Asset.erDiagram (Route.toString <| Route.Edit ErDiagram)
-    , NewItem "Sequence Diagram" Asset.sequenceDiagram (Route.toString <| Route.Edit SequenceDiagram)
-    , NewItem "Use Case Diagram" Asset.useCaseDiagram (Route.toString <| Route.Edit UseCaseDiagram)
-    , NewItem "Kanban" Asset.kanban (Route.toString <| Route.Edit Kanban)
-    , NewItem "4Ls" Asset.fourLs (Route.toString <| Route.Edit Fourls)
-    , NewItem "Start, Stop, Continue" Asset.startStopContinue (Route.toString <| Route.Edit StartStopContinue)
-    , NewItem "KPT" Asset.kpt (Route.toString <| Route.Edit Kpt)
-    , NewItem "Table" Asset.table (Route.toString <| Route.Edit Table)
-    , NewItem "Freeform" Asset.freeform (Route.toString <| Route.Edit Freeform)
+    [ NewItem DiagramType.UserStoryMap Asset.userStoryMap (Route.toString <| Route.Edit UserStoryMap)
+    , NewItem DiagramType.MindMap Asset.mindMap (Route.toString <| Route.Edit MindMap)
+    , NewItem DiagramType.ImpactMap Asset.impactMap (Route.toString <| Route.Edit ImpactMap)
+    , NewItem DiagramType.EmpathyMap Asset.empathyMap (Route.toString <| Route.Edit EmpathyMap)
+    , NewItem DiagramType.SiteMap Asset.siteMap (Route.toString <| Route.Edit SiteMap)
+    , NewItem DiagramType.BusinessModelCanvas Asset.businessModelCanvas (Route.toString <| Route.Edit BusinessModelCanvas)
+    , NewItem DiagramType.OpportunityCanvas Asset.opportunityCanvas (Route.toString <| Route.Edit OpportunityCanvas)
+    , NewItem DiagramType.UserPersona Asset.userPersona (Route.toString <| Route.Edit UserPersona)
+    , NewItem DiagramType.GanttChart Asset.ganttChart (Route.toString <| Route.Edit GanttChart)
+    , NewItem DiagramType.ErDiagram Asset.erDiagram (Route.toString <| Route.Edit ErDiagram)
+    , NewItem DiagramType.SequenceDiagram Asset.sequenceDiagram (Route.toString <| Route.Edit SequenceDiagram)
+    , NewItem DiagramType.UseCaseDiagram Asset.useCaseDiagram (Route.toString <| Route.Edit UseCaseDiagram)
+    , NewItem DiagramType.Kanban Asset.kanban (Route.toString <| Route.Edit Kanban)
+    , NewItem DiagramType.Fourls Asset.fourLs (Route.toString <| Route.Edit Fourls)
+    , NewItem DiagramType.StartStopContinue Asset.startStopContinue (Route.toString <| Route.Edit StartStopContinue)
+    , NewItem DiagramType.Kpt Asset.kpt (Route.toString <| Route.Edit Kpt)
+    , NewItem DiagramType.Table Asset.table (Route.toString <| Route.Edit Table)
+    , NewItem DiagramType.Freeform Asset.freeform (Route.toString <| Route.Edit Freeform)
     ]

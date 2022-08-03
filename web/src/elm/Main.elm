@@ -87,6 +87,7 @@ import Views.Progress as Progress
 import Views.Snackbar as Snackbar
 import Views.SplitWindow as SplitWindow
 import Views.SwitchWindow as SwitchWindow
+import Attributes
 
 
 type alias Flags =
@@ -281,6 +282,7 @@ editor model =
                 else
                     "false"
             , attribute "diagramType" <| DiagramType.toTypeString model.currentDiagram.diagram
+            , Attributes.dataTest "editor"
             ]
             []
         ]
