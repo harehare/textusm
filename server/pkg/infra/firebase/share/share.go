@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"cloud.google.com/go/firestore"
-	"firebase.google.com/go/storage"
+	"firebase.google.com/go/v4/storage"
 	"github.com/harehare/textusm/pkg/context/values"
 	"github.com/harehare/textusm/pkg/domain/model/item/diagramitem"
 	"github.com/harehare/textusm/pkg/domain/model/share"

@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	firebaseStorage "firebase.google.com/go/storage"
+	firebaseStorage "firebase.google.com/go/v4/storage"
 	"github.com/samber/mo"
 )
 

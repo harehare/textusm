@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	firebase "firebase.google.com/go"
+	firebase "firebase.google.com/go/v4"
 	"github.com/harehare/textusm/pkg/domain/model/user"
 	userRepo "github.com/harehare/textusm/pkg/domain/repository/user"
 	"github.com/samber/mo"

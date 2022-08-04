@@ -35,9 +35,12 @@ if (process.env.MONITOR_ENABLE === '1') {
 
 if (
     process.env.NODE_ENV !== 'production' &&
-    process.env.FIREBASE_AUTH_EMULATOR_URL
+    process.env.FIREBASE_AUTH_EMULATOR_HOST
 ) {
-    connectAuthEmulator(auth, process.env.FIREBASE_AUTH_EMULATOR_URL);
+    connectAuthEmulator(
+        auth,
+        `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST}`
+    );
 }
 
 export const signIn = (provider: AuthProvider): Promise<void> => {

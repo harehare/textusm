@@ -13,7 +13,7 @@ import (
 
 	"context"
 
-	firebase "firebase.google.com/go"
+	firebase "firebase.google.com/go/v4"
 	"github.com/kelseyhightower/envconfig"
 
 	"github.com/harehare/textusm/pkg/domain/service"

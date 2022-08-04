@@ -57,7 +57,7 @@ jobs:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-          FIREBASE_AUTH_EMULATOR_URL: ""
+          FIREBASE_AUTH_EMULATOR_HOST: ""
           NODE_ENV: ${{ secrets.NODE_ENV }}
           SENTRY_ENABLE: ${{ secrets.SENTRY_ENABLE }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}

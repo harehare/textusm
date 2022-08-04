@@ -6,7 +6,7 @@ context('TextUSM', () => {
         cy.visit('/');
     });
 
-    it('Save the diagram and load it', () => {
+    it('Save the diagram to local and load it', () => {
         // eslint-disable-next-line cypress/no-unnecessary-waiting
         cy.get('#editor')
             .click()

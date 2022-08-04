@@ -1,6 +1,6 @@
 package user
 
-import "firebase.google.com/go/auth"
+import "firebase.google.com/go/v4/auth"
 
 type User struct {
 	UID   string

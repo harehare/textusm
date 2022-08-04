@@ -48,7 +48,7 @@ const common = {
             'SENTRY_RELEASE',
             'MONITOR_ENABLE',
             'NODE_ENV',
-            'FIREBASE_AUTH_EMULATOR_URL',
+            'FIREBASE_AUTH_EMULATOR_HOST',
         ]),
         new PreloadWebpackPlugin({
             rel: 'preload',
