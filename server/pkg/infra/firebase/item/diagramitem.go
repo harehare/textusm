@@ -160,12 +160,12 @@ func (r *FirestoreItemRepository) saveToFirestore(ctx context.Context, userID st
 	delete(values, "Text")
 
 	if isPublic {
-		_, err := r.firestore.Collection(publicCollection).Doc(item.ID()).Set(ctx, item.ToMap())
+		_, err := r.firestore.Collection(publicCollection).Doc(item.ID()).Set(ctx, values)
 		if err != nil {
 			return mo.Err[bool](err)
 		}
 	} else {
-		_, err := r.firestore.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(item.ID()).Set(ctx, item.ToMap())
+		_, err := r.firestore.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(item.ID()).Set(ctx, values)
 		if err != nil {
 			return mo.Err[bool](err)
 		}
