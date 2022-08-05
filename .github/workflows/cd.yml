@@ -1,8 +1,17 @@
 name: cd
+
 on:
   push:
     branches:
       - release
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'The branch, tag or SHA.'
+        default: release
+        type: string
+        required: true
+
 jobs:
   build:
     name: Build
@@ -10,8 +19,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
-      - uses: actions/cache@v2
+        uses: actions/checkout@v3
+        with:
+          ref: $GIT_REF
+        env:
+          GIT_REF: ${{ (github.event.inputs.ref == '' && 'release') || github.event.inputs.ref }}
+      - uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/web/package-lock.json') }}
@@ -44,7 +57,7 @@ jobs:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-          FIREBASE_AUTH_EMULATOR_URL: ""
+          FIREBASE_AUTH_EMULATOR_HOST: ""
           NODE_ENV: ${{ secrets.NODE_ENV }}
           SENTRY_ENABLE: ${{ secrets.SENTRY_ENABLE }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
@@ -59,6 +72,7 @@ jobs:
         with:
           name: dist
           path: web/dist
+
   deploy-web:
     name: deploy-web
     needs: build
@@ -78,6 +92,7 @@ jobs:
           projectId: textusm
           target: textusm
           channelId: live
+
   deploy-server:
     name: deploy-server
     needs: build
@@ -92,8 +107,10 @@ jobs:
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
       - name: Deploy server to Heroku
         run: git push heroku `git subtree split --prefix server HEAD`:master --force
+
   lighthouse:
     runs-on: ubuntu-latest
+    if: github.event.inputs.ref == ''
     name: lighthouse
     needs: [deploy-web, deploy-server]
     steps:
@@ -106,8 +123,10 @@ jobs:
         with:
           name: report
           path: "./report"
+
   create-git-tag:
     runs-on: ubuntu-latest
+    if: github.event.inputs.ref == ''
     needs: [deploy-web, deploy-server]
     steps:
       - name: Checkout Repo

@@ -14,6 +14,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const HTMLInlineCSSWebpackPlugin =
     require('html-inline-css-webpack-plugin').default;
 const SentryWebpackPlugin = require('@sentry/webpack-plugin');
+const devcert = require('devcert');
 
 const mode =
     process.env.NODE_ENV === 'production' ? 'production' : 'development';
@@ -41,14 +42,13 @@ const common = {
             'FIREBASE_API_KEY',
             'FIREBASE_AUTH_DOMAIN',
             'FIREBASE_PROJECT_ID',
-            'FIREBASE_STORAGE_BUCKET',
             'FIREBASE_APP_ID',
             'SENTRY_ENABLE',
             'SENTRY_DSN',
             'SENTRY_RELEASE',
             'MONITOR_ENABLE',
             'NODE_ENV',
-            'FIREBASE_AUTH_EMULATOR_URL',
+            'FIREBASE_AUTH_EMULATOR_HOST',
         ]),
         new PreloadWebpackPlugin({
             rel: 'preload',
@@ -61,7 +61,7 @@ const common = {
     ],
     resolve: {
         modules: [path.join(__dirname, 'src'), 'node_modules'],
-        extensions: ['.js', '.ts', '.elm', '.scss', '.css'],
+        extensions: ['.js', '.ts', '.elm', '.css'],
         alias: {
             'monaco-editor': 'monaco-editor/esm/vs/editor/editor.api.js',
         },
@@ -84,20 +84,6 @@ const common = {
                 test: /\.ts$/,
                 exclude: /node_modules/,
                 use: 'ts-loader',
-            },
-            {
-                test: /\.scss$/,
-                exclude: [/elm-stuff/, /node_modules/],
-                use: [
-                    'style-loader',
-                    'css-loader',
-                    {
-                        loader: 'sass-loader',
-                        options: {
-                            implementation: require('sass'),
-                        },
-                    },
-                ],
             },
             {
                 test: /\.css$/,
@@ -144,40 +130,46 @@ const common = {
 };
 
 if (mode === 'development') {
-    module.exports = merge(common, {
-        plugins: [],
-        module: {
-            rules: [
-                {
-                    test: /\.elm$/,
-                    exclude: [/elm-stuff/, /node_modules/],
-                    use: [
-                        {
-                            loader: 'elm-hot-webpack-loader',
-                        },
-                        {
-                            loader: 'elm-webpack-loader',
-                            options: {
-                                debug: true,
+    module.exports = async () => {
+        const { key, cert } = await devcert.certificateFor('localhost');
+        fs.mkdirSync('../certs/', { recursive: true });
+        fs.writeFileSync('../certs/localhost.key', key);
+        fs.writeFileSync('../certs/localhost.cert', cert);
+
+        return merge(common, {
+            plugins: [],
+            module: {
+                rules: [
+                    {
+                        test: /\.elm$/,
+                        exclude: [/elm-stuff/, /node_modules/],
+                        use: [
+                            {
+                                loader: 'elm-hot-webpack-loader',
                             },
-                        },
-                    ],
-                },
-            ],
-        },
-        devServer: {
-            hot: true,
-            historyApiFallback: true,
-            static: path.join(__dirname, 'src/assets'),
-            https:
-                process.env.TLS_CERT_FILE && process.env.TLS_KEY_FILE
+                            {
+                                loader: 'elm-webpack-loader',
+                                options: {
+                                    debug: true,
+                                },
+                            },
+                        ],
+                    },
+                ],
+            },
+            devServer: {
+                hot: true,
+                historyApiFallback: true,
+                static: path.join(__dirname, 'src/assets'),
+                https: !!process.env.USE_HTTPS
                     ? {
-                          key: fs.readFileSync(process.env.TLS_KEY_FILE),
-                          cert: fs.readFileSync(process.env.TLS_CERT_FILE),
+                          key: '../certs/localhost.key',
+                          cert: '../certs/localhost.cert',
                       }
                     : false,
-        },
-    });
+            },
+        });
+    };
 }
 if (mode === 'production') {
     module.exports = merge(common, {
@@ -257,20 +249,6 @@ if (mode === 'production') {
                     test: /\.css$/,
                     exclude: [/elm-stuff/, /node_modules/],
                     use: [MiniCssExtractPlugin.loader, 'css-loader'],
-                },
-                {
-                    test: /\.scss$/,
-                    exclude: [/elm-stuff/, /node_modules/],
-                    use: [
-                        MiniCssExtractPlugin.loader,
-                        'css-loader',
-                        {
-                            loader: 'sass-loader',
-                            options: {
-                                implementation: require('sass'),
-                            },
-                        },
-                    ],
                 },
             ],
         },

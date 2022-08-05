@@ -1,5 +1,6 @@
 module Components.Diagram exposing (init, update, view)
 
+import Attributes
 import Browser.Dom as Dom
 import Constants
 import Css
@@ -1090,6 +1091,7 @@ svgView : Model -> Position -> Size -> Svg Msg -> Svg Msg
 svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
     Svg.svg
         [ Attr.id "usm"
+        , Attributes.dataTest "diagram"
         , SvgAttr.width
             (String.fromInt
                 (if Utils.isPhone (Size.getWidth model.size) || model.isFullscreen then
@@ -1203,7 +1205,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
 
                         else
                             ( floor <| toFloat (Position.getX pos) * model.svg.scale
-                            , floor <| toFloat (Position.getY pos + h + 8) * model.svg.scale
+                            , floor <| toFloat (Position.getY pos + h + 24) * model.svg.scale
                             )
 
                     ( _, h ) =

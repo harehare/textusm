@@ -11,6 +11,7 @@ port module Page.List exposing
 
 import Api.Request as Request
 import Api.RequestError exposing (RequestError)
+import Attributes
 import Css
     exposing
         ( absolute
@@ -413,6 +414,7 @@ mainView children =
                     ]
                 ]
             ]
+        , Attributes.dataTest "diagram-list"
         ]
         children
 
@@ -684,6 +686,7 @@ diagramView timezone diagram =
             , hover [ after [ backgroundColor <| rgba 0 0 0 0.2 ] ]
             ]
         , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
+        , Attributes.dataTest "diagram-list-item"
         ]
         [ Html.div
             [ css
@@ -710,10 +713,10 @@ diagramView timezone diagram =
                 cloudIconView [ Icon.github Color.gray 14 ]
 
             Just DiagramLocation.Remote ->
-                cloudIconView [ Icon.cloudOn 14 ]
+                cloudIconView [ Icon.cloudOn Color.gray 14 ]
 
             _ ->
-                cloudIconView [ Icon.cloudOff 14 ]
+                cloudIconView [ Icon.cloudOff Color.gray 14 ]
         , if diagram.isPublic then
             publicIconView [ Icon.lockOpen Color.gray 14 ]
 

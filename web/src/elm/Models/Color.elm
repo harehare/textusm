@@ -29,6 +29,7 @@ module Models.Color exposing
     , textDefalut
     , toString
     , transparent
+    , warning
     , white
     , white2
     , yellow
@@ -299,6 +300,11 @@ toString (Color _ rgb) =
 transparent : Color
 transparent =
     Color "transparent" "transparent"
+
+
+warning : Color
+warning =
+    Color "Warning" "#FECB30"
 
 
 white : Color

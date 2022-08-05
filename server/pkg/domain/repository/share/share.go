@@ -8,13 +8,13 @@ import (
 	"github.com/samber/mo"
 )
 
-type ShareResponse struct {
+type ShareValue struct {
 	DiagramItem *diagramitem.DiagramItem
 	ShareInfo   *shareModel.Share
 }
 
 type ShareRepository interface {
-	Find(ctx context.Context, hashKey string) mo.Result[ShareResponse]
-	Save(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *shareModel.Share) error
-	Delete(ctx context.Context, hashKey string) error
+	Find(ctx context.Context, hashKey string) mo.Result[ShareValue]
+	Save(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *shareModel.Share) mo.Result[bool]
+	Delete(ctx context.Context, hashKey string) mo.Result[bool]
 }

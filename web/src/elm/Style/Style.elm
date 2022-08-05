@@ -1,5 +1,8 @@
 module Style.Style exposing
-    ( borderContent
+    ( borderBottom05
+    , borderContent
+    , borderRight05
+    , borderTop05
     , breakWord
     , button
     , dialogBackdrop
@@ -57,9 +60,12 @@ import Css
         , auto
         , backgroundColor
         , border3
+        , borderBottom3
         , borderBox
         , borderRadius
+        , borderRight3
         , borderStyle
+        , borderTop3
         , boxShadow3
         , boxShadow5
         , boxSizing
@@ -116,9 +122,24 @@ import Style.Font as Font
 import Style.Text as Text
 
 
+borderBottom05 : Css.Style
+borderBottom05 =
+    borderBottom3 (px 0.5) solid (rgba 0 0 0 0.1)
+
+
 borderContent : Css.Style
 borderContent =
     border3 (px 1) solid (rgba 0 0 0 0.1)
+
+
+borderRight05 : Css.Style
+borderRight05 =
+    borderRight3 (px 0.5) solid (rgba 0 0 0 0.1)
+
+
+borderTop05 : Css.Style
+borderTop05 =
+    borderTop3 (px 0.5) solid (rgba 0 0 0 0.1)
 
 
 breakWord : Css.Style

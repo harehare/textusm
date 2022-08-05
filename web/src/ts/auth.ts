@@ -24,7 +24,6 @@ const firebaseConfig: FirebaseOptions = {
     apiKey: process.env.FIREBASE_API_KEY ?? '',
     authDomain: process.env.FIREBASE_AUTH_DOMAIN ?? '',
     projectId: process.env.FIREBASE_PROJECT_ID ?? '',
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET ?? '',
     appId: process.env.FIREBASE_APP_ID ?? '',
 };
 const app = initializeApp(firebaseConfig);
@@ -36,9 +35,12 @@ if (process.env.MONITOR_ENABLE === '1') {
 
 if (
     process.env.NODE_ENV !== 'production' &&
-    process.env.FIREBASE_AUTH_EMULATOR_URL
+    process.env.FIREBASE_AUTH_EMULATOR_HOST
 ) {
-    connectAuthEmulator(auth, process.env.FIREBASE_AUTH_EMULATOR_URL);
+    connectAuthEmulator(
+        auth,
+        `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST}`
+    );
 }
 
 export const signIn = (provider: AuthProvider): Promise<void> => {

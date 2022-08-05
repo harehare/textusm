@@ -42,6 +42,7 @@ type builder struct {
 	errors        []error
 	isPublic      bool
 	isBookmark    bool
+	isNew         bool
 }
 
 func New() DiagramItemBuilder {
@@ -51,8 +52,10 @@ func New() DiagramItemBuilder {
 func (b *builder) WithID(id string) DiagramItemBuilder {
 	if id == "" {
 		b.id = uuid.NewV4().String()
+		b.isNew = true
 	} else {
 		b.id = id
+		b.isNew = false
 	}
 	return b
 }
@@ -131,6 +134,7 @@ func (b *builder) Build() mo.Result[*DiagramItem] {
 		isBookmark:    b.isBookmark,
 		createdAt:     b.createdAt,
 		updatedAt:     b.updatedAt,
+		isNew:         b.isNew,
 	})
 }
 
@@ -144,6 +148,8 @@ type DiagramItem struct {
 	encryptedText string
 	isPublic      bool
 	isBookmark    bool
+	saveToStorage bool
+	isNew         bool
 }
 
 func (i *DiagramItem) ID() string {
@@ -164,6 +170,15 @@ func (i *DiagramItem) Text() string {
 		return "invalid text"
 	}
 	return text
+}
+
+func (i *DiagramItem) EncryptedText() string {
+	return i.encryptedText
+}
+
+func (i *DiagramItem) UpdateEncryptedText(encryptedText string) *DiagramItem {
+	i.encryptedText = encryptedText
+	return i
 }
 
 func (i *DiagramItem) Thumbnail() *string {
@@ -208,6 +223,10 @@ func (i *DiagramItem) Bookmark(isBookmark bool) *DiagramItem {
 	return i
 }
 
+func (i *DiagramItem) IsNew() bool {
+	return i.isNew
+}
+
 func MapToDiagramItem(v map[string]interface{}) mo.Result[*DiagramItem] {
 	id, ok := v["ID"].(string)
 
@@ -224,7 +243,7 @@ func MapToDiagramItem(v map[string]interface{}) mo.Result[*DiagramItem] {
 	text, ok := v["Text"].(string)
 
 	if !ok {
-		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid text")))
+		text = ""
 	}
 
 	var thumbnail mo.Option[string]
@@ -270,7 +289,13 @@ func MapToDiagramItem(v map[string]interface{}) mo.Result[*DiagramItem] {
 		return mo.Err[*DiagramItem](e.InvalidParameterError(errors.New("invalid updatedat")))
 	}
 
-	return New().
+	saveToStorage, ok := v["SaveToStorage"].(bool)
+
+	if !ok {
+		saveToStorage = false
+	}
+
+	item := New().
 		WithID(id).
 		WithTitle(title).
 		WithEncryptedText(text).
@@ -281,18 +306,33 @@ func MapToDiagramItem(v map[string]interface{}) mo.Result[*DiagramItem] {
 		WithCreatedAt(createdAt).
 		WithUpdatedAt(updatedAt).
 		Build()
+
+	return item.Map(func(i *DiagramItem) (*DiagramItem, error) {
+		i.saveToStorage = saveToStorage
+		return i, nil
+	})
+}
+
+func (i *DiagramItem) ClearText() *DiagramItem {
+	i.encryptedText = ""
+	return i
+}
+
+func (i *DiagramItem) IsSaveToStorage() bool {
+	return i.saveToStorage
 }
 
 func (i *DiagramItem) ToMap() map[string]interface{} {
 	return map[string]interface{}{"ID": i.id,
-		"Title":      i.title,
-		"Text":       i.encryptedText,
-		"Thumbnail":  i.thumbnail.OrEmpty(),
-		"Diagram":    i.diagram,
-		"IsPublic":   i.isPublic,
-		"IsBookmark": i.isBookmark,
-		"CreatedAt":  i.createdAt,
-		"UpdatedAt":  i.updatedAt}
+		"Title":         i.title,
+		"Text":          i.encryptedText,
+		"Thumbnail":     i.thumbnail.OrEmpty(),
+		"Diagram":       i.diagram,
+		"IsPublic":      i.isPublic,
+		"IsBookmark":    i.isBookmark,
+		"CreatedAt":     i.createdAt,
+		"UpdatedAt":     i.updatedAt,
+		"SaveToStorage": true}
 }
 
 func encryptText(text string) (*string, error) {

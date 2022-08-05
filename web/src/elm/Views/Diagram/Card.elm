@@ -1,5 +1,6 @@
 module Views.Diagram.Card exposing (text, view, viewWithDefaultColor)
 
+import Attributes
 import Css exposing (backgroundColor, property)
 import Events
 import Html.Attributes as Attr
@@ -86,6 +87,7 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
             in
             Svg.g
                 [ SvgAttr.class "card"
+                , Attributes.dataTest <| "card-" ++ (String.fromInt <| Item.getLineNo item)
                 , if Item.isImage item then
                     SvgAttr.class ""
 

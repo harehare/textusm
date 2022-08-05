@@ -1,6 +1,6 @@
 import { Settings, ExportInfo, Diagram, DiagramItem } from './model';
 
-type Provider = 'Google' | 'Github';
+export type Provider = 'Google' | 'Github';
 
 interface Send<T> {
     send: (params: T) => void;
@@ -11,9 +11,10 @@ interface Subscribe<T> {
     unsubscribe: (callback: T) => void;
 }
 
-type ElmApp = {
+export type ElmApp = {
     ports: {
-        saveSettings: Subscribe<(settings: Settings) => void>;
+        loadSettingsFromLocal: Subscribe<(diagramType: string) => void>;
+        saveSettingsToLocal: Subscribe<(settings: Settings) => void>;
         signIn: Subscribe<(provider: Provider) => void>;
         signOut: Subscribe<() => Promise<void>>;
         refreshToken: Subscribe<() => Promise<void>>;
@@ -39,6 +40,7 @@ type ElmApp = {
         closeLocalFile: Subscribe<() => void>;
         insertText: Subscribe<(text: string) => void>;
 
+        loadSettingsFromLocalCompleted: Send<Settings>;
         gotGithubAccessToken: Send<{ cmd: string; accessToken: string | null }>;
         fullscreen: Send<boolean>;
         sendErrorNotification: Send<string>;
@@ -77,5 +79,3 @@ type ElmApp = {
         savedLocalFile: Send<string>;
     };
 };
-
-export { Provider, ElmApp };

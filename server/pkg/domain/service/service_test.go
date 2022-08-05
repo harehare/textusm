@@ -45,24 +45,24 @@ func (m *MockItemRepository) Save(ctx context.Context, userID string, i *diagram
 	return ret.Get(0).(mo.Result[*diagramitem.DiagramItem])
 }
 
-func (m *MockItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) error {
+func (m *MockItemRepository) Delete(ctx context.Context, userID string, itemID string, isPublic bool) mo.Result[bool] {
 	ret := m.Called(ctx, userID, itemID, isPublic)
-	return ret.Error(0)
+	return ret.Get(0).(mo.Result[bool])
 }
 
-func (m *MockShareRepository) Find(ctx context.Context, hashKey string) mo.Result[shareRepo.ShareResponse] {
+func (m *MockShareRepository) Find(ctx context.Context, hashKey string) mo.Result[shareRepo.ShareValue] {
 	ret := m.Called(ctx, hashKey)
-	return ret.Get(0).(mo.Result[shareRepo.ShareResponse])
+	return ret.Get(0).(mo.Result[shareRepo.ShareValue])
 }
 
-func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *sm.Share) error {
+func (m *MockShareRepository) Save(ctx context.Context, hashKey string, item *diagramitem.DiagramItem, shareInfo *sm.Share) mo.Result[bool] {
 	ret := m.Called(ctx, hashKey, item, shareInfo)
-	return ret.Error(0)
+	return ret.Get(0).(mo.Result[bool])
 }
 
-func (m *MockShareRepository) Delete(ctx context.Context, hashKey string) error {
+func (m *MockShareRepository) Delete(ctx context.Context, hashKey string) mo.Result[bool] {
 	ret := m.Called(ctx, hashKey)
-	return ret.Error(0)
+	return ret.Get(0).(mo.Result[bool])
 }
 
 func (m *MockUserRepository) Find(ctx context.Context, uid string) mo.Result[*um.User] {

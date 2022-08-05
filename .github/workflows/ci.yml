@@ -4,9 +4,11 @@ on:
     types: [opened, synchronize]
     branches:
       - release
+      - master
 jobs:
   ci:
     name: CI
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -38,6 +40,9 @@ jobs:
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
           APP_VERSION: ${{ steps.package-version.outputs.current-version}}
           REPO_URL: ${{ secrets.REPO_URL }}
+      - name: Check format
+        working-directory: web
+        run: npm run format:validate
       - name: Run Tests
         working-directory: web
         run: npm run test
@@ -50,7 +55,7 @@ jobs:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-          FIREBASE_AUTH_EMULATOR_URL: ""
+          FIREBASE_AUTH_EMULATOR_HOST: ""
           NODE_ENV: development
           SENTRY_ENABLE: 0
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
