@@ -1,4 +1,4 @@
-name: cd
+name: build_and_deploy
 
 on:
   push:
@@ -14,14 +14,14 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
         with:
-          ref: $GIT_REF
+          ref: '${{ env.GIT_REF }}'
         env:
           GIT_REF: ${{ (github.event.inputs.ref == '' && 'release') || github.event.inputs.ref }}
       - uses: actions/cache@v3
@@ -47,7 +47,7 @@ jobs:
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
           APP_VERSION: ${{ steps.package-version.outputs.current-version }}
           REPO_URL: ${{ secrets.REPO_URL }}
-      - name: Build
+      - name: build
         working-directory: web
         env:
           API_ROOT: ${{ secrets.API_ROOT }}

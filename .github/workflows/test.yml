@@ -1,4 +1,4 @@
-name: ci
+name: test
 on:
   pull_request:
     types: [opened, synchronize]
@@ -7,7 +7,7 @@ on:
       - master
 jobs:
   ci:
-    name: CI
+    name: test
     if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
