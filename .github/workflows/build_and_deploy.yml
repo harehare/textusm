@@ -24,6 +24,9 @@ jobs:
           ref: '${{ env.GIT_REF }}'
         env:
           GIT_REF: ${{ (github.event.inputs.ref == '' && 'release') || github.event.inputs.ref }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version-file: ".node-version"
       - uses: actions/cache@v3
         with:
           path: node_modules

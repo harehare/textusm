@@ -3,6 +3,7 @@ module Main exposing (Flags, main)
 import Action
 import Api.RequestError as RequestError
 import Asset
+import Attributes
 import Browser
 import Browser.Events
     exposing
@@ -87,7 +88,6 @@ import Views.Progress as Progress
 import Views.Snackbar as Snackbar
 import Views.SplitWindow as SplitWindow
 import Views.SwitchWindow as SwitchWindow
-import Attributes
 
 
 type alias Flags =
