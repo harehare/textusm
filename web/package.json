@@ -66,7 +66,7 @@
         "style-loader": "^3.3.1",
         "stylelint": "^14.9.1",
         "stylelint-config-prettier": "^9.0.3",
-        "stylelint-config-standard": "^26.0.0",
+        "stylelint-config-standard": "^27.0.0",
         "svg-inline-loader": "^0.8.2",
         "terser": "^5.14.2",
         "terser-webpack-plugin": "^5.3.3",
