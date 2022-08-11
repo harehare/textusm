@@ -1,9 +1,6 @@
 name: build_and_deploy
 
 on:
-  push:
-    branches:
-      - release
   workflow_dispatch:
     inputs:
       ref:
@@ -11,11 +8,18 @@ on:
         default: release
         type: string
         required: true
+      environment:
+        description: 'Environment to run'
+        type: environment
+        default: production
+        required: true
 
 jobs:
   build:
     name: build
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }}
     timeout-minutes: 10
     steps:
       - name: Checkout Repo
@@ -23,7 +27,7 @@ jobs:
         with:
           ref: '${{ env.GIT_REF }}'
         env:
-          GIT_REF: ${{ (github.event.inputs.ref == '' && 'release') || github.event.inputs.ref }}
+          GIT_REF: ${{ github.event.inputs.ref }}
       - uses: actions/setup-node@v3
         with:
           node-version-file: ".node-version"
