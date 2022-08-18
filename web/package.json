@@ -121,5 +121,6 @@
     },
     "browserslist": [
         "defaults"
-    ]
+    ],
+    "packageManager": "npm@8.15.0"
 }
