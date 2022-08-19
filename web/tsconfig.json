@@ -1,18 +1,19 @@
 {
-    "extends": "@tsconfig/strictest/tsconfig.json",
-    "compilerOptions": {
-        "module": "esnext",
-        "target": "es2019",
-        "moduleResolution": "node",
-        "esModuleInterop": true,
-        "lib": ["es6", "dom"],
-        "rootDir": "src/ts",
-        "strict": true,
-        "importHelpers": true,
-        "noImplicitAny": true,
-        "strictNullChecks": true,
-        "noPropertyAccessFromIndexSignature": false,
-        "importsNotUsedAsValues": "remove"
-    },
-    "exclude": ["**/node_modules/*", "**/*.spec.ts"]
+  "extends": "@tsconfig/strictest/tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "es2019",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom"],
+    "rootDir": "src/ts",
+    "strict": true,
+    "importHelpers": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "importsNotUsedAsValues": "remove",
+    "typeRoots": ["./node_modules/@types", "./src/ts/@types"]
+  },
+  "exclude": ["**/node_modules/*", "**/*.spec.ts"]
 }

@@ -130,7 +130,7 @@ const common = {
 };
 
 if (mode === 'development') {
-    module.exports = async () => {
+    module.exports = (async () => {
         const { key, cert } = await devcert.certificateFor('localhost');
         fs.mkdirSync('../certs/', { recursive: true });
         fs.writeFileSync('../certs/localhost.key', key);
@@ -169,7 +169,7 @@ if (mode === 'development') {
                     : false,
             },
         });
-    };
+    })();
 }
 if (mode === 'production') {
     module.exports = merge(common, {
@@ -332,3 +332,5 @@ if (mode === 'production') {
         },
     });
 }
+
+module.exports.parallelism = 2;
