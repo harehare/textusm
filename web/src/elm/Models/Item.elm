@@ -157,58 +157,20 @@ fromString text =
     if text == "" then
         ( 0, empty )
 
+    else if String.isEmpty text then
+        ( 0, empty )
+
     else
         let
-            loadText : Int -> Int -> String -> ( List Hierarchy, Items )
-            loadText lineNo indent input =
-                case parse indent input of
-                    ( [], _ ) ->
-                        ( [ indent ], empty )
-
-                    ( x :: xs, other ) ->
-                        let
-                            itemType : ItemType
-                            itemType =
-                                createItemType x indent
-
-                            ( otherIndents, otherItems ) =
-                                loadText (lineNo + List.length (x :: xs)) indent (String.join "\n" other)
-
-                            ( xsIndent, xsItems ) =
-                                loadText (lineNo + 1) (indent + 1) (String.join "\n" xs)
-                        in
-                        case itemType of
-                            Comments ->
-                                ( indent :: xsIndent ++ otherIndents
-                                , filter (\item -> getItemType item /= Comments) otherItems
-                                )
-
-                            _ ->
-                                ( indent :: xsIndent ++ otherIndents
-                                , cons
-                                    (new
-                                        |> withLineNo lineNo
-                                        |> withText x
-                                        |> withItemType itemType
-                                        |> withChildren (childrenFromItems xsItems)
-                                    )
-                                    (filter (\item -> getItemType item /= Comments) otherItems)
-                                )
+            ( indentList, loadedItems ) =
+                loadText_ { indent = 0, input = text, lineNo = 0 }
         in
-        if String.isEmpty text then
-            ( 0, empty )
-
-        else
-            let
-                ( indentList, loadedItems ) =
-                    loadText 0 0 text
-            in
-            ( indentList
-                |> List.maximum
-                |> Maybe.map (\x -> x - 1)
-                |> Maybe.withDefault 0
-            , loadedItems
-            )
+        ( indentList
+            |> List.maximum
+            |> Maybe.map (\x -> x - 1)
+            |> Maybe.withDefault 0
+        , loadedItems
+        )
 
 
 getAt : Int -> Items -> Maybe Item
@@ -626,13 +588,13 @@ childrenCount (Items items) =
         List.length items + (items |> List.map (\(Item i) -> childrenCount <| unwrapChildren i.children) |> List.sum) + 1
 
 
-
--- private
-
-
 commentPrefix : String
 commentPrefix =
     "#"
+
+
+
+-- private
 
 
 createItemType : String -> Int -> ItemType
@@ -688,6 +650,43 @@ leafCount (Items items) =
 
     else
         items |> List.map (\(Item i) -> leafCount <| unwrapChildren i.children) |> List.sum
+
+
+loadText_ : { indent : Int, input : String, lineNo : Int } -> ( List Hierarchy, Items )
+loadText_ { indent, input, lineNo } =
+    case parse indent input of
+        ( [], _ ) ->
+            ( [ indent ], empty )
+
+        ( (h :: rest) as parsed, other ) ->
+            let
+                itemType : ItemType
+                itemType =
+                    createItemType h indent
+
+                ( otherIndents, otherItems ) =
+                    loadText_ { indent = indent, input = String.join "\n" other, lineNo = lineNo + List.length parsed }
+
+                ( xsIndent, xsItems ) =
+                    loadText_ { indent = indent + 1, input = String.join "\n" rest, lineNo = lineNo + 1 }
+            in
+            case itemType of
+                Comments ->
+                    ( indent :: xsIndent ++ otherIndents
+                    , filter (\item -> getItemType item /= Comments) otherItems
+                    )
+
+                _ ->
+                    ( indent :: xsIndent ++ otherIndents
+                    , cons
+                        (new
+                            |> withLineNo lineNo
+                            |> withText h
+                            |> withItemType itemType
+                            |> withChildren (childrenFromItems xsItems)
+                        )
+                        (filter (\item -> getItemType item /= Comments) otherItems)
+                    )
 
 
 mapWithRecursiveHelper : (Item -> Item) -> Item -> Item

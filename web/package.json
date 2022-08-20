@@ -53,6 +53,7 @@
         "eslint": "^8.22.0",
         "eslint-config-airbnb-typescript-prettier": "^5.0.0",
         "eslint-plugin-cypress": "^2.12.1",
+        "firebase-tools": "^11.7.0",
         "html-inline-css-webpack-plugin": "^1.11.1",
         "html-webpack-plugin": "^5.5.0",
         "lint-staged": "^13.0.3",
@@ -91,6 +92,7 @@
         "dev:web": "webpack serve --hot --color --port 3000",
         "dev:server": "cd ../server/ && just run",
         "dev:emulators": "cd .. && firebase emulators:start --only firestore,auth,storage",
+        "setup:emulators": "cd .. && firebase init emulators",
         "dev:generate-elm-constants": "npm run generate-elm-constants",
         "prod": "NODE_ENV=production webpack --mode production",
         "prod:run": "NODE_ENV=production webpack serve --color --port 3000 --mode production",
@@ -115,7 +117,7 @@
         "lint:elm:suppress": "elm-review suppress",
         "lint-fix": "run-p lint-fix:*",
         "lint-fix:ts": "eslint --fix src/ts/*.ts",
-        "lint-fix:fix": "elm-review --fix"
+        "lint-fix:elm": "elm-review --fix"
     },
     "browserslist": [
         "defaults"

@@ -2,12 +2,7 @@
   "hosting": {
     "public": "web/dist",
     "target": "textusm",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**",
-      "**/*.map"
-    ],
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/*.map"],
     "rewrites": [
       {
         "source": "**",
@@ -76,6 +71,9 @@
     },
     "ui": {
       "enabled": true
+    },
+    "hosting": {
+      "port": 5000
     }
   },
   "storage": {

@@ -395,10 +395,10 @@ viewSignInButton menu session =
                                     user
                         in
                         Menu.menu
-                            { top = Just 40
+                            { bottom = Nothing
                             , left = Nothing
-                            , bottom = Nothing
                             , right = Just 0
+                            , top = Just 40
                             }
                             (case user_ of
                                 Just u ->
@@ -436,10 +436,10 @@ viewSignInButton menu session =
             , case menu of
                 Just LoginMenu ->
                     Menu.menu
-                        { top = Just 30
+                        { bottom = Nothing
                         , left = Nothing
-                        , bottom = Nothing
                         , right = Just 5
+                        , top = Just 30
                         }
                         [ Menu.MenuItem
                             { e = SignIn Google

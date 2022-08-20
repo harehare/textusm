@@ -97,7 +97,7 @@ type alias Props =
     }
 
 
-menu : { top : Maybe Int, left : Maybe Int, bottom : Maybe Int, right : Maybe Int } -> List (MenuItem msg) -> Html msg
+menu : { bottom : Maybe Int, left : Maybe Int, right : Maybe Int, top : Maybe Int } -> List (MenuItem msg) -> Html msg
 menu pos items =
     Html.div
         [ css
@@ -307,7 +307,7 @@ view props =
         , if Utils.isPhone props.width then
             case props.openMenu of
                 Just Export ->
-                    menu { top = Nothing, left = Just (props.width // 5 * 3), bottom = Just 50, right = Nothing } (exportMenu props.route)
+                    menu { bottom = Just 50, left = Just (props.width // 5 * 3), right = Nothing, top = Nothing } (exportMenu props.route)
 
                 _ ->
                     Empty.view
@@ -315,7 +315,7 @@ view props =
           else
             case props.openMenu of
                 Just Export ->
-                    menu { top = Just 125, left = Just 40, bottom = Nothing, right = Nothing } (exportMenu props.route)
+                    menu { bottom = Nothing, left = Just 40, right = Nothing, top = Just 125 } (exportMenu props.route)
 
                 _ ->
                     Empty.view

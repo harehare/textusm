@@ -5,7 +5,7 @@ import Models.Diagram.ER as ER
 import Models.Diagram.GanttChart as GanttChart
 import Models.Diagram.SequenceDiagram as SequenceDiagram
 import Models.Diagram.Table as Table
-import Models.DiagramData as DiagramData exposing (DiagramData(..))
+import Models.DiagramData as DiagramData exposing (DiagramData)
 import Models.DiagramType as DiagramType exposing (DiagramType)
 import Models.FileType as FileType exposing (FileType)
 import Models.Item exposing (Items)
