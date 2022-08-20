@@ -75,6 +75,7 @@ jobs:
           wait-on: "http://localhost:3000"
   analyze:
     name: Analyze
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       security-events: write
