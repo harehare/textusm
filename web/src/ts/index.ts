@@ -70,13 +70,19 @@ app.ports.saveSettingsToLocal.subscribe((settings: Settings) => {
 app.ports.signIn.subscribe(async (provider: Provider) => {
   switch (provider) {
     case 'Google':
-      await signIn(providers.google);
+      await signIn(providers.google).catch(() => {
+        app.ports.sendErrorNotification.send('Failed sign in.');
+      });
       return;
     case 'Github':
-      await signIn(providers.github);
+      await signIn(providers.github).catch(() => {
+        app.ports.sendErrorNotification.send('Failed sign in.');
+      });
       return;
     default:
-      await signIn(providers.google);
+      await signIn(providers.google).catch(() => {
+        app.ports.sendErrorNotification.send('Failed sign in.');
+      });
   }
 });
 
@@ -88,7 +94,7 @@ app.ports.signOut.subscribe(async () => {
 });
 
 app.ports.refreshToken.subscribe(async () => {
-  const idToken = await refreshToken();
+  const idToken = await refreshToken()?.catch(() => undefined);
   if (idToken) {
     app.ports.updateIdToken.send(idToken);
   }
@@ -100,7 +106,9 @@ app.ports.selectTextById.subscribe(async (id: string) => {
     const inputElement = element as HTMLInputElement;
     inputElement.select();
     if (navigator.clipboard) {
-      await navigator.clipboard.writeText(inputElement.value);
+      await navigator.clipboard.writeText(inputElement.value).catch(() => {
+        app.ports.sendErrorNotification.send('Failed copy text to clipboard.');
+      });
     }
   }
 });
@@ -178,7 +186,9 @@ window.requestIdleCallback(async () => {
 
   if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
     const wb = new Workbox('/sw.js');
-    await wb.register();
+    await wb.register().catch(() => {
+      // ignore error
+    });
     wb.addEventListener('installed', (event) => {
       if (event.isUpdate) {
         app.ports.notifyNewVersionAvailable.send('New version is available!');
