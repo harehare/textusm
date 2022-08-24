@@ -25,23 +25,21 @@ export const initDownload = (app: ElmApp): void => {
     }
 
     const svgo = await svgoImport.default;
-    const optimizedSvg: OptimizedSvg = await svgo
-      .optimize(new XMLSerializer().serializeToString(svg), {
-        plugins: [
-          {
-            name: 'preset-default',
-            params: {
-              overrides: {
-                convertShapeToPath: {
-                  convertArcs: true,
-                },
-                convertPathData: false,
+    const optimizedSvg: OptimizedSvg = await svgo.optimize(new XMLSerializer().serializeToString(svg), {
+      plugins: [
+        {
+          name: 'preset-default',
+          params: {
+            overrides: {
+              convertShapeToPath: {
+                convertArcs: true,
               },
+              convertPathData: false,
             },
           },
-        ],
-      })
-      .catch(() => ({ data: '' }));
+        },
+      ],
+    });
 
     return optimizedSvg.data;
   };
