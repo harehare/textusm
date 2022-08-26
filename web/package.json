@@ -26,6 +26,7 @@
     "@commitlint/config-conventional": "^17.0.3",
     "@dillonkearns/elm-graphql": "^4.2.4",
     "@sentry/webpack-plugin": "^1.19.0",
+    "@size-limit/file": "^8.0.1",
     "@trivago/prettier-plugin-sort-imports": "^3.3.0",
     "@tsconfig/strictest": "^1.0.1",
     "@types/jspdf": "^2.0.0",
@@ -60,6 +61,7 @@
     "preload-webpack-plugin": "^3.0.0-beta.4",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
+    "size-limit": "^8.0.1",
     "style-loader": "^3.3.1",
     "stylelint": "^14.11.0",
     "stylelint-config-prettier": "^9.0.3",
@@ -114,7 +116,8 @@
     "lint:elm:suppress": "elm-review suppress",
     "lint-fix": "run-p lint-fix:*",
     "lint-fix:ts": "xo --fix --prettier src/ts/*.ts",
-    "lint-fix:elm": "elm-review --fix"
+    "lint-fix:elm": "elm-review --fix",
+    "size": "npm run prod && size-limit"
   },
   "browserslist": [
     "defaults"
@@ -134,5 +137,10 @@
       "accessor-pairs": "off",
       "n/file-extension-in-import": "off"
     }
-  }
+  },
+  "size-limit": [
+    {
+      "path": "dist/*.js"
+    }
+  ]
 }
