@@ -1,11 +1,13 @@
-FROM golang:1.16-alpine3.14 as builder
+FROM golang:1.19.0-alpine3.16 as builder
 
 WORKDIR /go/src/app
-ADD . /go/src/app
+COPY . /go/src/app/
 
 RUN apk add just
-RUN just build
+RUN just build-linux
 
-FROM gcr.io/distroless/static-debian10
-COPY --from=builder /go/src/app/textusm /
-CMD ["/textusm"]
+# FROM gcr.io/distroless/static-debian11
+FROM ubuntu:latest
+COPY --from=builder /go/src/app/dist/textusm /
+# USER nonroot
+CMD ["./textusm"]

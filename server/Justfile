@@ -21,8 +21,10 @@ run:
 	{{ run }} {{ main }}
 
 build:
-	{{ build }} -o textusm {{ main }}
+	{{ build }} -o dist/textusm {{ main }}
 
+build-linux:
+	GOOS="linux" GOARCH="amd64" {{ build }} -o dist/textusm {{ main }}
 
 embed-build:
 	{{ build }} -tags embed -o textusm-embed {{ main }}

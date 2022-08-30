@@ -47,7 +47,6 @@ type Env struct {
 	TlsKeyFile          string `envconfig:"TLS_KEY_FILE"  default:""`
 	GithubClientID      string `envconfig:"GITHUB_CLIENT_ID"  default:""`
 	GithubClientSecret  string `envconfig:"GITHUB_CLIENT_SECRET"  default:""`
-	EmbedWebResource    string `envconfig:"EMBED_WEB_RESOURCE"  default:"0"`
 	StorageBucketName   string `required:"true" envconfig:"STORAGE_BUCKET_NAME"`
 }
 
@@ -171,10 +170,6 @@ func Run() int {
 		}
 		r.Handle("/", graphql)
 	})
-
-	if env.EmbedWebResource == "1" {
-		r.Get("/*", EmbedFileServeHandler())
-	}
 
 	done := make(chan bool, 1)
 	quit := make(chan os.Signal, 1)
