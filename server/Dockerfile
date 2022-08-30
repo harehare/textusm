@@ -6,8 +6,7 @@ COPY . /go/src/app/
 RUN apk add just
 RUN just build-linux
 
-# FROM gcr.io/distroless/static-debian11
-FROM ubuntu:latest
-COPY --from=builder /go/src/app/dist/textusm /
-# USER nonroot
-CMD ["./textusm"]
+FROM gcr.io/distroless/static-debian11:nonroot
+WORKDIR /usr/app
+COPY --from=builder --chown=nonroot:nonroot /go/src/app/dist/textusm .
+CMD ["/usr/app/textusm"]
