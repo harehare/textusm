@@ -93,6 +93,7 @@ jobs:
 
   deploy-server:
     name: deploy-server
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Deploy server to render.com
