@@ -52,7 +52,7 @@ jobs:
       - name: Install Dependencies
         working-directory: web
         if: steps.cache.outputs.cache-hit != 'true'
-        run: npm install -f
+        run: npm i --legacy-peer-deps
       - name: Generate elm-constants
         working-directory: web
         run: npm run generate-elm-constants
