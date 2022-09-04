@@ -46,3 +46,7 @@ func (a *Api) RevokeGistToken(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func (a *Api) UsableFontList(w http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(w).Encode(GetFontList())
+}

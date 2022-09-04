@@ -141,17 +141,24 @@ func Run() int {
 		}
 	})
 
+	restApi := api.New(*gistService)
+
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Use(chiMiddleware.AllowContentType("application/json"))
-		r.Use(middleware.AuthMiddleware(app))
 		r.Use(middleware.IPMiddleware())
-		r.Use(httprate.LimitByIP(10, 1*time.Minute))
 		r.Use(cors)
 
-		restApi := api.New(*gistService)
+		r.Route("/settings", func(r chi.Router) {
+			r.Use(httprate.LimitByIP(2, 1*time.Minute))
+			r.Get("/usable-font-list", restApi.UsableFontList)
+		})
 
-		r.Route("/token", func(r chi.Router) {
-			r.Delete("/gist/revoke", restApi.RevokeGistToken)
+		r.Route("/", func(r chi.Router) {
+			r.Use(middleware.AuthMiddleware(app))
+			r.Use(httprate.LimitByIP(10, 1*time.Minute))
+			r.Route("/token", func(r chi.Router) {
+				r.Delete("/gist/revoke", restApi.RevokeGistToken)
+			})
 		})
 	})
 
