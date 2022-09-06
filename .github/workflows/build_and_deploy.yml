@@ -17,6 +17,14 @@ jobs:
       name: ${{ github.event.inputs.environment }}
     timeout-minutes: 10
     steps:
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            web:
+              - 'web/**'
+            server:
+              - 'server/**'
       - name: Checkout Repo
         uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -28,16 +36,17 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/web/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - name: Install Dependencies
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Install Dependencies
         working-directory: web
-        if: steps.cache.outputs.cache-hit != 'true'
         run: npm i --legacy-peer-deps
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
         with:
           path: web
-      - name: Generate elm-constants
+      - if: steps.changes.outputs.web == 'true'
+        name: Generate elm-constants
         working-directory: web
         run: npm run generate-elm-constants
         env:
@@ -45,7 +54,8 @@ jobs:
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
           APP_VERSION: ${{ steps.package-version.outputs.current-version }}
           REPO_URL: ${{ secrets.REPO_URL }}
-      - name: build
+      - if: steps.changes.outputs.web == 'true'
+        name: build
         working-directory: web
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
@@ -72,6 +82,7 @@ jobs:
           path: web/dist
 
   deploy-web:
+    if: steps.changes.outputs.web == 'true'
     name: deploy-web
     needs: build
     runs-on: ubuntu-latest
@@ -92,6 +103,7 @@ jobs:
           channelId: live
 
   deploy-server:
+    if: steps.changes.outputs.server == 'true'
     name: deploy-server
     needs: build
     runs-on: ubuntu-latest
