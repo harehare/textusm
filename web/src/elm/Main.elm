@@ -308,7 +308,7 @@ init flags url key =
 
         lang : Message.Lang
         lang =
-            Message.fromString flags.lang
+            Message.langFromString flags.lang
 
         model : Model
         model =

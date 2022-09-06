@@ -1,6 +1,6 @@
 package api
 
-var fontList = []string{
+var defaultFontList = []string{
 	"ABeeZee",
 	"Abel",
 	"Abhaya Libre",
@@ -960,6 +960,20 @@ var fontList = []string{
 	"Zilla Slab",
 	"Zilla Slab Highlight"}
 
-func GetFontList() []string {
-	return fontList
+var extendFontList = map[string][]string{"ja": {
+	"M PLUS 1p",
+	"M PLUS Rounded 1c",
+	"Hannari",
+	"Kokoro",
+	"Sawarabi Mincho",
+	"Nico Moji",
+	"Nikukyu",
+	"Noto Sans JP",
+}}
+
+func GetFontList(lang string) []string {
+	if ja, ok := extendFontList[lang]; ok {
+		return append(ja, defaultFontList...)
+	}
+	return defaultFontList
 }

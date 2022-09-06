@@ -11,12 +11,12 @@ suite =
         [ describe "fromString test"
             [ test "ja" <|
                 \() ->
-                    Expect.equal (Message.fromString "ja") Message.Ja
+                    Expect.equal (Message.langFromString "ja") Message.Ja
             , test "en" <|
                 \() ->
-                    Expect.equal (Message.fromString "en") Message.En
+                    Expect.equal (Message.langFromString "en") Message.En
             , test "de" <|
                 \() ->
-                    Expect.equal (Message.fromString "de") Message.En
+                    Expect.equal (Message.langFromString "de") Message.En
             ]
         ]

@@ -1,7 +1,7 @@
 module Message exposing
     ( Lang(..)
     , Message
-    , fromString
+    , langFromString
     , messagEerrorOccurred
     , messageBadRequest
     , messageCopiedImage
@@ -23,6 +23,7 @@ module Message exposing
     , messageTimeout
     , messageUnknown
     , messageUrlExpired
+    , toLangString
     , toolTipCopy
     , toolTipExport
     , toolTipGist
@@ -49,14 +50,24 @@ type alias Message =
     Lang -> String
 
 
-fromString : String -> Lang
-fromString lang =
+langFromString : String -> Lang
+langFromString lang =
     case lang of
         "ja" ->
             Ja
 
         _ ->
             En
+
+
+toLangString : Lang -> String
+toLangString lang =
+    case lang of
+        Ja ->
+            "ja"
+
+        _ ->
+            "en"
 
 
 messagEerrorOccurred : Lang -> String
