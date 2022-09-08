@@ -21,11 +21,6 @@ jobs:
       - uses: actions/labeler@v4
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          working-directory: server
-          args: --issues-exit-code=0
       - uses: actions/cache@v3
         with:
           path: node_modules
