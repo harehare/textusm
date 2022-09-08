@@ -344,6 +344,8 @@ init flags url key =
                 , diagramType = currentDiagram.diagram
                 , session = Session.guest
                 , settings = initSettings
+                , lang = lang
+                , usableFontList = Just []
                 }
 
         ( shareModel, _ ) =
@@ -463,6 +465,13 @@ initSettingsPage diagramType model =
                 , diagramType = diagramType
                 , session = model.session
                 , settings = model.settingsModel.settings
+                , lang = model.lang
+                , usableFontList =
+                    if Settings.isFetchedUsableFont model.settingsModel then
+                        Just model.settingsModel.usableFontList
+
+                    else
+                        Nothing
                 }
     in
     Return.return { model | settingsModel = model_ } (cmd_ |> Cmd.map UpdateSettings)
@@ -1015,6 +1024,13 @@ update message =
                                         , diagramType = m.currentDiagram.diagram
                                         , session = m.session
                                         , settings = newSettings
+                                        , lang = m.lang
+                                        , usableFontList =
+                                            if Settings.isFetchedUsableFont m.settingsModel then
+                                                Just m.settingsModel.usableFontList
+
+                                            else
+                                                Nothing
                                         }
 
                                 newStoryMap : Settings
@@ -1176,6 +1192,13 @@ update message =
                                         , diagramType = m.currentDiagram.diagram
                                         , session = m.session
                                         , settings = settings
+                                        , lang = m.lang
+                                        , usableFontList =
+                                            if Settings.isFetchedUsableFont m.settingsModel then
+                                                Just m.settingsModel.usableFontList
+
+                                            else
+                                                Nothing
                                         }
                             in
                             Return.singleton { m | settingsModel = newSettingsModel, diagramModel = DiagramModel.ofSettings.set settings.storyMap m.diagramModel }

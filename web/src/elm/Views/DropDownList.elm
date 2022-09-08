@@ -1,4 +1,4 @@
-module Views.DropDownList exposing (DropDownItem, DropDownValue, colorValue, stringValue, view)
+module Views.DropDownList exposing (DropDownItem, DropDownValue, colorValue, loadingView, stringValue, view)
 
 import Css
     exposing
@@ -103,6 +103,24 @@ view onToggleDropDownList dropDownId currentId onChange items selectedValue =
 
           else
             Html.text ""
+        ]
+
+
+loadingView : String -> Html msg
+loadingView text =
+    Html.div
+        [ css
+            [ Style.widthFull
+            , Text.sm
+            , position relative
+            , Color.bgTransparent
+            , cursor pointer
+            , outline none
+            , color <| hex "#2e2e2e"
+            , property "user-select" "none"
+            ]
+        ]
+        [ textItemView text
         ]
 
 
@@ -212,6 +230,32 @@ itemView item onActive =
             Nothing ->
                 Html.span [] []
         , Html.span [ css [ Style.paddingSm ] ] [ Html.text item.name ]
+        ]
+
+
+textItemView : String -> Html msg
+textItemView text =
+    Html.div
+        [ css
+            [ display block
+            , Color.bgLight
+            , position relative
+            , Style.paddingSm
+            , after
+                [ Style.emptyContent
+                , width zero
+                , height zero
+                , position absolute
+                , right <| px 16
+                , top <| pct 50
+                , borderStyle solid
+                , borderWidth3 (px 6) (px 6) zero
+                , borderColor2 (hex "#2e2e2e") transparent
+                , marginTop <| px -4
+                ]
+            ]
+        ]
+        [ Html.span [ css [ Style.paddingSm ] ] [ Html.text text ]
         ]
 
 

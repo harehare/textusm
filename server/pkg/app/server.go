@@ -129,7 +129,7 @@ func Run() int {
 
 	cors := cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://app.textusm.com", "http://localhost:3000", "https://localhost:3000"},
-		AllowedMethods:   []string{"POST", "OPTIONS", "DELETE"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS", "DELETE"},
 		AllowedHeaders:   []string{"accept", "authorization", "content-type"},
 		AllowCredentials: false,
 	})
@@ -149,7 +149,7 @@ func Run() int {
 		r.Use(cors)
 
 		r.Route("/settings", func(r chi.Router) {
-			r.Use(httprate.LimitByIP(2, 1*time.Minute))
+			r.Use(httprate.LimitByIP(10, 1*time.Minute))
 			r.Get("/usable-font-list", restApi.UsableFontList)
 		})
 
