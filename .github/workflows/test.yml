@@ -74,7 +74,7 @@ jobs:
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           MONITOR_ENABLE: ${{ secrets.MONITOR_ENABLE }}
         with:
-          start: npm run dev:web
+          start: npm run start:web
           headless: true
           working-directory: web
           wait-on: "http://localhost:3000"

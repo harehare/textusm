@@ -98,6 +98,7 @@
     "postprod": "rimraf -rf dist/*.map",
     "embed:build": "npm run prod && cp -r dist ../server/pkg/app",
     "start": "npm run dev",
+    "start:web": "webpack serve --no-hot --no-client-overlay --port 3000",
     "test": "elm-test",
     "test:e2e": "cypress run",
     "open:e2e": "cypress open",
@@ -130,6 +131,10 @@
     "space": 2,
     "useTabs": false,
     "bracketSpacing": true,
+    "ignores": [
+      "webpack.config.js",
+      "e2e/**"
+    ],
     "rules": {
       "import/extensions": "off",
       "n/prefer-global/process": "off",
