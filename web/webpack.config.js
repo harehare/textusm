@@ -11,326 +11,320 @@ const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const PreloadWebpackPlugin = require('preload-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const HTMLInlineCSSWebpackPlugin =
-    require('html-inline-css-webpack-plugin').default;
+const HTMLInlineCSSWebpackPlugin = require('html-inline-css-webpack-plugin').default;
 const SentryWebpackPlugin = require('@sentry/webpack-plugin');
 const devcert = require('devcert');
 
-const mode =
-    process.env.NODE_ENV === 'production' ? 'production' : 'development';
+const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 const dist = path.join(__dirname, 'dist');
 const day = 60 * 60 * 24;
 
 const common = {
-    mode,
-    devtool: 'source-map',
-    entry: './src/ts/index.ts',
-    output: {
-        path: dist,
-        publicPath: '/',
-        filename: mode === 'production' ? '[name]-[hash].js' : 'index.js',
+  mode,
+  devtool: 'source-map',
+  entry: './src/ts/index.ts',
+  output: {
+    path: dist,
+    publicPath: '/',
+    filename: mode === 'production' ? '[name]-[hash].js' : 'index.js',
+  },
+  plugins: [
+    new HTMLWebpackPlugin({
+      template: 'src/index.html',
+      inject: 'body',
+      inlineSource: '.css$',
+    }),
+    new webpack.EnvironmentPlugin([
+      'API_ROOT',
+      'WEB_ROOT',
+      'FIREBASE_API_KEY',
+      'FIREBASE_AUTH_DOMAIN',
+      'FIREBASE_PROJECT_ID',
+      'FIREBASE_APP_ID',
+      'SENTRY_ENABLE',
+      'SENTRY_DSN',
+      'SENTRY_RELEASE',
+      'MONITOR_ENABLE',
+      'NODE_ENV',
+      'FIREBASE_AUTH_EMULATOR_HOST',
+    ]),
+    new PreloadWebpackPlugin({
+      rel: 'preload',
+      include: ['runtime', 'vendors'],
+    }),
+    new MonacoWebpackPlugin({
+      languages: [],
+      features: ['clipboard'],
+    }),
+  ],
+  resolve: {
+    modules: [path.join(__dirname, 'src'), 'node_modules'],
+    extensions: ['.js', '.ts', '.elm', '.css'],
+    alias: {
+      'monaco-editor': 'monaco-editor/esm/vs/editor/editor.api.js',
     },
-    plugins: [
-        new HTMLWebpackPlugin({
-            template: 'src/index.html',
-            inject: 'body',
-            inlineSource: '.css$',
-        }),
-        new webpack.EnvironmentPlugin([
-            'API_ROOT',
-            'WEB_ROOT',
-            'FIREBASE_API_KEY',
-            'FIREBASE_AUTH_DOMAIN',
-            'FIREBASE_PROJECT_ID',
-            'FIREBASE_APP_ID',
-            'SENTRY_ENABLE',
-            'SENTRY_DSN',
-            'SENTRY_RELEASE',
-            'MONITOR_ENABLE',
-            'NODE_ENV',
-            'FIREBASE_AUTH_EMULATOR_HOST',
-        ]),
-        new PreloadWebpackPlugin({
-            rel: 'preload',
-            include: ['runtime', 'vendors'],
-        }),
-        new MonacoWebpackPlugin({
-            languages: [],
-            features: ['clipboard'],
-        }),
+    fallback: {
+      path: false,
+      stream: false,
+      buffer: false,
+    },
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+        },
+      },
+      {
+        test: /\.ts$/,
+        exclude: /node_modules/,
+        use: 'ts-loader',
+      },
+      {
+        test: /\.css$/,
+        exclude: [/elm-stuff/],
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.woff(2)?(\?v=\d\.\d\.\d)?$/,
+        exclude: [/elm-stuff/, /node_modules/],
+        type: 'asset',
+        mimetype: 'application/font-woff',
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10 * 1024,
+          },
+        },
+      },
+      {
+        test: /\.(ttf|eot|svg)(\?v=\d\.\d\.\d)?$/,
+        exclude: [/elm-stuff/, /node_modules/],
+        type: 'asset',
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10 * 1024,
+          },
+        },
+      },
+      {
+        test: /\.(jpe?g|png|gif|svg)$/i,
+        exclude: [/elm-stuff/, /node_modules/],
+        type: 'asset',
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10 * 1024,
+          },
+        },
+      },
+      {
+        test: /\.svg$/,
+        use: 'svg-inline-loader',
+      },
     ],
-    resolve: {
-        modules: [path.join(__dirname, 'src'), 'node_modules'],
-        extensions: ['.js', '.ts', '.elm', '.css'],
-        alias: {
-            'monaco-editor': 'monaco-editor/esm/vs/editor/editor.api.js',
-        },
-        fallback: {
-            path: false,
-            stream: false,
-            buffer: false,
-        },
-    },
-    module: {
-        rules: [
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader',
-                },
-            },
-            {
-                test: /\.ts$/,
-                exclude: /node_modules/,
-                use: 'ts-loader',
-            },
-            {
-                test: /\.css$/,
-                exclude: [/elm-stuff/],
-                use: ['style-loader', 'css-loader'],
-            },
-            {
-                test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-                exclude: [/elm-stuff/, /node_modules/],
-                type: 'asset',
-                mimetype: 'application/font-woff',
-                parser: {
-                    dataUrlCondition: {
-                        maxSize: 10 * 1024,
-                    },
-                },
-            },
-            {
-                test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-                exclude: [/elm-stuff/, /node_modules/],
-                type: 'asset',
-                parser: {
-                    dataUrlCondition: {
-                        maxSize: 10 * 1024,
-                    },
-                },
-            },
-            {
-                test: /\.(jpe?g|png|gif|svg)$/i,
-                exclude: [/elm-stuff/, /node_modules/],
-                type: 'asset',
-                parser: {
-                    dataUrlCondition: {
-                        maxSize: 10 * 1024,
-                    },
-                },
-            },
-            {
-                test: /\.svg$/,
-                use: 'svg-inline-loader',
-            },
-        ],
-    },
+  },
 };
 
 if (mode === 'development') {
-    module.exports = (async () => {
-        const { key, cert } = await devcert.certificateFor('localhost');
-        fs.mkdirSync('../certs/', { recursive: true });
-        fs.writeFileSync('../certs/localhost.key', key);
-        fs.writeFileSync('../certs/localhost.cert', cert);
+  module.exports = (async () => {
+    const { key, cert } = await devcert.certificateFor('localhost');
+    fs.mkdirSync('../certs/', { recursive: true });
+    fs.writeFileSync('../certs/localhost.key', key);
+    fs.writeFileSync('../certs/localhost.cert', cert);
 
-        return merge(common, {
-            plugins: [],
-            module: {
-                rules: [
-                    {
-                        test: /\.elm$/,
-                        exclude: [/elm-stuff/, /node_modules/],
-                        use: [
-                            {
-                                loader: 'elm-hot-webpack-loader',
-                            },
-                            {
-                                loader: 'elm-webpack-loader',
-                                options: {
-                                    debug: true,
-                                },
-                            },
-                        ],
-                    },
-                ],
-            },
-            devServer: {
-                hot: true,
-                historyApiFallback: true,
-                static: path.join(__dirname, 'src/assets'),
-                https: !!process.env.USE_HTTPS
-                    ? {
-                          key: '../certs/localhost.key',
-                          cert: '../certs/localhost.cert',
-                      }
-                    : false,
-            },
-        });
-    })();
-}
-if (mode === 'production') {
-    module.exports = merge(common, {
-        plugins: [
-            ...[
-                new WorkboxWebpackPlugin.GenerateSW({
-                    swDest: dist + '/sw.js',
-                    clientsClaim: true,
-                    skipWaiting: true,
-                    maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
-                    navigateFallback: '/index.html',
-                    navigateFallbackAllowlist: [
-                        /^\/($|new|edit|view|public|list|settings|help|share|notfound|embed)/,
-                    ],
-                    runtimeCaching: [
-                        {
-                            urlPattern:
-                                /^https:\/\/fonts\.gstatic\.com.*\.woff2.*$/,
-                            handler: 'CacheFirst',
-                            options: {
-                                cacheName: 'google-font-file-cache',
-                                cacheableResponse: {
-                                    statuses: [0, 200, 307],
-                                },
-                                expiration: {
-                                    maxAgeSeconds: 31 * day,
-                                },
-                            },
-                        },
-                    ],
-                }),
-                new HTMLInlineCSSWebpackPlugin(),
-                new CleanWebpackPlugin({
-                    root: __dirname,
-                    exclude: [],
-                    verbose: false,
-                    dry: false,
-                }),
-                new CopyWebpackPlugin({
-                    patterns: [
-                        {
-                            from: 'src/assets',
-                        },
-                    ],
-                }),
-                new MiniCssExtractPlugin({
-                    filename: '[name]-[hash].css',
-                    chunkFilename: '[id]-[contenthash].css',
-                }),
+    return merge(common, {
+      plugins: [],
+      module: {
+        rules: [
+          {
+            test: /\.elm$/,
+            exclude: [/elm-stuff/, /node_modules/],
+            use: [
+              {
+                loader: 'elm-hot-webpack-loader',
+              },
+              {
+                loader: 'elm-webpack-loader',
+                options: {
+                  debug: true,
+                },
+              },
             ],
-            ...(process.env.SENTRY_ENABLE === '1'
-                ? [
-                      new SentryWebpackPlugin({
-                          authToken: process.env.SENTRY_AUTH_TOKEN,
-                          org: process.env.SENTRY_ORG,
-                          project: process.env.SENTRY_PROJECT,
-                          release: process.env.SENTRY_RELEASE,
-                          include: './dist',
-                          ignore: ['node_modules', 'webpack.config.js'],
-                      }),
-                  ]
-                : []),
+          },
         ],
-        module: {
-            rules: [
-                {
-                    test: /\.elm$/,
-                    exclude: [/elm-stuff/, /node_modules/],
-                    use: {
-                        loader: 'elm-webpack-loader',
-                        options: {
-                            optimize: true,
-                        },
-                    },
-                },
-                {
-                    test: /\.css$/,
-                    exclude: [/elm-stuff/, /node_modules/],
-                    use: [MiniCssExtractPlugin.loader, 'css-loader'],
-                },
-            ],
-        },
-        optimization: {
-            splitChunks: {
-                chunks: 'async',
-                cacheGroups: {
-                    vendors: {
-                        test: /[\\/]node_modules[\\/]/i,
-                        chunks: 'all',
-                    },
-                    editor: {
-                        test: /[\\/]node_modules\/(monaco-editor\/esm\/vs\/(nls\.js|editor|platform|base|basic-languages|language\/(css|html|json|typescript)\/monaco\.contribution\.js)|style-loader\/lib|css-loader\/lib\/css-base\.js)/,
-                        name: 'monaco-editor',
-                        chunks: 'async',
-                    },
-                    languages: {
-                        test: /[\\/]node_modules\/monaco-editor\/esm\/vs\/language\/(css|html|json|typescript)\/(_deps|lib|fillers|languageFeatures\.js|workerManager\.js|tokenization\.js|(tsMode|jsonMode|htmlMode|cssMode)\.js|(tsWorker|jsonWorker|htmlWorker|cssWorker)\.js)/,
-                        name: 'monaco-languages',
-                        chunks: 'async',
-                    },
-                },
-            },
-            runtimeChunk: {
-                name: 'runtime',
-            },
-            minimize: true,
-            minimizer: [
-                new TerserPlugin({
-                    test: /\.(js|ts)$/i,
-                    parallel: true,
-                    terserOptions: {
-                        compress: {
-                            drop_console: true,
-                        },
-                    },
-                }),
-                new TerserPlugin({
-                    test: /elm\.js$/,
-                    parallel: true,
-                    terserOptions: {
-                        compress: {
-                            pure_funcs: [
-                                'F2',
-                                'F3',
-                                'F4',
-                                'F5',
-                                'F6',
-                                'F7',
-                                'F8',
-                                'F9',
-                                'A2',
-                                'A3',
-                                'A4',
-                                'A5',
-                                'A6',
-                                'A7',
-                                'A8',
-                                'A9',
-                            ],
-                            pure_getters: true,
-                            keep_fargs: false,
-                            unsafe_comps: true,
-                            drop_console: true,
-                            unsafe: true,
-                            passes: 3,
-                        },
-                    },
-                }),
-                new CssMinimizerPlugin({
-                    minimizerOptions: {
-                        preset: [
-                            'advanced',
-                            {
-                                discardComments: { removeAll: true },
-                            },
-                        ],
-                    },
-                }),
-            ],
-        },
+      },
+      devServer: {
+        hot: true,
+        historyApiFallback: true,
+        static: path.join(__dirname, 'src/assets'),
+        https: process.env.USE_HTTPS
+          ? {
+              key: '../certs/localhost.key',
+              cert: '../certs/localhost.cert',
+            }
+          : false,
+      },
     });
+  })();
+}
+
+if (mode === 'production') {
+  module.exports = merge(common, {
+    plugins: [
+      new WorkboxWebpackPlugin.GenerateSW({
+        swDest: dist + '/sw.js',
+        clientsClaim: true,
+        skipWaiting: true,
+        maximumFileSizeToCacheInBytes: 1024 * 1024 * 5,
+        navigateFallback: '/index.html',
+        navigateFallbackAllowlist: [/^\/($|new|edit|view|public|list|settings|help|share|notfound|embed)/],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com.*\.woff2.*$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-font-file-cache',
+              cacheableResponse: {
+                statuses: [0, 200, 307],
+              },
+              expiration: {
+                maxAgeSeconds: 31 * day,
+              },
+            },
+          },
+        ],
+      }),
+      new HTMLInlineCSSWebpackPlugin(),
+      new CleanWebpackPlugin({
+        root: __dirname,
+        exclude: [],
+        verbose: false,
+        dry: false,
+      }),
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: 'src/assets',
+          },
+        ],
+      }),
+      new MiniCssExtractPlugin({
+        filename: '[name]-[hash].css',
+        chunkFilename: '[id]-[contenthash].css',
+      }),
+      ...(process.env.SENTRY_ENABLE === '1'
+        ? [
+            new SentryWebpackPlugin({
+              authToken: process.env.SENTRY_AUTH_TOKEN,
+              org: process.env.SENTRY_ORG,
+              project: process.env.SENTRY_PROJECT,
+              release: process.env.SENTRY_RELEASE,
+              include: './dist',
+              ignore: ['node_modules', 'webpack.config.js'],
+            }),
+          ]
+        : []),
+    ],
+    module: {
+      rules: [
+        {
+          test: /\.elm$/,
+          exclude: [/elm-stuff/, /node_modules/],
+          use: {
+            loader: 'elm-webpack-loader',
+            options: {
+              optimize: true,
+            },
+          },
+        },
+        {
+          test: /\.css$/,
+          exclude: [/elm-stuff/, /node_modules/],
+          use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        },
+      ],
+    },
+    optimization: {
+      splitChunks: {
+        chunks: 'async',
+        cacheGroups: {
+          vendors: {
+            test: /[\\/]node_modules[\\/]/i,
+            chunks: 'all',
+          },
+          editor: {
+            test: /[\\/]node_modules\/(monaco-editor\/esm\/vs\/(nls\.js|editor|platform|base|basic-languages|language\/(css|html|json|typescript)\/monaco\.contribution\.js)|style-loader\/lib|css-loader\/lib\/css-base\.js)/,
+            name: 'monaco-editor',
+            chunks: 'async',
+          },
+          languages: {
+            test: /[\\/]node_modules\/monaco-editor\/esm\/vs\/language\/(css|html|json|typescript)\/(_deps|lib|fillers|languageFeatures\.js|workerManager\.js|tokenization\.js|(tsMode|jsonMode|htmlMode|cssMode)\.js|(tsWorker|jsonWorker|htmlWorker|cssWorker)\.js)/,
+            name: 'monaco-languages',
+            chunks: 'async',
+          },
+        },
+      },
+      runtimeChunk: {
+        name: 'runtime',
+      },
+      minimize: true,
+      minimizer: [
+        new TerserPlugin({
+          test: /\.(js|ts)$/i,
+          parallel: true,
+          terserOptions: {
+            compress: {
+              drop_console: true,
+            },
+          },
+        }),
+        new TerserPlugin({
+          test: /elm\.js$/,
+          parallel: true,
+          terserOptions: {
+            compress: {
+              pure_funcs: [
+                'F2',
+                'F3',
+                'F4',
+                'F5',
+                'F6',
+                'F7',
+                'F8',
+                'F9',
+                'A2',
+                'A3',
+                'A4',
+                'A5',
+                'A6',
+                'A7',
+                'A8',
+                'A9',
+              ],
+              pure_getters: true,
+              keep_fargs: false,
+              unsafe_comps: true,
+              drop_console: true,
+              unsafe: true,
+              passes: 3,
+            },
+          },
+        }),
+        new CssMinimizerPlugin({
+          minimizerOptions: {
+            preset: [
+              'advanced',
+              {
+                discardComments: { removeAll: true },
+              },
+            ],
+          },
+        }),
+      ],
+    },
+  });
 }
 
 module.exports.parallelism = 2;

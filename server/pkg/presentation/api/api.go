@@ -48,5 +48,12 @@ func (a *Api) RevokeGistToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Api) UsableFontList(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(GetFontList(r.URL.Query().Get("lang")))
+	err := json.NewEncoder(w).Encode(GetFontList(r.URL.Query().Get("lang")))
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }

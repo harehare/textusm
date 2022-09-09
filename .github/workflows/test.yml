@@ -21,15 +21,25 @@ jobs:
       - uses: actions/labeler@v4
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
-      - uses: actions/cache@v3
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/web/package-lock.json') }}
+          working-directory: server
+          args: --issues-exit-code=0
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
+      - uses: actions/cache@v3
+        id: npm-cache
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - name: Install Dependencies
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: Install Dependencies
         working-directory: web
-        if: steps.cache.outputs.cache-hit != 'true'
         run: npm i --legacy-peer-deps
       - name: Generate elm-constants
         working-directory: web
@@ -66,9 +76,9 @@ jobs:
         with:
           start: npm run dev:web
           headless: true
-          install: false
           working-directory: web
           wait-on: "http://localhost:3000"
+          install: false
       - uses: andresz1/size-limit-action@v1
         env:
           API_ROOT: ${{ secrets.API_ROOT }}

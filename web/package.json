@@ -135,7 +135,8 @@
       "n/prefer-global/process": "off",
       "@typescript-eslint/naming-convention": "off",
       "accessor-pairs": "off",
-      "n/file-extension-in-import": "off"
+      "n/file-extension-in-import": "off",
+      "unicorn/prefer-module": "off"
     }
   },
   "size-limit": [
