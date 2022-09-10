@@ -3,6 +3,7 @@ module Style.Color exposing
     , bgActivity
     , bgDefault
     , bgDisabled
+    , bgHeaderColor
     , bgLight
     , bgMain
     , bgTransparent
@@ -128,6 +129,11 @@ textMain =
 textSecondaryColor : Css.Style
 textSecondaryColor =
     color <| hex "#b9b9b9"
+
+
+bgHeaderColor : Css.Style
+bgHeaderColor =
+    color <| hex "#1f262c"
 
 
 accentColor : Color
