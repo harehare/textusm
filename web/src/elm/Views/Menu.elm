@@ -110,7 +110,7 @@ menu pos items =
             , Transitions.transition [ Transitions.boxShadow3 200 200 Transitions.easeOut ]
             , Style.m1
             , overflow hidden
-            , Color.bgMain
+            , Color.bgHeaderColor
             , position absolute
             , Style.rounded
             , zIndex <| int 10
@@ -195,7 +195,10 @@ view props =
             , Attributes.dataTest "new-menu"
             ]
             [ Html.div
-                [ css [ Style.mlXs, menuButtonStyle ]
+                [ css
+                    [ Style.mlXs
+                    , menuButtonStyle
+                    ]
                 ]
                 [ Icon.file Color.iconColor 18
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipNewFile props.lang ] ]

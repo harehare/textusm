@@ -36,8 +36,8 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/web/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Install Dependencies
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: web
         run: npm i --legacy-peer-deps
       - name: get-npm-version
@@ -45,8 +45,8 @@ jobs:
         uses: martinbeentjes/npm-get-version-action@main
         with:
           path: web
-      - if: steps.changes.outputs.web == 'true'
-        name: Generate elm-constants
+      - name: Generate elm-constants
+        if: steps.changes.outputs.web == 'true'
         working-directory: web
         run: npm run generate-elm-constants
         env:
@@ -54,8 +54,8 @@ jobs:
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
           APP_VERSION: ${{ steps.package-version.outputs.current-version }}
           REPO_URL: ${{ secrets.REPO_URL }}
-      - if: steps.changes.outputs.web == 'true'
-        name: build
+      - name: build
+        if: steps.changes.outputs.web == 'true'
         working-directory: web
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
@@ -82,10 +82,10 @@ jobs:
           path: web/dist
 
   deploy-web:
-    if: steps.changes.outputs.web == 'true'
     name: deploy-web
     needs: build
     runs-on: ubuntu-latest
+    if: steps.changes.outputs.web == 'true'
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -103,10 +103,10 @@ jobs:
           channelId: live
 
   deploy-server:
-    if: steps.changes.outputs.server == 'true'
     name: deploy-server
     needs: build
     runs-on: ubuntu-latest
+    if: steps.changes.outputs.server == 'true'
     steps:
       - name: Deploy server to render.com
         run: curl --silent --show-error --fail $RENDER_DEPLOY_HOOK_URL > /dev/null

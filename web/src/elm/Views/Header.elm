@@ -90,7 +90,7 @@ view props =
             [ displayFlex
             , alignItems center
             , Style.widthScreen
-            , ColorStyle.bgMain
+            , ColorStyle.bgHeaderColor
             , height <| px 40
             , Style.borderBottom05
             ]
