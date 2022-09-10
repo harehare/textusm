@@ -17,14 +17,6 @@ jobs:
       name: ${{ github.event.inputs.environment }}
     timeout-minutes: 10
     steps:
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            web:
-              - 'web/**'
-            server:
-              - 'server/**'
       - name: Checkout Repo
         uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -46,7 +38,6 @@ jobs:
         with:
           path: web
       - name: Generate elm-constants
-        if: steps.changes.outputs.web == 'true'
         working-directory: web
         run: npm run generate-elm-constants
         env:
@@ -55,7 +46,6 @@ jobs:
           APP_VERSION: ${{ steps.package-version.outputs.current-version }}
           REPO_URL: ${{ secrets.REPO_URL }}
       - name: build
-        if: steps.changes.outputs.web == 'true'
         working-directory: web
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
@@ -85,7 +75,6 @@ jobs:
     name: deploy-web
     needs: build
     runs-on: ubuntu-latest
-    if: steps.changes.outputs.web == 'true'
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -106,7 +95,6 @@ jobs:
     name: deploy-server
     needs: build
     runs-on: ubuntu-latest
-    if: steps.changes.outputs.server == 'true'
     steps:
       - name: Deploy server to render.com
         run: curl --silent --show-error --fail $RENDER_DEPLOY_HOOK_URL > /dev/null
