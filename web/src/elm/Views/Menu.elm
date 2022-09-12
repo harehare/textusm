@@ -175,6 +175,7 @@ view props =
                 , position fixed
                 , zIndex <| int 10
                 , minWidth <| px 40
+                , Color.bgHeaderColor
                 ]
                 [ Breakpoint.large
                     [ justifyContent start
@@ -291,22 +292,6 @@ view props =
                 [ Icon.copy Color.iconColor 19
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy props.lang ] ]
                 ]
-        , Html.div
-            [ css [ menuButtonStyle ]
-            , Attributes.dataTest "settings-menu"
-            ]
-            [ Html.a [ Attr.href <| Route.toString (Route.Settings props.diagramType), Attr.attribute "aria-label" "Settings" ]
-                [ Icon.settings
-                    (if isNothing props.openMenu && props.page == Page.Settings then
-                        Color.iconColor
-
-                     else
-                        Color.disabledIconColor
-                    )
-                    20
-                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSettings props.lang ] ]
-                ]
-            ]
         , if Utils.isPhone props.width then
             case props.openMenu of
                 Just Export ->

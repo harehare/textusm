@@ -51,7 +51,7 @@ import Message exposing (Lang)
 import Models.Color as Color
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
-import Models.DiagramType as DiagramType
+import Models.DiagramType as DiagramType exposing (DiagramType)
 import Models.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page exposing (Page)
@@ -91,7 +91,7 @@ view props =
             , alignItems center
             , Style.widthScreen
             , ColorStyle.bgHeaderColor
-            , height <| px 40
+            , height <| px 36
             , Style.borderBottom05
             ]
         ]
@@ -100,7 +100,7 @@ view props =
                 [ displayFlex
                 , alignItems center
                 , width <| pct 100
-                , height <| px 40
+                , height <| px 36
                 ]
             ]
             [ case props.page of
@@ -140,7 +140,7 @@ view props =
                             [ Attr.id "title"
                             , css
                                 [ Style.widthFull
-                                , ColorStyle.bgMain
+                                , ColorStyle.bgHeaderColor
                                 , borderStyle none
                                 , Font.fontFamily
                                 , Text.base
@@ -198,19 +198,29 @@ view props =
             ]
             :: (case props.route of
                     Route.New ->
-                        [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
+                        [ Lazy.lazy viewHelpButton props.lang
+                        , Lazy.lazy2 viewSettingsButton props.lang props.currentDiagram.diagram
+                        , Lazy.lazy2 viewSignInButton props.menu props.session
+                        ]
 
                     Route.DiagramList ->
-                        [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
+                        [ Lazy.lazy viewHelpButton props.lang
+                        , Lazy.lazy2 viewSettingsButton props.lang props.currentDiagram.diagram
+                        , Lazy.lazy2 viewSignInButton props.menu props.session
+                        ]
 
                     Route.Settings _ ->
-                        [ Lazy.lazy viewHelpButton props.lang, Lazy.lazy2 viewSignInButton props.menu props.session ]
+                        [ Lazy.lazy viewHelpButton props.lang
+                        , Lazy.lazy2 viewSettingsButton props.lang props.currentDiagram.diagram
+                        , Lazy.lazy2 viewSignInButton props.menu props.session
+                        ]
 
                     _ ->
                         [ Lazy.lazy3 viewLocationButton props.lang props.session props.currentDiagram.location
                         , Lazy.lazy3 viewChangePublicStateButton props.lang props.currentDiagram.isPublic (canChangePublicState props)
                         , Lazy.lazy viewHelpButton props.lang
                         , Lazy.lazy2 viewShareButton props.lang <| canShare props
+                        , Lazy.lazy2 viewSettingsButton props.lang props.currentDiagram.diagram
                         , Lazy.lazy2 viewSignInButton props.menu props.session
                         ]
                )
@@ -285,6 +295,23 @@ viewHelpButton lang =
         [ Html.div [ css [ Style.button ] ]
             [ Icon.helpOutline 16
             , Tooltip.view <| Message.toolTipHelp lang
+            ]
+        ]
+
+
+viewSettingsButton : Lang -> DiagramType -> Html Msg
+viewSettingsButton lang diagramType =
+    Html.a
+        [ Attr.attribute "aria-label" "Help"
+        , css [ displayFlex ]
+        , Attr.href <|
+            Route.toString (Route.Settings diagramType)
+        , Attr.attribute "aria-label" "Settings"
+        , Attributes.dataTest "header-help"
+        ]
+        [ Html.div [ css [ Style.button ] ]
+            [ Icon.settings Color.iconColor 16
+            , Tooltip.view <| Message.toolTipSettings lang
             ]
         ]
 
@@ -374,7 +401,7 @@ viewSignInButton menu session =
                             , Style.mtXs
                             , position relative
                             ]
-                            [ Breakpoint.large [ width <| rem 1.75, height <| rem 1.75 ] ]
+                            [ Breakpoint.large [ width <| rem 1.5, height <| rem 1.5 ] ]
                         ]
                     , Attr.alt "avatar"
                     ]
@@ -427,8 +454,13 @@ viewSignInButton menu session =
 
     else
         Html.div
-            [ css [ Style.button, width <| px 96, height <| px 50 ]
-            , Events.stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
+            [ css [ Style.button, width <| px 96, height <| px 50, Style.borderContent ]
+            , case menu of
+                Just LoginMenu ->
+                    Events.stopPropagationOn "click" (D.succeed ( CloseMenu, True ))
+
+                _ ->
+                    Events.stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
             , Attributes.dataTest "header-signin"
             ]
             [ Html.div [ css [ Text.base, Font.fontBold ] ]
@@ -438,8 +470,8 @@ viewSignInButton menu session =
                     Menu.menu
                         { bottom = Nothing
                         , left = Nothing
-                        , right = Just 5
-                        , top = Just 30
+                        , right = Just -6
+                        , top = Just 40
                         }
                         [ Menu.MenuItem
                             { e = SignIn Google
