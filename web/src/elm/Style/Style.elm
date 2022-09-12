@@ -424,7 +424,7 @@ submit =
 
 wMenu : Css.Style
 wMenu =
-    width <| px 40
+    width <| px 48
 
 
 widthAuto : Css.Style

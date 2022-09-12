@@ -133,7 +133,7 @@ textSecondaryColor =
 
 bgHeaderColor : Css.Style
 bgHeaderColor =
-    color <| hex "#1f262c"
+    backgroundColor <| hex "#1c2328"
 
 
 accentColor : Color
