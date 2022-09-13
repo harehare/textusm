@@ -1,4 +1,4 @@
-import { ElmApp } from './elm';
+import type { ElmApp } from './elm';
 
 export const canUseNativeFileSystem = 'showOpenFilePicker' in window;
 

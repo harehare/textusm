@@ -1,4 +1,4 @@
-import { DiagramSettings, Settings } from './model';
+import type { DiagramSettings, Settings } from './model';
 
 const settingsKey = 'textusm:settings';
 

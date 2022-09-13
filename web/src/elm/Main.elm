@@ -95,6 +95,7 @@ type alias Flags =
     , settings : D.Value
     , isOnline : Bool
     , isDarkMode : Bool
+    , canUseClipboardItem: Bool
     , canUseNativeFileSystem : Bool
     }
 
@@ -330,6 +331,7 @@ init flags url key =
             , browserStatus =
                 { isOnline = flags.isOnline
                 , isDarkMode = flags.isDarkMode
+                , canUseClipboardItem = flags.canUseClipboardItem
                 , canUseNativeFileSystem = flags.canUseNativeFileSystem
                 }
             , confirmDialog = Dialog.Hide
@@ -1469,6 +1471,7 @@ view model =
                     , openMenu = model.openMenu
                     , settings = model.settingsModel.settings
                     , diagramType = model.currentDiagram.diagram
+                    , browserStatus = model.browserStatus
                     }
             , case model.page of
                 Page.New ->

@@ -38,6 +38,7 @@ import Url
 type alias BrowserStatus =
     { isOnline : Bool
     , isDarkMode : Bool
+    , canUseClipboardItem : Bool
     , canUseNativeFileSystem : Bool
     }
 

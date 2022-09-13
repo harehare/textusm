@@ -60,7 +60,7 @@ import Models.DiagramLocation as DiagramLocation
 import Models.DiagramType exposing (DiagramType(..))
 import Models.Exporter as Exporter
 import Models.FileType as FileType
-import Models.Model exposing (Menu(..), Msg(..))
+import Models.Model exposing (BrowserStatus, Menu(..), Msg(..))
 import Models.Page as Page
 import Models.Text as Text exposing (Text)
 import Route exposing (Route)
@@ -94,6 +94,7 @@ type alias Props =
     , openMenu : Maybe Menu
     , settings : Settings
     , diagramType : DiagramType
+    , browserStatus : BrowserStatus
     }
 
 
@@ -295,7 +296,7 @@ view props =
         , if Utils.isPhone props.width then
             case props.openMenu of
                 Just Export ->
-                    menu { bottom = Just 50, left = Just (props.width // 5 * 3), right = Nothing, top = Nothing } (exportMenu props.route)
+                    menu { bottom = Just 50, left = Just (props.width // 5 * 3), right = Nothing, top = Nothing } (exportMenu props.route props.browserStatus)
 
                 _ ->
                     Empty.view
@@ -303,15 +304,15 @@ view props =
           else
             case props.openMenu of
                 Just Export ->
-                    menu { bottom = Nothing, left = Just 40, right = Nothing, top = Just 125 } (exportMenu props.route)
+                    menu { bottom = Nothing, left = Just 40, right = Nothing, top = Just 125 } (exportMenu props.route props.browserStatus)
 
                 _ ->
                     Empty.view
         ]
 
 
-baseExportMenu : List (MenuItem Msg)
-baseExportMenu =
+baseExportMenu : BrowserStatus -> List (MenuItem Msg)
+baseExportMenu browserStatus =
     [ MenuItem
         { e = Download <| Exporter.downloadable FileType.svg
         , title = FileType.toString FileType.svg
@@ -332,26 +333,32 @@ baseExportMenu =
         { e = Download <| Exporter.downloadable FileType.html
         , title = FileType.toString FileType.html
         }
-    , MenuItem
-        { e = Download <| Exporter.copyable FileType.png
-        , title = "Copy " ++ FileType.toString FileType.png
-        }
-    , MenuItem
-        { e = Download <| Exporter.copyable FileType.Base64
-        , title = "Copy " ++ FileType.toString FileType.Base64
-        }
     ]
+        ++ (if browserStatus.canUseClipboardItem then
+                [ MenuItem
+                    { e = Download <| Exporter.copyable FileType.png
+                    , title = "Copy " ++ FileType.toString FileType.png
+                    }
+                , MenuItem
+                    { e = Download <| Exporter.copyable FileType.Base64
+                    , title = "Copy " ++ FileType.toString FileType.Base64
+                    }
+                ]
+
+            else
+                []
+           )
 
 
-exportMenu : Route -> List (MenuItem Msg)
-exportMenu route =
+exportMenu : Route -> BrowserStatus -> List (MenuItem Msg)
+exportMenu route browserStatus =
     case route of
         Route.Edit GanttChart ->
             MenuItem
                 { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
-                :: baseExportMenu
+                :: baseExportMenu browserStatus
 
         Route.Edit ErDiagram ->
             MenuItem
@@ -362,28 +369,28 @@ exportMenu route =
                     { e = Download <| Exporter.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
-                :: baseExportMenu
+                :: baseExportMenu browserStatus
 
         Route.Edit Table ->
             MenuItem
                 { e = Download <| Exporter.copyable FileType.markdown
                 , title = "Markdown"
                 }
-                :: baseExportMenu
+                :: baseExportMenu browserStatus
 
         Route.Edit SequenceDiagram ->
             MenuItem
                 { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
-                :: baseExportMenu
+                :: baseExportMenu browserStatus
 
         Route.EditFile GanttChart _ ->
             MenuItem
                 { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
-                :: baseExportMenu
+                :: baseExportMenu browserStatus
 
         Route.EditFile ErDiagram _ ->
             MenuItem
@@ -394,24 +401,24 @@ exportMenu route =
                     { e = Download <| Exporter.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
-                :: baseExportMenu
+                :: baseExportMenu browserStatus
 
         Route.EditFile Table _ ->
             MenuItem
                 { e = Download <| Exporter.copyable FileType.markdown
                 , title = "Markdown"
                 }
-                :: baseExportMenu
+                :: baseExportMenu browserStatus
 
         Route.EditFile SequenceDiagram _ ->
             MenuItem
                 { e = Download <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
-                :: baseExportMenu
+                :: baseExportMenu browserStatus
 
         _ ->
-            baseExportMenu
+            baseExportMenu browserStatus
 
 
 menuButtonStyle : Css.Style

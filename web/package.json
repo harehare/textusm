@@ -141,7 +141,11 @@
       "@typescript-eslint/naming-convention": "off",
       "accessor-pairs": "off",
       "n/file-extension-in-import": "off",
-      "unicorn/prefer-module": "off"
+      "unicorn/prefer-module": "off",
+      "@typescript-eslint/consistent-type-definitions": "warn",
+      "@typescript-eslint/no-unsafe-return": "warn",
+      "@typescript-eslint/no-unsafe-call": "warn",
+      "@typescript-eslint/no-unsafe-assignment": "warn"
     }
   },
   "size-limit": [

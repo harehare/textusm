@@ -1,6 +1,6 @@
-import { FirebaseOptions, initializeApp } from 'firebase/app';
+import { type FirebaseOptions, initializeApp } from 'firebase/app';
 import {
-  AuthProvider,
+  type AuthProvider,
   signOut as firebaseSignOut,
   signInWithRedirect,
   signInWithPopup as firebaseSignInWithPopup,
@@ -12,14 +12,14 @@ import {
 } from 'firebase/auth';
 import { getPerformance } from 'firebase/performance';
 
-export interface User {
+export type User = {
   id: string;
   displayName: string;
   email: string;
   photoURL: string;
   provider: string | undefined;
   accessToken: string | undefined;
-}
+};
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.FIREBASE_API_KEY ?? '',
   authDomain: process.env.FIREBASE_AUTH_DOMAIN ?? '',

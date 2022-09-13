@@ -1,7 +1,7 @@
-import { OptimizedSvg } from 'svgo';
+import type { OptimizedSvg } from 'svgo';
 
-import { ElmApp } from './elm';
-import { ExportInfo, ImageInfo } from './model';
+import type { ElmApp } from './elm';
+import type { ExportInfo, ImageInfo } from './model';
 
 export const initDownload = (app: ElmApp): void => {
   const createSvg = async (id: string, width: number, height: number): Promise<string> => {

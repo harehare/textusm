@@ -16,23 +16,39 @@ import {
 import { initDB } from './db';
 import { initDownload } from './download';
 import { setElmApp } from './editor';
-import { ElmApp, Provider } from './elm';
+import type { ElmApp, Provider } from './elm';
 import { initFile, canUseNativeFileSystem } from './file';
-import { Settings } from './model';
+import type { Settings } from './model';
 import { loadSettings, saveSettings } from './settings';
 
 const lang = navigator.languages[0] ?? navigator.language ?? navigator.userLanguage ?? navigator.browserLanguage;
 const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-const app: ElmApp = Elm.Main.init({
+type Flags = {
+  lang: string | string[];
+  settings: Settings;
+  isOnline: boolean;
+  isDarkMode: boolean;
+  canUseClipboardItem: boolean;
+  canUseNativeFileSystem: boolean;
+};
+
+declare type ElmType = {
+  Main: {
+    init: (flags: { flags: Flags }) => ElmApp;
+  };
+};
+
+const app: ElmApp = (Elm as ElmType).Main.init({
   flags: {
     lang,
     settings: loadSettings(isDarkMode),
     isOnline: window.navigator.onLine ?? true,
     isDarkMode,
+    canUseClipboardItem: Boolean(ClipboardItem),
     canUseNativeFileSystem,
   },
-}) as ElmApp;
+});
 
 setElmApp(app);
 authStateChanged(

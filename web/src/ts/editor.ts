@@ -1,8 +1,8 @@
 import * as monaco from 'monaco-editor';
 
 import { registerLang } from './editor/lang';
-import { ElmApp } from './elm';
-import { DiagramType } from './model';
+import type { ElmApp } from './elm';
+import type { DiagramType } from './model';
 
 let monacoEditor: monaco.editor.IStandaloneCodeEditor | undefined;
 let updateTextInterval: number | undefined;

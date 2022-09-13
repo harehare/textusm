@@ -1,15 +1,15 @@
-import { Settings, ExportInfo, Diagram, DiagramItem } from './model';
+import type { Settings, ExportInfo, Diagram, DiagramItem } from './model';
 
 export type Provider = 'Google' | 'Github';
 
-interface Send<T> {
+type Send<T> = {
   send: (parameters: T) => void;
-}
+};
 
-interface Subscribe<T> {
+type Subscribe<T> = {
   subscribe: (callback: T) => void;
   unsubscribe: (callback: T) => void;
-}
+};
 
 export type ElmApp = {
   ports: {
