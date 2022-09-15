@@ -124,22 +124,22 @@ import Style.Text as Text
 
 borderBottom05 : Css.Style
 borderBottom05 =
-    borderBottom3 (px 0.5) solid (rgba 0 0 0 0.1)
+    borderBottom3 (px 1) solid (rgba 71 75 82 0.5)
 
 
 borderContent : Css.Style
 borderContent =
-    border3 (px 1) solid (rgba 0 0 0 0.1)
+    border3 (px 1) solid (rgba 71 75 82 0.5)
 
 
 borderRight05 : Css.Style
 borderRight05 =
-    borderRight3 (px 0.5) solid (rgba 0 0 0 0.1)
+    borderRight3 (px 0.5) solid (rgba 71 75 82 0.5)
 
 
 borderTop05 : Css.Style
 borderTop05 =
-    borderTop3 (px 0.5) solid (rgba 0 0 0 0.1)
+    borderTop3 (px 0.5) solid (rgba 71 75 82 0.5)
 
 
 breakWord : Css.Style

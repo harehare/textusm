@@ -29,6 +29,8 @@ import Css
         , overflow
         , padding
         , padding4
+        , paddingLeft
+        , paddingRight
         , pct
         , pointer
         , position
@@ -145,8 +147,7 @@ view props =
                                 , Font.fontFamily
                                 , Text.base
                                 , Font.fontBold
-                                , padding <| px 8
-                                , marginLeft <| px 8
+                                , paddingLeft <| px 8
                                 , color <| hex <| Color.toString Color.white2
                                 , focus
                                     [ outline none
@@ -504,7 +505,6 @@ viewTitle attrs children =
             , textOverflow ellipsis
             , textAlign left
             , padding <| px 8
-            , marginLeft <| px 8
             ]
             :: attrs
         )

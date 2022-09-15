@@ -3,9 +3,11 @@ module Style.Color exposing
     , bgActivity
     , bgDefault
     , bgDisabled
+    , bgFooterColor
     , bgHeaderColor
     , bgLight
     , bgMain
+    , bgMenuColor
     , bgTransparent
     , borderColor
     , darkTextColor
@@ -131,9 +133,19 @@ textSecondaryColor =
     color <| hex "#b9b9b9"
 
 
+bgMenuColor : Css.Style
+bgMenuColor =
+    backgroundColor <| hex "#273037"
+
+
 bgHeaderColor : Css.Style
 bgHeaderColor =
-    backgroundColor <| hex "#1c2328"
+    backgroundColor <| hex "#273037"
+
+
+bgFooterColor : Css.Style
+bgFooterColor =
+    backgroundColor <| hex "#273037"
 
 
 accentColor : Color

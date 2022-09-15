@@ -111,7 +111,7 @@ menu pos items =
             , Transitions.transition [ Transitions.boxShadow3 200 200 Transitions.easeOut ]
             , Style.m1
             , overflow hidden
-            , Color.bgHeaderColor
+            , Color.bgMenuColor
             , position absolute
             , Style.rounded
             , zIndex <| int 10
@@ -176,7 +176,7 @@ view props =
                 , position fixed
                 , zIndex <| int 10
                 , minWidth <| px 40
-                , Color.bgHeaderColor
+                , Color.bgMenuColor
                 ]
                 [ Breakpoint.large
                     [ justifyContent start
