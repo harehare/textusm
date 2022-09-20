@@ -143,7 +143,7 @@ touchCoordinates touchEvent =
 onWheel : (Wheel.Event -> msg) -> Attribute msg
 onWheel =
     \m ->
-        Wheel.onWithOptions { stopPropagation = True, preventDefault = False } m
+        Wheel.onWithOptions { stopPropagation = True, preventDefault = True } m
             |> Attr.fromUnstyled
 
 

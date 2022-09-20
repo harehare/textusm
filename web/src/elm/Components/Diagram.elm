@@ -165,11 +165,11 @@ update message =
 
         PinchIn distance ->
             Return.andThen (setTouchDistance <| Just distance)
-                >> Return.andThen (zoomIn 0.01)
+                >> Return.andThen (zoomIn 0.03)
 
         PinchOut distance ->
             Return.andThen (setTouchDistance <| Just distance)
-                >> Return.andThen (zoomOut 0.01)
+                >> Return.andThen (zoomOut 0.03)
 
         Move position ->
             Return.andThen <| move position
@@ -1121,7 +1121,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 Attr.style "" ""
 
             Nothing ->
-                Events.onWheel <| Diagram.chooseZoom 0.01
+                Events.onWheel <| Diagram.chooseZoom 0.03
         , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
         , onDragMove model.touchDistance model.moveState (Utils.isPhone <| Size.getWidth model.size)
         ]
@@ -1455,7 +1455,7 @@ zoomControl isFullscreen scale =
                 , height <| px 24
                 , cursor pointer
                 ]
-            , onClick <| ZoomOut 0.01
+            , onClick <| ZoomOut 0.03
             ]
             [ Icon.remove 24
             ]
@@ -1476,7 +1476,7 @@ zoomControl isFullscreen scale =
                 , height <| px 24
                 , cursor pointer
                 ]
-            , onClick <| ZoomIn 0.01
+            , onClick <| ZoomIn 0.03
             ]
             [ Icon.add 24
             ]
@@ -1514,7 +1514,7 @@ zoomIn ratio model =
 
 zoomOut : Float -> Model -> Return Msg Model
 zoomOut ratio model =
-    if model.svg.scale > 0.01 then
+    if model.svg.scale > 0.03 then
         Return.singleton
             { model
                 | svg =
