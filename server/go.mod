@@ -3,7 +3,7 @@ module github.com/harehare/textusm
 require (
 	cloud.google.com/go/firestore v1.6.1
 	firebase.google.com/go/v4 v4.8.0
-	github.com/99designs/gqlgen v0.17.16
+	github.com/99designs/gqlgen v0.17.19
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1
@@ -16,7 +16,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.5.1
 	golang.org/x/crypto v0.0.0-20220826181053-bd7e27e6170d
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde
-	google.golang.org/api v0.95.0
+	google.golang.org/api v0.96.0
 	google.golang.org/grpc v1.49.0
 )
 
@@ -42,7 +42,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
 	go.opencensus.io v0.23.0 // indirect
-	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
+	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
 	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094 // indirect
 	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
 	golang.org/x/text v0.3.7 // indirect
