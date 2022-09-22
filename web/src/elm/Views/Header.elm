@@ -129,12 +129,12 @@ view props =
                                 , Events.onClick <| MoveTo r
                                 , Attributes.dataTest "header-back"
                                 ]
-                                [ Icon.arrowLeft Color.iconColor 18 ]
+                                [ Icon.arrowLeft Color.iconColor 16 ]
 
                         Nothing ->
                             Html.div
                                 [ css [ Style.flexCenter, padding4 (px 8) (px 8) (px 8) (px 12), cursor pointer ] ]
-                                [ Icon.arrowLeft Color.disabledIconColor 18 ]
+                                [ Icon.arrowLeft Color.disabledIconColor 16 ]
             , case props.page of
                 Page.Main ->
                     if canEdit props && Title.isEdit props.currentDiagram.title then
