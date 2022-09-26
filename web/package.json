@@ -28,7 +28,7 @@
     "@sentry/webpack-plugin": "^1.19.0",
     "@size-limit/file": "^8.1.0",
     "@trivago/prettier-plugin-sort-imports": "^3.3.0",
-    "@tsconfig/strictest": "^1.0.1",
+    "@tsconfig/strictest": "^1.0.2",
     "@types/jspdf": "^2.0.0",
     "@types/node": "^18.7.23",
     "@types/requestidlecallback": "^0.3.4",
