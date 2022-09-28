@@ -63,7 +63,7 @@
     "rimraf": "^3.0.2",
     "size-limit": "^8.0.1",
     "style-loader": "^3.3.1",
-    "stylelint": "^14.12.1",
+    "stylelint": "^14.13.0",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-standard": "^28.0.0",
     "svg-inline-loader": "^0.8.2",
