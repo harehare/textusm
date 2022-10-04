@@ -327,3 +327,4 @@ if (mode === 'production') {
   });
 }
 
+module.exports.parallelism = 2;
