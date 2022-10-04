@@ -3,6 +3,7 @@ port module Page.List exposing
     , Model
     , Msg(..)
     , init
+    , load
     , modelOfDiagramList
     , notAsked
     , update
@@ -273,7 +274,11 @@ init session lang apiRoot isOnline =
         , isOnline = isOnline
         }
         (Task.perform GotTimeZone Time.here)
-        |> Return.command (getDiagrams ())
+
+
+load : Return.ReturnF Msg Model
+load =
+    Return.command (getDiagrams ())
 
 
 showDialog : Dialog.ConfirmDialog Msg -> Html Msg

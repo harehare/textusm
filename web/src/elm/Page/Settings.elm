@@ -1,4 +1,4 @@
-module Page.Settings exposing (Model, Msg(..), init, isFetchedUsableFont, update, view)
+module Page.Settings exposing (Model, Msg(..), init, isFetchedUsableFont, load, update, view)
 
 import Api.Http.UsableFontList as UsableFontListRequest
 import Api.RequestError exposing (RequestError)
@@ -143,7 +143,12 @@ init { canUseNativeFileSystem, diagramType, session, settings, lang, usableFontL
                 , lang = lang
                 , isLoading = True
                 }
-                |> loadUsableFontList UpdateUsableFontList (Message.langFromString "ja")
+
+
+load : DiagramType -> Model -> Return.Return Msg Model
+load diagramType model =
+    Return.singleton { model | diagramType = diagramType }
+        |> loadUsableFontList UpdateUsableFontList (Message.langFromString "ja")
 
 
 update : Msg -> Return.ReturnF Msg Model

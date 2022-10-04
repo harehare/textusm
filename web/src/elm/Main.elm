@@ -95,7 +95,7 @@ type alias Flags =
     , settings : D.Value
     , isOnline : Bool
     , isDarkMode : Bool
-    , canUseClipboardItem: Bool
+    , canUseClipboardItem : Bool
     , canUseNativeFileSystem : Bool
     }
 
@@ -453,7 +453,8 @@ initListPage : Model -> Return Msg Model
 initListPage model =
     let
         ( model_, cmd_ ) =
-            DiagramList.init model.session model.lang model.diagramListModel.apiRoot model.browserStatus.isOnline
+            Return.singleton model.diagramListModel
+                |> DiagramList.load
     in
     Return.return { model | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
 
@@ -462,19 +463,8 @@ initSettingsPage : DiagramType -> Model -> Return Msg Model
 initSettingsPage diagramType model =
     let
         ( model_, cmd_ ) =
-            Settings.init
-                { canUseNativeFileSystem = model.browserStatus.canUseNativeFileSystem
-                , diagramType = diagramType
-                , session = model.session
-                , settings = model.settingsModel.settings
-                , lang = model.lang
-                , usableFontList =
-                    if Settings.isFetchedUsableFont model.settingsModel then
-                        Just model.settingsModel.usableFontList
-
-                    else
-                        Nothing
-                }
+            Return.singleton model.settingsModel
+                |> Return.andThen (Settings.load diagramType)
     in
     Return.return { model | settingsModel = model_ } (cmd_ |> Cmd.map UpdateSettings)
 
