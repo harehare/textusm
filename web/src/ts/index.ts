@@ -20,9 +20,9 @@ import type { ElmApp, Provider } from './elm';
 import { initFile, canUseNativeFileSystem } from './file';
 import type { Settings } from './model';
 import { loadSettings, saveSettings } from './settings';
+import { isDarkMode } from './utils';
 
 const lang = navigator.languages[0] ?? navigator.language ?? navigator.userLanguage ?? navigator.browserLanguage;
-const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 type Flags = {
   lang: string | string[];
