@@ -2,7 +2,7 @@ module Views.SwitchWindow exposing (view)
 
 import Css exposing (backgroundColor, block, bottom, column, display, displayFlex, fixed, flexDirection, hex, int, none, position, px, relative, right, zIndex)
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick)
 import Models.Window as Window exposing (Window)
 import Style.Breakpoint as Breakpoint
@@ -15,7 +15,7 @@ import Views.Icon as Icon
 view : (Window -> msg) -> String -> Window -> Html msg -> Html msg -> Html msg
 view onSwitchWindow background window view1 view2 =
     Html.div
-        [ css
+        [ Attr.css
             [ displayFlex
             , flexDirection column
             , position relative
@@ -24,7 +24,7 @@ view onSwitchWindow background window view1 view2 =
             ]
         ]
         [ Html.div
-            [ css
+            [ Attr.css
                 [ displayFlex
                 , position fixed
                 , Style.flexCenter
@@ -55,7 +55,7 @@ view onSwitchWindow background window view1 view2 =
                 Empty.view
             ]
         , Html.div
-            [ css
+            [ Attr.css
                 [ Breakpoint.style
                     [ Style.hMain
                     , Style.widthFull
@@ -64,7 +64,7 @@ view onSwitchWindow background window view1 view2 =
                 ]
             ]
             [ Html.div
-                [ css
+                [ Attr.css
                     [ Style.full
                     , if Window.isDisplayPreview window then
                         display none
@@ -75,7 +75,7 @@ view onSwitchWindow background window view1 view2 =
                 ]
                 [ view1 ]
             , Html.div
-                [ css
+                [ Attr.css
                     [ Style.full
                     , backgroundColor <| hex background
                     , if Window.isDisplayEditor window then

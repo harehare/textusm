@@ -49,7 +49,7 @@ import Css.Global exposing (class, descendants)
 import Css.Transitions as Transitions
 import Events
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Events
 import Json.Decode as D
 import List
@@ -101,7 +101,7 @@ type alias Props =
 menu : { bottom : Maybe Int, left : Maybe Int, right : Maybe Int, top : Maybe Int } -> List (MenuItem msg) -> Html msg
 menu pos items =
     Html.div
-        [ css
+        [ Attr.css
             [ Maybe.map (\p -> Css.batch [ top <| px <| toFloat <| p ]) pos.top |> Maybe.withDefault (Css.batch [])
             , Maybe.map (\p -> Css.batch [ left <| px <| toFloat <| p ]) pos.left |> Maybe.withDefault (Css.batch [])
             , Maybe.map (\p -> Css.batch [ right <| px <| toFloat <| p ]) pos.right |> Maybe.withDefault (Css.batch [])
@@ -122,7 +122,7 @@ menu pos items =
             |> List.map
                 (\(MenuItem menuItem) ->
                     Html.div
-                        [ css
+                        [ Attr.css
                             [ TextStyle.base
                             , Color.textColor
                             , cursor pointer
@@ -141,7 +141,7 @@ menu pos items =
                             |> Attributes.dataTest
                         ]
                         [ Html.div
-                            [ css
+                            [ Attr.css
                                 [ Breakpoint.style
                                     [ cursor pointer
                                     , TextStyle.sm
@@ -163,7 +163,7 @@ menu pos items =
 view : Props -> Html Msg
 view props =
     Html.nav
-        [ css
+        [ Attr.css
             [ Breakpoint.style
                 [ displayFlex
                 , flexDirection row
@@ -197,7 +197,7 @@ view props =
             , Attributes.dataTest "new-menu"
             ]
             [ Html.div
-                [ css
+                [ Attr.css
                     [ Style.mlXs
                     , menuButtonStyle
                     ]
@@ -207,7 +207,7 @@ view props =
                 ]
             ]
         , Html.div
-            [ css [ menuButtonStyle ] ]
+            [ Attr.css [ menuButtonStyle ] ]
             [ case props.settings.location of
                 Just DiagramLocation.LocalFileSystem ->
                     Html.div
@@ -244,7 +244,7 @@ view props =
 
                     _ ->
                         Events.onClick Save
-                , css [ menuButtonStyle ]
+                , Attr.css [ menuButtonStyle ]
                 , Attributes.dataTest "save-menu"
                 ]
                 [ Icon.save (Color.toString Color.iconColor) 22
@@ -253,7 +253,7 @@ view props =
 
           else
             Html.div
-                [ css [ menuButtonStyle ]
+                [ Attr.css [ menuButtonStyle ]
                 , Attributes.dataTest "disabled-save-menu"
                 ]
                 [ Icon.save (Color.toString Color.disabledIconColor) 22
@@ -261,7 +261,7 @@ view props =
                 ]
         , Html.div
             [ Events.stopPropagationOn "click" (D.succeed ( OpenMenu Export, True ))
-            , css [ menuButtonStyle ]
+            , Attr.css [ menuButtonStyle ]
             , Attributes.dataTest "download-menu"
             ]
             [ Icon.download
@@ -277,7 +277,7 @@ view props =
             ]
         , if Text.isChanged props.text then
             Html.div
-                [ css [ menuButtonStyle ]
+                [ Attr.css [ menuButtonStyle ]
                 , Attributes.dataTest "copy-menu"
                 ]
                 [ Icon.copy Color.disabledIconColor 19
@@ -286,7 +286,7 @@ view props =
 
           else
             Html.div
-                [ css [ menuButtonStyle ]
+                [ Attr.css [ menuButtonStyle ]
                 , Events.onClickStopPropagation Copy
                 , Attributes.dataTest "copy-menu"
                 ]

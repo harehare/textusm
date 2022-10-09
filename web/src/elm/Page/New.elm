@@ -21,8 +21,8 @@ import Css
         , solid
         , transparent
         )
-import Html.Styled exposing (Html, a, div, img, text)
-import Html.Styled.Attributes exposing (attribute, class, css, href)
+import Html.Styled as Html exposing (Attribute, Html)
+import Html.Styled.Attributes as Attr
 import Models.DiagramType as DiagramType exposing (DiagramType(..))
 import Route
 import Style.Breakpoint as Breakpoint
@@ -34,9 +34,9 @@ import Style.Text as Text
 
 view : Html msg
 view =
-    div [ css [ Style.full ] ]
-        [ div
-            [ css
+    Html.div [ Attr.css [ Style.full ] ]
+        [ Html.div
+            [ Attr.css
                 [ Breakpoint.style
                     [ Style.widthScreen
                     , Style.hMobileContent
@@ -60,17 +60,17 @@ view =
           <|
             List.map
                 (\item ->
-                    a [ href item.url, attribute "aria-label" <| DiagramType.toLongString item.type_ ]
-                        [ div
-                            [ class "new-item"
+                    Html.a [ Attr.href item.url, Attr.attribute "aria-label" <| DiagramType.toLongString item.type_ ]
+                        [ Html.div
+                            [ Attr.class "new-item"
                             , newItemStyle
                             , Attributes.dataTest <| "new-" ++ DiagramType.toString item.type_
                             ]
-                            [ img [ Asset.src item.image, css [ property "object-fit" "contain", Style.widthFull, height <| px 100 ] ] []
-                            , div
-                                [ css [ Text.sm, Font.fontSemiBold ]
+                            [ Html.img [ Asset.src item.image, Attr.css [ property "object-fit" "contain", Style.widthFull, height <| px 100 ] ] []
+                            , Html.div
+                                [ Attr.css [ Text.sm, Font.fontSemiBold ]
                                 ]
-                                [ text <| DiagramType.toLongString item.type_ ]
+                                [ Html.text <| DiagramType.toLongString item.type_ ]
                             ]
                         ]
                 )
@@ -85,9 +85,9 @@ type alias NewItem =
     }
 
 
-newItemStyle : Html.Styled.Attribute msg
+newItemStyle : Attribute msg
 newItemStyle =
-    css
+    Attr.css
         [ Style.flexCenter
         , flexDirection column
         , cursor pointer

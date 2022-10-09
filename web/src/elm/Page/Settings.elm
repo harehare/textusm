@@ -35,8 +35,8 @@ import Css
         , wrap
         , zero
         )
-import Html.Styled exposing (Html, div, text)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
@@ -218,13 +218,13 @@ baseSizeItems =
 
 columnView : List (Html msg) -> Html msg
 columnView children =
-    div [ css [ width <| px 300 ] ] children
+    Html.div [ Attr.css [ width <| px 300 ] ] children
 
 
 conrtolRowView : List (Html msg) -> Html msg
 conrtolRowView children =
-    div
-        [ css
+    Html.div
+        [ Attr.css
             [ displayFlex
             , alignItems center
             , justifyContent spaceBetween
@@ -237,12 +237,12 @@ conrtolRowView children =
 
 conrtolView : List (Html msg) -> Html msg
 conrtolView children =
-    div [ css [ Style.flexStart, flexDirection column, marginBottom <| px 8 ] ] children
+    Html.div [ Attr.css [ Style.flexStart, flexDirection column, marginBottom <| px 8 ] ] children
 
 
 conrtolsView : List (Html msg) -> Html msg
 conrtolsView children =
-    div [ css [ padding2 (px 4) (px 8), marginBottom <| px 8 ] ] children
+    Html.div [ Attr.css [ padding2 (px 4) (px 8), marginBottom <| px 8 ] ] children
 
 
 fontFamilyItems : FontList -> List { name : String, value : DropDownValue }
@@ -266,18 +266,18 @@ fontSizeItems =
 
 inputAreaView : List (Html msg) -> Html msg
 inputAreaView children =
-    div [ css [ maxWidth <| px 300, width <| pct 90, padding2 (px 4) (px 8) ] ] children
+    Html.div [ Attr.css [ maxWidth <| px 300, width <| pct 90, padding2 (px 4) (px 8) ] ] children
 
 
 nameView : List (Html msg) -> Html msg
 nameView children =
-    div [ css [ Text.sm, Font.fontBold, padding2 (px 1) (px 8) ] ] children
+    Html.div [ Attr.css [ Text.sm, Font.fontBold, padding2 (px 1) (px 8) ] ] children
 
 
 section : Maybe String -> Html Msg
 section title =
-    div
-        [ css
+    Html.div
+        [ Attr.css
             [ fontWeight <| int 400
             , margin4 zero zero (px 16) zero
             , if isNothing title then
@@ -292,7 +292,7 @@ section title =
                 Css.batch [ padding4 (px 16) zero zero (px 16) ]
             ]
         ]
-        [ div [ css [ Text.xl, Font.fontSemiBold ] ] [ text (title |> Maybe.withDefault "") ]
+        [ Html.div [ Attr.css [ Text.xl, Font.fontSemiBold ] ] [ Html.text (title |> Maybe.withDefault "") ]
         ]
 
 
@@ -306,8 +306,8 @@ view_ :
     }
     -> Html Msg
 view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList, isLoading } =
-    div
-        [ css
+    Html.div
+        [ Attr.css
             [ Breakpoint.style
                 [ Color.bgDefault
                 , Style.widthFull
@@ -329,7 +329,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
             [ section (Just "Basic")
             , conrtolsView
                 [ conrtolView
-                    [ nameView [ text "Font Family" ]
+                    [ nameView [ Html.text "Font Family" ]
                     , inputAreaView
                         [ if isLoading then
                             DropDownList.loadingView "Loading..."
@@ -348,7 +348,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         ]
                     ]
                 , conrtolView
-                    [ nameView [ text "Background color" ]
+                    [ nameView [ Html.text "Background color" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "background-color"
@@ -363,7 +363,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         ]
                     ]
                 , conrtolView
-                    [ nameView [ text "Save location" ]
+                    [ nameView [ Html.text "Save location" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "save-location"
@@ -392,7 +392,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         ]
                     ]
                 , conrtolRowView
-                    [ nameView [ text "Zoom Control" ]
+                    [ nameView [ Html.text "Zoom Control" ]
                     , Switch.view (Maybe.withDefault True settings.storyMap.zoomControl)
                         (\v ->
                             UpdateSettings
@@ -401,7 +401,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         )
                     ]
                 , conrtolRowView
-                    [ nameView [ text "Toolbar" ]
+                    [ nameView [ Html.text "Toolbar" ]
                     , Switch.view (Maybe.withDefault True settings.storyMap.toolbar)
                         (\v ->
                             UpdateSettings
@@ -415,7 +415,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
             [ section (Just "Editor")
             , conrtolsView
                 [ conrtolView
-                    [ nameView [ text "Font Size" ]
+                    [ nameView [ Html.text "Font Size" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "editor-font-size"
@@ -430,7 +430,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         ]
                     ]
                 , conrtolRowView
-                    [ nameView [ text "Show Line Number" ]
+                    [ nameView [ Html.text "Show Line Number" ]
                     , Switch.view (settings.editor |> defaultEditorSettings |> .showLineNumber)
                         (\v ->
                             UpdateSettings
@@ -439,7 +439,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         )
                     ]
                 , conrtolRowView
-                    [ nameView [ text "Word Wrap" ]
+                    [ nameView [ Html.text "Word Wrap" ]
                     , Switch.view (settings.editor |> defaultEditorSettings |> .wordWrap)
                         (\v ->
                             UpdateSettings
@@ -455,7 +455,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
             [ section (Just "Card Size")
             , conrtolsView
                 [ conrtolView
-                    [ nameView [ text "Card Width" ]
+                    [ nameView [ Html.text "Card Width" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "card-width"
@@ -470,7 +470,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         ]
                     ]
                 , conrtolView
-                    [ nameView [ text "Card Height" ]
+                    [ nameView [ Html.text "Card Height" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "card-height"
@@ -490,7 +490,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
             [ section (Just "Color")
             , conrtolsView
                 [ conrtolView
-                    [ nameView [ text "Background Color1" ]
+                    [ nameView [ Html.text "Background Color1" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "activity-background-color"
@@ -505,7 +505,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         ]
                     ]
                 , conrtolView
-                    [ nameView [ text "Foreground Color1" ]
+                    [ nameView [ Html.text "Foreground Color1" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "activity-foreground-color"
@@ -523,7 +523,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
             , section Nothing
             , conrtolsView
                 [ conrtolView
-                    [ nameView [ text "Background Color2" ]
+                    [ nameView [ Html.text "Background Color2" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "task-background-color"
@@ -538,7 +538,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         ]
                     ]
                 , conrtolView
-                    [ nameView [ text "Foreground Color2" ]
+                    [ nameView [ Html.text "Foreground Color2" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "task-foreground-color"
@@ -556,7 +556,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
             , section Nothing
             , conrtolsView
                 [ conrtolView
-                    [ nameView [ text "Background Color3" ]
+                    [ nameView [ Html.text "Background Color3" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "story-background-color"
@@ -571,7 +571,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         ]
                     ]
                 , conrtolView
-                    [ nameView [ text "Foreground Color3" ]
+                    [ nameView [ Html.text "Foreground Color3" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "story-foreground-color"
@@ -590,7 +590,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
             , section Nothing
             , conrtolsView
                 [ conrtolView
-                    [ nameView [ text "Line Color" ]
+                    [ nameView [ Html.text "Line Color" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "line-color"
@@ -605,7 +605,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         ]
                     ]
                 , conrtolView
-                    [ nameView [ text "Label Color" ]
+                    [ nameView [ Html.text "Label Color" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "label-color"
@@ -620,7 +620,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                         ]
                     ]
                 , conrtolView
-                    [ nameView [ text "Text Color" ]
+                    [ nameView [ Html.text "Text Color" ]
                     , inputAreaView
                         [ DropDownList.view ToggleDropDownList
                             "text-color"

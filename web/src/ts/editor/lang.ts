@@ -6,7 +6,7 @@ monaco.editor.defineTheme('default', {
   base: isDarkMode ? 'vs-dark' : 'vs',
   inherit: true,
   colors: {
-    'editor.background': '#273037',
+    'editor.background': isDarkMode ? '#273037' : '#FEFEFE',
   },
   rules: [
     {
@@ -28,7 +28,7 @@ monaco.editor.defineTheme('default', {
     },
     {
       token: 'indent3',
-      foreground: '#c4c0b9',
+      foreground: isDarkMode ? '#c4c0b9' : '#000000',
     },
     {
       token: 'attribute',

@@ -87,7 +87,7 @@ import File.Download as Download
 import File.Select as Select
 import Graphql.Object.GistItem exposing (diagram)
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes exposing (class, css, placeholder)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick, onInput, stopPropagationOn)
 import Html.Styled.Lazy as Lazy
 import Http
@@ -335,7 +335,7 @@ selectedItemStyle =
 sideMenu : Session -> DiagramList -> Bool -> Html Msg
 sideMenu session diagramList isOnline =
     Html.div
-        [ css
+        [ Attr.css
             [ Breakpoint.style [ display none ]
                 [ Breakpoint.large
                     [ TextStyle.base
@@ -351,50 +351,50 @@ sideMenu session diagramList isOnline =
         ]
         [ Html.div
             [ if isAllList diagramList then
-                css [ selectedItemStyle ]
+                Attr.css [ selectedItemStyle ]
 
               else
-                css [ itemStyle ]
+                Attr.css [ itemStyle ]
             , onClick GetDiagrams
             ]
             [ Html.text "All" ]
         , if Session.isSignedIn session && isOnline then
             Html.div
                 [ if isPublicList diagramList then
-                    css [ selectedItemStyle ]
+                    Attr.css [ selectedItemStyle ]
 
                   else
-                    css [ itemStyle ]
+                    Attr.css [ itemStyle ]
                 , onClick <| GetPublicDiagrams 1
                 ]
-                [ Icon.globe Color.iconColor 16, Html.div [ css [ Style.paddingSm ] ] [ Html.text "Public" ] ]
+                [ Icon.globe Color.iconColor 16, Html.div [ Attr.css [ Style.paddingSm ] ] [ Html.text "Public" ] ]
 
           else
             Empty.view
         , if Session.isSignedIn session && isOnline then
             Html.div
                 [ if isBookMarkList diagramList then
-                    css [ selectedItemStyle ]
+                    Attr.css [ selectedItemStyle ]
 
                   else
-                    css [ itemStyle ]
+                    Attr.css [ itemStyle ]
                 , onClick <| GetBookmarkDiagrams 1
                 ]
-                [ Icon.bookmark Color.iconColor 14, Html.div [ css [ Style.paddingSm ] ] [ Html.text "Bookmarks" ] ]
+                [ Icon.bookmark Color.iconColor 14, Html.div [ Attr.css [ Style.paddingSm ] ] [ Html.text "Bookmarks" ] ]
 
           else
             Empty.view
         , if Session.isGithubUser session && isOnline then
             Html.div
                 [ if isGistList diagramList then
-                    css [ selectedItemStyle ]
+                    Attr.css [ selectedItemStyle ]
 
                   else
-                    css [ itemStyle ]
+                    Attr.css [ itemStyle ]
                 , onClick <| GetGistDiagrams 1
                 ]
                 [ Icon.github Color.iconColor 14
-                , Html.div [ css [ Style.paddingSm ] ] [ Html.text "Gist" ]
+                , Html.div [ Attr.css [ Style.paddingSm ] ] [ Html.text "Gist" ]
                 ]
 
           else
@@ -405,7 +405,7 @@ sideMenu session diagramList isOnline =
 mainView : List (Html msg) -> Html msg
 mainView children =
     Html.div
-        [ css
+        [ Attr.css
             [ Breakpoint.style
                 [ Style.widthFull
                 , height <| calc (vh 100) minus (px 128)
@@ -544,9 +544,9 @@ diagramListView :
     -> Html Msg
 diagramListView props =
     Html.div
-        [ css [ Style.widthFull ] ]
+        [ Attr.css [ Style.widthFull ] ]
         [ Html.div
-            [ css
+            [ Attr.css
                 [ displayFlex
                 , alignItems center
                 , justifyContent end
@@ -554,14 +554,14 @@ diagramListView props =
                 , color <| hex <| Color.toString Color.white
                 ]
             ]
-            [ Html.div [ css [ displayFlex, alignItems center, Style.widthFull, position relative ] ]
+            [ Html.div [ Attr.css [ displayFlex, alignItems center, Style.widthFull, position relative ] ]
                 [ Html.div
-                    [ css [ position absolute, left <| px 3, top <| px 5 ]
+                    [ Attr.css [ position absolute, left <| px 3, top <| px 5 ]
                     ]
                     [ Icon.search (Color.toString Color.labelDefalut) 24 ]
                 , Html.input
-                    [ placeholder "Search"
-                    , css
+                    [ Attr.placeholder "Search"
+                    , Attr.css
                         [ Style.widthFull
                         , TextStyle.sm
                         , borderStyle none
@@ -578,19 +578,29 @@ diagramListView props =
                     []
                 ]
             , Html.div
-                [ css [ Style.button, marginLeft <| px 8 ]
+                [ Attr.css [ Style.button, marginLeft <| px 8 ]
                 , onClick Export
                 ]
-                [ Icon.cloudDownload Color.white 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ] ]
+                [ Icon.cloudDownload Color.white 24
+                , Html.span
+                    [ Attr.class "bottom-tooltip"
+                    ]
+                    [ Html.span [ Attr.class "text" ]
+                        [ Html.text <| Message.toolTipExport props.lang ]
+                    ]
+                ]
             , Html.div
-                [ css [ Style.button ]
+                [ Attr.css [ Style.button ]
                 , onClick Import
                 ]
-                [ Icon.cloudUpload Color.white 24, Html.span [ class "bottom-tooltip" ] [ Html.span [ class "text" ] [ Html.text <| Message.toolTipImport props.lang ] ] ]
+                [ Icon.cloudUpload Color.white 24
+                , Html.span [ Attr.class "bottom-tooltip" ]
+                    [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipImport props.lang ] ]
+                ]
             ]
-        , Html.div [ css [ overflowY auto, height <| calc (vh 100) minus (px 148) ] ]
+        , Html.div [ Attr.css [ overflowY auto, height <| calc (vh 100) minus (px 148) ] ]
             [ Html.div
-                [ css
+                [ Attr.css
                     [ Breakpoint.style
                         [ Style.full
                         , ColorStyle.bgDefault
@@ -625,9 +635,9 @@ diagramListView props =
                         (\d -> Lazy.lazy2 diagramView props.timeZone d)
                 )
             , if props.hasMorePage then
-                Html.div [ css [ Style.widthFull, Style.flexCenter ] ]
+                Html.div [ Attr.css [ Style.widthFull, Style.flexCenter ] ]
                     [ Html.div
-                        [ css [ Style.button, ColorStyle.bgActivity, textAlign center, Style.mSm ]
+                        [ Attr.css [ Style.button, ColorStyle.bgActivity, textAlign center, Style.mSm ]
                         , onClick <| LoadNextPage props.diagramList <| props.pageNo + 1
                         ]
                         [ Html.text "Load more" ]
@@ -642,23 +652,23 @@ diagramListView props =
 
 cloudIconView : List (Html msg) -> Html msg
 cloudIconView children =
-    Html.div [ css [ display block, position absolute, top <| px 5, right <| px 32 ] ] children
+    Html.div [ Attr.css [ display block, position absolute, top <| px 5, right <| px 32 ] ] children
 
 
 publicIconView : List (Html msg) -> Html msg
 publicIconView children =
-    Html.div [ css [ display block, position absolute, top <| px 5, right <| px 8 ] ] children
+    Html.div [ Attr.css [ display block, position absolute, top <| px 5, right <| px 8 ] ] children
 
 
 bookmarkIconView : DiagramItem -> List (Html Msg) -> Html Msg
 bookmarkIconView diagram children =
-    Html.div [ css [ display block, position absolute, bottom <| px 40, right <| px 8 ], stopPropagationOn "click" (D.succeed ( Bookmark diagram, True )) ] children
+    Html.div [ Attr.css [ display block, position absolute, bottom <| px 40, right <| px 8 ], stopPropagationOn "click" (D.succeed ( Bookmark diagram, True )) ] children
 
 
 diagramView : Zone -> DiagramItem -> Html Msg
 diagramView timezone diagram =
     Html.div
-        [ css
+        [ Attr.css
             [ displayFlex
             , alignItems end
             , justifyContent end
@@ -694,7 +704,7 @@ diagramView timezone diagram =
         , Attributes.dataTest "diagram-list-item"
         ]
         [ Html.div
-            [ css
+            [ Attr.css
                 [ TextStyle.sm
                 , Style.widthFull
                 , textOverflow ellipsis
@@ -707,11 +717,11 @@ diagramView timezone diagram =
                 ]
             ]
             [ Html.div
-                [ css [ overflow hidden, textOverflow ellipsis, TextStyle.base, FontStyle.fontSemiBold ] ]
+                [ Attr.css [ overflow hidden, textOverflow ellipsis, TextStyle.base, FontStyle.fontSemiBold ] ]
                 [ Html.text (Title.toString diagram.title) ]
             , Html.div
-                [ css [ displayFlex, alignItems center, justifyContent spaceBetween ] ]
-                [ Html.div [ css [ TextStyle.xs, display block, ColorStyle.textDark ] ] [ Html.text (DateUtils.millisToString timezone diagram.updatedAt) ] ]
+                [ Attr.css [ displayFlex, alignItems center, justifyContent spaceBetween ] ]
+                [ Html.div [ Attr.css [ TextStyle.xs, display block, ColorStyle.textDark ] ] [ Html.text (DateUtils.millisToString timezone diagram.updatedAt) ] ]
             ]
         , case diagram.location of
             Just DiagramLocation.Gist ->
@@ -732,7 +742,7 @@ diagramView timezone diagram =
 
           else
             Html.div
-                [ css
+                [ Attr.css
                     [ bottom <| px -4
                     , right <| px -1
                     , Style.button
@@ -758,7 +768,7 @@ errorView : Http.Error -> Html Msg
 errorView e =
     mainView
         [ Html.div
-            [ css
+            [ Attr.css
                 [ Style.flexCenter
                 , Style.heightFull
                 , TextStyle.xl2
@@ -766,7 +776,7 @@ errorView e =
                 , color <| hex <| Color.toString Color.labelDefalut
                 ]
             ]
-            [ Html.div [ css [ Style.mbSm ] ]
+            [ Html.div [ Attr.css [ Style.mbSm ] ]
                 [ Html.text ("Failed " ++ Utils.httpErrorToString e)
                 ]
             ]

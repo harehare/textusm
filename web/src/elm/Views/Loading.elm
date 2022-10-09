@@ -2,7 +2,7 @@ module Views.Loading exposing (view)
 
 import Css exposing (scale, transform)
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes as Attr
 import Models.Color as Color
 import Svg.Styled as Svg
 import Svg.Styled.Attributes as SvgAttr
@@ -10,7 +10,7 @@ import Svg.Styled.Attributes as SvgAttr
 
 view : Html msg
 view =
-    Html.div [ css [ transform <| scale 0.2 ] ]
+    Html.div [ Attr.css [ transform <| scale 0.2 ] ]
         [ Svg.svg
             [ SvgAttr.viewBox "0 0 320 320"
             , SvgAttr.width "320"

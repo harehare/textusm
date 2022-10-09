@@ -2,7 +2,7 @@ module Views.SplitWindow exposing (Props, view)
 
 import Css exposing (absolute, alignItems, backgroundColor, borderBottomRightRadius, borderTopRightRadius, calc, center, colResize, cursor, display, displayFlex, height, hex, int, minus, none, plus, pointer, position, px, relative, right, top, vw, width, zIndex)
 import Html.Styled as Html exposing (Attribute, Html)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Events
 import Json.Decode as D
 import Models.Color as Color
@@ -44,31 +44,31 @@ view { background, window, onToggleEditor, onResize } left right =
     in
     if Window.isFullscreen window then
         Html.div
-            [ css [ displayFlex, backgroundColor <| hex background ] ]
-            [ Html.div [ css [ display none ] ] [ left ]
-            , Html.div [ css [ Style.fullScreen ] ] [ right ]
+            [ Attr.css [ displayFlex, backgroundColor <| hex background ] ]
+            [ Html.div [ Attr.css [ display none ] ] [ left ]
+            , Html.div [ Attr.css [ Style.fullScreen ] ] [ right ]
             ]
 
     else
         Html.div
-            [ css [ displayFlex ] ]
+            [ Attr.css [ displayFlex ] ]
             [ Html.div
-                [ css [ width leftPos, Style.hContent, Color.bgMain, position relative ] ]
+                [ Attr.css [ width leftPos, Style.hContent, Color.bgMain, position relative ] ]
                 [ left, toggleEditorButton window onToggleEditor ]
             , Html.div
-                [ css [ Color.bgMain, width <| px 20, cursor colResize ]
+                [ Attr.css [ Color.bgMain, width <| px 20, cursor colResize ]
                 , onStartWindowResize onResize
                 ]
                 []
             , Html.div
-                [ css [ width rightPos, Style.hContent, backgroundColor <| hex background ] ]
+                [ Attr.css [ width rightPos, Style.hContent, backgroundColor <| hex background ] ]
                 [ right ]
             ]
 
 
 hideEditorButton : msg -> Html msg
 hideEditorButton m =
-    Html.div [ css [ Style.full, displayFlex, alignItems center ], Events.onClick m ] [ Icon.angleLeft Color.white 12 ]
+    Html.div [ Attr.css [ Style.full, displayFlex, alignItems center ], Events.onClick m ] [ Icon.angleLeft Color.white 12 ]
 
 
 onStartWindowResize : (Int -> msg) -> Attribute msg
@@ -83,13 +83,13 @@ pageX =
 
 showEditorButton : msg -> Html msg
 showEditorButton m =
-    Html.div [ css [ Style.full, displayFlex, alignItems center ], Events.onClick m ] [ Icon.angleRight Color.white 12 ]
+    Html.div [ Attr.css [ Style.full, displayFlex, alignItems center ], Events.onClick m ] [ Icon.angleRight Color.white 12 ]
 
 
 toggleEditorButton : Window -> (Window -> msg) -> Html msg
 toggleEditorButton window onToggleEditor =
     Html.div
-        [ css
+        [ Attr.css
             [ position absolute
             , zIndex <| int 50
             , cursor pointer

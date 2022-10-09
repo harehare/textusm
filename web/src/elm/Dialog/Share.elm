@@ -39,8 +39,8 @@ import Css
         )
 import Env
 import Events
-import Html.Styled exposing (Html, div, input, text, textarea)
-import Html.Styled.Attributes as Attr exposing (css, id, maxlength, placeholder, readonly, type_, value)
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick, onFocus, onInput)
 import Html.Styled.Lazy as Lazy
 import Maybe.Extra as MaybeEx
@@ -666,8 +666,8 @@ update msg model =
 
 copyButton : CopyState -> Msg -> Html Msg
 copyButton copy msg =
-    div
-        [ css
+    Html.div
+        [ Attr.css
             [ Style.flexCenter
             , cursor pointer
             , position absolute
@@ -693,15 +693,15 @@ copyButton copy msg =
                 Spinner.small
 
             Copied ->
-                text "Copied"
+                Html.text "Copied"
         ]
 
 
 view : Model -> Html Msg
 view model =
-    div [ css [ Style.dialogBackdrop ] ]
-        [ div
-            [ css
+    Html.div [ Attr.css [ Style.dialogBackdrop ] ]
+        [ Html.div
+            [ Attr.css
                 [ Breakpoint.style
                     [ Style.shadowSm
                     , top <| pct 50
@@ -718,43 +718,43 @@ view model =
                     [ Breakpoint.small [ Style.widthAuto, Style.heightAuto, Style.rounded ] ]
                 ]
             ]
-            [ div
-                [ css [ displayFlex, alignItems center, justifyContent start, Font.fontSemiBold ]
+            [ Html.div
+                [ Attr.css [ displayFlex, alignItems center, justifyContent start, Font.fontSemiBold ]
                 ]
-                [ div [ css [ Style.widthFull ] ]
-                    [ div []
-                        [ div [ css [ Style.label, padding3 (px 8) (px 8) (px 16) ] ] [ text "Link to share" ]
-                        , div [ css [ Style.flexHCenter, Style.paddingSm ] ]
-                            [ div [ css [ Text.sm, Style.mrSm ] ] [ text "Expire in" ]
-                            , input
-                                [ css [ Style.inputLight, Text.sm, Style.paddingXs ]
-                                , type_ "date"
+                [ Html.div [ Attr.css [ Style.widthFull ] ]
+                    [ Html.div []
+                        [ Html.div [ Attr.css [ Style.label, padding3 (px 8) (px 8) (px 16) ] ] [ Html.text "Link to share" ]
+                        , Html.div [ Attr.css [ Style.flexHCenter, Style.paddingSm ] ]
+                            [ Html.div [ Attr.css [ Text.sm, Style.mrSm ] ] [ Html.text "Expire in" ]
+                            , Html.input
+                                [ Attr.css [ Style.inputLight, Text.sm, Style.paddingXs ]
+                                , Attr.type_ "date"
                                 , Attr.min <| DateUtils.millisToDateString model.timeZone model.now
-                                , value <| model.expireDate
+                                , Attr.value <| model.expireDate
                                 , Events.onChangeStyled DateChange
                                 ]
                                 []
-                            , input
-                                [ css [ Style.inputLight, Text.sm, Style.paddingXs ]
-                                , type_ "time"
-                                , value <| model.expireTime
+                            , Html.input
+                                [ Attr.css [ Style.inputLight, Text.sm, Style.paddingXs ]
+                                , Attr.type_ "time"
+                                , Attr.value <| model.expireTime
                                 , Events.onChangeStyled TimeChange
                                 ]
                                 []
                             ]
-                        , div [ css [ Style.flexSpace, Style.paddingSm ] ]
-                            [ div [ css [ Text.sm ] ] [ text "Password protection" ]
+                        , Html.div [ Attr.css [ Style.flexSpace, Style.paddingSm ] ]
+                            [ Html.div [ Attr.css [ Text.sm ] ] [ Html.text "Password protection" ]
                             , Switch.view (MaybeEx.isJust model.password) UsePassword
                             ]
                         , case model.password of
                             Just p ->
-                                div [ css [ Style.paddingSm ] ]
-                                    [ input
-                                        [ css [ Style.inputLight, Text.sm, color <| hex "#555555", width <| px 305 ]
-                                        , type_ "password"
-                                        , placeholder "Password"
-                                        , value p
-                                        , maxlength 72
+                                Html.div [ Attr.css [ Style.paddingSm ] ]
+                                    [ Html.input
+                                        [ Attr.css [ Style.inputLight, Text.sm, color <| hex "#555555", width <| px 305 ]
+                                        , Attr.type_ "password"
+                                        , Attr.placeholder "Password"
+                                        , Attr.value p
+                                        , Attr.maxlength 72
                                         , onInput EditPassword
                                         ]
                                         []
@@ -762,15 +762,15 @@ view model =
 
                             Nothing ->
                                 Empty.view
-                        , div [ css [ Style.flexSpace, Style.paddingSm ] ]
-                            [ div [ css [ Text.sm ] ] [ text "Limit access by ip address" ]
+                        , Html.div [ Attr.css [ Style.flexSpace, Style.paddingSm ] ]
+                            [ Html.div [ Attr.css [ Text.sm ] ] [ Html.text "Limit access by ip address" ]
                             , Switch.view (MaybeEx.isJust model.ip.input) UseLimitByIP
                             ]
                         , case model.ip.input of
                             Just i ->
-                                div [ css [ Style.paddingSm ] ]
-                                    [ textarea
-                                        [ css
+                                Html.div [ Attr.css [ Style.paddingSm ] ]
+                                    [ Html.textarea
+                                        [ Attr.css
                                             [ Style.inputLight
                                             , Text.sm
                                             , resize none
@@ -783,14 +783,14 @@ view model =
                                               else
                                                 borderStyle none
                                             ]
-                                        , placeholder "127.0.0.1"
-                                        , maxlength 150
+                                        , Attr.placeholder "127.0.0.1"
+                                        , Attr.maxlength 150
                                         , onInput EditIP
                                         ]
-                                        [ text i ]
+                                        [ Html.text i ]
                                     , if model.ip.error then
-                                        div [ css [ Style.widthFull, Text.sm, Font.fontBold, textAlign right, Color.textError ] ]
-                                            [ text "Invalid ip address entered" ]
+                                        Html.div [ Attr.css [ Style.widthFull, Text.sm, Font.fontBold, textAlign right, Color.textError ] ]
+                                            [ Html.text "Invalid ip address entered" ]
 
                                       else
                                         Empty.view
@@ -798,15 +798,15 @@ view model =
 
                             Nothing ->
                                 Empty.view
-                        , div [ css [ Style.flexSpace, Style.paddingSm ] ]
-                            [ div [ css [ Text.sm ] ] [ text "Limit access by mail address" ]
+                        , Html.div [ Attr.css [ Style.flexSpace, Style.paddingSm ] ]
+                            [ Html.div [ Attr.css [ Text.sm ] ] [ Html.text "Limit access by mail address" ]
                             , Switch.view (MaybeEx.isJust model.email.input) UseLimitByEmail
                             ]
                         , case model.email.input of
                             Just m ->
-                                div [ css [ Style.paddingSm ] ]
-                                    [ textarea
-                                        [ css
+                                Html.div [ Attr.css [ Style.paddingSm ] ]
+                                    [ Html.textarea
+                                        [ Attr.css
                                             [ Style.inputLight
                                             , Text.sm
                                             , resize none
@@ -819,14 +819,14 @@ view model =
                                               else
                                                 borderStyle none
                                             ]
-                                        , placeholder "example@textusm.com"
-                                        , maxlength 150
+                                        , Attr.placeholder "example@textusm.com"
+                                        , Attr.maxlength 150
                                         , onInput EditEmail
                                         ]
-                                        [ text m ]
+                                        [ Html.text m ]
                                     , if model.email.error then
-                                        div [ css [ Style.widthFull, Text.sm, Font.fontBold, textAlign right, Color.textError ] ]
-                                            [ text "Invalid mail address entered" ]
+                                        Html.div [ Attr.css [ Style.widthFull, Text.sm, Font.fontBold, textAlign right, Color.textError ] ]
+                                            [ Html.text "Invalid mail address entered" ]
 
                                       else
                                         Empty.view
@@ -834,17 +834,17 @@ view model =
 
                             Nothing ->
                                 Empty.view
-                        , div [ css [ position relative, Style.paddingSm ] ]
-                            [ input
-                                [ css
+                        , Html.div [ Attr.css [ position relative, Style.paddingSm ] ]
+                            [ Html.input
+                                [ Attr.css
                                     [ Style.inputLight
                                     , Text.sm
                                     , color <| hex "#555555"
                                     , width <| px 305
                                     ]
-                                , readonly True
-                                , value <| sharUrl model.token model.diagramType
-                                , id "share-url"
+                                , Attr.readonly True
+                                , Attr.value <| sharUrl model.token model.diagramType
+                                , Attr.id "share-url"
                                 , onClick <| SelectAll "share-url"
                                 , onFocus UrlCopy
                                 ]
@@ -852,52 +852,52 @@ view model =
                             , Lazy.lazy2 copyButton model.urlCopyState UrlCopy
                             ]
                         ]
-                    , div [ css [ paddingTop <| px 24 ] ]
-                        [ div [ css [ Style.label, displayFlex, alignItems center, padding3 (px 8) (px 8) (px 16) ] ]
-                            [ text "Embed"
+                    , Html.div [ Attr.css [ paddingTop <| px 24 ] ]
+                        [ Html.div [ Attr.css [ Style.label, displayFlex, alignItems center, padding3 (px 8) (px 8) (px 16) ] ]
+                            [ Html.text "Embed"
                             ]
-                        , div [ css [ displayFlex, alignItems center, Style.paddingSm ] ]
-                            [ div [ css [ Text.sm, Style.mrSm ] ] [ text "Embed size" ]
-                            , input
-                                [ css
+                        , Html.div [ Attr.css [ displayFlex, alignItems center, Style.paddingSm ] ]
+                            [ Html.div [ Attr.css [ Text.sm, Style.mrSm ] ] [ Html.text "Embed size" ]
+                            , Html.input
+                                [ Attr.css
                                     [ Style.inputLight
                                     , Text.sm
                                     , color <| hex "#555555"
                                     , width <| px 60
                                     , height <| px 32
                                     ]
-                                , type_ "number"
-                                , value <| String.fromInt (Size.getWidth model.embedSize)
+                                , Attr.type_ "number"
+                                , Attr.value <| String.fromInt (Size.getWidth model.embedSize)
                                 , onInput ChangeEmbedWidth
                                 ]
                                 []
-                            , div [] [ text "x" ]
-                            , input
-                                [ css
+                            , Html.div [] [ Html.text "x" ]
+                            , Html.input
+                                [ Attr.css
                                     [ Style.inputLight
                                     , Text.sm
                                     , color <| hex "#555555"
                                     , width <| px 60
                                     , height <| px 32
                                     ]
-                                , type_ "number"
-                                , value <| String.fromInt (Size.getHeight model.embedSize)
+                                , Attr.type_ "number"
+                                , Attr.value <| String.fromInt (Size.getHeight model.embedSize)
                                 , onInput ChangeEmbedHeight
                                 ]
                                 []
-                            , div [] [ text "px" ]
+                            , Html.div [] [ Html.text "px" ]
                             ]
-                        , div [ css [ position relative, Style.paddingSm ] ]
-                            [ input
-                                [ css
+                        , Html.div [ Attr.css [ position relative, Style.paddingSm ] ]
+                            [ Html.input
+                                [ Attr.css
                                     [ Style.inputLight
                                     , Text.sm
                                     , color <| hex "#555555"
                                     , width <| px 305
                                     ]
-                                , readonly True
-                                , value <| embedUrl { token = model.token, diagramType = model.diagramType, title = model.title, embedSize = model.embedSize }
-                                , id "embed"
+                                , Attr.readonly True
+                                , Attr.value <| embedUrl { token = model.token, diagramType = model.diagramType, title = model.title, embedSize = model.embedSize }
+                                , Attr.id "embed"
                                 , onClick <| SelectAll "embed"
                                 , onFocus EmbedCopy
                                 ]
@@ -907,8 +907,8 @@ view model =
                         ]
                     ]
                 ]
-            , div
-                [ css [ position absolute, cursor pointer, top <| rem 1, right <| rem 1 ]
+            , Html.div
+                [ Attr.css [ position absolute, cursor pointer, top <| rem 1, right <| rem 1 ]
                 , onClick Close
                 ]
                 [ Icon.times Color.white 24 ]

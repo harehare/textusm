@@ -26,7 +26,7 @@ import Css
         , zero
         )
 import Html.Styled exposing (Html, div, input, label)
-import Html.Styled.Attributes as Attr exposing (css, type_)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events as E
 import Style.Color as ColorStyle
 import Style.Style as Style
@@ -34,10 +34,10 @@ import Style.Style as Style
 
 view : Bool -> (Bool -> msg) -> Html msg
 view check onCheck =
-    div [ css [ Style.flexCenter, position relative ] ]
+    div [ Attr.css [ Style.flexCenter, position relative ] ]
         [ input
-            [ type_ "checkbox"
-            , css
+            [ Attr.type_ "checkbox"
+            , Attr.css
                 [ position absolute
                 , left zero
                 , top zero
@@ -51,7 +51,7 @@ view check onCheck =
             ]
             []
         , label
-            [ css
+            [ Attr.css
                 [ width <| px 32
                 , height <| px 16
                 , backgroundColor <| ColorStyle.disabledColor

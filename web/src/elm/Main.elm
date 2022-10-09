@@ -21,8 +21,8 @@ import Dialog.Input as InputDialog
 import Dialog.Share as Share
 import Env
 import File.Download as Download
-import Html.Styled as Html exposing (Html, div, img, main_, text)
-import Html.Styled.Attributes exposing (alt, attribute, css, id)
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events as E
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
@@ -260,29 +260,29 @@ editor model =
         editorSettings =
             defaultEditorSettings model.settingsModel.settings.editor
     in
-    div [ id "editor", css [ Style.full, Style.paddingSm ] ]
+    Html.div [ Attr.id "editor", Attr.css [ Style.full, Style.paddingSm ] ]
         [ Html.node "monaco-editor"
-            [ attribute "value" <| Text.toString model.diagramModel.text
-            , attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
-            , attribute "wordWrap" <|
+            [ Attr.attribute "value" <| Text.toString model.diagramModel.text
+            , Attr.attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
+            , Attr.attribute "wordWrap" <|
                 if editorSettings.wordWrap then
                     "true"
 
                 else
                     "false"
-            , attribute "showLineNumber" <|
+            , Attr.attribute "showLineNumber" <|
                 if editorSettings.showLineNumber then
                     "true"
 
                 else
                     "false"
-            , attribute "changed" <|
+            , Attr.attribute "changed" <|
                 if Text.isChanged model.diagramModel.text then
                     "true"
 
                 else
                     "false"
-            , attribute "diagramType" <| DiagramType.toTypeString model.currentDiagram.diagram
+            , Attr.attribute "diagramType" <| DiagramType.toTypeString model.currentDiagram.diagram
             , Attributes.dataTest "editor"
             ]
             []
@@ -1412,8 +1412,8 @@ updateShare m msg =
 
 view : Model -> Html Msg
 view model =
-    main_
-        [ css [ position relative, Style.widthScreen ]
+    Html.main_
+        [ Attr.css [ position relative, Style.widthScreen ]
         , E.onClick CloseMenu
         ]
         [ GlobalStyle.style
@@ -1435,8 +1435,8 @@ view model =
         , Lazy.lazy Notification.view model.notification
         , Lazy.lazy Snackbar.view model.snackbar
         , Lazy.lazy showProgress model.progress
-        , div
-            [ css
+        , Html.div
+            [ Attr.css
                 [ displayFlex
                 , overflow hidden
                 , position relative
@@ -1488,8 +1488,8 @@ view model =
                             case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
                                 Just jwt ->
                                     if jwt.checkEmail && Session.isGuest model.session then
-                                        div
-                                            [ css
+                                        Html.div
+                                            [ Attr.css
                                                 [ Style.flexCenter
                                                 , TextStyle.xl
                                                 , FontStyle.fontSemiBold
@@ -1499,17 +1499,17 @@ view model =
                                                 , height <| calc (vh 100) minus (px 40)
                                                 ]
                                             ]
-                                            [ img
+                                            [ Html.img
                                                 [ Asset.src Asset.logo
-                                                , css [ width <| px 32 ]
-                                                , alt "NOT FOUND"
+                                                , Attr.css [ width <| px 32 ]
+                                                , Attr.alt "NOT FOUND"
                                                 ]
                                                 []
-                                            , div [ css [ Style.mSm ] ] [ text "Sign in required" ]
+                                            , Html.div [ Attr.css [ Style.mSm ] ] [ Html.text "Sign in required" ]
                                             ]
 
                                     else
-                                        div [ css [ Style.full, backgroundColor <| hex model.settingsModel.settings.storyMap.backgroundColor ] ]
+                                        Html.div [ Attr.css [ Style.full, backgroundColor <| hex model.settingsModel.settings.storyMap.backgroundColor ] ]
                                             [ Lazy.lazy Diagram.view model.diagramModel
                                                 |> Html.map UpdateDiagram
                                             ]
@@ -1526,8 +1526,8 @@ view model =
                                             SwitchWindow
                                             model.diagramModel.settings.backgroundColor
                                             model.window
-                                            (div
-                                                [ css
+                                            (Html.div
+                                                [ Attr.css
                                                     [ Breakpoint.style
                                                         [ Style.hMain
                                                         , Style.widthFull
@@ -1547,8 +1547,8 @@ view model =
                                             , onToggleEditor = ShowEditor
                                             , onResize = HandleStartWindowResize
                                             }
-                                            (div
-                                                [ css
+                                            (Html.div
+                                                [ Attr.css
                                                     [ Breakpoint.style
                                                         [ Style.hMain
                                                         , Style.widthFull

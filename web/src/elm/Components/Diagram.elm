@@ -40,8 +40,8 @@ import Css.Global as Global exposing (global)
 import Events
 import File
 import Html.Events.Extra.Touch as Touch
-import Html.Styled as Html exposing (Html, div)
-import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Event
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
@@ -591,9 +591,9 @@ view model =
                     (Size.getWidth model.size)
                     |> round
     in
-    div
+    Html.div
         [ Attr.id "usm-area"
-        , css
+        , Attr.css
             [ position relative
             , Style.heightFull
             , case model.moveState of
@@ -681,8 +681,8 @@ view model =
             }
         , Lazy.lazy4 svgView model centerPosition ( svgWidth, svgHeight ) mainSvg
         , if SearchModel.isSearch model.search then
-            div
-                [ css
+            Html.div
+                [ Attr.css
                     [ position absolute
                     , top <| px 62
                     , right <| px 32
@@ -1397,9 +1397,9 @@ zoomControl isFullscreen scale =
         s =
             round <| scale * 100.0
     in
-    div
+    Html.div
         [ Attr.id "zoom-control"
-        , css
+        , Attr.css
             [ position absolute
             , alignItems center
             , displayFlex
@@ -1413,8 +1413,8 @@ zoomControl isFullscreen scale =
             , border3 (px 1) solid (rgba 0 0 0 0.1)
             ]
         ]
-        [ div
-            [ css
+        [ Html.div
+            [ Attr.css
                 [ width <| px 24
                 , height <| px 24
                 , cursor pointer
@@ -1425,8 +1425,8 @@ zoomControl isFullscreen scale =
             ]
             [ Icon.search (Color.toString Color.disabledIconColor) 18
             ]
-        , div
-            [ css
+        , Html.div
+            [ Attr.css
                 [ width <| px 24
                 , height <| px 24
                 , cursor pointer
@@ -1437,8 +1437,8 @@ zoomControl isFullscreen scale =
             ]
             [ Icon.expandAlt 14
             ]
-        , div
-            [ css
+        , Html.div
+            [ Attr.css
                 [ width <| px 24
                 , height <| px 24
                 , cursor pointer
@@ -1449,8 +1449,8 @@ zoomControl isFullscreen scale =
             ]
             [ Icon.map 14
             ]
-        , div
-            [ css
+        , Html.div
+            [ Attr.css
                 [ width <| px 24
                 , height <| px 24
                 , cursor pointer
@@ -1459,8 +1459,8 @@ zoomControl isFullscreen scale =
             ]
             [ Icon.remove 24
             ]
-        , div
-            [ css
+        , Html.div
+            [ Attr.css
                 [ Css.fontSize <| rem 0.7
                 , color <| hex <| Color.toString Color.labelDefalut
                 , cursor pointer
@@ -1470,8 +1470,8 @@ zoomControl isFullscreen scale =
             ]
             [ Html.text (String.fromInt s ++ "%")
             ]
-        , div
-            [ css
+        , Html.div
+            [ Attr.css
                 [ width <| px 24
                 , height <| px 24
                 , cursor pointer
@@ -1480,8 +1480,8 @@ zoomControl isFullscreen scale =
             ]
             [ Icon.add 24
             ]
-        , div
-            [ css
+        , Html.div
+            [ Attr.css
                 [ width <| px 24
                 , height <| px 24
                 , cursor pointer

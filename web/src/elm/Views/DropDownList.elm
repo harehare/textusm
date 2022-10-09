@@ -47,7 +47,7 @@ import Css
         )
 import Events
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Events
 import List.Extra as ListEx
 import Style.Color as Color
@@ -86,7 +86,7 @@ view onToggleDropDownList dropDownId currentId onChange items selectedValue =
                 |> Maybe.withDefault { name = "", value = stringValue selectedValue }
     in
     Html.div
-        [ css
+        [ Attr.css
             [ Style.widthFull
             , Text.sm
             , position relative
@@ -109,7 +109,7 @@ view onToggleDropDownList dropDownId currentId onChange items selectedValue =
 loadingView : String -> Html msg
 loadingView text =
     Html.div
-        [ css
+        [ Attr.css
             [ Style.widthFull
             , Text.sm
             , position relative
@@ -127,7 +127,7 @@ loadingView text =
 dropDownItemView : DropDownItem -> (String -> msg) -> Html msg
 dropDownItemView item onChange =
     Html.div
-        [ css
+        [ Attr.css
             [ Style.widthFull
             , display block
             , Style.paddingSm
@@ -142,7 +142,7 @@ dropDownItemView item onChange =
         [ case getColor item.value of
             Just rgb ->
                 Html.span
-                    [ css
+                    [ Attr.css
                         [ padding2 (px 0) (px 12)
                         , marginRight <| px 5
                         , backgroundColor <| hex rgb
@@ -153,14 +153,14 @@ dropDownItemView item onChange =
 
             Nothing ->
                 Html.span [] []
-        , Html.span [ css [ Style.paddingSm ] ] [ Html.text item.name ]
+        , Html.span [ Attr.css [ Style.paddingSm ] ] [ Html.text item.name ]
         ]
 
 
 dropdownView : List DropDownItem -> (String -> msg) -> Html msg
 dropdownView items onChange =
     Html.div
-        [ css
+        [ Attr.css
             [ position absolute
             , Color.bgTransparent
             , Style.m0
@@ -195,7 +195,7 @@ getColor value =
 itemView : DropDownItem -> msg -> Html msg
 itemView item onActive =
     Html.div
-        [ css
+        [ Attr.css
             [ display block
             , Color.bgLight
             , position relative
@@ -218,7 +218,7 @@ itemView item onActive =
         [ case getColor item.value of
             Just rgb ->
                 Html.span
-                    [ css
+                    [ Attr.css
                         [ padding2 (px 0) (px 12)
                         , marginRight <| px 5
                         , backgroundColor <| hex rgb
@@ -229,14 +229,14 @@ itemView item onActive =
 
             Nothing ->
                 Html.span [] []
-        , Html.span [ css [ Style.paddingSm ] ] [ Html.text item.name ]
+        , Html.span [ Attr.css [ Style.paddingSm ] ] [ Html.text item.name ]
         ]
 
 
 textItemView : String -> Html msg
 textItemView text =
     Html.div
-        [ css
+        [ Attr.css
             [ display block
             , Color.bgLight
             , position relative
@@ -255,7 +255,7 @@ textItemView text =
                 ]
             ]
         ]
-        [ Html.span [ css [ Style.paddingSm ] ] [ Html.text text ]
+        [ Html.span [ Attr.css [ Style.paddingSm ] ] [ Html.text text ]
         ]
 
 

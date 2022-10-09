@@ -26,7 +26,7 @@ import Css
         , zIndex
         )
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Events
 import Models.Snackbar as Snackbar
 import Style.Breakpoint as Breakpoint
@@ -42,7 +42,7 @@ view snackbar =
     case snackbar of
         Snackbar.Show model ->
             Html.div
-                [ css
+                [ Attr.css
                     [ Breakpoint.style
                         [ position fixed
                         , displayFlex
@@ -71,9 +71,9 @@ view snackbar =
                         ]
                     ]
                 ]
-                [ Html.div [ css [ Style.padding3 ] ] [ Html.text model.message ]
+                [ Html.div [ Attr.css [ Style.padding3 ] ] [ Html.text model.message ]
                 , Html.div
-                    [ css [ Style.padding3, Color.textAccent, cursor pointer, Font.fontBold ]
+                    [ Attr.css [ Style.padding3, Color.textAccent, cursor pointer, Font.fontBold ]
                     , Events.onClick model.action
                     ]
                     [ Html.text model.text ]

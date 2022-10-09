@@ -12,8 +12,8 @@ import Css
         , vh
         , width
         )
-import Html.Styled exposing (Html, div, img, text)
-import Html.Styled.Attributes exposing (alt, css)
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr
 import Style.Color as Color
 import Style.Font as Font
 import Style.Style as Style
@@ -22,8 +22,8 @@ import Style.Text as Text
 
 view : Html msg
 view =
-    div
-        [ css
+    Html.div
+        [ Attr.css
             [ Style.flexCenter
             , Text.xl
             , Font.fontSemiBold
@@ -33,6 +33,6 @@ view =
             , margin <| px 8
             ]
         ]
-        [ img [ Asset.src Asset.logo, css [ width <| px 32 ], alt "Not found" ] []
-        , div [ css [ padding <| px 8 ] ] [ text "Not found" ]
+        [ Html.img [ Asset.src Asset.logo, Attr.css [ width <| px 32 ], Attr.alt "Not found" ] []
+        , Html.div [ Attr.css [ padding <| px 8 ] ] [ Html.text "Not found" ]
         ]
