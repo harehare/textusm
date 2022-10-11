@@ -42,7 +42,7 @@
     "css-loader": "^6.7.1",
     "css-minimizer-webpack-plugin": "^4.2.1",
     "cssnano-preset-advanced": "^5.3.8",
-    "cypress": "^10.9.0",
+    "cypress": "^10.10.0",
     "devcert": "^1.2.2",
     "elm": "^0.19.1-5",
     "elm-constants": "^1.0.0",
