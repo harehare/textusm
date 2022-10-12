@@ -15,7 +15,7 @@ import Css
         , solid
         )
 import Html.Styled as Html exposing (Html, div)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Lazy as Lazy
 import Models.Model exposing (Model, Msg(..))
 import Style.Color as Color
@@ -26,7 +26,7 @@ import Views.Logo as Logo
 view : Model -> Html Msg
 view model =
     div
-        [ css
+        [ Attr.css
             [ border3 (px 1) solid Color.darkTextColor
             , backgroundColor <| hex model.settingsModel.settings.storyMap.backgroundColor
             , Style.full
@@ -35,5 +35,5 @@ view model =
         ]
         [ Lazy.lazy Diagram.view model.diagramModel
             |> Html.map UpdateDiagram
-        , div [ css [ position absolute, bottom <| px 8, right <| px 8 ] ] [ Logo.view ]
+        , div [ Attr.css [ position absolute, bottom <| px 8, right <| px 8 ] ] [ Logo.view ]
         ]

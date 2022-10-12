@@ -33,7 +33,7 @@ import Models.Size exposing (Size, getHeight, getWidth)
 import State exposing (Step(..))
 import String
 import Svg.Styled as Svg exposing (Svg)
-import Svg.Styled.Attributes exposing (fill, fontFamily, fontSize, fontWeight, height, stroke, strokeWidth, width, x, y)
+import Svg.Styled.Attributes as SvgAttr
 import Utils.Utils as Utils
 import Views.Diagram.Path as Path
 import Views.Empty as Empty
@@ -296,18 +296,18 @@ columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
     in
     Svg.g []
         [ Svg.rect
-            [ width <| String.fromInt columnWidth
-            , height <| String.fromInt Constants.tableRowHeight
-            , x colX
-            , y colY
-            , fill settings.color.story.backgroundColor
+            [ SvgAttr.width <| String.fromInt columnWidth
+            , SvgAttr.height <| String.fromInt Constants.tableRowHeight
+            , SvgAttr.x colX
+            , SvgAttr.y colY
+            , SvgAttr.fill settings.color.story.backgroundColor
             ]
             []
         , Svg.foreignObject
-            [ x colX
-            , y colY
-            , width <| String.fromInt columnWidth
-            , height <| String.fromInt Constants.tableRowHeight
+            [ SvgAttr.x colX
+            , SvgAttr.y colY
+            , SvgAttr.width <| String.fromInt columnWidth
+            , SvgAttr.height <| String.fromInt Constants.tableRowHeight
             ]
             [ Html.div
                 [ css
@@ -447,67 +447,67 @@ relationLabelView settings table1 table2 label =
     in
     if tableX1 == tableX2 && tableY1 < tableY2 then
         Svg.text_
-            [ x <| String.fromInt <| tableX1 + getWidth table1.size // 2 + 10
-            , y <| String.fromInt <| tableY1 + getHeight table1.size + 15
-            , fontFamily (DiagramSettings.fontStyle settings)
-            , fill settings.color.label
-            , fontSize "14"
-            , fontWeight "bold"
+            [ SvgAttr.x <| String.fromInt <| tableX1 + getWidth table1.size // 2 + 10
+            , SvgAttr.y <| String.fromInt <| tableY1 + getHeight table1.size + 15
+            , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
+            , SvgAttr.fill settings.color.label
+            , SvgAttr.fontSize "14"
+            , SvgAttr.fontWeight "bold"
             ]
             [ Svg.text label ]
 
     else if tableX1 == tableX2 && tableY1 > tableY2 then
         Svg.text_
-            [ x <| String.fromInt <| tableX1 + getWidth table1.size // 2 + 10
-            , y <| String.fromInt <| tableY1 - 15
-            , fontFamily (DiagramSettings.fontStyle settings)
-            , fill settings.color.label
-            , fontSize "14"
-            , fontWeight "bold"
+            [ SvgAttr.x <| String.fromInt <| tableX1 + getWidth table1.size // 2 + 10
+            , SvgAttr.y <| String.fromInt <| tableY1 - 15
+            , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
+            , SvgAttr.fill settings.color.label
+            , SvgAttr.fontSize "14"
+            , SvgAttr.fontWeight "bold"
             ]
             [ Svg.text label ]
 
     else if tableX1 < tableX2 && tableY1 == tableY2 then
         Svg.text_
-            [ x <| String.fromInt <| tableX1 + getWidth table1.size + 10
-            , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 - 15
-            , fontFamily (DiagramSettings.fontStyle settings)
-            , fill settings.color.label
-            , fontSize "14"
-            , fontWeight "bold"
+            [ SvgAttr.x <| String.fromInt <| tableX1 + getWidth table1.size + 10
+            , SvgAttr.y <| String.fromInt <| tableY1 + getHeight table1.size // 2 - 15
+            , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
+            , SvgAttr.fill settings.color.label
+            , SvgAttr.fontSize "14"
+            , SvgAttr.fontWeight "bold"
             ]
             [ Svg.text label ]
 
     else if tableX1 > tableX2 && tableY1 == tableY2 then
         Svg.text_
-            [ x <| String.fromInt <| tableX1 - 15
-            , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 + 15
-            , fontFamily (DiagramSettings.fontStyle settings)
-            , fill settings.color.label
-            , fontSize "14"
-            , fontWeight "bold"
+            [ SvgAttr.x <| String.fromInt <| tableX1 - 15
+            , SvgAttr.y <| String.fromInt <| tableY1 + getHeight table1.size // 2 + 15
+            , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
+            , SvgAttr.fill settings.color.label
+            , SvgAttr.fontSize "14"
+            , SvgAttr.fontWeight "bold"
             ]
             [ Svg.text label ]
 
     else if tableX1 < tableX2 then
         Svg.text_
-            [ x <| String.fromInt <| tableX1 + getWidth table1.size + 10
-            , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 + 15
-            , fontFamily (DiagramSettings.fontStyle settings)
-            , fill settings.color.label
-            , fontSize "14"
-            , fontWeight "bold"
+            [ SvgAttr.x <| String.fromInt <| tableX1 + getWidth table1.size + 10
+            , SvgAttr.y <| String.fromInt <| tableY1 + getHeight table1.size // 2 + 15
+            , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
+            , SvgAttr.fill settings.color.label
+            , SvgAttr.fontSize "14"
+            , SvgAttr.fontWeight "bold"
             ]
             [ Svg.text label ]
 
     else
         Svg.text_
-            [ x <| String.fromInt <| tableX1 - 15
-            , y <| String.fromInt <| tableY1 + getHeight table1.size // 2 - 10
-            , fontFamily (DiagramSettings.fontStyle settings)
-            , fill settings.color.label
-            , fontSize "14"
-            , fontWeight "bold"
+            [ SvgAttr.x <| String.fromInt <| tableX1 - 15
+            , SvgAttr.y <| String.fromInt <| tableY1 + getHeight table1.size // 2 - 10
+            , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
+            , SvgAttr.fill settings.color.label
+            , SvgAttr.fontSize "14"
+            , SvgAttr.fontWeight "bold"
             ]
             [ Svg.text label ]
 
@@ -570,20 +570,20 @@ tableHeaderView : DiagramSettings.Settings -> String -> Int -> Position -> Svg M
 tableHeaderView settings headerText headerWidth ( posX, posY ) =
     Svg.g []
         [ Svg.rect
-            [ width <| String.fromInt headerWidth
-            , height <| String.fromInt Constants.tableRowHeight
-            , x (String.fromInt posX)
-            , y (String.fromInt posY)
-            , fill settings.color.activity.backgroundColor
+            [ SvgAttr.width <| String.fromInt headerWidth
+            , SvgAttr.height <| String.fromInt Constants.tableRowHeight
+            , SvgAttr.x (String.fromInt posX)
+            , SvgAttr.y (String.fromInt posY)
+            , SvgAttr.fill settings.color.activity.backgroundColor
             ]
             []
         , Svg.text_
-            [ x <| String.fromInt <| posX + 8
-            , y <| String.fromInt <| posY + 24
-            , fontFamily (DiagramSettings.fontStyle settings)
-            , fill settings.color.activity.color
-            , fontSize "16"
-            , fontWeight "bold"
+            [ SvgAttr.x <| String.fromInt <| posX + 8
+            , SvgAttr.y <| String.fromInt <| posY + 24
+            , SvgAttr.fontFamily (DiagramSettings.fontStyle settings)
+            , SvgAttr.fill settings.color.activity.color
+            , SvgAttr.fontSize "16"
+            , SvgAttr.fontWeight "bold"
             ]
             [ Svg.text headerText ]
         ]
@@ -613,12 +613,12 @@ tableView { settings, svgSize, pos, tableSize, table } =
     Svg.g
         [ onDragStart table (Utils.isPhone (getWidth svgSize)) ]
         (Svg.rect
-            [ width <| String.fromInt <| getWidth tableSize
-            , height <| String.fromInt <| getHeight tableSize
-            , x (String.fromInt tableX)
-            , y (String.fromInt tableY)
-            , strokeWidth "1"
-            , stroke settings.color.activity.backgroundColor
+            [ SvgAttr.width <| String.fromInt <| getWidth tableSize
+            , SvgAttr.height <| String.fromInt <| getHeight tableSize
+            , SvgAttr.x (String.fromInt tableX)
+            , SvgAttr.y (String.fromInt tableY)
+            , SvgAttr.strokeWidth "1"
+            , SvgAttr.stroke settings.color.activity.backgroundColor
             ]
             []
             :: tableHeaderView settings tableName (getWidth tableSize) ( tableX, tableY )

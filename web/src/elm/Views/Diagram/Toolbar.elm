@@ -38,7 +38,7 @@ import Models.Item as Item exposing (Item)
 import Models.ItemSettings as ItemSettings
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg, svg)
-import Svg.Styled.Attributes as SvgAttr exposing (stroke, strokeWidth, x1, x2, y1, y2)
+import Svg.Styled.Attributes as SvgAttr
 
 
 type alias ClickEvent msg =
@@ -145,14 +145,56 @@ freeForm e =
     , Button <|
         iconView
             (Svg.g []
-                [ Svg.line [ x1 "4", y1 "4", x2 "26", y2 "4", stroke <| Color.toString Color.lineDefalut, strokeWidth "4" ] []
-                , Svg.line [ x1 "14", y1 "2", x2 "14", y2 "22", stroke <| Color.toString Color.lineDefalut, strokeWidth "4" ] []
+                [ Svg.line
+                    [ SvgAttr.x1 "4"
+                    , SvgAttr.y1 "4"
+                    , SvgAttr.x2 "26"
+                    , SvgAttr.y2 "4"
+                    , SvgAttr.stroke <| Color.toString Color.lineDefalut
+                    , SvgAttr.strokeWidth "4"
+                    ]
+                    []
+                , Svg.line
+                    [ SvgAttr.x1 "14"
+                    , SvgAttr.y1 "2"
+                    , SvgAttr.x2 "14"
+                    , SvgAttr.y2 "22"
+                    , SvgAttr.stroke <| Color.toString Color.lineDefalut
+                    , SvgAttr.strokeWidth "4"
+                    ]
+                    []
                 ]
             )
             createTextItem
             e
-    , Button <| iconView (Svg.line [ x1 "14", y1 "2", x2 "14", y2 "22", stroke <| Color.toString Color.lineDefalut, strokeWidth "4" ] []) createVerticalLineItem e
-    , Button <| iconView (Svg.line [ x1 "0", y1 "12", x2 "24", y2 "12", stroke <| Color.toString Color.lineDefalut, strokeWidth "3" ] []) createHorizontalLineItem e
+    , Button <|
+        iconView
+            (Svg.line
+                [ SvgAttr.x1 "14"
+                , SvgAttr.y1 "2"
+                , SvgAttr.x2 "14"
+                , SvgAttr.y2 "22"
+                , SvgAttr.stroke <| Color.toString Color.lineDefalut
+                , SvgAttr.strokeWidth "4"
+                ]
+                []
+            )
+            createVerticalLineItem
+            e
+    , Button <|
+        iconView
+            (Svg.line
+                [ SvgAttr.x1 "0"
+                , SvgAttr.y1 "12"
+                , SvgAttr.x2 "24"
+                , SvgAttr.y2 "12"
+                , SvgAttr.stroke <| Color.toString Color.lineDefalut
+                , SvgAttr.strokeWidth "3"
+                ]
+                []
+            )
+            createHorizontalLineItem
+            e
     ]
 
 

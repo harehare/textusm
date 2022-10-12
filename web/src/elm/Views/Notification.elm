@@ -24,7 +24,7 @@ import Css
         )
 import Css.Transitions as Transitions
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes as Attr
 import Models.Color as Color
 import Models.Notification as Notification
 import Style.Breakpoint as Breakpoint
@@ -52,7 +52,7 @@ view notification =
                     ( "", Icon.info 0 )
     in
     Html.div
-        [ css
+        [ Attr.css
             [ Breakpoint.style
                 [ Text.sm
                 , position fixed
@@ -86,9 +86,9 @@ view notification =
             ]
         ]
         [ Html.div
-            [ css [ displayFlex, alignItems center, Style.mrMd ]
+            [ Attr.css [ displayFlex, alignItems center, Style.mrMd ]
             ]
-            [ Html.div [ css [ Style.mlSm ] ] [ icon ]
-            , Html.div [ css [ Style.mlSm ] ] [ Html.text text_ ]
+            [ Html.div [ Attr.css [ Style.mlSm ] ] [ icon ]
+            , Html.div [ Attr.css [ Style.mlSm ] ] [ Html.text text_ ]
             ]
         ]

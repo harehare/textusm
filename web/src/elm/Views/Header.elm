@@ -30,7 +30,6 @@ import Css
         , padding
         , padding4
         , paddingLeft
-        , paddingRight
         , pct
         , pointer
         , position
@@ -45,7 +44,7 @@ import Css
         )
 import Events as E
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Events
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
@@ -88,7 +87,7 @@ type alias Props =
 view : Props -> Html Msg
 view props =
     Html.header
-        [ css
+        [ Attr.css
             [ displayFlex
             , alignItems center
             , Style.widthScreen
@@ -98,7 +97,7 @@ view props =
             ]
         ]
         (Html.div
-            [ css
+            [ Attr.css
                 [ displayFlex
                 , alignItems center
                 , width <| pct 100
@@ -108,13 +107,13 @@ view props =
             [ case props.page of
                 Page.Main ->
                     Html.div
-                        [ css [ Style.flexCenter, width <| px 32, height <| px 32, marginTop <| px 8 ]
+                        [ Attr.css [ Style.flexCenter, width <| px 32, height <| px 32, marginTop <| px 8 ]
                         , Attributes.dataTest "header-logo"
                         ]
                         [ Html.a [ Attr.href "/", Attr.attribute "aria-label" "Top" ]
                             [ Html.img
                                 [ Asset.src Asset.logo
-                                , css [ width <| px 28, height <| px 28, marginLeft <| px 4 ]
+                                , Attr.css [ width <| px 28, height <| px 28, marginLeft <| px 4 ]
                                 , Attr.alt "logo"
                                 ]
                                 []
@@ -125,7 +124,7 @@ view props =
                     case props.prevRoute of
                         Just r ->
                             Html.div
-                                [ css [ Style.flexCenter, padding4 (px 8) (px 8) (px 8) (px 12), cursor pointer ]
+                                [ Attr.css [ Style.flexCenter, padding4 (px 8) (px 8) (px 8) (px 12), cursor pointer ]
                                 , Events.onClick <| MoveTo r
                                 , Attributes.dataTest "header-back"
                                 ]
@@ -133,14 +132,14 @@ view props =
 
                         Nothing ->
                             Html.div
-                                [ css [ Style.flexCenter, padding4 (px 8) (px 8) (px 8) (px 12), cursor pointer ] ]
+                                [ Attr.css [ Style.flexCenter, padding4 (px 8) (px 8) (px 8) (px 12), cursor pointer ] ]
                                 [ Icon.arrowLeft Color.disabledIconColor 16 ]
             , case props.page of
                 Page.Main ->
                     if canEdit props && Title.isEdit props.currentDiagram.title then
                         Html.input
                             [ Attr.id "title"
-                            , css
+                            , Attr.css
                                 [ Style.widthFull
                                 , ColorStyle.bgHeaderColor
                                 , borderStyle none
@@ -164,7 +163,7 @@ view props =
 
                     else
                         viewTitle
-                            [ css
+                            [ Attr.css
                                 [ cursor pointer
                                 , hover []
                                 ]
@@ -173,7 +172,7 @@ view props =
                             ]
                             [ Html.text <| Title.toString props.currentDiagram.title
                             , Html.div
-                                [ css [ marginLeft <| px 8 ] ]
+                                [ Attr.css [ marginLeft <| px 8 ] ]
                                 [ if canEdit props && Text.isChanged props.currentText then
                                     Icon.circle Color.white 10
 
@@ -264,7 +263,7 @@ viewChangePublicStateButton : Lang -> Bool -> Bool -> Html Msg
 viewChangePublicStateButton lang isPublic_ canChangePublicState_ =
     if canChangePublicState_ then
         Html.div
-            [ css [ Style.button ], Events.onClick <| ChangePublicStatus (not isPublic_) ]
+            [ Attr.css [ Style.button ], Events.onClick <| ChangePublicStatus (not isPublic_) ]
             [ if isPublic_ then
                 Icon.lockOpen Color.iconColor 14
 
@@ -279,7 +278,7 @@ viewChangePublicStateButton lang isPublic_ canChangePublicState_ =
             ]
 
     else
-        Html.div [ css [ Style.button ] ]
+        Html.div [ Attr.css [ Style.button ] ]
             [ Icon.lock Color.disabledIconColor 14
             , Tooltip.view <| Message.toolTipPrivate lang
             ]
@@ -289,11 +288,11 @@ viewHelpButton : Lang -> Html Msg
 viewHelpButton lang =
     Html.a
         [ Attr.attribute "aria-label" "Help"
-        , css [ displayFlex ]
+        , Attr.css [ displayFlex ]
         , Attr.href <| Route.toString Route.Help
         , Attributes.dataTest "header-help"
         ]
-        [ Html.div [ css [ Style.button ] ]
+        [ Html.div [ Attr.css [ Style.button ] ]
             [ Icon.helpOutline 16
             , Tooltip.view <| Message.toolTipHelp lang
             ]
@@ -304,13 +303,13 @@ viewSettingsButton : Lang -> DiagramType -> Html Msg
 viewSettingsButton lang diagramType =
     Html.a
         [ Attr.attribute "aria-label" "Help"
-        , css [ displayFlex ]
+        , Attr.css [ displayFlex ]
         , Attr.href <|
             Route.toString (Route.Settings diagramType)
         , Attr.attribute "aria-label" "Settings"
         , Attributes.dataTest "header-help"
         ]
-        [ Html.div [ css [ Style.button ] ]
+        [ Html.div [ Attr.css [ Style.button ] ]
             [ Icon.settings Color.iconColor 16
             , Tooltip.view <| Message.toolTipSettings lang
             ]
@@ -322,21 +321,21 @@ viewLocationButton lang session location =
     case ( session, location ) of
         ( Session.SignedIn _, Just DiagramLocation.Remote ) ->
             Html.div
-                [ css [ Style.button ] ]
+                [ Attr.css [ Style.button ] ]
                 [ Icon.cloudOn Color.iconColor 14
                 , Tooltip.view <| Message.toolTipRemote lang
                 ]
 
         ( Session.SignedIn _, Just DiagramLocation.Gist ) ->
             Html.div
-                [ css [ Style.button ] ]
+                [ Attr.css [ Style.button ] ]
                 [ Icon.github Color.iconColor 14
                 , Tooltip.view Message.toolTipGist
                 ]
 
         _ ->
             Html.div
-                [ css [ Style.button ] ]
+                [ Attr.css [ Style.button ] ]
                 [ Icon.cloudOff Color.iconColor 14
                 , Tooltip.view <| Message.toolTipLocal lang
                 ]
@@ -346,12 +345,12 @@ viewShareButton : Lang -> Bool -> Html Msg
 viewShareButton lang canShare_ =
     if canShare_ then
         Html.a
-            [ css [ displayFlex ]
+            [ Attr.css [ displayFlex ]
             , Attr.href <| Route.toString Route.Share
             , Attr.attribute "aria-label" "Share"
             , Attributes.dataTest "header-share"
             ]
-            [ Html.div [ css [ Style.button ] ]
+            [ Html.div [ Attr.css [ Style.button ] ]
                 [ Icon.people Color.iconColor 20
                 , Tooltip.view <| Message.toolTipShare lang
                 ]
@@ -359,7 +358,7 @@ viewShareButton lang canShare_ =
 
     else
         Html.div
-            [ css [ Style.button ]
+            [ Attr.css [ Style.button ]
             , Attributes.dataTest "header-share"
             ]
             [ Icon.people Color.disabledIconColor 20
@@ -376,7 +375,7 @@ viewSignInButton menu session =
                 Session.getUser session
         in
         Html.div
-            [ css
+            [ Attr.css
                 [ Breakpoint.style [ width <| px 32 ]
                     [ Breakpoint.small
                         [ Style.button
@@ -389,11 +388,11 @@ viewSignInButton menu session =
             , Attributes.dataTest "header-signin"
             ]
             [ Html.div
-                [ css [ Text.sm, marginRight <| px 4 ]
+                [ Attr.css [ Text.sm, marginRight <| px 4 ]
                 ]
                 [ Html.img
                     [ Avatar.src <| Avatar (Maybe.map .email user) (Maybe.map .photoURL user)
-                    , css
+                    , Attr.css
                         [ Breakpoint.style
                             [ width <| rem 1.25
                             , Style.heightFull
@@ -455,7 +454,7 @@ viewSignInButton menu session =
 
     else
         Html.div
-            [ css [ Style.button, width <| px 96, height <| px 50, Style.borderContent ]
+            [ Attr.css [ Style.button, width <| px 96, height <| px 50, Style.borderContent ]
             , case menu of
                 Just LoginMenu ->
                     Events.stopPropagationOn "click" (D.succeed ( CloseMenu, True ))
@@ -464,7 +463,7 @@ viewSignInButton menu session =
                     Events.stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
             , Attributes.dataTest "header-signin"
             ]
-            [ Html.div [ css [ Text.base, Font.fontBold ] ]
+            [ Html.div [ Attr.css [ Text.base, Font.fontBold ] ]
                 [ Html.text "SIGN IN" ]
             , case menu of
                 Just LoginMenu ->
@@ -492,7 +491,7 @@ viewSignInButton menu session =
 viewTitle : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 viewTitle attrs children =
     Html.div
-        (css
+        (Attr.css
             [ Style.widthFull
             , displayFlex
             , Text.base

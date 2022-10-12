@@ -1,6 +1,5 @@
 module Settings exposing
     ( EditorSettings
-    , IsDarkMode
     , Settings
     , defaultEditorSettings
     , defaultSettings
@@ -35,6 +34,7 @@ import Models.Color as Color
 import Models.DiagramItem as DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Models.DiagramSettings as DiagramSettings
+import Models.Theme as Theme exposing (Theme)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
 import Monocle.Optional exposing (Optional)
@@ -47,10 +47,6 @@ type alias EditorSettings =
     }
 
 
-type alias IsDarkMode =
-    Bool
-
-
 type alias Settings =
     { position : Maybe Int
     , font : String
@@ -61,6 +57,7 @@ type alias Settings =
     , editor : Maybe EditorSettings
     , diagram : Maybe DiagramItem
     , location : Maybe DiagramLocation
+    , theme : Maybe Theme
     }
 
 
@@ -74,8 +71,8 @@ defaultEditorSettings settings =
         settings
 
 
-defaultSettings : IsDarkMode -> Settings
-defaultSettings isDarkMode =
+defaultSettings : Theme -> Settings
+defaultSettings theme =
     { position = Just -10
     , font = "Nunito Sans"
     , diagramId = Nothing
@@ -100,11 +97,18 @@ defaultSettings isDarkMode =
             , text = Just <| Color.toString Color.textDefalut
             }
         , backgroundColor =
-            if isDarkMode then
-                Color.toString Color.backgroundDarkDefalut
+            case theme of
+                Theme.System True ->
+                    Color.toString Color.backgroundDarkDefalut
 
-            else
-                Color.toString Color.backgroundDefalut
+                Theme.System False ->
+                    Color.toString Color.backgroundDefalut
+
+                Theme.Dark ->
+                    Color.toString Color.backgroundDarkDefalut
+
+                Theme.Light ->
+                    Color.toString Color.backgroundDefalut
         , zoomControl = Just True
         , scale = Just 1.0
         , toolbar = Nothing
@@ -114,6 +118,7 @@ defaultSettings isDarkMode =
     , editor = Nothing
     , diagram = Nothing
     , location = Nothing
+    , theme = Nothing
     }
 
 
@@ -219,6 +224,7 @@ settingsDecoder =
         |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
         |> optional "diagram" (D.map Just DiagramItem.decoder) Nothing
         |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
+        |> optional "theme" (D.map Just Theme.decoder) Nothing
 
 
 settingsEncoder : Settings -> E.Value
@@ -233,6 +239,7 @@ settingsEncoder settings =
         , ( "editor", maybe editorSettingsEncoder settings.editor )
         , ( "diagram", maybe DiagramItem.encoder settings.diagram )
         , ( "location", maybe DiagramLocation.encoder settings.location )
+        , ( "theme", maybe Theme.encoder settings.theme )
         ]
 
 

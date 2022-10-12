@@ -26,8 +26,8 @@ import Css
         , zero
         )
 import Events
-import Html.Styled exposing (Html, button, div, input, text)
-import Html.Styled.Attributes exposing (classList, css, maxlength, placeholder, type_, value)
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick, onInput)
 import Message exposing (Lang, Message)
 import Style.Color as Color
@@ -51,9 +51,9 @@ type alias Props msg =
 
 view : Props msg -> Html msg
 view props =
-    div [ css [ Style.dialogBackdrop ] ]
-        [ div
-            [ css
+    Html.div [ Attr.css [ Style.dialogBackdrop ] ]
+        [ Html.div
+            [ Attr.css
                 [ Color.bgDefault
                 , Color.textColor
                 , Style.shadowSm
@@ -65,10 +65,10 @@ view props =
                 , Style.roundedSm
                 ]
             ]
-            [ div [ css [ Font.fontBold, padding2 zero (px 8) ] ] [ text props.title ]
-            , div [ css [ Style.flexCenter, flexDirection column, padding <| px 8 ] ]
-                [ input
-                    [ css
+            [ Html.div [ Attr.css [ Font.fontBold, padding2 zero (px 8) ] ] [ Html.text props.title ]
+            , Html.div [ Attr.css [ Style.flexCenter, flexDirection column, padding <| px 8 ] ]
+                [ Html.input
+                    [ Attr.css
                         [ Css.batch
                             [ Style.inputLight
                             , Text.sm
@@ -85,17 +85,17 @@ view props =
                             ]
                         ]
                     , if props.inProcess then
-                        classList []
+                        Attr.classList []
 
                       else
                         Events.onEnter props.onEnter
-                    , type_ "password"
-                    , placeholder "Enter password"
-                    , maxlength 72
-                    , value props.value
+                    , Attr.type_ "password"
+                    , Attr.placeholder "Enter password"
+                    , Attr.maxlength 72
+                    , Attr.value props.value
                     , onInput props.onInput
                     , if props.inProcess then
-                        classList []
+                        Attr.classList []
 
                       else
                         Events.onEnter props.onEnter
@@ -103,8 +103,8 @@ view props =
                     []
                 , case props.errorMessage of
                     Just msg ->
-                        div
-                            [ css
+                        Html.div
+                            [ Attr.css
                                 [ Style.widthFull
                                 , Text.sm
                                 , Font.fontBold
@@ -112,24 +112,24 @@ view props =
                                 , color Color.errorColor
                                 ]
                             ]
-                            [ text (msg props.lang) ]
+                            [ Html.text (msg props.lang) ]
 
                     Nothing ->
                         Empty.view
-                , button
-                    [ type_ "button"
-                    , css [ Style.submit, marginTop <| px 8, Style.roundedSm ]
+                , Html.button
+                    [ Attr.type_ "button"
+                    , Attr.css [ Style.submit, marginTop <| px 8, Style.roundedSm ]
                     , if props.inProcess then
-                        classList []
+                        Attr.classList []
 
                       else
                         onClick props.onEnter
                     ]
                     [ if props.inProcess then
-                        div [ css [ Style.widthFull, Style.flexCenter ] ] [ Spinner.small ]
+                        Html.div [ Attr.css [ Style.widthFull, Style.flexCenter ] ] [ Spinner.small ]
 
                       else
-                        text "Submit"
+                        Html.text "Submit"
                     ]
                 ]
             ]

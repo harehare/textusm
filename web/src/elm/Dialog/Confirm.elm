@@ -18,8 +18,8 @@ import Css
         , translateX
         , translateY
         )
-import Html.Styled exposing (Html, button, div, text)
-import Html.Styled.Attributes exposing (css, type_)
+import Html.Styled as Html exposing (Html)
+import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick)
 import Style.Color as Color
 import Style.Font as Font
@@ -43,9 +43,9 @@ type alias Props msg =
 
 view : Props msg -> Html msg
 view { title, message, okButton, cancelButton } =
-    div [ css [ Style.dialogBackdrop ] ]
-        [ div
-            [ css
+    Html.div [ Attr.css [ Style.dialogBackdrop ] ]
+        [ Html.div
+            [ Attr.css
                 [ Color.bgDefault
                 , Color.textColor
                 , Style.shadowSm
@@ -58,35 +58,35 @@ view { title, message, okButton, cancelButton } =
                 , Style.roundedSm
                 ]
             ]
-            [ div
-                [ css
+            [ Html.div
+                [ Attr.css
                     [ Text.lg
                     , Font.fontBold
                     , paddingTop <| rem 0.5
                     , paddingBottom <| rem 0.5
                     ]
                 ]
-                [ text title ]
-            , div
-                [ css
+                [ Html.text title ]
+            , Html.div
+                [ Attr.css
                     [ paddingTop <| rem 0.75
                     , paddingBottom <| rem 0.75
                     ]
                 ]
-                [ text message ]
-            , div [ css [ Style.flexCenter, Style.gap4 ] ]
-                [ button
-                    [ type_ "button"
-                    , css [ Style.submit, marginTop <| px 8, Style.roundedSm ]
+                [ Html.text message ]
+            , Html.div [ Attr.css [ Style.flexCenter, Style.gap4 ] ]
+                [ Html.button
+                    [ Attr.type_ "button"
+                    , Attr.css [ Style.submit, marginTop <| px 8, Style.roundedSm ]
                     , onClick okButton.onClick
                     ]
-                    [ text okButton.text ]
-                , button
-                    [ type_ "button"
-                    , css [ Style.submit, Color.bgDisabled, Color.textDark, marginTop <| px 8, Style.roundedSm ]
+                    [ Html.text okButton.text ]
+                , Html.button
+                    [ Attr.type_ "button"
+                    , Attr.css [ Style.submit, Color.bgDisabled, Color.textDark, marginTop <| px 8, Style.roundedSm ]
                     , onClick cancelButton.onClick
                     ]
-                    [ text cancelButton.text ]
+                    [ Html.text cancelButton.text ]
                 ]
             ]
         ]

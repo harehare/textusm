@@ -16,13 +16,14 @@ import {
 import { initDB } from './db';
 import { initDownload } from './download';
 import { setElmApp } from './editor';
+import { loadEditor } from './editor/lang';
 import type { ElmApp, Provider } from './elm';
 import { initFile, canUseNativeFileSystem } from './file';
 import type { Settings } from './model';
 import { loadSettings, saveSettings } from './settings';
+import { isDarkMode } from './utils';
 
 const lang = navigator.languages[0] ?? navigator.language ?? navigator.userLanguage ?? navigator.browserLanguage;
-const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 type Flags = {
   lang: string | string[];
@@ -39,10 +40,14 @@ declare type ElmType = {
   };
 };
 
+const settings = loadSettings(isDarkMode);
+
+loadEditor(settings);
+
 const app: ElmApp = (Elm as ElmType).Main.init({
   flags: {
     lang,
-    settings: loadSettings(isDarkMode),
+    settings,
     isOnline: window.navigator.onLine ?? true,
     isDarkMode,
     canUseClipboardItem: Boolean(ClipboardItem),

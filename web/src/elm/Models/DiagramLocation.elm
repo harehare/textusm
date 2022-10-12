@@ -22,7 +22,6 @@ type DiagramLocation
     = Local
     | Remote
     | Gist
-    | GoogleDrive
     | LocalFileSystem
 
 
@@ -70,9 +69,6 @@ fromString s =
         "gist" ->
             Gist
 
-        "googledrive" ->
-            GoogleDrive
-
         "local" ->
             Local
 
@@ -107,9 +103,6 @@ toString loc =
 
         Gist ->
             "gist"
-
-        GoogleDrive ->
-            "googledrive"
 
         LocalFileSystem ->
             "localfilesystem"

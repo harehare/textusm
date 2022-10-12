@@ -2,7 +2,7 @@ module Views.Progress exposing (view)
 
 import Css exposing (absolute, backgroundColor, int, left, position, px, rgba, top, zIndex)
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes as Attr
 import Style.Style as Style
 import Views.Loading as Loading
 
@@ -10,7 +10,7 @@ import Views.Loading as Loading
 view : Html msg
 view =
     Html.div
-        [ css
+        [ Attr.css
             [ position absolute
             , top <| px 0
             , left <| px 0

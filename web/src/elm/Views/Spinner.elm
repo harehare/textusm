@@ -33,13 +33,13 @@ import Css
         )
 import Css.Animations as Animations exposing (keyframes)
 import Html.Styled exposing (Html, div)
-import Html.Styled.Attributes exposing (css)
+import Html.Styled.Attributes as Attr
 
 
 small : Html msg
 small =
     div
-        [ css
+        [ Attr.css
             [ margin <| px 4
             , fontSize <| px 2
             , position relative

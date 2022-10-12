@@ -17,7 +17,7 @@ import Css
         )
 import Env
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Attributes as Attr
 import Models.Color as Color
 import Style.Color as ColorStyle
 import Style.Font as Font
@@ -29,7 +29,7 @@ import Views.Icon as Icon
 view : Html msg
 view =
     Html.div
-        [ css
+        [ Attr.css
             [ height <| rem 2
             , ColorStyle.bgMain
             , Style.widthScreen
@@ -42,7 +42,7 @@ view =
             , ColorStyle.bgFooterColor
             ]
         ]
-        [ Html.div [ css [ padding <| rem 0.5, cursor pointer ] ]
+        [ Html.div [ Attr.css [ padding <| rem 0.5, cursor pointer ] ]
             [ Html.a
                 [ Attr.href Env.repoUrl
                 , Attr.target "_blank"
@@ -51,7 +51,7 @@ view =
                 [ Icon.github Color.darkIconColor 16 ]
             ]
         , Html.div
-            [ css
+            [ Attr.css
                 [ ColorStyle.textSecondaryColor
                 , Text.xs
                 , Font.fontBold
