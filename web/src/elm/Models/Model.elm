@@ -27,6 +27,7 @@ import Models.SettingsCache exposing (SettingsCache)
 import Models.ShareState exposing (ShareState)
 import Models.Shortcuts exposing (Shortcuts)
 import Models.Snackbar exposing (Snackbar)
+import Models.Theme exposing (Theme)
 import Models.Window exposing (Window)
 import Monocle.Lens exposing (Lens)
 import Page.List as DiagramList
@@ -70,6 +71,7 @@ type alias Model =
     , snackbar : Snackbar Msg
     , notification : Notification
     , settingsCache : SettingsCache
+    , theme : Theme
     }
 
 

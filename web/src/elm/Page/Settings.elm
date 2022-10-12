@@ -45,11 +45,12 @@ import Models.DiagramLocation as DiagramLocation
 import Models.DiagramType exposing (DiagramType)
 import Models.FontSize as FontSize
 import Models.Session as Session exposing (Session)
+import Models.Theme as Theme
 import RemoteData exposing (isLoading)
 import Return
 import Settings
     exposing
-        ( Settings
+        (  Settings
         , defaultEditorSettings
         , ofActivityBackgroundColor
         , ofActivityColor
@@ -389,6 +390,24 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                              )
                                 |> DiagramLocation.toString
                             )
+                        ]
+                    ]
+                , conrtolView
+                    [ nameView [ Html.text "Theme" ]
+                    , inputAreaView
+                        [ DropDownList.view ToggleDropDownList
+                            "editor-theme"
+                            dropDownIndex
+                            (UpdateSettings
+                                (\x ->
+                                    { settings | theme = Just <| Theme.fromString x }
+                                )
+                            )
+                            [ { name = Theme.toDisplayString <| Theme.System True, value = DropDownList.stringValue <| Theme.toString <| Theme.System True }
+                            , { name = Theme.toDisplayString Theme.Light, value = DropDownList.stringValue <| Theme.toString Theme.Light }
+                            , { name = Theme.toDisplayString Theme.Dark, value = DropDownList.stringValue <| Theme.toString Theme.Dark }
+                            ]
+                            (settings.theme |> Maybe.map Theme.toString |> Maybe.withDefault (Theme.toString <| Theme.System True))
                         ]
                     ]
                 , conrtolRowView

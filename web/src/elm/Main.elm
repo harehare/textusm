@@ -49,6 +49,7 @@ import Models.Shortcuts as Shortcuts
 import Models.Size as Size exposing (Size)
 import Models.Snackbar as SnackbarModel
 import Models.Text as Text
+import Models.Theme as Theme
 import Models.Title as Title
 import Models.Window as Window exposing (Window)
 import Page.Embed as Embed
@@ -305,7 +306,7 @@ init flags url key =
         initSettings : Settings
         initSettings =
             D.decodeValue settingsDecoder flags.settings
-                |> Result.withDefault (defaultSettings flags.isDarkMode)
+                |> Result.withDefault (defaultSettings (Theme.System flags.isDarkMode))
 
         lang : Message.Lang
         lang =
@@ -338,6 +339,7 @@ init flags url key =
             , snackbar = SnackbarModel.Hide
             , notification = Notification.Hide
             , settingsCache = SettingsCache.new
+            , theme = Theme.System flags.isDarkMode
             }
 
         ( settingsModel, _ ) =
@@ -1008,6 +1010,7 @@ update message =
                                     , editor = m.settingsModel.settings.editor
                                     , diagram = Just m.currentDiagram
                                     , location = m.settingsModel.settings.location
+                                    , theme = m.settingsModel.settings.theme
                                     }
 
                                 ( newSettingsModel, _ ) =
@@ -1169,7 +1172,7 @@ update message =
                 >> Return.andThen (setDiagramSettings settings)
 
         LoadSettings (Err _) ->
-            Return.andThen (\m -> setDiagramSettings (.storyMap (defaultSettings m.browserStatus.isDarkMode)) m)
+            Return.andThen (\m -> setDiagramSettings (.storyMap (defaultSettings (Theme.System m.browserStatus.isDarkMode))) m)
                 >> Return.andThen stopProgress
 
         LoadSettingsFromLocal settingsJson ->

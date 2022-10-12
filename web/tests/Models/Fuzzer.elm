@@ -149,7 +149,6 @@ diagramLocationFuzzer =
         [ Fuzz.constant DiagramLocation.Local
         , Fuzz.constant DiagramLocation.Remote
         , Fuzz.constant DiagramLocation.Gist
-        , Fuzz.constant DiagramLocation.GoogleDrive
         ]
 
 

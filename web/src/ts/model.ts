@@ -23,6 +23,10 @@ export type Diagram = {
   location: 'local' | 'gist' | 'system' | 'googledrive';
 };
 
+export type Theme = 'system' | 'dark' | 'light';
+
+export type DiagramLocation = 'gist' | 'local' | 'localfilesystem' | 'remote';
+
 export type DiagramType =
   | 'UserStoryMap'
   | 'OpportunityCanvas'
@@ -70,6 +74,8 @@ export type Settings = {
   diagramId: string | undefined;
   storyMap: DiagramSettings;
   diagram: Diagram | undefined;
+  location: DiagramLocation | undefined;
+  theme: Theme | undefined;
 };
 
 export type DiagramSettings = {

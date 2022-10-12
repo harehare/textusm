@@ -16,6 +16,7 @@ import {
 import { initDB } from './db';
 import { initDownload } from './download';
 import { setElmApp } from './editor';
+import { loadEditor } from './editor/lang';
 import type { ElmApp, Provider } from './elm';
 import { initFile, canUseNativeFileSystem } from './file';
 import type { Settings } from './model';
@@ -39,10 +40,14 @@ declare type ElmType = {
   };
 };
 
+const settings = loadSettings(isDarkMode);
+
+loadEditor(settings);
+
 const app: ElmApp = (Elm as ElmType).Main.init({
   flags: {
     lang,
-    settings: loadSettings(isDarkMode),
+    settings,
     isOnline: window.navigator.onLine ?? true,
     isDarkMode,
     canUseClipboardItem: Boolean(ClipboardItem),

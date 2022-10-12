@@ -44,6 +44,8 @@ const getDefaultSettings = (isDarkMode: boolean) => ({
   },
   diagramId: undefined,
   diagram: undefined,
+  location: undefined,
+  theme: undefined,
 });
 
 export const loadSettings = (isDarkMode: boolean, diagram?: string): Settings => {
@@ -86,6 +88,8 @@ export const saveSettings = (settings: Settings): void => {
       diagramId: settings.diagramId,
       storyMap: settings.storyMap,
       diagram: settings.diagram,
+      location: settings.location,
+      theme: settings.theme,
     })
   );
 
