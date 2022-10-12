@@ -49,7 +49,7 @@
     "elm-format": "^0.8.5",
     "elm-hot-webpack-loader": "^1.1.8",
     "elm-review": "^2.7.5",
-    "elm-test": "^0.19.1-revision9",
+    "elm-test": "^0.19.1-revision10",
     "elm-webpack-loader": "^8.0.0",
     "firebase-tools": "^11.14.2",
     "html-inline-css-webpack-plugin": "^1.11.1",
