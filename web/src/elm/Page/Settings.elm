@@ -50,7 +50,7 @@ import RemoteData exposing (isLoading)
 import Return
 import Settings
     exposing
-        (  Settings
+        ( Settings
         , defaultEditorSettings
         , ofActivityBackgroundColor
         , ofActivityColor
