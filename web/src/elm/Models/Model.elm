@@ -17,6 +17,7 @@ import Message exposing (Lang, Message)
 import Models.Diagram as Diagram
 import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramSettings as DiagramSettings
+import Models.DiagramType exposing (DiagramType)
 import Models.Dialog exposing (ConfirmDialog)
 import Models.Exporter exposing (Export)
 import Models.LoginProvider exposing (LoginProvider)
@@ -87,6 +88,12 @@ type Msg
     | CloseMenu
     | Copy
     | Copied DiagramItem
+    | ChangeDiagramType DiagramType
+    | ChangePublicStatus Bool
+    | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
+    | CallApi (Result Message ())
+    | CloseFullscreen
+    | ChangeNetworkState Bool
     | Download Export
     | DownloadCompleted ( Int, Int )
     | StartDownload { extension : String, mimeType : String, content : String }
@@ -112,14 +119,10 @@ type Msg
     | SwitchWindow Window
     | Shortcuts (Maybe Shortcuts)
     | GotLocalDiagramJson D.Value
-    | ChangePublicStatus Bool
-    | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
     | Load (Result RequestError DiagramItem)
     | LoadSettings (Result RequestError DiagramSettings.Settings)
     | LoadSettingsFromLocal D.Value
     | SaveSettings (Result RequestError DiagramSettings.Settings)
-    | CallApi (Result Message ())
-    | CloseFullscreen
     | UpdateIdToken String
     | EditPassword String
     | EndEditPassword
@@ -127,7 +130,6 @@ type Msg
     | MoveTo Route
     | CloseDialog
     | GotGithubAccessToken { cmd : String, accessToken : Maybe String }
-    | ChangeNetworkState Bool
     | ShowEditor Window
     | NotifyNewVersionAvailable String
     | Reload

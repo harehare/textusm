@@ -1325,6 +1325,16 @@ update message =
         SavedLocalFile title ->
             Return.andThen <| \m -> loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text) m
 
+        ChangeDiagramType diagramType ->
+            Return.andThen <|
+                \m ->
+                    let
+                        currentDiagram =
+                            m.currentDiagram
+                    in
+                    Return.singleton { m | diagramModel = m.diagramModel |> DiagramModel.ofDiagramType.set diagramType }
+                        |> Return.andThen (loadDiagram { currentDiagram | diagram = diagramType })
+
 
 updateDiagramList : DiagramList.Msg -> Return.ReturnF Msg Model
 updateDiagramList msg =
@@ -1596,7 +1606,7 @@ view model =
             _ ->
                 Empty.view
         , Lazy.lazy showDialog model.confirmDialog
-        , Footer.view
+        , Footer.view { diagramType = model.currentDiagram.diagram, onChangeDiagramType = ChangeDiagramType }
         ]
 
 
