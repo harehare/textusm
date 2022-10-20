@@ -436,6 +436,24 @@ stopProgress model =
     Return.singleton { model | progress = False }
 
 
+showSnackbar : { message : String, text : String, action : Msg } -> Model -> Return Msg Model
+showSnackbar { message, text, action } model =
+    Return.singleton
+        { model
+            | snackbar =
+                SnackbarModel.Show
+                    { message = message
+                    , text = text
+                    , action = action
+                    }
+        }
+
+
+hideSnackbar : Model -> Return Msg Model
+hideSnackbar model =
+    Return.singleton { model | snackbar = SnackbarModel.Hide }
+
+
 switchPage : Page -> Model -> Return Msg Model
 switchPage page model =
     Return.singleton { model | page = page }
@@ -1291,25 +1309,14 @@ update message =
             Return.andThen <| \m -> Return.singleton { m | window = window }
 
         NotifyNewVersionAvailable msg ->
-            Return.andThen
-                (\m ->
-                    Return.singleton
-                        { m
-                            | snackbar =
-                                SnackbarModel.Show
-                                    { message = msg
-                                    , text = "RELOAD"
-                                    , action = Reload
-                                    }
-                        }
-                )
+            Return.andThen (showSnackbar { message = msg, text = "RELOAD", action = Reload })
                 >> Return.command (Utils.delay 30000 CloseSnackbar)
 
         Reload ->
             Return.command Nav.reload
 
         CloseSnackbar ->
-            Return.andThen <| \m -> Return.singleton { m | snackbar = SnackbarModel.Hide }
+            Return.andThen hideSnackbar
 
         OpenLocalFile ->
             Return.command <| Ports.openLocalFile ()
@@ -1328,12 +1335,8 @@ update message =
         ChangeDiagramType diagramType ->
             Return.andThen <|
                 \m ->
-                    let
-                        currentDiagram =
-                            m.currentDiagram
-                    in
                     Return.singleton { m | diagramModel = m.diagramModel |> DiagramModel.ofDiagramType.set diagramType }
-                        |> Return.andThen (loadDiagram { currentDiagram | diagram = diagramType })
+                        |> Return.andThen (loadDiagram (m.currentDiagram |> DiagramItem.ofDiagram.set diagramType))
 
 
 updateDiagramList : DiagramList.Msg -> Return.ReturnF Msg Model

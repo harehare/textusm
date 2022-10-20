@@ -223,8 +223,8 @@ settingsDecoder =
         |> optional "title" (D.map Just D.string) Nothing
         |> optional "editor" (D.map Just editorSettingsDecoder) Nothing
         |> optional "diagram" (D.map Just DiagramItem.decoder) Nothing
-        |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
-        |> optional "theme" (D.map Just Theme.decoder) Nothing
+        |> optional "location" (D.map Just DiagramLocation.decoder) (Just DiagramLocation.Remote)
+        |> optional "theme" (D.map Just Theme.decoder) (Just <| Theme.System False)
 
 
 settingsEncoder : Settings -> E.Value
