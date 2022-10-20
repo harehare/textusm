@@ -11,6 +11,7 @@ module Models.DiagramItem exposing
     , localFile
     , mapToDateTime
     , new
+    , ofDiagram
     , ofText
     , ofTitle
     , stringToList
@@ -206,6 +207,11 @@ ofText =
 ofTitle : Lens DiagramItem Title
 ofTitle =
     Lens .title (\b a -> { a | title = b })
+
+
+ofDiagram : Lens DiagramItem DiagramType
+ofDiagram =
+    Lens .diagram (\b a -> { a | diagram = b })
 
 
 stringToList : String -> Result D.Error (List DiagramItem)
