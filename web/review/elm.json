@@ -12,7 +12,7 @@
             "jfmengels/elm-review": "2.9.1",
             "jfmengels/elm-review-code-style": "1.1.2",
             "jfmengels/elm-review-cognitive-complexity": "1.0.0",
-            "jfmengels/elm-review-common": "1.1.2",
+            "jfmengels/elm-review-common": "1.3.1",
             "jfmengels/elm-review-debug": "1.0.7",
             "jfmengels/elm-review-performance": "1.0.1",
             "jfmengels/elm-review-simplify": "2.0.21",
