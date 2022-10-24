@@ -1,4 +1,4 @@
-module Views.Footer exposing (view)
+module Views.Footer exposing (Props, view)
 
 import Css
     exposing

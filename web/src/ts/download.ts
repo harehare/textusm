@@ -1,4 +1,4 @@
-import type { OptimizedSvg } from 'svgo';
+import type { Output } from 'svgo';
 
 import type { ElmApp } from './elm';
 import type { ExportInfo, ImageInfo } from './model';
@@ -25,7 +25,7 @@ export const initDownload = (app: ElmApp): void => {
     }
 
     const svgo = await svgoImport.default;
-    const optimizedSvg: OptimizedSvg = await svgo.optimize(new XMLSerializer().serializeToString(svg), {
+    const optimizedSvg: Output = await svgo.optimize(new XMLSerializer().serializeToString(svg), {
       plugins: [
         {
           name: 'preset-default',

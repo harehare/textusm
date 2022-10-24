@@ -1,4 +1,4 @@
-module Models.Theme exposing (Theme(..), decoder, encoder, fromString, toDisplayString, toString)
+module Models.Theme exposing (IsDarkMode, Theme(..), decoder, encoder, fromString, toDisplayString, toString)
 
 import Json.Decode as D
 import Json.Encode as E

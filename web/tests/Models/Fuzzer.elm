@@ -186,10 +186,9 @@ itemTypeFuzzer =
 
 positionFuzzer : Fuzzer Position
 positionFuzzer =
-    Fuzz.tuple
-        ( Fuzz.intRange -100 100
-        , Fuzz.intRange -100 100
-        )
+    Fuzz.pair
+        (Fuzz.intRange -100 100)
+        (Fuzz.intRange -100 100)
 
 
 posixFuzzer : Fuzzer Posix

@@ -1,4 +1,4 @@
-module Page.Settings exposing (Model, Msg(..), init, isFetchedUsableFont, load, update, view)
+module Page.Settings exposing (FontList, Model, Msg(..), init, isFetchedUsableFont, load, update, view)
 
 import Api.Http.UsableFontList as UsableFontListRequest
 import Api.RequestError exposing (RequestError)
