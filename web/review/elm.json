@@ -13,7 +13,7 @@
             "jfmengels/elm-review-code-style": "1.0.0",
             "jfmengels/elm-review-cognitive-complexity": "1.0.0",
             "jfmengels/elm-review-common": "1.1.2",
-            "jfmengels/elm-review-debug": "1.0.6",
+            "jfmengels/elm-review-debug": "1.0.7",
             "jfmengels/elm-review-performance": "1.0.1",
             "jfmengels/elm-review-simplify": "2.0.14",
             "jfmengels/elm-review-the-elm-architecture": "1.0.3",
