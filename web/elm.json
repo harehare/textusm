@@ -5,7 +5,7 @@
     "dependencies": {
         "direct": {
             "Fresheyeball/elm-return": "7.1.0",
-            "NoRedInk/elm-json-decode-pipeline": "1.0.0",
+            "NoRedInk/elm-json-decode-pipeline": "1.0.1",
             "NoRedInk/elm-simple-fuzzy": "1.0.3",
             "arturopala/elm-monocle": "2.2.0",
             "dillonkearns/elm-graphql": "5.0.3",
