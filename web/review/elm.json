@@ -9,7 +9,7 @@
             "SiriusStarr/elm-review-no-single-pattern-case": "2.0.0",
             "SiriusStarr/elm-review-no-unsorted": "1.0.3",
             "elm/core": "1.0.5",
-            "jfmengels/elm-review": "2.5.3",
+            "jfmengels/elm-review": "2.9.1",
             "jfmengels/elm-review-code-style": "1.0.0",
             "jfmengels/elm-review-cognitive-complexity": "1.0.0",
             "jfmengels/elm-review-common": "1.1.2",
