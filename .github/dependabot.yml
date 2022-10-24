@@ -9,10 +9,32 @@ updates:
     labels:
       - "dependencies"
       - "automerge"
+
+  - package-ecosystem: elm
+    directory: "/web"
+    schedule:
+      interval: daily
+      time: "20:00"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "automerge"
+
+  - package-ecosystem: elm
+    directory: "/web/review"
+    schedule:
+      interval: daily
+      time: "20:00"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "automerge"
+
   - package-ecosystem: "gomod"
     directory: "/server"
     schedule:
-      interval: "weekly"
+      interval: daily
+      time: "20:00"
     labels:
       - "dependencies"
       - "automerge"
