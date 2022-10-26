@@ -3,6 +3,7 @@ module Models.Diagram exposing
     , ContextMenuProps
     , Distance
     , DragStatus(..)
+    , IsWheelEvent
     , Model
     , MoveState(..)
     , MoveTarget(..)
@@ -11,8 +12,8 @@ module Models.Diagram exposing
     , SelectedItem
     , SelectedItemInfo
     , SvgSize
-    , chooseZoom
     , dragStart
+    , moveOrZoom
     , moveingItem
     , ofDiagramType
     , ofPosition
@@ -27,8 +28,8 @@ module Models.Diagram exposing
 
 import Browser.Dom exposing (Viewport)
 import Events
+import Events.Wheel as Wheel
 import File exposing (File)
-import Html.Events.Extra.Wheel as Wheel
 import List.Extra exposing (getAt)
 import Models.Color as Color
 import Models.Diagram.BusinessModelCanvas as BusinessModelCanvasModel
@@ -117,12 +118,17 @@ type MoveState
     | ItemMove MoveTarget
     | ItemResize Item ResizeDirection
     | MiniMapMove
+    | WheelMove
     | NotMove
 
 
 type MoveTarget
     = TableTarget ERModel.Table
     | ItemTarget Item
+
+
+type alias IsWheelEvent =
+    Bool
 
 
 type Msg
@@ -132,7 +138,7 @@ type Msg
     | ZoomOut Float
     | PinchIn Float
     | PinchOut Float
-    | Move Position
+    | Move IsWheelEvent Position
     | MoveTo Position
     | ToggleFullscreen
     | EditSelectedItem String
@@ -186,13 +192,25 @@ type alias SvgSize =
     }
 
 
-chooseZoom : Float -> Wheel.Event -> Msg
-chooseZoom ratio wheelEvent =
-    if wheelEvent.deltaY > 0 then
-        ZoomOut ratio
+moveOrZoom : MoveState -> Float -> Wheel.Event -> Msg
+moveOrZoom moveState ratio wheelEvent =
+    if (wheelEvent.deltaX |> Maybe.withDefault 0.0) == 0.0 then
+        if wheelEvent.deltaY > 0 then
+            ZoomOut ratio
+
+        else
+            ZoomIn ratio
 
     else
-        ZoomIn ratio
+        case moveState of
+            NotMove ->
+                Start WheelMove ( round (wheelEvent.deltaX |> Maybe.withDefault 0.0), round wheelEvent.deltaY )
+
+            WheelMove ->
+                Move True ( round (wheelEvent.deltaX |> Maybe.withDefault 0.0), round wheelEvent.deltaY )
+
+            _ ->
+                NoOp
 
 
 dragStart : MoveState -> Bool -> Svg.Attribute Msg

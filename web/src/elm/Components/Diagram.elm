@@ -38,6 +38,7 @@ import Css
         )
 import Css.Global as Global exposing (global)
 import Events
+import Events.Wheel as Wheel
 import File
 import Html.Events.Extra.Touch as Touch
 import Html.Styled as Html exposing (Html)
@@ -171,8 +172,8 @@ update message =
             Return.andThen (setTouchDistance <| Just distance)
                 >> Return.andThen (zoomOut 0.03)
 
-        Move position ->
-            Return.andThen <| move position
+        Move isWheelEvent position ->
+            Return.andThen <| move isWheelEvent position
 
         MoveTo position ->
             Return.andThen (\m -> Return.singleton { m | position = position })
@@ -782,8 +783,8 @@ highlightDefs =
         ]
 
 
-move : Position -> Model -> Return Msg Model
-move ( x, y ) m =
+move : Bool -> Position -> Model -> Return Msg Model
+move isWheelEvent ( x, y ) m =
     case m.moveState of
         Diagram.BoardMove ->
             Return.singleton
@@ -794,6 +795,20 @@ move ( x, y ) m =
                         )
                     , movePosition = ( x, y )
                 }
+
+        Diagram.WheelMove ->
+            if isWheelEvent then
+                Return.singleton
+                    { m
+                        | position =
+                            ( Position.getX m.position - round (toFloat x * m.svg.scale)
+                            , Position.getY m.position - round (toFloat y * m.svg.scale)
+                            )
+                        , movePosition = ( x, y )
+                    }
+
+            else
+                Return.singleton m
 
         Diagram.ItemMove target ->
             case target of
@@ -945,13 +960,13 @@ move ( x, y ) m =
 -- Update
 
 
-onDragMove : Maybe Float -> Diagram.MoveState -> Bool -> Svg.Attribute Msg
-onDragMove distance moveState isPhone =
-    case ( moveState, isPhone ) of
-        ( Diagram.NotMove, _ ) ->
+onTouchDragMove : Maybe Float -> Diagram.MoveState -> Svg.Attribute Msg
+onTouchDragMove distance moveState =
+    case moveState of
+        Diagram.NotMove ->
             Attr.style "" ""
 
-        ( _, True ) ->
+        _ ->
             Attr.fromUnstyled <|
                 Touch.onMove <|
                     \event ->
@@ -993,22 +1008,29 @@ onDragMove distance moveState isPhone =
                                 ( x, y ) =
                                     touchCoordinates event
                             in
-                            Move ( round x, round y )
+                            Move False ( round x, round y )
 
-        ( _, False ) ->
+
+onDragMove : Diagram.MoveState -> Svg.Attribute Msg
+onDragMove moveState =
+    case moveState of
+        Diagram.NotMove ->
+            Attr.style "" ""
+
+        _ ->
             Events.onMouseMove <|
                 \event ->
                     let
                         ( x, y ) =
                             event.pagePos
                     in
-                    Move ( round x, round y )
+                    Move False ( round x, round y )
 
 
-onDragStart : SelectedItem -> Bool -> Svg.Attribute Msg
-onDragStart item isPhone =
-    case ( item, isPhone ) of
-        ( Nothing, True ) ->
+onTouchDragStart : SelectedItem -> Svg.Attribute Msg
+onTouchDragStart item =
+    case item of
+        Nothing ->
             Attr.fromUnstyled <|
                 Touch.onStart <|
                     \event ->
@@ -1035,7 +1057,14 @@ onDragStart item isPhone =
                             in
                             Start Diagram.BoardMove ( round x, round y )
 
-        ( Nothing, False ) ->
+        _ ->
+            Attr.style "" ""
+
+
+onDragStart : SelectedItem -> Svg.Attribute Msg
+onDragStart item =
+    case item of
+        Nothing ->
             Events.onMouseDown <|
                 \event ->
                     let
@@ -1121,9 +1150,11 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 Attr.style "" ""
 
             Nothing ->
-                Events.onWheel <| Diagram.chooseZoom 0.03
-        , onDragStart model.selectedItem (Utils.isPhone <| Size.getWidth model.size)
-        , onDragMove model.touchDistance model.moveState (Utils.isPhone <| Size.getWidth model.size)
+                Wheel.onWheel <| Diagram.moveOrZoom model.moveState 0.03
+        , onDragStart model.selectedItem
+        , onTouchDragStart model.selectedItem
+        , onDragMove model.moveState
+        , onTouchDragMove model.touchDistance model.moveState
         ]
         [ if String.isEmpty model.settings.font then
             Svg.defs [] [ highlightDefs ]

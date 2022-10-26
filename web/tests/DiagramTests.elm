@@ -380,7 +380,7 @@ moveTest =
                     newModel : Model
                     newModel =
                         Return.singleton defInit
-                            |> update (Move ( 10, 20 ))
+                            |> update (Move True ( 10, 20 ))
                             |> Tuple.first
                 in
                 Expect.equal defInit newModel
@@ -390,7 +390,7 @@ moveTest =
                     newModel : Model
                     newModel =
                         Return.singleton defInit
-                            |> update (Move ( 0, 0 ))
+                            |> update (Move True ( 0, 0 ))
                             |> Tuple.first
                 in
                 Expect.equal defInit newModel
@@ -400,7 +400,7 @@ moveTest =
                     moveModel : Model
                     moveModel =
                         Return.singleton newModel
-                            |> update (Move ( 10, 20 ))
+                            |> update (Move True ( 10, 20 ))
                             |> Tuple.first
 
                     newModel : Model

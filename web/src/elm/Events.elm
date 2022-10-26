@@ -1,5 +1,6 @@
 module Events exposing
-    ( onChangeStyled
+    ( alwaysPreventDefaultOn
+    , onChangeStyled
     , onClickPreventDefaultOn
     , onClickStopPropagation
     , onDrop
@@ -8,14 +9,12 @@ module Events exposing
     , onMouseMove
     , onMouseUp
     , onTouchStart
-    , onWheel
     , touchCoordinates
     )
 
 import File exposing (File)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Touch as Touch
-import Html.Events.Extra.Wheel as Wheel
 import Html.Styled exposing (Attribute)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events as StyledEvents
@@ -138,13 +137,6 @@ touchCoordinates touchEvent =
     List.head touchEvent.changedTouches
         |> Maybe.map .clientPos
         |> Maybe.withDefault ( 0, 0 )
-
-
-onWheel : (Wheel.Event -> msg) -> Attribute msg
-onWheel =
-    \m ->
-        Wheel.onWithOptions { stopPropagation = True, preventDefault = True } m
-            |> Attr.fromUnstyled
 
 
 onChangeStyled : (String -> msg) -> Attribute msg

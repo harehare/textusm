@@ -27,6 +27,7 @@ import Css
 import Css.Global exposing (children, class, each, typeSelector)
 import Css.Transitions as Transitions
 import Events
+import Events.Wheel as Wheel
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color
@@ -87,7 +88,7 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg,
                             ( x, y ) =
                                 event.pagePos
                         in
-                        DiagramModel.Move ( round x, round y )
+                        DiagramModel.Move False ( round x, round y )
 
             _ ->
                 Attr.style "" ""
@@ -142,7 +143,7 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg,
                                         event.pagePos
                                 in
                                 DiagramModel.Start DiagramModel.MiniMapMove ( round x, round y )
-                        , Events.onWheel <| DiagramModel.chooseZoom 0.05
+                        , Wheel.onWheel <| DiagramModel.moveOrZoom moveState 0.05
                         ]
                         []
                     ]
