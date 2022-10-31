@@ -23,7 +23,7 @@
     "@babel/core": "^7.19.6",
     "@babel/preset-env": "^7.19.4",
     "@commitlint/cli": "^17.1.2",
-    "@commitlint/config-conventional": "^17.1.0",
+    "@commitlint/config-conventional": "^17.2.0",
     "@dillonkearns/elm-graphql": "^4.3.1",
     "@sentry/webpack-plugin": "^1.20.0",
     "@size-limit/file": "^8.1.0",
