@@ -56,7 +56,7 @@ view { background, window, onToggleEditor, onResize } left right =
                 [ Attr.css [ width leftPos, Style.hContent, Color.bgMain, position relative ] ]
                 [ left, toggleEditorButton window onToggleEditor ]
             , Html.div
-                [ Attr.css [ Color.bgMain, width <| px 20, cursor colResize ]
+                [ Attr.css [ Color.bgMain, width <| px 8, cursor colResize ]
                 , onStartWindowResize onResize
                 ]
                 []
@@ -94,7 +94,7 @@ toggleEditorButton window onToggleEditor =
             , zIndex <| int 50
             , cursor pointer
             , top <| px 8
-            , right <| px -36
+            , right <| px -24
             , borderTopRightRadius <| px 4
             , borderBottomRightRadius <| px 4
             , width <| px 16
@@ -103,8 +103,8 @@ toggleEditorButton window onToggleEditor =
             ]
         ]
         [ if Window.isDisplayBoth window then
-            hideEditorButton (onToggleEditor window)
+            hideEditorButton (onToggleEditor <| Window.showPreview window)
 
           else
-            showEditorButton (onToggleEditor window)
+            showEditorButton (onToggleEditor <| Window.showEditorAndPreview window)
         ]

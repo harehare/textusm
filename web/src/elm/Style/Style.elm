@@ -38,6 +38,7 @@ module Style.Style exposing
     , paddingMd
     , paddingRightSm
     , paddingSm
+    , paddingTopSm
     , paddingXs
     , rounded
     , roundedFull
@@ -94,6 +95,7 @@ import Css
         , outline
         , padding
         , paddingRight
+        , paddingTop
         , pct
         , pointer
         , position
@@ -371,6 +373,11 @@ paddingRightSm =
 paddingSm : Css.Style
 paddingSm =
     padding <| px 8
+
+
+paddingTopSm : Css.Style
+paddingTopSm =
+    paddingTop <| px 8
 
 
 paddingXs : Css.Style

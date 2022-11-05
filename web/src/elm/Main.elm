@@ -261,7 +261,7 @@ editor model =
         editorSettings =
             defaultEditorSettings model.settingsModel.settings.editor
     in
-    Html.div [ Attr.id "editor", Attr.css [ Style.full, Style.paddingSm ] ]
+    Html.div [ Attr.id "editor", Attr.css [ Style.full, Style.paddingTopSm ] ]
         [ Html.node "monaco-editor"
             [ Attr.attribute "value" <| Text.toString model.diagramModel.text
             , Attr.attribute "fontSize" <| String.fromInt <| .fontSize <| defaultEditorSettings model.settingsModel.settings.editor
@@ -403,12 +403,7 @@ moveTo route model =
 
 needSaved : Model -> Return Msg Model
 needSaved model =
-    Return.singleton
-        { model
-            | diagramModel =
-                model.diagramModel
-                    |> DiagramModel.ofText.set (Text.change model.diagramModel.text)
-        }
+    Return.singleton { model | diagramModel = model.diagramModel |> DiagramModel.ofText.set (Text.change model.diagramModel.text) }
 
 
 pushUrl : String -> Model -> Return Msg Model
@@ -479,6 +474,15 @@ initListPage model =
     Return.return { model | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
 
 
+updateListPage : DiagramList.Msg -> Model -> Return Msg Model
+updateListPage msg model =
+    let
+        ( model_, cmd_ ) =
+            Return.singleton model.diagramListModel |> DiagramList.update msg
+    in
+    Return.return { model | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
+
+
 initSettingsPage : DiagramType -> Model -> Return Msg Model
 initSettingsPage diagramType model =
     let
@@ -501,6 +505,15 @@ initShareDiagram diagramItem model =
                 }
     in
     Return.return { model | shareModel = shareModel } (cmd_ |> Cmd.map UpdateShare)
+
+
+updateShareDiagram : Share.Msg -> Model -> Return Msg Model
+updateShareDiagram msg model =
+    let
+        ( model_, cmd_ ) =
+            Share.update msg model.shareModel
+    in
+    Return.return { model | shareModel = model_ } (cmd_ |> Cmd.map UpdateShare)
 
 
 closeNotification : Return.ReturnF Msg Model
@@ -718,15 +731,15 @@ update message =
                 )
                 >> Return.andThen stopProgress
 
-        UpdateDiagram msg ->
+        UpdateDiagram subMsg ->
             Return.andThen
                 (\m ->
                     let
                         ( model_, cmd_ ) =
-                            Return.singleton m.diagramModel |> Diagram.update msg
+                            Return.singleton m.diagramModel |> Diagram.update subMsg
                     in
                     Return.return { m | diagramModel = model_ } (cmd_ |> Cmd.map UpdateDiagram)
-                        |> (case msg of
+                        |> (case subMsg of
                                 DiagramModel.ToggleFullscreen ->
                                     Return.andThen
                                         (\m_ ->
@@ -743,26 +756,12 @@ update message =
                 )
 
         UpdateDiagramList subMsg ->
-            Return.andThen
-                (\m ->
-                    let
-                        ( model_, cmd_ ) =
-                            Return.singleton m.diagramListModel |> DiagramList.update subMsg
-                    in
-                    Return.return { m | diagramListModel = model_ } (cmd_ |> Cmd.map UpdateDiagramList)
-                )
-                >> updateDiagramList subMsg
+            Return.andThen (updateListPage subMsg)
+                >> processDiagramListMsg subMsg
 
-        UpdateShare msg ->
-            Return.andThen
-                (\m ->
-                    let
-                        ( model_, cmd_ ) =
-                            Share.update msg m.shareModel
-                    in
-                    Return.return { m | shareModel = model_ } (cmd_ |> Cmd.map UpdateShare)
-                        |> updateShare m msg
-                )
+        UpdateShare subMsg ->
+            Return.andThen (updateShareDiagram subMsg)
+                >> Return.andThen (processShareMsg subMsg)
 
         UpdateSettings msg ->
             Return.andThen
@@ -784,11 +783,11 @@ update message =
         OpenMenu menu ->
             Return.andThen <| \m -> Return.singleton { m | openMenu = Just menu }
 
-        MoveStop ->
-            Return.andThen <| \m -> Return.singleton { m | window = Window.resized m.window }
-
         CloseMenu ->
             Return.andThen closeMenu
+
+        MoveStop ->
+            Return.andThen <| \m -> Return.singleton { m | window = Window.resized m.window }
 
         Copy ->
             Return.andThen (\m -> pushUrl (Route.toString <| Edit m.currentDiagram.diagram) m)
@@ -1007,9 +1006,7 @@ update message =
                     Return.command (Nav.load href)
 
         UrlChanged url ->
-            Return.andThen <|
-                \m ->
-                    Return.singleton { m | url = url, prevRoute = Just <| toRoute m.url } |> changeRouteTo (toRoute url)
+            Return.andThen <| \m -> Return.singleton { m | url = url, prevRoute = Just <| toRoute m.url } |> changeRouteTo (toRoute url)
 
         HandleVisibilityChange visible ->
             case visible of
@@ -1339,8 +1336,8 @@ update message =
                         |> Return.andThen (loadDiagram (m.currentDiagram |> DiagramItem.ofDiagram.set diagramType))
 
 
-updateDiagramList : DiagramList.Msg -> Return.ReturnF Msg Model
-updateDiagramList msg =
+processDiagramListMsg : DiagramList.Msg -> Return.ReturnF Msg Model
+processDiagramListMsg msg =
     case msg of
         DiagramList.Select diagram ->
             (case ( diagram.isRemote, diagram.isPublic ) of
@@ -1408,22 +1405,22 @@ updateSettings msg diagramType =
             Return.zero
 
 
-updateShare : Model -> Share.Msg -> Return.ReturnF Msg Model
-updateShare m msg =
+processShareMsg : Share.Msg -> Model -> Return Msg Model
+processShareMsg msg model =
     (case msg of
         Share.Shared (Err e) ->
-            Return.andThen <| showErrorMessage e
+            showErrorMessage e model
 
         Share.Close ->
-            Action.historyBack m.key
+            Return.singleton model |> Action.historyBack model.key
 
         Share.LoadShareCondition (Err e) ->
-            Return.andThen <| showErrorMessage e
+            showErrorMessage e model
 
         _ ->
-            Return.zero
+            Return.singleton model
     )
-        >> Return.andThen stopProgress
+        |> Return.andThen stopProgress
 
 
 view : Model -> Html Msg

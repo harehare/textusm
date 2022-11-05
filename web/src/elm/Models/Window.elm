@@ -12,6 +12,7 @@ module Models.Window exposing
     , resizing
     , showEditor
     , showEditorAndPreview
+    , showPreview
     , startResizing
     , toggle
     )
@@ -109,6 +110,11 @@ resizing window pos =
 showEditor : Window -> Window
 showEditor window =
     { window | state = Editor }
+
+
+showPreview : Window -> Window
+showPreview window =
+    { window | state = Preview }
 
 
 showEditorAndPreview : Window -> Window
