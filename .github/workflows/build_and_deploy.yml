@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to run'
+        description: "Environment to run"
         type: environment
         default: production
         required: true
@@ -127,15 +127,26 @@ jobs:
         uses: martinbeentjes/npm-get-version-action@main
         with:
           path: web
-      - run: |
+      - name: tag is already existing to GITHUB_ENV
+        run: |
+          tag_is_existing=$(
+            git fetch origin v${{ steps.package-version.outputs.current-version }} &&
+            echo true ||
+            echo false
+          )
+          echo "TAG_IS_EXISTING=${tag_is_existing}" >> $GITHUB_ENV
+      - if: env.TAG_IS_EXISTING == 'false'
+        run: |
           git tag v${{ steps.package-version.outputs.current-version }}
           git push origin v${{ steps.package-version.outputs.current-version }}
       - name: Build Changelog
+        if: env.TAG_IS_EXISTING == 'false'
         id: github_release
         uses: mikepenz/release-changelog-builder-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
+        if: env.TAG_IS_EXISTING == 'false'
         uses: actions/create-release@v1
         with:
           tag_name: v${{ steps.package-version.outputs.current-version }}
