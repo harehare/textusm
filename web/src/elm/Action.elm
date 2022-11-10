@@ -118,7 +118,9 @@ loadItem msg { id, session } =
 
 loadLocalDiagram : DiagramId -> Return.ReturnF msg model
 loadLocalDiagram diagramId =
-    Return.command <| Ports.getDiagram (DiagramId.toString diagramId)
+    DiagramId.toString diagramId
+        |> Ports.getDiagram
+        |> Return.command
 
 
 loadPublicItem : (Result RequestError DiagramItem -> msg) -> { id : DiagramId, session : Session } -> Return.ReturnF msg model
@@ -130,7 +132,14 @@ loadPublicItem msg { id, session } =
         |> Return.command
 
 
-loadSettings : (Result RequestError DiagramSettings.Settings -> msg) -> { cache : SettingsCache, diagramType : DiagramType, session : Session } -> Return.ReturnF msg model
+loadSettings :
+    (Result RequestError DiagramSettings.Settings -> msg)
+    ->
+        { cache : SettingsCache
+        , diagramType : DiagramType
+        , session : Session
+        }
+    -> Return.ReturnF msg model
 loadSettings msg { cache, diagramType, session } =
     if Session.isSignedIn session then
         case SettingCache.get cache diagramType of
@@ -167,7 +176,14 @@ loadText msg diagram =
         |> Return.command
 
 
-loadWithPasswordShareItem : (Result RequestError DiagramItem -> msg) -> { password : Maybe String, session : Session, token : ShareToken } -> Return.ReturnF msg model
+loadWithPasswordShareItem :
+    (Result RequestError DiagramItem -> msg)
+    ->
+        { password : Maybe String
+        , session : Session
+        , token : ShareToken
+        }
+    -> Return.ReturnF msg model
 loadWithPasswordShareItem msg { password, session, token } =
     Request.shareItem
         (Session.getIdToken session)
@@ -200,28 +216,24 @@ revokeGistToken msg session =
 
 saveDiagram : DiagramItem -> Return.ReturnF msg model
 saveDiagram item =
-    Return.command <| (Ports.saveDiagram <| DiagramItem.encoder item)
+    DiagramItem.encoder item
+        |> Ports.saveDiagram
+        |> Return.command
 
 
 saveLocalFile : DiagramItem -> Return.ReturnF msg model
 saveLocalFile item =
-    let
-        d : DiagramItem
-        d =
-            { item
-                | title =
-                    if String.endsWith ext <| "." ++ Title.toString item.title then
-                        Title.fromString <| Title.toString item.title
+    DiagramItem.encoder
+        { item
+            | title =
+                if String.endsWith (DiagramType.toString item.diagram) <| "." ++ Title.toString item.title then
+                    Title.fromString <| Title.toString item.title
 
-                    else
-                        Title.fromString <| Title.toString item.title ++ "." ++ DiagramType.toString item.diagram
-            }
-
-        ext : String
-        ext =
-            DiagramType.toString item.diagram
-    in
-    Return.command <| (Ports.saveLocalFile <| DiagramItem.encoder d)
+                else
+                    Title.fromString <| Title.toString item.title ++ "." ++ DiagramType.toString item.diagram
+        }
+        |> Ports.saveLocalFile
+        |> Return.command
 
 
 saveSettings :
@@ -237,55 +249,32 @@ saveSettings msg { diagramType, session, settings } =
         saveSettingsToRemote msg { diagramType = diagramType, session = session, settings = settings.storyMap }
 
     else
-        let
-            diagram : Maybe DiagramItem
-            diagram =
-                settings.diagram
-
-            newDiagram : Maybe DiagramItem
-            newDiagram =
-                Maybe.map (\d -> { d | diagram = diagramType }) diagram
-
-            newSettings : Settings.Settings
-            newSettings =
-                { settings | diagram = newDiagram }
-        in
-        Return.command <| Ports.saveSettingsToLocal (Settings.settingsEncoder newSettings)
+        Return.command <| Ports.saveSettingsToLocal (Settings.settingsEncoder { settings | diagram = Maybe.map (\d -> { d | diagram = diagramType }) settings.diagram })
 
 
 saveToLocal : DiagramItem -> Return.ReturnF msg model
 saveToLocal item =
-    Return.command <| (Ports.saveDiagram <| DiagramItem.encoder { item | isRemote = False })
+    DiagramItem.encoder { item | isRemote = False }
+        |> Ports.saveDiagram
+        |> Return.command
 
 
 saveToRemote : (Result RequestError DiagramItem -> msg) -> { diagram : DiagramItem, session : Session, settings : Settings.Settings } -> Return.ReturnF msg model
 saveToRemote msg { diagram, session, settings } =
     case session of
         Session.SignedIn user ->
-            case ( diagram.location, settings.location, user.loginProvider ) of
+            (case ( diagram.location, settings.location, user.loginProvider ) of
                 ( Just DiagramLocation.Gist, _, LoginProvider.Github (Just accessToken) ) ->
-                    let
-                        saveTask : Task.Task RequestError DiagramItem
-                        saveTask =
-                            Request.saveGist (Session.getIdToken session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
-                    in
-                    Return.command <| Task.attempt msg saveTask
+                    Request.saveGist (Session.getIdToken session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
 
                 ( _, Just DiagramLocation.Gist, LoginProvider.Github (Just accessToken) ) ->
-                    let
-                        saveTask : Task.Task RequestError DiagramItem
-                        saveTask =
-                            Request.saveGist (Session.getIdToken session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
-                    in
-                    Return.command <| Task.attempt msg saveTask
+                    Request.saveGist (Session.getIdToken session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
 
                 _ ->
-                    let
-                        saveTask : Task.Task RequestError DiagramItem
-                        saveTask =
-                            Request.save (Session.getIdToken session) (DiagramItem.toInputItem diagram) diagram.isPublic
-                    in
-                    Return.command <| Task.attempt msg saveTask
+                    Request.save (Session.getIdToken session) (DiagramItem.toInputItem diagram) diagram.isPublic
+            )
+                |> Task.attempt msg
+                |> Return.command
 
         Session.Guest ->
             Return.zero
@@ -293,8 +282,8 @@ saveToRemote msg { diagram, session, settings } =
 
 setFocus : msg -> String -> Return.ReturnF msg model
 setFocus msg id =
-    Task.attempt (\_ -> msg)
-        (Dom.focus id)
+    Dom.focus id
+        |> Task.attempt (\_ -> msg)
         |> Return.command
 
 

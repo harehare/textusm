@@ -104,18 +104,14 @@ type Msg
 
 
 loadUsableFontList :
-    (Result RequestError FontList -> msg)
+    (Result RequestError FontList -> Msg)
     -> Lang
-    -> Return.ReturnF msg model
+    -> Return.ReturnF Msg Model
 loadUsableFontList msg lang =
     UsableFontListRequest.usableFontList
         lang
         |> Task.attempt msg
         |> Return.command
-
-
-
--- loadUsableFontList UpdateUsableFontList (Message.langFromString "ja")
 
 
 init : { canUseNativeFileSystem : Bool, diagramType : DiagramType, session : Session, settings : Settings, lang : Lang, usableFontList : Maybe FontList } -> Return.Return Msg Model
@@ -146,10 +142,12 @@ init { canUseNativeFileSystem, diagramType, session, settings, lang, usableFontL
                 }
 
 
-load : DiagramType -> Model -> Return.Return Msg Model
-load diagramType model =
-    Return.singleton { model | diagramType = diagramType }
-        |> loadUsableFontList UpdateUsableFontList (Message.langFromString "ja")
+load : { diagramType : DiagramType, session : Session } -> Return.ReturnF Msg Model
+load { diagramType, session } =
+    Return.andThen <|
+        \m ->
+            Return.singleton { m | diagramType = diagramType, session = session }
+                |> loadUsableFontList UpdateUsableFontList (Message.langFromString "ja")
 
 
 update : Msg -> Return.ReturnF Msg Model

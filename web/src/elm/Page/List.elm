@@ -276,9 +276,12 @@ init session lang apiRoot isOnline =
         (Task.perform GotTimeZone Time.here)
 
 
-load : Return.ReturnF Msg Model
-load =
-    Return.command (getDiagrams ())
+load : { session : Session, isOnline : Bool } -> Return.ReturnF Msg Model
+load { session, isOnline } =
+    Return.andThen <|
+        \m ->
+            Return.singleton { m | session = session, isOnline = isOnline }
+                |> Return.command (getDiagrams ())
 
 
 showDialog : Dialog.ConfirmDialog Msg -> Html Msg
@@ -792,20 +795,19 @@ update : Msg -> Return.ReturnF Msg Model
 update message =
     case message of
         GotTimeZone zone ->
-            Return.andThen <| \m -> Return.singleton { m | timeZone = zone }
+            Return.map <| \m -> { m | timeZone = zone }
 
         SearchInput input ->
-            Return.andThen <|
+            Return.map <|
                 \m ->
-                    Return.singleton
-                        { m
-                            | searchQuery =
-                                if String.isEmpty input then
-                                    Nothing
+                    { m
+                        | searchQuery =
+                            if String.isEmpty input then
+                                Nothing
 
-                                else
-                                    Just input
-                        }
+                            else
+                                Just input
+                    }
 
         LoadNextPage (AllList remoteData _ hasMorePage) pageNo ->
             Return.andThen
