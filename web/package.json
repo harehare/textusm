@@ -14,7 +14,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "monaco-editor": "^0.34.1",
-    "svgo": "^3.0.0",
+    "svgo": "^3.0.1",
     "tslib": "^2.4.1",
     "uuid": "^9.0.0",
     "workbox-window": "^6.5.4"
