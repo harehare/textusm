@@ -2,7 +2,7 @@ module github.com/harehare/textusm
 
 require (
 	cloud.google.com/go/firestore v1.8.0
-	firebase.google.com/go/v4 v4.9.0
+	firebase.google.com/go/v4 v4.10.0
 	github.com/99designs/gqlgen v0.17.20
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/go-chi/chi/v5 v5.0.7
@@ -27,9 +27,11 @@ require (
 	cloud.google.com/go/iam v0.6.0 // indirect
 	cloud.google.com/go/longrunning v0.1.1 // indirect
 	cloud.google.com/go/storage v1.27.0 // indirect
+	github.com/MicahParks/keyfunc v1.5.1 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
