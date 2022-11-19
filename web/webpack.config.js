@@ -235,7 +235,8 @@ if (mode === 'production') {
           use: {
             loader: 'elm-webpack-loader',
             options: {
-              optimize: true,
+              optimize: false,
+              pathToElm: './node_modules/.bin/elm-optimize-level-2'
             },
           },
         },
