@@ -46,7 +46,6 @@ view props =
             , displayFlex
             , alignItems center
             , justifyContent flexEnd
-            , Style.borderTop05
             , ColorStyle.bgFooterColor
             ]
         ]

@@ -93,7 +93,6 @@ view props =
             , Style.widthScreen
             , ColorStyle.bgHeaderColor
             , height <| px 36
-            , Style.borderBottom05
             ]
         ]
         (Html.div
