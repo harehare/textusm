@@ -85,7 +85,7 @@ export class MonacoEditor extends HTMLElement {
   }
 
   attributeChangedCallback(
-    name: string,
+    name: 'value' | 'fontSize' | 'wordWrap' | 'showLineNumber' | 'changed' | 'diagramType',
     oldValue: string | boolean | number,
     newValue: string | boolean | number
   ): void {
@@ -94,7 +94,7 @@ export class MonacoEditor extends HTMLElement {
     }
 
     switch (name) {
-      case 'value':
+      case 'value': {
         if (newValue !== this.editor?.getValue()) {
           const position: monaco.IPosition | undefined = this.editor?.getPosition() ?? undefined;
           this.value = newValue as string;
@@ -104,39 +104,51 @@ export class MonacoEditor extends HTMLElement {
         }
 
         break;
-      case 'fontSize':
+      }
+
+      case 'fontSize': {
         if (oldValue !== newValue) {
           this.fontSize = newValue as number;
         }
 
         break;
-      case 'wordWrap':
+      }
+
+      case 'wordWrap': {
         if (oldValue !== newValue) {
           this.wordWrap = newValue === 'true';
         }
 
         break;
-      case 'showLineNumber':
+      }
+
+      case 'showLineNumber': {
         if (oldValue !== newValue) {
           this.showLineNumber = newValue === 'true';
         }
 
         break;
-      case 'changed':
+      }
+
+      case 'changed': {
         if (oldValue !== newValue) {
           this.changed = newValue === 'true';
         }
 
         break;
-      case 'diagramType':
+      }
+
+      case 'diagramType': {
         if (oldValue !== newValue) {
           this.diagramType = newValue as DiagramType;
         }
 
         break;
+      }
 
-      default:
-        throw new Error(`Unknown attribute ${name}`);
+      default: {
+        throw new Error(`Unknown attribute`);
+      }
     }
   }
 
@@ -212,6 +224,26 @@ export class MonacoEditor extends HTMLElement {
       contextMenuOrder: 2,
       run() {
         _app?.ports.shortcuts.send('save');
+      },
+    });
+
+    this.editor.addAction({
+      id: 'focus',
+      label: 'focus',
+      /* eslint  no-bitwise: 0 */
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE],
+      contextMenuOrder: 3,
+      run() {
+        const currentLineNo = monacoEditor?.getPosition()?.lineNumber ?? -1;
+
+        if (currentLineNo === -1) {
+          return;
+        }
+
+        _app?.ports.selectItemFromLineNo.send({
+          lineNo: currentLineNo - 1,
+          text: monacoEditor?.getModel()?.getLineContent(currentLineNo) ?? '',
+        });
       },
     });
 

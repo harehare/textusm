@@ -148,13 +148,12 @@ update message =
             Return.zero
 
         Init settings window text ->
-            Return.andThen
+            Return.map
                 (\m ->
-                    Return.singleton <|
-                        updateDiagram
-                            ( round window.viewport.width, round window.viewport.height - 50 )
-                            m
-                            text
+                    updateDiagram
+                        ( round window.viewport.width, round window.viewport.height - 50 )
+                        m
+                        text
                 )
                 >> Return.andThen (\m -> Return.singleton { m | settings = settings })
 
@@ -176,15 +175,15 @@ update message =
             Return.andThen <| move isWheelEvent position
 
         MoveTo position ->
-            Return.andThen (\m -> Return.singleton { m | position = position })
-                >> Return.andThen clearPosition
+            Return.map (\m -> { m | position = position })
+                >>  clearPosition
 
         ToggleFullscreen ->
-            Return.andThen (\m -> Return.singleton { m | isFullscreen = not m.isFullscreen })
-                >> Return.andThen clearPosition
+            Return.map (\m -> { m | isFullscreen = not m.isFullscreen })
+                >>  clearPosition
 
         EditSelectedItem text ->
-            Return.andThen <| \m -> Return.singleton { m | selectedItem = Maybe.map (\item_ -> item_ |> Item.withTextOnly (" " ++ String.trimLeft text)) m.selectedItem }
+            Return.map <| \m -> { m | selectedItem = Maybe.map (\item_ -> item_ |> Item.withTextOnly (" " ++ String.trimLeft text)) m.selectedItem }
 
         EndEditSelectedItem item ->
             Return.andThen <|
@@ -218,7 +217,7 @@ update message =
                                 in
                                 Return.singleton m
                                     |> Return.andThen (setText text)
-                                    |> Return.andThen clearSelectedItem
+                                    |> clearSelectedItem
                             )
                         |> Maybe.withDefault (Return.singleton m)
 
@@ -293,15 +292,13 @@ update message =
                                             Just menu_ ->
                                                 Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
                                                     |> Return.andThen (setText updateText)
-                                                    |> Return.andThen
-                                                        (selectItem
-                                                            (Just
-                                                                (item_
-                                                                    |> Item.withItemSettings
-                                                                        (Item.getItemSettings item_
-                                                                            |> Maybe.map (\s -> ItemSettings.withForegroundColor (Just color) s)
-                                                                        )
-                                                                )
+                                                    |> selectItem
+                                                        (Just
+                                                            (item_
+                                                                |> Item.withItemSettings
+                                                                    (Item.getItemSettings item_
+                                                                        |> Maybe.map (\s -> ItemSettings.withForegroundColor (Just color) s)
+                                                                    )
                                                             )
                                                         )
 
@@ -313,15 +310,13 @@ update message =
                                             Just menu_ ->
                                                 Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
                                                     |> Return.andThen (setText updateText)
-                                                    |> Return.andThen
-                                                        (selectItem
-                                                            (Just
-                                                                (item_
-                                                                    |> Item.withItemSettings
-                                                                        (Item.getItemSettings item_
-                                                                            |> Maybe.map (\s -> ItemSettings.withBackgroundColor (Just color) s)
-                                                                        )
-                                                                )
+                                                    |> selectItem
+                                                        (Just
+                                                            (item_
+                                                                |> Item.withItemSettings
+                                                                    (Item.getItemSettings item_
+                                                                        |> Maybe.map (\s -> ItemSettings.withBackgroundColor (Just color) s)
+                                                                    )
                                                             )
                                                         )
 
@@ -384,10 +379,10 @@ update message =
                 Return.zero
 
             else
-                Return.andThen <| \m -> Return.singleton { m | text = Text.fromString file }
+                Return.map <| \m -> { m | text = Text.fromString file }
 
         ChangeDragStatus status ->
-            Return.andThen <| \m -> Return.singleton { m | dragStatus = status }
+            Return.map <| \m -> { m | dragStatus = status }
 
         FontSizeChanged size ->
             Return.andThen <|
@@ -421,37 +416,34 @@ update message =
                                             |> String.join "\n"
                                 in
                                 Return.singleton m
-                                    |> Return.andThen closeDropDown
+                                    |> closeDropDown
                                     |> Return.andThen (setText updateText)
-                                    |> Return.andThen
-                                        (selectItem
-                                            (Just
-                                                (item
-                                                    |> Item.withItemSettings
-                                                        (Item.getItemSettings item
-                                                            |> Maybe.map (\s -> ItemSettings.withFontSize size <| s)
-                                                        )
-                                                )
+                                    |> selectItem
+                                        (Just
+                                            (item
+                                                |> Item.withItemSettings
+                                                    (Item.getItemSettings item
+                                                        |> Maybe.map (\s -> ItemSettings.withFontSize size <| s)
+                                                    )
                                             )
                                         )
                             )
                         |> Maybe.withDefault (Return.singleton m)
 
         ToggleDropDownList id ->
-            Return.andThen <|
+            Return.map <|
                 \m ->
-                    Return.singleton
-                        { m
-                            | dropDownIndex =
-                                if (m.dropDownIndex |> Maybe.withDefault "") == id then
-                                    Nothing
+                    { m
+                        | dropDownIndex =
+                            if (m.dropDownIndex |> Maybe.withDefault "") == id then
+                                Nothing
 
-                                else
-                                    Just id
-                        }
+                            else
+                                Just id
+                    }
 
         ToggleMiniMap ->
-            Return.andThen <| \m -> Return.singleton { m | showMiniMap = not m.showMiniMap }
+            Return.map <| \m -> { m | showMiniMap = not m.showMiniMap }
 
         ToggleSearch ->
             Return.andThen <|
@@ -468,16 +460,14 @@ update message =
                     Return.singleton { m | items = items, data = diagramData, search = SearchModel.toggle m.search }
 
         ToolbarClick item ->
-            Return.andThen <|
-                \m ->
-                    Return.return m <| Ports.insertText <| Item.toLineString item
+            Item.toLineString item |> Ports.insertText |> Return.command
 
         ChangeText text ->
-            Return.andThen <| \m -> Return.singleton <| updateDiagram m.size m text
+            Return.map <| \m -> updateDiagram m.size m text
 
         Resize width height ->
-            Return.andThen (\m -> Return.singleton { m | size = ( width, height - 56 ) })
-                >> Return.andThen clearPosition
+            Return.map (\m -> { m | size = ( width, height - 56 ) })
+                >> clearPosition
 
         Search query ->
             Return.andThen <|
@@ -498,17 +488,17 @@ update message =
                     Return.singleton { m | items = items, data = diagramData, search = SearchModel.search query }
 
         Start moveState pos ->
-            Return.andThen <| \m -> Return.singleton { m | moveState = moveState, movePosition = pos }
+            Return.map <| \m -> { m | moveState = moveState, movePosition = pos }
 
         StartPinch distance ->
-            Return.andThen <| \m -> Return.singleton { m | touchDistance = Just distance }
+            Return.map <| \m -> { m | touchDistance = Just distance }
 
         Select (Just { item, position, displayAllMenu }) ->
-            Return.andThen (\m -> Return.singleton { m | contextMenu = Just { contextMenu = Diagram.CloseMenu, displayAllMenu = displayAllMenu, position = position }, selectedItem = Just item })
-                >> Return.andThen (setFocus "edit-item")
+            Return.map (\m -> { m | contextMenu = Just { contextMenu = Diagram.CloseMenu, displayAllMenu = displayAllMenu, position = position }, selectedItem = Just item })
+                >> setFocus "edit-item"
 
         Select Nothing ->
-            Return.andThen <| \m -> Return.singleton { m | selectedItem = Nothing }
+            Return.map <| \m -> { m | selectedItem = Nothing }
 
         SelectContextMenu menu ->
             Return.andThen <|
@@ -540,6 +530,17 @@ update message =
                             Return.singleton m
                 )
                 >> Return.andThen stopMove
+
+        SelectFromLineNo lineNo text ->
+            let
+                item =
+                    Item.itemFromString lineNo text
+            in
+            if Item.isComment item then
+                Return.zero
+
+            else
+                selectItem <| Just item
 
 
 
@@ -702,19 +703,19 @@ view model =
         ]
 
 
-clearPosition : Model -> Return Msg Model
-clearPosition model =
-    Return.singleton { model | movePosition = Position.zero }
+clearPosition : Return.ReturnF Msg Model
+clearPosition =
+    Return.map <| \m -> { m | movePosition = Position.zero }
 
 
-clearSelectedItem : Model -> Return Msg Model
-clearSelectedItem model =
-    Return.singleton { model | selectedItem = Nothing }
+clearSelectedItem : Return.ReturnF Msg Model
+clearSelectedItem =
+    Return.map <| \m -> { m | selectedItem = Nothing }
 
 
-closeDropDown : Model -> Return Msg Model
-closeDropDown model =
-    Return.singleton { model | dropDownIndex = Nothing }
+closeDropDown : Return.ReturnF Msg Model
+closeDropDown =
+    Return.map <| \m -> { m | dropDownIndex = Nothing }
 
 
 diagramView : DiagramType -> Model -> Svg Msg
@@ -1077,14 +1078,14 @@ onDragStart item =
             Attr.style "" ""
 
 
-selectItem : SelectedItem -> Model -> Return Msg Model
-selectItem item model =
-    Return.singleton { model | selectedItem = item }
+selectItem : SelectedItem -> Return.ReturnF Msg Model
+selectItem item =
+    Return.map <| \m -> { m | selectedItem = item }
 
 
-setFocus : String -> Model -> Return Msg Model
-setFocus id model =
-    Return.return model (Task.attempt (\_ -> NoOp) <| Dom.focus id)
+setFocus : String -> Return.ReturnF Msg Model
+setFocus id =
+    Return.command (Task.attempt (\_ -> NoOp) <| Dom.focus id)
 
 
 setLine : Int -> List String -> String -> Model -> Return Msg Model

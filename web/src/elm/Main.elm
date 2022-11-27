@@ -653,6 +653,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         ([ Ports.changeText (\text -> UpdateDiagram (DiagramModel.ChangeText text))
+         , Ports.selectItemFromLineNo (\{ lineNo, text } -> UpdateDiagram (DiagramModel.SelectFromLineNo lineNo text))
          , Ports.loadSettingsFromLocalCompleted LoadSettingsFromLocal
          , Ports.startDownload StartDownload
          , Ports.gotLocalDiagramsJson (\json -> UpdateDiagramList (DiagramList.GotLocalDiagramsJson json))
@@ -1133,13 +1134,9 @@ update message =
         Shortcuts cmd ->
             case cmd of
                 Just Shortcuts.Open ->
-                    Return.andThen <|
-                        \m ->
-                            Return.singleton m
-                                |> (Route.toString (toRoute m.url)
-                                        |> Nav.load
-                                        |> Return.command
-                                   )
+                    Route.toString Route.DiagramList
+                        |> Nav.load
+                        |> Return.command
 
                 Just Shortcuts.Save ->
                     Return.andThen <|

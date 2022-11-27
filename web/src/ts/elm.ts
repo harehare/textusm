@@ -83,5 +83,6 @@ export type ElmApp = {
     notifyNewVersionAvailable: Send<string>;
     openedLocalFile: Send<[string, string]>;
     savedLocalFile: Send<string>;
+    selectItemFromLineNo: Send<{ lineNo: number; text: string }>;
   };
 };

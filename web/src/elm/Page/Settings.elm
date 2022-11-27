@@ -154,30 +154,29 @@ update : Msg -> Return.ReturnF Msg Model
 update msg =
     case msg of
         UpdateSettings getSetting value ->
-            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing, settings = getSetting value })
+            Return.map (\m -> { m | dropDownIndex = Nothing, settings = getSetting value })
 
         ToggleDropDownList id ->
-            Return.andThen
+            Return.map
                 (\m ->
-                    Return.singleton
-                        { m
-                            | dropDownIndex =
-                                if (m.dropDownIndex |> Maybe.withDefault "") == id then
-                                    Nothing
+                    { m
+                        | dropDownIndex =
+                            if (m.dropDownIndex |> Maybe.withDefault "") == id then
+                                Nothing
 
-                                else
-                                    Just id
-                        }
+                            else
+                                Just id
+                    }
                 )
 
         DropDownClose ->
-            Return.andThen (\m -> Return.singleton { m | dropDownIndex = Nothing })
+            Return.map (\m -> { m | dropDownIndex = Nothing })
 
         UpdateUsableFontList (Ok fontList) ->
-            Return.andThen (\m -> Return.singleton { m | usableFontList = fontList, isLoading = False })
+            Return.map (\m -> { m | usableFontList = fontList, isLoading = False })
 
         UpdateUsableFontList (Err _) ->
-            Return.andThen (\m -> Return.singleton { m | usableFontList = [], isLoading = False })
+            Return.map (\m -> { m | usableFontList = [], isLoading = False })
 
 
 isFetchedUsableFont : Model -> Bool

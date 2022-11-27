@@ -37,6 +37,7 @@ port module Ports exposing
     , saveToLocalCompleted
     , saveToRemote
     , savedLocalFile
+    , selectItemFromLineNo
     , sendErrorNotification
     , shortcuts
     , signIn
@@ -179,6 +180,9 @@ port startDownload : ({ extension : String, mimeType : String, content : String 
 
 
 port updateIdToken : (String -> msg) -> Sub msg
+
+
+port selectItemFromLineNo : ({ lineNo : Int, text : String } -> msg) -> Sub msg
 
 
 type alias DownloadInfo =

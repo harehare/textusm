@@ -35,6 +35,7 @@ module Models.Item exposing
     , head
     , indexedMap
     , isCanvas
+    , isComment
     , isEmpty
     , isHighlight
     , isHorizontalLine
@@ -42,6 +43,7 @@ module Models.Item exposing
     , isMarkdown
     , isText
     , isVerticalLine
+    , itemFromString
     , length
     , map
     , mapWithRecursive
@@ -171,6 +173,11 @@ fromString text =
             |> Maybe.withDefault 0
         , loadedItems
         )
+
+
+itemFromString : Int -> String -> Item
+itemFromString lineNo text =
+    new |> withText text |> withLineNo lineNo
 
 
 getAt : Int -> Items -> Maybe Item
@@ -329,6 +336,16 @@ isEmpty (Items items) =
 isHighlight : Item -> Bool
 isHighlight (Item i) =
     i.highlight
+
+
+isComment : Item -> Bool
+isComment (Item i) =
+    case i.itemType of
+        Comments ->
+            True
+
+        _ ->
+            False
 
 
 isHorizontalLine : Item -> Bool

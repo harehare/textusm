@@ -162,6 +162,7 @@ type Msg
     | Select (Maybe SelectedItemInfo)
     | SelectContextMenu ContextMenu
     | Stop
+    | SelectFromLineNo Int String
 
 
 type ResizeDirection
