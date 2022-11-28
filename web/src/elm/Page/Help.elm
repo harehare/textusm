@@ -172,6 +172,10 @@ view =
                 , itemView [ text "Command+O" ]
                 , itemView [ text "Open" ]
                 ]
+            , div [ Attr.css [ displayFlex ] ]
+                [ itemView [ text "Command+O" ]
+                , itemView [ text "Select the card in the current row" ]
+                ]
             ]
         ]
 

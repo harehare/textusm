@@ -338,7 +338,7 @@ init flags url key =
             , snackbar = SnackbarModel.Hide
             , notification = Notification.Hide
             , settingsCache = SettingsCache.new
-            , theme = Theme.System flags.isDarkMode
+            , theme = Maybe.withDefault (Theme.System flags.isDarkMode) initSettings.theme
             }
 
         ( settingsModel, _ ) =
