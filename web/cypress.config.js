@@ -6,6 +6,6 @@ module.exports = defineConfig({
     specPattern: 'e2e/**/*.js',
     supportFile: false,
     defaultCommandTimeout: 10_000,
-    retries: 3,
+    retries: 5,
   },
 });
