@@ -176,11 +176,11 @@ update message =
 
         MoveTo position ->
             Return.map (\m -> { m | position = position })
-                >>  clearPosition
+                >> clearPosition
 
         ToggleFullscreen ->
             Return.map (\m -> { m | isFullscreen = not m.isFullscreen })
-                >>  clearPosition
+                >> clearPosition
 
         EditSelectedItem text ->
             Return.map <| \m -> { m | selectedItem = Maybe.map (\item_ -> item_ |> Item.withTextOnly (" " ++ String.trimLeft text)) m.selectedItem }
