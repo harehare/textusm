@@ -46,7 +46,7 @@
     "elm-format": "^0.8.5",
     "elm-hot-webpack-loader": "^1.1.8",
     "elm-optimize-level-2": "^0.3.5",
-    "elm-review": "^2.8.2",
+    "elm-review": "^2.8.3",
     "elm-test": "^0.19.1-revision10",
     "elm-webpack-loader": "^8.0.0",
     "firebase-tools": "^11.16.1",
