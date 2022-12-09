@@ -73,7 +73,6 @@ module Models.Item exposing
 
 import Constants exposing (indentSpace, inputPrefix)
 import Html.Attributes exposing (property)
-import Json.Decode as D
 import List.Extra as ListEx
 import Maybe
 import Models.Color exposing (Color)
@@ -457,11 +456,11 @@ split text =
                 ( t, comment ) =
                     splitLine text_
             in
-            case D.decodeString ItemSettings.decoder settingsString of
-                Ok settings ->
+            case ItemSettings.fromString settingsString of
+                Just settings ->
                     ( t, settings, comment )
 
-                Err _ ->
+                Nothing ->
                     ( t, ItemSettings.new, comment )
 
         _ ->
@@ -596,11 +595,11 @@ withText text (Item item) =
                             ( text_, comments_ ) =
                                 splitLine t
                         in
-                        case D.decodeString ItemSettings.decoder s of
-                            Ok settings_ ->
+                        case ItemSettings.fromString s of
+                            Just settings_ ->
                                 ( text_, Just settings_, comments_ )
 
-                            Err _ ->
+                            Nothing ->
                                 ( text_ ++ textSeparator ++ s, Nothing, comments_ )
 
                     ( _, Nothing ) ->
