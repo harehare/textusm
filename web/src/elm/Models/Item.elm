@@ -439,9 +439,8 @@ searchClear items =
 split : String -> ( String, ItemSettings, Maybe String )
 split text =
     let
-        tokens : List String
-        tokens =
-            String.split textSeparator text
+        ( _, tokens ) =
+            splitText text
     in
     case tokens of
         [ text_ ] ->
@@ -568,10 +567,9 @@ withText text (Item item) =
 
             else
                 let
-                    tokens : List (List Char)
-                    tokens =
-                        String.split textSeparator text
-                            |> List.map String.toList
+                    ( sep, tokens ) =
+                        splitText text
+                            |> Tuple.mapSecond (List.map String.toList)
 
                     tuple : ( String, Maybe String )
                     tuple =
@@ -582,7 +580,7 @@ withText text (Item item) =
                             _ :: _ :: _ ->
                                 ( List.take (List.length tokens - 1) tokens
                                     |> List.map String.fromList
-                                    |> String.join textSeparator
+                                    |> String.join sep
                                 , ListEx.last tokens |> Maybe.map String.fromList
                                 )
 
@@ -600,7 +598,7 @@ withText text (Item item) =
                                 ( text_, Just settings_, comments_ )
 
                             Nothing ->
-                                ( text_ ++ textSeparator ++ s, Nothing, comments_ )
+                                ( text_ ++ sep ++ s, Nothing, comments_ )
 
                     ( _, Nothing ) ->
                         let
@@ -790,6 +788,25 @@ splitLine text =
             ( "", Nothing )
 
 
+splitText : String -> ( String, List String )
+splitText text =
+    let
+        tokens : List String
+        tokens =
+            String.split textSeparator text
+    in
+    if List.length tokens > 1 then
+        ( textSeparator, tokens )
+
+    else
+        ( legacyTextSeparator, String.split legacyTextSeparator text )
+
+
 textSeparator : String
 textSeparator =
+    ": |"
+
+
+legacyTextSeparator : String
+legacyTextSeparator =
     "|"

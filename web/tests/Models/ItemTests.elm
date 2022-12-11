@@ -148,18 +148,18 @@ suite =
                 \() ->
                     Expect.equal
                         (Item.new
-                            |> Item.withText "test|test2|"
+                            |> Item.withText "test: |test2: |"
                             |> Item.getText
                         )
-                        "test|test2|"
+                        "test: |test2: |"
             , test "when multiple | and item settings json" <|
                 \() ->
                     Expect.equal
                         (Item.new
-                            |> Item.withText "test|test2|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
+                            |> Item.withText "test: |test2: |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
                             |> Item.getText
                         )
-                        "test|test2"
+                        "test: |test2"
             , test "when text with comments" <|
                 \() ->
                     Expect.equal
@@ -172,18 +172,18 @@ suite =
                 \() ->
                     Expect.equal
                         (Item.new
-                            |> Item.withText "test # comment |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
+                            |> Item.withText "test # comment: |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
                             |> (\i -> ( Item.getText i, Item.getComments i, Item.getItemSettings i |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize |> FontSize.toInt ))
                         )
-                        ( "test ", Just "# comment ", 10 )
+                        ( "test ", Just "# comment", 10 )
             , test "when text with invalid comments and item settings json" <|
                 \() ->
                     Expect.equal
                         (Item.new
-                            |> Item.withText "test|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}# comment"
+                            |> Item.withText "test: |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}# comment"
                             |> (\i -> ( Item.getText i, Item.getComments i, Item.getItemSettings i ))
                         )
-                        ( "test|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}# comment", Nothing, Nothing )
+                        ( "test: |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}# comment", Nothing, Nothing )
             ]
         , describe
             "split test"
@@ -198,6 +198,11 @@ suite =
                         (Item.split "test #comment")
                         ( "test ", ItemSettings.new, Just "comment" )
             , test "when text, comments and item settings" <|
+                \() ->
+                    Expect.equal
+                        (Item.split "test #comment: |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}")
+                        ( "test ", ItemSettings.new |> ItemSettings.withFontSize (FontSize.fromInt 10), Just "comment" )
+            , test "when text, comments and legacy item settings" <|
                 \() ->
                     Expect.equal
                         (Item.split "test #comment|{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}")
