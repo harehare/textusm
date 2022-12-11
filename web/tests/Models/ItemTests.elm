@@ -156,7 +156,7 @@ suite =
                 \() ->
                     Expect.equal
                         (Item.new
-                            |> Item.withText "test: |test2: |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
+                            |> Item.withText "test: |test2: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"font_size\":10}"
                             |> Item.getText
                         )
                         "test: |test2"
@@ -172,7 +172,7 @@ suite =
                 \() ->
                     Expect.equal
                         (Item.new
-                            |> Item.withText "test # comment: |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}"
+                            |> Item.withText "test # comment: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"font_size\":10}"
                             |> (\i -> ( Item.getText i, Item.getComments i, Item.getItemSettings i |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize |> FontSize.toInt ))
                         )
                         ( "test ", Just "# comment", 10 )
@@ -180,10 +180,10 @@ suite =
                 \() ->
                     Expect.equal
                         (Item.new
-                            |> Item.withText "test: |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}# comment"
+                            |> Item.withText "test: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"size\":10}# comment"
                             |> (\i -> ( Item.getText i, Item.getComments i, Item.getItemSettings i ))
                         )
-                        ( "test: |{\"b\":null,\"f\":null,\"o\":[0,0],\"s\":10}# comment", Nothing, Nothing )
+                        ( "test: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"size\":10}# comment", Nothing, Nothing )
             ]
         , describe
             "split test"
@@ -268,5 +268,10 @@ suite =
                     Expect.equal
                         (Item.new |> Item.withText "image: test" |> Item.getTextOnly)
                         "test"
+            , test "has image: and settings" <|
+                \() ->
+                    Expect.equal
+                        (Item.new |> Item.withText "image: https://avatars.githubusercontent.com/u/533078?v=4: |{\"size\":[192,209]}" |> Item.getTextOnly)
+                        "https://avatars.githubusercontent.com/u/533078?v=4"
             ]
         ]

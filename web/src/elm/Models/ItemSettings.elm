@@ -30,6 +30,15 @@ type ItemSettings
     = ItemSettings Settings
 
 
+type alias Settings =
+    { backgroundColor : Maybe Color
+    , foregroundColor : Maybe Color
+    , fontSize : FontSize
+    , offset : Position
+    , offsetSize : Maybe Size
+    }
+
+
 fromString : String -> Maybe ItemSettings
 fromString text =
     let
@@ -219,12 +228,3 @@ encoder (ItemSettings settings) =
                     Nothing ->
                         []
                )
-
-
-type alias Settings =
-    { backgroundColor : Maybe Color
-    , foregroundColor : Maybe Color
-    , fontSize : FontSize
-    , offset : Position
-    , offsetSize : Maybe Size
-    }

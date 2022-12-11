@@ -34,6 +34,7 @@ import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Image as Image exposing (Image)
 import Models.Item as Item exposing (Item, ItemType(..))
+import Models.ItemSettings exposing (ItemSettings)
 import Models.Position as Position exposing (Position)
 import Models.Property exposing (Property)
 import Models.Size as Size exposing (Size)

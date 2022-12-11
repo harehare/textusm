@@ -89,13 +89,9 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
             Svg.g
                 [ SvgAttr.class "card"
                 , Attributes.dataTest <| "card-" ++ (String.fromInt <| Item.getLineNo item)
-                , if Item.isImage item then
-                    SvgAttr.class ""
-
-                  else
-                    Events.onClickStopPropagation <|
-                        Select <|
-                            Just { item = item, position = position, displayAllMenu = True }
+                , Events.onClickStopPropagation <|
+                    Select <|
+                        Just { item = item, position = position, displayAllMenu = True }
                 ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt width

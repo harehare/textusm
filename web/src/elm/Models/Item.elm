@@ -318,9 +318,13 @@ getTrimmedText item =
 getTextOnly : Item -> String
 getTextOnly item =
     getText item
-        |> String.split ":"
-        |> ListEx.last
+        |> String.trim
+        |> String.split "image:"
+        |> List.filter (\m -> m /= "")
+        |> List.head
         |> Maybe.map String.trim
+        |> Maybe.map (String.split textSeparator)
+        |> Maybe.andThen List.head
         |> Maybe.withDefault ""
 
 
@@ -562,50 +566,46 @@ withText : String -> Item -> Item
 withText text (Item item) =
     let
         ( displayText, settings, comments ) =
-            if isImage <| withTextOnly text (Item item) then
-                ( text, Nothing, Nothing )
+            let
+                ( sep, tokens ) =
+                    splitText text
+                        |> Tuple.mapSecond (List.map String.toList)
 
-            else
-                let
-                    ( sep, tokens ) =
-                        splitText text
-                            |> Tuple.mapSecond (List.map String.toList)
+                tuple : ( String, Maybe String )
+                tuple =
+                    case tokens of
+                        [ x, '{' :: xs ] ->
+                            ( String.fromList x, Just <| String.fromList <| '{' :: xs )
 
-                    tuple : ( String, Maybe String )
-                    tuple =
-                        case tokens of
-                            [ x, '{' :: xs ] ->
-                                ( String.fromList x, Just <| String.fromList <| '{' :: xs )
+                        _ :: _ :: _ ->
+                            ( List.take (List.length tokens - 1) tokens
+                                |> List.map String.fromList
+                                |> String.join sep
+                            , ListEx.last tokens |> Maybe.map String.fromList
+                            )
 
-                            _ :: _ :: _ ->
-                                ( List.take (List.length tokens - 1) tokens
-                                    |> List.map String.fromList
-                                    |> String.join sep
-                                , ListEx.last tokens |> Maybe.map String.fromList
-                                )
+                        _ ->
+                            ( text, Nothing )
+            in
+            case tuple of
+                ( t, Just s ) ->
+                    let
+                        ( text_, comments_ ) =
+                            splitLine t
+                    in
+                    case ItemSettings.fromString s of
+                        Just settings_ ->
+                            ( text_, Just settings_, comments_ )
 
-                            _ ->
-                                ( text, Nothing )
-                in
-                case tuple of
-                    ( t, Just s ) ->
-                        let
-                            ( text_, comments_ ) =
-                                splitLine t
-                        in
-                        case ItemSettings.fromString s of
-                            Just settings_ ->
-                                ( text_, Just settings_, comments_ )
+                        Nothing ->
+                            ( text_ ++ sep ++ s, Nothing, comments_ )
 
-                            Nothing ->
-                                ( text_ ++ sep ++ s, Nothing, comments_ )
-
-                    ( _, Nothing ) ->
-                        let
-                            ( text_, comments_ ) =
-                                splitLine text
-                        in
-                        ( text_, Nothing, comments_ )
+                ( _, Nothing ) ->
+                    let
+                        ( text_, comments_ ) =
+                            splitLine text
+                    in
+                    ( text_, Nothing, comments_ )
     in
     Item { item | text = Text.fromString displayText, comments = comments, itemSettings = settings }
 
