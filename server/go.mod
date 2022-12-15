@@ -10,7 +10,7 @@ require (
 	github.com/go-chi/httprate v0.7.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/rs/zerolog v1.28.0
-	github.com/samber/mo v1.6.0
+	github.com/samber/mo v1.7.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.8.1
 	github.com/vektah/gqlparser/v2 v2.5.1
