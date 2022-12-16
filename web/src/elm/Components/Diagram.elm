@@ -72,7 +72,7 @@ import Models.DiagramSettings as DiagramSettings
 import Models.DiagramType exposing (DiagramType(..))
 import Models.FontStyle as FontStyle
 import Models.Item as Item exposing (Item, Items)
-import Models.ItemSettings as ItemSettings
+import Models.Item.ItemSettings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Property as Property
 import Models.Size as Size exposing (Size)
@@ -844,6 +844,7 @@ move isWheelEvent ( x, y ) m =
                         newItem : Item
                         newItem =
                             Item.withOffset newPosition item
+                                |> Debug.log "vvv"
 
                         newPosition : Position
                         newPosition =

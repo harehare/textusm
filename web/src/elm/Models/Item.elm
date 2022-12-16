@@ -21,9 +21,10 @@ module Models.Item exposing
     , getFontSize
     , getFontSizeWithProperty
     , getForegroundColor
+    , getFullText
     , getHierarchyCount
+    , getIndent
     , getItemSettings
-    , getItemType
     , getLeafCount
     , getLineNo
     , getOffset
@@ -37,14 +38,12 @@ module Models.Item exposing
     , indexedMap
     , isCanvas
     , isComment
-    , isDataUrl
     , isEmpty
     , isHighlight
     , isHorizontalLine
     , isImage
     , isMarkdown
     , isText
-    , isUrl
     , isVerticalLine
     , itemFromString
     , length
@@ -63,7 +62,6 @@ module Models.Item exposing
     , withComments
     , withHighlight
     , withItemSettings
-    , withItemType
     , withLineNo
     , withOffset
     , withOffsetSize
@@ -77,11 +75,11 @@ import List.Extra as ListEx
 import Maybe
 import Models.Color exposing (Color)
 import Models.FontSize as FontSize exposing (FontSize)
-import Models.ItemSettings as ItemSettings exposing (ItemSettings)
+import Models.Item.ItemSettings as ItemSettings exposing (ItemSettings)
+import Models.Item.ItemValue as ItemValue exposing (ItemValue)
 import Models.Position exposing (Position)
 import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
-import Models.Text as Text exposing (Text)
 import Simple.Fuzzy as Fuzzy
 
 
@@ -96,9 +94,8 @@ type alias Hierarchy =
 type Item
     = Item
         { lineNo : Int
-        , text : Text
+        , value : ItemValue
         , comments : Maybe String
-        , itemType : ItemType
         , itemSettings : Maybe ItemSettings
         , children : Children
         , highlight : Bool
@@ -200,6 +197,11 @@ getChildren (Item i) =
     i.children
 
 
+getIndent : Item -> Int
+getIndent (Item i) =
+    ItemValue.getIndent i.value
+
+
 getChildrenCount : Item -> Int
 getChildrenCount (Item item) =
     childrenCount <| unwrapChildren item.children
@@ -255,11 +257,6 @@ getItemSettings (Item i) =
     i.itemSettings
 
 
-getItemType : Item -> ItemType
-getItemType (Item i) =
-    i.itemType
-
-
 getLeafCount : Item -> Int
 getLeafCount (Item item) =
     leafCount <| unwrapChildren item.children
@@ -307,7 +304,12 @@ getSize item baseSize =
 
 getText : Item -> String
 getText (Item i) =
-    Text.toString i.text
+    ItemValue.toString i.value
+
+
+getFullText : Item -> String
+getFullText (Item i) =
+    ItemValue.toFullString i.value
 
 
 getTrimmedText : Item -> String
@@ -316,16 +318,8 @@ getTrimmedText item =
 
 
 getTextOnly : Item -> String
-getTextOnly item =
-    getText item
-        |> String.trim
-        |> String.split "image:"
-        |> List.filter (\m -> m /= "")
-        |> List.head
-        |> Maybe.map String.trim
-        |> Maybe.map (String.split textSeparator)
-        |> Maybe.andThen List.head
-        |> Maybe.withDefault ""
+getTextOnly (Item item) =
+    ItemValue.toString item.value |> String.trim
 
 
 head : Items -> Maybe Item
@@ -355,12 +349,7 @@ isHighlight (Item i) =
 
 isComment : Item -> Bool
 isComment (Item i) =
-    case i.itemType of
-        Comments ->
-            True
-
-        _ ->
-            False
+    ItemValue.isCooment i.value
 
 
 isHorizontalLine : Item -> Bool
@@ -369,18 +358,8 @@ isHorizontalLine item =
 
 
 isImage : Item -> Bool
-isImage item =
-    isUrl item || isDataUrl item
-
-
-isUrl : Item -> Bool
-isUrl item =
-    getText item |> String.trim |> String.toLower |> String.startsWith "image:"
-
-
-isDataUrl : Item -> Bool
-isDataUrl item =
-    getText item |> String.trim |> String.toLower |> String.startsWith "data:image/"
+isImage (Item item) =
+    ItemValue.isImage item.value || ItemValue.isImageData item.value
 
 
 
@@ -388,8 +367,8 @@ isDataUrl item =
 
 
 isMarkdown : Item -> Bool
-isMarkdown item =
-    getText item |> String.trim |> String.toLower |> String.startsWith "md:"
+isMarkdown (Item item) =
+    ItemValue.isMarkdown item.value
 
 
 isText : Item -> Bool
@@ -421,9 +400,8 @@ new : Item
 new =
     Item
         { lineNo = 0
-        , text = Text.empty
+        , value = ItemValue.empty
         , comments = Nothing
-        , itemType = Activities
         , itemSettings = Nothing
         , children = emptyChildren
         , highlight = False
@@ -494,10 +472,10 @@ toLineString item =
     in
     case getItemSettings item of
         Just s ->
-            getText item ++ comment ++ textSeparator ++ ItemSettings.toString s
+            getFullText item ++ comment ++ textSeparator ++ ItemSettings.toString s
 
         Nothing ->
-            getText item ++ comment
+            getFullText item ++ comment
 
 
 unwrap : Items -> List Item
@@ -507,7 +485,7 @@ unwrap (Items items) =
 
 unwrapChildren : Children -> Items
 unwrapChildren (Children (Items items)) =
-    Items (items |> List.filter (\(Item i) -> i.itemType /= Comments))
+    Items (items |> List.filter (\(Item i) -> not <| ItemValue.isCooment i.value))
 
 
 withChildren : Children -> Item -> Item
@@ -540,11 +518,6 @@ withHighlight h (Item item) =
 withItemSettings : Maybe ItemSettings -> Item -> Item
 withItemSettings itemSettings (Item item) =
     Item { item | itemSettings = itemSettings }
-
-
-withItemType : ItemType -> Item -> Item
-withItemType itemType (Item item) =
-    Item { item | itemType = itemType }
 
 
 withLineNo : Int -> Item -> Item
@@ -607,12 +580,12 @@ withText text (Item item) =
                     in
                     ( text_, Nothing, comments_ )
     in
-    Item { item | text = Text.fromString displayText, comments = comments, itemSettings = settings }
+    Item { item | value = ItemValue.fromString displayText, comments = comments, itemSettings = settings }
 
 
 withTextOnly : String -> Item -> Item
 withTextOnly text (Item item) =
-    Item { item | text = Text.fromString text }
+    Item { item | value = ItemValue.fromString text }
 
 
 childrenCount : Items -> Int
@@ -633,21 +606,9 @@ commentPrefix =
 -- private
 
 
-createItemType : String -> Int -> ItemType
-createItemType text indent =
-    if text |> String.trim |> String.startsWith commentPrefix then
-        Comments
-
-    else
-        case indent of
-            0 ->
-                Activities
-
-            1 ->
-                Tasks
-
-            _ ->
-                Stories
+isCommentLine : String -> Bool
+isCommentLine text =
+    text |> String.trim |> String.startsWith commentPrefix
 
 
 filter : (Item -> Bool) -> Items -> Items
@@ -696,33 +657,27 @@ loadText_ { indent, input, lineNo } =
 
         ( (h :: rest) as parsed, other ) ->
             let
-                itemType : ItemType
-                itemType =
-                    createItemType h indent
-
                 ( otherIndents, otherItems ) =
                     loadText_ { indent = indent, input = String.join "\n" other, lineNo = lineNo + List.length parsed }
 
                 ( xsIndent, xsItems ) =
                     loadText_ { indent = indent + 1, input = String.join "\n" rest, lineNo = lineNo + 1 }
             in
-            case itemType of
-                Comments ->
-                    ( indent :: xsIndent ++ otherIndents
-                    , filter (\item -> getItemType item /= Comments) otherItems
-                    )
+            if isCommentLine h then
+                ( indent :: xsIndent ++ otherIndents
+                , filter (\(Item item) -> not <| ItemValue.isCooment item.value) otherItems
+                )
 
-                _ ->
-                    ( indent :: xsIndent ++ otherIndents
-                    , cons
-                        (new
-                            |> withLineNo lineNo
-                            |> withText h
-                            |> withItemType itemType
-                            |> withChildren (childrenFromItems xsItems)
-                        )
-                        (filter (\item -> getItemType item /= Comments) otherItems)
+            else
+                ( indent :: xsIndent ++ otherIndents
+                , cons
+                    (new
+                        |> withLineNo lineNo
+                        |> withText h
+                        |> withChildren (childrenFromItems xsItems)
                     )
+                    (filter (\(Item item) -> not <| ItemValue.isCooment item.value) otherItems)
+                )
 
 
 mapWithRecursiveHelper : (Item -> Item) -> Item -> Item

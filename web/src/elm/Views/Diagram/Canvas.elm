@@ -7,7 +7,6 @@ import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)
 import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize
-import Models.Image as Image
 import Models.Item as Item exposing (Item, Items)
 import Models.Position as Position exposing (Position)
 import Models.Property as Property exposing (Property)
@@ -42,12 +41,15 @@ viewImage settings property ( svgWidth, svgHeight ) ( posX, posY ) item =
             Item.getChildren item
                 |> Item.unwrapChildren
                 |> Item.head
-                |> Maybe.andThen Image.from
           of
-            Just image ->
-                Views.image ( Constants.itemWidth - 5, svgHeight )
-                    ( posX + 5, posY + 5 )
-                    image
+            Just item_ ->
+                if Item.isImage item_ then
+                    Views.image ( Constants.itemWidth - 5, svgHeight )
+                        ( posX + 5, posY + 5 )
+                        item_
+
+                else
+                    Svg.g [] []
 
             Nothing ->
                 Svg.g [] []

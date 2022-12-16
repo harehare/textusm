@@ -1,4 +1,4 @@
-module Models.ItemSettings exposing
+module Models.Item.ItemSettings exposing
     ( ItemSettings
     , decoder
     , fromString

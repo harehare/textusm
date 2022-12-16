@@ -32,9 +32,7 @@ import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..))
 import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
-import Models.Image as Image exposing (Image)
 import Models.Item as Item exposing (Item, ItemType(..))
-import Models.ItemSettings exposing (ItemSettings)
 import Models.Position as Position exposing (Position)
 import Models.Property exposing (Property)
 import Models.Size as Size exposing (Size)
@@ -46,28 +44,28 @@ import Svg.Styled.Attributes as SvgAttr
 
 getItemColor : DiagramSettings.Settings -> Property -> Item -> ( Color, Color )
 getItemColor settings property item =
-    case ( Item.getItemType item, Item.getForegroundColor item, Item.getBackgroundColor item ) of
+    case ( Item.getIndent item, Item.getForegroundColor item, Item.getBackgroundColor item ) of
         ( _, Just c, Just b ) ->
             ( c, b )
 
-        ( Activities, Just c, Nothing ) ->
+        ( 0, Just c, Nothing ) ->
             ( c, DiagramSettings.getCardBackgroundColor1 settings property )
 
-        ( Activities, Nothing, Just b ) ->
+        ( 0, Nothing, Just b ) ->
             ( DiagramSettings.getCardForegroundColor1 settings property, b )
 
-        ( Activities, Nothing, Nothing ) ->
+        ( 0, Nothing, Nothing ) ->
             ( DiagramSettings.getCardForegroundColor1 settings property
             , DiagramSettings.getCardBackgroundColor1 settings property
             )
 
-        ( Tasks, Just c, Nothing ) ->
+        ( 1, Just c, Nothing ) ->
             ( c, DiagramSettings.getCardBackgroundColor2 settings property )
 
-        ( Tasks, Nothing, Just b ) ->
+        ( 1, Nothing, Just b ) ->
             ( DiagramSettings.getCardForegroundColor2 settings property, b )
 
-        ( Tasks, Nothing, Nothing ) ->
+        ( 1, Nothing, Nothing ) ->
             ( DiagramSettings.getCardForegroundColor2 settings property
             , DiagramSettings.getCardBackgroundColor2 settings property
             )
@@ -247,7 +245,7 @@ plainText { settings, position, size, foreColor, fontSize, text, isHighlight } =
         [ Svg.text text ]
 
 
-image : Size -> Position -> Image -> Svg msg
+image : Size -> Position -> Item -> Svg msg
 image ( imageWidth, imageHeight ) ( posX, posY ) url =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt posX
@@ -256,7 +254,7 @@ image ( imageWidth, imageHeight ) ( posX, posY ) url =
         , SvgAttr.height <| String.fromInt imageHeight
         ]
         [ Html.img
-            [ Attr.src <| Image.toUrl url
+            [ Attr.src <| Item.getTextOnly url
             , css
                 [ Css.width <| px <| toFloat <| imageWidth
                 , Css.height <| px <| toFloat <| imageHeight

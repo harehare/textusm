@@ -54,7 +54,7 @@ headerView settings property selectedItem item =
     Svg.g []
         (Item.indexedMap
             (\i ii ->
-                Lazy.lazy5 Grid.view settings property ( settings.size.width * i, 0 ) selectedItem (Item.withItemType Activities ii)
+                Lazy.lazy5 Grid.view settings property ( settings.size.width * i, 0 ) selectedItem ii
             )
             (Item.cons item (Item.unwrapChildren <| Item.getChildren item))
         )
@@ -70,7 +70,7 @@ rowView settings property selectedItem rowNo item =
             property
             ( 0, settings.size.height * rowNo )
             selectedItem
-            (Item.withItemType Tasks item)
+            item
          )
             :: Item.indexedMap
                 (\i childItem ->
@@ -80,7 +80,7 @@ rowView settings property selectedItem rowNo item =
                         property
                         ( settings.size.width * (i + 1), settings.size.height * rowNo )
                         selectedItem
-                        (Item.withItemType Stories childItem)
+                        childItem
                     )
                 )
                 (Item.getChildren item |> Item.unwrapChildren)
