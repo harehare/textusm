@@ -1,5 +1,5 @@
-module Models.Item.ItemSettings exposing
-    ( ItemSettings
+module Models.Item.Settings exposing
+    ( Settings
     , decoder
     , fromString
     , getBackgroundColor
@@ -26,11 +26,11 @@ import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
 
 
-type ItemSettings
-    = ItemSettings Settings
+type Settings
+    = Settings SettingsValue
 
 
-type alias Settings =
+type alias SettingsValue =
     { backgroundColor : Maybe Color
     , foregroundColor : Maybe Color
     , fontSize : FontSize
@@ -39,7 +39,7 @@ type alias Settings =
     }
 
 
-fromString : String -> Maybe ItemSettings
+fromString : String -> Maybe Settings
 fromString text =
     let
         itemSettings =
@@ -51,7 +51,7 @@ fromString text =
     case ( itemSettings, legacyItemStrings ) of
         ( Ok s1, Ok s2 ) ->
             Just <|
-                ItemSettings <|
+                Settings <|
                     { backgroundColor =
                         case ( getBackgroundColor s1, getBackgroundColor s2 ) of
                             ( Just b, _ ) ->
@@ -100,11 +100,11 @@ fromString text =
             Nothing
 
 
-legacyDecoder : D.Decoder ItemSettings
+legacyDecoder : D.Decoder Settings
 legacyDecoder =
-    D.map ItemSettings
+    D.map Settings
         (D.succeed
-            Settings
+            SettingsValue
             |> optional "b" (D.map Just Color.decoder) Nothing
             |> optional "f" (D.map Just Color.decoder) Nothing
             |> optional "s" FontSize.decoder FontSize.default
@@ -113,11 +113,11 @@ legacyDecoder =
         )
 
 
-decoder : D.Decoder ItemSettings
+decoder : D.Decoder Settings
 decoder =
-    D.map ItemSettings
+    D.map Settings
         (D.succeed
-            Settings
+            SettingsValue
             |> optional "bg" (D.map Just Color.decoder) Nothing
             |> optional "fg" (D.map Just Color.decoder) Nothing
             |> optional "font_size" FontSize.decoder FontSize.default
@@ -126,34 +126,34 @@ decoder =
         )
 
 
-getBackgroundColor : ItemSettings -> Maybe Color
-getBackgroundColor (ItemSettings settings) =
+getBackgroundColor : Settings -> Maybe Color
+getBackgroundColor (Settings settings) =
     settings.backgroundColor
 
 
-getFontSize : ItemSettings -> FontSize
-getFontSize (ItemSettings settings) =
+getFontSize : Settings -> FontSize
+getFontSize (Settings settings) =
     settings.fontSize
 
 
-getForegroundColor : ItemSettings -> Maybe Color
-getForegroundColor (ItemSettings settings) =
+getForegroundColor : Settings -> Maybe Color
+getForegroundColor (Settings settings) =
     settings.foregroundColor
 
 
-getOffset : ItemSettings -> Position
-getOffset (ItemSettings settings) =
+getOffset : Settings -> Position
+getOffset (Settings settings) =
     settings.offset
 
 
-getOffsetSize : ItemSettings -> Maybe Size
-getOffsetSize (ItemSettings settings) =
+getOffsetSize : Settings -> Maybe Size
+getOffsetSize (Settings settings) =
     settings.offsetSize
 
 
-new : ItemSettings
+new : Settings
 new =
-    ItemSettings
+    Settings
         { backgroundColor = Nothing
         , foregroundColor = Nothing
         , fontSize = FontSize.default
@@ -162,38 +162,38 @@ new =
         }
 
 
-toString : ItemSettings -> String
+toString : Settings -> String
 toString settings =
     E.encode 0 (encoder settings)
 
 
-withBackgroundColor : Maybe Color -> ItemSettings -> ItemSettings
-withBackgroundColor bg (ItemSettings settings) =
-    ItemSettings { settings | backgroundColor = bg }
+withBackgroundColor : Maybe Color -> Settings -> Settings
+withBackgroundColor bg (Settings settings) =
+    Settings { settings | backgroundColor = bg }
 
 
-withFontSize : FontSize -> ItemSettings -> ItemSettings
-withFontSize fontSize (ItemSettings settings) =
-    ItemSettings { settings | fontSize = fontSize }
+withFontSize : FontSize -> Settings -> Settings
+withFontSize fontSize (Settings settings) =
+    Settings { settings | fontSize = fontSize }
 
 
-withForegroundColor : Maybe Color -> ItemSettings -> ItemSettings
-withForegroundColor fg (ItemSettings settings) =
-    ItemSettings { settings | foregroundColor = fg }
+withForegroundColor : Maybe Color -> Settings -> Settings
+withForegroundColor fg (Settings settings) =
+    Settings { settings | foregroundColor = fg }
 
 
-withOffset : Position -> ItemSettings -> ItemSettings
-withOffset position (ItemSettings settings) =
-    ItemSettings { settings | offset = position }
+withOffset : Position -> Settings -> Settings
+withOffset position (Settings settings) =
+    Settings { settings | offset = position }
 
 
-withOffsetSize : Maybe Size -> ItemSettings -> ItemSettings
-withOffsetSize offsetSize (ItemSettings settings) =
-    ItemSettings { settings | offsetSize = offsetSize }
+withOffsetSize : Maybe Size -> Settings -> Settings
+withOffsetSize offsetSize (Settings settings) =
+    Settings { settings | offsetSize = offsetSize }
 
 
-encoder : ItemSettings -> E.Value
-encoder (ItemSettings settings) =
+encoder : Settings -> E.Value
+encoder (Settings settings) =
     E.object <|
         (case settings.backgroundColor of
             Just color ->

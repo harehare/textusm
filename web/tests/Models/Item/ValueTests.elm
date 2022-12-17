@@ -1,7 +1,7 @@
-module Models.Item.ItemValueTests exposing (..)
+module Models.Item.ValueTests exposing (..)
 
 import Expect
-import Models.Item.ItemValue as ItemValue
+import Models.Item.Value as ItemValue
 import Test exposing (Test, describe, test)
 
 

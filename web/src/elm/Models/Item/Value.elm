@@ -1,5 +1,5 @@
-module Models.Item.ItemValue exposing
-    ( ItemValue
+module Models.Item.Value exposing
+    ( Value
     , empty
     , fromString
     , getIndent
@@ -16,7 +16,7 @@ import List.Extra as ListEx
 import Models.Text as Text exposing (Text)
 
 
-type ItemValue
+type Value
     = Markdown Int Text
     | Image Int Text
     | ImageData Int Text
@@ -69,7 +69,7 @@ hasCommentPrefix text =
     hasPrefix text commentPrefix
 
 
-isImage : ItemValue -> Bool
+isImage : Value -> Bool
 isImage value =
     case value of
         Image _ _ ->
@@ -79,7 +79,7 @@ isImage value =
             False
 
 
-isMarkdown : ItemValue -> Bool
+isMarkdown : Value -> Bool
 isMarkdown value =
     case value of
         Markdown _ _ ->
@@ -89,7 +89,7 @@ isMarkdown value =
             False
 
 
-isCooment : ItemValue -> Bool
+isCooment : Value -> Bool
 isCooment value =
     case value of
         Comment _ _ ->
@@ -99,7 +99,7 @@ isCooment value =
             False
 
 
-isImageData : ItemValue -> Bool
+isImageData : Value -> Bool
 isImageData value =
     case value of
         ImageData _ _ ->
@@ -109,7 +109,7 @@ isImageData value =
             False
 
 
-empty : ItemValue
+empty : Value
 empty =
     PlainText 0 Text.empty
 
@@ -124,7 +124,7 @@ space indent =
     String.repeat indent Constants.inputPrefix
 
 
-fromString : String -> ItemValue
+fromString : String -> Value
 fromString text =
     let
         indent =
@@ -146,7 +146,7 @@ fromString text =
         PlainText indent <| Text.fromString <| String.trim text
 
 
-toFullString : ItemValue -> String
+toFullString : Value -> String
 toFullString value =
     case value of
         Markdown indent text ->
@@ -165,7 +165,7 @@ toFullString value =
             space indent ++ Text.toString text
 
 
-toString : ItemValue -> String
+toString : Value -> String
 toString value =
     case value of
         Markdown _ text ->
@@ -184,7 +184,7 @@ toString value =
             Text.toString text
 
 
-getIndent : ItemValue -> Int
+getIndent : Value -> Int
 getIndent value =
     case value of
         Markdown i _ ->

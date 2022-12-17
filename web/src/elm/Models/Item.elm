@@ -75,8 +75,8 @@ import List.Extra as ListEx
 import Maybe
 import Models.Color exposing (Color)
 import Models.FontSize as FontSize exposing (FontSize)
-import Models.Item.ItemSettings as ItemSettings exposing (ItemSettings)
-import Models.Item.ItemValue as ItemValue exposing (ItemValue)
+import Models.Item.Settings as ItemSettings
+import Models.Item.Value as ItemValue
 import Models.Position exposing (Position)
 import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
@@ -94,9 +94,9 @@ type alias Hierarchy =
 type Item
     = Item
         { lineNo : Int
-        , value : ItemValue
+        , value : ItemValue.Value
         , comments : Maybe String
-        , itemSettings : Maybe ItemSettings
+        , itemSettings : Maybe ItemSettings.Settings
         , children : Children
         , highlight : Bool
         }
@@ -252,7 +252,7 @@ getHierarchyCount (Item item) =
         |> List.length
 
 
-getItemSettings : Item -> Maybe ItemSettings
+getItemSettings : Item -> Maybe ItemSettings.Settings
 getItemSettings (Item i) =
     i.itemSettings
 
@@ -418,7 +418,7 @@ searchClear items =
     mapWithRecursive (withHighlight False) items
 
 
-split : String -> ( String, ItemSettings, Maybe String )
+split : String -> ( String, ItemSettings.Settings, Maybe String )
 split text =
     let
         ( _, tokens ) =
@@ -515,7 +515,7 @@ withHighlight h (Item item) =
     Item { item | highlight = h }
 
 
-withItemSettings : Maybe ItemSettings -> Item -> Item
+withItemSettings : Maybe ItemSettings.Settings -> Item -> Item
 withItemSettings itemSettings (Item item) =
     Item { item | itemSettings = itemSettings }
 

@@ -8,7 +8,7 @@ import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Models.DiagramType exposing (DiagramType(..))
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Children, Item, ItemType(..))
-import Models.Item.ItemSettings as ItemSettings exposing (ItemSettings)
+import Models.Item.Settings as ItemSettings
 import Models.Position exposing (Position)
 import Models.Text as Text exposing (Text)
 import Models.Title as Title exposing (Title)
@@ -108,7 +108,7 @@ itemFuzzer =
         |> Fuzz.andMap childrenFuzzer
 
 
-itemSettingsFuzzer : Fuzzer ItemSettings
+itemSettingsFuzzer : Fuzzer ItemSettings.Settings
 itemSettingsFuzzer =
     Fuzz.map4
         (\bg fg offset fontSize ->

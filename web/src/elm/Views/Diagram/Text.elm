@@ -5,7 +5,7 @@ import Models.Color as Color
 import Models.Diagram exposing (Msg, SelectedItem)
 import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item)
-import Models.Item.ItemSettings as ItemSettings
+import Models.Item.Settings as ItemSettings
 import Models.Position exposing (Position)
 import Models.Property exposing (Property)
 import Svg.Styled exposing (Svg)

@@ -4,7 +4,7 @@ import Expect
 import Models.FontSize as FontSize
 import Models.Fuzzer exposing (itemFuzzer)
 import Models.Item as Item
-import Models.Item.ItemSettings as ItemSettings
+import Models.Item.Settings as ItemSettings
 import Test exposing (Test, describe, fuzz, test)
 
 

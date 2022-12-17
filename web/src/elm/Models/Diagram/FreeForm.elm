@@ -9,7 +9,7 @@ module Models.Diagram.FreeForm exposing
 
 import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
-import Models.Item.ItemSettings as ItemSettings
+import Models.Item.Settings as ItemSettings
 import Models.Size exposing (Size)
 
 
