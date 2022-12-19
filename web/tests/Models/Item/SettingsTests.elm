@@ -1,4 +1,4 @@
-module Models.ItemSettingsTests exposing (suite)
+module Models.Item.SettingsTests exposing (suite)
 
 import Expect
 import Json.Decode as D

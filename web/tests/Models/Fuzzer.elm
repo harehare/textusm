@@ -88,7 +88,7 @@ itemFuzzer =
                 |> Item.withLineNo lineNo
                 |> Item.withText text
                 |> Item.withComments comments
-                |> Item.withItemSettings itemSettings
+                |> Item.withSettings itemSettings
                 |> Item.withChildren children
         )
         (Fuzz.intRange 0 100)

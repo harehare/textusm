@@ -115,8 +115,8 @@ itemToFreeFormItem item =
                     |> Item.flatten
                     |> Item.map
                         (\childItem ->
-                            Item.withItemSettings
-                                (Item.getItemSettings childItem
+                            Item.withSettings
+                                (Item.getSettings childItem
                                     |> Maybe.map
                                         (\s ->
                                             s

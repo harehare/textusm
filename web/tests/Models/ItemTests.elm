@@ -243,7 +243,7 @@ withText =
                 Expect.equal
                     (Item.new
                         |> Item.withText "test # comment: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"font_size\":10}"
-                        |> (\i -> ( Item.getText i, Item.getComments i, Item.getItemSettings i |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize |> FontSize.toInt ))
+                        |> (\i -> ( Item.getText i, Item.getComments i, Item.getSettings i |> Maybe.withDefault ItemSettings.new |> ItemSettings.getFontSize |> FontSize.toInt ))
                     )
                     ( "test", Just "# comment", 10 )
         , test "when text with invalid comments and item settings json" <|
@@ -251,7 +251,7 @@ withText =
                 Expect.equal
                     (Item.new
                         |> Item.withText "test: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"size\":10}# comment"
-                        |> (\i -> ( Item.getText i, Item.getComments i, Item.getItemSettings i ))
+                        |> (\i -> ( Item.getText i, Item.getComments i, Item.getSettings i ))
                     )
                     ( "test: |{\"bg\":null,\"fg\":null,\"pos\":[0,0],\"size\":10}# comment", Nothing, Nothing )
         ]

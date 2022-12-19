@@ -31,7 +31,7 @@ horizontal { settings, position, selectedItem, item } =
             Item.getOffsetSize item
 
         ( offsetX, offsetY ) =
-            Item.getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
+            Item.getSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.getOffset
 
         ( posX, posY ) =
             if ( offsetX, offsetY ) == Position.zero then

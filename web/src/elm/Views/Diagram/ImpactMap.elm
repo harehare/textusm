@@ -170,7 +170,7 @@ nodesView { settings, property, hierarchy, position, selectedItem, items, movein
                                 )
                                 moveingItem
                                 |> Maybe.withDefault item
-                                |> Item.getItemSettings
+                                |> Item.getSettings
                                 |> Maybe.map ItemSettings.getOffset
                                 |> Maybe.withDefault Position.zero
                     in

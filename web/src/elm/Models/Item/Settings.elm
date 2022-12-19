@@ -9,6 +9,7 @@ module Models.Item.Settings exposing
     , getOffsetSize
     , legacyDecoder
     , new
+    , resetOffset
     , toString
     , withBackgroundColor
     , withFontSize
@@ -37,6 +38,11 @@ type alias SettingsValue =
     , offset : Position
     , offsetSize : Maybe Size
     }
+
+
+resetOffset : Settings -> Settings
+resetOffset (Settings settings) =
+    Settings { settings | offset = Position.zero, offsetSize = Nothing }
 
 
 fromString : String -> Maybe Settings

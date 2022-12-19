@@ -24,12 +24,12 @@ module Models.Item exposing
     , getFullText
     , getHierarchyCount
     , getIndent
-    , getItemSettings
     , getLeafCount
     , getLineNo
     , getOffset
     , getOffsetSize
     , getPosition
+    , getSettings
     , getSize
     , getText
     , getTextOnly
@@ -50,6 +50,7 @@ module Models.Item exposing
     , map
     , mapWithRecursive
     , new
+    , resetOffset
     , search
     , searchClear
     , split
@@ -61,10 +62,10 @@ module Models.Item exposing
     , withChildren
     , withComments
     , withHighlight
-    , withItemSettings
     , withLineNo
     , withOffset
     , withOffsetSize
+    , withSettings
     , withText
     , withTextOnly
     )
@@ -80,6 +81,7 @@ import Models.Item.Value as ItemValue
 import Models.Position exposing (Position)
 import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
+import Ordering exposing (Ordering)
 import Simple.Fuzzy as Fuzzy
 
 
@@ -96,7 +98,7 @@ type Item
         { lineNo : Int
         , value : ItemValue.Value
         , comments : Maybe String
-        , itemSettings : Maybe ItemSettings.Settings
+        , settings : Maybe ItemSettings.Settings
         , children : Children
         , highlight : Bool
         }
@@ -187,7 +189,7 @@ getAt i (Items items) =
 getBackgroundColor : Item -> Maybe Color
 getBackgroundColor item =
     item
-        |> getItemSettings
+        |> getSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getBackgroundColor
 
@@ -220,13 +222,13 @@ getComments (Item i) =
 getFontSize : Item -> Maybe FontSize
 getFontSize item =
     item
-        |> getItemSettings
+        |> getSettings
         |> Maybe.map ItemSettings.getFontSize
 
 
 getFontSizeWithProperty : Item -> Property -> FontSize
 getFontSizeWithProperty item property =
-    case ( Property.getFontSize property, item |> getItemSettings |> Maybe.map ItemSettings.getFontSize ) of
+    case ( Property.getFontSize property, item |> getSettings |> Maybe.map ItemSettings.getFontSize ) of
         ( _, Just f ) ->
             f
 
@@ -240,7 +242,7 @@ getFontSizeWithProperty item property =
 getForegroundColor : Item -> Maybe Color
 getForegroundColor item =
     item
-        |> getItemSettings
+        |> getSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getForegroundColor
 
@@ -252,9 +254,9 @@ getHierarchyCount (Item item) =
         |> List.length
 
 
-getItemSettings : Item -> Maybe ItemSettings.Settings
-getItemSettings (Item i) =
-    i.itemSettings
+getSettings : Item -> Maybe ItemSettings.Settings
+getSettings (Item i) =
+    i.settings
 
 
 getLeafCount : Item -> Int
@@ -270,7 +272,7 @@ getLineNo (Item i) =
 getOffset : Item -> Position
 getOffset item =
     item
-        |> getItemSettings
+        |> getSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getOffset
 
@@ -278,7 +280,7 @@ getOffset item =
 getOffsetSize : Item -> Size
 getOffsetSize item =
     item
-        |> getItemSettings
+        |> getSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getOffsetSize
         |> Maybe.withDefault Size.zero
@@ -402,7 +404,7 @@ new =
         { lineNo = 0
         , value = ItemValue.empty
         , comments = Nothing
-        , itemSettings = Nothing
+        , settings = Nothing
         , children = emptyChildren
         , highlight = False
         }
@@ -470,7 +472,7 @@ toLineString item =
         comment =
             Maybe.withDefault "" (getComments item)
     in
-    case getItemSettings item of
+    case getSettings item of
         Just s ->
             getFullText item ++ comment ++ textSeparator ++ ItemSettings.toString s
 
@@ -486,6 +488,11 @@ unwrap (Items items) =
 unwrapChildren : Children -> Items
 unwrapChildren (Children (Items items)) =
     Items (items |> List.filter (\(Item i) -> not <| ItemValue.isCooment i.value))
+
+
+unwrapChildrenWithComments : Children -> Items
+unwrapChildrenWithComments (Children items) =
+    items
 
 
 withChildren : Children -> Item -> Item
@@ -515,9 +522,9 @@ withHighlight h (Item item) =
     Item { item | highlight = h }
 
 
-withItemSettings : Maybe ItemSettings.Settings -> Item -> Item
-withItemSettings itemSettings (Item item) =
-    Item { item | itemSettings = itemSettings }
+withSettings : Maybe ItemSettings.Settings -> Item -> Item
+withSettings itemSettings (Item item) =
+    Item { item | settings = itemSettings }
 
 
 withLineNo : Int -> Item -> Item
@@ -527,12 +534,12 @@ withLineNo lineNo (Item item) =
 
 withOffset : Position -> Item -> Item
 withOffset newPosition item =
-    withItemSettings (Just (getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffset newPosition)) item
+    withSettings (Just (getSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffset newPosition)) item
 
 
 withOffsetSize : Size -> Item -> Item
 withOffsetSize newSize item =
-    withItemSettings (Just (getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffsetSize (Just newSize))) item
+    withSettings (Just (getSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffsetSize (Just newSize))) item
 
 
 withText : String -> Item -> Item
@@ -580,7 +587,7 @@ withText text (Item item) =
                     in
                     ( text_, Nothing, comments_ )
     in
-    Item { item | value = ItemValue.fromString displayText, comments = comments, itemSettings = settings }
+    Item { item | value = ItemValue.fromString displayText, comments = comments, settings = settings }
 
 
 withTextOnly : String -> Item -> Item
@@ -755,6 +762,15 @@ splitText text =
 
     else
         ( legacyTextSeparator, String.split legacyTextSeparator text )
+
+
+resetOffset : Item -> Item
+resetOffset (Item item) =
+    (item.settings
+        |> Maybe.map ItemSettings.resetOffset
+        |> withSettings
+    )
+        (Item item)
 
 
 textSeparator : String

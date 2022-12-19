@@ -168,6 +168,7 @@ button =
                     , Color.textColor
                     ]
                 ]
+            , backgroundColor <| rgba 0 0 0 0.05
             ]
         , active
             [ after

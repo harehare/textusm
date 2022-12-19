@@ -26,8 +26,8 @@ view { settings, property, position, selectedItem, item, canMove } =
         item_ : Item
         item_ =
             item
-                |> Item.withItemSettings
-                    (Item.getItemSettings item
+                |> Item.withSettings
+                    (Item.getSettings item
                         |> Maybe.withDefault ItemSettings.new
                         |> ItemSettings.withBackgroundColor (Just Color.transparent)
                         |> Just
