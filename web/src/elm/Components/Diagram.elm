@@ -879,7 +879,6 @@ move isWheelEvent ( x, y ) m =
                         newItem : Item
                         newItem =
                             Item.withOffset newPosition item
-                                |> Debug.log "vvv"
 
                         newPosition : Position
                         newPosition =
