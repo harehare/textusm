@@ -47,6 +47,7 @@ module Style.Style exposing
     , shadowNone
     , shadowSm
     , submit
+    , textButton
     , wMenu
     , widthAuto
     , widthFull
@@ -72,6 +73,7 @@ import Css
         , boxSizing
         , calc
         , center
+        , color
         , cursor
         , disabled
         , display
@@ -173,6 +175,34 @@ button =
         , active
             [ after
                 [ backgroundColor <| rgba 0 0 0 0.6
+                ]
+            ]
+        ]
+
+
+textButton : Css.Style
+textButton =
+    Css.batch
+        [ cursor pointer
+        , position relative
+        , Color.textSecondaryColor
+        , displayFlex
+        , alignItems center
+        , justifyContent center
+        , roundedSm
+        , hover
+            [ descendants
+                [ class "bottom-tooltip"
+                    [ visibility visible
+                    , opacity <| int 100
+                    , Color.textDark
+                    ]
+                ]
+            , Color.textDark
+            ]
+        , active
+            [ after
+                [ Color.textDark
                 ]
             ]
         ]

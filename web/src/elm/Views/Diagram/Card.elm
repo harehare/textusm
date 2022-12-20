@@ -231,7 +231,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
                 , isHighlight = Item.isHighlight item
                 }
 
-    else if String.length (Item.getText item) > 15 then
+    else if String.length (Item.getText item) > 13 then
         Svg.foreignObject
             [ SvgAttr.x <| String.fromInt posX
             , SvgAttr.y <| String.fromInt posY

@@ -164,11 +164,11 @@ update message =
             Return.andThen <| zoomOut ratio
 
         PinchIn distance ->
-            Return.andThen (setTouchDistance <| Just distance)
+            setTouchDistance (Just distance)
                 >> Return.andThen (zoomIn 0.03)
 
         PinchOut distance ->
-            Return.andThen (setTouchDistance <| Just distance)
+            setTouchDistance (Just distance)
                 >> Return.andThen (zoomOut 0.03)
 
         Move isWheelEvent position ->
@@ -1137,9 +1137,9 @@ setText text =
     Return.map <| \m -> { m | text = Text.change <| Text.fromString text }
 
 
-setTouchDistance : Maybe Float -> Model -> Return Msg Model
-setTouchDistance distance model =
-    Return.singleton { model | touchDistance = distance }
+setTouchDistance : Maybe Float -> Return.ReturnF Msg Model
+setTouchDistance distance =
+    Return.map <| \m -> { m | touchDistance = distance }
 
 
 stopMove : Model -> Return Msg Model

@@ -103,8 +103,7 @@ textView text event =
             , Css.height <| px 24
             , cursor pointer
             , TextStyle.xs
-            , Style.button
-            , ColorStyle.textDark
+            , Style.textButton
             ]
         , Events.onClickStopPropagation <| event
         ]
