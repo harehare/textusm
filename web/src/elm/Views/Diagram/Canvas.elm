@@ -7,6 +7,7 @@ import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)
 import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize
+import Models.Image as Image
 import Models.Item as Item exposing (Item, Items)
 import Models.Position as Position exposing (Position)
 import Models.Property as Property exposing (Property)
@@ -37,14 +38,19 @@ viewImage settings property ( svgWidth, svgHeight ) ( posX, posY ) item =
     Svg.g
         []
         [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
-        , Views.image ( Constants.itemWidth - 5, svgHeight )
-            ( posX + 5, posY + 5 )
-            (Item.getChildren item
+        , case
+            Item.getChildren item
                 |> Item.unwrapChildren
-                |> Item.map Item.getText
-                |> List.head
-                |> Maybe.withDefault ""
-            )
+                |> Item.head
+                |> Maybe.andThen Image.from
+          of
+            Just image ->
+                Views.image ( Constants.itemWidth - 5, svgHeight )
+                    ( posX + 5, posY + 5 )
+                    image
+
+            Nothing ->
+                Svg.g [] []
         , title settings ( posX + 10, posY + 10 ) item
         ]
 

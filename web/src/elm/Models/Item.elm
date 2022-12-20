@@ -31,17 +31,20 @@ module Models.Item exposing
     , getPosition
     , getSize
     , getText
+    , getTextOnly
     , getTrimmedText
     , head
     , indexedMap
     , isCanvas
     , isComment
+    , isDataUrl
     , isEmpty
     , isHighlight
     , isHorizontalLine
     , isImage
     , isMarkdown
     , isText
+    , isUrl
     , isVerticalLine
     , itemFromString
     , length
@@ -313,6 +316,15 @@ getTrimmedText item =
     getText item |> String.trim
 
 
+getTextOnly : Item -> String
+getTextOnly item =
+    getText item
+        |> String.split ":"
+        |> ListEx.last
+        |> Maybe.map String.trim
+        |> Maybe.withDefault ""
+
+
 head : Items -> Maybe Item
 head (Items items) =
     List.head items
@@ -355,6 +367,16 @@ isHorizontalLine item =
 
 isImage : Item -> Bool
 isImage item =
+    isUrl item || isDataUrl item
+
+
+isUrl : Item -> Bool
+isUrl item =
+    getText item |> String.trim |> String.toLower |> String.startsWith "image:"
+
+
+isDataUrl : Item -> Bool
+isDataUrl item =
     getText item |> String.trim |> String.toLower |> String.startsWith "data:image/"
 
 

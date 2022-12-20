@@ -11,6 +11,7 @@ import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)
 import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
+import Models.Image as Image
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
 import Models.Property as Property exposing (Property)
@@ -225,7 +226,20 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             ]
 
     else if Item.isImage item then
-        Views.image ( svgWidth, svgHeight ) ( posX, posY ) <| String.trim <| Item.getText item
+        case Image.from item of
+            Just image ->
+                Views.image ( svgWidth, svgHeight ) ( posX, posY ) image
+
+            Nothing ->
+                Views.plainText
+                    { settings = settings
+                    , position = ( posX, posY )
+                    , size = ( svgWidth, svgHeight )
+                    , foreColor = colour
+                    , fontSize = fs
+                    , text = Item.getText item
+                    , isHighlight = Item.isHighlight item
+                    }
 
     else if String.length (Item.getText item) > 15 then
         Svg.foreignObject

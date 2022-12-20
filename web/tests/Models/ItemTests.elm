@@ -251,4 +251,17 @@ suite =
                             ]
                         )
             ]
+        , describe
+            "getTextOnly test"
+            [ test "when text only" <|
+                \() ->
+                    Expect.equal
+                        (Item.new |> Item.withText "test" |> Item.getTextOnly)
+                        "test"
+            , test "has image:" <|
+                \() ->
+                    Expect.equal
+                        (Item.new |> Item.withText "image: test" |> Item.getTextOnly)
+                        "test"
+            ]
         ]

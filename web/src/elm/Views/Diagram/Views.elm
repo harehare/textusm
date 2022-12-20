@@ -32,6 +32,7 @@ import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..))
 import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
+import Models.Image as Image exposing (Image)
 import Models.Item as Item exposing (Item, ItemType(..))
 import Models.Position as Position exposing (Position)
 import Models.Property exposing (Property)
@@ -245,7 +246,7 @@ plainText { settings, position, size, foreColor, fontSize, text, isHighlight } =
         [ Svg.text text ]
 
 
-image : Size -> Position -> String -> Svg msg
+image : Size -> Position -> Image -> Svg msg
 image ( imageWidth, imageHeight ) ( posX, posY ) url =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt posX
@@ -254,12 +255,13 @@ image ( imageWidth, imageHeight ) ( posX, posY ) url =
         , SvgAttr.height <| String.fromInt imageHeight
         ]
         [ Html.img
-            [ Attr.src url
+            [ Attr.src <| Image.toUrl url
             , css
                 [ Css.width <| px <| toFloat <| imageWidth
                 , Css.height <| px <| toFloat <| imageHeight
                 , Style.objectFitCover
                 ]
+            , SvgAttr.style <| "object-fit: cover; width: " ++ String.fromInt imageWidth ++ "px; height:" ++ String.fromInt imageHeight ++ "px;"
             , SvgAttr.class "ts-image"
             ]
             []
