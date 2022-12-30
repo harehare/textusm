@@ -81,7 +81,6 @@ import Models.Item.Value as ItemValue
 import Models.Position exposing (Position)
 import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
-import Ordering exposing (Ordering)
 import Simple.Fuzzy as Fuzzy
 
 
@@ -488,11 +487,6 @@ unwrap (Items items) =
 unwrapChildren : Children -> Items
 unwrapChildren (Children (Items items)) =
     Items (items |> List.filter (\(Item i) -> not <| ItemValue.isCooment i.value))
-
-
-unwrapChildrenWithComments : Children -> Items
-unwrapChildrenWithComments (Children items) =
-    items
 
 
 withChildren : Children -> Item -> Item

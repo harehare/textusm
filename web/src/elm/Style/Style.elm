@@ -73,7 +73,6 @@ import Css
         , boxSizing
         , calc
         , center
-        , color
         , cursor
         , disabled
         , display

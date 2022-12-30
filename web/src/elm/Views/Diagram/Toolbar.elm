@@ -36,7 +36,6 @@ import Html.Styled.Attributes exposing (css)
 import Models.Color as Color exposing (Color)
 import Models.Item as Item exposing (Item)
 import Models.Item.Settings as ItemSettings
-import Style.Color as ColorStyle
 import Style.Style as Style
 import Style.Text as TextStyle
 import Svg.Styled as Svg exposing (Svg, svg)
