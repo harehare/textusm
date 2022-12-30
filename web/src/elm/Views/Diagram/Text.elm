@@ -5,7 +5,7 @@ import Models.Color as Color
 import Models.Diagram exposing (Msg, SelectedItem)
 import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item)
-import Models.ItemSettings as ItemSettings
+import Models.Item.Settings as ItemSettings
 import Models.Position exposing (Position)
 import Models.Property exposing (Property)
 import Svg.Styled exposing (Svg)
@@ -26,8 +26,8 @@ view { settings, property, position, selectedItem, item, canMove } =
         item_ : Item
         item_ =
             item
-                |> Item.withItemSettings
-                    (Item.getItemSettings item
+                |> Item.withSettings
+                    (Item.getSettings item
                         |> Maybe.withDefault ItemSettings.new
                         |> ItemSettings.withBackgroundColor (Just Color.transparent)
                         |> Just

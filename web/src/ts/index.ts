@@ -90,20 +90,25 @@ app.ports.saveSettingsToLocal.subscribe((settings: Settings) => {
 
 app.ports.signIn.subscribe(async (provider: Provider) => {
   switch (provider) {
-    case 'Google':
+    case 'Google': {
       await signIn(providers.google).catch(() => {
         app.ports.sendErrorNotification.send('Failed sign in.');
       });
       return;
-    case 'Github':
+    }
+
+    case 'Github': {
       await signIn(providers.github).catch(() => {
         app.ports.sendErrorNotification.send('Failed sign in.');
       });
       return;
-    default:
+    }
+
+    default: {
       await signIn(providers.google).catch(() => {
         app.ports.sendErrorNotification.send('Failed sign in.');
       });
+    }
   }
 });
 

@@ -154,6 +154,7 @@ type Msg
     | ToggleMiniMap
     | ToggleSearch
     | ToolbarClick Item
+    | ToolbarAutoArrangeClick
     | ChangeText String
     | Resize Int Int
     | Search String

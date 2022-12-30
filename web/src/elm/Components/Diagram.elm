@@ -72,7 +72,7 @@ import Models.DiagramSettings as DiagramSettings
 import Models.DiagramType exposing (DiagramType(..))
 import Models.FontStyle as FontStyle
 import Models.Item as Item exposing (Item, Items)
-import Models.ItemSettings as ItemSettings
+import Models.Item.Settings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Property as Property
 import Models.Size as Size exposing (Size)
@@ -164,11 +164,11 @@ update message =
             Return.andThen <| zoomOut ratio
 
         PinchIn distance ->
-            Return.andThen (setTouchDistance <| Just distance)
+            setTouchDistance (Just distance)
                 >> Return.andThen (zoomIn 0.03)
 
         PinchOut distance ->
-            Return.andThen (setTouchDistance <| Just distance)
+            setTouchDistance (Just distance)
                 >> Return.andThen (zoomOut 0.03)
 
         Move isWheelEvent position ->
@@ -206,8 +206,8 @@ update message =
                                         setAt (Item.getLineNo item)
                                             (prefix
                                                 ++ (item
-                                                        |> Item.withItemSettings
-                                                            (Item.getItemSettings selectedItem)
+                                                        |> Item.withSettings
+                                                            (Item.getSettings selectedItem)
                                                         |> Item.toLineString
                                                         |> String.trimLeft
                                                    )
@@ -216,7 +216,7 @@ update message =
                                             |> String.join "\n"
                                 in
                                 Return.singleton m
-                                    |> Return.andThen (setText text)
+                                    |> setText text
                                     |> clearSelectedItem
                             )
                         |> Maybe.withDefault (Return.singleton m)
@@ -267,14 +267,14 @@ update message =
                                             Diagram.ColorSelectMenu ->
                                                 Item.new
                                                     |> Item.withText mainText
-                                                    |> Item.withItemSettings (Just (settings |> ItemSettings.withForegroundColor (Just color)))
+                                                    |> Item.withSettings (Just (settings |> ItemSettings.withForegroundColor (Just color)))
                                                     |> Item.withComments comment
                                                     |> Item.toLineString
 
                                             Diagram.BackgroundColorSelectMenu ->
                                                 Item.new
                                                     |> Item.withText mainText
-                                                    |> Item.withItemSettings (Just (ItemSettings.withBackgroundColor (Just color) settings))
+                                                    |> Item.withSettings (Just (ItemSettings.withBackgroundColor (Just color) settings))
                                                     |> Item.withComments comment
                                                     |> Item.toLineString
 
@@ -291,12 +291,12 @@ update message =
                                         case m.contextMenu of
                                             Just menu_ ->
                                                 Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
-                                                    |> Return.andThen (setText updateText)
+                                                    |> setText updateText
                                                     |> selectItem
                                                         (Just
                                                             (item_
-                                                                |> Item.withItemSettings
-                                                                    (Item.getItemSettings item_
+                                                                |> Item.withSettings
+                                                                    (Item.getSettings item_
                                                                         |> Maybe.map (\s -> ItemSettings.withForegroundColor (Just color) s)
                                                                     )
                                                             )
@@ -309,12 +309,12 @@ update message =
                                         case m.contextMenu of
                                             Just menu_ ->
                                                 Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
-                                                    |> Return.andThen (setText updateText)
+                                                    |> setText updateText
                                                     |> selectItem
                                                         (Just
                                                             (item_
-                                                                |> Item.withItemSettings
-                                                                    (Item.getItemSettings item_
+                                                                |> Item.withSettings
+                                                                    (Item.getSettings item_
                                                                         |> Maybe.map (\s -> ItemSettings.withBackgroundColor (Just color) s)
                                                                     )
                                                             )
@@ -350,15 +350,15 @@ update message =
                                     updateLine =
                                         Item.new
                                             |> Item.withText (DiagramUtils.getSpacePrefix currentText ++ (String.trimLeft text |> FontStyle.apply style))
-                                            |> Item.withItemSettings (Just settings)
+                                            |> Item.withSettings (Just settings)
                                             |> Item.withComments comment
                                             |> Item.toLineString
                                 in
-                                setText
-                                    (setAt (Item.getLineNo item) updateLine lines
-                                        |> String.join "\n"
-                                    )
-                                    m
+                                Return.singleton m
+                                    |> setText
+                                        (setAt (Item.getLineNo item) updateLine lines
+                                            |> String.join "\n"
+                                        )
                             )
                         |> Maybe.withDefault (Return.singleton m)
 
@@ -406,7 +406,7 @@ update message =
                                     text =
                                         Item.new
                                             |> Item.withText mainText
-                                            |> Item.withItemSettings (Just (settings |> ItemSettings.withFontSize size))
+                                            |> Item.withSettings (Just (settings |> ItemSettings.withFontSize size))
                                             |> Item.withComments comment
                                             |> Item.toLineString
 
@@ -417,12 +417,12 @@ update message =
                                 in
                                 Return.singleton m
                                     |> closeDropDown
-                                    |> Return.andThen (setText updateText)
+                                    |> setText updateText
                                     |> selectItem
                                         (Just
                                             (item
-                                                |> Item.withItemSettings
-                                                    (Item.getItemSettings item
+                                                |> Item.withSettings
+                                                    (Item.getSettings item
                                                         |> Maybe.map (\s -> ItemSettings.withFontSize size <| s)
                                                     )
                                             )
@@ -510,24 +510,26 @@ update message =
         Stop ->
             Return.andThen
                 (\m ->
-                    case m.moveState of
-                        Diagram.ItemMove target ->
-                            case target of
-                                Diagram.TableTarget table ->
-                                    let
-                                        (ErDiagramModel.Table _ _ _ lineNo) =
-                                            table
-                                    in
-                                    setLine lineNo (Text.lines m.text) (ErDiagramModel.tableToLineString table) m
+                    Return.singleton m
+                        |> (case m.moveState of
+                                Diagram.ItemMove target ->
+                                    case target of
+                                        Diagram.TableTarget table ->
+                                            let
+                                                (ErDiagramModel.Table _ _ _ lineNo) =
+                                                    table
+                                            in
+                                            setLine lineNo (Text.lines m.text) (ErDiagramModel.tableToLineString table)
 
-                                Diagram.ItemTarget item ->
-                                    setLine (Item.getLineNo item) (Text.lines m.text) (Item.toLineString item) m
+                                        Diagram.ItemTarget item ->
+                                            setLine (Item.getLineNo item) (Text.lines m.text) (Item.toLineString item)
 
-                        Diagram.ItemResize item _ ->
-                            setLine (Item.getLineNo item) (Text.lines m.text) (Item.toLineString item) m
+                                Diagram.ItemResize item _ ->
+                                    setLine (Item.getLineNo item) (Text.lines m.text) (Item.toLineString item)
 
-                        _ ->
-                            Return.singleton m
+                                _ ->
+                                    Return.zero
+                           )
                 )
                 >> Return.andThen stopMove
 
@@ -541,6 +543,39 @@ update message =
 
             else
                 selectItem <| Just item
+
+        ToolbarAutoArrangeClick ->
+            Return.andThen <|
+                \m ->
+                    let
+                        items : Items
+                        items =
+                            m.items
+                                |> Item.mapWithRecursive (\item -> Item.resetOffset item)
+
+                        lines : List String
+                        lines =
+                            Text.lines m.text
+
+                        updatedText =
+                            List.foldl
+                                (\item updatedLines ->
+                                    let
+                                        lineNo : Int
+                                        lineNo =
+                                            Item.getLineNo item
+                                    in
+                                    setAt lineNo (DiagramUtils.getSpacePrefix (Text.getLine lineNo m.text) ++ String.trimLeft (Item.toLineString item)) updatedLines
+                                )
+                                lines
+                                (items
+                                    |> Item.flatten
+                                    |> Item.unwrap
+                                )
+                                |> String.join "\n"
+                    in
+                    Return.singleton { m | items = items }
+                        |> setText updatedText
 
 
 
@@ -632,31 +667,31 @@ view model =
         , if Property.getToolbar model.property |> Maybe.withDefault (model.settings.toolbar |> Maybe.withDefault True) then
             case model.diagramType of
                 UserStoryMap ->
-                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
 
                 OpportunityCanvas ->
-                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
 
                 BusinessModelCanvas ->
-                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
 
                 Fourls ->
-                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
 
                 StartStopContinue ->
-                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
 
                 Kpt ->
-                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
 
                 UserPersona ->
-                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
 
                 EmpathyMap ->
-                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
 
                 Kanban ->
-                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
+                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
 
                 Freeform ->
                     Lazy.lazy Toolbar.viewForFreeForm ToolbarClick
@@ -1088,23 +1123,22 @@ setFocus id =
     Return.command (Task.attempt (\_ -> NoOp) <| Dom.focus id)
 
 
-setLine : Int -> List String -> String -> Model -> Return Msg Model
-setLine lineNo lines line model =
+setLine : Int -> List String -> String -> Return.ReturnF Msg Model
+setLine lineNo lines line =
     setText
         (setAt lineNo line lines
             |> String.join "\n"
         )
-        model
 
 
-setText : String -> Model -> Return Msg Model
-setText text model =
-    Return.singleton { model | text = Text.change <| Text.fromString text }
+setText : String -> Return.ReturnF Msg Model
+setText text =
+    Return.map <| \m -> { m | text = Text.change <| Text.fromString text }
 
 
-setTouchDistance : Maybe Float -> Model -> Return Msg Model
-setTouchDistance distance model =
-    Return.singleton { model | touchDistance = distance }
+setTouchDistance : Maybe Float -> Return.ReturnF Msg Model
+setTouchDistance distance =
+    Return.map <| \m -> { m | touchDistance = distance }
 
 
 stopMove : Model -> Return Msg Model

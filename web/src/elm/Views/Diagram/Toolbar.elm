@@ -35,8 +35,9 @@ import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
 import Models.Color as Color exposing (Color)
 import Models.Item as Item exposing (Item)
-import Models.ItemSettings as ItemSettings
+import Models.Item.Settings as ItemSettings
 import Style.Style as Style
+import Style.Text as TextStyle
 import Svg.Styled as Svg exposing (Svg, svg)
 import Svg.Styled.Attributes as SvgAttr
 
@@ -50,7 +51,7 @@ type ToolbarButton msg
     | Separator (Html msg)
 
 
-viewColorOnly : ClickEvent msg -> Html msg
+viewColorOnly : { clickCard : ClickEvent msg, clickAutoArrange : msg } -> Html msg
 viewColorOnly e =
     view <| userStoryMap e
 
@@ -93,6 +94,21 @@ cardView color item event =
         []
 
 
+textView : String -> msg -> Html msg
+textView text event =
+    Html.div
+        [ css
+            [ Css.width <| px 96
+            , Css.height <| px 24
+            , cursor pointer
+            , TextStyle.xs
+            , Style.textButton
+            ]
+        , Events.onClickStopPropagation <| event
+        ]
+        [ Html.text text ]
+
+
 createCanvas : Item
 createCanvas =
     Item.new
@@ -102,7 +118,7 @@ createCanvas =
 createColorItem : Color -> Item
 createColorItem color =
     Item.new
-        |> Item.withItemSettings
+        |> Item.withSettings
             (ItemSettings.new
                 |> ItemSettings.withBackgroundColor (Just color)
                 |> ItemSettings.withForegroundColor (Just Color.black)
@@ -226,17 +242,24 @@ separator =
         []
 
 
-userStoryMap : ClickEvent msg -> List (ToolbarButton msg)
-userStoryMap e =
-    [ Button <| cardView Color.white (createColorItem Color.white) e
-    , Button <| cardView Color.yellow (createColorItem Color.yellow) e
-    , Button <| cardView Color.green (createColorItem Color.green) e
-    , Button <| cardView Color.blue (createColorItem Color.blue) e
-    , Button <| cardView Color.orange (createColorItem Color.orange) e
-    , Button <| cardView Color.pink (createColorItem Color.pink) e
-    , Button <| cardView Color.red (createColorItem Color.red) e
-    , Button <| cardView Color.purple (createColorItem Color.purple) e
+userStoryMap : { clickCard : ClickEvent msg, clickAutoArrange : msg } -> List (ToolbarButton msg)
+userStoryMap { clickCard, clickAutoArrange } =
+    [ Button <| cardView Color.white (createColorItem Color.white) clickCard
+    , Button <| cardView Color.yellow (createColorItem Color.yellow) clickCard
+    , Button <| cardView Color.green (createColorItem Color.green) clickCard
+    , Button <| cardView Color.blue (createColorItem Color.blue) clickCard
+    , Button <| cardView Color.orange (createColorItem Color.orange) clickCard
+    , Button <| cardView Color.pink (createColorItem Color.pink) clickCard
+    , Button <| cardView Color.red (createColorItem Color.red) clickCard
+    , Button <| cardView Color.purple (createColorItem Color.purple) clickCard
+    , Separator <| separator
+    , autoArrangeButton clickAutoArrange
     ]
+
+
+autoArrangeButton : msg -> ToolbarButton msg
+autoArrangeButton msg =
+    Button <| textView "Auto-arrange" msg
 
 
 view : List (ToolbarButton msg) -> Html msg
@@ -261,8 +284,7 @@ view items =
                     Button view_ ->
                         Html.div
                             [ css
-                                [ Css.width <| px 40
-                                , Css.height <| px 40
+                                [ Css.height <| px 40
                                 , fontSize <| rem 1.2
                                 , Style.flexCenter
                                 , cursor pointer

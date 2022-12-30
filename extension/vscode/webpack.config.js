@@ -24,6 +24,7 @@ const common = {
     extensions: [".ts", ".js"],
   },
   target: "node",
+  node: false,
   externals: [
     {
       vscode: "commonjs vscode",

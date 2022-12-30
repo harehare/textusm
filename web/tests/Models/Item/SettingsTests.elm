@@ -1,9 +1,9 @@
-module Models.ItemSettingsTests exposing (suite)
+module Models.Item.SettingsTests exposing (suite)
 
 import Expect
 import Json.Decode as D
 import Models.Fuzzer exposing (itemSettingsFuzzer)
-import Models.ItemSettings as ItemSettings
+import Models.Item.Settings as ItemSettings
 import Test exposing (Test, fuzz)
 
 

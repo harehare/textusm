@@ -299,9 +299,9 @@ showDialog d =
                 }
 
 
-closeDialog : Model -> Return Msg Model
-closeDialog model =
-    Return.singleton { model | confirmDialog = Dialog.Hide }
+closeDialog : Return.ReturnF Msg Model
+closeDialog =
+    Return.map <| \m -> { m | confirmDialog = Dialog.Hide }
 
 
 itemStyle : Css.Style
@@ -1046,7 +1046,7 @@ update message =
             Return.zero
 
         GotDiagrams (Ok items) ->
-            Return.andThen
+            Return.map
                 (\m ->
                     let
                         hasMorePage : Bool
@@ -1061,20 +1061,19 @@ update message =
                                 _ ->
                                     ( Success [], 1 )
                     in
-                    Return.singleton
-                        { m
-                            | diagramList =
-                                if List.isEmpty <| RemoteData.withDefault [] remoteData then
-                                    AllList (Success items) 1 hasMorePage
+                    { m
+                        | diagramList =
+                            if List.isEmpty <| RemoteData.withDefault [] remoteData then
+                                AllList (Success items) 1 hasMorePage
 
-                                else
-                                    AllList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) pageNo hasMorePage
-                        }
+                            else
+                                AllList (RemoteData.andThen (\currentItems -> Success <| List.concat [ currentItems, items ]) remoteData) pageNo hasMorePage
+                    }
                 )
 
         Remove diagram ->
-            Return.andThen closeDialog
-                >> Return.command (removeDiagrams (DiagramItem.encoder diagram))
+            Return.command (removeDiagrams (DiagramItem.encoder diagram))
+                >> closeDialog
 
         RemoveRemote diagramJson ->
             Return.andThen
@@ -1185,7 +1184,7 @@ update message =
                 )
 
         CloseDialog ->
-            Return.andThen closeDialog
+            closeDialog
 
         ShowConfirmDialog d ->
             Return.andThen <|

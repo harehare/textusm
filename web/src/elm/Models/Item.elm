@@ -21,16 +21,18 @@ module Models.Item exposing
     , getFontSize
     , getFontSizeWithProperty
     , getForegroundColor
+    , getFullText
     , getHierarchyCount
-    , getItemSettings
-    , getItemType
+    , getIndent
     , getLeafCount
     , getLineNo
     , getOffset
     , getOffsetSize
     , getPosition
+    , getSettings
     , getSize
     , getText
+    , getTextOnly
     , getTrimmedText
     , head
     , indexedMap
@@ -48,6 +50,7 @@ module Models.Item exposing
     , map
     , mapWithRecursive
     , new
+    , resetOffset
     , search
     , searchClear
     , split
@@ -59,27 +62,25 @@ module Models.Item exposing
     , withChildren
     , withComments
     , withHighlight
-    , withItemSettings
-    , withItemType
     , withLineNo
     , withOffset
     , withOffsetSize
+    , withSettings
     , withText
     , withTextOnly
     )
 
 import Constants exposing (indentSpace, inputPrefix)
 import Html.Attributes exposing (property)
-import Json.Decode as D
 import List.Extra as ListEx
 import Maybe
 import Models.Color exposing (Color)
 import Models.FontSize as FontSize exposing (FontSize)
-import Models.ItemSettings as ItemSettings exposing (ItemSettings)
+import Models.Item.Settings as ItemSettings
+import Models.Item.Value as ItemValue
 import Models.Position exposing (Position)
 import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
-import Models.Text as Text exposing (Text)
 import Simple.Fuzzy as Fuzzy
 
 
@@ -94,10 +95,9 @@ type alias Hierarchy =
 type Item
     = Item
         { lineNo : Int
-        , text : Text
+        , value : ItemValue.Value
         , comments : Maybe String
-        , itemType : ItemType
-        , itemSettings : Maybe ItemSettings
+        , settings : Maybe ItemSettings.Settings
         , children : Children
         , highlight : Bool
         }
@@ -188,7 +188,7 @@ getAt i (Items items) =
 getBackgroundColor : Item -> Maybe Color
 getBackgroundColor item =
     item
-        |> getItemSettings
+        |> getSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getBackgroundColor
 
@@ -196,6 +196,11 @@ getBackgroundColor item =
 getChildren : Item -> Children
 getChildren (Item i) =
     i.children
+
+
+getIndent : Item -> Int
+getIndent (Item i) =
+    ItemValue.getIndent i.value
 
 
 getChildrenCount : Item -> Int
@@ -216,13 +221,13 @@ getComments (Item i) =
 getFontSize : Item -> Maybe FontSize
 getFontSize item =
     item
-        |> getItemSettings
+        |> getSettings
         |> Maybe.map ItemSettings.getFontSize
 
 
 getFontSizeWithProperty : Item -> Property -> FontSize
 getFontSizeWithProperty item property =
-    case ( Property.getFontSize property, item |> getItemSettings |> Maybe.map ItemSettings.getFontSize ) of
+    case ( Property.getFontSize property, item |> getSettings |> Maybe.map ItemSettings.getFontSize ) of
         ( _, Just f ) ->
             f
 
@@ -236,7 +241,7 @@ getFontSizeWithProperty item property =
 getForegroundColor : Item -> Maybe Color
 getForegroundColor item =
     item
-        |> getItemSettings
+        |> getSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getForegroundColor
 
@@ -248,14 +253,9 @@ getHierarchyCount (Item item) =
         |> List.length
 
 
-getItemSettings : Item -> Maybe ItemSettings
-getItemSettings (Item i) =
-    i.itemSettings
-
-
-getItemType : Item -> ItemType
-getItemType (Item i) =
-    i.itemType
+getSettings : Item -> Maybe ItemSettings.Settings
+getSettings (Item i) =
+    i.settings
 
 
 getLeafCount : Item -> Int
@@ -271,7 +271,7 @@ getLineNo (Item i) =
 getOffset : Item -> Position
 getOffset item =
     item
-        |> getItemSettings
+        |> getSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getOffset
 
@@ -279,7 +279,7 @@ getOffset item =
 getOffsetSize : Item -> Size
 getOffsetSize item =
     item
-        |> getItemSettings
+        |> getSettings
         |> Maybe.withDefault ItemSettings.new
         |> ItemSettings.getOffsetSize
         |> Maybe.withDefault Size.zero
@@ -305,12 +305,22 @@ getSize item baseSize =
 
 getText : Item -> String
 getText (Item i) =
-    Text.toString i.text
+    ItemValue.toString i.value
+
+
+getFullText : Item -> String
+getFullText (Item i) =
+    ItemValue.toFullString i.value
 
 
 getTrimmedText : Item -> String
 getTrimmedText item =
     getText item |> String.trim
+
+
+getTextOnly : Item -> String
+getTextOnly (Item item) =
+    ItemValue.toString item.value |> String.trim
 
 
 head : Items -> Maybe Item
@@ -340,12 +350,7 @@ isHighlight (Item i) =
 
 isComment : Item -> Bool
 isComment (Item i) =
-    case i.itemType of
-        Comments ->
-            True
-
-        _ ->
-            False
+    ItemValue.isCooment i.value
 
 
 isHorizontalLine : Item -> Bool
@@ -354,8 +359,8 @@ isHorizontalLine item =
 
 
 isImage : Item -> Bool
-isImage item =
-    getText item |> String.trim |> String.toLower |> String.startsWith "data:image/"
+isImage (Item item) =
+    ItemValue.isImage item.value || ItemValue.isImageData item.value
 
 
 
@@ -363,8 +368,8 @@ isImage item =
 
 
 isMarkdown : Item -> Bool
-isMarkdown item =
-    getText item |> String.trim |> String.toLower |> String.startsWith "md:"
+isMarkdown (Item item) =
+    ItemValue.isMarkdown item.value
 
 
 isText : Item -> Bool
@@ -396,10 +401,9 @@ new : Item
 new =
     Item
         { lineNo = 0
-        , text = Text.empty
+        , value = ItemValue.empty
         , comments = Nothing
-        , itemType = Activities
-        , itemSettings = Nothing
+        , settings = Nothing
         , children = emptyChildren
         , highlight = False
         }
@@ -415,12 +419,11 @@ searchClear items =
     mapWithRecursive (withHighlight False) items
 
 
-split : String -> ( String, ItemSettings, Maybe String )
+split : String -> ( String, ItemSettings.Settings, Maybe String )
 split text =
     let
-        tokens : List String
-        tokens =
-            String.split textSeparator text
+        ( _, tokens ) =
+            splitText text
     in
     case tokens of
         [ text_ ] ->
@@ -435,11 +438,11 @@ split text =
                 ( t, comment ) =
                     splitLine text_
             in
-            case D.decodeString ItemSettings.decoder settingsString of
-                Ok settings ->
+            case ItemSettings.fromString settingsString of
+                Just settings ->
                     ( t, settings, comment )
 
-                Err _ ->
+                Nothing ->
                     ( t, ItemSettings.new, comment )
 
         _ ->
@@ -468,12 +471,12 @@ toLineString item =
         comment =
             Maybe.withDefault "" (getComments item)
     in
-    case getItemSettings item of
+    case getSettings item of
         Just s ->
-            getText item ++ comment ++ textSeparator ++ ItemSettings.toString s
+            getFullText item ++ comment ++ textSeparator ++ ItemSettings.toString s
 
         Nothing ->
-            getText item ++ comment
+            getFullText item ++ comment
 
 
 unwrap : Items -> List Item
@@ -483,7 +486,7 @@ unwrap (Items items) =
 
 unwrapChildren : Children -> Items
 unwrapChildren (Children (Items items)) =
-    Items (items |> List.filter (\(Item i) -> i.itemType /= Comments))
+    Items (items |> List.filter (\(Item i) -> not <| ItemValue.isCooment i.value))
 
 
 withChildren : Children -> Item -> Item
@@ -513,14 +516,9 @@ withHighlight h (Item item) =
     Item { item | highlight = h }
 
 
-withItemSettings : Maybe ItemSettings -> Item -> Item
-withItemSettings itemSettings (Item item) =
-    Item { item | itemSettings = itemSettings }
-
-
-withItemType : ItemType -> Item -> Item
-withItemType itemType (Item item) =
-    Item { item | itemType = itemType }
+withSettings : Maybe ItemSettings.Settings -> Item -> Item
+withSettings itemSettings (Item item) =
+    Item { item | settings = itemSettings }
 
 
 withLineNo : Int -> Item -> Item
@@ -530,70 +528,65 @@ withLineNo lineNo (Item item) =
 
 withOffset : Position -> Item -> Item
 withOffset newPosition item =
-    withItemSettings (Just (getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffset newPosition)) item
+    withSettings (Just (getSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffset newPosition)) item
 
 
 withOffsetSize : Size -> Item -> Item
 withOffsetSize newSize item =
-    withItemSettings (Just (getItemSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffsetSize (Just newSize))) item
+    withSettings (Just (getSettings item |> Maybe.withDefault ItemSettings.new |> ItemSettings.withOffsetSize (Just newSize))) item
 
 
 withText : String -> Item -> Item
 withText text (Item item) =
     let
         ( displayText, settings, comments ) =
-            if isImage <| withTextOnly text (Item item) then
-                ( text, Nothing, Nothing )
+            let
+                ( sep, tokens ) =
+                    splitText text
+                        |> Tuple.mapSecond (List.map String.toList)
 
-            else
-                let
-                    tokens : List (List Char)
-                    tokens =
-                        String.split textSeparator text
-                            |> List.map String.toList
+                tuple : ( String, Maybe String )
+                tuple =
+                    case tokens of
+                        [ x, '{' :: xs ] ->
+                            ( String.fromList x, Just <| String.fromList <| '{' :: xs )
 
-                    tuple : ( String, Maybe String )
-                    tuple =
-                        case tokens of
-                            [ x, '{' :: xs ] ->
-                                ( String.fromList x, Just <| String.fromList <| '{' :: xs )
+                        _ :: _ :: _ ->
+                            ( List.take (List.length tokens - 1) tokens
+                                |> List.map String.fromList
+                                |> String.join sep
+                            , ListEx.last tokens |> Maybe.map String.fromList
+                            )
 
-                            _ :: _ :: _ ->
-                                ( List.take (List.length tokens - 1) tokens
-                                    |> List.map String.fromList
-                                    |> String.join textSeparator
-                                , ListEx.last tokens |> Maybe.map String.fromList
-                                )
+                        _ ->
+                            ( text, Nothing )
+            in
+            case tuple of
+                ( t, Just s ) ->
+                    let
+                        ( text_, comments_ ) =
+                            splitLine t
+                    in
+                    case ItemSettings.fromString s of
+                        Just settings_ ->
+                            ( text_, Just settings_, comments_ )
 
-                            _ ->
-                                ( text, Nothing )
-                in
-                case tuple of
-                    ( t, Just s ) ->
-                        let
-                            ( text_, comments_ ) =
-                                splitLine t
-                        in
-                        case D.decodeString ItemSettings.decoder s of
-                            Ok settings_ ->
-                                ( text_, Just settings_, comments_ )
+                        Nothing ->
+                            ( text_ ++ sep ++ s, Nothing, comments_ )
 
-                            Err _ ->
-                                ( text_ ++ textSeparator ++ s, Nothing, comments_ )
-
-                    ( _, Nothing ) ->
-                        let
-                            ( text_, comments_ ) =
-                                splitLine text
-                        in
-                        ( text_, Nothing, comments_ )
+                ( _, Nothing ) ->
+                    let
+                        ( text_, comments_ ) =
+                            splitLine text
+                    in
+                    ( text_, Nothing, comments_ )
     in
-    Item { item | text = Text.fromString displayText, comments = comments, itemSettings = settings }
+    Item { item | value = ItemValue.fromString displayText, comments = comments, settings = settings }
 
 
 withTextOnly : String -> Item -> Item
 withTextOnly text (Item item) =
-    Item { item | text = Text.fromString text }
+    Item { item | value = ItemValue.fromString text }
 
 
 childrenCount : Items -> Int
@@ -614,21 +607,9 @@ commentPrefix =
 -- private
 
 
-createItemType : String -> Int -> ItemType
-createItemType text indent =
-    if text |> String.trim |> String.startsWith commentPrefix then
-        Comments
-
-    else
-        case indent of
-            0 ->
-                Activities
-
-            1 ->
-                Tasks
-
-            _ ->
-                Stories
+isCommentLine : String -> Bool
+isCommentLine text =
+    text |> String.trim |> String.startsWith commentPrefix
 
 
 filter : (Item -> Bool) -> Items -> Items
@@ -677,33 +658,27 @@ loadText_ { indent, input, lineNo } =
 
         ( (h :: rest) as parsed, other ) ->
             let
-                itemType : ItemType
-                itemType =
-                    createItemType h indent
-
                 ( otherIndents, otherItems ) =
                     loadText_ { indent = indent, input = String.join "\n" other, lineNo = lineNo + List.length parsed }
 
                 ( xsIndent, xsItems ) =
                     loadText_ { indent = indent + 1, input = String.join "\n" rest, lineNo = lineNo + 1 }
             in
-            case itemType of
-                Comments ->
-                    ( indent :: xsIndent ++ otherIndents
-                    , filter (\item -> getItemType item /= Comments) otherItems
-                    )
+            if isCommentLine h then
+                ( indent :: xsIndent ++ otherIndents
+                , filter (\(Item item) -> not <| ItemValue.isCooment item.value) otherItems
+                )
 
-                _ ->
-                    ( indent :: xsIndent ++ otherIndents
-                    , cons
-                        (new
-                            |> withLineNo lineNo
-                            |> withText h
-                            |> withItemType itemType
-                            |> withChildren (childrenFromItems xsItems)
-                        )
-                        (filter (\item -> getItemType item /= Comments) otherItems)
+            else
+                ( indent :: xsIndent ++ otherIndents
+                , cons
+                    (new
+                        |> withLineNo lineNo
+                        |> withText h
+                        |> withChildren (childrenFromItems xsItems)
                     )
+                    (filter (\(Item item) -> not <| ItemValue.isCooment item.value) otherItems)
+                )
 
 
 mapWithRecursiveHelper : (Item -> Item) -> Item -> Item
@@ -769,6 +744,34 @@ splitLine text =
             ( "", Nothing )
 
 
+splitText : String -> ( String, List String )
+splitText text =
+    let
+        tokens : List String
+        tokens =
+            String.split textSeparator text
+    in
+    if List.length tokens > 1 then
+        ( textSeparator, tokens )
+
+    else
+        ( legacyTextSeparator, String.split legacyTextSeparator text )
+
+
+resetOffset : Item -> Item
+resetOffset (Item item) =
+    (item.settings
+        |> Maybe.map ItemSettings.resetOffset
+        |> withSettings
+    )
+        (Item item)
+
+
 textSeparator : String
 textSeparator =
+    ": |"
+
+
+legacyTextSeparator : String
+legacyTextSeparator =
     "|"

@@ -37,14 +37,22 @@ viewImage settings property ( svgWidth, svgHeight ) ( posX, posY ) item =
     Svg.g
         []
         [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
-        , Views.image ( Constants.itemWidth - 5, svgHeight )
-            ( posX + 5, posY + 5 )
-            (Item.getChildren item
+        , case
+            Item.getChildren item
                 |> Item.unwrapChildren
-                |> Item.map Item.getText
-                |> List.head
-                |> Maybe.withDefault ""
-            )
+                |> Item.head
+          of
+            Just item_ ->
+                if Item.isImage item_ then
+                    Views.image ( Constants.itemWidth - 5, svgHeight )
+                        ( posX + 5, posY + 5 )
+                        item_
+
+                else
+                    Svg.g [] []
+
+            Nothing ->
+                Svg.g [] []
         , title settings ( posX + 10, posY + 10 ) item
         ]
 

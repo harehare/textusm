@@ -8,7 +8,7 @@ import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
 import Models.DiagramType exposing (DiagramType(..))
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Children, Item, ItemType(..))
-import Models.ItemSettings as ItemSettings exposing (ItemSettings)
+import Models.Item.Settings as ItemSettings
 import Models.Position exposing (Position)
 import Models.Text as Text exposing (Text)
 import Models.Title as Title exposing (Title)
@@ -83,13 +83,12 @@ diagramTypeFuzzer =
 itemFuzzer : Fuzzer Item
 itemFuzzer =
     Fuzz.map
-        (\lineNo text comments itemType itemSettings children ->
+        (\lineNo text comments itemSettings children ->
             Item.new
                 |> Item.withLineNo lineNo
                 |> Item.withText text
                 |> Item.withComments comments
-                |> Item.withItemType itemType
-                |> Item.withItemSettings itemSettings
+                |> Item.withSettings itemSettings
                 |> Item.withChildren children
         )
         (Fuzz.intRange 0 100)
@@ -105,12 +104,11 @@ itemFuzzer =
                             Just (String.replace "#" "" s |> String.replace "|" "")
                     )
             )
-        |> Fuzz.andMap itemTypeFuzzer
         |> Fuzz.andMap (Fuzz.maybe itemSettingsFuzzer)
         |> Fuzz.andMap childrenFuzzer
 
 
-itemSettingsFuzzer : Fuzzer ItemSettings
+itemSettingsFuzzer : Fuzzer ItemSettings.Settings
 itemSettingsFuzzer =
     Fuzz.map4
         (\bg fg offset fontSize ->
@@ -177,11 +175,6 @@ hexFuzzer =
         , Fuzz.constant "8"
         , Fuzz.constant "9"
         ]
-
-
-itemTypeFuzzer : Fuzzer ItemType
-itemTypeFuzzer =
-    Fuzz.constant Activities
 
 
 positionFuzzer : Fuzzer Position

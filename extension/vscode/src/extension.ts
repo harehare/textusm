@@ -121,32 +121,32 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("extension.showPreview", () => {
+    vscode.commands.registerCommand("textusm.showPreview", () => {
       showQuickPick(context, () => {});
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand("extension.exportSvg", () => {
+    vscode.commands.registerCommand("textusm.exportSvg", () => {
       DiagramPanel.activePanel?.exportSvg();
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand("extension.exportPng", () => {
+    vscode.commands.registerCommand("textusm.exportPng", () => {
       DiagramPanel.activePanel?.exportPng();
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand("extension.zoomIn", () => {
+    vscode.commands.registerCommand("textusm.zoomIn", () => {
       DiagramPanel.activePanel?.zoomIn();
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand("extension.zoomOut", () => {
+    vscode.commands.registerCommand("textusm.zoomOut", () => {
       DiagramPanel.activePanel?.zoomOut();
     })
   );
   context.subscriptions.push(
-    vscode.commands.registerCommand("extension.newDiagram", () => {
+    vscode.commands.registerCommand("textusm.newDiagram", () => {
       const options = diagrams;
       const quickPick = vscode.window.createQuickPick();
       quickPick.items = options.map((item) => ({ label: item.label }));
@@ -265,12 +265,6 @@ class DiagramPanel {
     const editor = vscode.window.activeTextEditor;
     const text = editor ? editor.document.getText() : "";
     const title = editor ? path.basename(editor.document.fileName) : "untitled";
-    const scriptSrc = vscode.Uri.file(
-      path.join(context.extensionPath, "js", "elm.js")
-    ).with({
-      scheme: "vscode-resource",
-    });
-
     const iconPath = vscode.Uri.file(
       path.join(context.extensionPath, "images", "icon.png")
     );
@@ -356,16 +350,6 @@ class DiagramPanel {
           }
         );
 
-        if (
-          optimizedSvg.error !== undefined &&
-          optimizedSvg.modernError !== undefined
-        ) {
-          vscode.window.showErrorMessage(`Export failed: ${filePath}`, {
-            modal: false,
-          });
-          return;
-        }
-
         try {
           fs.writeFileSync(filePath, optimizedSvg.data);
           vscode.window.showInformationMessage(`Exported: ${filePath}`, {
@@ -380,6 +364,9 @@ class DiagramPanel {
     };
 
     if (DiagramPanel.activePanel) {
+      const scriptSrc = DiagramPanel.activePanel._panel.webview.asWebviewUri(
+        vscode.Uri.file(path.join(context.extensionPath, "js", "elm.js"))
+      );
       DiagramPanel.activePanel._update(
         iconPath,
         scriptSrc,
@@ -413,6 +400,9 @@ class DiagramPanel {
       }
     );
 
+    const scriptSrc = panel.webview.asWebviewUri(
+      vscode.Uri.file(path.join(context.extensionPath, "js", "elm.js"))
+    );
     const figurePanel = new DiagramPanel(
       panel,
       iconPath,

@@ -6,7 +6,7 @@ import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem)
 import Models.DiagramData as DiagramData
 import Models.DiagramSettings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
-import Models.ItemSettings as ItemSettings
+import Models.Item.Settings as ItemSettings
 import Models.Position as Position exposing (Position)
 import Models.Property exposing (Property)
 import Models.Size exposing (Size)
@@ -207,7 +207,7 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                                 )
                                 moveingItem
                                 |> Maybe.withDefault item
-                                |> Item.getItemSettings
+                                |> Item.getSettings
                                 |> Maybe.map ItemSettings.getOffset
                                 |> Maybe.withDefault Position.zero
                     in

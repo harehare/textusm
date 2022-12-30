@@ -76,7 +76,6 @@ changeTextTest =
                                         (Item.fromList
                                             [ Item.new
                                                 |> Item.withText "    test2"
-                                                |> Item.withItemType Tasks
                                                 |> Item.withLineNo 1
                                             ]
                                         )
@@ -98,11 +97,9 @@ changeTextTest =
                                         (Item.fromList
                                             [ Item.new
                                                 |> Item.withText "    test2"
-                                                |> Item.withItemType Tasks
                                                 |> Item.withLineNo 1
                                             , Item.new
                                                 |> Item.withText "    test3"
-                                                |> Item.withItemType Tasks
                                                 |> Item.withLineNo 2
                                             ]
                                         )
@@ -124,14 +121,12 @@ changeTextTest =
                                         (Item.fromList
                                             [ Item.new
                                                 |> Item.withText "    test2"
-                                                |> Item.withItemType Tasks
                                                 |> Item.withLineNo 1
                                                 |> Item.withChildren
                                                     (Item.childrenFromItems
                                                         (Item.fromList
                                                             [ Item.new
                                                                 |> Item.withText "        test3"
-                                                                |> Item.withItemType Stories
                                                                 |> Item.withLineNo 2
                                                             ]
                                                         )
@@ -156,18 +151,15 @@ changeTextTest =
                                         (Item.fromList
                                             [ Item.new
                                                 |> Item.withText "    test2"
-                                                |> Item.withItemType Tasks
                                                 |> Item.withLineNo 1
                                                 |> Item.withChildren
                                                     (Item.childrenFromItems
                                                         (Item.fromList
                                                             [ Item.new
                                                                 |> Item.withText "        test3"
-                                                                |> Item.withItemType Stories
                                                                 |> Item.withLineNo 2
                                                             , Item.new
                                                                 |> Item.withText "        test4"
-                                                                |> Item.withItemType Stories
                                                                 |> Item.withLineNo 3
                                                             ]
                                                         )
@@ -593,7 +585,7 @@ userStoryMapRenderTest =
                     |> Html.Styled.toUnstyled
                     |> Query.fromHtml
                     |> Query.findAll [ tag "foreignObject" ]
-                    |> Query.count (Expect.equal 6)
+                    |> Query.count (Expect.equal 5)
         , test "User Story Map line count" <|
             \() ->
                 view model_

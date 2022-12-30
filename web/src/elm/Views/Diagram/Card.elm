@@ -88,13 +88,9 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
             Svg.g
                 [ SvgAttr.class "card"
                 , Attributes.dataTest <| "card-" ++ (String.fromInt <| Item.getLineNo item)
-                , if Item.isImage item then
-                    SvgAttr.class ""
-
-                  else
-                    Events.onClickStopPropagation <|
-                        Select <|
-                            Just { item = item, position = position, displayAllMenu = True }
+                , Events.onClickStopPropagation <|
+                    Select <|
+                        Just { item = item, position = position, displayAllMenu = True }
                 ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt width
@@ -217,17 +213,25 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
                   else
                     Color.transparent
                 )
-                (Item.getText item
-                    |> String.trim
-                    |> String.dropLeft 3
-                    |> String.trim
-                )
+                (Item.getText item)
             ]
 
     else if Item.isImage item then
-        Views.image ( svgWidth, svgHeight ) ( posX, posY ) <| String.trim <| Item.getText item
+        if Item.isImage item then
+            Views.image ( svgWidth, svgHeight ) ( posX, posY ) item
 
-    else if String.length (Item.getText item) > 15 then
+        else
+            Views.plainText
+                { settings = settings
+                , position = ( posX, posY )
+                , size = ( svgWidth, svgHeight )
+                , foreColor = colour
+                , fontSize = fs
+                , text = Item.getText item
+                , isHighlight = Item.isHighlight item
+                }
+
+    else if String.length (Item.getText item) > 13 then
         Svg.foreignObject
             [ SvgAttr.x <| String.fromInt posX
             , SvgAttr.y <| String.fromInt posY
