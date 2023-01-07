@@ -66,9 +66,9 @@ view =
             , storyView [ indentedText "User Story Release 1" 2 ]
             , storyView [ indentedText "User Story Release 2..." 3 ]
             , storyView [ indentedText "Add Images" 4 ]
-            , storyView [ indentedText "https://app.textusm.com/images/logo.svg" 5 ]
+            , storyView [ indentedText "image:https://app.textusm.com/images/logo.svg" 5 ]
             , storyView [ indentedText "Change font size, font color or background color." 1 ]
-            , storyView [ indentedText "test|{\"b\":\"#CEE5F2\",\"f\":\"#EE8A8B\",\"o\":[0,0],\"s\":9}" 2 ]
+            , storyView [ indentedText "test|{\"bg\":\"#CEE5F2\",\"fg\":\"#EE8A8B\",\"pos\":[0,0],\"font_size\":9}" 2 ]
             ]
 
         -- Comment Syntax
