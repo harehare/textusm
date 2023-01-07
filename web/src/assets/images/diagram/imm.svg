@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg viewBox="0 0 756 890" xmlns="http://www.w3.org/2000/svg">
 <defs>
-<style>@import url('https://fonts.googleapis.com/css?family=Nunito Sans&amp;display=swap');</style>
+<style>@import url('https://fonts.googleapis.com/css2?family=Nunito Sans&amp;display=swap');</style>
 </defs>
 <g transform="translate(0 300) scale(2)" fill="transparent" style="transition:transform 0.15s ease;will-change:transform">
 <path d="m140 32.5h42a8 8 0 0 0 8-8v-114a8 8 0 0 1 8-8h42" fill="transparent" stroke="#3E9BCD" stroke-width="2"/>

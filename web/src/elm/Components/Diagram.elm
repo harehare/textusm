@@ -1195,7 +1195,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
             Svg.defs [] [ highlightDefs ]
 
           else
-            Svg.defs [] [ highlightDefs, Svg.style [] [ Svg.text ("@import url('https://fonts.googleapis.com/css?family=" ++ model.settings.font ++ "&display=swap');") ] ]
+            Svg.defs [] [ highlightDefs, Svg.style [] [ Svg.text ("@import url('https://fonts.googleapis.com/css2?family=" ++ model.settings.font ++ "&display=swap');") ] ]
         , Svg.defs []
             [ Svg.filter [ SvgAttr.id "shadow", SvgAttr.height "130%" ]
                 [ Svg.feGaussianBlur [ SvgAttr.in_ "SourceAlpha", SvgAttr.stdDeviation "3" ] []
