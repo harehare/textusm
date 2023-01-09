@@ -57,7 +57,7 @@
     "monaco-editor-webpack-plugin": "^7.0.1",
     "postcss": "^8.4.20",
     "preload-webpack-plugin": "^3.0.0-beta.4",
-    "prettier": "^2.8.1",
+    "prettier": "^2.8.2",
     "rimraf": "^3.0.2",
     "size-limit": "^8.0.1",
     "style-loader": "^3.3.1",
