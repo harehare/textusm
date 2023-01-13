@@ -50,12 +50,13 @@ import Css.Transitions as Transitions
 import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
-import Html.Styled.Events as Events
+import Html.Styled.Events as Events exposing (onClick)
 import Json.Decode as D
 import List
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color
+import Models.DiagramItem exposing (DiagramItem)
 import Models.DiagramLocation as DiagramLocation
 import Models.DiagramType exposing (DiagramType(..))
 import Models.Exporter as Exporter
@@ -93,8 +94,8 @@ type alias Props =
     , width : Int
     , openMenu : Maybe Menu
     , settings : Settings
-    , diagramType : DiagramType
     , browserStatus : BrowserStatus
+    , currentDiagram : DiagramItem
     }
 
 
@@ -161,7 +162,27 @@ menu pos items =
 
 
 view : Props -> Html Msg
-view props =
+view { page, lang, width, route, text, openMenu, settings, browserStatus, currentDiagram } =
+    let
+        newMenu : Html msg
+        newMenu =
+            Html.a
+                [ Attr.class "new-menu"
+                , Attr.href <| Route.toString <| Route.New
+                , Attr.attribute "aria-label" "New"
+                , Attributes.dataTest "new-menu"
+                ]
+                [ Html.div
+                    [ Attr.css
+                        [ Style.mlXs
+                        , menuButtonStyle
+                        ]
+                    ]
+                    [ Icon.file Color.iconColor 18
+                    , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipNewFile lang ] ]
+                    ]
+                ]
+    in
     Html.nav
         [ Attr.css
             [ Breakpoint.style
@@ -189,25 +210,40 @@ view props =
             ]
         , Attributes.dataTest "menu"
         ]
-        [ Html.a
-            [ Attr.class "new-menu"
-            , Attr.href <| Route.toString <| Route.New
-            , Attr.attribute "aria-label" "New"
-            , Attributes.dataTest "new-menu"
-            ]
-            [ Html.div
-                [ Attr.css
-                    [ Style.mlXs
-                    , menuButtonStyle
-                    ]
-                ]
-                [ Icon.file Color.iconColor 18
-                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipNewFile props.lang ] ]
-                ]
-            ]
+        [ case route of
+            Route.Edit _ ->
+                newMenu
+
+            Route.EditFile _ _ ->
+                newMenu
+
+            Route.EditLocalFile _ _ ->
+                newMenu
+
+            _ ->
+                case currentDiagram.id of
+                    Just _ ->
+                        Html.div
+                            [ Attr.class "edit-menu"
+                            , onClick OpenCurrentFile
+                            , Attr.attribute "aria-label" "Edit"
+                            , Attributes.dataTest "edit-menu"
+                            ]
+                            [ Html.div
+                                [ Attr.css
+                                    [ menuButtonStyle
+                                    ]
+                                ]
+                                [ Icon.edit Color.iconColor 20
+                                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipEditFile lang ] ]
+                                ]
+                            ]
+
+                    Nothing ->
+                        newMenu
         , Html.div
             [ Attr.css [ menuButtonStyle ] ]
-            [ case props.settings.location of
+            [ case settings.location of
                 Just DiagramLocation.LocalFileSystem ->
                     Html.div
                         [ Events.onClickPreventDefaultOn OpenLocalFile
@@ -215,7 +251,7 @@ view props =
                         , Attributes.dataTest "list-menu"
                         ]
                         [ Icon.folderOpen (Color.toString Color.iconColor) 18
-                        , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile props.lang ] ]
+                        , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile lang ] ]
                         ]
 
                 _ ->
@@ -225,19 +261,19 @@ view props =
                         , Attributes.dataTest "list-menu"
                         ]
                         [ Icon.folderOpen
-                            (if isNothing props.openMenu && props.page == Page.List then
+                            (if isNothing openMenu && page == Page.List then
                                 Color.toString Color.iconColor
 
                              else
                                 Color.toString Color.disabledIconColor
                             )
                             18
-                        , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile props.lang ] ]
+                        , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile lang ] ]
                         ]
             ]
-        , if Text.isChanged props.text then
+        , if Text.isChanged text then
             Html.div
-                [ case props.settings.location of
+                [ case settings.location of
                     Just DiagramLocation.LocalFileSystem ->
                         Events.onClick SaveLocalFile
 
@@ -247,7 +283,7 @@ view props =
                 , Attributes.dataTest "save-menu"
                 ]
                 [ Icon.save (Color.toString Color.iconColor) 22
-                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave props.lang ] ]
+                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave lang ] ]
                 ]
 
           else
@@ -256,7 +292,7 @@ view props =
                 , Attributes.dataTest "disabled-save-menu"
                 ]
                 [ Icon.save (Color.toString Color.disabledIconColor) 22
-                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave props.lang ] ]
+                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave lang ] ]
                 ]
         , Html.div
             [ Events.stopPropagationOn "click" (D.succeed ( OpenMenu Export, True ))
@@ -264,7 +300,7 @@ view props =
             , Attributes.dataTest "download-menu"
             ]
             [ Icon.download
-                (case props.openMenu of
+                (case openMenu of
                     Just Export ->
                         Color.toString Color.iconColor
 
@@ -272,15 +308,15 @@ view props =
                         Color.toString Color.disabledIconColor
                 )
                 18
-            , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipExport props.lang ] ]
+            , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipExport lang ] ]
             ]
-        , if Text.isChanged props.text then
+        , if Text.isChanged text then
             Html.div
                 [ Attr.css [ menuButtonStyle ]
                 , Attributes.dataTest "copy-menu"
                 ]
                 [ Icon.copy Color.disabledIconColor 19
-                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy props.lang ] ]
+                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy lang ] ]
                 ]
 
           else
@@ -290,20 +326,20 @@ view props =
                 , Attributes.dataTest "copy-menu"
                 ]
                 [ Icon.copy Color.iconColor 19
-                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy props.lang ] ]
+                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy lang ] ]
                 ]
-        , if Utils.isPhone props.width then
-            case props.openMenu of
+        , if Utils.isPhone width then
+            case openMenu of
                 Just Export ->
-                    menu { bottom = Just 50, left = Just (props.width // 5 * 3), right = Nothing, top = Nothing } (exportMenu props.route props.browserStatus)
+                    menu { bottom = Just 50, left = Just (width // 5 * 3), right = Nothing, top = Nothing } (exportMenu route browserStatus)
 
                 _ ->
                     Empty.view
 
           else
-            case props.openMenu of
+            case openMenu of
                 Just Export ->
-                    menu { bottom = Nothing, left = Just 40, right = Nothing, top = Just 125 } (exportMenu props.route props.browserStatus)
+                    menu { bottom = Nothing, left = Just 40, right = Nothing, top = Just 125 } (exportMenu route browserStatus)
 
                 _ ->
                     Empty.view

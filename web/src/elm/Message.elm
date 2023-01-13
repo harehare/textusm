@@ -25,6 +25,7 @@ module Message exposing
     , messageUrlExpired
     , toLangString
     , toolTipCopy
+    , toolTipEditFile
     , toolTipExport
     , toolTipGist
     , toolTipHelp
@@ -348,6 +349,16 @@ toolTipNewFile lang =
 
         _ ->
             "New File"
+
+
+toolTipEditFile : Lang -> String
+toolTipEditFile lang =
+    case lang of
+        Ja ->
+            "編集"
+
+        _ ->
+            "Edit File"
 
 
 toolTipOpenFile : Lang -> String

@@ -645,6 +645,21 @@ startEditTitle =
         |> Return.command
 
 
+openCurrentFile : DiagramItem -> Return.ReturnF Msg Model
+openCurrentFile diagram =
+    (case ( diagram.isRemote, diagram.isPublic ) of
+        ( True, True ) ->
+            pushUrl (Route.toString <| ViewPublic diagram.diagram (DiagramItem.getId diagram))
+
+        ( True, False ) ->
+            pushUrl (Route.toString <| EditFile diagram.diagram (DiagramItem.getId diagram))
+
+        _ ->
+            pushUrl (Route.toString <| EditLocalFile diagram.diagram (DiagramItem.getId diagram))
+    )
+        >> Action.closeLocalFile
+
+
 
 -- Update
 
@@ -1348,6 +1363,12 @@ update message =
                     Return.singleton { m | diagramModel = m.diagramModel |> DiagramModel.ofDiagramType.set diagramType }
                         |> loadDiagram (m.currentDiagram |> DiagramItem.ofDiagram.set diagramType)
 
+        OpenCurrentFile ->
+            Return.andThen <|
+                \m ->
+                    Return.singleton m
+                        |> openCurrentFile m.currentDiagram
+
 
 processDiagramListMsg : DiagramList.Msg -> Return.ReturnF Msg Model
 processDiagramListMsg msg =
@@ -1474,7 +1495,7 @@ view model =
                     , width = Size.getWidth model.diagramModel.size
                     , openMenu = model.openMenu
                     , settings = model.settingsModel.settings
-                    , diagramType = model.currentDiagram.diagram
+                    , currentDiagram = model.currentDiagram
                     , browserStatus = model.browserStatus
                     }
             , case model.page of

@@ -134,6 +134,7 @@ type Msg
     | NotifyNewVersionAvailable String
     | Reload
     | CloseSnackbar
+    | OpenCurrentFile
     | OpenLocalFile
     | OpenedLocalFile ( String, String )
     | SaveLocalFile

@@ -4,6 +4,7 @@ import Css exposing (backgroundColor, block, bottom, column, display, displayFle
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick)
+import Models.Color as Color
 import Models.Window as Window exposing (Window)
 import Style.Breakpoint as Breakpoint
 import Style.Color as Color
@@ -49,7 +50,7 @@ view onSwitchWindow background window view1 view2 =
                 Icon.visibility 20
 
               else if Window.isDisplayPreview window then
-                Icon.edit 20
+                Icon.edit Color.white 20
 
               else
                 Empty.view
