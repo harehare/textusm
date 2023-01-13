@@ -182,6 +182,21 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                     , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipNewFile lang ] ]
                     ]
                 ]
+
+        isEditFile : Bool
+        isEditFile =
+            case route of
+                Route.Edit _ ->
+                    True
+
+                Route.EditFile _ _ ->
+                    True
+
+                Route.EditLocalFile _ _ ->
+                    True
+
+                _ ->
+                    False
     in
     Html.nav
         [ Attr.css
@@ -261,11 +276,11 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                         , Attributes.dataTest "list-menu"
                         ]
                         [ Icon.folderOpen
-                            (if isNothing openMenu && page == Page.List then
-                                Color.toString Color.iconColor
+                            (if page == Page.List then
+                                Color.toString Color.disabledIconColor
 
                              else
-                                Color.toString Color.disabledIconColor
+                                Color.toString Color.iconColor
                             )
                             18
                         , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile lang ] ]
@@ -295,22 +310,25 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave lang ] ]
                 ]
         , Html.div
-            [ Events.stopPropagationOn "click" (D.succeed ( OpenMenu Export, True ))
+            [ if isEditFile then
+                Events.stopPropagationOn "click" (D.succeed ( OpenMenu Export, True ))
+
+              else
+                Attr.style "" ""
             , Attr.css [ menuButtonStyle ]
             , Attributes.dataTest "download-menu"
             ]
             [ Icon.download
-                (case openMenu of
-                    Just Export ->
-                        Color.toString Color.iconColor
+                (if isEditFile then
+                    Color.toString Color.iconColor
 
-                    _ ->
-                        Color.toString Color.disabledIconColor
+                 else
+                    Color.toString Color.disabledIconColor
                 )
                 18
             , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipExport lang ] ]
             ]
-        , if Text.isChanged text then
+        , if not isEditFile || Text.isChanged text then
             Html.div
                 [ Attr.css [ menuButtonStyle ]
                 , Attributes.dataTest "copy-menu"
