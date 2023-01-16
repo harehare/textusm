@@ -19,11 +19,11 @@ import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Query as Query
 import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
-import Models.DiagramId as DiagramId
-import Models.DiagramItem as DiagramItem exposing (DiagramItem)
-import Models.DiagramLocation as DiagramLocation
-import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType as DiagramType exposing (DiagramType)
+import Models.Diagram.Id as DiagramId
+import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
+import Models.Diagram.Location as DiagramLocation
+import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.Email as Email exposing (Email)
 import Models.IpAddress as IpAddress exposing (IpAddress)
 import Models.Text as Text

@@ -25,9 +25,9 @@ import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
 import Models.Diagram as Diagram exposing (Model, Msg(..))
+import Models.Diagram.Data as DiagramData
 import Models.Diagram.ER as ER exposing (Attribute(..), Column(..), Relationship(..), Table(..))
-import Models.DiagramData as DiagramData
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.Position as Position exposing (Position, getX, getY)
 import Models.Size exposing (Size, getHeight, getWidth)
 import State exposing (Step(..))

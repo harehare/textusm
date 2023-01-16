@@ -3,7 +3,7 @@ module Views.Diagram.Text exposing (view)
 import Css exposing (property)
 import Models.Color as Color
 import Models.Diagram exposing (Msg, SelectedItem)
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item)
 import Models.Item.Settings as ItemSettings
 import Models.Position exposing (Position)

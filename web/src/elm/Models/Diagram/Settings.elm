@@ -1,4 +1,4 @@
-module Models.DiagramSettings exposing
+module Models.Diagram.Settings exposing
     ( Color
     , ColorSettings
     , Settings

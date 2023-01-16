@@ -3,7 +3,7 @@ module Views.Diagram.Line exposing (horizontal, vertical)
 import Events
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item)
 import Models.Item.Settings as ItemSettings
 import Models.Position as Position exposing (Position)

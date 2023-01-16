@@ -1,4 +1,4 @@
-module Models.DiagramItem exposing
+module Models.Diagram.Item exposing
     ( DiagramItem
     , copy
     , decoder
@@ -28,9 +28,9 @@ import Json.Decode as D
 import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
-import Models.DiagramId as DiagramId exposing (DiagramId)
-import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
-import Models.DiagramType as DiagramType exposing (DiagramType)
+import Models.Diagram.Id as DiagramId exposing (DiagramId)
+import Models.Diagram.Location as DiagramLocation exposing (Location)
+import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.Session as Session exposing (Session)
 import Models.Text as Text exposing (Text)
 import Models.Title as Title exposing (Title)
@@ -47,7 +47,7 @@ type alias DiagramItem =
     , isPublic : Bool
     , isBookmark : Bool
     , isRemote : Bool
-    , location : Maybe DiagramLocation
+    , location : Maybe Location
     , createdAt : Posix
     , updatedAt : Posix
     }

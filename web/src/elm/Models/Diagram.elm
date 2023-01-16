@@ -33,6 +33,7 @@ import File exposing (File)
 import List.Extra exposing (getAt)
 import Models.Color as Color
 import Models.Diagram.BusinessModelCanvas as BusinessModelCanvasModel
+import Models.Diagram.Data as DiagramData
 import Models.Diagram.ER as ERModel
 import Models.Diagram.EmpathyMap as EmpathyMapModel
 import Models.Diagram.FourLs as FourLsModel
@@ -45,15 +46,14 @@ import Models.Diagram.MindMap as MindMapModel
 import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
 import Models.Diagram.Search exposing (Search)
 import Models.Diagram.SequenceDiagram as SequenceDiagramModel
+import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.SiteMap as SiteMapModel
 import Models.Diagram.StartStopContinue as StartStopContinueModel
 import Models.Diagram.Table as TableModel
+import Models.Diagram.Type exposing (DiagramType(..))
 import Models.Diagram.UseCaseDiagram as UseCaseDiagramModel
 import Models.Diagram.UserPersona as UserPersonaModel
 import Models.Diagram.UserStoryMap as UserStoryMapModel
-import Models.DiagramData as DiagramData exposing (DiagramData)
-import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType exposing (DiagramType(..))
 import Models.FontSize exposing (FontSize)
 import Models.FontStyle exposing (FontStyle)
 import Models.Item exposing (Item, Items)
@@ -91,7 +91,7 @@ type DragStatus
 
 type alias Model =
     { items : Items
-    , data : DiagramData
+    , data : DiagramData.Data
     , size : Size
     , svg : SvgSize
     , moveState : MoveState

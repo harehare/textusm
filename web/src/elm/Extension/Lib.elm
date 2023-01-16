@@ -8,10 +8,10 @@ import Html.Styled.Attributes exposing (style)
 import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
+import Models.Diagram.Data as DiagramData
 import Models.Diagram.Search as Search
-import Models.DiagramData as DiagramData
-import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType exposing (DiagramType(..))
+import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type exposing (DiagramType(..))
 import Models.Item as Item
 import Models.Property as Property
 import Models.Text as Text

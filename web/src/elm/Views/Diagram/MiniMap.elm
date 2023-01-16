@@ -32,7 +32,7 @@ import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color
 import Models.Diagram as DiagramModel exposing (Msg)
-import Models.DiagramType exposing (DiagramType(..))
+import Models.Diagram.Type exposing (DiagramType(..))
 import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
 import Style.Style as Style

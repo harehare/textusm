@@ -3,7 +3,7 @@ module Views.Diagram.OpportunityCanvas exposing (view)
 import Constants
 import Models.Diagram exposing (Model, Msg)
 import Models.Diagram.OpportunityCanvas exposing (OpportunityCanvasItem(..))
-import Models.DiagramData as DiagramData
+import Models.Diagram.Data as DiagramData
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Lazy as Lazy
 import Utils.Diagram as DiagramUtils

@@ -2,10 +2,10 @@ module Models.Fuzzer exposing (colorFuzzer, diagramItemFuzzer, diagramTypeFuzzer
 
 import Fuzz exposing (Fuzzer)
 import Models.Color as Color exposing (Color)
-import Models.DiagramId as DiagramId exposing (DiagramId)
-import Models.DiagramItem exposing (DiagramItem)
-import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
-import Models.DiagramType exposing (DiagramType(..))
+import Models.Diagram.Location as DiagramLocation exposing (Location)
+import Models.Diagram.Id as DiagramId exposing (DiagramId)
+import Models.Diagram.Item exposing (DiagramItem)
+import Models.Diagram.Type exposing (DiagramType(..))
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Children, Item, ItemType(..))
 import Models.Item.Settings as ItemSettings
@@ -141,7 +141,7 @@ diagramIdFuzzer =
     Fuzz.map DiagramId.fromString Fuzz.string
 
 
-diagramLocationFuzzer : Fuzzer DiagramLocation
+diagramLocationFuzzer : Fuzzer Location
 diagramLocationFuzzer =
     Fuzz.oneOf
         [ Fuzz.constant DiagramLocation.Local

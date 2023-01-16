@@ -9,6 +9,8 @@ import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Models.Color as Color
 import Models.Diagram exposing (Model, Msg(..))
+import Models.Diagram.Data as DiagramData
+import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.UseCaseDiagram as UseCaseDiagram
     exposing
         ( Actor(..)
@@ -17,8 +19,6 @@ import Models.Diagram.UseCaseDiagram as UseCaseDiagram
         , UseCaseDiagram(..)
         , UseCaseRelation
         )
-import Models.DiagramData as DiagramData
-import Models.DiagramSettings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)

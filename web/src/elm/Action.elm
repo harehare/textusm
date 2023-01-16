@@ -29,11 +29,11 @@ import Browser.Dom as Dom exposing (Viewport)
 import Browser.Navigation as Nav
 import Graphql.OptionalArgument as OptionalArgument
 import Message exposing (Message)
-import Models.DiagramId as DiagramId exposing (DiagramId)
-import Models.DiagramItem as DiagramItem exposing (DiagramItem)
-import Models.DiagramLocation as DiagramLocation
-import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType as DiagramType exposing (DiagramType)
+import Models.Diagram.Id as DiagramId exposing (DiagramId)
+import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
+import Models.Diagram.Location as DiagramLocation
+import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.LoginProvider as LoginProvider
 import Models.Session as Session exposing (Session)
 import Models.SettingsCache as SettingCache exposing (SettingsCache)

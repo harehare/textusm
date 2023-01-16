@@ -2,7 +2,7 @@ module Utils.Diagram exposing (getCanvasHeight, getSpacePrefix)
 
 import Constants
 import List.Extra as ListEx
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Items)
 
 

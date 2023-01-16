@@ -25,7 +25,7 @@ import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)

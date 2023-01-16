@@ -6,9 +6,9 @@ import Html.Styled.Attributes as Attr
 import List.Extra as ListEx
 import Models.Color as Color
 import Models.Diagram exposing (Model, Msg)
+import Models.Diagram.Data as DiagramData
 import Models.Diagram.GanttChart as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
-import Models.DiagramData as DiagramData
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Position exposing (Position)
 import Models.Size exposing (Size)

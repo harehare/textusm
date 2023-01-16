@@ -31,9 +31,9 @@ import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import Models.Color as Color
-import Models.DiagramItem as DiagramItem exposing (DiagramItem)
-import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Location as DiagramLocation exposing (Location)
+import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Theme as Theme exposing (Theme)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
@@ -56,7 +56,7 @@ type alias Settings =
     , title : Maybe String
     , editor : Maybe EditorSettings
     , diagram : Maybe DiagramItem
-    , location : Maybe DiagramLocation
+    , location : Maybe Location
     , theme : Maybe Theme
     }
 

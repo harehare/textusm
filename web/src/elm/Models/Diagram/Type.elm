@@ -1,4 +1,4 @@
-module Models.DiagramType exposing
+module Models.Diagram.Type exposing
     ( DiagramType(..)
     , defaultText
     , fromGraphqlValue

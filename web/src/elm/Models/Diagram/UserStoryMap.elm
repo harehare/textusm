@@ -13,7 +13,7 @@ module Models.Diagram.UserStoryMap exposing
 import Constants
 import Dict
 import List.Extra exposing (scanl)
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Items)
 import Models.Property as Property exposing (Property)
 import Models.Size exposing (Size)

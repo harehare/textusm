@@ -20,7 +20,7 @@ module Models.Diagram.SequenceDiagram exposing
 
 import Constants
 import Dict exposing (Dict)
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Size exposing (Size)
 

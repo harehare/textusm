@@ -46,8 +46,8 @@ import Html.Styled.Lazy as Lazy
 import Maybe.Extra as MaybeEx
 import Message exposing (Message)
 import Models.Color as Color
-import Models.DiagramId as DiagramId exposing (DiagramId)
-import Models.DiagramType as DiagramType exposing (DiagramType)
+import Models.Diagram.Id as DiagramId exposing (DiagramId)
+import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.Duration as Duration exposing (Duration)
 import Models.Email as Email exposing (Email)
 import Models.IpAddress as IpAddress exposing (IpAddress)

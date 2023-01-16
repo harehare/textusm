@@ -14,11 +14,11 @@ import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet, hardcoded, with)
 import Graphql.Union
 import Graphql.Union.DiagramItem
-import Models.DiagramId as DiagramId
-import Models.DiagramItem as DiagramItem exposing (DiagramItem)
-import Models.DiagramLocation as DiagramLocation
-import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType as DiagramType
+import Models.Diagram.Id as DiagramId
+import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
+import Models.Diagram.Location as DiagramLocation
+import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType
 import Models.Text as Text
 import Models.Title as Title
 

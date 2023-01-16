@@ -1,4 +1,4 @@
-module Models.DiagramData exposing (DiagramData(..), Hierarchy)
+module Models.Diagram.Data exposing (Data(..), Hierarchy)
 
 import Models.Diagram.BusinessModelCanvas exposing (BusinessModelCanvas)
 import Models.Diagram.ER exposing (ErDiagram)
@@ -18,7 +18,7 @@ import Models.Diagram.UserStoryMap exposing (UserStoryMap)
 import Models.Item exposing (Items)
 
 
-type DiagramData
+type Data
     = Empty
     | UserStoryMap UserStoryMap
     | MindMap Items Hierarchy

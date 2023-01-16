@@ -96,9 +96,9 @@ import Json.Encode as E
 import List.Extra exposing (updateIf)
 import Message exposing (Lang)
 import Models.Color as Color
-import Models.DiagramId as DiagramId
-import Models.DiagramItem as DiagramItem exposing (DiagramItem)
-import Models.DiagramLocation as DiagramLocation
+import Models.Diagram.Id as DiagramId
+import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
+import Models.Diagram.Location as DiagramLocation
 import Models.Dialog as Dialog
 import Models.Session as Session exposing (Session)
 import Models.Title as Title

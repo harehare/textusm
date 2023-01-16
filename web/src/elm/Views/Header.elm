@@ -50,9 +50,9 @@ import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Lang)
 import Models.Color as Color
-import Models.DiagramItem exposing (DiagramItem)
-import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
-import Models.DiagramType as DiagramType exposing (DiagramType)
+import Models.Diagram.Location as DiagramLocation exposing (Location)
+import Models.Diagram.Item exposing (DiagramItem)
+import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.LoginProvider as LoginProvider exposing (LoginProvider(..))
 import Models.Model exposing (Menu(..), Msg(..))
 import Models.Page as Page exposing (Page)
@@ -315,7 +315,7 @@ viewSettingsButton lang diagramType =
         ]
 
 
-viewLocationButton : Lang -> Session -> Maybe DiagramLocation -> Html Msg
+viewLocationButton : Lang -> Session -> Maybe Location -> Html Msg
 viewLocationButton lang session location =
     case ( session, location ) of
         ( Session.SignedIn _, Just DiagramLocation.Remote ) ->

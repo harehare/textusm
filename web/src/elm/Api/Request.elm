@@ -28,10 +28,10 @@ import Graphql.Http as Http
 import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
-import Models.DiagramId as DiagramId
-import Models.DiagramItem exposing (DiagramItem)
-import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType exposing (DiagramType)
+import Models.Diagram.Id as DiagramId
+import Models.Diagram.Item exposing (DiagramItem)
+import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type exposing (DiagramType)
 import Models.Duration as Duration exposing (Duration)
 import Models.Email as Email exposing (Email)
 import Models.IdToken as IdToken exposing (IdToken)

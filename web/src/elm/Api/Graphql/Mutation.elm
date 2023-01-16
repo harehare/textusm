@@ -15,9 +15,9 @@ import Graphql.Operation exposing (RootMutation)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.SelectionSet exposing (SelectionSet)
-import Models.DiagramItem exposing (DiagramItem)
-import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType as DiagramType exposing (DiagramType)
+import Models.Diagram.Item exposing (DiagramItem)
+import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType exposing (DiagramType)
 
 
 bookmark : String -> Bool -> SelectionSet (Maybe DiagramItem) RootMutation

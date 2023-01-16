@@ -28,11 +28,11 @@ import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Message)
 import Models.Diagram as DiagramModel
-import Models.DiagramId as DiagramId
-import Models.DiagramItem as DiagramItem exposing (DiagramItem)
-import Models.DiagramLocation as DiagramLocation exposing (DiagramLocation)
-import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType as DiagramType exposing (DiagramType(..))
+import Models.Diagram.Id as DiagramId
+import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
+import Models.Diagram.Location as DiagramLocation exposing (Location)
+import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Dialog as Dialog
 import Models.Exporter as Exporter
 import Models.IdToken as IdToken
@@ -855,7 +855,7 @@ update message =
 
                             else
                                 let
-                                    location : Maybe DiagramLocation
+                                    location : Maybe Location
                                     location =
                                         m.currentDiagram.id |> Maybe.map (\_ -> m.currentDiagram.location) |> Maybe.withDefault m.settingsModel.settings.location
                                 in

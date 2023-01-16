@@ -23,7 +23,7 @@ import Css
         )
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attr
-import Models.DiagramType as DiagramType exposing (DiagramType(..))
+import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Route
 import Style.Breakpoint as Breakpoint
 import Style.Color as Color

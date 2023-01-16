@@ -4,9 +4,9 @@ import Constants
 import List.Extra as ListEx
 import Models.Color as Color
 import Models.Diagram exposing (Model, Msg, SelectedItem)
+import Models.Diagram.Data as DiagramData
 import Models.Diagram.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
-import Models.DiagramData as DiagramData
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.Position as Position exposing (Position)
 import Models.Property exposing (Property)
 import Models.Size exposing (Size)

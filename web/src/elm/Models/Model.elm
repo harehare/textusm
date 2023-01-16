@@ -15,9 +15,9 @@ import Dialog.Share as Share
 import Json.Decode as D
 import Message exposing (Lang, Message)
 import Models.Diagram as Diagram
-import Models.DiagramItem exposing (DiagramItem)
-import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType exposing (DiagramType)
+import Models.Diagram.Item exposing (DiagramItem)
+import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type exposing (DiagramType)
 import Models.Dialog exposing (ConfirmDialog)
 import Models.Exporter exposing (Export)
 import Models.LoginProvider exposing (LoginProvider)

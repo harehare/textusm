@@ -1,7 +1,7 @@
 module Models.Diagram.BusinessModelCanvas exposing (BusinessModelCanvas, BusinessModelCanvasItem(..), from, size)
 
 import Constants
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Size exposing (Size)
 import Utils.Diagram as Utils

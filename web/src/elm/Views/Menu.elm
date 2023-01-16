@@ -53,12 +53,11 @@ import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Events exposing (onClick)
 import Json.Decode as D
 import List
-import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color
-import Models.DiagramItem exposing (DiagramItem)
-import Models.DiagramLocation as DiagramLocation
-import Models.DiagramType exposing (DiagramType(..))
+import Models.Diagram.Location as DiagramLocation
+import Models.Diagram.Item exposing (DiagramItem)
+import Models.Diagram.Type exposing (DiagramType(..))
 import Models.Exporter as Exporter
 import Models.FileType as FileType
 import Models.Model exposing (BrowserStatus, Menu(..), Msg(..))

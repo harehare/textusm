@@ -3,7 +3,7 @@ module Views.Diagram.SiteMap exposing (view)
 import Constants
 import List.Extra as ListEx
 import Models.Diagram exposing (Model, Msg, SelectedItem)
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import Models.Property exposing (Property)

@@ -8,9 +8,9 @@ import List
 import List.Extra as ListEx
 import Models.Color as Color
 import Models.Diagram exposing (Model, Msg, SelectedItem)
+import Models.Diagram.Data as DiagramData
 import Models.Diagram.UserStoryMap as UserStoryMap exposing (CountPerTasks, UserStoryMap)
-import Models.DiagramData as DiagramData
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Position exposing (Position)
 import Models.Property as Property exposing (Property)

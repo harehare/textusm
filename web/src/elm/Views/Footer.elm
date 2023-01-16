@@ -20,7 +20,7 @@ import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Models.Color as Color
-import Models.DiagramType as DiagramType exposing (DiagramType)
+import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Style.Color as ColorStyle
 import Style.Font as Font
 import Style.Style as Style

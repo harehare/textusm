@@ -41,8 +41,8 @@ import Html.Styled.Events exposing (onClick)
 import Maybe.Extra exposing (isNothing)
 import Message exposing (Lang)
 import Models.Color as Color exposing (colors)
-import Models.DiagramLocation as DiagramLocation
-import Models.DiagramType exposing (DiagramType)
+import Models.Diagram.Location as DiagramLocation
+import Models.Diagram.Type exposing (DiagramType)
 import Models.FontSize as FontSize
 import Models.Session as Session exposing (Session)
 import Models.Theme as Theme

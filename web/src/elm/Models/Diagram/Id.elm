@@ -1,4 +1,4 @@
-module Models.DiagramId exposing (DiagramId, decoder, fromString, isGithubId, toString)
+module Models.Diagram.Id exposing (DiagramId, decoder, fromString, isGithubId, toString)
 
 import Json.Decode as D exposing (Decoder)
 

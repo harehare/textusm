@@ -3,7 +3,7 @@ module Views.Diagram.FreeForm exposing (view)
 import Constants
 import Models.Diagram as Diagram exposing (Model, MoveState, Msg)
 import Models.Diagram.FreeForm as FreeForm exposing (FreeFormItem)
-import Models.DiagramData as DiagramData
+import Models.Diagram.Data as DiagramData
 import Models.Item as Item exposing (Item)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Lazy as Lazy

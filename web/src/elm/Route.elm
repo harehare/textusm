@@ -1,8 +1,8 @@
 module Route exposing (Route(..), Title, isViewFile, moveTo, replaceRoute, toRoute, toString)
 
 import Browser.Navigation as Nav
-import Models.DiagramId as DiagramId exposing (DiagramId)
-import Models.DiagramType as DiagramType exposing (DiagramType)
+import Models.Diagram.Id as DiagramId exposing (DiagramId)
+import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.ShareToken as ShareToken exposing (ShareToken)
 import Url exposing (Url)
 import Url.Builder as Builder exposing (absolute)

@@ -52,6 +52,7 @@ import Maybe
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem)
 import Models.Diagram.BusinessModelCanvas as BusinessModelCanvasModel
+import Models.Diagram.Data as DiagramData
 import Models.Diagram.ER as ErDiagramModel
 import Models.Diagram.EmpathyMap as EmpathyMapModel
 import Models.Diagram.FourLs as FourLsModel
@@ -62,14 +63,13 @@ import Models.Diagram.Kpt as KptModel
 import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
 import Models.Diagram.Search as SearchModel
 import Models.Diagram.SequenceDiagram as SequenceDiagramModel
+import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.StartStopContinue as StartStopContinueModel
 import Models.Diagram.Table as TableModel
+import Models.Diagram.Type exposing (DiagramType(..))
 import Models.Diagram.UseCaseDiagram as UseCaseDiagramModel
 import Models.Diagram.UserPersona as UserPersonaModel
 import Models.Diagram.UserStoryMap as UserStoryMapModel
-import Models.DiagramData as DiagramData
-import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType exposing (DiagramType(..))
 import Models.FontStyle as FontStyle
 import Models.Item as Item exposing (Item, Items)
 import Models.Item.Settings as ItemSettings
@@ -449,7 +449,7 @@ update message =
             Return.andThen <|
                 \m ->
                     let
-                        diagramData : DiagramData.DiagramData
+                        diagramData : DiagramData.Data
                         diagramData =
                             updateData (Text.toString m.text) m.data items
 
@@ -473,7 +473,7 @@ update message =
             Return.andThen <|
                 \m ->
                     let
-                        diagramData : DiagramData.DiagramData
+                        diagramData : DiagramData.Data
                         diagramData =
                             updateData (Text.toString m.text) m.data items
 
@@ -1313,7 +1313,7 @@ touchCoordinates touchEvent =
         |> Maybe.withDefault ( 0, 0 )
 
 
-updateData : String -> DiagramData.DiagramData -> Items -> DiagramData.DiagramData
+updateData : String -> DiagramData.Data -> Items -> DiagramData.Data
 updateData text data items =
     case data of
         DiagramData.Empty ->
@@ -1377,7 +1377,7 @@ updateData text data items =
 updateDiagram : Size -> Model -> String -> Model
 updateDiagram size base text =
     let
-        data : DiagramData.DiagramData
+        data : DiagramData.Data
         data =
             case base.diagramType of
                 UserStoryMap ->

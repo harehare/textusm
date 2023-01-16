@@ -5,8 +5,8 @@ import Components.Diagram exposing (init, update, view)
 import Expect
 import Html.Styled
 import Models.Diagram as Diagram exposing (Model, Msg(..))
-import Models.DiagramSettings as DiagramSettings
-import Models.DiagramType as DiagramType exposing (DiagramType(..))
+import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Item as Item exposing (ItemType(..))
 import Models.Position as Position
 import Return

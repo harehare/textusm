@@ -1,7 +1,7 @@
-module Models.DiagramLocation exposing
+module Models.Diagram.Location exposing
     ( CanUseNativeFileSystem
-    , DiagramLocation(..)
     , IsGithubUser
+    , Location(..)
     , decoder
     , enabled
     , encoder
@@ -18,7 +18,7 @@ type alias CanUseNativeFileSystem =
     Bool
 
 
-type DiagramLocation
+type Location
     = Local
     | Remote
     | Gist
@@ -29,12 +29,12 @@ type alias IsGithubUser =
     Bool
 
 
-decoder : D.Decoder DiagramLocation
+decoder : D.Decoder Location
 decoder =
     D.map fromString D.string
 
 
-enabled : CanUseNativeFileSystem -> IsGithubUser -> List ( String, DiagramLocation )
+enabled : CanUseNativeFileSystem -> IsGithubUser -> List ( String, Location )
 enabled canUseNativeFileSystem isGithubUser =
     case ( canUseNativeFileSystem, isGithubUser ) of
         ( True, True ) ->
@@ -58,12 +58,12 @@ enabled canUseNativeFileSystem isGithubUser =
             ]
 
 
-encoder : DiagramLocation -> E.Value
+encoder : Location -> E.Value
 encoder location =
     E.string <| toString location
 
 
-fromString : String -> DiagramLocation
+fromString : String -> Location
 fromString s =
     case s of
         "gist" ->
@@ -82,7 +82,7 @@ fromString s =
             Local
 
 
-isRemote : DiagramLocation -> Bool
+isRemote : Location -> Bool
 isRemote loc =
     case loc of
         Remote ->
@@ -92,7 +92,7 @@ isRemote loc =
             False
 
 
-toString : DiagramLocation -> String
+toString : Location -> String
 toString loc =
     case loc of
         Local ->

@@ -1,7 +1,7 @@
 module Models.Diagram.SiteMap exposing (size)
 
 import Constants
-import Models.DiagramSettings as DiagramSettings
+import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Items)
 import Models.Size exposing (Size)
 
