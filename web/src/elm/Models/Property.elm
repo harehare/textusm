@@ -30,7 +30,6 @@ module Models.Property exposing
 import Dict exposing (Dict)
 import Models.Color as Color exposing (Color)
 import Models.FontSize as FontSize exposing (FontSize)
-import String exposing (toInt)
 
 
 type alias Property =
@@ -106,17 +105,17 @@ getCardForegroundColor3 property =
 
 getCardHeight : Property -> Maybe Int
 getCardHeight property =
-    Dict.get (toKeyString CardHeight) property |> Maybe.andThen toInt
+    Dict.get (toKeyString CardHeight) property |> Maybe.andThen String.toInt
 
 
 getCardWidth : Property -> Maybe Int
 getCardWidth property =
-    Dict.get (toKeyString CardWidth) property |> Maybe.andThen toInt
+    Dict.get (toKeyString CardWidth) property |> Maybe.andThen String.toInt
 
 
 getFontSize : Property -> Maybe FontSize
 getFontSize property =
-    Dict.get (toKeyString FontSize) property |> Maybe.andThen (\v -> toInt v |> Maybe.map FontSize.fromInt)
+    Dict.get (toKeyString FontSize) property |> Maybe.andThen (\v -> String.toInt v |> Maybe.map FontSize.fromInt)
 
 
 getLineColor : Property -> Maybe Color
@@ -126,17 +125,17 @@ getLineColor property =
 
 getLineSize : Property -> Maybe Int
 getLineSize property =
-    Dict.get (toKeyString LineSize) property |> Maybe.andThen toInt
+    Dict.get (toKeyString LineSize) property |> Maybe.andThen String.toInt
 
 
 getNodeHeight : Property -> Maybe Int
 getNodeHeight property =
-    Dict.get (toKeyString NodeHeight) property |> Maybe.andThen toInt
+    Dict.get (toKeyString NodeHeight) property |> Maybe.andThen String.toInt
 
 
 getNodeWidth : Property -> Maybe Int
 getNodeWidth property =
-    Dict.get (toKeyString NodeWidth) property |> Maybe.andThen toInt
+    Dict.get (toKeyString NodeWidth) property |> Maybe.andThen String.toInt
 
 
 getReleaseLevel : Int -> Property -> Maybe String
@@ -250,7 +249,7 @@ enabledKey s =
 
         _ ->
             if String.startsWith "release" s then
-                String.dropLeft 7 s |> toInt |> Maybe.map (\v -> ReleaseLevel v)
+                String.dropLeft 7 s |> String.toInt |> Maybe.map (\v -> ReleaseLevel v)
 
             else
                 Nothing

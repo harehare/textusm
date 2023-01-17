@@ -9,6 +9,7 @@ import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.Diagram.Data as DiagramData
+import Models.Diagram.Scale as Scale
 import Models.Diagram.Search as Search
 import Models.Diagram.Type as DiagramType
 import Models.Item as Item
@@ -95,7 +96,7 @@ init flags =
             , size = ( 1024, 1024 )
             , svg =
                 { size = Size.zero
-                , scale = 1.0
+                , scale = Scale.fromFloat 1.0
                 }
             , moveState = DiagramModel.NotMove
             , position = ( 0, 0 )

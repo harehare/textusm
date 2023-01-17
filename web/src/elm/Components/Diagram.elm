@@ -61,6 +61,7 @@ import Models.Diagram.GanttChart as GanttChartModel
 import Models.Diagram.Kanban as KanbanModel
 import Models.Diagram.Kpt as KptModel
 import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
+import Models.Diagram.Scale as Scale
 import Models.Diagram.Search as SearchModel
 import Models.Diagram.SequenceDiagram as SequenceDiagramModel
 import Models.Diagram.Settings as DiagramSettings
@@ -120,7 +121,7 @@ init settings =
         , size = Size.zero
         , svg =
             { size = Size.zero
-            , scale = Maybe.withDefault 1.0 settings.scale
+            , scale = Scale.fromFloat <| Maybe.withDefault 1.0 settings.scale
             }
         , moveState = Diagram.NotMove
         , position = ( 0, 20 )
@@ -239,7 +240,7 @@ update message =
                             m.size
                     in
                     m
-                        |> Diagram.ofScale.set (min widthRatio heightRatio)
+                        |> Diagram.ofScale.set (Scale.fromFloat <| min widthRatio heightRatio)
                         |> Diagram.ofPosition.set position
                         |> Return.singleton
 
@@ -702,7 +703,7 @@ view model =
           else
             Empty.view
         , if Property.getZoomControl model.property |> Maybe.withDefault (model.settings.zoomControl |> Maybe.withDefault model.showZoomControl) then
-            Lazy.lazy2 zoomControl model.isFullscreen model.svg.scale
+            Lazy.lazy2 zoomControl model.isFullscreen (Scale.toFloat model.svg.scale)
 
           else
             Empty.view
@@ -711,7 +712,7 @@ view model =
             , diagramType = model.diagramType
             , moveState = model.moveState
             , position = centerPosition
-            , scale = model.svg.scale
+            , scale = Scale.toFloat model.svg.scale
             , showMiniMap = model.showMiniMap
             , svgSize = ( svgWidth, svgHeight )
             , viewport = model.size
@@ -826,8 +827,8 @@ move isWheelEvent ( x, y ) m =
             Return.singleton
                 { m
                     | position =
-                        ( Position.getX m.position + round (toFloat (x - Position.getX m.movePosition) * m.svg.scale)
-                        , Position.getY m.position + round (toFloat (y - Position.getY m.movePosition) * m.svg.scale)
+                        ( Position.getX m.position + round (toFloat (x - Position.getX m.movePosition) * Scale.toFloat m.svg.scale)
+                        , Position.getY m.position + round (toFloat (y - Position.getY m.movePosition) * Scale.toFloat m.svg.scale)
                         )
                     , movePosition = ( x, y )
                 }
@@ -837,8 +838,8 @@ move isWheelEvent ( x, y ) m =
                 Return.singleton
                     { m
                         | position =
-                            ( Position.getX m.position - round (toFloat x * m.svg.scale)
-                            , Position.getY m.position - round (toFloat y * m.svg.scale)
+                            ( Position.getX m.position - round (toFloat x * Scale.toFloat m.svg.scale)
+                            , Position.getY m.position - round (toFloat y * Scale.toFloat m.svg.scale)
                             )
                         , movePosition = ( x, y )
                     }
@@ -859,8 +860,8 @@ move isWheelEvent ( x, y ) m =
                                 (position
                                     |> Maybe.map
                                         (\p ->
-                                            ( Position.getX p + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
-                                            , Position.getY p + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
+                                            ( Position.getX p + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.svg.scale)
+                                            , Position.getY p + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.svg.scale)
                                             )
                                         )
                                     |> Maybe.withDefault ( x - Position.getX m.movePosition, y - Position.getY m.movePosition )
@@ -882,8 +883,8 @@ move isWheelEvent ( x, y ) m =
 
                         newPosition : Position
                         newPosition =
-                            ( Position.getX offset + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
-                            , Position.getY offset + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
+                            ( Position.getX offset + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.svg.scale)
+                            , Position.getY offset + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.svg.scale)
                             )
 
                         offset : Position
@@ -909,58 +910,58 @@ move isWheelEvent ( x, y ) m =
                 ( newSize, newPosition ) =
                     case direction of
                         Diagram.TopLeft ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / m.svg.scale)
-                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / m.svg.scale)
+                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / Scale.toFloat m.svg.scale)
+                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / Scale.toFloat m.svg.scale)
                               )
-                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
-                              , Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
+                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.svg.scale)
+                              , Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.svg.scale)
                               )
                             )
 
                         Diagram.TopRight ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
-                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / m.svg.scale)
+                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.svg.scale)
+                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / Scale.toFloat m.svg.scale)
                               )
                             , ( Position.getX offsetPosition
-                              , Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
+                              , Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.svg.scale)
                               )
                             )
 
                         Diagram.BottomLeft ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / m.svg.scale)
-                              , Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
+                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / Scale.toFloat m.svg.scale)
+                              , Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.svg.scale)
                               )
-                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
+                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.svg.scale)
                               , Position.getY offsetPosition
                               )
                             )
 
                         Diagram.BottomRight ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
-                              , Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale)
+                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.svg.scale)
+                              , Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.svg.scale)
                               )
                             , offsetPosition
                             )
 
                         Diagram.Top ->
                             ( ( 0
-                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / m.svg.scale)
+                              , Size.getHeight offsetSize + round (toFloat (Position.getY m.movePosition - y) / Scale.toFloat m.svg.scale)
                               )
-                            , ( Position.getX offsetPosition, Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale) )
+                            , ( Position.getX offsetPosition, Position.getY offsetPosition + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.svg.scale) )
                             )
 
                         Diagram.Bottom ->
-                            ( ( 0, Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / m.svg.scale) ), offsetPosition )
+                            ( ( 0, Size.getHeight offsetSize + round (toFloat (y - Position.getY m.movePosition) / Scale.toFloat m.svg.scale) ), offsetPosition )
 
                         Diagram.Left ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / m.svg.scale), 0 )
-                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale)
+                            ( ( Size.getWidth offsetSize + round (toFloat (Position.getX m.movePosition - x) / Scale.toFloat m.svg.scale), 0 )
+                            , ( Position.getX offsetPosition + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.svg.scale)
                               , Position.getY offsetPosition
                               )
                             )
 
                         Diagram.Right ->
-                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / m.svg.scale), 0 ), offsetPosition )
+                            ( ( Size.getWidth offsetSize + round (toFloat (x - Position.getX m.movePosition) / Scale.toFloat m.svg.scale), 0 ), offsetPosition )
 
                 offsetPosition : Position
                 offsetPosition =
@@ -982,8 +983,8 @@ move isWheelEvent ( x, y ) m =
             Return.singleton
                 { m
                     | position =
-                        ( Position.getX m.position - round (toFloat (x - Position.getX m.movePosition) * m.svg.scale * (toFloat (Size.getWidth m.size) / 260.0 * 2.0))
-                        , Position.getY m.position - round (toFloat (y - Position.getY m.movePosition) * m.svg.scale * (toFloat (Size.getWidth m.size) / 260.0 * 2.0))
+                        ( Position.getX m.position - round (toFloat (x - Position.getX m.movePosition) * Scale.toFloat m.svg.scale * (toFloat (Size.getWidth m.size) / 260.0 * 2.0))
+                        , Position.getY m.position - round (toFloat (y - Position.getY m.movePosition) * Scale.toFloat m.svg.scale * (toFloat (Size.getWidth m.size) / 260.0 * 2.0))
                         )
                     , movePosition = ( x, y )
                 }
@@ -1230,20 +1231,10 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     ++ String.fromInt (Position.getY centerPosition)
                     ++ ") scale("
                     ++ String.fromFloat
-                        (if isInfinite model.svg.scale then
-                            1.0
-
-                         else
-                            model.svg.scale
-                        )
+                        (model.svg.scale |> Scale.toFloat)
                     ++ ","
                     ++ String.fromFloat
-                        (if isInfinite model.svg.scale then
-                            1.0
-
-                         else
-                            model.svg.scale
-                        )
+                        (model.svg.scale |> Scale.toFloat)
                     ++ ")"
             , SvgAttr.fill model.settings.backgroundColor
             , SvgAttr.style "will-change: transform;"
@@ -1255,23 +1246,23 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                     contextMenuPosition : ( Int, Int )
                     contextMenuPosition =
                         if Item.isVerticalLine item_ then
-                            ( floor <| toFloat (Position.getX pos) * model.svg.scale
-                            , floor <| toFloat (Position.getY pos + h + 24) * model.svg.scale
+                            ( floor <| toFloat (Position.getX pos) * Scale.toFloat model.svg.scale
+                            , floor <| toFloat (Position.getY pos + h + 24) * Scale.toFloat model.svg.scale
                             )
 
                         else if Item.isHorizontalLine item_ then
-                            ( floor <| toFloat (Position.getX pos) * model.svg.scale
-                            , floor <| toFloat (Position.getY pos + h + 8) * model.svg.scale
+                            ( floor <| toFloat (Position.getX pos) * Scale.toFloat model.svg.scale
+                            , floor <| toFloat (Position.getY pos + h + 8) * Scale.toFloat model.svg.scale
                             )
 
                         else if Item.isCanvas item_ then
-                            ( floor <| toFloat (Position.getX position) * model.svg.scale
-                            , floor <| toFloat (Position.getY position) * model.svg.scale
+                            ( floor <| toFloat (Position.getX position) * Scale.toFloat model.svg.scale
+                            , floor <| toFloat (Position.getY position) * Scale.toFloat model.svg.scale
                             )
 
                         else
-                            ( floor <| toFloat (Position.getX pos) * model.svg.scale
-                            , floor <| toFloat (Position.getY pos + h + 24) * model.svg.scale
+                            ( floor <| toFloat (Position.getX pos) * Scale.toFloat model.svg.scale
+                            , floor <| toFloat (Position.getY pos + h + 24) * Scale.toFloat model.svg.scale
                             )
 
                     ( _, h ) =
@@ -1565,12 +1556,12 @@ zoomControl isFullscreen scale =
 
 zoomIn : Float -> Model -> Return Msg Model
 zoomIn ratio model =
-    if model.svg.scale <= 10.0 then
+    if Scale.toFloat model.svg.scale <= 10.0 then
         Return.singleton
             { model
                 | svg =
                     { size = ( Size.getWidth model.svg.size, Size.getHeight model.svg.size )
-                    , scale = model.svg.scale + ratio
+                    , scale = Scale.map (\l -> l + ratio) model.svg.scale
                     }
             }
 
@@ -1580,12 +1571,12 @@ zoomIn ratio model =
 
 zoomOut : Float -> Model -> Return Msg Model
 zoomOut ratio model =
-    if model.svg.scale > 0.03 then
+    if Scale.toFloat model.svg.scale > 0.03 then
         Return.singleton
             { model
                 | svg =
                     { size = ( Size.getWidth model.svg.size, Size.getHeight model.svg.size )
-                    , scale = model.svg.scale - ratio
+                    , scale = Scale.map (\l -> l - ratio) model.svg.scale
                     }
             }
 

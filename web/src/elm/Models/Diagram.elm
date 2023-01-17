@@ -44,6 +44,7 @@ import Models.Diagram.Kanban as KanbanModel
 import Models.Diagram.Kpt as KptModel
 import Models.Diagram.MindMap as MindMapModel
 import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
+import Models.Diagram.Scale exposing (Scale)
 import Models.Diagram.Search exposing (Search)
 import Models.Diagram.SequenceDiagram as SequenceDiagramModel
 import Models.Diagram.Settings as DiagramSettings
@@ -190,7 +191,7 @@ type alias SelectedItemInfo =
 
 type alias SvgSize =
     { size : Size
-    , scale : Float
+    , scale : Scale
     }
 
 
@@ -280,7 +281,7 @@ ofPosition =
     Lens .position (\b a -> { a | position = b })
 
 
-ofScale : Lens Model Float
+ofScale : Lens Model Scale
 ofScale =
     ofSvg |> Compose.lensWithLens svgOfScale
 
@@ -376,6 +377,6 @@ ofSvg =
     Lens .svg (\b a -> { a | svg = b })
 
 
-svgOfScale : Lens SvgSize Float
+svgOfScale : Lens SvgSize Scale
 svgOfScale =
     Lens .scale (\b a -> { a | scale = b })

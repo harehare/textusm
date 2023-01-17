@@ -31,6 +31,7 @@ import Models.Diagram as DiagramModel
 import Models.Diagram.Id as DiagramId
 import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation exposing (Location)
+import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Dialog as Dialog
@@ -210,7 +211,7 @@ changeRouteTo route =
                                 m.diagramModel
                                     |> DiagramModel.ofShowZoomControl.set False
                                     |> DiagramModel.ofDiagramType.set diagram
-                                    |> DiagramModel.ofScale.set 1.0
+                                    |> DiagramModel.ofScale.set (Scale.fromFloat 1.0)
                                     |> DiagramModel.ofSize.set
                                         ( Maybe.withDefault (Size.getWidth m.diagramModel.size) width
                                         , Maybe.withDefault (Size.getHeight m.diagramModel.size) height
@@ -732,7 +733,7 @@ update message =
                                                 toFloat w
                                                     / toFloat (Size.getWidth m_.svg.size)
                                         in
-                                        { m_ | size = ( w, h ), svg = { size = ( w, h ), scale = scale } }
+                                        { m_ | size = ( w, h ), svg = { size = ( w, h ), scale = Scale.fromFloat scale } }
 
                                     _ ->
                                         m_
@@ -1043,7 +1044,13 @@ update message =
                                     { position = Just m.window.position
                                     , font = m.settingsModel.settings.font
                                     , diagramId = Maybe.map DiagramId.toString m.currentDiagram.id
-                                    , storyMap = newStoryMap.storyMap |> DiagramSettings.ofScale.set (Just m.diagramModel.svg.scale)
+                                    , storyMap =
+                                        DiagramSettings.ofScale.set
+                                            (m.diagramModel.svg.scale
+                                                |> Scale.toFloat
+                                                |> Just
+                                            )
+                                            newStoryMap.storyMap
                                     , text = Just (Text.toString m.diagramModel.text)
                                     , title = Just <| Title.toString m.currentDiagram.title
                                     , editor = m.settingsModel.settings.editor

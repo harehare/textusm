@@ -9,6 +9,7 @@ import Html.Styled.Lazy exposing (lazy)
 import Json.Decode as D
 import Models.Diagram as DiagramModel
 import Models.Diagram.Data as DiagramData
+import Models.Diagram.Scale as Scale
 import Models.Diagram.Search as Search
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type exposing (DiagramType(..))
@@ -63,7 +64,7 @@ init flags =
             , size = ( flags.width, flags.height )
             , svg =
                 { size = ( flags.settings.size.width, flags.settings.size.height )
-                , scale = flags.scale
+                , scale = Scale.fromFloat flags.scale
                 }
             , moveState = DiagramModel.NotMove
             , position = ( 0, 0 )
