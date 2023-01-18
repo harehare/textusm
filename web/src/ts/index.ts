@@ -23,6 +23,27 @@ import type { Settings } from './model';
 import { loadSettings, saveSettings } from './settings';
 import { isDarkMode } from './utils';
 
+declare global {
+  interface Navigator {
+    language: string;
+    userLanguage: string;
+    browserLanguage: string;
+    languages: string[];
+  }
+
+  interface HTMLElement {
+    mozRequestFullScreen: () => Promise<void>;
+    webkitRequestFullscreen: () => Promise<void>;
+    msRequestFullscreen: () => Promise<void>;
+  }
+
+  interface Document {
+    mozCancelFullScreen: () => Promise<void>;
+    webkitExitFullscreen: () => Promise<void>;
+    msExitFullscreen: () => Promise<void>;
+  }
+}
+
 const lang = navigator.languages[0] ?? navigator.language ?? navigator.userLanguage ?? navigator.browserLanguage;
 
 type Flags = {
