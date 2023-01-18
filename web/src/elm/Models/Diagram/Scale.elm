@@ -1,13 +1,30 @@
-module Models.Diagram.Scale exposing (Scale, default, fromFloat, map, toFloat)
+module Models.Diagram.Scale exposing (Scale, add, default, fromFloat, map, max, min, step, sub, toFloat)
+
+import String exposing (fromFloat)
 
 
 type Scale
     = Scale Float
 
 
+step : Scale
+step =
+    Scale 0.03
+
+
 default : Scale
 default =
     Scale 1.0
+
+
+max : Scale
+max =
+    Scale 10.0
+
+
+min : Scale
+min =
+    Scale 0.03
 
 
 fromFloat : Float -> Scale
@@ -18,11 +35,11 @@ fromFloat s =
     else if isNaN s then
         default
 
-    else if s <= 0.03 then
-        Scale 0.03
+    else if s <= toFloat min then
+        min
 
-    else if 10.0 <= s then
-        Scale 10.0
+    else if toFloat max <= s then
+        max
 
     else
         Scale s
@@ -31,6 +48,16 @@ fromFloat s =
 map : (Float -> Float) -> Scale -> Scale
 map f (Scale s) =
     f s |> fromFloat
+
+
+add : Scale -> Scale -> Scale
+add (Scale a) (Scale b) =
+    a + b |> fromFloat
+
+
+sub : Scale -> Scale -> Scale
+sub (Scale a) (Scale b) =
+    a - b |> fromFloat
 
 
 toFloat : Scale -> Float

@@ -16,16 +16,16 @@ suite =
                     |> Scale.toFloat
                 )
                 (if isInfinite s then
-                    1.0
+                    Scale.default |> Scale.toFloat
 
                  else if isNaN s then
-                    1.0
+                    Scale.default |> Scale.toFloat
 
-                 else if s <= 0.03 then
-                    0.03
+                 else if s <= Scale.toFloat Scale.min then
+                    Scale.min |> Scale.toFloat
 
-                 else if 10.0 <= s then
-                    10.0
+                 else if Scale.toFloat Scale.max <= s then
+                    Scale.max |> Scale.toFloat
 
                  else
                     s

@@ -61,7 +61,7 @@ import Models.Diagram.GanttChart as GanttChartModel
 import Models.Diagram.Kanban as KanbanModel
 import Models.Diagram.Kpt as KptModel
 import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
-import Models.Diagram.Scale as Scale
+import Models.Diagram.Scale as Scale exposing (Scale)
 import Models.Diagram.Search as SearchModel
 import Models.Diagram.SequenceDiagram as SequenceDiagramModel
 import Models.Diagram.Settings as DiagramSettings
@@ -166,11 +166,11 @@ update message =
 
         PinchIn distance ->
             setTouchDistance (Just distance)
-                >> Return.andThen (zoomIn 0.03)
+                >> Return.andThen (zoomIn Scale.step)
 
         PinchOut distance ->
             setTouchDistance (Just distance)
-                >> Return.andThen (zoomOut 0.03)
+                >> Return.andThen (zoomOut Scale.step)
 
         Move isWheelEvent position ->
             Return.andThen <| move isWheelEvent position
@@ -1186,7 +1186,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
                 Attr.style "" ""
 
             Nothing ->
-                Wheel.onWheel <| Diagram.moveOrZoom model.moveState 0.03
+                Wheel.onWheel <| Diagram.moveOrZoom model.moveState Scale.step
         , onDragStart model.selectedItem
         , onTouchDragStart model.selectedItem
         , onDragMove model.moveState
@@ -1512,7 +1512,7 @@ zoomControl isFullscreen scale =
                 , height <| px 24
                 , cursor pointer
                 ]
-            , onClick <| ZoomOut 0.03
+            , onClick <| ZoomOut Scale.step
             ]
             [ Icon.remove 24
             ]
@@ -1533,7 +1533,7 @@ zoomControl isFullscreen scale =
                 , height <| px 24
                 , cursor pointer
                 ]
-            , onClick <| ZoomIn 0.03
+            , onClick <| ZoomIn Scale.step
             ]
             [ Icon.add 24
             ]
@@ -1554,14 +1554,14 @@ zoomControl isFullscreen scale =
         ]
 
 
-zoomIn : Float -> Model -> Return Msg Model
-zoomIn ratio model =
+zoomIn : Scale -> Model -> Return Msg Model
+zoomIn step model =
     if Scale.toFloat model.svg.scale <= 10.0 then
         Return.singleton
             { model
                 | svg =
                     { size = ( Size.getWidth model.svg.size, Size.getHeight model.svg.size )
-                    , scale = Scale.map (\l -> l + ratio) model.svg.scale
+                    , scale = Scale.add model.svg.scale step
                     }
             }
 
@@ -1569,14 +1569,14 @@ zoomIn ratio model =
         Return.singleton model
 
 
-zoomOut : Float -> Model -> Return Msg Model
-zoomOut ratio model =
+zoomOut : Scale -> Model -> Return Msg Model
+zoomOut step model =
     if Scale.toFloat model.svg.scale > 0.03 then
         Return.singleton
             { model
                 | svg =
                     { size = ( Size.getWidth model.svg.size, Size.getHeight model.svg.size )
-                    , scale = Scale.map (\l -> l - ratio) model.svg.scale
+                    , scale = Scale.sub model.svg.scale step
                     }
             }
 

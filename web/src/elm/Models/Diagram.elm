@@ -135,8 +135,8 @@ type alias IsWheelEvent =
 type Msg
     = NoOp
     | Init DiagramSettings.Settings Viewport String
-    | ZoomIn Float
-    | ZoomOut Float
+    | ZoomIn Scale
+    | ZoomOut Scale
     | PinchIn Float
     | PinchOut Float
     | Move IsWheelEvent Position
@@ -195,7 +195,7 @@ type alias SvgSize =
     }
 
 
-moveOrZoom : MoveState -> Float -> Wheel.Event -> Msg
+moveOrZoom : MoveState -> Scale -> Wheel.Event -> Msg
 moveOrZoom moveState ratio wheelEvent =
     if (wheelEvent.deltaX |> Maybe.withDefault 0.0) == 0.0 then
         if wheelEvent.deltaY > 0 then

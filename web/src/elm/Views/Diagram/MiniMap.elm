@@ -35,6 +35,7 @@ import Models.Diagram as DiagramModel exposing (Msg)
 import Models.Diagram.Type exposing (DiagramType(..))
 import Models.Position as Position exposing (Position)
 import Models.Size as Size exposing (Size)
+import Models.Diagram.Scale as Scale
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
@@ -143,7 +144,7 @@ view { showMiniMap, diagramType, scale, position, svgSize, viewport, diagramSvg,
                                         event.pagePos
                                 in
                                 DiagramModel.Start DiagramModel.MiniMapMove ( round x, round y )
-                        , Wheel.onWheel <| DiagramModel.moveOrZoom moveState 0.05
+                        , Wheel.onWheel <| DiagramModel.moveOrZoom moveState Scale.step
                         ]
                         []
                     ]
