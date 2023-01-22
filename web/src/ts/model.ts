@@ -76,6 +76,11 @@ export type Settings = {
   diagram: Diagram | undefined;
   location: DiagramLocation | undefined;
   theme: Theme | undefined;
+  editor: {
+    fontSize: number;
+    wordWrap: boolean;
+    showLineNumber: boolean;
+  };
 };
 
 export type DiagramSettings = {

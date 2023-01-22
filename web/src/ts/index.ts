@@ -65,7 +65,7 @@ const settings = loadSettings(isDarkMode);
 
 loadEditor(settings);
 
-const app: ElmApp = (Elm as ElmType).Main.init({
+const app = (Elm as ElmType).Main.init({
   flags: {
     lang,
     settings,

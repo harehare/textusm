@@ -121,7 +121,7 @@
   "browserslist": [
     "defaults"
   ],
-  "packageManager": "npm@8.15.0",
+  "packageManager": "npm@9.2.0",
   "xo": {
     "semi": false,
     "semicolon": true,
