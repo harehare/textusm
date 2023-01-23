@@ -15,8 +15,8 @@ cloud.google.com/go/storage v1.27.0 h1:YOO045NZI9RKfCj1c5A/ZtuuENUc8OAW+gHdGnDgy
 cloud.google.com/go/storage v1.27.0/go.mod h1:x9DOL8TK/ygDUMieqwfhdpQryTeEkhGKMi80i/iqR2s=
 firebase.google.com/go/v4 v4.10.0 h1:dgK/8uwfJbzc5LZK/GyRRfIkZEDObN9q0kgEXsjlXN4=
 firebase.google.com/go/v4 v4.10.0/go.mod h1:m0gLwPY9fxKggizzglgCNWOGnFnVPifLpqZzo5u3e/A=
-github.com/99designs/gqlgen v0.17.22 h1:TOcrF8t0T3I0za9JD3CB6ehq7dDEMjR9Onikf8Lc/04=
-github.com/99designs/gqlgen v0.17.22/go.mod h1:BMhYIhe4bp7OlCo5I2PnowSK/Wimpv/YlxfNkqZGwLo=
+github.com/99designs/gqlgen v0.17.24 h1:pcd/HFIoSdRvyADYQG2dHvQN2KZqX/nXzlVm6TMMq7E=
+github.com/99designs/gqlgen v0.17.24/go.mod h1:BMhYIhe4bp7OlCo5I2PnowSK/Wimpv/YlxfNkqZGwLo=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/MicahParks/keyfunc v1.5.1 h1:RlyyYgKQI/adkIw1yXYtPvTAOb7hBhSX42aH23d8N0Q=
