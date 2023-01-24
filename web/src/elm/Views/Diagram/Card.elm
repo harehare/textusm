@@ -217,19 +217,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             ]
 
     else if Item.isImage item then
-        if Item.isImage item then
-            Views.image ( svgWidth, svgHeight ) ( posX, posY ) item
-
-        else
-            Views.plainText
-                { settings = settings
-                , position = ( posX, posY )
-                , size = ( svgWidth, svgHeight )
-                , foreColor = colour
-                , fontSize = fs
-                , text = Item.getText item
-                , isHighlight = Item.isHighlight item
-                }
+        Views.image ( svgWidth, svgHeight ) ( posX, posY ) item
 
     else if String.length (Item.getText item) > 13 then
         Svg.foreignObject

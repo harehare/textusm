@@ -1,4 +1,4 @@
-module Models.Item.ValueTests exposing (..)
+module Models.Item.ValueTests exposing (suite)
 
 import Expect
 import Models.Item.Value as ItemValue
@@ -8,7 +8,7 @@ import Test exposing (Test, describe, test)
 suite : Test
 suite =
     describe "ItemValue test"
-        [ fromString ]
+        [ fromString, toFullString, toString ]
 
 
 fromString : Test
@@ -97,4 +97,45 @@ toFullString =
                         |> ItemValue.toFullString
                     )
                     "    # comment"
+        ]
+
+
+toString : Test
+toString =
+    describe "toString test"
+        [ test "plain text" <|
+            \() ->
+                Expect.equal
+                    (ItemValue.fromString "plain text"
+                        |> ItemValue.toString
+                    )
+                    "plain text"
+        , test "markdown" <|
+            \() ->
+                Expect.equal
+                    (ItemValue.fromString "    md:**markdown**\\ntest"
+                        |> ItemValue.toString
+                    )
+                    "**markdown**\ntest"
+        , test "image" <|
+            \() ->
+                Expect.equal
+                    (ItemValue.fromString "    image:image"
+                        |> ItemValue.toString
+                    )
+                    "image"
+        , test "image data" <|
+            \() ->
+                Expect.equal
+                    (ItemValue.fromString "    data:image/image"
+                        |> ItemValue.toString
+                    )
+                    "image"
+        , test "comment" <|
+            \() ->
+                Expect.equal
+                    (ItemValue.fromString "    # comment"
+                        |> ItemValue.toString
+                    )
+                    " comment"
         ]

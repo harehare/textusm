@@ -19,7 +19,6 @@ import Css
         , none
         , outline
         , padding4
-        , property
         , px
         , transparent
         , zero
@@ -32,7 +31,7 @@ import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..))
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
-import Models.Item as Item exposing (Item, ItemType(..))
+import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
 import Models.Property exposing (Property)
 import Models.Size as Size exposing (Size)

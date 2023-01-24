@@ -46,7 +46,6 @@ import Models.Diagram.Type exposing (DiagramType)
 import Models.FontSize as FontSize
 import Models.Session as Session exposing (Session)
 import Models.Theme as Theme
-import RemoteData exposing (isLoading)
 import Return
 import Settings
     exposing
@@ -71,8 +70,8 @@ import Settings
         , ofZoomControl
         )
 import Style.Breakpoint as Breakpoint
-import Style.Color as Color
-import Style.Font as Font
+import Style.Color as ColorStyle
+import Style.Font as FontStyle
 import Style.Style as Style
 import Style.Text as Text
 import Task
@@ -269,7 +268,7 @@ inputAreaView children =
 
 nameView : List (Html msg) -> Html msg
 nameView children =
-    Html.div [ Attr.css [ Text.sm, Font.fontBold, padding2 (px 1) (px 8) ] ] children
+    Html.div [ Attr.css [ Text.sm, FontStyle.fontBold, padding2 (px 1) (px 8) ] ] children
 
 
 section : Maybe String -> Html Msg
@@ -290,7 +289,7 @@ section title =
                 Css.batch [ padding4 (px 16) zero zero (px 16) ]
             ]
         ]
-        [ Html.div [ Attr.css [ Text.xl, Font.fontSemiBold ] ] [ Html.text (title |> Maybe.withDefault "") ]
+        [ Html.div [ Attr.css [ Text.xl, FontStyle.fontSemiBold ] ] [ Html.text (title |> Maybe.withDefault "") ]
         ]
 
 
@@ -307,9 +306,9 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
     Html.div
         [ Attr.css
             [ Breakpoint.style
-                [ Color.bgDefault
+                [ ColorStyle.bgDefault
                 , Style.widthFull
-                , Color.textColor
+                , ColorStyle.textColor
                 , overflowY scroll
                 , displayFlex
                 , flexWrap wrap

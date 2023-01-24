@@ -1,7 +1,6 @@
 module Views.Diagram.Canvas exposing (view, viewBottom, viewImage)
 
 import Constants
-import Css exposing (property)
 import Events
 import Models.Color as Color exposing (Color)
 import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)

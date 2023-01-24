@@ -169,7 +169,7 @@ toString : Value -> String
 toString value =
     case value of
         Markdown _ text ->
-            Text.toString text
+            Text.toString text |> String.replace "\\n" "\n"
 
         Image _ text ->
             Text.toString text

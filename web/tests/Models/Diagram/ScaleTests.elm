@@ -1,4 +1,4 @@
-module Models.Diagram.ScaleTests exposing (..)
+module Models.Diagram.ScaleTests exposing (suite)
 
 import Expect
 import Fuzz

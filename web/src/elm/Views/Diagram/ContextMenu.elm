@@ -41,7 +41,6 @@ import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color exposing (Color)
 import Models.Diagram exposing (ContextMenu(..))
 import Models.Diagram.Settings as DiagramSettings
-import Models.Dialog exposing (display)
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.FontStyle as FontStyle exposing (FontStyle)
 import Models.Item as Item exposing (Item)

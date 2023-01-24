@@ -2,12 +2,12 @@ module Models.Fuzzer exposing (colorFuzzer, diagramItemFuzzer, diagramTypeFuzzer
 
 import Fuzz exposing (Fuzzer)
 import Models.Color as Color exposing (Color)
-import Models.Diagram.Location as DiagramLocation exposing (Location)
 import Models.Diagram.Id as DiagramId exposing (DiagramId)
 import Models.Diagram.Item exposing (DiagramItem)
+import Models.Diagram.Location as DiagramLocation exposing (Location)
 import Models.Diagram.Type exposing (DiagramType(..))
 import Models.FontSize as FontSize exposing (FontSize)
-import Models.Item as Item exposing (Children, Item, ItemType(..))
+import Models.Item as Item exposing (Children, Item)
 import Models.Item.Settings as ItemSettings
 import Models.Position exposing (Position)
 import Models.Text as Text exposing (Text)

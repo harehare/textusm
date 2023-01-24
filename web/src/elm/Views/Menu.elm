@@ -50,13 +50,13 @@ import Css.Transitions as Transitions
 import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
-import Html.Styled.Events as Events exposing (onClick)
+import Html.Styled.Events exposing (onClick, stopPropagationOn)
 import Json.Decode as D
 import List
 import Message exposing (Lang)
 import Models.Color as Color
-import Models.Diagram.Location as DiagramLocation
 import Models.Diagram.Item exposing (DiagramItem)
+import Models.Diagram.Location as DiagramLocation
 import Models.Diagram.Type exposing (DiagramType(..))
 import Models.Exporter as Exporter
 import Models.FileType as FileType
@@ -66,7 +66,7 @@ import Models.Text as Text exposing (Text)
 import Route exposing (Route)
 import Settings exposing (Settings)
 import Style.Breakpoint as Breakpoint
-import Style.Color as Color
+import Style.Color as ColorStyle
 import Style.Font as FontStyle
 import Style.Style as Style
 import Style.Text as TextStyle
@@ -111,7 +111,7 @@ menu pos items =
             , Transitions.transition [ Transitions.boxShadow3 200 200 Transitions.easeOut ]
             , Style.m1
             , overflow hidden
-            , Color.bgMenuColor
+            , ColorStyle.bgMenuColor
             , position absolute
             , Style.rounded
             , zIndex <| int 10
@@ -124,7 +124,7 @@ menu pos items =
                     Html.div
                         [ Attr.css
                             [ TextStyle.base
-                            , Color.textColor
+                            , ColorStyle.textColor
                             , cursor pointer
                             , displayFlex
                             , alignItems center
@@ -133,7 +133,7 @@ menu pos items =
                                 [ backgroundColor <| rgba 0 0 0 0.3
                                 ]
                             ]
-                        , Events.onClick menuItem.e
+                        , onClick menuItem.e
                         , menuItem.title
                             ++ "-menu-item"
                             |> String.replace " " ""
@@ -204,14 +204,14 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                 , flexDirection row
                 , alignItems center
                 , justifyContent spaceBetween
-                , Color.bgMain
+                , ColorStyle.bgMain
                 , Style.shadowSm
                 , bottom zero
                 , Style.widthScreen
                 , position fixed
                 , zIndex <| int 10
                 , minWidth <| px 40
-                , Color.bgMenuColor
+                , ColorStyle.bgMenuColor
                 ]
                 [ Breakpoint.large
                     [ justifyContent start
@@ -289,10 +289,10 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
             Html.div
                 [ case settings.location of
                     Just DiagramLocation.LocalFileSystem ->
-                        Events.onClick SaveLocalFile
+                        onClick SaveLocalFile
 
                     _ ->
-                        Events.onClick Save
+                        onClick Save
                 , Attr.css [ menuButtonStyle ]
                 , Attributes.dataTest "save-menu"
                 ]
@@ -310,7 +310,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                 ]
         , Html.div
             [ if isEditFile then
-                Events.stopPropagationOn "click" (D.succeed ( OpenMenu Export, True ))
+                stopPropagationOn "click" (D.succeed ( OpenMenu Export, True ))
 
               else
                 Attr.style "" ""
@@ -489,7 +489,7 @@ menuButtonStyle =
                 [ class "tooltip"
                     [ visibility visible
                     , opacity <| int 100
-                    , Color.textColor
+                    , ColorStyle.textColor
                     ]
                 ]
             ]

@@ -79,13 +79,12 @@ import Css
         , width
         , zero
         )
-import Css.Global exposing (children, descendants, typeSelector)
+import Css.Global exposing (descendants, typeSelector)
 import Css.Transitions as Transitions
 import Dialog.Confirm as ConfirmDialog
 import File exposing (File)
 import File.Download as Download
 import File.Select as Select
-import Graphql.Object.GistItem exposing (diagram)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick, onInput, stopPropagationOn)

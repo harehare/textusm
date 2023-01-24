@@ -7,7 +7,7 @@ import Html.Styled
 import Models.Diagram as Diagram exposing (Model, Msg(..))
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
-import Models.Item as Item exposing (ItemType(..))
+import Models.Item as Item
 import Models.Position as Position
 import Return
 import Test exposing (Test, describe, test)

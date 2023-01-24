@@ -13,7 +13,6 @@ import Css
         , none
         , outline
         , padding4
-        , property
         , px
         , textAlign
         , transparent

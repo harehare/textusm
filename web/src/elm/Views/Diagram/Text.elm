@@ -1,6 +1,5 @@
 module Views.Diagram.Text exposing (view)
 
-import Css exposing (property)
 import Models.Color as Color
 import Models.Diagram exposing (Msg, SelectedItem)
 import Models.Diagram.Settings as DiagramSettings

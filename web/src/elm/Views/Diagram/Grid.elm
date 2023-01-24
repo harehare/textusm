@@ -1,10 +1,6 @@
 module Views.Diagram.Grid exposing (view)
 
-import Css
-    exposing
-        ( backgroundColor
-        , property
-        )
+import Css exposing (backgroundColor)
 import Events
 import Models.Color as Color
 import Models.Diagram exposing (Msg(..), SelectedItem)

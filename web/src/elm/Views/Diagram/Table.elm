@@ -1,10 +1,10 @@
 module Views.Diagram.Table exposing (view)
 
 import Models.Diagram exposing (Model, Msg, SelectedItem)
-import Models.Diagram.Table exposing (Header(..), Row(..), Table(..))
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Settings as DiagramSettings
-import Models.Item as Item exposing (Item, ItemType(..))
+import Models.Diagram.Table exposing (Header(..), Row(..), Table(..))
+import Models.Item as Item exposing (Item)
 import Models.Property exposing (Property)
 import String
 import Svg.Styled as Svg exposing (Svg)

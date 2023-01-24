@@ -1,6 +1,5 @@
 module Views.Diagram.MindMap exposing (view)
 
-import Html.Attributes exposing (property)
 import List.Extra as ListEx
 import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem)
 import Models.Diagram.Data as DiagramData

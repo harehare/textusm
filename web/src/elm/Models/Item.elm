@@ -657,6 +657,9 @@ loadText_ { indent, input, lineNo } =
             ( [ indent ], empty )
 
         ( (h :: rest) as parsed, other ) ->
+            -- TODO: load multi lines
+            -- h が複数行の場合は複数行読み込む
+            -- rest に | がない場合はすべての行を1つにまとめる
             let
                 ( otherIndents, otherItems ) =
                     loadText_ { indent = indent, input = String.join "\n" other, lineNo = lineNo + List.length parsed }
