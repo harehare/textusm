@@ -1,6 +1,15 @@
-module Utils.Utils exposing (calcDistance, delay, httpErrorToString, isPhone)
+module Utils.Utils exposing
+    ( calcDistance
+    , delay
+    , getCanvasHeight
+    , httpErrorToString
+    , isPhone
+    )
 
+import Constants
 import Http exposing (Error(..))
+import Models.Diagram.Settings as DiagramSettings
+import Models.Item as Item exposing (Items)
 import Process
 import Task
 
@@ -35,3 +44,14 @@ httpErrorToString err =
 isPhone : Int -> Bool
 isPhone width =
     width <= 480
+
+
+getCanvasHeight : DiagramSettings.Settings -> Items -> Int
+getCanvasHeight settings items =
+    let
+        taskCount : Maybe Int
+        taskCount =
+            Item.map (\i -> Item.getChildren i |> Item.unwrapChildren |> Item.length) items
+                |> List.maximum
+    in
+    (settings.size.height + Constants.itemMargin) * (taskCount |> Maybe.withDefault 1) + 50

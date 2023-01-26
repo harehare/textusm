@@ -205,7 +205,7 @@ inputBase { settings, fontSize, position, size, color, item, fontWeight } =
                     [ outline none
                     ]
                 ]
-            , Attr.value <| " " ++ String.trimLeft (Item.getText item)
+            , Attr.value <| " " ++ String.trimLeft (Item.getMultiLineText item)
             , onInput EditSelectedItem
             , onBlur <| Select Nothing
             , Events.onEnter <| EndEditSelectedItem item

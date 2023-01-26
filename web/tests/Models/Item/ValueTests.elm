@@ -8,7 +8,7 @@ import Test exposing (Test, describe, test)
 suite : Test
 suite =
     describe "ItemValue test"
-        [ fromString, toFullString, toString ]
+        [ fromString, toFullString, toString, update ]
 
 
 fromString : Test
@@ -56,6 +56,54 @@ fromString =
                         |> (\v -> ( ItemValue.getIndent v, ItemValue.toString v ))
                     )
                     ( 1, " comment" )
+        ]
+
+
+update : Test
+update =
+    describe "Update test"
+        [ test "plain text" <|
+            \() ->
+                Expect.equal
+                    (ItemValue.update (ItemValue.fromString "plain text") "update text"
+                        |> (\v -> ( ItemValue.getIndent v, ItemValue.toString v ))
+                    )
+                    ( 0, "update text" )
+        , test "has indent" <|
+            \() ->
+                Expect.equal
+                    (ItemValue.update (ItemValue.fromString "        plain text") "update text"
+                        |> (\v -> ( ItemValue.getIndent v, ItemValue.toString v ))
+                    )
+                    ( 2, "update text" )
+        , test "markdown" <|
+            \() ->
+                Expect.equal
+                    (ItemValue.update (ItemValue.fromString "    md: **markdown**") "update **markdown**"
+                        |> (\v -> ( ItemValue.getIndent v, ItemValue.toString v ))
+                    )
+                    ( 1, "update **markdown**" )
+        , test "image" <|
+            \() ->
+                Expect.equal
+                    (ItemValue.update (ItemValue.fromString "    image:image") "update image"
+                        |> (\v -> ( ItemValue.getIndent v, ItemValue.toString v ))
+                    )
+                    ( 1, "update image" )
+        , test "image data" <|
+            \() ->
+                Expect.equal
+                    (ItemValue.update (ItemValue.fromString "    data:image/image") "update image"
+                        |> (\v -> ( ItemValue.getIndent v, ItemValue.toString v ))
+                    )
+                    ( 1, "update image" )
+        , test "comment" <|
+            \() ->
+                Expect.equal
+                    (ItemValue.update (ItemValue.fromString "    # comment") "update comment"
+                        |> (\v -> ( ItemValue.getIndent v, ItemValue.toString v ))
+                    )
+                    ( 1, "update comment" )
         ]
 
 

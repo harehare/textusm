@@ -26,6 +26,7 @@ module Models.Item exposing
     , getIndent
     , getLeafCount
     , getLineNo
+    , getMultiLineText
     , getOffset
     , getOffsetSize
     , getPosition
@@ -308,6 +309,11 @@ getText (Item i) =
     ItemValue.toString i.value
 
 
+getMultiLineText : Item -> String
+getMultiLineText item =
+    String.replace "\n" "\\n" <| getText item
+
+
 getFullText : Item -> String
 getFullText (Item i) =
     ItemValue.toFullString i.value
@@ -586,7 +592,7 @@ withText text (Item item) =
 
 withTextOnly : String -> Item -> Item
 withTextOnly text (Item item) =
-    Item { item | value = ItemValue.fromString text }
+    Item { item | value = ItemValue.update item.value text }
 
 
 childrenCount : Items -> Int

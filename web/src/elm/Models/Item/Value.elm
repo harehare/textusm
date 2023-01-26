@@ -9,6 +9,7 @@ module Models.Item.Value exposing
     , isMarkdown
     , toFullString
     , toString
+    , update
     )
 
 import Constants
@@ -45,8 +46,8 @@ commentPrefix =
 
 
 hasPrefix : String -> String -> Bool
-hasPrefix text prefix =
-    text |> String.trim |> String.toLower |> String.startsWith prefix
+hasPrefix text p =
+    text |> String.trim |> String.toLower |> String.startsWith p
 
 
 hasImagePrefix : String -> Bool
@@ -115,8 +116,8 @@ empty =
 
 
 dropPrefix : String -> String -> String
-dropPrefix prefix text =
-    String.dropLeft (String.length prefix) text
+dropPrefix p text =
+    String.dropLeft (String.length p) text
 
 
 space : Int -> String
@@ -124,14 +125,34 @@ space indent =
     String.repeat indent Constants.inputPrefix
 
 
+update : Value -> String -> Value
+update value text =
+    case value of
+        Markdown indent _ ->
+            Markdown indent <| Text.fromString text
+
+        Image indent _ ->
+            Image indent <| Text.fromString text
+
+        ImageData indent _ ->
+            ImageData indent <| Text.fromString text
+
+        Comment indent _ ->
+            Comment indent <| Text.fromString text
+
+        PlainText indent _ ->
+            PlainText indent <| Text.fromString text
+
+
 fromString : String -> Value
 fromString text =
     let
+        indent : Int
         indent =
             (getSpacePrefix text |> String.length) // Constants.indentSpace
     in
     if hasMarkdownPrefix text then
-        Markdown indent <| Text.fromString <| dropPrefix markdownPrefix <| String.trim text
+        Markdown indent <| Text.fromString <| String.replace "\n" "\\n" <| dropPrefix markdownPrefix <| String.trim text
 
     else if hasImagePrefix text then
         Image indent <| Text.fromString <| dropPrefix imagePrefix <| String.trim text

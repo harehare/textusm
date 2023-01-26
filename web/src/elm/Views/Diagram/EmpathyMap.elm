@@ -6,7 +6,7 @@ import Models.Diagram.EmpathyMap exposing (EmpathyMapItem(..))
 import Models.Diagram.Data as DiagramData
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Lazy as Lazy
-import Utils.Diagram as DiagramUtils
+import Utils.Utils as Utils
 import Views.Diagram.Canvas as Canvas
 import Views.Empty as Empty
 
@@ -24,7 +24,7 @@ view model =
 
                 itemHeight : Int
                 itemHeight =
-                    Basics.max Constants.itemHeight <| DiagramUtils.getCanvasHeight model.settings model.items
+                    Basics.max Constants.itemHeight <| Utils.getCanvasHeight model.settings model.items
 
                 (EmpathyMapItem says) =
                     e.says

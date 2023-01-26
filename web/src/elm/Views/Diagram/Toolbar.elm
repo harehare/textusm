@@ -40,6 +40,7 @@ import Style.Style as Style
 import Style.Text as TextStyle
 import Svg.Styled as Svg exposing (Svg, svg)
 import Svg.Styled.Attributes as SvgAttr
+import Svg.Styled.Lazy as Lazy
 
 
 type alias ClickEvent msg =
@@ -53,12 +54,12 @@ type ToolbarButton msg
 
 viewColorOnly : { clickCard : ClickEvent msg, clickAutoArrange : msg } -> Html msg
 viewColorOnly e =
-    view <| userStoryMap e
+    Lazy.lazy view (userStoryMap e)
 
 
 viewForFreeForm : ClickEvent msg -> Html msg
 viewForFreeForm e =
-    view <| freeForm e
+    Lazy.lazy view (freeForm e)
 
 
 canvasView : Item -> ClickEvent msg -> Html msg

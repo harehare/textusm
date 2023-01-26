@@ -4,7 +4,7 @@ import Constants
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Size exposing (Size)
-import Utils.Diagram as Utils
+import Utils.Utils as Utils
 
 
 type alias Kpt =

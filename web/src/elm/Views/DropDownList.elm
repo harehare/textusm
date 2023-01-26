@@ -171,7 +171,7 @@ dropdownView items onChange =
             , paddingLeft <| px 0
             , borderTop <| px 0
             , width <| pct 100
-            , height <| px 150
+            , height <| px 192
             , property "-webkit-overflow-scrolling" "touch"
             , property "-ms-overflow-style" "none"
             , property "scrollbar-width" "none"

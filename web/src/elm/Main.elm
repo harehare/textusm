@@ -39,7 +39,7 @@ import Models.Exporter as Exporter
 import Models.IdToken as IdToken
 import Models.Jwt as Jwt
 import Models.LoginProvider as LoginProdiver
-import Models.Model as Model exposing (Model, Msg(..))
+import Models.Model as M exposing (Model, Msg)
 import Models.Notification as Notification
 import Models.Page as Page exposing (Page)
 import Models.Session as Session
@@ -106,8 +106,8 @@ main : Program Flags Model Msg
 main =
     Browser.application
         { init = init
-        , onUrlChange = UrlChanged
-        , onUrlRequest = LinkClicked
+        , onUrlChange = M.UrlChanged
+        , onUrlRequest = M.LinkClicked
         , subscriptions = subscriptions
         , update = \msg m -> Return.singleton m |> update msg
         , view =
@@ -132,7 +132,7 @@ changeRouteTo route =
         Route.Home ->
             switchPage Page.Main
                 >> redirectToLastEditedFile
-                >> Action.changeRouteInit Init
+                >> Action.changeRouteInit M.Init
 
         Route.New ->
             switchPage Page.New
@@ -145,10 +145,10 @@ changeRouteTo route =
             in
             setCurrentDiagram diagram
                 >> startProgress
-                >> Return.andThen (\m -> Return.singleton m |> Action.loadSettings LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session })
+                >> Return.andThen (\m -> Return.singleton m |> Action.loadSettings M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session })
                 >> loadDiagram diagram
                 >> switchPage Page.Main
-                >> Action.changeRouteInit Init
+                >> Action.changeRouteInit M.Init
                 >> Action.closeLocalFile
 
         Route.EditFile _ id_ ->
@@ -159,23 +159,23 @@ changeRouteTo route =
                             |> (if Session.isSignedIn m.session && m.browserStatus.isOnline then
                                     Action.updateIdToken
                                         >> startProgress
-                                        >> Action.loadItem Load { id = id_, session = m.session }
+                                        >> Action.loadItem M.Load { id = id_, session = m.session }
 
                                 else
-                                    Action.loadLocalDiagram id_ >> Action.changeRouteInit Init
+                                    Action.loadLocalDiagram id_ >> Action.changeRouteInit M.Init
                                )
-                            >> Action.loadSettings LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
+                            >> Action.loadSettings M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
                     )
 
         Route.EditLocalFile _ id_ ->
             switchPage Page.Main
                 >> Action.loadLocalDiagram id_
-                >> Action.changeRouteInit Init
+                >> Action.changeRouteInit M.Init
 
         Route.ViewPublic _ id_ ->
             Action.updateIdToken
                 >> switchPage Page.Main
-                >> Return.andThen (\m -> Return.singleton m |> Action.loadPublicItem Load { id = id_, session = m.session })
+                >> Return.andThen (\m -> Return.singleton m |> Action.loadPublicItem M.Load { id = id_, session = m.session })
 
         Route.DiagramList ->
             initListPage
@@ -220,9 +220,9 @@ changeRouteTo route =
                         }
                 )
                 >> setTitle title
-                >> Return.andThen (\m -> Return.singleton m |> Action.loadShareItem Load { session = m.session, token = id_ })
+                >> Return.andThen (\m -> Return.singleton m |> Action.loadShareItem M.Load { session = m.session, token = id_ })
                 >> switchPage Page.Embed
-                >> Action.changeRouteInit Init
+                >> Action.changeRouteInit M.Init
 
         Route.ViewFile _ id_ ->
             case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
@@ -234,18 +234,18 @@ changeRouteTo route =
                                     { m | shareState = ShareState.authenticateWithPassword id_ }
                             )
                             >> switchPage Page.Main
-                            >> Action.changeRouteInit Init
+                            >> Action.changeRouteInit M.Init
 
                     else
                         Return.andThen
                             (\m ->
                                 Return.singleton
                                     { m | shareState = ShareState.authenticateNoPassword id_ }
-                                    |> Action.loadShareItem Load { session = m.session, token = id_ }
+                                    |> Action.loadShareItem M.Load { session = m.session, token = id_ }
                             )
                             >> switchPage Page.Main
                             >> startProgress
-                            >> Action.changeRouteInit Init
+                            >> Action.changeRouteInit M.Init
 
                 Nothing ->
                     switchPage Page.NotFound
@@ -466,7 +466,7 @@ initListPage =
         \m ->
             Return.singleton m.diagramListModel
                 |> DiagramList.load { session = m.session, isOnline = m.browserStatus.isOnline }
-                |> Return.mapBoth UpdateDiagramList (\m_ -> { m | diagramListModel = m_ })
+                |> Return.mapBoth M.UpdateDiagramList (\m_ -> { m | diagramListModel = m_ })
 
 
 updateListPage : DiagramList.Msg -> Return.ReturnF Msg Model
@@ -475,7 +475,7 @@ updateListPage msg =
         \m ->
             Return.singleton m.diagramListModel
                 |> DiagramList.update msg
-                |> Return.mapBoth UpdateDiagramList (\m_ -> { m | diagramListModel = m_ })
+                |> Return.mapBoth M.UpdateDiagramList (\m_ -> { m | diagramListModel = m_ })
 
 
 initSettingsPage : DiagramType -> Return.ReturnF Msg Model
@@ -484,7 +484,7 @@ initSettingsPage diagramType =
         \m ->
             Return.singleton m.settingsModel
                 |> Settings.load { diagramType = diagramType, session = m.session }
-                |> Return.mapBoth UpdateSettings (\m_ -> { m | settingsModel = m_ })
+                |> Return.mapBoth M.UpdateSettings (\m_ -> { m | settingsModel = m_ })
 
 
 initShareDiagram : DiagramItem -> Return.ReturnF Msg Model
@@ -497,7 +497,7 @@ initShareDiagram diagramItem =
                 , session = m.session
                 , title = m.currentDiagram.title
                 }
-                |> Return.mapBoth UpdateShare (\m_ -> { m | shareModel = m_ })
+                |> Return.mapBoth M.UpdateShare (\m_ -> { m | shareModel = m_ })
 
 
 updateShareDiagram : Share.Msg -> Return.ReturnF Msg Model
@@ -505,12 +505,12 @@ updateShareDiagram msg =
     Return.andThen <|
         \m ->
             Share.update msg m.shareModel
-                |> Return.mapBoth UpdateShare (\m_ -> { m | shareModel = m_ })
+                |> Return.mapBoth M.UpdateShare (\m_ -> { m | shareModel = m_ })
 
 
 closeNotification : Return.ReturnF Msg Model
 closeNotification =
-    Return.command (Utils.delay 3000 HandleCloseNotification)
+    Return.command (Utils.delay 3000 M.HandleCloseNotification)
 
 
 showErrorMessage : Message -> Return.ReturnF Msg Model
@@ -520,7 +520,7 @@ showErrorMessage msg =
             Return.singleton m
                 |> Return.command
                     (Notification.showErrorNotifcation (msg m.lang)
-                        |> ShowNotification
+                        |> M.ShowNotification
                         |> Task.succeed
                         |> Task.perform identity
                     )
@@ -534,7 +534,7 @@ showInfoMessage msg =
             Return.singleton m
                 |> Return.command
                     (Notification.showInfoNotifcation (msg m.lang)
-                        |> ShowNotification
+                        |> M.ShowNotification
                         |> Task.succeed
                         |> Task.perform identity
                     )
@@ -547,7 +547,7 @@ showWarningMessage msg =
         \m ->
             Return.singleton m
                 |> (Notification.showWarningNotifcation (msg m.lang)
-                        |> ShowNotification
+                        |> M.ShowNotification
                         |> Task.succeed
                         |> Task.perform identity
                         |> Return.command
@@ -573,7 +573,7 @@ loadDiagram diagram =
             in
             Return.singleton newDiagramModel
                 |> Diagram.update (DiagramModel.ChangeText <| Text.toString diagram.text)
-                >> Return.mapBoth UpdateDiagram
+                >> Return.mapBoth M.UpdateDiagram
                     (\m_ ->
                         { m
                             | diagramModel = m_
@@ -636,12 +636,12 @@ setTitle title =
 
 showConfirmDialog : String -> String -> Route -> Return.ReturnF Msg Model
 showConfirmDialog title message route =
-    Return.map <| \m -> { m | confirmDialog = Dialog.Show { title = title, message = message, ok = MoveTo route, cancel = CloseDialog } }
+    Return.map <| \m -> { m | confirmDialog = Dialog.Show { title = title, message = message, ok = M.MoveTo route, cancel = M.CloseDialog } }
 
 
 startEditTitle : Return.ReturnF Msg Model
 startEditTitle =
-    Task.succeed StartEditTitle
+    Task.succeed M.StartEditTitle
         |> Task.perform identity
         |> Return.command
 
@@ -668,42 +668,42 @@ openCurrentFile diagram =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        ([ Ports.changeText (\text -> UpdateDiagram (DiagramModel.ChangeText text))
-         , Ports.selectItemFromLineNo (\{ lineNo, text } -> UpdateDiagram (DiagramModel.SelectFromLineNo lineNo text))
-         , Ports.loadSettingsFromLocalCompleted LoadSettingsFromLocal
-         , Ports.startDownload StartDownload
-         , Ports.gotLocalDiagramsJson (\json -> UpdateDiagramList (DiagramList.GotLocalDiagramsJson json))
-         , Ports.reload (\_ -> UpdateDiagramList DiagramList.Reload)
-         , onVisibilityChange HandleVisibilityChange
-         , onResize (\width height -> UpdateDiagram (DiagramModel.Resize width height))
-         , Ports.shortcuts (\cmd -> Shortcuts <| Shortcuts.fromString cmd)
-         , Ports.onNotification (\n -> HandleAutoCloseNotification (Notification.showInfoNotifcation n))
-         , Ports.sendErrorNotification (\n -> HandleAutoCloseNotification (Notification.showErrorNotifcation n))
-         , Ports.onWarnNotification (\n -> HandleAutoCloseNotification (Notification.showWarningNotifcation n))
-         , Ports.onAuthStateChanged HandleAuthStateChanged
-         , Ports.saveToRemote SaveToRemote
-         , Ports.removeRemoteDiagram (\diagram -> UpdateDiagramList <| DiagramList.RemoveRemote diagram)
-         , Ports.downloadCompleted DownloadCompleted
-         , Ports.progress Progress
-         , Ports.saveToLocalCompleted SaveToLocalCompleted
-         , Ports.gotLocalDiagramJson GotLocalDiagramJson
+        ([ Ports.changeText (\text -> M.UpdateDiagram (DiagramModel.ChangeText text))
+         , Ports.selectItemFromLineNo (\{ lineNo, text } -> M.UpdateDiagram (DiagramModel.SelectFromLineNo lineNo text))
+         , Ports.loadSettingsFromLocalCompleted M.LoadSettingsFromLocal
+         , Ports.startDownload M.StartDownload
+         , Ports.gotLocalDiagramsJson (\json -> M.UpdateDiagramList (DiagramList.GotLocalDiagramsJson json))
+         , Ports.reload (\_ -> M.UpdateDiagramList DiagramList.Reload)
+         , onVisibilityChange M.HandleVisibilityChange
+         , onResize (\width height -> M.UpdateDiagram (DiagramModel.Resize width height))
+         , Ports.shortcuts (\cmd -> M.Shortcuts <| Shortcuts.fromString cmd)
+         , Ports.onNotification (\n -> M.HandleAutoCloseNotification (Notification.showInfoNotifcation n))
+         , Ports.sendErrorNotification (\n -> M.HandleAutoCloseNotification (Notification.showErrorNotifcation n))
+         , Ports.onWarnNotification (\n -> M.HandleAutoCloseNotification (Notification.showWarningNotifcation n))
+         , Ports.onAuthStateChanged M.HandleAuthStateChanged
+         , Ports.saveToRemote M.SaveToRemote
+         , Ports.removeRemoteDiagram (\diagram -> M.UpdateDiagramList <| DiagramList.RemoveRemote diagram)
+         , Ports.downloadCompleted M.DownloadCompleted
+         , Ports.progress M.Progress
+         , Ports.saveToLocalCompleted M.SaveToLocalCompleted
+         , Ports.gotLocalDiagramJson M.GotLocalDiagramJson
          , Ports.fullscreen <|
             \f ->
                 if f then
-                    NoOp
+                    M.NoOp
 
                 else
-                    CloseFullscreen
-         , Ports.updateIdToken UpdateIdToken
-         , Ports.gotGithubAccessToken GotGithubAccessToken
-         , Ports.changeNetworkState ChangeNetworkState
-         , Ports.notifyNewVersionAvailable NotifyNewVersionAvailable
-         , Ports.openedLocalFile OpenedLocalFile
-         , Ports.savedLocalFile SavedLocalFile
+                    M.CloseFullscreen
+         , Ports.updateIdToken M.UpdateIdToken
+         , Ports.gotGithubAccessToken M.GotGithubAccessToken
+         , Ports.changeNetworkState M.ChangeNetworkState
+         , Ports.notifyNewVersionAvailable M.NotifyNewVersionAvailable
+         , Ports.openedLocalFile M.OpenedLocalFile
+         , Ports.savedLocalFile M.SavedLocalFile
          ]
             ++ (if Window.isResizing model.window then
-                    [ onMouseUp <| D.succeed MoveStop
-                    , onMouseMove <| D.map HandleWindowResize (D.field "pageX" D.int)
+                    [ onMouseUp <| D.succeed M.MoveStop
+                    , onMouseMove <| D.map M.HandleWindowResize (D.field "pageX" D.int)
                     ]
 
                 else
@@ -715,10 +715,10 @@ subscriptions model =
 update : Msg -> Return.ReturnF Msg Model
 update message =
     case message of
-        NoOp ->
+        M.NoOp ->
             Return.zero
 
-        Init window ->
+        M.Init window ->
             Return.andThen
                 (\m ->
                     Return.singleton m.diagramModel
@@ -738,18 +738,18 @@ update message =
                                     _ ->
                                         m_
                             )
-                        |> Return.mapBoth UpdateDiagram (\m_ -> { m | diagramModel = m_ })
-                        |> Action.loadText Load m.currentDiagram
+                        |> Return.mapBoth M.UpdateDiagram (\m_ -> { m | diagramModel = m_ })
+                        |> Action.loadText M.Load m.currentDiagram
                         |> updateWindowState
                 )
                 >> stopProgress
 
-        UpdateDiagram subMsg ->
+        M.UpdateDiagram subMsg ->
             Return.andThen
                 (\m ->
                     Return.singleton m.diagramModel
                         |> Diagram.update subMsg
-                        |> Return.mapBoth UpdateDiagram (\m_ -> { m | diagramModel = m_ })
+                        |> Return.mapBoth M.UpdateDiagram (\m_ -> { m | diagramModel = m_ })
                         |> (case subMsg of
                                 DiagramModel.ToggleFullscreen ->
                                     Return.andThen
@@ -766,18 +766,18 @@ update message =
                            )
                 )
 
-        UpdateDiagramList subMsg ->
+        M.UpdateDiagramList subMsg ->
             updateListPage subMsg >> Return.andThen (\m -> Return.singleton m |> processDiagramListMsg subMsg)
 
-        UpdateShare subMsg ->
+        M.UpdateShare subMsg ->
             updateShareDiagram subMsg >> processShareMsg subMsg
 
-        UpdateSettings msg ->
+        M.UpdateSettings msg ->
             Return.andThen
                 (\m ->
                     Return.singleton m.settingsModel
                         |> Settings.update msg
-                        |> Return.mapBoth UpdateSettings
+                        |> Return.mapBoth M.UpdateSettings
                             (\model_ ->
                                 { m
                                     | diagramModel = m.diagramModel |> DiagramModel.ofSettings.set model_.settings.storyMap
@@ -788,16 +788,16 @@ update message =
                         |> updateSettings msg m.diagramModel.diagramType
                 )
 
-        OpenMenu menu ->
+        M.OpenMenu menu ->
             Return.map <| \m -> { m | openMenu = Just menu }
 
-        CloseMenu ->
+        M.CloseMenu ->
             closeMenu
 
-        MoveStop ->
+        M.MoveStop ->
             Return.map <| \m -> { m | window = Window.resized m.window }
 
-        Copy ->
+        M.Copy ->
             Return.andThen (\m -> Return.singleton m |> pushUrl (Route.toString <| Edit m.currentDiagram.diagram))
                 >> startProgress
                 >> Action.closeLocalFile
@@ -805,16 +805,16 @@ update message =
                     (\m ->
                         Return.singleton m
                             |> (DiagramItem.copy m.currentDiagram
-                                    |> Copied
+                                    |> M.Copied
                                     |> Utils.delay 100
                                     |> Return.command
                                )
                     )
 
-        Copied diagram ->
+        M.Copied diagram ->
             loadDiagram diagram
 
-        Download exportDiagram ->
+        M.Download exportDiagram ->
             Return.andThen
                 (\m ->
                     let
@@ -836,10 +836,10 @@ update message =
                         |> Maybe.withDefault (Return.singleton m)
                 )
 
-        DownloadCompleted ( x, y ) ->
+        M.DownloadCompleted ( x, y ) ->
             Return.map (\m -> { m | diagramModel = m.diagramModel |> DiagramModel.ofPosition.set ( x, y ) })
 
-        StartDownload info ->
+        M.StartDownload info ->
             Return.andThen
                 (\m ->
                     Return.singleton m
@@ -847,7 +847,7 @@ update message =
                 )
                 >> closeMenu
 
-        Save ->
+        M.Save ->
             Return.andThen
                 (\m ->
                     Return.singleton m
@@ -908,7 +908,7 @@ update message =
                            )
                 )
 
-        SaveToRemoteCompleted (Ok diagram) ->
+        M.SaveToRemoteCompleted (Ok diagram) ->
             setCurrentDiagram diagram
                 >> Return.andThen
                     (\m ->
@@ -922,7 +922,7 @@ update message =
                 >> stopProgress
                 >> showInfoMessage Message.messageSuccessfullySaved
 
-        SaveToRemoteCompleted (Err _) ->
+        M.SaveToRemoteCompleted (Err _) ->
             Return.andThen
                 (\m ->
                     let
@@ -948,7 +948,7 @@ update message =
                 >> stopProgress
                 >> showWarningMessage Message.messageFailedSaved
 
-        SaveToLocalCompleted diagramJson ->
+        M.SaveToLocalCompleted diagramJson ->
             case D.decodeValue DiagramItem.decoder diagramJson of
                 Ok item ->
                     Return.andThen
@@ -966,48 +966,48 @@ update message =
                 Err _ ->
                     Return.zero
 
-        SaveToRemote diagramJson ->
+        M.SaveToRemote diagramJson ->
             case D.decodeValue DiagramItem.decoder diagramJson of
                 Ok diagram ->
                     Return.andThen
                         (\m ->
                             Return.singleton m
-                                |> Action.saveToRemote SaveToRemoteCompleted { diagram = diagram, session = m.session, settings = m.settingsModel.settings }
+                                |> Action.saveToRemote M.SaveToRemoteCompleted { diagram = diagram, session = m.session, settings = m.settingsModel.settings }
                                 |> startProgress
                         )
 
                 Err _ ->
                     showWarningMessage Message.messageSuccessfullySaved >> stopProgress
 
-        StartEditTitle ->
+        M.StartEditTitle ->
             Return.map (\m -> { m | currentDiagram = DiagramItem.ofTitle.set (Title.edit m.currentDiagram.title) m.currentDiagram })
-                >> Action.setFocus NoOp "title"
+                >> Action.setFocus M.NoOp "title"
 
-        Progress visible ->
+        M.Progress visible ->
             Return.map <| \m -> { m | progress = visible }
 
-        EndEditTitle ->
+        M.EndEditTitle ->
             Return.map (\m -> { m | currentDiagram = DiagramItem.ofTitle.set (Title.view m.currentDiagram.title) m.currentDiagram })
                 >> Action.setFocusEditor
 
-        EditTitle title ->
+        M.EditTitle title ->
             Return.map (\m -> { m | currentDiagram = DiagramItem.ofTitle.set (Title.edit <| Title.fromString title) m.currentDiagram })
                 >> needSaved
 
-        SignIn provider ->
+        M.SignIn provider ->
             Return.command (Ports.signIn <| LoginProdiver.toString provider)
                 >> startProgress
 
-        SignOut ->
+        M.SignOut ->
             Return.andThen
                 (\m ->
                     Return.singleton { m | session = Session.guest }
-                        |> Action.revokeGistToken CallApi m.session
+                        |> Action.revokeGistToken M.CallApi m.session
                         |> Return.command (Ports.signOut ())
                 )
                 >> setCurrentDiagram DiagramItem.empty
 
-        LinkClicked urlRequest ->
+        M.LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
                     Return.andThen <|
@@ -1020,7 +1020,7 @@ update message =
                                         case toRoute m.url of
                                             Route.Settings diagramType ->
                                                 pushUrl (Url.toString url)
-                                                    >> Action.saveSettings SaveSettings { session = m.session, diagramType = diagramType, settings = m.settingsModel.settings }
+                                                    >> Action.saveSettings M.SaveSettings { session = m.session, diagramType = diagramType, settings = m.settingsModel.settings }
                                                     >> setDiagramSettingsCache m.settingsModel.settings.storyMap
 
                                             _ ->
@@ -1030,10 +1030,10 @@ update message =
                 Browser.External href ->
                     Return.command <| Nav.load href
 
-        UrlChanged url ->
+        M.UrlChanged url ->
             Return.map (\m -> { m | url = url, prevRoute = Just <| toRoute m.url }) >> changeRouteTo (toRoute url)
 
-        HandleVisibilityChange visible ->
+        M.HandleVisibilityChange visible ->
             case visible of
                 Hidden ->
                     Return.andThen
@@ -1085,20 +1085,20 @@ update message =
                 _ ->
                     Return.zero
 
-        HandleStartWindowResize x ->
+        M.HandleStartWindowResize x ->
             Return.map <| \m -> { m | window = Window.startResizing m.window x }
 
-        HandleWindowResize x ->
+        M.HandleWindowResize x ->
             Return.map <| \m -> { m | window = Window.resizing m.window x }
 
-        HandleAutoCloseNotification notification ->
+        M.HandleAutoCloseNotification notification ->
             Return.map (\m -> { m | notification = notification })
                 >> closeNotification
 
-        HandleCloseNotification ->
+        M.HandleCloseNotification ->
             Return.map <| \m -> { m | notification = Notification.Hide }
 
-        HandleAuthStateChanged (Just value) ->
+        M.HandleAuthStateChanged (Just value) ->
             case D.decodeValue Session.decoder value of
                 Ok user ->
                     Return.map (\m -> { m | session = Session.signIn user })
@@ -1121,13 +1121,13 @@ update message =
                                                     Just jwt ->
                                                         if jwt.checkPassword then
                                                             switchPage Page.Main
-                                                                >> Action.changeRouteInit Init
+                                                                >> Action.changeRouteInit M.Init
 
                                                         else
                                                             switchPage Page.Main
-                                                                >> Action.loadShareItem Load { session = m.session, token = id_ }
+                                                                >> Action.loadShareItem M.Load { session = m.session, token = id_ }
                                                                 >> startProgress
-                                                                >> Action.changeRouteInit Init
+                                                                >> Action.changeRouteInit M.Init
 
                                                     Nothing ->
                                                         switchPage Page.NotFound
@@ -1142,18 +1142,18 @@ update message =
                     Return.map (\m -> { m | session = Session.guest })
                         >> stopProgress
 
-        HandleAuthStateChanged Nothing ->
+        M.HandleAuthStateChanged Nothing ->
             Return.map (\m -> { m | session = Session.guest })
                 >> moveTo Route.Home
                 >> stopProgress
 
-        ShowNotification notification ->
+        M.ShowNotification notification ->
             Return.map <| \m -> { m | notification = notification }
 
-        SwitchWindow w ->
+        M.SwitchWindow w ->
             Return.map <| \m -> { m | window = Window.toggle w }
 
-        Shortcuts cmd ->
+        M.Shortcuts cmd ->
             case cmd of
                 Just Shortcuts.Open ->
                     Route.toString Route.DiagramList
@@ -1166,12 +1166,12 @@ update message =
                             Return.singleton m
                                 |> (case ( m.settingsModel.settings.location, Text.isChanged m.diagramModel.text ) of
                                         ( Just DiagramLocation.LocalFileSystem, True ) ->
-                                            Task.succeed SaveLocalFile
+                                            Task.succeed M.SaveLocalFile
                                                 |> Task.perform identity
                                                 |> Return.command
 
                                         ( _, True ) ->
-                                            Task.succeed Save
+                                            Task.succeed M.Save
                                                 |> Task.perform identity
                                                 |> Return.command
 
@@ -1182,35 +1182,35 @@ update message =
                 _ ->
                     Return.zero
 
-        GotLocalDiagramJson json ->
+        M.GotLocalDiagramJson json ->
             case D.decodeValue DiagramItem.decoder json of
                 Ok item ->
-                    Action.loadText Load item
+                    Action.loadText M.Load item
 
                 Err _ ->
                     Return.zero
 
-        ChangePublicStatus isPublic ->
+        M.ChangePublicStatus isPublic ->
             Return.andThen <|
                 \m ->
                     Return.singleton m
                         |> Action.updateIdToken
-                        |> Action.changePublicState ChangePublicStatusCompleted { isPublic = isPublic, item = m.currentDiagram, session = m.session }
+                        |> Action.changePublicState M.ChangePublicStatusCompleted { isPublic = isPublic, item = m.currentDiagram, session = m.session }
                         |> stopProgress
 
-        ChangePublicStatusCompleted (Ok d) ->
+        M.ChangePublicStatusCompleted (Ok d) ->
             setCurrentDiagram d
                 >> stopProgress
                 >> showInfoMessage Message.messagePublished
 
-        ChangePublicStatusCompleted (Err _) ->
+        M.ChangePublicStatusCompleted (Err _) ->
             showErrorMessage Message.messageFailedPublished
                 >> stopProgress
 
-        Load (Ok diagram) ->
+        M.Load (Ok diagram) ->
             loadDiagram diagram
 
-        Load (Err e) ->
+        M.Load (Err e) ->
             (case e of
                 RequestError.NotFound ->
                     moveTo Route.NotFound
@@ -1221,14 +1221,14 @@ update message =
                 >> showErrorMessage (RequestError.toMessage e)
                 >> stopProgress
 
-        LoadSettings (Ok settings) ->
+        M.LoadSettings (Ok settings) ->
             setDiagramSettings settings >> stopProgress
 
-        LoadSettings (Err _) ->
+        M.LoadSettings (Err _) ->
             Return.andThen (\m -> Return.singleton m |> setDiagramSettings (.storyMap (defaultSettings (Theme.System m.browserStatus.isDarkMode))))
                 >> stopProgress
 
-        LoadSettingsFromLocal settingsJson ->
+        M.LoadSettingsFromLocal settingsJson ->
             case D.decodeValue settingsDecoder settingsJson of
                 Ok settings ->
                     Return.andThen
@@ -1255,25 +1255,25 @@ update message =
                 Err _ ->
                     showWarningMessage Message.messageFailedLoadSettings
 
-        SaveSettings (Ok _) ->
+        M.SaveSettings (Ok _) ->
             stopProgress
 
-        SaveSettings (Err _) ->
+        M.SaveSettings (Err _) ->
             showWarningMessage Message.messageFailedSaveSettings
                 >> stopProgress
 
-        CallApi (Ok ()) ->
+        M.CallApi (Ok ()) ->
             Return.zero
 
-        CallApi (Err m) ->
+        M.CallApi (Err m) ->
             showErrorMessage m
 
-        CloseFullscreen ->
+        M.CloseFullscreen ->
             Return.andThen <|
                 \m ->
                     Return.singleton m.diagramModel
                         |> Diagram.update DiagramModel.ToggleFullscreen
-                        |> Return.mapBoth UpdateDiagram
+                        |> Return.mapBoth M.UpdateDiagram
                             (\m_ ->
                                 { m
                                     | diagramModel = m_
@@ -1288,89 +1288,89 @@ update message =
                                 }
                             )
 
-        UpdateIdToken token ->
+        M.UpdateIdToken token ->
             Return.map <| \m -> { m | session = Session.updateIdToken m.session (IdToken.fromString token) }
 
-        EditPassword password ->
+        M.EditPassword password ->
             Return.map <| \m -> { m | shareState = ShareState.inputPassword m.shareState password }
 
-        EndEditPassword ->
+        M.EndEditPassword ->
             Return.andThen <|
                 \m ->
                     Return.singleton m
                         |> (case ShareState.getToken m.shareState of
                                 Just token ->
                                     switchPage Page.Main
-                                        >> Action.loadWithPasswordShareItem LoadWithPassword { password = ShareState.getPassword m.shareState, session = m.session, token = token }
+                                        >> Action.loadWithPasswordShareItem M.LoadWithPassword { password = ShareState.getPassword m.shareState, session = m.session, token = token }
                                         >> startProgress
 
                                 Nothing ->
                                     Return.zero
                            )
 
-        LoadWithPassword (Ok diagram) ->
+        M.LoadWithPassword (Ok diagram) ->
             Return.map (\m -> { m | shareState = ShareState.authenticated m.shareState })
                 >> loadDiagram diagram
 
-        LoadWithPassword (Err e) ->
+        M.LoadWithPassword (Err e) ->
             Return.map (\m -> { m | shareState = ShareState.authenticatedError e })
                 >> stopProgress
 
-        MoveTo route ->
+        M.MoveTo route ->
             unchanged
                 >> closeDialog
                 >> moveTo route
 
-        CloseDialog ->
+        M.CloseDialog ->
             closeDialog
 
-        GotGithubAccessToken { cmd, accessToken } ->
+        M.GotGithubAccessToken { cmd, accessToken } ->
             Return.andThen
                 (\m ->
                     Return.singleton { m | session = Session.updateAccessToken m.session (accessToken |> Maybe.withDefault "") }
                         |> (if cmd == "save" then
-                                Return.command (Task.perform identity (Task.succeed Save))
+                                Return.command (Task.perform identity (Task.succeed M.Save))
 
                             else
-                                Action.loadItem Load { id = DiagramId.fromString cmd, session = m.session }
+                                Action.loadItem M.Load { id = DiagramId.fromString cmd, session = m.session }
                            )
                 )
 
-        ChangeNetworkState isOnline ->
-            Return.map <| \m -> { m | browserStatus = m.browserStatus |> Model.ofIsOnline.set isOnline }
+        M.ChangeNetworkState isOnline ->
+            Return.map <| \m -> { m | browserStatus = m.browserStatus |> M.ofIsOnline.set isOnline }
 
-        ShowEditor window ->
+        M.ShowEditor window ->
             Return.map <| \m -> { m | window = window }
 
-        NotifyNewVersionAvailable msg ->
-            showSnackbar { message = msg, text = "RELOAD", action = Reload }
-                >> Return.command (Utils.delay 30000 CloseSnackbar)
+        M.NotifyNewVersionAvailable msg ->
+            showSnackbar { message = msg, text = "RELOAD", action = M.Reload }
+                >> Return.command (Utils.delay 30000 M.CloseSnackbar)
 
-        Reload ->
+        M.Reload ->
             Return.command Nav.reload
 
-        CloseSnackbar ->
+        M.CloseSnackbar ->
             hideSnackbar
 
-        OpenLocalFile ->
+        M.OpenLocalFile ->
             Return.command <| Ports.openLocalFile ()
 
-        OpenedLocalFile ( title, text ) ->
+        M.OpenedLocalFile ( title, text ) ->
             loadDiagram <| DiagramItem.localFile title text
 
-        SaveLocalFile ->
+        M.SaveLocalFile ->
             Return.andThen <| \m -> Return.singleton m |> Action.saveLocalFile (DiagramItem.ofText.set (Text.saved m.diagramModel.text) m.currentDiagram)
 
-        SavedLocalFile title ->
+        M.SavedLocalFile title ->
             Return.andThen <| \m -> Return.singleton m |> loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text)
 
-        ChangeDiagramType diagramType ->
+        M.ChangeDiagramType diagramType ->
             Return.andThen <|
                 \m ->
                     Return.singleton { m | diagramModel = m.diagramModel |> DiagramModel.ofDiagramType.set diagramType }
                         |> loadDiagram (m.currentDiagram |> DiagramItem.ofDiagram.set diagramType)
 
-        OpenCurrentFile ->
+        M.OpenCurrentFile ->
             Return.andThen <|
                 \m ->
                     Return.singleton m
@@ -1419,7 +1419,7 @@ updateSettings msg diagramType =
             Return.andThen
                 (\m ->
                     Return.singleton m
-                        |> Action.saveSettings SaveSettings
+                        |> Action.saveSettings M.SaveSettings
                             { diagramType = diagramType
                             , session = m.session
                             , settings = m.settingsModel.settings
@@ -1456,7 +1456,7 @@ view : Model -> Html Msg
 view model =
     Html.main_
         [ Attr.css [ position relative, Style.widthScreen ]
-        , E.onClick CloseMenu
+        , E.onClick M.CloseMenu
         ]
         [ GlobalStyle.style
         , if Window.isFullscreen model.window then
@@ -1513,10 +1513,10 @@ view model =
                     Help.view
 
                 Page.List ->
-                    Lazy.lazy DiagramList.view model.diagramListModel |> Html.map UpdateDiagramList
+                    Lazy.lazy DiagramList.view model.diagramListModel |> Html.map M.UpdateDiagramList
 
                 Page.Settings ->
-                    Lazy.lazy Settings.view model.settingsModel |> Html.map UpdateSettings
+                    Lazy.lazy Settings.view model.settingsModel |> Html.map M.UpdateSettings
 
                 Page.Embed ->
                     Embed.view model
@@ -1553,7 +1553,7 @@ view model =
                                     else
                                         Html.div [ Attr.css [ Style.full, backgroundColor <| hex model.settingsModel.settings.storyMap.backgroundColor ] ]
                                             [ Lazy.lazy Diagram.view model.diagramModel
-                                                |> Html.map UpdateDiagram
+                                                |> Html.map M.UpdateDiagram
                                             ]
 
                                 Nothing ->
@@ -1565,7 +1565,7 @@ view model =
                                 mainWindow =
                                     if Size.getWidth model.diagramModel.size > 0 && Utils.isPhone (Size.getWidth model.diagramModel.size) then
                                         Lazy.lazy5 SwitchWindow.view
-                                            SwitchWindow
+                                            M.SwitchWindow
                                             model.diagramModel.settings.backgroundColor
                                             model.window
                                             (Html.div
@@ -1586,8 +1586,8 @@ view model =
                                         Lazy.lazy3 SplitWindow.view
                                             { background = model.diagramModel.settings.backgroundColor
                                             , window = model.window
-                                            , onToggleEditor = ShowEditor
-                                            , onResize = HandleStartWindowResize
+                                            , onToggleEditor = M.ShowEditor
+                                            , onResize = M.HandleStartWindowResize
                                             }
                                             (Html.div
                                                 [ Attr.css
@@ -1605,12 +1605,12 @@ view model =
                             in
                             mainWindow
                                 (Lazy.lazy Diagram.view model.diagramModel
-                                    |> Html.map UpdateDiagram
+                                    |> Html.map M.UpdateDiagram
                                 )
             ]
         , case toRoute model.url of
             Share ->
-                Lazy.lazy Share.view model.shareModel |> Html.map UpdateShare
+                Lazy.lazy Share.view model.shareModel |> Html.map M.UpdateShare
 
             ViewFile _ id_ ->
                 case ShareToken.unwrap id_ |> Maybe.andThen Jwt.fromString of
@@ -1622,8 +1622,8 @@ view model =
                                 , value = ShareState.getPassword model.shareState |> Maybe.withDefault ""
                                 , inProcess = model.progress
                                 , lang = model.lang
-                                , onInput = EditPassword
-                                , onEnter = EndEditPassword
+                                , onInput = M.EditPassword
+                                , onEnter = M.EndEditPassword
                                 }
 
                         else
@@ -1635,7 +1635,7 @@ view model =
             _ ->
                 Empty.view
         , Lazy.lazy showDialog model.confirmDialog
-        , Footer.view { diagramType = model.currentDiagram.diagram, onChangeDiagramType = ChangeDiagramType }
+        , Footer.view { diagramType = model.currentDiagram.diagram, onChangeDiagramType = M.ChangeDiagramType }
         ]
 
 

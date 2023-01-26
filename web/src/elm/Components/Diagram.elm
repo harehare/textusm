@@ -85,7 +85,6 @@ import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Events exposing (onClick)
 import Task
-import Utils.Diagram as DiagramUtils
 import Utils.Utils as Utils
 import Views.Diagram.BusinessModelCanvas as BusinessModelCanvas
 import Views.Diagram.ContextMenu as ContextMenu
@@ -197,21 +196,14 @@ update message =
                                     lines =
                                         Text.lines m.text
 
-                                    prefix : String
-                                    prefix =
-                                        Text.getLine (Item.getLineNo item) m.text
-                                            |> DiagramUtils.getSpacePrefix
-
                                     text : String
                                     text =
                                         setAt (Item.getLineNo item)
-                                            (prefix
-                                                ++ (item
-                                                        |> Item.withSettings
-                                                            (Item.getSettings selectedItem)
-                                                        |> Item.toLineString
-                                                        |> String.trimLeft
-                                                   )
+                                            (item
+                                                |> Item.withSettings
+                                                    (Item.getSettings selectedItem)
+                                                |> Item.toLineString
+                                                |> String.dropLeft 1
                                             )
                                             lines
                                             |> String.join "\n"
@@ -266,14 +258,14 @@ update message =
                                     text =
                                         case menu of
                                             Diagram.ColorSelectMenu ->
-                                                Item.new
+                                                item
                                                     |> Item.withText mainText
                                                     |> Item.withSettings (Just (settings |> ItemSettings.withForegroundColor (Just color)))
                                                     |> Item.withComments comment
                                                     |> Item.toLineString
 
                                             Diagram.BackgroundColorSelectMenu ->
-                                                Item.new
+                                                item
                                                     |> Item.withText mainText
                                                     |> Item.withSettings (Just (ItemSettings.withBackgroundColor (Just color) settings))
                                                     |> Item.withComments comment
@@ -284,7 +276,7 @@ update message =
 
                                     updateText : String
                                     updateText =
-                                        setAt (Item.getLineNo item) (DiagramUtils.getSpacePrefix currentText ++ String.trimLeft text) lines
+                                        setAt (Item.getLineNo item) text lines
                                             |> String.join "\n"
                                 in
                                 case ( m.selectedItem, menu ) of
@@ -349,8 +341,8 @@ update message =
 
                                     updateLine : String
                                     updateLine =
-                                        Item.new
-                                            |> Item.withText (DiagramUtils.getSpacePrefix currentText ++ (String.trimLeft text |> FontStyle.apply style))
+                                        item
+                                            |> Item.withText (text |> FontStyle.apply style)
                                             |> Item.withSettings (Just settings)
                                             |> Item.withComments comment
                                             |> Item.toLineString
@@ -405,7 +397,7 @@ update message =
 
                                     text : String
                                     text =
-                                        Item.new
+                                        item
                                             |> Item.withText mainText
                                             |> Item.withSettings (Just (settings |> ItemSettings.withFontSize size))
                                             |> Item.withComments comment
@@ -413,7 +405,7 @@ update message =
 
                                     updateText : String
                                     updateText =
-                                        setAt (Item.getLineNo item) (DiagramUtils.getSpacePrefix currentText ++ String.trimLeft text) lines
+                                        setAt (Item.getLineNo item) text lines
                                             |> String.join "\n"
                                 in
                                 Return.singleton m
@@ -566,7 +558,7 @@ update message =
                                         lineNo =
                                             Item.getLineNo item
                                     in
-                                    setAt lineNo (DiagramUtils.getSpacePrefix (Text.getLine lineNo m.text) ++ String.trimLeft (Item.toLineString item)) updatedLines
+                                    setAt lineNo (Item.toLineString item) updatedLines
                                 )
                                 lines
                                 (items
