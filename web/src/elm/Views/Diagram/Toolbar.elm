@@ -148,14 +148,14 @@ createVerticalLineItem =
 
 freeForm : ClickEvent msg -> List (ToolbarButton msg)
 freeForm e =
-    [ Button <| cardView Color.white (createColorItem Color.white) e
-    , Button <| cardView Color.yellow (createColorItem Color.yellow) e
-    , Button <| cardView Color.green (createColorItem Color.green) e
-    , Button <| cardView Color.blue (createColorItem Color.blue) e
-    , Button <| cardView Color.orange (createColorItem Color.orange) e
-    , Button <| cardView Color.pink (createColorItem Color.pink) e
-    , Button <| cardView Color.red (createColorItem Color.red) e
-    , Button <| cardView Color.purple (createColorItem Color.purple) e
+    [ Button <| Lazy.lazy3 cardView Color.white (createColorItem Color.white) e
+    , Button <| Lazy.lazy3 cardView Color.yellow (createColorItem Color.yellow) e
+    , Button <| Lazy.lazy3 cardView Color.green (createColorItem Color.green) e
+    , Button <| Lazy.lazy3 cardView Color.blue (createColorItem Color.blue) e
+    , Button <| Lazy.lazy3 cardView Color.orange (createColorItem Color.orange) e
+    , Button <| Lazy.lazy3 cardView Color.pink (createColorItem Color.pink) e
+    , Button <| Lazy.lazy3 cardView Color.red (createColorItem Color.red) e
+    , Button <| Lazy.lazy3 cardView Color.purple (createColorItem Color.purple) e
     , Separator <| separator
     , Button <| canvasView createCanvas e
     , Separator <| separator
@@ -245,14 +245,14 @@ separator =
 
 userStoryMap : { clickCard : ClickEvent msg, clickAutoArrange : msg } -> List (ToolbarButton msg)
 userStoryMap { clickCard, clickAutoArrange } =
-    [ Button <| cardView Color.white (createColorItem Color.white) clickCard
-    , Button <| cardView Color.yellow (createColorItem Color.yellow) clickCard
-    , Button <| cardView Color.green (createColorItem Color.green) clickCard
-    , Button <| cardView Color.blue (createColorItem Color.blue) clickCard
-    , Button <| cardView Color.orange (createColorItem Color.orange) clickCard
-    , Button <| cardView Color.pink (createColorItem Color.pink) clickCard
-    , Button <| cardView Color.red (createColorItem Color.red) clickCard
-    , Button <| cardView Color.purple (createColorItem Color.purple) clickCard
+    [ Button <| Lazy.lazy3 cardView Color.white (createColorItem Color.white) clickCard
+    , Button <| Lazy.lazy3 cardView Color.yellow (createColorItem Color.yellow) clickCard
+    , Button <| Lazy.lazy3 cardView Color.green (createColorItem Color.green) clickCard
+    , Button <| Lazy.lazy3 cardView Color.blue (createColorItem Color.blue) clickCard
+    , Button <| Lazy.lazy3 cardView Color.orange (createColorItem Color.orange) clickCard
+    , Button <| Lazy.lazy3 cardView Color.pink (createColorItem Color.pink) clickCard
+    , Button <| Lazy.lazy3 cardView Color.red (createColorItem Color.red) clickCard
+    , Button <| Lazy.lazy3 cardView Color.purple (createColorItem Color.purple) clickCard
     , Separator <| separator
     , autoArrangeButton clickAutoArrange
     ]

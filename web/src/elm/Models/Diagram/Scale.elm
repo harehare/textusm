@@ -1,6 +1,14 @@
-module Models.Diagram.Scale exposing (Scale, add, default, fromFloat, map, max, min, step, sub, toFloat)
-
-import String exposing (fromFloat)
+module Models.Diagram.Scale exposing
+    ( Scale
+    , add
+    , default
+    , fromFloat
+    , max
+    , min
+    , step
+    , sub
+    , toFloat
+    )
 
 
 type Scale
@@ -43,11 +51,6 @@ fromFloat s =
 
     else
         Scale s
-
-
-map : (Float -> Float) -> Scale -> Scale
-map f (Scale s) =
-    f s |> fromFloat
 
 
 add : Scale -> Scale -> Scale

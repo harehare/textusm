@@ -51,6 +51,7 @@ import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick, stopPropagationOn)
+import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import List
 import Message exposing (Lang)
@@ -96,6 +97,77 @@ type alias Props =
     , browserStatus : BrowserStatus
     , currentDiagram : DiagramItem
     }
+
+
+isEditFile : Route -> Bool
+isEditFile route =
+    case route of
+        Route.Edit _ ->
+            True
+
+        Route.EditFile _ _ ->
+            True
+
+        Route.EditLocalFile _ _ ->
+            True
+
+        _ ->
+            False
+
+
+newMenu : Lang -> Html msg
+newMenu lang =
+    Html.a
+        [ Attr.class "new-menu"
+        , Attr.href <| Route.toString <| Route.New
+        , Attr.attribute "aria-label" "New"
+        , Attributes.dataTest "new-menu"
+        ]
+        [ Html.div
+            [ Attr.css
+                [ Style.mlXs
+                , menuButtonStyle
+                ]
+            ]
+            [ Icon.file Color.iconColor 18
+            , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipNewFile lang ] ]
+            ]
+        ]
+
+
+editMenu : { diagramItem : DiagramItem, lang : Lang, route : Route } -> Html Msg
+editMenu { diagramItem, lang, route } =
+    case route of
+        Route.Edit _ ->
+            Lazy.lazy newMenu lang
+
+        Route.EditFile _ _ ->
+            Lazy.lazy newMenu lang
+
+        Route.EditLocalFile _ _ ->
+            Lazy.lazy newMenu lang
+
+        _ ->
+            case diagramItem.id of
+                Just _ ->
+                    Html.div
+                        [ Attr.class "edit-menu"
+                        , onClick OpenCurrentFile
+                        , Attr.attribute "aria-label" "Edit"
+                        , Attributes.dataTest "edit-menu"
+                        ]
+                        [ Html.div
+                            [ Attr.css
+                                [ menuButtonStyle
+                                ]
+                            ]
+                            [ Icon.edit Color.iconColor 20
+                            , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipEditFile lang ] ]
+                            ]
+                        ]
+
+                Nothing ->
+                    newMenu lang
 
 
 menu : { bottom : Maybe Int, left : Maybe Int, right : Maybe Int, top : Maybe Int } -> List (MenuItem msg) -> Html msg
@@ -162,41 +234,6 @@ menu pos items =
 
 view : Props -> Html Msg
 view { page, lang, width, route, text, openMenu, settings, browserStatus, currentDiagram } =
-    let
-        newMenu : Html msg
-        newMenu =
-            Html.a
-                [ Attr.class "new-menu"
-                , Attr.href <| Route.toString <| Route.New
-                , Attr.attribute "aria-label" "New"
-                , Attributes.dataTest "new-menu"
-                ]
-                [ Html.div
-                    [ Attr.css
-                        [ Style.mlXs
-                        , menuButtonStyle
-                        ]
-                    ]
-                    [ Icon.file Color.iconColor 18
-                    , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipNewFile lang ] ]
-                    ]
-                ]
-
-        isEditFile : Bool
-        isEditFile =
-            case route of
-                Route.Edit _ ->
-                    True
-
-                Route.EditFile _ _ ->
-                    True
-
-                Route.EditLocalFile _ _ ->
-                    True
-
-                _ ->
-                    False
-    in
     Html.nav
         [ Attr.css
             [ Breakpoint.style
@@ -224,37 +261,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
             ]
         , Attributes.dataTest "menu"
         ]
-        [ case route of
-            Route.Edit _ ->
-                newMenu
-
-            Route.EditFile _ _ ->
-                newMenu
-
-            Route.EditLocalFile _ _ ->
-                newMenu
-
-            _ ->
-                case currentDiagram.id of
-                    Just _ ->
-                        Html.div
-                            [ Attr.class "edit-menu"
-                            , onClick OpenCurrentFile
-                            , Attr.attribute "aria-label" "Edit"
-                            , Attributes.dataTest "edit-menu"
-                            ]
-                            [ Html.div
-                                [ Attr.css
-                                    [ menuButtonStyle
-                                    ]
-                                ]
-                                [ Icon.edit Color.iconColor 20
-                                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipEditFile lang ] ]
-                                ]
-                            ]
-
-                    Nothing ->
-                        newMenu
+        [ editMenu { diagramItem = currentDiagram, lang = lang, route = route }
         , Html.div
             [ Attr.css [ menuButtonStyle ] ]
             [ case settings.location of
@@ -309,7 +316,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave lang ] ]
                 ]
         , Html.div
-            [ if isEditFile then
+            [ if isEditFile route then
                 stopPropagationOn "click" (D.succeed ( OpenMenu Export, True ))
 
               else
@@ -318,7 +325,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
             , Attributes.dataTest "download-menu"
             ]
             [ Icon.download
-                (if isEditFile then
+                (if isEditFile route then
                     Color.toString Color.iconColor
 
                  else
@@ -327,7 +334,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                 18
             , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipExport lang ] ]
             ]
-        , if not isEditFile || Text.isChanged text then
+        , if not (isEditFile route) || Text.isChanged text then
             Html.div
                 [ Attr.css [ menuButtonStyle ]
                 , Attributes.dataTest "copy-menu"

@@ -2,7 +2,6 @@ module Models.Item exposing
     ( Children
     , Hierarchy
     , Item
-    , ItemType(..)
     , Items
     , childrenFromItems
     , cons
@@ -21,7 +20,6 @@ module Models.Item exposing
     , getFontSize
     , getFontSizeWithProperty
     , getForegroundColor
-    , getFullText
     , getHierarchyCount
     , getIndent
     , getLeafCount
@@ -72,7 +70,6 @@ module Models.Item exposing
     )
 
 import Constants exposing (indentSpace, inputPrefix)
-import Html.Attributes exposing (property)
 import List.Extra as ListEx
 import Maybe
 import Models.Color exposing (Color)
@@ -104,11 +101,6 @@ type Item
         }
 
 
-type ItemType
-    = Activities
-    | Tasks
-    | Stories
-    | Comments
 
 
 type Items

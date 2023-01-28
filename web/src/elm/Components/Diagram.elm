@@ -528,6 +528,7 @@ update message =
 
         SelectFromLineNo lineNo text ->
             let
+                item : Item
                 item =
                     Item.itemFromString lineNo text
             in
@@ -550,6 +551,7 @@ update message =
                         lines =
                             Text.lines m.text
 
+                        updatedText : String
                         updatedText =
                             List.foldl
                                 (\item updatedLines ->

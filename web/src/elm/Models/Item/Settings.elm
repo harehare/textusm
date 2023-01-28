@@ -7,7 +7,6 @@ module Models.Item.Settings exposing
     , getForegroundColor
     , getOffset
     , getOffsetSize
-    , legacyDecoder
     , new
     , resetOffset
     , toString
@@ -48,9 +47,11 @@ resetOffset (Settings settings) =
 fromString : String -> Maybe Settings
 fromString text =
     let
+        itemSettings : Result D.Error Settings
         itemSettings =
             D.decodeString decoder text
 
+        legacyItemStrings : Result D.Error Settings
         legacyItemStrings =
             D.decodeString legacyDecoder text
     in
