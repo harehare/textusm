@@ -39,7 +39,7 @@ type builder struct {
 	diagram       values.Diagram
 	title         string
 	encryptedText string
-	errors        []error
+	errors        error
 	isPublic      bool
 	isBookmark    bool
 	isNew         bool
@@ -74,7 +74,11 @@ func (b *builder) WithPlainText(text string) DiagramItemBuilder {
 	t, err := encryptText(text)
 
 	if err != nil {
-		b.errors = append(b.errors, err)
+		if b.errors == nil {
+			b.errors = err
+		} else {
+			b.errors = errors.Join(b.errors, err)
+		}
 		b.encryptedText = "invalid"
 	} else {
 		b.encryptedText = *t
@@ -120,8 +124,8 @@ func (b *builder) WithUpdatedAt(updatedAt time.Time) DiagramItemBuilder {
 
 func (b *builder) Build() mo.Result[*DiagramItem] {
 
-	if len(b.errors) > 0 {
-		return mo.Err[*DiagramItem](e.InvalidParameterError(b.errors[0]))
+	if b.errors != nil {
+		return mo.Err[*DiagramItem](e.InvalidParameterError(b.errors))
 	}
 
 	return mo.Ok(&DiagramItem{
