@@ -352,8 +352,8 @@ getTextOnly =
         , test "has image:" <|
             \() ->
                 Expect.equal
-                    (Item.new |> Item.withText "image: test" |> Item.getTextOnly)
-                    "test"
+                    (Item.new |> Item.withText "image: http://example.com" |> Item.getTextOnly)
+                    "http://example.com/"
         , test "has image: and settings" <|
             \() ->
                 Expect.equal

@@ -3,6 +3,7 @@ module Models.Property exposing
     , empty
     , fromString
     , getBackgroundColor
+    , getBackgroundImage
     , getCanvasBackgroundColor
     , getCardBackgroundColor1
     , getCardBackgroundColor2
@@ -29,6 +30,7 @@ module Models.Property exposing
 
 import Dict exposing (Dict)
 import Models.Color as Color exposing (Color)
+import Models.Diagram.BackgroundImage as BgImage
 import Models.FontSize as FontSize exposing (FontSize)
 
 
@@ -54,6 +56,12 @@ fromString text =
                                 |> enabledKey
                                 |> Maybe.map (\v -> ( toKeyString v, String.trim value ))
 
+                        name :: rest ->
+                            String.replace "#" "" name
+                                |> String.trim
+                                |> enabledKey
+                                |> Maybe.map (\v -> ( toKeyString v, String.trim <| String.join ":" rest ))
+
                         _ ->
                             Nothing
 
@@ -66,6 +74,11 @@ fromString text =
 getBackgroundColor : Property -> Maybe Color
 getBackgroundColor property =
     Dict.get (toKeyString BackgroundColor) property |> Maybe.map Color.fromString
+
+
+getBackgroundImage : Property -> Maybe BgImage.BackgroundImage
+getBackgroundImage property =
+    Dict.get (toKeyString BackgroundImage) property |> Maybe.andThen BgImage.fromString
 
 
 getCanvasBackgroundColor : Property -> Maybe Color
@@ -184,6 +197,9 @@ enabledKey s =
         "background_color" ->
             Just BackgroundColor
 
+        "background_image" ->
+            Just BackgroundImage
+
         "canvas_background_color" ->
             Just CanvasBackgroundColor
 
@@ -257,6 +273,7 @@ enabledKey s =
 
 type Key
     = BackgroundColor
+    | BackgroundImage
     | CardForegroundColor1
     | CardBackgroundColor1
     | CardForegroundColor2
@@ -286,6 +303,9 @@ toKeyString key =
     case key of
         BackgroundColor ->
             "background_color"
+
+        BackgroundImage ->
+            "background_image"
 
         CardForegroundColor1 ->
             "card_foreground_color1"

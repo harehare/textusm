@@ -51,6 +51,7 @@ import List.Extra exposing (getAt, setAt)
 import Maybe
 import Models.Color as Color
 import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem)
+import Models.Diagram.BackgroundImage as BackgroundImage
 import Models.Diagram.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.ER as ErDiagramModel
@@ -1148,9 +1149,20 @@ stopMove model =
 
 svgView : Model -> Position -> Size -> Svg Msg -> Svg Msg
 svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
+    let
+        backgroundImage : Svg.Attribute Msg
+        backgroundImage =
+            case Property.getBackgroundImage model.property of
+                Just image ->
+                    SvgAttr.style <| "background-image: url(" ++ BackgroundImage.toString image ++ ")"
+
+                Nothing ->
+                    SvgAttr.style ""
+    in
     Svg.svg
         [ Attr.id "usm"
         , Attributes.dataTest "diagram"
+        , backgroundImage
         , SvgAttr.width
             (String.fromInt
                 (if Utils.isPhone (Size.getWidth model.size) || model.isFullscreen then

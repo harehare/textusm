@@ -38,17 +38,17 @@ fromString =
         , test "image" <|
             \() ->
                 Expect.equal
-                    (ItemValue.fromString "    image:image"
+                    (ItemValue.fromString "    image:http://example.com"
                         |> (\v -> ( ItemValue.getIndent v, ItemValue.toString v ))
                     )
-                    ( 1, "image" )
+                    ( 1, "http://example.com/" )
         , test "image data" <|
             \() ->
                 Expect.equal
-                    (ItemValue.fromString "    data:image/image"
+                    (ItemValue.fromString "    data:image/png;base64,iVBO"
                         |> (\v -> ( ItemValue.getIndent v, ItemValue.toString v ))
                     )
-                    ( 1, "image" )
+                    ( 1, "data:image/png;base64,iVBO" )
         , test "comment" <|
             \() ->
                 Expect.equal
@@ -127,17 +127,17 @@ toFullString =
         , test "image" <|
             \() ->
                 Expect.equal
-                    (ItemValue.fromString "    image:image"
+                    (ItemValue.fromString "    image:http://example.com"
                         |> ItemValue.toFullString
                     )
-                    "    image:image"
+                    "    image:http://example.com/"
         , test "image data" <|
             \() ->
                 Expect.equal
-                    (ItemValue.fromString "    data:image/image"
+                    (ItemValue.fromString "    data:image/png;base64,iVBO"
                         |> ItemValue.toFullString
                     )
-                    "    data:image/image"
+                    "    data:image/png;base64,iVBO"
         , test "comment" <|
             \() ->
                 Expect.equal
@@ -168,17 +168,17 @@ toString =
         , test "image" <|
             \() ->
                 Expect.equal
-                    (ItemValue.fromString "    image:image"
+                    (ItemValue.fromString "    image:http://example.com"
                         |> ItemValue.toString
                     )
-                    "image"
+                    "http://example.com/"
         , test "image data" <|
             \() ->
                 Expect.equal
-                    (ItemValue.fromString "    data:image/image"
+                    (ItemValue.fromString "    data:image/png;base64,iVBO"
                         |> ItemValue.toString
                     )
-                    "image"
+                    "data:image/png;base64,iVBO"
         , test "comment" <|
             \() ->
                 Expect.equal

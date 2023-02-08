@@ -13,14 +13,16 @@ module Models.Item.Value exposing
     )
 
 import Constants
+import DataUrl exposing (DataUrl)
 import List.Extra as ListEx
 import Models.Text as Text exposing (Text)
+import Url exposing (Url)
 
 
 type Value
     = Markdown Int Text
-    | Image Int Text
-    | ImageData Int Text
+    | Image Int Url
+    | ImageData Int DataUrl
     | PlainText Int Text
     | Comment Int Text
 
@@ -132,10 +134,20 @@ update value text =
             Markdown indent <| Text.fromString text
 
         Image indent _ ->
-            Image indent <| Text.fromString text
+            case Url.fromString text of
+                Just u ->
+                    Image indent u
+
+                Nothing ->
+                    PlainText indent <| Text.fromString text
 
         ImageData indent _ ->
-            ImageData indent <| Text.fromString text
+            case DataUrl.fromString text of
+                Just u ->
+                    ImageData indent <| u
+
+                Nothing ->
+                    PlainText indent <| Text.fromString text
 
         Comment indent _ ->
             Comment indent <| Text.fromString text
@@ -155,10 +167,30 @@ fromString text =
         Markdown indent <| Text.fromString <| String.replace "\n" "\\n" <| dropPrefix markdownPrefix <| String.trim text
 
     else if hasImagePrefix text then
-        Image indent <| Text.fromString <| dropPrefix imagePrefix <| String.trim text
+        let
+            url : String
+            url =
+                String.trim <| dropPrefix imagePrefix <| String.trim text
+        in
+        case Url.fromString url of
+            Just u ->
+                Image indent u
+
+            Nothing ->
+                PlainText indent <| Text.fromString <| String.trim text
 
     else if hasImageDataPrefix text then
-        ImageData indent <| Text.fromString <| dropPrefix imageDataPrefix <| String.trim text
+        let
+            url : String
+            url =
+                String.trim <| dropPrefix imageDataPrefix <| String.trim text
+        in
+        case DataUrl.fromString url of
+            Just u ->
+                ImageData indent u
+
+            Nothing ->
+                PlainText indent <| Text.fromString <| String.trim text
 
     else if hasCommentPrefix text then
         Comment indent <| Text.fromString <| dropPrefix commentPrefix <| String.trim text
@@ -174,10 +206,10 @@ toFullString value =
             space indent ++ markdownPrefix ++ Text.toString text
 
         Image indent text ->
-            space indent ++ imagePrefix ++ Text.toString text
+            space indent ++ imagePrefix ++ Url.toString text
 
         ImageData indent text ->
-            space indent ++ imageDataPrefix ++ Text.toString text
+            space indent ++ imageDataPrefix ++ DataUrl.toString text
 
         Comment indent text ->
             space indent ++ commentPrefix ++ Text.toString text
@@ -193,10 +225,10 @@ toString value =
             Text.toString text |> String.replace "\\n" "\n"
 
         Image _ text ->
-            Text.toString text
+            Url.toString text
 
         ImageData _ text ->
-            Text.toString text
+            DataUrl.toString text
 
         Comment _ text ->
             Text.toString text

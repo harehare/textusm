@@ -61,7 +61,7 @@ const addUserStoryMap = () => {
   monaco.languages.setMonarchTokensProvider('UserStoryMap', {
     tokenizer: {
       root: [
-        [/#[^.*#[^:]+:[^:]+$/, 'property'],
+        [/#[^.*#[^:]+:.+$/, 'property'],
         [/#[^#|]+/, 'comment'],
         [/^[^ ][^#:|]+/, 'indent1'],
         [/^ {20}[^#:|]+/, 'indent3'],
