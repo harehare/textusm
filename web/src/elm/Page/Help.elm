@@ -74,22 +74,23 @@ view =
         -- Comment Syntax
         , section (Just "Comment Syntax")
         , textCommentView [ text "# Comment..." ]
-        , textCommentView [ text "# backgroundColor: #FFFFFF" ]
-        , textCommentView [ text "# zoom_control: true" ]
-        , textCommentView [ text "# line_color: #FF0000" ]
-        , textCommentView [ text "# line_size: 4" ]
-        , textCommentView [ text "# toolbar: true" ]
-        , textCommentView [ text "# card_foreground_color1: #FFFFFF" ]
-        , textCommentView [ text "# card_foreground_color2: #FFFFFF" ]
-        , textCommentView [ text "# card_foreground_color3: #333333" ]
-        , textCommentView [ text "# card_background_color1: #266B9A" ]
-        , textCommentView [ text "# card_background_color2: #3E9BCD" ]
-        , textCommentView [ text "# card_background_color3: #FFFFFF" ]
-        , textCommentView [ text "# canvas_background_color: #434343" ]
-        , textCommentView [ text "# card_height: 120" ]
-        , textCommentView [ text "# card_height: 70" ]
-        , textCommentView [ text "# text_color: #111111" ]
-        , textCommentView [ text "# font_size: 14" ]
+        , textPropertyView [ text "# backgroundColor: #FFFFFF" ]
+        , textPropertyView [ text "# background_image: https://app.textusm.com/images/logo.svg" ]
+        , textPropertyView [ text "# zoom_control: true" ]
+        , textPropertyView [ text "# line_color: #FF0000" ]
+        , textPropertyView [ text "# line_size: 4" ]
+        , textPropertyView [ text "# toolbar: true" ]
+        , textPropertyView [ text "# card_foreground_color1: #FFFFFF" ]
+        , textPropertyView [ text "# card_foreground_color2: #FFFFFF" ]
+        , textPropertyView [ text "# card_foreground_color3: #333333" ]
+        , textPropertyView [ text "# card_background_color1: #266B9A" ]
+        , textPropertyView [ text "# card_background_color2: #3E9BCD" ]
+        , textPropertyView [ text "# card_background_color3: #FFFFFF" ]
+        , textPropertyView [ text "# canvas_background_color: #434343" ]
+        , textPropertyView [ text "# card_height: 120" ]
+        , textPropertyView [ text "# card_height: 70" ]
+        , textPropertyView [ text "# text_color: #111111" ]
+        , textPropertyView [ text "# font_size: 14" ]
 
         -- User Story Map Syntax
         , section (Just "User Story Map Syntax")
@@ -236,6 +237,11 @@ textActivityView children =
 textCommentView : List (Html msg) -> Html msg
 textCommentView children =
     div [ Attr.css [ Text.base, Color.textComment, padding3 zero (px 16) zero ] ] children
+
+
+textPropertyView : List (Html msg) -> Html msg
+textPropertyView children =
+    div [ Attr.css [ Text.base, Color.textPropertyColor, padding3 zero (px 16) zero ] ] children
 
 
 textTaskStyle : List (Html msg) -> Html msg

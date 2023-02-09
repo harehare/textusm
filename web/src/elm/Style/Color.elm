@@ -14,6 +14,7 @@ module Style.Color exposing
     , disabledColor
     , errorColor
     , lightBackgroundColor
+    , textPropertyColor
     , textAccent
     , textActivity
     , textColor
@@ -133,6 +134,11 @@ textSecondaryColor =
     color <| hex "#b9b9b9"
 
 
+textPropertyColor : Css.Style
+textPropertyColor =
+    color <| hex "#f9c859"
+
+
 bgMenuColor : Css.Style
 bgMenuColor =
     backgroundColor <| hex "#273037"
@@ -156,3 +162,5 @@ accentColor =
 activityColor : Color
 activityColor =
     hex "#266b9a"
+
+
