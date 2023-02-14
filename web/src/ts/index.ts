@@ -84,6 +84,9 @@ authStateChanged(
   () => {
     app.ports.progress.send(false);
   },
+  (message: string) => {
+    app.ports.sendErrorNotification.send(message);
+  },
   async (idToken, user) => {
     if (user && idToken) {
       app.ports.onAuthStateChanged.send({

@@ -26,11 +26,11 @@ const firebaseConfig: FirebaseOptions = {
   projectId: process.env.FIREBASE_PROJECT_ID ?? '',
   appId: process.env.FIREBASE_APP_ID ?? '',
 };
-const app = initializeApp(firebaseConfig);
+const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth();
 
 if (process.env.MONITOR_ENABLE === '1') {
-  getPerformance(app);
+  getPerformance(firebaseApp);
 }
 
 if (process.env.NODE_ENV !== 'production' && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
@@ -76,6 +76,7 @@ export const refreshToken = (): Promise<string> | undefined => auth.currentUser?
 export const authStateChanged = (
   onBeforeAuth: () => void,
   onAfterAuth: () => void,
+  onAuthError: (message: string) => void,
   onAuthStateChanged: (idToken: string | undefined, user: User | undefined) => void
 ): void => {
   firebaseOnAuthStateChanged(auth, async (user) => {
@@ -85,17 +86,21 @@ export const authStateChanged = (
       const provider = providers.length > 0 && providers[0] ? providers[0] : '';
 
       const idToken = await user.getIdToken().catch(() => {
-        onAuthStateChanged(undefined, undefined);
-        throw new Error('Failed getIdToken');
+        onAuthError('Authentication failed. Please login again.');
+        return null;
       });
-      onAuthStateChanged(idToken, {
-        id: user.uid,
-        displayName: user.displayName ?? '',
-        email: user.email ?? '',
-        photoURL: user.photoURL ?? '',
-        provider,
-        accessToken: undefined,
-      });
+
+      if (idToken) {
+        onAuthStateChanged(idToken, {
+          id: user.uid,
+          displayName: user.displayName ?? '',
+          email: user.email ?? '',
+          photoURL: user.photoURL ?? '',
+          provider,
+          accessToken: undefined,
+        });
+      }
+
       onAfterAuth();
     } else {
       onAuthStateChanged(undefined, undefined);
