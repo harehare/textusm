@@ -47,7 +47,7 @@
     "elm-hot-webpack-loader": "^1.1.8",
     "elm-optimize-level-2": "^0.3.5",
     "elm-review": "^2.9.1",
-    "elm-test": "^0.19.1-revision11",
+    "elm-test": "^0.19.1-revision12",
     "elm-webpack-loader": "^8.0.0",
     "firebase-tools": "^11.23.1",
     "html-inline-css-webpack-plugin": "^1.11.1",
