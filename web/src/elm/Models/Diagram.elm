@@ -1,6 +1,7 @@
 module Models.Diagram exposing
     ( ContextMenu(..)
     , ContextMenuProps
+    , Diagram
     , Distance
     , DragStatus(..)
     , IsWheelEvent
@@ -11,17 +12,18 @@ module Models.Diagram exposing
     , ResizeDirection(..)
     , SelectedItem
     , SelectedItemInfo
-    , SvgSize
     , dragStart
     , moveOrZoom
     , moveingItem
     , ofDiagramType
+    , ofIsFullscreen
+    , ofMovePosition
     , ofPosition
     , ofScale
     , ofSettings
     , ofShowZoomControl
-    , ofSize
     , ofText
+    , ofWindowSize
     , size
     , updatedText
     )
@@ -93,12 +95,10 @@ type DragStatus
 type alias Model =
     { items : Items
     , data : DiagramData.Data
-    , size : Size
-    , svg : SvgSize
+    , windowSize : Size
+    , diagram : Diagram
     , moveState : MoveState
-    , position : Position
     , movePosition : Position
-    , isFullscreen : Bool
     , settings : DiagramSettings.Settings
     , showZoomControl : Bool
     , showMiniMap : Bool
@@ -189,9 +189,11 @@ type alias SelectedItemInfo =
     }
 
 
-type alias SvgSize =
+type alias Diagram =
     { size : Size
     , scale : Scale
+    , position : Position
+    , isFullscreen : Bool
     }
 
 
@@ -278,12 +280,22 @@ ofDiagramType =
 
 ofPosition : Lens Model Position
 ofPosition =
-    Lens .position (\b a -> { a | position = b })
+    ofDiagram |> Compose.lensWithLens diagramOfPosition
+
+
+ofIsFullscreen : Lens Model Bool
+ofIsFullscreen =
+    ofDiagram |> Compose.lensWithLens diagramOfIsFullscreen
 
 
 ofScale : Lens Model Scale
 ofScale =
-    ofSvg |> Compose.lensWithLens svgOfScale
+    ofDiagram |> Compose.lensWithLens diagramOfScale
+
+
+ofMovePosition : Lens Model Position
+ofMovePosition =
+    Lens .movePosition (\b a -> { a | movePosition = b })
 
 
 ofSettings : Lens Model DiagramSettings.Settings
@@ -296,9 +308,9 @@ ofShowZoomControl =
     Lens .showZoomControl (\b a -> { a | showZoomControl = b })
 
 
-ofSize : Lens Model Size
-ofSize =
-    Lens .size (\b a -> { a | size = b })
+ofWindowSize : Lens Model Size
+ofWindowSize =
+    Lens .windowSize (\b a -> { a | windowSize = b })
 
 
 ofText : Lens Model Text
@@ -372,11 +384,21 @@ updatedText model text =
     { model | text = text }
 
 
-ofSvg : Lens Model SvgSize
-ofSvg =
-    Lens .svg (\b a -> { a | svg = b })
+ofDiagram : Lens Model Diagram
+ofDiagram =
+    Lens .diagram (\b a -> { a | diagram = b })
 
 
-svgOfScale : Lens SvgSize Scale
-svgOfScale =
+diagramOfScale : Lens Diagram Scale
+diagramOfScale =
     Lens .scale (\b a -> { a | scale = b })
+
+
+diagramOfPosition : Lens Diagram Position
+diagramOfPosition =
+    Lens .position (\b a -> { a | position = b })
+
+
+diagramOfIsFullscreen : Lens Diagram Bool
+diagramOfIsFullscreen =
+    Lens .isFullscreen (\b a -> { a | isFullscreen = b })

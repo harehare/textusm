@@ -85,7 +85,13 @@ view model =
                     :: (Dict.toList tableDict
                             |> List.map
                                 (\( _, t ) ->
-                                    Lazy.lazy tableView { settings = model.settings, svgSize = model.size, pos = getPosition t.position, tableSize = t.size, table = t.table }
+                                    Lazy.lazy tableView
+                                        { settings = model.settings
+                                        , svgSize = model.windowSize
+                                        , pos = getPosition t.position
+                                        , tableSize = t.size
+                                        , table = t.table
+                                        }
                                 )
                        )
                 )

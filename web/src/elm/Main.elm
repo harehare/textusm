@@ -212,9 +212,9 @@ changeRouteTo route =
                                     |> DiagramModel.ofShowZoomControl.set False
                                     |> DiagramModel.ofDiagramType.set diagram
                                     |> DiagramModel.ofScale.set (Scale.fromFloat 1.0)
-                                    |> DiagramModel.ofSize.set
-                                        ( Maybe.withDefault (Size.getWidth m.diagramModel.size) width
-                                        , Maybe.withDefault (Size.getHeight m.diagramModel.size) height
+                                    |> DiagramModel.ofWindowSize.set
+                                        ( Maybe.withDefault (Size.getWidth m.diagramModel.windowSize) width
+                                        , Maybe.withDefault (Size.getHeight m.diagramModel.windowSize) height
                                         )
                             , window = m.window |> Window.fullscreen
                         }
@@ -612,7 +612,7 @@ updateWindowState =
             { m
                 | window =
                     m.window
-                        |> (if Utils.isPhone (Size.getWidth m.diagramModel.size) then
+                        |> (if Utils.isPhone (Size.getWidth m.diagramModel.windowSize) then
                                 Window.showEditor
 
                             else if Window.isFullscreen m.window then
@@ -731,9 +731,17 @@ update message =
                                             scale : Float
                                             scale =
                                                 toFloat w
-                                                    / toFloat (Size.getWidth m_.svg.size)
+                                                    / toFloat (Size.getWidth m_.diagram.size)
                                         in
-                                        { m_ | size = ( w, h ), svg = { size = ( w, h ), scale = Scale.fromFloat scale } }
+                                        { m_
+                                            | windowSize = ( w, h )
+                                            , diagram =
+                                                { size = ( w, h )
+                                                , scale = Scale.fromFloat scale
+                                                , position = m_.diagram.position
+                                                , isFullscreen = m_.diagram.isFullscreen
+                                                }
+                                        }
 
                                     _ ->
                                         m_
@@ -754,7 +762,7 @@ update message =
                                 DiagramModel.ToggleFullscreen ->
                                     Return.andThen
                                         (\m_ ->
-                                            Return.singleton { m_ | window = windowState m_.window m_.diagramModel.isFullscreen m_.diagramModel.size }
+                                            Return.singleton { m_ | window = windowState m_.window m_.diagramModel.diagram.isFullscreen m_.diagramModel.windowSize }
                                                 |> Action.toggleFullscreen m_.window
                                         )
 
@@ -819,7 +827,7 @@ update message =
                 (\m ->
                     let
                         ( posX, posY ) =
-                            m.diagramModel.position
+                            m.diagramModel.diagram.position
                     in
                     Exporter.export
                         exportDiagram
@@ -1046,7 +1054,7 @@ update message =
                                     , diagramId = Maybe.map DiagramId.toString m.currentDiagram.id
                                     , storyMap =
                                         DiagramSettings.ofScale.set
-                                            (m.diagramModel.svg.scale
+                                            (m.diagramModel.diagram.scale
                                                 |> Scale.toFloat
                                                 |> Just
                                             )
@@ -1279,7 +1287,7 @@ update message =
                                     | diagramModel = m_
                                     , window =
                                         m.window
-                                            |> (if Utils.isPhone (Size.getWidth m.diagramModel.size) then
+                                            |> (if Utils.isPhone (Size.getWidth m.diagramModel.windowSize) then
                                                     Window.showEditor
 
                                                 else
@@ -1499,7 +1507,7 @@ view model =
                     , route = toRoute model.url
                     , lang = model.lang
                     , text = model.diagramModel.text
-                    , width = Size.getWidth model.diagramModel.size
+                    , width = Size.getWidth model.diagramModel.windowSize
                     , openMenu = model.openMenu
                     , settings = model.settingsModel.settings
                     , currentDiagram = model.currentDiagram
@@ -1563,7 +1571,7 @@ view model =
                             let
                                 mainWindow : Html Msg -> Html Msg
                                 mainWindow =
-                                    if Size.getWidth model.diagramModel.size > 0 && Utils.isPhone (Size.getWidth model.diagramModel.size) then
+                                    if Size.getWidth model.diagramModel.windowSize > 0 && Utils.isPhone (Size.getWidth model.diagramModel.windowSize) then
                                         Lazy.lazy5 SwitchWindow.view
                                             M.SwitchWindow
                                             model.diagramModel.settings.backgroundColor

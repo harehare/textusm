@@ -31,7 +31,7 @@ view model =
                 []
                 [ Lazy.lazy labelView
                     { settings = model.settings
-                    , width = Size.getWidth model.svg.size
+                    , width = Size.getWidth model.diagram.size
                     , userStoryMap = userStoryMap
                     , property = model.property
                     }
