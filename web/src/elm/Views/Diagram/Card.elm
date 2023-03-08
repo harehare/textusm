@@ -1,4 +1,4 @@
-module Views.Diagram.Card exposing (text, view, viewWithDefaultColor)
+module Views.Diagram.Card exposing (text, viewWithDefaultColor)
 
 import Attributes
 import Css exposing (backgroundColor, property)

@@ -4,12 +4,7 @@ port module Ports exposing
     , closeFullscreen
     , closeLocalFile
     , copyText
-    , copyToClipboardPng
     , downloadCompleted
-    , downloadHtml
-    , downloadPdf
-    , downloadPng
-    , downloadSvg
     , focusEditor
     , fullscreen
     , getDiagram
@@ -65,22 +60,7 @@ port closeLocalFile : () -> Cmd msg
 port copyText : String -> Cmd msg
 
 
-port copyToClipboardPng : DownloadInfo -> Cmd msg
-
-
 port downloadCompleted : (( Int, Int ) -> msg) -> Sub msg
-
-
-port downloadHtml : DownloadInfo -> Cmd msg
-
-
-port downloadPdf : DownloadInfo -> Cmd msg
-
-
-port downloadPng : DownloadInfo -> Cmd msg
-
-
-port downloadSvg : DownloadInfo -> Cmd msg
 
 
 port focusEditor : () -> Cmd msg
@@ -185,13 +165,3 @@ port updateIdToken : (String -> msg) -> Sub msg
 port selectItemFromLineNo : ({ lineNo : Int, text : String } -> msg) -> Sub msg
 
 
-type alias DownloadInfo =
-    { width : Int
-    , height : Int
-    , id : String
-    , title : String
-    , text : String
-    , x : Float
-    , y : Float
-    , diagramType : String
-    }

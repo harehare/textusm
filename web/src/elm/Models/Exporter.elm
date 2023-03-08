@@ -1,4 +1,4 @@
-port module Models.Exporter exposing (Export(..), ExportInfo, copy, copyBase64, copyable, download, downloadable, export)
+port module Models.Exporter exposing (Export(..), ExportInfo, copyable, downloadable, export)
 
 import File.Download as Download
 import Models.Diagram.Data as DiagramData
@@ -101,6 +101,7 @@ export e { title, text, size, diagramType, items, data } =
 
                 _ ->
                     let
+                        action : Maybe ( ExportInfo -> Cmd msg, String )
                         action =
                             case fileType of
                                 FileType.Png ex ->

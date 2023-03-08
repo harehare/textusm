@@ -4,8 +4,6 @@ module Message exposing
     , langFromString
     , messagEerrorOccurred
     , messageBadRequest
-    , messageCopiedImage
-    , messageCopiedText
     , messageFailedLoadSettings
     , messageFailedPublished
     , messageFailedRevokeToken
@@ -89,26 +87,6 @@ messageBadRequest lang =
 
         _ ->
             "Bad request"
-
-
-messageCopiedImage : Lang -> String
-messageCopiedImage lang =
-    case lang of
-        Ja ->
-            "イメージをクリップボードにコピーしました"
-
-        _ ->
-            "Copied the png to clipboard"
-
-
-messageCopiedText : Lang -> String
-messageCopiedText lang =
-    case lang of
-        Ja ->
-            "テキストをクリップボードにコピーしました"
-
-        _ ->
-            "Copied the text to clipboard"
 
 
 messageFailedPublished : Lang -> String
