@@ -388,6 +388,25 @@ map f (Items items) =
     List.map f items
 
 
+mapWithRecursiveHelper : (Item -> Item) -> Item -> Item
+mapWithRecursiveHelper f item =
+    case getChildren item of
+        Children (Items []) ->
+            f item
+
+        _ ->
+            withChildren
+                (getChildren item
+                    |> unwrapChildren
+                    |> unwrap
+                    |> List.map (mapWithRecursiveHelper f)
+                    |> Items
+                    |> Children
+                )
+                (f item)
+
+
+
 mapWithRecursive : (Item -> Item) -> Items -> Items
 mapWithRecursive f (Items items) =
     Items <| List.map (mapWithRecursiveHelper f) items
@@ -679,23 +698,6 @@ loadText_ { indent, input, lineNo } =
                     (filter (\(Item item) -> not <| ItemValue.isCooment item.value) otherItems)
                 )
 
-
-mapWithRecursiveHelper : (Item -> Item) -> Item -> Item
-mapWithRecursiveHelper f item =
-    case getChildren item of
-        Children (Items []) ->
-            f item
-
-        _ ->
-            withChildren
-                (getChildren item
-                    |> unwrapChildren
-                    |> unwrap
-                    |> List.map (mapWithRecursiveHelper f)
-                    |> Items
-                    |> Children
-                )
-                (f item)
 
 
 parse : Int -> String -> ( List String, List String )

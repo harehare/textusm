@@ -165,10 +165,10 @@ labelView { settings, property, width, userStoryMap } =
 
 activityView : DiagramSettings.Settings -> Property -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
 activityView settings property verticalCount ( posX, posY ) selectedItem item =
-    Keyed.node "g"
+    Svg.g
         []
-        (( "activity-" ++ Item.getText item
-         , Lazy.lazy Card.viewWithDefaultColor
+    <|
+        Lazy.lazy Card.viewWithDefaultColor
             { settings = settings
             , property = property
             , position = ( posX, posY )
@@ -176,12 +176,10 @@ activityView settings property verticalCount ( posX, posY ) selectedItem item =
             , item = item
             , canMove = True
             }
-         )
             :: (Item.unwrapChildren (Item.getChildren item)
                     |> Item.indexedMap
                         (\i it ->
-                            ( "task-" ++ Item.getText it
-                            , taskView
+                            taskView
                                 settings
                                 property
                                 verticalCount
@@ -197,10 +195,8 @@ activityView settings property verticalCount ( posX, posY ) selectedItem item =
                                 )
                                 selectedItem
                                 it
-                            )
                         )
                )
-        )
 
 
 taskView : DiagramSettings.Settings -> Property -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
@@ -210,10 +206,11 @@ taskView settings property verticalCount ( posX, posY ) selectedItem item =
         children =
             Item.unwrapChildren <| Item.getChildren item
     in
-    Keyed.node "g"
+    Svg.g
         []
-        (( "task-" ++ Item.getText item
-         , Lazy.lazy Card.viewWithDefaultColor
+    <|
+        Lazy.lazy
+            Card.viewWithDefaultColor
             { settings = settings
             , property = property
             , position = ( posX, posY )
@@ -221,35 +218,32 @@ taskView settings property verticalCount ( posX, posY ) selectedItem item =
             , item = item
             , canMove = True
             }
-         )
             :: (children
                     |> Item.indexedMap
                         (\i it ->
-                            ( "story-" ++ Item.getText it
-                            , storyView settings
-                                property
-                                verticalCount
-                                (Item.length children)
-                                ( posX
-                                , posY
-                                    + ((i + 1) * settings.size.height)
-                                    + (Constants.itemMargin * 2)
-                                    + (if i > 0 then
-                                        Constants.itemMargin * i
+                            Svg.g [] <|
+                                storyView settings
+                                    property
+                                    verticalCount
+                                    (Item.length children)
+                                    ( posX
+                                    , posY
+                                        + ((i + 1) * settings.size.height)
+                                        + (Constants.itemMargin * 2)
+                                        + (if i > 0 then
+                                            Constants.itemMargin * i
 
-                                       else
-                                        0
-                                      )
-                                )
-                                selectedItem
-                                it
-                            )
+                                           else
+                                            0
+                                          )
+                                    )
+                                    selectedItem
+                                    it
                         )
                )
-        )
 
 
-storyView : DiagramSettings.Settings -> Property -> List Int -> Int -> Position -> SelectedItem -> Item -> Svg Msg
+storyView : DiagramSettings.Settings -> Property -> List Int -> Int -> Position -> SelectedItem -> Item -> List (Svg Msg)
 storyView settings property verticalCount parentCount ( posX, posY ) selectedItem item =
     let
         itemCount : Int
@@ -267,41 +261,38 @@ storyView settings property verticalCount parentCount ( posX, posY ) selectedIte
         tail : List Int
         tail =
             List.tail verticalCount |> Maybe.withDefault []
-    in
-    Keyed.node "g"
-        []
-        (( "story-" ++ Item.getText item
-         , Lazy.lazy Card.viewWithDefaultColor
-            { settings = settings
-            , property = property
-            , position = ( posX, posY )
-            , selectedItem = selectedItem
-            , item = item
-            , canMove = True
-            }
-         )
-            :: (children
-                    |> Item.indexedMap
-                        (\i it ->
-                            ( "story-" ++ Item.getText item
-                            , storyView
-                                settings
-                                property
-                                tail
-                                childrenLength
-                                ( posX
-                                , posY
-                                    + (Basics.max 1 (itemCount - parentCount + i + 1)
-                                        * (Constants.itemMargin + settings.size.height)
-                                      )
-                                    + Constants.itemMargin
-                                )
-                                selectedItem
-                                it
-                            )
+
+        storyViewHelper : Items -> List (Svg Msg)
+        storyViewHelper children_ =
+            Item.indexedMap
+                (\i it ->
+                    storyView
+                        settings
+                        property
+                        tail
+                        childrenLength
+                        ( posX
+                        , posY
+                            + (Basics.max 1 (itemCount - parentCount + i + 1)
+                                * (Constants.itemMargin + settings.size.height)
+                              )
+                            + Constants.itemMargin
                         )
-               )
-        )
+                        selectedItem
+                        it
+                )
+                children_
+                |> List.concat
+    in
+    Lazy.lazy Card.viewWithDefaultColor
+        { settings = settings
+        , property = property
+        , position = ( posX, posY )
+        , selectedItem = selectedItem
+        , item = item
+        , canMove = True
+        }
+        :: storyViewHelper children
 
 
 labelTextView : DiagramSettings.Settings -> Position -> String -> Svg Msg
