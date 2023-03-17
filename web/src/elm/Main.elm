@@ -38,7 +38,7 @@ import Models.Dialog as Dialog
 import Models.Exporter as Exporter
 import Models.IdToken as IdToken
 import Models.Jwt as Jwt
-import Models.LoginProvider as LoginProdiver
+import Models.LoginProvider as LoginProvider
 import Models.Model as M exposing (Model, Msg)
 import Models.Notification as Notification
 import Models.Page as Page exposing (Page)
@@ -193,12 +193,12 @@ changeRouteTo route =
             Return.andThen
                 (\m ->
                     Return.singleton m
-                        |> (if Session.isSignedIn m.session && m.currentDiagram.isRemote then
-                                initShareDiagram m.currentDiagram
-                                    >> startProgress
+                        |> (case ( m.session, m.currentDiagram.location ) of
+                                ( Session.SignedIn _, Just DiagramLocation.Remote ) ->
+                                    initShareDiagram m.currentDiagram >> startProgress
 
-                            else
-                                moveTo Route.Home
+                                _ ->
+                                    moveTo Route.Home
                            )
                 )
 
@@ -639,20 +639,13 @@ showConfirmDialog title message route =
     Return.map <| \m -> { m | confirmDialog = Dialog.Show { title = title, message = message, ok = M.MoveTo route, cancel = M.CloseDialog } }
 
 
-startEditTitle : Return.ReturnF Msg Model
-startEditTitle =
-    Task.succeed M.StartEditTitle
-        |> Task.perform identity
-        |> Return.command
-
-
 openCurrentFile : DiagramItem -> Return.ReturnF Msg Model
 openCurrentFile diagram =
-    (case ( diagram.isRemote, diagram.isPublic ) of
-        ( True, True ) ->
+    (case ( diagram.location, diagram.isPublic ) of
+        ( Just DiagramLocation.Remote, True ) ->
             pushUrl (Route.toString <| ViewPublic diagram.diagram (DiagramItem.getId diagram))
 
-        ( True, False ) ->
+        ( Just DiagramLocation.Remote, False ) ->
             pushUrl (Route.toString <| EditFile diagram.diagram (DiagramItem.getId diagram))
 
         _ ->
@@ -858,61 +851,48 @@ update message =
         M.Save ->
             Return.andThen
                 (\m ->
+                    let
+                        location : Location
+                        location =
+                            m.currentDiagram.location
+                                |> Maybe.withDefault
+                                    (if
+                                        m.currentDiagram
+                                            |> DiagramItem.isRemoteDiagram m.session
+                                     then
+                                        m.settingsModel.settings.location
+                                            |> Maybe.withDefault DiagramLocation.Remote
+
+                                     else
+                                        DiagramLocation.Local
+                                    )
+
+                        newDiagramModel : DiagramModel.Model
+                        newDiagramModel =
+                            DiagramModel.updatedText m.diagramModel (Text.saved m.diagramModel.text)
+
+                        diagram : DiagramItem
+                        diagram =
+                            m.currentDiagram
+                                |> DiagramItem.ofText.set newDiagramModel.text
+                                |> DiagramItem.ofThumbnail.set Nothing
+                                |> DiagramItem.ofLocation.set (Just location)
+                                |> DiagramItem.ofDiagram.set newDiagramModel.diagramType
+                    in
                     Return.singleton m
-                        |> (if Title.isUntitled m.currentDiagram.title then
-                                startEditTitle
+                        |> Return.map
+                            (\m_ ->
+                                { m_
+                                    | diagramModel = newDiagramModel
+                                    , diagramListModel = m_.diagramListModel |> DiagramList.modelOfDiagramList.set DiagramList.notAsked
+                                }
+                            )
+                        >> (case ( location, Session.loginProvider m.session ) of
+                                ( DiagramLocation.Gist, Just (LoginProvider.Github Nothing) ) ->
+                                    Return.command <| Ports.getGithubAccessToken "save"
 
-                            else
-                                let
-                                    location : Maybe Location
-                                    location =
-                                        m.currentDiagram.id |> Maybe.map (\_ -> m.currentDiagram.location) |> Maybe.withDefault m.settingsModel.settings.location
-                                in
-                                case ( location, Session.isGithubUser m.session, Session.getAccessToken m.session ) of
-                                    ( Just DiagramLocation.Gist, True, Nothing ) ->
-                                        Return.command <| Ports.getGithubAccessToken "save"
-
-                                    _ ->
-                                        let
-                                            isRemote : Bool
-                                            isRemote =
-                                                m.currentDiagram
-                                                    |> DiagramItem.isRemoteDiagram m.session
-
-                                            newDiagramModel : DiagramModel.Model
-                                            newDiagramModel =
-                                                DiagramModel.updatedText m.diagramModel (Text.saved m.diagramModel.text)
-                                        in
-                                        Return.map
-                                            (\m_ ->
-                                                { m_
-                                                    | diagramModel = newDiagramModel
-                                                    , diagramListModel = m_.diagramListModel |> DiagramList.modelOfDiagramList.set DiagramList.notAsked
-                                                }
-                                            )
-                                            >> Action.saveDiagram
-                                                { id = m.currentDiagram.id
-                                                , text = newDiagramModel.text
-                                                , diagram = newDiagramModel.diagramType
-                                                , title = m.currentDiagram.title
-                                                , thumbnail = Nothing
-                                                , isPublic = m.currentDiagram.isPublic
-                                                , isBookmark = False
-                                                , isRemote = isRemote
-                                                , location =
-                                                    case m.currentDiagram.location of
-                                                        Just loc ->
-                                                            Just loc
-
-                                                        Nothing ->
-                                                            if isRemote then
-                                                                Just DiagramLocation.Remote
-
-                                                            else
-                                                                Just DiagramLocation.Local
-                                                , createdAt = Time.millisToPosix 0
-                                                , updatedAt = Time.millisToPosix 0
-                                                }
+                                _ ->
+                                    Action.saveDiagram diagram
                            )
                 )
 
@@ -936,18 +916,11 @@ update message =
                     let
                         item : DiagramItem
                         item =
-                            { id = Nothing
-                            , text = m.diagramModel.text
-                            , diagram = m.diagramModel.diagramType
-                            , title = m.currentDiagram.title
-                            , thumbnail = Nothing
-                            , isPublic = False
-                            , isBookmark = False
-                            , isRemote = False
-                            , location = Just DiagramLocation.Local
-                            , createdAt = Time.millisToPosix 0
-                            , updatedAt = Time.millisToPosix 0
-                            }
+                            m.currentDiagram
+                                |> DiagramItem.ofText.set m.diagramModel.text
+                                |> DiagramItem.ofThumbnail.set Nothing
+                                |> DiagramItem.ofLocation.set (Just DiagramLocation.Local)
+                                |> DiagramItem.ofDiagram.set m.diagramModel.diagramType
                     in
                     Return.singleton m
                         |> setCurrentDiagram item
@@ -1003,7 +976,7 @@ update message =
                 >> needSaved
 
         M.SignIn provider ->
-            Return.command (Ports.signIn <| LoginProdiver.toString provider)
+            Return.command (Ports.signIn <| LoginProvider.toString provider)
                 >> startProgress
 
         M.SignOut ->
@@ -1389,11 +1362,11 @@ processDiagramListMsg : DiagramList.Msg -> Return.ReturnF Msg Model
 processDiagramListMsg msg =
     case msg of
         DiagramList.Select diagram ->
-            (case ( diagram.isRemote, diagram.isPublic ) of
-                ( True, True ) ->
+            (case ( diagram.location, diagram.isPublic ) of
+                ( Just DiagramLocation.Remote, True ) ->
                     pushUrl (Route.toString <| ViewPublic diagram.diagram (DiagramItem.getId diagram))
 
-                ( True, False ) ->
+                ( Just DiagramLocation.Remote, False ) ->
                     pushUrl (Route.toString <| EditFile diagram.diagram (DiagramItem.getId diagram))
 
                 _ ->

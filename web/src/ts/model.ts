@@ -6,22 +6,12 @@ export type DiagramItem = {
   diagram: string;
   isBookmark: boolean;
   isPublic: boolean;
-  isRemote: boolean;
-  location: 'local' | 'gist' | 'system' | 'googledrive';
+  location: DiagramLocation;
   createdAt: number;
   updatedAt: number;
 };
 
-export type Diagram = {
-  id: string;
-  title: string;
-  text: string;
-  diagram: string;
-  isPublic: boolean;
-  isRemote: boolean;
-  isBookmark: boolean;
-  location: 'local' | 'gist' | 'system' | 'googledrive';
-};
+export type Diagram = Omit<DiagramItem, 'createdAt' | 'updatedAt' | 'thumbnail'>;
 
 export type Theme = 'system' | 'dark' | 'light';
 

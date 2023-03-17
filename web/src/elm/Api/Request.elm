@@ -18,7 +18,7 @@ module Api.Request exposing
     )
 
 import Api.External.Github.GistInput exposing (GistInput)
-import Api.External.Github.Request as GithubRequest exposing (AccessToken, GistId)
+import Api.External.Github.Request as GithubRequest exposing (AccessToken)
 import Api.Graphql.Mutation as Mutation
 import Api.Graphql.Query as Query
 import Api.RequestError as RequestError exposing (RequestError, toError)
@@ -28,7 +28,7 @@ import Graphql.Http as Http
 import Graphql.InputObject exposing (InputGistItem, InputItem, InputSettings)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
-import Models.Diagram.Id as DiagramId
+import Models.Diagram.Id as DiagramId exposing (DiagramId)
 import Models.Diagram.Item exposing (DiagramItem)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type exposing (DiagramType)
@@ -60,9 +60,9 @@ bookmark idToken itemID isBookmark =
         |> Task.mapError toError
 
 
-delete : Maybe IdToken -> String -> Bool -> Task RequestError String
+delete : Maybe IdToken -> DiagramId -> Bool -> Task RequestError String
 delete idToken itemID isPublic =
-    Mutation.delete itemID isPublic
+    Mutation.delete (DiagramId.toString itemID) isPublic
         |> Http.mutationRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
@@ -70,13 +70,13 @@ delete idToken itemID isPublic =
         |> Task.mapError toError
 
 
-deleteGist : Maybe IdToken -> AccessToken -> GistId -> Task RequestError String
+deleteGist : Maybe IdToken -> AccessToken -> DiagramId -> Task RequestError String
 deleteGist idToken accessToken gistId =
     GithubRequest.deleteGist accessToken gistId
         |> Task.mapError RequestError.fromHttpError
         |> Task.andThen
             (\_ ->
-                Mutation.deleteGist gistId
+                Mutation.deleteGist (DiagramId.toString gistId)
                     |> Http.mutationRequest graphQLUrl
                     |> authHeaders idToken
                     |> Http.toTask
@@ -85,13 +85,13 @@ deleteGist idToken accessToken gistId =
             )
 
 
-gistItem : Maybe IdToken -> AccessToken -> GistId -> Task RequestError DiagramItem
+gistItem : Maybe IdToken -> AccessToken -> DiagramId -> Task RequestError DiagramItem
 gistItem idToken accessToken gistId =
     GithubRequest.getGist accessToken gistId
         |> Task.mapError RequestError.fromHttpError
         |> Task.andThen
             (\gist ->
-                Query.gistItem gistId
+                Query.gistItem (DiagramId.toString gistId)
                     |> Http.queryRequest graphQLUrl
                     |> authHeaders idToken
                     |> Http.toTask

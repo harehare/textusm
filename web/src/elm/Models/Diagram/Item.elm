@@ -12,7 +12,9 @@ module Models.Diagram.Item exposing
     , mapToDateTime
     , new
     , ofDiagram
+    , ofLocation
     , ofText
+    , ofThumbnail
     , ofTitle
     , stringToList
     , toInputGistItem
@@ -20,6 +22,7 @@ module Models.Diagram.Item exposing
     )
 
 import Graphql.InputObject exposing (InputGistItem, InputItem)
+import Graphql.Object.GistItem exposing (thumbnail)
 import Graphql.OptionalArgument as OptionalArgument
 import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
@@ -46,7 +49,6 @@ type alias DiagramItem =
     , thumbnail : Maybe String
     , isPublic : Bool
     , isBookmark : Bool
-    , isRemote : Bool
     , location : Maybe Location
     , createdAt : Posix
     , updatedAt : Posix
@@ -62,7 +64,6 @@ copy diagram =
     , thumbnail = diagram.thumbnail
     , isPublic = False
     , isBookmark = False
-    , isRemote = False
     , location = Nothing
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
@@ -79,26 +80,10 @@ decoder =
         |> optional "thumbnail" (D.map Just D.string) Nothing
         |> required "isPublic" D.bool
         |> required "isBookmark" D.bool
-        |> required "isRemote" D.bool
         |> optional "location" (D.map Just DiagramLocation.decoder) Nothing
         |> required "createdAt" (D.map Time.millisToPosix D.int)
         |> required "updatedAt" (D.map Time.millisToPosix D.int)
 
-
-empty : DiagramItem
-empty =
-    { id = Nothing
-    , text = Text.empty
-    , diagram = DiagramType.UserStoryMap
-    , title = Title.untitled
-    , thumbnail = Nothing
-    , isPublic = False
-    , isBookmark = False
-    , isRemote = False
-    , location = Just DiagramLocation.Local
-    , createdAt = Time.millisToPosix 0
-    , updatedAt = Time.millisToPosix 0
-    }
 
 
 encoder : DiagramItem -> E.Value
@@ -111,7 +96,6 @@ encoder diagram =
         , ( "thumbnail", maybe E.string diagram.thumbnail )
         , ( "isPublic", E.bool diagram.isPublic )
         , ( "isBookmark", E.bool diagram.isBookmark )
-        , ( "isRemote", E.bool diagram.isRemote )
         , ( "location", maybe E.string <| Maybe.map DiagramLocation.toString diagram.location )
         , ( "createdAt", E.int <| Time.posixToMillis diagram.createdAt )
         , ( "updatedAt", E.int <| Time.posixToMillis diagram.updatedAt )
@@ -183,6 +167,22 @@ mapToDateTime =
         )
 
 
+empty : DiagramItem
+empty =
+    { id = Nothing
+    , text = Text.empty
+    , diagram = DiagramType.UserStoryMap
+    , title = Title.untitled
+    , thumbnail = Nothing
+    , isPublic = False
+    , isBookmark = False
+    , location = Nothing
+    , createdAt = Time.millisToPosix 0
+    , updatedAt = Time.millisToPosix 0
+    }
+
+
+
 new : DiagramType -> DiagramItem
 new diagramType =
     { id = Nothing
@@ -192,8 +192,7 @@ new diagramType =
     , thumbnail = Nothing
     , isPublic = False
     , isBookmark = False
-    , isRemote = False
-    , location = Just DiagramLocation.Local
+    , location = Nothing
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
     }
@@ -212,6 +211,16 @@ ofTitle =
 ofDiagram : Lens DiagramItem DiagramType
 ofDiagram =
     Lens .diagram (\b a -> { a | diagram = b })
+
+
+ofThumbnail : Lens DiagramItem (Maybe String)
+ofThumbnail =
+    Lens .thumbnail (\b a -> { a | thumbnail = b })
+
+
+ofLocation : Lens DiagramItem (Maybe Location)
+ofLocation =
+    Lens .location (\b a -> { a | location = b })
 
 
 stringToList : String -> Result D.Error (List DiagramItem)

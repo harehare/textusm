@@ -92,10 +92,7 @@ loadItem msg { id, session } =
             case user.loginProvider of
                 LoginProvider.Github (Just accessToken) ->
                     if DiagramId.isGithubId id then
-                        Request.gistItem
-                            (Session.getIdToken session)
-                            accessToken
-                            (DiagramId.toString id)
+                        Request.gistItem (Session.getIdToken session) accessToken id
                             |> Task.attempt msg
                             |> Return.command
 
@@ -214,13 +211,6 @@ revokeGistToken msg session =
             Return.zero
 
 
-saveDiagram : DiagramItem -> Return.ReturnF msg model
-saveDiagram item =
-    DiagramItem.encoder item
-        |> Ports.saveDiagram
-        |> Return.command
-
-
 saveLocalFile : DiagramItem -> Return.ReturnF msg model
 saveLocalFile item =
     DiagramItem.encoder
@@ -254,7 +244,14 @@ saveSettings msg { diagramType, session, settings } =
 
 saveToLocal : DiagramItem -> Return.ReturnF msg model
 saveToLocal item =
-    DiagramItem.encoder { item | isRemote = False }
+    DiagramItem.encoder { item | location = Just DiagramLocation.Local }
+        |> Ports.saveDiagram
+        |> Return.command
+
+
+saveDiagram : DiagramItem -> Return.ReturnF msg model
+saveDiagram item =
+    DiagramItem.encoder item
         |> Ports.saveDiagram
         |> Return.command
 

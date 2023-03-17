@@ -81,43 +81,38 @@ export const initDB = (app: ElmApp): void => {
     )}`;
   };
 
-  app.ports.saveDiagram.subscribe(
-    async ({ id, title, text, diagram, location, isPublic, isBookmark, isRemote }: Diagram) => {
-      const thumbnail = await svg2base64('usm');
-      const createdAt = Date.now();
-      const diagramItem: DiagramItem = {
-        id,
-        title,
-        text,
-        thumbnail,
-        diagram,
-        isPublic,
-        isRemote,
-        isBookmark,
-        location,
-        createdAt,
-        updatedAt: createdAt,
-      };
+  app.ports.saveDiagram.subscribe(async ({ id, title, text, diagram, location, isPublic, isBookmark }: Diagram) => {
+    const thumbnail = await svg2base64('usm');
+    const createdAt = Date.now();
+    const diagramItem: DiagramItem = {
+      id,
+      title,
+      text,
+      thumbnail,
+      diagram,
+      isPublic,
+      isBookmark,
+      location,
+      createdAt,
+      updatedAt: createdAt,
+    };
 
-      if (isRemote) {
-        app.ports.saveToRemote.send({
-          ...diagramItem,
-          isRemote: true,
-          id,
-          isPublic,
-        });
-      } else {
-        const item = {
-          ...diagramItem,
-          isRemote: false,
-          id: id ?? uuidv4(),
-          isPublic: false,
-        };
-        await db.diagrams.put(item);
-        app.ports.saveToLocalCompleted.send(item);
-      }
+    if (location === 'local') {
+      const item = {
+        ...diagramItem,
+        id: id ?? uuidv4(),
+        isPublic: false,
+      };
+      await db.diagrams.put(item);
+      app.ports.saveToLocalCompleted.send(item);
+    } else {
+      app.ports.saveToRemote.send({
+        ...diagramItem,
+        id,
+        isPublic,
+      });
     }
-  );
+  });
 
   app.ports.importDiagram.subscribe(async (diagrams: DiagramItem[]) => {
     await db.diagrams.bulkPut(diagrams);
@@ -125,8 +120,8 @@ export const initDB = (app: ElmApp): void => {
   });
 
   app.ports.removeDiagrams.subscribe(async (diagram: Diagram) => {
-    const { id, isRemote } = diagram;
-    if (isRemote) {
+    const { id, location } = diagram;
+    if (location === 'remote') {
       app.ports.removeRemoteDiagram.send(diagram);
     } else {
       await db.diagrams.delete(id);
@@ -141,7 +136,6 @@ export const initDB = (app: ElmApp): void => {
       app.ports.gotLocalDiagramJson.send({
         ...diagram,
         isPublic: false,
-        isRemote: false,
       });
     }
   });

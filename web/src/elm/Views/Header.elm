@@ -228,12 +228,10 @@ view props =
 
 canChangePublicState : Props -> Bool
 canChangePublicState props =
-    case ( props.currentDiagram.id, props.currentDiagram.isRemote ) of
-        ( Just _, True ) ->
-            canEdit props && props.isOnline
-
-        _ ->
-            False
+    props.currentDiagram.id
+        |> Maybe.andThen (\_ -> props.currentDiagram.location)
+        |> Maybe.map (\loc -> DiagramLocation.isRemote loc && canEdit props && props.isOnline)
+        |> Maybe.withDefault False
 
 
 canEdit : Props -> Bool

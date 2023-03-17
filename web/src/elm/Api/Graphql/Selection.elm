@@ -41,7 +41,6 @@ gistItemSelection =
         |> with Graphql.Object.GistItem.thumbnail
         |> hardcoded False
         |> hardcoded False
-        |> hardcoded True
         |> hardcoded (Just DiagramLocation.Gist)
         |> with (Graphql.Object.GistItem.createdAt |> DiagramItem.mapToDateTime)
         |> with (Graphql.Object.GistItem.updatedAt |> DiagramItem.mapToDateTime)
@@ -57,7 +56,6 @@ itemSelection =
         |> with Graphql.Object.Item.thumbnail
         |> with Graphql.Object.Item.isPublic
         |> with Graphql.Object.Item.isBookmark
-        |> hardcoded True
         |> hardcoded (Just DiagramLocation.Remote)
         |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
         |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)

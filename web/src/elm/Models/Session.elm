@@ -9,6 +9,7 @@ module Models.Session exposing
     , isGithubUser
     , isGuest
     , isSignedIn
+    , loginProvider
     , signIn
     , updateAccessToken
     , updateIdToken
@@ -79,6 +80,16 @@ getUser session =
 guest : Session
 guest =
     Guest
+
+
+loginProvider : Session -> Maybe LoginProvider
+loginProvider session =
+    case session of
+        SignedIn user ->
+            Just user.loginProvider
+
+        Guest ->
+            Nothing
 
 
 isGithubUser : Session -> Bool

@@ -754,7 +754,7 @@ diagramView timezone diagram =
                 , stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True ))
                 ]
                 [ Icon.clear (Color.toString Color.gray) 18 ]
-        , case ( diagram.isBookmark, diagram.isRemote ) of
+        , case ( diagram.isBookmark, diagram.location |> Maybe.map DiagramLocation.isRemote |> Maybe.withDefault False ) of
             ( True, True ) ->
                 bookmarkIconView diagram [ Icon.bookmark Color.background2Defalut 16 ]
 
@@ -841,13 +841,12 @@ update message =
         LoadNextPage (GistList _ _ hasMorePage) pageNo ->
             Return.andThen
                 (\m ->
-                    let
-                        remoteTask : Task.Task RequestError (List DiagramItem)
-                        remoteTask =
-                            Request.gistItems (Session.getIdToken m.session) (pageOffsetAndLimit pageNo)
+                    Return.return { m | diagramList = GistList Loading pageNo hasMorePage }
+                        (Task.attempt GotGistDiagrams
+                            (Request.gistItems (Session.getIdToken m.session) (pageOffsetAndLimit pageNo)
                                 |> Task.map (\i -> List.filterMap identity i)
-                    in
-                    Return.return { m | diagramList = GistList Loading pageNo hasMorePage } <| Task.attempt GotGistDiagrams remoteTask
+                            )
+                        )
                 )
 
         GetPublicDiagrams pageNo ->
@@ -1079,32 +1078,27 @@ update message =
                 (\m ->
                     case D.decodeValue DiagramItem.decoder diagramJson of
                         Ok diagram ->
-                            case diagram.location of
-                                Just DiagramLocation.Gist ->
+                            case ( diagram.location, diagram.id ) of
+                                ( Just DiagramLocation.Gist, Just diagramId ) ->
                                     case Session.getAccessToken m.session of
                                         Just accessToken ->
-                                            Return.return m
-                                                (Task.attempt Removed
-                                                    (Request.deleteGist (Session.getIdToken m.session)
-                                                        accessToken
-                                                        (diagram.id |> Maybe.withDefault (DiagramId.fromString "") |> DiagramId.toString)
-                                                        |> Task.map identity
-                                                    )
-                                                )
+                                            Request.deleteGist (Session.getIdToken m.session) accessToken diagramId
+                                                |> Task.map identity
+                                                |> Task.attempt Removed
+                                                |> Return.return m
 
-                                        Nothing ->
+                                        _ ->
                                             -- TODO: Login to github and get an access token.
                                             Return.singleton m
 
+                                ( _, Just diagramId ) ->
+                                    Request.delete (Session.getIdToken m.session) diagramId False
+                                        |> Task.map identity
+                                        |> Task.attempt Removed
+                                        |> Return.return m
+
                                 _ ->
-                                    Return.return m
-                                        (Task.attempt Removed
-                                            (Request.delete (Session.getIdToken m.session)
-                                                (diagram.id |> Maybe.withDefault (DiagramId.fromString "") |> DiagramId.toString)
-                                                False
-                                                |> Task.map identity
-                                            )
-                                        )
+                                    Return.singleton m
 
                         Err _ ->
                             Return.singleton m

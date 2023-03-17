@@ -1,18 +1,15 @@
-module Api.External.Github.Request exposing (AccessToken, GistId, createGist, deleteGist, getGist, updateGist)
+module Api.External.Github.Request exposing (AccessToken, createGist, deleteGist, getGist, updateGist)
 
 import Api.External.Github.Gist as Gist exposing (Gist)
 import Api.External.Github.GistInput as GistInput exposing (GistInput)
 import Api.Http.Request as Request
 import Http exposing (Header)
 import Json.Encode as E
+import Models.Diagram.Id as DiagramId exposing (DiagramId)
 import Task exposing (Task)
 
 
 type alias AccessToken =
-    String
-
-
-type alias GistId =
     String
 
 
@@ -28,23 +25,23 @@ createGist accessToken gist =
         (Request.jsonResolver Gist.decoder)
 
 
-deleteGist : AccessToken -> GistId -> Task Http.Error ()
+deleteGist : AccessToken -> DiagramId -> Task Http.Error ()
 deleteGist accessToken gistId =
     Request.delete
         { url = hostName
-        , path = [ gistPath, gistId ]
+        , path = [ gistPath, DiagramId.toString gistId ]
         , query = []
         , headers = headers accessToken
         }
-        (Http.jsonBody <| E.object [ ( "gistId", E.string gistId ) ])
+        (Http.jsonBody <| E.object [ ( "gistId", E.string <| DiagramId.toString gistId ) ])
         Request.emptyResolver
 
 
-getGist : AccessToken -> GistId -> Task Http.Error Gist
+getGist : AccessToken -> DiagramId -> Task Http.Error Gist
 getGist accessToken gistId =
     Request.get
         { url = hostName
-        , path = [ gistPath, gistId ]
+        , path = [ gistPath, DiagramId.toString gistId ]
         , query = []
         , headers = headers accessToken
         }
@@ -52,7 +49,7 @@ getGist accessToken gistId =
         Request.jsonResolver Gist.decoder
 
 
-updateGist : AccessToken -> GistId -> GistInput -> Task Http.Error Gist
+updateGist : AccessToken -> String -> GistInput -> Task Http.Error Gist
 updateGist accessToken gistId gist =
     Request.patch
         { url = hostName

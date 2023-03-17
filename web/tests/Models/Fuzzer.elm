@@ -51,7 +51,6 @@ diagramItemFuzzer =
         |> Fuzz.andMap (Fuzz.maybe Fuzz.string)
         |> Fuzz.andMap Fuzz.bool
         |> Fuzz.andMap Fuzz.bool
-        |> Fuzz.andMap Fuzz.bool
         |> Fuzz.andMap (Fuzz.maybe diagramLocationFuzzer)
         |> Fuzz.andMap posixFuzzer
         |> Fuzz.andMap posixFuzzer
