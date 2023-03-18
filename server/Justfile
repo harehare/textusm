@@ -42,7 +42,7 @@ lint:
 	{{ lint }} {{ module }}
 	{{ sec }} {{ target }}
 
-clean:
+tidy:
 	{{ go }} mod tidy
 
 fix:

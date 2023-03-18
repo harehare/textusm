@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rs/zerolog/log"
+	"golang.org/x/exp/slog"
 
 	"context"
 
@@ -48,6 +48,7 @@ type Env struct {
 	GithubClientID      string `envconfig:"GITHUB_CLIENT_ID"  default:""`
 	GithubClientSecret  string `envconfig:"GITHUB_CLIENT_SECRET"  default:""`
 	StorageBucketName   string `required:"true" envconfig:"STORAGE_BUCKET_NAME"`
+	GoEnv               string `required:"true" envconfig:"GO_ENV"`
 }
 
 var (
@@ -58,21 +59,23 @@ func Run() int {
 	err := envconfig.Process("", &env)
 
 	if err != nil {
-		log.Error().Msg(err.Error())
+		slog.Error("error initializing app", "error", err)
 		return 1
 	}
+
+	setupLogger(env.GoEnv)
 
 	cred, err := base64.StdEncoding.DecodeString(env.Credentials)
 
 	if err != nil {
-		log.Error().Msg(err.Error())
+		slog.Error("error initializing app", "error", err)
 		return 1
 	}
 
 	dbCred, err := base64.StdEncoding.DecodeString(env.DatabaseCredentials)
 
 	if err != nil {
-		log.Error().Msg(err.Error())
+		slog.Error("error initializing app", "error", err)
 		return 1
 	}
 
@@ -82,7 +85,7 @@ func Run() int {
 	app, err := firebase.NewApp(ctx, nil, opt)
 
 	if err != nil {
-		log.Error().Msg(fmt.Sprintf("error initializing app: %v\n", err))
+		slog.Error("error initializing app", "error", err)
 		return 1
 	}
 
@@ -92,21 +95,21 @@ func Run() int {
 	fbApp, err := firebase.NewApp(ctx, firebaseConfig, dbOpt)
 
 	if err != nil {
-		log.Error().Msg(fmt.Sprintf("error initializing db app: %v\n", err))
+		slog.Error("error initializing app", "error", err)
 		return 1
 	}
 
 	firestore, err := fbApp.Firestore(ctx)
 
 	if err != nil {
-		log.Error().Msg(fmt.Sprintf("error initializing firestore: %v\n", err))
+		slog.Error("error initializing firestore", "error", err)
 		return 1
 	}
 
 	storage, err := fbApp.Storage(ctx)
 
 	if err != nil {
-		log.Error().Msg(fmt.Sprintf("error initializing storage: %v\n", err))
+		slog.Error("error initializing storage", "error", err)
 		return 1
 	}
 
@@ -168,6 +171,7 @@ func Run() int {
 		r.Use(middleware.IPMiddleware())
 		r.Use(cors)
 		r.Use(httprate.LimitByIP(100, 1*time.Minute))
+
 		graphql := gqlHandler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: resolver.New(itemService, gistService, settingsService, firestore)}))
 		graphql.AddTransport(transport.Options{})
 		graphql.AddTransport(transport.POST{})
@@ -195,9 +199,9 @@ func Run() int {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	go gracefullShutdown(ctx, s, quit, done)
+	go gracefulShutdown(ctx, s, quit, done)
 
-	log.Info().Msg(fmt.Sprintf("Start server %s", env.Port))
+	slog.Info("Start server", "port", env.Port)
 
 	if env.TlsCertFile != "" && env.TlsKeyFile != "" {
 		err = s.ListenAndServeTLS(env.TlsCertFile, env.TlsKeyFile)
@@ -212,13 +216,30 @@ func Run() int {
 	return 0
 }
 
-func gracefullShutdown(ctx context.Context, server *http.Server, quit <-chan os.Signal, done chan<- bool) {
+func gracefulShutdown(ctx context.Context, server *http.Server, quit <-chan os.Signal, done chan<- bool) {
 	<-quit
-	log.Info().Msg("Server is shutting down")
+	slog.Info("Server is shutting down")
 
 	server.SetKeepAlivesEnabled(false)
 	if err := server.Shutdown(ctx); err != nil {
-		log.Error().Msg(fmt.Sprintf("Could not gracefully shutdown the server: %v\n", err))
+		slog.Error("Could not gracefully shutdown the server", "error", err)
 	}
 	close(done)
+}
+
+func setupLogger(goEnv string) {
+	var opts slog.HandlerOptions
+
+	if goEnv == "development" {
+		opts = slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		}
+	} else {
+		opts = slog.HandlerOptions{
+			Level: slog.LevelWarn,
+		}
+	}
+
+	logger := slog.New(opts.NewJSONHandler(os.Stdout))
+	slog.SetDefault(logger)
 }

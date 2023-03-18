@@ -10,8 +10,8 @@ import (
 	itemRepo "github.com/harehare/textusm/pkg/domain/repository/item"
 	e "github.com/harehare/textusm/pkg/error"
 	"github.com/harehare/textusm/pkg/infra/firebase"
-	"github.com/rs/zerolog/log"
 	"github.com/samber/mo"
+	"golang.org/x/exp/slog"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/api/iterator"
 	"google.golang.org/grpc/codes"
@@ -39,6 +39,7 @@ func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, i
 		if i.IsSaveToStorage() {
 			ret := r.findFromCloudStorage(ctx, userID, itemID)
 			if ret.IsError() {
+				slog.Error("Failed find diagram", "userID", userID, "itemID", itemID, "isPublic", isPublic)
 				return nil, ret.Error()
 			}
 			i.UpdateEncryptedText(ret.OrEmpty())
@@ -68,6 +69,7 @@ func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offse
 		}
 
 		if err != nil {
+			slog.Error("Failed find diagrams", "userID", userID, "offset", offset, "limit", limit, "isPublic", isPublic, "isBookmark", isBookmark)
 			return mo.Err[[]*diagramitem.DiagramItem](err)
 		}
 
@@ -99,7 +101,7 @@ func (r *FirestoreItemRepository) Save(ctx context.Context, userID string, item 
 		if item.IsNew() {
 			err := r.Delete(ctx, userID, item.ID(), isPublic)
 			if err.IsError() {
-				log.Error().Msg("Delete failed. userID: " + userID + ", itemID:" + item.ID())
+				slog.Error("Delete failed.", "userID", userID, "itemID", item.ID())
 				return mo.Err[*diagramitem.DiagramItem](err.Error())
 			}
 		}
@@ -122,6 +124,7 @@ func (r *FirestoreItemRepository) Delete(ctx context.Context, userID string, ite
 	})
 
 	if err := eg.Wait(); err != nil {
+		slog.Error("Delete failed.", "userID", userID, "itemID", itemID)
 		return mo.Err[bool](err)
 	}
 
@@ -140,10 +143,12 @@ func (r *FirestoreItemRepository) findFromFirestore(ctx context.Context, userID 
 	}
 
 	if st, ok := status.FromError(err); ok && st.Code() == codes.NotFound {
+		slog.Error("Diagram not found", "userID", userID, "itemID", itemID, "isPublic", isPublic)
 		return mo.Err[*diagramitem.DiagramItem](e.NotFoundError(err))
 	}
 
 	if err != nil {
+		slog.Error("Failed find diagram", "userID", userID, "itemID", itemID, "isPublic", isPublic)
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
 
@@ -162,11 +167,13 @@ func (r *FirestoreItemRepository) saveToFirestore(ctx context.Context, userID st
 	if isPublic {
 		_, err := r.firestore.Collection(publicCollection).Doc(item.ID()).Set(ctx, values)
 		if err != nil {
+			slog.Error("Failed save firestore", "userID", userID, "itemID", item.ID(), "isPublic", isPublic)
 			return mo.Err[bool](err)
 		}
 	} else {
 		_, err := r.firestore.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(item.ID()).Set(ctx, values)
 		if err != nil {
+			slog.Error("Failed save firestore", "userID", userID, "itemID", item.ID(), "isPublic", isPublic)
 			return mo.Err[bool](err)
 		}
 	}
@@ -188,6 +195,7 @@ func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID 
 			_, err := r.firestore.Collection(publicCollection).Doc(itemID).Delete(ctx)
 
 			if err != nil {
+				slog.Error("Failed delete firestore", "userID", userID, "itemID", itemID, "isPublic", isPublic)
 				return mo.Err[bool](err)
 			}
 
@@ -196,6 +204,7 @@ func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID 
 			_, err := r.firestore.Collection(usersCollection).Doc(userID).Collection(itemsCollection).Doc(itemID).Delete(ctx)
 
 			if err != nil {
+				slog.Error("Failed delete firestore", "userID", userID, "itemID", itemID, "isPublic", isPublic)
 				return mo.Err[bool](err)
 			}
 
@@ -208,6 +217,7 @@ func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID 
 		err := tx.OrEmpty().Delete(ref)
 
 		if err != nil {
+			slog.Error("Failed delete firestore", "userID", userID, "itemID", itemID, "isPublic", isPublic)
 			return mo.Err[bool](err)
 		}
 
@@ -217,6 +227,7 @@ func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID 
 		err := tx.OrEmpty().Delete(ref)
 
 		if err != nil {
+			slog.Error("Failed delete firestore", "userID", userID, "itemID", itemID, "isPublic", isPublic)
 			return mo.Err[bool](err)
 		}
 

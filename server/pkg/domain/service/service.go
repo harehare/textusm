@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"net"
 	"os"
 	"time"
@@ -20,9 +19,9 @@ import (
 	shareRepo "github.com/harehare/textusm/pkg/domain/repository/share"
 	userRepo "github.com/harehare/textusm/pkg/domain/repository/user"
 	e "github.com/harehare/textusm/pkg/error"
-	"github.com/rs/zerolog/log"
 	"github.com/samber/mo"
 	uuid "github.com/satori/go.uuid"
+	"golang.org/x/exp/slog"
 )
 
 var (
@@ -72,7 +71,7 @@ func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) mo
 }
 
 func (s *Service) Save(ctx context.Context, item *diagramitem.DiagramItem, isPublic bool) mo.Result[*diagramitem.DiagramItem] {
-	log.Debug().Msg(fmt.Sprintf("Save diagram ID: %v, isPublic: %v", item.ID(), isPublic))
+	slog.Debug("Save diagram", "ID", item.ID(), "isPublic", isPublic)
 	if err := isAuthenticated(ctx); err != nil {
 		return mo.Err[*diagramitem.DiagramItem](err)
 	}
@@ -96,7 +95,7 @@ func (s *Service) Save(ctx context.Context, item *diagramitem.DiagramItem, isPub
 			if err.IsError() {
 				return mo.Err[*diagramitem.DiagramItem](err.Error())
 			}
-			log.Debug().Msg(fmt.Sprintf("Delete public diagram ID: %v", item.ID()))
+			slog.Debug("Delete public diagram", "ID", item.ID())
 		}
 	}
 
