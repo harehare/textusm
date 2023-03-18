@@ -1,4 +1,4 @@
-module Action exposing
+module Effect exposing
     ( changePublicState
     , changeRouteInit
     , closeLocalFile
@@ -12,8 +12,9 @@ module Action exposing
     , loadWithPasswordShareItem
     , revokeGistToken
     , saveDiagram
+    , saveDiagramSettings
     , saveLocalFile
-    , saveSettings
+    , saveSettingsToLocal
     , saveToLocal
     , saveToRemote
     , setFocus
@@ -226,7 +227,7 @@ saveLocalFile item =
         |> Return.command
 
 
-saveSettings :
+saveDiagramSettings :
     (Result RequestError DiagramSettings.Settings -> msg)
     ->
         { diagramType : DiagramType
@@ -234,12 +235,17 @@ saveSettings :
         , settings : Settings.Settings
         }
     -> Return.ReturnF msg model
-saveSettings msg { diagramType, session, settings } =
+saveDiagramSettings msg { diagramType, session, settings } =
     if Session.isSignedIn session then
         saveSettingsToRemote msg { diagramType = diagramType, session = session, settings = settings.storyMap }
 
     else
-        Return.command <| Ports.saveSettingsToLocal (Settings.settingsEncoder { settings | diagram = Maybe.map (\d -> { d | diagram = diagramType }) settings.diagram })
+        saveSettingsToLocal { settings | diagram = Maybe.map (\d -> { d | diagram = diagramType }) settings.diagram }
+
+
+saveSettingsToLocal : Settings.Settings -> Return.ReturnF msg model
+saveSettingsToLocal settings =
+    Settings.settingsEncoder settings |> Ports.saveSettingsToLocal |> Return.command
 
 
 saveToLocal : DiagramItem -> Return.ReturnF msg model

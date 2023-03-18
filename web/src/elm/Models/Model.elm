@@ -122,7 +122,7 @@ type Msg
     | Load (Result RequestError DiagramItem)
     | LoadSettings (Result RequestError DiagramSettings.Settings)
     | LoadSettingsFromLocal D.Value
-    | SaveSettings (Result RequestError DiagramSettings.Settings)
+    | SaveDiagramSettings (Result RequestError DiagramSettings.Settings)
     | UpdateIdToken String
     | EditPassword String
     | EndEditPassword
