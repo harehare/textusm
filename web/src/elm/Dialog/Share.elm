@@ -2,6 +2,7 @@ port module Dialog.Share exposing (CopyState, InputCondition, Model, Msg(..), in
 
 import Api.Graphql.Query exposing (ShareCondition)
 import Api.Request as Request
+import Bool.Extra as BoolEx
 import Css
     exposing
         ( absolute
@@ -342,326 +343,248 @@ validEmail email =
             []
 
 
-update : Msg -> Model -> Return Msg Model
-update msg model =
-    Return.singleton model
-        |> (case msg of
-                SelectAll id ->
-                    Return.command (selectTextById id)
+update : Model -> Msg -> Return.ReturnF Msg Model
+update model msg =
+    case msg of
+        SelectAll id ->
+            Return.command (selectTextById id)
 
-                GotTimeZone zone ->
-                    Return.andThen (\m -> Return.singleton { m | timeZone = zone })
+        GotTimeZone zone ->
+            Return.map (\m -> { m | timeZone = zone })
 
-                GotNow now ->
-                    Return.andThen
-                        (\m ->
-                            let
-                                d : Posix
-                                d =
-                                    TimeEx.add TimeEx.Second (Duration.toInt m.expireSecond) m.timeZone now
-                            in
-                            Return.singleton
-                                { m
-                                    | expireDate = DateUtils.millisToDateString m.timeZone d
-                                    , expireTime = DateUtils.millisToTimeString m.timeZone d
-                                    , now = now
-                                }
-                        )
+        GotNow now ->
+            Return.map
+                (\m ->
+                    let
+                        d : Posix
+                        d =
+                            TimeEx.add TimeEx.Second (Duration.toInt m.expireSecond) m.timeZone now
+                    in
+                    { m
+                        | expireDate = DateUtils.millisToDateString m.timeZone d
+                        , expireTime = DateUtils.millisToTimeString m.timeZone d
+                        , now = now
+                    }
+                )
 
-                ChangeEmbedWidth width ->
-                    case String.toInt width of
-                        Just w ->
-                            Return.andThen <| \m -> Return.singleton { m | embedSize = ( w, Size.getHeight model.embedSize ) }
+        ChangeEmbedWidth width ->
+            String.toInt width
+                |> Maybe.map
+                    (\w ->
+                        Return.map <| \m -> { m | embedSize = ( w, Size.getHeight model.embedSize ) }
+                    )
+                |> Maybe.withDefault Return.zero
 
-                        Nothing ->
-                            Return.zero
+        ChangeEmbedHeight height ->
+            String.toInt height
+                |> Maybe.map
+                    (\h ->
+                        Return.map <| \m -> { m | embedSize = ( Size.getWidth model.embedSize, h ) }
+                    )
+                |> Maybe.withDefault Return.zero
 
-                ChangeEmbedHeight height ->
-                    case String.toInt height of
-                        Just h ->
-                            Return.andThen <| \m -> Return.singleton { m | embedSize = ( Size.getWidth model.embedSize, h ) }
+        DateChange date ->
+            DateUtils.stringToPosix model.timeZone date model.expireTime
+                |> Maybe.map
+                    (\d ->
+                        Return.map (\m -> { m | expireDate = date, expireSecond = Duration.seconds <| TimeEx.diff TimeEx.Second model.timeZone model.now d })
+                    )
+                |> Maybe.withDefault Return.zero
 
-                        Nothing ->
-                            Return.zero
-
-                DateChange date ->
-                    case DateUtils.stringToPosix model.timeZone date model.expireTime of
-                        Just d ->
-                            let
-                                diffSecond : Int
-                                diffSecond =
-                                    TimeEx.diff TimeEx.Second model.timeZone model.now d
-                            in
-                            Return.andThen
-                                (\m ->
-                                    Return.singleton
-                                        { m
-                                            | expireDate = date
-                                            , expireSecond = Duration.seconds diffSecond
-                                        }
-                                )
-
-                        Nothing ->
-                            Return.zero
-
-                TimeChange time ->
-                    case DateUtils.stringToPosix model.timeZone model.expireDate time of
-                        Just d ->
-                            let
-                                diffSecond : Int
-                                diffSecond =
-                                    TimeEx.diff TimeEx.Second model.timeZone model.now d
-                            in
-                            Return.andThen
-                                (\m ->
-                                    Return.singleton
-                                        { m
-                                            | expireTime = time
-                                            , expireSecond = Duration.seconds diffSecond
-                                        }
-                                )
-
-                        Nothing ->
-                            Return.zero
-
-                Shared (Ok token) ->
-                    Return.andThen (\m -> Return.singleton { m | token = Success token })
-                        >> (case ( model.urlCopyState, model.embedCopyState ) of
-                                ( Copying, _ ) ->
-                                    Return.command (Utils.delay 500 UrlCopied)
-                                        >> Return.andThen (\m -> Return.singleton { m | urlCopyState = Copied })
-                                        >> Return.command (Ports.copyText <| sharUrl (Success token) model.diagramType)
-
-                                ( _, Copying ) ->
-                                    Return.command (Utils.delay 500 EmbedCopied)
-                                        >> Return.andThen (\m -> Return.singleton { m | embedCopyState = Copied })
-                                        >> Return.command (Ports.copyText <| embedUrl { token = Success token, diagramType = model.diagramType, title = model.title, embedSize = model.embedSize })
-
-                                _ ->
-                                    Return.zero
-                           )
-
-                Shared (Err e) ->
-                    Return.andThen (\m -> Return.singleton { m | token = Failure e })
-
-                UrlCopy ->
-                    if model.ip.error then
-                        Return.zero
-
-                    else
-                        let
-                            validIP : List IpAddress
-                            validIP =
-                                validIPList model.ip.input
-
-                            ipList : String
-                            ipList =
-                                List.map IpAddress.toString validIP
-                                    |> String.join "\n"
-
-                            validMail : List Email
-                            validMail =
-                                validEmail model.email.input
-
-                            email : String
-                            email =
-                                List.map Email.toString validMail
-                                    |> String.join "\n"
-                        in
-                        Return.andThen
+        TimeChange time ->
+            DateUtils.stringToPosix model.timeZone model.expireDate time
+                |> Maybe.map
+                    (\d ->
+                        Return.map
                             (\m ->
-                                Return.singleton
-                                    { m
-                                        | urlCopyState = Copying
-                                        , ip =
-                                            { input = Maybe.map (\_ -> ipList) m.ip.input
-                                            , error = False
-                                            }
-                                        , email =
-                                            { input = Maybe.map (\_ -> email) m.email.input
-                                            , error = False
-                                            }
-                                    }
+                                { m
+                                    | expireTime = time
+                                    , expireSecond = Duration.seconds <| TimeEx.diff TimeEx.Second model.timeZone model.now d
+                                }
                             )
-                            >> (Return.command <|
-                                    Task.attempt Shared <|
-                                        share
-                                            { diagramId = model.diagramId
-                                            , expireSecond = model.expireSecond
-                                            , password = model.password
-                                            , allowIPList = validIP
-                                            , allowEmail = validMail
-                                            }
-                                            model.session
-                               )
+                    )
+                |> Maybe.withDefault Return.zero
 
-                UrlCopied ->
-                    Return.andThen (\m -> Return.singleton { m | urlCopyState = NotCopy })
+        Shared (Ok token) ->
+            Return.andThen (\m -> Return.singleton { m | token = Success token })
+                >> (case ( model.urlCopyState, model.embedCopyState ) of
+                        ( Copying, _ ) ->
+                            Return.command (Utils.delay 500 UrlCopied)
+                                >> Return.andThen (\m -> Return.singleton { m | urlCopyState = Copied })
+                                >> Return.command (Ports.copyText <| sharUrl (Success token) model.diagramType)
 
-                EmbedCopy ->
-                    if model.ip.error then
-                        Return.zero
+                        ( _, Copying ) ->
+                            Return.command (Utils.delay 500 EmbedCopied)
+                                >> Return.andThen (\m -> Return.singleton { m | embedCopyState = Copied })
+                                >> Return.command (Ports.copyText <| embedUrl { token = Success token, diagramType = model.diagramType, title = model.title, embedSize = model.embedSize })
 
-                    else
-                        let
-                            validIP : List IpAddress
-                            validIP =
-                                validIPList model.ip.input
+                        _ ->
+                            Return.zero
+                   )
 
-                            ipList : String
-                            ipList =
-                                List.map IpAddress.toString validIP
-                                    |> String.join "\n"
+        Shared (Err e) ->
+            Return.map (\m -> { m | token = Failure e })
 
-                            validMail : List Email
-                            validMail =
-                                validEmail model.email.input
+        UrlCopy ->
+            if model.ip.error then
+                Return.zero
 
-                            email : String
-                            email =
-                                List.map Email.toString validMail
-                                    |> String.join "\n"
-                        in
-                        Return.andThen
-                            (\m ->
-                                Return.singleton
-                                    { m
-                                        | embedCopyState = Copying
-                                        , ip =
-                                            { input = Maybe.map (\_ -> ipList) m.ip.input
-                                            , error = False
-                                            }
-                                        , email =
-                                            { input = Maybe.map (\_ -> email) m.email.input
-                                            , error = False
-                                            }
+            else
+                let
+                    validIP : List IpAddress
+                    validIP =
+                        validIPList model.ip.input
+
+                    ipList : String
+                    ipList =
+                        List.map IpAddress.toString validIP
+                            |> String.join "\n"
+
+                    validMail : List Email
+                    validMail =
+                        validEmail model.email.input
+
+                    email : String
+                    email =
+                        List.map Email.toString validMail
+                            |> String.join "\n"
+                in
+                Return.map
+                    (\m ->
+                        { m
+                            | urlCopyState = Copying
+                            , ip =
+                                { input = Maybe.map (\_ -> ipList) m.ip.input
+                                , error = False
+                                }
+                            , email =
+                                { input = Maybe.map (\_ -> email) m.email.input
+                                , error = False
+                                }
+                        }
+                    )
+                    >> (Return.command <|
+                            Task.attempt Shared <|
+                                share
+                                    { diagramId = model.diagramId
+                                    , expireSecond = model.expireSecond
+                                    , password = model.password
+                                    , allowIPList = validIP
+                                    , allowEmail = validMail
                                     }
-                            )
-                            >> (Return.command <|
-                                    Task.attempt Shared <|
-                                        share
-                                            { diagramId = model.diagramId
-                                            , expireSecond = model.expireSecond
-                                            , password = model.password
-                                            , allowIPList = validIP
-                                            , allowEmail = validMail
-                                            }
-                                            model.session
-                               )
+                                    model.session
+                       )
 
-                EmbedCopied ->
-                    Return.andThen (\m -> Return.singleton { m | embedCopyState = NotCopy })
+        UrlCopied ->
+            Return.map (\m -> { m | urlCopyState = NotCopy })
 
-                Close ->
-                    Return.zero
+        EmbedCopy ->
+            if model.ip.error then
+                Return.zero
 
-                UsePassword f ->
-                    Return.andThen
-                        (\m ->
-                            Return.singleton
-                                { m
-                                    | password =
-                                        if f then
-                                            Just ""
+            else
+                let
+                    validIP : List IpAddress
+                    validIP =
+                        validIPList model.ip.input
 
-                                        else
-                                            Nothing
+                    ipList : String
+                    ipList =
+                        List.map IpAddress.toString validIP
+                            |> String.join "\n"
+
+                    validMail : List Email
+                    validMail =
+                        validEmail model.email.input
+
+                    email : String
+                    email =
+                        List.map Email.toString validMail
+                            |> String.join "\n"
+                in
+                Return.map
+                    (\m ->
+                        { m
+                            | embedCopyState = Copying
+                            , ip =
+                                { input = Maybe.map (\_ -> ipList) m.ip.input
+                                , error = False
                                 }
-                        )
-
-                EditPassword p ->
-                    Return.andThen (\m -> Return.singleton { m | password = Just p })
-
-                UseLimitByIP f ->
-                    Return.andThen
-                        (\m ->
-                            Return.singleton
-                                { m
-                                    | ip =
-                                        { input =
-                                            if f then
-                                                Just ""
-
-                                            else
-                                                Nothing
-                                        , error = False
-                                        }
+                            , email =
+                                { input = Maybe.map (\_ -> email) m.email.input
+                                , error = False
                                 }
-                        )
+                        }
+                    )
+                    >> (Return.command <|
+                            Task.attempt Shared <|
+                                share
+                                    { diagramId = model.diagramId
+                                    , expireSecond = model.expireSecond
+                                    , password = model.password
+                                    , allowIPList = validIP
+                                    , allowEmail = validMail
+                                    }
+                                    model.session
+                       )
 
-                UseLimitByEmail f ->
-                    Return.andThen
-                        (\m ->
-                            Return.singleton
-                                { m
-                                    | email =
-                                        { input =
-                                            if f then
-                                                Just ""
+        EmbedCopied ->
+            Return.map <| \m -> { m | embedCopyState = NotCopy }
 
-                                            else
-                                                Nothing
-                                        , error = False
-                                        }
-                                }
-                        )
+        Close ->
+            Return.zero
 
-                EditIP i ->
-                    if String.isEmpty i then
-                        Return.andThen (\m -> Return.singleton { m | ip = { input = Just i, error = False } })
+        UsePassword f ->
+            Return.map <| \m -> { m | password = BoolEx.toMaybe "" f }
 
-                    else if (List.length <| validIPList (Just i)) /= (List.length <| String.lines i) then
-                        Return.andThen (\m -> Return.singleton { m | ip = { input = Just i, error = True } })
+        EditPassword p ->
+            Return.map <| \m -> { m | password = Just p }
 
-                    else
-                        Return.andThen (\m -> Return.singleton { m | ip = { input = Just i, error = False } })
+        UseLimitByIP f ->
+            Return.map <| \m -> { m | ip = { input = BoolEx.toMaybe "" f, error = False } }
 
-                EditEmail a ->
-                    if String.isEmpty a then
-                        Return.andThen (\m -> Return.singleton { m | email = { input = Just a, error = False } })
+        UseLimitByEmail f ->
+            Return.map <| \m -> { m | email = { input = BoolEx.toMaybe "" f, error = False } }
 
-                    else if (List.length <| validEmail (Just a)) /= (List.length <| String.lines a) then
-                        Return.andThen (\m -> Return.singleton { m | email = { input = Just a, error = True } })
+        EditIP i ->
+            if String.isEmpty i then
+                Return.map <| \m -> { m | ip = { input = Just i, error = False } }
 
-                    else
-                        Return.andThen (\m -> Return.singleton { m | email = { input = Just a, error = False } })
+            else if (List.length <| validIPList (Just i)) /= (List.length <| String.lines i) then
+                Return.map <| \m -> { m | ip = { input = Just i, error = True } }
 
-                LoadShareCondition (Ok cond) ->
-                    Return.andThen
-                        (\m ->
-                            Return.singleton
-                                { m
-                                    | ip =
-                                        { input =
-                                            if List.isEmpty cond.allowIPList then
-                                                Nothing
+            else
+                Return.map <| \m -> { m | ip = { input = Just i, error = False } }
 
-                                            else
-                                                List.map IpAddress.toString cond.allowIPList
-                                                    |> String.join "\n"
-                                                    |> Just
-                                        , error = False
-                                        }
-                                    , email =
-                                        { input =
-                                            if List.isEmpty cond.allowEmail then
-                                                Nothing
+        EditEmail a ->
+            if String.isEmpty a then
+                Return.map <| \m -> { m | email = { input = Just a, error = False } }
 
-                                            else
-                                                List.map Email.toString cond.allowEmail
-                                                    |> String.join "\n"
-                                                    |> Just
-                                        , error = False
-                                        }
-                                    , token = RemoteData.succeed cond.token
-                                    , expireDate = DateUtils.millisToDateString m.timeZone (Time.millisToPosix <| cond.expireTime)
-                                    , expireTime = DateUtils.millisToTimeString m.timeZone (Time.millisToPosix <| cond.expireTime)
-                                }
-                        )
+            else if (List.length <| validEmail (Just a)) /= (List.length <| String.lines a) then
+                Return.map <| \m -> { m | email = { input = Just a, error = True } }
 
-                LoadShareCondition (Err _) ->
-                    Return.zero
-           )
+            else
+                Return.map <| \m -> { m | email = { input = Just a, error = False } }
+
+        LoadShareCondition (Ok cond) ->
+            Return.map <|
+                \m ->
+                    { m
+                        | ip =
+                            { input = BoolEx.toMaybe (List.map IpAddress.toString cond.allowIPList |> String.join "\n") (not <| List.isEmpty cond.allowIPList)
+                            , error = False
+                            }
+                        , email =
+                            { input = BoolEx.toMaybe (List.map Email.toString cond.allowEmail |> String.join "\n") (not <| List.isEmpty cond.allowEmail)
+                            , error = False
+                            }
+                        , token = RemoteData.succeed cond.token
+                        , expireDate = DateUtils.millisToDateString m.timeZone (Time.millisToPosix <| cond.expireTime)
+                        , expireTime = DateUtils.millisToTimeString m.timeZone (Time.millisToPosix <| cond.expireTime)
+                    }
+
+        LoadShareCondition (Err _) ->
+            Return.zero
 
 
 copyButton : CopyState -> Msg -> Html Msg

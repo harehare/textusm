@@ -2,14 +2,15 @@ module Effect exposing
     ( changePublicState
     , changeRouteInit
     , closeLocalFile
+    , getGistToken
     , historyBack
     , loadItem
     , loadLocalDiagram
     , loadPublicItem
     , loadSettings
     , loadShareItem
+    , loadShareItemWithoutPassword
     , loadText
-    , loadWithPasswordShareItem
     , revokeGistToken
     , saveDiagram
     , saveDiagramSettings
@@ -157,14 +158,26 @@ loadSettings msg { cache, diagramType, session } =
             |> Return.command
 
 
-loadShareItem : (Result RequestError DiagramItem -> msg) -> { session : Session, token : ShareToken } -> Return.ReturnF msg model
-loadShareItem msg { session, token } =
+loadShareItem :
+    (Result RequestError DiagramItem -> msg)
+    ->
+        { password : Maybe String
+        , session : Session
+        , token : ShareToken
+        }
+    -> Return.ReturnF msg model
+loadShareItem msg { password, session, token } =
     Request.shareItem
         (Session.getIdToken session)
         (ShareToken.toString token)
-        Nothing
+        password
         |> Task.attempt msg
         |> Return.command
+
+
+loadShareItemWithoutPassword : (Result RequestError DiagramItem -> msg) -> { session : Session, token : ShareToken } -> Return.ReturnF msg model
+loadShareItemWithoutPassword msg { session, token } =
+    loadShareItem msg { session = session, token = token, password = Nothing }
 
 
 loadText : (Result RequestError DiagramItem -> msg) -> DiagramItem -> Return.ReturnF msg model
@@ -174,21 +187,9 @@ loadText msg diagram =
         |> Return.command
 
 
-loadWithPasswordShareItem :
-    (Result RequestError DiagramItem -> msg)
-    ->
-        { password : Maybe String
-        , session : Session
-        , token : ShareToken
-        }
-    -> Return.ReturnF msg model
-loadWithPasswordShareItem msg { password, session, token } =
-    Request.shareItem
-        (Session.getIdToken session)
-        (ShareToken.toString token)
-        password
-        |> Task.attempt msg
-        |> Return.command
+getGistToken : Return.ReturnF msg model
+getGistToken =
+    Return.command <| Ports.getGithubAccessToken ""
 
 
 revokeGistToken : (Result Message () -> msg) -> Session -> Return.ReturnF msg model

@@ -142,8 +142,8 @@ init settings =
         }
 
 
-update : Msg -> Return.ReturnF Msg Model
-update message =
+update : Model -> Msg -> Return.ReturnF Msg Model
+update model message =
     case message of
         NoOp ->
             Return.zero
@@ -187,186 +187,175 @@ update message =
             Return.map <| \m -> { m | selectedItem = Maybe.map (\item_ -> item_ |> Item.withTextOnly (" " ++ String.trimLeft text)) m.selectedItem }
 
         EndEditSelectedItem item ->
-            Return.andThen <|
-                \m ->
-                    m.selectedItem
-                        |> Maybe.map
-                            (\selectedItem ->
-                                let
-                                    lines : List String
-                                    lines =
-                                        Text.lines m.text
+            model.selectedItem
+                |> Maybe.map
+                    (\selectedItem ->
+                        let
+                            lines : List String
+                            lines =
+                                Text.lines model.text
 
-                                    text : String
-                                    text =
-                                        setAt (Item.getLineNo item)
-                                            (item
-                                                |> Item.withSettings
-                                                    (Item.getSettings selectedItem)
-                                                |> Item.toLineString
-                                                |> String.dropLeft 1
-                                            )
-                                            lines
-                                            |> String.join "\n"
-                                in
-                                Return.singleton m
-                                    |> setText text
-                                    |> clearSelectedItem
-                            )
-                        |> Maybe.withDefault (Return.singleton m)
+                            text : String
+                            text =
+                                setAt (Item.getLineNo item)
+                                    (item
+                                        |> Item.withSettings
+                                            (Item.getSettings selectedItem)
+                                        |> Item.toLineString
+                                        |> String.dropLeft 1
+                                    )
+                                    lines
+                                    |> String.join "\n"
+                        in
+                        setText text
+                            >> clearSelectedItem
+                    )
+                |> Maybe.withDefault Return.zero
 
         FitToWindow ->
-            Return.andThen <|
-                \m ->
-                    let
-                        ( canvasWidth, canvasHeight ) =
-                            Diagram.size m
+            let
+                ( canvasWidth, canvasHeight ) =
+                    Diagram.size model
 
-                        ( widthRatio, heightRatio ) =
-                            ( toFloat (round (toFloat windowWidth / toFloat canvasWidth / 0.05)) * 0.05, toFloat (round (toFloat windowHeight / toFloat canvasHeight / 0.05)) * 0.05 )
+                ( widthRatio, heightRatio ) =
+                    ( toFloat (round (toFloat windowWidth / toFloat canvasWidth / 0.05)) * 0.05, toFloat (round (toFloat windowHeight / toFloat canvasHeight / 0.05)) * 0.05 )
 
-                        position : Position
-                        position =
-                            ( windowWidth // 2 - round (toFloat canvasWidth / 2 * widthRatio), windowHeight // 2 - round (toFloat canvasHeight / 2 * heightRatio) )
+                position : Position
+                position =
+                    ( windowWidth // 2 - round (toFloat canvasWidth / 2 * widthRatio), windowHeight // 2 - round (toFloat canvasHeight / 2 * heightRatio) )
 
-                        ( windowWidth, windowHeight ) =
-                            m.windowSize
-                    in
+                ( windowWidth, windowHeight ) =
+                    model.windowSize
+            in
+            Return.map
+                (\m ->
                     m
                         |> Diagram.ofScale.set (Scale.fromFloat <| min widthRatio heightRatio)
                         |> Diagram.ofPosition.set position
-                        |> Return.singleton
+                )
 
-        ColorChanged menu color ->
-            Return.andThen <|
-                \m ->
-                    m.selectedItem
-                        |> Maybe.map
-                            (\item ->
-                                let
-                                    ( mainText, settings, comment ) =
-                                        Item.split currentText
+        ColorChanged Diagram.ColorSelectMenu color ->
+            model.selectedItem
+                |> Maybe.map
+                    (\item ->
+                        let
+                            currentText : String
+                            currentText =
+                                Text.getLine (Item.getLineNo item) model.text
 
-                                    currentText : String
-                                    currentText =
-                                        Text.getLine (Item.getLineNo item) m.text
-
-                                    lines : List String
-                                    lines =
-                                        Text.lines m.text
-
-                                    text : String
-                                    text =
-                                        case menu of
-                                            Diagram.ColorSelectMenu ->
-                                                item
+                            ( mainText, settings, comment ) =
+                                Item.split currentText
+                        in
+                        model.contextMenu
+                            |> Maybe.map
+                                (\menu ->
+                                    Return.map (\m -> { m | contextMenu = Just { menu | contextMenu = Diagram.CloseMenu } })
+                                        >> setText
+                                            (setAt (Item.getLineNo item)
+                                                (item
                                                     |> Item.withText mainText
                                                     |> Item.withSettings (Just (settings |> ItemSettings.withForegroundColor (Just color)))
                                                     |> Item.withComments comment
                                                     |> Item.toLineString
+                                                )
+                                                (Text.lines model.text)
+                                                |> String.join "\n"
+                                            )
+                                        >> selectItem
+                                            (Just
+                                                (item
+                                                    |> Item.withSettings
+                                                        (Item.getSettings item
+                                                            |> Maybe.map (ItemSettings.withForegroundColor (Just color))
+                                                        )
+                                                )
+                                            )
+                                )
+                            |> Maybe.withDefault Return.zero
+                    )
+                |> Maybe.withDefault Return.zero
 
-                                            Diagram.BackgroundColorSelectMenu ->
-                                                item
+        ColorChanged Diagram.BackgroundColorSelectMenu color ->
+            model.selectedItem
+                |> Maybe.map
+                    (\item ->
+                        let
+                            currentText : String
+                            currentText =
+                                Text.getLine (Item.getLineNo item) model.text
+
+                            ( mainText, settings, comment ) =
+                                Item.split currentText
+                        in
+                        model.contextMenu
+                            |> Maybe.map
+                                (\menu ->
+                                    Return.map (\m -> { m | contextMenu = Just { menu | contextMenu = Diagram.CloseMenu } })
+                                        >> setText
+                                            (setAt (Item.getLineNo item)
+                                                (item
                                                     |> Item.withText mainText
                                                     |> Item.withSettings (Just (ItemSettings.withBackgroundColor (Just color) settings))
                                                     |> Item.withComments comment
                                                     |> Item.toLineString
-
-                                            _ ->
-                                                currentText
-
-                                    updateText : String
-                                    updateText =
-                                        setAt (Item.getLineNo item) text lines
-                                            |> String.join "\n"
-                                in
-                                case ( m.selectedItem, menu ) of
-                                    ( Just item_, Diagram.ColorSelectMenu ) ->
-                                        case m.contextMenu of
-                                            Just menu_ ->
-                                                Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
-                                                    |> setText updateText
-                                                    |> selectItem
-                                                        (Just
-                                                            (item_
-                                                                |> Item.withSettings
-                                                                    (Item.getSettings item_
-                                                                        |> Maybe.map (\s -> ItemSettings.withForegroundColor (Just color) s)
-                                                                    )
-                                                            )
+                                                )
+                                                (Text.lines model.text)
+                                                |> String.join "\n"
+                                            )
+                                        >> selectItem
+                                            (Just
+                                                (item
+                                                    |> Item.withSettings
+                                                        (Item.getSettings item
+                                                            |> Maybe.map (ItemSettings.withBackgroundColor (Just color))
                                                         )
+                                                )
+                                            )
+                                )
+                            |> Maybe.withDefault Return.zero
+                    )
+                |> Maybe.withDefault Return.zero
 
-                                            Nothing ->
-                                                Return.singleton m
-
-                                    ( Just item_, Diagram.BackgroundColorSelectMenu ) ->
-                                        case m.contextMenu of
-                                            Just menu_ ->
-                                                Return.singleton { m | contextMenu = Just { menu_ | contextMenu = Diagram.CloseMenu } }
-                                                    |> setText updateText
-                                                    |> selectItem
-                                                        (Just
-                                                            (item_
-                                                                |> Item.withSettings
-                                                                    (Item.getSettings item_
-                                                                        |> Maybe.map (\s -> ItemSettings.withBackgroundColor (Just color) s)
-                                                                    )
-                                                            )
-                                                        )
-
-                                            Nothing ->
-                                                Return.singleton m
-
-                                    _ ->
-                                        Return.singleton m
-                            )
-                        |> Maybe.withDefault (Return.singleton m)
+        ColorChanged _ _ ->
+            Return.zero
 
         FontStyleChanged style ->
-            Return.andThen <|
-                \m ->
-                    m.selectedItem
-                        |> Maybe.map
-                            (\item ->
-                                let
-                                    ( text, settings, comment ) =
-                                        Item.split currentText
+            model.selectedItem
+                |> Maybe.map
+                    (\item ->
+                        let
+                            ( text, settings, comment ) =
+                                Item.split currentText
 
-                                    currentText : String
-                                    currentText =
-                                        Text.getLine (Item.getLineNo item) m.text
+                            currentText : String
+                            currentText =
+                                Text.getLine (Item.getLineNo item) model.text
 
-                                    lines : List String
-                                    lines =
-                                        Text.lines m.text
+                            lines : List String
+                            lines =
+                                Text.lines model.text
 
-                                    updateLine : String
-                                    updateLine =
-                                        item
-                                            |> Item.withText (text |> FontStyle.apply style)
-                                            |> Item.withSettings (Just settings)
-                                            |> Item.withComments comment
-                                            |> Item.toLineString
-                                in
-                                Return.singleton m
-                                    |> setText
-                                        (setAt (Item.getLineNo item) updateLine lines
-                                            |> String.join "\n"
-                                        )
-                            )
-                        |> Maybe.withDefault (Return.singleton m)
+                            updateLine : String
+                            updateLine =
+                                item
+                                    |> Item.withText (text |> FontStyle.apply style)
+                                    |> Item.withSettings (Just settings)
+                                    |> Item.withComments comment
+                                    |> Item.toLineString
+                        in
+                        setText (setAt (Item.getLineNo item) updateLine lines |> String.join "\n")
+                    )
+                |> Maybe.withDefault Return.zero
 
         DropFiles files ->
-            Return.andThen <|
-                \m ->
-                    Return.return
-                        { m | dragStatus = NoDrag }
-                        (List.filter (\file -> File.mime file |> String.startsWith "text/") files
-                            |> List.head
-                            |> Maybe.map File.toString
-                            |> Maybe.withDefault (Task.succeed "")
-                            |> Task.perform LoadFile
-                        )
+            Return.map (\m -> { m | dragStatus = NoDrag })
+                >> (List.filter (\file -> File.mime file |> String.startsWith "text/") files
+                        |> List.head
+                        |> Maybe.map File.toString
+                        |> Maybe.withDefault (Task.succeed "")
+                        |> Task.perform LoadFile
+                        |> Return.command
+                   )
 
         LoadFile file ->
             if String.isEmpty file then
@@ -379,50 +368,47 @@ update message =
             Return.map <| \m -> { m | dragStatus = status }
 
         FontSizeChanged size ->
-            Return.andThen <|
-                \m ->
-                    m.selectedItem
-                        |> Maybe.map
-                            (\item ->
-                                let
-                                    ( mainText, settings, comment ) =
-                                        Item.split currentText
+            model.selectedItem
+                |> Maybe.map
+                    (\item ->
+                        let
+                            ( mainText, settings, comment ) =
+                                Item.split currentText
 
-                                    currentText : String
-                                    currentText =
-                                        Text.getLine (Item.getLineNo item) m.text
+                            currentText : String
+                            currentText =
+                                Text.getLine (Item.getLineNo item) model.text
 
-                                    lines : List String
-                                    lines =
-                                        Text.lines m.text
+                            lines : List String
+                            lines =
+                                Text.lines model.text
 
-                                    text : String
-                                    text =
-                                        item
-                                            |> Item.withText mainText
-                                            |> Item.withSettings (Just (settings |> ItemSettings.withFontSize size))
-                                            |> Item.withComments comment
-                                            |> Item.toLineString
+                            text : String
+                            text =
+                                item
+                                    |> Item.withText mainText
+                                    |> Item.withSettings (Just (settings |> ItemSettings.withFontSize size))
+                                    |> Item.withComments comment
+                                    |> Item.toLineString
 
-                                    updateText : String
-                                    updateText =
-                                        setAt (Item.getLineNo item) text lines
-                                            |> String.join "\n"
-                                in
-                                Return.singleton m
-                                    |> closeDropDown
-                                    |> setText updateText
-                                    |> selectItem
-                                        (Just
-                                            (item
-                                                |> Item.withSettings
-                                                    (Item.getSettings item
-                                                        |> Maybe.map (\s -> ItemSettings.withFontSize size <| s)
-                                                    )
+                            updateText : String
+                            updateText =
+                                setAt (Item.getLineNo item) text lines
+                                    |> String.join "\n"
+                        in
+                        closeDropDown
+                            >> setText updateText
+                            >> selectItem
+                                (Just
+                                    (item
+                                        |> Item.withSettings
+                                            (Item.getSettings item
+                                                |> Maybe.map (ItemSettings.withFontSize size)
                                             )
-                                        )
-                            )
-                        |> Maybe.withDefault (Return.singleton m)
+                                    )
+                                )
+                    )
+                |> Maybe.withDefault Return.zero
 
         ToggleDropDownList id ->
             Return.map <|
@@ -440,18 +426,16 @@ update message =
             Return.map <| \m -> { m | showMiniMap = not m.showMiniMap }
 
         ToggleSearch ->
-            Return.andThen <|
-                \m ->
-                    let
-                        diagramData : DiagramData.Data
-                        diagramData =
-                            updateData (Text.toString m.text) m.data items
+            let
+                diagramData : DiagramData.Data
+                diagramData =
+                    updateData (Text.toString model.text) model.data items
 
-                        items : Items
-                        items =
-                            Item.searchClear m.items
-                    in
-                    Return.singleton { m | items = items, data = diagramData, search = SearchModel.toggle m.search }
+                items : Items
+                items =
+                    Item.searchClear model.items
+            in
+            Return.map <| \m -> { m | items = items, data = diagramData, search = SearchModel.toggle m.search }
 
         ToolbarClick item ->
             Item.toLineString item |> Ports.insertText |> Return.command
@@ -464,22 +448,20 @@ update message =
                 >> clearPosition
 
         Search query ->
-            Return.andThen <|
-                \m ->
-                    let
-                        diagramData : DiagramData.Data
-                        diagramData =
-                            updateData (Text.toString m.text) m.data items
+            let
+                diagramData : DiagramData.Data
+                diagramData =
+                    updateData (Text.toString model.text) model.data items
 
-                        items : Items
-                        items =
-                            if String.isEmpty query then
-                                Item.searchClear m.items
+                items : Items
+                items =
+                    if String.isEmpty query then
+                        Item.searchClear model.items
 
-                            else
-                                Item.search m.items query
-                    in
-                    Return.singleton { m | items = items, data = diagramData, search = SearchModel.search query }
+                    else
+                        Item.search model.items query
+            in
+            Return.map <| \m -> { m | items = items, data = diagramData, search = SearchModel.search query }
 
         Start moveState pos ->
             Return.map <| \m -> { m | moveState = moveState, movePosition = pos }
@@ -495,36 +477,30 @@ update message =
             Return.map <| \m -> { m | selectedItem = Nothing }
 
         SelectContextMenu menu ->
-            Return.andThen <|
-                \m ->
-                    m.contextMenu
-                        |> Maybe.map (\contextMenu -> Return.singleton { m | contextMenu = Just { contextMenu | contextMenu = menu } })
-                        |> Maybe.withDefault (Return.singleton m)
+            model.contextMenu
+                |> Maybe.map (\contextMenu -> Return.map (\m -> { m | contextMenu = Just { contextMenu | contextMenu = menu } }))
+                |> Maybe.withDefault Return.zero
 
         Stop ->
-            Return.andThen
-                (\m ->
-                    Return.singleton m
-                        |> (case m.moveState of
-                                Diagram.ItemMove target ->
-                                    case target of
-                                        Diagram.TableTarget table ->
-                                            let
-                                                (ErDiagramModel.Table _ _ _ lineNo) =
-                                                    table
-                                            in
-                                            setLine lineNo (Text.lines m.text) (ErDiagramModel.tableToLineString table)
+            (case model.moveState of
+                Diagram.ItemMove target ->
+                    case target of
+                        Diagram.TableTarget table ->
+                            let
+                                (ErDiagramModel.Table _ _ _ lineNo) =
+                                    table
+                            in
+                            setLine lineNo (Text.lines model.text) (ErDiagramModel.tableToLineString table)
 
-                                        Diagram.ItemTarget item ->
-                                            setLine (Item.getLineNo item) (Text.lines m.text) (Item.toLineString item)
+                        Diagram.ItemTarget item ->
+                            setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item)
 
-                                Diagram.ItemResize item _ ->
-                                    setLine (Item.getLineNo item) (Text.lines m.text) (Item.toLineString item)
+                Diagram.ItemResize item _ ->
+                    setLine (Item.getLineNo item) (Text.lines model.text) (Item.toLineString item)
 
-                                _ ->
-                                    Return.zero
-                           )
-                )
+                _ ->
+                    Return.zero
+            )
                 >> Return.andThen stopMove
 
         SelectFromLineNo lineNo text ->
@@ -540,38 +516,36 @@ update message =
                 selectItem <| Just item
 
         ToolbarAutoArrangeClick ->
-            Return.andThen <|
-                \m ->
-                    let
-                        items : Items
-                        items =
-                            m.items
-                                |> Item.mapWithRecursive (\item -> Item.resetOffset item)
+            let
+                items : Items
+                items =
+                    model.items
+                        |> Item.mapWithRecursive (\item -> Item.resetOffset item)
 
-                        lines : List String
-                        lines =
-                            Text.lines m.text
+                lines : List String
+                lines =
+                    Text.lines model.text
 
-                        updatedText : String
-                        updatedText =
-                            List.foldl
-                                (\item updatedLines ->
-                                    let
-                                        lineNo : Int
-                                        lineNo =
-                                            Item.getLineNo item
-                                    in
-                                    setAt lineNo (Item.toLineString item) updatedLines
-                                )
-                                lines
-                                (items
-                                    |> Item.flatten
-                                    |> Item.unwrap
-                                )
-                                |> String.join "\n"
-                    in
-                    Return.singleton { m | items = items }
-                        |> setText updatedText
+                updatedText : String
+                updatedText =
+                    List.foldl
+                        (\item updatedLines ->
+                            let
+                                lineNo : Int
+                                lineNo =
+                                    Item.getLineNo item
+                            in
+                            setAt lineNo (Item.toLineString item) updatedLines
+                        )
+                        lines
+                        (items
+                            |> Item.flatten
+                            |> Item.unwrap
+                        )
+                        |> String.join "\n"
+            in
+            Return.map (\m -> { m | items = items })
+                >> setText updatedText
 
 
 
@@ -989,55 +963,63 @@ move isWheelEvent ( x, y ) m =
 -- Update
 
 
-onTouchDragMove : Maybe Float -> Diagram.MoveState -> Svg.Attribute Msg
-onTouchDragMove distance moveState =
+onTouchNotMove : Svg.Attribute Msg
+onTouchNotMove =
+    Attr.style "" ""
+
+
+onMultiTouchMove : Maybe Float -> List Touch.Touch -> Msg
+onMultiTouchMove distance changedTouches =
+    let
+        p1 : ( Float, Float )
+        p1 =
+            getAt 0 changedTouches
+                |> Maybe.map .pagePos
+                |> Maybe.withDefault ( 0.0, 0.0 )
+
+        p2 : ( Float, Float )
+        p2 =
+            getAt 1 changedTouches
+                |> Maybe.map .pagePos
+                |> Maybe.withDefault ( 0.0, 0.0 )
+    in
+    distance
+        |> Maybe.map
+            (\x ->
+                let
+                    newDistance : Float
+                    newDistance =
+                        Utils.calcDistance p1 p2
+                in
+                if newDistance / x > 1.0 then
+                    PinchIn newDistance
+
+                else if newDistance / x < 1.0 then
+                    PinchOut newDistance
+
+                else
+                    NoOp
+            )
+        |> Maybe.withDefault (StartPinch (Utils.calcDistance p1 p2))
+
+
+onTouchDrag : Maybe Float -> Diagram.MoveState -> Svg.Attribute Msg
+onTouchDrag distance moveState =
     case moveState of
         Diagram.NotMove ->
-            Attr.style "" ""
+            onTouchNotMove
 
         _ ->
             Attr.fromUnstyled <|
                 Touch.onMove <|
                     \event ->
                         if List.length event.changedTouches > 1 then
-                            let
-                                p1 : ( Float, Float )
-                                p1 =
-                                    getAt 0 event.changedTouches
-                                        |> Maybe.map .pagePos
-                                        |> Maybe.withDefault ( 0.0, 0.0 )
-
-                                p2 : ( Float, Float )
-                                p2 =
-                                    getAt 1 event.changedTouches
-                                        |> Maybe.map .pagePos
-                                        |> Maybe.withDefault ( 0.0, 0.0 )
-                            in
-                            case distance of
-                                Just x ->
-                                    let
-                                        newDistance : Float
-                                        newDistance =
-                                            Utils.calcDistance p1 p2
-                                    in
-                                    if newDistance / x > 1.0 then
-                                        PinchIn newDistance
-
-                                    else if newDistance / x < 1.0 then
-                                        PinchOut newDistance
-
-                                    else
-                                        NoOp
-
-                                Nothing ->
-                                    StartPinch (Utils.calcDistance p1 p2)
+                            onMultiTouchMove distance event.changedTouches
 
                         else
-                            let
-                                ( x, y ) =
-                                    touchCoordinates event
-                            in
-                            Move False ( round x, round y )
+                            touchCoordinates event
+                                |> Tuple.mapBoth round round
+                                |> Move False
 
 
 onDragMove : Diagram.MoveState -> Svg.Attribute Msg
@@ -1144,42 +1126,52 @@ stopMove model =
         }
 
 
-svgView : Model -> Position -> Size -> Svg Msg -> Svg Msg
-svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
-    let
-        backgroundImage : Svg.Attribute Msg
-        backgroundImage =
-            case Property.getBackgroundImage model.property of
-                Just image ->
-                    SvgAttr.style <| "background-image: url(" ++ BackgroundImage.toString image ++ ")"
+backgroundImageStyle : Property.Property -> Svg.Attribute Msg
+backgroundImageStyle property =
+    case Property.getBackgroundImage property of
+        Just image ->
+            SvgAttr.style <| "background-image: url(" ++ BackgroundImage.toString image ++ ")"
 
-                Nothing ->
-                    SvgAttr.style ""
-    in
+        Nothing ->
+            SvgAttr.style ""
+
+
+widthStyle : { svgSize : Size, windowSize : Size, isFullscreen : Bool } -> Svg.Attribute Msg
+widthStyle { svgSize, windowSize, isFullscreen } =
+    SvgAttr.width
+        (String.fromInt
+            (if Utils.isPhone (Size.getWidth windowSize) || isFullscreen then
+                Size.getWidth svgSize
+
+             else if Size.getWidth windowSize - 56 > 0 then
+                Size.getWidth windowSize - 56
+
+             else
+                0
+            )
+        )
+
+
+heightStyle : { svgSize : Size, windowSize : Size, isFullscreen : Bool } -> Svg.Attribute Msg
+heightStyle { svgSize, windowSize, isFullscreen } =
+    SvgAttr.height
+        (String.fromInt <|
+            if isFullscreen then
+                Size.getHeight svgSize
+
+            else
+                Size.getHeight windowSize
+        )
+
+
+svgView : Model -> Position -> Size -> Svg Msg -> Svg Msg
+svgView model centerPosition (( svgWidth, svgHeight ) as svgSize) mainSvg =
     Svg.svg
         [ Attr.id "usm"
         , Attributes.dataTest "diagram"
-        , backgroundImage
-        , SvgAttr.width
-            (String.fromInt
-                (if Utils.isPhone (Size.getWidth model.windowSize) || model.diagram.isFullscreen then
-                    svgWidth
-
-                 else if Size.getWidth model.windowSize - 56 > 0 then
-                    Size.getWidth model.windowSize - 56
-
-                 else
-                    0
-                )
-            )
-        , SvgAttr.height
-            (String.fromInt <|
-                if model.diagram.isFullscreen then
-                    svgHeight
-
-                else
-                    Size.getHeight model.windowSize
-            )
+        , backgroundImageStyle model.property
+        , widthStyle { svgSize = svgSize, windowSize = model.windowSize, isFullscreen = model.diagram.isFullscreen }
+        , heightStyle { svgSize = svgSize, windowSize = model.windowSize, isFullscreen = model.diagram.isFullscreen }
         , SvgAttr.viewBox ("0 0 " ++ String.fromInt svgWidth ++ " " ++ String.fromInt svgHeight)
         , DiagramSettings.getBackgroundColor model.settings model.property
             |> Color.toString
@@ -1193,7 +1185,7 @@ svgView model centerPosition ( svgWidth, svgHeight ) mainSvg =
         , onDragStart model.selectedItem
         , onTouchDragStart model.selectedItem
         , onDragMove model.moveState
-        , onTouchDragMove model.touchDistance model.moveState
+        , onTouchDrag model.touchDistance model.moveState
         ]
         [ if String.isEmpty model.settings.font then
             Svg.defs [] [ highlightDefs ]

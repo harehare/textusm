@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-unassigned-import
+import '@total-typescript/ts-reset';
 import copy from 'clipboard-copy';
 import { Workbox } from 'workbox-window';
 
