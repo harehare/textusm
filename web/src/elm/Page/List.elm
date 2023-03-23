@@ -1155,5 +1155,5 @@ update model message =
         Bookmarked (Err _) ->
             Return.zero
 
-        _ ->
+        Select _ ->
             Return.zero

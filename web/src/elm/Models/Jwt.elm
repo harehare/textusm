@@ -2,6 +2,7 @@ module Models.Jwt exposing (Jwt, fromString)
 
 import Base64
 import Json.Decode as D
+import Json.Decode.Pipeline exposing (required)
 import UrlBase64
 
 
@@ -29,10 +30,10 @@ fromString text =
 
 decoder : D.Decoder Jwt
 decoder =
-    D.map6 Jwt
-        (D.field "exp" D.int)
-        (D.field "iat" D.int)
-        (D.field "jti" D.string)
-        (D.field "sub" D.string)
-        (D.field "check_password" D.bool)
-        (D.field "check_email" D.bool)
+    D.succeed Jwt
+        |> required "exp" D.int
+        |> required "iat" D.int
+        |> required "jti" D.string
+        |> required "sub" D.string
+        |> required "check_password" D.bool
+        |> required "check_email" D.bool

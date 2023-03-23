@@ -161,7 +161,7 @@ update (UpdateDiagram subMsg) model =
         DiagramModel.ChangeText text ->
             let
                 ( model_, _ ) =
-                    Return.singleton model.diagramModel |> Diagram.update subMsg
+                    Return.singleton model.diagramModel |> Diagram.update model.diagramModel subMsg
             in
             ( { model | text = text, diagramModel = model_ }, Cmd.none )
 
@@ -171,7 +171,7 @@ update (UpdateDiagram subMsg) model =
         _ ->
             let
                 ( model_, cmd_ ) =
-                    Return.singleton model.diagramModel |> Diagram.update subMsg
+                    Return.singleton model.diagramModel |> Diagram.update model.diagramModel subMsg
             in
             ( { model | diagramModel = model_ }, cmd_ |> Cmd.map UpdateDiagram )
 

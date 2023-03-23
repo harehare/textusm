@@ -82,7 +82,7 @@ main : Program InitData Model Msg
 main =
     Browser.element
         { init = init
-        , update = \msg m -> Return.singleton m |> update msg
+        , update = \msg m -> Return.singleton m |> update m msg
         , view = \m -> Html.toUnstyled <| view m
         , subscriptions = subscriptions
         }
@@ -166,67 +166,63 @@ subscriptions _ =
         ]
 
 
-update : Msg -> Return.ReturnF Msg Model
-update message =
+update : Model -> Msg -> Return.ReturnF Msg Model
+update model message =
     case message of
         UpdateDiagram subMsg ->
-            Return.andThen <|
-                \m ->
-                    let
-                        ( model_, cmd_ ) =
-                            Return.singleton m.diagramModel |> Diagram.update subMsg
+            let
+                ( model_, cmd_ ) =
+                    Return.singleton model.diagramModel |> Diagram.update model.diagramModel subMsg
 
-                        model : Model
-                        model =
-                            { m | diagramModel = model_ }
-                    in
-                    Return.return model
-                        (cmd_ |> Cmd.map UpdateDiagram)
-                        |> (case subMsg of
-                                DiagramModel.EndEditSelectedItem _ ->
+                m : Model
+                m =
+                    { model | diagramModel = model_ }
+            in
+            Return.command
+                (cmd_ |> Cmd.map UpdateDiagram)
+                >> (case subMsg of
+                        DiagramModel.EndEditSelectedItem _ ->
+                            Return.andThen (updateText model_.text)
+
+                        DiagramModel.ColorChanged _ _ ->
+                            Return.andThen (updateText model_.text)
+
+                        DiagramModel.FontStyleChanged _ ->
+                            Return.andThen (updateText model_.text)
+
+                        DiagramModel.FontSizeChanged _ ->
+                            Return.andThen (updateText model_.text)
+
+                        DiagramModel.Stop ->
+                            case m.diagramModel.moveState of
+                                DiagramModel.ItemMove _ ->
                                     Return.andThen (updateText model_.text)
 
-                                DiagramModel.ColorChanged _ _ ->
+                                DiagramModel.ItemResize _ _ ->
                                     Return.andThen (updateText model_.text)
-
-                                DiagramModel.FontStyleChanged _ ->
-                                    Return.andThen (updateText model_.text)
-
-                                DiagramModel.FontSizeChanged _ ->
-                                    Return.andThen (updateText model_.text)
-
-                                DiagramModel.Stop ->
-                                    case m.diagramModel.moveState of
-                                        DiagramModel.ItemMove _ ->
-                                            Return.andThen (updateText model_.text)
-
-                                        DiagramModel.ItemResize _ _ ->
-                                            Return.andThen (updateText model_.text)
-
-                                        _ ->
-                                            Return.zero
 
                                 _ ->
                                     Return.zero
-                           )
+
+                        _ ->
+                            Return.zero
+                   )
 
         GetCanvasSize diagramType ->
-            Return.andThen <|
-                \m ->
-                    let
-                        diagramModel : DiagramModel.Model
-                        diagramModel =
-                            m.diagramModel
+            let
+                diagramModel : DiagramModel.Model
+                diagramModel =
+                    model.diagramModel
 
-                        newDiagramModel : DiagramModel.Model
-                        newDiagramModel =
-                            { diagramModel | diagramType = DiagramType.fromString diagramType }
+                newDiagramModel : DiagramModel.Model
+                newDiagramModel =
+                    { diagramModel | diagramType = DiagramType.fromString diagramType }
 
-                        size : Size
-                        size =
-                            DiagramModel.size newDiagramModel
-                    in
-                    Return.return m <| onGetCanvasSize size
+                size : Size
+                size =
+                    DiagramModel.size newDiagramModel
+            in
+            Return.command <| onGetCanvasSize size
 
 
 updateText : Text -> Model -> Return Msg Model

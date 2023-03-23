@@ -31,9 +31,9 @@ import Json.Decode.Pipeline exposing (optional, required)
 import Json.Encode as E
 import Json.Encode.Extra exposing (maybe)
 import Models.Color as Color
+import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation exposing (Location)
 import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Theme as Theme exposing (Theme)
 import Monocle.Compose as Compose
 import Monocle.Lens exposing (Lens)
@@ -250,9 +250,9 @@ storyMapOfSettings =
 
 colorDecoder : D.Decoder DiagramSettings.Color
 colorDecoder =
-    D.map2 DiagramSettings.Color
-        (D.field "color" D.string)
-        (D.field "backgroundColor" D.string)
+    D.succeed DiagramSettings.Color
+        |> required "color" D.string
+        |> required "backgroundColor" D.string
 
 
 colorEncoder : DiagramSettings.Color -> E.Value
@@ -265,13 +265,13 @@ colorEncoder color =
 
 colorSettingsDecoder : D.Decoder DiagramSettings.ColorSettings
 colorSettingsDecoder =
-    D.map6 DiagramSettings.ColorSettings
-        (D.field "activity" colorDecoder)
-        (D.field "task" colorDecoder)
-        (D.field "story" colorDecoder)
-        (D.field "line" D.string)
-        (D.field "label" D.string)
-        (D.maybe (D.field "text" D.string))
+    D.succeed DiagramSettings.ColorSettings
+        |> required "activity" colorDecoder
+        |> required "task" colorDecoder
+        |> required "story" colorDecoder
+        |> required "line" D.string
+        |> required "label" D.string
+        |> optional "text" (D.map Just D.string) Nothing
 
 
 colorSettingsEncoder : DiagramSettings.ColorSettings -> E.Value
@@ -288,14 +288,14 @@ colorSettingsEncoder colorSettings =
 
 diagramDecoder : D.Decoder DiagramSettings.Settings
 diagramDecoder =
-    D.map7 DiagramSettings.Settings
-        (D.field "font" D.string)
-        (D.field "size" sizeDecoder)
-        (D.field "color" colorSettingsDecoder)
-        (D.field "backgroundColor" D.string)
-        (D.maybe (D.field "zoomControl" D.bool))
-        (D.maybe (D.field "scale" D.float))
-        (D.maybe (D.field "toolbar" D.bool))
+    D.succeed DiagramSettings.Settings
+        |> required "font" D.string
+        |> required "size" sizeDecoder
+        |> required "color" colorSettingsDecoder
+        |> required "backgroundColor" D.string
+        |> optional "zoomControl" (D.map Just D.bool) Nothing
+        |> optional "scale" (D.map Just D.float) Nothing
+        |> optional "toolbar" (D.map Just D.bool) Nothing
 
 
 diagramEncoder : DiagramSettings.Settings -> E.Value
@@ -333,10 +333,10 @@ editorOfWordWrap =
 
 editorSettingsDecoder : D.Decoder EditorSettings
 editorSettingsDecoder =
-    D.map3 EditorSettings
-        (D.field "fontSize" D.int)
-        (D.field "wordWrap" D.bool)
-        (D.field "showLineNumber" D.bool)
+    D.succeed EditorSettings
+        |> required "fontSize" D.int
+        |> required "wordWrap" D.bool
+        |> required "showLineNumber" D.bool
 
 
 editorSettingsEncoder : EditorSettings -> E.Value
@@ -350,9 +350,9 @@ editorSettingsEncoder editorSettings =
 
 sizeDecoder : D.Decoder DiagramSettings.Size
 sizeDecoder =
-    D.map2 DiagramSettings.Size
-        (D.field "width" D.int)
-        (D.field "height" D.int)
+    D.succeed DiagramSettings.Size
+        |> required "width" D.int
+        |> required "height" D.int
 
 
 sizeEncoder : DiagramSettings.Size -> E.Value
