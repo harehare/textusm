@@ -2,7 +2,7 @@ module Effect exposing
     ( changePublicState
     , changeRouteInit
     , closeLocalFile
-    , getGistToken
+    , getGistTokenAfterSave
     , historyBack
     , loadItem
     , loadLocalDiagram
@@ -187,8 +187,8 @@ loadText msg diagram =
         |> Return.command
 
 
-getGistToken : Return.ReturnF msg model
-getGistToken =
+getGistTokenAfterSave : Return.ReturnF msg model
+getGistTokenAfterSave =
     Return.command <| Ports.getGithubAccessToken ""
 
 

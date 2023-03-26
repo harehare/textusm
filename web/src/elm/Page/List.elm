@@ -791,6 +791,26 @@ reload =
     Return.andThen <| \m -> Return.return { m | diagramList = notAsked } (getDiagrams ())
 
 
+hasMorePageInBookmarkList : DiagramList -> Bool
+hasMorePageInBookmarkList diagramList =
+    case diagramList of
+        BookmarkList _ _ h ->
+            h
+
+        _ ->
+            False
+
+
+hasMorePageInPublicList : DiagramList -> Bool
+hasMorePageInPublicList diagramList =
+    case diagramList of
+        PublicList _ _ h ->
+            h
+
+        _ ->
+            False
+
+
 update : Model -> Msg -> Return.ReturnF Msg Model
 update model message =
     case message of
@@ -832,23 +852,12 @@ update model message =
                     )
 
         GetPublicDiagrams pageNo ->
-            let
-                hasMorePage : Bool
-                hasMorePage =
-                    case model.diagramList of
-                        PublicList _ _ h ->
-                            h
-
-                        _ ->
-                            False
-
-                remoteTask : Task.Task RequestError (List DiagramItem)
-                remoteTask =
-                    Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
+            Return.map (\m -> { m | diagramList = PublicList Loading pageNo <| hasMorePageInPublicList model.diagramList })
+                >> Return.command
+                    (Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = True, isBookmark = False }
                         |> Task.map (\i -> List.filterMap identity i)
-            in
-            Return.map (\m -> { m | diagramList = PublicList Loading pageNo hasMorePage })
-                >> Return.command (Task.attempt GotPublicDiagrams remoteTask)
+                        |> Task.attempt GotPublicDiagrams
+                    )
 
         GotPublicDiagrams (Ok diagrams) ->
             let
@@ -873,23 +882,12 @@ update model message =
             Return.zero
 
         GetBookmarkDiagrams pageNo ->
-            let
-                hasMorePage : Bool
-                hasMorePage =
-                    case model.diagramList of
-                        BookmarkList _ _ h ->
-                            h
-
-                        _ ->
-                            False
-
-                remoteTask : Task.Task RequestError (List DiagramItem)
-                remoteTask =
-                    Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = True }
+            Return.map (\m -> { m | diagramList = BookmarkList Loading pageNo <| hasMorePageInBookmarkList model.diagramList })
+                >> Return.command
+                    (Request.items (Session.getIdToken model.session) (pageOffsetAndLimit pageNo) { isPublic = False, isBookmark = True }
                         |> Task.map (\i -> List.filterMap identity i)
-            in
-            Return.map (\m -> { m | diagramList = BookmarkList Loading pageNo hasMorePage })
-                >> Return.command (Task.attempt GotBookmarkDiagrams remoteTask)
+                        |> Task.attempt GotBookmarkDiagrams
+                    )
 
         GetDiagrams ->
             reload
@@ -937,10 +935,6 @@ update model message =
 
         GotGistDiagrams (Ok diagrams) ->
             let
-                hasMorePage : Bool
-                hasMorePage =
-                    List.length diagrams >= pageSize
-
                 ( pageNo, allDiagrams ) =
                     case model.diagramList of
                         GistList (Success currentDiagrams) p _ ->
@@ -952,7 +946,7 @@ update model message =
                         _ ->
                             ( 1, Success diagrams )
             in
-            Return.map (\m -> { m | diagramList = GistList allDiagrams pageNo hasMorePage })
+            Return.map (\m -> { m | diagramList = GistList allDiagrams pageNo (List.length diagrams >= pageSize) })
 
         GotGistDiagrams (Err _) ->
             Return.zero
@@ -1098,13 +1092,7 @@ update model message =
                 >> Return.command
                     (Task.attempt Bookmarked
                         (Request.bookmark (Session.getIdToken model.session)
-                            (case diagram.id of
-                                Just id ->
-                                    DiagramId.toString id
-
-                                Nothing ->
-                                    ""
-                            )
+                            (Maybe.map DiagramId.toString diagram.id |> Maybe.withDefault "")
                             (not diagram.isBookmark)
                             |> Task.map (\_ -> ())
                         )

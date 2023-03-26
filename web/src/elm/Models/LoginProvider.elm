@@ -1,7 +1,6 @@
 module Models.LoginProvider exposing (AccessToken, LoginProvider(..), decoder, isGithubLogin, toString)
 
 import Json.Decode as D
-import Json.Decode.Pipeline exposing (optional, required)
 
 
 type alias AccessToken =
@@ -15,9 +14,9 @@ type LoginProvider
 
 decoder : D.Decoder LoginProvider
 decoder =
-    D.succeed from
-        |> required "provider" D.string
-        |> optional "accessToken" (D.map Just D.string) Nothing
+    D.map2 from
+        (D.field "provider" D.string)
+        (D.maybe (D.field "accessToken" D.string))
 
 
 isGithubLogin : LoginProvider -> Bool

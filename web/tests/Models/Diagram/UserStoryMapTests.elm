@@ -1,4 +1,4 @@
-module Models.UserStoryMapTests exposing (suite)
+module Models.Diagram.UserStoryMapTests exposing (suite)
 
 import Expect
 import Models.Diagram.UserStoryMap as UserStoryMap

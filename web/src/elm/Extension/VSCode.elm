@@ -178,8 +178,8 @@ update model message =
                 m =
                     { model | diagramModel = model_ }
             in
-            Return.command
-                (cmd_ |> Cmd.map UpdateDiagram)
+            Return.map (\_ -> m)
+                >> Return.command (cmd_ |> Cmd.map UpdateDiagram)
                 >> (case subMsg of
                         DiagramModel.EndEditSelectedItem _ ->
                             Return.andThen (updateText model_.text)

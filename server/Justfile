@@ -1,49 +1,37 @@
 alias g := generate
 
-go := "go"
+main := "cmd/main.go"
 module := "github.com/harehare/textusm"
-run := go + " run"
-fmt := go + " fmt"
-build := go + " build"
-test := go + " test"
-generate := go + " generate"
 lint := "staticcheck"
 sec := "gosec"
-main := "cmd/main.go"
 target := "./..."
 
 setup:
-  {{ go }} get honnef.co/go/tools/cmd/staticcheck
-  {{ go }} get github.com/securego/gosec/v2/cmd/gosec
+  go get honnef.co/go/tools/cmd/staticcheck
+  go get github.com/securego/gosec/v2/cmd/gosec
   go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
 
 run:
-	{{ run }} {{ main }}
+	go {{ main }}
 
 build:
-	{{ build }} -o dist/textusm {{ main }}
+	go build -o dist/textusm {{ main }}
 
 build-linux:
-	GOOS="linux" GOARCH="amd64" {{ build }} -o dist/textusm {{ main }}
+	GOOS="linux" GOARCH="amd64" go build -o dist/textusm {{ main }}
 
 embed-build:
-	{{ build }} -tags embed -o textusm-embed {{ main }}
+	go build -tags embed -o textusm-embed {{ main }}
 
 generate:
-	{{ generate }} {{ target }}
+	go generate {{ target }}
 
 test:
-	{{ test }} {{ target }}
-
-fmt:
-  {{ fmt }}
+	go test {{ target }}
 
 lint:
 	{{ lint }} {{ module }}
 	{{ sec }} {{ target }}
-
-tidy:
-	{{ go }} mod tidy
 
 fix:
 	fieldalignment -fix pkg/domain/model/item/gistitem/gistitem.go

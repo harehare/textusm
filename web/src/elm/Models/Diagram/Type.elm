@@ -3,6 +3,7 @@ module Models.Diagram.Type exposing
     , defaultText
     , fromGraphqlValue
     , fromString
+    , fromTypeString
     , toDiagram
     , toGraphqlValue
     , toLongString
@@ -493,3 +494,61 @@ toTypeString diagramType =
 
         UseCaseDiagram ->
             "UseCaseDiagram"
+
+
+fromTypeString : String -> DiagramType
+fromTypeString s =
+    case s of
+        "BusinessModelCanvas" ->
+            BusinessModelCanvas
+
+        "OpportunityCanvas" ->
+            OpportunityCanvas
+
+        "4Ls" ->
+            Fourls
+
+        "StartStopContinue" ->
+            StartStopContinue
+
+        "Kpt" ->
+            Kpt
+
+        "UserPersona" ->
+            UserPersona
+
+        "MindMap" ->
+            MindMap
+
+        "EmpathyMap" ->
+            EmpathyMap
+
+        "Table" ->
+            Table
+
+        "SiteMap" ->
+            SiteMap
+
+        "GanttChart" ->
+            GanttChart
+
+        "ImpactMap" ->
+            ImpactMap
+
+        "ER" ->
+            ErDiagram
+
+        "Kanban" ->
+            Kanban
+
+        "SequenceDiagram" ->
+            SequenceDiagram
+
+        "Freeform" ->
+            Freeform
+
+        "UseCaseDiagram" ->
+            UseCaseDiagram
+
+        _ ->
+            UserStoryMap

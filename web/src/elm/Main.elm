@@ -692,7 +692,7 @@ save =
                     )
                     >> (case ( location, Session.loginProvider m.session ) of
                             ( DiagramLocation.Gist, Just (LoginProvider.Github Nothing) ) ->
-                                Effect.getGistToken
+                                Effect.getGistTokenAfterSave
 
                             ( DiagramLocation.Gist, _ ) ->
                                 Effect.saveDiagram diagram

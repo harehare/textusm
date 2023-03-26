@@ -12,7 +12,7 @@ import Models.Diagram.Data as DiagramData
 import Models.Diagram.Scale as Scale
 import Models.Diagram.Search as Search
 import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type exposing (DiagramType(..))
+import Models.Diagram.Type as DiagramType
 import Models.Item as Item
 import Models.Property as Property
 import Models.Text as Text
@@ -73,60 +73,7 @@ init flags =
             , showZoomControl = flags.showZoomControl
             , showMiniMap = False
             , contextMenu = Nothing
-            , diagramType =
-                if flags.diagramType == "BusinessModelCanvas" then
-                    BusinessModelCanvas
-
-                else if flags.diagramType == "OpportunityCanvas" then
-                    OpportunityCanvas
-
-                else if flags.diagramType == "4Ls" then
-                    Fourls
-
-                else if flags.diagramType == "StartStopContinue" then
-                    StartStopContinue
-
-                else if flags.diagramType == "Kpt" then
-                    Kpt
-
-                else if flags.diagramType == "UserPersona" then
-                    UserPersona
-
-                else if flags.diagramType == "MindMap" then
-                    MindMap
-
-                else if flags.diagramType == "EmpathyMap" then
-                    EmpathyMap
-
-                else if flags.diagramType == "Table" then
-                    Table
-
-                else if flags.diagramType == "SiteMap" then
-                    SiteMap
-
-                else if flags.diagramType == "GanttChart" then
-                    GanttChart
-
-                else if flags.diagramType == "ImpactMap" then
-                    ImpactMap
-
-                else if flags.diagramType == "ER" then
-                    ErDiagram
-
-                else if flags.diagramType == "Kanban" then
-                    Kanban
-
-                else if flags.diagramType == "SequenceDiagram" then
-                    SequenceDiagram
-
-                else if flags.diagramType == "Freeform" then
-                    Freeform
-
-                else if flags.diagramType == "UseCaseDiagram" then
-                    UseCaseDiagram
-
-                else
-                    UserStoryMap
+            , diagramType = DiagramType.fromTypeString flags.diagramType
             , text = Text.empty
             , selectedItem = Nothing
             , settings = flags.settings

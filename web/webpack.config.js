@@ -9,11 +9,12 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const PreloadWebpackPlugin = require('preload-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const HTMLInlineCSSWebpackPlugin = require('html-inline-css-webpack-plugin').default;
 const SentryWebpackPlugin = require('@sentry/webpack-plugin');
 const devcert = require('devcert');
+const { getPort } = require('get-port-please')
+
 
 const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 const dist = path.join(__dirname, 'dist');
@@ -48,10 +49,6 @@ const common = {
       'NODE_ENV',
       'FIREBASE_AUTH_EMULATOR_HOST',
     ]),
-    new PreloadWebpackPlugin({
-      rel: 'preload',
-      include: ['runtime', 'vendors'],
-    }),
     new MonacoWebpackPlugin({
       languages: [],
       features: ['clipboard'],
@@ -129,6 +126,9 @@ const common = {
 
 if (mode === 'development') {
   module.exports = (async () => {
+    const port = await getPort({
+      port: 3000,
+    });
     const { key, cert } = await devcert.certificateFor('localhost');
     fs.mkdirSync('../certs/', { recursive: true });
     fs.writeFileSync('../certs/localhost.key', key);
@@ -158,6 +158,8 @@ if (mode === 'development') {
       devServer: {
         hot: true,
         historyApiFallback: true,
+        host: '0.0.0.0',
+        port,
         static: path.join(__dirname, 'src/assets'),
         https: process.env.USE_HTTPS
           ? {
@@ -198,8 +200,6 @@ if (mode === 'production') {
       }),
       new HTMLInlineCSSWebpackPlugin(),
       new CleanWebpackPlugin({
-        root: __dirname,
-        exclude: [],
         verbose: false,
         dry: false,
       }),
@@ -217,10 +217,10 @@ if (mode === 'production') {
       ...(process.env.SENTRY_ENABLE === '1'
         ? [
             new SentryWebpackPlugin({
-              authToken: process.env.SENTRY_AUTH_TOKEN,
-              org: process.env.SENTRY_ORG,
-              project: process.env.SENTRY_PROJECT,
-              release: process.env.SENTRY_RELEASE,
+              authToken: process.env.SENTRY_AUTH_TOKEN ?? "",
+              org: process.env.SENTRY_ORG ?? "",
+              project: process.env.SENTRY_PROJECT ?? "",
+              release: process.env.SENTRY_RELEASE ?? "",
               include: './dist',
               ignore: ['node_modules', 'webpack.config.js'],
             }),

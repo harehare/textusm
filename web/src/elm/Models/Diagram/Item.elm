@@ -22,7 +22,6 @@ module Models.Diagram.Item exposing
     )
 
 import Graphql.InputObject exposing (InputGistItem, InputItem)
-import Graphql.Object.GistItem exposing (thumbnail)
 import Graphql.OptionalArgument as OptionalArgument
 import Graphql.Scalar
 import Graphql.SelectionSet as SelectionSet exposing (SelectionSet)
