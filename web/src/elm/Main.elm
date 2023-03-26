@@ -363,28 +363,29 @@ init flags url key =
     Return.singleton model |> changeRouteTo (toRoute url)
 
 
-showDialog : Dialog.ConfirmDialog Msg -> Html Msg
+showDialog : Dialog.ConfirmDialog Msg -> Maybe (Html Msg)
 showDialog d =
     case d of
         Dialog.Hide ->
-            Empty.view
+            Nothing
 
         Dialog.Show { title, message, ok, cancel } ->
-            ConfirmDialog.view
-                { title = title
-                , message = message
-                , okButton = { text = "Ok", onClick = ok }
-                , cancelButton = { text = "Cancel", onClick = cancel }
-                }
+            Just <|
+                ConfirmDialog.view
+                    { title = title
+                    , message = message
+                    , okButton = { text = "Ok", onClick = ok }
+                    , cancelButton = { text = "Cancel", onClick = cancel }
+                    }
 
 
-showProgress : Bool -> Html Msg
+showProgress : Bool -> Maybe (Html Msg)
 showProgress show =
     if show then
-        Progress.view
+        Just Progress.view
 
     else
-        Empty.view
+        Nothing
 
 
 setCurrentDiagram : DiagramItem -> Return.ReturnF Msg Model
@@ -1517,12 +1518,11 @@ view model =
         [ Attr.css [ position relative, Style.widthScreen ]
         , E.onClick M.CloseMenu
         ]
-        [ GlobalStyle.style
-        , headerView model
-        , Lazy.lazy Notification.view model.notification
-        , Lazy.lazy Snackbar.view model.snackbar
-        , Lazy.lazy showProgress model.progress
-        , Html.div
+        ([ GlobalStyle.style
+         , headerView model
+         , Lazy.lazy Notification.view model.notification
+         , Lazy.lazy Snackbar.view model.snackbar
+         , Html.div
             [ Attr.css
                 [ displayFlex
                 , overflow hidden
@@ -1558,7 +1558,7 @@ view model =
                 _ ->
                     mainView model
             ]
-        , case toRoute model.url of
+         , case toRoute model.url of
             Share ->
                 Lazy.lazy Share.view model.shareModel |> Html.map M.UpdateShare
 
@@ -1585,9 +1585,14 @@ view model =
 
             _ ->
                 Empty.view
-        , Lazy.lazy showDialog model.confirmDialog
-        , Footer.view { diagramType = model.currentDiagram.diagram, onChangeDiagramType = M.ChangeDiagramType }
-        ]
+         , Footer.view { diagramType = model.currentDiagram.diagram, onChangeDiagramType = M.ChangeDiagramType }
+         ]
+            ++ ([ showProgress model.progress
+                , showDialog model.confirmDialog
+                ]
+                    |> List.filterMap identity
+               )
+        )
 
 
 windowState : Window -> Bool -> Size -> Window

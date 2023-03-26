@@ -12,7 +12,7 @@ setup:
   go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
 
 run:
-	go {{ main }}
+	go run {{ main }}
 
 build:
 	go build -o dist/textusm {{ main }}

@@ -284,19 +284,20 @@ load { session, isOnline } =
                 |> Return.command (getDiagrams ())
 
 
-showDialog : Dialog.ConfirmDialog Msg -> Html Msg
+showDialog : Dialog.ConfirmDialog Msg -> Maybe (Html Msg)
 showDialog d =
     case d of
         Dialog.Hide ->
-            Empty.view
+            Nothing
 
         Dialog.Show { title, message, ok, cancel } ->
-            ConfirmDialog.view
-                { title = title
-                , message = message
-                , okButton = { text = "Ok", onClick = ok }
-                , cancelButton = { text = "Cancel", onClick = cancel }
-                }
+            Just <|
+                ConfirmDialog.view
+                    { title = title
+                    , message = message
+                    , okButton = { text = "Ok", onClick = ok }
+                    , cancelButton = { text = "Cancel", onClick = cancel }
+                    }
 
 
 closeDialog : Return.ReturnF Msg Model
@@ -335,6 +336,62 @@ selectedItemStyle =
         ]
 
 
+publicMenu : Session -> DiagramList -> Bool -> Maybe (Html Msg)
+publicMenu session diagramList isOnline =
+    if Session.isSignedIn session && isOnline then
+        Just <|
+            Html.div
+                [ if isPublicList diagramList then
+                    Attr.css [ selectedItemStyle ]
+
+                  else
+                    Attr.css [ itemStyle ]
+                , onClick <| GetPublicDiagrams 1
+                ]
+                [ Icon.globe Color.iconColor 16, Html.div [ Attr.css [ Style.paddingSm ] ] [ Html.text "Public" ] ]
+
+    else
+        Nothing
+
+
+bookmarkMenu : Session -> DiagramList -> Bool -> Maybe (Html Msg)
+bookmarkMenu session diagramList isOnline =
+    if Session.isSignedIn session && isOnline then
+        Just <|
+            Html.div
+                [ if isBookMarkList diagramList then
+                    Attr.css [ selectedItemStyle ]
+
+                  else
+                    Attr.css [ itemStyle ]
+                , onClick <| GetBookmarkDiagrams 1
+                ]
+                [ Icon.bookmark Color.iconColor 14, Html.div [ Attr.css [ Style.paddingSm ] ] [ Html.text "Bookmarks" ] ]
+
+    else
+        Nothing
+
+
+githubMenu : Session -> DiagramList -> Bool -> Maybe (Html Msg)
+githubMenu session diagramList isOnline =
+    if Session.isGithubUser session && isOnline then
+        Just <|
+            Html.div
+                [ if isGistList diagramList then
+                    Attr.css [ selectedItemStyle ]
+
+                  else
+                    Attr.css [ itemStyle ]
+                , onClick <| GetGistDiagrams 1
+                ]
+                [ Icon.github Color.iconColor 14
+                , Html.div [ Attr.css [ Style.paddingSm ] ] [ Html.text "Gist" ]
+                ]
+
+    else
+        Nothing
+
+
 sideMenu : Session -> DiagramList -> Bool -> Html Msg
 sideMenu session diagramList isOnline =
     Html.div
@@ -352,7 +409,7 @@ sideMenu session diagramList isOnline =
                 ]
             ]
         ]
-        [ Html.div
+        (Html.div
             [ if isAllList diagramList then
                 Attr.css [ selectedItemStyle ]
 
@@ -361,48 +418,13 @@ sideMenu session diagramList isOnline =
             , onClick GetDiagrams
             ]
             [ Html.text "All" ]
-        , if Session.isSignedIn session && isOnline then
-            Html.div
-                [ if isPublicList diagramList then
-                    Attr.css [ selectedItemStyle ]
-
-                  else
-                    Attr.css [ itemStyle ]
-                , onClick <| GetPublicDiagrams 1
+            :: ([ publicMenu session diagramList isOnline
+                , bookmarkMenu session diagramList isOnline
+                , githubMenu session diagramList isOnline
                 ]
-                [ Icon.globe Color.iconColor 16, Html.div [ Attr.css [ Style.paddingSm ] ] [ Html.text "Public" ] ]
-
-          else
-            Empty.view
-        , if Session.isSignedIn session && isOnline then
-            Html.div
-                [ if isBookMarkList diagramList then
-                    Attr.css [ selectedItemStyle ]
-
-                  else
-                    Attr.css [ itemStyle ]
-                , onClick <| GetBookmarkDiagrams 1
-                ]
-                [ Icon.bookmark Color.iconColor 14, Html.div [ Attr.css [ Style.paddingSm ] ] [ Html.text "Bookmarks" ] ]
-
-          else
-            Empty.view
-        , if Session.isGithubUser session && isOnline then
-            Html.div
-                [ if isGistList diagramList then
-                    Attr.css [ selectedItemStyle ]
-
-                  else
-                    Attr.css [ itemStyle ]
-                , onClick <| GetGistDiagrams 1
-                ]
-                [ Icon.github Color.iconColor 14
-                , Html.div [ Attr.css [ Style.paddingSm ] ] [ Html.text "Gist" ]
-                ]
-
-          else
-            Empty.view
-        ]
+                    |> List.filterMap identity
+               )
+        )
 
 
 mainView : List (Html msg) -> Html msg
@@ -637,20 +659,26 @@ diagramListView props =
                     |> List.map
                         (\d -> Lazy.lazy2 diagramView props.timeZone d)
                 )
-            , if props.hasMorePage then
-                Html.div [ Attr.css [ Style.widthFull, Style.flexCenter ] ]
-                    [ Html.div
-                        [ Attr.css [ Style.button, ColorStyle.bgActivity, textAlign center, Style.mSm ]
-                        , onClick <| LoadNextPage props.diagramList <| props.pageNo + 1
-                        ]
-                        [ Html.text "Load more" ]
-                    ]
-
-              else
-                Empty.view
+            , hasMorePageButton props.diagramList props.pageNo props.hasMorePage |> Maybe.withDefault Empty.view
             ]
-        , Lazy.lazy showDialog props.confirmDialog
+        , showDialog props.confirmDialog |> Maybe.withDefault Empty.view
         ]
+
+
+hasMorePageButton : DiagramList -> Int -> Bool -> Maybe (Html Msg)
+hasMorePageButton diagramList pageNo hasMorePage =
+    if hasMorePage then
+        Just <|
+            Html.div [ Attr.css [ Style.widthFull, Style.flexCenter ] ]
+                [ Html.div
+                    [ Attr.css [ Style.button, ColorStyle.bgActivity, textAlign center, Style.mSm ]
+                    , onClick <| LoadNextPage diagramList <| pageNo + 1
+                    ]
+                    [ Html.text "Load more" ]
+                ]
+
+    else
+        Nothing
 
 
 cloudIconView : List (Html msg) -> Html msg
@@ -706,7 +734,7 @@ diagramView timezone diagram =
         , stopPropagationOn "click" (D.succeed ( Select diagram, True ))
         , Attributes.dataTest "diagram-list-item"
         ]
-        [ Html.div
+        ([ Html.div
             [ Attr.css
                 [ TextStyle.sm
                 , Style.widthFull
@@ -726,7 +754,7 @@ diagramView timezone diagram =
                 [ Attr.css [ displayFlex, alignItems center, justifyContent spaceBetween ] ]
                 [ Html.div [ Attr.css [ TextStyle.xs, display block, ColorStyle.textDark ] ] [ Html.text (DateUtils.millisToString timezone diagram.updatedAt) ] ]
             ]
-        , case diagram.location of
+         , case diagram.location of
             Just DiagramLocation.Gist ->
                 cloudIconView [ Icon.github Color.gray 14 ]
 
@@ -735,15 +763,40 @@ diagramView timezone diagram =
 
             _ ->
                 cloudIconView [ Icon.cloudOff Color.gray 14 ]
-        , if diagram.isPublic then
+         , if diagram.isPublic then
             publicIconView [ Icon.lockOpen Color.gray 14 ]
 
-          else
+           else
             publicIconView [ Icon.lock Color.gray 14 ]
-        , if diagram.isPublic then
-            Empty.view
+         ]
+            ++ ([ bookmarkButtonView diagram
+                , deleteButtonView diagram
+                ]
+                    |> List.filterMap identity
+               )
+        )
 
-          else
+
+bookmarkButtonView : DiagramItem -> Maybe (Html Msg)
+bookmarkButtonView diagram =
+    case ( diagram.isBookmark, diagram.location |> Maybe.map DiagramLocation.isRemote |> Maybe.withDefault False ) of
+        ( True, True ) ->
+            Just <| bookmarkIconView diagram [ Icon.bookmark Color.background2Defalut 16 ]
+
+        ( False, True ) ->
+            Just <| bookmarkIconView diagram [ Icon.unbookmark Color.background2Defalut 16 ]
+
+        _ ->
+            Nothing
+
+
+deleteButtonView : DiagramItem -> Maybe (Html Msg)
+deleteButtonView diagram =
+    if diagram.isPublic then
+        Nothing
+
+    else
+        Just <|
             Html.div
                 [ Attr.css
                     [ bottom <| px -4
@@ -755,16 +808,6 @@ diagramView timezone diagram =
                 , stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True ))
                 ]
                 [ Icon.clear (Color.toString Color.gray) 18 ]
-        , case ( diagram.isBookmark, diagram.location |> Maybe.map DiagramLocation.isRemote |> Maybe.withDefault False ) of
-            ( True, True ) ->
-                bookmarkIconView diagram [ Icon.bookmark Color.background2Defalut 16 ]
-
-            ( False, True ) ->
-                bookmarkIconView diagram [ Icon.unbookmark Color.background2Defalut 16 ]
-
-            _ ->
-                Empty.view
-        ]
 
 
 errorView : Http.Error -> Html Msg
