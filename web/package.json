@@ -27,7 +27,7 @@
     "@size-limit/file": "^8.2.4",
     "@total-typescript/ts-reset": "^0.4.2",
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
-    "@tsconfig/strictest": "^1.0.2",
+    "@tsconfig/strictest": "^2.0.0",
     "@types/jspdf": "^2.0.0",
     "@types/node": "^18.15.7",
     "@types/requestidlecallback": "^0.3.5",
