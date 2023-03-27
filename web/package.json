@@ -39,7 +39,7 @@
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
     "css-minimizer-webpack-plugin": "^4.2.2",
-    "cssnano-preset-advanced": "^5.3.10",
+    "cssnano-preset-advanced": "^6.0.0",
     "cypress": "^12.8.1",
     "devcert": "^1.2.2",
     "elm": "^0.19.1-5",
