@@ -57,6 +57,7 @@ import Models.Window as Window exposing (Window)
 import Page.Embed as Embed
 import Page.Help as Help
 import Page.List as DiagramList
+import Page.List.DiagramList as DiagramListModel
 import Page.New as New
 import Page.NotFound as NotFound
 import Page.Settings as Settings
@@ -688,7 +689,7 @@ save =
                     (\m_ ->
                         { m_
                             | diagramModel = newDiagramModel
-                            , diagramListModel = m_.diagramListModel |> DiagramList.modelOfDiagramList.set DiagramList.notAsked
+                            , diagramListModel = m_.diagramListModel |> DiagramList.modelOfDiagramList.set DiagramListModel.notAsked
                         }
                     )
                     >> (case ( location, Session.loginProvider m.session ) of
