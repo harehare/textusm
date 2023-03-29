@@ -110,80 +110,81 @@ adjustTablePosition r t =
             else
                 case relationships of
                     x :: xs ->
-                        case ER.relationshipToString x of
-                            Just ( ( tableName1, relationString1 ), ( tableName2, relationString2 ) ) ->
-                                let
-                                    maybeTable1 =
-                                        Dict.get tableName1 tablePositions
+                        Maybe.map
+                            (\( ( tableName1, relationString1 ), ( tableName2, relationString2 ) ) ->
+                                Maybe.andThen
+                                    (\t1 ->
+                                        Maybe.map
+                                            (\t2 ->
+                                                let
+                                                    ( next, childPosition ) =
+                                                        calcTablePosition
+                                                            { tableSize1 = table1.size
+                                                            , tableSize2 = table2.size
+                                                            , pos = table1.position
+                                                            , nextPosition = nextPosition
+                                                            , relationCount = table1.releationCount + 1
+                                                            }
 
-                                    maybeTable2 =
-                                        Dict.get tableName2 tablePositions
-                                in
-                                case ( maybeTable1, maybeTable2 ) of
-                                    ( Just t1, Just t2 ) ->
-                                        let
-                                            ( next, childPosition ) =
-                                                calcTablePosition
-                                                    { tableSize1 = table1.size
-                                                    , tableSize2 = table2.size
-                                                    , pos = table1.position
-                                                    , nextPosition = nextPosition
-                                                    , relationCount = table1.releationCount + 1
+                                                    ( ( table1, name1, rel1 ), ( table2, name2, rel2 ) ) =
+                                                        if t1.releationCount >= t2.releationCount && MaybeEx.isNothing t2.position then
+                                                            ( ( t1, tableName1, relationString1 ), ( t2, tableName2, relationString2 ) )
+
+                                                        else
+                                                            ( ( t2, tableName2, relationString2 ), ( t1, tableName1, relationString1 ) )
+
+                                                    table1Updated =
+                                                        Dict.update
+                                                            name1
+                                                            (Maybe.map
+                                                                (\v ->
+                                                                    { v
+                                                                        | releationCount = table1.releationCount + 1
+                                                                        , releations = Dict.insert name2 rel1 v.releations
+                                                                    }
+                                                                )
+                                                            )
+                                                            tablePositions
+
+                                                    table2Updated =
+                                                        Dict.update
+                                                            name2
+                                                            (Maybe.map
+                                                                (\v ->
+                                                                    { v
+                                                                        | position = Just childPosition
+                                                                        , releationCount = table1.releationCount + 1
+                                                                        , releations = Dict.insert name1 rel2 v.releations
+                                                                    }
+                                                                )
+                                                            )
+                                                            table1Updated
+                                                in
+                                                Loop
+                                                    { tablePositions = table2Updated
+                                                    , relationships = xs
+                                                    , nextPosition = MaybeEx.or next nextPosition
                                                     }
-
-                                            ( ( table1, name1, rel1 ), ( table2, name2, rel2 ) ) =
-                                                if t1.releationCount >= t2.releationCount && MaybeEx.isNothing t2.position then
-                                                    ( ( t1, tableName1, relationString1 ), ( t2, tableName2, relationString2 ) )
-
-                                                else
-                                                    ( ( t2, tableName2, relationString2 ), ( t1, tableName1, relationString1 ) )
-
-                                            table1Updated =
-                                                Dict.update
-                                                    name1
-                                                    (Maybe.map
-                                                        (\v ->
-                                                            { v
-                                                                | releationCount = table1.releationCount + 1
-                                                                , releations = Dict.insert name2 rel1 v.releations
-                                                            }
-                                                        )
-                                                    )
-                                                    tablePositions
-
-                                            table2Updated =
-                                                Dict.update
-                                                    name2
-                                                    (Maybe.map
-                                                        (\v ->
-                                                            { v
-                                                                | position = Just childPosition
-                                                                , releationCount = table1.releationCount + 1
-                                                                , releations = Dict.insert name1 rel2 v.releations
-                                                            }
-                                                        )
-                                                    )
-                                                    table1Updated
-                                        in
-                                        Loop
-                                            { tablePositions = table2Updated
-                                            , relationships = xs
-                                            , nextPosition = MaybeEx.or next nextPosition
-                                            }
-
-                                    _ ->
-                                        Loop
+                                            )
+                                            (Dict.get tableName2 tablePositions)
+                                    )
+                                    (Dict.get tableName1 tablePositions)
+                                    |> Maybe.withDefault
+                                        (Loop
                                             { tablePositions = tablePositions
                                             , relationships = xs
                                             , nextPosition = nextPosition
                                             }
-
-                            Nothing ->
-                                Loop
+                                        )
+                            )
+                            (ER.relationshipToString x)
+                            |> Maybe.withDefault
+                                (Loop
                                     { tablePositions = tablePositions
                                     , relationships = xs
                                     , nextPosition = nextPosition
                                     }
+                                )
 
                     _ ->
                         Loop

@@ -10,6 +10,7 @@ module Models.Diagram.UserStoryMap exposing
     , size
     )
 
+import Bool.Extra as BoolEx
 import Constants
 import Dict
 import List.Extra exposing (scanl)
@@ -103,9 +104,9 @@ countByStories text =
                     loop { currentCount = currentCount, currentIndent = currentIndent, head = x, result = result, tail = xs }
 
                 _ ->
-                    if Dict.member currentIndent result then
-                        Done <|
-                            Dict.update currentIndent
+                    Done <|
+                        BoolEx.ifElse
+                            (Dict.update currentIndent
                                 (Maybe.map
                                     (\v ->
                                         if currentCount > v then
@@ -116,9 +117,9 @@ countByStories text =
                                     )
                                 )
                                 result
-
-                    else
-                        Done <| Dict.insert currentIndent currentCount result
+                            )
+                            (Dict.insert currentIndent currentCount result)
+                            (Dict.member currentIndent result)
 
         loop :
             { a
@@ -150,15 +151,7 @@ countByStories text =
                         ( 1
                         , if Dict.member currentIndent result then
                             Dict.update currentIndent
-                                (Maybe.map
-                                    (\v ->
-                                        if currentCount > v then
-                                            currentCount
-
-                                        else
-                                            v
-                                    )
-                                )
+                                (Maybe.map (\v -> BoolEx.ifElse currentCount v (currentCount > v)))
                                 result
 
                           else

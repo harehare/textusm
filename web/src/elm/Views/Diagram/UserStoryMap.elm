@@ -1,5 +1,6 @@
 module Views.Diagram.UserStoryMap exposing (view)
 
+import Bool.Extra as BoolEx
 import Constants
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr
@@ -93,8 +94,8 @@ labelView { settings, property, width, userStoryMap } =
             UserStoryMap.countPerReleaseLevel userStoryMap
     in
     Svg.g []
-        (([ if hierarchy > 0 then
-                Svg.line
+        (([ BoolEx.ifElse
+                (Svg.line
                     [ SvgAttr.x1 <| String.fromInt posX
                     , SvgAttr.y1 <| String.fromInt (Constants.itemMargin // 2 + (settings.size.height + Constants.itemMargin) * 2)
                     , SvgAttr.x2 <| String.fromInt width
@@ -103,28 +104,24 @@ labelView { settings, property, width, userStoryMap } =
                     , SvgAttr.strokeWidth "2"
                     ]
                     []
-
-            else
-                Svg.line [] []
-          , if hierarchy > 0 then
-                labelTextView settings ( posX, 10 ) (Property.getUserActivity property |> Maybe.withDefault "USER ACTIVITIES")
-
-            else
-                Svg.g [] []
-          , if hierarchy > 0 then
-                labelTextView settings ( posX, settings.size.height + 25 ) (Property.getUserTask property |> Maybe.withDefault "USER TASKS")
-
-            else
-                Svg.g [] []
+                )
+                (Svg.line [] [])
+                (hierarchy > 0)
+          , BoolEx.ifElse
+                (labelTextView settings ( posX, 10 ) (Property.getUserActivity property |> Maybe.withDefault "USER ACTIVITIES"))
+                (Svg.g [] [])
+                (hierarchy > 0)
+          , BoolEx.ifElse
+                (labelTextView settings ( posX, settings.size.height + 25 ) (Property.getUserTask property |> Maybe.withDefault "USER TASKS"))
+                (Svg.g [] [])
+                (hierarchy > 0)
           ]
-            ++ (if hierarchy > 1 then
-                    [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) (Property.getUserStory property |> Maybe.withDefault "USER STORIES")
-                    , labelTextView settings ( posX, settings.size.height * 2 + 80 ) (Property.getReleaseLevel 1 property |> Maybe.withDefault "RELEASE 1")
-                    ]
-
-                else
-                    [ Svg.g [] [] ]
-               )
+            ++ BoolEx.ifElse
+                [ labelTextView settings ( posX, settings.size.height * 2 + 50 ) (Property.getUserStory property |> Maybe.withDefault "USER STORIES")
+                , labelTextView settings ( posX, settings.size.height * 2 + 80 ) (Property.getReleaseLevel 1 property |> Maybe.withDefault "RELEASE 1")
+                ]
+                [ Svg.g [] [] ]
+                (hierarchy > 1)
          )
             ++ (List.range 1 (hierarchy - 2)
                     |> List.concatMap

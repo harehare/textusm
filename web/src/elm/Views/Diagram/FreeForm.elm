@@ -2,8 +2,8 @@ module Views.Diagram.FreeForm exposing (view)
 
 import Constants
 import Models.Diagram as Diagram exposing (Model, MoveState, Msg)
-import Models.Diagram.FreeForm as FreeForm exposing (FreeFormItem)
 import Models.Diagram.Data as DiagramData
+import Models.Diagram.FreeForm as FreeForm exposing (FreeFormItem)
 import Models.Item as Item exposing (Item)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Lazy as Lazy
@@ -33,60 +33,7 @@ formView : Model -> Int -> FreeFormItem -> Svg Msg
 formView model i item =
     case item of
         FreeForm.Card item_ ->
-            Svg.g [] <|
-                Card.viewWithDefaultColor
-                    { settings = model.settings
-                    , property = model.property
-                    , position =
-                        ( 16 + modBy 4 i * (model.settings.size.width + 16)
-                        , (i // 4) * (model.settings.size.height + 16)
-                        )
-                    , selectedItem = model.selectedItem
-                    , item =
-                        model.moveState
-                            |> moveingItem
-                            |> Maybe.map
-                                (\v ->
-                                    if Item.getLineNo v == Item.getLineNo item_ then
-                                        v
-
-                                    else
-                                        item_
-                                )
-                            |> Maybe.withDefault item_
-                    , canMove = True
-                    }
-                    :: (Item.indexedMap
-                            (\i_ childItem ->
-                                Card.viewWithDefaultColor
-                                    { settings = model.settings
-                                    , property = model.property
-                                    , position =
-                                        ( 16 + modBy 4 i * (model.settings.size.width + 16)
-                                        , (i + i_ + 1) * (model.settings.size.height + 16)
-                                        )
-                                    , selectedItem = model.selectedItem
-                                    , item =
-                                        model.moveState
-                                            |> moveingItem
-                                            |> Maybe.map
-                                                (\v ->
-                                                    if Item.getLineNo v == Item.getLineNo childItem then
-                                                        v
-
-                                                    else
-                                                        childItem
-                                                )
-                                            |> Maybe.withDefault childItem
-                                    , canMove = True
-                                    }
-                            )
-                        <|
-                            (item_
-                                |> Item.getChildren
-                                |> Item.unwrapChildren
-                            )
-                       )
+            cardView model i item_
 
         FreeForm.HorizontalLine item_ ->
             Line.horizontal
@@ -179,3 +126,61 @@ moveingItem state =
 
         _ ->
             Nothing
+
+
+cardView : Model -> Int -> Item -> Svg Msg
+cardView model i item_ =
+    Svg.g [] <|
+        Card.viewWithDefaultColor
+            { settings = model.settings
+            , property = model.property
+            , position =
+                ( 16 + modBy 4 i * (model.settings.size.width + 16)
+                , (i // 4) * (model.settings.size.height + 16)
+                )
+            , selectedItem = model.selectedItem
+            , item =
+                model.moveState
+                    |> moveingItem
+                    |> Maybe.map
+                        (\v ->
+                            if Item.getLineNo v == Item.getLineNo item_ then
+                                v
+
+                            else
+                                item_
+                        )
+                    |> Maybe.withDefault item_
+            , canMove = True
+            }
+            :: (Item.indexedMap
+                    (\i_ childItem ->
+                        Card.viewWithDefaultColor
+                            { settings = model.settings
+                            , property = model.property
+                            , position =
+                                ( 16 + modBy 4 i * (model.settings.size.width + 16)
+                                , (i + i_ + 1) * (model.settings.size.height + 16)
+                                )
+                            , selectedItem = model.selectedItem
+                            , item =
+                                model.moveState
+                                    |> moveingItem
+                                    |> Maybe.map
+                                        (\v ->
+                                            if Item.getLineNo v == Item.getLineNo childItem then
+                                                v
+
+                                            else
+                                                childItem
+                                        )
+                                    |> Maybe.withDefault childItem
+                            , canMove = True
+                            }
+                    )
+                <|
+                    (item_
+                        |> Item.getChildren
+                        |> Item.unwrapChildren
+                    )
+               )
