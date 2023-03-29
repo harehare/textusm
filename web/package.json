@@ -35,7 +35,7 @@
     "@types/wicg-file-system-access": "^2020.9.5",
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",
-    "concurrently": "^7.6.0",
+    "concurrently": "^8.0.1",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
     "css-minimizer-webpack-plugin": "^5.0.0",
