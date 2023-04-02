@@ -18,6 +18,7 @@ module Models.Diagram.SequenceDiagram exposing
     , unwrapMessageType
     )
 
+import Bool.Extra as BoolEx
 import Constants
 import Dict exposing (Dict)
 import Models.Diagram.Settings as DiagramSettings
@@ -397,13 +398,7 @@ itemToMessage item participantDict =
                     participant2 =
                         Dict.get c2 participantDict
                 in
-                case
-                    if isReverse then
-                        ( participant2, participant1 )
-
-                    else
-                        ( participant1, participant2 )
-                of
+                case BoolEx.ifElse ( participant2, participant1 ) ( participant1, participant2 ) isReverse of
                     ( Just participantFrom, Just participantTo ) ->
                         Just <| Message messageType participantFrom participantTo
 
