@@ -16,7 +16,7 @@ require (
 	golang.org/x/crypto v0.7.0
 	golang.org/x/exp v0.0.0-20230315142452-642cacee5cc0
 	golang.org/x/sync v0.1.0
-	google.golang.org/api v0.115.0
+	google.golang.org/api v0.116.0
 	google.golang.org/grpc v1.54.0
 )
 
