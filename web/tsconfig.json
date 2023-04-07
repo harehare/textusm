@@ -12,7 +12,8 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noPropertyAccessFromIndexSignature": false,
-    "importsNotUsedAsValues": "remove"
+    "importsNotUsedAsValues": "remove",
+    "verbatimModuleSyntax": true
   },
   "exclude": ["**/node_modules/*", "**/*.spec.ts"]
 }
