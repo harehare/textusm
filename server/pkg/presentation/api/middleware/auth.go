@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -32,7 +31,6 @@ func AuthMiddleware(app *firebase.App) func(http.Handler) http.Handler {
 			}
 
 			token, err := client.VerifyIDToken(r.Context(), idToken[1])
-			fmt.Println(err)
 			if err != nil {
 				http.Error(w, "{\"error\": \"authorization failed\"}", http.StatusForbidden)
 				return

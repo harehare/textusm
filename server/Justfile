@@ -10,12 +10,16 @@ setup:
   go get honnef.co/go/tools/cmd/staticcheck
   go get github.com/securego/gosec/v2/cmd/gosec
   go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
+  go install github.com/cosmtrek/air@latest
 
 run:
 	go run {{ main }}
 
 build:
 	go build -o dist/textusm {{ main }}
+
+watch:
+	air -c .air.toml
 
 build-linux:
 	GOOS="linux" GOARCH="amd64" go build -o dist/textusm {{ main }}

@@ -58,3 +58,4 @@ Env.elm
 cypress
 
 certs/*
+server/tmp/

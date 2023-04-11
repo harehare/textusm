@@ -88,7 +88,7 @@
   "scripts": {
     "dev": "concurrently \"npm:dev:*\"",
     "dev:web": "webpack serve --hot --color",
-    "dev:server": "cd ../server/ && just run",
+    "dev:server": "cd ../server/ && just watch",
     "dev:emulators": "cd .. && firebase emulators:start --only firestore,auth,storage",
     "setup:emulators": "cd .. && firebase init emulators",
     "dev:generate-elm-constants": "npm run generate-elm-constants",
