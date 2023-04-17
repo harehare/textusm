@@ -7,7 +7,7 @@ require (
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/cors v1.2.1
-	github.com/go-chi/httprate v0.7.2
+	github.com/go-chi/httprate v0.7.4
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/samber/mo v1.8.0
 	github.com/satori/go.uuid v1.2.0
