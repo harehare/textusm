@@ -58,7 +58,7 @@
     "mini-css-extract-plugin": "^2.7.5",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "postcss": "^8.4.23",
-    "prettier": "^2.8.7",
+    "prettier": "^2.8.8",
     "rimraf": "^5.0.0",
     "size-limit": "^8.0.1",
     "style-loader": "^3.3.2",
