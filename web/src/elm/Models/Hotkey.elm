@@ -6,6 +6,7 @@ module Models.Hotkey exposing
     , open
     , save
     , search
+    , select
     , toMacString
     , toWindowsString
     )
@@ -35,6 +36,11 @@ save =
 open : Hotkey
 open =
     { ctrl = True, shift = False, alt = False, key = "O" }
+
+
+select : Hotkey
+select =
+    { ctrl = True, shift = False, alt = False, key = "E" }
 
 
 search : Hotkey

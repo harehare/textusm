@@ -136,6 +136,7 @@
     ],
     "rules": {
       "import/extensions": "off",
+      "import/order": "off",
       "n/prefer-global/process": "off",
       "@typescript-eslint/naming-convention": "off",
       "accessor-pairs": "off",

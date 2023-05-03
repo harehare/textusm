@@ -30,6 +30,7 @@ import Css
 import Html.Styled exposing (Html, div, img, span, text)
 import Html.Styled.Attributes as Attr
 import Maybe.Extra exposing (isNothing)
+import Models.Hotkey as Hotkey
 import Style.Color as Color
 import Style.Font as Font
 import Style.Style as Style
@@ -164,17 +165,18 @@ view =
                 , itemView [ text "Action" ]
                 ]
             , div [ Attr.css [ displayFlex ] ]
-                [ itemView [ text "Ctrl+S" ]
-                , itemView [ text "Command+S" ]
+                [ itemView [ text <| Hotkey.toWindowsString Hotkey.save ]
+                , itemView [ text <| Hotkey.toMacString Hotkey.save ]
                 , itemView [ text "Save" ]
                 ]
             , div [ Attr.css [ displayFlex ] ]
-                [ itemView [ text "Ctrl+O" ]
-                , itemView [ text "Command+O" ]
+                [ itemView [ text <| Hotkey.toWindowsString Hotkey.open ]
+                , itemView [ text <| Hotkey.toMacString Hotkey.open ]
                 , itemView [ text "Open" ]
                 ]
             , div [ Attr.css [ displayFlex ] ]
-                [ itemView [ text "Command+O" ]
+                [ itemView [ text <| Hotkey.toWindowsString Hotkey.select ]
+                , itemView [ text <| Hotkey.toMacString Hotkey.select ]
                 , itemView [ text "Select the card in the current row" ]
                 ]
             ]
