@@ -84,7 +84,6 @@ decoder =
         |> required "updatedAt" (D.map Time.millisToPosix D.int)
 
 
-
 encoder : DiagramItem -> E.Value
 encoder diagram =
     E.object
@@ -179,7 +178,6 @@ empty =
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
     }
-
 
 
 new : DiagramType -> DiagramItem

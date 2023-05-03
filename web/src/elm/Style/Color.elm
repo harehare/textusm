@@ -14,7 +14,6 @@ module Style.Color exposing
     , disabledColor
     , errorColor
     , lightBackgroundColor
-    , textPropertyColor
     , textAccent
     , textActivity
     , textColor
@@ -23,6 +22,7 @@ module Style.Color exposing
     , textError
     , textLight
     , textMain
+    , textPropertyColor
     , textSecondaryColor
     )
 
@@ -162,5 +162,3 @@ accentColor =
 activityColor : Color
 activityColor =
     hex "#266b9a"
-
-

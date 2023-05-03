@@ -406,7 +406,6 @@ mapWithRecursiveHelper f item =
                 (f item)
 
 
-
 mapWithRecursive : (Item -> Item) -> Items -> Items
 mapWithRecursive f (Items items) =
     Items <| List.map (mapWithRecursiveHelper f) items
@@ -697,7 +696,6 @@ loadText_ { indent, input, lineNo } =
                     )
                     (filter (\(Item item) -> not <| ItemValue.isCooment item.value) otherItems)
                 )
-
 
 
 parse : Int -> String -> ( List String, List String )

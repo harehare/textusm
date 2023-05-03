@@ -163,5 +163,3 @@ port updateIdToken : (String -> msg) -> Sub msg
 
 
 port selectItemFromLineNo : ({ lineNo : Int, text : String } -> msg) -> Sub msg
-
-

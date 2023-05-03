@@ -2,8 +2,8 @@ module Views.Diagram.FourLs exposing (view)
 
 import Constants
 import Models.Diagram exposing (Model, Msg)
-import Models.Diagram.FourLs exposing (FourLsItem(..))
 import Models.Diagram.Data as DiagramData
+import Models.Diagram.FourLs exposing (FourLsItem(..))
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Lazy as Lazy
 import Utils.Utils as Utils
