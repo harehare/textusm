@@ -13,7 +13,6 @@ const TerserPlugin = require('terser-webpack-plugin');
 const HTMLInlineCSSWebpackPlugin = require('html-inline-css-webpack-plugin').default;
 const SentryWebpackPlugin = require('@sentry/webpack-plugin');
 const devcert = require('devcert');
-const { getPort } = require('get-port-please')
 
 
 const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
@@ -126,9 +125,6 @@ const common = {
 
 if (mode === 'development') {
   module.exports = (async () => {
-    const port = await getPort({
-      port: 3000,
-    });
     const { key, cert } = await devcert.certificateFor('localhost');
     fs.mkdirSync('../certs/', { recursive: true });
     fs.writeFileSync('../certs/localhost.key', key);
@@ -159,7 +155,7 @@ if (mode === 'development') {
         hot: true,
         historyApiFallback: true,
         host: '0.0.0.0',
-        port,
+        port: 3000,
         static: path.join(__dirname, 'src/assets'),
         https: process.env.USE_HTTPS
           ? {
