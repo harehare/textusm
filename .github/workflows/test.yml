@@ -25,7 +25,7 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           working-directory: server
-          args: --issues-exit-code=0
+          args: --issues-exit-code=0 --timeout=2m
       - name: Get npm cache directory
         id: npm-cache-dir
         run: |
@@ -55,7 +55,7 @@ jobs:
       - name: Run Tests
         working-directory: web
         run: npm run test
-      - uses: cypress-io/github-action@v4
+      - uses: cypress-io/github-action@v5
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
           WEB_ROOT: ${{ secrets.WEB_ROOT }}
@@ -78,6 +78,7 @@ jobs:
           headless: true
           working-directory: web
           wait-on: "http://localhost:3000"
+          wait-on-timeout: 120
           install: false
 
   analyze:
