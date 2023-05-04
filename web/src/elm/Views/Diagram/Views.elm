@@ -233,6 +233,7 @@ plainText { settings, position, size, foreColor, fontSize, text, isHighlight } =
         , SvgAttr.fill <| Color.toString foreColor
         , SvgAttr.color <| Color.toString foreColor
         , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
+        , SvgAttr.cursor "pointer"
         , FontSize.svgStyledFontSize fontSize
         , SvgAttr.filter <|
             if isHighlight then
@@ -258,6 +259,7 @@ image ( imageWidth, imageHeight ) ( posX, posY ) url =
                 [ Css.width <| px <| toFloat <| imageWidth
                 , Css.height <| px <| toFloat <| imageHeight
                 , Style.objectFitCover
+                , Css.cursor Css.pointer
                 ]
             , SvgAttr.style <| "object-fit: cover; width: " ++ String.fromInt imageWidth ++ "px; height:" ++ String.fromInt imageHeight ++ "px;"
             , SvgAttr.class "ts-image"

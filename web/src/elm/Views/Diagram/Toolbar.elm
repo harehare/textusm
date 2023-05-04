@@ -37,7 +37,6 @@ import Models.Color as Color exposing (Color)
 import Models.Item as Item exposing (Item)
 import Models.Item.Settings as ItemSettings
 import Style.Style as Style
-import Style.Text as TextStyle
 import Svg.Styled as Svg exposing (Svg, svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
@@ -52,9 +51,9 @@ type ToolbarButton msg
     | Separator (Html msg)
 
 
-viewColorOnly : { clickCard : ClickEvent msg, clickAutoArrange : msg } -> Html msg
-viewColorOnly e =
-    Lazy.lazy view (userStoryMap e)
+viewColorOnly : ClickEvent msg -> Html msg
+viewColorOnly clickCard =
+    Lazy.lazy view (userStoryMap clickCard)
 
 
 viewForFreeForm : ClickEvent msg -> Html msg
@@ -93,21 +92,6 @@ cardView color item event =
         , Events.onClickStopPropagation <| event item
         ]
         []
-
-
-textView : String -> msg -> Html msg
-textView text event =
-    Html.div
-        [ css
-            [ Css.width <| px 96
-            , Css.height <| px 24
-            , cursor pointer
-            , TextStyle.xs
-            , Style.textButton
-            ]
-        , Events.onClickStopPropagation <| event
-        ]
-        [ Html.text text ]
 
 
 createCanvas : Item
@@ -243,8 +227,8 @@ separator =
         []
 
 
-userStoryMap : { clickCard : ClickEvent msg, clickAutoArrange : msg } -> List (ToolbarButton msg)
-userStoryMap { clickCard, clickAutoArrange } =
+userStoryMap : ClickEvent msg -> List (ToolbarButton msg)
+userStoryMap clickCard =
     [ Button <| Lazy.lazy3 cardView Color.white (createColorItem Color.white) clickCard
     , Button <| Lazy.lazy3 cardView Color.yellow (createColorItem Color.yellow) clickCard
     , Button <| Lazy.lazy3 cardView Color.green (createColorItem Color.green) clickCard
@@ -253,14 +237,7 @@ userStoryMap { clickCard, clickAutoArrange } =
     , Button <| Lazy.lazy3 cardView Color.pink (createColorItem Color.pink) clickCard
     , Button <| Lazy.lazy3 cardView Color.red (createColorItem Color.red) clickCard
     , Button <| Lazy.lazy3 cardView Color.purple (createColorItem Color.purple) clickCard
-    , Separator <| separator
-    , autoArrangeButton clickAutoArrange
     ]
-
-
-autoArrangeButton : msg -> ToolbarButton msg
-autoArrangeButton msg =
-    Button <| textView "Auto-arrange" msg
 
 
 view : List (ToolbarButton msg) -> Html msg

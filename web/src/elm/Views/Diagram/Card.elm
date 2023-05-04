@@ -1,7 +1,7 @@
 module Views.Diagram.Card exposing (text, viewWithDefaultColor)
 
 import Attributes
-import Css exposing (backgroundColor, property)
+import Css exposing (backgroundColor, cursor, pointer, property)
 import Events
 import Html.Attributes as Attr
 import Html.Styled as Html exposing (Html)
@@ -204,6 +204,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             , SvgAttr.color <| Color.toString colour
             , FontSize.svgStyledFontSize fs
             , SvgAttr.class "ts-text"
+            , SvgAttr.cursor "pointer"
             ]
             [ markdown settings
                 ( colour
@@ -235,6 +236,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
                     [ Style.paddingSm
                     , DiagramSettings.fontFamiliy settings
                     , property "word-wrap" "break-word"
+                    , cursor pointer
                     ]
                 ]
                 [ Html.span
@@ -271,5 +273,6 @@ markdown settings ( foreColor, backColor ) t =
             , Attr.style "font-family" ("'" ++ settings.font ++ "', sans-serif")
             , Attr.style "color" <| Color.toString foreColor
             , Attr.style "backgroundColor" <| Color.toString backColor
+            , Attr.style "cursor" "pointer"
             ]
             t

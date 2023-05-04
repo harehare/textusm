@@ -515,38 +515,6 @@ update model message =
             else
                 selectItem <| Just item
 
-        ToolbarAutoArrangeClick ->
-            let
-                items : Items
-                items =
-                    model.items
-                        |> Item.mapWithRecursive (\item -> Item.resetOffset item)
-
-                lines : List String
-                lines =
-                    Text.lines model.text
-
-                updatedText : String
-                updatedText =
-                    List.foldl
-                        (\item updatedLines ->
-                            let
-                                lineNo : Int
-                                lineNo =
-                                    Item.getLineNo item
-                            in
-                            setAt lineNo (Item.toLineString item) updatedLines
-                        )
-                        lines
-                        (items
-                            |> Item.flatten
-                            |> Item.unwrap
-                        )
-                        |> String.join "\n"
-            in
-            Return.map (\m -> { m | items = items })
-                >> setText updatedText
-
 
 
 -- View
@@ -637,31 +605,31 @@ view model =
         , if Property.getToolbar model.property |> Maybe.withDefault (model.settings.toolbar |> Maybe.withDefault True) then
             case model.diagramType of
                 UserStoryMap ->
-                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
 
                 OpportunityCanvas ->
-                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
 
                 BusinessModelCanvas ->
-                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
 
                 Fourls ->
-                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
 
                 StartStopContinue ->
-                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
 
                 Kpt ->
-                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
 
                 UserPersona ->
-                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
 
                 EmpathyMap ->
-                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
 
                 Kanban ->
-                    Lazy.lazy Toolbar.viewColorOnly { clickCard = ToolbarClick, clickAutoArrange = ToolbarAutoArrangeClick }
+                    Lazy.lazy Toolbar.viewColorOnly ToolbarClick
 
                 Freeform ->
                     Lazy.lazy Toolbar.viewForFreeForm ToolbarClick
