@@ -1,4 +1,4 @@
-module Views.Footer exposing (Props, view)
+module Views.Footer exposing (Props, docs, view)
 
 import Css
     exposing
@@ -15,6 +15,8 @@ import Css
         , relative
         , rem
         )
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Env
 import Events
 import Html.Styled as Html exposing (Html)
@@ -40,7 +42,7 @@ view props =
         [ Attr.css
             [ height <| rem 2
             , ColorStyle.bgMain
-            , Style.widthScreen
+            , Style.widthFull
             , position relative
             , Style.shadowSm
             , displayFlex
@@ -115,3 +117,17 @@ diagramTypeSelect props =
             )
             diagramTypeList
         )
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Footer"
+        |> Chapter.renderComponentList
+            [ ( "Footer"
+              , view
+                    { diagramType = DiagramType.UserStoryMap
+                    , onChangeDiagramType = \_ -> Actions.logAction "onChangeDiagramType"
+                    }
+                    |> Html.toUnstyled
+              )
+            ]

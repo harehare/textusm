@@ -1,4 +1,4 @@
-module Views.Menu exposing (MenuInfo, MenuItem(..), Props, menu, view)
+module Views.Menu exposing (MenuInfo, MenuItem(..), Props, menu, view, docs)
 
 import Attributes
 import Css
@@ -47,6 +47,8 @@ import Css
         )
 import Css.Global exposing (class, descendants)
 import Css.Transitions as Transitions
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
@@ -56,7 +58,7 @@ import Json.Decode as D
 import List
 import Message exposing (Lang)
 import Models.Color as Color
-import Models.Diagram.Item exposing (DiagramItem)
+import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation
 import Models.Diagram.Type exposing (DiagramType(..))
 import Models.Exporter as Exporter
@@ -64,6 +66,7 @@ import Models.FileType as FileType
 import Models.Model exposing (BrowserStatus, Menu(..), Msg(..))
 import Models.Page as Page
 import Models.Text as Text exposing (Text)
+import Models.Theme as Theme
 import Route exposing (Route)
 import Settings exposing (Settings)
 import Style.Breakpoint as Breakpoint
@@ -77,7 +80,7 @@ import Views.Icon as Icon
 
 
 type alias MenuInfo msg =
-    { e : msg
+    { e : Maybe msg
     , title : String
     }
 
@@ -86,7 +89,7 @@ type MenuItem msg
     = MenuItem (MenuInfo msg)
 
 
-type alias Props =
+type alias Props msg =
     { page : Page.Page
     , route : Route
     , lang : Lang
@@ -96,6 +99,13 @@ type alias Props =
     , settings : Settings
     , browserStatus : BrowserStatus
     , currentDiagram : DiagramItem
+    , onOpenLocalFile : msg
+    , onOpenMenu : Menu -> msg
+    , onCopy : msg
+    , onDownload : Exporter.Export -> msg
+    , onSaveLocalFile : msg
+    , onSave : msg
+    , onOpenCurrentFile : msg
     }
 
 
@@ -135,8 +145,8 @@ newMenu lang =
         ]
 
 
-editMenu : { diagramItem : DiagramItem, lang : Lang, route : Route } -> Html Msg
-editMenu { diagramItem, lang, route } =
+editMenu : { diagramItem : DiagramItem, lang : Lang, route : Route, onOpenCurrentFile : msg } -> Html msg
+editMenu { diagramItem, lang, route, onOpenCurrentFile } =
     case route of
         Route.Edit _ ->
             Lazy.lazy newMenu lang
@@ -152,7 +162,7 @@ editMenu { diagramItem, lang, route } =
                 Just _ ->
                     Html.div
                         [ Attr.class "edit-menu"
-                        , onClick OpenCurrentFile
+                        , onClick onOpenCurrentFile
                         , Attr.attribute "aria-label" "Edit"
                         , Attributes.dataTest "edit-menu"
                         ]
@@ -205,7 +215,12 @@ menu pos items =
                                 [ backgroundColor <| rgba 0 0 0 0.3
                                 ]
                             ]
-                        , onClick menuItem.e
+                        , case menuItem.e of
+                            Just e ->
+                                onClick e
+
+                            Nothing ->
+                                Attr.class ""
                         , menuItem.title
                             ++ "-menu-item"
                             |> String.replace " " ""
@@ -232,8 +247,8 @@ menu pos items =
         )
 
 
-view : Props -> Html Msg
-view { page, lang, width, route, text, openMenu, settings, browserStatus, currentDiagram } =
+view : Props msg -> Html msg
+view { page, lang, width, route, text, openMenu, settings, browserStatus, currentDiagram, onOpenLocalFile, onOpenMenu, onCopy, onDownload, onSave, onSaveLocalFile, onOpenCurrentFile } =
     Html.nav
         [ Attr.css
             [ Breakpoint.style
@@ -261,13 +276,13 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
             ]
         , Attributes.dataTest "menu"
         ]
-        [ editMenu { diagramItem = currentDiagram, lang = lang, route = route }
+        [ editMenu { diagramItem = currentDiagram, lang = lang, route = route, onOpenCurrentFile = onOpenCurrentFile }
         , Html.div
             [ Attr.css [ menuButtonStyle ] ]
             [ case settings.location of
                 Just DiagramLocation.LocalFileSystem ->
                     Html.div
-                        [ Events.onClickPreventDefaultOn OpenLocalFile
+                        [ Events.onClickPreventDefaultOn onOpenLocalFile
                         , Attr.attribute "aria-label" "List"
                         , Attributes.dataTest "list-menu"
                         ]
@@ -296,10 +311,10 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
             Html.div
                 [ case settings.location of
                     Just DiagramLocation.LocalFileSystem ->
-                        onClick SaveLocalFile
+                        onClick onSaveLocalFile
 
                     _ ->
-                        onClick Save
+                        onClick onSave
                 , Attr.css [ menuButtonStyle ]
                 , Attributes.dataTest "save-menu"
                 ]
@@ -317,7 +332,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                 ]
         , Html.div
             [ if isEditFile route then
-                stopPropagationOn "click" (D.succeed ( OpenMenu Export, True ))
+                stopPropagationOn "click" (D.succeed ( onOpenMenu Export, True ))
 
               else
                 Attr.style "" ""
@@ -346,7 +361,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
           else
             Html.div
                 [ Attr.css [ menuButtonStyle ]
-                , Events.onClickStopPropagation Copy
+                , Events.onClickStopPropagation onCopy
                 , Attributes.dataTest "copy-menu"
                 ]
                 [ Icon.copy Color.iconColor 19
@@ -355,7 +370,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
         , if Utils.isPhone width then
             case openMenu of
                 Just Export ->
-                    menu { bottom = Just 50, left = Just (width // 5 * 3), right = Nothing, top = Nothing } (exportMenu route browserStatus)
+                    menu { bottom = Just 50, left = Just (width // 5 * 3), right = Nothing, top = Nothing } (exportMenu { route = route, browserStatus = browserStatus, onDownload = onDownload })
 
                 _ ->
                     Empty.view
@@ -363,43 +378,43 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
           else
             case openMenu of
                 Just Export ->
-                    menu { bottom = Nothing, left = Just 40, right = Nothing, top = Just 125 } (exportMenu route browserStatus)
+                    menu { bottom = Nothing, left = Just 40, right = Nothing, top = Just 125 } (exportMenu { route = route, browserStatus = browserStatus, onDownload = onDownload })
 
                 _ ->
                     Empty.view
         ]
 
 
-baseExportMenu : BrowserStatus -> List (MenuItem Msg)
-baseExportMenu browserStatus =
+baseExportMenu : { browserStatus : BrowserStatus, onDownload : Exporter.Export -> msg } -> List (MenuItem msg)
+baseExportMenu { browserStatus, onDownload } =
     [ MenuItem
-        { e = Download <| Exporter.downloadable FileType.svg
+        { e = Just <| onDownload <| Exporter.downloadable FileType.svg
         , title = FileType.toString FileType.svg
         }
     , MenuItem
-        { e = Download <| Exporter.downloadable FileType.png
+        { e = Just <| onDownload <| Exporter.downloadable FileType.png
         , title = FileType.toString FileType.png
         }
     , MenuItem
-        { e = Download <| Exporter.downloadable FileType.pdf
+        { e = Just <| onDownload <| Exporter.downloadable FileType.pdf
         , title = FileType.toString FileType.pdf
         }
     , MenuItem
-        { e = Download <| Exporter.downloadable FileType.plainText
+        { e = Just <| onDownload <| Exporter.downloadable FileType.plainText
         , title = FileType.toString FileType.plainText
         }
     , MenuItem
-        { e = Download <| Exporter.downloadable FileType.html
+        { e = Just <| onDownload <| Exporter.downloadable FileType.html
         , title = FileType.toString FileType.html
         }
     ]
         ++ (if browserStatus.canUseClipboardItem then
                 [ MenuItem
-                    { e = Download <| Exporter.copyable FileType.png
+                    { e = Just <| onDownload <| Exporter.copyable FileType.png
                     , title = "Copy " ++ FileType.toString FileType.png
                     }
                 , MenuItem
-                    { e = Download <| Exporter.copyable FileType.Base64
+                    { e = Just <| onDownload <| Exporter.copyable FileType.Base64
                     , title = "Copy " ++ FileType.toString FileType.Base64
                     }
                 ]
@@ -409,75 +424,75 @@ baseExportMenu browserStatus =
            )
 
 
-exportMenu : Route -> BrowserStatus -> List (MenuItem Msg)
-exportMenu route browserStatus =
+exportMenu : { route : Route, browserStatus : BrowserStatus, onDownload : Exporter.Export -> msg } -> List (MenuItem msg)
+exportMenu { route, browserStatus, onDownload } =
     case route of
         Route.Edit GanttChart ->
             MenuItem
-                { e = Download <| Exporter.copyable FileType.mermaid
+                { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
-                :: baseExportMenu browserStatus
+                :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.Edit ErDiagram ->
             MenuItem
-                { e = Download <| Exporter.copyable FileType.ddl
+                { e = Just <| onDownload <| Exporter.copyable FileType.ddl
                 , title = "DDL"
                 }
                 :: MenuItem
-                    { e = Download <| Exporter.copyable FileType.mermaid
+                    { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
-                :: baseExportMenu browserStatus
+                :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.Edit Table ->
             MenuItem
-                { e = Download <| Exporter.copyable FileType.markdown
+                { e = Just <| onDownload <| Exporter.copyable FileType.markdown
                 , title = "Markdown"
                 }
-                :: baseExportMenu browserStatus
+                :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.Edit SequenceDiagram ->
             MenuItem
-                { e = Download <| Exporter.copyable FileType.mermaid
+                { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
-                :: baseExportMenu browserStatus
+                :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.EditFile GanttChart _ ->
             MenuItem
-                { e = Download <| Exporter.copyable FileType.mermaid
+                { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
-                :: baseExportMenu browserStatus
+                :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.EditFile ErDiagram _ ->
             MenuItem
-                { e = Download <| Exporter.copyable FileType.ddl
+                { e = Just <| onDownload <| Exporter.copyable FileType.ddl
                 , title = "DDL"
                 }
                 :: MenuItem
-                    { e = Download <| Exporter.copyable FileType.mermaid
+                    { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
                     , title = "Mermaid"
                     }
-                :: baseExportMenu browserStatus
+                :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.EditFile Table _ ->
             MenuItem
-                { e = Download <| Exporter.copyable FileType.markdown
+                { e = Just <| onDownload <| Exporter.copyable FileType.markdown
                 , title = "Markdown"
                 }
-                :: baseExportMenu browserStatus
+                :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         Route.EditFile SequenceDiagram _ ->
             MenuItem
-                { e = Download <| Exporter.copyable FileType.mermaid
+                { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
-                :: baseExportMenu browserStatus
+                :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
         _ ->
-            baseExportMenu browserStatus
+            baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
 
 menuButtonStyle : Css.Style
@@ -501,3 +516,34 @@ menuButtonStyle =
                 ]
             ]
         ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Menu"
+        |> Chapter.renderComponent
+            (view
+                { page = Page.Main
+                , route = Route.Home
+                , lang = Message.En
+                , text = Text.empty
+                , width = 128
+                , openMenu = Nothing
+                , settings = Settings.defaultSettings Theme.Dark
+                , browserStatus =
+                    { isOnline = True
+                    , isDarkMode = True
+                    , canUseClipboardItem = True
+                    , canUseNativeFileSystem = True
+                    }
+                , currentDiagram = DiagramItem.empty
+                , onOpenLocalFile = Actions.logAction "onOpenLocalFile"
+                , onOpenMenu = \_ -> Actions.logAction "onOpenMenu"
+                , onCopy = Actions.logAction "onCopy"
+                , onDownload = \_ -> Actions.logAction "onDownload"
+                , onSaveLocalFile = Actions.logAction "onSaveLocalFile"
+                , onSave = Actions.logAction "onSave"
+                , onOpenCurrentFile = Actions.logAction "onOpenCurrentFile"
+                }
+                |> Html.toUnstyled
+            )

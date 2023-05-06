@@ -1,6 +1,7 @@
-module Views.Progress exposing (view)
+module Views.Progress exposing (docs, view)
 
 import Css exposing (absolute, backgroundColor, int, left, position, px, rgba, top, zIndex)
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Style.Style as Style
@@ -21,3 +22,11 @@ view =
             ]
         ]
         [ Loading.view ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Progress"
+        |> Chapter.renderComponentList
+            [ ( "progress", view |> Html.toUnstyled )
+            ]

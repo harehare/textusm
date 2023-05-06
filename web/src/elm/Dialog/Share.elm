@@ -613,7 +613,7 @@ copyButton copy msg =
                 Icon.copy Color.white 16
 
             Copying ->
-                Spinner.small
+                Spinner.view
 
             Copied ->
                 Html.text "Copied"

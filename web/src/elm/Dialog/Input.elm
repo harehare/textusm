@@ -126,7 +126,7 @@ view props =
                         onClick props.onEnter
                     ]
                     [ if props.inProcess then
-                        Html.div [ Attr.css [ Style.widthFull, Style.flexCenter ] ] [ Spinner.small ]
+                        Html.div [ Attr.css [ Style.widthFull, Style.flexCenter ] ] [ Spinner.view ]
 
                       else
                         Html.text "Submit"

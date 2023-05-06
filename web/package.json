@@ -43,6 +43,7 @@
     "cypress": "^12.11.0",
     "devcert": "^1.2.2",
     "elm": "^0.19.1-5",
+    "elm-book": "^1.0.1",
     "elm-constants": "^1.0.0",
     "elm-format": "^0.8.7",
     "elm-hot-webpack-loader": "^1.1.8",
@@ -116,7 +117,8 @@
     "lint-fix": "concurrently \"npm:lint-fix:*\"",
     "lint-fix:ts": "xo --fix --prettier src/ts/*.ts",
     "lint-fix:elm": "elm-review --fix",
-    "size": "npm run prod && size-limit"
+    "size": "npm run prod && size-limit",
+    "book": "elm-book src/elm/Views/Book.elm --start-page=book.html --port 4000  -- --output=./dist/book.js"
   },
   "browserslist": [
     "defaults"

@@ -1404,6 +1404,15 @@ headerView model =
             , route = toRoute model.url
             , prevRoute = model.prevRoute
             , isOnline = model.browserStatus.isOnline
+            , onMoveTo = M.MoveTo
+            , onStartEditTitle = M.StartEditTitle
+            , onEditTitle = M.EditTitle
+            , onEndEditTitle = M.EndEditTitle
+            , onChangePublicStatus = M.ChangePublicStatus
+            , onOpenMenu = M.OpenMenu
+            , onCloseMenu = M.CloseMenu
+            , onSignIn = M.SignIn
+            , onSignOut = M.SignOut
             }
 
 
@@ -1423,6 +1432,13 @@ menuView model =
             , settings = model.settingsModel.settings
             , currentDiagram = model.currentDiagram
             , browserStatus = model.browserStatus
+            , onOpenLocalFile = M.OpenLocalFile
+            , onOpenMenu = M.OpenMenu
+            , onCopy = M.Copy
+            , onDownload = M.Download
+            , onSaveLocalFile = M.SaveLocalFile
+            , onSave = M.Save
+            , onOpenCurrentFile = M.OpenCurrentFile
             }
 
 

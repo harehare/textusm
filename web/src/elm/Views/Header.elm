@@ -1,4 +1,4 @@
-module Views.Header exposing (Props, view)
+module Views.Header exposing (Props, docs, view)
 
 import Asset
 import Attributes
@@ -42,6 +42,8 @@ import Css
         , whiteSpace
         , width
         )
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events as E
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
@@ -50,7 +52,7 @@ import Html.Styled.Lazy as Lazy
 import Json.Decode as D
 import Message exposing (Lang)
 import Models.Color as Color
-import Models.Diagram.Item exposing (DiagramItem)
+import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
 import Models.Diagram.Location as DiagramLocation exposing (Location)
 import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.LoginProvider as LoginProvider exposing (LoginProvider(..))
@@ -71,7 +73,7 @@ import Views.Menu as Menu
 import Views.Tooltip as Tooltip
 
 
-type alias Props =
+type alias Props msg =
     { session : Session
     , page : Page
     , currentDiagram : DiagramItem
@@ -81,10 +83,19 @@ type alias Props =
     , route : Route
     , prevRoute : Maybe Route
     , isOnline : Bool
+    , onMoveTo : Route -> msg
+    , onStartEditTitle : msg
+    , onEditTitle : String -> msg
+    , onEndEditTitle : msg
+    , onChangePublicStatus : Bool -> msg
+    , onOpenMenu : Menu -> msg
+    , onCloseMenu : msg
+    , onSignIn : LoginProvider -> msg
+    , onSignOut : msg
     }
 
 
-view : Props -> Html Msg
+view : Props msg -> Html msg
 view props =
     Html.header
         [ Attr.css
@@ -124,7 +135,7 @@ view props =
                         Just r ->
                             Html.div
                                 [ Attr.css [ Style.flexCenter, padding4 (px 8) (px 8) (px 8) (px 12), cursor pointer ]
-                                , Events.onClick <| MoveTo r
+                                , Events.onClick <| props.onMoveTo r
                                 , Attributes.dataTest "header-back"
                                 ]
                                 [ Icon.arrowLeft Color.iconColor 16 ]
@@ -152,9 +163,9 @@ view props =
                                     ]
                                 ]
                             , Attr.value <| Title.toString props.currentDiagram.title
-                            , Events.onInput EditTitle
-                            , Events.onBlur EndEditTitle
-                            , E.onEnter EndEditTitle
+                            , Events.onInput props.onEditTitle
+                            , Events.onBlur props.onEndEditTitle
+                            , E.onEnter props.onEndEditTitle
                             , Attr.placeholder "UNTITLED"
                             , Attributes.dataTest "header-input-title"
                             ]
@@ -166,7 +177,7 @@ view props =
                                 [ cursor pointer
                                 , hover []
                                 ]
-                            , Events.onClick StartEditTitle
+                            , Events.onClick props.onStartEditTitle
                             , Attributes.dataTest "header-title"
                             ]
                             [ Html.text <| Title.toString props.currentDiagram.title
@@ -199,34 +210,34 @@ view props =
                     Route.New ->
                         [ Lazy.lazy viewHelpButton props.lang
                         , Lazy.lazy2 viewSettingsButton props.lang props.currentDiagram.diagram
-                        , Lazy.lazy2 viewSignInButton props.menu props.session
+                        , Lazy.lazy viewSignInButton { menu = props.menu, session = props.session, onOpenMenu = props.onOpenMenu, onSignIn = props.onSignIn, onSignOut = props.onSignOut, onCloseMenu = props.onCloseMenu }
                         ]
 
                     Route.DiagramList ->
                         [ Lazy.lazy viewHelpButton props.lang
                         , Lazy.lazy2 viewSettingsButton props.lang props.currentDiagram.diagram
-                        , Lazy.lazy2 viewSignInButton props.menu props.session
+                        , Lazy.lazy viewSignInButton { menu = props.menu, session = props.session, onOpenMenu = props.onOpenMenu, onSignIn = props.onSignIn, onSignOut = props.onSignOut, onCloseMenu = props.onCloseMenu }
                         ]
 
                     Route.Settings _ ->
                         [ Lazy.lazy viewHelpButton props.lang
                         , Lazy.lazy2 viewSettingsButton props.lang props.currentDiagram.diagram
-                        , Lazy.lazy2 viewSignInButton props.menu props.session
+                        , Lazy.lazy viewSignInButton { menu = props.menu, session = props.session, onOpenMenu = props.onOpenMenu, onSignIn = props.onSignIn, onSignOut = props.onSignOut, onCloseMenu = props.onCloseMenu }
                         ]
 
                     _ ->
                         [ Lazy.lazy3 viewLocationButton props.lang props.session props.currentDiagram.location
-                        , Lazy.lazy3 viewChangePublicStateButton props.lang props.currentDiagram.isPublic (canChangePublicState props)
+                        , Lazy.lazy4 viewChangePublicStateButton props.onChangePublicStatus props.lang props.currentDiagram.isPublic (canChangePublicState props)
                         , Lazy.lazy viewHelpButton props.lang
                         , Lazy.lazy2 viewShareButton props.lang <| canShare props
                         , Lazy.lazy2 viewSettingsButton props.lang props.currentDiagram.diagram
-                        , Lazy.lazy2 viewSignInButton props.menu props.session
+                        , Lazy.lazy viewSignInButton { menu = props.menu, session = props.session, onOpenMenu = props.onOpenMenu, onSignIn = props.onSignIn, onSignOut = props.onSignOut, onCloseMenu = props.onCloseMenu }
                         ]
                )
         )
 
 
-canChangePublicState : Props -> Bool
+canChangePublicState : Props msg -> Bool
 canChangePublicState props =
     props.currentDiagram.id
         |> Maybe.andThen (\_ -> props.currentDiagram.location)
@@ -234,7 +245,7 @@ canChangePublicState props =
         |> Maybe.withDefault False
 
 
-canEdit : Props -> Bool
+canEdit : Props msg -> Bool
 canEdit props =
     case props.route of
         ViewFile _ _ ->
@@ -244,23 +255,23 @@ canEdit props =
             True
 
 
-canShare : Props -> Bool
+canShare : Props msg -> Bool
 canShare props =
     Session.isSignedIn props.session && isRemoteDiagram props && canEdit props && props.isOnline
 
 
-isRemoteDiagram : Props -> Bool
+isRemoteDiagram : Props msg -> Bool
 isRemoteDiagram props =
     props.currentDiagram.location
         |> Maybe.map DiagramLocation.isRemote
         |> Maybe.withDefault False
 
 
-viewChangePublicStateButton : Lang -> Bool -> Bool -> Html Msg
-viewChangePublicStateButton lang isPublic_ canChangePublicState_ =
+viewChangePublicStateButton : (Bool -> msg) -> Lang -> Bool -> Bool -> Html msg
+viewChangePublicStateButton onChangePublicStatus lang isPublic_ canChangePublicState_ =
     if canChangePublicState_ then
         Html.div
-            [ Attr.css [ Style.button ], Events.onClick <| ChangePublicStatus (not isPublic_) ]
+            [ Attr.css [ Style.button ], Events.onClick <| onChangePublicStatus (not isPublic_) ]
             [ if isPublic_ then
                 Icon.lockOpen Color.iconColor 14
 
@@ -281,7 +292,7 @@ viewChangePublicStateButton lang isPublic_ canChangePublicState_ =
             ]
 
 
-viewHelpButton : Lang -> Html Msg
+viewHelpButton : Lang -> Html msg
 viewHelpButton lang =
     Html.a
         [ Attr.attribute "aria-label" "Help"
@@ -296,7 +307,7 @@ viewHelpButton lang =
         ]
 
 
-viewSettingsButton : Lang -> DiagramType -> Html Msg
+viewSettingsButton : Lang -> DiagramType -> Html msg
 viewSettingsButton lang diagramType =
     Html.a
         [ Attr.attribute "aria-label" "Help"
@@ -313,7 +324,7 @@ viewSettingsButton lang diagramType =
         ]
 
 
-viewLocationButton : Lang -> Session -> Maybe Location -> Html Msg
+viewLocationButton : Lang -> Session -> Maybe Location -> Html msg
 viewLocationButton lang session location =
     case ( session, location ) of
         ( Session.SignedIn _, Just DiagramLocation.Remote ) ->
@@ -338,7 +349,7 @@ viewLocationButton lang session location =
                 ]
 
 
-viewShareButton : Lang -> Bool -> Html Msg
+viewShareButton : Lang -> Bool -> Html msg
 viewShareButton lang canShare_ =
     if canShare_ then
         Html.a
@@ -363,8 +374,8 @@ viewShareButton lang canShare_ =
             ]
 
 
-viewSignInButton : Maybe Menu -> Session -> Html Msg
-viewSignInButton menu session =
+viewSignInButton : { menu : Maybe Menu, session : Session, onOpenMenu : Menu -> msg, onSignIn : LoginProvider -> msg, onSignOut : msg, onCloseMenu : msg } -> Html msg
+viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu } =
     if Session.isSignedIn session then
         let
             user : Maybe Session.User
@@ -381,7 +392,7 @@ viewSignInButton menu session =
                         ]
                     ]
                 ]
-            , Events.stopPropagationOn "click" (D.succeed ( OpenMenu HeaderMenu, True ))
+            , Events.stopPropagationOn "click" (D.succeed ( onOpenMenu HeaderMenu, True ))
             , Attributes.dataTest "header-signin"
             ]
             [ Html.div
@@ -427,18 +438,18 @@ viewSignInButton menu session =
                             (case user_ of
                                 Just u ->
                                     [ Menu.MenuItem
-                                        { e = NoOp
+                                        { e = Nothing
                                         , title = u.email
                                         }
                                     , Menu.MenuItem
-                                        { e = SignOut
+                                        { e = Just onSignOut
                                         , title = "SIGN OUT"
                                         }
                                     ]
 
                                 Nothing ->
                                     [ Menu.MenuItem
-                                        { e = SignOut
+                                        { e = Just onSignOut
                                         , title = "SIGN OUT"
                                         }
                                     ]
@@ -454,10 +465,10 @@ viewSignInButton menu session =
             [ Attr.css [ Style.button, width <| px 96, height <| px 50, Style.borderContent ]
             , case menu of
                 Just LoginMenu ->
-                    Events.stopPropagationOn "click" (D.succeed ( CloseMenu, True ))
+                    Events.stopPropagationOn "click" (D.succeed ( onCloseMenu, True ))
 
                 _ ->
-                    Events.stopPropagationOn "click" (D.succeed ( OpenMenu LoginMenu, True ))
+                    Events.stopPropagationOn "click" (D.succeed ( onOpenMenu LoginMenu, True ))
             , Attributes.dataTest "header-signin"
             ]
             [ Html.div [ Attr.css [ Text.base, Font.fontBold ] ]
@@ -471,11 +482,11 @@ viewSignInButton menu session =
                         , top = Just 40
                         }
                         [ Menu.MenuItem
-                            { e = SignIn Google
+                            { e = Just <| onSignIn Google
                             , title = LoginProvider.toString Google
                             }
                         , Menu.MenuItem
-                            { e = SignIn <| Github Nothing
+                            { e = Just <| onSignIn <| Github Nothing
                             , title = LoginProvider.toString <| Github Nothing
                             }
                         ]
@@ -505,3 +516,31 @@ viewTitle attrs children =
             :: attrs
         )
         children
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Header"
+        |> Chapter.renderComponent
+            (view
+                { session = Session.guest
+                , page = Page.Main
+                , currentDiagram = DiagramItem.empty
+                , menu = Nothing
+                , currentText = Text.empty
+                , lang = Message.En
+                , route = Route.Home
+                , prevRoute = Nothing
+                , isOnline = True
+                , onMoveTo = \_ -> Actions.logAction "onMoveTo"
+                , onStartEditTitle = Actions.logAction "onStartEditTitle"
+                , onEditTitle = \_ -> Actions.logAction "onEditTitle"
+                , onEndEditTitle = Actions.logAction "onEndEditTitle"
+                , onChangePublicStatus = \_ -> Actions.logAction "onChangePublicStatus"
+                , onOpenMenu = \_ -> Actions.logAction "onOpenMenu"
+                , onCloseMenu = Actions.logAction "onCloseMenu"
+                , onSignIn = \_ -> Actions.logAction "onSignIn"
+                , onSignOut = Actions.logAction "onSignOut"
+                }
+                |> Html.toUnstyled
+            )

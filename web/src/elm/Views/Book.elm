@@ -1,0 +1,36 @@
+module Views.Book exposing (main)
+
+import ElmBook exposing (Book)
+import ElmBook.ComponentOptions
+import Views.Footer as Footer
+import Views.Header as Header
+import Views.Loading as Loading
+import Views.Logo as Logo
+import Views.Notification as Notification
+import Views.Progress as Progress
+import Views.Snackbar as Snackbar
+import Views.Spinner as Spinner
+import Views.Tooltip as Tooltip
+import Views.Menu as Menu
+
+
+main : Book ()
+main =
+    ElmBook.book "Views"
+        |> ElmBook.withComponentOptions
+            [ ElmBook.ComponentOptions.background "#273037"
+            , ElmBook.ComponentOptions.hiddenLabel True
+            , ElmBook.ComponentOptions.fullWidth True
+            ]
+        |> ElmBook.withChapters
+            [ Tooltip.docs
+            , Notification.docs
+            , Progress.docs
+            , Snackbar.docs
+            , Footer.docs
+            , Loading.docs
+            , Spinner.docs
+            , Logo.docs
+            , Header.docs
+            , Menu.docs
+            ]

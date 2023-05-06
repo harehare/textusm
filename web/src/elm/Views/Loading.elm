@@ -1,9 +1,11 @@
-module Views.Loading exposing (view)
+module Views.Loading exposing (docs, view)
 
 import Css exposing (scale, transform)
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Models.Color as Color
+import Style.Color as ColorStyle
 import Svg.Styled as Svg
 import Svg.Styled.Attributes as SvgAttr
 
@@ -35,3 +37,10 @@ view =
                 ]
             ]
         ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Loading"
+        |> Chapter.renderComponent
+            (Html.div [ Attr.css [ ColorStyle.bgMain ] ] [ view ] |> Html.toUnstyled)

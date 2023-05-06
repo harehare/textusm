@@ -1,7 +1,8 @@
-module Views.Logo exposing (view)
+module Views.Logo exposing (docs, view)
 
 import Asset
 import Css exposing (cursor, pointer, px, width)
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Style.Font as Font
@@ -27,3 +28,14 @@ view =
             , Html.span [ Attr.css [ Text.xs, Font.fontBold ] ] [ Html.text "TextUSM" ]
             ]
         ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Logo"
+        |> Chapter.renderComponentList
+            [ ( "Logo"
+              , view
+                    |> Html.toUnstyled
+              )
+            ]

@@ -1,4 +1,4 @@
-module Views.Notification exposing (view)
+module Views.Notification exposing (docs, view)
 
 import Css
     exposing
@@ -23,6 +23,7 @@ import Css
         , zIndex
         )
 import Css.Transitions as Transitions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Models.Color as Color
@@ -92,3 +93,13 @@ view notification =
             , Html.div [ Attr.css [ Style.mlSm ] ] [ Html.text text_ ]
             ]
         ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Notification"
+        |> Chapter.renderComponentList
+            [ ( "info", view (Notification.Show (Notification.Info "info")) |> Html.toUnstyled )
+            , ( "warning", view (Notification.Show (Notification.Warning "Warning")) |> Html.toUnstyled )
+            , ( "error", view (Notification.Show (Notification.Error "Error")) |> Html.toUnstyled )
+            ]

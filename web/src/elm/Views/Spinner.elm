@@ -1,4 +1,4 @@
-module Views.Spinner exposing (small)
+module Views.Spinner exposing (docs, view)
 
 import Css
     exposing
@@ -32,13 +32,15 @@ import Css
         , zero
         )
 import Css.Animations as Animations exposing (keyframes)
-import Html.Styled exposing (Html, div)
+import ElmBook.Chapter as Chapter exposing (Chapter)
+import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
+import Style.Color as ColorStyle
 
 
-small : Html msg
-small =
-    div
+view : Html msg
+view =
+    Html.div
         [ Attr.css
             [ margin <| px 4
             , fontSize <| px 2
@@ -68,3 +70,13 @@ small =
             ]
         ]
         []
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Spinner"
+        |> Chapter.renderComponentList
+            [ ( "Spinner"
+              , Html.div [ Attr.css [ ColorStyle.bgMain ] ] [ view ] |> Html.toUnstyled
+              )
+            ]

@@ -1,4 +1,4 @@
-module Views.Snackbar exposing (view)
+module Views.Snackbar exposing (docs, view)
 
 import Css
     exposing
@@ -25,6 +25,8 @@ import Css
         , width
         , zIndex
         )
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Events
@@ -81,3 +83,20 @@ view snackbar =
 
         Snackbar.Hide ->
             Empty.view
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Snackbar"
+        |> Chapter.renderComponentList
+            [ ( "Snackbar"
+              , view
+                    (Snackbar.Show
+                        { message = "snackbar"
+                        , text = "snackbar"
+                        , action = Actions.logAction "Click"
+                        }
+                    )
+                    |> Html.toUnstyled
+              )
+            ]
