@@ -65,6 +65,7 @@ import Route exposing (Route(..))
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
 import Style.Font as Font
+import Style.Global as GlobalStyle
 import Style.Style as Style
 import Style.Text as Text
 import Views.Empty as Empty
@@ -101,7 +102,7 @@ view props =
         [ Attr.css
             [ displayFlex
             , alignItems center
-            , Style.widthScreen
+            , Style.widthFull
             , ColorStyle.bgHeaderColor
             , height <| px 36
             ]
@@ -522,25 +523,28 @@ docs : Chapter x
 docs =
     Chapter.chapter "Header"
         |> Chapter.renderComponent
-            (view
-                { session = Session.guest
-                , page = Page.Main
-                , currentDiagram = DiagramItem.empty
-                , menu = Nothing
-                , currentText = Text.empty
-                , lang = Message.En
-                , route = Route.Home
-                , prevRoute = Nothing
-                , isOnline = True
-                , onMoveTo = \_ -> Actions.logAction "onMoveTo"
-                , onStartEditTitle = Actions.logAction "onStartEditTitle"
-                , onEditTitle = \_ -> Actions.logAction "onEditTitle"
-                , onEndEditTitle = Actions.logAction "onEndEditTitle"
-                , onChangePublicStatus = \_ -> Actions.logAction "onChangePublicStatus"
-                , onOpenMenu = \_ -> Actions.logAction "onOpenMenu"
-                , onCloseMenu = Actions.logAction "onCloseMenu"
-                , onSignIn = \_ -> Actions.logAction "onSignIn"
-                , onSignOut = Actions.logAction "onSignOut"
-                }
+            (Html.div []
+                [ GlobalStyle.style
+                , view
+                    { session = Session.guest
+                    , page = Page.Main
+                    , currentDiagram = DiagramItem.empty
+                    , menu = Nothing
+                    , currentText = Text.empty
+                    , lang = Message.En
+                    , route = Route.Home
+                    , prevRoute = Nothing
+                    , isOnline = True
+                    , onMoveTo = \_ -> Actions.logAction "onMoveTo"
+                    , onStartEditTitle = Actions.logAction "onStartEditTitle"
+                    , onEditTitle = \_ -> Actions.logAction "onEditTitle"
+                    , onEndEditTitle = Actions.logAction "onEndEditTitle"
+                    , onChangePublicStatus = \_ -> Actions.logAction "onChangePublicStatus"
+                    , onOpenMenu = \_ -> Actions.logAction "onOpenMenu"
+                    , onCloseMenu = Actions.logAction "onCloseMenu"
+                    , onSignIn = \_ -> Actions.logAction "onSignIn"
+                    , onSignOut = Actions.logAction "onSignOut"
+                    }
+                ]
                 |> Html.toUnstyled
             )

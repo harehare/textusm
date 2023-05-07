@@ -1,4 +1,4 @@
-module Views.Menu exposing (MenuInfo, MenuItem(..), Props, menu, view, docs)
+module Views.Menu exposing (MenuInfo, MenuItem(..), Props, docs, menu, view)
 
 import Attributes
 import Css
@@ -72,6 +72,7 @@ import Settings exposing (Settings)
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
 import Style.Font as FontStyle
+import Style.Global as GlobalStyle
 import Style.Style as Style
 import Style.Text as TextStyle
 import Utils.Utils as Utils
@@ -522,28 +523,31 @@ docs : Chapter x
 docs =
     Chapter.chapter "Menu"
         |> Chapter.renderComponent
-            (view
-                { page = Page.Main
-                , route = Route.Home
-                , lang = Message.En
-                , text = Text.empty
-                , width = 128
-                , openMenu = Nothing
-                , settings = Settings.defaultSettings Theme.Dark
-                , browserStatus =
-                    { isOnline = True
-                    , isDarkMode = True
-                    , canUseClipboardItem = True
-                    , canUseNativeFileSystem = True
+            (Html.div []
+                [ GlobalStyle.style
+                , view
+                    { page = Page.Main
+                    , route = Route.Home
+                    , lang = Message.En
+                    , text = Text.empty
+                    , width = 128
+                    , openMenu = Nothing
+                    , settings = Settings.defaultSettings Theme.Dark
+                    , browserStatus =
+                        { isOnline = True
+                        , isDarkMode = True
+                        , canUseClipboardItem = True
+                        , canUseNativeFileSystem = True
+                        }
+                    , currentDiagram = DiagramItem.empty
+                    , onOpenLocalFile = Actions.logAction "onOpenLocalFile"
+                    , onOpenMenu = \_ -> Actions.logAction "onOpenMenu"
+                    , onCopy = Actions.logAction "onCopy"
+                    , onDownload = \_ -> Actions.logAction "onDownload"
+                    , onSaveLocalFile = Actions.logAction "onSaveLocalFile"
+                    , onSave = Actions.logAction "onSave"
+                    , onOpenCurrentFile = Actions.logAction "onOpenCurrentFile"
                     }
-                , currentDiagram = DiagramItem.empty
-                , onOpenLocalFile = Actions.logAction "onOpenLocalFile"
-                , onOpenMenu = \_ -> Actions.logAction "onOpenMenu"
-                , onCopy = Actions.logAction "onCopy"
-                , onDownload = \_ -> Actions.logAction "onDownload"
-                , onSaveLocalFile = Actions.logAction "onSaveLocalFile"
-                , onSave = Actions.logAction "onSave"
-                , onOpenCurrentFile = Actions.logAction "onOpenCurrentFile"
-                }
+                ]
                 |> Html.toUnstyled
             )

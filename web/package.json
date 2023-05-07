@@ -118,7 +118,7 @@
     "lint-fix:ts": "xo --fix --prettier src/ts/*.ts",
     "lint-fix:elm": "elm-review --fix",
     "size": "npm run prod && size-limit",
-    "book": "elm-book src/elm/Views/Book.elm --start-page=book.html --port 4000  -- --output=./dist/book.js"
+    "book": "mkdir -p ./src/dist && cp ./src/book.html ./src/dist/ && cp -r ./src/assets/images ./src/dist/ && elm-book src/elm/Views/Book.elm --dir=./src/dist --start-page=book.html --port 4000  -- --output=./src/dist/book.js"
   },
   "browserslist": [
     "defaults"

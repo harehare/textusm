@@ -36,6 +36,7 @@ import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Style.Color as ColorStyle
+import Style.Style
 
 
 view : Html msg
@@ -77,6 +78,6 @@ docs =
     Chapter.chapter "Spinner"
         |> Chapter.renderComponentList
             [ ( "Spinner"
-              , Html.div [ Attr.css [ ColorStyle.bgMain ] ] [ view ] |> Html.toUnstyled
+              , Html.div [ Attr.css [ ColorStyle.bgMain, Style.Style.paddingSm ] ] [ view ] |> Html.toUnstyled
               )
             ]

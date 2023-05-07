@@ -1,4 +1,4 @@
-module Views.DropDownList exposing (DropDownItem, DropDownValue, colorValue, loadingView, stringValue, view)
+module Views.DropDownList exposing (DropDownItem, DropDownValue, colorValue, docs, loadingView, stringValue, view)
 
 import Css
     exposing
@@ -45,12 +45,15 @@ import Css
         , zIndex
         , zero
         )
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Events
 import List.Extra as ListEx
 import Style.Color as Color
+import Style.Global as GlobalStyle
 import Style.Style as Style
 import Style.Text as Text
 
@@ -267,3 +270,26 @@ unwrapValue value =
 
         StringValue val ->
             val
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "DropDownList"
+        |> Chapter.renderComponent
+            (Html.div [ Attr.css [ Color.bgMain ] ]
+                [ GlobalStyle.style
+                , view (\_ -> Actions.logAction "onToggleDropDownList")
+                    "id"
+                    (Just "id")
+                    (\_ -> Actions.logAction "onChange")
+                    [ { name = "value"
+                      , value = stringValue "value"
+                      }
+                    , { name = "value2"
+                      , value = stringValue "value2"
+                      }
+                    ]
+                    "value"
+                ]
+                |> Html.toUnstyled
+            )

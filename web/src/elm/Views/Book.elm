@@ -2,16 +2,17 @@ module Views.Book exposing (main)
 
 import ElmBook exposing (Book)
 import ElmBook.ComponentOptions
+import Views.DropDownList as DropDownList
 import Views.Footer as Footer
 import Views.Header as Header
 import Views.Loading as Loading
 import Views.Logo as Logo
+import Views.Menu as Menu
 import Views.Notification as Notification
 import Views.Progress as Progress
 import Views.Snackbar as Snackbar
 import Views.Spinner as Spinner
 import Views.Tooltip as Tooltip
-import Views.Menu as Menu
 
 
 main : Book ()
@@ -21,6 +22,7 @@ main =
             [ ElmBook.ComponentOptions.background "#273037"
             , ElmBook.ComponentOptions.hiddenLabel True
             , ElmBook.ComponentOptions.fullWidth True
+            , ElmBook.ComponentOptions.displayBlock
             ]
         |> ElmBook.withChapters
             [ Tooltip.docs
@@ -33,4 +35,5 @@ main =
             , Logo.docs
             , Header.docs
             , Menu.docs
+            , DropDownList.docs
             ]
