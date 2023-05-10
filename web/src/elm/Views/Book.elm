@@ -12,9 +12,10 @@ import Views.Notification as Notification
 import Views.Progress as Progress
 import Views.Snackbar as Snackbar
 import Views.Spinner as Spinner
-import Views.Tooltip as Tooltip
-import Views.SwitchWindow as SwitchWindow
 import Views.SplitWindow as SplitWindow
+import Views.Switch as Switch
+import Views.SwitchWindow as SwitchWindow
+import Views.Tooltip as Tooltip
 
 
 main : Book ()
@@ -40,4 +41,5 @@ main =
             , DropDownList.docs
             , SwitchWindow.docs
             , SplitWindow.docs
+            , Switch.docs
             ]

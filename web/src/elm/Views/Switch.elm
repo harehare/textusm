@@ -1,4 +1,4 @@
-module Views.Switch exposing (view)
+module Views.Switch exposing (docs, view)
 
 import Css
     exposing
@@ -25,7 +25,9 @@ import Css
         , zIndex
         , zero
         )
-import Html.Styled exposing (Html, div, input, label)
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
+import Html.Styled as Html exposing (Html, div, input, label)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events as E
 import Style.Color as ColorStyle
@@ -82,3 +84,12 @@ view check onCheck =
             ]
             []
         ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Switch"
+        |> Chapter.renderComponent
+            (view True (\_ -> Actions.logAction "onCheck")
+                |> Html.toUnstyled
+            )
