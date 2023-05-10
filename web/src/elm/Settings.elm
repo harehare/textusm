@@ -1,29 +1,29 @@
 module Settings exposing
     ( EditorSettings
     , Settings
+    , activityBackgroundColor
+    , activityColor
+    , backgroundColor
     , defaultEditorSettings
     , defaultSettings
-    , ofActivityBackgroundColor
-    , ofActivityColor
-    , ofBackgroundColor
-    , ofFont
-    , ofFontSize
-    , ofHeight
-    , ofLabelColor
-    , ofLineColor
-    , ofShowLineNumber
-    , ofStoryBackgroundColor
-    , ofStoryColor
-    , ofTaskBackgroundColor
-    , ofTaskColor
-    , ofTextColor
-    , ofToolbar
-    , ofWidth
-    , ofWordWrap
-    , ofZoomControl
+    , font
+    , fontSize
+    , height
+    , labelColor
+    , lineColor
     , settingsDecoder
     , settingsEncoder
+    , showLineNumber
+    , storyBackgroundColor
+    , storyColor
     , storyMapOfSettings
+    , taskBackgroundColor
+    , taskColor
+    , textColor
+    , toolbar
+    , width
+    , wordWrap
+    , zoomControl
     )
 
 import Json.Decode as D
@@ -122,93 +122,93 @@ defaultSettings theme =
     }
 
 
-ofActivityBackgroundColor : Lens Settings String
-ofActivityBackgroundColor =
+activityBackgroundColor : Lens Settings String
+activityBackgroundColor =
     Compose.lensWithLens DiagramSettings.ofActivityBackgroundColor storyMapOfSettings
 
 
-ofActivityColor : Lens Settings String
-ofActivityColor =
+activityColor : Lens Settings String
+activityColor =
     Compose.lensWithLens DiagramSettings.ofActivityColor storyMapOfSettings
 
 
-ofBackgroundColor : Lens Settings String
-ofBackgroundColor =
+backgroundColor : Lens Settings String
+backgroundColor =
     Compose.lensWithLens DiagramSettings.ofBackgroundColor storyMapOfSettings
 
 
-ofFont : Lens Settings String
-ofFont =
+font : Lens Settings String
+font =
     Compose.lensWithLens DiagramSettings.ofFont storyMapOfSettings
 
 
-ofFontSize : Optional Settings Int
-ofFontSize =
+fontSize : Optional Settings Int
+fontSize =
     Compose.optionalWithLens editorOfFontSize editorOfSettings
 
 
-ofHeight : Lens Settings Int
-ofHeight =
+height : Lens Settings Int
+height =
     Compose.lensWithLens DiagramSettings.ofHeight storyMapOfSettings
 
 
-ofLabelColor : Lens Settings String
-ofLabelColor =
+labelColor : Lens Settings String
+labelColor =
     Compose.lensWithLens DiagramSettings.ofLabelColor storyMapOfSettings
 
 
-ofLineColor : Lens Settings String
-ofLineColor =
+lineColor : Lens Settings String
+lineColor =
     Compose.lensWithLens DiagramSettings.ofLineColor storyMapOfSettings
 
 
-ofShowLineNumber : Optional Settings Bool
-ofShowLineNumber =
+showLineNumber : Optional Settings Bool
+showLineNumber =
     Compose.optionalWithLens editorOfShowLineNumber editorOfSettings
 
 
-ofStoryBackgroundColor : Lens Settings String
-ofStoryBackgroundColor =
+storyBackgroundColor : Lens Settings String
+storyBackgroundColor =
     Compose.lensWithLens DiagramSettings.ofStoryBackgroundColor storyMapOfSettings
 
 
-ofStoryColor : Lens Settings String
-ofStoryColor =
+storyColor : Lens Settings String
+storyColor =
     Compose.lensWithLens DiagramSettings.ofStoryColor storyMapOfSettings
 
 
-ofTaskBackgroundColor : Lens Settings String
-ofTaskBackgroundColor =
+taskBackgroundColor : Lens Settings String
+taskBackgroundColor =
     Compose.lensWithLens DiagramSettings.ofTaskBackgroundColor storyMapOfSettings
 
 
-ofTaskColor : Lens Settings String
-ofTaskColor =
+taskColor : Lens Settings String
+taskColor =
     Compose.lensWithLens DiagramSettings.ofTaskColor storyMapOfSettings
 
 
-ofTextColor : Optional Settings String
-ofTextColor =
+textColor : Optional Settings String
+textColor =
     Compose.lensWithOptional DiagramSettings.ofTextColor storyMapOfSettings
 
 
-ofToolbar : Lens Settings (Maybe Bool)
-ofToolbar =
+toolbar : Lens Settings (Maybe Bool)
+toolbar =
     Compose.lensWithLens DiagramSettings.ofToolbar storyMapOfSettings
 
 
-ofWidth : Lens Settings Int
-ofWidth =
+width : Lens Settings Int
+width =
     Compose.lensWithLens DiagramSettings.ofWidth storyMapOfSettings
 
 
-ofWordWrap : Optional Settings Bool
-ofWordWrap =
+wordWrap : Optional Settings Bool
+wordWrap =
     Compose.optionalWithLens editorOfWordWrap editorOfSettings
 
 
-ofZoomControl : Lens Settings (Maybe Bool)
-ofZoomControl =
+zoomControl : Lens Settings (Maybe Bool)
+zoomControl =
     Compose.lensWithLens DiagramSettings.ofZoomControl storyMapOfSettings
 
 

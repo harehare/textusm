@@ -12,20 +12,20 @@ module Models.Diagram exposing
     , ResizeDirection(..)
     , SelectedItem
     , SelectedItemInfo
+    , diagramType
     , dragStart
+    , isFullscreen
     , moveOrZoom
+    , movePosition
     , moveingItem
-    , ofDiagramType
-    , ofIsFullscreen
-    , ofMovePosition
-    , ofPosition
-    , ofScale
-    , ofSettings
-    , ofShowZoomControl
-    , ofText
-    , ofWindowSize
+    , position
+    , scale
+    , settings
+    , showZoomControl
     , size
+    , text
     , updatedText
+    , windowSize
     )
 
 import Browser.Dom exposing (Viewport)
@@ -272,48 +272,48 @@ moveingItem model =
             Nothing
 
 
-ofDiagramType : Lens Model DiagramType
-ofDiagramType =
+diagramType : Lens Model DiagramType
+diagramType =
     Lens .diagramType (\b a -> { a | diagramType = b })
 
 
-ofPosition : Lens Model Position
-ofPosition =
+position : Lens Model Position
+position =
     ofDiagram |> Compose.lensWithLens diagramOfPosition
 
 
-ofIsFullscreen : Lens Model Bool
-ofIsFullscreen =
+isFullscreen : Lens Model Bool
+isFullscreen =
     ofDiagram |> Compose.lensWithLens diagramOfIsFullscreen
 
 
-ofScale : Lens Model Scale
-ofScale =
+scale : Lens Model Scale
+scale =
     ofDiagram |> Compose.lensWithLens diagramOfScale
 
 
-ofMovePosition : Lens Model Position
-ofMovePosition =
+movePosition : Lens Model Position
+movePosition =
     Lens .movePosition (\b a -> { a | movePosition = b })
 
 
-ofSettings : Lens Model DiagramSettings.Settings
-ofSettings =
+settings : Lens Model DiagramSettings.Settings
+settings =
     Lens .settings (\b a -> { a | settings = b })
 
 
-ofShowZoomControl : Lens Model Bool
-ofShowZoomControl =
+showZoomControl : Lens Model Bool
+showZoomControl =
     Lens .showZoomControl (\b a -> { a | showZoomControl = b })
 
 
-ofWindowSize : Lens Model Size
-ofWindowSize =
+windowSize : Lens Model Size
+windowSize =
     Lens .windowSize (\b a -> { a | windowSize = b })
 
 
-ofText : Lens Model Text
-ofText =
+text : Lens Model Text
+text =
     Lens .text (\b a -> { a | text = b })
 
 
@@ -379,8 +379,8 @@ size model =
 
 
 updatedText : Model -> Text -> Model
-updatedText model text =
-    { model | text = text }
+updatedText model text_ =
+    { model | text = text_ }
 
 
 ofDiagram : Lens Model Diagram

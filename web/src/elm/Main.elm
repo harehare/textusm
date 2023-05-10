@@ -209,10 +209,10 @@ changeRouteTo route =
                         { m
                             | diagramModel =
                                 m.diagramModel
-                                    |> DiagramModel.ofShowZoomControl.set False
-                                    |> DiagramModel.ofDiagramType.set diagram
-                                    |> DiagramModel.ofScale.set (Scale.fromFloat 1.0)
-                                    |> DiagramModel.ofWindowSize.set
+                                    |> DiagramModel.showZoomControl.set False
+                                    |> DiagramModel.diagramType.set diagram
+                                    |> DiagramModel.scale.set (Scale.fromFloat 1.0)
+                                    |> DiagramModel.windowSize.set
                                         ( Maybe.withDefault (Size.getWidth m.diagramModel.windowSize) width
                                         , Maybe.withDefault (Size.getHeight m.diagramModel.windowSize) height
                                         )
@@ -401,7 +401,7 @@ moveTo route =
 
 needSaved : Return.ReturnF Msg Model
 needSaved =
-    Return.map <| \m -> { m | diagramModel = m.diagramModel |> DiagramModel.ofText.set (Text.change m.diagramModel.text) }
+    Return.map <| \m -> { m | diagramModel = m.diagramModel |> DiagramModel.text.set (Text.change m.diagramModel.text) }
 
 
 pushUrl : String -> Return.ReturnF Msg Model
@@ -592,7 +592,7 @@ setDiagramSettings settings =
                     m.settingsModel
             in
             { m
-                | diagramModel = m.diagramModel |> DiagramModel.ofSettings.set settings
+                | diagramModel = m.diagramModel |> DiagramModel.settings.set settings
                 , settingsModel = { newSettings | settings = m.settingsModel.settings |> Settings.storyMapOfSettings.set settings }
             }
         )
@@ -625,7 +625,7 @@ updateWindowState =
 
 unchanged : Return.ReturnF Msg Model
 unchanged =
-    Return.map <| \m -> { m | diagramModel = m.diagramModel |> DiagramModel.ofText.set (Text.saved m.diagramModel.text) }
+    Return.map <| \m -> { m | diagramModel = m.diagramModel |> DiagramModel.text.set (Text.saved m.diagramModel.text) }
 
 
 setTitle : String -> Return.ReturnF Msg Model
@@ -689,7 +689,7 @@ save =
                     (\m_ ->
                         { m_
                             | diagramModel = newDiagramModel
-                            , diagramListModel = m_.diagramListModel |> DiagramList.modelOfDiagramList.set DiagramListModel.notAsked
+                            , diagramListModel = m_.diagramListModel |> DiagramList.diagramList.set DiagramListModel.notAsked
                         }
                     )
                     >> (case ( location, Session.loginProvider m.session ) of
@@ -856,7 +856,7 @@ update model message =
                         |> Return.mapBoth M.UpdateSettings
                             (\model_ ->
                                 { m
-                                    | diagramModel = m.diagramModel |> DiagramModel.ofSettings.set model_.settings.storyMap
+                                    | diagramModel = m.diagramModel |> DiagramModel.settings.set model_.settings.storyMap
                                     , page = Page.Settings
                                     , settingsModel = model_
                                 }
@@ -906,7 +906,7 @@ update model message =
                 |> Maybe.withDefault Return.zero
 
         M.DownloadCompleted ( x, y ) ->
-            Return.map (\m -> { m | diagramModel = m.diagramModel |> DiagramModel.ofPosition.set ( x, y ) })
+            Return.map (\m -> { m | diagramModel = m.diagramModel |> DiagramModel.position.set ( x, y ) })
 
         M.StartDownload info ->
             Return.command (Download.string (Title.toString model.currentDiagram.title ++ info.extension) info.mimeType info.content)
@@ -1054,7 +1054,7 @@ update model message =
 
                 newStoryMap : Settings
                 newStoryMap =
-                    model.settingsModel.settings |> Settings.ofFont.set model.settingsModel.settings.font
+                    model.settingsModel.settings |> Settings.font.set model.settingsModel.settings.font
             in
             Return.map (\m -> { m | settingsModel = newSettingsModel })
                 >> Effect.saveSettingsToLocal newSettings
@@ -1199,7 +1199,7 @@ update model message =
                                             , usableFontList = BoolEx.toMaybe m.settingsModel.usableFontList (Settings.isFetchedUsableFont m.settingsModel)
                                             }
                                 in
-                                { m | settingsModel = newSettingsModel, diagramModel = DiagramModel.ofSettings.set settings.storyMap m.diagramModel }
+                                { m | settingsModel = newSettingsModel, diagramModel = DiagramModel.settings.set settings.storyMap m.diagramModel }
                             )
                     )
                 |> Maybe.withDefault (showWarningMessage Message.messageFailedLoadSettings)
@@ -1306,7 +1306,7 @@ update model message =
             Return.andThen <| \m -> Return.singleton m |> loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text)
 
         M.ChangeDiagramType diagramType ->
-            Return.map (\m -> { m | diagramModel = m.diagramModel |> DiagramModel.ofDiagramType.set diagramType })
+            Return.map (\m -> { m | diagramModel = m.diagramModel |> DiagramModel.diagramType.set diagramType })
                 >> loadDiagram (model.currentDiagram |> DiagramItem.ofDiagram.set diagramType)
 
         M.OpenCurrentFile ->
@@ -1480,53 +1480,52 @@ mainView model =
                 |> Maybe.withDefault NotFound.view
 
         _ ->
-            let
-                mainWindow : Html Msg -> Html Msg
-                mainWindow =
-                    if Size.getWidth model.diagramModel.windowSize > 0 && Utils.isPhone (Size.getWidth model.diagramModel.windowSize) then
-                        Lazy.lazy5 SwitchWindow.view
-                            M.SwitchWindow
-                            model.diagramModel.settings.backgroundColor
-                            model.window
-                            (Html.div
-                                [ Attr.css
-                                    [ Breakpoint.style
-                                        [ Style.hMain
-                                        , Style.widthFull
-                                        , ColorStyle.bgMain
-                                        ]
-                                        [ Breakpoint.large [ Style.heightFull ] ]
-                                    ]
+            if Size.getWidth model.diagramModel.windowSize > 0 && Utils.isPhone (Size.getWidth model.diagramModel.windowSize) then
+                Lazy.lazy3 SwitchWindow.view
+                    { onSwitchWindow = M.SwitchWindow
+                    , bgColor = Css.hex model.diagramModel.settings.backgroundColor
+                    , window = model.window
+                    }
+                    (Html.div
+                        [ Attr.css
+                            [ Breakpoint.style
+                                [ Style.hMain
+                                , Style.widthFull
+                                , ColorStyle.bgMain
                                 ]
-                                [ editor model
-                                ]
-                            )
+                                [ Breakpoint.large [ Style.heightFull ] ]
+                            ]
+                        ]
+                        [ editor model
+                        ]
+                    )
+                    (Lazy.lazy Diagram.view model.diagramModel
+                        |> Html.map M.UpdateDiagram
+                    )
 
-                    else
-                        Lazy.lazy3 SplitWindow.view
-                            { background = model.diagramModel.settings.backgroundColor
-                            , window = model.window
-                            , onToggleEditor = M.ShowEditor
-                            , onResize = M.HandleStartWindowResize
-                            }
-                            (Html.div
-                                [ Attr.css
-                                    [ Breakpoint.style
-                                        [ Style.hMain
-                                        , Style.widthFull
-                                        , ColorStyle.bgMain
-                                        ]
-                                        [ Breakpoint.large [ Style.heightFull ] ]
-                                    ]
+            else
+                Lazy.lazy3 SplitWindow.view
+                    { bgColor = Css.hex model.diagramModel.settings.backgroundColor
+                    , window = model.window
+                    , onToggleEditor = M.ShowEditor
+                    , onResize = M.HandleStartWindowResize
+                    }
+                    (Html.div
+                        [ Attr.css
+                            [ Breakpoint.style
+                                [ Style.hMain
+                                , Style.widthFull
+                                , ColorStyle.bgMain
                                 ]
-                                [ editor model
-                                ]
-                            )
-            in
-            mainWindow
-                (Lazy.lazy Diagram.view model.diagramModel
-                    |> Html.map M.UpdateDiagram
-                )
+                                [ Breakpoint.large [ Style.heightFull ] ]
+                            ]
+                        ]
+                        [ editor model
+                        ]
+                    )
+                    (Lazy.lazy Diagram.view model.diagramModel
+                        |> Html.map M.UpdateDiagram
+                    )
 
 
 view : Model -> Html Msg

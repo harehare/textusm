@@ -176,11 +176,11 @@ update model message =
             Return.andThen <| move isWheelEvent position
 
         MoveTo position ->
-            Return.map (Diagram.ofPosition.set position)
+            Return.map (Diagram.position.set position)
                 >> clearPosition
 
         ToggleFullscreen ->
-            Return.map (\m -> Diagram.ofIsFullscreen.set (not m.diagram.isFullscreen) m)
+            Return.map (\m -> Diagram.isFullscreen.set (not m.diagram.isFullscreen) m)
                 >> clearPosition
 
         EditSelectedItem text ->
@@ -230,8 +230,8 @@ update model message =
             Return.map
                 (\m ->
                     m
-                        |> Diagram.ofScale.set (Scale.fromFloat <| min widthRatio heightRatio)
-                        |> Diagram.ofPosition.set position
+                        |> Diagram.scale.set (Scale.fromFloat <| min widthRatio heightRatio)
+                        |> Diagram.position.set position
                 )
 
         ColorChanged Diagram.ColorSelectMenu color ->
@@ -762,21 +762,21 @@ move isWheelEvent ( x, y ) m =
     case m.moveState of
         Diagram.BoardMove ->
             m
-                |> Diagram.ofPosition.set
+                |> Diagram.position.set
                     ( Position.getX m.diagram.position + round (toFloat (x - Position.getX m.movePosition) * Scale.toFloat m.diagram.scale)
                     , Position.getY m.diagram.position + round (toFloat (y - Position.getY m.movePosition) * Scale.toFloat m.diagram.scale)
                     )
-                |> Diagram.ofMovePosition.set ( x, y )
+                |> Diagram.movePosition.set ( x, y )
                 |> Return.singleton
 
         Diagram.WheelMove ->
             if isWheelEvent then
                 m
-                    |> Diagram.ofPosition.set
+                    |> Diagram.position.set
                         ( Position.getX m.diagram.position - round (toFloat x * Scale.toFloat m.diagram.scale)
                         , Position.getY m.diagram.position - round (toFloat y * Scale.toFloat m.diagram.scale)
                         )
-                    |> Diagram.ofMovePosition.set ( x, y )
+                    |> Diagram.movePosition.set ( x, y )
                     |> Return.singleton
 
             else
@@ -916,11 +916,11 @@ move isWheelEvent ( x, y ) m =
 
         Diagram.MiniMapMove ->
             m
-                |> Diagram.ofPosition.set
+                |> Diagram.position.set
                     ( Position.getX m.diagram.position - round (toFloat (x - Position.getX m.movePosition) * Scale.toFloat m.diagram.scale * (toFloat (Size.getWidth m.windowSize) / 260.0 * 2.0))
                     , Position.getY m.diagram.position - round (toFloat (y - Position.getY m.movePosition) * Scale.toFloat m.diagram.scale * (toFloat (Size.getWidth m.windowSize) / 260.0 * 2.0))
                     )
-                |> Diagram.ofMovePosition.set ( x, y )
+                |> Diagram.movePosition.set ( x, y )
                 |> Return.singleton
 
         _ ->

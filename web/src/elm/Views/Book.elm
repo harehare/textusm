@@ -13,6 +13,8 @@ import Views.Progress as Progress
 import Views.Snackbar as Snackbar
 import Views.Spinner as Spinner
 import Views.Tooltip as Tooltip
+import Views.SwitchWindow as SwitchWindow
+import Views.SplitWindow as SplitWindow
 
 
 main : Book ()
@@ -36,4 +38,6 @@ main =
             , Header.docs
             , Menu.docs
             , DropDownList.docs
+            , SwitchWindow.docs
+            , SplitWindow.docs
             ]

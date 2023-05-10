@@ -1,6 +1,8 @@
-module Views.SwitchWindow exposing (view)
+module Views.SwitchWindow exposing (docs, view)
 
-import Css exposing (backgroundColor, block, bottom, column, display, displayFlex, fixed, flexDirection, hex, int, none, position, px, relative, right, zIndex)
+import Css exposing (backgroundColor, block, bottom, column, display, displayFlex, fixed, flexDirection, int, none, position, px, relative, right, zIndex)
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events exposing (onClick)
@@ -13,8 +15,8 @@ import Views.Empty as Empty
 import Views.Icon as Icon
 
 
-view : (Window -> msg) -> String -> Window -> Html msg -> Html msg -> Html msg
-view onSwitchWindow background window view1 view2 =
+view : { onSwitchWindow : Window -> msg, bgColor : Css.Color, window : Window } -> Html msg -> Html msg -> Html msg
+view { onSwitchWindow, bgColor, window } view1 view2 =
     Html.div
         [ Attr.css
             [ displayFlex
@@ -78,7 +80,7 @@ view onSwitchWindow background window view1 view2 =
             , Html.div
                 [ Attr.css
                     [ Style.full
-                    , backgroundColor <| hex background
+                    , backgroundColor bgColor
                     , if Window.isDisplayEditor window then
                         display none
 
@@ -89,3 +91,18 @@ view onSwitchWindow background window view1 view2 =
                 [ view2 ]
             ]
         ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "SwitchWindow"
+        |> Chapter.renderComponent
+            (view
+                { onSwitchWindow = \_ -> Actions.logAction "onSwitchWindow"
+                , bgColor = Css.hex "#FFFFFF"
+                , window = Window.showPreview <| Window.init 60
+                }
+                (Html.div [] [ Html.text "view1" ])
+                (Html.div [] [ Html.text "view2" ])
+                |> Html.toUnstyled
+            )

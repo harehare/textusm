@@ -1,6 +1,35 @@
-module Views.SplitWindow exposing (Props, view)
+module Views.SplitWindow exposing (docs, view)
 
-import Css exposing (absolute, alignItems, backgroundColor, borderBottomRightRadius, borderTopRightRadius, calc, center, colResize, cursor, display, displayFlex, height, hex, int, minus, none, plus, pointer, position, px, relative, right, top, vw, width, zIndex)
+import Css
+    exposing
+        ( absolute
+        , alignItems
+        , backgroundColor
+        , borderBottomRightRadius
+        , borderTopRightRadius
+        , calc
+        , center
+        , colResize
+        , cursor
+        , display
+        , displayFlex
+        , height
+        , int
+        , minus
+        , none
+        , plus
+        , pointer
+        , position
+        , px
+        , relative
+        , right
+        , top
+        , vw
+        , width
+        , zIndex
+        )
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Attribute, Html)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events as Events
@@ -12,16 +41,16 @@ import Style.Style as Style
 import Views.Icon as Icon
 
 
-type alias Props msg =
-    { background : String
+view :
+    { bgColor : Css.Color
     , window : Window
     , onToggleEditor : Window -> msg
     , onResize : Int -> msg
     }
-
-
-view : Props msg -> Html msg -> Html msg -> Html msg
-view { background, window, onToggleEditor, onResize } left right =
+    -> Html msg
+    -> Html msg
+    -> Html msg
+view { bgColor, window, onToggleEditor, onResize } left right =
     let
         ( leftPos, rightPos ) =
             if Window.isDisplayPreview window then
@@ -44,7 +73,7 @@ view { background, window, onToggleEditor, onResize } left right =
     in
     if Window.isFullscreen window then
         Html.div
-            [ Attr.css [ displayFlex, backgroundColor <| hex background ] ]
+            [ Attr.css [ displayFlex, backgroundColor bgColor ] ]
             [ Html.div [ Attr.css [ display none ] ] [ left ]
             , Html.div [ Attr.css [ Style.fullScreen ] ] [ right ]
             ]
@@ -61,7 +90,7 @@ view { background, window, onToggleEditor, onResize } left right =
                 ]
                 []
             , Html.div
-                [ Attr.css [ width rightPos, Style.hContent, backgroundColor <| hex background ] ]
+                [ Attr.css [ width rightPos, Style.hContent, backgroundColor bgColor ] ]
                 [ right ]
             ]
 
@@ -108,3 +137,19 @@ toggleEditorButton window onToggleEditor =
           else
             showEditorButton (onToggleEditor <| Window.showEditorAndPreview window)
         ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "SplithWindow"
+        |> Chapter.renderComponent
+            (view
+                { onToggleEditor = \_ -> Actions.logAction "onToggleEditor"
+                , onResize = \_ -> Actions.logAction "onResize"
+                , bgColor = Css.hex "#FFFFFF"
+                , window = Window.showEditorAndPreview <| Window.init 60
+                }
+                (Html.div [] [ Html.text "view1" ])
+                (Html.div [] [ Html.text "view2" ])
+                |> Html.toUnstyled
+            )

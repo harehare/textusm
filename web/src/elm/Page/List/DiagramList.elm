@@ -193,17 +193,17 @@ hasMorePageInPublicList diagramList =
             False
 
 
-unwrap : DiagramList -> { diagramList : DiagramListData, pageNo : Int, hasMorePage : Bool }
+unwrap : DiagramList -> { list : DiagramListData, pageNo : Int, hasMorePage : Bool }
 unwrap diagramList =
     case diagramList of
         AllList r p h ->
-            { diagramList = r, pageNo = p, hasMorePage = h }
+            { list = r, pageNo = p, hasMorePage = h }
 
         GistList r p h ->
-            { diagramList = r, pageNo = p, hasMorePage = h }
+            { list = r, pageNo = p, hasMorePage = h }
 
         PublicList r p h ->
-            { diagramList = r, pageNo = p, hasMorePage = h }
+            { list = r, pageNo = p, hasMorePage = h }
 
         BookmarkList r p h ->
-            { diagramList = r, pageNo = p, hasMorePage = h }
+            { list = r, pageNo = p, hasMorePage = h }

@@ -1,9 +1,9 @@
 port module Page.List exposing
     ( Model
     , Msg(..)
+    , diagramList
     , init
     , load
-    , modelOfDiagramList
     , update
     , view
     )
@@ -168,8 +168,8 @@ diagramOrder =
         |> Ordering.reverse
 
 
-modelOfDiagramList : Lens Model DiagramList
-modelOfDiagramList =
+diagramList : Lens Model DiagramList
+diagramList =
     Lens .diagramList (\b a -> { a | diagramList = b })
 
 
@@ -268,11 +268,11 @@ selectedItemStyle =
 
 
 publicMenu : Session -> DiagramList -> Bool -> Maybe (Html Msg)
-publicMenu session diagramList isOnline =
+publicMenu session list isOnline =
     if Session.isSignedIn session && isOnline then
         Just <|
             Html.div
-                [ if DiagramList.isPublicList diagramList then
+                [ if DiagramList.isPublicList list then
                     Attr.css [ selectedItemStyle ]
 
                   else
@@ -286,11 +286,11 @@ publicMenu session diagramList isOnline =
 
 
 bookmarkMenu : Session -> DiagramList -> Bool -> Maybe (Html Msg)
-bookmarkMenu session diagramList isOnline =
+bookmarkMenu session list isOnline =
     if Session.isSignedIn session && isOnline then
         Just <|
             Html.div
-                [ if DiagramList.isBookMarkList diagramList then
+                [ if DiagramList.isBookMarkList list then
                     Attr.css [ selectedItemStyle ]
 
                   else
@@ -304,11 +304,11 @@ bookmarkMenu session diagramList isOnline =
 
 
 githubMenu : Session -> DiagramList -> Bool -> Maybe (Html Msg)
-githubMenu session diagramList isOnline =
+githubMenu session list isOnline =
     if Session.isGithubUser session && isOnline then
         Just <|
             Html.div
-                [ if DiagramList.isGistList diagramList then
+                [ if DiagramList.isGistList list then
                     Attr.css [ selectedItemStyle ]
 
                   else
@@ -324,7 +324,7 @@ githubMenu session diagramList isOnline =
 
 
 sideMenu : Session -> DiagramList -> Bool -> Html Msg
-sideMenu session diagramList isOnline =
+sideMenu session list isOnline =
     Html.div
         [ Attr.css
             [ Breakpoint.style [ display none ]
@@ -341,7 +341,7 @@ sideMenu session diagramList isOnline =
             ]
         ]
         (Html.div
-            [ if DiagramList.isAllList diagramList then
+            [ if DiagramList.isAllList list then
                 Attr.css [ selectedItemStyle ]
 
               else
@@ -349,9 +349,9 @@ sideMenu session diagramList isOnline =
             , onClick GetDiagrams
             ]
             [ Html.text "All" ]
-            :: ([ publicMenu session diagramList isOnline
-                , bookmarkMenu session diagramList isOnline
-                , githubMenu session diagramList isOnline
+            :: ([ publicMenu session list isOnline
+                , bookmarkMenu session list isOnline
+                , githubMenu session list isOnline
                 ]
                     |> List.filterMap identity
                )
@@ -597,13 +597,13 @@ diagramListView props =
 
 
 hasMorePageButton : DiagramList -> Int -> Bool -> Maybe (Html Msg)
-hasMorePageButton diagramList pageNo hasMorePage =
+hasMorePageButton list pageNo hasMorePage =
     if hasMorePage then
         Just <|
             Html.div [ Attr.css [ Style.widthFull, Style.flexCenter ] ]
                 [ Html.div
                     [ Attr.css [ Style.button, ColorStyle.bgActivity, textAlign center, Style.mSm ]
-                    , onClick <| LoadNextPage diagramList <| pageNo + 1
+                    , onClick <| LoadNextPage list <| pageNo + 1
                     ]
                     [ Html.text "Load more" ]
                 ]
@@ -954,7 +954,7 @@ update model message =
 
         Bookmark diagram ->
             let
-                { diagramList, pageNo, hasMorePage } =
+                { list, pageNo, hasMorePage } =
                     DiagramList.unwrap model.diagramList
             in
             Return.map
@@ -962,7 +962,7 @@ update model message =
                     { m
                         | diagramList =
                             DiagramList.create m.diagramList
-                                (RemoteData.withDefault [] diagramList |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark }))
+                                (RemoteData.withDefault [] list |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark }))
                                 pageNo
                                 hasMorePage
                     }

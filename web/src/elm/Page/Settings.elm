@@ -47,28 +47,7 @@ import Models.FontSize as FontSize
 import Models.Session as Session exposing (Session)
 import Models.Theme as Theme
 import Return
-import Settings
-    exposing
-        ( Settings
-        , defaultEditorSettings
-        , ofActivityBackgroundColor
-        , ofActivityColor
-        , ofBackgroundColor
-        , ofFontSize
-        , ofHeight
-        , ofLabelColor
-        , ofLineColor
-        , ofShowLineNumber
-        , ofStoryBackgroundColor
-        , ofStoryColor
-        , ofTaskBackgroundColor
-        , ofTaskColor
-        , ofTextColor
-        , ofToolbar
-        , ofWidth
-        , ofWordWrap
-        , ofZoomControl
-        )
+import Settings exposing (Settings)
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
 import Style.Font as FontStyle
@@ -352,7 +331,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofBackgroundColor.set x
+                                    Settings.backgroundColor.set x settings
                                 )
                             )
                             baseColorItems
@@ -411,7 +390,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , Switch.view (Maybe.withDefault True settings.storyMap.zoomControl)
                         (\v ->
                             UpdateSettings
-                                (\_ -> settings |> ofZoomControl.set (Just v))
+                                (\_ -> settings |> Settings.zoomControl.set (Just v))
                                 ""
                         )
                     ]
@@ -420,7 +399,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                     , Switch.view (Maybe.withDefault True settings.storyMap.toolbar)
                         (\v ->
                             UpdateSettings
-                                (\_ -> settings |> ofToolbar.set (Just v))
+                                (\_ -> Settings.toolbar.set (Just v) settings)
                                 ""
                         )
                     ]
@@ -437,29 +416,29 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofFontSize.set (Maybe.withDefault 0 <| String.toInt x)
+                                    Settings.fontSize.set (Maybe.withDefault 0 <| String.toInt x) settings
                                 )
                             )
                             fontSizeItems
-                            (String.fromInt <| (settings.editor |> defaultEditorSettings |> .fontSize))
+                            (String.fromInt <| (settings.editor |> Settings.defaultEditorSettings |> .fontSize))
                         ]
                     ]
                 , conrtolRowView
                     [ nameView [ Html.text "Show Line Number" ]
-                    , Switch.view (settings.editor |> defaultEditorSettings |> .showLineNumber)
+                    , Switch.view (settings.editor |> Settings.defaultEditorSettings |> .showLineNumber)
                         (\v ->
                             UpdateSettings
-                                (\_ -> settings |> ofShowLineNumber.set v)
+                                (\_ -> Settings.showLineNumber.set v settings)
                                 ""
                         )
                     ]
                 , conrtolRowView
                     [ nameView [ Html.text "Word Wrap" ]
-                    , Switch.view (settings.editor |> defaultEditorSettings |> .wordWrap)
+                    , Switch.view (settings.editor |> Settings.defaultEditorSettings |> .wordWrap)
                         (\v ->
                             UpdateSettings
                                 (\_ ->
-                                    settings |> ofWordWrap.set v
+                                    Settings.wordWrap.set v settings
                                 )
                                 ""
                         )
@@ -477,7 +456,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofWidth.set (String.toInt x |> Maybe.withDefault 150)
+                                    Settings.width.set (String.toInt x |> Maybe.withDefault 150) settings
                                 )
                             )
                             baseSizeItems
@@ -492,7 +471,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofHeight.set (String.toInt x |> Maybe.withDefault 45)
+                                    settings |> Settings.height.set (String.toInt x |> Maybe.withDefault 45)
                                 )
                             )
                             baseSizeItems
@@ -512,7 +491,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofActivityBackgroundColor.set x
+                                    Settings.activityBackgroundColor.set x settings
                                 )
                             )
                             baseColorItems
@@ -527,7 +506,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofActivityColor.set x
+                                    Settings.activityColor.set x settings
                                 )
                             )
                             baseColorItems
@@ -545,7 +524,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofTaskBackgroundColor.set x
+                                    Settings.taskBackgroundColor.set x settings
                                 )
                             )
                             baseColorItems
@@ -560,7 +539,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofTaskColor.set x
+                                    settings |> Settings.taskColor.set x
                                 )
                             )
                             baseColorItems
@@ -578,7 +557,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofStoryBackgroundColor.set x
+                                    Settings.storyBackgroundColor.set x settings
                                 )
                             )
                             baseColorItems
@@ -593,7 +572,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofStoryColor.set x
+                                    Settings.storyColor.set x settings
                                 )
                             )
                             baseColorItems
@@ -612,7 +591,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofLineColor.set x
+                                    Settings.lineColor.set x settings
                                 )
                             )
                             baseColorItems
@@ -627,7 +606,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofLabelColor.set x
+                                    Settings.labelColor.set x settings
                                 )
                             )
                             baseColorItems
@@ -642,7 +621,7 @@ view_ { dropDownIndex, canUseNativeFileSystem, settings, session, usableFontList
                             dropDownIndex
                             (UpdateSettings
                                 (\x ->
-                                    settings |> ofTextColor.set x
+                                    Settings.textColor.set x settings
                                 )
                             )
                             baseColorItems
