@@ -1,6 +1,7 @@
 module Models.Item exposing
     ( Children
     , Hierarchy
+    , eq
     , Item
     , Items
     , childrenFromItems
@@ -114,6 +115,9 @@ cons : Item -> Items -> Items
 cons item (Items items) =
     Items (item :: items)
 
+eq: Item -> Item -> Bool
+eq item1 item2 =
+    getLineNo item1 == getLineNo item2
 
 count : (Item -> Bool) -> Items -> Int
 count f items =

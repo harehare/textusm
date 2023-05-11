@@ -1,7 +1,7 @@
 module Views.Diagram.FreeForm exposing (view)
 
 import Constants
-import Models.Diagram as Diagram exposing (Model, MoveState, Msg)
+import Models.Diagram as Diagram exposing (Model, MoveState, Msg(..))
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.FreeForm as FreeForm exposing (FreeFormItem)
 import Models.Item as Item exposing (Item)
@@ -152,6 +152,10 @@ cardView model i item_ =
                         )
                     |> Maybe.withDefault item_
             , canMove = True
+            , onEditSelectedItem = EditSelectedItem
+            , onEndEditSelectedItem = EndEditSelectedItem
+            , onSelect = Select
+            , dragStart = Diagram.dragStart
             }
             :: (Item.indexedMap
                     (\i_ childItem ->
@@ -176,6 +180,10 @@ cardView model i item_ =
                                         )
                                     |> Maybe.withDefault childItem
                             , canMove = True
+                            , onEditSelectedItem = EditSelectedItem
+                            , onEndEditSelectedItem = EndEditSelectedItem
+                            , onSelect = Select
+                            , dragStart = Diagram.dragStart
                             }
                     )
                 <|

@@ -23,7 +23,7 @@ import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)
+import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
@@ -37,10 +37,10 @@ import Svg.Styled.Attributes as SvgAttr
 import Views.Diagram.Views as Views
 
 
-view : DiagramSettings.Settings -> Property -> Position -> SelectedItem -> Item -> Svg Msg
-view settings property position selectedItem item =
+view : { settings : DiagramSettings.Settings, property : Property, position : Position, selectedItem : SelectedItem, item : Item, onEditSelectedItem : String -> msg, onEndEditSelectedItem : Item -> msg, onSelect : Maybe SelectedItemInfo -> msg, dragStart : Views.DragStart msg } -> Svg msg
+view { settings, property, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
-        view_ : Svg Msg
+        view_ : Svg msg
         view_ =
             let
                 ( color, _ ) =
@@ -62,7 +62,7 @@ view settings property position selectedItem item =
                             (\h -> h + offsetHeight)
             in
             Svg.g
-                [ Events.onClickStopPropagation <| Select <| Just { item = item, position = position, displayAllMenu = True } ]
+                [ Events.onClickStopPropagation <| onSelect <| Just { item = item, position = position, displayAllMenu = True } ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt width
                     , SvgAttr.height <| String.fromInt <| height - 1
@@ -76,7 +76,7 @@ view settings property position selectedItem item =
     in
     case selectedItem of
         Just item_ ->
-            if Item.getLineNo item_ == Item.getLineNo item then
+            if Item.eq item_ item then
                 let
                     selectedItemOffsetSize : Size
                     selectedItemOffsetSize =
@@ -110,7 +110,7 @@ view settings property position selectedItem item =
                         selectedItemSize
                 in
                 Svg.g
-                    [ Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
+                    [ dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
                     [ Svg.rect
                         [ SvgAttr.width <| String.fromInt width_
                         , SvgAttr.height <| String.fromInt <| height_ - 1
@@ -122,11 +122,11 @@ view settings property position selectedItem item =
                         , SvgAttr.class "ts-node"
                         ]
                         []
-                    , Views.resizeCircle item TopLeft ( x_ - 8, y_ - 8 )
-                    , Views.resizeCircle item TopRight ( x_ + width_ + 8, y_ - 8 )
-                    , Views.resizeCircle item BottomRight ( x_ + width_ + 8, y_ + height_ + 8 )
-                    , Views.resizeCircle item BottomLeft ( x_ - 8, y_ + height_ + 8 )
-                    , textNodeInput settings ( x_, y_ ) ( width_, height_ ) item_
+                    , Views.resizeCircle item TopLeft ( x_ - 8, y_ - 8 ) dragStart
+                    , Views.resizeCircle item TopRight ( x_ + width_ + 8, y_ - 8 ) dragStart
+                    , Views.resizeCircle item BottomRight ( x_ + width_ + 8, y_ + height_ + 8 ) dragStart
+                    , Views.resizeCircle item BottomLeft ( x_ - 8, y_ + height_ + 8 ) dragStart
+                    , textNodeInput { settings = settings, pos = ( x_, y_ ), size = ( width_, height_ ), item = item_, onEditSelectedItem = onEditSelectedItem, onEndEditSelectedItem = onEndEditSelectedItem, onSelect = onSelect }
                     ]
 
             else
@@ -136,7 +136,7 @@ view settings property position selectedItem item =
             view_
 
 
-textNode : DiagramSettings.Settings -> Property -> Position -> Size -> Color -> Item -> Svg Msg
+textNode : DiagramSettings.Settings -> Property -> Position -> Size -> Color -> Item -> Svg msg
 textNode settings property ( posX, posY ) ( svgWidth, svgHeight ) colour item =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt posX
@@ -177,19 +177,19 @@ textNode settings property ( posX, posY ) ( svgWidth, svgHeight ) colour item =
         ]
 
 
-textNodeInput : DiagramSettings.Settings -> Position -> Size -> Item -> Svg Msg
-textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
+textNodeInput : { settings : DiagramSettings.Settings, pos : Position, size : Size, item : Item, onEditSelectedItem : String -> msg, onEndEditSelectedItem : Item -> msg, onSelect : Maybe SelectedItemInfo -> msg } -> Svg msg
+textNodeInput { settings, pos, size, item, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     Svg.foreignObject
-        [ SvgAttr.x <| String.fromInt posX
-        , SvgAttr.y <| String.fromInt posY
-        , SvgAttr.width <| String.fromInt svgWidth
-        , SvgAttr.height <| String.fromInt svgHeight
+        [ SvgAttr.x <| String.fromInt <| Position.getX pos
+        , SvgAttr.y <| String.fromInt <| Position.getY pos
+        , SvgAttr.width <| String.fromInt <| Size.getWidth size
+        , SvgAttr.height <| String.fromInt <| Size.getHeight size
         ]
         [ Html.div
             [ css
                 [ backgroundColor transparent
-                , Css.width <| px <| toFloat <| svgWidth
-                , Css.height <| px <| toFloat <| svgHeight
+                , Css.width <| px <| toFloat <| Size.getWidth size
+                , Css.height <| px <| toFloat <| Size.getHeight size
                 , Style.flexCenter
                 ]
             ]
@@ -207,7 +207,7 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
                     , outline none
                     , textAlign center
                     , FontSize.cssFontSize <| Maybe.withDefault FontSize.default <| Item.getFontSize item
-                    , Css.width <| px <| toFloat <| svgWidth - 20
+                    , Css.width <| px <| toFloat <| Size.getWidth size - 20
                     , marginTop <| px 2
                     , marginLeft <| px 2
                     , color <|
@@ -221,17 +221,17 @@ textNodeInput settings ( posX, posY ) ( svgWidth, svgHeight ) item =
                         ]
                     ]
                 , Attr.value <| " " ++ String.trimLeft (Item.getText item)
-                , onInput EditSelectedItem
-                , Events.onEnter <| EndEditSelectedItem item
-                , onBlur <| Select Nothing
+                , onInput onEditSelectedItem
+                , Events.onEnter <| onEndEditSelectedItem item
+                , onBlur <| onSelect Nothing
                 ]
                 []
             ]
         ]
 
 
-root : { settings : DiagramSettings.Settings, property : Property, position : Position, selectedItem : SelectedItem, item : Item } -> Svg Msg
-root { settings, property, position, selectedItem, item } =
+root : { settings : DiagramSettings.Settings, property : Property, position : Position, selectedItem : SelectedItem, item : Item, onEditSelectedItem : String -> msg, onEndEditSelectedItem : Item -> msg, onSelect : Maybe SelectedItemInfo -> msg } -> Svg msg
+root { settings, property, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     let
         ( posX, posY ) =
             position
@@ -255,10 +255,10 @@ root { settings, property, position, selectedItem, item } =
                     (\w -> Maybe.withDefault settings.size.width w)
                     (\h -> Maybe.withDefault (settings.size.height - 1) h)
 
-        view_ : Svg Msg
+        view_ : Svg msg
         view_ =
             Svg.g
-                [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
+                [ Events.onClickStopPropagation <| onSelect <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt width
                     , SvgAttr.height <| String.fromInt <| height
@@ -277,7 +277,7 @@ root { settings, property, position, selectedItem, item } =
     in
     case selectedItem of
         Just item_ ->
-            if Item.getLineNo item_ == Item.getLineNo item then
+            if Item.eq item_ item then
                 Svg.g []
                     [ Svg.rect
                         [ SvgAttr.width <| String.fromInt settings.size.width
@@ -292,7 +292,15 @@ root { settings, property, position, selectedItem, item } =
                         , SvgAttr.class "ts-node"
                         ]
                         []
-                    , textNodeInput settings ( posX, posY ) ( settings.size.width, settings.size.height ) item_
+                    , textNodeInput
+                        { settings = settings
+                        , pos = ( posX, posY )
+                        , size = ( settings.size.width, settings.size.height )
+                        , item = item_
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        }
                     ]
 
             else

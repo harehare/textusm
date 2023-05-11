@@ -22,7 +22,6 @@ type Data
     = Empty
     | UserStoryMap UserStoryMap
     | MindMap Items Hierarchy
-    | ImpactMap Items Hierarchy
     | SiteMap Items Hierarchy
     | Table Table
     | Kpt Kpt

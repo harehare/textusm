@@ -1,5 +1,6 @@
 module Views.Diagram.Views exposing
-    ( getItemColor
+    ( DragStart
+    , getItemColor
     , image
     , inputBoldView
     , inputView
@@ -28,7 +29,7 @@ import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..))
+import Models.Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..), SelectedItemInfo)
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
@@ -39,6 +40,10 @@ import String
 import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
+
+
+type alias DragStart msg =
+    MoveState -> Bool -> Svg.Attribute msg
 
 
 getItemColor : DiagramSettings.Settings -> Property -> Item -> ( Color, Color )
@@ -81,13 +86,13 @@ getItemColor settings property item =
             )
 
 
-resizeCircle : Item -> ResizeDirection -> Position -> Svg Msg
-resizeCircle item direction ( x, y ) =
-    resizeCircleBase 5 item direction ( x, y )
+resizeCircle : Item -> ResizeDirection -> Position -> DragStart msg -> Svg msg
+resizeCircle item direction ( x, y ) dragStart =
+    resizeCircleBase 5 item direction ( x, y ) dragStart
 
 
-resizeCircleBase : Int -> Item -> ResizeDirection -> Position -> Svg Msg
-resizeCircleBase size item direction ( x, y ) =
+resizeCircleBase : Int -> Item -> ResizeDirection -> Position -> DragStart msg -> Svg msg
+resizeCircleBase size item direction ( x, y ) dragStart =
     Svg.circle
         [ SvgAttr.cx <| String.fromInt x
         , SvgAttr.cy <| String.fromInt y
@@ -120,7 +125,7 @@ resizeCircleBase size item direction ( x, y ) =
         , SvgAttr.fill <| Color.toString Color.white
         , SvgAttr.strokeWidth "2"
         , SvgAttr.stroke <| Color.toString Color.lightGray
-        , Diagram.dragStart (ItemResize item direction) False
+        , dragStart (ItemResize item direction) False
         ]
         []
 
@@ -132,9 +137,12 @@ inputView :
     , size : Size
     , color : Color
     , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
     }
-    -> Svg Msg
-inputView { settings, fontSize, position, size, color, item } =
+    -> Svg msg
+inputView { settings, fontSize, position, size, color, item, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     inputBase
         { settings = settings
         , fontSize = fontSize
@@ -143,6 +151,9 @@ inputView { settings, fontSize, position, size, color, item } =
         , color = color
         , item = item
         , fontWeight = 400
+        , onEditSelectedItem = onEditSelectedItem
+        , onEndEditSelectedItem = onEndEditSelectedItem
+        , onSelect = onSelect
         }
 
 
@@ -153,9 +164,12 @@ inputBoldView :
     , size : Size
     , color : Color
     , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
     }
-    -> Svg Msg
-inputBoldView { settings, fontSize, position, size, color, item } =
+    -> Svg msg
+inputBoldView { settings, fontSize, position, size, color, item, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     inputBase
         { settings = settings
         , fontSize = fontSize
@@ -164,6 +178,9 @@ inputBoldView { settings, fontSize, position, size, color, item } =
         , color = color
         , item = item
         , fontWeight = 600
+        , onEditSelectedItem = onEditSelectedItem
+        , onEndEditSelectedItem = onEndEditSelectedItem
+        , onSelect = onSelect
         }
 
 
@@ -175,9 +192,12 @@ inputBase :
     , color : Color
     , item : Item
     , fontWeight : Int
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
     }
-    -> Svg Msg
-inputBase { settings, fontSize, position, size, color, item, fontWeight } =
+    -> Svg msg
+inputBase { settings, fontSize, position, size, color, item, fontWeight, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt <| Position.getX position
         , SvgAttr.y <| String.fromInt <| Position.getY position
@@ -206,9 +226,9 @@ inputBase { settings, fontSize, position, size, color, item, fontWeight } =
                     ]
                 ]
             , Attr.value <| " " ++ String.trimLeft (Item.getMultiLineText item)
-            , onInput EditSelectedItem
-            , onBlur <| Select Nothing
-            , Events.onEnter <| EndEditSelectedItem item
+            , onInput onEditSelectedItem
+            , onBlur <| onSelect Nothing
+            , Events.onEnter <| onEndEditSelectedItem item
             ]
             []
         ]
@@ -223,7 +243,7 @@ plainText :
     , text : String
     , isHighlight : Bool
     }
-    -> Svg Msg
+    -> Svg msg
 plainText { settings, position, size, foreColor, fontSize, text, isHighlight } =
     Svg.text_
         [ SvgAttr.x <| String.fromInt <| Position.getX position + 6

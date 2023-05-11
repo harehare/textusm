@@ -94,7 +94,6 @@ import Views.Diagram.EmpathyMap as EmpathyMap
 import Views.Diagram.FourLs as FourLs
 import Views.Diagram.FreeForm as FreeForm
 import Views.Diagram.GanttChart as GanttChart
-import Views.Diagram.ImpactMap as ImpactMap
 import Views.Diagram.Kanban as Kanban
 import Views.Diagram.Kpt as Kpt
 import Views.Diagram.MindMap as MindMap
@@ -716,7 +715,7 @@ diagramView diagramType =
             UserPersona.view
 
         MindMap ->
-            MindMap.view
+            MindMap.view MindMap.MindMap
 
         EmpathyMap ->
             EmpathyMap.view
@@ -728,7 +727,7 @@ diagramView diagramType =
             GanttChart.view
 
         ImpactMap ->
-            ImpactMap.view
+            MindMap.view MindMap.ImpactMap
 
         ErDiagram ->
             ER.view
@@ -1279,9 +1278,6 @@ updateData text data items =
         DiagramData.MindMap _ hierarchy ->
             DiagramData.MindMap items hierarchy
 
-        DiagramData.ImpactMap _ hierarchy ->
-            DiagramData.ImpactMap items hierarchy
-
         DiagramData.SiteMap _ hierarchy ->
             DiagramData.SiteMap items hierarchy
 
@@ -1368,7 +1364,7 @@ updateDiagram size base text =
                     DiagramData.GanttChart <| GanttChartModel.from items
 
                 ImpactMap ->
-                    DiagramData.ImpactMap items hierarchy
+                    DiagramData.MindMap items hierarchy
 
                 ErDiagram ->
                     DiagramData.ErDiagram <| ErDiagramModel.from items

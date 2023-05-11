@@ -405,8 +405,8 @@ moveTest =
                 in
                 Expect.equal moveModel
                     (newModel
-                        |> Diagram.ofPosition.set ( Position.getX newModel.diagram.position + 10, Position.getY newModel.diagram.position + 20 )
-                        |> Diagram.ofMovePosition.set ( 10, 20 )
+                        |> Diagram.position.set ( Position.getX newModel.diagram.position + 10, Position.getY newModel.diagram.position + 20 )
+                        |> Diagram.movePosition.set ( 10, 20 )
                     )
         ]
 
@@ -423,7 +423,7 @@ moveToTest =
                             |> update defInit (MoveTo ( 10, 20 ))
                             |> Tuple.first
                 in
-                Expect.equal newModel (defInit |> Diagram.ofPosition.set ( 10, 20 ))
+                Expect.equal newModel (defInit |> Diagram.position.set ( 10, 20 ))
         ]
 
 
@@ -533,7 +533,7 @@ toggleFullscreenText =
                             |> update defInit ToggleFullscreen
                             |> Tuple.first
                 in
-                Expect.equal newModel (defInit |> Diagram.ofIsFullscreen.set True)
+                Expect.equal newModel (defInit |> Diagram.isFullscreen.set True)
         , test "Exit fullscreen" <|
             \() ->
                 let
@@ -546,7 +546,7 @@ toggleFullscreenText =
                             |> update defInit ToggleFullscreen
                             |> Tuple.first
                 in
-                Expect.equal newModel (defInit |> Diagram.ofIsFullscreen.set False)
+                Expect.equal newModel (defInit |> Diagram.isFullscreen.set False)
         ]
 
 

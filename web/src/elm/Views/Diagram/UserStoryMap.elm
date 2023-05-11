@@ -7,7 +7,7 @@ import Html.Styled.Attributes as Attr
 import List
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram exposing (Model, Msg, SelectedItem)
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.UserStoryMap as UserStoryMap exposing (CountPerTasks, UserStoryMap)
@@ -172,6 +172,10 @@ activityView settings property verticalCount ( posX, posY ) selectedItem item =
             , selectedItem = selectedItem
             , item = item
             , canMove = True
+            , onEditSelectedItem = EditSelectedItem
+            , onEndEditSelectedItem = EndEditSelectedItem
+            , onSelect = Select
+            , dragStart = Diagram.dragStart
             }
             :: (Item.unwrapChildren (Item.getChildren item)
                     |> Item.indexedMap
@@ -214,6 +218,10 @@ taskView settings property verticalCount ( posX, posY ) selectedItem item =
             , selectedItem = selectedItem
             , item = item
             , canMove = True
+            , onEditSelectedItem = EditSelectedItem
+            , onEndEditSelectedItem = EndEditSelectedItem
+            , onSelect = Select
+            , dragStart = Diagram.dragStart
             }
             :: (children
                     |> Item.indexedMap
@@ -288,6 +296,10 @@ storyView settings property verticalCount parentCount ( posX, posY ) selectedIte
         , selectedItem = selectedItem
         , item = item
         , canMove = True
+        , onEditSelectedItem = EditSelectedItem
+        , onEndEditSelectedItem = EndEditSelectedItem
+        , onSelect = Select
+        , dragStart = Diagram.dragStart
         }
         :: storyViewHelper children
 

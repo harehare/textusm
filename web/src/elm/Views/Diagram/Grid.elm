@@ -45,7 +45,7 @@ view settings property ( posX, posY ) selectedItem item =
     in
     case selectedItem of
         Just item_ ->
-            if Item.getLineNo item_ == Item.getLineNo item then
+            if Item.eq item_ item then
                 Svg.g []
                     [ Svg.rect
                         [ SvgAttr.width <| String.fromInt settings.size.width
@@ -66,6 +66,9 @@ view settings property ( posX, posY ) selectedItem item =
                         , position = ( posX, posY )
                         , settings = settings
                         , size = ( settings.size.width, settings.size.height )
+                        , onEditSelectedItem = EditSelectedItem
+                        , onEndEditSelectedItem = EndEditSelectedItem
+                        , onSelect = Select
                         }
                     ]
 

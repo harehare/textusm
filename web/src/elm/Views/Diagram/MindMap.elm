@@ -1,7 +1,7 @@
-module Views.Diagram.MindMap exposing (view)
+module Views.Diagram.MindMap exposing (ViewType(..), view)
 
 import List.Extra as ListEx
-import Models.Diagram as Diagram exposing (Model, Msg, SelectedItem)
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
@@ -16,8 +16,28 @@ import Views.Diagram.TextNode as TextNode
 import Views.Empty as Empty
 
 
-view : Model -> Svg Msg
-view model =
+type ViewType
+    = MindMap
+    | ImpactMap
+
+
+type Direction
+    = Left
+    | Right
+
+
+xMargin : Int
+xMargin =
+    100
+
+
+yMargin : Int
+yMargin =
+    10
+
+
+view : ViewType -> Model -> Svg Msg
+view viewType model =
     case model.data of
         DiagramData.MindMap items _ ->
             case Item.head items of
@@ -51,36 +71,66 @@ view model =
                                 moveingItem
                                 |> Maybe.withDefault root
                     in
-                    Svg.g
-                        []
-                        [ nodesView
-                            { settings = model.settings
-                            , property = model.property
-                            , hierarchy = 2
-                            , position = Position.zero
-                            , direction = Left
-                            , selectedItem = model.selectedItem
-                            , moveingItem = moveingItem
-                            , items = left
-                            }
-                        , nodesView
-                            { settings = model.settings
-                            , property = model.property
-                            , hierarchy = 2
-                            , position = Position.zero
-                            , direction = Right
-                            , selectedItem = model.selectedItem
-                            , moveingItem = moveingItem
-                            , items = right
-                            }
-                        , TextNode.root
-                            { settings = model.settings
-                            , property = model.property
-                            , position = Position.zero
-                            , selectedItem = model.selectedItem
-                            , item = rootItem
-                            }
-                        ]
+                    case viewType of
+                        MindMap ->
+                            Svg.g
+                                []
+                                [ nodesView
+                                    { settings = model.settings
+                                    , property = model.property
+                                    , hierarchy = 2
+                                    , position = Position.zero
+                                    , direction = Left
+                                    , selectedItem = model.selectedItem
+                                    , moveingItem = moveingItem
+                                    , items = left
+                                    }
+                                , nodesView
+                                    { settings = model.settings
+                                    , property = model.property
+                                    , hierarchy = 2
+                                    , position = Position.zero
+                                    , direction = Right
+                                    , selectedItem = model.selectedItem
+                                    , moveingItem = moveingItem
+                                    , items = right
+                                    }
+                                , TextNode.root
+                                    { settings = model.settings
+                                    , property = model.property
+                                    , position = Position.zero
+                                    , selectedItem = model.selectedItem
+                                    , item = rootItem
+                                    , onEditSelectedItem = EditSelectedItem
+                                    , onEndEditSelectedItem = EndEditSelectedItem
+                                    , onSelect = Select
+                                    }
+                                ]
+
+                        ImpactMap ->
+                            Svg.g
+                                []
+                                [ nodesView
+                                    { settings = model.settings
+                                    , property = model.property
+                                    , hierarchy = 2
+                                    , position = Position.zero
+                                    , direction = Right
+                                    , selectedItem = model.selectedItem
+                                    , moveingItem = moveingItem
+                                    , items = mindMapItems
+                                    }
+                                , TextNode.root
+                                    { settings = model.settings
+                                    , property = model.property
+                                    , position = Position.zero
+                                    , selectedItem = model.selectedItem
+                                    , item = rootItem
+                                    , onEditSelectedItem = EditSelectedItem
+                                    , onEndEditSelectedItem = EndEditSelectedItem
+                                    , onSelect = Select
+                                    }
+                                ]
 
                 Nothing ->
                     Svg.g [] []
@@ -89,12 +139,7 @@ view model =
             Empty.view
 
 
-type Direction
-    = Left
-    | Right
-
-
-nodeLineView : Size -> String -> Position -> Position -> Svg Msg
+nodeLineView : Size -> String -> Position -> Position -> Svg msg
 nodeLineView ( width, height ) colour fromBase toBase =
     let
         ( fromPoint, toPoint ) =
@@ -228,22 +273,17 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                         , moveingItem = moveingItem
                         , items = Item.unwrapChildren <| Item.getChildren item
                         }
-                    , Lazy.lazy5 TextNode.view
-                        settings
-                        property
-                        ( itemX, itemY )
-                        selectedItem
-                        item
+                    , Lazy.lazy TextNode.view
+                        { settings = settings
+                        , property = property
+                        , position = ( itemX, itemY )
+                        , selectedItem = selectedItem
+                        , item = item
+                        , onEditSelectedItem = EditSelectedItem
+                        , onEndEditSelectedItem = EndEditSelectedItem
+                        , onSelect = Select
+                        , dragStart = Diagram.dragStart
+                        }
                     ]
                 )
         )
-
-
-xMargin : Int
-xMargin =
-    100
-
-
-yMargin : Int
-yMargin =
-    10

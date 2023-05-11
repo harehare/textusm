@@ -1,6 +1,5 @@
 module Views.Diagram.Path exposing (Position, Size, view)
 
-import Models.Diagram exposing (Msg)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 
@@ -13,7 +12,7 @@ type alias Size =
     ( Float, Float )
 
 
-view : String -> ( Position, Size ) -> ( Position, Size ) -> Svg Msg
+view : String -> ( Position, Size ) -> ( Position, Size ) -> Svg msg
 view colour ( ( fromX, fromY ), ( fromWidth, fromHeight ) ) ( ( toX, toY ), ( toWidth, toHeight ) ) =
     if fromX == toX && fromY < toY then
         draw
@@ -80,7 +79,7 @@ cornerSize =
     8.0
 
 
-draw : String -> List Path -> Svg Msg
+draw : String -> List Path -> Svg msg
 draw colour pathList =
     Svg.path
         [ SvgAttr.strokeWidth "3"

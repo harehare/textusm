@@ -8,7 +8,7 @@ import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
 import Markdown
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)
+import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
@@ -29,9 +29,13 @@ viewWithDefaultColor :
     , selectedItem : SelectedItem
     , item : Item
     , canMove : Bool
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
     }
-    -> Svg Msg
-viewWithDefaultColor { settings, property, position, selectedItem, item, canMove } =
+    -> Svg msg
+viewWithDefaultColor { settings, property, position, selectedItem, item, canMove, dragStart, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     let
         ( foreColor, backColor ) =
             Views.getItemColor settings property item
@@ -45,6 +49,10 @@ viewWithDefaultColor { settings, property, position, selectedItem, item, canMove
         , canMove = canMove
         , defaultForeColor = foreColor
         , defaultBackColor = backColor
+        , onEditSelectedItem = onEditSelectedItem
+        , onEndEditSelectedItem = onEndEditSelectedItem
+        , onSelect = onSelect
+        , dragStart = dragStart
         }
 
 
@@ -57,9 +65,13 @@ view :
     , canMove : Bool
     , defaultForeColor : Color
     , defaultBackColor : Color
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
     }
-    -> Svg Msg
-view { settings, property, position, selectedItem, item, canMove, defaultForeColor, defaultBackColor } =
+    -> Svg msg
+view { settings, property, position, selectedItem, item, canMove, defaultForeColor, defaultBackColor, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         ( foreColor, backColor ) =
             ( Item.getForegroundColor item, Item.getBackgroundColor item )
@@ -67,7 +79,7 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
                     (\c -> c |> Maybe.withDefault defaultForeColor)
                     (\c -> c |> Maybe.withDefault defaultBackColor)
 
-        view_ : Svg Msg
+        view_ : Svg msg
         view_ =
             let
                 ( posX, posY ) =
@@ -89,7 +101,7 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
                 [ SvgAttr.class "card"
                 , Attributes.dataTest <| "card-" ++ (String.fromInt <| Item.getLineNo item)
                 , Events.onClickStopPropagation <|
-                    Select <|
+                    onSelect <|
                         Just { item = item, position = position, displayAllMenu = True }
                 ]
                 [ Svg.rect
@@ -114,7 +126,7 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
     in
     case selectedItem of
         Just item_ ->
-            if Item.getLineNo item_ == Item.getLineNo item then
+            if Item.eq item_ item then
                 let
                     selectedItemOffsetSize : Size
                     selectedItemOffsetSize =
@@ -143,7 +155,7 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
                 in
                 Svg.g
                     [ if canMove then
-                        Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
+                        dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False
 
                       else
                         SvgAttr.style ""
@@ -171,10 +183,10 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
                         , SvgAttr.style "filter:url(#shadow)"
                         ]
                         []
-                    , Views.resizeCircle item TopLeft ( x_ - 8, y_ - 8 )
-                    , Views.resizeCircle item TopRight ( x_ + Size.getWidth selectedItemSize + 8, y_ - 8 )
-                    , Views.resizeCircle item BottomRight ( x_ + Size.getWidth selectedItemSize + 8, y_ + Size.getHeight selectedItemSize + 8 )
-                    , Views.resizeCircle item BottomLeft ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 )
+                    , Views.resizeCircle item TopLeft ( x_ - 8, y_ - 8 ) dragStart
+                    , Views.resizeCircle item TopRight ( x_ + Size.getWidth selectedItemSize + 8, y_ - 8 ) dragStart
+                    , Views.resizeCircle item BottomRight ( x_ + Size.getWidth selectedItemSize + 8, y_ + Size.getHeight selectedItemSize + 8 ) dragStart
+                    , Views.resizeCircle item BottomLeft ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 ) dragStart
                     , Views.inputView
                         { settings = settings
                         , fontSize = Item.getFontSizeWithProperty item property
@@ -182,6 +194,9 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
                         , size = selectedItemSize
                         , color = foreColor
                         , item = item_
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
                         }
                     ]
 
@@ -192,7 +207,7 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
             view_
 
 
-text : DiagramSettings.Settings -> Position -> Size -> Color -> FontSize -> Item -> Svg Msg
+text : DiagramSettings.Settings -> Position -> Size -> Color -> FontSize -> Item -> Svg msg
 text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
     if Item.isMarkdown item then
         Svg.foreignObject
@@ -265,7 +280,7 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
             }
 
 
-markdown : DiagramSettings.Settings -> ( Color, Color ) -> String -> Html Msg
+markdown : DiagramSettings.Settings -> ( Color, Color ) -> String -> Html msg
 markdown settings ( foreColor, backColor ) t =
     Html.fromUnstyled <|
         Markdown.toHtml

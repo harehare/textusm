@@ -3,7 +3,7 @@ module Views.Diagram.SequenceDiagram exposing (view)
 import Constants
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram exposing (Model, Msg, SelectedItem)
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
 import Models.Diagram.Settings as DiagramSettings
@@ -396,6 +396,10 @@ participantView settings property selectedItem pos (Participant item _) messageH
             , selectedItem = selectedItem
             , item = item
             , canMove = False
+            , onEditSelectedItem = EditSelectedItem
+            , onEndEditSelectedItem = EndEditSelectedItem
+            , onSelect = Select
+            , dragStart = Diagram.dragStart
             }
         , Lazy.lazy3 lineView settings ( lineX, fromY ) ( lineX, toY )
         , Lazy.lazy Card.viewWithDefaultColor
@@ -405,6 +409,10 @@ participantView settings property selectedItem pos (Participant item _) messageH
             , selectedItem = selectedItem
             , item = item
             , canMove = False
+            , onEditSelectedItem = EditSelectedItem
+            , onEndEditSelectedItem = EndEditSelectedItem
+            , onSelect = Select
+            , dragStart = Diagram.dragStart
             }
         ]
 

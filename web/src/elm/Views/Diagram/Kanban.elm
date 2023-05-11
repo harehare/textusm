@@ -1,7 +1,7 @@
 module Views.Diagram.Kanban exposing (view)
 
 import Constants
-import Models.Diagram exposing (Model, Msg, SelectedItem)
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import Models.Diagram.Settings as DiagramSettings
@@ -88,6 +88,10 @@ listView settings property height ( posX, posY ) selectedItem (KanbanList name c
                         , property = property
                         , selectedItem = selectedItem
                         , settings = settings
+                        , onEditSelectedItem = EditSelectedItem
+                        , onEndEditSelectedItem = EndEditSelectedItem
+                        , onSelect = Select
+                        , dragStart = Diagram.dragStart
                         }
                 )
                 cards

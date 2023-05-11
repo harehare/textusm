@@ -102,7 +102,6 @@ diagramTypeSelect props =
             [ ColorStyle.textSecondaryColor
             , Text.xs
             , Css.fontWeight Css.bold
-            , ColorStyle.bgMain
             , Css.borderStyle Css.none
             ]
         , Events.onChangeStyled

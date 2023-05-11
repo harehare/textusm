@@ -353,7 +353,7 @@ size model =
         ( GanttChart, DiagramData.GanttChart (Just gantt) ) ->
             GanttChartModel.size gantt
 
-        ( ImpactMap, DiagramData.ImpactMap items_ hierarchy_ ) ->
+        ( ImpactMap, DiagramData.MindMap items_ hierarchy_ ) ->
             ImpactMapModel.size model.settings items_ hierarchy_
 
         ( ErDiagram, _ ) ->

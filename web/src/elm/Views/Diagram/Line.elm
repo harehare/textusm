@@ -65,7 +65,7 @@ horizontal { settings, position, selectedItem, item } =
     in
     case selectedItem of
         Just item_ ->
-            if Item.getLineNo item_ == Item.getLineNo item then
+            if Item.eq item_ item then
                 let
                     selectedItemOffsetPosition : Position
                     selectedItemOffsetPosition =
@@ -116,8 +116,8 @@ horizontal { settings, position, selectedItem, item } =
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
-                    , Views.resizeCircle item Left ( x_ - 8, y_ )
-                    , Views.resizeCircle item Right ( x_ + Size.getWidth selectedItemSize + 8, y_ )
+                    , Views.resizeCircle item Left ( x_ - 8, y_ ) Diagram.dragStart
+                    , Views.resizeCircle item Right ( x_ + Size.getWidth selectedItemSize + 8, y_ ) Diagram.dragStart
                     ]
 
             else
@@ -171,7 +171,7 @@ vertical { settings, position, selectedItem, item } =
     in
     case selectedItem of
         Just item_ ->
-            if Item.getLineNo item_ == Item.getLineNo item then
+            if Item.eq item_ item then
                 let
                     selectedItemOffsetPosition : Position
                     selectedItemOffsetPosition =
@@ -222,8 +222,8 @@ vertical { settings, position, selectedItem, item } =
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
-                    , Views.resizeCircle item Top ( x_, y_ - 8 )
-                    , Views.resizeCircle item Bottom ( x_, y_ + Size.getHeight selectedItemSize + 8 )
+                    , Views.resizeCircle item Top ( x_, y_ - 8 ) Diagram.dragStart
+                    , Views.resizeCircle item Bottom ( x_, y_ + Size.getHeight selectedItemSize + 8 ) Diagram.dragStart
                     ]
 
             else

@@ -1,7 +1,7 @@
 module Views.Diagram.Text exposing (view)
 
 import Models.Color as Color
-import Models.Diagram exposing (Msg, SelectedItem)
+import Models.Diagram as Diagram exposing (Msg(..), SelectedItem)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item)
 import Models.Item.Settings as ItemSettings
@@ -32,4 +32,4 @@ view { settings, property, position, selectedItem, item, canMove } =
                         |> Just
                     )
     in
-    Card.viewWithDefaultColor { settings = settings, property = property, position = position, selectedItem = selectedItem, item = item_, canMove = canMove }
+    Card.viewWithDefaultColor { settings = settings, property = property, position = position, selectedItem = selectedItem, item = item_, canMove = canMove, onEditSelectedItem = EditSelectedItem, onEndEditSelectedItem = EndEditSelectedItem, onSelect = Select, dragStart = Diagram.dragStart }

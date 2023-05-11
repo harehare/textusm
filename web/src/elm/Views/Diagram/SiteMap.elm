@@ -2,7 +2,7 @@ module Views.Diagram.SiteMap exposing (view)
 
 import Constants
 import List.Extra as ListEx
-import Models.Diagram exposing (Model, Msg, SelectedItem)
+import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
 import Models.Position exposing (Position)
@@ -37,6 +37,10 @@ view model =
                     , selectedItem = model.selectedItem
                     , item = root
                     , canMove = True
+                    , onEditSelectedItem = EditSelectedItem
+                    , onEndEditSelectedItem = EndEditSelectedItem
+                    , onSelect = Select
+                    , dragStart = Diagram.dragStart
                     }
                 ]
 
@@ -157,6 +161,10 @@ siteTreeView settings property ( posX, posY ) selectedItem items =
                         , selectedItem = selectedItem
                         , item = item
                         , canMove = True
+                        , onEditSelectedItem = EditSelectedItem
+                        , onEndEditSelectedItem = EndEditSelectedItem
+                        , onSelect = Select
+                        , dragStart = Diagram.dragStart
                         }
                     , siteTreeView settings
                         property
@@ -208,6 +216,10 @@ siteView settings property ( posX, posY ) selectedItem items =
                         , selectedItem = selectedItem
                         , item = item
                         , canMove = True
+                        , onEditSelectedItem = EditSelectedItem
+                        , onEndEditSelectedItem = EndEditSelectedItem
+                        , onSelect = Select
+                        , dragStart = Diagram.dragStart
                         }
                     , siteLineView settings ( 0, 0 ) ( x, posY )
                     , siteTreeView settings

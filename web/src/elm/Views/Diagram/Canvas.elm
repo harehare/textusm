@@ -74,7 +74,7 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
     in
     case selectedItem of
         Just item_ ->
-            if Item.getLineNo item_ == Item.getLineNo item then
+            if Item.eq item_ item then
                 let
                     selectedItemOffsetPosition : Position
                     selectedItemOffsetPosition =
@@ -126,6 +126,9 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                                 |> Maybe.withDefault settings.color.label
                                 |> Color.fromString
                         , item = item_
+                        , onEditSelectedItem = EditSelectedItem
+                        , onEndEditSelectedItem = EndEditSelectedItem
+                        , onSelect = Select
                         }
                     , text
                         { settings = settings
@@ -225,7 +228,7 @@ getCanvasColor settings property item =
 
 resizeCircle : Item -> ResizeDirection -> Position -> Svg Msg
 resizeCircle item direction ( x, y ) =
-    Views.resizeCircleBase 8 item direction ( x, y )
+    Views.resizeCircleBase 8 item direction ( x, y ) Diagram.dragStart
 
 
 text : { settings : DiagramSettings.Settings, property : Property, svgWidth : Int, position : Position, selectedItem : SelectedItem, items : Items } -> Svg Msg
@@ -248,6 +251,10 @@ text { settings, property, svgWidth, position, selectedItem, items } =
                     , selectedItem = selectedItem
                     , item = item
                     , canMove = False
+                    , onEditSelectedItem = EditSelectedItem
+                    , onEndEditSelectedItem = EndEditSelectedItem
+                    , onSelect = Select
+                    , dragStart = Diagram.dragStart
                     }
             )
             items
