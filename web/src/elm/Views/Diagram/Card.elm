@@ -1,4 +1,4 @@
-module Views.Diagram.Card exposing (text, viewWithDefaultColor, docs)
+module Views.Diagram.Card exposing (docs, text, viewWithDefaultColor)
 
 import Attributes
 import Css exposing (backgroundColor, cursor, pointer, property)
@@ -302,7 +302,7 @@ docs =
             (Svg.svg
                 [ SvgAttr.width "100%"
                 , SvgAttr.height "100%"
-                , SvgAttr.viewBox "0 0 1536 1536"
+                , SvgAttr.viewBox "0 0 2048 2048"
                 ]
                 [ viewWithDefaultColor
                     { settings = DiagramSettings.default

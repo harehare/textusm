@@ -7,8 +7,8 @@ import List.Extra as ListEx
 import Models.Diagram exposing (Diagram, SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Scale as Scale
-import Models.Diagram.Type as DiagramType
 import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType
 import Models.Item as Item exposing (Item, Items)
 import Models.Position as Position exposing (Position)
 import Models.Property as Property exposing (Property)
@@ -306,7 +306,7 @@ docs =
             (Svg.svg
                 [ SvgAttr.width "100%"
                 , SvgAttr.height "100%"
-                , SvgAttr.viewBox "0 0 1536 1536"
+                , SvgAttr.viewBox "0 0 2048 2048"
                 ]
                 [ view
                     { items = Item.empty

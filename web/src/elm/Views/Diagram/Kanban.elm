@@ -1,4 +1,4 @@
-module Views.Diagram.Kanban exposing (view, docs)
+module Views.Diagram.Kanban exposing (docs, view)
 
 import Constants
 import ElmBook.Actions as Actions
@@ -170,13 +170,13 @@ docs =
             (Svg.svg
                 [ SvgAttr.width "100%"
                 , SvgAttr.height "100%"
-                , SvgAttr.viewBox "0 0 1536 1536"
+                , SvgAttr.viewBox "0 0 2048 2048"
                 ]
                 [ view
                     { data =
                         DiagramData.Kanban <|
                             Kanban.from <|
-                               (DiagramType.defaultText DiagramType.Kanban |> Item.fromString |> Tuple.second)
+                                (DiagramType.defaultText DiagramType.Kanban |> Item.fromString |> Tuple.second)
                     , settings = DiagramSettings.default
                     , selectedItem = Nothing
                     , property = Property.empty

@@ -423,7 +423,7 @@ docs =
             (Svg.svg
                 [ SvgAttr.width "100%"
                 , SvgAttr.height "100%"
-                , SvgAttr.viewBox "0 0 1536 1536"
+                , SvgAttr.viewBox "0 0 2048 2048"
                 ]
                 [ view
                     { data =
