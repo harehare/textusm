@@ -54,7 +54,6 @@
     "firebase-tools": "^12.0.0",
     "html-inline-css-webpack-plugin": "^1.11.1",
     "html-webpack-plugin": "^5.5.1",
-    "lint-staged": "^13.2.2",
     "mini-css-extract-plugin": "^2.7.5",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "postcss": "^8.4.23",
@@ -118,7 +117,8 @@
     "lint-fix:ts": "xo --fix --prettier src/ts/*.ts",
     "lint-fix:elm": "elm-review --fix",
     "size": "npm run prod && size-limit",
-    "book": "mkdir -p ./src/dist && cp ./src/book.html ./src/dist/ && cp -r ./src/assets/images ./src/dist/ && elm-book src/elm/Views/Book.elm --dir=./src/dist --start-page=book.html --pushstate --port 4000  -- --output=./src/dist/book.js"
+    "book": "mkdir -p ./src/dist && cp ./src/book.html ./src/dist/ && cp -r ./src/assets/images ./src/dist/ && elm-book src/elm/Views/Book.elm --dir=./src/dist --start-page=book.html --pushstate --port 4000  -- --output=./src/dist/book.js",
+    "knip": "knip"
   },
   "browserslist": [
     "defaults"
