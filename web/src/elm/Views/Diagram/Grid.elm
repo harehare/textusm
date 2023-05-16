@@ -3,7 +3,7 @@ module Views.Diagram.Grid exposing (view)
 import Css exposing (backgroundColor)
 import Events
 import Models.Color as Color
-import Models.Diagram exposing (Msg(..), SelectedItem)
+import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
@@ -16,15 +16,28 @@ import Views.Diagram.Card as Card
 import Views.Diagram.Views as Views
 
 
-view : DiagramSettings.Settings -> Property -> Position -> SelectedItem -> Item -> Svg Msg
-view settings property ( posX, posY ) selectedItem item =
+view :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    }
+    -> Svg msg
+view { settings, property, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     let
         ( forgroundColor, backgroundColor ) =
             Views.getItemColor settings property item
 
-        view_ : Svg Msg
+        ( posX, posY ) =
+            position
+
+        view_ : Svg msg
         view_ =
-            Svg.g [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
+            Svg.g [ Events.onClickStopPropagation <| onSelect <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt settings.size.width
                     , SvgAttr.height <| String.fromInt <| settings.size.height - 1
@@ -66,9 +79,9 @@ view settings property ( posX, posY ) selectedItem item =
                         , position = ( posX, posY )
                         , settings = settings
                         , size = ( settings.size.width, settings.size.height )
-                        , onEditSelectedItem = EditSelectedItem
-                        , onEndEditSelectedItem = EndEditSelectedItem
-                        , onSelect = Select
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
                         }
                     ]
 

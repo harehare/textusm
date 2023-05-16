@@ -1,22 +1,35 @@
-module Views.Diagram.Table exposing (view)
+module Views.Diagram.Table exposing (docs, view)
 
-import Models.Diagram exposing (Model, Msg, SelectedItem)
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
+import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Table exposing (Header(..), Row(..), Table(..))
+import Models.Diagram.Table as Table exposing (Header(..), Row(..), Table(..))
+import Models.Diagram.Type as DiagramType
 import Models.Item as Item exposing (Item)
-import Models.Property exposing (Property)
+import Models.Property as Property exposing (Property)
 import String
 import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Keyed as Keyed
 import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Grid as Grid
 import Views.Empty as Empty
 
 
-view : Model -> Svg Msg
-view model =
-    case model.data of
+view :
+    { data : DiagramData.Data
+    , settings : DiagramSettings.Settings
+    , selectedItem : SelectedItem
+    , property : Property
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    }
+    -> Svg msg
+view { data, settings, property, selectedItem, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
+    case data of
         DiagramData.Table t ->
             let
                 (Table h rows) =
@@ -27,20 +40,28 @@ view model =
             in
             Svg.g
                 []
-                (Lazy.lazy4 headerView
-                    model.settings
-                    model.property
-                    model.selectedItem
-                    header
+                (Lazy.lazy headerView
+                    { settings = settings
+                    , property = property
+                    , selectedItem = selectedItem
+                    , item = header
+                    , onEditSelectedItem = onEditSelectedItem
+                    , onEndEditSelectedItem = onEndEditSelectedItem
+                    , onSelect = onSelect
+                    }
                     :: (rows
                             |> List.indexedMap
                                 (\i (Row item) ->
-                                    Lazy.lazy5 rowView
-                                        model.settings
-                                        model.property
-                                        model.selectedItem
-                                        (i + 1)
-                                        item
+                                    Lazy.lazy rowView
+                                        { settings = settings
+                                        , property = property
+                                        , selectedItem = selectedItem
+                                        , rowNo = i + 1
+                                        , item = item
+                                        , onEditSelectedItem = onEditSelectedItem
+                                        , onEndEditSelectedItem = onEndEditSelectedItem
+                                        , onSelect = onSelect
+                                        }
                                 )
                        )
                 )
@@ -49,39 +70,101 @@ view model =
             Empty.view
 
 
-headerView : DiagramSettings.Settings -> Property -> SelectedItem -> Item -> Svg Msg
-headerView settings property selectedItem item =
+headerView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , selectedItem : SelectedItem
+    , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    }
+    -> Svg msg
+headerView { settings, property, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     Svg.g []
         (Item.indexedMap
             (\i ii ->
-                Lazy.lazy5 Grid.view settings property ( settings.size.width * i, 0 ) selectedItem ii
+                Lazy.lazy Grid.view
+                    { settings = settings
+                    , property = property
+                    , position = ( settings.size.width * i, 0 )
+                    , selectedItem = selectedItem
+                    , item = ii
+                    , onEditSelectedItem = onEditSelectedItem
+                    , onEndEditSelectedItem = onEndEditSelectedItem
+                    , onSelect = onSelect
+                    }
             )
             (Item.cons item (Item.unwrapChildren <| Item.getChildren item))
         )
 
 
-rowView : DiagramSettings.Settings -> Property -> SelectedItem -> Int -> Item -> Svg Msg
-rowView settings property selectedItem rowNo item =
+rowView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , selectedItem : SelectedItem
+    , rowNo : Int
+    , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    }
+    -> Svg msg
+rowView { settings, property, selectedItem, rowNo, item, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     Keyed.node "g"
         []
         (( "row" ++ String.fromInt rowNo
-         , Lazy.lazy5 Grid.view
-            settings
-            property
-            ( 0, settings.size.height * rowNo )
-            selectedItem
-            item
+         , Lazy.lazy Grid.view
+            { settings = settings
+            , property = property
+            , position = ( 0, settings.size.height * rowNo )
+            , selectedItem = selectedItem
+            , item = item
+            , onEditSelectedItem = onEditSelectedItem
+            , onEndEditSelectedItem = onEndEditSelectedItem
+            , onSelect = onSelect
+            }
          )
             :: Item.indexedMap
                 (\i childItem ->
                     ( "row" ++ String.fromInt (Item.getLineNo childItem)
-                    , Lazy.lazy5 Grid.view
-                        settings
-                        property
-                        ( settings.size.width * (i + 1), settings.size.height * rowNo )
-                        selectedItem
-                        childItem
+                    , Lazy.lazy Grid.view
+                        { settings = settings
+                        , property = property
+                        , position = ( settings.size.width * (i + 1), settings.size.height * rowNo )
+                        , selectedItem = selectedItem
+                        , item = childItem
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        }
                     )
                 )
                 (Item.getChildren item |> Item.unwrapChildren)
         )
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Table"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 1536 1536"
+                ]
+                [ view
+                    { data =
+                        DiagramData.Table <|
+                            Table.from <|
+                                (DiagramType.defaultText DiagramType.Table |> Item.fromString |> Tuple.second)
+                    , settings = DiagramSettings.default
+                    , selectedItem = Nothing
+                    , property = Property.empty
+                    , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                    , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    }
+                ]
+                |> Svg.toUnstyled
+            )

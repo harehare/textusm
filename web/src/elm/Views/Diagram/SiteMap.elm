@@ -1,46 +1,74 @@
-module Views.Diagram.SiteMap exposing (view)
+module Views.Diagram.SiteMap exposing (docs, view)
 
 import Constants
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
-import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem)
+import Models.Diagram exposing (Diagram, SelectedItem, SelectedItemInfo)
+import Models.Diagram.Data as DiagramData
+import Models.Diagram.Scale as Scale
+import Models.Diagram.Type as DiagramType
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item, Items)
-import Models.Position exposing (Position)
-import Models.Property exposing (Property)
+import Models.Position as Position exposing (Position)
+import Models.Property as Property exposing (Property)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Card as Card
+import Views.Diagram.Views as Views
 
 
-view : Model -> Svg Msg
-view model =
+view :
+    { items : Items
+    , data : DiagramData.Data
+    , settings : DiagramSettings.Settings
+    , selectedItem : SelectedItem
+    , diagram : Diagram
+    , property : Property
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+view { items, settings, property, selectedItem, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         rootItem : Maybe Item
         rootItem =
-            Item.head model.items
+            Item.head items
     in
     case rootItem of
         Just root ->
             let
-                items : Items
-                items =
+                rootItems : Items
+                rootItems =
                     Item.unwrapChildren <| Item.getChildren root
             in
             Svg.g
                 []
-                [ siteView model.settings model.property ( 0, Constants.itemSpan + model.settings.size.height ) model.selectedItem items
+                [ siteView
+                    { settings = settings
+                    , property = property
+                    , position = ( 0, Constants.itemSpan + settings.size.height )
+                    , selectedItem = selectedItem
+                    , items = rootItems
+                    , onEditSelectedItem = onEditSelectedItem
+                    , onEndEditSelectedItem = onEndEditSelectedItem
+                    , onSelect = onSelect
+                    , dragStart = dragStart
+                    }
                 , Lazy.lazy Card.viewWithDefaultColor
-                    { settings = model.settings
-                    , property = model.property
+                    { settings = settings
+                    , property = property
                     , position = ( 0, 0 )
-                    , selectedItem = model.selectedItem
+                    , selectedItem = selectedItem
                     , item = root
                     , canMove = True
-                    , onEditSelectedItem = EditSelectedItem
-                    , onEndEditSelectedItem = EndEditSelectedItem
-                    , onSelect = Select
-                    , dragStart = Diagram.dragStart
+                    , onEditSelectedItem = onEditSelectedItem
+                    , onEndEditSelectedItem = onEndEditSelectedItem
+                    , onSelect = onSelect
+                    , dragStart = dragStart
                     }
                 ]
 
@@ -48,7 +76,7 @@ view model =
             Svg.g [] []
 
 
-siteLineView : DiagramSettings.Settings -> Position -> Position -> Svg Msg
+siteLineView : DiagramSettings.Settings -> Position -> Position -> Svg msg
 siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
     let
         centerX : Int
@@ -89,7 +117,7 @@ siteLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
             ]
 
 
-siteTreeLineView : DiagramSettings.Settings -> Position -> Position -> Svg Msg
+siteTreeLineView : DiagramSettings.Settings -> Position -> Position -> Svg msg
 siteTreeLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
     let
         itemPadding : Int
@@ -118,8 +146,19 @@ siteTreeLineView settings ( xx1, yy1 ) ( xx2, yy2 ) =
         ]
 
 
-siteTreeView : DiagramSettings.Settings -> Property -> Position -> SelectedItem -> Items -> Svg Msg
-siteTreeView settings property ( posX, posY ) selectedItem items =
+siteTreeView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , position : Position
+    , selectedItem : SelectedItem
+    , items : Items
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+siteTreeView { settings, property, position, selectedItem, items, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         childrenCountList : List Int
         childrenCountList =
@@ -147,13 +186,13 @@ siteTreeView settings property ( posX, posY ) selectedItem items =
 
                         x : Int
                         x =
-                            posX + Constants.itemSpan
+                            Position.getX position + Constants.itemSpan
 
                         y : Int
                         y =
-                            posY + i * (settings.size.height + Constants.itemSpan) + childrenCount * (settings.size.height + Constants.itemSpan)
+                            Position.getY position + i * (settings.size.height + Constants.itemSpan) + childrenCount * (settings.size.height + Constants.itemSpan)
                     in
-                    [ siteTreeLineView settings ( posX, posY - Constants.itemSpan ) ( posX, y )
+                    [ siteTreeLineView settings (Tuple.mapSecond (\y_ -> y_ - Constants.itemSpan) position) ( Position.getX position, y )
                     , Card.viewWithDefaultColor
                         { settings = settings
                         , property = property
@@ -161,26 +200,44 @@ siteTreeView settings property ( posX, posY ) selectedItem items =
                         , selectedItem = selectedItem
                         , item = item
                         , canMove = True
-                        , onEditSelectedItem = EditSelectedItem
-                        , onEndEditSelectedItem = EndEditSelectedItem
-                        , onSelect = Select
-                        , dragStart = Diagram.dragStart
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        , dragStart = dragStart
                         }
-                    , siteTreeView settings
-                        property
-                        ( x
-                        , y + (settings.size.height + Constants.itemSpan)
-                        )
-                        selectedItem
-                        children
+                    , siteTreeView
+                        { settings = settings
+                        , property = property
+                        , position =
+                            ( x
+                            , y + (settings.size.height + Constants.itemSpan)
+                            )
+                        , selectedItem = selectedItem
+                        , items = children
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        , dragStart = dragStart
+                        }
                     ]
                 )
             |> List.concat
         )
 
 
-siteView : DiagramSettings.Settings -> Property -> ( Int, Int ) -> SelectedItem -> Items -> Svg Msg
-siteView settings property ( posX, posY ) selectedItem items =
+siteView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , position : Position
+    , selectedItem : SelectedItem
+    , items : Items
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+siteView { settings, property, position, selectedItem, items, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         hierarchyCountList : List Int
         hierarchyCountList =
@@ -203,7 +260,7 @@ siteView settings property ( posX, posY ) selectedItem items =
 
                         x : Int
                         x =
-                            posX
+                            Position.getX position
                                 + i
                                 * (cardWidth + Constants.itemSpan)
                                 + hierarchyCount
@@ -212,24 +269,65 @@ siteView settings property ( posX, posY ) selectedItem items =
                     [ Card.viewWithDefaultColor
                         { settings = settings
                         , property = property
-                        , position = ( x, posY )
+                        , position = ( x, Position.getY position )
                         , selectedItem = selectedItem
                         , item = item
                         , canMove = True
-                        , onEditSelectedItem = EditSelectedItem
-                        , onEndEditSelectedItem = EndEditSelectedItem
-                        , onSelect = Select
-                        , dragStart = Diagram.dragStart
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        , dragStart = dragStart
                         }
-                    , siteLineView settings ( 0, 0 ) ( x, posY )
-                    , siteTreeView settings
-                        property
-                        ( x
-                        , posY + settings.size.height + Constants.itemSpan
-                        )
-                        selectedItem
-                        children
+                    , siteLineView settings ( 0, 0 ) ( x, Position.getY position )
+                    , siteTreeView
+                        { settings = settings
+                        , property = property
+                        , position =
+                            ( x
+                            , Position.getY position + settings.size.height + Constants.itemSpan
+                            )
+                        , selectedItem = selectedItem
+                        , items = children
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        , dragStart = dragStart
+                        }
                     ]
                 )
             |> List.concat
         )
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "SiteMap"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 1536 1536"
+                ]
+                [ view
+                    { items = Item.empty
+                    , data =
+                        DiagramData.SiteMap
+                            (DiagramType.defaultText DiagramType.SiteMap |> Item.fromString |> Tuple.second)
+                            1
+                    , settings = DiagramSettings.default
+                    , diagram =
+                        { size = ( 100, 100 )
+                        , scale = Scale.fromFloat 1.0
+                        , position = ( 0, 0 )
+                        , isFullscreen = False
+                        }
+                    , selectedItem = Nothing
+                    , property = Property.empty
+                    , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                    , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , dragStart = \_ _ -> SvgAttr.style ""
+                    }
+                ]
+                |> Svg.toUnstyled
+            )

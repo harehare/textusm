@@ -1,4 +1,4 @@
-module Views.Diagram.ER exposing (view)
+module Views.Diagram.ER exposing (docs, view)
 
 import Constants
 import Css
@@ -18,16 +18,18 @@ import Css
         , spaceBetween
         )
 import Dict exposing (Dict)
-import Events
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html
 import Html.Styled.Attributes exposing (css)
 import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Maybe.Extra as MaybeEx
-import Models.Diagram as Diagram exposing (Model, Msg(..))
+import Models.Diagram as Diagram
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.ER as ER exposing (Attribute(..), Column(..), Relationship(..), Table(..))
 import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType
+import Models.Item as Item
 import Models.Position as Position exposing (Position, getX, getY)
 import Models.Size exposing (Size, getHeight, getWidth)
 import State exposing (Step(..))
@@ -36,13 +38,21 @@ import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Utils.Utils as Utils
 import Views.Diagram.Path as Path
+import Views.Diagram.Views as Views
 import Views.Empty as Empty
 import Views.Icon as Icon
 
 
-view : Model -> Svg Msg
-view model =
-    case model.data of
+view :
+    { data : DiagramData.Data
+    , settings : DiagramSettings.Settings
+    , moveState : Diagram.MoveState
+    , windowSize : Size
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+view { data, settings, moveState, windowSize, dragStart } =
+    case data of
         DiagramData.ErDiagram e ->
             let
                 baseDict : TableViewDict
@@ -54,7 +64,7 @@ view model =
                     e
 
                 tableDict =
-                    case model.moveState of
+                    case moveState of
                         Diagram.ItemMove target ->
                             case target of
                                 Diagram.TableTarget table ->
@@ -81,16 +91,17 @@ view model =
             in
             Svg.g
                 []
-                (Lazy.lazy3 relationshipView model.settings relationships tableDict
+                (Lazy.lazy3 relationshipView settings relationships tableDict
                     :: (Dict.toList tableDict
                             |> List.map
                                 (\( _, t ) ->
                                     Lazy.lazy tableView
-                                        { settings = model.settings
-                                        , svgSize = model.windowSize
+                                        { settings = settings
+                                        , svgSize = windowSize
                                         , pos = getPosition t.position
                                         , tableSize = t.size
                                         , table = t.table
+                                        , dragStart = dragStart
                                         }
                                 )
                        )
@@ -270,7 +281,7 @@ calcTablePosition { tableSize1, tableSize2, pos, nextPosition, relationCount } =
             ( next, ( posX, posY - h - tableHeight2 ) )
 
 
-columnView : DiagramSettings.Settings -> Int -> Position -> Column -> Svg Msg
+columnView : DiagramSettings.Settings -> Int -> Position -> Column -> Svg msg
 columnView settings columnWidth ( posX, posY ) (Column name_ type_ attrs) =
     let
         colX : String
@@ -369,47 +380,12 @@ getPosition pos =
     Maybe.withDefault ( 0, 0 ) pos
 
 
-onDragStart : Table -> Bool -> Svg.Attribute Msg
-onDragStart table isPhone =
-    if isPhone then
-        Events.onTouchStart
-            (\event ->
-                if List.length event.changedTouches > 1 then
-                    let
-                        p1 : ( Float, Float )
-                        p1 =
-                            ListEx.getAt 0 event.changedTouches
-                                |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0.0, 0.0 )
-
-                        p2 : ( Float, Float )
-                        p2 =
-                            ListEx.getAt 1 event.changedTouches
-                                |> Maybe.map .pagePos
-                                |> Maybe.withDefault ( 0.0, 0.0 )
-                    in
-                    StartPinch (Utils.calcDistance p1 p2)
-
-                else
-                    let
-                        ( x, y ) =
-                            Events.touchCoordinates event
-                    in
-                    Start (Diagram.ItemMove (Diagram.TableTarget table)) ( round x, round y )
-            )
-
-    else
-        Events.onMouseDown
-            (\event ->
-                let
-                    ( x, y ) =
-                        event.pagePos
-                in
-                Start (Diagram.ItemMove (Diagram.TableTarget table)) ( round x, round y )
-            )
+onDragStart : Views.DragStart msg -> Table -> Bool -> Svg.Attribute msg
+onDragStart dragStart table isPhone =
+    dragStart (Diagram.ItemMove (Diagram.TableTarget table)) isPhone
 
 
-pathView : DiagramSettings.Settings -> TableViewInfo -> TableViewInfo -> Svg Msg
+pathView : DiagramSettings.Settings -> TableViewInfo -> TableViewInfo -> Svg msg
 pathView settings from to =
     let
         ( fromOffsetX, fromOffsetY ) =
@@ -437,7 +413,7 @@ pathView settings from to =
     Path.view settings.color.line ( fromPosition, fromSize ) ( toPosition, toSize )
 
 
-relationLabelView : DiagramSettings.Settings -> TableViewInfo -> TableViewInfo -> String -> Svg Msg
+relationLabelView : DiagramSettings.Settings -> TableViewInfo -> TableViewInfo -> String -> Svg msg
 relationLabelView settings table1 table2 label =
     let
         ( table1OffsetX, table1OffsetY ) =
@@ -519,7 +495,7 @@ relationLabelView settings table1 table2 label =
             [ Svg.text label ]
 
 
-relationshipView : DiagramSettings.Settings -> List Relationship -> TableViewDict -> Svg Msg
+relationshipView : DiagramSettings.Settings -> List Relationship -> TableViewDict -> Svg msg
 relationshipView settings relationships tables =
     Svg.g [] <|
         List.map
@@ -573,7 +549,7 @@ relationshipView settings relationships tables =
             relationships
 
 
-tableHeaderView : DiagramSettings.Settings -> String -> Int -> Position -> Svg Msg
+tableHeaderView : DiagramSettings.Settings -> String -> Int -> Position -> Svg msg
 tableHeaderView settings headerText headerWidth ( posX, posY ) =
     Svg.g []
         [ Svg.rect
@@ -602,9 +578,10 @@ tableView :
     , pos : Position
     , tableSize : Size
     , table : Table
+    , dragStart : Views.DragStart msg
     }
-    -> Svg Msg
-tableView { settings, svgSize, pos, tableSize, table } =
+    -> Svg msg
+tableView { settings, svgSize, pos, tableSize, table, dragStart } =
     let
         (Table tableName columns position _) =
             table
@@ -618,7 +595,7 @@ tableView { settings, svgSize, pos, tableSize, table } =
             getY pos + getY (position |> Maybe.withDefault Position.zero)
     in
     Svg.g
-        [ onDragStart table (Utils.isPhone (getWidth svgSize)) ]
+        [ onDragStart dragStart table (Utils.isPhone (getWidth svgSize)) ]
         (Svg.rect
             [ SvgAttr.width <| String.fromInt <| getWidth tableSize
             , SvgAttr.height <| String.fromInt <| getHeight tableSize
@@ -685,3 +662,27 @@ tablesToDict tables =
                 )
             )
         |> Dict.fromList
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "ER"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 2048 2048"
+                ]
+                [ view
+                    { data =
+                        DiagramData.ErDiagram <|
+                            ER.from <|
+                                (DiagramType.defaultText DiagramType.ErDiagram |> Item.fromString |> Tuple.second)
+                    , moveState = Diagram.NotMove
+                    , windowSize = ( 100, 100 )
+                    , settings = DiagramSettings.default
+                    , dragStart = \_ _ -> SvgAttr.style ""
+                    }
+                ]
+                |> Svg.toUnstyled
+            )

@@ -1,18 +1,22 @@
-module Views.Diagram.UserStoryMap exposing (view)
+module Views.Diagram.UserStoryMap exposing (docs, view)
 
 import Bool.Extra as BoolEx
 import Constants
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr
 import List
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem)
+import Models.Diagram exposing (Diagram, SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
+import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType
 import Models.Diagram.UserStoryMap as UserStoryMap exposing (CountPerTasks, UserStoryMap)
 import Models.Item as Item exposing (Item, Items)
-import Models.Position exposing (Position)
+import Models.Position as Position exposing (Position)
 import Models.Property as Property exposing (Property)
 import Models.Size as Size
 import String
@@ -21,28 +25,44 @@ import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Keyed as Keyed
 import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Card as Card
+import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
 
-view : Model -> Svg Msg
-view model =
-    case model.data of
+view :
+    { data : DiagramData.Data
+    , settings : DiagramSettings.Settings
+    , selectedItem : SelectedItem
+    , diagram : Diagram
+    , property : Property
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+view { data, settings, diagram, property, selectedItem, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
+    case data of
         DiagramData.UserStoryMap userStoryMap ->
             Svg.g
                 []
                 [ Lazy.lazy labelView
-                    { settings = model.settings
-                    , width = Size.getWidth model.diagram.size
+                    { settings = settings
+                    , width = Size.getWidth diagram.size
                     , userStoryMap = userStoryMap
-                    , property = model.property
+                    , property = property
                     }
                 , Lazy.lazy mainView
-                    { settings = model.settings
-                    , selectedItem = model.selectedItem
+                    { settings = settings
+                    , selectedItem = selectedItem
                     , items = UserStoryMap.getItems userStoryMap
                     , countByTasks = UserStoryMap.countPerTasks userStoryMap
                     , countByReleaseLevel = UserStoryMap.countPerReleaseLevel userStoryMap
-                    , property = model.property
+                    , property = property
+                    , onEditSelectedItem = onEditSelectedItem
+                    , onEndEditSelectedItem = onEndEditSelectedItem
+                    , onSelect = onSelect
+                    , dragStart = dragStart
                     }
                 ]
 
@@ -57,9 +77,13 @@ mainView :
     , items : Items
     , countByTasks : List Int
     , countByReleaseLevel : List Int
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
     }
-    -> Svg Msg
-mainView { settings, property, selectedItem, items, countByTasks, countByReleaseLevel } =
+    -> Svg msg
+mainView { settings, property, selectedItem, items, countByTasks, countByReleaseLevel, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     Keyed.node "g"
         []
         (ListEx.zip
@@ -67,7 +91,20 @@ mainView { settings, property, selectedItem, items, countByTasks, countByRelease
             (Item.unwrap items)
             |> List.indexedMap
                 (\i ( count, item ) ->
-                    ( "activity-" ++ String.fromInt i, activityView settings property (List.drop 2 countByReleaseLevel) ( Constants.leftMargin + count * (settings.size.width + Constants.itemMargin), 10 ) selectedItem item )
+                    ( "activity-" ++ String.fromInt i
+                    , activityView
+                        { settings = settings
+                        , property = property
+                        , verticalCount = List.drop 2 countByReleaseLevel
+                        , position = ( Constants.leftMargin + count * (settings.size.width + Constants.itemMargin), 10 )
+                        , selectedItem = selectedItem
+                        , item = item
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        , dragStart = dragStart
+                        }
+                    )
                 )
         )
 
@@ -78,7 +115,7 @@ labelView :
     , width : Int
     , userStoryMap : UserStoryMap
     }
-    -> Svg Msg
+    -> Svg msg
 labelView { settings, property, width, userStoryMap } =
     let
         posX : Int
@@ -160,48 +197,78 @@ labelView { settings, property, width, userStoryMap } =
         )
 
 
-activityView : DiagramSettings.Settings -> Property -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
-activityView settings property verticalCount ( posX, posY ) selectedItem item =
+activityView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , verticalCount : List Int
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+activityView { settings, property, verticalCount, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     Svg.g
         []
     <|
         Lazy.lazy Card.viewWithDefaultColor
             { settings = settings
             , property = property
-            , position = ( posX, posY )
+            , position = position
             , selectedItem = selectedItem
             , item = item
             , canMove = True
-            , onEditSelectedItem = EditSelectedItem
-            , onEndEditSelectedItem = EndEditSelectedItem
-            , onSelect = Select
-            , dragStart = Diagram.dragStart
+            , onEditSelectedItem = onEditSelectedItem
+            , onEndEditSelectedItem = onEndEditSelectedItem
+            , onSelect = onSelect
+            , dragStart = dragStart
             }
             :: (Item.unwrapChildren (Item.getChildren item)
                     |> Item.indexedMap
                         (\i it ->
                             taskView
-                                settings
-                                property
-                                verticalCount
-                                ( posX
-                                    + (i * settings.size.width)
-                                    + (if i > 0 then
-                                        i * Constants.itemMargin
+                                { settings = settings
+                                , property = property
+                                , verticalCount = verticalCount
+                                , position =
+                                    ( Position.getX position
+                                        + (i * settings.size.width)
+                                        + (if i > 0 then
+                                            i * Constants.itemMargin
 
-                                       else
-                                        0
-                                      )
-                                , posY + Constants.itemMargin + settings.size.height
-                                )
-                                selectedItem
-                                it
+                                           else
+                                            0
+                                          )
+                                    , Position.getY position + Constants.itemMargin + settings.size.height
+                                    )
+                                , selectedItem = selectedItem
+                                , item = it
+                                , onEditSelectedItem = onEditSelectedItem
+                                , onEndEditSelectedItem = onEndEditSelectedItem
+                                , onSelect = onSelect
+                                , dragStart = dragStart
+                                }
                         )
                )
 
 
-taskView : DiagramSettings.Settings -> Property -> List Int -> Position -> SelectedItem -> Item -> Svg Msg
-taskView settings property verticalCount ( posX, posY ) selectedItem item =
+taskView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , verticalCount : List Int
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+taskView { settings, property, verticalCount, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         children : Items
         children =
@@ -214,42 +281,62 @@ taskView settings property verticalCount ( posX, posY ) selectedItem item =
             Card.viewWithDefaultColor
             { settings = settings
             , property = property
-            , position = ( posX, posY )
+            , position = position
             , selectedItem = selectedItem
             , item = item
             , canMove = True
-            , onEditSelectedItem = EditSelectedItem
-            , onEndEditSelectedItem = EndEditSelectedItem
-            , onSelect = Select
-            , dragStart = Diagram.dragStart
+            , onEditSelectedItem = onEditSelectedItem
+            , onEndEditSelectedItem = onEndEditSelectedItem
+            , onSelect = onSelect
+            , dragStart = dragStart
             }
             :: (children
                     |> Item.indexedMap
                         (\i it ->
                             Svg.g [] <|
-                                storyView settings
-                                    property
-                                    verticalCount
-                                    (Item.length children)
-                                    ( posX
-                                    , posY
-                                        + ((i + 1) * settings.size.height)
-                                        + (Constants.itemMargin * 2)
-                                        + (if i > 0 then
-                                            Constants.itemMargin * i
+                                storyView
+                                    { settings = settings
+                                    , property = property
+                                    , verticalCount = verticalCount
+                                    , parentCount = Item.length children
+                                    , position =
+                                        ( Position.getX position
+                                        , Position.getY position
+                                            + ((i + 1) * settings.size.height)
+                                            + (Constants.itemMargin * 2)
+                                            + (if i > 0 then
+                                                Constants.itemMargin * i
 
-                                           else
-                                            0
-                                          )
-                                    )
-                                    selectedItem
-                                    it
+                                               else
+                                                0
+                                              )
+                                        )
+                                    , selectedItem = selectedItem
+                                    , item = it
+                                    , onEditSelectedItem = onEditSelectedItem
+                                    , onEndEditSelectedItem = onEndEditSelectedItem
+                                    , onSelect = onSelect
+                                    , dragStart = dragStart
+                                    }
                         )
                )
 
 
-storyView : DiagramSettings.Settings -> Property -> List Int -> Int -> Position -> SelectedItem -> Item -> List (Svg Msg)
-storyView settings property verticalCount parentCount ( posX, posY ) selectedItem item =
+storyView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , verticalCount : List Int
+    , parentCount : Int
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> List (Svg msg)
+storyView { settings, property, verticalCount, parentCount, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         itemCount : Int
         itemCount =
@@ -267,24 +354,30 @@ storyView settings property verticalCount parentCount ( posX, posY ) selectedIte
         tail =
             List.tail verticalCount |> Maybe.withDefault []
 
-        storyViewHelper : Items -> List (Svg Msg)
+        storyViewHelper : Items -> List (Svg msg)
         storyViewHelper children_ =
             Item.indexedMap
                 (\i it ->
                     storyView
-                        settings
-                        property
-                        tail
-                        childrenLength
-                        ( posX
-                        , posY
-                            + (Basics.max 1 (itemCount - parentCount + i + 1)
-                                * (Constants.itemMargin + settings.size.height)
-                              )
-                            + Constants.itemMargin
-                        )
-                        selectedItem
-                        it
+                        { settings = settings
+                        , property = property
+                        , verticalCount = tail
+                        , parentCount = childrenLength
+                        , position =
+                            ( Position.getX position
+                            , Position.getY position
+                                + (Basics.max 1 (itemCount - parentCount + i + 1)
+                                    * (Constants.itemMargin + settings.size.height)
+                                  )
+                                + Constants.itemMargin
+                            )
+                        , selectedItem = selectedItem
+                        , item = it
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        , dragStart = dragStart
+                        }
                 )
                 children_
                 |> List.concat
@@ -292,19 +385,19 @@ storyView settings property verticalCount parentCount ( posX, posY ) selectedIte
     Lazy.lazy Card.viewWithDefaultColor
         { settings = settings
         , property = property
-        , position = ( posX, posY )
+        , position = position
         , selectedItem = selectedItem
         , item = item
         , canMove = True
-        , onEditSelectedItem = EditSelectedItem
-        , onEndEditSelectedItem = EndEditSelectedItem
-        , onSelect = Select
-        , dragStart = Diagram.dragStart
+        , onEditSelectedItem = onEditSelectedItem
+        , onEndEditSelectedItem = onEndEditSelectedItem
+        , onSelect = onSelect
+        , dragStart = dragStart
         }
         :: storyViewHelper children
 
 
-labelTextView : DiagramSettings.Settings -> Position -> String -> Svg Msg
+labelTextView : DiagramSettings.Settings -> Position -> String -> Svg msg
 labelTextView settings ( posX, posY ) t =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt posX
@@ -321,3 +414,38 @@ labelTextView settings ( posX, posY ) t =
             ]
             [ Html.text t ]
         ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "UserStoryMap"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 1536 1536"
+                ]
+                [ view
+                    { data =
+                        DiagramData.UserStoryMap <|
+                            UserStoryMap.from
+                                "test"
+                                2
+                                (DiagramType.defaultText DiagramType.UserStoryMap |> Item.fromString |> Tuple.second)
+                    , settings = DiagramSettings.default
+                    , selectedItem = Nothing
+                    , property = Property.empty
+                    , diagram =
+                        { size = ( 100, 100 )
+                        , scale = Scale.fromFloat 1.0
+                        , position = ( 0, 0 )
+                        , isFullscreen = False
+                        }
+                    , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                    , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , dragStart = \_ _ -> SvgAttr.style ""
+                    }
+                ]
+                |> Svg.toUnstyled
+            )

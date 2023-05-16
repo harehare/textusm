@@ -1,6 +1,7 @@
 module Views.Diagram.Toolbar exposing
     ( ClickEvent
     , ToolbarButton
+    , docs
     , viewColorOnly
     , viewForFreeForm
     )
@@ -30,6 +31,8 @@ import Css
         , textAlign
         , top
         )
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
@@ -283,3 +286,12 @@ view items =
                             [ view_ ]
             )
             items
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Toolbar"
+        |> Chapter.renderComponent
+            (viewColorOnly (\_ -> Actions.logAction "onClick")
+                |> Html.toUnstyled
+            )

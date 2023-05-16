@@ -3,7 +3,7 @@ module Views.Diagram.Canvas exposing (view, viewBottom, viewImage)
 import Constants
 import Events
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)
+import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo, dragStart)
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item, Items)
@@ -16,18 +16,74 @@ import Views.Diagram.Card as Card
 import Views.Diagram.Views as Views
 
 
-view : DiagramSettings.Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
-view settings property svgSize position selectedItem item =
-    canvasBase settings property False svgSize position selectedItem item
+view :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , size : Size
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+view { settings, property, size, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
+    canvasBase
+        { settings = settings
+        , property = property
+        , isTitleBottom = False
+        , size = size
+        , position = position
+        , selectedItem = selectedItem
+        , item = item
+        , onEditSelectedItem = onEditSelectedItem
+        , onEndEditSelectedItem = onEndEditSelectedItem
+        , onSelect = onSelect
+        , dragStart = dragStart
+        }
 
 
-viewBottom : DiagramSettings.Settings -> Property -> Size -> Position -> SelectedItem -> Item -> Svg Msg
-viewBottom settings property svgSize position selectedItem item =
-    canvasBase settings property True svgSize position selectedItem item
+viewBottom :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , size : Size
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+viewBottom { settings, property, size, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
+    canvasBase
+        { settings = settings
+        , property = property
+        , isTitleBottom = True
+        , size = size
+        , position = position
+        , selectedItem = selectedItem
+        , item = item
+        , onEditSelectedItem = onEditSelectedItem
+        , onEndEditSelectedItem = onEndEditSelectedItem
+        , onSelect = onSelect
+        , dragStart = dragStart
+        }
 
 
-viewImage : DiagramSettings.Settings -> Property -> Size -> Position -> Item -> Svg Msg
-viewImage settings property ( svgWidth, svgHeight ) ( posX, posY ) item =
+viewImage :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , size : Size
+    , position : Position
+    , item : Item
+    , onSelect : Maybe SelectedItemInfo -> msg
+    }
+    -> Svg msg
+viewImage { settings, property, size, position, item, onSelect } =
     let
         colors : ( Color, Color )
         colors =
@@ -35,7 +91,7 @@ viewImage settings property ( svgWidth, svgHeight ) ( posX, posY ) item =
     in
     Svg.g
         []
-        [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
+        [ canvasRect colors property position size
         , case
             Item.getChildren item
                 |> Item.unwrapChildren
@@ -43,8 +99,9 @@ viewImage settings property ( svgWidth, svgHeight ) ( posX, posY ) item =
           of
             Just item_ ->
                 if Item.isImage item_ then
-                    Views.image ( Constants.itemWidth - 5, svgHeight )
-                        ( posX + 5, posY + 5 )
+                    Views.image
+                        (Tuple.mapFirst (\_ -> Constants.itemWidth - 5) position)
+                        (Tuple.mapBoth (\x -> x + 5) (\y -> y + 5) position)
                         item_
 
                 else
@@ -52,12 +109,30 @@ viewImage settings property ( svgWidth, svgHeight ) ( posX, posY ) item =
 
             Nothing ->
                 Svg.g [] []
-        , title settings ( posX + 10, posY + 10 ) item
+        , title
+            { settings = settings
+            , position = Tuple.mapBoth (\x -> x + 10) (\y -> y + 10) position
+            , item = item
+            , onSelect = onSelect
+            }
         ]
 
 
-canvasBase : DiagramSettings.Settings -> Property -> Bool -> Size -> Position -> SelectedItem -> Item -> Svg Msg
-canvasBase settings property isTitleBottom svgSize position selectedItem item =
+canvasBase :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , isTitleBottom : Bool
+    , size : Size
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+canvasBase { settings, property, isTitleBottom, size, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         colors : ( Color, Color )
         colors =
@@ -70,7 +145,7 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
             Item.getPosition item position
 
         ( svgWidth, svgHeight ) =
-            svgSize |> Tuple.mapBoth (\w -> w + offsetWidth) (\h -> h + offsetHeight)
+            size |> Tuple.mapBoth (\w -> w + offsetWidth) (\h -> h + offsetHeight)
     in
     case selectedItem of
         Just item_ ->
@@ -93,13 +168,13 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
 
                     selectedItemSize : Size
                     selectedItemSize =
-                        svgSize
+                        size
                             |> Tuple.mapBoth
                                 (\w -> max 0 (w + Size.getWidth selectedItemOffsetSize))
                                 (\h -> max 0 (h + Size.getHeight selectedItemOffsetSize))
                 in
                 Svg.g
-                    [ Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
+                    [ dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
                     [ canvasRect colors property selectedItemPosition selectedItemSize
                     , Views.inputBoldView
                         { settings = settings
@@ -126,9 +201,9 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                                 |> Maybe.withDefault settings.color.label
                                 |> Color.fromString
                         , item = item_
-                        , onEditSelectedItem = EditSelectedItem
-                        , onEndEditSelectedItem = EndEditSelectedItem
-                        , onSelect = Select
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
                         }
                     , text
                         { settings = settings
@@ -137,17 +212,76 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                         , position = selectedItemPosition
                         , selectedItem = selectedItem
                         , items = Item.unwrapChildren <| Item.getChildren item
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        , dragStart = dragStart
                         }
-                    , resizeCircle item TopLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
-                    , resizeCircle item TopRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition )
-                    , resizeCircle item BottomRight ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
-                    , resizeCircle item BottomLeft ( Position.getX selectedItemPosition, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
+                    , resizeCircle
+                        { item = item
+                        , direction = TopLeft
+                        , position = ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
+                        , dragStart = dragStart
+                        }
+                    , resizeCircle
+                        { item = item
+                        , direction = TopRight
+                        , position = ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition )
+                        , dragStart = dragStart
+                        }
+                    , resizeCircle
+                        { item = item
+                        , direction = BottomRight
+                        , position = ( Position.getX selectedItemPosition + Size.getWidth selectedItemSize, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
+                        , dragStart = dragStart
+                        }
+                    , resizeCircle
+                        { item = item
+                        , direction = BottomLeft
+                        , position = ( Position.getX selectedItemPosition, Position.getY selectedItemPosition + Size.getHeight selectedItemSize )
+                        , dragStart = dragStart
+                        }
                     ]
 
             else
                 Svg.g []
                     [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
-                    , title settings
+                    , title
+                        { settings = settings
+                        , position =
+                            ( posX + 20
+                            , posY
+                                + (if isTitleBottom then
+                                    svgHeight - 20
+
+                                   else
+                                    20
+                                  )
+                            )
+                        , item = item
+                        , onSelect = onSelect
+                        }
+                    , text
+                        { settings = settings
+                        , property = property
+                        , svgWidth = svgWidth
+                        , position = ( posX, posY )
+                        , selectedItem = selectedItem
+                        , items = Item.unwrapChildren <| Item.getChildren item
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        , dragStart = dragStart
+                        }
+                    ]
+
+        Nothing ->
+            Svg.g
+                [ Events.onClickStopPropagation <| onSelect <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
+                [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
+                , title
+                    { settings = settings
+                    , position =
                         ( posX + 20
                         , posY
                             + (if isTitleBottom then
@@ -157,33 +291,21 @@ canvasBase settings property isTitleBottom svgSize position selectedItem item =
                                 20
                               )
                         )
-                        item
-                    , text
-                        { settings = settings
-                        , property = property
-                        , svgWidth = svgWidth
-                        , position = ( posX, posY )
-                        , selectedItem = selectedItem
-                        , items = Item.unwrapChildren <| Item.getChildren item
-                        }
-                    ]
-
-        Nothing ->
-            Svg.g
-                [ Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
-                [ canvasRect colors property ( posX, posY ) ( svgWidth, svgHeight )
-                , title settings
-                    ( posX + 20
-                    , posY
-                        + (if isTitleBottom then
-                            svgHeight - 20
-
-                           else
-                            20
-                          )
-                    )
-                    item
-                , text { settings = settings, property = property, svgWidth = svgWidth, position = ( posX, posY ), selectedItem = selectedItem, items = Item.unwrapChildren <| Item.getChildren item }
+                    , item = item
+                    , onSelect = onSelect
+                    }
+                , text
+                    { settings = settings
+                    , property = property
+                    , svgWidth = svgWidth
+                    , position = ( posX, posY )
+                    , selectedItem = selectedItem
+                    , items = Item.unwrapChildren <| Item.getChildren item
+                    , onEditSelectedItem = onEditSelectedItem
+                    , onEndEditSelectedItem = onEndEditSelectedItem
+                    , onSelect = onSelect
+                    , dragStart = dragStart
+                    }
                 ]
 
 
@@ -226,13 +348,25 @@ getCanvasColor settings property item =
             )
 
 
-resizeCircle : Item -> ResizeDirection -> Position -> Svg Msg
-resizeCircle item direction ( x, y ) =
-    Views.resizeCircleBase 8 item direction ( x, y ) Diagram.dragStart
+resizeCircle : { item : Item, direction : ResizeDirection, position : Position, dragStart : Views.DragStart msg } -> Svg msg
+resizeCircle { item, direction, position, dragStart } =
+    Views.resizeCircleBase 8 item direction position dragStart
 
 
-text : { settings : DiagramSettings.Settings, property : Property, svgWidth : Int, position : Position, selectedItem : SelectedItem, items : Items } -> Svg Msg
-text { settings, property, svgWidth, position, selectedItem, items } =
+text :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , svgWidth : Int
+    , position : Position
+    , selectedItem : SelectedItem
+    , items : Items
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+text { settings, property, svgWidth, position, selectedItem, items, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         newSettings : DiagramSettings.Settings
         newSettings =
@@ -251,21 +385,21 @@ text { settings, property, svgWidth, position, selectedItem, items } =
                     , selectedItem = selectedItem
                     , item = item
                     , canMove = False
-                    , onEditSelectedItem = EditSelectedItem
-                    , onEndEditSelectedItem = EndEditSelectedItem
-                    , onSelect = Select
-                    , dragStart = Diagram.dragStart
+                    , onEditSelectedItem = onEditSelectedItem
+                    , onEndEditSelectedItem = onEndEditSelectedItem
+                    , onSelect = onSelect
+                    , dragStart = dragStart
                     }
             )
             items
         )
 
 
-title : DiagramSettings.Settings -> Position -> Item -> Svg Msg
-title settings ( posX, posY ) item =
+title : { settings : DiagramSettings.Settings, position : Position, item : Item, onSelect : Maybe SelectedItemInfo -> msg } -> Svg msg
+title { settings, position, item, onSelect } =
     Svg.text_
-        [ SvgAttr.x <| String.fromInt posX
-        , SvgAttr.y <| String.fromInt <| posY + 14
+        [ SvgAttr.x <| String.fromInt <| Position.getX position
+        , SvgAttr.y <| String.fromInt <| Position.getY position + 14
         , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
         , SvgAttr.fill
             (Item.getForegroundColor item
@@ -275,6 +409,12 @@ title settings ( posX, posY ) item =
         , FontSize.svgStyledFontSize (Item.getFontSize item |> Maybe.withDefault FontSize.lg)
         , SvgAttr.fontWeight "bold"
         , SvgAttr.class "ts-title"
-        , Events.onClickStopPropagation <| Select <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True }
+        , Events.onClickStopPropagation <|
+            onSelect <|
+                Just
+                    { item = item
+                    , position = Tuple.mapSecond (\y -> y + settings.size.height) position
+                    , displayAllMenu = True
+                    }
         ]
         [ Svg.text <| Item.getText item ]

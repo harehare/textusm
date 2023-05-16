@@ -1,18 +1,24 @@
-module Views.Diagram.MindMap exposing (ViewType(..), view)
+module Views.Diagram.MindMap exposing (ViewType(..), docs, view)
 
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
-import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem)
+import Models.Diagram as Diagram exposing (Diagram, MoveState, SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
+import Models.Diagram.Scale as Scale
 import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType
 import Models.Item as Item exposing (Item, Items)
 import Models.Item.Settings as ItemSettings
 import Models.Position as Position exposing (Position)
-import Models.Property exposing (Property)
+import Models.Property as Property exposing (Property)
 import Models.Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Path as Path
 import Views.Diagram.TextNode as TextNode
+import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
 
@@ -36,9 +42,22 @@ yMargin =
     10
 
 
-view : ViewType -> Model -> Svg Msg
-view viewType model =
-    case model.data of
+view :
+    { data : DiagramData.Data
+    , settings : DiagramSettings.Settings
+    , selectedItem : SelectedItem
+    , diagram : Diagram
+    , property : Property
+    , viewType : ViewType
+    , moveState : MoveState
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+view { data, settings, property, selectedItem, moveState, viewType, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
+    case data of
         DiagramData.MindMap items _ ->
             case Item.head items of
                 Just root ->
@@ -56,7 +75,7 @@ view viewType model =
 
                         moveingItem : Maybe Item
                         moveingItem =
-                            Diagram.moveingItem model
+                            Diagram.moveingItem moveState
 
                         rootItem : Item
                         rootItem =
@@ -76,34 +95,42 @@ view viewType model =
                             Svg.g
                                 []
                                 [ nodesView
-                                    { settings = model.settings
-                                    , property = model.property
+                                    { settings = settings
+                                    , property = property
                                     , hierarchy = 2
                                     , position = Position.zero
                                     , direction = Left
-                                    , selectedItem = model.selectedItem
+                                    , selectedItem = selectedItem
                                     , moveingItem = moveingItem
                                     , items = left
+                                    , onEditSelectedItem = onEditSelectedItem
+                                    , onEndEditSelectedItem = onEndEditSelectedItem
+                                    , onSelect = onSelect
+                                    , dragStart = dragStart
                                     }
                                 , nodesView
-                                    { settings = model.settings
-                                    , property = model.property
+                                    { settings = settings
+                                    , property = property
                                     , hierarchy = 2
                                     , position = Position.zero
                                     , direction = Right
-                                    , selectedItem = model.selectedItem
+                                    , selectedItem = selectedItem
                                     , moveingItem = moveingItem
                                     , items = right
+                                    , onEditSelectedItem = onEditSelectedItem
+                                    , onEndEditSelectedItem = onEndEditSelectedItem
+                                    , onSelect = onSelect
+                                    , dragStart = dragStart
                                     }
                                 , TextNode.root
-                                    { settings = model.settings
-                                    , property = model.property
+                                    { settings = settings
+                                    , property = property
                                     , position = Position.zero
-                                    , selectedItem = model.selectedItem
+                                    , selectedItem = selectedItem
                                     , item = rootItem
-                                    , onEditSelectedItem = EditSelectedItem
-                                    , onEndEditSelectedItem = EndEditSelectedItem
-                                    , onSelect = Select
+                                    , onEditSelectedItem = onEditSelectedItem
+                                    , onEndEditSelectedItem = onEndEditSelectedItem
+                                    , onSelect = onSelect
                                     }
                                 ]
 
@@ -111,24 +138,28 @@ view viewType model =
                             Svg.g
                                 []
                                 [ nodesView
-                                    { settings = model.settings
-                                    , property = model.property
+                                    { settings = settings
+                                    , property = property
                                     , hierarchy = 2
                                     , position = Position.zero
                                     , direction = Right
-                                    , selectedItem = model.selectedItem
+                                    , selectedItem = selectedItem
                                     , moveingItem = moveingItem
                                     , items = mindMapItems
+                                    , onEditSelectedItem = onEditSelectedItem
+                                    , onEndEditSelectedItem = onEndEditSelectedItem
+                                    , onSelect = onSelect
+                                    , dragStart = dragStart
                                     }
                                 , TextNode.root
-                                    { settings = model.settings
-                                    , property = model.property
+                                    { settings = settings
+                                    , property = property
                                     , position = Position.zero
-                                    , selectedItem = model.selectedItem
+                                    , selectedItem = selectedItem
                                     , item = rootItem
-                                    , onEditSelectedItem = EditSelectedItem
-                                    , onEndEditSelectedItem = EndEditSelectedItem
-                                    , onSelect = Select
+                                    , onEditSelectedItem = onEditSelectedItem
+                                    , onEndEditSelectedItem = onEndEditSelectedItem
+                                    , onSelect = onSelect
                                     }
                                 ]
 
@@ -163,9 +194,13 @@ nodesView :
     , selectedItem : SelectedItem
     , moveingItem : Maybe Item
     , items : Items
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
     }
-    -> Svg Msg
-nodesView { settings, property, hierarchy, position, direction, selectedItem, items, moveingItem } =
+    -> Svg msg
+nodesView { settings, property, hierarchy, position, direction, selectedItem, items, moveingItem, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         nodeCounts : List Int
         nodeCounts =
@@ -272,6 +307,10 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                         , selectedItem = selectedItem
                         , moveingItem = moveingItem
                         , items = Item.unwrapChildren <| Item.getChildren item
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        , dragStart = dragStart
                         }
                     , Lazy.lazy TextNode.view
                         { settings = settings
@@ -279,11 +318,46 @@ nodesView { settings, property, hierarchy, position, direction, selectedItem, it
                         , position = ( itemX, itemY )
                         , selectedItem = selectedItem
                         , item = item
-                        , onEditSelectedItem = EditSelectedItem
-                        , onEndEditSelectedItem = EndEditSelectedItem
-                        , onSelect = Select
-                        , dragStart = Diagram.dragStart
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        , dragStart = dragStart
                         }
                     ]
                 )
         )
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "MindMap"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 1536 1536"
+                ]
+                [ view
+                    { data =
+                        DiagramData.MindMap
+                            (DiagramType.defaultText DiagramType.MindMap |> Item.fromString |> Tuple.second)
+                            1
+                    , settings = DiagramSettings.default
+                    , selectedItem = Nothing
+                    , property = Property.empty
+                    , moveState = Diagram.NotMove
+                    , diagram =
+                        { size = ( 100, 100 )
+                        , scale = Scale.fromFloat 1.0
+                        , position = ( 0, 0 )
+                        , isFullscreen = False
+                        }
+                    , viewType = MindMap
+                    , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                    , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , dragStart = \_ _ -> SvgAttr.style ""
+                    }
+                ]
+                |> Svg.toUnstyled
+            )

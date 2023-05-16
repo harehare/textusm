@@ -1,27 +1,56 @@
-module Views.Diagram.FreeForm exposing (view)
+module Views.Diagram.FreeForm exposing (docs, view)
 
 import Constants
-import Models.Diagram as Diagram exposing (Model, MoveState, Msg(..))
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
+import Models.Diagram as Diagram exposing (MoveState, SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.FreeForm as FreeForm exposing (FreeFormItem)
-import Models.Item as Item exposing (Item)
+import Models.Diagram.Settings as DiagramSettings
+import Models.Item as Item exposing (Item, Items)
+import Models.Property as Property exposing (Property)
 import Svg.Styled as Svg exposing (Svg)
+import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Canvas as Canvas
 import Views.Diagram.Card as Card
 import Views.Diagram.Line as Line
 import Views.Diagram.Text as TextView
+import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
 
-view : Model -> Svg Msg
-view model =
-    case model.data of
+view :
+    { items : Items
+    , data : DiagramData.Data
+    , settings : DiagramSettings.Settings
+    , selectedItem : SelectedItem
+    , property : Property
+    , moveState : MoveState
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+view { data, settings, items, property, selectedItem, moveState, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
+    case data of
         DiagramData.FreeForm f ->
             Svg.g []
                 [ Svg.g [] <|
                     List.indexedMap
-                        (formView model)
+                        (formView
+                            { items = items
+                            , settings = settings
+                            , selectedItem = selectedItem
+                            , property = property
+                            , moveState = moveState
+                            , onEditSelectedItem = onEditSelectedItem
+                            , onEndEditSelectedItem = onEndEditSelectedItem
+                            , onSelect = onSelect
+                            , dragStart = dragStart
+                            }
+                        )
                         (FreeForm.getItems f)
                 ]
 
@@ -29,22 +58,46 @@ view model =
             Empty.view
 
 
-formView : Model -> Int -> FreeFormItem -> Svg Msg
-formView model i item =
+formView :
+    { items : Items
+    , settings : DiagramSettings.Settings
+    , selectedItem : SelectedItem
+    , property : Property
+    , moveState : MoveState
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Int
+    -> FreeFormItem
+    -> Svg msg
+formView { property, moveState, settings, selectedItem, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } i item =
     case item of
         FreeForm.Card item_ ->
-            cardView model i item_
+            cardView
+                { settings = settings
+                , selectedItem = selectedItem
+                , property = property
+                , moveState = moveState
+                , i = i
+                , item_ = item_
+                , onEditSelectedItem = onEditSelectedItem
+                , onEndEditSelectedItem = onEndEditSelectedItem
+                , onSelect = onSelect
+                , dragStart = dragStart
+                }
 
         FreeForm.HorizontalLine item_ ->
             Line.horizontal
-                { settings = model.settings
+                { settings = settings
                 , position =
-                    ( 16 + modBy 4 i * (model.settings.size.width + 16)
-                    , (i // 4) * (model.settings.size.height + 16)
+                    ( 16 + modBy 4 i * (settings.size.width + 16)
+                    , (i // 4) * (settings.size.height + 16)
                     )
-                , selectedItem = model.selectedItem
+                , selectedItem = selectedItem
                 , item =
-                    model.moveState
+                    moveState
                         |> moveingItem
                         |> Maybe.map
                             (\v ->
@@ -55,18 +108,20 @@ formView model i item =
                                     item_
                             )
                         |> Maybe.withDefault item_
+                , onSelect = onSelect
+                , dragStart = dragStart
                 }
 
         FreeForm.VerticalLine item_ ->
             Line.vertical
-                { settings = model.settings
+                { settings = settings
                 , position =
-                    ( 16 + modBy 4 i * (model.settings.size.width + 16)
-                    , (i // 4) * (model.settings.size.height + 16)
+                    ( 16 + modBy 4 i * (settings.size.width + 16)
+                    , (i // 4) * (settings.size.height + 16)
                     )
-                , selectedItem = model.selectedItem
+                , selectedItem = selectedItem
                 , item =
-                    model.moveState
+                    moveState
                         |> moveingItem
                         |> Maybe.map
                             (\v ->
@@ -77,28 +132,35 @@ formView model i item =
                                     item_
                             )
                         |> Maybe.withDefault item_
+                , onSelect = onSelect
+                , dragStart = dragStart
                 }
 
         FreeForm.Canvas item_ ->
-            Lazy.lazy6 Canvas.view
-                model.settings
-                model.property
-                ( Constants.itemWidth, Constants.itemHeight )
-                ( 0, 0 )
-                model.selectedItem
-                item_
+            Lazy.lazy Canvas.view
+                { settings = settings
+                , property = property
+                , size = ( Constants.itemWidth, Constants.itemHeight )
+                , position = ( 0, 0 )
+                , selectedItem = selectedItem
+                , item = item_
+                , onEditSelectedItem = onEditSelectedItem
+                , onEndEditSelectedItem = onEndEditSelectedItem
+                , onSelect = onSelect
+                , dragStart = dragStart
+                }
 
         FreeForm.Text item_ ->
             TextView.view
-                { settings = model.settings
-                , property = model.property
+                { settings = settings
+                , property = property
                 , position =
-                    ( 16 + modBy 4 i * (model.settings.size.width + 16)
-                    , (i // 4) * (model.settings.size.height + 16)
+                    ( 16 + modBy 4 i * (settings.size.width + 16)
+                    , (i // 4) * (settings.size.height + 16)
                     )
-                , selectedItem = model.selectedItem
+                , selectedItem = selectedItem
                 , item =
-                    model.moveState
+                    moveState
                         |> moveingItem
                         |> Maybe.map
                             (\v ->
@@ -110,6 +172,10 @@ formView model i item =
                             )
                         |> Maybe.withDefault item_
                 , canMove = True
+                , onEditSelectedItem = onEditSelectedItem
+                , onEndEditSelectedItem = onEndEditSelectedItem
+                , onSelect = onSelect
+                , dragStart = dragStart
                 }
 
 
@@ -128,19 +194,31 @@ moveingItem state =
             Nothing
 
 
-cardView : Model -> Int -> Item -> Svg Msg
-cardView model i item_ =
+cardView :
+    { settings : DiagramSettings.Settings
+    , selectedItem : SelectedItem
+    , property : Property
+    , moveState : MoveState
+    , i : Int
+    , item_ : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+cardView { selectedItem, settings, property, moveState, i, item_, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     Svg.g [] <|
         Card.viewWithDefaultColor
-            { settings = model.settings
-            , property = model.property
+            { settings = settings
+            , property = property
             , position =
-                ( 16 + modBy 4 i * (model.settings.size.width + 16)
-                , (i // 4) * (model.settings.size.height + 16)
+                ( 16 + modBy 4 i * (settings.size.width + 16)
+                , (i // 4) * (settings.size.height + 16)
                 )
-            , selectedItem = model.selectedItem
+            , selectedItem = selectedItem
             , item =
-                model.moveState
+                moveState
                     |> moveingItem
                     |> Maybe.map
                         (\v ->
@@ -152,23 +230,23 @@ cardView model i item_ =
                         )
                     |> Maybe.withDefault item_
             , canMove = True
-            , onEditSelectedItem = EditSelectedItem
-            , onEndEditSelectedItem = EndEditSelectedItem
-            , onSelect = Select
-            , dragStart = Diagram.dragStart
+            , onEditSelectedItem = onEditSelectedItem
+            , onEndEditSelectedItem = onEndEditSelectedItem
+            , onSelect = onSelect
+            , dragStart = dragStart
             }
             :: (Item.indexedMap
                     (\i_ childItem ->
                         Card.viewWithDefaultColor
-                            { settings = model.settings
-                            , property = model.property
+                            { settings = settings
+                            , property = property
                             , position =
-                                ( 16 + modBy 4 i * (model.settings.size.width + 16)
-                                , (i + i_ + 1) * (model.settings.size.height + 16)
+                                ( 16 + modBy 4 i * (settings.size.width + 16)
+                                , (i + i_ + 1) * (settings.size.height + 16)
                                 )
-                            , selectedItem = model.selectedItem
+                            , selectedItem = selectedItem
                             , item =
-                                model.moveState
+                                moveState
                                     |> moveingItem
                                     |> Maybe.map
                                         (\v ->
@@ -180,10 +258,10 @@ cardView model i item_ =
                                         )
                                     |> Maybe.withDefault childItem
                             , canMove = True
-                            , onEditSelectedItem = EditSelectedItem
-                            , onEndEditSelectedItem = EndEditSelectedItem
-                            , onSelect = Select
-                            , dragStart = Diagram.dragStart
+                            , onEditSelectedItem = onEditSelectedItem
+                            , onEndEditSelectedItem = onEndEditSelectedItem
+                            , onSelect = onSelect
+                            , dragStart = dragStart
                             }
                     )
                 <|
@@ -192,3 +270,42 @@ cardView model i item_ =
                         |> Item.unwrapChildren
                     )
                )
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "FreeForm"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 1536 1536"
+                ]
+                [ view
+                    { items = Item.empty
+                    , data =
+                        DiagramData.FreeForm <|
+                            FreeForm.from <|
+                                Item.fromList
+                                    [ Item.new
+                                        |> Item.withText "test"
+                                        |> Item.withChildren
+                                            (Item.childrenFromItems <|
+                                                Item.fromList
+                                                    [ Item.new
+                                                        |> Item.withText "test2"
+                                                    ]
+                                            )
+                                    ]
+                    , settings = DiagramSettings.default
+                    , selectedItem = Nothing
+                    , property = Property.empty
+                    , moveState = Diagram.NotMove
+                    , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                    , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , dragStart = \_ _ -> SvgAttr.style ""
+                    }
+                ]
+                |> Svg.toUnstyled
+            )

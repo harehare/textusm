@@ -1,27 +1,52 @@
-module Views.Diagram.Kanban exposing (view)
+module Views.Diagram.Kanban exposing (view, docs)
 
 import Constants
-import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem)
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
+import Models.Diagram exposing (SelectedItem, SelectedItemInfo, dragStart)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType
+import Models.Item as Item exposing (Item)
 import Models.Position exposing (Position)
-import Models.Property exposing (Property)
+import Models.Property as Property exposing (Property)
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Card as Card
+import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
 
-view : Model -> Svg Msg
-view model =
-    case model.data of
+view :
+    { data : DiagramData.Data
+    , settings : DiagramSettings.Settings
+    , selectedItem : SelectedItem
+    , property : Property
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+view { data, settings, property, selectedItem, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
+    case data of
         DiagramData.Kanban k ->
             Svg.g
                 []
-                [ Lazy.lazy4 kanbanView model.settings model.property model.selectedItem k ]
+                [ Lazy.lazy kanbanView
+                    { settings = settings
+                    , property = property
+                    , selectedItem = selectedItem
+                    , kanban = k
+                    , onEditSelectedItem = onEditSelectedItem
+                    , onEndEditSelectedItem = onEndEditSelectedItem
+                    , onSelect = onSelect
+                    , dragStart = dragStart
+                    }
+                ]
 
         _ ->
             Empty.view
@@ -32,8 +57,18 @@ kanbanMargin =
     24
 
 
-kanbanView : DiagramSettings.Settings -> Property -> SelectedItem -> Kanban -> Svg Msg
-kanbanView settings property selectedItem kanban =
+kanbanView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , selectedItem : SelectedItem
+    , kanban : Kanban
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+kanbanView { settings, property, selectedItem, kanban, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         height : Int
         height =
@@ -49,14 +84,44 @@ kanbanView settings property selectedItem kanban =
     Svg.g []
         (List.indexedMap
             (\i list ->
-                listView settings property height ( i * listWidth + Constants.itemMargin, 0 ) selectedItem list
+                listView
+                    { settings = settings
+                    , property = property
+                    , height = height
+                    , position = ( i * listWidth + Constants.itemMargin, 0 )
+                    , selectedItem = selectedItem
+                    , kanban = list
+                    , onEditSelectedItem = onEditSelectedItem
+                    , onEndEditSelectedItem = onEndEditSelectedItem
+                    , onSelect = onSelect
+                    , dragStart = dragStart
+                    }
             )
             lists
         )
 
 
-listView : DiagramSettings.Settings -> Property -> Int -> Position -> SelectedItem -> KanbanList -> Svg Msg
-listView settings property height ( posX, posY ) selectedItem (KanbanList name cards) =
+listView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , height : Int
+    , position : Position
+    , selectedItem : SelectedItem
+    , kanban : KanbanList
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+listView { settings, property, height, position, selectedItem, kanban, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
+    let
+        (KanbanList name cards) =
+            kanban
+
+        ( posX, posY ) =
+            position
+    in
     Svg.g []
         (Svg.text_
             [ SvgAttr.x <| String.fromInt <| posX + 8
@@ -88,11 +153,38 @@ listView settings property height ( posX, posY ) selectedItem (KanbanList name c
                         , property = property
                         , selectedItem = selectedItem
                         , settings = settings
-                        , onEditSelectedItem = EditSelectedItem
-                        , onEndEditSelectedItem = EndEditSelectedItem
-                        , onSelect = Select
-                        , dragStart = Diagram.dragStart
+                        , onEditSelectedItem = onEditSelectedItem
+                        , onEndEditSelectedItem = onEndEditSelectedItem
+                        , onSelect = onSelect
+                        , dragStart = dragStart
                         }
                 )
                 cards
         )
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Kanban"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 1536 1536"
+                ]
+                [ view
+                    { data =
+                        DiagramData.Kanban <|
+                            Kanban.from <|
+                               (DiagramType.defaultText DiagramType.Kanban |> Item.fromString |> Tuple.second)
+                    , settings = DiagramSettings.default
+                    , selectedItem = Nothing
+                    , property = Property.empty
+                    , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                    , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , dragStart = \_ _ -> SvgAttr.style ""
+                    }
+                ]
+                |> Svg.toUnstyled
+            )

@@ -50,7 +50,7 @@ import List
 import List.Extra exposing (getAt, setAt)
 import Maybe
 import Models.Color as Color
-import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem)
+import Models.Diagram as Diagram exposing (DragStatus(..), Model, Msg(..), SelectedItem, dragStart)
 import Models.Diagram.BackgroundImage as BackgroundImage
 import Models.Diagram.BusinessModelCanvas as BusinessModelCanvasModel
 import Models.Diagram.Data as DiagramData
@@ -539,7 +539,7 @@ view model =
 
         mainSvg : Html Msg
         mainSvg =
-            Lazy.lazy (diagramView model.diagramType) model
+            Lazy.lazy2 diagramView model.diagramType model
 
         svgHeight : Int
         svgHeight =
@@ -691,61 +691,227 @@ closeDropDown =
 
 
 diagramView : DiagramType -> Model -> Svg Msg
-diagramView diagramType =
+diagramView diagramType model =
     case diagramType of
         UserStoryMap ->
             UserStoryMap.view
+                { data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , diagram = model.diagram
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         OpportunityCanvas ->
             OpportunityCanvas.view
+                { items = model.items
+                , data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         BusinessModelCanvas ->
             BusinessModelCanvas.view
+                { items = model.items
+                , data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         Fourls ->
             FourLs.view
+                { items = model.items
+                , data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         StartStopContinue ->
             StartStopContinue.view
+                { items = model.items
+                , data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         Kpt ->
             Kpt.view
+                { items = model.items
+                , data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         UserPersona ->
             UserPersona.view
+                { items = model.items
+                , data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         MindMap ->
-            MindMap.view MindMap.MindMap
+            MindMap.view
+                { data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , viewType = MindMap.MindMap
+                , diagram = model.diagram
+                , moveState = model.moveState
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         EmpathyMap ->
             EmpathyMap.view
+                { items = model.items
+                , data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         SiteMap ->
             SiteMap.view
+                { items = model.items
+                , data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , diagram = model.diagram
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         GanttChart ->
             GanttChart.view
+                { data = model.data
+                , settings = model.settings
+                }
 
         ImpactMap ->
-            MindMap.view MindMap.ImpactMap
+            MindMap.view
+                { data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , viewType = MindMap.ImpactMap
+                , diagram = model.diagram
+                , moveState = model.moveState
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         ErDiagram ->
             ER.view
+                { data = model.data
+                , settings = model.settings
+                , moveState = model.moveState
+                , windowSize = model.windowSize
+                , dragStart = dragStart
+                }
 
         Kanban ->
             Kanban.view
+                { data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         Table ->
             Table.view
+                { data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                }
 
         SequenceDiagram ->
             SequenceDiagram.view
+                { data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         Freeform ->
             FreeForm.view
+                { items = model.items
+                , data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , moveState = model.moveState
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                , dragStart = dragStart
+                }
 
         UseCaseDiagram ->
             UseCaseDiagram.view
+                { data = model.data
+                , settings = model.settings
+                , property = model.property
+                , onSelect = Select
+                }
 
 
 highlightDefs : Svg msg

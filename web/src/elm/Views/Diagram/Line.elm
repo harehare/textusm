@@ -2,7 +2,7 @@ module Views.Diagram.Line exposing (horizontal, vertical)
 
 import Events
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem)
+import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item)
 import Models.Item.Settings as ItemSettings
@@ -19,9 +19,11 @@ horizontal :
     , position : Position
     , selectedItem : SelectedItem
     , item : Item
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
     }
-    -> Svg Msg
-horizontal { settings, position, selectedItem, item } =
+    -> Svg msg
+horizontal { settings, position, selectedItem, item, onSelect, dragStart } =
     let
         color : Color
         color =
@@ -40,11 +42,11 @@ horizontal { settings, position, selectedItem, item } =
             else
                 position |> Tuple.mapBoth (\x -> x + offsetX) (\y -> y + offsetY)
 
-        view_ : Svg Msg
+        view_ : Svg msg
         view_ =
             Svg.g
                 [ Events.onClickStopPropagation <|
-                    Select <|
+                    onSelect <|
                         Just { item = item, position = Tuple.mapSecond (\y -> y - settings.size.width + offsetHeight + 72) position, displayAllMenu = False }
                 ]
                 [ Svg.line
@@ -93,7 +95,7 @@ horizontal { settings, position, selectedItem, item } =
                         ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
                 in
                 Svg.g
-                    [ Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
+                    [ dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
                     [ Svg.rect
                         [ SvgAttr.width <| String.fromInt <| Size.getWidth selectedItemSize + 16
                         , SvgAttr.height "16"
@@ -116,8 +118,8 @@ horizontal { settings, position, selectedItem, item } =
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
-                    , Views.resizeCircle item Left ( x_ - 8, y_ ) Diagram.dragStart
-                    , Views.resizeCircle item Right ( x_ + Size.getWidth selectedItemSize + 8, y_ ) Diagram.dragStart
+                    , Views.resizeCircle item Left ( x_ - 8, y_ ) dragStart
+                    , Views.resizeCircle item Right ( x_ + Size.getWidth selectedItemSize + 8, y_ ) dragStart
                     ]
 
             else
@@ -132,9 +134,11 @@ vertical :
     , position : Position
     , selectedItem : SelectedItem
     , item : Item
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
     }
-    -> Svg Msg
-vertical { settings, position, selectedItem, item } =
+    -> Svg msg
+vertical { settings, position, selectedItem, item, onSelect, dragStart } =
     let
         color : Color
         color =
@@ -150,11 +154,11 @@ vertical { settings, position, selectedItem, item } =
         ( posX, posY ) =
             Item.getPosition item position
 
-        view_ : Svg Msg
+        view_ : Svg msg
         view_ =
             Svg.g
                 [ Events.onClickStopPropagation <|
-                    Select <|
+                    onSelect <|
                         Just { item = item, position = position, displayAllMenu = False }
                 ]
                 [ Svg.line
@@ -199,7 +203,7 @@ vertical { settings, position, selectedItem, item } =
                         ( Position.getX selectedItemPosition, Position.getY selectedItemPosition )
                 in
                 Svg.g
-                    [ Diagram.dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
+                    [ dragStart (Diagram.ItemMove <| Diagram.ItemTarget item) False ]
                     [ Svg.rect
                         [ SvgAttr.width "16"
                         , SvgAttr.height <| String.fromInt <| Size.getHeight selectedItemSize + 16
@@ -222,8 +226,8 @@ vertical { settings, position, selectedItem, item } =
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
-                    , Views.resizeCircle item Top ( x_, y_ - 8 ) Diagram.dragStart
-                    , Views.resizeCircle item Bottom ( x_, y_ + Size.getHeight selectedItemSize + 8 ) Diagram.dragStart
+                    , Views.resizeCircle item Top ( x_, y_ - 8 ) dragStart
+                    , Views.resizeCircle item Bottom ( x_, y_ + Size.getHeight selectedItemSize + 8 ) dragStart
                     ]
 
             else

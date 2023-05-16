@@ -1,25 +1,40 @@
-module Views.Diagram.SequenceDiagram exposing (view)
+module Views.Diagram.SequenceDiagram exposing (docs, view)
 
 import Constants
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram as Diagram exposing (Model, Msg(..), SelectedItem)
+import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.SequenceDiagram as SequenceDiagram exposing (Fragment(..), Message(..), MessageType(..), Participant(..), SequenceDiagram(..), SequenceItem(..))
 import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType
+import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
-import Models.Property exposing (Property)
+import Models.Property as Property exposing (Property)
 import Models.Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Lazy as Lazy
 import Views.Diagram.Card as Card
+import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
 
-view : Model -> Svg Msg
-view model =
-    case model.data of
+view :
+    { data : DiagramData.Data
+    , settings : DiagramSettings.Settings
+    , selectedItem : SelectedItem
+    , property : Property
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+view { data, settings, property, selectedItem, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
+    case data of
         DiagramData.SequenceDiagram (SequenceDiagram participants items) ->
             let
                 messageHeight : Int
@@ -33,17 +48,34 @@ view model =
                         (\item y ->
                             y + List.length (SequenceDiagram.sequenceItemMessages item) * Constants.messageMargin
                         )
-                        (model.settings.size.height + Constants.messageMargin)
+                        (settings.size.height + Constants.messageMargin)
                         items
             in
             Svg.g []
-                [ markerView model.settings
-                , Svg.g [] (List.indexedMap (\i item -> participantView model.settings model.property model.selectedItem ( participantX model.settings i, 8 ) item messageHeight) participants)
+                [ markerView settings
+                , Svg.g []
+                    (List.indexedMap
+                        (\i item ->
+                            participantView
+                                { settings = settings
+                                , property = property
+                                , selectedItem = selectedItem
+                                , position = ( participantX settings i, 8 )
+                                , participant = item
+                                , messageHeight = messageHeight
+                                , onEditSelectedItem = onEditSelectedItem
+                                , onEndEditSelectedItem = onEndEditSelectedItem
+                                , onSelect = onSelect
+                                , dragStart = dragStart
+                                }
+                        )
+                        participants
+                    )
                 , Svg.g []
                     (ListEx.zip items messageYList
                         |> List.map
                             (\( item, y ) ->
-                                sequenceItemView model.settings model.property 0 y item
+                                sequenceItemView settings property 0 y item
                             )
                     )
                 ]
@@ -52,7 +84,7 @@ view model =
             Empty.view
 
 
-fragmentAndMessageView : DiagramSettings.Settings -> Property -> Int -> Int -> List Message -> String -> Fragment -> Svg Msg
+fragmentAndMessageView : DiagramSettings.Settings -> Property -> Int -> Int -> List Message -> String -> Fragment -> Svg msg
 fragmentAndMessageView settings property level y messages fragmentText fragment =
     let
         ( ( fromX, fromY ), ( toX, toY ) ) =
@@ -119,7 +151,7 @@ fragmentRect ( itemWidth, itemHeight ) baseY level messages =
     )
 
 
-fragmentRectView : DiagramSettings.Settings -> Position -> Size -> String -> String -> Svg Msg
+fragmentRectView : DiagramSettings.Settings -> Position -> Size -> String -> String -> Svg msg
 fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) backgroundColor label =
     Svg.g []
         [ Svg.rect
@@ -153,7 +185,7 @@ fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) bac
         ]
 
 
-fragmentTextView : DiagramSettings.Settings -> Property -> Position -> String -> Svg Msg
+fragmentTextView : DiagramSettings.Settings -> Property -> Position -> String -> Svg msg
 fragmentTextView settings property ( fromX, fromY ) fragmentText =
     let
         offset : Int
@@ -173,7 +205,7 @@ fragmentTextView settings property ( fromX, fromY ) fragmentText =
         [ Svg.text <| "[" ++ fragmentText ++ "]" ]
 
 
-fragmentView : DiagramSettings.Settings -> Position -> Position -> String -> Fragment -> Svg Msg
+fragmentView : DiagramSettings.Settings -> Position -> Position -> String -> Fragment -> Svg msg
 fragmentView settings ( fromX, fromY ) ( toX, toY ) backgroundColor fragment =
     let
         fragmentHeight : Int
@@ -187,7 +219,7 @@ fragmentView settings ( fromX, fromY ) ( toX, toY ) backgroundColor fragment =
     Lazy.lazy5 fragmentRectView settings ( fromX, fromY ) ( fragmentWidth, fragmentHeight ) backgroundColor (SequenceDiagram.fragmentToString fragment)
 
 
-lineView : DiagramSettings.Settings -> Position -> Position -> Svg Msg
+lineView : DiagramSettings.Settings -> Position -> Position -> Svg msg
 lineView settings ( fromX, fromY ) ( toX, toY ) =
     Svg.line
         [ SvgAttr.x1 <| String.fromInt fromX
@@ -200,7 +232,7 @@ lineView settings ( fromX, fromY ) ( toX, toY ) =
         []
 
 
-markerView : DiagramSettings.Settings -> Svg Msg
+markerView : DiagramSettings.Settings -> Svg msg
 markerView settings =
     Svg.g []
         [ Svg.marker
@@ -279,7 +311,7 @@ markerView settings =
         ]
 
 
-mesageViewList : DiagramSettings.Settings -> Property -> Int -> Int -> List Message -> Svg Msg
+mesageViewList : DiagramSettings.Settings -> Property -> Int -> Int -> List Message -> Svg msg
 mesageViewList settings property level y messages =
     Svg.g []
         (List.indexedMap
@@ -304,7 +336,7 @@ mesageViewList settings property level y messages =
         )
 
 
-messageView : DiagramSettings.Settings -> Property -> Position -> Position -> MessageType -> Svg Msg
+messageView : DiagramSettings.Settings -> Property -> Position -> Position -> MessageType -> Svg msg
 messageView settings property ( fromX, fromY ) ( toX, toY ) messageType =
     let
         ( ( isDot, markerStartId, markerEndId ), ( fromOffset, toOffset ) ) =
@@ -373,46 +405,61 @@ messageX width order =
     width // 2 + (width + Constants.participantMargin) * order + 8
 
 
-participantView : DiagramSettings.Settings -> Property -> SelectedItem -> Position -> Participant -> Int -> Svg Msg
-participantView settings property selectedItem pos (Participant item _) messageHeight =
+participantView :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , selectedItem : SelectedItem
+    , position : Position
+    , participant : Participant
+    , messageHeight : Int
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
+    }
+    -> Svg msg
+participantView { settings, property, selectedItem, position, participant, messageHeight, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         fromY : Int
         fromY =
-            Position.getY pos + settings.size.height
+            Position.getY position + settings.size.height
 
         lineX : Int
         lineX =
-            Position.getX pos + settings.size.width // 2
+            Position.getX position + settings.size.width // 2
 
         toY : Int
         toY =
             fromY + messageHeight + settings.size.height + Constants.messageMargin
+
+        (Participant item _) =
+            participant
     in
     Svg.g []
         [ Lazy.lazy Card.viewWithDefaultColor
             { settings = settings
             , property = property
-            , position = ( Position.getX pos, toY )
+            , position = ( Position.getX position, toY )
             , selectedItem = selectedItem
             , item = item
             , canMove = False
-            , onEditSelectedItem = EditSelectedItem
-            , onEndEditSelectedItem = EndEditSelectedItem
-            , onSelect = Select
-            , dragStart = Diagram.dragStart
+            , onEditSelectedItem = onEditSelectedItem
+            , onEndEditSelectedItem = onEndEditSelectedItem
+            , onSelect = onSelect
+            , dragStart = dragStart
             }
         , Lazy.lazy3 lineView settings ( lineX, fromY ) ( lineX, toY )
         , Lazy.lazy Card.viewWithDefaultColor
             { settings = settings
             , property = property
-            , position = pos
+            , position = position
             , selectedItem = selectedItem
             , item = item
             , canMove = False
-            , onEditSelectedItem = EditSelectedItem
-            , onEndEditSelectedItem = EndEditSelectedItem
-            , onSelect = Select
-            , dragStart = Diagram.dragStart
+            , onEditSelectedItem = onEditSelectedItem
+            , onEndEditSelectedItem = onEndEditSelectedItem
+            , onSelect = onSelect
+            , dragStart = dragStart
             }
         ]
 
@@ -422,7 +469,7 @@ participantX settings order =
     (settings.size.width + Constants.participantMargin) * order + 8
 
 
-selfMessageView : DiagramSettings.Settings -> Property -> Position -> MessageType -> Svg Msg
+selfMessageView : DiagramSettings.Settings -> Property -> Position -> MessageType -> Svg msg
 selfMessageView settings property ( posX, posY ) messageType =
     let
         messagePoints : String
@@ -447,7 +494,7 @@ selfMessageView settings property ( posX, posY ) messageType =
         ]
 
 
-sequenceItemView : DiagramSettings.Settings -> Property -> Int -> Int -> SequenceItem -> Svg Msg
+sequenceItemView : DiagramSettings.Settings -> Property -> Int -> Int -> SequenceItem -> Svg msg
 sequenceItemView settings property level y item =
     case item of
         Fragment (Alt ( ifText, ifMessages ) ( elseText, elseMessages )) ->
@@ -521,7 +568,7 @@ sequenceItemView settings property level y item =
                 messages =
                     List.concatMap (\( _, m ) -> m) parMessages
 
-                textList : List (Svg Msg)
+                textList : List (Svg msg)
                 textList =
                     ListEx.zip messageYList parMessages
                         |> List.map
@@ -566,7 +613,7 @@ sequenceItemView settings property level y item =
             mesageViewList settings property level y messages
 
 
-textView : DiagramSettings.Settings -> Property -> Position -> Size -> String -> Svg Msg
+textView : DiagramSettings.Settings -> Property -> Position -> Size -> String -> Svg msg
 textView settings property ( posX, posY ) ( textWidth, textHeight ) message =
     Svg.text_
         [ SvgAttr.x <| String.fromInt <| posX
@@ -578,3 +625,30 @@ textView settings property ( posX, posY ) ( textWidth, textHeight ) message =
         , SvgAttr.fontSize Constants.fontSize
         ]
         [ Svg.text message ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "SequenceDiagram"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 1536 1536"
+                ]
+                [ view
+                    { data =
+                        DiagramData.SequenceDiagram <|
+                            SequenceDiagram.from <|
+                                (DiagramType.defaultText DiagramType.SequenceDiagram |> Item.fromString |> Tuple.second)
+                    , settings = DiagramSettings.default
+                    , selectedItem = Nothing
+                    , property = Property.empty
+                    , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                    , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , dragStart = \_ _ -> SvgAttr.style ""
+                    }
+                ]
+                |> Svg.toUnstyled
+            )

@@ -257,9 +257,9 @@ dragStart state isPhone =
             )
 
 
-moveingItem : Model -> Maybe Item
-moveingItem model =
-    case model.moveState of
+moveingItem : MoveState -> Maybe Item
+moveingItem moveState =
+    case moveState of
         ItemMove target ->
             case target of
                 ItemTarget item ->

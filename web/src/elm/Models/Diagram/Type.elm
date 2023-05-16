@@ -80,7 +80,16 @@ defaultText diagram =
         UseCaseDiagram ->
             "[Customer]\n    Sign In\n    Buy Products\n(Buy Products)\n    >Browse Products\n    >Checkout\n(Checkout)\n    <Add New Credit Card\n[Staff]\n    Processs Order\n"
 
-        _ ->
+        MindMap ->
+            "USER ACTIVITY\nUSER TASK\nUSER STORY"
+
+        ImpactMap ->
+            "USER ACTIVITY\nUSER TASK\nUSER STORY"
+
+        SiteMap ->
+            "USER ACTIVITY\nUSER TASK\nUSER STORY"
+
+        Freeform ->
             ""
 
 

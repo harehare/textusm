@@ -1,7 +1,7 @@
 module Views.Diagram.Text exposing (view)
 
 import Models.Color as Color
-import Models.Diagram as Diagram exposing (Msg(..), SelectedItem)
+import Models.Diagram  exposing (SelectedItem, SelectedItemInfo)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item)
 import Models.Item.Settings as ItemSettings
@@ -9,6 +9,7 @@ import Models.Position exposing (Position)
 import Models.Property exposing (Property)
 import Svg.Styled exposing (Svg)
 import Views.Diagram.Card as Card
+import Views.Diagram.Views as Views
 
 
 view :
@@ -18,9 +19,13 @@ view :
     , selectedItem : SelectedItem
     , item : Item
     , canMove : Bool
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    , dragStart : Views.DragStart msg
     }
-    -> Svg Msg
-view { settings, property, position, selectedItem, item, canMove } =
+    -> Svg msg
+view { settings, property, position, selectedItem, item, canMove, onEditSelectedItem, onEndEditSelectedItem, onSelect, dragStart } =
     let
         item_ : Item
         item_ =
@@ -32,4 +37,15 @@ view { settings, property, position, selectedItem, item, canMove } =
                         |> Just
                     )
     in
-    Card.viewWithDefaultColor { settings = settings, property = property, position = position, selectedItem = selectedItem, item = item_, canMove = canMove, onEditSelectedItem = EditSelectedItem, onEndEditSelectedItem = EndEditSelectedItem, onSelect = Select, dragStart = Diagram.dragStart }
+    Card.viewWithDefaultColor
+        { settings = settings
+        , property = property
+        , position = position
+        , selectedItem = selectedItem
+        , item = item_
+        , canMove = canMove
+        , onEditSelectedItem = onEditSelectedItem
+        , onEndEditSelectedItem = onEndEditSelectedItem
+        , onSelect = onSelect
+        , dragStart = dragStart
+        }

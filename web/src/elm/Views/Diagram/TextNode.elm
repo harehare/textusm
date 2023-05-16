@@ -23,7 +23,7 @@ import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem, SelectedItemInfo)
+import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
@@ -230,7 +230,17 @@ textNodeInput { settings, pos, size, item, onEditSelectedItem, onEndEditSelected
         ]
 
 
-root : { settings : DiagramSettings.Settings, property : Property, position : Position, selectedItem : SelectedItem, item : Item, onEditSelectedItem : String -> msg, onEndEditSelectedItem : Item -> msg, onSelect : Maybe SelectedItemInfo -> msg } -> Svg msg
+root :
+    { settings : DiagramSettings.Settings
+    , property : Property
+    , position : Position
+    , selectedItem : SelectedItem
+    , item : Item
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    }
+    -> Svg msg
 root { settings, property, position, selectedItem, item, onEditSelectedItem, onEndEditSelectedItem, onSelect } =
     let
         ( posX, posY ) =

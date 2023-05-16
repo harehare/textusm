@@ -1,5 +1,6 @@
-module Views.Diagram.Path exposing (Position, Size, view)
+module Views.Diagram.Path exposing (Position, Size, docs, view)
 
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 
@@ -155,3 +156,17 @@ start ( posX, posY ) =
 topRightcorner : Position -> Path
 topRightcorner ( posX, posY ) =
     "A8,8,0,0,1," ++ String.fromFloat posX ++ "," ++ String.fromFloat posY
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Path"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 1536 1536"
+                ]
+                [ view "#000000" ( ( 0, 0 ), ( 100, 100 ) ) ( ( 100, 100 ), ( 10, 10 ) ) ]
+                |> Svg.toUnstyled
+            )

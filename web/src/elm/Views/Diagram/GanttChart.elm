@@ -1,15 +1,17 @@
-module Views.Diagram.GanttChart exposing (view)
+module Views.Diagram.GanttChart exposing (docs, view)
 
 import Constants
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram exposing (Model, Msg)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.GanttChart as GanttChart exposing (GanttChart(..), Schedule(..), Section(..), Task(..))
 import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType
 import Models.FontSize as FontSize
+import Models.Item as Item
 import Models.Position exposing (Position)
 import Models.Size exposing (Size)
 import Svg.Styled as Svg exposing (Svg)
@@ -22,9 +24,13 @@ import Utils.Date as DateUtils
 import Views.Diagram.Views as Views
 
 
-view : Model -> Svg Msg
-view model =
-    case model.data of
+view :
+    { data : DiagramData.Data
+    , settings : DiagramSettings.Settings
+    }
+    -> Svg msg
+view { data, settings } =
+    case data of
         DiagramData.GanttChart (Just gantt) ->
             let
                 (GanttChart (Schedule scheduleFrom scheduleTo interval) sections) =
@@ -57,8 +63,8 @@ view model =
             in
             Svg.g
                 []
-                (weekView model.settings ( scheduleFrom, scheduleTo )
-                    :: daysView model.settings svgHeight ( scheduleFrom, scheduleTo )
+                (weekView settings ( scheduleFrom, scheduleTo )
+                    :: daysView settings svgHeight ( scheduleFrom, scheduleTo )
                     :: (ListEx.zip nodeCounts sections
                             |> List.concatMap
                                 (\( count, section ) ->
@@ -71,7 +77,7 @@ view model =
                                             section
                                     in
                                     headerSectionView
-                                        model.settings
+                                        settings
                                         ( lineWidth, Constants.ganttItemSize )
                                         ( 0
                                         , posY + Constants.ganttItemSize
@@ -84,7 +90,7 @@ view model =
                                                         case task of
                                                             Just t ->
                                                                 [ sectionView
-                                                                    model.settings
+                                                                    settings
                                                                     ( lineWidth, Constants.ganttItemSize )
                                                                     ( 20
                                                                     , posY + ((i + 2) * Constants.ganttItemSize)
@@ -106,7 +112,7 @@ view model =
             Svg.g [] []
 
 
-daysView : DiagramSettings.Settings -> Int -> ( Posix, Posix ) -> Svg Msg
+daysView : DiagramSettings.Settings -> Int -> ( Posix, Posix ) -> Svg msg
 daysView settings svgHeight ( from, to ) =
     let
         daysNum : Int
@@ -166,7 +172,7 @@ daysView settings svgHeight ( from, to ) =
         )
 
 
-headerItemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
+headerItemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg msg
 headerItemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     let
         interval : Int
@@ -176,7 +182,7 @@ headerItemView settings colour ( posX, posY ) baseFrom text (Schedule from to _)
     headerTaskView settings colour ( posX + interval * Constants.ganttItemSize, posY ) from to text
 
 
-headerSectionView : DiagramSettings.Settings -> Size -> Position -> Posix -> Section -> Svg Msg
+headerSectionView : DiagramSettings.Settings -> Size -> Position -> Posix -> Section -> Svg msg
 headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from section =
     let
         (Section title _) =
@@ -222,7 +228,7 @@ headerSectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from s
         ]
 
 
-headerTaskView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
+headerTaskView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg msg
 headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
     let
         fromPolygon : String
@@ -307,7 +313,7 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
         ]
 
 
-itemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg Msg
+itemView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> String -> Schedule -> Svg msg
 itemView settings colour ( posX, posY ) baseFrom text (Schedule from to _) =
     let
         interval : Int
@@ -322,7 +328,7 @@ sectionMargin =
     Constants.leftMargin + 20
 
 
-sectionView : DiagramSettings.Settings -> Size -> Position -> Posix -> Task -> Svg Msg
+sectionView : DiagramSettings.Settings -> Size -> Position -> Posix -> Task -> Svg msg
 sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task title schedule) =
     Svg.g []
         [ Svg.line
@@ -363,7 +369,7 @@ sectionView settings ( sectionWidth, sectionHeight ) ( posX, posY ) from (Task t
         ]
 
 
-taskView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg Msg
+taskView : DiagramSettings.Settings -> ( String, String ) -> Position -> Posix -> Posix -> String -> Svg msg
 taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
     let
         interval : Int
@@ -406,7 +412,7 @@ taskView settings ( backgroundColor, colour ) ( posX, posY ) from to text =
         ]
 
 
-weekView : DiagramSettings.Settings -> ( Posix, Posix ) -> Svg Msg
+weekView : DiagramSettings.Settings -> ( Posix, Posix ) -> Svg msg
 weekView settings ( from, to ) =
     let
         weekNum : Int
@@ -444,3 +450,24 @@ weekView settings ( from, to ) =
                         ]
                 )
         )
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "GanttChart"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 2048 2048"
+                ]
+                [ view
+                    { data =
+                        DiagramData.GanttChart <|
+                            GanttChart.from
+                                (DiagramType.defaultText DiagramType.GanttChart |> Item.fromString |> Tuple.second)
+                    , settings = DiagramSettings.default
+                    }
+                ]
+                |> Svg.toUnstyled
+            )

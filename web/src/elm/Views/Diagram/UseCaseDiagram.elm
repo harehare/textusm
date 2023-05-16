@@ -1,16 +1,19 @@
-module Views.Diagram.UseCaseDiagram exposing (view)
+module Views.Diagram.UseCaseDiagram exposing (docs, view)
 
 import Css exposing (backgroundColor, color, hex, padding4, px, transparent, zero)
 import Dict exposing (Dict)
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
 import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Lazy as Lazy
 import List.Extra as ListEx
 import Models.Color as Color
-import Models.Diagram exposing (Model, Msg(..))
+import Models.Diagram exposing (SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Settings as DiagramSettings
+import Models.Diagram.Type as DiagramType
 import Models.Diagram.UseCaseDiagram as UseCaseDiagram
     exposing
         ( Actor(..)
@@ -22,7 +25,7 @@ import Models.Diagram.UseCaseDiagram as UseCaseDiagram
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Position as Position exposing (Position)
-import Models.Property exposing (Property)
+import Models.Property as Property exposing (Property)
 import Set exposing (Set)
 import State exposing (Step(..))
 import Svg.Styled as Svg exposing (Svg)
@@ -30,12 +33,18 @@ import Svg.Styled.Attributes as SvgAttr
 import Views.Empty as Empty
 
 
-view : Model -> Svg Msg
-view model =
-    case model.data of
+view :
+    { data : DiagramData.Data
+    , settings : DiagramSettings.Settings
+    , property : Property
+    , onSelect : Maybe SelectedItemInfo -> msg
+    }
+    -> Svg msg
+view { data, settings, property, onSelect } =
+    case data of
         DiagramData.UseCaseDiagram (UseCaseDiagram actors relation) ->
             let
-                actorLine : List (Svg Msg)
+                actorLine : List (Svg msg)
                 actorLine =
                     List.concatMap
                         (\(Actor a ul) ->
@@ -72,7 +81,7 @@ view model =
                                                         (\y -> y + actorBaseSize)
                                                         up
                                             in
-                                            useCaseLineView { settings = model.settings, from = fromPosition, to = toPosition }
+                                            useCaseLineView { settings = settings, from = fromPosition, to = toPosition }
 
                                         _ ->
                                             Svg.g [] []
@@ -82,17 +91,18 @@ view model =
                         actors
 
                 ( actorMargins, actorViews ) =
-                    actorsView model.settings model.property actors
+                    actorsView settings property actors
 
                 ( useCasePositions, useCaseViews ) =
                     useCasesView
-                        { settings = model.settings
+                        { settings = settings
                         , basePosition = ( 0, -50 )
                         , baseHierarchy = 1
                         , relation = relation
                         , useCases = useCases
                         , allUseCaseName = useCases |> List.map (\v -> Item.getText v |> String.trim) |> Set.fromList
-                        , property = model.property
+                        , property = property
+                        , onSelect = onSelect
                         }
 
                 useCases : List Item
@@ -101,7 +111,7 @@ view model =
                         |> ListEx.uniqueBy Item.getText
             in
             Svg.g [] <|
-                arrowView model.settings
+                arrowView settings
                     :: (actorLine ++ actorViews ++ useCaseViews)
 
         _ ->
@@ -148,7 +158,7 @@ actorSize6 =
     actorBaseSize * 6
 
 
-actorView : DiagramSettings.Settings -> Property -> FontSize -> String -> Position -> Svg Msg
+actorView : DiagramSettings.Settings -> Property -> FontSize -> String -> Position -> Svg msg
 actorView settings property fontSize name ( x, y ) =
     Svg.g []
         [ Svg.circle
@@ -233,10 +243,10 @@ actorView settings property fontSize name ( x, y ) =
         ]
 
 
-actorsView : DiagramSettings.Settings -> Property -> List Actor -> ( UseCasePosition, List (Svg Msg) )
+actorsView : DiagramSettings.Settings -> Property -> List Actor -> ( UseCasePosition, List (Svg msg) )
 actorsView settings property actors =
     let
-        a : List ( ( String, ( Int, Int ) ), Svg Msg )
+        a : List ( ( String, ( Int, Int ) ), Svg msg )
         a =
             List.indexedMap
                 (\i (Actor item _) ->
@@ -264,7 +274,7 @@ adjustmentLinePosition position index =
     Tuple.mapBoth (\x -> x - index * 5) (\y -> y + index * 4) position
 
 
-arrowView : DiagramSettings.Settings -> Svg Msg
+arrowView : DiagramSettings.Settings -> Svg msg
 arrowView settings =
     Svg.g []
         [ Svg.marker
@@ -285,7 +295,7 @@ arrowView settings =
         ]
 
 
-relationLineView : { settings : DiagramSettings.Settings, property : Property, from : Position, to : Position, relation : Relation, reverse : Bool } -> Svg Msg
+relationLineView : { settings : DiagramSettings.Settings, property : Property, from : Position, to : Position, relation : Relation, reverse : Bool } -> Svg msg
 relationLineView { settings, property, from, to, relation, reverse } =
     let
         ( centerX, centerY ) =
@@ -368,7 +378,7 @@ relationToString r =
             "include"
 
 
-useCaseLineView : { settings : DiagramSettings.Settings, from : Position, to : Position } -> Svg Msg
+useCaseLineView : { settings : DiagramSettings.Settings, from : Position, to : Position } -> Svg msg
 useCaseLineView { settings, from, to } =
     Svg.line
         [ SvgAttr.x1 <| String.fromInt <| Position.getX from
@@ -397,8 +407,16 @@ useCaseSize =
     40
 
 
-useCaseView : { settings : DiagramSettings.Settings, item : Item, fontSize : FontSize, name : String, position : Position } -> Svg Msg
-useCaseView { settings, item, fontSize, name, position } =
+useCaseView :
+    { settings : DiagramSettings.Settings
+    , item : Item
+    , fontSize : FontSize
+    , name : String
+    , position : Position
+    , onSelect : Maybe SelectedItemInfo -> msg
+    }
+    -> Svg msg
+useCaseView { settings, item, fontSize, name, position, onSelect } =
     Svg.foreignObject
         [ SvgAttr.x <| String.fromInt <| Position.getX position
         , SvgAttr.y <| String.fromInt <| Position.getY position
@@ -407,7 +425,7 @@ useCaseView { settings, item, fontSize, name, position } =
         , SvgAttr.height "1"
         , SvgAttr.style "overflow: visible"
         , Events.onClickStopPropagation <|
-            Select <|
+            onSelect <|
                 Just { item = item, position = ( Position.getX position, Position.getY position + 60 ), displayAllMenu = True }
         ]
         [ Html.div
@@ -434,11 +452,12 @@ useCasesView :
     , useCases : List Item
     , allUseCaseName : Set String
     , property : Property
+    , onSelect : Maybe SelectedItemInfo -> msg
     }
-    -> ( UseCasePosition, List (Svg Msg) )
-useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUseCaseName, property } =
+    -> ( UseCasePosition, List (Svg msg) )
+useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUseCaseName, property, onSelect } =
     let
-        a : List ( ( String, Position ), List (Svg Msg) )
+        a : List ( ( String, Position ), List (Svg msg) )
         a =
             State.tailRec go
                 { nextPosition = basePosition
@@ -453,7 +472,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                 | nextPosition : Position
                 , hierarchy : Int
                 , index : Int
-                , result : List ( ( String, Position ), List (Svg Msg) )
+                , result : List ( ( String, Position ), List (Svg msg) )
                 , restUseCases : List Item
             }
             ->
@@ -461,10 +480,10 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                     { nextPosition : Position
                     , hierarchy : Int
                     , index : Int
-                    , result : List ( ( String, Position ), List (Svg Msg) )
+                    , result : List ( ( String, Position ), List (Svg msg) )
                     , restUseCases : List Item
                     }
-                    (List ( ( String, Position ), List (Svg Msg) ))
+                    (List ( ( String, Position ), List (Svg msg) ))
         go { nextPosition, hierarchy, index, result, restUseCases } =
             case restUseCases of
                 x :: [] ->
@@ -495,7 +514,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                 | hierarchy : Int
                 , nextPosition : Position
                 , index : Int
-                , result : List ( ( String, Position ), List (Svg Msg) )
+                , result : List ( ( String, Position ), List (Svg msg) )
                 , head : Item
                 , tail : f
             }
@@ -504,7 +523,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                     { nextPosition : Position
                     , hierarchy : Int
                     , index : Int
-                    , result : List ( ( String, Position ), List (Svg Msg) )
+                    , result : List ( ( String, Position ), List (Svg msg) )
                     , restUseCases : f
                     }
                     b
@@ -530,7 +549,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                         , nextPosition = nextPosition
                         }
 
-                r : List ( ( String, Position ), List (Svg Msg) )
+                r : List ( ( String, Position ), List (Svg msg) )
                 r =
                     relationUseCases
                         ++ [ ( ( name, position )
@@ -540,6 +559,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                                     , fontSize = FontSize.default
                                     , name = name
                                     , position = position
+                                    , onSelect = onSelect
                                     }
                                ]
                              )
@@ -549,7 +569,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                 relationCount =
                     max (UseCaseDiagram.relationCount head relation) 1
 
-                relationUseCases : List ( ( String, Position ), List (Svg Msg) )
+                relationUseCases : List ( ( String, Position ), List (Svg msg) )
                 relationUseCases =
                     case UseCaseDiagram.getRelations head relation of
                         Just relationItems ->
@@ -564,7 +584,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                                         ri =
                                             UseCaseDiagram.getRelationItem relationItem
 
-                                        subLines : List (Svg Msg)
+                                        subLines : List (Svg msg)
                                         subLines =
                                             List.indexedMap
                                                 (\j v ->
@@ -609,6 +629,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                                                 , useCases = subRelations |> List.map UseCaseDiagram.getRelationItem
                                                 , allUseCaseName = allUseCaseName
                                                 , property = property
+                                                , onSelect = onSelect
                                                 }
 
                                         subRelations : List Relation
@@ -633,6 +654,7 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
                                                 , fontSize = FontSize.default
                                                 , name = relationName
                                                 , position = subPosition
+                                                , onSelect = onSelect
                                                 }
                                            ]
                                     )
@@ -653,3 +675,26 @@ useCasesView { settings, basePosition, baseHierarchy, relation, useCases, allUse
     ( a |> List.map Tuple.first |> Dict.fromList
     , a |> List.concatMap Tuple.second
     )
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "UseCaseDiagram"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 1536 1536"
+                ]
+                [ view
+                    { data =
+                        DiagramData.UseCaseDiagram <|
+                            UseCaseDiagram.from <|
+                                (DiagramType.defaultText DiagramType.UseCaseDiagram |> Item.fromString |> Tuple.second)
+                    , settings = DiagramSettings.default
+                    , property = Property.empty
+                    , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    }
+                ]
+                |> Svg.toUnstyled
+            )

@@ -2,6 +2,7 @@ module Views.Diagram.ContextMenu exposing
     ( Props
     , viewAllMenu
     , viewColorMenuOnly
+    , docs
     )
 
 import Attributes
@@ -35,11 +36,13 @@ import Css
         , zIndex
         , zero
         )
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr exposing (css)
 import Models.Color as Color exposing (Color)
-import Models.Diagram exposing (ContextMenu(..))
+import Models.Diagram as Diagram exposing (ContextMenu(..))
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.FontStyle as FontStyle exposing (FontStyle)
@@ -342,3 +345,31 @@ view width display props =
                     Empty.view
             ]
         ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "ContextMenu"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 1536 1536"
+                ]
+                [ viewAllMenu
+                    { state = Diagram.ColorSelectMenu
+                    , item = Item.new
+                    , settings = DiagramSettings.default
+                    , property = Property.empty
+                    , position = Position.zero
+                    , dropDownIndex = Nothing
+                    , onMenuSelect = \_ -> Actions.logAction "onMenuSelect"
+                    , onColorChanged = \_ -> Actions.logAction "onColorChanged"
+                    , onBackgroundColorChanged = \_ -> Actions.logAction "onBackgroundColorChanged"
+                    , onFontStyleChanged = \_ -> Actions.logAction "onFontStyleChanged"
+                    , onFontSizeChanged = \_ -> Actions.logAction "onFontSizeChanged"
+                    , onToggleDropDownList = \_ -> Actions.logAction "onToggleDropDownList"
+                    }
+                ]
+                |> Svg.toUnstyled
+            )

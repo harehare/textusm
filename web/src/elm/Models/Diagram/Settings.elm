@@ -3,6 +3,7 @@ module Models.Diagram.Settings exposing
     , ColorSettings
     , Settings
     , Size
+    , default
     , fontFamiliy
     , fontStyle
     , getBackgroundColor
@@ -70,6 +71,35 @@ type alias Settings =
 type alias Size =
     { width : Int
     , height : Int
+    }
+
+
+default : Settings
+default =
+    { font = "Nunito Sans"
+    , size = { width = 140, height = 65 }
+    , color =
+        { activity =
+            { color = Color.toString Color.white
+            , backgroundColor = Color.toString Color.background1Defalut
+            }
+        , task =
+            { color = Color.toString Color.white
+            , backgroundColor = Color.toString Color.background2Defalut
+            }
+        , story =
+            { color = Color.toString Color.gray
+            , backgroundColor = Color.toString Color.white
+            }
+        , line = Color.toString Color.lineDefalut
+        , label = Color.toString Color.labelDefalut
+        , text = Just <| Color.toString Color.textDefalut
+        }
+    , backgroundColor =
+        Color.toString Color.backgroundDarkDefalut
+    , zoomControl = Just True
+    , scale = Just 1.0
+    , toolbar = Nothing
     }
 
 

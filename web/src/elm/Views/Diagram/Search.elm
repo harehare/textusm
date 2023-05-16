@@ -1,4 +1,4 @@
-module Views.Diagram.Search exposing (view)
+module Views.Diagram.Search exposing (docs, view)
 
 import Css
     exposing
@@ -19,6 +19,8 @@ import Css
         , top
         , width
         )
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (autofocus, css, placeholder, value)
 import Html.Styled.Events as Events
@@ -69,3 +71,17 @@ view { query, searchMsg, count, closeMsg } =
             [ Html.text <| String.fromInt count
             ]
         ]
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Search"
+        |> Chapter.renderComponent
+            (view
+                { query = "test"
+                , count = 1
+                , searchMsg = \_ -> Actions.logAction "onSearch"
+                , closeMsg = Actions.logAction "onClose"
+                }
+                |> Html.toUnstyled
+            )

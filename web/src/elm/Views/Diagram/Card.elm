@@ -1,14 +1,16 @@
-module Views.Diagram.Card exposing (text, viewWithDefaultColor)
+module Views.Diagram.Card exposing (text, viewWithDefaultColor, docs)
 
 import Attributes
 import Css exposing (backgroundColor, cursor, pointer, property)
+import ElmBook.Actions as Actions
+import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
 import Html.Attributes as Attr
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes exposing (css)
 import Markdown
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem, SelectedItemInfo)
+import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
@@ -291,3 +293,29 @@ markdown settings ( foreColor, backColor ) t =
             , Attr.style "cursor" "pointer"
             ]
             t
+
+
+docs : Chapter x
+docs =
+    Chapter.chapter "Card"
+        |> Chapter.renderComponent
+            (Svg.svg
+                [ SvgAttr.width "100%"
+                , SvgAttr.height "100%"
+                , SvgAttr.viewBox "0 0 1536 1536"
+                ]
+                [ viewWithDefaultColor
+                    { settings = DiagramSettings.default
+                    , property = Property.empty
+                    , position = Position.zero
+                    , selectedItem = Nothing
+                    , item = Item.new |> Item.withText "test"
+                    , canMove = True
+                    , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                    , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
+                    , dragStart = \_ _ -> SvgAttr.style ""
+                    }
+                ]
+                |> Svg.toUnstyled
+            )
