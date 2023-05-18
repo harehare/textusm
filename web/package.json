@@ -15,7 +15,6 @@
     "jspdf": "^2.5.1",
     "monaco-editor": "^0.38.0",
     "svgo": "^3.0.2",
-    "tslib": "^2.5.0",
     "uuid": "^9.0.0",
     "workbox-window": "^6.5.4"
   },
@@ -54,6 +53,7 @@
     "firebase-tools": "^12.0.1",
     "html-inline-css-webpack-plugin": "^1.11.1",
     "html-webpack-plugin": "^5.5.1",
+    "knip": "^2.11.0",
     "mini-css-extract-plugin": "^2.7.5",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "postcss": "^8.4.23",

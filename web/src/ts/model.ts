@@ -11,11 +11,10 @@ export type DiagramItem = {
   updatedAt: number;
 };
 
+type Theme = 'system' | 'dark' | 'light';
+type DiagramLocation = 'gist' | 'local' | 'localfilesystem' | 'remote';
+
 export type Diagram = Omit<DiagramItem, 'createdAt' | 'updatedAt' | 'thumbnail'>;
-
-export type Theme = 'system' | 'dark' | 'light';
-
-export type DiagramLocation = 'gist' | 'local' | 'localfilesystem' | 'remote';
 
 export type DiagramType =
   | 'UserStoryMap'
@@ -83,12 +82,12 @@ export type DiagramSettings = {
   toolbar: boolean;
 };
 
-export type Size = {
+type Size = {
   width: number;
   height: number;
 };
 
-export type ColorSettings = {
+type ColorSettings = {
   activity: Color;
   task: Color;
   story: Color;
@@ -97,7 +96,7 @@ export type ColorSettings = {
   text: string;
 };
 
-export type Color = {
+type Color = {
   color: string;
   backgroundColor: string;
 };

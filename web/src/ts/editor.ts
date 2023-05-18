@@ -69,7 +69,7 @@ const ENABLED_LANG_DIAGRAM_TYPE: { [v in DiagramType]: DiagramType } = {
   Kanban: 'BusinessModelCanvas',
   Table: 'BusinessModelCanvas',
 };
-export class MonacoEditor extends HTMLElement {
+class MonacoEditor extends HTMLElement {
   init: boolean;
   textChanged: boolean;
   editor?: monaco.editor.IStandaloneCodeEditor;

@@ -12,7 +12,7 @@ import {
 } from 'firebase/auth';
 import { getPerformance } from 'firebase/performance';
 
-export type User = {
+type User = {
   id: string;
   displayName: string;
   email: string;
