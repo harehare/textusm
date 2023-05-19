@@ -54,7 +54,7 @@
     "html-inline-css-webpack-plugin": "^1.11.1",
     "html-webpack-plugin": "^5.5.1",
     "knip": "^2.11.0",
-    "mini-css-extract-plugin": "^2.7.5",
+    "mini-css-extract-plugin": "^2.7.6",
     "monaco-editor-webpack-plugin": "^7.0.1",
     "postcss": "^8.4.23",
     "prettier": "^2.8.8",
