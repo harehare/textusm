@@ -60,7 +60,7 @@
     "prettier": "^2.8.8",
     "rimraf": "^5.0.1",
     "size-limit": "^8.0.1",
-    "style-loader": "^3.3.2",
+    "style-loader": "^3.3.3",
     "stylelint": "^15.6.2",
     "stylelint-config-prettier": "^9.0.5",
     "stylelint-config-standard": "^33.0.0",
