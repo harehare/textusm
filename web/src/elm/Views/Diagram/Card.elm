@@ -116,6 +116,7 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
                     , SvgAttr.ry "1"
                     , SvgAttr.style "filter:url(#shadow)"
                     , SvgAttr.class "ts-card"
+                    , SvgAttr.stroke "rgba(0, 0, 0, 0.05)"
                     ]
                     []
                 , text settings

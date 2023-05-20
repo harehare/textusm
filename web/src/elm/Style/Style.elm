@@ -41,6 +41,7 @@ module Style.Style exposing
     , roundedFull
     , roundedNone
     , roundedSm
+    , shadowLg
     , shadowNone
     , shadowSm
     , submit
@@ -422,6 +423,11 @@ shadowNone =
 shadowSm : Css.Style
 shadowSm =
     boxShadow5 (px 0) (px 1) (px 2) (px 0) (rgba 0 0 0 0.05)
+
+
+shadowLg : Css.Style
+shadowLg =
+    boxShadow5 (px 0) (px 10) (px 15) (px -3) (rgba 0 0 0 0.1)
 
 
 submit : Css.Style
