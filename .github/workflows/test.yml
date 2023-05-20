@@ -5,6 +5,11 @@ on:
     branches:
       - release
       - master
+
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   test:
     name: test
@@ -55,6 +60,10 @@ jobs:
       - name: Run Tests
         working-directory: web
         run: npm run test
+      - uses: andresz1/size-limit-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          directory: web/
       - uses: cypress-io/github-action@v5
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
