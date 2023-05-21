@@ -2,7 +2,7 @@ module Views.Diagram.Line exposing (horizontal, vertical)
 
 import Events
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem, SelectedItemInfo)
+import Models.Diagram as Diagram exposing (Msg(..), ResizeDirection(..), SelectedItem, SelectedItemInfo, dragStart)
 import Models.Diagram.Settings as DiagramSettings
 import Models.Item as Item exposing (Item)
 import Models.Item.Settings as ItemSettings
@@ -118,8 +118,8 @@ horizontal { settings, position, selectedItem, item, onSelect, dragStart } =
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
-                    , Views.resizeCircle item Left ( x_ - 8, y_ ) dragStart
-                    , Views.resizeCircle item Right ( x_ + Size.getWidth selectedItemSize + 8, y_ ) dragStart
+                    , Views.resizeCircle { item = item, direction = Left, position = ( x_ - 8, y_ ), dragStart = dragStart }
+                    , Views.resizeCircle { item = item, direction = Right, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ ), dragStart = dragStart }
                     ]
 
             else
@@ -226,8 +226,8 @@ vertical { settings, position, selectedItem, item, onSelect, dragStart } =
                         , SvgAttr.strokeWidth "6"
                         ]
                         []
-                    , Views.resizeCircle item Top ( x_, y_ - 8 ) dragStart
-                    , Views.resizeCircle item Bottom ( x_, y_ + Size.getHeight selectedItemSize + 8 ) dragStart
+                    , Views.resizeCircle { item = item, direction = Top, position = ( x_, y_ - 8 ), dragStart = dragStart }
+                    , Views.resizeCircle { item = item, direction = Bottom, position = ( x_, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
                     ]
 
             else

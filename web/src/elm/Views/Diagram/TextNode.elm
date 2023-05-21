@@ -122,10 +122,10 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                         , SvgAttr.class "ts-node"
                         ]
                         []
-                    , Views.resizeCircle item TopLeft ( x_ - 8, y_ - 8 ) dragStart
-                    , Views.resizeCircle item TopRight ( x_ + width_ + 8, y_ - 8 ) dragStart
-                    , Views.resizeCircle item BottomRight ( x_ + width_ + 8, y_ + height_ + 8 ) dragStart
-                    , Views.resizeCircle item BottomLeft ( x_ - 8, y_ + height_ + 8 ) dragStart
+                    , Views.resizeCircle { item = item, direction = TopLeft, position = ( x_ - 8, y_ - 8 ), dragStart = dragStart }
+                    , Views.resizeCircle { item = item, direction = TopRight, position = ( x_ + width_ + 8, y_ - 8 ), dragStart = dragStart }
+                    , Views.resizeCircle { item = item, direction = BottomRight, position = ( x_ + width_ + 8, y_ + height_ + 8 ), dragStart = dragStart }
+                    , Views.resizeCircle { item = item, direction = BottomLeft, position = ( x_ - 8, y_ + height_ + 8 ), dragStart = dragStart }
                     , textNodeInput { settings = settings, pos = ( x_, y_ ), size = ( width_, height_ ), item = item_, onEditSelectedItem = onEditSelectedItem, onEndEditSelectedItem = onEndEditSelectedItem, onSelect = onSelect }
                     ]
 

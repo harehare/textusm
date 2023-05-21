@@ -86,16 +86,35 @@ getItemColor settings property item =
             )
 
 
-resizeCircle : Item -> ResizeDirection -> Position -> DragStart msg -> Svg msg
-resizeCircle item direction ( x, y ) dragStart =
-    resizeCircleBase 5 item direction ( x, y ) dragStart
+resizeCircle :
+    { item : Item
+    , direction : ResizeDirection
+    , position : Position
+    , dragStart : DragStart msg
+    }
+    -> Svg msg
+resizeCircle { item, direction, position, dragStart } =
+    resizeCircleBase
+        { size = 5
+        , item = item
+        , direction = direction
+        , position = position
+        , dragStart = dragStart
+        }
 
 
-resizeCircleBase : Int -> Item -> ResizeDirection -> Position -> DragStart msg -> Svg msg
-resizeCircleBase size item direction ( x, y ) dragStart =
+resizeCircleBase :
+    { size : Int
+    , item : Item
+    , direction : ResizeDirection
+    , position : Position
+    , dragStart : DragStart msg
+    }
+    -> Svg msg
+resizeCircleBase { size, item, direction, position, dragStart } =
     Svg.circle
-        [ SvgAttr.cx <| String.fromInt x
-        , SvgAttr.cy <| String.fromInt y
+        [ SvgAttr.cx <| String.fromInt <| Position.getX position
+        , SvgAttr.cy <| String.fromInt <| Position.getY position
         , SvgAttr.r <| String.fromInt size
         , SvgAttr.style <|
             case direction of

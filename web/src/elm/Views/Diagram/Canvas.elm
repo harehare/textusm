@@ -350,7 +350,7 @@ getCanvasColor settings property item =
 
 resizeCircle : { item : Item, direction : ResizeDirection, position : Position, dragStart : Views.DragStart msg } -> Svg msg
 resizeCircle { item, direction, position, dragStart } =
-    Views.resizeCircleBase 8 item direction position dragStart
+    Views.resizeCircleBase { size = 8, item = item, direction = direction, position = position, dragStart = dragStart }
 
 
 text :

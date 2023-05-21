@@ -119,12 +119,14 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
                     , SvgAttr.stroke "rgba(0, 0, 0, 0.05)"
                     ]
                     []
-                , text settings
-                    ( posX, posY )
-                    ( width, height )
-                    foreColor
-                    (Item.getFontSizeWithProperty item property)
-                    item
+                , text
+                    { settings = settings
+                    , position = ( posX, posY )
+                    , size = ( width, height )
+                    , color = foreColor
+                    , fontSize = Item.getFontSizeWithProperty item property
+                    , item = item
+                    }
                 ]
     in
     case selectedItem of
@@ -186,10 +188,10 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
                         , SvgAttr.style "filter:url(#shadow)"
                         ]
                         []
-                    , Views.resizeCircle item TopLeft ( x_ - 8, y_ - 8 ) dragStart
-                    , Views.resizeCircle item TopRight ( x_ + Size.getWidth selectedItemSize + 8, y_ - 8 ) dragStart
-                    , Views.resizeCircle item BottomRight ( x_ + Size.getWidth selectedItemSize + 8, y_ + Size.getHeight selectedItemSize + 8 ) dragStart
-                    , Views.resizeCircle item BottomLeft ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 ) dragStart
+                    , Views.resizeCircle { item = item, direction = TopLeft, position = ( x_ - 8, y_ - 8 ), dragStart = dragStart }
+                    , Views.resizeCircle { item = item, direction = TopRight, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ - 8 ), dragStart = dragStart }
+                    , Views.resizeCircle { item = item, direction = BottomRight, position = ( x_ + Size.getWidth selectedItemSize + 8, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
+                    , Views.resizeCircle { item = item, direction = BottomLeft, position = ( x_ - 8, y_ + Size.getHeight selectedItemSize + 8 ), dragStart = dragStart }
                     , Views.inputView
                         { settings = settings
                         , fontSize = Item.getFontSizeWithProperty item property
@@ -210,49 +212,57 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
             view_
 
 
-text : DiagramSettings.Settings -> Position -> Size -> Color -> FontSize -> Item -> Svg msg
-text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
-    if Item.isMarkdown item then
+text :
+    { settings : DiagramSettings.Settings
+    , position : Position
+    , size : Size
+    , color : Color
+    , fontSize : FontSize
+    , item : Item
+    }
+    -> Svg msg
+text props =
+    if Item.isMarkdown props.item then
         Svg.foreignObject
-            [ SvgAttr.x <| String.fromInt posX
-            , SvgAttr.y <| String.fromInt posY
-            , SvgAttr.width <| String.fromInt svgWidth
-            , SvgAttr.height <| String.fromInt svgHeight
-            , SvgAttr.fill <| Color.toString colour
-            , SvgAttr.color <| Color.toString colour
-            , FontSize.svgStyledFontSize fs
+            [ SvgAttr.x <| String.fromInt <| Position.getX props.position
+            , SvgAttr.y <| String.fromInt <| Position.getY props.position
+            , SvgAttr.width <| String.fromInt <| Size.getWidth props.size
+            , SvgAttr.height <| String.fromInt <| Size.getHeight props.size
+            , SvgAttr.fill <| Color.toString <| props.color
+            , SvgAttr.color <| Color.toString <| props.color
+            , FontSize.svgStyledFontSize <| props.fontSize
             , SvgAttr.class "ts-text"
             , SvgAttr.cursor "pointer"
             ]
-            [ markdown settings
-                ( colour
-                , if Item.isHighlight item then
+            [ markdown props.settings
+                ( props.color
+                , if Item.isHighlight props.item then
                     Color.yellow
 
                   else
                     Color.transparent
                 )
-                (Item.getText item)
+                (Item.getText props.item)
             ]
 
-    else if Item.isImage item then
-        Views.image ( svgWidth, svgHeight ) ( posX, posY ) item
+    else if Item.isImage props.item then
+        Views.image props.size props.position props.item
 
-    else if String.length (Item.getText item) > 13 then
+    else if String.length (Item.getText props.item) > 13 then
         Svg.foreignObject
-            [ SvgAttr.x <| String.fromInt posX
-            , SvgAttr.y <| String.fromInt posY
-            , SvgAttr.width <| String.fromInt svgWidth
-            , SvgAttr.height <| String.fromInt svgHeight
-            , SvgAttr.fill <| Color.toString colour
-            , SvgAttr.color <| Color.toString colour
-            , FontSize.svgStyledFontSize fs
+            [ SvgAttr.x <| String.fromInt <| Position.getX props.position
+            , SvgAttr.y <| String.fromInt <| Position.getY props.position
+            , SvgAttr.width <| String.fromInt <| Size.getWidth props.size
+            , SvgAttr.height <| String.fromInt <| Size.getHeight props.size
+            , SvgAttr.fill <| Color.toString <| props.color
+            , SvgAttr.color <| Color.toString <| props.color
+            , FontSize.svgStyledFontSize <| props.fontSize
             , SvgAttr.class "ts-text"
             ]
             [ Html.div
                 [ css
                     [ Style.paddingSm
-                    , DiagramSettings.fontFamiliy settings
+                    , DiagramSettings.fontFamiliy props.settings
                     , property "word-wrap" "break-word"
                     , cursor pointer
                     ]
@@ -260,26 +270,26 @@ text settings ( posX, posY ) ( svgWidth, svgHeight ) colour fs item =
                 [ Html.span
                     [ css
                         [ backgroundColor <|
-                            if Item.isHighlight item then
+                            if Item.isHighlight props.item then
                                 Css.hex <| Color.toString Color.yellow
 
                             else
                                 Css.hex <| Color.toString Color.transparent
                         ]
                     ]
-                    [ Html.text <| Item.getText item ]
+                    [ Html.text <| Item.getText props.item ]
                 ]
             ]
 
     else
         Views.plainText
-            { settings = settings
-            , position = ( posX, posY )
-            , size = ( svgWidth, svgHeight )
-            , foreColor = colour
-            , fontSize = fs
-            , text = Item.getText item
-            , isHighlight = Item.isHighlight item
+            { settings = props.settings
+            , position = props.position
+            , size = props.size
+            , foreColor = props.color
+            , fontSize = props.fontSize
+            , text = Item.getText <| props.item
+            , isHighlight = Item.isHighlight props.item
             }
 
 

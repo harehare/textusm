@@ -37,7 +37,15 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
 
         view_ : Svg msg
         view_ =
-            Svg.g [ Events.onClickStopPropagation <| onSelect <| Just { item = item, position = ( posX, posY + settings.size.height ), displayAllMenu = True } ]
+            Svg.g
+                [ Events.onClickStopPropagation <|
+                    onSelect <|
+                        Just
+                            { item = item
+                            , position = ( posX, posY + settings.size.height )
+                            , displayAllMenu = True
+                            }
+                ]
                 [ Svg.rect
                     [ SvgAttr.width <| String.fromInt settings.size.width
                     , SvgAttr.height <| String.fromInt <| settings.size.height - 1
@@ -48,12 +56,14 @@ view { settings, property, position, selectedItem, item, onEditSelectedItem, onE
                     , SvgAttr.strokeWidth "1"
                     ]
                     []
-                , Card.text settings
-                    ( posX, posY )
-                    ( settings.size.width, settings.size.height )
-                    forgroundColor
-                    (Item.getFontSize item |> Maybe.withDefault FontSize.default)
-                    item
+                , Card.text
+                    { settings = settings
+                    , position = ( posX, posY )
+                    , size = ( settings.size.width, settings.size.height )
+                    , color = forgroundColor
+                    , fontSize = Item.getFontSize item |> Maybe.withDefault FontSize.default
+                    , item = item
+                    }
                 ]
     in
     case selectedItem of
