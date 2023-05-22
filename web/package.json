@@ -22,7 +22,7 @@
     "@babel/core": "^7.21.8",
     "@babel/preset-env": "^7.21.5",
     "@dillonkearns/elm-graphql": "^4.3.1",
-    "@sentry/webpack-plugin": "^1.20.1",
+    "@sentry/webpack-plugin": "^2.0.0",
     "@size-limit/file": "^8.2.4",
     "@total-typescript/ts-reset": "^0.4.2",
     "@trivago/prettier-plugin-sort-imports": "^4.1.1",
