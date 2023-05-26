@@ -19,7 +19,7 @@
     "workbox-window": "^6.6.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.21.8",
+    "@babel/core": "^7.22.1",
     "@babel/preset-env": "^7.22.2",
     "@dillonkearns/elm-graphql": "^4.3.1",
     "@sentry/webpack-plugin": "^2.2.0",
