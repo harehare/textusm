@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.21.8",
-    "@babel/preset-env": "^7.21.5",
+    "@babel/preset-env": "^7.22.2",
     "@dillonkearns/elm-graphql": "^4.3.1",
     "@sentry/webpack-plugin": "^2.2.0",
     "@size-limit/file": "^8.2.4",
