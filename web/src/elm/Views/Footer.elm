@@ -9,6 +9,7 @@ import Css
         , flexEnd
         , height
         , justifyContent
+        , marginTop
         , padding
         , pointer
         , position
@@ -21,8 +22,12 @@ import Env
 import Events
 import Html.Styled as Html exposing (Html)
 import Html.Styled.Attributes as Attr
+import Html.Styled.Lazy as Lazy
 import Models.Color as Color
+import Models.Diagram.Item as DiagramItem exposing (DiagramItem)
+import Models.Diagram.Location as DiagramLocation exposing (Location)
 import Models.Diagram.Type as DiagramType exposing (DiagramType)
+import Models.Session as Session exposing (Session)
 import Style.Color as ColorStyle
 import Style.Font as Font
 import Style.Style as Style
@@ -32,6 +37,8 @@ import Views.Icon as Icon
 
 type alias Props msg =
     { diagramType : DiagramType
+    , currentDiagram : DiagramItem
+    , session : Session
     , onChangeDiagramType : DiagramType -> msg
     }
 
@@ -52,7 +59,8 @@ view props =
             ]
         ]
         [ diagramTypeSelect props
-        , Html.div [ Attr.css [ padding <| rem 0.5, cursor pointer ] ]
+        , Lazy.lazy2 viewLocationButton props.session props.currentDiagram.location
+        , Html.div [ Attr.css [ padding <| rem 1, marginTop <| rem 0.5, cursor pointer ] ]
             [ Html.a
                 [ Attr.href Env.repoUrl
                 , Attr.target "_blank"
@@ -120,6 +128,28 @@ diagramTypeSelect props =
         )
 
 
+viewLocationButton : Session -> Maybe Location -> Html msg
+viewLocationButton session location =
+    case ( session, location ) of
+        ( Session.SignedIn _, Just DiagramLocation.Remote ) ->
+            Html.div
+                [ Attr.css [ Style.button ] ]
+                [ Icon.cloudOn Color.iconColor 16
+                ]
+
+        ( Session.SignedIn _, Just DiagramLocation.Gist ) ->
+            Html.div
+                [ Attr.css [ Style.button ] ]
+                [ Icon.github Color.iconColor 16
+                ]
+
+        _ ->
+            Html.div
+                [ Attr.css [ Style.button ] ]
+                [ Icon.cloudOff Color.iconColor 16
+                ]
+
+
 docs : Chapter x
 docs =
     Chapter.chapter "Footer"
@@ -128,6 +158,8 @@ docs =
               , view
                     { diagramType = DiagramType.UserStoryMap
                     , onChangeDiagramType = \_ -> Actions.logAction "onChangeDiagramType"
+                    , currentDiagram = DiagramItem.empty
+                    , session = Session.Guest
                     }
                     |> Html.toUnstyled
               )

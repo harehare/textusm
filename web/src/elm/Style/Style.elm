@@ -17,6 +17,7 @@ module Style.Style exposing
     , heightAuto
     , heightFull
     , heightScreen
+    , hoverAnimation
     , inputLight
     , label
     , m0
@@ -115,6 +116,7 @@ import Css
         , zero
         )
 import Css.Global exposing (class, descendants)
+import Css.Transitions exposing (easeInOut, transform3, transformOrigin, transition)
 import Style.Color as Color
 import Style.Font as Font
 import Style.Text as Text
@@ -462,3 +464,18 @@ widthFull =
 widthScreen : Css.Style
 widthScreen =
     width <| vw 100
+
+
+hoverAnimation : Css.Style
+hoverAnimation =
+    Css.batch
+        [ Css.transformBox Css.fillBox
+        , Css.hover
+            [ Css.transform (Css.scale 1.1)
+            , Css.cursor Css.pointer
+            ]
+        , transition
+            [ transform3 100 0 easeInOut
+            , transformOrigin 50.0
+            ]
+        ]

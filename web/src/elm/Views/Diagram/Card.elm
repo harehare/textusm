@@ -2,6 +2,7 @@ module Views.Diagram.Card exposing (docs, text, viewWithDefaultColor)
 
 import Attributes
 import Css exposing (backgroundColor, cursor, pointer, property)
+import Css.Transitions exposing (easeInOut, transition)
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
@@ -117,7 +118,7 @@ view { settings, property, position, selectedItem, item, canMove, defaultForeCol
                     , SvgAttr.style "filter:url(#shadow)"
                     , SvgAttr.class "ts-card"
                     , SvgAttr.stroke "rgba(0, 0, 0, 0.05)"
-                    ]
+                    , css [ Css.hover [ Css.cursor Css.pointer ] ] ]
                     []
                 , text
                     { settings = settings

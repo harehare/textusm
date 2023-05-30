@@ -1601,7 +1601,12 @@ view model =
 
             _ ->
                 Empty.view
-         , Footer.view { diagramType = model.currentDiagram.diagram, onChangeDiagramType = M.ChangeDiagramType }
+         , Lazy.lazy Footer.view
+            { diagramType = model.currentDiagram.diagram
+            , currentDiagram = model.currentDiagram
+            , session = model.session
+            , onChangeDiagramType = M.ChangeDiagramType
+            }
          ]
             ++ ([ showProgress model.progress
                 , showDialog model.confirmDialog

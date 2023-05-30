@@ -36,6 +36,7 @@ import Css
         , zIndex
         , zero
         )
+import Css.Transitions exposing (easeInOut, transition)
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
@@ -114,6 +115,7 @@ colorCircle color msg =
             , border3 (px 1) solid (rgba 0 0 0 0.1)
             , cursor pointer
             , margin <| px 2
+            , Style.hoverAnimation
             ]
         , Attr.class <| String.toLower <| Color.name color
         , Events.onMouseDown <| \_ -> msg

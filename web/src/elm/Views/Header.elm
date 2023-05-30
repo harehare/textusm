@@ -46,7 +46,7 @@ import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events as E
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attr
+import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events as Events
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
@@ -227,8 +227,7 @@ view props =
                         ]
 
                     _ ->
-                        [ Lazy.lazy3 viewLocationButton props.lang props.session props.currentDiagram.location
-                        , Lazy.lazy4 viewChangePublicStateButton props.onChangePublicStatus props.lang props.currentDiagram.isPublic (canChangePublicState props)
+                        [ Lazy.lazy4 viewChangePublicStateButton props.onChangePublicStatus props.lang props.currentDiagram.isPublic (canChangePublicState props)
                         , Lazy.lazy viewHelpButton props.lang
                         , Lazy.lazy2 viewShareButton props.lang <| canShare props
                         , Lazy.lazy2 viewSettingsButton props.lang props.currentDiagram.diagram
@@ -300,6 +299,7 @@ viewHelpButton lang =
         , Attr.css [ displayFlex ]
         , Attr.href <| Route.toString Route.Help
         , Attributes.dataTest "header-help"
+        , css [ Style.hoverAnimation ]
         ]
         [ Html.div [ Attr.css [ Style.button ] ]
             [ Icon.helpOutline 16
@@ -317,6 +317,7 @@ viewSettingsButton lang diagramType =
             Route.toString (Route.Settings diagramType)
         , Attr.attribute "aria-label" "Settings"
         , Attributes.dataTest "header-help"
+        , css [ Style.hoverAnimation ]
         ]
         [ Html.div [ Attr.css [ Style.button ] ]
             [ Icon.settings Color.iconColor 16
@@ -325,29 +326,6 @@ viewSettingsButton lang diagramType =
         ]
 
 
-viewLocationButton : Lang -> Session -> Maybe Location -> Html msg
-viewLocationButton lang session location =
-    case ( session, location ) of
-        ( Session.SignedIn _, Just DiagramLocation.Remote ) ->
-            Html.div
-                [ Attr.css [ Style.button ] ]
-                [ Icon.cloudOn Color.iconColor 14
-                , Tooltip.view <| Message.toolTipRemote lang
-                ]
-
-        ( Session.SignedIn _, Just DiagramLocation.Gist ) ->
-            Html.div
-                [ Attr.css [ Style.button ] ]
-                [ Icon.github Color.iconColor 14
-                , Tooltip.view Message.toolTipGist
-                ]
-
-        _ ->
-            Html.div
-                [ Attr.css [ Style.button ] ]
-                [ Icon.cloudOff Color.iconColor 14
-                , Tooltip.view <| Message.toolTipLocal lang
-                ]
 
 
 viewShareButton : Lang -> Bool -> Html msg
@@ -358,6 +336,7 @@ viewShareButton lang canShare_ =
             , Attr.href <| Route.toString Route.Share
             , Attr.attribute "aria-label" "Share"
             , Attributes.dataTest "header-share"
+            , css [ Style.hoverAnimation ]
             ]
             [ Html.div [ Attr.css [ Style.button ] ]
                 [ Icon.people Color.iconColor 20
@@ -395,6 +374,7 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
                 ]
             , Events.stopPropagationOn "click" (D.succeed ( onOpenMenu HeaderMenu, True ))
             , Attributes.dataTest "header-signin"
+            , css [ Style.hoverAnimation ]
             ]
             [ Html.div
                 [ Attr.css [ Text.sm, marginRight <| px 4 ]
@@ -471,6 +451,7 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
                 _ ->
                     Events.stopPropagationOn "click" (D.succeed ( onOpenMenu LoginMenu, True ))
             , Attributes.dataTest "header-signin"
+            , css [ Style.hoverAnimation ]
             ]
             [ Html.div [ Attr.css [ Text.base, Font.fontBold ] ]
                 [ Html.text "SIGN IN" ]

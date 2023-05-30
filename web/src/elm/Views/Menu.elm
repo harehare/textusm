@@ -51,7 +51,7 @@ import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes as Attr
+import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onClick, stopPropagationOn)
 import Html.Styled.Lazy as Lazy
 import Json.Decode as D
@@ -133,6 +133,7 @@ newMenu lang =
         , Attr.href <| Route.toString <| Route.New
         , Attr.attribute "aria-label" "New"
         , Attributes.dataTest "new-menu"
+        , css [ Style.hoverAnimation ]
         ]
         [ Html.div
             [ Attr.css
@@ -286,26 +287,29 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                         [ Events.onClickPreventDefaultOn onOpenLocalFile
                         , Attr.attribute "aria-label" "List"
                         , Attributes.dataTest "list-menu"
+                        , css [ Style.hoverAnimation ]
                         ]
                         [ Icon.folderOpen (Color.toString Color.iconColor) 18
                         , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile lang ] ]
                         ]
 
                 _ ->
-                    Html.a
-                        [ Attr.href <| Route.toString Route.DiagramList
-                        , Attr.attribute "aria-label" "List"
-                        , Attributes.dataTest "list-menu"
-                        ]
-                        [ Icon.folderOpen
-                            (if page == Page.List then
-                                Color.toString Color.disabledIconColor
+                    Html.div [ css [ Style.hoverAnimation ] ]
+                        [ Html.a
+                            [ Attr.href <| Route.toString Route.DiagramList
+                            , Attr.attribute "aria-label" "List"
+                            , Attributes.dataTest "list-menu"
+                            ]
+                            [ Icon.folderOpen
+                                (if page == Page.List then
+                                    Color.toString Color.disabledIconColor
 
-                             else
-                                Color.toString Color.iconColor
-                            )
-                            18
-                        , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile lang ] ]
+                                 else
+                                    Color.toString Color.iconColor
+                                )
+                                18
+                            , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipOpenFile lang ] ]
+                            ]
                         ]
             ]
         , if Text.isChanged text then
@@ -318,6 +322,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                         onClick onSave
                 , Attr.css [ menuButtonStyle ]
                 , Attributes.dataTest "save-menu"
+                , css [ Style.hoverAnimation ]
                 ]
                 [ Icon.save (Color.toString Color.iconColor) 22
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipSave lang ] ]
@@ -339,6 +344,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                 Attr.style "" ""
             , Attr.css [ menuButtonStyle ]
             , Attributes.dataTest "download-menu"
+            , css [ Style.hoverAnimation ]
             ]
             [ Icon.download
                 (if isEditFile route then
@@ -354,6 +360,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
             Html.div
                 [ Attr.css [ menuButtonStyle ]
                 , Attributes.dataTest "copy-menu"
+                , css [ Style.hoverAnimation ]
                 ]
                 [ Icon.copy Color.disabledIconColor 19
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy lang ] ]
@@ -364,6 +371,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                 [ Attr.css [ menuButtonStyle ]
                 , Events.onClickStopPropagation onCopy
                 , Attributes.dataTest "copy-menu"
+                , css [ Style.hoverAnimation ]
                 ]
                 [ Icon.copy Color.iconColor 19
                 , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy lang ] ]
