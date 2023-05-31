@@ -19,7 +19,7 @@ import Svg.Styled.Attributes as SvgAttr
 import Svg.Styled.Keyed as Keyed
 import Time exposing (Posix)
 import Time.Extra as TimeEx exposing (Interval(..))
-import Tuple exposing (first, second)
+import Tuple
 import Utils.Date as DateUtils
 import Views.Diagram.Views as Views
 
@@ -246,7 +246,7 @@ headerTaskView settings ( backgroundColor, colour ) ( posX, posY ) from to text 
         polygonToString : List ( Int, Int ) -> String
         polygonToString pol =
             pol
-                |> List.map (\i -> String.fromInt (first i) ++ "," ++ String.fromInt (second i))
+                |> List.map (\i -> String.fromInt (Tuple.first i) ++ "," ++ String.fromInt (Tuple.second i))
                 |> String.join " "
 
         startFromY : Int

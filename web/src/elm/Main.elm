@@ -15,7 +15,7 @@ import Browser.Events
         )
 import Browser.Navigation as Nav
 import Components.Diagram as Diagram
-import Css exposing (backgroundColor, calc, displayFlex, height, hex, hidden, minus, overflow, position, px, relative, vh, width)
+import Css exposing (backgroundColor, calc, displayFlex, height, hidden, minus, overflow, position, px, relative, vh, width)
 import Dialog.Confirm as ConfirmDialog
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
@@ -1472,7 +1472,7 @@ mainView model =
                                 ]
 
                         else
-                            Html.div [ Attr.css [ Style.full, backgroundColor <| hex model.settingsModel.settings.storyMap.backgroundColor ] ]
+                            Html.div [ Attr.css [ Style.full, backgroundColor <| Css.hex model.settingsModel.settings.storyMap.backgroundColor ] ]
                                 [ Lazy.lazy Diagram.view model.diagramModel
                                     |> Html.map M.UpdateDiagram
                                 ]

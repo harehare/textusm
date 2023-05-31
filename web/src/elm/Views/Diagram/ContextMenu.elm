@@ -36,7 +36,6 @@ import Css
         , zIndex
         , zero
         )
-import Css.Transitions exposing (easeInOut, transition)
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Events

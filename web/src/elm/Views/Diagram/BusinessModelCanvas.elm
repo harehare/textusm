@@ -7,7 +7,7 @@ import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Diagram.BusinessModelCanvas as BusinessModelCanvas exposing (BusinessModelCanvasItem(..))
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Settings as DiagramSettings
-import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
+import Models.Diagram.Type as DiagramType
 import Models.Item as Item exposing (Item, Items)
 import Models.Property as Property exposing (Property)
 import Svg.Styled as Svg exposing (Svg)

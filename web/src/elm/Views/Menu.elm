@@ -63,7 +63,7 @@ import Models.Diagram.Location as DiagramLocation
 import Models.Diagram.Type exposing (DiagramType(..))
 import Models.Exporter as Exporter
 import Models.FileType as FileType
-import Models.Model exposing (BrowserStatus, Menu(..), Msg(..))
+import Models.Model exposing (BrowserStatus, Menu(..))
 import Models.Page as Page
 import Models.Text as Text exposing (Text)
 import Models.Theme as Theme
@@ -136,7 +136,7 @@ newMenu lang =
         , css [ Style.hoverAnimation ]
         ]
         [ Html.div
-            [ Attr.css
+            [ css
                 [ Style.mlXs
                 , menuButtonStyle
                 ]
@@ -168,11 +168,7 @@ editMenu { diagramItem, lang, route, onOpenCurrentFile } =
                         , Attr.attribute "aria-label" "Edit"
                         , Attributes.dataTest "edit-menu"
                         ]
-                        [ Html.div
-                            [ Attr.css
-                                [ menuButtonStyle
-                                ]
-                            ]
+                        [ Html.div [ css [ menuButtonStyle ] ]
                             [ Icon.edit Color.iconColor 20
                             , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipEditFile lang ] ]
                             ]
@@ -185,7 +181,7 @@ editMenu { diagramItem, lang, route, onOpenCurrentFile } =
 menu : { bottom : Maybe Int, left : Maybe Int, right : Maybe Int, top : Maybe Int } -> List (MenuItem msg) -> Html msg
 menu pos items =
     Html.div
-        [ Attr.css
+        [ css
             [ Maybe.map (\p -> Css.batch [ top <| px <| toFloat <| p ]) pos.top |> Maybe.withDefault (Css.batch [])
             , Maybe.map (\p -> Css.batch [ left <| px <| toFloat <| p ]) pos.left |> Maybe.withDefault (Css.batch [])
             , Maybe.map (\p -> Css.batch [ right <| px <| toFloat <| p ]) pos.right |> Maybe.withDefault (Css.batch [])
@@ -206,7 +202,7 @@ menu pos items =
             |> List.map
                 (\(MenuItem menuItem) ->
                     Html.div
-                        [ Attr.css
+                        [ css
                             [ TextStyle.base
                             , ColorStyle.textColor
                             , cursor pointer
@@ -230,7 +226,7 @@ menu pos items =
                             |> Attributes.dataTest
                         ]
                         [ Html.div
-                            [ Attr.css
+                            [ css
                                 [ Breakpoint.style
                                     [ cursor pointer
                                     , TextStyle.sm
@@ -252,7 +248,7 @@ menu pos items =
 view : Props msg -> Html msg
 view { page, lang, width, route, text, openMenu, settings, browserStatus, currentDiagram, onOpenLocalFile, onOpenMenu, onCopy, onDownload, onSave, onSaveLocalFile, onOpenCurrentFile } =
     Html.nav
-        [ Attr.css
+        [ css
             [ Breakpoint.style
                 [ displayFlex
                 , flexDirection row
@@ -280,7 +276,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
         ]
         [ editMenu { diagramItem = currentDiagram, lang = lang, route = route, onOpenCurrentFile = onOpenCurrentFile }
         , Html.div
-            [ Attr.css [ menuButtonStyle ] ]
+            [ css [ menuButtonStyle ] ]
             [ case settings.location of
                 Just DiagramLocation.LocalFileSystem ->
                     Html.div
@@ -320,7 +316,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
 
                     _ ->
                         onClick onSave
-                , Attr.css [ menuButtonStyle ]
+                , css [ menuButtonStyle ]
                 , Attributes.dataTest "save-menu"
                 , css [ Style.hoverAnimation ]
                 ]
@@ -330,7 +326,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
 
           else
             Html.div
-                [ Attr.css [ menuButtonStyle ]
+                [ css [ menuButtonStyle ]
                 , Attributes.dataTest "disabled-save-menu"
                 ]
                 [ Icon.save (Color.toString Color.disabledIconColor) 22
@@ -342,7 +338,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
 
               else
                 Attr.style "" ""
-            , Attr.css [ menuButtonStyle ]
+            , css [ menuButtonStyle ]
             , Attributes.dataTest "download-menu"
             , css [ Style.hoverAnimation ]
             ]
@@ -358,7 +354,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
             ]
         , if not (isEditFile route) || Text.isChanged text then
             Html.div
-                [ Attr.css [ menuButtonStyle ]
+                [ css [ menuButtonStyle ]
                 , Attributes.dataTest "copy-menu"
                 , css [ Style.hoverAnimation ]
                 ]
@@ -368,7 +364,7 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
 
           else
             Html.div
-                [ Attr.css [ menuButtonStyle ]
+                [ css [ menuButtonStyle ]
                 , Events.onClickStopPropagation onCopy
                 , Attributes.dataTest "copy-menu"
                 , css [ Style.hoverAnimation ]

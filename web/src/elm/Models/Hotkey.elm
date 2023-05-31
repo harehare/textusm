@@ -5,7 +5,6 @@ module Models.Hotkey exposing
     , onHotkeypress
     , open
     , save
-    , search
     , select
     , toMacString
     , toWindowsString
@@ -41,11 +40,6 @@ open =
 select : Hotkey
 select =
     { ctrl = True, shift = False, alt = False, key = "E" }
-
-
-search : Hotkey
-search =
-    { ctrl = True, shift = False, alt = False, key = "F" }
 
 
 toMacString : Hotkey -> String

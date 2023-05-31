@@ -3,7 +3,7 @@ module Views.Diagram.Canvas exposing (view, viewBottom, viewImage)
 import Constants
 import Events
 import Models.Color as Color exposing (Color)
-import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo, dragStart)
+import Models.Diagram as Diagram exposing (ResizeDirection(..), SelectedItem, SelectedItemInfo)
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item, Items)
@@ -100,9 +100,10 @@ viewImage { settings, property, size, position, item, onSelect } =
             Just item_ ->
                 if Item.isImage item_ then
                     Views.image
-                        (Tuple.mapFirst (\_ -> Constants.itemWidth - 5) position)
-                        (Tuple.mapBoth (\x -> x + 5) (\y -> y + 5) position)
-                        item_
+                        { size = Tuple.mapFirst (\_ -> Constants.itemWidth - 5) position
+                        , position = Tuple.mapBoth (\x -> x + 5) (\y -> y + 5) position
+                        , item = item_
+                        }
 
                 else
                     Svg.g [] []

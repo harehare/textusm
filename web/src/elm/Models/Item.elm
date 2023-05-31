@@ -1,7 +1,6 @@
 module Models.Item exposing
     ( Children
     , Hierarchy
-    , eq
     , Item
     , Items
     , childrenFromItems
@@ -9,6 +8,7 @@ module Models.Item exposing
     , count
     , empty
     , emptyChildren
+    , eq
     , flatten
     , fromList
     , fromString
@@ -50,7 +50,6 @@ module Models.Item exposing
     , map
     , mapWithRecursive
     , new
-    , resetOffset
     , search
     , searchClear
     , split
@@ -115,9 +114,11 @@ cons : Item -> Items -> Items
 cons item (Items items) =
     Items (item :: items)
 
-eq: Item -> Item -> Bool
+
+eq : Item -> Item -> Bool
 eq item1 item2 =
     getLineNo item1 == getLineNo item2
+
 
 count : (Item -> Bool) -> Items -> Int
 count f items =
@@ -759,15 +760,6 @@ splitText text =
 
     else
         ( legacyTextSeparator, String.split legacyTextSeparator text )
-
-
-resetOffset : Item -> Item
-resetOffset (Item item) =
-    (item.settings
-        |> Maybe.map ItemSettings.resetOffset
-        |> withSettings
-    )
-        (Item item)
 
 
 textSeparator : String

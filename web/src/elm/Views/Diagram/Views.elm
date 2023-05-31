@@ -29,7 +29,7 @@ import Html.Styled as Html
 import Html.Styled.Attributes as Attr exposing (css)
 import Html.Styled.Events exposing (onBlur, onInput)
 import Models.Color as Color exposing (Color)
-import Models.Diagram exposing (MoveState(..), Msg(..), ResizeDirection(..), SelectedItemInfo)
+import Models.Diagram exposing (MoveState(..), ResizeDirection(..), SelectedItemInfo)
 import Models.Diagram.Settings as DiagramSettings
 import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
@@ -284,23 +284,23 @@ plainText { settings, position, size, foreColor, fontSize, text, isHighlight } =
         [ Svg.text text ]
 
 
-image : Size -> Position -> Item -> Svg msg
-image ( imageWidth, imageHeight ) ( posX, posY ) url =
+image : { size : Size, position : Position, item : Item } -> Svg msg
+image { size, position, item } =
     Svg.foreignObject
-        [ SvgAttr.x <| String.fromInt posX
-        , SvgAttr.y <| String.fromInt posY
-        , SvgAttr.width <| String.fromInt imageWidth
-        , SvgAttr.height <| String.fromInt imageHeight
+        [ SvgAttr.x <| String.fromInt <| Position.getX position
+        , SvgAttr.y <| String.fromInt <| Position.getY position
+        , SvgAttr.width <| String.fromInt <| Size.getWidth size
+        , SvgAttr.height <| String.fromInt <| Size.getHeight size
         ]
         [ Html.img
-            [ Attr.src <| Item.getTextOnly url
+            [ Attr.src <| Item.getTextOnly item
             , css
-                [ Css.width <| px <| toFloat <| imageWidth
-                , Css.height <| px <| toFloat <| imageHeight
+                [ Css.width <| px <| toFloat <| Size.getWidth size
+                , Css.height <| px <| toFloat <| Size.getHeight size
                 , Style.objectFitCover
                 , Css.cursor Css.pointer
                 ]
-            , SvgAttr.style <| "object-fit: cover; width: " ++ String.fromInt imageWidth ++ "px; height:" ++ String.fromInt imageHeight ++ "px;"
+            , SvgAttr.style <| "object-fit: cover; width: " ++ String.fromInt (Size.getWidth size) ++ "px; height:" ++ String.fromInt (Size.getHeight size) ++ "px;"
             , SvgAttr.class "ts-image"
             ]
             []

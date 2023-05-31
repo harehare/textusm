@@ -25,15 +25,12 @@ module Message exposing
     , toolTipCopy
     , toolTipEditFile
     , toolTipExport
-    , toolTipGist
     , toolTipHelp
     , toolTipImport
-    , toolTipLocal
     , toolTipNewFile
     , toolTipOpenFile
     , toolTipPrivate
     , toolTipPublic
-    , toolTipRemote
     , toolTipSave
     , toolTipSettings
     , toolTipShare
@@ -377,28 +374,3 @@ toolTipShare lang =
 
         _ ->
             "Share"
-
-
-toolTipRemote : Lang -> String
-toolTipRemote lang =
-    case lang of
-        Ja ->
-            "リモート"
-
-        _ ->
-            "Remote"
-
-
-toolTipLocal : Lang -> String
-toolTipLocal lang =
-    case lang of
-        Ja ->
-            "ローカル"
-
-        _ ->
-            "Local"
-
-
-toolTipGist : String
-toolTipGist =
-    "Gist"

@@ -42,11 +42,9 @@ module Style.Style exposing
     , roundedFull
     , roundedNone
     , roundedSm
-    , shadowLg
     , shadowNone
     , shadowSm
     , submit
-    , textButton
     , wMenu
     , widthAuto
     , widthFull
@@ -156,34 +154,6 @@ button =
         , active
             [ after
                 [ backgroundColor <| rgba 0 0 0 0.6
-                ]
-            ]
-        ]
-
-
-textButton : Css.Style
-textButton =
-    Css.batch
-        [ cursor pointer
-        , position relative
-        , Color.textSecondaryColor
-        , displayFlex
-        , alignItems center
-        , justifyContent center
-        , roundedSm
-        , hover
-            [ descendants
-                [ class "bottom-tooltip"
-                    [ visibility visible
-                    , opacity <| int 100
-                    , Color.textDark
-                    ]
-                ]
-            , Color.textDark
-            ]
-        , active
-            [ after
-                [ Color.textDark
                 ]
             ]
         ]
@@ -427,11 +397,6 @@ shadowSm =
     boxShadow5 (px 0) (px 1) (px 2) (px 0) (rgba 0 0 0 0.05)
 
 
-shadowLg : Css.Style
-shadowLg =
-    boxShadow5 (px 0) (px 10) (px 15) (px -3) (rgba 0 0 0 0.1)
-
-
 submit : Css.Style
 submit =
     Css.batch
@@ -470,9 +435,9 @@ hoverAnimation : Css.Style
 hoverAnimation =
     Css.batch
         [ Css.transformBox Css.fillBox
-        , Css.hover
+        , hover
             [ Css.transform (Css.scale 1.1)
-            , Css.cursor Css.pointer
+            , cursor pointer
             ]
         , transition
             [ transform3 100 0 easeInOut

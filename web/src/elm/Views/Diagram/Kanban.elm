@@ -3,7 +3,7 @@ module Views.Diagram.Kanban exposing (docs, view)
 import Constants
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
-import Models.Diagram exposing (SelectedItem, SelectedItemInfo, dragStart)
+import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
 import Models.Diagram.Kanban as Kanban exposing (Card(..), Kanban(..), KanbanList(..))
 import Models.Diagram.Settings as DiagramSettings
