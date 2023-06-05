@@ -22,7 +22,7 @@ import Css
 import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
 import Html.Styled as Html exposing (Html)
-import Html.Styled.Attributes exposing (autofocus, css, placeholder, value)
+import Html.Styled.Attributes exposing (autofocus, css, id, placeholder, value)
 import Html.Styled.Events as Events
 import Models.Color as Color
 import Style.Color as ColorStyle
@@ -50,6 +50,7 @@ view { query, searchMsg, count, closeMsg } =
                 , Style.paddingXs
                 , width <| px 240
                 ]
+            , id "diagram-search"
             , Events.onInput searchMsg
             , placeholder "Search"
             , value query

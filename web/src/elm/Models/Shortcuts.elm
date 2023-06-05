@@ -4,6 +4,7 @@ module Models.Shortcuts exposing (Shortcuts(..), fromString)
 type Shortcuts
     = Open
     | Save
+    | Find
 
 
 fromString : String -> Maybe Shortcuts
@@ -14,6 +15,9 @@ fromString cmd =
 
         "save" ->
             Just Save
+
+        "find" ->
+            Just Find
 
         _ ->
             Nothing

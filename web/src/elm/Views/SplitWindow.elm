@@ -90,7 +90,8 @@ view { bgColor, window, onToggleEditor, onResize } left right =
                 ]
                 []
             , Html.div
-                [ Attr.css [ width rightPos, Style.hContent, backgroundColor bgColor ] ]
+                [ Attr.css [ width rightPos, Style.hContent, backgroundColor bgColor ]
+                ]
                 [ right ]
             ]
 

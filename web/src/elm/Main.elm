@@ -40,7 +40,7 @@ import Models.Exporter as Exporter
 import Models.IdToken as IdToken
 import Models.Jwt as Jwt
 import Models.LoginProvider as LoginProvider
-import Models.Model as M exposing (Model, Msg)
+import Models.Model as M exposing (Model)
 import Models.Notification as Notification
 import Models.Page as Page exposing (Page)
 import Models.Session as Session
@@ -1134,6 +1134,15 @@ update model message =
                 save
                 Return.zero
                 (Text.isChanged model.diagramModel.text)
+
+        M.Shortcuts (Just Shortcuts.Find) ->
+            (\m ->
+                Return.singleton m.diagramModel
+                    |> Diagram.update m.diagramModel DiagramModel.ToggleSearch
+                    |> Return.mapBoth M.UpdateDiagram (\m_ -> { m | diagramModel = m_ })
+            )
+                >> Effect.setFocus M.NoOp "diagram-search"
+                |> Return.andThen
 
         M.Shortcuts _ ->
             Return.zero

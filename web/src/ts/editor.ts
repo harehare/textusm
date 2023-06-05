@@ -228,6 +228,17 @@ class MonacoEditor extends HTMLElement {
     });
 
     this.editor.addAction({
+      id: 'save-to-local',
+      label: 'find',
+      /* eslint  no-bitwise: 0 */
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF],
+      contextMenuOrder: 3,
+      run() {
+        _app?.ports.shortcuts.send('find');
+      },
+    });
+
+    this.editor.addAction({
       id: 'focus',
       label: 'focus',
       /* eslint  no-bitwise: 0 */

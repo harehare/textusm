@@ -2,7 +2,7 @@ module Models.Hotkey exposing
     ( Hotkey
     , Hotkeys
     , decoder
-    , onHotkeypress
+    , keyDown
     , open
     , save
     , select
@@ -47,23 +47,7 @@ toMacString h =
     [ BoolEx.toMaybe "Cmd" h.ctrl
     , BoolEx.toMaybe "Alt" h.alt
     , BoolEx.toMaybe "Shift" h.shift
-    , Just
-        (case h.key of
-            "ArrowUp" ->
-                "↑"
-
-            "ArrowDown" ->
-                "↓"
-
-            "ArrowLeft" ->
-                "←"
-
-            "ArrowRight" ->
-                "→"
-
-            _ ->
-                h.key
-        )
+    , Just h.key
     ]
         |> List.filterMap identity
         |> String.join " + "
@@ -74,33 +58,28 @@ toWindowsString h =
     [ BoolEx.toMaybe "Ctrl" h.ctrl
     , BoolEx.toMaybe "Alt" h.alt
     , BoolEx.toMaybe "Shift" h.shift
-    , Just
-        (case h.key of
-            "ArrowUp" ->
-                "↑"
-
-            "ArrowDown" ->
-                "↓"
-
-            "ArrowLeft" ->
-                "←"
-
-            "ArrowRight" ->
-                "→"
-
-            _ ->
-                h.key
-        )
+    , Just h.key
     ]
         |> List.filterMap identity
         |> String.join " + "
 
 
-onHotkeypress : Hotkey -> Hotkeys msg -> Maybe msg
-onHotkeypress pressedKey hotkeys =
+keyDown : Hotkey -> Hotkeys msg -> Maybe (D.Decoder msg)
+keyDown pressedKey hotkeys =
     BoolEx.ifElse
-        (ListEx.find (\{ key } -> key.ctrl == pressedKey.ctrl && key.shift == pressedKey.shift && key.alt == pressedKey.alt && key.key == pressedKey.key) hotkeys
-            |> Maybe.map (\{ msg } -> msg)
+        (ListEx.find
+            (\{ key } ->
+                key.ctrl
+                    == pressedKey.ctrl
+                    && key.shift
+                    == pressedKey.shift
+                    && key.alt
+                    == pressedKey.alt
+                    && key.key
+                    == pressedKey.key
+            )
+            hotkeys
+            |> Maybe.map (\{ msg } -> D.succeed msg)
         )
         Nothing
         (pressedKey.ctrl || pressedKey.shift || pressedKey.alt)

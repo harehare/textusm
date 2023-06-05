@@ -5,11 +5,13 @@ module Events exposing
     , onClickStopPropagation
     , onDrop
     , onEnter
+    , onKeyDownPreventDefaultOn
     , onMouseDown
     , onMouseMove
     , onMouseUp
     , onTouchStart
     , touchCoordinates
+    , onHotkeyDown
     )
 
 import File exposing (File)
@@ -19,6 +21,7 @@ import Html.Styled exposing (Attribute)
 import Html.Styled.Attributes as Attr
 import Html.Styled.Events as StyledEvents
 import Json.Decode as D
+import Models.Hotkey as Hotkey exposing (Hotkeys)
 
 
 type alias KeyCode =
@@ -66,6 +69,11 @@ onClickStopPropagation msg =
 onClickPreventDefaultOn : msg -> Attribute msg
 onClickPreventDefaultOn msg =
     StyledEvents.preventDefaultOn "click" (D.map alwaysPreventDefaultOnStyled (D.succeed msg))
+
+
+onKeyDownPreventDefaultOn : D.Decoder msg -> Attribute msg
+onKeyDownPreventDefaultOn e =
+    StyledEvents.preventDefaultOn "keyDown" (D.map alwaysPreventDefaultOnStyled e)
 
 
 alwaysStopPropagation : msg -> ( msg, Bool )
@@ -142,3 +150,14 @@ touchCoordinates touchEvent =
 onChangeStyled : (String -> msg) -> Attribute msg
 onChangeStyled handler =
     StyledEvents.on "change" <| D.map handler <| D.at [ "target", "value" ] D.string
+
+
+onHotkeyDown : Hotkeys msg -> Attribute msg
+onHotkeyDown hotkeys =
+    onKeyDownPreventDefaultOn <|
+        D.andThen
+            (\hotkey ->
+                Hotkey.keyDown hotkey hotkeys
+                    |> Maybe.withDefault (D.fail "other key")
+            )
+            Hotkey.decoder
