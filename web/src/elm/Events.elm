@@ -5,13 +5,13 @@ module Events exposing
     , onClickStopPropagation
     , onDrop
     , onEnter
+    , onHotkeyDown
     , onKeyDownPreventDefaultOn
     , onMouseDown
     , onMouseMove
     , onMouseUp
     , onTouchStart
     , touchCoordinates
-    , onHotkeyDown
     )
 
 import File exposing (File)

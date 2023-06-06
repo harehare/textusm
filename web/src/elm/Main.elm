@@ -37,17 +37,17 @@ import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType(..))
 import Models.Dialog as Dialog
 import Models.Exporter as Exporter
+import Models.Hotkey as Hotkey
 import Models.IdToken as IdToken
 import Models.Jwt as Jwt
 import Models.LoginProvider as LoginProvider
-import Models.Model as M exposing (Model)
+import Models.Model as M exposing (Model, Msg)
 import Models.Notification as Notification
 import Models.Page as Page exposing (Page)
 import Models.Session as Session
 import Models.SettingsCache as SettingsCache
 import Models.ShareState as ShareState
 import Models.ShareToken as ShareToken
-import Models.Shortcuts as Shortcuts
 import Models.Size as Size exposing (Size)
 import Models.Snackbar as SnackbarModel
 import Models.Text as Text
@@ -738,7 +738,7 @@ subscriptions model =
          , Ports.reload (\_ -> M.UpdateDiagramList DiagramList.Reload)
          , onVisibilityChange M.HandleVisibilityChange
          , onResize (\width height -> M.UpdateDiagram (DiagramModel.Resize width height))
-         , Ports.shortcuts (\cmd -> M.Shortcuts <| Shortcuts.fromString cmd)
+         , Ports.hotkey (\cmd -> M.Hotkey <| Hotkey.fromString cmd)
          , Ports.onNotification (\n -> M.HandleAutoCloseNotification (Notification.showInfoNotifcation n))
          , Ports.sendErrorNotification (\n -> M.HandleAutoCloseNotification (Notification.showErrorNotifcation n))
          , Ports.onWarnNotification (\n -> M.HandleAutoCloseNotification (Notification.showWarningNotifcation n))
@@ -1124,18 +1124,18 @@ update model message =
         M.SwitchWindow w ->
             Return.map <| \m -> { m | window = Window.toggle w }
 
-        M.Shortcuts (Just Shortcuts.Open) ->
+        M.Hotkey (Just (Hotkey.Open _)) ->
             Route.toString Route.DiagramList
                 |> Nav.load
                 |> Return.command
 
-        M.Shortcuts (Just Shortcuts.Save) ->
+        M.Hotkey (Just (Hotkey.Save _)) ->
             BoolEx.ifElse
                 save
                 Return.zero
                 (Text.isChanged model.diagramModel.text)
 
-        M.Shortcuts (Just Shortcuts.Find) ->
+        M.Hotkey (Just (Hotkey.Find _)) ->
             (\m ->
                 Return.singleton m.diagramModel
                     |> Diagram.update m.diagramModel DiagramModel.ToggleSearch
@@ -1144,7 +1144,7 @@ update model message =
                 >> Effect.setFocus M.NoOp "diagram-search"
                 |> Return.andThen
 
-        M.Shortcuts _ ->
+        M.Hotkey _ ->
             Return.zero
 
         M.GotLocalDiagramJson json ->

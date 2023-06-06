@@ -12,6 +12,7 @@ port module Ports exposing
     , gotGithubAccessToken
     , gotLocalDiagramJson
     , gotLocalDiagramsJson
+    , hotkey
     , insertText
     , loadSettingsFromLocal
     , loadSettingsFromLocalCompleted
@@ -34,7 +35,6 @@ port module Ports exposing
     , savedLocalFile
     , selectItemFromLineNo
     , sendErrorNotification
-    , shortcuts
     , signIn
     , signOut
     , startDownload
@@ -147,7 +147,7 @@ port savedLocalFile : (String -> msg) -> Sub msg
 port sendErrorNotification : (String -> msg) -> Sub msg
 
 
-port shortcuts : (String -> msg) -> Sub msg
+port hotkey : (String -> msg) -> Sub msg
 
 
 port signIn : String -> Cmd msg

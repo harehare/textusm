@@ -212,29 +212,29 @@ class MonacoEditor extends HTMLElement {
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyO],
       contextMenuOrder: 1,
       run() {
-        _app?.ports.shortcuts.send('open');
+        _app?.ports.hotkey.send('open');
       },
     });
 
     this.editor.addAction({
-      id: 'save-to-local',
+      id: 'save',
       label: 'save',
       /* eslint  no-bitwise: 0 */
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
       contextMenuOrder: 2,
       run() {
-        _app?.ports.shortcuts.send('save');
+        _app?.ports.hotkey.send('save');
       },
     });
 
     this.editor.addAction({
-      id: 'save-to-local',
+      id: 'find',
       label: 'find',
       /* eslint  no-bitwise: 0 */
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF],
       contextMenuOrder: 3,
       run() {
-        _app?.ports.shortcuts.send('find');
+        _app?.ports.hotkey.send('find');
       },
     });
 

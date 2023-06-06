@@ -20,13 +20,13 @@ import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type exposing (DiagramType)
 import Models.Dialog exposing (ConfirmDialog)
 import Models.Exporter exposing (Export)
+import Models.Hotkey exposing (Hotkey)
 import Models.LoginProvider exposing (LoginProvider)
 import Models.Notification exposing (Notification)
 import Models.Page exposing (Page)
 import Models.Session exposing (Session)
 import Models.SettingsCache exposing (SettingsCache)
 import Models.ShareState exposing (ShareState)
-import Models.Shortcuts exposing (Shortcuts)
 import Models.Snackbar exposing (Snackbar)
 import Models.Theme exposing (Theme)
 import Models.Window exposing (Window)
@@ -117,7 +117,7 @@ type Msg
     | HandleAuthStateChanged (Maybe D.Value)
     | ShowNotification Notification
     | SwitchWindow Window
-    | Shortcuts (Maybe Shortcuts)
+    | Hotkey (Maybe Hotkey)
     | GotLocalDiagramJson D.Value
     | Load (Result RequestError DiagramItem)
     | LoadSettings (Result RequestError DiagramSettings.Settings)

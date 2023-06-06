@@ -49,7 +49,7 @@ export type ElmApp = {
     sendErrorNotification: Send<string>;
     progress: Send<boolean>;
     changeText: Send<string>;
-    shortcuts: Send<string>;
+    hotkey: Send<string>;
     startDownload: Send<{
       content: string;
       extension: string;
