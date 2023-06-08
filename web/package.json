@@ -30,7 +30,7 @@
     "@types/jspdf": "^2.0.0",
     "@types/node": "^20.2.5",
     "@types/requestidlecallback": "^0.3.5",
-    "@types/uuid": "^9.0.1",
+    "@types/uuid": "^9.0.2",
     "@types/wicg-file-system-access": "^2020.9.6",
     "babel-loader": "^9.1.2",
     "clean-webpack-plugin": "^4.0.0",
