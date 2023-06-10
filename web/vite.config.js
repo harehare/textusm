@@ -3,7 +3,8 @@ import path from 'node:path';
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import elmPlugin from 'vite-plugin-elm';
 import { createHtmlPlugin } from 'vite-plugin-html';
-import { VitePWA as vitePWA } from 'vite-plugin-pwa';
+import { VitePWA } from 'vite-plugin-pwa';
+import EnvironmentPlugin from 'vite-plugin-environment'
 
 const outDir = path.join(__dirname, 'dist');
 const day = 60 * 60 * 24;
@@ -16,22 +17,16 @@ export default defineConfig(({ mode }) => ({
     minify: 'terser',
     terserOptions: {
       compress: {
-        // eslint-disable-next-line camelcase
         pure_funcs: ['F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9'],
-        // eslint-disable-next-line camelcase
         pure_getters: true,
-        // eslint-disable-next-line camelcase
         keep_fargs: false,
-        // eslint-disable-next-line camelcase
         unsafe_comps: true,
-        // eslint-disable-next-line camelcase
         drop_console: true,
         unsafe: true,
         passes: 3,
       },
     },
   },
-  envDir: '../',
   rollupOptions: {
     output: {
       manualChunks: {
@@ -45,6 +40,17 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
+    EnvironmentPlugin([
+      'FIREBASE_API_KEY',
+      'FIREBASE_AUTH_DOMAIN',
+      'FIREBASE_PROJECT_ID',
+      'FIREBASE_APP_ID',
+      'SENTRY_ENABLE',
+      'SENTRY_DSN',
+      'SENTRY_RELEASE',
+      'MONITOR_ENABLE',
+      'FIREBASE_AUTH_EMULATOR_HOST',
+    ]),
     elmPlugin({
       optimize: false,
       // @ts-ignore
@@ -72,11 +78,10 @@ export default defineConfig(({ mode }) => ({
         ],
       },
     }),
-
     splitVendorChunkPlugin(),
     ...(mode === 'production'
       ? [
-          vitePWA({
+          VitePWA({
             workbox: {
               swDest: `${outDir}/sw.js`,
               clientsClaim: true,
@@ -119,6 +124,8 @@ export default defineConfig(({ mode }) => ({
       : []),
   ],
   server: {
+    open: true,
+    port: 3000,
     https: process.env.USE_HTTPS
       ? {
           key: '../certs/localhost.key',

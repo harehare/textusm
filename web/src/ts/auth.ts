@@ -24,20 +24,20 @@ type User = {
 console.log(import.meta.env);
 
 const firebaseConfig: FirebaseOptions = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? '',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? '',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID ?? '',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID ?? '',
+  apiKey: process.env.FIREBASE_API_KEY ?? '',
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN ?? '',
+  projectId: process.env.FIREBASE_PROJECT_ID ?? '',
+  appId: process.env.FIREBASE_APP_ID ?? '',
 };
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth();
 
-if (import.meta.env.VITE_MONITOR_ENABLE === '1') {
+if (process.env.MONITOR_ENABLE === '1') {
   getPerformance(firebaseApp);
 }
 
-if (import.meta.env.VITE_DEV && import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_HOST) {
-  connectAuthEmulator(auth, `http://${import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_HOST}`);
+if (import.meta.env.DEV && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
+  connectAuthEmulator(auth, `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST}`);
 }
 
 export const signIn = async (provider: AuthProvider): Promise<void> =>

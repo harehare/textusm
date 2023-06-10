@@ -227,20 +227,16 @@ window.requestIdleCallback(async () => {
   });
 
   const loadSentry = async () => {
-    if (
-      import.meta.env.VITE_SENTRY_ENABLE === '1' &&
-      import.meta.env.VITE_SENTRY_DSN &&
-      import.meta.env.VITE_SENTRY_RELEASE
-    ) {
+    if (process.env.SENTRY_ENABLE === '1' && process.env.SENTRY_DSN && process.env.SENTRY_RELEASE) {
       const sentry = await import('@sentry/browser');
       sentry.init({
-        dsn: import.meta.env.VITE_SENTRY_DSN,
-        release: import.meta.env.VITE_SENTRY_RELEASE,
+        dsn: process.env.SENTRY_DSN,
+        release: process.env.SENTRY_RELEASE,
       });
     }
   };
 
-  if ('serviceWorker' in navigator && import.meta.env.VITE_PROD) {
+  if ('serviceWorker' in navigator && import.meta.env.PROD) {
     const wb = new Workbox('/sw.js');
     await wb.register().catch(() => {
       // ignore error
