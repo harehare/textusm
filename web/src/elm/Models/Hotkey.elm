@@ -1,7 +1,7 @@
 module Models.Hotkey exposing
     ( Hotkey(..)
-    , Hotkeys
     , HotkeyValue
+    , Hotkeys
     , decoder
     , fromString
     , keyDown

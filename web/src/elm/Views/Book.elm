@@ -7,6 +7,7 @@ import Views.Diagram.Card as Card
 import Views.Diagram.ContextMenu as ContextMenu
 import Views.Diagram.ER as ER
 import Views.Diagram.EmpathyMap as EmpathyMap
+import Views.Diagram.FourLs as FourLs
 import Views.Diagram.FreeForm as FreeForm
 import Views.Diagram.GanttChart as GanttChart
 import Views.Diagram.Kanban as Kanban
@@ -19,11 +20,10 @@ import Views.Diagram.SequenceDiagram as SequenceDiagram
 import Views.Diagram.SiteMap as SiteMap
 import Views.Diagram.StartStopContinue as StartStopContinue
 import Views.Diagram.Table as Table
+import Views.Diagram.Toolbar as Toolbar
 import Views.Diagram.UseCaseDiagram as UseCaseDiagram
 import Views.Diagram.UserPersona as UserPersona
 import Views.Diagram.UserStoryMap as UserStoryMap
-import Views.Diagram.Toolbar as Toolbar
-import Views.Diagram.FourLs as FourLs
 import Views.DropDownList as DropDownList
 import Views.Footer as Footer
 import Views.Header as Header
