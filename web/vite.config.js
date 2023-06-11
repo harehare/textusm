@@ -6,6 +6,7 @@ import { createHtmlPlugin } from 'vite-plugin-html';
 import { VitePWA } from 'vite-plugin-pwa';
 import EnvironmentPlugin from 'vite-plugin-environment'
 
+
 const outDir = path.join(__dirname, 'dist');
 const day = 60 * 60 * 24;
 
@@ -13,7 +14,7 @@ export default defineConfig(({ mode }) => ({
   root: './src',
   build: {
     outDir,
-    sourcemap: true,
+    sourcemap: mode === 'production',
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -72,7 +73,7 @@ export default defineConfig(({ mode }) => ({
             injectTo: 'body-prepend',
             tag: 'div',
             attrs: {
-              id: 'tag',
+              id: 'main',
             },
           },
         ],
@@ -82,6 +83,7 @@ export default defineConfig(({ mode }) => ({
     ...(mode === 'production'
       ? [
           VitePWA({
+            injectRegister: null,
             workbox: {
               swDest: `${outDir}/sw.js`,
               clientsClaim: true,

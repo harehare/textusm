@@ -1,6 +1,7 @@
 {
   "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
+    "outDir": "./dist",
     "module": "esnext",
     "target": "es2019",
     "moduleResolution": "node",
@@ -13,8 +14,7 @@
     "strictNullChecks": true,
     "noPropertyAccessFromIndexSignature": false,
     "importsNotUsedAsValues": "remove",
-    "verbatimModuleSyntax": true,
-    "types": ["vite/client"]
+    "verbatimModuleSyntax": true
   },
   "exclude": ["**/node_modules/*", "**/*.spec.ts"]
 }
