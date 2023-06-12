@@ -126,13 +126,13 @@ export default defineConfig(({ mode }) => ({
       : []),
   ],
   server: {
-    open: true,
+    host: true,
     port: 3000,
-    https: process.env.USE_HTTPS
+    https: process.env.USE_HTTPS === '1'
       ? {
           key: '../certs/localhost.key',
           cert: '../certs/localhost.cert',
         }
-      : {},
+      : false,
   },
 }));
