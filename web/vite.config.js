@@ -1,4 +1,5 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 import path from 'node:path';
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import elmPlugin from 'vite-plugin-elm';
@@ -25,18 +26,6 @@ export default defineConfig(({ mode }) => ({
         drop_console: true,
         unsafe: true,
         passes: 3,
-      },
-    },
-  },
-  rollupOptions: {
-    output: {
-      manualChunks: {
-        editor: [
-          /[\\/]node_modules\/(monaco-editor\/esm\/vs\/(nls\.js|editor|platform|base|basic-languages|language\/(css|html|json|typescript)\/monaco\.contribution\.js)|style-loader\/lib|css-loader\/lib\/css-base\.js)/,
-        ],
-        languages: [
-          /[\\/]node_modules\/monaco-editor\/esm\/vs\/language\/(css|html|json|typescript)\/(_deps|lib|fillers|languageFeatures\.js|workerManager\.js|tokenization\.js|(tsMode|jsonMode|htmlMode|cssMode)\.js|(tsWorker|jsonWorker|htmlWorker|cssWorker)\.js)/,
-        ],
       },
     },
   },
@@ -79,6 +68,7 @@ export default defineConfig(({ mode }) => ({
         ],
       },
     }),
+    monacoEditorPlugin({languageWorkers: []}),
     splitVendorChunkPlugin(),
     ...(mode === 'production'
       ? [
@@ -113,12 +103,17 @@ export default defineConfig(({ mode }) => ({
     ...(mode === 'production' && process.env.SENTRY_ENABLE === '1'
       ? [
           sentryVitePlugin({
+            telemetry: false,
             authToken: process.env.SENTRY_AUTH_TOKEN ?? '',
             org: process.env.SENTRY_ORG ?? '',
             project: process.env.SENTRY_PROJECT ?? '',
-            release: { name: process.env.SENTRY_RELEASE ?? '' },
+            release: {
+              name: process.env.SENTRY_RELEASE ?? '',
+              deploy: {
+                env: 'production'
+              },
+            },
             sourcemaps: {
-              assets: './dist',
               ignore: ['node_modules', 'vite.config.js'],
             },
           }),

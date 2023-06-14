@@ -1,4 +1,4 @@
-import * as monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 import { registerLang } from './editor/lang';
 import type { ElmApp } from './elm';
