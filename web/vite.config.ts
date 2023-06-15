@@ -2,11 +2,11 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 import path from 'node:path';
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import elmPlugin from 'vite-plugin-elm';
+import environmentPlugin from 'vite-plugin-environment';
 import { createHtmlPlugin } from 'vite-plugin-html';
-import { VitePWA } from 'vite-plugin-pwa';
-import EnvironmentPlugin from 'vite-plugin-environment'
+// eslint-disable-next-line import/no-extraneous-dependencies
 import monacoEditorPlugin from 'vite-plugin-monaco-editor';
-
+import { VitePWA } from 'vite-plugin-pwa';
 
 const outDir = path.join(__dirname, 'dist');
 const day = 60 * 60 * 24;
@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
-    EnvironmentPlugin([
+    environmentPlugin([
       'FIREBASE_API_KEY',
       'FIREBASE_AUTH_DOMAIN',
       'FIREBASE_PROJECT_ID',
@@ -44,7 +44,6 @@ export default defineConfig(({ mode }) => ({
     monacoEditorPlugin({}),
     elmPlugin({
       optimize: false,
-      // @ts-ignore
       nodeElmCompilerOptions: {
         pathToElm: mode === 'production' ? 'node_modules/elm-optimize-level-2/bin/elm-optimize-level-2' : undefined,
       },
@@ -72,6 +71,7 @@ export default defineConfig(({ mode }) => ({
     splitVendorChunkPlugin(),
     ...(mode === 'production'
       ? [
+          // eslint-disable-next-line new-cap
           VitePWA({
             injectRegister: null,
             workbox: {
@@ -100,6 +100,7 @@ export default defineConfig(({ mode }) => ({
           }),
         ]
       : []),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     ...(mode === 'production' && process.env.SENTRY_ENABLE === '1'
       ? [
           sentryVitePlugin({
@@ -110,7 +111,7 @@ export default defineConfig(({ mode }) => ({
             release: {
               name: process.env.SENTRY_RELEASE ?? '',
               deploy: {
-                env: 'production'
+                env: 'production',
               },
             },
             sourcemaps: {
@@ -123,11 +124,12 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: true,
     port: 3000,
-    https: process.env.USE_HTTPS === '1'
-      ? {
-          key: '../certs/localhost.key',
-          cert: '../certs/localhost.cert',
-        }
-      : false,
+    https:
+      process.env.USE_HTTPS === '1'
+        ? {
+            key: '../certs/localhost.key',
+            cert: '../certs/localhost.cert',
+          }
+        : false,
   },
 }));

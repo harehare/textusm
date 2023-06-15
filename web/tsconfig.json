@@ -8,14 +8,15 @@
     "esModuleInterop": true,
     "lib": ["esnext", "dom"],
     "rootDir": "src/ts",
-    "strict": true,
     "importHelpers": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noPropertyAccessFromIndexSignature": false,
     "importsNotUsedAsValues": "remove",
     "verbatimModuleSyntax": true,
-    "types": ["vite/client"]
+    "isolatedModules": true,
+    "exactOptionalPropertyTypes": false,
+    "types": ["jspdf", "requestidlecallback", "uuid", "wicg-file-system-access", "node", "vite/client"]
   },
-  "exclude": ["**/node_modules/*", "**/*.spec.ts"]
+  "exclude": ["**/node_modules/*", "**/*.spec.ts", "vite.config.ts"]
 }
