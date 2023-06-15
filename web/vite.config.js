@@ -5,6 +5,7 @@ import elmPlugin from 'vite-plugin-elm';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import { VitePWA } from 'vite-plugin-pwa';
 import EnvironmentPlugin from 'vite-plugin-environment'
+import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 
 
 const outDir = path.join(__dirname, 'dist');
@@ -40,6 +41,7 @@ export default defineConfig(({ mode }) => ({
       'MONITOR_ENABLE',
       'FIREBASE_AUTH_EMULATOR_HOST',
     ]),
+    monacoEditorPlugin({}),
     elmPlugin({
       optimize: false,
       // @ts-ignore
