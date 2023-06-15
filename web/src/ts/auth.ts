@@ -21,8 +21,6 @@ type User = {
   accessToken: string | undefined;
 };
 
-console.log(import.meta.env);
-
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.FIREBASE_API_KEY ?? '',
   authDomain: process.env.FIREBASE_AUTH_DOMAIN ?? '',

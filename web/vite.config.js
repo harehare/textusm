@@ -1,5 +1,4 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin';
-import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 import path from 'node:path';
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import elmPlugin from 'vite-plugin-elm';
@@ -68,7 +67,6 @@ export default defineConfig(({ mode }) => ({
         ],
       },
     }),
-    monacoEditorPlugin({languageWorkers: []}),
     splitVendorChunkPlugin(),
     ...(mode === 'production'
       ? [
