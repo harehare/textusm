@@ -4,7 +4,6 @@ import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import elmPlugin from 'vite-plugin-elm';
 import environmentPlugin from 'vite-plugin-environment';
 import { createHtmlPlugin } from 'vite-plugin-html';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -41,7 +40,7 @@ export default defineConfig(({ mode }) => ({
       'MONITOR_ENABLE',
       'FIREBASE_AUTH_EMULATOR_HOST',
     ]),
-    monacoEditorPlugin({}),
+    monacoEditorPlugin({ languageWorkers: ['editorWorkerService'] }),
     elmPlugin({
       optimize: false,
       nodeElmCompilerOptions: {
