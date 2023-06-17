@@ -236,7 +236,7 @@ window.requestIdleCallback(async () => {
     }
   };
 
-  if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+  if ('serviceWorker' in navigator && import.meta.env.PROD) {
     const wb = new Workbox('/sw.js');
     await wb.register().catch(() => {
       // ignore error

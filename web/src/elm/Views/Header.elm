@@ -299,7 +299,6 @@ viewHelpButton lang =
         , css [ displayFlex ]
         , Attr.href <| Route.toString Route.Help
         , Attributes.dataTest "header-help"
-        , css [ Style.hoverAnimation ]
         ]
         [ Html.div [ css [ Style.button ] ]
             [ Icon.helpOutline 16
@@ -317,7 +316,6 @@ viewSettingsButton lang diagramType =
             Route.toString (Route.Settings diagramType)
         , Attr.attribute "aria-label" "Settings"
         , Attributes.dataTest "header-help"
-        , css [ Style.hoverAnimation ]
         ]
         [ Html.div [ css [ Style.button ] ]
             [ Icon.settings Color.iconColor 16
@@ -334,7 +332,6 @@ viewShareButton lang canShare_ =
             , Attr.href <| Route.toString Route.Share
             , Attr.attribute "aria-label" "Share"
             , Attributes.dataTest "header-share"
-            , css [ Style.hoverAnimation ]
             ]
             [ Html.div [ css [ Style.button ] ]
                 [ Icon.people Color.iconColor 20
@@ -372,7 +369,6 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
                 ]
             , Events.stopPropagationOn "click" (D.succeed ( onOpenMenu HeaderMenu, True ))
             , Attributes.dataTest "header-signin"
-            , css [ Style.hoverAnimation ]
             ]
             [ Html.div
                 [ css [ Text.sm, marginRight <| px 4 ]
@@ -449,7 +445,6 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
                 _ ->
                     Events.stopPropagationOn "click" (D.succeed ( onOpenMenu LoginMenu, True ))
             , Attributes.dataTest "header-signin"
-            , css [ Style.hoverAnimation ]
             ]
             [ Html.div [ css [ Text.base, Font.fontBold ] ]
                 [ Html.text "SIGN IN" ]
