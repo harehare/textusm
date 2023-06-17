@@ -40,7 +40,7 @@ export default defineConfig(({ mode }) => ({
       'MONITOR_ENABLE',
       'FIREBASE_AUTH_EMULATOR_HOST',
     ]),
-    monacoEditorPlugin({ languageWorkers: ['editorWorkerService'] }),
+    monacoEditorPlugin({}),
     elmPlugin({
       optimize: false,
       nodeElmCompilerOptions: {
