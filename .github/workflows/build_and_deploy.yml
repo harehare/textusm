@@ -106,14 +106,10 @@ jobs:
     needs: [deploy-web, deploy-server]
     steps:
       - name: Lighthouse test
-        uses: jakejarvis/lighthouse-action@master
+        uses: treosh/lighthouse-ci-action@v10
         with:
           url: "https://app.textusm.com"
-      - name: Upload results as an artifact
-        uses: actions/upload-artifact@master
-        with:
-          name: report
-          path: "./report"
+          uploadArtifacts: true
 
   create-git-tag:
     runs-on: ubuntu-latest
