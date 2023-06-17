@@ -46,6 +46,11 @@ jobs:
         name: Install Dependencies
         working-directory: web
         run: npm i --legacy-peer-deps
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: web
       - name: Generate elm-constants
         working-directory: web
         run: npm run generate-elm-constants
@@ -60,10 +65,6 @@ jobs:
       - name: Run Tests
         working-directory: web
         run: npm run test
-      - uses: andresz1/size-limit-action@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          directory: web/
       - uses: cypress-io/github-action@v5
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
@@ -74,17 +75,18 @@ jobs:
           FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           FIREBASE_AUTH_EMULATOR_HOST: ""
-          NODE_ENV: ${{ secrets.NODE_ENV }}
-          SENTRY_ENABLE: ${{ secrets.SENTRY_ENABLE }}
+          SENTRY_ENABLE: "0"
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_RELEASE: ${{ steps.package-version.outputs.current-version}}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-          MONITOR_ENABLE: ${{ secrets.MONITOR_ENABLE }}
+          MONITOR_ENABLE: "0"
+          USE_HTTPS: "0"
         with:
-          start: npm run start:web
-          headless: true
+          start: "npm run dev:web"
+          browser: chrome
+          headed: true
           working-directory: web
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120

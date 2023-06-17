@@ -12,44 +12,44 @@ type InputColor struct {
 }
 
 type InputGistItem struct {
-	ID         *string         `json:"id"`
-	Thumbnail  *string         `json:"thumbnail"`
-	Diagram    *values.Diagram `json:"diagram"`
+	ID         *string         `json:"id,omitempty"`
 	Title      string          `json:"title"`
-	URL        string          `json:"url"`
+	Thumbnail  *string         `json:"thumbnail,omitempty"`
+	Diagram    *values.Diagram `json:"diagram"`
 	IsBookmark bool            `json:"isBookmark"`
+	URL        string          `json:"url"`
 }
 
 type InputItem struct {
-	ID         *string         `json:"id"`
-	Thumbnail  *string         `json:"thumbnail"`
-	Diagram    *values.Diagram `json:"diagram"`
+	ID         *string         `json:"id,omitempty"`
 	Title      string          `json:"title"`
 	Text       string          `json:"text"`
+	Thumbnail  *string         `json:"thumbnail,omitempty"`
+	Diagram    *values.Diagram `json:"diagram"`
 	IsPublic   bool            `json:"isPublic"`
 	IsBookmark bool            `json:"isBookmark"`
 }
 
 type InputSettings struct {
-	StoryColor      *InputColor `json:"storyColor"`
-	Scale           *float64    `json:"scale"`
-	ZoomControl     *bool       `json:"zoomControl"`
-	TextColor       *string     `json:"textColor"`
+	Font            string      `json:"font"`
+	Width           int         `json:"width"`
+	Height          int         `json:"height"`
+	BackgroundColor string      `json:"backgroundColor"`
 	ActivityColor   *InputColor `json:"activityColor"`
 	TaskColor       *InputColor `json:"taskColor"`
-	Toolbar         *bool       `json:"toolbar"`
+	StoryColor      *InputColor `json:"storyColor"`
 	LineColor       string      `json:"lineColor"`
 	LabelColor      string      `json:"labelColor"`
-	BackgroundColor string      `json:"backgroundColor"`
-	Font            string      `json:"font"`
-	Height          int         `json:"height"`
-	Width           int         `json:"width"`
+	TextColor       *string     `json:"textColor,omitempty"`
+	ZoomControl     *bool       `json:"zoomControl,omitempty"`
+	Scale           *float64    `json:"scale,omitempty"`
+	Toolbar         *bool       `json:"toolbar,omitempty"`
 }
 
 type InputShareItem struct {
 	ItemID         string   `json:"itemID"`
-	ExpSecond      *int     `json:"expSecond"`
-	Password       *string  `json:"password"`
-	AllowIPList    []string `json:"allowIPList"`
-	AllowEmailList []string `json:"allowEmailList"`
+	ExpSecond      *int     `json:"expSecond,omitempty"`
+	Password       *string  `json:"password,omitempty"`
+	AllowIPList    []string `json:"allowIPList,omitempty"`
+	AllowEmailList []string `json:"allowEmailList,omitempty"`
 }
