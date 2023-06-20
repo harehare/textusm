@@ -114,7 +114,7 @@ export default defineConfig(({ mode }) => ({
               },
             },
             sourcemaps: {
-              ignore: ['node_modules', 'vite.config.js'],
+              ignore: ['node_modules'],
             },
           }),
         ]
