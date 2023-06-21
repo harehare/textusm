@@ -49,7 +49,7 @@ examples
 screenshots
 videos
 migration
-server/cmd/__debug_bin
+backend/cmd/__debug_bin
 
 js/**
 
@@ -58,4 +58,4 @@ Env.elm
 cypress
 
 certs/*
-server/tmp/
+backend/tmp/

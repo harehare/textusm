@@ -5,12 +5,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Server",
+      "name": "Launch backend",
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceFolder}/server/cmd/main.go",
-      "envFile": "${workspaceFolder}/server/.env",
+      "program": "${workspaceFolder}/backend/cmd/main.go",
+      "envFile": "${workspaceFolder}/backend/.env",
       "showLog": true
     },
     {

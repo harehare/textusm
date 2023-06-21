@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "web/dist",
+    "public": "frontend/dist",
     "target": "textusm",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/*.map"],
     "rewrites": [

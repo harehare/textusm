@@ -29,7 +29,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          working-directory: server
+          working-directory: backend
           args: --issues-exit-code=0 --timeout=2m
       - name: Get npm cache directory
         id: npm-cache-dir
@@ -44,15 +44,15 @@ jobs:
             ${{ runner.os }}-node-
       - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
         name: Install Dependencies
-        working-directory: web
+        working-directory: frontend
         run: npm i --legacy-peer-deps
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
         with:
-          path: web
+          path: frontend
       - name: Generate elm-constants
-        working-directory: web
+        working-directory: frontend
         run: npm run dev:generate-elm-constants
         env:
           API_ROOT: ${{ secrets.API_ROOT }}
@@ -60,10 +60,10 @@ jobs:
           APP_VERSION: ${{ steps.package-version.outputs.current-version}}
           REPO_URL: ${{ secrets.REPO_URL }}
       - name: Check format
-        working-directory: web
+        working-directory: frontend
         run: npm run format:validate
       - name: Run Tests
-        working-directory: web
+        working-directory: frontend
         run: npm run test
       - uses: cypress-io/github-action@v5
         env:
@@ -84,10 +84,10 @@ jobs:
           MONITOR_ENABLE: "0"
           USE_HTTPS: "0"
         with:
-          start: "npm run dev:web"
+          start: "npm run dev:frontend"
           browser: chrome
           headed: true
-          working-directory: web
+          working-directory: frontend
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
           install: false
