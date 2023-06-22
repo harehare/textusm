@@ -38,14 +38,14 @@ import Models.Diagram.Settings as DiagramSettings
 import Models.Diagram.Type as DiagramType exposing (DiagramType)
 import Models.LoginProvider as LoginProvider
 import Models.Session as Session exposing (Session)
+import Models.Settings as Settings
 import Models.SettingsCache as SettingCache exposing (SettingsCache)
 import Models.ShareToken as ShareToken exposing (ShareToken)
 import Models.Text as Text
 import Models.Title as Title
 import Models.Window as Window exposing (Window)
 import Ports
-import Return exposing (Return)
-import Settings
+import Return
 import Task
 
 
@@ -150,7 +150,11 @@ loadSettings msg { cache, diagramType, session } =
                     |> Return.command
 
             Nothing ->
-                loadRemoteSettings msg { diagramType = diagramType, session = session }
+                Request.settings
+                    (Session.getIdToken session)
+                    diagramType
+                    |> Task.attempt msg
+                    |> Return.command
 
     else
         DiagramType.toString diagramType
@@ -238,7 +242,58 @@ saveDiagramSettings :
     -> Return.ReturnF msg model
 saveDiagramSettings msg { diagramType, session, settings } =
     if Session.isSignedIn session then
-        saveSettingsToRemote msg { diagramType = diagramType, session = session, settings = settings.storyMap }
+        Request.saveSettings
+            (Session.getIdToken session)
+            diagramType
+            { font = settings.storyMap.font
+            , width = settings.storyMap.size.width
+            , height = settings.storyMap.size.height
+            , backgroundColor = settings.storyMap.backgroundColor
+            , activityColor =
+                { foregroundColor = settings.storyMap.color.activity.color
+                , backgroundColor = settings.storyMap.color.activity.backgroundColor
+                }
+            , taskColor =
+                { foregroundColor = settings.storyMap.color.task.color
+                , backgroundColor = settings.storyMap.color.task.backgroundColor
+                }
+            , storyColor =
+                { foregroundColor = settings.storyMap.color.story.color
+                , backgroundColor = settings.storyMap.color.story.backgroundColor
+                }
+            , lineColor = settings.storyMap.color.line
+            , labelColor = settings.storyMap.color.label
+            , textColor =
+                case settings.storyMap.color.text of
+                    Just c ->
+                        OptionalArgument.Present c
+
+                    Nothing ->
+                        OptionalArgument.Absent
+            , zoomControl =
+                case settings.storyMap.zoomControl of
+                    Just z ->
+                        OptionalArgument.Present z
+
+                    Nothing ->
+                        OptionalArgument.Absent
+            , scale =
+                case settings.storyMap.scale of
+                    Just s ->
+                        OptionalArgument.Present s
+
+                    Nothing ->
+                        OptionalArgument.Absent
+            , toolbar =
+                case settings.storyMap.toolbar of
+                    Just z ->
+                        OptionalArgument.Present z
+
+                    Nothing ->
+                        OptionalArgument.Absent
+            }
+            |> Task.attempt msg
+            |> Return.command
 
     else
         saveSettingsToLocal { settings | diagram = Maybe.map (\d -> { d | diagram = diagramType }) settings.diagram }
@@ -299,87 +354,12 @@ setFocusEditor =
 toggleFullscreen : Window -> Return.ReturnF msg model
 toggleFullscreen window =
     if Window.isFullscreen window then
-        closeFullscreen
+        Return.command <| Ports.closeFullscreen ()
 
     else
-        openFullscreen
+        Return.command <| Ports.openFullscreen ()
 
 
 updateIdToken : Return.ReturnF msg model
 updateIdToken =
     Return.command <| Ports.refreshToken ()
-
-
-loadRemoteSettings : (Result RequestError DiagramSettings.Settings -> msg) -> { diagramType : DiagramType, session : Session } -> Return msg model -> Return msg model
-loadRemoteSettings msg { diagramType, session } =
-    Request.settings
-        (Session.getIdToken session)
-        diagramType
-        |> Task.attempt msg
-        |> Return.command
-
-
-openFullscreen : Return.ReturnF msg model
-openFullscreen =
-    Return.command <| Ports.openFullscreen ()
-
-
-closeFullscreen : Return.ReturnF msg model
-closeFullscreen =
-    Return.command <| Ports.closeFullscreen ()
-
-
-saveSettingsToRemote : (Result RequestError DiagramSettings.Settings -> msg) -> { diagramType : DiagramType, session : Session, settings : DiagramSettings.Settings } -> Return.ReturnF msg model
-saveSettingsToRemote msg { diagramType, session, settings } =
-    Request.saveSettings
-        (Session.getIdToken session)
-        diagramType
-        { font = settings.font
-        , width = settings.size.width
-        , height = settings.size.height
-        , backgroundColor = settings.backgroundColor
-        , activityColor =
-            { foregroundColor = settings.color.activity.color
-            , backgroundColor = settings.color.activity.backgroundColor
-            }
-        , taskColor =
-            { foregroundColor = settings.color.task.color
-            , backgroundColor = settings.color.task.backgroundColor
-            }
-        , storyColor =
-            { foregroundColor = settings.color.story.color
-            , backgroundColor = settings.color.story.backgroundColor
-            }
-        , lineColor = settings.color.line
-        , labelColor = settings.color.label
-        , textColor =
-            case settings.color.text of
-                Just c ->
-                    OptionalArgument.Present c
-
-                Nothing ->
-                    OptionalArgument.Absent
-        , zoomControl =
-            case settings.zoomControl of
-                Just z ->
-                    OptionalArgument.Present z
-
-                Nothing ->
-                    OptionalArgument.Absent
-        , scale =
-            case settings.scale of
-                Just s ->
-                    OptionalArgument.Present s
-
-                Nothing ->
-                    OptionalArgument.Absent
-        , toolbar =
-            case settings.toolbar of
-                Just z ->
-                    OptionalArgument.Present z
-
-                Nothing ->
-                    OptionalArgument.Absent
-        }
-        |> Task.attempt msg
-        |> Return.command

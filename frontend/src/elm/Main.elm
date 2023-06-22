@@ -45,6 +45,13 @@ import Models.Model as M exposing (Model, Msg)
 import Models.Notification as Notification
 import Models.Page as Page exposing (Page)
 import Models.Session as Session
+import Models.Settings as Settings
+    exposing
+        ( Settings
+        , defaultEditorSettings
+        , defaultSettings
+        , settingsDecoder
+        )
 import Models.SettingsCache as SettingsCache
 import Models.ShareState as ShareState
 import Models.ShareToken as ShareToken
@@ -64,13 +71,6 @@ import Page.Settings as Settings
 import Ports
 import Return exposing (Return)
 import Route exposing (Route(..), toRoute)
-import Settings
-    exposing
-        ( Settings
-        , defaultEditorSettings
-        , defaultSettings
-        , settingsDecoder
-        )
 import String
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle

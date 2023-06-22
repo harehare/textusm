@@ -65,10 +65,10 @@ import Models.Exporter as Exporter
 import Models.FileType as FileType
 import Models.Model exposing (BrowserStatus, Menu(..))
 import Models.Page as Page
+import Models.Settings as Settings exposing (Settings)
 import Models.Text as Text exposing (Text)
 import Models.Theme as Theme
 import Route exposing (Route)
-import Settings exposing (Settings)
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
 import Style.Font as FontStyle

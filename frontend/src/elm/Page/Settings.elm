@@ -47,7 +47,7 @@ import Models.FontSize as FontSize
 import Models.Session as Session exposing (Session)
 import Models.Theme as Theme
 import Return
-import Settings exposing (Settings)
+import Models.Settings as Settings exposing (Settings)
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
 import Style.Font as FontStyle

@@ -1,4 +1,4 @@
-module Settings exposing
+module Models.Settings exposing
     ( EditorSettings
     , Settings
     , activityBackgroundColor
