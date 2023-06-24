@@ -14,6 +14,7 @@ module Models.Property exposing
     , getCardHeight
     , getCardWidth
     , getFontSize
+    , getKeybordLayout
     , getLineColor
     , getLineSize
     , getNodeHeight
@@ -131,6 +132,11 @@ getFontSize property =
     Dict.get (toKeyString FontSize) property |> Maybe.andThen (\v -> String.toInt v |> Maybe.map FontSize.fromInt)
 
 
+getKeybordLayout : Property -> Maybe String
+getKeybordLayout property =
+    Dict.get (toKeyString KeyboardLayout) property
+
+
 getLineColor : Property -> Maybe Color
 getLineColor property =
     Dict.get (toKeyString LineColor) property |> Maybe.map Color.fromString
@@ -230,6 +236,9 @@ enabledKey s =
         "font_size" ->
             Just FontSize
 
+        "keyboard_layout" ->
+            Just KeyboardLayout
+
         "line_color" ->
             Just LineColor
 
@@ -284,6 +293,7 @@ type Key
     | CardWidth
     | CardHeight
     | FontSize
+    | KeyboardLayout
     | LineColor
     | LineSize
     | NodeWidth
@@ -336,6 +346,9 @@ toKeyString key =
 
         FontSize ->
             "font_size"
+
+        KeyboardLayout ->
+            "keyboard_layout"
 
         LineColor ->
             "line_color"
