@@ -1,86 +1,45 @@
-module Models.Diagram.KeyboardLayout exposing (Keyboard, from)
+module Models.Diagram.KeyboardLayout exposing (KeyboardLayout, Row(..), from, layout, rows)
 
-import Models.Item as Item exposing (Item, Items)
+import Models.Diagram.KeyboardLayout.Key as Key exposing (Key)
+import Models.Diagram.KeyboardLayout.Layout as Layout exposing (Layout)
+import Models.Item as Item exposing (Items)
 import Models.Property as Property exposing (Property)
 
 
-type Layout
-    = RowStaggered
-    | ColumnStaggered
-    | OrthoLinear
-
-
-type alias Unit =
-    Float
-
-
-type alias Legend =
-    String
-
-
-type Keyboard
-    = Keyboard Layout Rows
-
-
-type Rows
-    = Rows (List Row)
+type KeyboardLayout
+    = KeyboardLayout Layout (List Row)
 
 
 type Row
     = Row (List Key)
 
 
-type Key
-    = Key (Maybe Legend) (Maybe Legend) Unit
-
-
-from : Items -> Property -> Keyboard
+from : Items -> Property -> KeyboardLayout
 from items property =
-    Keyboard
+    KeyboardLayout
         (Property.getKeybordLayout property
-            |> Maybe.map layoutFromString
-            |> Maybe.withDefault RowStaggered
+            |> Maybe.map Layout.fromString
+            |> Maybe.withDefault Layout.RowStaggered
         )
-        (Rows
-            (Item.map
-                (\item ->
-                    Item.getChildrenItems item
-                        |> itemsToRow
-                )
-                items
+        (Item.map
+            (\item ->
+                Item.getChildrenItems item
+                    |> itemsToRow
             )
+            items
         )
 
 
-layoutFromString : String -> Layout
-layoutFromString layout =
-    case layout of
-        "column-staggered" ->
-            ColumnStaggered
+rows : KeyboardLayout -> List Row
+rows (KeyboardLayout _ r) =
+    r
 
-        "ortho-linear" ->
-            OrthoLinear
 
-        _ ->
-            RowStaggered
+layout : KeyboardLayout -> Layout
+layout (KeyboardLayout l _) =
+    l
 
 
 itemsToRow : Items -> Row
 itemsToRow items =
-    Row <| Item.map itemToKey items
-
-
-itemToKey : Item -> Key
-itemToKey item =
-    case Item.getText item |> String.split "," of
-        top :: bottom :: unit :: _ ->
-            Key (Just top) (Just bottom) (String.toFloat unit |> Maybe.withDefault 1.0)
-
-        [ top, bottom ] ->
-            Key (Just top) (Just bottom) 1.0
-
-        [ top ] ->
-            Key (Just top) Nothing 1.0
-
-        _ ->
-            Key Nothing Nothing 1.0
+    Row <| Item.map Key.fromItem items

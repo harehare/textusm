@@ -60,6 +60,7 @@ import Models.Diagram.FourLs as FourLsModel
 import Models.Diagram.FreeForm as FreeFormModel
 import Models.Diagram.GanttChart as GanttChartModel
 import Models.Diagram.Kanban as KanbanModel
+import Models.Diagram.KeyboardLayout as KeyboardLayout
 import Models.Diagram.Kpt as KptModel
 import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
 import Models.Diagram.Scale as Scale exposing (Scale)
@@ -76,7 +77,7 @@ import Models.FontStyle as FontStyle
 import Models.Item as Item exposing (Item, Items)
 import Models.Item.Settings as ItemSettings
 import Models.Position as Position exposing (Position)
-import Models.Property as Property
+import Models.Property as Property exposing (Property)
 import Models.Size as Size exposing (Size)
 import Models.Text as Text
 import Ports
@@ -428,7 +429,7 @@ update model message =
             let
                 diagramData : DiagramData.Data
                 diagramData =
-                    updateData (Text.toString model.text) model.data items
+                    updateData (Text.toString model.text) model.data items model.property
 
                 items : Items
                 items =
@@ -450,7 +451,7 @@ update model message =
             let
                 diagramData : DiagramData.Data
                 diagramData =
-                    updateData (Text.toString model.text) model.data items
+                    updateData (Text.toString model.text) model.data items model.property
 
                 items : Items
                 items =
@@ -1431,8 +1432,8 @@ touchCoordinates touchEvent =
         |> Maybe.withDefault ( 0, 0 )
 
 
-updateData : String -> DiagramData.Data -> Items -> DiagramData.Data
-updateData text data items =
+updateData : String -> DiagramData.Data -> Items -> Property -> DiagramData.Data
+updateData text data items property =
     case data of
         DiagramData.Empty ->
             DiagramData.Empty
@@ -1487,6 +1488,9 @@ updateData text data items =
 
         DiagramData.UseCaseDiagram _ ->
             DiagramData.UseCaseDiagram <| UseCaseDiagramModel.from items
+
+        DiagramData.KeyboardLayout _ ->
+            DiagramData.KeyboardLayout <| KeyboardLayout.from items property
 
 
 updateDiagram : Size -> Model -> String -> Model

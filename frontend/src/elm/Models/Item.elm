@@ -351,7 +351,7 @@ isHighlight (Item i) =
 
 isComment : Item -> Bool
 isComment (Item i) =
-    ItemValue.isCooment i.value
+    ItemValue.isComment i.value
 
 
 isHorizontalLine : Item -> Bool
@@ -505,7 +505,7 @@ unwrap (Items items) =
 
 unwrapChildren : Children -> Items
 unwrapChildren (Children (Items items)) =
-    Items (items |> List.filter (\(Item i) -> not <| ItemValue.isCooment i.value))
+    Items (items |> List.filter (\(Item i) -> not <| ItemValue.isComment i.value))
 
 
 withChildren : Children -> Item -> Item
@@ -676,9 +676,6 @@ loadText_ { indent, input, lineNo } =
             ( [ indent ], empty )
 
         ( (h :: rest) as parsed, other ) ->
-            -- TODO: load multi lines
-            -- h が複数行の場合は複数行読み込む
-            -- rest に | がない場合はすべての行を1つにまとめる
             let
                 ( otherIndents, otherItems ) =
                     loadText_ { indent = indent, input = String.join "\n" other, lineNo = lineNo + List.length parsed }
@@ -688,7 +685,7 @@ loadText_ { indent, input, lineNo } =
             in
             if isCommentLine h then
                 ( indent :: xsIndent ++ otherIndents
-                , filter (\(Item item) -> not <| ItemValue.isCooment item.value) otherItems
+                , filter (\(Item item) -> not <| ItemValue.isComment item.value) otherItems
                 )
 
             else
@@ -699,7 +696,7 @@ loadText_ { indent, input, lineNo } =
                         |> withText h
                         |> withChildren (childrenFromItems xsItems)
                     )
-                    (filter (\(Item item) -> not <| ItemValue.isCooment item.value) otherItems)
+                    (filter (\(Item item) -> not <| ItemValue.isComment item.value) otherItems)
                 )
 
 
@@ -742,7 +739,11 @@ splitLine text =
             ( text, Nothing )
 
         [ text_, comments ] ->
-            ( text_, Just comments )
+            if String.endsWith "\\" text_ then
+                ( text, Nothing )
+
+            else
+                ( text_, Just comments )
 
         _ ->
             ( "", Nothing )

@@ -3,7 +3,7 @@ module Models.Item.Value exposing
     , empty
     , fromString
     , getIndent
-    , isCooment
+    , isComment
     , isImage
     , isImageData
     , isMarkdown
@@ -92,8 +92,8 @@ isMarkdown value =
             False
 
 
-isCooment : Value -> Bool
-isCooment value =
+isComment : Value -> Bool
+isComment value =
     case value of
         Comment _ _ ->
             True
