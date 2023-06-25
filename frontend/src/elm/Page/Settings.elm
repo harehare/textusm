@@ -45,9 +45,9 @@ import Models.Diagram.Location as DiagramLocation
 import Models.Diagram.Type exposing (DiagramType)
 import Models.FontSize as FontSize
 import Models.Session as Session exposing (Session)
+import Models.Settings as Settings exposing (Settings)
 import Models.Theme as Theme
 import Return
-import Models.Settings as Settings exposing (Settings)
 import Style.Breakpoint as Breakpoint
 import Style.Color as ColorStyle
 import Style.Font as FontStyle
