@@ -5,7 +5,6 @@ import Models.Diagram.KeyboardLayout as KeyboardLayout
 import Models.Diagram.KeyboardLayout.Key as Key
 import Models.Diagram.KeyboardLayout.Unit as Unit
 import Models.Item as Item
-import Models.Property as Property
 import Test exposing (Test, describe, test)
 
 
@@ -21,13 +20,13 @@ suite =
                                 [ Item.new
                                     |> Item.withText "r1"
                                     |> Item.withChildren
-                                        (Item.fromList [ Item.new |> Item.withText "    1,@,2" ]
+                                        (Item.fromList [ Item.new |> Item.withText "    1,@,2u" ]
                                             |> Item.childrenFromItems
                                         )
                                 ]
                     in
                     Expect.equal
-                        (KeyboardLayout.from item Property.empty |> KeyboardLayout.rows)
-                        [ KeyboardLayout.Row [ Key.new (Just "1") (Just "@") (Unit.fromString "2") ] ]
+                        (KeyboardLayout.from item |> KeyboardLayout.rows)
+                        [ KeyboardLayout.Row [ Key.new (Just "1") (Just "@") (Unit.fromString "2u" |> Maybe.withDefault Unit.u1) ] ]
             ]
         ]

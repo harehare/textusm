@@ -1,45 +1,109 @@
-module Models.Diagram.KeyboardLayout exposing (KeyboardLayout, Row(..), from, layout, rows)
+module Models.Diagram.KeyboardLayout exposing
+    ( KeyboardLayout
+    , Row(..)
+    , columnSizeList
+    , from
+    , innerSize
+    , outerSize
+    , rowSizeList
+    , rows
+    , size
+    )
 
+import List.Extra as ListEx
 import Models.Diagram.KeyboardLayout.Key as Key exposing (Key)
-import Models.Diagram.KeyboardLayout.Layout as Layout exposing (Layout)
+import Models.Diagram.KeyboardLayout.Unit as Unit exposing (Unit)
 import Models.Item as Item exposing (Items)
-import Models.Property as Property exposing (Property)
+import Models.Size exposing (Size)
 
 
 type KeyboardLayout
-    = KeyboardLayout Layout (List Row)
+    = KeyboardLayout (List Row)
 
 
 type Row
     = Row (List Key)
+    | Blank Unit
 
 
-from : Items -> Property -> KeyboardLayout
-from items property =
+outerSize : Float
+outerSize =
+    54.0
+
+
+innerSize : Float
+innerSize =
+    42.0
+
+
+from : Items -> KeyboardLayout
+from items =
     KeyboardLayout
-        (Property.getKeybordLayout property
-            |> Maybe.map Layout.fromString
-            |> Maybe.withDefault Layout.RowStaggered
-        )
         (Item.map
             (\item ->
-                Item.getChildrenItems item
-                    |> itemsToRow
+                if Item.getChildrenCount item == 0 then
+                    Item.getText item
+                        |> Unit.fromString
+                        |> Maybe.withDefault Unit.u1
+                        |> Blank
+
+                else
+                    Item.getChildrenItems item
+                        |> itemsToRow
             )
             items
         )
 
 
+rowSizeList : List Row -> List Float
+rowSizeList rows_ =
+    ListEx.scanl
+        (\row acc ->
+            acc
+                + (case row of
+                    Blank unit ->
+                        Unit.toFloat unit * outerSize + 2
+
+                    Row _ ->
+                        outerSize + 2
+                  )
+        )
+        0
+        rows_
+
+
+columnSizeList : Row -> List Float
+columnSizeList row =
+    case row of
+        Blank _ ->
+            []
+
+        Row row_ ->
+            ListEx.scanl
+                (\key acc ->
+                    acc + Unit.toFloat (Key.unit key) * outerSize
+                )
+                0.0
+                row_
+
+
 rows : KeyboardLayout -> List Row
-rows (KeyboardLayout _ r) =
+rows (KeyboardLayout r) =
     r
-
-
-layout : KeyboardLayout -> Layout
-layout (KeyboardLayout l _) =
-    l
 
 
 itemsToRow : Items -> Row
 itemsToRow items =
     Row <| Item.map Key.fromItem items
+
+
+size : KeyboardLayout -> Size
+size (KeyboardLayout rows_) =
+    let
+        width =
+            List.concatMap columnSizeList rows_ |> List.maximum |> Maybe.withDefault 0.0
+
+        height =
+            rowSizeList rows_ |> List.maximum |> Maybe.withDefault 0.0
+    in
+    ( width |> round, height |> round )

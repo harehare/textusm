@@ -15,47 +15,56 @@ toFloat (Unit f) =
     f
 
 
-fromString : String -> Unit
+fromString : String -> Maybe Unit
 fromString unit =
-    case unit of
-        "7" ->
-            Unit 7.0
+    case String.toLower <| unit of
+        "7u" ->
+            Just <| Unit 7.0
 
-        "6.25" ->
-            Unit 6.25
+        "6.25u" ->
+            Just <| Unit 6.25
 
-        "6" ->
-            Unit 6
+        "6u" ->
+            Just <| Unit 6
 
-        "5" ->
-            Unit 5
+        "5u" ->
+            Just <| Unit 5
 
-        "4" ->
-            Unit 4
+        "4u" ->
+            Just <| Unit 4
 
-        "3" ->
-            Unit 3
+        "3u" ->
+            Just <| Unit 3
 
-        "2.75" ->
-            Unit 2.75
+        "2.75u" ->
+            Just <| Unit 2.75
 
-        "2.5" ->
-            Unit 2.5
+        "2.5u" ->
+            Just <| Unit 2.5
 
-        "2.25" ->
-            Unit 2.25
+        "2.25u" ->
+            Just <| Unit 2.25
 
-        "2" ->
-            Unit 2
+        "2u" ->
+            Just <| Unit 2
 
-        "1.75" ->
-            Unit 1.75
+        "1.75u" ->
+            Just <| Unit 1.75
 
-        "1.5" ->
-            Unit 1.5
+        "1.5u" ->
+            Just <| Unit 1.5
 
-        "1.25" ->
-            Unit 1.25
+        "1.25u" ->
+            Just <| Unit 1.25
+
+        "0.75u" ->
+            Just <| Unit 0.75
+
+        "0.5u" ->
+            Just <| Unit 0.5
+
+        "0.25u" ->
+            Just <| Unit 0.25
 
         _ ->
-            Unit 1.0
+            Nothing

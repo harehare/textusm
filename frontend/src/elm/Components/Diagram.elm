@@ -77,7 +77,7 @@ import Models.FontStyle as FontStyle
 import Models.Item as Item exposing (Item, Items)
 import Models.Item.Settings as ItemSettings
 import Models.Position as Position exposing (Position)
-import Models.Property as Property exposing (Property)
+import Models.Property as Property
 import Models.Size as Size exposing (Size)
 import Models.Text as Text
 import Ports
@@ -429,7 +429,7 @@ update model message =
             let
                 diagramData : DiagramData.Data
                 diagramData =
-                    updateData (Text.toString model.text) model.data items model.property
+                    updateData (Text.toString model.text) model.data items
 
                 items : Items
                 items =
@@ -451,7 +451,7 @@ update model message =
             let
                 diagramData : DiagramData.Data
                 diagramData =
-                    updateData (Text.toString model.text) model.data items model.property
+                    updateData (Text.toString model.text) model.data items
 
                 items : Items
                 items =
@@ -1432,8 +1432,8 @@ touchCoordinates touchEvent =
         |> Maybe.withDefault ( 0, 0 )
 
 
-updateData : String -> DiagramData.Data -> Items -> Property -> DiagramData.Data
-updateData text data items property =
+updateData : String -> DiagramData.Data -> Items -> DiagramData.Data
+updateData text data items =
     case data of
         DiagramData.Empty ->
             DiagramData.Empty
@@ -1490,7 +1490,7 @@ updateData text data items property =
             DiagramData.UseCaseDiagram <| UseCaseDiagramModel.from items
 
         DiagramData.KeyboardLayout _ ->
-            DiagramData.KeyboardLayout <| KeyboardLayout.from items property
+            DiagramData.KeyboardLayout <| KeyboardLayout.from items
 
 
 updateDiagram : Size -> Model -> String -> Model

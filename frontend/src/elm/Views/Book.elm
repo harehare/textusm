@@ -46,7 +46,6 @@ main =
     ElmBook.book "Views"
         |> ElmBook.withComponentOptions
             [ ElmBook.ComponentOptions.background "#273037"
-            , ElmBook.ComponentOptions.hiddenLabel True
             , ElmBook.ComponentOptions.fullWidth True
             , ElmBook.ComponentOptions.displayBlock
             ]
