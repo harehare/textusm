@@ -4,17 +4,24 @@
 
 module Graphql.Interface.Node exposing (..)
 
+import Graphql.InputObject
 import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
 import Graphql.Internal.Builder.Object as Object
+import Graphql.Internal.Encode as Encode exposing (Value)
 import Graphql.Object
+import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
+import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
-import Graphql.SelectionSet exposing (SelectionSet)
+import Graphql.SelectionSet exposing (FragmentSelectionSet(..), SelectionSet(..))
+import Graphql.Union
+import Json.Decode as Decode
 
 
 type alias Fragments decodesTo =
-    { onItem : SelectionSet decodesTo Graphql.Object.Item
-    , onGistItem : SelectionSet decodesTo Graphql.Object.GistItem
+    { onGistItem : SelectionSet decodesTo Graphql.Object.GistItem
+    , onItem : SelectionSet decodesTo Graphql.Object.Item
     }
 
 
@@ -25,15 +32,9 @@ fragments :
     -> SelectionSet decodesTo Graphql.Interface.Node
 fragments selections____ =
     Object.exhaustiveFragmentSelection
-        [ Object.buildFragment "Item" selections____.onItem
-        , Object.buildFragment "GistItem" selections____.onGistItem
+        [ Object.buildFragment "GistItem" selections____.onGistItem
+        , Object.buildFragment "Item" selections____.onItem
         ]
-
-
-{-| -}
-id : SelectionSet Graphql.ScalarCodecs.Id Graphql.Interface.Node
-id =
-    Object.selectionForField "ScalarCodecs.Id" "id" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
 
 
 {-| Can be used to create a non-exhaustive set of fragments by using the record
@@ -41,6 +42,11 @@ update syntax to add `SelectionSet`s for the types you want to handle.
 -}
 maybeFragments : Fragments (Maybe decodesTo)
 maybeFragments =
-    { onItem = Graphql.SelectionSet.empty |> Graphql.SelectionSet.map (\_ -> Nothing)
-    , onGistItem = Graphql.SelectionSet.empty |> Graphql.SelectionSet.map (\_ -> Nothing)
+    { onGistItem = Graphql.SelectionSet.empty |> Graphql.SelectionSet.map (\_ -> Nothing)
+    , onItem = Graphql.SelectionSet.empty |> Graphql.SelectionSet.map (\_ -> Nothing)
     }
+
+
+id : SelectionSet Graphql.ScalarCodecs.Id Graphql.Interface.Node
+id =
+    Object.selectionForField "ScalarCodecs.Id" "id" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)

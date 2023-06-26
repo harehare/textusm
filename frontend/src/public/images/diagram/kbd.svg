@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg height="512px" viewBox="0 0 1024 512" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <g>
+      <g>
+        <rect width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="4" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="6" y="16" font-size="12px">Esc</text>
+        <text x="6" y="38" font-size="12px" />
+      </g>
+      <g>
+        <rect x="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="58" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="60" y="16" font-size="12px">!</text>
+        <text x="60" y="38" font-size="12px">1</text>
+      </g>
+      <g>
+        <rect x="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="112" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="114" y="16" font-size="12px">@</text>
+        <text x="114" y="38" font-size="12px">2</text>
+      </g>
+      <g>
+        <rect x="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="166" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="168" y="16" font-size="12px">#</text>
+        <text x="168" y="38" font-size="12px">3</text>
+      </g>
+      <g>
+        <rect x="216" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="220" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="222" y="16" font-size="12px">$</text>
+        <text x="222" y="38" font-size="12px">4</text>
+      </g>
+      <g>
+        <rect x="270" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="274" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="276" y="16" font-size="12px">%</text>
+        <text x="276" y="38" font-size="12px">5</text>
+      </g>
+      <g>
+        <rect x="324" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="328" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="330" y="16" font-size="12px">^</text>
+        <text x="330" y="38" font-size="12px">6</text>
+      </g>
+      <g>
+        <rect x="378" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="382" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="384" y="16" font-size="12px">&amp;</text>
+        <text x="384" y="38" font-size="12px">7</text>
+      </g>
+      <g>
+        <rect x="432" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="436" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="438" y="16" font-size="12px">*</text>
+        <text x="438" y="38" font-size="12px">8</text>
+      </g>
+      <g>
+        <rect x="486" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="490" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="492" y="16" font-size="12px">(</text>
+        <text x="492" y="38" font-size="12px">9</text>
+      </g>
+      <g>
+        <rect x="540" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="544" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="546" y="16" font-size="12px">)</text>
+        <text x="546" y="38" font-size="12px">0</text>
+      </g>
+      <g>
+        <rect x="594" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="598" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="600" y="16" font-size="12px">_</text>
+        <text x="600" y="38" font-size="12px">-</text>
+      </g>
+      <g>
+        <rect x="648" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="652" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="654" y="16" font-size="12px">=</text>
+        <text x="654" y="38" font-size="12px">+</text>
+      </g>
+      <g>
+        <rect x="702" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="706" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="708" y="16" font-size="12px">|</text>
+        <text x="708" y="38" font-size="12px">\</text>
+      </g>
+      <g>
+        <rect x="756" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="760" y="3" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="762" y="16" font-size="12px">~</text>
+        <text x="762" y="38" font-size="12px">`</text>
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect y="54" width="81" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="4" y="57" width="71.85" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="6" y="70" font-size="12px">Tab</text>
+        <text x="6" y="92" font-size="12px" />
+      </g>
+      <g>
+        <rect x="81" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="85" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="87" y="70" font-size="12px">Q</text>
+        <text x="87" y="92" font-size="12px" />
+      </g>
+      <g>
+        <rect x="135" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="139" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="141" y="70" font-size="12px">W</text>
+        <text x="141" y="92" font-size="12px" />
+      </g>
+      <g>
+        <rect x="189" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="193" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="195" y="70" font-size="12px">E</text>
+        <text x="195" y="92" font-size="12px" />
+      </g>
+      <g>
+        <rect x="243" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="247" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="249" y="70" font-size="12px">R</text>
+        <text x="249" y="92" font-size="12px" />
+      </g>
+      <g>
+        <rect x="297" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="301" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="303" y="70" font-size="12px">T</text>
+        <text x="303" y="92" font-size="12px" />
+      </g>
+      <g>
+        <rect x="351" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="355" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="357" y="70" font-size="12px">Y</text>
+        <text x="357" y="92" font-size="12px" />
+      </g>
+      <g>
+        <rect x="405" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="409" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="411" y="70" font-size="12px">U</text>
+        <text x="411" y="92" font-size="12px" />
+      </g>
+      <g>
+        <rect x="459" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="463" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="465" y="70" font-size="12px">I</text>
+        <text x="465" y="92" font-size="12px" />
+      </g>
+      <g>
+        <rect x="513" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="517" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="519" y="70" font-size="12px">O</text>
+        <text x="519" y="92" font-size="12px" />
+      </g>
+      <g>
+        <rect x="567" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="571" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="573" y="70" font-size="12px">P</text>
+        <text x="573" y="92" font-size="12px" />
+      </g>
+      <g>
+        <rect x="621" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="625" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="627" y="70" font-size="12px">{</text>
+        <text x="627" y="92" font-size="12px">[</text>
+      </g>
+      <g>
+        <rect x="675" y="54" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="679" y="57" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="681" y="70" font-size="12px">}</text>
+        <text x="681" y="92" font-size="12px">]</text>
+      </g>
+      <g>
+        <rect x="729" y="54" width="81" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="733" y="57" width="71.85" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="735" y="70" font-size="12px">Backspace</text>
+        <text x="735" y="92" font-size="12px" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect y="108" width="94.5" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="4" y="111" width="83.825" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="6" y="124" font-size="12px">Control</text>
+        <text x="6" y="146" font-size="12px" />
+      </g>
+      <g>
+        <rect x="94.5" y="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="98.5" y="111" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="100.5" y="124" font-size="12px">A</text>
+        <text x="100.5" y="146" font-size="12px" />
+      </g>
+      <g>
+        <rect x="148.5" y="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="152.5" y="111" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="154.5" y="124" font-size="12px">S</text>
+        <text x="154.5" y="146" font-size="12px" />
+      </g>
+      <g>
+        <rect x="202.5" y="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="206.5" y="111" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="208.5" y="124" font-size="12px">D</text>
+        <text x="208.5" y="146" font-size="12px" />
+      </g>
+      <g>
+        <rect x="256.5" y="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="260.5" y="111" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="262.5" y="124" font-size="12px">F</text>
+        <text x="262.5" y="146" font-size="12px" />
+      </g>
+      <g>
+        <rect x="310.5" y="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="314.5" y="111" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="316.5" y="124" font-size="12px">G</text>
+        <text x="316.5" y="146" font-size="12px" />
+      </g>
+      <g>
+        <rect x="364.5" y="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="368.5" y="111" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="370.5" y="124" font-size="12px">H</text>
+        <text x="370.5" y="146" font-size="12px" />
+      </g>
+      <g>
+        <rect x="418.5" y="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="422.5" y="111" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="424.5" y="124" font-size="12px">J</text>
+        <text x="424.5" y="146" font-size="12px" />
+      </g>
+      <g>
+        <rect x="472.5" y="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="476.5" y="111" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="478.5" y="124" font-size="12px">K</text>
+        <text x="478.5" y="146" font-size="12px" />
+      </g>
+      <g>
+        <rect x="526.5" y="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="530.5" y="111" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="532.5" y="124" font-size="12px">L</text>
+        <text x="532.5" y="146" font-size="12px" />
+      </g>
+      <g>
+        <rect x="580.5" y="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="584.5" y="111" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="586.5" y="124" font-size="12px">:</text>
+        <text x="586.5" y="146" font-size="12px">;</text>
+      </g>
+      <g>
+        <rect x="634.5" y="108" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="638.5" y="111" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="640.5" y="124" font-size="12px">"</text>
+        <text x="640.5" y="146" font-size="12px">'</text>
+      </g>
+      <g>
+        <rect x="688.5" y="108" width="121.5" height="54" rx="2" fill="#ccc"
+          stroke="rgba(0,0,0,0.6)" />
+        <rect x="692.5" y="111" width="107.78" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="694.5" y="124" font-size="12px">Enter</text>
+        <text x="694.5" y="146" font-size="12px" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect y="162" width="121.5" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="4" y="165" width="107.78" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="6" y="178" font-size="12px">Shift</text>
+        <text x="6" y="200" font-size="12px" />
+      </g>
+      <g>
+        <rect x="121.5" y="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="125.5" y="165" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="127.5" y="178" font-size="12px">Z</text>
+        <text x="127.5" y="200" font-size="12px" />
+      </g>
+      <g>
+        <rect x="175.5" y="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="179.5" y="165" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="181.5" y="178" font-size="12px">X</text>
+        <text x="181.5" y="200" font-size="12px" />
+      </g>
+      <g>
+        <rect x="229.5" y="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="233.5" y="165" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="235.5" y="178" font-size="12px">C</text>
+        <text x="235.5" y="200" font-size="12px" />
+      </g>
+      <g>
+        <rect x="283.5" y="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="287.5" y="165" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="289.5" y="178" font-size="12px">V</text>
+        <text x="289.5" y="200" font-size="12px" />
+      </g>
+      <g>
+        <rect x="337.5" y="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="341.5" y="165" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="343.5" y="178" font-size="12px">B</text>
+        <text x="343.5" y="200" font-size="12px" />
+      </g>
+      <g>
+        <rect x="391.5" y="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="395.5" y="165" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="397.5" y="178" font-size="12px">N</text>
+        <text x="397.5" y="200" font-size="12px" />
+      </g>
+      <g>
+        <rect x="445.5" y="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="449.5" y="165" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="451.5" y="178" font-size="12px">M</text>
+        <text x="451.5" y="200" font-size="12px" />
+      </g>
+      <g>
+        <rect x="499.5" y="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="503.5" y="165" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="505.5" y="178" font-size="12px">
+          &lt;
+        </text>
+        <text x="505.5" y="200" font-size="12px">,</text>
+      </g>
+      <g>
+        <rect x="553.5" y="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="557.5" y="165" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="559.5" y="178" font-size="12px">></text>
+        <text x="559.5" y="200" font-size="12px">.</text>
+      </g>
+      <g>
+        <rect x="607.5" y="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="611.5" y="165" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="613.5" y="178" font-size="12px">?</text>
+        <text x="613.5" y="200" font-size="12px">/</text>
+      </g>
+      <g>
+        <rect x="661.5" y="162" width="94.5" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="665.5" y="165" width="83.825" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="667.5" y="178" font-size="12px">Shift</text>
+        <text x="667.5" y="200" font-size="12px" />
+      </g>
+      <g>
+        <rect x="756" y="162" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="760" y="165" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="762" y="178" font-size="12px">Fn</text>
+        <text x="762" y="200" font-size="12px" />
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect x="67.5" y="216" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="71.5" y="219" width="42" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="73.5" y="232" font-size="12px">Opt</text>
+        <text x="73.5" y="254" font-size="12px" />
+      </g>
+      <g>
+        <rect x="121.5" y="216" width="94.5" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="125.5" y="219" width="83.825" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="127.5" y="232" font-size="12px">Alt</text>
+        <text x="127.5" y="254" font-size="12px" />
+      </g>
+      <g>
+        <rect x="216" y="216" width="378" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="220" y="219" width="364" height="42" rx="4" fill="#FCFCFC" stroke="rgba(0,0,0,0.1)" />
+        <text x="222" y="232" font-size="12px" />
+        <text x="222" y="254" font-size="12px" />
+      </g>
+      <g>
+        <rect x="594" y="216" width="94.5" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="598" y="219" width="83.825" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="600" y="232" font-size="12px">Alt</text>
+        <text x="600" y="254" font-size="12px" />
+      </g>
+      <g>
+        <rect x="688.5" y="216" width="54" height="54" rx="2" fill="#ccc" stroke="rgba(0,0,0,0.6)" />
+        <rect x="692.5" y="219" width="42" height="42" rx="4" fill="#FCFCFC"
+          stroke="rgba(0,0,0,0.1)" />
+        <text x="694.5" y="232" font-size="12px">Opt</text>
+        <text x="694.5" y="254" font-size="12px" />
+      </g>
+    </g>
+  </g>
+</svg>

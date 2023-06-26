@@ -62,10 +62,10 @@ rowSizeList rows_ =
             acc
                 + (case row of
                     Blank unit ->
-                        Unit.toFloat unit * outerSize + 2
+                        Unit.toFloat unit * outerSize
 
                     Row _ ->
-                        outerSize + 2
+                        outerSize
                   )
         )
         0

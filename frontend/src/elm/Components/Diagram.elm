@@ -96,6 +96,7 @@ import Views.Diagram.FourLs as FourLs
 import Views.Diagram.FreeForm as FreeForm
 import Views.Diagram.GanttChart as GanttChart
 import Views.Diagram.Kanban as Kanban
+import Views.Diagram.KeyboardLayout as KeyboardLayout
 import Views.Diagram.Kpt as Kpt
 import Views.Diagram.MindMap as MindMap
 import Views.Diagram.MiniMap as MiniMap
@@ -914,6 +915,9 @@ diagramView diagramType model =
                 , onSelect = Select
                 }
 
+        KeyboardLayout ->
+            KeyboardLayout.view { data = model.data, settings = model.settings }
+
 
 highlightDefs : Svg msg
 highlightDefs =
@@ -1552,6 +1556,9 @@ updateDiagram size base text =
 
                 UseCaseDiagram ->
                     DiagramData.UseCaseDiagram <| UseCaseDiagramModel.from items
+
+                KeyboardLayout ->
+                    DiagramData.KeyboardLayout <| KeyboardLayout.from items
 
         ( hierarchy, items ) =
             Item.fromString text

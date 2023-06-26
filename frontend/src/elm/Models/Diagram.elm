@@ -43,6 +43,7 @@ import Models.Diagram.FreeForm as FreeFormModel
 import Models.Diagram.GanttChart as GanttChartModel
 import Models.Diagram.ImpactMap as ImpactMapModel
 import Models.Diagram.Kanban as KanbanModel
+import Models.Diagram.KeyboardLayout as KeyboardLayoutModel
 import Models.Diagram.Kpt as KptModel
 import Models.Diagram.MindMap as MindMapModel
 import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
@@ -373,6 +374,9 @@ size model =
 
         ( UseCaseDiagram, DiagramData.UseCaseDiagram useCaseDiagram ) ->
             UseCaseDiagramModel.size useCaseDiagram
+
+        ( KeyboardLayout, DiagramData.KeyboardLayout keyboardLayout ) ->
+            KeyboardLayoutModel.size keyboardLayout
 
         _ ->
             ( 0, 0 )

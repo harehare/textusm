@@ -75,6 +75,7 @@ const ENABLED_LANG_DIAGRAM_TYPE: { [v in DiagramType]: DiagramType } = {
   EmpathyMap: 'BusinessModelCanvas',
   Kanban: 'BusinessModelCanvas',
   Table: 'BusinessModelCanvas',
+  KeyboardLayout: 'KeyboardLayout',
 };
 class MonacoEditor extends HTMLElement {
   init: boolean;

@@ -27,6 +27,12 @@ suite =
                     in
                     Expect.equal
                         (KeyboardLayout.from item |> KeyboardLayout.rows)
-                        [ KeyboardLayout.Row [ Key.new (Just "1") (Just "@") (Unit.fromString "2u" |> Maybe.withDefault Unit.u1) ] ]
+                        [ KeyboardLayout.Row
+                            [ Key.new (Just "1")
+                                (Just "@")
+                                ( Unit.fromString "2u" |> Maybe.withDefault Unit.u1, Unit.u1 )
+                                Nothing
+                            ]
+                        ]
             ]
         ]

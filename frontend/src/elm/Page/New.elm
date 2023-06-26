@@ -121,4 +121,5 @@ newItems =
     , NewItem DiagramType.Kpt Asset.kpt (Route.toString <| Route.Edit Kpt)
     , NewItem DiagramType.Table Asset.table (Route.toString <| Route.Edit Table)
     , NewItem DiagramType.Freeform Asset.freeform (Route.toString <| Route.Edit Freeform)
+    , NewItem DiagramType.KeyboardLayout Asset.keyboardLayout (Route.toString <| Route.Edit KeyboardLayout)
     ]

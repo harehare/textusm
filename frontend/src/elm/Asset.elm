@@ -8,6 +8,7 @@ module Asset exposing
     , ganttChart
     , impactMap
     , kanban
+    , keyboardLayout
     , kpt
     , logo
     , mindMap
@@ -53,6 +54,11 @@ fourLs =
 freeform : Asset
 freeform =
     asset "diagram/free.svg"
+
+
+keyboardLayout : Asset
+keyboardLayout =
+    asset "diagram/kbd.svg"
 
 
 ganttChart : Asset
