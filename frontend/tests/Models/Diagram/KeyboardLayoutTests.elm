@@ -29,7 +29,7 @@ suite =
                         (KeyboardLayout.from item |> KeyboardLayout.rows)
                         [ KeyboardLayout.Row
                             [ Key.Key
-                                Item.new
+                                (Item.new |> Item.withText "    1,@,2u" |> Item.withLineNo 0)
                                 (Just "1")
                                 (Just "@")
                                 ( Unit.fromString "2u" |> Maybe.withDefault Unit.u1, Unit.u1 )

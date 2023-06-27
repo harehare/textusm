@@ -91,7 +91,24 @@ itemFuzzer =
                 |> Item.withChildren children
         )
         (Fuzz.intRange 0 100)
-        |> Fuzz.andMap (Fuzz.map (\s -> String.replace "#" "" s |> String.replace "|" "" |> String.trim) Fuzz.string)
+        |> Fuzz.andMap
+            (Fuzz.map
+                (\s ->
+                    String.split "#" s
+                        |> List.map
+                            (\s_ ->
+                                if String.endsWith "\\" s_ then
+                                    s_ ++ "#"
+
+                                else
+                                    s_
+                            )
+                        |> String.join ""
+                        |> String.replace "|" ""
+                        |> String.trim
+                )
+                Fuzz.string
+            )
         |> Fuzz.andMap
             (Fuzz.string
                 |> Fuzz.map
