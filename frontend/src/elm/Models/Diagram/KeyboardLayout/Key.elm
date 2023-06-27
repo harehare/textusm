@@ -4,7 +4,6 @@ module Models.Diagram.KeyboardLayout.Key exposing
     , fromItem
     , height
     , marginTop
-    , new
     , topLegend
     , unit
     )
@@ -26,19 +25,14 @@ type alias KeySize =
 
 
 type Key
-    = Key (Maybe Legend) (Maybe Legend) KeySize MarginTop
+    = Key Item (Maybe Legend) (Maybe Legend) KeySize MarginTop
     | Blank Unit
-
-
-new : Maybe Legend -> Maybe Legend -> KeySize -> MarginTop -> Key
-new top bottom size mt =
-    Key top bottom size mt
 
 
 topLegend : Key -> Maybe Legend
 topLegend k =
     case k of
-        Key t _ _ _ ->
+        Key _ t _ _ _ ->
             t
 
         _ ->
@@ -48,7 +42,7 @@ topLegend k =
 bottomLegend : Key -> Maybe Legend
 bottomLegend k =
     case k of
-        Key _ b _ _ ->
+        Key _ _ b _ _ ->
             b
 
         _ ->
@@ -58,7 +52,7 @@ bottomLegend k =
 marginTop : Key -> MarginTop
 marginTop k =
     case k of
-        Key _ _ _ mt ->
+        Key _ _ _ _ mt ->
             mt
 
         _ ->
@@ -68,7 +62,7 @@ marginTop k =
 unit : Key -> Unit
 unit k =
     case k of
-        Key _ _ u _ ->
+        Key _ _ _ u _ ->
             Tuple.first u
 
         Blank u ->
@@ -78,7 +72,7 @@ unit k =
 height : Key -> Unit
 height k =
     case k of
-        Key _ _ u _ ->
+        Key _ _ _ u _ ->
             Tuple.second u
 
         Blank u ->
@@ -89,7 +83,8 @@ fromItem : Item -> Key
 fromItem item =
     case Item.getText item |> String.split "," of
         top :: bottom :: u :: v :: mt :: _ ->
-            new (Just <| replace top)
+            Key item
+                (Just <| replace top)
                 (Just <| replace bottom)
                 ( Unit.fromString u |> Maybe.withDefault Unit.u1
                 , Unit.fromString v |> Maybe.withDefault Unit.u1
@@ -97,7 +92,8 @@ fromItem item =
                 (Unit.fromString mt)
 
         top :: bottom :: u :: v :: _ ->
-            new (Just <| replace top)
+            Key item
+                (Just <| replace top)
                 (Just <| replace bottom)
                 ( Unit.fromString u |> Maybe.withDefault Unit.u1
                 , Unit.fromString v |> Maybe.withDefault Unit.u1
@@ -105,13 +101,18 @@ fromItem item =
                 Nothing
 
         top :: bottom :: u :: _ ->
-            new (Just <| replace top)
+            Key item
+                (Just <| replace top)
                 (Just <| replace bottom)
                 ( Unit.fromString u |> Maybe.withDefault Unit.u1, Unit.u1 )
                 Nothing
 
         [ top, bottom ] ->
-            new (Just <| replace top) (Just <| replace bottom) ( Unit.u1, Unit.u1 ) Nothing
+            Key item
+                (Just <| replace top)
+                (Just <| replace bottom)
+                ( Unit.u1, Unit.u1 )
+                Nothing
 
         [ top ] ->
             case Unit.fromString top of
@@ -119,10 +120,14 @@ fromItem item =
                     Blank u
 
                 Nothing ->
-                    new (Just <| replace top) Nothing ( Unit.u1, Unit.u1 ) Nothing
+                    Key item
+                        (Just <| replace top)
+                        Nothing
+                        ( Unit.u1, Unit.u1 )
+                        Nothing
 
         _ ->
-            new Nothing Nothing ( Unit.u1, Unit.u1 ) Nothing
+            Key item Nothing Nothing ( Unit.u1, Unit.u1 ) Nothing
 
 
 replace : String -> String

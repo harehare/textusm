@@ -1,21 +1,40 @@
 module Views.Diagram.KeyboardLayout exposing (docs, view)
 
+import Css
+import ElmBook.Actions as Actions
 import ElmBook.Chapter as Chapter exposing (Chapter)
+import Events
+import Html.Styled as Html
+import Html.Styled.Attributes as Attr exposing (css)
+import Html.Styled.Events exposing (onBlur, onInput)
 import List.Extra as ListEx
+import Models.Color as Color
+import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
-import Models.Diagram.KeyboardLayout as KeyboardLayout exposing (Row, outerSize)
+import Models.Diagram.KeyboardLayout as KeyboardLayout exposing (Row, innerSize, outerSize)
 import Models.Diagram.KeyboardLayout.Key as Key exposing (Key)
 import Models.Diagram.KeyboardLayout.Unit as Unit exposing (Unit)
 import Models.Diagram.Settings as DiagramSettings
-import Models.Item as Item
+import Models.Item as Item exposing (Item)
+import Models.Property as Property exposing (Property)
 import String
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
+import Views.Diagram.Views as Views
 import Views.Empty as Empty
 
 
-view : { data : DiagramData.Data, settings : DiagramSettings.Settings } -> Svg msg
-view { data, settings } =
+view :
+    { data : DiagramData.Data
+    , selectedItem : SelectedItem
+    , settings : DiagramSettings.Settings
+    , property : Property
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    }
+    -> Svg msg
+view { data, settings, selectedItem, property, onSelect, onEditSelectedItem, onEndEditSelectedItem } =
     case data of
         DiagramData.KeyboardLayout k ->
             let
@@ -28,7 +47,16 @@ view { data, settings } =
             Svg.g [] <|
                 List.map
                     (\( row, y ) ->
-                        rowView { row = row, y = y, settings = settings }
+                        rowView
+                            { row = row
+                            , y = y
+                            , settings = settings
+                            , selectedItem = selectedItem
+                            , property = property
+                            , onSelect = onSelect
+                            , onEditSelectedItem = onEditSelectedItem
+                            , onEndEditSelectedItem = onEndEditSelectedItem
+                            }
                     )
                     (ListEx.zip rows rowSizeList)
 
@@ -51,8 +79,18 @@ adjustSize unit =
         Unit.toFloat unit * 10
 
 
-rowView : { row : Row, y : Float, settings : DiagramSettings.Settings } -> Svg msg
-rowView { row, y, settings } =
+rowView :
+    { row : Row
+    , y : Float
+    , settings : DiagramSettings.Settings
+    , selectedItem : SelectedItem
+    , property : Property
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    }
+    -> Svg msg
+rowView { row, y, settings, selectedItem, property, onSelect, onEditSelectedItem, onEndEditSelectedItem } =
     case row of
         KeyboardLayout.Blank _ ->
             Svg.g [] []
@@ -65,7 +103,16 @@ rowView { row, y, settings } =
             Svg.g [] <|
                 List.map
                     (\( key, x ) ->
-                        keyView { key = key, position = ( x, y ), settings = settings }
+                        keyView
+                            { key = key
+                            , position = ( x, y )
+                            , settings = settings
+                            , selectedItem = selectedItem
+                            , property = property
+                            , onSelect = onSelect
+                            , onEditSelectedItem = onEditSelectedItem
+                            , onEndEditSelectedItem = onEndEditSelectedItem
+                            }
                     )
                     (ListEx.zip
                         row_
@@ -73,13 +120,23 @@ rowView { row, y, settings } =
                     )
 
 
-keyView : { key : Key, position : ( Float, Float ), settings : DiagramSettings.Settings } -> Svg msg
-keyView { key, position, settings } =
+keyView :
+    { key : Key
+    , position : ( Float, Float )
+    , settings : DiagramSettings.Settings
+    , selectedItem : SelectedItem
+    , property : Property
+    , onEditSelectedItem : String -> msg
+    , onEndEditSelectedItem : Item -> msg
+    , onSelect : Maybe SelectedItemInfo -> msg
+    }
+    -> Svg msg
+keyView { key, position, settings, selectedItem, property, onSelect, onEditSelectedItem, onEndEditSelectedItem } =
     case key of
         Key.Blank _ ->
             Svg.g [] []
 
-        _ ->
+        Key.Key item _ _ _ _ ->
             let
                 ( x, y ) =
                     position
@@ -98,6 +155,35 @@ keyView { key, position, settings } =
 
                 marginTop =
                     (Key.marginTop key |> Maybe.map Unit.toFloat |> Maybe.withDefault 0.0) * outerSize
+
+                ( foreColor, backColor ) =
+                    Item.getSettings item
+                        |> Maybe.map (\_ -> Views.getItemColor settings property item)
+                        |> Maybe.withDefault
+                            ( Color.fromString <| Maybe.withDefault settings.color.label <| settings.color.text
+                            , Color.fromString "#FEFEFE"
+                            )
+
+                textView =
+                    Svg.g []
+                        [ Svg.text_
+                            [ SvgAttr.x <| String.fromFloat <| x + 6
+                            , SvgAttr.y <| String.fromFloat <| y + 16 + marginTop
+                            , SvgAttr.fontSize "12px"
+                            , SvgAttr.fill <| Color.toString foreColor
+                            ]
+                            [ Key.topLegend key
+                                |> Maybe.withDefault ""
+                                |> Svg.text
+                            ]
+                        , Svg.text_
+                            [ SvgAttr.x <| String.fromFloat <| x + 6
+                            , SvgAttr.y <| String.fromFloat <| y + 38 + marginTop
+                            , SvgAttr.fontSize "12px"
+                            , SvgAttr.fill <| Color.toString foreColor
+                            ]
+                            [ Svg.text <| Maybe.withDefault "" <| Key.bottomLegend key ]
+                        ]
             in
             Svg.g []
                 [ Svg.rect
@@ -107,7 +193,7 @@ keyView { key, position, settings } =
                     , SvgAttr.height <| String.fromFloat outerHeight
                     , SvgAttr.stroke "rgba(0,0,0,0.6)"
                     , SvgAttr.strokeWidth "1"
-                    , SvgAttr.fill "#D7D9DB"
+                    , SvgAttr.fill <| Color.toString backColor
                     , SvgAttr.rx "2"
                     ]
                     []
@@ -118,27 +204,53 @@ keyView { key, position, settings } =
                     , SvgAttr.height <| String.fromFloat <| innerHeight + adjustSize (Key.height key)
                     , SvgAttr.stroke "rgba(0,0,0,0.1)"
                     , SvgAttr.strokeWidth "1"
-                    , SvgAttr.fill "#FEFEFE"
+                    , SvgAttr.fill <| Color.toString backColor
                     , SvgAttr.rx "4"
+                    , Events.onClickStopPropagation <|
+                        onSelect <|
+                            Just { item = item, position = ( x |> round, y - innerSize |> round ), displayAllMenu = True }
                     ]
                     []
-                , Svg.text_
-                    [ SvgAttr.x <| String.fromFloat <| x + 6
-                    , SvgAttr.y <| String.fromFloat <| y + 16 + marginTop
-                    , SvgAttr.fontSize "12px"
-                    , SvgAttr.fill <| Maybe.withDefault settings.color.label <| settings.color.text
-                    ]
-                    [ Key.topLegend key
-                        |> Maybe.withDefault ""
-                        |> Svg.text
-                    ]
-                , Svg.text_
-                    [ SvgAttr.x <| String.fromFloat <| x + 6
-                    , SvgAttr.y <| String.fromFloat <| y + 38 + marginTop
-                    , SvgAttr.fontSize "12px"
-                    , SvgAttr.fill <| Maybe.withDefault settings.color.label <| settings.color.text
-                    ]
-                    [ Svg.text <| Maybe.withDefault "" <| Key.bottomLegend key ]
+                , case selectedItem of
+                    Just item_ ->
+                        if Item.eq item_ item then
+                            Svg.foreignObject
+                                [ SvgAttr.x <| String.fromFloat <| x + 6
+                                , SvgAttr.y <| String.fromFloat <| y + 16 + marginTop
+                                , SvgAttr.width <| String.fromFloat <| innerWidth + adjustSize (Key.unit key)
+                                , SvgAttr.height <| String.fromFloat <| innerHeight + adjustSize (Key.height key)
+                                ]
+                                [ Html.input
+                                    [ Attr.id "edit-item"
+                                    , Attr.type_ "text"
+                                    , Attr.autofocus True
+                                    , Attr.autocomplete False
+                                    , css
+                                        [ Css.padding4 (Css.px 8) (Css.px 8) (Css.px 8) Css.zero
+                                        , DiagramSettings.fontFamiliy settings
+                                        , Css.color <| Css.hex <| Maybe.withDefault settings.color.label <| settings.color.text
+                                        , Css.backgroundColor Css.transparent
+                                        , Css.borderStyle Css.none
+                                        , Css.outline Css.none
+                                        , Css.width <| Css.px <| innerWidth + adjustSize (Key.unit key)
+                                        , Css.fontSize <| Css.px 12
+                                        , Css.marginTop <| Css.px 2
+                                        , Css.marginLeft <| Css.px 2
+                                        , Css.focus [ Css.outline Css.none ]
+                                        ]
+                                    , Attr.value <| " " ++ String.trimLeft (Item.getMultiLineText item_)
+                                    , onInput onEditSelectedItem
+                                    , onBlur <| onSelect Nothing
+                                    , Events.onEnter <| onEndEditSelectedItem item_
+                                    ]
+                                    []
+                                ]
+
+                        else
+                            textView
+
+                    Nothing ->
+                        textView
                 ]
 
 
@@ -256,6 +368,11 @@ docs =
                                         ]
                                     )
                         , settings = DiagramSettings.default
+                        , selectedItem = Nothing
+                        , property = Property.empty
+                        , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                        , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                        , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
                         }
                     ]
                     |> Svg.toUnstyled
@@ -371,6 +488,11 @@ docs =
                                         ]
                                     )
                         , settings = DiagramSettings.default
+                        , selectedItem = Nothing
+                        , property = Property.empty
+                        , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                        , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                        , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
                         }
                     ]
                     |> Svg.toUnstyled
@@ -528,6 +650,11 @@ docs =
                                         ]
                                     )
                         , settings = DiagramSettings.default
+                        , selectedItem = Nothing
+                        , property = Property.empty
+                        , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                        , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                        , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
                         }
                     ]
                     |> Svg.toUnstyled
@@ -697,6 +824,11 @@ docs =
                                         ]
                                     )
                         , settings = DiagramSettings.default
+                        , selectedItem = Nothing
+                        , property = Property.empty
+                        , onEditSelectedItem = \_ -> Actions.logAction "onEditSelectedItem"
+                        , onEndEditSelectedItem = \_ -> Actions.logAction "onEndEditSelectedItem"
+                        , onSelect = \_ -> Actions.logAction "onEndEditSelectedItem"
                         }
                     ]
                     |> Svg.toUnstyled

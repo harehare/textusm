@@ -121,6 +121,7 @@ const addKeyboardLayout = () => {
         [/#[^#|]+/, 'comment'],
         [/^[^ ][^#:|]+/, 'indent1'],
         [/^ {4}[^#:|]+/, 'indent3'],
+        [/\|[^|]+/, 'hidden'],
       ],
     },
   });

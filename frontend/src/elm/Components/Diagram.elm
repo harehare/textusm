@@ -916,7 +916,15 @@ diagramView diagramType model =
                 }
 
         KeyboardLayout ->
-            KeyboardLayout.view { data = model.data, settings = model.settings }
+            KeyboardLayout.view
+                { data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                }
 
 
 highlightDefs : Svg msg
