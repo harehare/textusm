@@ -42,7 +42,7 @@ view { data, settings, selectedItem, property, onSelect, onEditSelectedItem, onE
                     KeyboardLayout.rows k
 
                 rowSizeList =
-                    KeyboardLayout.rowSizeList rows
+                    KeyboardLayout.rowSizeList (\_ -> 0.0) rows
             in
             Svg.g [] <|
                 List.map

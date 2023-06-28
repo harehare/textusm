@@ -55,8 +55,29 @@ from items =
         )
 
 
-rowSizeList : List Row -> List Float
-rowSizeList rows_ =
+rowMarginTop : Row -> Float
+rowMarginTop row =
+    case row of
+        Row keys ->
+            (List.maximum
+                (List.map
+                    (\key ->
+                        Key.marginTop key
+                            |> Maybe.withDefault Unit.zero
+                            |> Unit.toFloat
+                    )
+                    keys
+                )
+                |> Maybe.withDefault 0.0
+            )
+                * outerSize
+
+        Blank _ ->
+            0.0
+
+
+rowSizeList : (Row -> Float) -> List Row -> List Float
+rowSizeList marginTop rows_ =
     ListEx.scanl
         (\row acc ->
             acc
@@ -65,7 +86,7 @@ rowSizeList rows_ =
                         Unit.toFloat unit * outerSize
 
                     Row _ ->
-                        outerSize
+                        outerSize + marginTop row
                   )
         )
         0
@@ -104,6 +125,6 @@ size (KeyboardLayout rows_) =
             List.concatMap columnSizeList rows_ |> List.maximum |> Maybe.withDefault 0.0
 
         height =
-            rowSizeList rows_ |> List.maximum |> Maybe.withDefault 0.0
+            rowSizeList rowMarginTop rows_ |> List.maximum |> Maybe.withDefault 0.0
     in
     ( width |> round, height |> round )

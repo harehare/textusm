@@ -1,4 +1,4 @@
-module Models.Diagram.KeyboardLayout.Unit exposing (Unit, fromString, toFloat, u1)
+module Models.Diagram.KeyboardLayout.Unit exposing (Unit, fromString, toFloat, u1, zero)
 
 
 type Unit
@@ -8,6 +8,11 @@ type Unit
 u1 : Unit
 u1 =
     Unit 1.0
+
+
+zero : Unit
+zero =
+    Unit 0.0
 
 
 toFloat : Unit -> Float
