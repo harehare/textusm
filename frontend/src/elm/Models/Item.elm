@@ -739,11 +739,7 @@ splitLine text =
             ( text, Nothing )
 
         [ text_, comments ] ->
-            if String.endsWith "\\" text_ then
-                ( text, Nothing )
-
-            else
-                ( text_, Just comments )
+            ( text_, Just comments )
 
         _ ->
             ( "", Nothing )

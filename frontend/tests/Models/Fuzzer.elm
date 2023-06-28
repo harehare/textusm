@@ -94,16 +94,25 @@ itemFuzzer =
         |> Fuzz.andMap
             (Fuzz.map
                 (\s ->
-                    String.split "#" s
-                        |> List.map
-                            (\s_ ->
-                                if String.endsWith "\\" s_ then
-                                    s_ ++ "#"
+                    let
+                        tokens =
+                            String.split "#" s
+                    in
+                    (if List.length tokens > 1 then
+                        tokens
+                            |> List.map
+                                (\s_ ->
+                                    if String.endsWith "\\" s_ then
+                                        s_ ++ "#"
 
-                                else
-                                    s_
-                            )
-                        |> String.join ""
+                                    else
+                                        s_
+                                )
+                            |> String.join ""
+
+                     else
+                        s
+                    )
                         |> String.replace "|" ""
                         |> String.trim
                 )

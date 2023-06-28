@@ -133,5 +133,5 @@ fromItem item =
 replace : String -> String
 replace t =
     t
-        |> String.replace "\\#" "#"
-        |> String.replace "comma" ","
+        |> String.replace "{sharp}" "#"
+        |> String.replace "{comma}" ","
