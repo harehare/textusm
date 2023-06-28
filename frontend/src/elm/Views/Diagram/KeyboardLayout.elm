@@ -171,6 +171,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                             , SvgAttr.y <| String.fromFloat <| y + 16 + marginTop
                             , SvgAttr.fontSize "12px"
                             , SvgAttr.fill <| Color.toString foreColor
+                            , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
                             ]
                             [ Key.topLegend key
                                 |> Maybe.withDefault ""
@@ -181,6 +182,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                             , SvgAttr.y <| String.fromFloat <| y + 38 + marginTop
                             , SvgAttr.fontSize "12px"
                             , SvgAttr.fill <| Color.toString foreColor
+                            , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
                             ]
                             [ Svg.text <| Maybe.withDefault "" <| Key.bottomLegend key ]
                         ]
@@ -215,8 +217,8 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                     Just item_ ->
                         if Item.eq item_ item then
                             Svg.foreignObject
-                                [ SvgAttr.x <| String.fromFloat <| x + 6
-                                , SvgAttr.y <| String.fromFloat <| y + 16 + marginTop
+                                [ SvgAttr.x <| String.fromFloat <| x + 2
+                                , SvgAttr.y <| String.fromFloat <| y - 6
                                 , SvgAttr.width <| String.fromFloat <| innerWidth + adjustSize (Key.unit key)
                                 , SvgAttr.height <| String.fromFloat <| innerHeight + adjustSize (Key.height key)
                                 ]
@@ -228,7 +230,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                                     , css
                                         [ Css.padding4 (Css.px 8) (Css.px 8) (Css.px 8) Css.zero
                                         , DiagramSettings.fontFamiliy settings
-                                        , Css.color <| Css.hex <| Maybe.withDefault settings.color.label <| settings.color.text
+                                        , Css.color <| Css.hex <| Color.toString foreColor
                                         , Css.backgroundColor Css.transparent
                                         , Css.borderStyle Css.none
                                         , Css.outline Css.none

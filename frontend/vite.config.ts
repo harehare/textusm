@@ -49,7 +49,7 @@ export default defineConfig(({ mode }) => ({
     }),
     createHtmlPlugin({
       minify: true,
-      entry: 'ts/index.ts',
+      entry: '/ts/index.ts',
       template: 'index.html',
       inject: {
         data: {
