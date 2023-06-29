@@ -172,6 +172,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                             , SvgAttr.fontSize "12px"
                             , SvgAttr.fill <| Color.toString foreColor
                             , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
+                            , SvgAttr.cursor "pointer"
                             ]
                             [ Key.topLegend key
                                 |> Maybe.withDefault ""
@@ -183,6 +184,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                             , SvgAttr.fontSize "12px"
                             , SvgAttr.fill <| Color.toString foreColor
                             , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
+                            , SvgAttr.cursor "pointer"
                             ]
                             [ Svg.text <| Maybe.withDefault "" <| Key.bottomLegend key ]
                         ]
@@ -208,6 +210,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                     , SvgAttr.strokeWidth "1"
                     , SvgAttr.fill <| Color.toString backColor
                     , SvgAttr.rx "4"
+                    , SvgAttr.cursor "pointer"
                     , Events.onClickStopPropagation <|
                         onSelect <|
                             Just { item = item, position = ( x |> round, y - innerSize |> round ), displayAllMenu = True }
@@ -268,107 +271,10 @@ docs =
                     ]
                     [ view
                         { data =
-                            DiagramData.KeyboardLayout <|
-                                KeyboardLayout.from
-                                    (Item.fromList
-                                        [ Item.new
-                                            |> Item.withText "r4"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Esc"
-                                                    , Item.new |> Item.withText "    !,1"
-                                                    , Item.new |> Item.withText "    @,2"
-                                                    , Item.new |> Item.withText "    \\#,3"
-                                                    , Item.new |> Item.withText "    $,4"
-                                                    , Item.new |> Item.withText "    %,5"
-                                                    , Item.new |> Item.withText "    ^,6"
-                                                    , Item.new |> Item.withText "    &,7"
-                                                    , Item.new |> Item.withText "    *,8"
-                                                    , Item.new |> Item.withText "    (,9"
-                                                    , Item.new |> Item.withText "    ),0"
-                                                    , Item.new |> Item.withText "    _,-"
-                                                    , Item.new |> Item.withText "    =,+"
-                                                    , Item.new |> Item.withText "    Backspace,,2u"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r4"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Tab,,1.5u"
-                                                    , Item.new |> Item.withText "    Q"
-                                                    , Item.new |> Item.withText "    W"
-                                                    , Item.new |> Item.withText "    E"
-                                                    , Item.new |> Item.withText "    R"
-                                                    , Item.new |> Item.withText "    T"
-                                                    , Item.new |> Item.withText "    Y"
-                                                    , Item.new |> Item.withText "    U"
-                                                    , Item.new |> Item.withText "    I"
-                                                    , Item.new |> Item.withText "    O"
-                                                    , Item.new |> Item.withText "    P"
-                                                    , Item.new |> Item.withText "    {,["
-                                                    , Item.new |> Item.withText "    },]"
-                                                    , Item.new |> Item.withText "    |,\\,1.5u"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r3"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Caps Lock,,1.75u"
-                                                    , Item.new |> Item.withText "    A"
-                                                    , Item.new |> Item.withText "    S"
-                                                    , Item.new |> Item.withText "    D"
-                                                    , Item.new |> Item.withText "    F"
-                                                    , Item.new |> Item.withText "    G"
-                                                    , Item.new |> Item.withText "    H"
-                                                    , Item.new |> Item.withText "    J"
-                                                    , Item.new |> Item.withText "    K"
-                                                    , Item.new |> Item.withText "    L"
-                                                    , Item.new |> Item.withText "    :,;"
-                                                    , Item.new |> Item.withText "    \",'"
-                                                    , Item.new |> Item.withText "    Enter,,2.25u"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r2"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Shift,,2.25u"
-                                                    , Item.new |> Item.withText "    Z"
-                                                    , Item.new |> Item.withText "    X"
-                                                    , Item.new |> Item.withText "    C"
-                                                    , Item.new |> Item.withText "    V"
-                                                    , Item.new |> Item.withText "    B"
-                                                    , Item.new |> Item.withText "    N"
-                                                    , Item.new |> Item.withText "    M"
-                                                    , Item.new |> Item.withText "    <,comma"
-                                                    , Item.new |> Item.withText "    >,."
-                                                    , Item.new |> Item.withText "    ?,/"
-                                                    , Item.new |> Item.withText "    Shift,,2.75u"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r1"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Ctrl,,1.25u"
-                                                    , Item.new |> Item.withText "    Win,,1.25u"
-                                                    , Item.new |> Item.withText "    Alt,,1.25u"
-                                                    , Item.new |> Item.withText "    ,,6.25u"
-                                                    , Item.new |> Item.withText "    Alt,,1.25u"
-                                                    , Item.new |> Item.withText "    Win,,1.25u"
-                                                    , Item.new |> Item.withText "    Menu,,1.25u"
-                                                    , Item.new |> Item.withText "    Ctl,,1.25u"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        ]
-                                    )
+                            Item.fromString "r4\n    Esc\n    !,1\n    @,2\n    {sharp},3\n    $,4\n    %,5\n    ^,6\n    &,7\n    *,8\n    (,9\n    ),0\n    _,-\n    =,+\n    Backspace,,2u\nr4\n    Tab,,1.5u\n    Q\n    W\n    E\n    R\n    T\n    Y\n    U\n    I\n    O\n    P\n    {,[\n    },]\n    |,\\,1.5u\nr3\n    Caps Lock,,1.75u\n    A\n    S\n    D\n    F\n    G\n    H\n    J\n    K\n    L\n    :,;\n    \",'\n    Enter,,2.25u\nr2\n    Shift,,2.25u\n    Z\n    X\n    C\n    V\n    B\n    N\n    M\n    <,{comma}\n    >,.\n    ?,/\n    Shift,,2.75u\nr1\n    Ctrl,,1.25u\n    Win,,1.25u\n    Alt,,1.25u\n    ,,6.25u\n    Alt,,1.25u\n    Win,,1.25u\n    Menu,,1.25u\n    Ctl,,1.25u"
+                                |> Tuple.second
+                                |> KeyboardLayout.from
+                                |> DiagramData.KeyboardLayout
                         , settings = DiagramSettings.default
                         , selectedItem = Nothing
                         , property = Property.empty
@@ -387,108 +293,10 @@ docs =
                     ]
                     [ view
                         { data =
-                            DiagramData.KeyboardLayout <|
-                                KeyboardLayout.from
-                                    (Item.fromList
-                                        [ Item.new
-                                            |> Item.withText "r4"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Esc"
-                                                    , Item.new |> Item.withText "    !,1"
-                                                    , Item.new |> Item.withText "    @,2"
-                                                    , Item.new |> Item.withText "    \\#,3"
-                                                    , Item.new |> Item.withText "    $,4"
-                                                    , Item.new |> Item.withText "    %,5"
-                                                    , Item.new |> Item.withText "    ^,6"
-                                                    , Item.new |> Item.withText "    &,7"
-                                                    , Item.new |> Item.withText "    *,8"
-                                                    , Item.new |> Item.withText "    (,9"
-                                                    , Item.new |> Item.withText "    ),0"
-                                                    , Item.new |> Item.withText "    _,-"
-                                                    , Item.new |> Item.withText "    =,+"
-                                                    , Item.new |> Item.withText "    |,\\"
-                                                    , Item.new |> Item.withText "    ~,`"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r4"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Tab,,1.5u"
-                                                    , Item.new |> Item.withText "    Q"
-                                                    , Item.new |> Item.withText "    W"
-                                                    , Item.new |> Item.withText "    E"
-                                                    , Item.new |> Item.withText "    R"
-                                                    , Item.new |> Item.withText "    T"
-                                                    , Item.new |> Item.withText "    Y"
-                                                    , Item.new |> Item.withText "    U"
-                                                    , Item.new |> Item.withText "    I"
-                                                    , Item.new |> Item.withText "    O"
-                                                    , Item.new |> Item.withText "    P"
-                                                    , Item.new |> Item.withText "    {,["
-                                                    , Item.new |> Item.withText "    },]"
-                                                    , Item.new |> Item.withText "    Backspace,,1.5u"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r3"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Control,,1.75u"
-                                                    , Item.new |> Item.withText "    A"
-                                                    , Item.new |> Item.withText "    S"
-                                                    , Item.new |> Item.withText "    D"
-                                                    , Item.new |> Item.withText "    F"
-                                                    , Item.new |> Item.withText "    G"
-                                                    , Item.new |> Item.withText "    H"
-                                                    , Item.new |> Item.withText "    J"
-                                                    , Item.new |> Item.withText "    K"
-                                                    , Item.new |> Item.withText "    L"
-                                                    , Item.new |> Item.withText "    :,;"
-                                                    , Item.new |> Item.withText "    \",'"
-                                                    , Item.new |> Item.withText "    Enter,,2.25u"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r2"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Shift,,2.25u"
-                                                    , Item.new |> Item.withText "    Z"
-                                                    , Item.new |> Item.withText "    X"
-                                                    , Item.new |> Item.withText "    C"
-                                                    , Item.new |> Item.withText "    V"
-                                                    , Item.new |> Item.withText "    B"
-                                                    , Item.new |> Item.withText "    N"
-                                                    , Item.new |> Item.withText "    M"
-                                                    , Item.new |> Item.withText "    <,comma"
-                                                    , Item.new |> Item.withText "    >,."
-                                                    , Item.new |> Item.withText "    ?,/"
-                                                    , Item.new |> Item.withText "    Shift,,1.75u"
-                                                    , Item.new |> Item.withText "    Fn"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r1"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    1.25u"
-                                                    , Item.new |> Item.withText "    Opt"
-                                                    , Item.new |> Item.withText "    Alt,,1.75u"
-                                                    , Item.new |> Item.withText "    ,,7u"
-                                                    , Item.new |> Item.withText "    Alt,,1.75u"
-                                                    , Item.new |> Item.withText "    Opt"
-                                                    , Item.new |> Item.withText "    1.25u"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        ]
-                                    )
+                            Item.fromString "r4\n    Esc\n    !,1\n    @,2\n    {sharp},3\n    $,4\n    %,5\n    ^,6\n    &,7\n    *,8\n    (,9\n    ),0\n    _,-\n    =,+\n    |,\\\n    ~,`\nr4\n    Tab,,1.5u\n    Q\n    W\n    E\n    R\n    T\n    Y\n    U\n    I\n    O\n    P\n    {,[\n    },]\n    Backspace,,1.5u\nr3\n    Control,,1.75u\n    A\n    S\n    D\n    F\n    G\n    H\n    J\n    K\n    L\n    :,;\n    \",'\n    Enter,,2.25u\nr2\n    Shift,,2.25u\n    Z\n    X\n    C\n    V\n    B\n    N\n    M\n    <,{comma}\n    >,.\n    ?,/\n    Shift,,1.75u\n    Fn\nr1\n    1.25u\n    Opt\n    Alt,,1.75u\n    ,,7u\n    Alt,,1.75u\n    Opt\n    1.25u\n"
+                                |> Tuple.second
+                                |> KeyboardLayout.from
+                                |> DiagramData.KeyboardLayout
                         , settings = DiagramSettings.default
                         , selectedItem = Nothing
                         , property = Property.empty
@@ -507,150 +315,10 @@ docs =
                     ]
                     [ view
                         { data =
-                            DiagramData.KeyboardLayout <|
-                                KeyboardLayout.from
-                                    (Item.fromList
-                                        [ Item.new
-                                            |> Item.withText "r4"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Esc"
-                                                    , Item.new |> Item.withText "    1u"
-                                                    , Item.new |> Item.withText "    F1"
-                                                    , Item.new |> Item.withText "    F2"
-                                                    , Item.new |> Item.withText "    F3"
-                                                    , Item.new |> Item.withText "    F4"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    F5"
-                                                    , Item.new |> Item.withText "    F6"
-                                                    , Item.new |> Item.withText "    F7"
-                                                    , Item.new |> Item.withText "    F8"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    F9"
-                                                    , Item.new |> Item.withText "    F10"
-                                                    , Item.new |> Item.withText "    F11"
-                                                    , Item.new |> Item.withText "    F12"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    PrtSc"
-                                                    , Item.new |> Item.withText "    Scroll,Lock"
-                                                    , Item.new |> Item.withText "    Pause,Break"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "0.25u"
-                                        , Item.new
-                                            |> Item.withText "r4"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Esc"
-                                                    , Item.new |> Item.withText "    !,1"
-                                                    , Item.new |> Item.withText "    @,2"
-                                                    , Item.new |> Item.withText "    \\#,3"
-                                                    , Item.new |> Item.withText "    $,4"
-                                                    , Item.new |> Item.withText "    %,5"
-                                                    , Item.new |> Item.withText "    ^,6"
-                                                    , Item.new |> Item.withText "    &,7"
-                                                    , Item.new |> Item.withText "    *,8"
-                                                    , Item.new |> Item.withText "    (,9"
-                                                    , Item.new |> Item.withText "    ),0"
-                                                    , Item.new |> Item.withText "    _,-"
-                                                    , Item.new |> Item.withText "    =,+"
-                                                    , Item.new |> Item.withText "    Backspace,,2u"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    Insert"
-                                                    , Item.new |> Item.withText "    Home"
-                                                    , Item.new |> Item.withText "    PgUp"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r4"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Tab,,1.5u"
-                                                    , Item.new |> Item.withText "    Q"
-                                                    , Item.new |> Item.withText "    W"
-                                                    , Item.new |> Item.withText "    E"
-                                                    , Item.new |> Item.withText "    R"
-                                                    , Item.new |> Item.withText "    T"
-                                                    , Item.new |> Item.withText "    Y"
-                                                    , Item.new |> Item.withText "    U"
-                                                    , Item.new |> Item.withText "    I"
-                                                    , Item.new |> Item.withText "    O"
-                                                    , Item.new |> Item.withText "    P"
-                                                    , Item.new |> Item.withText "    {,["
-                                                    , Item.new |> Item.withText "    },]"
-                                                    , Item.new |> Item.withText "    |,\\,1.5u"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    Delete"
-                                                    , Item.new |> Item.withText "    End"
-                                                    , Item.new |> Item.withText "    PgDn"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r3"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Caps Lock,,1.75u"
-                                                    , Item.new |> Item.withText "    A"
-                                                    , Item.new |> Item.withText "    S"
-                                                    , Item.new |> Item.withText "    D"
-                                                    , Item.new |> Item.withText "    F"
-                                                    , Item.new |> Item.withText "    G"
-                                                    , Item.new |> Item.withText "    H"
-                                                    , Item.new |> Item.withText "    J"
-                                                    , Item.new |> Item.withText "    K"
-                                                    , Item.new |> Item.withText "    L"
-                                                    , Item.new |> Item.withText "    :,;"
-                                                    , Item.new |> Item.withText "    \",'"
-                                                    , Item.new |> Item.withText "    Enter,,2.25u"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r2"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Shift,,2.25u"
-                                                    , Item.new |> Item.withText "    Z"
-                                                    , Item.new |> Item.withText "    X"
-                                                    , Item.new |> Item.withText "    C"
-                                                    , Item.new |> Item.withText "    V"
-                                                    , Item.new |> Item.withText "    B"
-                                                    , Item.new |> Item.withText "    N"
-                                                    , Item.new |> Item.withText "    M"
-                                                    , Item.new |> Item.withText "    <,comma"
-                                                    , Item.new |> Item.withText "    >,."
-                                                    , Item.new |> Item.withText "    ?,/"
-                                                    , Item.new |> Item.withText "    Shift,,2.75u"
-                                                    , Item.new |> Item.withText "    1.5u"
-                                                    , Item.new |> Item.withText "    ↑"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r1"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Ctrl,,1.25u"
-                                                    , Item.new |> Item.withText "    Win,,1.25u"
-                                                    , Item.new |> Item.withText "    Alt,,1.25u"
-                                                    , Item.new |> Item.withText "    ,,6.25u"
-                                                    , Item.new |> Item.withText "    Alt,,1.25u"
-                                                    , Item.new |> Item.withText "    Win,,1.25u"
-                                                    , Item.new |> Item.withText "    Menu,,1.25u"
-                                                    , Item.new |> Item.withText "    Ctl,,1.25u"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    ←"
-                                                    , Item.new |> Item.withText "    ↓"
-                                                    , Item.new |> Item.withText "    →"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        ]
-                                    )
+                            Item.fromString "r4\n    Esc\n    1u\n    F1\n    F2\n    F3\n    F4\n    0.5u\n    F5\n    F6\n    F7\n    F8\n    0.5u\n    F9\n    F10\n    F11\n    F12\n    0.5u\n    PrtSc\n    Scroll,Lock\n    Pause,Break\nr4\n    Esc\n    !,1\n    @,2\n    {sharp},3\n    $,4\n    %,5\n    ^,6\n    &,7\n    *,8\n    (,9\n    ),0\n    _,-\n    =,+\n    Backspace,,2u\n    0.5u\n    Insert\n    Home\n    PgUp\nr4\n    Tab,,1.5u\n    Q\n    W\n    E\n    R\n    T\n    Y\n    U\n    I\n    O\n    P\n    {,[\n    },]\n    |,\\,1.5u\n    0.5u\n    Delete\n    End\n    PgDn\nr3\n    Caps Lock,,1.75u\n    A\n    S\n    D\n    F\n    G\n    H\n    J\n    K\n    L\n    :,;\n    \",'\n    Enter,,2.25u\nr2\n    Shift,,2.25u\n    Z\n    X\n    C\n    V\n    B\n    N\n    M\n    <,{comma}\n    >,.\n    ?,/\n    Shift,,2.75u\n    1.5u\n    ↑\nr1\n    Ctrl,,1.25u\n    Win,,1.25u\n    Alt,,1.25u\n    ,,6.25u\n    Alt,,1.25u\n    Win,,1.25u\n    Menu,,1.25u\n    Ctl,,1.25u\n    0.5u\n    ←\n    ↓\n    →\n"
+                                |> Tuple.second
+                                |> KeyboardLayout.from
+                                |> DiagramData.KeyboardLayout
                         , settings = DiagramSettings.default
                         , selectedItem = Nothing
                         , property = Property.empty
@@ -669,162 +337,10 @@ docs =
                     ]
                     [ view
                         { data =
-                            DiagramData.KeyboardLayout <|
-                                KeyboardLayout.from
-                                    (Item.fromList
-                                        [ Item.new
-                                            |> Item.withText "r4"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Esc"
-                                                    , Item.new |> Item.withText "    1u"
-                                                    , Item.new |> Item.withText "    F1"
-                                                    , Item.new |> Item.withText "    F2"
-                                                    , Item.new |> Item.withText "    F3"
-                                                    , Item.new |> Item.withText "    F4"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    F5"
-                                                    , Item.new |> Item.withText "    F6"
-                                                    , Item.new |> Item.withText "    F7"
-                                                    , Item.new |> Item.withText "    F8"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    F9"
-                                                    , Item.new |> Item.withText "    F10"
-                                                    , Item.new |> Item.withText "    F11"
-                                                    , Item.new |> Item.withText "    F12"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    Home"
-                                                    , Item.new |> Item.withText "    End"
-                                                    , Item.new |> Item.withText "    PgUp"
-                                                    , Item.new |> Item.withText "    PgDn"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "0.25u"
-                                        , Item.new
-                                            |> Item.withText "r4"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Esc"
-                                                    , Item.new |> Item.withText "    !,1"
-                                                    , Item.new |> Item.withText "    @,2"
-                                                    , Item.new |> Item.withText "    \\#,3"
-                                                    , Item.new |> Item.withText "    $,4"
-                                                    , Item.new |> Item.withText "    %,5"
-                                                    , Item.new |> Item.withText "    ^,6"
-                                                    , Item.new |> Item.withText "    &,7"
-                                                    , Item.new |> Item.withText "    *,8"
-                                                    , Item.new |> Item.withText "    (,9"
-                                                    , Item.new |> Item.withText "    ),0"
-                                                    , Item.new |> Item.withText "    _,-"
-                                                    , Item.new |> Item.withText "    =,+"
-                                                    , Item.new |> Item.withText "    Backspace,,2u"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    Num,Lock"
-                                                    , Item.new |> Item.withText "    /"
-                                                    , Item.new |> Item.withText "    *"
-                                                    , Item.new |> Item.withText "    -"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r4"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Tab,,1.5u"
-                                                    , Item.new |> Item.withText "    Q"
-                                                    , Item.new |> Item.withText "    W"
-                                                    , Item.new |> Item.withText "    E"
-                                                    , Item.new |> Item.withText "    R"
-                                                    , Item.new |> Item.withText "    T"
-                                                    , Item.new |> Item.withText "    Y"
-                                                    , Item.new |> Item.withText "    U"
-                                                    , Item.new |> Item.withText "    I"
-                                                    , Item.new |> Item.withText "    O"
-                                                    , Item.new |> Item.withText "    P"
-                                                    , Item.new |> Item.withText "    {,["
-                                                    , Item.new |> Item.withText "    },]"
-                                                    , Item.new |> Item.withText "    |,\\,1.5u"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    7,Home"
-                                                    , Item.new |> Item.withText "    8,↑"
-                                                    , Item.new |> Item.withText "    9,PgUp"
-                                                    , Item.new |> Item.withText "    +,,,2u"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r3"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Caps Lock,,1.75u"
-                                                    , Item.new |> Item.withText "    A"
-                                                    , Item.new |> Item.withText "    S"
-                                                    , Item.new |> Item.withText "    D"
-                                                    , Item.new |> Item.withText "    F"
-                                                    , Item.new |> Item.withText "    G"
-                                                    , Item.new |> Item.withText "    H"
-                                                    , Item.new |> Item.withText "    J"
-                                                    , Item.new |> Item.withText "    K"
-                                                    , Item.new |> Item.withText "    L"
-                                                    , Item.new |> Item.withText "    :,;"
-                                                    , Item.new |> Item.withText "    \",'"
-                                                    , Item.new |> Item.withText "    Enter,,2.25u"
-                                                    , Item.new |> Item.withText "    0.5u"
-                                                    , Item.new |> Item.withText "    4, ←"
-                                                    , Item.new |> Item.withText "    5"
-                                                    , Item.new |> Item.withText "    6,→"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r2"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Shift,,2.25u"
-                                                    , Item.new |> Item.withText "    Z"
-                                                    , Item.new |> Item.withText "    X"
-                                                    , Item.new |> Item.withText "    C"
-                                                    , Item.new |> Item.withText "    V"
-                                                    , Item.new |> Item.withText "    B"
-                                                    , Item.new |> Item.withText "    N"
-                                                    , Item.new |> Item.withText "    M"
-                                                    , Item.new |> Item.withText "    <,comma"
-                                                    , Item.new |> Item.withText "    >,."
-                                                    , Item.new |> Item.withText "    ?,/"
-                                                    , Item.new |> Item.withText "    Shift,,1.75u"
-                                                    , Item.new |> Item.withText "    0.25u"
-                                                    , Item.new |> Item.withText "    ↑,,,,0.25u"
-                                                    , Item.new |> Item.withText "    0.25u"
-                                                    , Item.new |> Item.withText "    1,End"
-                                                    , Item.new |> Item.withText "    2,↓"
-                                                    , Item.new |> Item.withText "    3,PgDn"
-                                                    , Item.new |> Item.withText "    Enter,,,2u"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        , Item.new
-                                            |> Item.withText "r1"
-                                            |> Item.withChildren
-                                                (Item.fromList
-                                                    [ Item.new |> Item.withText "    Ctrl,,1.5u"
-                                                    , Item.new |> Item.withText "    Alt,,1.5u"
-                                                    , Item.new |> Item.withText "    ,,7u"
-                                                    , Item.new |> Item.withText "    Alt,,1.5u"
-                                                    , Item.new |> Item.withText "    Ctl,,1.5u"
-                                                    , Item.new |> Item.withText "    0.25u"
-                                                    , Item.new |> Item.withText "    ←,,,,0.25u"
-                                                    , Item.new |> Item.withText "    ↓,,,,0.25u"
-                                                    , Item.new |> Item.withText "    →,,,,0.25u"
-                                                    , Item.new |> Item.withText "    0.25u"
-                                                    , Item.new |> Item.withText "    0,Ins"
-                                                    , Item.new |> Item.withText "    .,Del"
-                                                    ]
-                                                    |> Item.childrenFromItems
-                                                )
-                                        ]
-                                    )
+                            Item.fromString "r4\n    Esc\n    1u\n    F1\n    F2\n    F3\n    F4\n    0.5u\n    F5\n    F6\n    F7\n    F8\n    0.5u\n    F9\n    F10\n    F11\n    F12\n    0.5u\n    Home\n    End\n    PgUp\n    PgDn\nr4\n    Esc\n    !,1\n    @,2\n    {sharp},3\n    $,4\n    %,5\n    ^,6\n    &,7\n    *,8\n    (,9\n    ),0\n    _,-\n    =,+\n    Backspace,,2u\n    0.5u\n    Num,Lock\n    /\n    *\n    -\nr4\n    Tab,,1.5u\n    Q\n    W\n    E\n    R\n    T\n    Y\n    U\n    I\n    O\n    P\n    {,[\n    },]\n    |,\\,1.5u\n    0.5u\n    7,Home\n    8,↑\n    9,PgUp\n    +,,,2u\nr3\n    Caps Lock,,1.75u\n    A\n    S\n    D\n    F\n    G\n    H\n    J\n    K\n    L\n    :,;\n    \",'\n    Enter,,2.25u\n    0.5u\n    4, ←\n    5\n    6,→\nr2\n    Shift,,2.25u\n    Z\n    X\n    C\n    V\n    B\n    N\n    M\n    <,{comma}\n    >,.\n    ?,/\n    Shift,,1.75u\n    0.25u\n    ↑,,,,0.25u\n    0.25u\n    1,End\n    2,↓\n    3,PgDn\n    Enter,,,2u\nr1\n    Ctrl,,1.5u\n    Alt,,1.5u\n    ,,7u\n    Alt,,1.5u\n    Ctl,,1.5u\n    0.25u\n    ←,,,,0.25u\n    ↓,,,,0.25u\n    →,,,,0.25u\n    0.25u\n    0,Ins\n    .,Del\n"
+                                |> Tuple.second
+                                |> KeyboardLayout.from
+                                |> DiagramData.KeyboardLayout
                         , settings = DiagramSettings.default
                         , selectedItem = Nothing
                         , property = Property.empty
