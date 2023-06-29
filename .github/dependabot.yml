@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: "/web"
+    directory: "/frontend"
     schedule:
       interval: daily
       time: "20:00"
@@ -11,7 +11,7 @@ updates:
       - "automerge"
 
   - package-ecosystem: elm
-    directory: "/web"
+    directory: "/frontend"
     schedule:
       interval: daily
       time: "20:00"
@@ -21,7 +21,7 @@ updates:
       - "automerge"
 
   - package-ecosystem: elm
-    directory: "/web/review"
+    directory: "/frontend/review"
     schedule:
       interval: daily
       time: "20:00"
@@ -31,7 +31,7 @@ updates:
       - "automerge"
 
   - package-ecosystem: "gomod"
-    directory: "/server"
+    directory: "/backend"
     schedule:
       interval: daily
       time: "20:00"
