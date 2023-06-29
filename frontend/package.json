@@ -1,7 +1,7 @@
 {
   "name": "textusm",
   "description": "Online tool for Generate a User Story Mapping from indented text.",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "author": "harehare",
   "bugs": {
     "url": "https://github.com/harehare/textusm/issues"
@@ -94,7 +94,7 @@
     "lint-fix": "concurrently \"npm:lint-fix:*\"",
     "lint-fix:ts": "xo --fix --prettier src/ts/*.ts",
     "lint-fix:elm": "elm-review --fix",
-    "book": "mkdir -p ./src/dist && cp ./src/book.html ./src/dist/ && cp -r ./src/assets/images ./src/dist/ && elm-book src/elm/Views/Book.elm --dir=./src/dist --start-page=book.html --pushstate --port 4000  -- --output=./src/dist/book.js",
+    "book": "mkdir -p ./src/dist && cp ./src/book.html ./src/dist/ && cp -r ./src/public/images ./src/dist/ && elm-book src/elm/Views/Book.elm --dir=./src/dist --start-page=book.html --pushstate --port 4000  -- --output=./src/dist/book.js",
     "knip": "knip"
   },
   "browserslist": [

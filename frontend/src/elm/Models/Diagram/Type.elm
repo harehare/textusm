@@ -12,6 +12,7 @@ module Models.Diagram.Type exposing
     )
 
 import Graphql.Enum.Diagram as Diagram exposing (Diagram)
+import Models.Diagram.KeyboardLayout exposing (KeyboardLayout)
 
 
 type DiagramType
@@ -33,6 +34,7 @@ type DiagramType
     | SequenceDiagram
     | Freeform
     | UseCaseDiagram
+    | KeyboardLayout
 
 
 defaultText : DiagramType -> String
@@ -92,6 +94,9 @@ defaultText diagram =
         Freeform ->
             ""
 
+        KeyboardLayout ->
+            "r4\n    Esc\n    1u\n    F1\n    F2\n    F3\n    F4\n    0.5u\n    F5\n    F6\n    F7\n    F8\n    0.5u\n    F9\n    F10\n    F11\n    F12\n    0.5u\n    Home\n    End\n    PgUp\n    PgDn\n0.25u\nr4\n    ~,`\n    !,1\n    @,2\n    {sharp},3\n    $,4\n    %,5\n    ^,6\n    &,7\n    *,8\n    (,9\n    ),0\n    _,-\n    =,+\n    Backspace,,2u\n    0.5u\n    Num,Lock\n    /\n    *\n    -\nr4\n    Tab,,1.5u\n    Q\n    W\n    E\n    R\n    T\n    Y\n    U\n    I\n    O\n    P\n    {,[\n    },]\n    |,\\,1.5u\n    0.5u\n    7,Home\n    8,↑\n    9,PgUp\n    +,,,2u\nr3\n    Caps Lock,,1.75u\n    A\n    S\n    D\n    F\n    G\n    H\n    J\n    K\n    L\n    :,;\n    \",'\n    Enter,,2.25u\n    0.5u\n    4, ←\n    5\n    6,→\nr2\n    Shift,,2.25u\n    Z\n    X\n    C\n    V\n    B\n    N\n    M\n    <,{comma}\n    >,.\n    ?,/\n    Shift,,1.75u\n    0.25u\n    ↑,,,,0.25u\n    0.25u\n    1,End\n    2,↓\n    3,PgDn\n    Enter,,,2u\nr1\n    Ctrl,,1.5u\n    Alt,,1.5u\n    ,,7u\n    Alt,,1.5u\n    Ctl,,1.5u\n    0.25u\n    ←,,,,0.25u\n    ↓,,,,0.25u\n    →,,,,0.25u\n    0.25u\n    0,Ins\n    .,Del"
+
 
 fromGraphqlValue : Diagram -> DiagramType
 fromGraphqlValue diagram =
@@ -150,6 +155,9 @@ fromGraphqlValue diagram =
         Diagram.UseCaseDiagram ->
             UseCaseDiagram
 
+        Diagram.KeyboardLayout ->
+            KeyboardLayout
+
 
 fromString : String -> DiagramType
 fromString s =
@@ -207,6 +215,9 @@ fromString s =
 
         "usm" ->
             UserStoryMap
+
+        "kbd" ->
+            KeyboardLayout
 
         _ ->
             UserStoryMap
@@ -269,6 +280,9 @@ toDiagram s =
         "usm" ->
             Just UserStoryMap
 
+        "kbd" ->
+            Just KeyboardLayout
+
         _ ->
             Nothing
 
@@ -330,6 +344,9 @@ toGraphqlValue diagramType =
         UseCaseDiagram ->
             Diagram.UseCaseDiagram
 
+        KeyboardLayout ->
+            Diagram.KeyboardLayout
+
 
 toLongString : DiagramType -> String
 toLongString diagramType =
@@ -388,6 +405,9 @@ toLongString diagramType =
         UseCaseDiagram ->
             "UseCaseDiagram"
 
+        KeyboardLayout ->
+            "KeyboardLayout"
+
 
 toString : DiagramType -> String
 toString diagramType =
@@ -442,6 +462,9 @@ toString diagramType =
 
         Freeform ->
             "free"
+
+        KeyboardLayout ->
+            "kbd"
 
         UseCaseDiagram ->
             "ucd"
@@ -503,6 +526,9 @@ toTypeString diagramType =
 
         UseCaseDiagram ->
             "UseCaseDiagram"
+
+        KeyboardLayout ->
+            "KeyboardLayout"
 
 
 fromTypeString : String -> DiagramType

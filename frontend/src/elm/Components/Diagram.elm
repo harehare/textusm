@@ -60,6 +60,7 @@ import Models.Diagram.FourLs as FourLsModel
 import Models.Diagram.FreeForm as FreeFormModel
 import Models.Diagram.GanttChart as GanttChartModel
 import Models.Diagram.Kanban as KanbanModel
+import Models.Diagram.KeyboardLayout as KeyboardLayout
 import Models.Diagram.Kpt as KptModel
 import Models.Diagram.OpportunityCanvas as OpportunityCanvasModel
 import Models.Diagram.Scale as Scale exposing (Scale)
@@ -95,6 +96,7 @@ import Views.Diagram.FourLs as FourLs
 import Views.Diagram.FreeForm as FreeForm
 import Views.Diagram.GanttChart as GanttChart
 import Views.Diagram.Kanban as Kanban
+import Views.Diagram.KeyboardLayout as KeyboardLayout
 import Views.Diagram.Kpt as Kpt
 import Views.Diagram.MindMap as MindMap
 import Views.Diagram.MiniMap as MiniMap
@@ -913,6 +915,17 @@ diagramView diagramType model =
                 , onSelect = Select
                 }
 
+        KeyboardLayout ->
+            KeyboardLayout.view
+                { data = model.data
+                , settings = model.settings
+                , selectedItem = model.selectedItem
+                , property = model.property
+                , onEditSelectedItem = EditSelectedItem
+                , onEndEditSelectedItem = EndEditSelectedItem
+                , onSelect = Select
+                }
+
 
 highlightDefs : Svg msg
 highlightDefs =
@@ -1488,6 +1501,9 @@ updateData text data items =
         DiagramData.UseCaseDiagram _ ->
             DiagramData.UseCaseDiagram <| UseCaseDiagramModel.from items
 
+        DiagramData.KeyboardLayout _ ->
+            DiagramData.KeyboardLayout <| KeyboardLayout.from items
+
 
 updateDiagram : Size -> Model -> String -> Model
 updateDiagram size base text =
@@ -1548,6 +1564,9 @@ updateDiagram size base text =
 
                 UseCaseDiagram ->
                     DiagramData.UseCaseDiagram <| UseCaseDiagramModel.from items
+
+                KeyboardLayout ->
+                    DiagramData.KeyboardLayout <| KeyboardLayout.from items
 
         ( hierarchy, items ) =
             Item.fromString text

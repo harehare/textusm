@@ -11,6 +11,7 @@ import Views.Diagram.FourLs as FourLs
 import Views.Diagram.FreeForm as FreeForm
 import Views.Diagram.GanttChart as GanttChart
 import Views.Diagram.Kanban as Kanban
+import Views.Diagram.KeyboardLayout as KeyboardLayout
 import Views.Diagram.Kpt as Kpt
 import Views.Diagram.MindMap as MindMap
 import Views.Diagram.OpportunityCanvas as OpportunityCanvas
@@ -45,7 +46,6 @@ main =
     ElmBook.book "Views"
         |> ElmBook.withComponentOptions
             [ ElmBook.ComponentOptions.background "#273037"
-            , ElmBook.ComponentOptions.hiddenLabel True
             , ElmBook.ComponentOptions.fullWidth True
             , ElmBook.ComponentOptions.displayBlock
             ]
@@ -90,6 +90,7 @@ main =
                 , UseCaseDiagram.docs
                 , Toolbar.docs
                 , FourLs.docs
+                , KeyboardLayout.docs
                 ]
               )
             ]

@@ -109,8 +109,27 @@ const addBusinessModelCanvas = () => {
   });
 };
 
+const addKeyboardLayout = () => {
+  monaco.languages.register({
+    id: 'KeyboardLayout',
+  });
+
+  monaco.languages.setMonarchTokensProvider('KeyboardLayout', {
+    tokenizer: {
+      root: [
+        [/#[^.*#[^:]+:.+$/, 'property'],
+        [/#[^#|]+/, 'comment'],
+        [/^[^ ][^#:|]+/, 'indent1'],
+        [/^ {4}[^#:|]+/, 'indent3'],
+        [/\|[^|]+/, 'hidden'],
+      ],
+    },
+  });
+};
+
 export const registerLang = () => {
   addUserStoryMap();
   addGanttChart();
   addBusinessModelCanvas();
+  addKeyboardLayout();
 };

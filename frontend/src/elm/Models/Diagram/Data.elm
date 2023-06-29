@@ -7,6 +7,7 @@ import Models.Diagram.FourLs exposing (FourLs)
 import Models.Diagram.FreeForm exposing (FreeForm)
 import Models.Diagram.GanttChart exposing (GanttChart)
 import Models.Diagram.Kanban exposing (Kanban)
+import Models.Diagram.KeyboardLayout exposing (KeyboardLayout)
 import Models.Diagram.Kpt exposing (Kpt)
 import Models.Diagram.OpportunityCanvas exposing (OpportunityCanvas)
 import Models.Diagram.SequenceDiagram exposing (SequenceDiagram)
@@ -37,6 +38,7 @@ type Data
     | FreeForm FreeForm
     | GanttChart (Maybe GanttChart)
     | UseCaseDiagram UseCaseDiagram
+    | KeyboardLayout KeyboardLayout
 
 
 type alias Hierarchy =

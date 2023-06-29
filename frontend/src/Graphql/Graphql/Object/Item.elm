@@ -5,63 +5,61 @@
 module Graphql.Object.Item exposing (..)
 
 import Graphql.Enum.Diagram
+import Graphql.InputObject
+import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
 import Graphql.Internal.Builder.Object as Object
+import Graphql.Internal.Encode as Encode exposing (Value)
 import Graphql.Object
+import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
+import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
 import Graphql.SelectionSet exposing (SelectionSet)
-import Json.Decode as D
+import Graphql.Union
+import Json.Decode as Decode
 
 
-{-| -}
-createdAt : SelectionSet Graphql.ScalarCodecs.Time Graphql.Object.Item
-createdAt =
-    Object.selectionForField "ScalarCodecs.Time" "createdAt" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecTime |> .decoder)
-
-
-{-| -}
-diagram : SelectionSet Graphql.Enum.Diagram.Diagram Graphql.Object.Item
-diagram =
-    Object.selectionForField "Enum.Diagram.Diagram" "diagram" [] Graphql.Enum.Diagram.decoder
-
-
-{-| -}
 id : SelectionSet Graphql.ScalarCodecs.Id Graphql.Object.Item
 id =
     Object.selectionForField "ScalarCodecs.Id" "id" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecId |> .decoder)
 
 
-{-| -}
-isBookmark : SelectionSet Bool Graphql.Object.Item
-isBookmark =
-    Object.selectionForField "Bool" "isBookmark" [] D.bool
-
-
-{-| -}
-isPublic : SelectionSet Bool Graphql.Object.Item
-isPublic =
-    Object.selectionForField "Bool" "isPublic" [] D.bool
-
-
-{-| -}
-text : SelectionSet String Graphql.Object.Item
-text =
-    Object.selectionForField "String" "text" [] D.string
-
-
-{-| -}
-thumbnail : SelectionSet (Maybe String) Graphql.Object.Item
-thumbnail =
-    Object.selectionForField "(Maybe String)" "thumbnail" [] (D.string |> D.nullable)
-
-
-{-| -}
 title : SelectionSet String Graphql.Object.Item
 title =
-    Object.selectionForField "String" "title" [] D.string
+    Object.selectionForField "String" "title" [] Decode.string
 
 
-{-| -}
+text : SelectionSet String Graphql.Object.Item
+text =
+    Object.selectionForField "String" "text" [] Decode.string
+
+
+thumbnail : SelectionSet (Maybe String) Graphql.Object.Item
+thumbnail =
+    Object.selectionForField "(Maybe String)" "thumbnail" [] (Decode.string |> Decode.nullable)
+
+
+diagram : SelectionSet Graphql.Enum.Diagram.Diagram Graphql.Object.Item
+diagram =
+    Object.selectionForField "Enum.Diagram.Diagram" "diagram" [] Graphql.Enum.Diagram.decoder
+
+
+isPublic : SelectionSet Bool Graphql.Object.Item
+isPublic =
+    Object.selectionForField "Bool" "isPublic" [] Decode.bool
+
+
+isBookmark : SelectionSet Bool Graphql.Object.Item
+isBookmark =
+    Object.selectionForField "Bool" "isBookmark" [] Decode.bool
+
+
+createdAt : SelectionSet Graphql.ScalarCodecs.Time Graphql.Object.Item
+createdAt =
+    Object.selectionForField "ScalarCodecs.Time" "createdAt" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecTime |> .decoder)
+
+
 updatedAt : SelectionSet Graphql.ScalarCodecs.Time Graphql.Object.Item
 updatedAt =
     Object.selectionForField "ScalarCodecs.Time" "updatedAt" [] (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapCodecs |> .codecTime |> .decoder)

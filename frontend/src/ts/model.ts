@@ -34,6 +34,7 @@ export type DiagramType =
   | 'Table'
   | 'SequenceDiagram'
   | 'Freeform'
+  | 'KeyboardLayout'
   | 'UseCaseDiagram';
 
 export type ExportInfo = {

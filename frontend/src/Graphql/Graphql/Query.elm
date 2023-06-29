@@ -5,25 +5,27 @@
 module Graphql.Query exposing (..)
 
 import Graphql.Enum.Diagram
-import Graphql.Internal.Builder.Argument as Argument
+import Graphql.InputObject
+import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
 import Graphql.Internal.Builder.Object as Object
-import Graphql.Internal.Encode as Encode
+import Graphql.Internal.Encode as Encode exposing (Value)
 import Graphql.Object
-import Graphql.Operation exposing (RootQuery)
+import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
 import Graphql.OptionalArgument exposing (OptionalArgument(..))
 import Graphql.Scalar
 import Graphql.ScalarCodecs
 import Graphql.SelectionSet exposing (SelectionSet)
 import Graphql.Union
-import Json.Decode as D
+import Json.Decode as Decode exposing (Decoder)
 
 
-{-|
+type alias AllItemsOptionalArguments =
+    { offset : OptionalArgument Int
+    , limit : OptionalArgument Int
+    }
 
-  - offset -
-  - limit -
 
--}
 allItems :
     (AllItemsOptionalArguments -> AllItemsOptionalArguments)
     -> SelectionSet decodesTo Graphql.Union.DiagramItem
@@ -37,66 +39,17 @@ allItems fillInOptionals____ object____ =
             [ Argument.optional "offset" filledInOptionals____.offset Encode.int, Argument.optional "limit" filledInOptionals____.limit Encode.int ]
                 |> List.filterMap Basics.identity
     in
-    Object.selectionForCompositeField "allItems" optionalArgs____ object____ (D.list >> D.nullable)
+    Object.selectionForCompositeField "allItems" optionalArgs____ object____ (Basics.identity >> Decode.list >> Decode.nullable)
 
 
-type alias AllItemsOptionalArguments =
-    { offset : OptionalArgument Int
-    , limit : OptionalArgument Int
-    }
+type alias ItemOptionalArguments =
+    { isPublic : OptionalArgument Bool }
 
 
-{-|
-
-  - id -
-
--}
-gistItem :
-    GistItemRequiredArguments
-    -> SelectionSet decodesTo Graphql.Object.GistItem
-    -> SelectionSet decodesTo RootQuery
-gistItem requiredArgs____ object____ =
-    Object.selectionForCompositeField "gistItem" [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ] object____ Basics.identity
-
-
-type alias GistItemRequiredArguments =
+type alias ItemRequiredArguments =
     { id : Graphql.ScalarCodecs.Id }
 
 
-{-|
-
-  - offset -
-  - limit -
-
--}
-gistItems :
-    (GistItemsOptionalArguments -> GistItemsOptionalArguments)
-    -> SelectionSet decodesTo Graphql.Object.GistItem
-    -> SelectionSet (List (Maybe decodesTo)) RootQuery
-gistItems fillInOptionals____ object____ =
-    let
-        filledInOptionals____ =
-            fillInOptionals____ { offset = Absent, limit = Absent }
-
-        optionalArgs____ =
-            [ Argument.optional "offset" filledInOptionals____.offset Encode.int, Argument.optional "limit" filledInOptionals____.limit Encode.int ]
-                |> List.filterMap Basics.identity
-    in
-    Object.selectionForCompositeField "gistItems" optionalArgs____ object____ (D.nullable >> D.list)
-
-
-type alias GistItemsOptionalArguments =
-    { offset : OptionalArgument Int
-    , limit : OptionalArgument Int
-    }
-
-
-{-|
-
-  - id -
-  - isPublic -
-
--}
 item :
     (ItemOptionalArguments -> ItemOptionalArguments)
     -> ItemRequiredArguments
@@ -114,22 +67,14 @@ item fillInOptionals____ requiredArgs____ object____ =
     Object.selectionForCompositeField "item" (optionalArgs____ ++ [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ]) object____ Basics.identity
 
 
-type alias ItemOptionalArguments =
-    { isPublic : OptionalArgument Bool }
+type alias ItemsOptionalArguments =
+    { offset : OptionalArgument Int
+    , limit : OptionalArgument Int
+    , isBookmark : OptionalArgument Bool
+    , isPublic : OptionalArgument Bool
+    }
 
 
-type alias ItemRequiredArguments =
-    { id : Graphql.ScalarCodecs.Id }
-
-
-{-|
-
-  - offset -
-  - limit -
-  - isBookmark -
-  - isPublic -
-
--}
 items :
     (ItemsOptionalArguments -> ItemsOptionalArguments)
     -> SelectionSet decodesTo Graphql.Object.Item
@@ -143,57 +88,17 @@ items fillInOptionals____ object____ =
             [ Argument.optional "offset" filledInOptionals____.offset Encode.int, Argument.optional "limit" filledInOptionals____.limit Encode.int, Argument.optional "isBookmark" filledInOptionals____.isBookmark Encode.bool, Argument.optional "isPublic" filledInOptionals____.isPublic Encode.bool ]
                 |> List.filterMap Basics.identity
     in
-    Object.selectionForCompositeField "items" optionalArgs____ object____ (D.nullable >> D.list)
+    Object.selectionForCompositeField "items" optionalArgs____ object____ (Basics.identity >> Decode.nullable >> Decode.list)
 
 
-type alias ItemsOptionalArguments =
-    { offset : OptionalArgument Int
-    , limit : OptionalArgument Int
-    , isBookmark : OptionalArgument Bool
-    , isPublic : OptionalArgument Bool
-    }
+type alias ShareItemOptionalArguments =
+    { password : OptionalArgument String }
 
 
-{-|
-
-  - diagram -
-
--}
-settings :
-    SettingsRequiredArguments
-    -> SelectionSet decodesTo Graphql.Object.Settings
-    -> SelectionSet decodesTo RootQuery
-settings requiredArgs____ object____ =
-    Object.selectionForCompositeField "settings" [ Argument.required "diagram" requiredArgs____.diagram (Encode.enum Graphql.Enum.Diagram.toString) ] object____ Basics.identity
+type alias ShareItemRequiredArguments =
+    { token : String }
 
 
-type alias SettingsRequiredArguments =
-    { diagram : Graphql.Enum.Diagram.Diagram }
-
-
-{-|
-
-  - id -
-
--}
-shareCondition :
-    ShareConditionRequiredArguments
-    -> SelectionSet decodesTo Graphql.Object.ShareCondition
-    -> SelectionSet (Maybe decodesTo) RootQuery
-shareCondition requiredArgs____ object____ =
-    Object.selectionForCompositeField "ShareCondition" [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ] object____ D.nullable
-
-
-type alias ShareConditionRequiredArguments =
-    { id : Graphql.ScalarCodecs.Id }
-
-
-{-|
-
-  - token -
-  - password -
-
--}
 shareItem :
     (ShareItemOptionalArguments -> ShareItemOptionalArguments)
     -> ShareItemRequiredArguments
@@ -211,9 +116,59 @@ shareItem fillInOptionals____ requiredArgs____ object____ =
     Object.selectionForCompositeField "shareItem" (optionalArgs____ ++ [ Argument.required "token" requiredArgs____.token Encode.string ]) object____ Basics.identity
 
 
-type alias ShareItemOptionalArguments =
-    { password : OptionalArgument String }
+type alias ShareConditionRequiredArguments =
+    { id : Graphql.ScalarCodecs.Id }
 
 
-type alias ShareItemRequiredArguments =
-    { token : String }
+shareCondition :
+    ShareConditionRequiredArguments
+    -> SelectionSet decodesTo Graphql.Object.ShareCondition
+    -> SelectionSet (Maybe decodesTo) RootQuery
+shareCondition requiredArgs____ object____ =
+    Object.selectionForCompositeField "ShareCondition" [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ] object____ (Basics.identity >> Decode.nullable)
+
+
+type alias GistItemRequiredArguments =
+    { id : Graphql.ScalarCodecs.Id }
+
+
+gistItem :
+    GistItemRequiredArguments
+    -> SelectionSet decodesTo Graphql.Object.GistItem
+    -> SelectionSet decodesTo RootQuery
+gistItem requiredArgs____ object____ =
+    Object.selectionForCompositeField "gistItem" [ Argument.required "id" requiredArgs____.id (Graphql.ScalarCodecs.codecs |> Graphql.Scalar.unwrapEncoder .codecId) ] object____ Basics.identity
+
+
+type alias GistItemsOptionalArguments =
+    { offset : OptionalArgument Int
+    , limit : OptionalArgument Int
+    }
+
+
+gistItems :
+    (GistItemsOptionalArguments -> GistItemsOptionalArguments)
+    -> SelectionSet decodesTo Graphql.Object.GistItem
+    -> SelectionSet (List (Maybe decodesTo)) RootQuery
+gistItems fillInOptionals____ object____ =
+    let
+        filledInOptionals____ =
+            fillInOptionals____ { offset = Absent, limit = Absent }
+
+        optionalArgs____ =
+            [ Argument.optional "offset" filledInOptionals____.offset Encode.int, Argument.optional "limit" filledInOptionals____.limit Encode.int ]
+                |> List.filterMap Basics.identity
+    in
+    Object.selectionForCompositeField "gistItems" optionalArgs____ object____ (Basics.identity >> Decode.nullable >> Decode.list)
+
+
+type alias SettingsRequiredArguments =
+    { diagram : Graphql.Enum.Diagram.Diagram }
+
+
+settings :
+    SettingsRequiredArguments
+    -> SelectionSet decodesTo Graphql.Object.Settings
+    -> SelectionSet decodesTo RootQuery
+settings requiredArgs____ object____ =
+    Object.selectionForCompositeField "settings" [ Argument.required "diagram" requiredArgs____.diagram (Encode.enum Graphql.Enum.Diagram.toString) ] object____ Basics.identity

@@ -19,6 +19,7 @@ enum Diagram {
   SEQUENCE_DIAGRAM
   FREEFORM
   USE_CASE_DIAGRAM
+  KEYBOARD_LAYOUT
 }
 
 interface Node {

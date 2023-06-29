@@ -4,37 +4,41 @@
 
 module Graphql.Object.ShareCondition exposing (..)
 
+import Graphql.InputObject
+import Graphql.Interface
+import Graphql.Internal.Builder.Argument as Argument exposing (Argument)
 import Graphql.Internal.Builder.Object as Object
+import Graphql.Internal.Encode as Encode exposing (Value)
 import Graphql.Object
+import Graphql.Operation exposing (RootMutation, RootQuery, RootSubscription)
+import Graphql.OptionalArgument exposing (OptionalArgument(..))
+import Graphql.Scalar
+import Graphql.ScalarCodecs
 import Graphql.SelectionSet exposing (SelectionSet)
-import Json.Decode as D
+import Graphql.Union
+import Json.Decode as Decode
 
 
-{-| -}
-allowEmailList : SelectionSet (Maybe (List String)) Graphql.Object.ShareCondition
-allowEmailList =
-    Object.selectionForField "(Maybe (List String))" "allowEmailList" [] (D.string |> D.list |> D.nullable)
-
-
-{-| -}
-allowIPList : SelectionSet (Maybe (List String)) Graphql.Object.ShareCondition
-allowIPList =
-    Object.selectionForField "(Maybe (List String))" "allowIPList" [] (D.string |> D.list |> D.nullable)
-
-
-{-| -}
-expireTime : SelectionSet Int Graphql.Object.ShareCondition
-expireTime =
-    Object.selectionForField "Int" "expireTime" [] D.int
-
-
-{-| -}
 token : SelectionSet String Graphql.Object.ShareCondition
 token =
-    Object.selectionForField "String" "token" [] D.string
+    Object.selectionForField "String" "token" [] Decode.string
 
 
-{-| -}
 usePassword : SelectionSet Bool Graphql.Object.ShareCondition
 usePassword =
-    Object.selectionForField "Bool" "usePassword" [] D.bool
+    Object.selectionForField "Bool" "usePassword" [] Decode.bool
+
+
+expireTime : SelectionSet Int Graphql.Object.ShareCondition
+expireTime =
+    Object.selectionForField "Int" "expireTime" [] Decode.int
+
+
+allowIPList : SelectionSet (Maybe (List String)) Graphql.Object.ShareCondition
+allowIPList =
+    Object.selectionForField "(Maybe (List String))" "allowIPList" [] (Decode.string |> Decode.list |> Decode.nullable)
+
+
+allowEmailList : SelectionSet (Maybe (List String)) Graphql.Object.ShareCondition
+allowEmailList =
+    Object.selectionForField "(Maybe (List String))" "allowEmailList" [] (Decode.string |> Decode.list |> Decode.nullable)
