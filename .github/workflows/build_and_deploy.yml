@@ -91,7 +91,7 @@ jobs:
           channelId: live
 
   deploy-backend:
-    name: deploybackend-
+    name: deploy-backend
     needs: build
     runs-on: ubuntu-latest
     steps:
