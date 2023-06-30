@@ -41,7 +41,7 @@ export const initDownload = (app: ElmApp): void => {
       ],
     });
 
-    return optimizedSvg.data;
+    return optimizedSvg.data.replace(/ style="background-color:[^"]+"/, '');
   };
 
   const createImage = async ({ id, width, height, scale = 1, callback }: ImageInfo) => {
