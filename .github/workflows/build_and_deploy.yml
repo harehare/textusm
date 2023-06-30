@@ -108,7 +108,7 @@ jobs:
       - name: Lighthouse test
         uses: treosh/lighthouse-ci-action@v10
         with:
-          url: "https://app.textusm.com"
+          urls: "https://app.textusm.com"
           uploadArtifacts: true
 
   create-git-tag:
