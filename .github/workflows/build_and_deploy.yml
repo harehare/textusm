@@ -100,17 +100,6 @@ jobs:
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
 
-  lighthouse:
-    runs-on: ubuntu-latest
-    name: lighthouse
-    needs: [deploy-frontend, deploy-backend]
-    steps:
-      - name: Lighthouse test
-        uses: treosh/lighthouse-ci-action@v10
-        with:
-          urls: "https://app.textusm.com"
-          uploadArtifacts: true
-
   create-git-tag:
     runs-on: ubuntu-latest
     needs: [deploy-frontend, deploy-backend]
