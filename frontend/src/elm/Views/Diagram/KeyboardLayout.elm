@@ -165,7 +165,8 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                             )
 
                 textView =
-                    Svg.g []
+                    Svg.g
+                        []
                         [ Svg.text_
                             [ SvgAttr.x <| String.fromFloat <| x + 6
                             , SvgAttr.y <| String.fromFloat <| y + 16 + marginTop
@@ -173,6 +174,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                             , SvgAttr.fill <| Color.toString foreColor
                             , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
                             , SvgAttr.cursor "pointer"
+                            , SvgAttr.width <| String.fromFloat innerWidth ++ "px"
                             ]
                             [ Key.topLegend key
                                 |> Maybe.withDefault ""
@@ -185,11 +187,16 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                             , SvgAttr.fill <| Color.toString foreColor
                             , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
                             , SvgAttr.cursor "pointer"
+                            , SvgAttr.width <| String.fromFloat innerWidth ++ "px"
                             ]
                             [ Svg.text <| Maybe.withDefault "" <| Key.bottomLegend key ]
                         ]
             in
-            Svg.g []
+            Svg.g
+                [ Events.onClickStopPropagation <|
+                    onSelect <|
+                        Just { item = item, position = ( x |> round, y - innerSize |> round ), displayAllMenu = True }
+                ]
                 [ Svg.rect
                     [ SvgAttr.x <| String.fromFloat <| x
                     , SvgAttr.y <| String.fromFloat <| y + marginTop
@@ -211,9 +218,6 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                     , SvgAttr.fill <| Color.toString backColor
                     , SvgAttr.rx "4"
                     , SvgAttr.cursor "pointer"
-                    , Events.onClickStopPropagation <|
-                        onSelect <|
-                            Just { item = item, position = ( x |> round, y - innerSize |> round ), displayAllMenu = True }
                     ]
                     []
                 , case selectedItem of
