@@ -630,7 +630,7 @@ unchanged =
 
 setTitle : String -> Return.ReturnF Msg Model
 setTitle title =
-    Return.map <| \m -> { m | currentDiagram = DiagramItem.ofTitle.set (Title.fromString <| title) m.currentDiagram }
+    Return.map <| \m -> { m | currentDiagram = DiagramItem.title.set (Title.fromString <| title) m.currentDiagram }
 
 
 showConfirmDialog : String -> String -> Route -> Return.ReturnF Msg Model
@@ -680,10 +680,10 @@ save =
                     diagram : DiagramItem
                     diagram =
                         m.currentDiagram
-                            |> DiagramItem.ofText.set newDiagramModel.text
-                            |> DiagramItem.ofThumbnail.set Nothing
-                            |> DiagramItem.ofLocation.set (Just location)
-                            |> DiagramItem.ofDiagram.set newDiagramModel.diagramType
+                            |> DiagramItem.text.set newDiagramModel.text
+                            |> DiagramItem.thumbnail.set Nothing
+                            |> DiagramItem.location.set (Just location)
+                            |> DiagramItem.diagram.set newDiagramModel.diagramType
                 in
                 Return.map
                     (\m_ ->
@@ -930,10 +930,10 @@ update model message =
                 item : DiagramItem
                 item =
                     model.currentDiagram
-                        |> DiagramItem.ofText.set model.diagramModel.text
-                        |> DiagramItem.ofThumbnail.set Nothing
-                        |> DiagramItem.ofLocation.set (Just DiagramLocation.Local)
-                        |> DiagramItem.ofDiagram.set model.diagramModel.diagramType
+                        |> DiagramItem.text.set model.diagramModel.text
+                        |> DiagramItem.thumbnail.set Nothing
+                        |> DiagramItem.location.set (Just DiagramLocation.Local)
+                        |> DiagramItem.diagram.set model.diagramModel.diagramType
             in
             setCurrentDiagram item
                 >> Effect.saveToLocal item
@@ -970,18 +970,18 @@ update model message =
                 |> Maybe.withDefault (showWarningMessage Message.messageSuccessfullySaved >> stopProgress)
 
         M.StartEditTitle ->
-            Return.map (\m -> { m | currentDiagram = DiagramItem.ofTitle.set (Title.edit m.currentDiagram.title) m.currentDiagram })
+            Return.map (\m -> { m | currentDiagram = DiagramItem.title.set (Title.edit m.currentDiagram.title) m.currentDiagram })
                 >> Effect.setFocus M.NoOp "title"
 
         M.Progress visible ->
             Return.map <| \m -> { m | progress = visible }
 
         M.EndEditTitle ->
-            Return.map (\m -> { m | currentDiagram = DiagramItem.ofTitle.set (Title.view m.currentDiagram.title) m.currentDiagram })
+            Return.map (\m -> { m | currentDiagram = DiagramItem.title.set (Title.view m.currentDiagram.title) m.currentDiagram })
                 >> Effect.setFocusEditor
 
         M.EditTitle title ->
-            Return.map (\m -> { m | currentDiagram = DiagramItem.ofTitle.set (Title.edit <| Title.fromString title) m.currentDiagram })
+            Return.map (\m -> { m | currentDiagram = DiagramItem.title.set (Title.edit <| Title.fromString title) m.currentDiagram })
                 >> needSaved
 
         M.SignIn provider ->
@@ -1309,14 +1309,14 @@ update model message =
             loadDiagram <| DiagramItem.localFile title text
 
         M.SaveLocalFile ->
-            Return.andThen <| \m -> Return.singleton m |> Effect.saveLocalFile (DiagramItem.ofText.set (Text.saved m.diagramModel.text) m.currentDiagram)
+            Return.andThen <| \m -> Return.singleton m |> Effect.saveLocalFile (DiagramItem.text.set (Text.saved m.diagramModel.text) m.currentDiagram)
 
         M.SavedLocalFile title ->
             Return.andThen <| \m -> Return.singleton m |> loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text)
 
         M.ChangeDiagramType diagramType ->
             Return.map (\m -> { m | diagramModel = m.diagramModel |> DiagramModel.diagramType.set diagramType })
-                >> loadDiagram (model.currentDiagram |> DiagramItem.ofDiagram.set diagramType)
+                >> loadDiagram (model.currentDiagram |> DiagramItem.diagram.set diagramType)
 
         M.OpenCurrentFile ->
             openCurrentFile model.currentDiagram

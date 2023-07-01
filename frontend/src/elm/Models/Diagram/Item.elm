@@ -2,6 +2,7 @@ module Models.Diagram.Item exposing
     ( DiagramItem
     , copy
     , decoder
+    , diagram
     , empty
     , encoder
     , getId
@@ -9,14 +10,13 @@ module Models.Diagram.Item exposing
     , listToString
     , listToValue
     , localFile
+    , location
     , mapToDateTime
     , new
-    , ofDiagram
-    , ofLocation
-    , ofText
-    , ofThumbnail
-    , ofTitle
     , stringToList
+    , text
+    , thumbnail
+    , title
     , toInputGistItem
     , toInputItem
     )
@@ -55,12 +55,12 @@ type alias DiagramItem =
 
 
 copy : DiagramItem -> DiagramItem
-copy diagram =
+copy diagram_ =
     { id = Nothing
-    , text = diagram.text
-    , diagram = diagram.diagram
-    , title = Title.map (\t -> Title.fromString <| "Copy of " ++ t) diagram.title
-    , thumbnail = diagram.thumbnail
+    , text = diagram_.text
+    , diagram = diagram_.diagram
+    , title = Title.map (\t -> Title.fromString <| "Copy of " ++ t) diagram_.title
+    , thumbnail = diagram_.thumbnail
     , isPublic = False
     , isBookmark = False
     , location = Nothing
@@ -85,18 +85,18 @@ decoder =
 
 
 encoder : DiagramItem -> E.Value
-encoder diagram =
+encoder diagram_ =
     E.object
-        [ ( "id", maybe E.string (Maybe.map DiagramId.toString diagram.id) )
-        , ( "text", E.string <| Text.toString diagram.text )
-        , ( "diagram", E.string <| DiagramType.toString diagram.diagram )
-        , ( "title", E.string (Title.toString diagram.title) )
-        , ( "thumbnail", maybe E.string diagram.thumbnail )
-        , ( "isPublic", E.bool diagram.isPublic )
-        , ( "isBookmark", E.bool diagram.isBookmark )
-        , ( "location", maybe E.string <| Maybe.map DiagramLocation.toString diagram.location )
-        , ( "createdAt", E.int <| Time.posixToMillis diagram.createdAt )
-        , ( "updatedAt", E.int <| Time.posixToMillis diagram.updatedAt )
+        [ ( "id", maybe E.string (Maybe.map DiagramId.toString diagram_.id) )
+        , ( "text", E.string <| Text.toString diagram_.text )
+        , ( "diagram", E.string <| DiagramType.toString diagram_.diagram )
+        , ( "title", E.string (Title.toString diagram_.title) )
+        , ( "thumbnail", maybe E.string diagram_.thumbnail )
+        , ( "isPublic", E.bool diagram_.isPublic )
+        , ( "isBookmark", E.bool diagram_.isBookmark )
+        , ( "location", maybe E.string <| Maybe.map DiagramLocation.toString diagram_.location )
+        , ( "createdAt", E.int <| Time.posixToMillis diagram_.createdAt )
+        , ( "updatedAt", E.int <| Time.posixToMillis diagram_.updatedAt )
         ]
 
 
@@ -111,8 +111,8 @@ getId item =
 
 
 isRemoteDiagram : Session -> DiagramItem -> Bool
-isRemoteDiagram session diagram =
-    case ( diagram.location, diagram.id ) of
+isRemoteDiagram session diagram_ =
+    case ( diagram_.location, diagram_.id ) of
         ( Just DiagramLocation.Local, Just _ ) ->
             False
 
@@ -137,18 +137,18 @@ listToValue items =
 
 
 localFile : String -> String -> DiagramItem
-localFile title text =
+localFile title_ text_ =
     let
         tokens : List String
         tokens =
-            String.split "." title
+            String.split "." title_
     in
     case tokens of
         [ _, ext ] ->
-            { empty | text = Text.fromString text, diagram = DiagramType.fromString ext, title = Title.fromString title, location = Just DiagramLocation.LocalFileSystem }
+            { empty | text = Text.fromString text_, diagram = DiagramType.fromString ext, title = Title.fromString title_, location = Just DiagramLocation.LocalFileSystem }
 
         _ ->
-            { empty | text = Text.fromString text, title = Title.fromString title, location = Just DiagramLocation.LocalFileSystem }
+            { empty | text = Text.fromString text_, title = Title.fromString title_, location = Just DiagramLocation.LocalFileSystem }
 
 
 mapToDateTime : SelectionSet Graphql.Scalar.Time typeLock -> SelectionSet Posix typeLock
@@ -195,28 +195,28 @@ new diagramType =
     }
 
 
-ofText : Lens DiagramItem Text
-ofText =
+text : Lens DiagramItem Text
+text =
     Lens .text (\b a -> { a | text = b })
 
 
-ofTitle : Lens DiagramItem Title
-ofTitle =
+title : Lens DiagramItem Title
+title =
     Lens .title (\b a -> { a | title = b })
 
 
-ofDiagram : Lens DiagramItem DiagramType
-ofDiagram =
+diagram : Lens DiagramItem DiagramType
+diagram =
     Lens .diagram (\b a -> { a | diagram = b })
 
 
-ofThumbnail : Lens DiagramItem (Maybe String)
-ofThumbnail =
+thumbnail : Lens DiagramItem (Maybe String)
+thumbnail =
     Lens .thumbnail (\b a -> { a | thumbnail = b })
 
 
-ofLocation : Lens DiagramItem (Maybe Location)
-ofLocation =
+location : Lens DiagramItem (Maybe Location)
+location =
     Lens .location (\b a -> { a | location = b })
 
 
@@ -237,8 +237,8 @@ toInputGistItem item =
     , title = Title.toString item.title
     , thumbnail =
         case item.thumbnail of
-            Just thumbnail ->
-                OptionalArgument.Present thumbnail
+            Just thumbnail_ ->
+                OptionalArgument.Present thumbnail_
 
             Nothing ->
                 OptionalArgument.Absent
@@ -261,8 +261,8 @@ toInputItem item =
     , text = Text.toString item.text
     , thumbnail =
         case item.thumbnail of
-            Just thumbnail ->
-                OptionalArgument.Present thumbnail
+            Just thumbnail_ ->
+                OptionalArgument.Present thumbnail_
 
             Nothing ->
                 OptionalArgument.Absent
