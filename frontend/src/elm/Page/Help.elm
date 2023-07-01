@@ -149,6 +149,14 @@ view =
         , textView [ indentedText "value double not null" 2 ]
         , textView [ indentedText "enum enum(value1,value2) not null" 2 ]
 
+        -- Keyboard Layout
+        , section (Just "Keyboard Layout Syntax")
+        , textActivityView [ text "1u" ]
+        , textView [ indentedText "!,1,1u" 1 ]
+        , textView [ indentedText "@,2,1u,0.25u" 1 ]
+        , textView [ indentedText "{sharp},3" 1 ]
+        , textView [ indentedText "{comma},4" 1 ]
+
         -- Hot Keys
         , section (Just "Hotkeys")
         , div
