@@ -62,6 +62,9 @@ fromString unit =
         "1.25u" ->
             Just <| Unit 1.25
 
+        "1u" ->
+            Just <| Unit 1.0
+
         "0.75u" ->
             Just <| Unit 0.75
 
