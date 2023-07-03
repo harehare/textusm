@@ -135,3 +135,4 @@ replace t =
     t
         |> String.replace "{sharp}" "#"
         |> String.replace "{comma}" ","
+        |> String.replace "{backquote}" "`"
