@@ -19,6 +19,7 @@ Generate a Diagram from indented text.
 - ER Diagram
 - Kanban
 - Sequence Diagram
+- Keyboard Layout
 
 ## Installation
 
@@ -359,6 +360,80 @@ Par
 ```
 
 ![image](./img/sed.png)
+
+### Keyboard Layout
+
+```
+r4
+    Esc
+    !,1
+    @,2
+    {sharp},3
+    $,4
+    %,5
+    ^,6
+    &,7
+    *,8
+    (,9
+    ),0
+    _,-
+    =,+
+    |,\\
+    ~,{backquote}
+r4
+    Tab,,1.5u
+    Q
+    W
+    E
+    R
+    T
+    Y
+    U
+    I
+    O
+    P
+    {,[
+    },]
+    Backspace,,1.5u
+r3
+    Control,,1.75u
+    A
+    S
+    D
+    F
+    G
+    H
+    J
+    K
+    L
+    :,;
+    \",'
+    Enter,,2.25u
+r2
+    Shift,,2.25u
+    Z
+    X
+    C
+    V
+    B
+    N
+    M
+    <,{comma}
+    >,.
+    ?,/
+    Shift,,1.75u
+    Fn
+r1
+    1.25u
+    Opt
+    Alt,,1.75u
+    ,,7u
+    Alt,,1.75u
+    Opt
+    1.25u
+```
+
+![image](./img/kbd60.png)
 
 ### Configuration
 

@@ -585,5 +585,8 @@ fromTypeString s =
         "UseCaseDiagram" ->
             UseCaseDiagram
 
+        "KeyboardLayout" ->
+            KeyboardLayout
+
         _ ->
             UserStoryMap
