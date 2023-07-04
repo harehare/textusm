@@ -37,6 +37,7 @@ type DiagramType =
   | "Kanban"
   | "SequenceDiagram"
   | "UseCaseDiagram"
+  | "KeyboardLayout"
   | "Freeform";
 
 interface Settings {

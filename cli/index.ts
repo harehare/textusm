@@ -30,6 +30,7 @@ type DiagramKey =
   | "kanban"
   | "sequence_diagram"
   | "use_case_diagram"
+  | "keyboard_layout"
   | "free_form";
 
 const diagramMap: { readonly [T in DiagramKey]: DiagramSettings } = {
@@ -123,6 +124,11 @@ const diagramMap: { readonly [T in DiagramKey]: DiagramSettings } = {
     height: 1024,
     diagramType: "UseCaseDiagram",
   },
+  keyboard_layout: {
+    width: 1024,
+    height: 1024,
+    diagramType: "KeyboardLayout",
+  },
 };
 
 const defaultSettings: Settings = {
@@ -185,7 +191,7 @@ const program = createCommand();
 // @ts-ignore
 const options = program
   // @ts-ignore
-  .version("0.7.0")
+  .version("0.11.0")
   .option("-c, --configFile [configFile]", "Config file.")
   .option("-i, --input <input>", "Input text file.")
   .option("-w, --width <width>", "Width of the page. Optional. Default: 1024.")
