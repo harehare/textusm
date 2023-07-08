@@ -24,6 +24,9 @@ import NoForbiddenWords
 import NoInconsistentAliases
 import NoModuleOnExposedNames
 import NoSinglePatternCase
+import NoUselessSubscriptions
+import NoMissingSubscriptionsCall
+import NoRecursiveUpdate
 import Review.Rule exposing (Rule)
 import Simplify
 import UseCamelCase
@@ -63,4 +66,7 @@ config =
     , NoSinglePatternCase.rule NoSinglePatternCase.fixInArgument
     , UseCamelCase.rule UseCamelCase.default
     , Simplify.rule Simplify.defaults
+    , NoUselessSubscriptions.rule
+    , NoMissingSubscriptionsCall.rule
+    , NoRecursiveUpdate.rule
     ]

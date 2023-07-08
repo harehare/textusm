@@ -11,7 +11,7 @@ import List.Extra as ListEx
 import Models.Color as Color
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
-import Models.Diagram.KeyboardLayout as KeyboardLayout exposing (Row, innerSize, outerSize)
+import Models.Diagram.KeyboardLayout as KeyboardLayout exposing (Row)
 import Models.Diagram.KeyboardLayout.Key as Key exposing (Key)
 import Models.Diagram.KeyboardLayout.Unit as Unit exposing (Unit)
 import Models.Diagram.Settings as DiagramSettings
@@ -38,9 +38,11 @@ view { data, settings, selectedItem, property, onSelect, onEditSelectedItem, onE
     case data of
         DiagramData.KeyboardLayout k ->
             let
+                rows : List Row
                 rows =
                     KeyboardLayout.rows k
 
+                rowSizeList : List Float
                 rowSizeList =
                     KeyboardLayout.rowSizeList (\_ -> 0.0) rows
             in
@@ -97,6 +99,7 @@ rowView { row, y, settings, selectedItem, property, onSelect, onEditSelectedItem
 
         KeyboardLayout.Row row_ ->
             let
+                columnSizeList : List Float
                 columnSizeList =
                     KeyboardLayout.columnSizeList row
             in
@@ -136,25 +139,30 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
         Key.Blank _ ->
             Svg.g [] []
 
-        Key.Key item _ _ _ _ ->
+        Key.Key { item } ->
             let
                 ( x, y ) =
                     position
 
+                outerWidth : Float
                 outerWidth =
                     Unit.toFloat (Key.unit key) * KeyboardLayout.outerSize
 
+                outerHeight : Float
                 outerHeight =
                     Unit.toFloat (Key.height key) * KeyboardLayout.outerSize
 
+                innerWidth : Float
                 innerWidth =
                     Unit.toFloat (Key.unit key) * KeyboardLayout.innerSize
 
+                innerHeight : Float
                 innerHeight =
                     Unit.toFloat (Key.height key) * KeyboardLayout.innerSize
 
+                marginTop : Float
                 marginTop =
-                    (Key.marginTop key |> Maybe.map Unit.toFloat |> Maybe.withDefault 0.0) * outerSize
+                    (Key.marginTop key |> Maybe.map Unit.toFloat |> Maybe.withDefault 0.0) * KeyboardLayout.outerSize
 
                 ( foreColor, backColor ) =
                     Item.getSettings item
@@ -164,6 +172,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                             , Color.fromString "#FEFEFE"
                             )
 
+                textView : Svg msg
                 textView =
                     Svg.g
                         []
@@ -195,7 +204,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
             Svg.g
                 [ Events.onClickStopPropagation <|
                     onSelect <|
-                        Just { item = item, position = ( x |> round, y - innerSize |> round ), displayAllMenu = True }
+                        Just { item = item, position = ( x |> round, y - KeyboardLayout.innerSize |> round ), displayAllMenu = True }
                 ]
                 [ Svg.rect
                     [ SvgAttr.x <| String.fromFloat <| x

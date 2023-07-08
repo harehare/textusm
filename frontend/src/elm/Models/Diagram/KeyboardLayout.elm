@@ -121,9 +121,11 @@ itemsToRow items =
 size : KeyboardLayout -> Size
 size (KeyboardLayout rows_) =
     let
+        width : Float
         width =
             List.concatMap columnSizeList rows_ |> List.maximum |> Maybe.withDefault 0.0
 
+        height : Float
         height =
             rowSizeList rowMarginTop rows_ |> List.maximum |> Maybe.withDefault 0.0
     in
