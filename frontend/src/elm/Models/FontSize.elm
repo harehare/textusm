@@ -6,6 +6,7 @@ module Models.FontSize exposing
     , fromInt
     , lg
     , list
+    , s
     , svgStyledFontSize
     , toInt
     , unwrap
@@ -78,3 +79,8 @@ unwrap (FontSize fontSize) =
 xs : FontSize
 xs =
     FontSize 8
+
+
+s : FontSize
+s =
+    FontSize 12

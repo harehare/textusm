@@ -95,6 +95,7 @@ itemFuzzer =
             (Fuzz.map
                 (\s ->
                     let
+                        tokens: List String
                         tokens =
                             String.split "#" s
                     in
@@ -108,7 +109,7 @@ itemFuzzer =
                                     else
                                         s_
                                 )
-                            |> String.join ""
+                            |> String.concat
 
                      else
                         s

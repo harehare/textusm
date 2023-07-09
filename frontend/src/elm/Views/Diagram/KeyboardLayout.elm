@@ -11,13 +11,15 @@ import List.Extra as ListEx
 import Models.Color as Color
 import Models.Diagram exposing (SelectedItem, SelectedItemInfo)
 import Models.Diagram.Data as DiagramData
-import Models.Diagram.KeyboardLayout as KeyboardLayout exposing (Row, innerSize, outerSize)
+import Models.Diagram.KeyboardLayout as KeyboardLayout exposing (Row)
 import Models.Diagram.KeyboardLayout.Key as Key exposing (Key)
 import Models.Diagram.KeyboardLayout.Unit as Unit exposing (Unit)
 import Models.Diagram.Settings as DiagramSettings
+import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Property as Property exposing (Property)
 import String
+import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Views.Diagram.Views as Views
@@ -38,9 +40,11 @@ view { data, settings, selectedItem, property, onSelect, onEditSelectedItem, onE
     case data of
         DiagramData.KeyboardLayout k ->
             let
+                rows : List Row
                 rows =
                     KeyboardLayout.rows k
 
+                rowSizeList : List Float
                 rowSizeList =
                     KeyboardLayout.rowSizeList (\_ -> 0.0) rows
             in
@@ -97,6 +101,7 @@ rowView { row, y, settings, selectedItem, property, onSelect, onEditSelectedItem
 
         KeyboardLayout.Row row_ ->
             let
+                columnSizeList : List Float
                 columnSizeList =
                     KeyboardLayout.columnSizeList row
             in
@@ -136,25 +141,30 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
         Key.Blank _ ->
             Svg.g [] []
 
-        Key.Key item _ _ _ _ ->
+        Key.Key { item } ->
             let
                 ( x, y ) =
                     position
 
+                outerWidth : Float
                 outerWidth =
                     Unit.toFloat (Key.unit key) * KeyboardLayout.outerSize
 
+                outerHeight : Float
                 outerHeight =
                     Unit.toFloat (Key.height key) * KeyboardLayout.outerSize
 
+                innerWidth : Float
                 innerWidth =
                     Unit.toFloat (Key.unit key) * KeyboardLayout.innerSize
 
+                innerHeight : Float
                 innerHeight =
                     Unit.toFloat (Key.height key) * KeyboardLayout.innerSize
 
+                marginTop : Float
                 marginTop =
-                    (Key.marginTop key |> Maybe.map Unit.toFloat |> Maybe.withDefault 0.0) * outerSize
+                    (Key.marginTop key |> Maybe.map Unit.toFloat |> Maybe.withDefault 0.0) * KeyboardLayout.outerSize
 
                 ( foreColor, backColor ) =
                     Item.getSettings item
@@ -164,38 +174,56 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                             , Color.fromString "#FEFEFE"
                             )
 
+                textView : Svg msg
                 textView =
                     Svg.g
                         []
-                        [ Svg.text_
+                        [ Svg.foreignObject
                             [ SvgAttr.x <| String.fromFloat <| x + 6
-                            , SvgAttr.y <| String.fromFloat <| y + 16 + marginTop
-                            , SvgAttr.fontSize "12px"
+                            , SvgAttr.y <| String.fromFloat <| y + 5 + marginTop
                             , SvgAttr.fill <| Color.toString foreColor
-                            , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
-                            , SvgAttr.cursor "pointer"
+                            , SvgAttr.color <| Color.toString foreColor
                             , SvgAttr.width <| String.fromFloat innerWidth ++ "px"
+                            , SvgAttr.height <| String.fromFloat <| innerHeight
                             ]
-                            [ Key.topLegend key
-                                |> Maybe.withDefault ""
-                                |> Svg.text
+                            [ Html.div
+                                [ css
+                                    [ Css.fontSize <| Css.px <| toFloat <| FontSize.toInt <| FontSize.s
+                                    , DiagramSettings.fontFamiliy settings
+                                    , Style.breakWord
+                                    , Css.cursor Css.pointer
+                                    ]
+                                ]
+                                [ Key.topLegend key
+                                    |> Maybe.withDefault ""
+                                    |> Svg.text
+                                ]
                             ]
-                        , Svg.text_
+                        , Svg.foreignObject
                             [ SvgAttr.x <| String.fromFloat <| x + 6
-                            , SvgAttr.y <| String.fromFloat <| y + 38 + marginTop
-                            , SvgAttr.fontSize "12px"
+                            , SvgAttr.y <| String.fromFloat <| y + 26 + marginTop
                             , SvgAttr.fill <| Color.toString foreColor
-                            , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
-                            , SvgAttr.cursor "pointer"
+                            , SvgAttr.color <| Color.toString foreColor
                             , SvgAttr.width <| String.fromFloat innerWidth ++ "px"
+                            , SvgAttr.height <| String.fromFloat <| innerHeight
                             ]
-                            [ Svg.text <| Maybe.withDefault "" <| Key.bottomLegend key ]
+                            [ Html.div
+                                [ css
+                                    [ Css.fontSize <| Css.px <| toFloat <| FontSize.toInt <| FontSize.s
+                                    , DiagramSettings.fontFamiliy settings
+                                    , Style.breakWord
+                                    , Css.cursor Css.pointer
+                                    ]
+                                ]
+                                [ Svg.text <| Maybe.withDefault "" <| Key.bottomLegend key
+                                ]
+                            ]
                         ]
             in
             Svg.g
                 [ Events.onClickStopPropagation <|
                     onSelect <|
-                        Just { item = item, position = ( x |> round, y - innerSize |> round ), displayAllMenu = True }
+                        Just { item = item, position = ( x |> round, y - KeyboardLayout.innerSize |> round ), displayAllMenu = True }
                 ]
                 [ Svg.rect
                     [ SvgAttr.x <| String.fromFloat <| x

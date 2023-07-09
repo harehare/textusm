@@ -79,7 +79,8 @@ function render(
       | "ImpactMap"
       | "ERDiagram"
       | "SequenceDiagram"
-      | "Freeform";
+      | "Freeform"
+      | "KeyboardLayout";
     size?: Size;
     showZoomControl?: boolean;
     scale?:

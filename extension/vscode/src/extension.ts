@@ -3,7 +3,28 @@ import * as path from "path";
 import * as fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 
-const diagrams = [
+type DiagramType =
+  | "usm"
+  | "opc"
+  | "bmc"
+  | "4ls"
+  | "ssc"
+  | "kpt"
+  | "persona"
+  | "mmp"
+  | "emm"
+  | "smp"
+  | "gct"
+  | "imm"
+  | "erd"
+  | "kanban"
+  | "table"
+  | "sed"
+  | "free"
+  | "kbd"
+  | "ucd";
+
+const diagrams: ReadonlyArray<{ label: string; value: DiagramType }> = [
   { label: "User Story Map", value: "usm" },
   { label: "Table", value: "table" },
   { label: "Empathy Map", value: "emm" },
@@ -22,6 +43,7 @@ const diagrams = [
   { label: "Start, Stop, Continue Retrospective", value: "ssc" },
   { label: "4Ls Retrospective", value: "4ls" },
   { label: "Freeform", value: "free" },
+  { label: "Keyboard Layout", value: "kbd" },
 ];
 
 const showQuickPick = (
@@ -68,26 +90,6 @@ const setPreviewActiveContext = (value: boolean) => {
   vscode.commands.executeCommand("setContext", "textUsmPreviewFocus", value);
 };
 
-type DiagramType =
-  | "usm"
-  | "opc"
-  | "bmc"
-  | "4ls"
-  | "ssc"
-  | "kpt"
-  | "persona"
-  | "mmp"
-  | "emm"
-  | "smp"
-  | "gct"
-  | "imm"
-  | "erd"
-  | "kanban"
-  | "table"
-  | "sed"
-  | "free"
-  | "ucd";
-
 const ENABLED_LANG_DIAGRAM_TYPE: { [v in DiagramType]: DiagramType } = {
   usm: "usm",
   mmp: "usm",
@@ -107,6 +109,7 @@ const ENABLED_LANG_DIAGRAM_TYPE: { [v in DiagramType]: DiagramType } = {
   emm: "usm",
   kanban: "usm",
   table: "usm",
+  kbd: "usm",
 };
 
 export function activate(context: vscode.ExtensionContext) {
@@ -233,6 +236,14 @@ export function activate(context: vscode.ExtensionContext) {
                   diagramType
                 );
                 break;
+
+              case "kbd":
+                newTextOpen(
+                  "r4\n    Esc\n    1u\n    F1\n    F2\n    F3\n    F4\n    0.5u\n    F5\n    F6\n    F7\n    F8\n    0.5u\n    F9\n    F10\n    F11\n    F12\n    0.5u\n    Home\n    End\n    PgUp\n    PgDn\n0.25u\nr4\n    ~,{backquote}\n    !,1\n    @,2\n    {sharp},3\n    $,4\n    %,5\n    ^,6\n    &,7\n    *,8\n    (,9\n    ),0\n    _,-\n    =,+\n    Backspace,,2u\n    0.5u\n    Num,Lock\n    /\n    *\n    -\nr4\n    Tab,,1.5u\n    Q\n    W\n    E\n    R\n    T\n    Y\n    U\n    I\n    O\n    P\n    {,[\n    },]\n    |,\\,1.5u\n    0.5u\n    7,Home\n    8,↑\n    9,PgUp\n    +,,,2u\nr3\n    Caps Lock,,1.75u\n    A\n    S\n    D\n    F\n    G\n    H\n    J\n    K\n    L\n    :,;\n    \",'\n    Enter,,2.25u\n    0.5u\n    4, ←\n    5\n    6,→\nr2\n    Shift,,2.25u\n    Z\n    X\n    C\n    V\n    B\n    N\n    M\n    <,{comma}\n    >,.\n    ?,/\n    Shift,,1.75u\n    0.25u\n    ↑,,,,0.25u\n    0.25u\n    1,End\n    2,↓\n    3,PgDn\n    Enter,,,2u\nr1\n    Ctrl,,1.5u\n    Alt,,1.5u\n    ,,7u\n    Alt,,1.5u\n    Ctl,,1.5u\n    0.25u\n    ←,,,,0.25u\n    ↓,,,,0.25u\n    →,,,,0.25u\n    0.25u\n    0,Ins\n    .,Del",
+                  diagramType
+                );
+                break;
+
               default:
                 newTextOpen("", diagramType);
                 break;

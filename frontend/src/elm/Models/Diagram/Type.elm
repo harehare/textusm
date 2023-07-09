@@ -12,7 +12,6 @@ module Models.Diagram.Type exposing
     )
 
 import Graphql.Enum.Diagram as Diagram exposing (Diagram)
-import Models.Diagram.KeyboardLayout exposing (KeyboardLayout)
 
 
 type DiagramType
@@ -584,6 +583,9 @@ fromTypeString s =
 
         "UseCaseDiagram" ->
             UseCaseDiagram
+
+        "KeyboardLayout" ->
+            KeyboardLayout
 
         _ ->
             UserStoryMap
