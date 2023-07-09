@@ -15,9 +15,11 @@ import Models.Diagram.KeyboardLayout as KeyboardLayout exposing (Row)
 import Models.Diagram.KeyboardLayout.Key as Key exposing (Key)
 import Models.Diagram.KeyboardLayout.Unit as Unit exposing (Unit)
 import Models.Diagram.Settings as DiagramSettings
+import Models.FontSize as FontSize exposing (FontSize)
 import Models.Item as Item exposing (Item)
 import Models.Property as Property exposing (Property)
 import String
+import Style.Style as Style
 import Svg.Styled as Svg exposing (Svg)
 import Svg.Styled.Attributes as SvgAttr
 import Views.Diagram.Views as Views
@@ -176,29 +178,46 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                 textView =
                     Svg.g
                         []
-                        [ Svg.text_
+                        [ Svg.foreignObject
                             [ SvgAttr.x <| String.fromFloat <| x + 6
-                            , SvgAttr.y <| String.fromFloat <| y + 16 + marginTop
-                            , SvgAttr.fontSize "12px"
+                            , SvgAttr.y <| String.fromFloat <| y + 5 + marginTop
                             , SvgAttr.fill <| Color.toString foreColor
-                            , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
-                            , SvgAttr.cursor "pointer"
+                            , SvgAttr.color <| Color.toString foreColor
                             , SvgAttr.width <| String.fromFloat innerWidth ++ "px"
+                            , SvgAttr.height <| String.fromFloat <| innerHeight
                             ]
-                            [ Key.topLegend key
-                                |> Maybe.withDefault ""
-                                |> Svg.text
+                            [ Html.div
+                                [ css
+                                    [ Css.fontSize <| Css.px <| toFloat <| FontSize.toInt <| FontSize.s
+                                    , DiagramSettings.fontFamiliy settings
+                                    , Style.breakWord
+                                    , Css.cursor Css.pointer
+                                    ]
+                                ]
+                                [ Key.topLegend key
+                                    |> Maybe.withDefault ""
+                                    |> Svg.text
+                                ]
                             ]
-                        , Svg.text_
+                        , Svg.foreignObject
                             [ SvgAttr.x <| String.fromFloat <| x + 6
-                            , SvgAttr.y <| String.fromFloat <| y + 38 + marginTop
-                            , SvgAttr.fontSize "12px"
+                            , SvgAttr.y <| String.fromFloat <| y + 26 + marginTop
                             , SvgAttr.fill <| Color.toString foreColor
-                            , SvgAttr.fontFamily <| DiagramSettings.fontStyle settings
-                            , SvgAttr.cursor "pointer"
+                            , SvgAttr.color <| Color.toString foreColor
                             , SvgAttr.width <| String.fromFloat innerWidth ++ "px"
+                            , SvgAttr.height <| String.fromFloat <| innerHeight
                             ]
-                            [ Svg.text <| Maybe.withDefault "" <| Key.bottomLegend key ]
+                            [ Html.div
+                                [ css
+                                    [ Css.fontSize <| Css.px <| toFloat <| FontSize.toInt <| FontSize.s
+                                    , DiagramSettings.fontFamiliy settings
+                                    , Style.breakWord
+                                    , Css.cursor Css.pointer
+                                    ]
+                                ]
+                                [ Svg.text <| Maybe.withDefault "" <| Key.bottomLegend key
+                                ]
+                            ]
                         ]
             in
             Svg.g
