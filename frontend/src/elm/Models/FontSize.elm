@@ -6,11 +6,11 @@ module Models.FontSize exposing
     , fromInt
     , lg
     , list
+    , s
     , svgStyledFontSize
     , toInt
     , unwrap
     , xs
-    , s
     )
 
 import Css exposing (px)
