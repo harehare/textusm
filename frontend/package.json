@@ -40,7 +40,7 @@
     "elm-optimize-level-2": "^0.3.5",
     "elm-review": "^2.10.2",
     "elm-test": "^0.19.1-revision12",
-    "firebase-tools": "^12.4.4",
+    "firebase-tools": "^12.4.5",
     "knip": "^2.16.0",
     "prettier": "^2.8.8",
     "rimraf": "^5.0.1",
