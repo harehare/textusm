@@ -92,32 +92,26 @@ loadUsableFontList msg lang =
         |> Return.command
 
 
-init : { canUseNativeFileSystem : Bool, diagramType : DiagramType, session : Session, settings : Settings, lang : Lang, usableFontList : Maybe FontList } -> Return.Return Msg Model
+init :
+    { canUseNativeFileSystem : Bool
+    , diagramType : DiagramType
+    , session : Session
+    , settings : Settings
+    , lang : Lang
+    , usableFontList : Maybe FontList
+    }
+    -> Return.Return Msg Model
 init { canUseNativeFileSystem, diagramType, session, settings, lang, usableFontList } =
-    case usableFontList of
-        Just fontList ->
-            Return.singleton
-                { dropDownIndex = Nothing
-                , diagramType = diagramType
-                , settings = settings
-                , session = session
-                , canUseNativeFileSystem = canUseNativeFileSystem
-                , usableFontList = fontList
-                , lang = lang
-                , isLoading = False
-                }
-
-        Nothing ->
-            Return.singleton
-                { dropDownIndex = Nothing
-                , diagramType = diagramType
-                , settings = settings
-                , session = session
-                , canUseNativeFileSystem = canUseNativeFileSystem
-                , usableFontList = [ settings.storyMap.font ]
-                , lang = lang
-                , isLoading = True
-                }
+    Return.singleton
+        { dropDownIndex = Nothing
+        , diagramType = diagramType
+        , settings = settings
+        , session = session
+        , canUseNativeFileSystem = canUseNativeFileSystem
+        , usableFontList = usableFontList |> Maybe.withDefault [ settings.storyMap.font ]
+        , lang = lang
+        , isLoading = False
+        }
 
 
 load : { diagramType : DiagramType, session : Session } -> Return.ReturnF Msg Model

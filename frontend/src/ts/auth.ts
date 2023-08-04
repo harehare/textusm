@@ -61,15 +61,18 @@ export const signOut = async (): Promise<void> =>
   });
 
 export const pollRefreshToken = (callback: (idToken: string) => void): void => {
-  setInterval(async () => {
-    const user = auth.currentUser;
-    if (user) {
-      const idToken = await user.getIdToken(true).catch(() => false);
-      if (idToken && typeof idToken === 'string') {
-        callback(idToken);
+  setInterval(
+    async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const idToken = await user.getIdToken(true).catch(() => false);
+        if (idToken && typeof idToken === 'string') {
+          callback(idToken);
+        }
       }
-    }
-  }, 10 * 60 * 1000);
+    },
+    10 * 60 * 1000
+  );
 };
 
 export const refreshToken = (): Promise<string> | undefined => auth.currentUser?.getIdToken(true);
