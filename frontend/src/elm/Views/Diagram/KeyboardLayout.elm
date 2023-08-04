@@ -15,7 +15,7 @@ import Models.Diagram.KeyboardLayout as KeyboardLayout exposing (Row)
 import Models.Diagram.KeyboardLayout.Key as Key exposing (Key)
 import Models.Diagram.KeyboardLayout.Unit as Unit exposing (Unit)
 import Models.Diagram.Settings as DiagramSettings
-import Models.FontSize as FontSize exposing (FontSize)
+import Models.FontSize as FontSize
 import Models.Item as Item exposing (Item)
 import Models.Property as Property exposing (Property)
 import String
@@ -166,6 +166,12 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                 marginTop =
                     (Key.marginTop key |> Maybe.map Unit.toFloat |> Maybe.withDefault 0.0) * KeyboardLayout.outerSize
 
+                fontSize =
+                    Item.getFontSize item
+                        |> Maybe.withDefault FontSize.s
+                        |> FontSize.toInt
+                        |> toFloat
+
                 ( foreColor, backColor ) =
                     Item.getSettings item
                         |> Maybe.map (\_ -> Views.getItemColor settings property item)
@@ -188,7 +194,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                             ]
                             [ Html.div
                                 [ css
-                                    [ Css.fontSize <| Css.px <| toFloat <| FontSize.toInt <| FontSize.s
+                                    [ Css.fontSize <| Css.px <| fontSize
                                     , DiagramSettings.fontFamiliy settings
                                     , Style.breakWord
                                     , Css.cursor Css.pointer
@@ -270,7 +276,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                                         , Css.borderStyle Css.none
                                         , Css.outline Css.none
                                         , Css.width <| Css.px <| innerWidth + adjustSize (Key.unit key)
-                                        , Css.fontSize <| Css.px 12
+                                        , Css.fontSize <| Css.px <| fontSize
                                         , Css.marginTop <| Css.px 2
                                         , Css.marginLeft <| Css.px 2
                                         , Css.focus [ Css.outline Css.none ]
