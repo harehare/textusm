@@ -215,7 +215,7 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                             ]
                             [ Html.div
                                 [ css
-                                    [ Css.fontSize <| Css.px <| toFloat <| FontSize.toInt <| FontSize.s
+                                    [ Css.fontSize <| Css.px <| fontSize
                                     , DiagramSettings.fontFamiliy settings
                                     , Style.breakWord
                                     , Css.cursor Css.pointer
@@ -276,7 +276,12 @@ keyView { key, position, settings, selectedItem, property, onSelect, onEditSelec
                                         , Css.borderStyle Css.none
                                         , Css.outline Css.none
                                         , Css.width <| Css.px <| innerWidth + adjustSize (Key.unit key)
-                                        , Css.fontSize <| Css.px <| fontSize
+                                        , Item.getFontSize item
+                                            |> Maybe.withDefault FontSize.s
+                                            |> FontSize.toInt
+                                            |> toFloat
+                                            |> Css.px
+                                            |> Css.fontSize
                                         , Css.marginTop <| Css.px 2
                                         , Css.marginLeft <| Css.px 2
                                         , Css.focus [ Css.outline Css.none ]

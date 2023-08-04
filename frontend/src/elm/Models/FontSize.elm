@@ -35,7 +35,7 @@ decoder =
 
 default : FontSize
 default =
-    FontSize 14
+    FontSize 12
 
 
 fromInt : Int -> FontSize
@@ -50,13 +50,14 @@ lg =
 
 list : List FontSize
 list =
-    [ FontSize 8
+    [ xs
     , FontSize 9
-    , FontSize 10
+    , s
     , FontSize 11
-    , FontSize 12
     , default
+    , FontSize 14
     , FontSize 18
+    , lg
     , FontSize 24
     ]
 
@@ -83,4 +84,4 @@ xs =
 
 s : FontSize
 s =
-    FontSize 12
+    FontSize 10
