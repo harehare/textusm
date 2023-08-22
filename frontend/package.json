@@ -41,7 +41,7 @@
     "elm-review": "^2.10.2",
     "elm-test": "^0.19.1-revision12",
     "firebase-tools": "^12.5.0",
-    "knip": "^2.19.8",
+    "knip": "^2.19.9",
     "prettier": "^3.0.2",
     "rimraf": "^5.0.1",
     "size-limit": "^8.2.4",
