@@ -104,7 +104,7 @@ view props =
             , alignItems center
             , Style.widthFull
             , ColorStyle.bgHeaderColor
-            , height <| px 36
+            , height <| px 48
             ]
         ]
         (Html.div
@@ -112,7 +112,7 @@ view props =
                 [ displayFlex
                 , alignItems center
                 , width <| pct 100
-                , height <| px 36
+                , height <| px 48
                 ]
             ]
             [ case props.page of
@@ -437,7 +437,7 @@ viewSignInButton { menu, session, onOpenMenu, onSignIn, onSignOut, onCloseMenu }
 
     else
         Html.div
-            [ css [ Style.button, width <| px 96, height <| px 50, Style.borderContent ]
+            [ css [ Style.button, width <| px 96, height <| px 50 ]
             , case menu of
                 Just LoginMenu ->
                     Events.stopPropagationOn "click" (D.succeed ( onCloseMenu, True ))
