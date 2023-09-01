@@ -31,7 +31,7 @@
     "@types/uuid": "^9.0.3",
     "@types/wicg-file-system-access": "^2020.9.6",
     "concurrently": "^8.2.1",
-    "cypress": "^13.0.0",
+    "cypress": "^13.1.0",
     "devcert": "^1.2.2",
     "elm": "^0.19.1-5",
     "elm-book": "^1.0.1",
