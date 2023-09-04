@@ -18,7 +18,7 @@
       "sparksp/elm-review-camelcase": "1.1.0",
       "sparksp/elm-review-forbidden-words": "1.0.1",
       "sparksp/elm-review-imports": "1.0.2",
-      "stil4m/elm-syntax": "7.3.1"
+      "stil4m/elm-syntax": "7.3.2"
     },
     "indirect": {
       "avh4/elm-fifo": "1.0.4",
