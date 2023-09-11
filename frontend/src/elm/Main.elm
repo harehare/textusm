@@ -20,6 +20,8 @@ import Dialog.Confirm as ConfirmDialog
 import Dialog.Input as InputDialog
 import Dialog.Share as Share
 import Effect
+import Effect.Diagram
+import Effect.Settings
 import Env
 import File.Download as Download
 import Html.Styled as Html exposing (Html)
@@ -145,7 +147,7 @@ changeRouteTo route =
             in
             setCurrentDiagram diagram
                 >> startProgress
-                >> Return.andThen (\m -> Return.singleton m |> Effect.loadSettings M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session })
+                >> Return.andThen (\m -> Return.singleton m |> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session })
                 >> loadDiagram diagram
                 >> switchPage Page.Main
                 >> Effect.changeRouteInit M.Init
@@ -159,23 +161,23 @@ changeRouteTo route =
                             |> (if Session.isSignedIn m.session && m.browserStatus.isOnline then
                                     Effect.updateIdToken
                                         >> startProgress
-                                        >> Effect.loadItem M.Load { id = id_, session = m.session }
+                                        >> Effect.Diagram.load M.Load { id = id_, session = m.session }
 
                                 else
-                                    Effect.loadLocalDiagram id_ >> Effect.changeRouteInit M.Init
+                                    Effect.Diagram.loadFromLocal id_ >> Effect.changeRouteInit M.Init
                                )
-                            >> Effect.loadSettings M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
+                            >> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
                     )
 
         Route.EditLocalFile _ id_ ->
             switchPage Page.Main
-                >> Effect.loadLocalDiagram id_
+                >> Effect.Diagram.loadFromLocal id_
                 >> Effect.changeRouteInit M.Init
 
         Route.ViewPublic _ id_ ->
             Effect.updateIdToken
                 >> switchPage Page.Main
-                >> Return.andThen (\m -> Return.singleton m |> Effect.loadPublicItem M.Load { id = id_, session = m.session })
+                >> Return.andThen (\m -> Return.singleton m |> Effect.Diagram.loadFromPublic M.Load { id = id_, session = m.session })
 
         Route.DiagramList ->
             initListPage
@@ -220,7 +222,7 @@ changeRouteTo route =
                         }
                 )
                 >> setTitle title
-                >> Return.andThen (\m -> Return.singleton m |> Effect.loadShareItemWithoutPassword M.Load { session = m.session, token = id_ })
+                >> Return.andThen (\m -> Return.singleton m |> Effect.Diagram.loadFromShareWithoutPassword M.Load { session = m.session, token = id_ })
                 >> switchPage Page.Embed
                 >> Effect.changeRouteInit M.Init
 
@@ -243,7 +245,7 @@ changeRouteTo route =
                                 (\m ->
                                     Return.singleton
                                         { m | shareState = ShareState.authenticateNoPassword id_ }
-                                        |> Effect.loadShareItemWithoutPassword M.Load { session = m.session, token = id_ }
+                                        |> Effect.Diagram.loadFromShareWithoutPassword M.Load { session = m.session, token = id_ }
                                 )
                                 >> switchPage Page.Main
                                 >> startProgress
@@ -697,16 +699,16 @@ save =
                                 Effect.getGistTokenAfterSave
 
                             ( DiagramLocation.Gist, _ ) ->
-                                Effect.saveDiagram diagram
+                                Effect.Diagram.save diagram
 
                             ( DiagramLocation.Remote, _ ) ->
-                                Effect.saveDiagram diagram
+                                Effect.Diagram.save diagram
 
                             ( DiagramLocation.LocalFileSystem, _ ) ->
                                 Return.zero
 
                             ( DiagramLocation.Local, _ ) ->
-                                Effect.saveDiagram diagram
+                                Effect.Diagram.save diagram
                        )
                )
     )
@@ -809,7 +811,10 @@ update model message =
                                     m_
                         )
                     |> Return.mapBoth M.UpdateDiagram (\m_ -> { m | diagramModel = m_ })
-                    |> Effect.loadText M.Load m.currentDiagram
+                    |> (Task.succeed m.currentDiagram
+                            |> Task.attempt M.Load
+                            |> Return.command
+                       )
                     |> updateWindowState
             )
                 >> stopProgress
@@ -936,7 +941,7 @@ update model message =
                         |> DiagramItem.diagram.set model.diagramModel.diagramType
             in
             setCurrentDiagram item
-                >> Effect.saveToLocal item
+                >> Effect.Diagram.saveToLocal item
                 >> stopProgress
                 >> showWarningMessage Message.messageFailedSaved
 
@@ -960,7 +965,7 @@ update model message =
                 |> Result.toMaybe
                 |> Maybe.map
                     (\d ->
-                        Effect.saveToRemote M.SaveToRemoteCompleted
+                        Effect.Diagram.saveToRemote M.SaveToRemoteCompleted
                             { diagram = d
                             , session = model.session
                             , settings = model.settingsModel.settings
@@ -1002,7 +1007,7 @@ update model message =
                 case toRoute model.url of
                     Route.Settings diagramType ->
                         pushUrl (Url.toString url)
-                            >> Effect.saveDiagramSettings M.SaveDiagramSettings
+                            >> Effect.Settings.save M.SaveDiagramSettings
                                 { session = model.session
                                 , diagramType = diagramType
                                 , settings = model.settingsModel.settings
@@ -1057,7 +1062,7 @@ update model message =
                     model.settingsModel.settings |> Settings.font.set model.settingsModel.settings.font
             in
             Return.map (\m -> { m | settingsModel = newSettingsModel })
-                >> Effect.saveSettingsToLocal newSettings
+                >> Effect.Settings.saveToLocal newSettings
 
         M.HandleVisibilityChange _ ->
             Return.zero
@@ -1098,7 +1103,7 @@ update model message =
                                                 (\jwt ->
                                                     BoolEx.ifElse (switchPage Page.Main >> Effect.changeRouteInit M.Init)
                                                         (switchPage Page.Main
-                                                            >> Effect.loadShareItemWithoutPassword M.Load { session = model.session, token = id_ }
+                                                            >> Effect.Diagram.loadFromShareWithoutPassword M.Load { session = model.session, token = id_ }
                                                             >> startProgress
                                                             >> Effect.changeRouteInit M.Init
                                                         )
@@ -1150,7 +1155,12 @@ update model message =
         M.GotLocalDiagramJson json ->
             D.decodeValue DiagramItem.decoder json
                 |> Result.toMaybe
-                |> Maybe.map (Effect.loadText M.Load)
+                |> Maybe.map
+                    (\diagram ->
+                        Task.succeed diagram
+                            |> Task.attempt M.Load
+                            |> Return.command
+                    )
                 |> Maybe.withDefault Return.zero
 
         M.ChangePublicStatus isPublic ->
@@ -1255,7 +1265,7 @@ update model message =
                 |> Maybe.map
                     (\t ->
                         switchPage Page.Main
-                            >> Effect.loadShareItem M.LoadWithPassword
+                            >> Effect.Diagram.loadFromShare M.LoadWithPassword
                                 { password = ShareState.getPassword model.shareState
                                 , session = model.session
                                 , token = t
@@ -1282,7 +1292,7 @@ update model message =
 
         M.GotGithubAccessToken { cmd, accessToken } ->
             Return.map (\m -> { m | session = Session.updateAccessToken m.session (accessToken |> Maybe.withDefault "") })
-                >> BoolEx.ifElse (Effect.loadItem M.Load { id = DiagramId.fromString cmd, session = model.session })
+                >> BoolEx.ifElse (Effect.Diagram.load M.Load { id = DiagramId.fromString cmd, session = model.session })
                     (Return.command (Task.perform identity (Task.succeed M.Save)))
                     (not <| String.isEmpty cmd)
 
@@ -1309,7 +1319,7 @@ update model message =
             loadDiagram <| DiagramItem.localFile title text
 
         M.SaveLocalFile ->
-            Return.andThen <| \m -> Return.singleton m |> Effect.saveLocalFile (DiagramItem.text.set (Text.saved m.diagramModel.text) m.currentDiagram)
+            Return.andThen <| \m -> Return.singleton m |> Effect.Diagram.saveToLocalFileSystem (DiagramItem.text.set (Text.saved m.diagramModel.text) m.currentDiagram)
 
         M.SavedLocalFile title ->
             Return.andThen <| \m -> Return.singleton m |> loadDiagram (DiagramItem.localFile title <| Text.toString m.diagramModel.text)
@@ -1364,7 +1374,7 @@ updateSettings msg diagramType =
             Return.andThen
                 (\m ->
                     Return.singleton m
-                        |> Effect.saveDiagramSettings M.SaveDiagramSettings
+                        |> Effect.Settings.save M.SaveDiagramSettings
                             { diagramType = diagramType
                             , session = m.session
                             , settings = m.settingsModel.settings
