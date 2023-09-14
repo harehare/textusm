@@ -54,7 +54,7 @@ import Css
         , overflow
         , overflowY
         , padding
-        , padding2
+        , padding4
         , paddingBottom
         , paddingLeft
         , pointer
@@ -75,7 +75,6 @@ import Css
         , url
         , vh
         , whiteSpace
-        , width
         , zero
         )
 import Css.Global exposing (descendants, typeSelector)
@@ -244,9 +243,9 @@ itemStyle =
         , cursor pointer
         , TextStyle.sm
         , ColorStyle.textLight
-        , height <| px 32
+        , height <| px 40
         , lineHeight <| px 30
-        , padding2 (px 8) (px 8)
+        , padding4 (px 0) (px 16) (px 2) (px 16)
         , descendants
             [ typeSelector "div"
                 [ Style.widthFull
@@ -323,19 +322,17 @@ githubMenu session list isOnline =
         Nothing
 
 
-sideMenu : Session -> DiagramList -> Bool -> Html Msg
-sideMenu session list isOnline =
+tabs : Session -> DiagramList -> Bool -> Html Msg
+tabs session list isOnline =
     Html.div
         [ Attr.css
             [ Breakpoint.style [ display none ]
                 [ Breakpoint.large
                     [ TextStyle.base
+                    , Css.displayFlex
                     , ColorStyle.textDark
                     , ColorStyle.bgMain
                     , overflowY scroll
-                    , display block
-                    , width <| px 250
-                    , height <| calc (vh 100) minus (px 40)
                     ]
                 ]
             ]
@@ -369,6 +366,7 @@ mainView children =
                 [ Breakpoint.large
                     [ displayFlex
                     , ColorStyle.bgDefault
+                    , Css.flexDirection Css.column
                     , Style.widthScreen
                     , height <| calc (vh 100) minus (px 40)
                     , position relative
@@ -385,7 +383,7 @@ view model =
     case model.diagramList of
         DiagramList.PublicList (Success diagrams) pageNo hasMorePage ->
             mainView
-                [ Lazy.lazy3 sideMenu
+                [ Lazy.lazy3 tabs
                     model.session
                     model.diagramList
                     model.isOnline
@@ -403,7 +401,7 @@ view model =
 
         DiagramList.BookmarkList (Success diagrams) pageNo hasMorePage ->
             mainView
-                [ Lazy.lazy3 sideMenu
+                [ Lazy.lazy3 tabs
                     model.session
                     model.diagramList
                     model.isOnline
@@ -421,7 +419,7 @@ view model =
 
         DiagramList.GistList (Success diagrams) pageNo hasMorePage ->
             mainView
-                [ Lazy.lazy3 sideMenu
+                [ Lazy.lazy3 tabs
                     model.session
                     model.diagramList
                     model.isOnline
@@ -439,7 +437,7 @@ view model =
 
         DiagramList.AllList (Success diagrams) pageNo hasMorePage ->
             mainView
-                [ Lazy.lazy3 sideMenu
+                [ Lazy.lazy3 tabs
                     model.session
                     model.diagramList
                     model.isOnline
@@ -469,7 +467,7 @@ view model =
 
         _ ->
             mainView
-                [ Lazy.lazy3 sideMenu
+                [ Lazy.lazy3 tabs
                     model.session
                     model.diagramList
                     model.isOnline
@@ -506,7 +504,7 @@ diagramListView props =
                 [ displayFlex
                 , alignItems center
                 , justifyContent end
-                , Style.paddingMd
+                , Style.paddingSm
                 , color <| hex <| Color.toString Color.white
                 ]
             ]
