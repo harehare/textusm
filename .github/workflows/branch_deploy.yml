@@ -20,5 +20,3 @@ jobs:
       - name: build and deploy
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
         uses: ./.github/workflows/build_and_deploy.yml
-        with:
-          environment: production
