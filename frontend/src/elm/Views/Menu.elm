@@ -102,7 +102,6 @@ type alias Props msg =
     , currentDiagram : DiagramItem
     , onOpenLocalFile : msg
     , onOpenMenu : Menu -> msg
-    , onCopy : msg
     , onDownload : Exporter.Export -> msg
     , onSaveLocalFile : msg
     , onSave : msg
@@ -113,7 +112,7 @@ type alias Props msg =
 isEditFile : Route -> Bool
 isEditFile route =
     case route of
-        Route.Edit _ ->
+        Route.Edit _ _ ->
             True
 
         Route.EditFile _ _ ->
@@ -150,7 +149,7 @@ newMenu lang =
 editMenu : { diagramItem : DiagramItem, lang : Lang, route : Route, onOpenCurrentFile : msg } -> Html msg
 editMenu { diagramItem, lang, route, onOpenCurrentFile } =
     case route of
-        Route.Edit _ ->
+        Route.Edit _ _ ->
             Lazy.lazy newMenu lang
 
         Route.EditFile _ _ ->
@@ -246,7 +245,7 @@ menu pos items =
 
 
 view : Props msg -> Html msg
-view { page, lang, width, route, text, openMenu, settings, browserStatus, currentDiagram, onOpenLocalFile, onOpenMenu, onCopy, onDownload, onSave, onSaveLocalFile, onOpenCurrentFile } =
+view { page, lang, width, route, text, openMenu, settings, browserStatus, currentDiagram, onOpenLocalFile, onOpenMenu, onDownload, onSave, onSaveLocalFile, onOpenCurrentFile } =
     Html.nav
         [ css
             [ Breakpoint.style
@@ -352,26 +351,6 @@ view { page, lang, width, route, text, openMenu, settings, browserStatus, curren
                 18
             , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipExport lang ] ]
             ]
-        , if not (isEditFile route) || Text.isChanged text then
-            Html.div
-                [ css [ menuButtonStyle ]
-                , Attributes.dataTest "copy-menu"
-                , css [ Style.hoverAnimation ]
-                ]
-                [ Icon.copy Color.disabledIconColor 19
-                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy lang ] ]
-                ]
-
-          else
-            Html.div
-                [ css [ menuButtonStyle ]
-                , Events.onClickStopPropagation onCopy
-                , Attributes.dataTest "copy-menu"
-                , css [ Style.hoverAnimation ]
-                ]
-                [ Icon.copy Color.iconColor 19
-                , Html.span [ Attr.class "tooltip" ] [ Html.span [ Attr.class "text" ] [ Html.text <| Message.toolTipCopy lang ] ]
-                ]
         , if Utils.isPhone width then
             case openMenu of
                 Just Export ->
@@ -432,14 +411,14 @@ baseExportMenu { browserStatus, onDownload } =
 exportMenu : { route : Route, browserStatus : BrowserStatus, onDownload : Exporter.Export -> msg } -> List (MenuItem msg)
 exportMenu { route, browserStatus, onDownload } =
     case route of
-        Route.Edit GanttChart ->
+        Route.Edit GanttChart _ ->
             MenuItem
                 { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
-        Route.Edit ErDiagram ->
+        Route.Edit ErDiagram _ ->
             MenuItem
                 { e = Just <| onDownload <| Exporter.copyable FileType.ddl
                 , title = "DDL"
@@ -450,14 +429,14 @@ exportMenu { route, browserStatus, onDownload } =
                     }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
-        Route.Edit Table ->
+        Route.Edit Table _ ->
             MenuItem
                 { e = Just <| onDownload <| Exporter.copyable FileType.markdown
                 , title = "Markdown"
                 }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
-        Route.Edit SequenceDiagram ->
+        Route.Edit SequenceDiagram _ ->
             MenuItem
                 { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
@@ -546,7 +525,6 @@ docs =
                     , currentDiagram = DiagramItem.empty
                     , onOpenLocalFile = Actions.logAction "onOpenLocalFile"
                     , onOpenMenu = \_ -> Actions.logAction "onOpenMenu"
-                    , onCopy = Actions.logAction "onCopy"
                     , onDownload = \_ -> Actions.logAction "onDownload"
                     , onSaveLocalFile = Actions.logAction "onSaveLocalFile"
                     , onSave = Actions.logAction "onSave"

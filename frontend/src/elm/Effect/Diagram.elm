@@ -2,6 +2,7 @@ module Effect.Diagram exposing
     ( closeLocalFile
     , load
     , loadFromLocal
+    , loadFromLocalForCopy
     , loadFromPublic
     , loadFromShare
     , loadFromShareWithoutPassword
@@ -43,6 +44,13 @@ loadFromLocal : DiagramId -> Return.ReturnF msg model
 loadFromLocal diagramId =
     DiagramId.toString diagramId
         |> Ports.getDiagram
+        |> Return.command
+
+
+loadFromLocalForCopy : DiagramId -> Return.ReturnF msg model
+loadFromLocalForCopy diagramId =
+    DiagramId.toString diagramId
+        |> Ports.getDiagramForCopy
         |> Return.command
 
 

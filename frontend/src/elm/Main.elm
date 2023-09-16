@@ -139,7 +139,7 @@ changeRouteTo route =
         Route.New ->
             switchPage Page.New
 
-        Route.Edit diagramType ->
+        Route.Edit diagramType Nothing ->
             let
                 diagram : DiagramItem
                 diagram =
@@ -152,6 +152,22 @@ changeRouteTo route =
                 >> switchPage Page.Main
                 >> Effect.changeRouteInit M.Init
                 >> Effect.closeLocalFile
+
+        Route.Edit _ (Just copyDiagramId) ->
+            switchPage Page.Main
+                >> Return.andThen
+                    (\m ->
+                        Return.singleton m
+                            |> (if Session.isSignedIn m.session && m.browserStatus.isOnline then
+                                    Effect.updateIdToken
+                                        >> startProgress
+                                        >> Effect.Diagram.load M.Copied { id = copyDiagramId, session = m.session }
+
+                                else
+                                    Effect.Diagram.loadFromLocalForCopy copyDiagramId >> Effect.changeRouteInit M.Init
+                               )
+                            >> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
+                    )
 
         Route.EditFile _ id_ ->
             switchPage Page.Main
@@ -751,6 +767,7 @@ subscriptions model =
          , Ports.progress M.Progress
          , Ports.saveToLocalCompleted M.SaveToLocalCompleted
          , Ports.gotLocalDiagramJson M.GotLocalDiagramJson
+         , Ports.gotLocalDiagramJsonForCopy M.GotLocalDiagramJsonForCopy
          , Ports.fullscreen <|
             \f ->
                 if f then
@@ -878,18 +895,12 @@ update model message =
         M.MoveStop ->
             Return.map <| \m -> { m | window = Window.resized m.window }
 
-        M.Copy ->
-            pushUrl (Route.toString <| Edit model.currentDiagram.diagram)
-                >> startProgress
-                >> Effect.closeLocalFile
-                >> (DiagramItem.copy model.currentDiagram
-                        |> M.Copied
-                        |> Utils.delay 100
-                        |> Return.command
-                   )
-
-        M.Copied diagram ->
+        M.Copied (Ok diagram) ->
             loadDiagram diagram
+
+        M.Copied (Err e) ->
+            showErrorMessage (RequestError.toMessage e)
+                >> stopProgress
 
         M.Download exportDiagram ->
             let
@@ -1163,6 +1174,17 @@ update model message =
                     )
                 |> Maybe.withDefault Return.zero
 
+        M.GotLocalDiagramJsonForCopy json ->
+            D.decodeValue DiagramItem.decoder json
+                |> Result.toMaybe
+                |> Maybe.map
+                    (\diagram ->
+                        Task.succeed diagram
+                            |> Task.attempt M.Copied
+                            |> Return.command
+                    )
+                |> Maybe.withDefault Return.zero
+
         M.ChangePublicStatus isPublic ->
             Effect.updateIdToken
                 >> Effect.changePublicState M.ChangePublicStatusCompleted
@@ -1349,6 +1371,20 @@ processDiagramListMsg msg =
                 >> startProgress
                 >> Effect.closeLocalFile
 
+        DiagramList.Copy diagram ->
+            (case ( diagram.location, diagram.isPublic ) of
+                ( Just DiagramLocation.Remote, True ) ->
+                    pushUrl (Route.toString <| Edit diagram.diagram (Just (DiagramItem.getId diagram)))
+
+                ( Just DiagramLocation.Remote, False ) ->
+                    pushUrl (Route.toString <| Edit diagram.diagram (Just (DiagramItem.getId diagram)))
+
+                _ ->
+                    pushUrl (Route.toString <| Edit diagram.diagram (Just (DiagramItem.getId diagram)))
+            )
+                >> startProgress
+                >> Effect.closeLocalFile
+
         DiagramList.Removed (Err _) ->
             showErrorMessage Message.messagEerrorOccurred
 
@@ -1453,7 +1489,6 @@ menuView model =
             , browserStatus = model.browserStatus
             , onOpenLocalFile = M.OpenLocalFile
             , onOpenMenu = M.OpenMenu
-            , onCopy = M.Copy
             , onDownload = M.Download
             , onSaveLocalFile = M.SaveLocalFile
             , onSave = M.Save

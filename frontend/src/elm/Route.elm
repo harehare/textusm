@@ -10,10 +10,14 @@ import Url.Parser as Parser exposing ((</>), (<?>), Parser, custom, map, oneOf, 
 import Url.Parser.Query as Query
 
 
+type alias CopyDiagramId =
+    Maybe DiagramId
+
+
 type Route
     = Home
     | New
-    | Edit DiagramType
+    | Edit DiagramType CopyDiagramId
     | EditFile DiagramType DiagramId
     | EditLocalFile DiagramType DiagramId
     | ViewPublic DiagramType DiagramId
@@ -64,7 +68,10 @@ toString route =
         New ->
             absolute [ "new" ] []
 
-        Edit type_ ->
+        Edit type_ (Just copyDiagramId) ->
+            absolute [ "edit", DiagramType.toString type_ ] [ Builder.string "copy" (DiagramId.toString copyDiagramId) ]
+
+        Edit type_ Nothing ->
             absolute [ "edit", DiagramType.toString type_ ] []
 
         EditFile type_ id_ ->
@@ -129,7 +136,7 @@ parser =
         , map Help (s "help")
         , map New (s "new")
         , map Share (s "share")
-        , map Edit (s "edit" </> diagramType)
+        , map Edit (s "edit" </> diagramType <?> Query.map (Maybe.map DiagramId.fromString) (Query.string "copy"))
         , map EditFile (s "edit" </> diagramType </> diagramId)
         , map EditLocalFile (s "edit" </> diagramType </> s "local" </> diagramId)
         , map ViewFile (s "view" </> diagramType </> shareId)

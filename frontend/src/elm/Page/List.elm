@@ -124,6 +124,7 @@ type Msg
     | Select DiagramItem
     | Bookmark DiagramItem
     | CloseDialog
+    | Copy DiagramItem
     | Reload
     | Remove DiagramItem
     | RemoveRemote D.Value
@@ -1019,5 +1020,9 @@ update model message =
         Bookmarked (Err _) ->
             Return.zero
 
+        -- Processed by parent component
         Select _ ->
+            Return.zero
+
+        Copy _ ->
             Return.zero

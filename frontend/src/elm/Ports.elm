@@ -8,9 +8,11 @@ port module Ports exposing
     , focusEditor
     , fullscreen
     , getDiagram
+    , getDiagramForCopy
     , getGithubAccessToken
     , gotGithubAccessToken
     , gotLocalDiagramJson
+    , gotLocalDiagramJsonForCopy
     , gotLocalDiagramsJson
     , hotkey
     , insertText
@@ -72,6 +74,9 @@ port fullscreen : (Bool -> msg) -> Sub msg
 port getDiagram : String -> Cmd msg
 
 
+port getDiagramForCopy : String -> Cmd msg
+
+
 port getGithubAccessToken : String -> Cmd msg
 
 
@@ -79,6 +84,9 @@ port gotGithubAccessToken : ({ cmd : String, accessToken : Maybe String } -> msg
 
 
 port gotLocalDiagramJson : (D.Value -> msg) -> Sub msg
+
+
+port gotLocalDiagramJsonForCopy : (D.Value -> msg) -> Sub msg
 
 
 port gotLocalDiagramsJson : (D.Value -> msg) -> Sub msg
