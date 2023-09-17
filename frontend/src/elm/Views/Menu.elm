@@ -112,7 +112,7 @@ type alias Props msg =
 isEditFile : Route -> Bool
 isEditFile route =
     case route of
-        Route.Edit _ _ ->
+        Route.Edit _ _ _ ->
             True
 
         Route.EditFile _ _ ->
@@ -149,7 +149,7 @@ newMenu lang =
 editMenu : { diagramItem : DiagramItem, lang : Lang, route : Route, onOpenCurrentFile : msg } -> Html msg
 editMenu { diagramItem, lang, route, onOpenCurrentFile } =
     case route of
-        Route.Edit _ _ ->
+        Route.Edit _ _ _ ->
             Lazy.lazy newMenu lang
 
         Route.EditFile _ _ ->
@@ -411,14 +411,14 @@ baseExportMenu { browserStatus, onDownload } =
 exportMenu : { route : Route, browserStatus : BrowserStatus, onDownload : Exporter.Export -> msg } -> List (MenuItem msg)
 exportMenu { route, browserStatus, onDownload } =
     case route of
-        Route.Edit GanttChart _ ->
+        Route.Edit GanttChart _ _ ->
             MenuItem
                 { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"
                 }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
-        Route.Edit ErDiagram _ ->
+        Route.Edit ErDiagram _ _ ->
             MenuItem
                 { e = Just <| onDownload <| Exporter.copyable FileType.ddl
                 , title = "DDL"
@@ -429,14 +429,14 @@ exportMenu { route, browserStatus, onDownload } =
                     }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
-        Route.Edit Table _ ->
+        Route.Edit Table _ _ ->
             MenuItem
                 { e = Just <| onDownload <| Exporter.copyable FileType.markdown
                 , title = "Markdown"
                 }
                 :: baseExportMenu { browserStatus = browserStatus, onDownload = onDownload }
 
-        Route.Edit SequenceDiagram _ ->
+        Route.Edit SequenceDiagram _ _ ->
             MenuItem
                 { e = Just <| onDownload <| Exporter.copyable FileType.mermaid
                 , title = "Mermaid"

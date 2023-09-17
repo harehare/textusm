@@ -1,5 +1,6 @@
 module Route exposing (Route(..), Title, isViewFile, moveTo, replaceRoute, toRoute, toString)
 
+import Bool.Extra as BoolEx
 import Browser.Navigation as Nav
 import Models.Diagram.Id as DiagramId exposing (DiagramId)
 import Models.Diagram.Type as DiagramType exposing (DiagramType)
@@ -14,10 +15,14 @@ type alias CopyDiagramId =
     Maybe DiagramId
 
 
+type alias IsRemote =
+    Maybe Bool
+
+
 type Route
     = Home
     | New
-    | Edit DiagramType CopyDiagramId
+    | Edit DiagramType CopyDiagramId IsRemote
     | EditFile DiagramType DiagramId
     | EditLocalFile DiagramType DiagramId
     | ViewPublic DiagramType DiagramId
@@ -68,10 +73,19 @@ toString route =
         New ->
             absolute [ "new" ] []
 
-        Edit type_ (Just copyDiagramId) ->
-            absolute [ "edit", DiagramType.toString type_ ] [ Builder.string "copy" (DiagramId.toString copyDiagramId) ]
+        Edit type_ (Just copyDiagramId) (Just isRemote_) ->
+            absolute [ "edit", DiagramType.toString type_ ]
+                [ Builder.string "copy" (DiagramId.toString copyDiagramId)
+                , Builder.string "remote"
+                    (if isRemote_ then
+                        "true"
 
-        Edit type_ Nothing ->
+                     else
+                        "false"
+                    )
+                ]
+
+        Edit type_ _ _ ->
             absolute [ "edit", DiagramType.toString type_ ] []
 
         EditFile type_ id_ ->
@@ -136,7 +150,7 @@ parser =
         , map Help (s "help")
         , map New (s "new")
         , map Share (s "share")
-        , map Edit (s "edit" </> diagramType <?> Query.map (Maybe.map DiagramId.fromString) (Query.string "copy"))
+        , map Edit (s "edit" </> diagramType <?> Query.map (Maybe.map DiagramId.fromString) (Query.string "copy") <?> Query.map (Maybe.andThen BoolEx.fromString) (Query.string "remote"))
         , map EditFile (s "edit" </> diagramType </> diagramId)
         , map EditLocalFile (s "edit" </> diagramType </> s "local" </> diagramId)
         , map ViewFile (s "view" </> diagramType </> shareId)

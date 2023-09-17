@@ -139,7 +139,23 @@ changeRouteTo route =
         Route.New ->
             switchPage Page.New
 
-        Route.Edit diagramType Nothing ->
+        Route.Edit _ (Just copyDiagramId) (Just isRemote) ->
+            switchPage Page.Main
+                >> Return.andThen
+                    (\m ->
+                        Return.singleton m
+                            |> (if Session.isSignedIn m.session && m.browserStatus.isOnline && isRemote then
+                                    Effect.updateIdToken
+                                        >> startProgress
+                                        >> Effect.Diagram.load M.Copied { id = copyDiagramId, session = m.session }
+
+                                else
+                                    Effect.Diagram.loadFromLocalForCopy copyDiagramId >> Effect.changeRouteInit M.Init
+                               )
+                            >> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
+                    )
+
+        Route.Edit diagramType _ _ ->
             let
                 diagram : DiagramItem
                 diagram =
@@ -152,22 +168,6 @@ changeRouteTo route =
                 >> switchPage Page.Main
                 >> Effect.changeRouteInit M.Init
                 >> Effect.closeLocalFile
-
-        Route.Edit _ (Just copyDiagramId) ->
-            switchPage Page.Main
-                >> Return.andThen
-                    (\m ->
-                        Return.singleton m
-                            |> (if Session.isSignedIn m.session && m.browserStatus.isOnline then
-                                    Effect.updateIdToken
-                                        >> startProgress
-                                        >> Effect.Diagram.load M.Copied { id = copyDiagramId, session = m.session }
-
-                                else
-                                    Effect.Diagram.loadFromLocalForCopy copyDiagramId >> Effect.changeRouteInit M.Init
-                               )
-                            >> Effect.Settings.load M.LoadSettings { cache = m.settingsCache, diagramType = m.currentDiagram.diagram, session = m.session }
-                    )
 
         Route.EditFile _ id_ ->
             switchPage Page.Main
@@ -896,7 +896,7 @@ update model message =
             Return.map <| \m -> { m | window = Window.resized m.window }
 
         M.Copied (Ok diagram) ->
-            loadDiagram diagram
+            loadDiagram { diagram | id = Nothing, title = Title.fromString <| Title.toString diagram.title ++ " Copy" }
 
         M.Copied (Err e) ->
             showErrorMessage (RequestError.toMessage e)
@@ -1374,13 +1374,13 @@ processDiagramListMsg msg =
         DiagramList.Copy diagram ->
             (case ( diagram.location, diagram.isPublic ) of
                 ( Just DiagramLocation.Remote, True ) ->
-                    pushUrl (Route.toString <| Edit diagram.diagram (Just (DiagramItem.getId diagram)))
+                    pushUrl (Route.toString <| Edit diagram.diagram (Just (DiagramItem.getId diagram)) (Just True))
 
                 ( Just DiagramLocation.Remote, False ) ->
-                    pushUrl (Route.toString <| Edit diagram.diagram (Just (DiagramItem.getId diagram)))
+                    pushUrl (Route.toString <| Edit diagram.diagram (Just (DiagramItem.getId diagram)) (Just True))
 
                 _ ->
-                    pushUrl (Route.toString <| Edit diagram.diagram (Just (DiagramItem.getId diagram)))
+                    pushUrl (Route.toString <| Edit diagram.diagram (Just (DiagramItem.getId diagram)) (Just False))
             )
                 >> startProgress
                 >> Effect.closeLocalFile
