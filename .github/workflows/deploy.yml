@@ -11,12 +11,6 @@ on:
 
 jobs:
   deploy:
-    name: deploy
-    runs-on: ubuntu-latest
     environment:
       name: ${{ github.event.inputs.environment }}
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-      - name: build and deploy
-        uses: ./.github/workflows/build_and_deploy.yml
+    uses: ./.github/workflows/build_and_deploy.yml
