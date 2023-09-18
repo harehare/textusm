@@ -116,7 +116,7 @@ newItems =
     , NewItem DiagramType.SequenceDiagram Asset.sequenceDiagram (Route.toString <| Route.Edit SequenceDiagram Nothing Nothing)
     , NewItem DiagramType.UseCaseDiagram Asset.useCaseDiagram (Route.toString <| Route.Edit UseCaseDiagram Nothing Nothing)
     , NewItem DiagramType.Kanban Asset.kanban (Route.toString <| Route.Edit Kanban Nothing Nothing)
-    , NewItem DiagramType.Fourls Asset.fourLs (Route.toString <| Route.Edit Fourls Nothing Nothing )
+    , NewItem DiagramType.Fourls Asset.fourLs (Route.toString <| Route.Edit Fourls Nothing Nothing)
     , NewItem DiagramType.StartStopContinue Asset.startStopContinue (Route.toString <| Route.Edit StartStopContinue Nothing Nothing)
     , NewItem DiagramType.Kpt Asset.kpt (Route.toString <| Route.Edit Kpt Nothing Nothing)
     , NewItem DiagramType.Table Asset.table (Route.toString <| Route.Edit Table Nothing Nothing)
