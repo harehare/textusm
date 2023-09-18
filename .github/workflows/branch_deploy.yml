@@ -17,6 +17,8 @@ jobs:
     steps:
       - uses: github/branch-deploy@v7.3.0
         id: branch-deploy
+      - name: Checkout Repo
+        uses: actions/checkout@v4
       - name: build and deploy
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
         uses: ./.github/workflows/build_and_deploy.yml

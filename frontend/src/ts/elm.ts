@@ -31,6 +31,7 @@ export type ElmApp = {
     saveDiagram: Subscribe<(diagram: Diagram) => void>;
     removeDiagrams: Subscribe<(diagram: Diagram) => Promise<void>>;
     getDiagram: Subscribe<(diagramId: string) => Promise<void>>;
+    getDiagramForCopy: Subscribe<(diagramId: string) => Promise<void>>;
     getDiagrams: Subscribe<() => Promise<void>>;
     importDiagram: Subscribe<(diagrams: DiagramItem[]) => void>;
     copyText: Subscribe<(text: string) => void>;
@@ -61,6 +62,7 @@ export type ElmApp = {
     removeRemoteDiagram: Send<Diagram>;
     reload: Send<string>;
     gotLocalDiagramJson: Send<DiagramItem>;
+    gotLocalDiagramJsonForCopy: Send<DiagramItem>;
     gotLocalDiagramsJson: Send<DiagramItem[]>;
     onEncodeShareText: Send<string>;
     onDecodeShareText: Send<string>;

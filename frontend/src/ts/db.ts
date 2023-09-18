@@ -140,6 +140,17 @@ export const initDB = (app: ElmApp): void => {
     }
   });
 
+  app.ports.getDiagramForCopy.subscribe(async (diagramId: string) => {
+    const diagram = await db.diagrams.get(diagramId);
+
+    if (diagram) {
+      app.ports.gotLocalDiagramJsonForCopy.send({
+        ...diagram,
+        isPublic: false,
+      });
+    }
+  });
+
   app.ports.getDiagrams.subscribe(async () => {
     const diagrams = await db.diagrams.orderBy('updatedAt').reverse().toArray();
     app.ports.gotLocalDiagramsJson.send(

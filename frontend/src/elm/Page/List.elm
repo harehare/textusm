@@ -124,6 +124,7 @@ type Msg
     | Select DiagramItem
     | Bookmark DiagramItem
     | CloseDialog
+    | Copy DiagramItem
     | Reload
     | Remove DiagramItem
     | RemoveRemote D.Value
@@ -697,6 +698,7 @@ diagramView timezone diagram =
 
            else
             publicIconView [ Icon.lock Color.gray 14 ]
+         , copyButtonView diagram
          ]
             ++ ([ bookmarkButtonView diagram
                 , deleteButtonView diagram
@@ -737,6 +739,21 @@ deleteButtonView diagram =
                 , stopPropagationOn "click" (D.succeed ( ShowConfirmDialog diagram, True ))
                 ]
                 [ Icon.clear (Color.toString Color.gray) 18 ]
+
+
+copyButtonView : DiagramItem -> Html Msg
+copyButtonView diagram =
+    Html.div
+        [ Attr.css
+            [ bottom <| px -2
+            , right <| px 32
+            , Style.button
+            , position absolute
+            , hover [ transforms [ scale 1.1 ] ]
+            ]
+        , stopPropagationOn "click" (D.succeed ( Copy diagram, True ))
+        ]
+        [ Icon.copy Color.gray 14 ]
 
 
 errorView : Http.Error -> Html Msg
@@ -1019,5 +1036,9 @@ update model message =
         Bookmarked (Err _) ->
             Return.zero
 
+        -- Processed by parent component
         Select _ ->
+            Return.zero
+
+        Copy _ ->
             Return.zero

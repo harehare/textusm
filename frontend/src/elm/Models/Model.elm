@@ -86,8 +86,7 @@ type Msg
     | OpenMenu Menu
     | MoveStop
     | CloseMenu
-    | Copy
-    | Copied DiagramItem
+    | Copied (Result RequestError DiagramItem)
     | ChangeDiagramType DiagramType
     | ChangePublicStatus Bool
     | ChangePublicStatusCompleted (Result DiagramItem DiagramItem)
@@ -119,6 +118,7 @@ type Msg
     | SwitchWindow Window
     | Hotkey (Maybe Hotkey)
     | GotLocalDiagramJson D.Value
+    | GotLocalDiagramJsonForCopy D.Value
     | Load (Result RequestError DiagramItem)
     | LoadSettings (Result RequestError DiagramSettings.Settings)
     | LoadSettingsFromLocal D.Value

@@ -1,5 +1,6 @@
 module Route exposing (Route(..), Title, isViewFile, moveTo, replaceRoute, toRoute, toString)
 
+import Bool.Extra as BoolEx
 import Browser.Navigation as Nav
 import Models.Diagram.Id as DiagramId exposing (DiagramId)
 import Models.Diagram.Type as DiagramType exposing (DiagramType)
@@ -10,10 +11,18 @@ import Url.Parser as Parser exposing ((</>), (<?>), Parser, custom, map, oneOf, 
 import Url.Parser.Query as Query
 
 
+type alias CopyDiagramId =
+    Maybe DiagramId
+
+
+type alias IsRemote =
+    Maybe Bool
+
+
 type Route
     = Home
     | New
-    | Edit DiagramType
+    | Edit DiagramType CopyDiagramId IsRemote
     | EditFile DiagramType DiagramId
     | EditLocalFile DiagramType DiagramId
     | ViewPublic DiagramType DiagramId
@@ -64,7 +73,19 @@ toString route =
         New ->
             absolute [ "new" ] []
 
-        Edit type_ ->
+        Edit type_ (Just copyDiagramId) (Just isRemote_) ->
+            absolute [ "edit", DiagramType.toString type_ ]
+                [ Builder.string "copy" (DiagramId.toString copyDiagramId)
+                , Builder.string "remote"
+                    (if isRemote_ then
+                        "true"
+
+                     else
+                        "false"
+                    )
+                ]
+
+        Edit type_ _ _ ->
             absolute [ "edit", DiagramType.toString type_ ] []
 
         EditFile type_ id_ ->
@@ -129,7 +150,7 @@ parser =
         , map Help (s "help")
         , map New (s "new")
         , map Share (s "share")
-        , map Edit (s "edit" </> diagramType)
+        , map Edit (s "edit" </> diagramType <?> Query.map (Maybe.map DiagramId.fromString) (Query.string "copy") <?> Query.map (Maybe.andThen BoolEx.fromString) (Query.string "remote"))
         , map EditFile (s "edit" </> diagramType </> diagramId)
         , map EditLocalFile (s "edit" </> diagramType </> s "local" </> diagramId)
         , map ViewFile (s "view" </> diagramType </> shareId)
