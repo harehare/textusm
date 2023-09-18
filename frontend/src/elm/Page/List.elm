@@ -745,8 +745,8 @@ copyButtonView : DiagramItem -> Html Msg
 copyButtonView diagram =
     Html.div
         [ Attr.css
-            [ bottom <| px -4
-            , left <| px -1
+            [ bottom <| px -2
+            , right <| px 32
             , Style.button
             , position absolute
             , hover [ transforms [ scale 1.1 ] ]

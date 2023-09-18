@@ -896,7 +896,7 @@ update model message =
             Return.map <| \m -> { m | window = Window.resized m.window }
 
         M.Copied (Ok diagram) ->
-            loadDiagram { diagram | id = Nothing, title = Title.fromString <| Title.toString diagram.title ++ " Copy" }
+            loadDiagram { diagram | id = Nothing, title = Title.fromString <| "Copy of " ++ Title.toString diagram.title }
 
         M.Copied (Err e) ->
             showErrorMessage (RequestError.toMessage e)
