@@ -14,6 +14,9 @@ jobs:
   branch-deploy:
     if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
+    outputs:
+      continue: ${{ steps.branch-deploy.outputs.continue }}
+      ref: ${{ steps.branch-deploy.outputs.ref }}
     steps:
       - uses: github/branch-deploy@v7.3.0
         id: branch-deploy
@@ -23,3 +26,5 @@ jobs:
     if: ${{ jobs.branch-deploy.outputs.continue == 'true' }}
     uses: ./.github/workflows/build_and_deploy.yml
     secrets: inherit
+    with:
+      ref: ${{ jobs.branch-deploy.outputs.ref }}

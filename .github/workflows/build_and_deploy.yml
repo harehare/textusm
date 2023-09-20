@@ -2,6 +2,10 @@ name: build_and_deploy
 
 on:
   workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
 
 jobs:
   build:
@@ -11,6 +15,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - uses: actions/setup-node@v3
         with:
           node-version-file: ".tool-versions"
