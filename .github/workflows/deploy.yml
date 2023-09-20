@@ -11,6 +11,4 @@ on:
 
 jobs:
   deploy:
-    environment:
-      name: ${{ github.event.inputs.environment }}
     uses: ./.github/workflows/build_and_deploy.yml
