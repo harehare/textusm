@@ -20,6 +20,6 @@ jobs:
 
   deploy:
     needs: branch-build
-    if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
+    if: ${{ jobs.branch-deploy.outputs.continue == 'true' }}
     uses: ./.github/workflows/build_and_deploy.yml
     secrets: inherit
