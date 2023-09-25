@@ -29,7 +29,7 @@
     "@types/node": "^20.6.3",
     "@types/requestidlecallback": "^0.3.5",
     "@types/uuid": "^9.0.4",
-    "@types/wicg-file-system-access": "^2020.9.6",
+    "@types/wicg-file-system-access": "^2020.9.8",
     "concurrently": "^8.2.1",
     "cypress": "^13.2.0",
     "devcert": "^1.2.2",
