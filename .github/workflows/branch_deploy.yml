@@ -22,9 +22,9 @@ jobs:
         id: branch-deploy
 
   deploy:
-    needs: branch-build
-    if: ${{ jobs.branch-deploy.outputs.continue == 'true' }}
+    needs: branch-deploy
+    if: ${{ needs.branch-deploy.outputs.continue == 'true' }}
     uses: ./.github/workflows/build_and_deploy.yml
     secrets: inherit
     with:
-      ref: ${{ jobs.branch-deploy.outputs.ref }}
+      ref: ${{ needs.branch-deploy.outputs.ref }}
