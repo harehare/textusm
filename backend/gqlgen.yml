@@ -12,18 +12,18 @@ resolver:
 autobind: []
 models:
   Item:
-    model: github.com/harehare/textusm/pkg/domain/model/item/diagramitem.DiagramItem
+    model: github.com/harehare/textusm/internal/domain/model/item/diagramitem.DiagramItem
   GistItem:
-    model: github.com/harehare/textusm/pkg/domain/model/item/gistitem.GistItem
+    model: github.com/harehare/textusm/internal/domain/model/item/gistitem.GistItem
   ShareCondition:
-    model: github.com/harehare/textusm/pkg/domain/model/share.ShareCondition
+    model: github.com/harehare/textusm/internal/domain/model/share.ShareCondition
   Diagram:
-    model: github.com/harehare/textusm/pkg/domain/values.Diagram
+    model: github.com/harehare/textusm/internal/domain/values.Diagram
   Settings:
-    model: github.com/harehare/textusm/pkg/domain/model/settings.Settings
+    model: github.com/harehare/textusm/internal/domain/model/settings.Settings
   Color:
-    model: github.com/harehare/textusm/pkg/domain/model/settings.Color
+    model: github.com/harehare/textusm/internal/domain/model/settings.Color
   DiagramItem:
-    model: github.com/harehare/textusm/pkg/presentation/graphql/union.DiagramItem
+    model: github.com/harehare/textusm/internal/presentation/graphql/union.DiagramItem
   Node:
-    model: github.com/harehare/textusm/pkg/presentation/graphql/interface.Node
+    model: github.com/harehare/textusm/internal/presentation/graphql/interface.Node

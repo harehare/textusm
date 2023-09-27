@@ -1,6 +1,6 @@
 alias g := generate
 
-main := "cmd/main.go"
+main := "cmd/api-server/main.go"
 module := "github.com/harehare/textusm"
 lint := "staticcheck"
 sec := "gosec"
