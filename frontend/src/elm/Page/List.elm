@@ -780,6 +780,21 @@ reload =
     Return.andThen <| \m -> Return.return { m | diagramList = DiagramList.notAsked } (getDiagrams ())
 
 
+fetchAllItems : Session -> Int -> Task.Task RequestError (List DiagramItem)
+fetchAllItems session pageNo =
+    Request.allItems (Session.getIdToken session) (pageOffsetAndLimit pageNo)
+        |> Task.andThen
+            (\items ->
+                case items of
+                    Just items_ ->
+                        fetchAllItems session (pageNo + 1)
+                            |> Task.map (\items__ -> items_ ++ items__)
+
+                    Nothing ->
+                        Task.succeed []
+            )
+
+
 update : Model -> Msg -> Return.ReturnF Msg Model
 update model message =
     case message of
