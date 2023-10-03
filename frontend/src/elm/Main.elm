@@ -1385,6 +1385,12 @@ processDiagramListMsg msg =
                 >> startProgress
                 >> Effect.closeLocalFile
 
+        DiagramList.Export ->
+            startProgress
+
+        DiagramList.GotExportDiagrams (Err e) ->
+            showErrorMessage <| RequestError.toMessage e
+
         DiagramList.Removed (Err _) ->
             showErrorMessage Message.messagEerrorOccurred
 

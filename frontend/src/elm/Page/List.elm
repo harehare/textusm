@@ -90,7 +90,7 @@ import Html.Styled.Lazy as Lazy
 import Http
 import Json.Decode as D
 import Json.Encode as E
-import List.Extra exposing (updateIf)
+import List.Extra as ListEx
 import Message exposing (Lang)
 import Models.Color as Color
 import Models.Diagram.Id as DiagramId
@@ -134,6 +134,7 @@ type Msg
     | GetDiagrams
     | GotLocalDiagramsJson D.Value
     | GotDiagrams (Result RequestError (List DiagramItem))
+    | GotExportDiagrams (Result RequestError (List DiagramItem))
     | GetPublicDiagrams Int
     | GotPublicDiagrams (Result RequestError (List DiagramItem))
     | GetBookmarkDiagrams Int
@@ -992,7 +993,7 @@ update model message =
                     { m
                         | diagramList =
                             DiagramList.create m.diagramList
-                                (RemoteData.withDefault [] list |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark }))
+                                (RemoteData.withDefault [] list |> ListEx.updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark }))
                                 pageNo
                                 hasMorePage
                     }
@@ -1023,11 +1024,30 @@ update model message =
 
         Export ->
             case model.diagramList of
-                DiagramList.AllList (Success diagrams) _ _ ->
-                    Return.command <| Download.string "textusm.json" "application/json" <| DiagramItem.listToString diagrams
+                DiagramList.AllList (Success _) _ _ ->
+                    if Session.isSignedIn model.session && model.isOnline then
+                        Return.command (Task.attempt GotExportDiagrams (fetchAllItems model.session 1))
+
+                    else
+                        Return.command (Task.attempt GotExportDiagrams (Task.succeed []))
 
                 _ ->
                     Return.zero
+
+        GotExportDiagrams (Ok diagrams) ->
+            case model.diagramList of
+                DiagramList.AllList (Success localDiagrams) _ _ ->
+                    List.concat [ localDiagrams, diagrams ]
+                        |> ListEx.uniqueBy (\a -> a.id)
+                        |> DiagramItem.listToString
+                        |> Download.string "textusm.json" "application/json"
+                        |> Return.command
+
+                _ ->
+                    Return.zero
+
+        GotExportDiagrams (Err _) ->
+            Return.zero
 
         CloseDialog ->
             closeDialog
