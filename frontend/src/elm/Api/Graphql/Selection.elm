@@ -1,5 +1,6 @@
 module Api.Graphql.Selection exposing
     ( allItemsSelection
+    , allItemsSelectionWithText
     , gistItemSelection
     , itemSelection
     , settingsSelection
@@ -31,6 +32,14 @@ allItemsSelection =
         }
 
 
+allItemsSelectionWithText : SelectionSet DiagramItem Graphql.Union.DiagramItem
+allItemsSelectionWithText =
+    Graphql.Union.DiagramItem.fragments
+        { onItem = itemSelectionWithText
+        , onGistItem = gistItemSelection
+        }
+
+
 gistItemSelection : SelectionSet DiagramItem Graphql.Object.GistItem
 gistItemSelection =
     SelectionSet.succeed DiagramItem
@@ -51,6 +60,21 @@ itemSelection =
     SelectionSet.succeed DiagramItem
         |> with (Graphql.Object.Item.id |> SelectionSet.map (\(Graphql.Scalar.Id id) -> Just <| DiagramId.fromString id))
         |> hardcoded Text.empty
+        |> with (Graphql.Object.Item.diagram |> SelectionSet.map DiagramType.fromGraphqlValue)
+        |> with (Graphql.Object.Item.title |> SelectionSet.map Title.fromString)
+        |> with Graphql.Object.Item.thumbnail
+        |> with Graphql.Object.Item.isPublic
+        |> with Graphql.Object.Item.isBookmark
+        |> hardcoded (Just DiagramLocation.Remote)
+        |> with (Graphql.Object.Item.createdAt |> DiagramItem.mapToDateTime)
+        |> with (Graphql.Object.Item.updatedAt |> DiagramItem.mapToDateTime)
+
+
+itemSelectionWithText : SelectionSet DiagramItem Graphql.Object.Item
+itemSelectionWithText =
+    SelectionSet.succeed DiagramItem
+        |> with (Graphql.Object.Item.id |> SelectionSet.map (\(Graphql.Scalar.Id id) -> Just <| DiagramId.fromString id))
+        |> with (Graphql.Object.Item.text |> SelectionSet.map Text.fromString)
         |> with (Graphql.Object.Item.diagram |> SelectionSet.map DiagramType.fromGraphqlValue)
         |> with (Graphql.Object.Item.title |> SelectionSet.map Title.fromString)
         |> with Graphql.Object.Item.thumbnail

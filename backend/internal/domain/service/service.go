@@ -9,8 +9,10 @@ import (
 	"errors"
 	"net"
 	"os"
+	"slices"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	jwt "github.com/form3tech-oss/jwt-go"
 	"github.com/harehare/textusm/internal/context/values"
 	"github.com/harehare/textusm/internal/domain/model/item/diagramitem"
@@ -55,11 +57,13 @@ func isAuthenticated(ctx context.Context) error {
 }
 
 func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, isBookmark bool, fields map[string]struct{}) mo.Result[[]*diagramitem.DiagramItem] {
+	shouldLoadText := slices.Contains(graphql.CollectAllFields(ctx), "Text")
+
 	if err := isAuthenticated(ctx); err != nil {
 		return mo.Err[[]*diagramitem.DiagramItem](err)
 	}
 
-	return s.repo.Find(ctx, values.GetUID(ctx).OrEmpty(), offset, limit, isPublic, isBookmark)
+	return s.repo.Find(ctx, values.GetUID(ctx).OrEmpty(), offset, limit, isPublic, isBookmark, shouldLoadText)
 }
 
 func (s *Service) FindByID(ctx context.Context, itemID string, isPublic bool) mo.Result[*diagramitem.DiagramItem] {

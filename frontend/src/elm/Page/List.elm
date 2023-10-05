@@ -783,7 +783,7 @@ reload =
 
 fetchAllItems : Session -> Int -> Task.Task RequestError (List DiagramItem)
 fetchAllItems session pageNo =
-    Request.allItems (Session.getIdToken session) (pageOffsetAndLimit pageNo)
+    Request.allItemsWithText (Session.getIdToken session) (pageOffsetAndLimit pageNo)
         |> Task.andThen
             (\items ->
                 case items of
@@ -1038,7 +1038,7 @@ update model message =
             case model.diagramList of
                 DiagramList.AllList (Success localDiagrams) _ _ ->
                     List.concat [ localDiagrams, diagrams ]
-                        |> ListEx.uniqueBy (\a -> a.id)
+                        |> ListEx.uniqueBy .id
                         |> DiagramItem.listToString
                         |> Download.string "textusm.json" "application/json"
                         |> Return.command

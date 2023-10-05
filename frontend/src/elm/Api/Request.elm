@@ -1,5 +1,6 @@
 module Api.Request exposing
     ( allItems
+    , allItemsWithText
     , bookmark
     , delete
     , deleteGist
@@ -45,6 +46,15 @@ import Url.Builder exposing (crossOrigin)
 allItems : Maybe IdToken -> ( Int, Int ) -> Task RequestError (Maybe (List DiagramItem))
 allItems idToken ( offset, limit ) =
     Query.allItems ( offset, limit )
+        |> Http.queryRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+allItemsWithText : Maybe IdToken -> ( Int, Int ) -> Task RequestError (Maybe (List DiagramItem))
+allItemsWithText idToken ( offset, limit ) =
+    Query.allItemsWithText ( offset, limit )
         |> Http.queryRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
