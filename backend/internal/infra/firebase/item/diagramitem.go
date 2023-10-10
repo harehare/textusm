@@ -247,5 +247,5 @@ func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID 
 
 func (r *FirestoreItemRepository) deleteToCloudStorage(ctx context.Context, userID, itemID string) mo.Result[bool] {
 	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Delete(ctx, userID, itemID)
+	return storage.Delete(ctx, storageRoot, userID, itemID)
 }

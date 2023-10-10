@@ -262,7 +262,7 @@ saveToRemote msg { diagram, session, settings } =
                     Request.saveGist (Session.getIdToken session) accessToken (DiagramItem.toInputGistItem diagram) (Text.toString diagram.text)
 
                 _ ->
-                    Request.save (Session.getIdToken session) (DiagramItem.toInputItem diagram) diagram.isPublic
+                    Request.save (Session.getIdToken session) diagram.isPublic (DiagramItem.toInputItem diagram)
             )
                 |> Task.attempt msg
                 |> Return.command

@@ -2,6 +2,7 @@ module Api.Request exposing
     ( allItems
     , allItemsWithText
     , bookmark
+    , bulkSave
     , delete
     , deleteGist
     , gistItem
@@ -160,9 +161,17 @@ publicItem idToken id =
         |> Task.mapError toError
 
 
-save : Maybe IdToken -> InputItem -> Bool -> Task RequestError DiagramItem
+bulkSave : Maybe IdToken -> List InputItem -> Bool -> Task RequestError (List DiagramItem)
+bulkSave idToken inputs isPublic =
+    List.map
+        (save idToken isPublic)
+        inputs
+        |> Task.sequence
+
+
+save : Maybe IdToken -> Bool -> InputItem -> Task RequestError DiagramItem
 save idToken input isPublic =
-    Mutation.save input isPublic
+    Mutation.save isPublic input
         |> Http.mutationRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask

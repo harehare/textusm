@@ -1397,13 +1397,19 @@ processDiagramListMsg msg =
         DiagramList.GotDiagrams (Err _) ->
             showErrorMessage Message.messagEerrorOccurred
 
-        DiagramList.ImportComplete json ->
+        DiagramList.ImportDiagrams json ->
             case DiagramItem.stringToList json of
                 Ok _ ->
                     showInfoMessage Message.messageImportCompleted
 
                 Err _ ->
                     showErrorMessage Message.messagEerrorOccurred
+
+        DiagramList.ImportedRemoteDiagrams (Ok _) ->
+            showInfoMessage Message.messageImportCompleted
+
+        DiagramList.ImportedRemoteDiagrams (Err _) ->
+            showErrorMessage Message.messagEerrorOccurred
 
         _ ->
             stopProgress

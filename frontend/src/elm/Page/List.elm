@@ -145,7 +145,8 @@ type Msg
     | Export
     | Import
     | ImportFile File
-    | ImportComplete String
+    | ImportDiagrams String
+    | ImportedRemoteDiagrams (Result RequestError (List DiagramItem))
     | ShowConfirmDialog DiagramItem
 
 
@@ -1011,16 +1012,36 @@ update model message =
             Return.command <| Select.file [ "application/json" ] ImportFile
 
         ImportFile file ->
-            Return.command <| Task.perform ImportComplete <| File.toString file
+            Return.command <| Task.perform ImportDiagrams <| File.toString file
 
-        ImportComplete json ->
+        ImportDiagrams json ->
             DiagramItem.stringToList json
                 |> Result.toMaybe
                 |> Maybe.map
                     (\diagrams ->
-                        Return.command <| importDiagram <| DiagramItem.listToValue diagrams
+                        if Session.isSignedIn model.session then
+                            Request.bulkSave (Session.getIdToken model.session)
+                                (List.map
+                                    (\diagram ->
+                                        (DiagramItem.location.set (Just DiagramLocation.Remote) >> DiagramItem.id.set Nothing) diagram
+                                            |> DiagramItem.toInputItem
+                                    )
+                                    diagrams
+                                )
+                                False
+                                |> Task.attempt ImportedRemoteDiagrams
+                                |> Return.command
+
+                        else
+                            Return.command <| importDiagram <| DiagramItem.listToValue diagrams
                     )
                 |> Maybe.withDefault Return.zero
+
+        ImportedRemoteDiagrams (Ok _) ->
+            reload
+
+        ImportedRemoteDiagrams (Err _) ->
+            Return.zero
 
         Export ->
             case model.diagramList of
@@ -1037,7 +1058,7 @@ update model message =
         GotExportDiagrams (Ok diagrams) ->
             case model.diagramList of
                 DiagramList.AllList (Success localDiagrams) _ _ ->
-                    List.concat [ localDiagrams, diagrams ]
+                    List.concat [ diagrams, localDiagrams ]
                         |> ListEx.uniqueBy .id
                         |> DiagramItem.listToString
                         |> Download.string "textusm.json" "application/json"

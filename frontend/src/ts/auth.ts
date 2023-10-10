@@ -2,13 +2,13 @@ import { type FirebaseOptions, initializeApp } from 'firebase/app';
 import {
   type AuthProvider,
   signOut as firebaseSignOut,
-  signInWithRedirect,
   signInWithPopup as firebaseSignInWithPopup,
   GoogleAuthProvider,
   GithubAuthProvider,
   getAuth,
   onAuthStateChanged as firebaseOnAuthStateChanged,
   connectAuthEmulator,
+  type UserCredential,
 } from 'firebase/auth';
 import { getPerformance } from 'firebase/performance';
 
@@ -38,9 +38,9 @@ if (import.meta.env.DEV && process.env.FIREBASE_AUTH_EMULATOR_HOST) {
   connectAuthEmulator(auth, `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST}`);
 }
 
-export const signIn = async (provider: AuthProvider): Promise<void> =>
+export const signIn = async (provider: AuthProvider): Promise<UserCredential> =>
   new Promise((resolve, reject) => {
-    signInWithRedirect(auth, provider)
+    firebaseSignInWithPopup(auth, provider)
       .then((result) => {
         resolve(result);
       })

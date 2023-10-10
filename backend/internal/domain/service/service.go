@@ -57,7 +57,7 @@ func isAuthenticated(ctx context.Context) error {
 }
 
 func (s *Service) Find(ctx context.Context, offset, limit int, isPublic bool, isBookmark bool, fields map[string]struct{}) mo.Result[[]*diagramitem.DiagramItem] {
-	shouldLoadText := slices.Contains(graphql.CollectAllFields(ctx), "Text")
+	shouldLoadText := slices.Contains(graphql.CollectAllFields(ctx), "text")
 
 	if err := isAuthenticated(ctx); err != nil {
 		return mo.Err[[]*diagramitem.DiagramItem](err)
