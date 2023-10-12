@@ -1,6 +1,8 @@
 module Api.Request exposing
     ( allItems
+    , allItemsWithText
     , bookmark
+    , bulkSave
     , delete
     , deleteGist
     , gistItem
@@ -45,6 +47,15 @@ import Url.Builder exposing (crossOrigin)
 allItems : Maybe IdToken -> ( Int, Int ) -> Task RequestError (Maybe (List DiagramItem))
 allItems idToken ( offset, limit ) =
     Query.allItems ( offset, limit )
+        |> Http.queryRequest graphQLUrl
+        |> authHeaders idToken
+        |> Http.toTask
+        |> Task.mapError toError
+
+
+allItemsWithText : Maybe IdToken -> ( Int, Int ) -> Task RequestError (Maybe (List DiagramItem))
+allItemsWithText idToken ( offset, limit ) =
+    Query.allItemsWithText ( offset, limit )
         |> Http.queryRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask
@@ -150,9 +161,17 @@ publicItem idToken id =
         |> Task.mapError toError
 
 
-save : Maybe IdToken -> InputItem -> Bool -> Task RequestError DiagramItem
+bulkSave : Maybe IdToken -> List InputItem -> Bool -> Task RequestError (List DiagramItem)
+bulkSave idToken inputs isPublic =
+    List.map
+        (save idToken isPublic)
+        inputs
+        |> Task.sequence
+
+
+save : Maybe IdToken -> Bool -> InputItem -> Task RequestError DiagramItem
 save idToken input isPublic =
-    Mutation.save input isPublic
+    Mutation.save isPublic input
         |> Http.mutationRequest graphQLUrl
         |> authHeaders idToken
         |> Http.toTask

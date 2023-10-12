@@ -1,6 +1,7 @@
 module Api.Graphql.Query exposing
     ( ShareCondition
     , allItems
+    , allItemsWithText
     , gistItem
     , gistItems
     , item
@@ -42,6 +43,12 @@ allItems : ( Int, Int ) -> SelectionSet (Maybe (List DiagramItem)) RootQuery
 allItems ( offset, limit ) =
     Query.allItems (\optionals -> { optionals | offset = Present offset, limit = Present limit }) <|
         Selection.allItemsSelection
+
+
+allItemsWithText : ( Int, Int ) -> SelectionSet (Maybe (List DiagramItem)) RootQuery
+allItemsWithText ( offset, limit ) =
+    Query.allItems (\optionals -> { optionals | offset = Present offset, limit = Present limit }) <|
+        Selection.allItemsSelectionWithText
 
 
 gistItem : String -> SelectionSet DiagramItem RootQuery

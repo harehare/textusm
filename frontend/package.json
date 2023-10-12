@@ -1,7 +1,7 @@
 {
   "name": "textusm",
   "description": "Online tool for Generate a User Story Mapping from indented text.",
-  "version": "0.14.2",
+  "version": "0.14.3",
   "author": "harehare",
   "bugs": {
     "url": "https://github.com/harehare/textusm/issues"
@@ -36,7 +36,7 @@
     "elm": "^0.19.1-5",
     "elm-book": "^1.0.1",
     "elm-constants": "^1.0.0",
-    "elm-format": "^0.8.7",
+    "elm-format": "^0.8.6",
     "elm-optimize-level-2": "^0.3.5",
     "elm-review": "^2.10.3",
     "elm-test": "^0.19.1-revision12",

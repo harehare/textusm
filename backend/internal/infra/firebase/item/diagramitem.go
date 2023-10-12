@@ -49,7 +49,7 @@ func (r *FirestoreItemRepository) FindByID(ctx context.Context, userID string, i
 	})
 }
 
-func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool) mo.Result[[]*diagramitem.DiagramItem] {
+func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offset, limit int, isPublic bool, isBookmark bool, shouldLoadText bool) mo.Result[[]*diagramitem.DiagramItem] {
 	var (
 		items []*diagramitem.DiagramItem
 		iter  *firestore.DocumentIterator
@@ -79,7 +79,17 @@ func (r *FirestoreItemRepository) Find(ctx context.Context, userID string, offse
 		}
 
 		items = append(items, i.Map(func(v *diagramitem.DiagramItem) (*diagramitem.DiagramItem, error) {
-			return v.ClearText(), nil
+			if shouldLoadText && v.IsSaveToStorage() {
+				ret := r.findFromCloudStorage(ctx, userID, v.ID())
+				if ret.IsError() {
+					slog.Error("Failed find diagram", "userID", userID, "itemID", v.ID(), "isPublic", isPublic)
+					return nil, ret.Error()
+				}
+				v.UpdateEncryptedText(ret.OrEmpty())
+				return v, nil
+			} else {
+				return v.ClearText(), nil
+			}
 		}).OrEmpty())
 	}
 
@@ -237,5 +247,5 @@ func (r *FirestoreItemRepository) deleteToFirestore(ctx context.Context, userID 
 
 func (r *FirestoreItemRepository) deleteToCloudStorage(ctx context.Context, userID, itemID string) mo.Result[bool] {
 	storage := firebase.NewCloudStorage(r.storage)
-	return storage.Delete(ctx, userID, itemID)
+	return storage.Delete(ctx, storageRoot, userID, itemID)
 }

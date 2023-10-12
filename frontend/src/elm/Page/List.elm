@@ -90,7 +90,7 @@ import Html.Styled.Lazy as Lazy
 import Http
 import Json.Decode as D
 import Json.Encode as E
-import List.Extra exposing (updateIf)
+import List.Extra as ListEx
 import Message exposing (Lang)
 import Models.Color as Color
 import Models.Diagram.Id as DiagramId
@@ -134,6 +134,7 @@ type Msg
     | GetDiagrams
     | GotLocalDiagramsJson D.Value
     | GotDiagrams (Result RequestError (List DiagramItem))
+    | GotExportDiagrams (Result RequestError (List DiagramItem))
     | GetPublicDiagrams Int
     | GotPublicDiagrams (Result RequestError (List DiagramItem))
     | GetBookmarkDiagrams Int
@@ -144,7 +145,8 @@ type Msg
     | Export
     | Import
     | ImportFile File
-    | ImportComplete String
+    | ImportDiagrams String
+    | ImportedRemoteDiagrams (Result RequestError (List DiagramItem))
     | ShowConfirmDialog DiagramItem
 
 
@@ -780,6 +782,21 @@ reload =
     Return.andThen <| \m -> Return.return { m | diagramList = DiagramList.notAsked } (getDiagrams ())
 
 
+fetchAllItems : Session -> Int -> Task.Task RequestError (List DiagramItem)
+fetchAllItems session pageNo =
+    Request.allItemsWithText (Session.getIdToken session) (pageOffsetAndLimit pageNo)
+        |> Task.andThen
+            (\items ->
+                case items of
+                    Just items_ ->
+                        fetchAllItems session (pageNo + 1)
+                            |> Task.map (\items__ -> items_ ++ items__)
+
+                    Nothing ->
+                        Task.succeed []
+            )
+
+
 update : Model -> Msg -> Return.ReturnF Msg Model
 update model message =
     case message of
@@ -977,7 +994,7 @@ update model message =
                     { m
                         | diagramList =
                             DiagramList.create m.diagramList
-                                (RemoteData.withDefault [] list |> updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark }))
+                                (RemoteData.withDefault [] list |> ListEx.updateIf (\item -> item.id == diagram.id) (\item -> { item | isBookmark = not item.isBookmark }))
                                 pageNo
                                 hasMorePage
                     }
@@ -995,24 +1012,63 @@ update model message =
             Return.command <| Select.file [ "application/json" ] ImportFile
 
         ImportFile file ->
-            Return.command <| Task.perform ImportComplete <| File.toString file
+            Return.command <| Task.perform ImportDiagrams <| File.toString file
 
-        ImportComplete json ->
+        ImportDiagrams json ->
             DiagramItem.stringToList json
                 |> Result.toMaybe
                 |> Maybe.map
                     (\diagrams ->
-                        Return.command <| importDiagram <| DiagramItem.listToValue diagrams
+                        if Session.isSignedIn model.session then
+                            Request.bulkSave (Session.getIdToken model.session)
+                                (List.map
+                                    (\diagram ->
+                                        (DiagramItem.location.set (Just DiagramLocation.Remote) >> DiagramItem.id.set Nothing) diagram
+                                            |> DiagramItem.toInputItem
+                                    )
+                                    diagrams
+                                )
+                                False
+                                |> Task.attempt ImportedRemoteDiagrams
+                                |> Return.command
+
+                        else
+                            Return.command <| importDiagram <| DiagramItem.listToValue diagrams
                     )
                 |> Maybe.withDefault Return.zero
 
+        ImportedRemoteDiagrams (Ok _) ->
+            reload
+
+        ImportedRemoteDiagrams (Err _) ->
+            Return.zero
+
         Export ->
             case model.diagramList of
-                DiagramList.AllList (Success diagrams) _ _ ->
-                    Return.command <| Download.string "textusm.json" "application/json" <| DiagramItem.listToString diagrams
+                DiagramList.AllList (Success _) _ _ ->
+                    if Session.isSignedIn model.session && model.isOnline then
+                        Return.command (Task.attempt GotExportDiagrams (fetchAllItems model.session 1))
+
+                    else
+                        Return.command (Task.attempt GotExportDiagrams (Task.succeed []))
 
                 _ ->
                     Return.zero
+
+        GotExportDiagrams (Ok diagrams) ->
+            case model.diagramList of
+                DiagramList.AllList (Success localDiagrams) _ _ ->
+                    List.concat [ diagrams, localDiagrams ]
+                        |> ListEx.uniqueBy .id
+                        |> DiagramItem.listToString
+                        |> Download.string "textusm.json" "application/json"
+                        |> Return.command
+
+                _ ->
+                    Return.zero
+
+        GotExportDiagrams (Err _) ->
+            Return.zero
 
         CloseDialog ->
             closeDialog

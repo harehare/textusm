@@ -6,6 +6,7 @@ module Models.Diagram.Item exposing
     , empty
     , encoder
     , getId
+    , id
     , isRemoteDiagram
     , listToString
     , listToValue
@@ -220,6 +221,11 @@ location =
     Lens .location (\b a -> { a | location = b })
 
 
+id : Lens DiagramItem (Maybe DiagramId)
+id =
+    Lens .id (\b a -> { a | id = b })
+
+
 stringToList : String -> Result D.Error (List DiagramItem)
 stringToList json =
     D.decodeString (D.list decoder) json
@@ -229,8 +235,8 @@ toInputGistItem : DiagramItem -> InputGistItem
 toInputGistItem item =
     { id =
         case item.id of
-            Just id ->
-                OptionalArgument.Present <| Graphql.Scalar.Id <| DiagramId.toString id
+            Just id_ ->
+                OptionalArgument.Present <| Graphql.Scalar.Id <| DiagramId.toString id_
 
             Nothing ->
                 OptionalArgument.Absent
@@ -252,8 +258,8 @@ toInputItem : DiagramItem -> InputItem
 toInputItem item =
     { id =
         case item.id of
-            Just id ->
-                OptionalArgument.Present <| Graphql.Scalar.Id <| DiagramId.toString id
+            Just id_ ->
+                OptionalArgument.Present <| Graphql.Scalar.Id <| DiagramId.toString id_
 
             Nothing ->
                 OptionalArgument.Absent

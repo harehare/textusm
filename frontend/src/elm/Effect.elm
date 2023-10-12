@@ -29,8 +29,8 @@ changePublicState : (Result DiagramItem DiagramItem -> msg) -> { isPublic : Bool
 changePublicState msg { isPublic, item, session } =
     Request.save
         (Session.getIdToken session)
-        (DiagramItem.toInputItem item)
         isPublic
+        (DiagramItem.toInputItem item)
         |> Task.mapError (\_ -> item)
         |> Task.attempt msg
         |> Return.command
