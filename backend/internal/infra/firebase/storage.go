@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
-	"fmt"
 	"io"
 	"strings"
 
@@ -101,8 +100,6 @@ func (s *CloudStorage) Delete(ctx context.Context, prefix, uid, itemID string) m
 	if err != nil {
 		return mo.Err[bool](err)
 	}
-
-	fmt.Println(getObjectName(prefix, uid, itemID))
 
 	if err = bucket.Object(getObjectName(prefix, uid, itemID)).Delete(ctx); err != nil {
 		return mo.Err[bool](err)
