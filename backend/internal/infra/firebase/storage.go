@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
+	"errors"
 	"io"
 	"strings"
 
+	"cloud.google.com/go/storage"
 	firebaseStorage "firebase.google.com/go/v4/storage"
 	"github.com/samber/mo"
 )
@@ -102,6 +104,10 @@ func (s *CloudStorage) Delete(ctx context.Context, prefix, uid, itemID string) m
 	}
 
 	if err = bucket.Object(getObjectName(prefix, uid, itemID)).Delete(ctx); err != nil {
+		if ok := errors.Is(err, storage.ErrObjectNotExist); ok {
+			return mo.Ok(true)
+		}
+
 		return mo.Err[bool](err)
 	}
 
